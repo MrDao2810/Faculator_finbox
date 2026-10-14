@@ -86,3 +86,22 @@
   color: var(--color-on-selected);
   background: var(--gradient-highlight);
 }
+
+/*
+ * ── Bản gọn cho hàng cài đặt trên điện thoại (14/10/2026) ───────────────────────────────────
+ *
+ * Chủ dự án khoanh ba cụm nút ở màn Cài đặt trên điện thoại: chúng rơi xuống dòng dưới nhãn và dạt
+ * về mép trái — _"các chức năng kia cần thu nhỏ lại hơn 1 chút và chuyển sang bên phải, còn text
+ * thì bên trái. và đồng thời căn chỉnh lại sao cho đều"_. Ba cụm (`ModeToggle`, `ThemePicker`,
+ * `UnitSwitcher`) nhận CÙNG ba con số này, nên cùng cao 28px và cùng cỡ chữ khi đứng cạnh nhau.
+ *
+ * Chỉ dưới 560px — mốc các nhãn của lời giải xếp chồng (`LoiGiai.module.css`). Trên mốc ấy hàng
+ * đã đủ chỗ cho cụm nút cỡ thường. Vùng chạm 44px (NFR-USA-01) vẫn là lớp phủ `::after` ở trên.
+ */
+@media (max-width: 559.98px) {
+  .compact > .option {
+    min-height: 28px;
+    padding: 0 var(--space-2);
+    font-size: var(--text-xs);
+  }
+}

@@ -38,6 +38,15 @@ export interface SearchBoxProps {
    * và cỡ chữ gốc: đó là khổ chạm tay, và iOS tự phóng to trang khi ô nhập có chữ dưới 16px.
    */
   compact?: boolean;
+  /**
+   * Bản TRẦN: không viền, không nền, không kính lúp đầu ô, không nút xoá — nơi gọi tự vẽ khung quanh ô
+   * và tự đặt nút ở cuối khung.
+   *
+   * Dành cho thanh trên màn Danh mục ở khổ điện thoại (14/10/2026): chủ dự án khoanh chỗ ô tìm hiện ra
+   * giữa tên màn và mép phải, icon ở CUỐI ô — chính nút bật/tắt ô, lúc mở là dấu X đóng ô (đóng là xoá
+   * chữ). Nút xoá × của bản thường mà để lại thì cuối khung có hai dấu X cạnh nhau làm hai việc khác nhau.
+   */
+  bare?: boolean;
 }
 
 /**
@@ -62,6 +71,7 @@ export function SearchBox({
   label,
   placeholder,
   compact = false,
+  bare = false,
 }: SearchBoxProps) {
   const inputId = useId();
   const ownRef = useRef<HTMLInputElement>(null);
@@ -69,26 +79,32 @@ export function SearchBox({
   const t = useT();
 
   return (
-    <div className={compact ? `${styles.field} ${styles.compact}` : styles.field}>
+    <div
+      className={[styles.field, compact && styles.compact, bare && styles.bare]
+        .filter(Boolean)
+        .join(' ')}
+    >
       <label className="visually-hidden" htmlFor={inputId}>
         {label ?? t('search.label')}
       </label>
 
       <div className={styles.control}>
-        <svg
-          className={styles.icon}
-          width="18"
-          height="18"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          aria-hidden="true"
-        >
-          <circle cx="11" cy="11" r="7" />
-          <path d="m20 20-3.5-3.5" />
-        </svg>
+        {!bare && (
+          <svg
+            className={styles.icon}
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            aria-hidden="true"
+          >
+            <circle cx="11" cy="11" r="7" />
+            <path d="m20 20-3.5-3.5" />
+          </svg>
+        )}
 
         <input
           ref={ref}
@@ -120,7 +136,7 @@ export function SearchBox({
           }}
         />
 
-        {value !== '' && (
+        {value !== '' && !bare && (
           <button
             type="button"
             className={styles.clear}

@@ -9,6 +9,7 @@ import {
   LEGACY_HOME_RECENT_SEARCHES_KEY,
   MARKET_CONFIG,
   PENDING_KEY,
+  PORTFOLIO_SORT_KEY,
   PORTFOLIO_KEY,
   PREFERENCES_STORAGE_KEY,
   PRICE_CACHE_KEY,
@@ -16,6 +17,7 @@ import {
   QUIZ_PROGRESS_KEY,
   RECENT_SEARCHES_KEY,
   SAVED_CALCS_KEY,
+  SAVED_SORT_KEY,
   TICKER_LIST_KEY,
 } from '@/application';
 import { usePreferences, useT } from '@/application/preferences-context';
@@ -55,7 +57,9 @@ type StorageLabelKey =
   | 'data.series'
   | 'data.portfolio'
   | 'data.pending'
+  | 'data.portfolioSort'
   | 'data.saved'
+  | 'data.savedSort'
   | 'data.drafts'
   | 'data.tickers'
   | 'data.prices';
@@ -119,6 +123,8 @@ export const STORAGE_ITEMS: ReadonlyArray<{
    * danh mục gần như chắc chắn muốn xoá luôn các dòng chờ — để xa nhau là để sót.
    */
   { key: PENDING_KEY, labelKey: 'data.pending', noteKey: 'data.pending.note' },
+  // Cách sắp bảng Mã (14/10/2026) — cùng màn, nên đứng cạnh hai kho của bảng ấy.
+  { key: PORTFOLIO_SORT_KEY, labelKey: 'data.portfolioSort', noteKey: 'data.portfolioSort.note' },
   { key: SAVED_CALCS_KEY, labelKey: 'data.saved', noteKey: 'data.saved.note' },
   /*
    * Bản nháp ô nhập đứng NGAY SAU phép tính đã lưu, vì người dùng dễ nhầm hai thứ này với nhau.
@@ -126,6 +132,11 @@ export const STORAGE_ITEMS: ReadonlyArray<{
    * ghi lặng lẽ mỗi lần họ gõ, chỉ để số không bốc hơi khi rời màn, và tự hết hạn sau bảy ngày.
    */
   { key: INPUT_DRAFT_KEY, labelKey: 'data.drafts', noteKey: 'data.drafts.note' },
+  /*
+   * Cách sắp bảng Công thức (14/10/2026). Không đứng sát kho của bảng ấy như cặp của bảng Mã: chỗ đó
+   * là của bản nháp, vì lý do ngay trên.
+   */
+  { key: SAVED_SORT_KEY, labelKey: 'data.savedSort', noteKey: 'data.savedSort.note' },
   // Hai kho tạm của tab Danh mục. Xoá chỉ mất bộ nhớ đệm, lần mở sau tự lấy lại từ nguồn.
   { key: TICKER_LIST_KEY, labelKey: 'data.tickers', noteKey: 'data.tickers.note' },
   { key: PRICE_CACHE_KEY, labelKey: 'data.prices', noteKey: 'data.prices.note' },
@@ -381,7 +392,7 @@ export function SettingsScreen() {
               <span className={styles.rowHint}>{t('settings.mode.hint')}</span>
             </span>
             {/* Dùng lại đúng nút của thanh trên, không dựng bản thứ hai — một nguồn sự thật. */}
-            <ModeToggle />
+            <ModeToggle compact />
           </div>
 
           {/*
@@ -404,7 +415,7 @@ export function SettingsScreen() {
             <span className={styles.rowText}>
               <span className={styles.rowLabel}>{t('settings.theme.label')}</span>
             </span>
-            <ThemePicker />
+            <ThemePicker compact />
           </div>
         </section>
 
@@ -420,7 +431,7 @@ export function SettingsScreen() {
             <span className={styles.rowText}>
               <span className={styles.rowLabel}>{t('settings.units.scale')}</span>
             </span>
-            <UnitSwitcher value={unitScale} onChange={setUnitScale} />
+            <UnitSwitcher value={unitScale} onChange={setUnitScale} compact />
           </div>
 
           {/*

@@ -324,6 +324,16 @@ for (const [palette, tokens] of PALETTES) {
      * Ngưỡng 1,04 là mức thấp: không đòi hover phải nổi bật, chỉ đòi nó KHÁC. Cửa này canh cả hai
      * đầu — làm nhạt khay thêm, hoặc đổi màu hover — nên lượt chỉnh sau không tự tay bịt lại.
      */
+    /*
+     * Xanh đặc của bản vẽ màn Danh mục khổ điện thoại (14/10/2026) — nút "Thêm mới" và tab đang chọn.
+     * Hai màu đo thẳng trên ảnh bản vẽ (#2563eb, chữ #ffffff); ca này canh rằng chữ trắng trên nó vẫn
+     * đạt AA, và chữ tab chưa chọn (`--color-ink-soft`) đọc được trên khay `--color-sunken` của bản vẽ.
+     */
+    it('chữ trên xanh đặc của bản vẽ Danh mục đạt AA; chữ tab chưa chọn đọc được trên khay chìm', () => {
+      expect(meetsContrast(color('--color-on-cta'), color('--color-cta'))).toBe(true);
+      expect(meetsContrast(color('--color-ink-soft'), color('--color-sunken'))).toBe(true);
+    });
+
     it('nền tab khi trỏ vào phân biệt được với khay', () => {
       const ratio = contrastRatio(color('--color-tab-hover'), color('--color-tab-tray'));
       expect(ratio, `tỉ số hiện tại ${ratio.toFixed(3)}:1`).toBeGreaterThan(1.04);

@@ -465,6 +465,7 @@ export {
   formulaPath,
   guideFormulaId,
   guidePath,
+  headerHasScreenActions,
   headerTitleKey,
   showsFooterDisclaimer,
 } from './routes';
@@ -590,6 +591,32 @@ export {
   serializePendingCodes,
   splitCodeList,
 } from './portfolio-pending-store';
+
+// Sắp xếp bảng Mã theo tiêu đề cột, và kho nhớ cách sắp trên máy (14/10/2026).
+export type { HoldingSort, HoldingSortKey, SortDirection } from './portfolio-sort';
+export {
+  HOLDING_SORT_KEYS,
+  PORTFOLIO_SORT_KEY,
+  effectiveHoldingSort,
+  nextHoldingSort,
+  parseHoldingSort,
+  serializeHoldingSort,
+  sortHoldingRows,
+  sortPendingCodes,
+} from './portfolio-sort';
+
+// Sắp xếp bảng Công thức (phép tính đã lưu) theo tiêu đề cột, và kho nhớ cách sắp (14/10/2026).
+export type { SavedSort, SavedSortFields, SavedSortKey } from './saved-calc-sort';
+export {
+  DEFAULT_SAVED_SORT,
+  SAVED_SORT_KEY,
+  SAVED_SORT_KEYS,
+  isDefaultSavedSort,
+  nextSavedSort,
+  parseSavedSort,
+  serializeSavedSort,
+  sortSavedRows,
+} from './saved-calc-sort';
 
 export type { SavedCalc } from './saved-calc-store';
 export {

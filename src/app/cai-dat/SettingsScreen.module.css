@@ -110,6 +110,56 @@
   color: var(--color-muted);
 }
 
+/*
+ * ── Điện thoại: nhãn trái, cụm nút phải, dòng phụ trải ngang bên dưới (14/10/2026) ─────────────
+ *
+ * Chủ dự án khoanh hai cụm nút ở màn Cài đặt trên điện thoại: _"các chức năng kia cần thu nhỏ lại
+ * hơn 1 chút và chuyển sang bên phải, còn text thì bên trái. và đồng thời căn chỉnh lại sao cho
+ * đều"_. Với luật `wrap` ở trên, cụm nút của hàng "Cơ bản hay Nâng cao" (nhãn cộng một dòng phụ
+ * dài) và hàng "Đơn vị tiền trong bảng" (ba nút) rơi xuống dòng riêng và dạt về mép TRÁI, trong khi
+ * cụm Sáng/Tối giữa chúng vẫn đứng bên phải — ba hàng ba kiểu.
+ *
+ * Nên dưới 560px hàng thành LƯỚI hai cột: nhãn ở cột trái, cụm nút ở cột phải cùng dòng với nhãn
+ * và sát mép phải, dòng phụ (nếu có) xuống dòng thứ hai trải hết bề ngang. Để dòng phụ ngồi cạnh
+ * cụm nút thì nó bị ép vào cột ~150px và cao sáu bảy dòng. `.rowText` thành `display: contents` để
+ * nhãn và dòng phụ đặt được vào hai ô khác nhau; nó chỉ là một `<span>` gom chữ, không mang ngữ
+ * nghĩa gì để mất.
+ *
+ * Dòng phụ đặt bằng `grid-row: 2` chứ không bằng vùng lưới đặt tên: khai vùng thì hàng KHÔNG có
+ * dòng phụ (Sáng hay Tối, Đơn vị tiền) vẫn có một dòng lưới rỗng và ăn thêm `row-gap`, ba hàng lại
+ * cao lệch nhau.
+ *
+ * Cụm nút nhỏ lại cùng lúc — prop `compact` ở cả ba, cùng 28px, xem `ModeToggle.module.css`.
+ */
+@media (max-width: 559.98px) {
+  .row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: var(--space-1) var(--space-3);
+  }
+
+  .row > .rowText {
+    display: contents;
+  }
+
+  .row > .rowText > .rowLabel {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .row > .rowText > .rowHint {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+
+  .row > :last-child {
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: end;
+  }
+}
+
 .stack {
   display: flex;
   flex-direction: column;

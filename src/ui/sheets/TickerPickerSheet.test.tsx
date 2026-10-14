@@ -295,8 +295,18 @@ describe('TickerPickerSheet — bày dần và vòng xoay', () => {
     window.localStorage.removeItem(TICKER_LIST_KEY);
   });
 
-  /** Giả lập "người dùng vừa cuộn tới đáy danh sách". */
-  function cuonToiDay(): void {
+  /**
+   * Giả lập "người dùng vừa cuộn tới đáy danh sách".
+   *
+   * CHỜ mốc đáy được quan sát lại rồi mới bắn: sau mỗi lượt bày thêm, `IntersectionObserver` gắn lại
+   * trong một effect chạy SAU lượt vẽ. Bắn ngay khi danh sách vừa đủ 40 dòng thì lúc máy tải nặng (cả
+   * bộ test chạy song song) effect ấy chưa chạy, `dangQuanSat` rỗng, cú cuộn rơi vào khoảng không và
+   * ca hỏng vì hết giờ chờ — đã gặp đúng một lần ở `npm test` ngày 14/10/2026, chạy riêng thì xanh.
+   */
+  async function cuonToiDay(): Promise<void> {
+    await waitFor(() => {
+      expect(dangQuanSat.length).toBeGreaterThan(0);
+    });
     act(() => {
       for (const goi of dangQuanSat) goi([{ isIntersecting: true }]);
     });
@@ -314,14 +324,14 @@ describe('TickerPickerSheet — bày dần và vòng xoay', () => {
     expect(screen.getAllByRole('listitem')).toHaveLength(20);
     expect(screen.getByText('Đang tải thêm mã…')).not.toBeNull();
 
-    cuonToiDay();
+    await cuonToiDay();
     // Chưa thêm ngay: vòng xoay hiện một nhịp rồi dòng mới mới tới.
     expect(screen.getAllByRole('listitem')).toHaveLength(20);
     await waitFor(() => {
       expect(screen.getAllByRole('listitem')).toHaveLength(40);
     });
 
-    cuonToiDay();
+    await cuonToiDay();
     await waitFor(() => {
       expect(screen.getAllByRole('listitem')).toHaveLength(45);
     });
@@ -349,7 +359,7 @@ describe('TickerPickerSheet — bày dần và vòng xoay', () => {
   it('đã cuộn thêm rồi mới tìm thì kết quả lại bắt đầu từ 20 mã', async () => {
     await moNhieuMa();
 
-    cuonToiDay();
+    await cuonToiDay();
     await waitFor(() => {
       expect(screen.getAllByRole('listitem')).toHaveLength(40);
     });

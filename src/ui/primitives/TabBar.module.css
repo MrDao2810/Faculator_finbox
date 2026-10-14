@@ -242,3 +242,91 @@
 .active .count {
   color: var(--color-on-selected);
 }
+
+/*
+ * ── `orientation="responsive"` (14/10/2026): ngang dưới 1024px, dọc từ 1024px ─────────────────
+ *
+ * Cụm tab của màn Danh mục: thanh ngang dưới 1024px (bản vẽ khổ điện thoại của chủ dự án, "Mã 6 |
+ * Công thức 7"), thẻ dọc của cột trái từ 1024px — khối thứ hai dưới đây CHÉP lại các luật `.vertical`.
+ *
+ * Chép chứ không gộp: "từ 1024px" nằm trong `@media`, còn dáng dọc cố định nằm trong một tên class, và
+ * CSS không viết được một luật cho cả hai. Sửa một luật dáng dọc thì sửa cả hai chỗ.
+ *
+ * Dưới 1024px là ĐÚNG bản vẽ, đo trên ảnh bản vẽ — KHÔNG phải dáng ngang mặc định của primitive. Lượt
+ * đầu dùng dáng mặc định (khay xanh xám, viên chọn dải xanh nhạt chữ tối) và chủ dự án hỏi lại: *"màu
+ * của tabbar khi chọn là như nào ? đừng tự sửa thiết kế của tôi"*. Số đo ở bảng tối: khay nền #0a0f1a
+ * (`--color-sunken`), viền 1px #313d52 (`--color-border`), bo 10px, đệm 4px; tab cao 40px bo 8px; tab
+ * chọn nền #2563eb chữ trắng (`--color-cta`); tab chưa chọn chữ #b3c0d4 (`--color-ink-soft`); không icon.
+ * Bản vẽ có số đếm sau nhãn; chủ dự án bỏ nó cùng ngày (xem `.responsive .count` dưới đây).
+ */
+@media (max-width: 1023.98px) {
+  .responsive {
+    padding: var(--space-1);
+    background: var(--color-sunken);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+  }
+
+  .responsive .tab {
+    min-height: 40px;
+    border-radius: 8px;
+    color: var(--color-ink-soft);
+  }
+
+  /*
+   * Số đếm BỎ ở khổ này (14/10/2026): chủ dự án khoanh "7" và "8" trên ảnh chụp thanh tab — _"bỏ các
+   * text số nằm trong tab"_. Ẩn bằng CSS, không bỏ prop `count`: từ 1024px thẻ dọc vẫn in số, và đó là
+   * chỗ DUY NHẤT số mã của danh mục còn hiện ở PC (ô "Số mã" đã bỏ 12/10).
+   */
+  .responsive .count {
+    display: none;
+  }
+
+  .responsive .active,
+  .responsive .active:hover:not(:disabled) {
+    color: var(--color-on-cta);
+    background: var(--color-cta);
+  }
+
+  .responsive .icon {
+    display: none;
+  }
+}
+
+@media (min-width: 1024px) {
+  .responsive {
+    flex-direction: column;
+    gap: var(--space-1);
+    padding: var(--space-2);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+  }
+
+  .responsive .tab {
+    flex: none;
+    justify-content: flex-start;
+    min-height: var(--tap-min);
+    padding: 0 var(--space-3);
+    border-radius: var(--radius-sm);
+    text-align: left;
+  }
+
+  .responsive .tab:hover:not(:disabled) {
+    background: var(--color-sunken);
+  }
+
+  .responsive .active,
+  .responsive .active:hover:not(:disabled) {
+    color: var(--color-accent);
+    background: var(--color-accent-soft);
+  }
+
+  .responsive .count {
+    margin-left: auto;
+  }
+
+  .responsive .active .count {
+    color: var(--color-accent);
+  }
+}

@@ -53,3 +53,12 @@
   color: var(--color-on-selected);
   background: var(--gradient-highlight);
 }
+
+/* Bản gọn cho hàng cài đặt trên điện thoại — cùng ba con số và cùng lý do, xem `ModeToggle.module.css`. */
+@media (max-width: 559.98px) {
+  .compact > .option {
+    min-height: 28px;
+    padding: 0 var(--space-2);
+    font-size: var(--text-xs);
+  }
+}

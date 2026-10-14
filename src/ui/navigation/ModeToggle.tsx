@@ -59,15 +59,20 @@ export interface ModeToggleProps {
    * Không truyền thì nhóm giữ `aria-label` như cũ — màn Cài đặt đặt cụm này dưới tiêu đề riêng.
    */
   labelledBy?: string;
+  /**
+   * Bản GỌN cho hàng cài đặt trên điện thoại — chỉ có hiệu lực dưới 560px, xem `.compact` ở
+   * `ModeToggle.module.css`. Màn Cài đặt truyền; hàng tiêu đề danh sách công thức thì không.
+   */
+  compact?: boolean;
 }
 
-export function ModeToggle({ labelledBy }: ModeToggleProps = {}) {
+export function ModeToggle({ labelledBy, compact = false }: ModeToggleProps = {}) {
   const { mode, setMode } = usePreferences();
   const t = useT();
 
   return (
     <div
-      className={styles.group}
+      className={compact ? `${styles.group} ${styles.compact}` : styles.group}
       role="group"
       aria-labelledby={labelledBy}
       aria-label={labelledBy === undefined ? t('mode.label') : undefined}

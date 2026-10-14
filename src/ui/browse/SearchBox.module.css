@@ -119,3 +119,29 @@
     transform: translate(-50%, -50%);
   }
 }
+
+/*
+ * ── Bản TRẦN (`bare`) ────────────────────────────────────────────────────────────────────────
+ *
+ * Không viền, không nền, không vòng tiêu điểm: nơi gọi vẽ khung quanh ô và quanh nút của nó (thanh trên
+ * màn Danh mục khổ điện thoại, nơi nút bật/tắt đứng CUỐI khung). Ô cao theo khung chứ không theo 44px.
+ * Không có nút xoá (`SearchBox.tsx` không dựng nó ở bản này), nên không có luật cho `.clear`.
+ *
+ * Hai lớp ở vế phải nên thắng `.control` / `.control:focus-within` bất kể thứ tự file.
+ */
+.bare {
+  height: 100%;
+}
+
+.bare .control {
+  flex: 1;
+  min-height: 0;
+  padding: 0 0 0 var(--space-3);
+  background: transparent;
+  border: none;
+  border-radius: 0;
+}
+
+.bare .control:focus-within {
+  box-shadow: none;
+}

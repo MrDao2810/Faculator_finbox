@@ -183,3 +183,47 @@ describe('TabBar — thẻ tab dọc', () => {
     expect(onChange).not.toHaveBeenCalled();
   });
 });
+
+/*
+ * Dáng `responsive` (14/10/2026) — cụm tab của màn Danh mục: ngang dưới 1024px, dọc từ 1024px. Chiều
+ * xếp do CSS chọn nên markup không biết nó đang ngang hay dọc; vì thế cụm nghe CẢ HAI cặp phím và không
+ * khai `aria-orientation` (một giá trị cố định sẽ sai ở một trong hai khổ).
+ */
+describe('TabBar — dáng đổi theo khổ màn', () => {
+  function dungDoiKho(value: 'all' | 'stock' | 'personal' = 'all') {
+    const onChange = vi.fn();
+    render(
+      <TabBar
+        items={MANG}
+        value={value}
+        onChange={onChange}
+        label="Mảng"
+        idBase="mang"
+        orientation="responsive"
+      />,
+    );
+    return onChange;
+  }
+
+  it('không khai aria-orientation và mang class riêng, không mang class dọc', () => {
+    dungDoiKho();
+    const cum = screen.getByRole('tablist');
+    expect(cum.getAttribute('aria-orientation')).toBeNull();
+    expect(cum.className).toMatch(/responsive/);
+    expect(cum.className).not.toMatch(/vertical/);
+  });
+
+  it('nghe cả ←/→ lẫn ↑/↓, chạy vòng như hai dáng kia', async () => {
+    const onChange = dungDoiKho('all');
+    screen.getByRole('tab', { name: /Tất cả/ }).focus();
+
+    await userEvent.keyboard('{ArrowRight}');
+    expect(onChange).toHaveBeenLastCalledWith('stock');
+    await userEvent.keyboard('{ArrowLeft}');
+    expect(onChange).toHaveBeenLastCalledWith('personal');
+    await userEvent.keyboard('{ArrowDown}');
+    expect(onChange).toHaveBeenLastCalledWith('stock');
+    await userEvent.keyboard('{ArrowUp}');
+    expect(onChange).toHaveBeenLastCalledWith('personal');
+  });
+});

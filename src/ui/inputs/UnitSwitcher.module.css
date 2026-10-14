@@ -35,3 +35,34 @@
   color: var(--color-on-selected);
   background: var(--gradient-highlight);
 }
+
+/*
+ * Bản gọn cho hàng cài đặt trên điện thoại — cùng ba con số và cùng lý do, xem
+ * `ModeToggle.module.css`.
+ *
+ * Khác hai cụm kia một chỗ: bản thường của cụm này cao đúng 44px nên không cần lớp phủ. Hạ xuống
+ * 28px thì vùng chạm 44px (NFR-USA-01) phải chuyển sang `::after`, cùng cách `ModeToggle` làm.
+ * `nowrap` vì ở cột hẹp bên phải, ba nút bẻ dòng là cụm cao gấp đôi hai cụm đứng cùng màn.
+ */
+@media (max-width: 559.98px) {
+  .compact {
+    flex-wrap: nowrap;
+  }
+
+  .compact > .option {
+    position: relative;
+    min-height: 28px;
+    padding: 0 var(--space-2);
+    font-size: var(--text-xs);
+  }
+
+  .compact > .option::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    height: var(--tap-min);
+    transform: translateY(-50%);
+  }
+}

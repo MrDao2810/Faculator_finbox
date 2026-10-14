@@ -1,8 +1,7 @@
 import styles from './AppHeader.module.css';
+import { HeaderControls } from './HeaderControls';
 import { HeaderIdentity } from './HeaderIdentity';
 import { HeaderNav } from './HeaderNav';
-import { LangSwitch } from './LangSwitch';
-import { ThemeSwitch } from './ThemeSwitch';
 
 /**
  * Thanh trên — gói WBS 2.1.1, dựng lại theo bản thiết kế hi-fi ở đợt 8.
@@ -38,22 +37,11 @@ export function AppHeader() {
             việc này ở đáy màn, đúng như trước; xem HeaderNav.module.css. */}
         <HeaderNav />
 
-        <div className={styles.controls}>
-          {/*
-            Nút đổi giao diện — đứng ở đúng chỗ nút tìm kiếm từng đứng (đợt đổi icon tìm kiếm
-            thành icon đổi theme). Nay hiện ở MỌI khổ màn: trước đây bị ẩn dưới 1024px vì thanh
-            trên đã đủ ba điều khiển, nhưng bỏ nút tìm kiếm thì lại thừa đúng một chỗ trên điện
-            thoại.
-          */}
-          <ThemeSwitch />
-          {/*
-            Gắn lại từ đợt 8: hai điều kiện của quyết định đợt 14 (có bản dịch + luồng locale
-            thông qua useT()) đều đã đạt, nút bấm là chữ trên màn đổi thật. Từ điển nay đã đủ
-            (`missingKeys('en')` rỗng) và nội dung công thức cũng đã dịch trọn dưới dạng
-            `Bilingual`; mấy khối còn tiếng Việt là cố ý theo thiết kế — xem docblock đầu `en.ts`.
-          */}
-          <LangSwitch />
-        </div>
+        {/*
+          Sáng/Tối · ngôn ngữ, và ô trống cho nút của màn — xem `HeaderControls`. Ở màn Danh mục khổ
+          dưới 1024px hai nút đầu nhường chỗ cho icon Tìm kiếm và ô tìm của màn (bản vẽ 14/10/2026).
+        */}
+        <HeaderControls />
       </div>
     </header>
   );

@@ -4,6 +4,595 @@ Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 
 ---
 
+## Danh mục khổ điện thoại: ô tìm mở thì ẩn icon Làm mới (14/10/2026)
+
+**Trạng thái: CHƯA XONG — code, ca kiểm, phép đo Chrome qua dev xong. Chờ chủ dự án xem màn.**
+
+### Chủ dự án giao gì
+
+_"sau khi bật search lên thì phải ẩn icon refresh đi cho đến khi không sử dụng chức năng search"_.
+
+### Đã làm (chỉ dưới 1024px — từ 1024px không có icon nào trên thanh)
+
+| File                                   | Vì sao                                                                                                                                                                                                                                                                                                                             |
+| -------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/app/danh-muc/PortfolioScreen.tsx` | Icon Làm mới giá chỉ dựng khi `!searchInHeader`. "Đang dùng tìm kiếm" là ô đang mở HOẶC còn chữ, nên icon về lại chỉ khi ô đóng (X, Esc, hay chạm ra ngoài lúc ô trống) — mà đóng là xoá chữ. Gỡ khỏi DOM chứ không ẩn bằng CSS: lúc khuất nó không được là nấc Tab. Khung ô tìm nhận luôn chỗ của icon (đã có `margin-right: 0`). |
+| `PortfolioScreen.test.tsx`             | Ca mở/đóng ô tìm: mở thì thanh chỉ còn nút Tìm kiếm, gõ chữ vẫn chưa có icon Làm mới, đóng thì hai nút về đúng thứ tự. Ca chạm ra ngoài và ca Esc: đóng xong có icon Làm mới.                                                                                                                                                      |
+| `scripts/chrome-check.mjs`             | `DOC_O_TIM_DM` đọc thêm `coLamMoi`; ba phép đo ô tìm ở 360 và 560 đòi icon vắng lúc mở (trống, có chữ, có chữ rồi chạm ngoài) và về lại sau mỗi lần đóng. Không thêm phép đo, tổng vẫn 204.                                                                                                                                        |
+| `CLAUDE.md`                            | Đoạn ô tìm trên thanh trên: luật ẩn icon Làm mới.                                                                                                                                                                                                                                                                                  |
+
+### Kiểm chứng
+
+- Chrome thật qua dev, chạm cảm ứng thật ở 360 và 390 tối: đóng thì thanh có "Tìm kiếm", "Làm mới giá"; mở thì chỉ còn
+  "Tìm kiếm" (dấu X), khung từ x=125,6 tới cách mép phải 16px (218px ở 360, 248px ở 390), tiêu điểm ở ô; gõ "apg" lọc
+  còn 1 dòng; chạm X thì đóng, đủ 5 dòng; không tràn ngang. Ảnh đã xem.
+- `PortfolioScreen.test.tsx` nhóm khổ điện thoại 15/15 xanh.
+
+### Còn để ngỏ
+
+- `check:chrome` chưa chạy lại cho đợt này và đợt bỏ số đếm trong tab (cần build ở bản sao).
+
+---
+
+## Danh mục khổ điện thoại: bỏ số đếm trong hai tab (14/10/2026)
+
+**Trạng thái: CHƯA XONG — code và phép đo Chrome qua dev xong. Chờ chủ dự án xem màn.**
+
+### Chủ dự án giao gì
+
+Ảnh chụp thanh tab khổ điện thoại, khoanh đỏ "7" sau "Mã" và "8" sau "Công thức": _"bỏ các text số nằm trong tab
+trong ảnh sau."_
+
+### Đã làm (chỉ dưới 1024px)
+
+| File                                  | Vì sao                                                                                                                                                                                                         |
+| ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/ui/primitives/TabBar.module.css` | `.responsive .count { display: none }` trong khối dưới 1024px. Ẩn bằng CSS, giữ prop `count`: từ 1024px thẻ tab dọc vẫn in số, và đó là chỗ duy nhất số mã của danh mục còn hiện ở PC (ô "Số mã" đã bỏ 12/10). |
+| `scripts/chrome-check.mjs`            | Phép đo "hai tab nằm ngang" ở 360 và 560 đọc thêm chữ nhìn thấy của tab (`innerText`), hỏng nếu còn chữ số. Không thêm phép đo mới, tổng vẫn 204.                                                              |
+| `CLAUDE.md`                           | Gạch đầu dòng tab khổ điện thoại: không số đếm; bài học 14–15/09 "hai tab luôn hiện số" nay chỉ còn từ 1024px.                                                                                                 |
+
+### Kiểm chứng
+
+- Chrome thật qua dev, 390 tối: chữ nhìn thấy "Mã" / "Công thức", nhãn nằm giữa tab (lệch 0px), không tràn ngang; ảnh
+  đã xem. 1440: thẻ dọc vẫn "Mã 5" / "Công thức 0".
+
+### Còn để ngỏ
+
+- PC giữ số đếm trên thẻ tab dọc (yêu cầu và ảnh là khổ điện thoại). Bỏ cả ở PC thì màn PC không còn chỗ nào cho biết
+  danh mục có bao nhiêu mã — cần chủ dự án quyết.
+- Ở khổ điện thoại, trình đọc màn hình cũng không còn nghe số đếm (`display: none` rút cả khỏi tên tab).
+
+---
+
+## Danh mục khổ điện thoại: icon Làm mới về lại thanh trên, bỏ ngày và nút ở chân thẻ, tải lại cả tab Công thức (14/10/2026)
+
+**Trạng thái: CHƯA XONG — code, ca kiểm, phép đo Chrome qua dev và `check:chrome` xong. Chờ chủ dự án xem màn.**
+
+### Chủ dự án giao gì
+
+_"bây giờ thêm lại icon refresh lên để ở bên phải của icon search đồng thời xóa ngày và tên button tải lại ở tab mã đi.
+khi bấm vào tải lại thì cả ở màn Mã và công thức đều có hiệu ứng tải lại như của màn Mã."_
+
+### Đã làm (chỉ dưới 1024px, trừ việc nút ở chân thẻ PC cũng gọi `lamMoi`)
+
+| File                                                    | Vì sao                                                                                                                                                                                                                                                                                                                     |
+| ------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/app/danh-muc/PortfolioScreen.tsx`                  | Icon Làm mới giá bên phải icon Tìm kiếm (và bên phải khung ô tìm khi ô mở); đang tải thì `aria-busy`, khoá, xoay. Hàm `lamMoi()` dùng chung: tra lại thị giá + đọc lại kho phép tính đã lưu và kho chuỗi giá; `savedLoading` giữ vệt chờ ở tab Công thức `MIN_REFRESH_MS`. Bảng Công thức `aria-busy`, cột Kết quả có vệt. |
+| `src/app/danh-muc/PortfolioScreen.module.css`           | Vị trí icon theo số đo bản vẽ đầu (tâm hai icon cách 52px, tâm icon cuối cách mép phải 30px); icon xoay lúc tải, giảm chuyển động thì xoay chậm; nút Làm mới / Thử lại ở chân thẻ ẩn (`.priceButton`, hai lớp để thắng `.button` của `Button`).                                                                            |
+| `src/app/danh-muc/PortfolioSummary.tsx` + `.module.css` | Dải thị giá tab Mã ẩn lúc giá bình thường (`.footPrice`), kể cả khi thẻ mở; thẻ Công thức nhận `loading`, số đếm có vệt (ôm đúng con số).                                                                                                                                                                                  |
+| `src/app/danh-muc/KhungCho.tsx` + `.module.css`         | Prop `vua`: vệt ôm đúng con số, không đẩy chữ bên cạnh (số đếm "2" từng làm "phép tính" nhảy).                                                                                                                                                                                                                             |
+| `src/application/i18n/vi.ts`, `en.ts`                   | Khôi phục `portfolio.refreshPrices`; ghi lịch sử gỡ rồi cho về.                                                                                                                                                                                                                                                            |
+| `PortfolioScreen.test.tsx`                              | Ca "CHỈ có icon Tìm kiếm" được ĐẢO: hai icon theo thứ tự, bấm Làm mới gọi Finbox, icon xoay và khoá. Ca mới tab Công thức: kho đổi từ ngoài thì làm mới hiện thêm dòng; cột Kết quả và số đếm có vệt, tên/mã/ngày không; đứng đủ lâu rồi trở lại.                                                                          |
+| `scripts/chrome-check.mjs`                              | Ở 360 và 560: thanh trên "Tìm kiếm\|Làm mới giá"; chạm icon Làm mới thì bảng bận, vệt, icon xoay và khoá, đứng ≥ 0,55 giây; thẻ mở mà chân thẻ không còn nút, và không còn ngày lúc giá bình thường.                                                                                                                       |
+| `CLAUDE.md`                                             | Đoạn thanh trên khổ điện thoại: icon Làm mới về lại, luật chân thẻ, ngoại lệ FR-06.                                                                                                                                                                                                                                        |
+
+### Kiểm chứng
+
+- Dev, Chrome thật, chạm chuột thật ở 390px tối và sáng: icon Làm mới bên phải kính lúp, tâm cách 52px, cách mép phải
+  30px; thẻ mở thì chân thẻ không nút, không ngày; tab Mã: +150ms bảng bận, 7 vệt, icon xoay; xong sau ~0,63 giây. Tab
+  Công thức: bảng bận, 3 vệt (hai ô Kết quả + số đếm), icon xoay; xong sau ~0,63 giây. Không tràn ngang. 1440: không
+  icon trên thanh, nút ở chân thẻ vẫn chạy như cũ.
+- `npm test` 154/154 file, 3923 ca; lint, typecheck, prettier sạch.
+- `check:chrome` trên bản build ở bản sao: **198/204**. Sáu phép đo mới (360, 560) đạt: thanh trên đúng "Tìm kiếm |
+  Làm mới giá"; chạm icon thì bảng bận, vệt hiện, icon xoay và khoá, đứng ≥ 0,55 giây; thẻ mở mà chân thẻ không nút,
+  không ngày. Sáu ca đỏ là sáu ca CÓ TỪ TRƯỚC, không đụng tới màn này: nhãn trục `lich-tra-no`, `diem-hoa-von`,
+  `lai-kep` ×2, nhãn chặng `fcff`, hàng nút form thêm mã ở 1440.
+
+### Còn để ngỏ
+
+- **Ngoại lệ FR-06 được giữ:** giá cũ (tra hỏng, dùng giá đã lưu) hoặc tra hỏng hẳn thì dải ở chân thẻ vẫn hiện ở khổ
+  điện thoại — câu báo và (với giá cũ) ngày phiên của giá ấy, không có nút. Giá cũ chỉ được đứng trên màn cạnh tên phiên
+  của nó; bỏ cả lúc ấy là để một con số cũ trông như số hôm nay. Cần chủ dự án xác nhận.
+- PC không đổi: không có icon trên thanh, nên ngày phiên và nút Làm mới ở chân thẻ tab Mã vẫn ở đó; tab Công thức ở PC
+  không có nút làm mới nào (trước nay cũng không).
+
+---
+
+## Danh mục: bấm "Làm mới" phải thấy được dữ liệu đang tải lại (14/10/2026)
+
+**Trạng thái: CHƯA XONG — code, ca kiểm, phép đo Chrome qua dev xong. Chờ chủ dự án xem màn.**
+
+### Chủ dự án giao gì
+
+_"chức năng làm mới đang không làm cho tôi cảm thấy dữ liệu đang được tải lại ? khi bấm vào thì lại load lại mỗi ngày ?
+lỗi nghiêm trọng. sửa lại + thêm loading cho bảng dữ liệu bên dưới sao cho hợp lý khi tải lại"_.
+
+### Nguyên nhân (đo, không đoán)
+
+Nút có gọi lại Finbox thật (`POST /data/symbols`, không cache). Nhưng Finbox trả lời trong ~0,2 giây, và trong lúc ấy
+chỉ dòng "Giá phiên …" đổi thành "Đang lấy thị giá…" rồi trở lại: bảng, tổng giá trị, chính cái nút không đổi gì. Số mới
+hiện ra y như số cũ, nên cú bấm trông như chỉ tải lại ngày.
+
+### Đã làm
+
+| File                                                  | Vì sao                                                                                                                                                                                                                                                                                |
+| ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/app/danh-muc/KhungCho.tsx` + `.module.css` (mới) | Vệt chờ: chữ cũ giữ nguyên trong vệt nhưng ẩn (`visibility`), nên ô giữ bề ngang, bảng khổ điện thoại không giật cột. Vệt chạy sáng; máy bật giảm chuyển động (máy chủ dự án) thì vệt thở tại chỗ. Hết chờ thì trả con nguyên bản, DOM như cũ.                                        |
+| `src/app/danh-muc/PortfolioScreen.tsx`                | Lúc tra giá: bảng `aria-busy`; Thị giá, Lãi/lỗ, %, Tỷ trọng (cả ba số ở dòng chi tiết điện thoại, thị giá dòng chờ) thành vệt. Nút Làm mới / Thử lại khoá, có vòng xoay, nhãn giữ nguyên. Lượt BẤM giữ trạng thái chờ ít nhất `MIN_REFRESH_MS` = 600ms; lần tải đầu không bị kéo dài. |
+| `src/app/danh-muc/PortfolioScreen.module.css`         | `.nutXoay` — vòng xoay 14px, cùng hình với vòng xoay của sheet chọn mã.                                                                                                                                                                                                               |
+| `src/app/danh-muc/PortfolioSummary.tsx`               | Prop `loading`: Tổng giá trị và dòng lãi/lỗ thành vệt; câu lý do dưới số lớn tạm ẩn (nói "thiếu thị giá" lúc giá đang về là sai). Vốn đã bỏ ra đứng yên.                                                                                                                              |
+| `PortfolioScreen.test.tsx`                            | Hai ca mới: bấm Làm mới (nguồn trả lời ngay) thì bảng bận, đúng bốn ô sống theo giá có vệt, ba ô kia không, nút khoá có vòng xoay, tổng giá trị có vệt, Vốn đã bỏ ra không, trạng thái đứng ≥ 550ms rồi trở lại; lần tải đầu là vệt chứ không phải `_ _`.                             |
+| `scripts/chrome-check.mjs`                            | Ở 360 và 560, chuột thật bấm Thử lại (không có Finbox): bảng bận, vệt hiện, nút khoá có vòng xoay, đứng ≥ 0,55 giây rồi trở lại.                                                                                                                                                      |
+| `CLAUDE.md`                                           | Luật vệt chờ và `MIN_REFRESH_MS`.                                                                                                                                                                                                                                                     |
+
+### Kiểm chứng
+
+- Chrome thật qua dev (Finbox thật), chuột thật, 1440 và 390, tối và sáng: +120ms sau cú bấm bảng `aria-busy`, 19 vệt
+  ở 1440 / 7 vệt ở 390 (thẻ đã mở), nút khoá có vòng xoay, dòng chữ "Đang lấy thị giá…"; xong sau ~650ms, hết vệt, số
+  trở lại, không tràn ngang. Ảnh 1440 và 390 đã xem: Số CP, Giá vốn, Ngày mua, Vốn đã bỏ ra đứng yên.
+- `npm test` 153/153 file, 3902 ca; lint, typecheck, prettier sạch.
+- `check:chrome` trên bản build ở bản sao: **194/200**. Hai phép đo mới (360, 560) đạt: bấm bằng chuột thật thì bảng bận, vệt
+  hiện, nút khoá có vòng xoay, trạng thái đứng ≥ 0,55 giây rồi trở lại. Sáu phép đỏ là sáu phép đã đỏ từ trước (nhãn biểu
+  đồ, hàng nút form ở 1440). Bản build đầu đỏ thêm hai phép "thẻ tóm tắt không kẻ dưới" vì bản sao lấy CSS trước lúc
+  phiên song song sửa xong; chép lại và build lại thì đạt. `/danh-muc/` 193,0 kB JS (cửa 180 kB đã đỏ từ trước).
+
+### Còn để ngỏ
+
+- `CLAUDE.md` còn câu "the script has no Finbox" (mục số dài của thẻ tóm tắt): không còn đúng — `check:chrome` gọi
+  Finbox thật khi máy có mạng. Phép đo mới xử lý cả hai đường; câu ấy chưa sửa vì nằm ngoài lượt này.
+- Ở khổ điện thoại nút Làm mới vẫn nằm ở chân thẻ tóm tắt, phải mở thẻ ra mới thấy (trừ khi giá cũ hoặc tra hỏng).
+- Bảng Công thức không có vệt: kết quả ở đó là số đã lưu, không tra lại theo thị giá.
+
+---
+
+## Danh mục khổ điện thoại: ô tìm mở ngay trên thanh trên, bỏ icon Làm mới giá (14/10/2026)
+
+**Trạng thái: CHƯA XONG — đã sửa lỗi "mở rồi không đóng được" (xem lượt sửa ngay dưới). Chờ chủ dự án xem màn.**
+
+### Lượt sửa: mở ô tìm rồi không đóng được
+
+Chủ dự án: _"bật ô search lên được rồi nhưng không có cách nào tắt đi được ? lỗi nghiêm trọng"_.
+
+Tái hiện trên dev bằng chạm cảm ứng thật: chạm lại kính lúp ở cuối khung CÓ đóng ô, nhưng chạm ra ngoài thì không, và
+không có gì trên màn nói kính lúp là nút đóng — ở cuối một ô tìm, kính lúp đọc là "tìm". Lỗi của bản đầu là không có
+đường đóng nhìn ra được, không phải nút hỏng.
+
+- `PortfolioScreen.tsx`: ô đang mở thì icon cuối khung là **dấu X** (kính lúp khi đóng). Tên nút giữ "Tìm kiếm", trạng
+  thái ở `aria-expanded`. Ô **còn trống** thì chạm bất cứ đâu ngoài khung là đóng (`pointerdown` trên `document`); ô
+  **có chữ** thì không — bảng đang là kết quả tìm, chạm dòng kết quả là việc người tìm định làm, đóng lúc ấy là xoá chữ
+  và mất kết quả. X và Esc vẫn đóng, xoá chữ.
+- `PortfolioScreen.module.css`: bỏ màu xanh nhấn của icon lúc mở — dấu X xanh đọc như "đang chọn".
+- `SearchBox.tsx` / `.module.css` / `.test.tsx`: bản `bare` bỏ luôn nút xoá ×, để cuối khung không có hai dấu X làm hai
+  việc khác nhau (đóng ô đã xoá chữ).
+- `PortfolioScreen.test.tsx`: icon đổi kính lúp → X khi mở; ca mới: ô trống chạm ra ngoài thì đóng, có chữ thì không.
+- `scripts/chrome-check.mjs`: ở 360 và 560, chạm thật: ô mở có X; có chữ mà chạm ra ngoài thì vẫn mở; chạm X thì đóng,
+  chữ rỗng, đủ dòng; ô trống chạm ra ngoài thì đóng.
+- `CLAUDE.md`: ghi luật X khi mở và luật chạm ra ngoài.
+
+Kiểm chứng: dev, chạm cảm ứng thật ở 360 và 390: mở → X ở cuối khung → gõ "apg" còn 1 dòng → chạm X đóng, đủ 5 dòng;
+mở lại → chạm ra ngoài → đóng. Ca kiểm màn + `SearchBox`: 262/262; toàn bộ `npm test` 153/153 file, 3897 ca; lint,
+typecheck, prettier sạch. `check:chrome` trên bản build ở bản sao: **188/194** — tám phép đo ô tìm đạt ở 360 và 560;
+sáu phép đỏ vẫn là sáu phép đã đỏ từ trước (nhãn biểu đồ, hàng nút form ở 1440). Số phép đo trong `CLAUDE.md`: 194.
+
+Phần tự dựng (bản vẽ không vẽ trạng thái mở): dấu X thay kính lúp, và luật chạm ra ngoài.
+
+### Chủ dự án giao gì
+
+Ảnh chụp thanh trên `/danh-muc/` khổ điện thoại, khoanh đỏ vùng từ sau chữ "Danh mục" tới kính lúp, gạch chéo icon Làm
+mới: _"khi bấm vào icon search thì có thểm một popup search ở chỗ rôi khoanh đỏ. đồng thời bỏ icon refect ở đầu đi chỉ
+để lại icon search"_.
+
+Đo trên ảnh (1:1, khay tab cao đúng 40px): khung đỏ bắt đầu 18px sau chữ, cao 36px, nền trong khung #1b2435 (nền
+thanh), kính lúp ở cuối khung.
+
+### Đã làm (chỉ dưới 1024px; PC không đổi)
+
+| File                                                                                                          | Vì sao                                                                                                                                                                                                                                                                                                       |
+| ------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `src/app/danh-muc/PortfolioScreen.tsx`                                                                        | Bỏ icon Làm mới giá. Ô tìm là MỘT `SearchBox`, dựng ở một trong hai chỗ: `searchInHeader` (khổ điện thoại theo `khoPC`, có ô trống thanh trên, đang mở hoặc còn chữ) thì vào cổng, trong khung `.headerSearch` bọc cả ô lẫn icon; không thì ở dòng tiêu đề như cũ. Esc đóng, xoá chữ, trả tiêu điểm về icon. |
+| `src/app/danh-muc/PortfolioScreen.module.css`                                                                 | Khung ô tìm trên thanh: cao 36px như khung khoanh, giãn hết chỗ sau tên màn, viền/bo/vòng tiêu điểm của ô tìm sẵn có; icon gọn vào lòng khung, vùng chạm 44px. Icon đóng đứng đúng chỗ icon cuối cũ. Ô tìm trong thân màn luôn ẩn ở khổ này.                                                                 |
+| `src/ui/browse/SearchBox.tsx` + `.module.css` + `.test.tsx`                                                   | Prop `bare`: không viền, không nền, không kính lúp đầu ô (một ô hai kính lúp là sai bản vẽ); nút × co 28px, vùng chạm 44px.                                                                                                                                                                                  |
+| `src/ui/navigation/AppHeader.module.css`                                                                      | Màn nhường chỗ: cụm nút giãn (`flex: 1 1 0`) để ô có chỗ, sàn `min-width` một icon — để `auto` thì ô nhập đòi ~230–267px ở 360px và co "Danh mục" thành "Danh m…" (đo được, đã sửa).                                                                                                                         |
+| `src/application/i18n/vi.ts`, `en.ts`                                                                         | Gỡ `portfolio.refreshPrices`, để bia mộ ở `vi.ts`.                                                                                                                                                                                                                                                           |
+| `PortfolioScreen.test.tsx`                                                                                    | Ca "có icon Tìm kiếm và Làm mới giá" được THAY bằng "chỉ có icon Tìm kiếm"; ca mở/đóng ô tìm nay đòi ô nằm TRONG thanh trên và là ô duy nhất; ca mới cho Esc.                                                                                                                                                |
+| `scripts/chrome-check.mjs`                                                                                    | Ở 360 và 560: thanh chỉ một icon; chuột thật mở ô — trong thanh, sau tên màn, tên không bị cắt, một ô, tiêu điểm vào ô, gõ "hpg" lọc còn HPG; chạm lại thì đóng, xoá chữ, đủ dòng.                                                                                                                           |
+| Chú thích `routes.ts`, `HeaderControls.tsx`, `AppHeader.tsx`, `navigation/index.ts`, hai ca kiểm; `CLAUDE.md` | Bỏ chữ "Làm mới giá" khỏi thanh trên; ghi luật ô tìm trên thanh.                                                                                                                                                                                                                                             |
+
+### Kiểm chứng
+
+- Chrome thật qua dev, chuột thật, ở 360 / 390 / 468 (khổ ảnh của chủ dự án) / 768, tối và sáng: đóng thì một icon ở
+  mép phải, không Sáng/Tối, không VI; mở thì khung 36px từ x=125,6 (16px sau chữ) tới mép phải trừ lề 16px, chữ 16px,
+  tiêu điểm vào ô; gõ "apg" còn 1 dòng, khung đứng yên, "Danh mục" không bị cắt; Esc đóng, xoá chữ, tiêu điểm về icon,
+  đủ 5 dòng; không tràn ngang. 1440 không đổi (không icon, ô tìm ở dòng tiêu đề).
+- Ca kiểm của màn, `SearchBox`, thanh trên, `routes`, i18n: 400/400. Toàn bộ `npm test`: 153/153 file, 3895 ca đạt.
+  Lint, typecheck, prettier sạch.
+- `check:chrome` trên bản build ở bản sao (dev giữ :3000): **186/192**. Sáu phép đo mới của lượt này đạt cả ở 360 lẫn
+  560 (khung 36px từ x=125,6, tên màn không cắt, một ô, lọc còn HPG; chạm lại thì đóng, chữ rỗng, đủ FPT, HPG). Sáu phép
+  đỏ là sáu phép đã đỏ từ trước, cả ở HEAD (nhãn biểu đồ `lich-tra-no`, `diem-hoa-von`, `lai-kep` ×2, `fcff`, hàng nút
+  form thêm mã ở 1440), không thuộc lượt này. Số phép đo trong `CLAUDE.md` 186 → 192 (gồm cả hai phép của phiên bảng
+  Công thức chạy song song).
+
+### Còn để ngỏ
+
+- Nút "Làm mới" ở chân thẻ tóm tắt là đường làm mới giá duy nhất ở khổ điện thoại: lúc bình thường phải mở thẻ ra mới
+  thấy; giá cũ hoặc tra hỏng thì nó tự hiện.
+- Dáng ô (viền, bo, vòng tiêu điểm) là ô tìm sẵn có của sản phẩm: nét đỏ khoanh chỗ, không vẽ ô.
+
+---
+
+## Bảng Công thức ở Danh mục khổ điện thoại: bỏ dòng thả xuống, ngày lên hàng, X ở góc phải (14/10/2026)
+
+**Trạng thái: CHƯA XONG — code, ca kiểm và phép đo Chrome qua dev xong; `check:chrome` đã có phép đo mới nhưng chưa
+chạy được (xem "Còn để ngỏ"). Chờ chủ dự án xem màn.**
+
+### Chủ dự án giao gì
+
+Ảnh màn Công thức khổ điện thoại, khoanh "Ngày lưu 13/10/2026" trong dòng thả xuống và vẽ mũi tên lên cuối hàng:
+_"không có popup đổ xuống khi bấm vào mã nữa, chuyển date lên cùng hàng với cái số liệu kia giống như bên Mã. bây giờ
+bấm vào công thức thì là vào phần sửa luôn, tạo thêm Icon xóa ở góc bên phải như ở web"_.
+
+### Đã làm (chỉ dưới 1024px; PC không đổi; bảng Mã không đổi)
+
+| File                                          | Vì sao                                                                                                                                                                                                                                                                            |
+| --------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/app/danh-muc/PortfolioScreen.tsx`        | Bỏ dòng chi tiết và mũi tên của bảng Công thức; chạm dòng luôn `router.push` tới `?luu=`; dấu X là MỘT nút (`nutXoa`), đứng sau tên ở PC và cuối ô Ngày lưu ở khổ điện thoại, chọn bằng `khoPC` (theo dõi `matchMedia`) — hai nút cùng tên sẽ hỏng trình đọc màn hình và ca kiểm. |
+| `src/app/danh-muc/PortfolioScreen.module.css` | Cột Ngày lưu hiện lại; tên phép tính nhận cú chạm; dấu X luôn hiện, hộp 20px, vùng chạm 44px neo mép phải; ngày 13px như Ngày mua; Kết quả không xuống dòng.                                                                                                                      |
+| `PortfolioScreen.test.tsx`                    | Ca "bấm dòng mở chi tiết, KHÔNG điều hướng" được THAY bằng hai ca: chạm dòng mở thẳng phép tính; dấu X cuối ô Ngày lưu, bấm thì xoá không điều hướng. Ca PC đếm nút trên dòng bỏ mũi tên.                                                                                         |
+| `scripts/chrome-check.mjs`                    | Hai phép đo mới (360, 560): bốn cột, không cuộn ngang, không dòng chi tiết, X đỏ luôn hiện cuối ô ngày, chạm 44×44, kết quả một dòng, chạm X xoá, chạm dòng mở `?luu=`.                                                                                                           |
+| `CLAUDE.md`                                   | Đoạn khổ điện thoại của `/danh-muc/`: bảng Công thức tách khỏi khuôn dòng thả xuống của bảng Mã.                                                                                                                                                                                  |
+
+### Kiểm chứng
+
+- Chrome thật qua dev, giao diện tối, giả lập cảm ứng (hover: none), ở 360 / 390 / 560 / 768: bốn cột "Công thức · Mã ·
+  Kết quả · Ngày lưu", bảng không cuộn ngang, trang không tràn, không dòng chi tiết, không mũi tên; X đỏ hiện ở mọi dòng,
+  cách mép bảng 8px, hộp 20×28, vùng chạm 44×44; chạm X dòng đầu thì còn 4 dòng, trang đứng yên; chạm ô Kết quả dòng Lãi
+  kép thì sang `/cong-thuc/lai-kep/?luu=lk`. Ảnh 360 và 390 đã xem.
+- Bản đầu để "67.520.669,9 ₫" rơi đơn vị xuống dòng riêng ở 390px (thấy trên ảnh) — đã sửa bằng `nowrap`.
+- Biểu thức đo mới của `check:chrome` (`DOC_CONG_THUC_NHO`) được chạy thử nguyên văn trên dev ở 360 và 560, giao diện
+  sáng: mọi điều kiện của phép đo đều đạt.
+- `npm run typecheck`, eslint (`src/app/danh-muc/`, `chrome-check.mjs`), prettier sạch. Bộ ca của màn Danh mục + Cài
+  đặt + `portfolio-sort`: 220 đạt, **2 đỏ** — cả hai thuộc phiên song song bên dưới, không thuộc lượt này.
+
+### Còn để ngỏ
+
+- Ở 360px cột tên chỉ còn ~91px nên tên phép tính thường xuống hai dòng; tên tự đặt dài (kèm dòng phụ và cảnh báo "Cần
+  nạp lại chuỗi giá") làm dòng cao tới ~220px. Đó là cái giá của việc đưa ngày lên hàng.
+- Dấu X một chạm xoá luôn, không hỏi lại (như PC), nay đứng thường trực cạnh vùng chạm của dòng.
+- Một phiên khác sửa CÙNG `PortfolioScreen.tsx` trong lúc lượt này chạy (ô tìm lên thanh trên, bỏ icon Làm mới giá).
+  Lúc ấy hai ca của nó đỏ; tới lượt sửa thẻ tóm tắt dưới đây thì cả màn đã xanh lại (165/165). Chưa chạy
+  `check:chrome` / `build` / toàn bộ `npm test` trên bản cuối.
+
+### Lượt hai: thẻ tóm tắt tab Công thức không còn phần mở ra (14/10/2026)
+
+Chủ dự án chụp ba dòng "Trên số mã 3 · Công thức khác nhau 5 · Cần nạp lại chuỗi 0" (phần mở ra của thẻ "Đã lưu N phép
+tính" ở khổ điện thoại): _"bỏ poup như ảnh sau ở màn công thức đi"_.
+
+- `src/app/danh-muc/PortfolioSummary.tsx`: `SavedSummary` bỏ mũi tên "Chi tiết" và state mở; thẻ không bao giờ mang
+  `data-mo`, nên luật CSS sẵn có giữ ba dòng đếm và ngày lưu gần nhất ẩn dưới 1024px. Từ 1024px không đổi. Thẻ tab Mã
+  giữ mũi tên.
+- `PortfolioScreen.test.tsx`: ca mới "thẻ tóm tắt tab Công thức: không có nút Chi tiết".
+- `CLAUDE.md`: một đoạn trong gạch đầu dòng thẻ tóm tắt khổ điện thoại.
+- Kiểm chứng: Chrome qua dev — 390 và 768px thẻ còn một hàng cao 42px, không nút, ba dòng đếm không hiện; 1440px ba dòng
+  vẫn hiện như cũ. Ảnh 390 đã xem. Typecheck, eslint, prettier sạch; `PortfolioScreen.test.tsx` 165/165.
+
+### Lượt ba: giãn cách dấu X (14/10/2026)
+
+_"giãn cách icon X để dễ dàng thao tác hơn trong màn công thức"_ (khổ điện thoại, nơi X luôn hiện cạnh ngày lưu).
+
+- Đo bản cũ: hộp 20px cách ngày 2px, vùng chạm 44px neo mép phải nên lan sang trái 24px, phủ lên ~22px cuối chữ ngày
+  (chạm ngày là xoá); nét X cách ngày 3px.
+- `PortfolioScreen.module.css` (khối khổ điện thoại): hộp 28px như PC, khe 8px, vùng chạm 44×44 chia đều — mép trái dừng
+  đúng mép chữ ngày, mép phải đúng mép bảng; đệm trái cột Ngày lưu 6 → 4px (tiêu đề và ô cùng hạ). Bản 12px + 28px đầu
+  tiên làm bảng rộng hơn khung 5px ở 360px: bề rộng tối thiểu của cột tên là tiêu đề "Công thức" (78px, không xuống
+  dòng), nên với kết quả dài "67.520.669,9 ₫" ô cuối chỉ còn 35–36px cho khe + hộp.
+- `scripts/chrome-check.mjs`: thêm điều kiện "vùng chạm của X không phủ chữ ngày" vào phép đo bảng Công thức 360/560.
+- Kiểm chứng: Chrome qua dev ở 360 / 390 / 560 / 768 — không cuộn ngang, nét X cách ngày 13px, vùng chạm 44×44 cách chữ
+  ngày 0px, cách mép bảng 0px; chạm X vẫn xoá, chạm dòng vẫn mở phép tính. Biểu thức đo của `check:chrome` chạy thử
+  nguyên văn: đạt. Ảnh 360 đã xem. Cái giá: kết quả và ngày lưu còn cách nhau 10px (trước 12px).
+
+### Lượt bốn: ba số liệu một cỡ, nhỏ hơn tên (14/10/2026)
+
+Chủ dự án khoanh mã · kết quả · ngày lưu của một dòng: _"đồng bộ size text của các số liệu trong vùng khoanh đỏ sau đảm
+bảo size đó nhỏ hơn size của tên công thức"_.
+
+- Đo trước khi sửa (390px): tên 14px nét 500; mã 14px đậm; kết quả 14px đậm; ngày 13px — hai ô bằng cỡ tên mà đậm hơn.
+- `PortfolioScreen.module.css` (khối khổ điện thoại): `.savedCode`, `.savedResult`, `.savedDate` cùng 13px (cỡ số trong
+  bảng của bản vẽ khổ điện thoại). Tên giữ 14px; độ đậm giữ nguyên. PC không đổi (cả bốn 14px).
+- `scripts/chrome-check.mjs`: phép đo bảng Công thức 360/560 so cỡ chữ đã tính — ba số liệu bằng nhau và nhỏ hơn tên.
+- Kiểm chứng: Chrome qua dev — 390px mã/kết quả/ngày 13px, tên 14px; 1440px không đổi; không cuộn ngang; cột tên rộng
+  thêm 9px ở 390px. Biểu thức đo của `check:chrome` chạy thử ở 360 và 560: đạt. Ảnh 390 đã xem.
+
+### Lượt năm: ba số liệu một nét thường, chỉ tên in đậm (14/10/2026)
+
+_"cùng size rồi nhưng sao chỗ thì in đậm chỗ thì không vậy. đồng bộ để không in đậm. ngoại trừ tên công thức thì mới in
+đậm"_ — lượt bốn đã giữ độ đậm cũ (mã, kết quả 700; ngày 400).
+
+- `PortfolioScreen.module.css` (khối khổ điện thoại): `.savedCode`, `.savedResult`, `.savedDate` thêm
+  `font-weight: var(--weight-regular)`. Tên giữ `--weight-medium`. PC không đổi.
+- `scripts/chrome-check.mjs`: phép đo bảng Công thức 360/560 so thêm độ đậm đã tính — ba số liệu cùng nét, nhạt hơn tên.
+- Kiểm chứng: Chrome qua dev — 360/390/560: tên 500, mã/kết quả/ngày 400; 1440 không đổi; không cuộn ngang (cột tên
+  rộng thêm 7px ở 390px vì chữ thường hẹp hơn). Biểu thức đo chạy thử: đạt. Ảnh 390 đã xem.
+- Còn khác nhau, chưa đụng vì yêu cầu là độ đậm: MÀU — mã và kết quả màu chữ chính (`--color-ink`), ngày nhạt hơn
+  (`--color-ink-soft`). Đã xử lý ở lượt sáu.
+
+### Lượt sáu: một màu cho mọi số liệu, cả bảng Mã; tên to hơn 1px và đậm (14/10/2026)
+
+Chủ dự án hỏi vì sao màu khác nhau, được giải thích (thiết kế PC 12/10 cố ý để ngày nhạt hơn), rồi: _"đồng bộ về 1
+loại màu cho tôi chứ không được để khác màu, kể cả ở bên Mã cũng thế. ngoại trừ tên mã tên công thức thì vẫn để là size
+to hơn 1 px và in đậm"_.
+
+- Đo trước (390px, tối) — bảng Mã: mã 15px đậm màu chính; Số CP, Giá vốn, Ngày mua 13px thường NHẠT (#b3c0d4); Thị giá
+  13px ĐẬM màu chính. Bảng Công thức: ngày lưu nhạt, còn lại màu chính.
+- `PortfolioScreen.module.css` (khối khổ điện thoại): `.holdMuted`, `.holdWeight` → `--color-ink`; `.holdPrice`,
+  `.holdGain`, `.holdGainPct` → nét thường; `.codeOpen` 15px → 14px; `.savedDate` (cùng luật ba số liệu) →
+  `--color-ink`; số trong dòng chi tiết (`.detailStats dd`) → `--color-ink`. Khổ PC không đổi.
+- Đảo hai số đo của bản vẽ khổ điện thoại (mã 15px; số lượng/giá vốn/ngày nhạt, thị giá đậm) — theo lời chủ dự án.
+- Giữ khác màu, có chủ ý: `_ _` (nhạt, dấu hiệu "chưa có số" FR-06) và xanh/đỏ của Lãi/lỗ, Lãi/lỗ % trong dòng chi
+  tiết (lớp tin thứ hai sau dấu +/−). Nhãn của dòng chi tiết (Lãi/lỗ, Tỷ trọng…) vẫn nhạt: nhãn, không phải số liệu.
+- `scripts/chrome-check.mjs`: phép đo mới cho bảng Mã 360/560 (mã to hơn số liệu đúng 1px và đậm hơn; số liệu cùng cỡ,
+  nét và màu với mã); phép đo bảng Công thức thêm "một màu" và "tên to hơn đúng 1px".
+- Kiểm chứng: Chrome qua dev — bảng Mã: mã 14px/700, bốn số liệu 13px/400, cùng màu với mã; dòng chi tiết: Tỷ trọng màu
+  chính, lãi/lỗ âm đỏ; bảng Công thức: tên 14px/500, ba số liệu 13px/400, cùng màu. Hai biểu thức đo của
+  `check:chrome` chạy thử nguyên văn ở 360 và 560, giao diện sáng: đạt. Ảnh hai bảng đã xem.
+
+### Lượt bảy: bỏ đường kẻ thừa sát trên bảng, cả hai tab (14/10/2026)
+
+Chủ dự án khoanh hai đầu một đường kẻ: _"xóa đường viền thừa ra ở 2 màn mã và công thức, đường viền này nằm ngay bên
+trên bảng và xát với bảng"_.
+
+- Đo (390px, tối): thẻ tóm tắt có kẻ dưới 1px `--color-hairline` chạy hết bề ngang màn (0–390), mép dưới đúng chỗ viền
+  trên của khung bảng (10–380, bo 10px) bắt đầu. Hai đường chồng nhau, và ở hai đầu kẻ của thẻ chạy thẳng ra ngoài hai góc
+  bo — đúng hai chỗ được khoanh. Thẻ của hai tab dùng chung lớp `.card`.
+- `src/app/danh-muc/PortfolioSummary.module.css` (khối dưới 1024px): bỏ `border-bottom` của `.card`, bỏ luôn
+  `margin-inline: -10px` vốn chỉ để kẻ chạm mép màn; đệm ngang 10px → 0, nên chữ vẫn cách mép màn đúng 10px. Đảo một số
+  đo của bản vẽ, theo lời chủ dự án. Khổ PC không đổi (thẻ vẫn có viền quanh).
+- `scripts/chrome-check.mjs`: phép đo mới ở 360/560 — kẻ dưới của thẻ tóm tắt là 0px.
+- `CLAUDE.md`: một câu trong gạch đầu dòng thẻ tóm tắt khổ điện thoại.
+- Kiểm chứng: Chrome qua dev ở 390px, cả hai tab — chỉ còn viền khung bảng, chữ của thẻ không xê dịch (10–380 như
+  trước). Biểu thức đo mới chạy thử nguyên văn ở 360/560 (0px, cả hai tab) và 1440 (1px, viền quanh thẻ PC). Ảnh hai tab
+  đã xem. Prettier, eslint sạch; danh mục + `hairline` / `tokens` / `contrast`: 633/633 đạt.
+
+---
+
+## Bảng Công thức ở Danh mục sắp được theo cột (14/10/2026)
+
+**Trạng thái: CHƯA XONG — code, ca kiểm và phép đo Chrome qua dev xong; chờ chủ dự án xem màn.**
+
+### Chủ dự án giao gì
+
+_"trong phần công thức đang chưa có chức năng sort. thêm chức năng này cho tôi"_. Làm theo khuôn bảng Mã (bấm tiêu đề
+cột, máy nhớ) vì hai bảng là bề mặt anh em. Hỏi lại hai điểm, chủ dự án chọn: **cột Kết quả không sắp** (lẫn ₫, %,
+lần), và **tiêu đề Ngày lưu mang sẵn mũi tên ↓** lúc chưa bấm gì (bảng vốn đã mới trước).
+
+### Đã làm (mọi khổ)
+
+| File                                                    | Vì sao                                                                                                                                                                                                                                                                                         |
+| ------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/application/saved-calc-sort.ts` (mới) + `.test.ts` | Luật thuần: ba cột Công thức · Mã · Ngày lưu; mặc định Ngày lưu mới trước (không có trạng thái "không sắp"); Công thức và Mã A→Z → Z→A → mặc định; Ngày lưu cũ trước ↔ mặc định; tên so theo chữ tiếng Việt (`Intl.Collator('vi')`); dòng không mã đứng cuối; bằng nhau thì mới trước. 13 ca. |
+| `src/application/index.ts`                              | Xuất qua barrel.                                                                                                                                                                                                                                                                               |
+| `src/app/danh-muc/PortfolioScreen.tsx`                  | `SAVED_COLUMNS`, state `savedSort` đọc kho trong effect nạp, `sortSavedBy` ghi kho trong cú bấm (về mặc định thì gỡ khoá); hàng tiêu đề dùng lại `SortHeader`, Kết quả là chữ trơn; `ariaSort()` dùng chung hai bảng.                                                                          |
+| `PortfolioScreen.module.css`                            | Từ 1024px mũi tên của cột đầu bảng Công thức đứng sau chữ (như cột Mã); sửa chú thích.                                                                                                                                                                                                         |
+| `src/app/cai-dat/SettingsScreen.tsx`, i18n `vi`/`en`    | Kho mới `ffb.saved.sort.v1` có dòng trong `STORAGE_ITEMS` ("Cách sắp bảng Công thức"), sau dòng bản nháp.                                                                                                                                                                                      |
+| `PortfolioScreen.test.tsx`                              | Khối mới "sắp bảng Công thức bằng tiêu đề cột" (7 ca); đổi tên ca "luôn xếp mới nhất" thành "lúc chưa bấm gì".                                                                                                                                                                                 |
+| `scripts/chrome-check.mjs`                              | Phép đo mới ở 360/560: chạm chuột thật vào tiêu đề Công thức — `aria-sort`, mũi tên, thứ tự, không cuộn ngang, kho ghi rồi gỡ.                                                                                                                                                                 |
+| `CLAUDE.md`, `portfolio-sort.ts`                        | Bỏ câu "chỉ bảng Mã sắp", thêm gạch đầu dòng cho bảng Công thức.                                                                                                                                                                                                                               |
+
+### Kiểm chứng
+
+- Chrome thật qua dev ở 360 / 390 / 560 / 1024 / 1280 / 1440, mọi trạng thái (mặc định, tên ↑↓, mã ↑↓, ngày ↑): thứ
+  tự đúng, không cuộn ngang lần nào (360px có dòng "67.520.669,9 ₫"), từ 1024px chữ tiêu đề không xê dịch khi mũi tên
+  hiện, mũi tên nằm trong ô của nó. Dưới 1024px sắp theo Mã thì bảng tự nới cột ấy 5px, vẫn vừa khung. Kho nhớ qua lần
+  mở lại. Ảnh 360 và 1024 đã xem.
+- Phép đo mới của `check:chrome` chạy thử nguyên văn trên dev ở 360 và 560: đạt.
+- Typecheck, eslint, prettier sạch. `src/app/danh-muc` + `src/app/cai-dat` + `src/application`: mọi ca của lượt này
+  xanh; còn **1 ca đỏ không thuộc lượt này** — "thanh trên: CHỈ có icon Tìm kiếm", vì nút "Làm mới giá" trên thanh
+  trên đang được phiên song song (mục đầu file) dựng lại.
+
+### Còn để ngỏ
+
+- Chưa chạy `build` / `check:chrome` đầy đủ (dev giữ :3000, phải dựng bản sao).
+
+---
+
+## Bảng Mã ở Danh mục sắp được theo cột, cả PC lẫn điện thoại (14/10/2026)
+
+**Trạng thái: CHƯA XONG — code, ca kiểm và phép đo trên Chrome thật xong, chờ chủ dự án xem màn.**
+
+### Chủ dự án giao gì
+
+_"thêm tính năng sort cả ở màn web lẫn màn mobile cho bảng Mã ở danh mục"_. Hỏi lại ba điểm, chủ dự án chọn:
+bấm **tiêu đề cột** (không có ô chọn riêng); **máy nhớ** cách sắp; **chỉ bảng Mã** (bảng Công thức giữ mới nhất lên
+đầu, như quyết định xoá ô sắp xếp ngày 12/10/2026).
+
+### Luật sắp
+
+- Bấm một cột: lần đầu theo chiều hay cần nhất (Mã A→Z; số và Ngày mua lớn/mới trước), lần hai đảo chiều, lần ba về
+  thứ tự đã thêm vào (khoá trong máy bị gỡ).
+- Ô `_ _` (thiếu giá, thiếu ngày) luôn đứng cuối ở cả hai chiều: xếp nó như 0 là bịa số (FR-06).
+- Dòng chờ số liệu vẫn đứng sau dòng nắm giữ, chỉ sắp theo Mã hoặc Thị giá. Hai dòng bằng nhau giữ thứ tự thêm vào.
+- Dưới 1024px không có tiêu đề Lãi/lỗ, % và Tỷ trọng: cách sắp đã nhớ theo ba cột ấy (đặt ở PC rồi xoay máy tính
+  bảng) cho bảng về thứ tự gốc nhưng kho vẫn giữ, xoay lại là thấy lại.
+
+### Đã làm
+
+| File                                                        | Vì sao                                                                                                                                                                                                                 |
+| ----------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/application/portfolio-sort.ts` (mới) + test            | Luật thuần: vòng bấm, so sánh với `_ _` đứng cuối, sắp dòng chờ, bỏ cột ẩn ở khổ điện thoại, đọc/ghi kho `ffb.portfolio.sort.v1` không ném lỗi. 44 ca.                                                                 |
+| `src/application/index.ts`                                  | Xuất các hàm và kiểu trên qua barrel.                                                                                                                                                                                  |
+| `src/app/danh-muc/PortfolioScreen.tsx`                      | Hàng tiêu đề dựng từ `HOLDING_COLUMNS`, mỗi `<th>` một nút `SortHeader` + `aria-sort`; state `sort` đọc trong effect nạp kho, ghi ngay trong cú bấm; `khoPC` theo dõi `matchMedia`; hai danh sách dòng đi qua hàm sắp. |
+| `src/app/danh-muc/PortfolioScreen.module.css`               | `.sortButton` (kiểu chữ kế thừa tiêu đề, `::after` phủ cả ô), `.sortIcon`: cùng dòng dưới 1024px, tuyệt đối trước chữ từ 1024px (cột Mã: sau chữ).                                                                     |
+| `src/app/cai-dat/SettingsScreen.tsx`, `i18n/vi.ts`, `en.ts` | Dòng "Cách sắp bảng Mã" trong `STORAGE_ITEMS` — ca kiểm "mọi kho đều xoá được" đòi, và "Xoá toàn bộ" phải quét tới.                                                                                                    |
+| `PortfolioScreen.test.tsx`                                  | Khối 11 ca: tám nút đúng chữ cột, vòng ba lần bấm + `aria-sort`, `_ _` đứng cuối, số trên dòng không đổi, lọc + sắp, nhớ và đọc lại, kho hỏng, dòng chờ, không mở form; hai ca khổ điện thoại.                         |
+| `CLAUDE.md`                                                 | Gạch đầu dòng mới trong mục `/danh-muc/`.                                                                                                                                                                              |
+
+### Kiểm chứng
+
+- Chrome thật qua dev, chuột thật bấm SÁT MÉP TRÁI ô (không trúng chữ) ở 1440, 1280, 1024, 390, 360: cả tám (năm)
+  cột sắp đúng và về gốc sau lần ba; chữ tiêu đề không xê dịch khi mũi tên hiện ở PC; bảng không cuộn ngang, trang không
+  tràn; đổi khổ 1440 → 390 → 1440 khi đang sắp theo Lãi/lỗ: điện thoại về gốc, PC thấy lại, kho giữ nguyên. Ảnh 1440,
+  1024 và 360 (sáng, tối) đã xem.
+- Bản đầu đặt mũi tên cùng dòng: ở 1024px chữ năm cột bị xô 6–12px. Bản hai đặt tuyệt đối SAU chữ: ở "Giá vốn" và "Tỷ
+  trọng" mũi tên lọt sang ô bên cạnh và bị nền ô ấy vẽ đè (thấy trên ảnh, phép đo số không thấy). Bản ba (trước chữ)
+  là bản đang có.
+- `npm run lint` (phạm vi file đổi), `npm run typecheck`, `prettier --check` sạch; `npm test`: 153 file, 3.892 ca
+  đạt, 48 bỏ qua.
+
+### Còn để ngỏ
+
+- Chưa có phép đo `check:chrome` cho vị trí mũi tên; chưa chạy `check:chrome`, `build`, `size` (dev giữ :3000).
+- Vùng bấm tiêu đề ở khổ điện thoại cao 34px theo bản vẽ (hàng tiêu đề 34px), dưới mức 44px các nút khác của màn.
+- Lượt "Màn Danh mục khổ điện thoại" ngay dưới chưa commit; lượt này sửa chồng lên cùng các file
+  `PortfolioScreen.*`, `vi.ts`, `en.ts`, `index.ts`, `SettingsScreen.tsx`.
+
+---
+
+## Màn Danh mục khổ điện thoại theo bản vẽ (14/10/2026)
+
+**Trạng thái: CHƯA XONG — code, ca kiểm, phép đo trên Chrome thật và `check:chrome` xong, chờ chủ dự án xem màn.**
+
+### Chủ dự án giao gì
+
+Bản vẽ màn Mã khổ điện thoại (390px, giao diện tối): thanh trên "Danh mục" + icon tìm + icon làm mới; hai tab ngang
+"Mã 6 · Công thức 7"; một hàng "Tổng giá trị … ↑ +3,88%" có mũi tên; bảng năm cột (Mã · Số CP · Giá mua · Thị giá ·
+Ngày mua) có mũi tên cuối dòng, dòng ASM mở ra Lãi/lỗ, Lãi/lỗ %, Tỷ trọng và hai nút Sửa · Bỏ mã; nút "+ Thêm mới" rộng
+hết hàng ngay trên thanh đáy. Kèm: _"Button Bỏ mã đổi thành Xóa"_.
+
+Hỏi lại ba điểm bản vẽ chưa rõ, chủ dự án chốt:
+
+- Thanh trên: _"cứ làm theo thiết kế. còn button sáng tối thì để người dùng thay đổi ở màn home"_ — màn này dưới 1024px
+  không có Sáng/Tối và VI, các màn khác giữ nguyên.
+- Cột giá: **giữ "Giá vốn"**, không đổi thành "Giá mua".
+- Thanh đáy (bản vẽ ghi "Về chúng tôi", bốn icon khác): **không đổi**.
+
+### Đã làm (mọi khổ dưới 1024px; khổ PC không đổi)
+
+| File                                                                            | Vì sao                                                                                                                                                                                                                                                                                                                         |
+| ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `src/app/danh-muc/PortfolioScreen.tsx`                                          | Dòng chi tiết (`openRow`, một dòng một lúc), bấm dòng chọn việc theo khổ (`laKhoPC()` đọc `matchMedia` lúc bấm), mũi tên trong ô cuối, hai icon thanh trên qua cổng, ô tìm bật/tắt (đóng thì xoá chữ), ba hàm in Lãi/lỗ · % · Tỷ trọng dùng chung cho ô PC và dòng chi tiết. Bảng Công thức cùng khuôn (bản vẽ chỉ vẽ tab Mã). |
+| `src/app/danh-muc/PortfolioScreen.module.css`                                   | Khối `@media (max-width: 1023.98px)` cuối file: ẩn nhãn "Danh mục" và tiêu đề khối, bảng 5/3 cột căn trái, dòng chi tiết, "Thêm mới" `fixed` gióng theo lòng khung nội dung.                                                                                                                                                   |
+| `src/app/danh-muc/PortfolioSummary.tsx` + CSS                                   | Thẻ tóm tắt thu một hàng, mũi tên mở phần còn lại. Dòng lãi/lỗ vào trong `.hero` (PC bù khoảng cách, không đổi gì nhìn thấy). Giá cũ/hỏng thì dải ngày phiên hiện cả lúc thu gọn.                                                                                                                                              |
+| `src/app/danh-muc/ExpandToggle.tsx` + CSS (mới)                                 | Một nút mũi tên cho cả ba chỗ (thẻ, hai bảng). Chỉ hiện dưới 1024px; vùng chạm 44px neo mép phải.                                                                                                                                                                                                                              |
+| `src/ui/primitives/TabBar.tsx` + CSS                                            | `orientation="responsive"`: ngang dưới 1024px (không icon), dọc từ 1024px; nhận cả hai cặp phím mũi tên.                                                                                                                                                                                                                       |
+| `src/ui/navigation/HeaderControls.tsx` (mới), `AppHeader.tsx` + CSS, `index.ts` | Ô trống `HEADER_ACTIONS_ID` cho nút của màn; ẩn Sáng/Tối và VI dưới 1024px ở màn có trong `headerHasScreenActions()`.                                                                                                                                                                                                          |
+| `src/application/routes.ts`, `index.ts`                                         | `headerHasScreenActions()` — hiện chỉ `/danh-muc/`.                                                                                                                                                                                                                                                                            |
+| `src/application/i18n/vi.ts`, `en.ts`                                           | `portfolio.title` "Danh mục của tôi" → "Danh mục" (EN "Portfolio"); khoá mới `portfolio.refreshPrices` ("Làm mới giá"), `portfolio.details` ("Chi tiết").                                                                                                                                                                      |
+| `PortfolioScreen.test.tsx`                                                      | Ba ca cũ ghim "không còn mũi tên" sửa lại (mũi tên có, đóng sẵn, PC bấm dòng vẫn mở form); khối mới 8 ca khổ điện thoại (`matchMedia` giả).                                                                                                                                                                                    |
+| `TabBar.test.tsx`, `AppHeader.test.tsx`, `routes.test.ts`                       | Ca cho dáng `responsive`, ô trống thanh trên, `headerHasScreenActions()`.                                                                                                                                                                                                                                                      |
+| `TickerPickerSheet.test.tsx`                                                    | Ca "cuộn tới đáy" chập chờn khi cả bộ chạy (bắn trước khi observer gắn lại) — nay chờ observer rồi mới bắn. Việc của lượt trước, gặp khi chạy `npm test` lượt này.                                                                                                                                                             |
+| `scripts/chrome-check.mjs`                                                      | Viết lại khối đo khổ nhỏ của màn (đúng lời hẹn "khi có bản vẽ khổ nhỏ"): 360 và 560, chuột thật. Phép đo "Vốn đã bỏ ra" ở 360 bấm mở thẻ trước.                                                                                                                                                                                |
+| `CLAUDE.md`                                                                     | Thay đoạn "Small screens are NOT designed" bằng mô tả khổ nhỏ mới.                                                                                                                                                                                                                                                             |
+
+### Kiểm chứng
+
+- Chrome thật qua dev (script CDP riêng) ở 360 / 390 / 768 / 1440, giao diện tối và sáng: không tràn ngang; bảng vừa
+  khung (0px); 5 cột; chạm dòng mở chi tiết, chạm mã dòng khác thì chỉ dòng ấy mở, không mở hộp thoại; thẻ tóm tắt thu
+  gọn rồi mở được; "Thêm mới" ghim, trọn trên thanh đáy, gióng mép bảng (768px: 40 → 728 như bảng); cuộn hết thì ô miễn
+  trừ dừng trên nút; icon Tìm kiếm mở ô và đặt tiêu điểm; tab Công thức 3 cột, chạm dòng không điều hướng; 1440 giữ 8 cột
+  và Sáng/Tối.
+- `npm run lint`, `npm run typecheck`, `prettier --check` sạch; `npm test` xanh (ca chập chờn ở trên đã sửa).
+- `check:chrome` (build trên bản sao, dev giữ :3000): **180/186**. Sáu phép còn đỏ đều đỏ sẵn ở HEAD (bản gốc 166/173):
+  năm phép nhãn biểu đồ tràn khung (`lich-tra-no`, `diem-hoa-von`, `lai-kep` ×2, nhãn chặng `fcff`) và "hàng nút form thêm mã
+  dạt phải" (hở 20px). Không file nào của lượt này chạm tới chúng.
+- Phép "hàng nav đứng yên khi đổi màn" cũng đỏ sẵn ở HEAD: màn Cài đặt ở 1440×900 cao vừa 900px nên không có thanh cuộn,
+  tâm lệch 7,5px vì thanh cuộn chứ không vì nav. Đã sửa phép đo cho đo độ lệch so với tâm THANH; nay đạt.
+- `verify:static` 51/51. Cỡ gói: `/danh-muc/` 189,2 → 191,1 kB, trang chi tiết +0,2 kB (cửa 180 kB vốn đã đỏ ở 112 trang).
+
+### Lượt sửa: màu và kích thước lấy từ ẢNH bản vẽ, không từ token sẵn có
+
+Chủ dự án xem bản đầu: _"màu của button thêm mới như nào, màu của tabbar khi chọn là như nào ? đừng tự sửa thiết kế của
+tôi và đừng bịa thiết kế"_. Đúng lỗi: bản đầu thay màu bản vẽ bằng màu sẵn có (nút và tab chọn xanh nhạt `#5b9bff` chữ
+navy, dòng mở nền trang, nút Sửa nền thẻ viền đậm…), và tự giữ dáng tab mặc định của primitive.
+
+Cách sửa: đọc điểm ảnh trên ảnh bản vẽ (390×844 ở 2×, script node đọc PNG không thư viện), so cùng vùng trên ảnh chụp màn
+ở cùng khổ và mật độ, chỉnh tới khi mọi màu trùng mã và mọi khoảng lệch ≤ 1–2px.
+
+- **Màu (giao diện tối, đo trên ảnh):** "Thêm mới" và tab chọn nền `#2563eb` chữ `#ffffff` (token mới `--color-cta` /
+  `--color-on-cta`); khay tab `#0a0f1a` viền `#313d52`; tab chưa chọn chữ `#b3c0d4`; dải nền tab `#1b2435` kẻ dưới `#313d52`;
+  hàng tiêu đề bảng nền `#0a0f1a`; dòng đang mở và khối chi tiết `#0a0f1a`; nút Sửa nền `#0a0f1a` viền `#313d52` chữ
+  `#b3c0d4`; nút Xoá chữ `#f4a0a6` viền `#6b3b42` (token mới `--color-danger-line`); số Tỷ trọng `#b3c0d4`; mũi tên dòng
+  đóng `#5a6880` (token mới `--color-chevron`); icon thanh trên `#b3c0d4`. Mọi màu khác của màn vốn đã trùng.
+- **Kích thước:** lề hai bên 10px (khung nội dung là 16px — màn nới ra 6px mỗi bên); dải tab sát dưới thanh trên, hết bề
+  ngang, khay cao 50px, tab 40px; hàng tổng giá trị 44px, kẻ dưới hết bề ngang, không khe tới thẻ bảng; tiêu đề cột 34px;
+  dòng 49px; chữ bảng 13px, mã 15px; số tổng 16px; khối chi tiết: nút 38px (vùng chạm 44px bằng lớp phủ), khe 8px; "Thêm mới"
+  cao 46px chữ 15px; mũi tên 16px; icon thanh trên 20px và đặt theo vị trí bản vẽ.
+- Token mới khai ở cả hai bảng màu; `contrast.test.ts` thêm ca chữ trắng trên `#2563eb` (5,17:1) và chữ tab chưa chọn trên khay;
+  `hairline.test.ts` ghim kẻ dưới dải tab (`--color-border`, đúng màu đo được).
+- Giao diện sáng: bản vẽ không có. Các màu đi theo token cùng vai ở bảng sáng; riêng `#2563eb` dùng nguyên ở cả hai bảng.
+
+### Còn để ngỏ
+
+- **Ô miễn trừ** ("Kết quả chỉ mang tính tham khảo…"): bản vẽ không vẽ nó (giữa bảng và nút "Thêm mới" để trống). Đang giữ
+  vì đây là câu miễn trừ DUY NHẤT của màn (FR-24). Chờ chủ dự án quyết.
+- **Ký hiệu tiền**: bản vẽ in "170.245.000 đ" (chữ đ, không gạch dưới); sản phẩm in `₫` ở mọi nơi. Chưa đổi.
+- **Phần bản vẽ không có mà màn phải có**: tab Công thức khổ điện thoại, nội dung khi mở thẻ tóm tắt, khối chi tiết của dòng
+  chờ số liệu. Đang dựng theo cùng khuôn với tab Mã; chờ bản vẽ.
+- **Ngày phiên** ("Giá phiên …") nay nằm sau mũi tên của thẻ tóm tắt khi giá bình thường — đảo luật cũ "luôn hiện", theo bản
+  vẽ. Giá cũ hoặc tra hỏng thì vẫn hiện ngay.
+- Mã nắm hàng triệu cổ phiếu ở khổ 360px: bảng cuộn ngang trong khung (trang không tràn).
+- Nút đỏ ghi "Xoá" theo cách bỏ dấu của cả sản phẩm (dấu X ở PC, `portfolio.remove`); lời dặn ghi "Xóa" — cùng một chữ.
+
+---
+
+## Màn Cài đặt trên điện thoại: nhãn trái, cụm nút phải, ba cụm cùng một cỡ (14/10/2026)
+
+**Trạng thái: CHƯA XONG — code, ca kiểm và phép đo trên Chrome thật xong, chờ chủ dự án xem màn.**
+
+### Chủ dự án giao gì
+
+Ảnh màn Cài đặt trên điện thoại, khoanh cụm "Cơ bản | Nâng cao" và cụm "tỷ ₫ | triệu ₫ | ₫": _"các chức năng kia cần
+thu nhỏ lại hơn 1 chút và chuyển sang bên phải, còn text thì bên trái. và đồng thời căn chỉnh lại sao cho đều"_.
+
+### Vì sao lệch
+
+Hàng cài đặt là flex có `wrap`. Hàng "Cơ bản hay Nâng cao" (nhãn cộng một dòng phụ dài) và hàng "Đơn vị tiền trong bảng"
+(ba nút) không đủ chỗ, nên cụm nút rơi xuống dòng riêng và dạt về mép TRÁI; cụm Sáng/Tối ở giữa vẫn đứng bên phải. Ba
+cụm còn ba chiều cao: 36 · 36 · 48px (cụm đơn vị cao đúng 44px vùng chạm).
+
+### Đã làm
+
+Dưới 560px:
+
+- Mỗi hàng thành lưới hai cột: nhãn cột trái, cụm nút cột phải cùng dòng và sát mép phải, dòng phụ (nếu có) xuống dòng
+  thứ hai trải hết bề ngang. Để dòng phụ ngồi cạnh cụm nút thì nó bị ép vào cột ~150px, cao sáu bảy dòng.
+- Ba cụm có bản gọn (`compact`): nút cao 28px, đệm 8px, chữ 12px. Cả ba cùng cao 34px. Vùng chạm 44px giữ nguyên bằng lớp
+  phủ `::after`.
+
+Từ 560px trở lên không đổi gì. Cụm "Cơ bản | Nâng cao" ở hàng tiêu đề danh sách công thức không truyền `compact`, nên
+không đổi.
+
+| File                                        | Đổi gì                                                                          |
+| ------------------------------------------- | ------------------------------------------------------------------------------- |
+| `src/app/cai-dat/SettingsScreen.module.css` | Luật lưới hai cột của `.row` dưới 560px                                         |
+| `src/app/cai-dat/SettingsScreen.tsx`        | Truyền `compact` cho ba cụm                                                     |
+| `src/ui/navigation/ModeToggle.tsx` + CSS    | Prop `compact`, bản gọn dưới 560px                                              |
+| `src/ui/navigation/ThemePicker.tsx` + CSS   | Prop `compact`, bản gọn dưới 560px                                              |
+| `src/ui/inputs/UnitSwitcher.tsx` + CSS      | Prop `compact`, bản gọn dưới 560px kèm lớp phủ 44px và `nowrap`                 |
+| `src/app/cai-dat/SettingsScreen.test.tsx`   | +1 ca: ba cụm mang bản gọn và là con cuối của hàng (luật lưới dựa vào điều này) |
+
+### Kiểm chứng
+
+- Lint, typecheck, format; 18 file test liên quan qua.
+- Chrome thật trên dev đang chạy, `/cai-dat/`: ở 390px và 360px cả ba hàng có cụm nút cùng dòng với nhãn (lệch tâm
+  0px), sát mép phải (0px), cao 34px cả ba, nhãn không đè lên cụm nút, dòng phụ nằm dưới và rộng bằng hàng, không tràn
+  ngang. Ở 1440px không đổi.
+
+### Còn để ngỏ
+
+- Bo góc vẫn lệch: cụm "Cơ bản | Nâng cao" bo 8px (chủ dự án chốt 10/09/2026), hai cụm kia bo tròn hai đầu.
+- Khổ PC vẫn ba chiều cao 38 · 38 · 50px — lượt này chỉ sửa điện thoại theo yêu cầu.
+
+---
+
 ## "Xem ví dụ minh hoạ" phải vẽ ra hình đầy dữ liệu — chuỗi ví dụ 250 phiên thật (14/10/2026)
 
 **Trạng thái: CHƯA XONG — code, dữ liệu và ca kiểm xong, chờ chủ dự án xem màn.**

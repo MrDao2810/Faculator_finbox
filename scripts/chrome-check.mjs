@@ -1982,19 +1982,20 @@ window.__themeLog = [];
   await evaluate(`localStorage.removeItem('ffb.prefs.v1'), true`);
 
   /*
-   * ── Màn Danh mục ở khổ NHỎ: chỉ còn hai điều kiện (12/10/2026) ───────────────────────────────
+   * ── Màn Danh mục ở khổ ĐIỆN THOẠI: bản vẽ của chủ dự án (14/10/2026) ─────────────────────────────
    *
-   * Từ 22/09 đến 12/10 chỗ này đo ba hình dạng của bảng Nắm giữ: dòng gọn ba cột dưới 560px, bảng bảy
-   * cột từ 560px, bảng tám cột từ 1024px — và bốn lỗi hình học chủ dự án đã chụp ở khổ điện thoại
-   * (lãi/lỗ rơi hàng ba, "tỷ trọng" dính con số, khối chi tiết co lại bằng cụm nút, `<dl>` rỗng). Bản
-   * thiết kế hai cột bỏ cả hàng mở rộng lẫn dòng gọn, và CHỦ DỰ ÁN GIAO KHỔ NHỎ "tính sau": dưới 1024px
-   * bảng chỉ là phương án tạm — hai cột xếp chồng, bảng cuộn ngang TRONG khung của nó.
+   * Từ 22/09 đến 12/10 chỗ này đo ba hình dạng của bảng Nắm giữ; bản hai cột 12/10 bỏ cả ba và giao khổ
+   * nhỏ "tính sau", nên nó chỉ còn hai điều kiện (không tràn ngang, "Thêm mới" bấm được) kèm lời hẹn:
+   * khi có bản vẽ khổ nhỏ, viết lại bộ đo cho đúng bản vẽ ấy. Bản vẽ đã tới — đây là bộ đo viết lại.
    *
-   * Nên các phép đo kia đi cùng cái chúng đo. Giữ lại hai điều kiện KHÔNG phụ thuộc thiết kế khổ nhỏ,
-   * vì chúng là điều trang phải đúng ở mọi khổ: không tràn ngang cả trang, và nút "Thêm mới" — hành
-   * động chính của màn — vẫn bấm được. Khi có bản vẽ khổ nhỏ, viết lại bộ đo cho đúng bản vẽ ấy.
+   * Dưới 1024px: thanh trên "Danh mục" + MỘT icon Tìm kiếm (không Sáng/Tối, VI; icon Làm mới giá của bản
+   * vẽ đầu bị chủ dự án gạch cùng ngày), bấm thì ô tìm mở ngay trên thanh trên; hai tab
+   * ngang; thẻ tóm tắt thu một hàng; bảng Mã năm cột, chạm dòng thì dòng chi tiết mở với Lãi/lỗ, Lãi/lỗ
+   * %, Tỷ trọng và hai nút Sửa · Xoá; "Thêm mới" ghim đáy ngay trên thanh điều hướng. Mọi thứ ấy là CSS
+   * trong `@media` của CSS Module (jsdom không áp), và cú chạm phải là chuột THẬT — `PortfolioScreen`
+   * đọc `matchMedia` lúc bấm, nên một `click()` giả trong jsdom không nói gì về Chrome.
    *
-   * HPG cố ý KHÔNG có ngày mua: hai mã giữ cho các phép đo ở khổ PC bên dưới có hai hàng để so.
+   * Đo ở 360 (khổ hẹp nhất) và 560. HPG cố ý KHÔNG có ngày mua: dòng ấy in `_ _` ở ô cuối, cạnh mũi tên.
    */
   await evaluate(`(() => {
     localStorage.setItem('ffb.portfolio.v1', JSON.stringify([
@@ -2003,56 +2004,396 @@ window.__themeLog = [];
     ]));
     return true;
   })()`);
-  await open('/danh-muc/');
-  await waitFor(
-    `[...document.querySelectorAll('button')].some((b) => /^Sửa FPT/.test(b.getAttribute('aria-label') ?? ''))`,
-  );
 
-  const doKhoNho = () =>
-    evaluate(`(() => {
+  const DOC_DANH_MUC_NHO = `(() => {
+    const hop = (el) => (el === null || el === undefined ? null : el.getBoundingClientRect());
+    const hien = (el) => el !== null && el !== undefined && getComputedStyle(el).display !== 'none' && hop(el).width > 0;
     const bang = document.querySelector('main table');
     const khung = bang === null ? null : bang.closest('[class*="tableWrap"]');
-    const nut = [...document.querySelectorAll('button')].find((b) => /Thêm mới/.test(b.textContent ?? ''));
-    const hop = nut === undefined ? null : nut.getBoundingClientRect();
+    const them = [...document.querySelectorAll('button')].find((b) => (b.textContent ?? '').trim() === 'Thêm mới');
+    const thanhDay = [...document.querySelectorAll('nav')].find((n) => hien(n) && hop(n).top > window.innerHeight / 2);
+    const tabs = [...document.querySelectorAll('[role="tab"]')].map((t) => hop(t));
+    const von = [...document.querySelectorAll('span')].find((s) => s.textContent === 'Vốn đã bỏ ra');
+    const cot = bang === null ? [] : [...bang.querySelectorAll('thead th')].filter((th) => getComputedStyle(th).display !== 'none');
+    const hThem = hop(them);
+    const hKhung = hop(khung);
     return {
-      thay: bang !== null,
       tran: document.documentElement.scrollWidth > document.documentElement.clientWidth + 1,
-      // Bảng rộng hơn khung thì cuộn TRONG khung — đúng phương án tạm, không phải lỗi.
-      cuonTrongKhung: khung !== null && khung.scrollWidth > khung.clientWidth + 1,
-      nutTrongMan: hop !== null && hop.left >= 0 && hop.right <= window.innerWidth,
-      rongNut: hop === null ? 0 : Math.round(hop.width),
+      bangCuon: khung === null ? -1 : khung.scrollWidth - khung.clientWidth,
+      cot: cot.map((th) => th.textContent),
+      nutThanh: [...document.querySelectorAll('#header-screen-actions button')].filter(hien).map((b) => b.getAttribute('aria-label')),
+      themeHien: hien(document.querySelector('button[aria-label^="Chuyển sang giao diện"]')),
+      ngonNguHien: hien(document.querySelector('button[aria-label^="Chuyển sang tiếng"]')),
+      tabNgang: tabs.length === 2 && Math.abs(tabs[0].top - tabs[1].top) < 1 && tabs[1].left > tabs[0].right - 1,
+      // Chữ NHÌN THẤY trên tab (innerText bỏ phần display: none) — số đếm đã bỏ ở khổ này (14/10/2026).
+      chuTab: [...document.querySelectorAll('[role="tab"]')].map((t) => t.innerText.trim()),
+      vonHien: hien(von),
+      keDuoiThe: (() => {
+        const the = von === undefined ? null : von.closest('[class*="card"]');
+        return the === null ? null : getComputedStyle(the).borderBottomWidth;
+      })(),
+      them: hThem === null ? null : {
+        pos: getComputedStyle(them).position,
+        top: Math.round(hThem.top),
+        bottom: Math.round(hThem.bottom),
+        left: Math.round(hThem.left),
+        right: Math.round(hThem.right),
+      },
+      khung: hKhung === null ? null : { left: Math.round(hKhung.left), right: Math.round(hKhung.right) },
+      dayTop: thanhDay === undefined ? -1 : Math.round(hop(thanhDay).top),
     };
-  })()`);
+  })()`;
 
-  const dmHep = await doKhoNho();
-  check(
-    '360 · màn Danh mục có mã không tràn ngang — bảng cuộn trong khung của nó',
-    dmHep.thay === true && dmHep.tran === false,
-    `bảng ${dmHep.cuonTrongKhung === true ? 'cuộn ngang trong khung' : 'vừa khung'}`,
-  );
-  check(
-    '360 · nút "Thêm mới" nằm trọn trong màn',
-    dmHep.nutTrongMan === true,
-    `nút rộng ${String(dmHep.rongNut)}px`,
-  );
+  async function chamChuot(x, y) {
+    for (const type of ['mousePressed', 'mouseReleased']) {
+      await send('Input.dispatchMouseEvent', {
+        type,
+        x: Math.round(x),
+        y: Math.round(y),
+        button: 'left',
+        clickCount: 1,
+      });
+    }
+    await new Promise((r) => setTimeout(r, 250));
+  }
 
-  await send('Emulation.setDeviceMetricsOverride', {
-    width: 560,
-    height: 900,
-    deviceScaleFactor: 2,
-    mobile: true,
-  });
-  await open('/danh-muc/');
-  await waitFor(
-    `[...document.querySelectorAll('button')].some((b) => /^Sửa FPT/.test(b.getAttribute('aria-label') ?? ''))`,
-  );
+  /** Tâm một ô của dòng mã — `o` là chỉ số ô. Cuộn dòng vào màn trước để toạ độ nằm trong vùng nhìn. */
+  const tamO = (code, o) =>
+    evaluate(`(() => {
+      const nut = [...document.querySelectorAll('button')].find((b) => b.getAttribute('aria-label') === 'Sửa ${code}');
+      const tr = nut.closest('tr');
+      tr.scrollIntoView({ block: 'center' });
+      const r = tr.children[${String(o)}].getBoundingClientRect();
+      return { x: r.left + Math.min(12, r.width / 2), y: (r.top + r.bottom) / 2 };
+    })()`);
 
-  const dmVua = await doKhoNho();
-  check(
-    '560 · màn Danh mục có mã không tràn ngang, nút "Thêm mới" nằm trọn trong màn',
-    dmVua.thay === true && dmVua.tran === false && dmVua.nutTrongMan === true,
-    `bảng ${dmVua.cuonTrongKhung === true ? 'cuộn ngang trong khung' : 'vừa khung'}`,
-  );
+  const DOC_DONG_MO_DM = `(() => {
+    const dong = [...document.querySelectorAll('tr[id^="portfolio-ma-chi-tiet-"]')];
+    return {
+      ids: dong.map((d) => d.id),
+      nhan: dong.length === 1 ? [...dong[0].querySelectorAll('dt')].map((d) => d.textContent) : [],
+      nut: dong.length === 1 ? [...dong[0].querySelectorAll('button')].map((b) => b.textContent) : [],
+      hien: dong.length === 1 && dong[0].getBoundingClientRect().height > 40,
+      hopThoai: document.querySelectorAll('dialog[open]').length,
+      tran: document.documentElement.scrollWidth > document.documentElement.clientWidth + 1,
+    };
+  })()`;
+
+  /*
+   * Ô tìm trên thanh trên (14/10/2026): chủ dự án khoanh chỗ nó hiện ra — sau tên màn, tới mép phải, kính
+   * lúp ở cuối. Đo hộp KHUNG (cha của icon), tên màn không bị cắt `…` (lỗi đã gặp: ô nhập đòi bề ngang
+   * tự nhiên ~20 ký tự và co tên màn thành "Danh m…"), đúng một ô tìm hiện trên màn.
+   */
+  const DOC_O_TIM_DM = `(() => {
+    const hop = (el) => { if (el === null) return null; const r = el.getBoundingClientRect(); return { top: r.top, bottom: r.bottom, left: r.left, right: r.right }; };
+    const o = document.querySelector('header input[type="search"]');
+    const nut = document.querySelector('#header-screen-actions button[aria-label="Tìm kiếm"]');
+    const h1 = document.querySelector('header h1');
+    const hNut = hop(nut);
+    return {
+      khung: o === null ? null : hop(nut.parentElement),
+      thanh: hop(document.querySelector('header')),
+      tieuDe: hop(h1),
+      tieuDeCat: h1.scrollWidth > h1.clientWidth,
+      soOHien: [...document.querySelectorAll('input[type="search"]')].filter((i) => i.getClientRects().length > 0).length,
+      tieuDiem: o !== null && document.activeElement === o,
+      moRong: nut.getAttribute('aria-expanded'),
+      iconLaX: nut.querySelector('path')?.getAttribute('d') === 'M6 6l12 12M18 6 6 18',
+      // Ô tìm mở thì icon Làm mới giá rời thanh trên, tới khi ô đóng (chủ dự án, 14/10/2026).
+      coLamMoi: document.querySelector('#header-screen-actions button[aria-label="Làm mới giá"]') !== null,
+      ngoai: (() => {
+        const nhan = [...document.querySelectorAll('main span')].find((s) => s.textContent === 'Tổng giá trị');
+        const r = nhan.getBoundingClientRect();
+        return { x: (r.left + r.right) / 2, y: (r.top + r.bottom) / 2 };
+      })(),
+      icon: { x: (hNut.left + hNut.right) / 2, y: (hNut.top + hNut.bottom) / 2 },
+      chu: [...document.querySelectorAll('input[type="search"]')].map((i) => i.value).join('|'),
+      dong: [...document.querySelectorAll('button')].map((b) => b.getAttribute('aria-label') ?? '').filter((n) => /^Sửa [A-Z0-9]+$/.test(n)).map((n) => n.slice(4)),
+      tran: document.documentElement.scrollWidth > document.documentElement.clientWidth + 1,
+    };
+  })()`;
+
+  for (const [rong, cao] of [
+    [360, 780],
+    [560, 900],
+  ]) {
+    await send('Emulation.setDeviceMetricsOverride', {
+      width: rong,
+      height: cao,
+      deviceScaleFactor: 2,
+      mobile: true,
+    });
+    await open('/danh-muc/');
+    await waitFor(
+      `[...document.querySelectorAll('button')].some((b) => b.getAttribute('aria-label') === 'Sửa FPT')`,
+    );
+    await waitFor(`document.querySelector('#header-screen-actions button') !== null`);
+
+    const nho = await evaluate(DOC_DANH_MUC_NHO);
+    check(
+      `${String(rong)} · Danh mục: thanh trên có icon Tìm kiếm rồi Làm mới giá bên phải, không có Sáng/Tối và VI`,
+      nho.nutThanh.join('|') === 'Tìm kiếm|Làm mới giá' &&
+        nho.themeHien === false &&
+        nho.ngonNguHien === false,
+      `nút ${nho.nutThanh.join(', ')} · sáng/tối ${String(nho.themeHien)} · VI ${String(nho.ngonNguHien)}`,
+    );
+
+    // Chạm chuột thật vào icon Tìm kiếm rồi gõ: ô mở trên thanh trên và lọc bảng.
+    const dongTim = await evaluate(DOC_O_TIM_DM);
+    await chamChuot(dongTim.icon.x, dongTim.icon.y);
+    await send('Input.insertText', { text: 'hpg' });
+    await new Promise((r) => setTimeout(r, 300));
+    const moTim = await evaluate(DOC_O_TIM_DM);
+    check(
+      `${String(rong)} · Danh mục: icon Tìm kiếm mở ô tìm NGAY TRÊN thanh trên — sau tên màn tới mép phải, tên không bị cắt, gõ thì lọc, icon Làm mới rời thanh`,
+      dongTim.coLamMoi === true &&
+        moTim.coLamMoi === false &&
+        moTim.khung !== null &&
+        moTim.khung.top >= moTim.thanh.top &&
+        moTim.khung.bottom <= moTim.thanh.bottom &&
+        moTim.khung.left > moTim.tieuDe.right &&
+        moTim.khung.right <= rong - 8 &&
+        moTim.khung.right - moTim.khung.left >= 120 &&
+        moTim.tieuDeCat === false &&
+        moTim.soOHien === 1 &&
+        moTim.tieuDiem === true &&
+        moTim.moRong === 'true' &&
+        moTim.dong.join() === 'HPG' &&
+        moTim.tran === false,
+      `khung ${JSON.stringify(moTim.khung)} · tên ${JSON.stringify(moTim.tieuDe)} cắt ${String(moTim.tieuDeCat)} · ô hiện ${String(moTim.soOHien)} · dòng ${moTim.dong.join()}`,
+    );
+
+    /*
+     * Ô có chữ: chạm ra ngoài (chữ "Tổng giá trị", không có việc gì gắn vào) KHÔNG đóng — bảng đang là kết quả tìm. Rồi chạm dấu X
+     * cuối khung: ô đóng, chữ bị xoá, bảng đủ dòng. Chủ dự án từng mở ô rồi không đóng được (14/10/2026)
+     * vì lúc ấy cuối khung là kính lúp; nay ô đang mở thì icon phải là dấu X.
+     */
+    await chamChuot(moTim.ngoai.x, moTim.ngoai.y);
+    const ngoaiCoChu = await evaluate(DOC_O_TIM_DM);
+    await chamChuot(ngoaiCoChu.icon.x, ngoaiCoChu.icon.y);
+    const dongLai = await evaluate(DOC_O_TIM_DM);
+    check(
+      `${String(rong)} · Danh mục: ô đang mở có dấu X ở cuối khung; chạm X thì ô đóng, chữ bị xoá, bảng đủ dòng, icon Làm mới về lại`,
+      moTim.iconLaX === true &&
+        ngoaiCoChu.khung !== null &&
+        ngoaiCoChu.coLamMoi === false &&
+        dongLai.khung === null &&
+        dongLai.coLamMoi === true &&
+        dongLai.soOHien === 0 &&
+        dongLai.moRong === 'false' &&
+        dongLai.iconLaX === false &&
+        dongLai.chu === '' &&
+        dongLai.dong.join() === 'FPT,HPG',
+      `X khi mở ${String(moTim.iconLaX)} · có chữ, chạm ngoài: khung ${JSON.stringify(ngoaiCoChu.khung)} · sau X: khung ${JSON.stringify(dongLai.khung)} · ô hiện ${String(dongLai.soOHien)} · chữ "${dongLai.chu}" · dòng ${dongLai.dong.join()}`,
+    );
+
+    // Ô còn trống: chạm ra ngoài là đóng, như mọi ô bật lên.
+    await chamChuot(dongLai.icon.x, dongLai.icon.y);
+    const moTrong = await evaluate(DOC_O_TIM_DM);
+    await chamChuot(moTrong.ngoai.x, moTrong.ngoai.y);
+    const ngoaiTrong = await evaluate(DOC_O_TIM_DM);
+    check(
+      `${String(rong)} · Danh mục: ô tìm trên thanh còn trống thì chạm ra ngoài là đóng`,
+      moTrong.khung !== null &&
+        moTrong.coLamMoi === false &&
+        ngoaiTrong.khung === null &&
+        ngoaiTrong.moRong === 'false' &&
+        ngoaiTrong.coLamMoi === true,
+      `mở ${JSON.stringify(moTrong.khung)} · sau chạm ngoài ${JSON.stringify(ngoaiTrong.khung)}`,
+    );
+
+    /*
+     * Icon Làm mới giá trên thanh trên (14/10/2026): chủ dự án bấm làm mới và không thấy gì được tải lại,
+     * rồi cho icon về bên phải icon Tìm kiếm và bỏ ngày phiên cùng nút "Làm mới" khỏi chân thẻ tab Mã ở
+     * khổ này. Trang gọi Finbox thật nếu máy có mạng, không thì tra hỏng — đường nào cũng trả lời nhanh hơn
+     * mắt kịp thấy, nên vẫn phải thấy bảng bận, vệt chờ trên các ô sống theo giá, icon xoay và khoá, và
+     * trạng thái ấy đứng đủ `MIN_REFRESH_MS` (600ms) của `PortfolioScreen.tsx`.
+     */
+    const DOC_CHO_GIA = `(() => {
+      const bang = document.querySelector('main table');
+      const icon = document.querySelector('#header-screen-actions button[aria-label="Làm mới giá"]');
+      const r = icon === null ? null : icon.getBoundingClientRect();
+      return {
+        ban: bang === null ? null : bang.getAttribute('aria-busy'),
+        vet: [...document.querySelectorAll('main table [class*="khungCho"]')].filter((v) => v.getClientRects().length > 0).length,
+        iconBan: icon === null ? null : icon.getAttribute('aria-busy'),
+        iconKhoa: icon === null ? null : icon.disabled,
+        icon: r === null ? null : { x: (r.left + r.right) / 2, y: (r.top + r.bottom) / 2 },
+      };
+    })()`;
+    const truocLm = await evaluate(DOC_CHO_GIA);
+    let choGia = null;
+    let xongSau = -1;
+    if (truocLm.icon !== null) {
+      const t0 = Date.now();
+      await chamChuot(truocLm.icon.x, truocLm.icon.y);
+      choGia = await evaluate(DOC_CHO_GIA);
+      for (let i = 0; i < 160 && xongSau < 0; i += 1) {
+        const tt = await evaluate(DOC_CHO_GIA);
+        if (tt.ban === 'false' && tt.iconBan === 'false') xongSau = Date.now() - t0;
+        else await new Promise((r) => setTimeout(r, 50));
+      }
+    }
+    check(
+      `${String(rong)} · Danh mục: chạm icon Làm mới giá thì bảng bận, ô thị giá thành vệt chờ, icon xoay và khoá, đứng ≥ 0,55 giây rồi trở lại`,
+      choGia !== null &&
+        choGia.ban === 'true' &&
+        choGia.vet >= 2 &&
+        choGia.iconBan === 'true' &&
+        choGia.iconKhoa === true &&
+        xongSau >= 550 &&
+        xongSau < 8000,
+      `${JSON.stringify(choGia)} · xong sau ${String(xongSau)}ms`,
+    );
+
+    /*
+     * Chân thẻ tab Mã ở khổ này: KHÔNG còn nút Làm mới / Thử lại, kể cả khi thẻ mở; lúc giá bình thường
+     * (`role="status"`) cũng không còn ngày phiên. Giá cũ hoặc tra hỏng (`role="alert"`) thì dải vẫn hiện —
+     * FR-06, giá cũ phải đứng cạnh tên phiên — nên vế ngày phiên chỉ đòi ẩn ở ca bình thường.
+     */
+    const TAM_MUI_TEN_THE = `(() => {
+      const b = [...document.querySelectorAll('button')].find((x) => x.getAttribute('aria-label') === 'Chi tiết');
+      if (b === undefined) return null;
+      b.scrollIntoView({ block: 'center' });
+      const r = b.getBoundingClientRect();
+      return { x: (r.left + r.right) / 2, y: (r.top + r.bottom) / 2, mo: b.getAttribute('aria-expanded') };
+    })()`;
+    const muiTenLm = await evaluate(TAM_MUI_TEN_THE);
+    if (muiTenLm !== null && muiTenLm.mo === 'false') await chamChuot(muiTenLm.x, muiTenLm.y);
+    const chanThe = await evaluate(`(() => {
+      const hien = (el) => el !== null && el.getClientRects().length > 0;
+      const dai = document.querySelector('[role="status"], [role="alert"]');
+      return {
+        theMo: [...document.querySelectorAll('button')].find((x) => x.getAttribute('aria-label') === 'Chi tiết')?.getAttribute('aria-expanded'),
+        nutHien: [...document.querySelectorAll('button')].some((x) => /^(Làm mới|Thử lại)$/.test((x.textContent ?? '').trim()) && hien(x)),
+        vaiDai: dai === null ? null : dai.getAttribute('role'),
+        daiHien: hien(dai),
+      };
+    })()`);
+    const muiTenDong = await evaluate(TAM_MUI_TEN_THE);
+    if (muiTenDong !== null && muiTenDong.mo === 'true')
+      await chamChuot(muiTenDong.x, muiTenDong.y);
+    await evaluate('window.scrollTo(0, 0)');
+    check(
+      `${String(rong)} · Danh mục: thẻ tóm tắt đang mở mà chân thẻ không còn nút Làm mới, và không còn ngày phiên lúc giá bình thường`,
+      chanThe.theMo === 'true' &&
+        chanThe.nutHien === false &&
+        (chanThe.vaiDai !== 'status' || chanThe.daiHien === false),
+      JSON.stringify(chanThe),
+    );
+    check(
+      `${String(rong)} · Danh mục: hai tab nằm ngang trên một hàng, chỉ có chữ, không số đếm`,
+      nho.tabNgang === true &&
+        nho.chuTab.length === 2 &&
+        nho.chuTab.every((chu) => !/\d/.test(chu)),
+      nho.chuTab.join(' | '),
+    );
+    check(
+      `${String(rong)} · Danh mục: thẻ tóm tắt thu còn một hàng — "Vốn đã bỏ ra" ẩn tới khi bấm mũi tên`,
+      nho.vonHien === false,
+    );
+    /*
+     * Thẻ tóm tắt KHÔNG kẻ dưới (chủ dự án, 14/10/2026): kẻ ấy nằm sát ngay trên viền khung bảng, đọc thành
+     * hai đường chồng nhau và chạy ra ngoài hai góc bo của khung. Thẻ của tab Công thức dùng chung lớp này.
+     */
+    check(
+      `${String(rong)} · Danh mục: thẻ tóm tắt không kẻ dưới — viền khung bảng là đường duy nhất trên bảng`,
+      nho.keDuoiThe === '0px',
+      String(nho.keDuoiThe),
+    );
+    check(
+      `${String(rong)} · Danh mục: bảng Mã năm cột, vừa khung, trang không tràn ngang`,
+      nho.cot.join('|') === 'Mã|Số CP|Giá vốn|Thị giá|Ngày mua' &&
+        nho.bangCuon <= 0 &&
+        nho.tran === false,
+      `${nho.cot.join(' | ')} · bảng cuộn ${String(nho.bangCuon)}px`,
+    );
+    check(
+      `${String(rong)} · Danh mục: "Thêm mới" ghim đáy, gióng hai mép bảng, nằm trọn trên thanh điều hướng`,
+      nho.them !== null &&
+        nho.them.pos === 'fixed' &&
+        nho.khung !== null &&
+        Math.abs(nho.them.left - nho.khung.left) <= 1 &&
+        Math.abs(nho.them.right - nho.khung.right) <= 1 &&
+        nho.dayTop > 0 &&
+        nho.them.bottom <= nho.dayTop,
+      `nút ${JSON.stringify(nho.them)} · bảng ${JSON.stringify(nho.khung)} · thanh đáy ${String(nho.dayTop)}`,
+    );
+
+    /*
+     * Một màu, một cỡ, một nét cho số liệu (chủ dự án 14/10/2026: "đồng bộ về 1 loại màu … kể cả ở bên
+     * Mã cũng thế. ngoại trừ tên mã tên công thức thì vẫn để là size to hơn 1 px và in đậm"). Dòng FPT:
+     * mã to hơn số liệu đúng 1px và đậm hơn; các số liệu cùng cỡ, cùng nét, và cùng MÀU với mã. Ô "_ _"
+     * không tính — nó cố ý nhạt (FR-06), và script này không có Finbox nên Thị giá luôn là "_ _".
+     */
+    const chuMa = await evaluate(`(() => {
+      const nut = [...document.querySelectorAll('button')].find((b) => b.getAttribute('aria-label') === 'Sửa FPT');
+      const o = [...nut.closest('tr').children].filter((c) => getComputedStyle(c).display !== 'none');
+      const la = (td) => {
+        let el = td;
+        while (el.children.length === 1 && el.firstElementChild.textContent === el.textContent) el = el.firstElementChild;
+        return el;
+      };
+      const kieu = (el) => {
+        const c = getComputedStyle(el);
+        return { co: parseFloat(c.fontSize), net: Number(c.fontWeight), mau: c.color, chu: el.textContent.trim() };
+      };
+      return { ten: kieu(nut), so: o.slice(1).map((td) => kieu(la(td))).filter((k) => k.chu !== '_ _') };
+    })()`);
+    const soDau = chuMa.so[0];
+    check(
+      `${String(rong)} · Danh mục, bảng Mã: số liệu một cỡ, một nét, cùng màu với mã; mã to hơn 1px và đậm hơn`,
+      soDau !== undefined &&
+        chuMa.so.length >= 3 &&
+        chuMa.so.every(
+          (k) => k.co === soDau.co && k.net === soDau.net && k.mau === chuMa.ten.mau,
+        ) &&
+        chuMa.ten.co === soDau.co + 1 &&
+        chuMa.ten.net > soDau.net,
+      `mã ${String(chuMa.ten.co)}px nét ${String(chuMa.ten.net)} ${chuMa.ten.mau} · ${chuMa.so.map((k) => `${k.chu}: ${String(k.co)}px nét ${String(k.net)} ${k.mau}`).join(' | ')}`,
+    );
+
+    // Chạm chuột thật vào ô Giá vốn của FPT: dòng chi tiết mở, KHÔNG mở hộp thoại Sửa.
+    const oFpt = await tamO('FPT', 2);
+    await chamChuot(oFpt.x, oFpt.y);
+    const mo = await evaluate(DOC_DONG_MO_DM);
+    check(
+      `${String(rong)} · Danh mục: chạm dòng FPT mở dòng chi tiết — ba số, hai nút Sửa · Xoá, không mở hộp thoại`,
+      mo.ids.join() === 'portfolio-ma-chi-tiet-FPT' &&
+        mo.nhan.join('|') === 'Lãi/lỗ|Lãi/lỗ %|Tỷ trọng' &&
+        mo.nut.join('|') === 'Sửa|Xoá' &&
+        mo.hien === true &&
+        mo.hopThoai === 0 &&
+        mo.tran === false,
+      `${mo.ids.join()} · ${mo.nhan.join(', ')} · ${mo.nut.join(', ')} · hộp thoại ${String(mo.hopThoai)}`,
+    );
+
+    // Chạm vào chính MÃ của HPG: mã nhường cú chạm cho dòng, nên dòng HPG mở và dòng FPT đóng.
+    const maHpg = await tamO('HPG', 0);
+    await chamChuot(maHpg.x, maHpg.y);
+    const doi = await evaluate(DOC_DONG_MO_DM);
+    check(
+      `${String(rong)} · Danh mục: chạm vào mã HPG thì chỉ dòng HPG mở — một dòng một lúc`,
+      doi.ids.join() === 'portfolio-ma-chi-tiet-HPG' && doi.hopThoai === 0,
+      doi.ids.join() || 'không dòng nào mở',
+    );
+
+    // Cuộn hết trang: ô miễn trừ cuối màn dừng TRÊN nút ghim đáy, không nằm dưới nó.
+    const cuoi = await evaluate(`(async () => {
+      window.scrollTo(0, document.documentElement.scrollHeight);
+      await new Promise((d) => setTimeout(d, 200));
+      const mien = document.querySelector('main [role="note"]');
+      const them = [...document.querySelectorAll('button')].find((b) => (b.textContent ?? '').trim() === 'Thêm mới');
+      const r = { mien: Math.round(mien.getBoundingClientRect().bottom), them: Math.round(them.getBoundingClientRect().top) };
+      window.scrollTo(0, 0);
+      return r;
+    })()`);
+    check(
+      `${String(rong)} · Danh mục: cuộn hết trang, ô miễn trừ dừng trên nút "Thêm mới"`,
+      cuoi.mien <= cuoi.them,
+      `đáy ô miễn trừ ${String(cuoi.mien)} · đỉnh nút ${String(cuoi.them)}`,
+    );
+  }
 
   /* ── 8. Khổ PC lớn: bố cục nhiều cột ─────────────────────────────────────
    *
@@ -3168,8 +3509,11 @@ window.__themeLog = [];
    *
    * Từ 15/09/2026 cụm nút ấy dời xuống thân màn Công thức, nên hai màn so dưới đây nay có cùng một
    * cụm phải — phép so vẫn giữ: nó gác chuyện nav thôi đứng giữa THANH, không riêng chuyện cụm nút.
-   * Cả hai màn đủ dài để có thanh cuộn nên `clientWidth` bằng nhau, và không dính cú giãn 15px khi
-   * trang ngắn bỏ thanh cuộn (chuyện riêng, đã chốt để lại — xem `globals.css`).
+   * Đo ĐỘ LỆCH của tâm nav so với tâm THANH (`clientWidth / 2`), không đo toạ độ trần: trang ngắn thì
+   * bỏ thanh cuộn và cả thanh trên rộng thêm 15px — cú giãn ấy là chuyện riêng, đã chốt để lại (xem
+   * `globals.css`). Bản trước so toạ độ trần và dựa vào tiền đề "cả hai màn đủ dài để có thanh cuộn";
+   * 14/10/2026 màn Cài đặt ở 1440×900 cao vừa 900px (ô biểu phí thành chữ), tiền đề ấy gãy và phép so
+   * đỏ 8px vì thanh cuộn chứ không vì nav. Độ lệch so với tâm thanh là đúng điều phép đo này gác.
    *
    * Vế thứ hai gác một lỗi mà chính bản vá này suýt tạo ra: mục lưới mặc định `stretch`, nên thẻ
    * link "Faculator" phình từ 119px lên 497px và biến gần nửa thanh thành đích bấm vô hình về màn
@@ -3182,6 +3526,7 @@ window.__themeLog = [];
     const r = nav.getBoundingClientRect();
     return {
       tam: Math.round((r.left + r.right) / 2),
+      lechTam: Math.round((r.left + r.right) / 2 - document.documentElement.clientWidth / 2),
       rongHieu: hieu === undefined ? null : Math.round(hieu.getBoundingClientRect().width),
       clientWidth: document.documentElement.clientWidth,
     };
@@ -3197,11 +3542,11 @@ window.__themeLog = [];
     'PC 1440 · hàng nav đứng yên khi đổi màn — căn giữa thanh, không giữa phần còn lại',
     navCongThuc !== null &&
       navCaiDat !== null &&
-      navCongThuc.clientWidth === navCaiDat.clientWidth &&
-      Math.abs(navCongThuc.tam - navCaiDat.tam) <= 1,
+      Math.abs(navCongThuc.lechTam - navCaiDat.lechTam) <= 1 &&
+      Math.abs(navCongThuc.lechTam) <= 1,
     navCongThuc === null || navCaiDat === null
       ? 'không thấy hàng nav'
-      : `tâm: Công thức ${String(navCongThuc.tam)} · Cài đặt ${String(navCaiDat.tam)}`,
+      : `lệch khỏi tâm thanh: Công thức ${String(navCongThuc.lechTam)}px (rộng ${String(navCongThuc.clientWidth)}) · Cài đặt ${String(navCaiDat.lechTam)}px (rộng ${String(navCaiDat.clientWidth)})`,
   );
 
   check(
@@ -3468,7 +3813,9 @@ window.__themeLog = [];
 
     const o = [...hang.children];
     const khung = bang.closest('[class*="tableWrap"]');
-    const nut = [...hang.querySelectorAll('button')];
+    // Chỉ nút ĐANG VẼ: mũi tên của khổ điện thoại (14/10/2026) nằm trong DOM nhưng display: none ở PC.
+    const ve = (ds) => [...ds].filter((b) => b.getClientRects().length > 0);
+    const nut = ve(hang.querySelectorAll('button'));
     const cuoi = nut[nut.length - 1];
 
     return {
@@ -3480,8 +3827,8 @@ window.__themeLog = [];
       soMepTren: new Set(o.map((el) => Math.round(el.getBoundingClientRect().top))).size,
       soNut: nut.length,
       // Hai nút của hàng nay ở Ô ĐẦU (mã, rồi dấu X xoá); ô cuối là ngày mua nên không còn nút nào.
-      soNutODau: o[0].querySelectorAll('button').length,
-      soNutOCuoi: o[o.length - 1].querySelectorAll('button').length,
+      soNutODau: ve(o[0].querySelectorAll('button')).length,
+      soNutOCuoi: ve(o[o.length - 1].querySelectorAll('button')).length,
       // Hở từ nút cuối tới mép TRÁI bảng — đứng ngay sau mã thì vài chục pixel, dạt phải thì hàng trăm.
       hoTrai:
         cuoi === undefined
@@ -3630,6 +3977,20 @@ window.__themeLog = [];
     });
     await open('/danh-muc/');
     await waitFor(`/866/.test(document.querySelector('[class*="card"]')?.textContent ?? '')`);
+    /*
+     * Dưới 1024px thẻ thu còn một hàng (bản vẽ 14/10/2026) và dòng "Vốn đã bỏ ra" `display: none`: một
+     * chữ không được vẽ thì `getClientRects()` rỗng và phép đo dưới xanh mà không đo gì. Mở thẻ trước.
+     */
+    if (mobile) {
+      await evaluate(`(() => {
+        const nut = document.querySelector('[aria-controls^="portfolio-summary"]');
+        if (nut !== null && nut.getAttribute('aria-expanded') !== 'true') nut.click();
+        return true;
+      })()`);
+      await waitFor(
+        `[...document.querySelectorAll('[class*="rowValue"]')].some((el) => el.getClientRects().length > 0)`,
+      );
+    }
     const oSo = await evaluate(`(() => {
       const the = document.querySelector('[class*="card"]');
       const so = [...the.querySelectorAll('[class*="rowValue"]')];
@@ -3735,9 +4096,10 @@ window.__themeLog = [];
         },
         coChip: o[0].querySelector('[class*="badge"]') !== null,
         nenMa: nut[0] === undefined ? '' : getComputedStyle(nut[0]).backgroundColor,
-        soNutCaDong: tr.querySelectorAll('button').length,
+        // Chỉ nút đang vẽ — mũi tên khổ điện thoại display: none ở PC (14/10/2026).
+        soNutCaDong: [...tr.querySelectorAll('button')].filter((b) => b.getClientRects().length > 0).length,
         ngay: o[o.length - 1].textContent,
-        nutOCuoi: o[o.length - 1].querySelectorAll('button').length,
+        nutOCuoi: [...o[o.length - 1].querySelectorAll('button')].filter((b) => b.getClientRects().length > 0).length,
       };
     });
     return {
@@ -3936,8 +4298,9 @@ window.__themeLog = [];
         ma: o[1].textContent,
         coChip: o[1].querySelector('[class*="badge"]') !== null,
         ngay: o[o.length - 1].textContent,
-        nutOCuoi: o[o.length - 1].querySelectorAll('a, button').length,
-        soDichBam: tr.querySelectorAll('a, button').length,
+        // Chỉ đích đang vẽ.
+        nutOCuoi: [...o[o.length - 1].querySelectorAll('a, button')].filter((b) => b.getClientRects().length > 0).length,
+        soDichBam: [...tr.querySelectorAll('a, button')].filter((b) => b.getClientRects().length > 0).length,
         oKetQua: hop(o[2]),
       };
     });
@@ -4023,6 +4386,277 @@ window.__themeLog = [];
         !/[hHvV]/.test(dMo.xoa?.net ?? 'h') &&
         /^\/cong-thuc\/pe\/\?luu=pe-a$/.test(dich),
       `cuộn ngang ${String(yen.cuonNgang)}px · cột "${yen.tieuDe.join(' · ')}" · tên "${String(dMo.ten?.chu)}" ${String(dMo.ten?.left)}..${String(dMo.ten?.right)} · dấu X ${String(dMo.xoa?.left)}..${String(dMo.xoa?.right)} (ô tới ${String(dMo.oDau.right)}); dòng tên dài: X ${String(dNap.xoa?.left)}..${String(dNap.xoa?.right)} (ô tới ${String(dNap.oDau.right)}) · mờ ${yen.dong.map((d) => String(d.xoa?.mo)).join('/')} → rê ${re.dong.map((d) => String(d.xoa?.mo)).join('/')} · X lúc hiện: màu ${String(re.dong[1].xoa?.mau)} nét ${String(re.dong[1].xoa?.day)} → rê vào X: màu ${String(reX?.mau)} nét ${String(reX?.day)} nền ${String(reX?.nen)} · ngày "${dMo.ngay}" · chip: ${String(dMo.coChip)} · bấm dòng → ${String(dich)}`,
+    );
+  }
+
+  /*
+   * ── Bảng Công thức ở khổ ĐIỆN THOẠI: không dòng thả xuống (14/10/2026, lượt hai) ─────────────────
+   *
+   * Chủ dự án: "không có popup đổ xuống khi bấm vào mã nữa, chuyển date lên cùng hàng với cái số liệu
+   * kia giống như bên Mã. bây giờ bấm vào công thức thì là vào phần sửa luôn, tạo thêm Icon xóa ở góc
+   * bên phải như ở web". Nên dưới 1024px: bốn cột như PC, không dòng chi tiết, không mũi tên; dấu X đỏ
+   * LUÔN hiện, cuối ô Ngày lưu, sát mép phải, vùng chạm 44px; chạm dòng mở phép tính.
+   *
+   * Thêm một dòng kết quả dài (67.520.669,9 ₫): thêm cột Ngày lưu làm ô Kết quả hẹp lại, và bản đầu để
+   * đơn vị rơi xuống dòng riêng ở 390px. Số và đơn vị phải nằm trên MỘT dòng.
+   *
+   * Vùng chạm của dấu X không được phủ lên chữ ngày (chủ dự án: "giãn cách icon X để dễ dàng thao tác
+   * hơn"). Bản đầu cách ngày 2px với vùng chạm lan sang trái 24px: chạm vào ngày là xoá. Cùng lúc bảng
+   * phải vừa khung ở 360px — dòng kết quả dài kia chính là trường hợp chật nhất.
+   *
+   * Ba số liệu (mã, kết quả, ngày lưu) MỘT cỡ và nhỏ hơn tên phép tính (chủ dự án, cùng ngày: "đồng bộ
+   * size text của các số liệu … đảm bảo size đó nhỏ hơn size của tên công thức"), và MỘT nét, nhạt hơn
+   * tên ("đồng bộ để không in đậm. ngoại trừ tên công thức thì mới in đậm"). Đo bằng cỡ chữ và độ đậm đã
+   * tính của trình duyệt, vì luật nằm trong `@media` mà jsdom không áp.
+   */
+  await evaluate(`(() => {
+    const t = (thang, ngay) => new Date(2026, thang - 1, ngay, 10, 0, 0).getTime();
+    localStorage.setItem('ffb.saved.v1', JSON.stringify([
+      { id: 'pe-a', formulaId: 'pe', name: 'HPG · P/E', code: 'HPG', inputs: {}, resultValue: 12.5, resultUnit: 'lần', savedAt: t(8, 25), needsSeries: false },
+      { id: 'lk', formulaId: 'lai-kep', name: 'Lãi kép', inputs: {}, resultValue: 67520669.9, resultUnit: '₫', savedAt: t(9, 11), needsSeries: false },
+      { id: 'beta-b', formulaId: 'beta', name: 'Beta của FPT, bản tôi tự đặt tên cho dễ tìm lại', code: 'FPT', inputs: {}, resultValue: 1.08, resultUnit: 'lần', savedAt: t(10, 3), needsSeries: true, seriesCount: 120 },
+    ]));
+    return true;
+  })()`);
+  const DOC_CONG_THUC_NHO = `(() => {
+    const khung = document.querySelector('[class*="tableWrap"]');
+    const bang = khung.querySelector('table');
+    const hop = (el) => el.getBoundingClientRect();
+    const soDong = (el) => {
+      const r = document.createRange();
+      r.selectNodeContents(el);
+      return new Set([...r.getClientRects()].map((h) => Math.round(h.top))).size;
+    };
+    return {
+      cot: [...bang.querySelectorAll('thead th')].filter((th) => getComputedStyle(th).display !== 'none').map((th) => th.textContent),
+      cuon: khung.scrollWidth - khung.clientWidth,
+      tran: document.documentElement.scrollWidth > document.documentElement.clientWidth + 1,
+      chiTiet: document.querySelectorAll('tr[id*="chi-tiet"]').length,
+      muiTen: [...bang.querySelectorAll('button')].filter((b) => (b.getAttribute('aria-label') ?? '').startsWith('Chi tiết')).length,
+      dong: [...bang.querySelectorAll('tbody tr')].map((tr) => {
+        const o = [...tr.children];
+        const cuoi = o[o.length - 1];
+        const x = cuoi.querySelector('button');
+        const xr = x === null ? null : hop(x);
+        const sau = x === null ? null : getComputedStyle(x, '::after');
+        const kq = hop(o[2]);
+        return {
+          soO: o.length,
+          ten: o[0].querySelector('a')?.textContent ?? '',
+          nutODau: o[0].querySelectorAll('button').length,
+          ngay: cuoi.textContent,
+          ketQua: o[2].textContent,
+          ketQuaDong: soDong(o[2]),
+          // Cỡ chữ: tên phép tính, và ba số liệu (mã — nếu dòng có mã —, kết quả, ngày lưu).
+          coChu: (() => {
+            const co = (el) => (el === null ? null : parseFloat(getComputedStyle(el).fontSize));
+            return {
+              ten: co(o[0].querySelector('a')),
+              ma: co(o[1].querySelector('span')),
+              ketQua: co(o[2]),
+              ngay: co(cuoi.querySelector('[class*="lastCell"]') ?? cuoi),
+            };
+          })(),
+          // Độ đậm của cùng bốn chỗ ấy: chỉ tên được đậm.
+          netChu: (() => {
+            const net = (el) => (el === null ? null : Number(getComputedStyle(el).fontWeight));
+            return {
+              ten: net(o[0].querySelector('a')),
+              ma: net(o[1].querySelector('span')),
+              ketQua: net(o[2]),
+              ngay: net(cuoi.querySelector('[class*="lastCell"]') ?? cuoi),
+            };
+          })(),
+          // Màu của cùng bốn chỗ ấy: MỘT màu cho cả dòng, tên cũng thế.
+          mauChu: (() => {
+            const mau = (el) => (el === null ? null : getComputedStyle(el).color);
+            return {
+              ten: mau(o[0].querySelector('a')),
+              ma: mau(o[1].querySelector('span')),
+              ketQua: mau(o[2]),
+              ngay: mau(cuoi.querySelector('[class*="lastCell"]') ?? cuoi),
+            };
+          })(),
+          tamKetQua: { x: (kq.left + kq.right) / 2, y: (kq.top + kq.bottom) / 2 },
+          x: x === null ? null : {
+            ten: x.getAttribute('aria-label'),
+            mo: getComputedStyle(x).opacity,
+            mau: getComputedStyle(x).color,
+            sauNgay: x.previousSibling?.textContent === cuoi.textContent,
+            cungHang: Math.abs((xr.top + xr.bottom) / 2 - (hop(cuoi).top + hop(cuoi).bottom) / 2) < 2,
+            cachMepBang: Math.round(hop(bang).right - xr.right),
+            chamRong: Math.round(xr.width - parseFloat(sau.left) - parseFloat(sau.right)),
+            chamCao: Math.round(xr.height - parseFloat(sau.top) - parseFloat(sau.bottom)),
+            // Mép trái vùng chạm trừ mép phải chữ ngày: âm là chạm vào ngày cũng thành xoá.
+            chamCachNgay: (() => {
+              const r = document.createRange();
+              r.selectNodeContents(cuoi);
+              r.setEndBefore(x);
+              return Math.round(xr.left + parseFloat(sau.left) - r.getBoundingClientRect().right);
+            })(),
+            tam: { x: (xr.left + xr.right) / 2, y: (xr.top + xr.bottom) / 2 },
+          },
+        };
+      }),
+    };
+  })()`;
+  for (const [rong, cao] of [
+    [360, 780],
+    [560, 900],
+  ]) {
+    await send('Emulation.setDeviceMetricsOverride', {
+      width: rong,
+      height: cao,
+      deviceScaleFactor: 2,
+      mobile: true,
+    });
+    await open('/danh-muc/?tab=cong-thuc');
+    await waitFor(`document.querySelectorAll('[class*="tableWrap"] tbody a').length === 3`);
+
+    /*
+     * Sắp bảng Công thức bằng tiêu đề cột (14/10/2026), chạm chuột THẬT vào giữa ô tiêu đề "Công thức".
+     * Lúc đầu Ngày lưu mang `aria-sort` (mặc định mới trước, có mũi tên); bấm thì tên xếp theo chữ cái, và
+     * mũi tên ra sau chữ "Công thức" — cột mà ở 360px bề rộng tối thiểu đã do chính tiêu đề ấy quyết, cạnh
+     * dòng kết quả dài nhất, nên đây là chỗ bảng dễ rộng quá khung nhất. Bấm thêm hai lần là về mặc định
+     * và kho gỡ khoá; các bước chạm X và chạm dòng bên dưới đo trên thứ tự mặc định ấy.
+     */
+    const DOC_SAP_CONG_THUC = `(() => {
+      const khung = document.querySelector('[class*="tableWrap"]');
+      const ths = [...khung.querySelectorAll('thead th')];
+      return {
+        sap: ths.map((th) => th.getAttribute('aria-sort') ?? '').join('|'),
+        muiTen: ths.map((th) => th.querySelector('svg') !== null),
+        ten: [...khung.querySelectorAll('tbody tr')].map((tr) => tr.querySelector('a')?.textContent ?? ''),
+        cuon: khung.scrollWidth - khung.clientWidth,
+        tran: document.documentElement.scrollWidth > document.documentElement.clientWidth + 1,
+        kho: localStorage.getItem('ffb.saved.sort.v1'),
+      };
+    })()`;
+    const sapDau = await evaluate(DOC_SAP_CONG_THUC);
+    const oCongThuc = await evaluate(`(() => {
+      const r = document.querySelector('[class*="tableWrap"] thead th').getBoundingClientRect();
+      return { x: (r.left + r.right) / 2, y: (r.top + r.bottom) / 2 };
+    })()`);
+    const chamTieuDe = async () => {
+      for (const type of ['mousePressed', 'mouseReleased']) {
+        await send('Input.dispatchMouseEvent', {
+          type,
+          x: Math.round(oCongThuc.x),
+          y: Math.round(oCongThuc.y),
+          button: 'left',
+          clickCount: 1,
+        });
+      }
+      await new Promise((r) => setTimeout(r, 200));
+    };
+    await chamTieuDe();
+    const sapTen = await evaluate(DOC_SAP_CONG_THUC);
+    await chamTieuDe();
+    await chamTieuDe();
+    const sapVe = await evaluate(DOC_SAP_CONG_THUC);
+    check(
+      `${String(rong)} · Danh mục, bảng Công thức: chạm tiêu đề "Công thức" thì sắp theo tên, mũi tên ra sau chữ mà bảng không cuộn ngang; hai lần nữa thì về Ngày lưu mới trước`,
+      sapDau.sap === '|||descending' &&
+        sapDau.muiTen.join('|') === 'false|false|false|true' &&
+        sapDau.ten.join('|') ===
+          'Beta của FPT, bản tôi tự đặt tên cho dễ tìm lại|Lãi kép|HPG · P/E' &&
+        sapTen.sap === 'ascending|||' &&
+        sapTen.muiTen.join('|') === 'true|false|false|false' &&
+        sapTen.ten.join('|') ===
+          'Beta của FPT, bản tôi tự đặt tên cho dễ tìm lại|HPG · P/E|Lãi kép' &&
+        sapTen.cuon <= 0 &&
+        sapTen.tran === false &&
+        sapTen.kho === '{"key":"title","dir":"asc"}' &&
+        sapVe.sap === '|||descending' &&
+        sapVe.ten.join('|') === sapDau.ten.join('|') &&
+        sapVe.kho === null,
+      `đầu: ${sapDau.sap} · ${sapDau.ten.join(' / ')} | sau chạm: ${sapTen.sap} · ${sapTen.ten.join(' / ')} · cuộn ${String(sapTen.cuon)}px · kho ${String(sapTen.kho)} | về: ${sapVe.sap} · kho ${String(sapVe.kho)}`,
+    );
+
+    const nho = await evaluate(DOC_CONG_THUC_NHO);
+    const lk = nho.dong.find((d) => d.ten === 'Lãi kép');
+
+    // Chạm chuột thật vào dấu X của dòng Lãi kép: dòng mất, trang đứng yên.
+    await send('Input.dispatchMouseEvent', { type: 'mouseMoved', x: 2, y: 2 });
+    for (const type of ['mousePressed', 'mouseReleased']) {
+      await send('Input.dispatchMouseEvent', {
+        type,
+        x: Math.round(lk?.x?.tam.x ?? 0),
+        y: Math.round(lk?.x?.tam.y ?? 0),
+        button: 'left',
+        clickCount: 1,
+      });
+    }
+    await new Promise((r) => setTimeout(r, 300));
+    const sauXoa = await evaluate(
+      `({ dong: document.querySelectorAll('[class*="tableWrap"] tbody tr').length, url: location.pathname })`,
+    );
+
+    // Chạm vào ô Kết quả của dòng P/E (không phải liên kết, không phải nút): mở thẳng bản lưu.
+    const pe = (await evaluate(DOC_CONG_THUC_NHO)).dong.find((d) => d.ten === 'HPG · P/E');
+    for (const type of ['mousePressed', 'mouseReleased']) {
+      await send('Input.dispatchMouseEvent', {
+        type,
+        x: Math.round(pe?.tamKetQua.x ?? 0),
+        y: Math.round(pe?.tamKetQua.y ?? 0),
+        button: 'left',
+        clickCount: 1,
+      });
+    }
+    await waitFor(`location.pathname.startsWith('/cong-thuc/')`);
+    const dichNho = await evaluate(`location.pathname + location.search`);
+    await evaluate(`sessionStorage.removeItem('ffb.visit.v1'), true`);
+    // Phép xoá vừa rồi ghi xuống kho; gieo lại cho khổ sau.
+    await evaluate(`(() => {
+      const kho = JSON.parse(localStorage.getItem('ffb.saved.v1') ?? '[]');
+      const t = new Date(2026, 8, 11, 10, 0, 0).getTime();
+      kho.push({ id: 'lk', formulaId: 'lai-kep', name: 'Lãi kép', inputs: {}, resultValue: 67520669.9, resultUnit: '₫', savedAt: t, needsSeries: false });
+      localStorage.setItem('ffb.saved.v1', JSON.stringify(kho));
+      return true;
+    })()`);
+
+    check(
+      `${String(rong)} · Danh mục, bảng Công thức: bốn cột cùng hàng, không dòng thả xuống, dấu X đỏ luôn hiện cuối ô Ngày lưu, chạm X xoá, chạm dòng mở phép tính`,
+      nho.cot.join('|') === 'Công thức|Mã|Kết quả|Ngày lưu' &&
+        nho.cuon <= 0 &&
+        nho.tran === false &&
+        nho.chiTiet === 0 &&
+        nho.muiTen === 0 &&
+        nho.dong.length === 3 &&
+        nho.dong.every(
+          (d) =>
+            d.soO === 4 &&
+            d.nutODau === 0 &&
+            d.ketQuaDong === 1 &&
+            d.x !== null &&
+            d.x.mo === '1' &&
+            laMauDo(d.x.mau) &&
+            d.x.sauNgay &&
+            d.x.cungHang &&
+            d.x.cachMepBang >= 0 &&
+            d.x.cachMepBang <= 12 &&
+            d.x.chamRong >= 44 &&
+            d.x.chamCao >= 44 &&
+            d.x.chamCachNgay >= 0 &&
+            // Ba số liệu một cỡ, nhỏ hơn tên (mã chỉ so ở dòng có mã).
+            d.coChu.ketQua === d.coChu.ngay &&
+            (d.coChu.ma === null || d.coChu.ma === d.coChu.ngay) &&
+            (d.coChu.ngay ?? 0) + 1 === d.coChu.ten &&
+            // …và một nét, nhạt hơn tên: chỉ tên phép tính in đậm.
+            d.netChu.ketQua === d.netChu.ngay &&
+            (d.netChu.ma === null || d.netChu.ma === d.netChu.ngay) &&
+            (d.netChu.ngay ?? 0) < (d.netChu.ten ?? 0) &&
+            // …và MỘT màu cho cả dòng, tên cũng thế.
+            d.mauChu.ketQua === d.mauChu.ten &&
+            d.mauChu.ngay === d.mauChu.ten &&
+            (d.mauChu.ma === null || d.mauChu.ma === d.mauChu.ten),
+        ) &&
+        nho.dong.some((d) => d.coChu.ma !== null) &&
+        lk?.ketQua.replace(/\s/g, ' ') === '67.520.669,9 ₫' &&
+        sauXoa.dong === 2 &&
+        sauXoa.url === '/danh-muc/' &&
+        /^\/cong-thuc\/pe\/\?luu=pe-a$/.test(dichNho),
+      `cột "${nho.cot.join(' · ')}" · cuộn ${String(nho.cuon)}px · chi tiết ${String(nho.chiTiet)} · mũi tên ${String(nho.muiTen)} · ${nho.dong.map((d) => `${d.ten}: ${String(d.soO)} ô, kết quả "${d.ketQua}" ${String(d.ketQuaDong)} dòng, X mờ ${String(d.x?.mo)} màu ${String(d.x?.mau)} sau ngày ${String(d.x?.sauNgay)} cùng hàng ${String(d.x?.cungHang)} cách mép ${String(d.x?.cachMepBang)}px chạm ${String(d.x?.chamRong)}×${String(d.x?.chamCao)} cách chữ ngày ${String(d.x?.chamCachNgay)}px, cỡ chữ tên ${String(d.coChu.ten)} · mã ${String(d.coChu.ma)} · kết quả ${String(d.coChu.ketQua)} · ngày ${String(d.coChu.ngay)}, nét tên ${String(d.netChu.ten)} · mã ${String(d.netChu.ma)} · kết quả ${String(d.netChu.ketQua)} · ngày ${String(d.netChu.ngay)}, màu tên ${String(d.mauChu.ten)} · mã ${String(d.mauChu.ma)} · kết quả ${String(d.mauChu.ketQua)} · ngày ${String(d.mauChu.ngay)}`).join(' | ')} · sau X: ${String(sauXoa.dong)} dòng ở ${sauXoa.url} · chạm dòng → ${dichNho}`,
     );
   }
   await send('Emulation.setDeviceMetricsOverride', {

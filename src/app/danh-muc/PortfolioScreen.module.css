@@ -334,6 +334,93 @@
 }
 
 /*
+ * ── Tiêu đề cột bấm để sắp (14/10/2026) ─────────────────────────────────────────────────────────────
+ *
+ * Nút mang ĐÚNG kiểu chữ của tiêu đề (cỡ, nét, chữ hoa, giãn chữ đều kế thừa), nên hàng tiêu đề trông
+ * như cũ cho tới khi có một cột đang sắp: cột ấy đậm màu chữ và có mũi tên. `::after` phủ kín `<th>`
+ * để chỗ bấm là cả ô chứ không chỉ mấy chữ — `<th>` phải `position: relative` cho nó neo vào.
+ *
+ * Bảng Công thức dùng cùng `.holdHead` và cùng nút từ chiều 14/10/2026, trừ cột Kết quả (không sắp): ô
+ * ấy không có con nào định vị tuyệt đối, nên `position: relative` không đổi gì ở đó.
+ */
+.holdHead th {
+  position: relative;
+}
+
+.sortButton {
+  padding: 0;
+
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  white-space: nowrap;
+  color: inherit;
+
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.sortButton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+}
+
+.sortButton[data-sap] {
+  color: var(--color-ink);
+}
+
+@media (hover: hover) {
+  .sortButton:hover {
+    color: var(--color-ink);
+  }
+}
+
+/* Mũi tên neo vào nhãn, không vào nút: `::after` của nút phải neo vào `<th>`, nên nút giữ `static`. */
+.sortLabel {
+  position: relative;
+}
+
+/*
+ * Dưới 1024px mũi tên đứng cùng dòng, sau chữ: bảng `table-layout: auto` tự nới cột đang sắp vài pixel.
+ * Đo ở 360 và 390px: bảng vẫn vừa khung, không cuộn ngang.
+ */
+.sortIcon {
+  margin-left: 3px;
+  vertical-align: middle;
+  fill: currentColor;
+}
+
+/*
+ * Từ 1024px mũi tên KHÔNG chiếm chỗ của chữ: nó nằm tuyệt đối, đứng TRƯỚC chữ, trong phần đệm trái của
+ * chính ô ấy (6px mũi tên + 2px hở = đúng 8px đệm của khổ 1024–1279). Nằm ngoài dòng chảy thì chữ không
+ * nhúc nhích khi bấm, và chữ của cột căn phải vẫn thẳng mép với số bên dưới.
+ *
+ * Vì sao bên TRÁI, đo ở 1024px: cùng dòng sau chữ thì xô chữ 6–12px ở năm cột ("Giá vốn" có lòng ô 50px
+ * mà chữ đã 54px). Tuyệt đối sau chữ thì ở "Giá vốn" và "Tỷ trọng" — chữ đã tràn tới mép phải ô — mũi
+ * tên lọt sang ô bên cạnh và bị nền của ô ấy vẽ đè, gần như mất hẳn. Phía trước chữ thì ô nào cũng còn
+ * chỗ: cột số căn phải, "Tỷ trọng" có đệm trái 16px. Cột đầu của mỗi bảng (Mã, Công thức) là ngoại lệ,
+ * mũi tên đứng sau chữ: phía trước nó là mép bảng.
+ */
+@media (min-width: 1024px) {
+  .sortIcon {
+    position: absolute;
+    top: 50%;
+    right: 100%;
+    margin: 0 2px 0 0;
+    transform: translateY(-50%);
+  }
+
+  .holdList th:first-child .sortIcon,
+  .savedList th:first-child .sortIcon {
+    right: auto;
+    left: 100%;
+    margin: 0 0 0 2px;
+  }
+}
+
+/*
  * Căn lề theo VỊ TRÍ cột, khai chung cho `<th>` và `<td>` của cùng bảng — để tiêu đề và ô của nó không
  * thể trôi khỏi nhau (bài học của bảng chín cột cũ). Số căn phải; mã, thanh tỷ trọng và tên công thức
  * căn trái.
@@ -921,6 +1008,37 @@
   color: var(--color-muted);
 }
 
+/*
+ * Vòng xoay trong nút Làm mới / Thử lại lúc đang tra thị giá (14/10/2026) — cùng hình với `.spinner` của
+ * `TickerPickerSheet.module.css` (viền hai màu token, cung đậm màu nhấn), nhỏ lại 14px cho nút 36px.
+ * Giảm chuyển động thì vẫn xoay, chậm đi một nửa, cùng lý do ghi ở đó: một vòng đứng yên trong nút bị
+ * khoá đọc ra là nút hỏng, không phải đang chạy.
+ */
+.nutXoay {
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
+
+  border: 2px solid var(--color-border);
+  border-top-color: var(--color-accent);
+  border-radius: 50%;
+
+  animation: xoay 0.7s linear infinite;
+}
+
+@keyframes xoay {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nutXoay,
+  .headerRefresh[aria-busy='true'] svg {
+    animation-duration: 1.4s !important;
+  }
+}
+
 /* Phần chữ của dải trạng thái: gộp nhiều mảnh (đang tải · lý do hỏng · ngày phiên) trên một
    dòng, xuống dòng được ở màn hẹp mà không đẩy nút làm mới đi đâu. */
 .priceText {
@@ -1238,5 +1356,571 @@
 
   .holdList th:nth-child(7) {
     width: 13%;
+  }
+}
+
+/*
+ * ════════════════════════════════════════════════════════════════════════════════════════════════
+ * ── Khổ dưới 1024px: bản vẽ khổ điện thoại của chủ dự án (14/10/2026) ─────────────────────────────
+ * ════════════════════════════════════════════════════════════════════════════════════════════════
+ *
+ * Bản vẽ đầu tiên cho khổ nhỏ của màn này (trước đó là "tính sau": hai cột xếp chồng, bảng tám cột
+ * cuộn ngang). Mốc 1024px chứ không 560px: đó là mốc màn đổi từ hai cột sang một và thanh điều hướng
+ * xuống đáy — mọi thứ dưới mốc ấy là một cột, nên cùng một bản vẽ.
+ *
+ * Khối này đứng CUỐI file vì phải thắng các luật bảng ở trên (kể cả khối 1279.98px) với cùng độ ưu
+ * tiên. Những gì nó làm:
+ *   - Nhãn "Danh mục" và tiêu đề "Mã"/"Công thức" rời khỏi mắt — thanh trên đã nói "Danh mục", tab đã
+ *     nói tab nào. Tiêu đề `<h2>` vẫn ở lại cho trình đọc màn hình.
+ *   - Ô tìm không đứng trong thân màn: bấm icon Tìm kiếm thì nó mở ra NGAY TRÊN thanh trên.
+ *   - "Thêm mới" ghim ở đáy, ngay trên thanh điều hướng, rộng hết khung.
+ *   - Bảng Mã còn năm cột, bảng Công thức ba; chạm dòng thì dòng chi tiết mở ra.
+ */
+
+/* Phần tử chỉ khổ điện thoại có. Mặc định (khổ PC) không hiện. */
+.headerSearch,
+.headerRefresh,
+.detailRow {
+  display: none;
+}
+
+/* Dải nền của cụm tab — chỉ là hộp ở khổ điện thoại. Từ 1024px tab dọc vẫn là con trực tiếp của cột. */
+.tabBand {
+  display: contents;
+}
+
+/*
+ * ── MÀU và hình của khối này lấy từ ẢNH BẢN VẼ, đo từng điểm ảnh (14/10/2026) ─────────────────────
+ *
+ * Lượt đầu tự thay màu bản vẽ bằng màu sẵn có của sản phẩm (nút "Thêm mới" và tab chọn xanh nhạt chữ
+ * navy, dòng mở nền trang, nút Sửa nền thẻ viền đậm…). Chủ dự án: *"màu của button thêm mới như nào, màu
+ * của tabbar khi chọn là như nào ? đừng tự sửa thiết kế của tôi và đừng bịa thiết kế"*. Từ đó mọi màu ở
+ * đây là màu ĐO ĐƯỢC trên ảnh, ghi số cạnh từng luật (giá trị bảng tối), và trỏ vào token có đúng giá trị
+ * ấy. Màu nào bản vẽ có mà token chưa có thì thêm token (`--color-cta`, `--color-danger-line`,
+ * `--color-chevron`), không làm tròn sang token gần nhất.
+ */
+@media (max-width: 1023.98px) {
+  /*
+   * Đệm đáy = chiều cao nút "Thêm mới" ghim đáy + hai khe: cuộn hết trang thì ô miễn trừ cuối màn dừng
+   * ngay trên nút, không nằm dưới nó.
+   */
+  /*
+   * Lề hai bên của màn: bản vẽ đặt khay tab, hàng tổng giá trị, thẻ bảng và nút "Thêm mới" cách mép màn
+   * 10px (đo trên ảnh), hẹp hơn `--gutter` 16px của khung nội dung — nên màn nới ra 6px mỗi bên. Ba số
+   * 10px ở khối này (đây, `.tabBand`, `.addButton`) là cùng một lề.
+   */
+  .screen {
+    margin-inline: calc(10px - var(--gutter));
+    padding-bottom: calc(46px + var(--space-3) * 2);
+  }
+
+  /*
+   * Bản vẽ: dải tab → hàng tổng giá trị → thẻ bảng, LIỀN nhau, không khe (kẻ dưới dải tab ở y=131, hàng
+   * tổng giá trị 132–176, viền thẻ bảng ngay sau ở 177).
+   */
+  .layout,
+  .side {
+    gap: 0;
+  }
+
+  .sideTitle {
+    display: none;
+  }
+
+  /*
+   * Dải tab: nền #1b2435 (`--color-surface`, cùng nền thanh trên), SÁT dưới thanh trên (bù đệm trên
+   * `--space-5` của khung nội dung), chạy hết bề ngang màn (bù `--gutter` hai bên), kẻ dưới 1px #313d52
+   * (`--color-border`). Khay tab cách mép trên và mép dưới dải 12px.
+   */
+  .tabBand {
+    display: block;
+    margin: calc(-1 * var(--space-5)) -10px 0;
+    padding: var(--space-3) 10px;
+    background: var(--color-surface);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  /* Ẩn khỏi mắt, không khỏi trình đọc màn hình — cùng bộ luật với lớp toàn cục `visually-hidden`. */
+  .mainTitle {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  /*
+   * Khối không còn khe giữa dòng tiêu đề và bảng: dòng tiêu đề lúc này rỗng (tiêu đề ẩn, ô tìm ở thanh
+   * trên, nút đã ghim đáy), một khe 12px trước một dòng rỗng là 12px trắng vô cớ.
+   */
+  .block {
+    gap: 0;
+  }
+
+  .blockHead,
+  .headTools {
+    display: block;
+    margin: 0;
+  }
+
+  /* Ô tìm trong thân màn không bao giờ hiện ở khổ này: mở ra thì nó dựng trên thanh trên. */
+  .search {
+    display: none;
+  }
+
+  .weightNote {
+    margin-top: var(--space-3);
+  }
+
+  /*
+   * "Thêm mới" ghim đáy. `fixed` chứ không `sticky`: đây là CÙNG nút với dòng tiêu đề ở PC (một nút cho
+   * hai khổ, xem `headTools`), mà nó đứng ở đầu khối nên `sticky` không bao giờ đưa nó xuống đáy được.
+   * Đáy = chiều cao thanh điều hướng + vùng an toàn + một khe.
+   *
+   * Hai mép gióng theo LÒNG khung nội dung (`.content` của AppShell: tối đa `--content-max`, căn giữa,
+   * đệm `--gutter`), không theo mép màn: ở 768px khung ấy đứng giữa màn và nút bám mép màn thì rộng
+   * hơn bảng ngay trên nó 24px mỗi bên. `100%` của một phần tử `fixed` là bề ngang vùng nhìn.
+   */
+  .addButton {
+    position: fixed;
+    left: max(10px, calc((100% - var(--content-max)) / 2 + 10px));
+    right: max(10px, calc((100% - var(--content-max)) / 2 + 10px));
+    bottom: calc(var(--tabbar-height) + env(safe-area-inset-bottom, 0px) + var(--space-3));
+    z-index: 9;
+
+    /* Bản vẽ: cao 46px, chữ 15px. */
+    min-height: 46px;
+    font-size: 15px;
+  }
+
+  /* Bản vẽ: nền #2563eb, chữ và dấu cộng #ffffff (`--color-cta`), cả lúc trỏ vào. */
+  .addButton,
+  .addButton:hover {
+    color: var(--color-on-cta);
+    background: var(--color-cta);
+    border-color: var(--color-cta);
+  }
+
+  /*
+   * ── Icon Tìm kiếm và ô tìm trên thanh trên ───────────────────────────────────────────────────────
+   *
+   * Chủ dự án khoanh trên ảnh chụp màn (14/10/2026) chỗ ô tìm hiện ra: từ sau chữ "Danh mục" tới mép
+   * phải, kính lúp ở CUỐI ô; cùng lần ấy gạch icon Làm mới giá. Đo trên ảnh ấy (1:1, khay tab cao đúng
+   * 40px): khung đỏ bắt đầu 18px sau chữ, cao 36px, nền bên trong #1b2435 — cùng nền thanh. Khung đỏ là
+   * nét bút khoanh vùng chứ không phải bản vẽ ô, nên dáng ô là ô tìm sẵn có của sản phẩm (viền
+   * `--color-border-strong`, bo `--radius-md`, vòng tiêu điểm), cao 36px như khung khoanh.
+   *
+   * `.headerSearch` là mục flex của cụm nút thanh trên (ô trống của màn là `display: contents`). Đóng thì
+   * nó chỉ là icon; mở (`data-mo`) thì nó giãn hết chỗ còn lại — cụm nút của màn này giãn sẵn dưới
+   * 1024px, xem `.controlsScreen` ở `AppHeader.module.css` — và vẽ khung quanh cả ô lẫn icon.
+   */
+  .headerSearch {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+  }
+
+  .headerSearch[data-mo] {
+    flex: 1 1 0;
+    height: 36px;
+    margin-left: var(--space-2);
+    margin-right: 0;
+
+    background: var(--color-surface);
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-md);
+  }
+
+  .headerSearch[data-mo]:focus-within {
+    border-color: var(--color-focus);
+    box-shadow: var(--focus-ring);
+  }
+
+  .headerSearchField {
+    flex: 1 1 0;
+    align-self: stretch;
+    min-width: 0;
+  }
+
+  .headerAction {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--tap-min);
+    height: var(--tap-min);
+    padding: 0;
+
+    /* Bản vẽ: #b3c0d4. */
+    color: var(--color-ink-soft);
+    background: transparent;
+    border: none;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+  }
+
+  /* Trong khung đang mở: icon gọn vào lòng khung, vùng chạm vẫn 44px nhờ `::after`. */
+  .headerSearch[data-mo] .headerAction {
+    position: relative;
+    width: 36px;
+    height: 100%;
+  }
+
+  .headerSearch[data-mo] .headerAction::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: var(--tap-min);
+    height: var(--tap-min);
+    transform: translate(-50%, -50%);
+  }
+
+  /*
+   * Ô đang mở thì icon là dấu X đóng ô (`PortfolioScreen.tsx`), cùng màu chữ phụ như lúc là kính lúp —
+   * không tô xanh nhấn: một dấu X xanh đọc như "đang chọn", không như "đóng".
+   */
+
+  /*
+   * Icon Làm mới giá, bên phải icon Tìm kiếm (14/10/2026). Vị trí theo bản vẽ đầu, đo trên ảnh: tâm hai
+   * icon cách nhau 52px (khe 4px của cụm nút + 4px ở đây) và icon cuối lấn vào lề phải 8px, tâm ~30px từ
+   * mép màn. Vùng chạm vẫn 44px.
+   */
+  .headerRefresh {
+    margin-left: var(--space-1);
+    margin-right: calc(-1 * var(--space-2));
+  }
+
+  /*
+   * Đang tải lại (thị giá ở tab Mã, kho phép tính ở tab Công thức): icon XOAY tại chỗ, và nút khoá lại
+   * nhưng không mờ đi — vòng xoay là tín hiệu "đang chạy", làm mờ nó là nói "nút hỏng". Cùng nhịp với vòng
+   * xoay trong nút ở chân thẻ (`.nutXoay`), và cùng ngoại lệ giảm chuyển động: vẫn xoay, chậm đi một nửa.
+   */
+  .headerRefresh:disabled {
+    cursor: default;
+  }
+
+  .headerRefresh[aria-busy='true'] svg {
+    animation: xoay 0.7s linear infinite;
+  }
+
+  /*
+   * Nút Làm mới / Thử lại ở chân thẻ tóm tắt ẩn ở khổ này: icon trên thanh làm đúng việc ấy, và chủ dự án
+   * bỏ nút cùng ngày phiên khỏi chân thẻ tab Mã (14/10/2026). Ngày phiên thì ẩn theo cả dải lúc giá bình
+   * thường — xem `.footPrice` ở `PortfolioSummary.module.css`.
+   */
+  /* Hai lớp: `.priceButton` một mình ngang độ ưu tiên `.button` của `Button.module.css`, mà thứ tự hai file
+     trong gói CSS không ai hứa — một lớp thì có bản build nút hiện lại. */
+  .priceNote .priceButton,
+  .priceError .priceButton {
+    display: none;
+  }
+
+  .headerAction:focus-visible {
+    outline: none;
+    box-shadow: var(--focus-ring);
+  }
+
+  /* ── Bảng gọn ─────────────────────────────────────────────────────────────────────────────────── */
+
+  /*
+   * Bề ngang cột theo NỘI DUNG (`auto`), không theo phần trăm của khổ PC: năm cột ngắn chia đều chỗ
+   * thừa thì hợp với bản vẽ hơn. Không còn `min-width`: số cực dài (khối lượng hàng triệu cổ phiếu ở
+   * khổ 360px) thì bảng tự rộng ra và `.tableWrap` cuộn ngang, còn trang thì không.
+   */
+  .holdList,
+  .savedList {
+    min-width: 0;
+    table-layout: auto;
+  }
+
+  .holdList th:nth-child(n),
+  .savedList th:nth-child(n) {
+    width: auto;
+  }
+
+  /*
+   * Ba cột lãi/lỗ, %, tỷ trọng của bảng Mã xuống dòng chi tiết. Bảng Công thức giữ đủ bốn cột: cột Ngày
+   * lưu từng xuống dòng chi tiết, và chủ dự án kéo nó lên lại hàng (14/10/2026, lượt hai).
+   */
+  .holdList th:nth-child(n + 5):nth-child(-n + 7),
+  .holdList td:nth-child(n + 5):nth-child(-n + 7) {
+    display: none;
+  }
+
+  /* Mọi cột căn trái như bản vẽ — năm cột ngắn, căn phải thì số dồn về mép cột bên cạnh. */
+  .holdList th,
+  .holdList td,
+  .savedList th,
+  .savedList td {
+    text-align: left;
+  }
+
+  /*
+   * Tiêu đề cột chữ thường như bản vẽ; chữ hoa giãn cách là kiểu của bảng PC đủ chỗ. Bản vẽ: nền
+   * #0a0f1a (`--color-sunken`), chữ #93a1b8 (`--color-muted`, giữ từ luật chung).
+   */
+  /* Bản vẽ: hàng tiêu đề cao 34px (kể cả kẻ dưới), chữ 13px. */
+  .holdHead th {
+    padding: 7px 6px;
+    font-size: 13px;
+    font-weight: var(--weight-regular);
+    letter-spacing: 0;
+    text-transform: none;
+    background: var(--color-sunken);
+  }
+
+  /* Bản vẽ: mỗi dòng cao 49px kể cả kẻ chia — mã cao 28px cộng đệm 10px trên dưới. */
+  .holdRow > td,
+  .savedRow > td {
+    padding: 10px 6px;
+  }
+
+  .holdHead th:first-child,
+  .holdRow > td:first-child,
+  .savedRow > td:first-child {
+    padding-left: var(--space-3);
+  }
+
+  .holdHead th:last-child,
+  .holdRow > td:last-child,
+  .savedRow > td:last-child {
+    padding-right: var(--space-2);
+  }
+
+  /*
+   * ── Một màu, một cỡ, một nét cho mọi số liệu của HAI bảng (14/10/2026) ──────────────────────────
+   *
+   * Chủ dự án, sau khi ba số liệu của bảng Công thức đã một cỡ và một nét: _"đồng bộ về 1 loại màu cho
+   * tôi chứ không được để khác màu, kể cả ở bên Mã cũng thế. ngoại trừ tên mã tên công thức thì vẫn để
+   * là size to hơn 1 px và in đậm"_. Nên ở khổ này: mọi số liệu 13px, nét thường, màu chữ chính
+   * (`--color-ink`, cùng màu với tên); TÊN của dòng (mã ở bảng Mã, tên phép tính ở bảng Công thức) to hơn
+   * 1px — 14px — và đậm.
+   *
+   * Điều này ĐẢO hai chỗ cũ: mã 15px của bản vẽ khổ điện thoại (nay 14px), và cặp "số lượng, giá vốn,
+   * ngày mua nhạt hơn; thị giá đậm" (`.holdMuted`, `.holdPrice`) — cả số Tỷ trọng nhạt và lãi/lỗ nét vừa
+   * trong dòng chi tiết. Vẫn khác màu, có chủ ý: `_ _` (`.holdMissing`, dấu hiệu "chưa có số" của FR-06)
+   * và màu xanh/đỏ của lãi/lỗ trong dòng chi tiết (màu ở đó là lớp tin thứ hai sau dấu +/−). Khổ PC không đổi.
+   */
+  .holdCell {
+    font-size: 13px;
+  }
+
+  .holdMuted,
+  .holdWeight {
+    color: var(--color-ink);
+  }
+
+  .holdPrice,
+  .holdGain,
+  .holdGainPct {
+    font-weight: var(--weight-regular);
+  }
+
+  .codeOpen {
+    font-size: 14px;
+  }
+
+  /*
+   * Chạm vào mã cũng mở dòng như chạm chỗ khác: nút mã nhường cú chạm cho dòng. Nút vẫn trong thứ tự Tab,
+   * đúng tên "Sửa FPT", cho bàn phím. Tên phép tính của bảng Công thức thì KHÔNG nhường: chạm dòng ở bảng
+   * ấy là mở phép tính, đúng việc của chính liên kết tên (14/10/2026, lượt hai).
+   */
+  .codeOpen {
+    pointer-events: none;
+  }
+
+  /* Dấu X đỏ cạnh mã: ở bảng Mã, Xoá nằm trong dòng chi tiết. */
+  .holdList .rowRemove {
+    display: none;
+  }
+
+  /*
+   * Dấu X của bảng Công thức đứng cuối ô Ngày lưu và LUÔN hiện (chủ dự án, 14/10/2026: _"tạo thêm Icon
+   * xóa ở góc bên phải như ở web"_). Luật "chỉ hiện khi rê dòng" của PC nằm trong `(hover: hover)`, nên
+   * máy cảm ứng vốn đã thấy nó; khai lại `opacity` ở đây để cửa sổ máy tính kéo hẹp cũng thấy, vì ở
+   * khổ này không có chỗ nào khác để xoá một phép tính.
+   *
+   * ── Giãn cách (14/10/2026, chủ dự án: _"giãn cách icon X để dễ dàng thao tác hơn"_) ─────────────
+   *
+   * Bản trước: hộp 20px, cách ngày 2px, vùng chạm 44px neo mép phải nên lan sang TRÁI 24px — tức phủ lên
+   * mấy chữ số cuối của ngày lưu: chạm vào ngày là xoá, không hỏi lại. Nay hộp 28px như ở PC, cách ngày
+   * ít nhất 8px (`.savedList .lastCell`), và vùng chạm 44px nới đều bốn phía (luật chung của
+   * `.rowRemove::after`, khai lại cho rõ): mép trái dừng đúng mép chữ ngày, mép phải thò 8px — đúng bằng
+   * đệm phải 8px của ô cuối, nên chạm mép bảng mà không vượt. Nét X tới chữ ngày còn 13px nhìn thấy được.
+   *
+   * Chỗ cho nó lấy từ đâu, đo ở 360px: bề rộng tối thiểu của cột tên là TIÊU ĐỀ "Công thức" (không xuống
+   * dòng), 78px; với kết quả dài như "67.520.669,9 ₫" ô cuối chỉ còn 35px cho khe + hộp. Bản 12px + 28px
+   * làm bảng rộng hơn khung 5px và `.tableWrap` mọc thanh cuộn ngang. Nên đệm trái của cột Ngày lưu hạ
+   * từ 6px xuống 4px (tiêu đề và ô cùng hạ, để chữ "Ngày lưu" vẫn thẳng mép ngày) và khe là 8px: 36px.
+   * Kết quả với ngày còn cách nhau 10px.
+   */
+  .savedList .rowRemove {
+    opacity: 1;
+  }
+
+  .savedList .rowRemove::after {
+    inset: -8px;
+  }
+
+  .savedList .lastCell {
+    gap: 8px;
+  }
+
+  .savedList th:last-child,
+  .savedList .savedRow > td:last-child {
+    padding-left: 4px;
+  }
+
+  /*
+   * Ba số liệu của dòng — mã, kết quả, ngày lưu — MỘT cỡ, 13px, nhỏ hơn tên phép tính (`.savedOpen`,
+   * `--text-sm` 14px). Chủ dự án khoanh đúng ba ô ấy (14/10/2026): _"đồng bộ size text của các số liệu …
+   * đảm bảo size đó nhỏ hơn size của tên công thức"_. Đo trước khi sửa: mã 14px đậm, kết quả 14px đậm,
+   * ngày 13px — hai ô bằng cỡ tên mà đậm hơn nên trông to hơn tên. 13px là cỡ số trong bảng của bản vẽ
+   * khổ điện thoại (bảng Mã).
+   *
+   * Và MỘT nét: thường. Lượt đầu giữ độ đậm cũ (mã và kết quả 700, ngày 400) và chủ dự án hỏi lại ngay:
+   * _"cùng size rồi nhưng sao chỗ thì in đậm chỗ thì không vậy. đồng bộ để không in đậm. ngoại trừ tên
+   * công thức thì mới in đậm"_. Tên phép tính (`.savedOpen`, `--weight-medium`) là thứ duy nhất đậm trên
+   * dòng; khổ PC không đổi.
+   *
+   * Và MỘT màu, màu chữ chính như tên: ngày lưu từng nhạt hơn (`--color-ink-soft`) — xem khối "Một màu,
+   * một cỡ, một nét" phía trên, áp cho cả hai bảng.
+   */
+  .savedCode,
+  .savedResult,
+  .savedDate {
+    font-size: 13px;
+    font-weight: var(--weight-regular);
+    color: var(--color-ink);
+  }
+
+  /*
+   * Kết quả không xuống dòng: thêm cột Ngày lưu thì ô này hẹp lại, và "67.520.669,9 ₫" từng tách đơn vị
+   * xuống một dòng riêng (đo ở 390px). Cùng luật với ô số của bảng Mã (`.holdCell`): số bị bẻ đôi là số
+   * đọc sai. Số cực dài thì bảng tự rộng ra và `.tableWrap` cuộn ngang, trang thì không.
+   */
+  .savedResult {
+    white-space: nowrap;
+  }
+
+  /* Ô cuối còn hiện: chữ bên trái, mũi tên (bảng Mã) hoặc dấu X (bảng Công thức) bên phải. */
+  .lastCell {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2px;
+  }
+
+  /*
+   * Mũi tên của dòng ĐANG ĐÓNG — bản vẽ: #5a6880 (`--color-chevron`), mờ hơn mọi chữ của bảng. Dòng đang
+   * mở thì mũi tên #8ab4f8 (`--color-accent`), luật ấy nằm ở `ExpandToggle.module.css` và thắng luật này
+   * nhờ bộ chọn `[aria-expanded='true']`.
+   */
+  .lastCell > button:not(.rowRemove) {
+    color: var(--color-chevron);
+  }
+
+  /* Dòng đang mở và khối chi tiết của nó cùng một nền — bản vẽ: #0a0f1a (`--color-sunken`). */
+  .rowExpanded:not(.holdRowPending):not(.savedRowWarn) > td,
+  .detailRow > td {
+    background: var(--color-sunken);
+  }
+
+  .detailRow {
+    display: table-row;
+  }
+
+  /* Bản vẽ: nhãn bắt đầu 7px dưới dòng đang mở, nút cách đáy khối 12px. */
+  .detailRow > td {
+    padding: 7px var(--space-3) var(--space-3);
+    text-align: left;
+  }
+
+  .detail {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  /* Ba số: nhãn trên, số dưới, ba cột đều nhau. */
+  .detailStats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-2);
+    margin: 0;
+  }
+
+  .detailStats dt {
+    margin-bottom: 1px;
+    font-size: 13px;
+    color: var(--color-muted);
+  }
+
+  /*
+   * Bản vẽ: nhãn #93a1b8 (`--color-muted`, luật trên). Số: bản vẽ để Tỷ trọng #b3c0d4 (`--color-ink-soft`);
+   * từ 14/10/2026 mọi số liệu của bảng một màu chữ chính (khối "Một màu, một cỡ, một nét" phía trên). Lãi/lỗ
+   * và % mang màu lãi/lỗ của chính chúng (`.holdGainUp` / `.holdGainDown`), bản vẽ #f4a0a6 cho số lỗ.
+   */
+  .detailStats dd {
+    margin: 0;
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    color: var(--color-ink);
+  }
+
+  /* Hai nút chia đôi hàng: Sửa (hoặc Nhập số liệu, Mở, Nạp) bên trái, Xoá đỏ bên phải. */
+  .detailActions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-2);
+  }
+
+  /*
+   * Bản vẽ: nút cao 38px, chữ 13px — thấp hơn `--tap-min` 44px, nên vùng chạm 44px là lớp phủ `::after`
+   * trong suốt (cùng cách `.addButton` ở khổ PC). Khe giữa hai nút 8px, nên lớp phủ không lấn sang nút
+   * bên cạnh: nó chỉ nới theo chiều cao.
+   */
+  .detailButton {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 38px;
+    padding: 0 var(--space-3);
+
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: var(--weight-medium);
+    text-decoration: none;
+
+    /* Bản vẽ: chữ #b3c0d4, nền #0a0f1a (trùng nền khối chi tiết), viền 1px #313d52. */
+    color: var(--color-ink-soft);
+    background: var(--color-sunken);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+  }
+
+  .detailButton::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    height: var(--tap-min);
+    transform: translateY(-50%);
+  }
+
+  .detailButton:focus-visible {
+    outline: none;
+    box-shadow: var(--focus-ring);
+  }
+
+  /* Bản vẽ: chữ #f4a0a6 (`--color-danger`), viền #6b3b42 (`--color-danger-line`). */
+  .detailDanger {
+    color: var(--color-danger);
+    border-color: var(--color-danger-line);
   }
 }

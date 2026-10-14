@@ -1,0 +1,83 @@
+/*
+ * Vệt chờ — xem `KhungCho.tsx`.
+ *
+ * `inline-block` để ôm đúng chữ nó che và theo `text-align` của ô (số căn phải ở PC, căn trái ở khổ điện
+ * thoại). `min-width` cho lần tải ĐẦU, khi ô chỉ có `_ _`: một vệt rộng hai ký tự đọc ra là một vết bẩn,
+ * không phải một con số sắp tới.
+ *
+ * Giấu bằng `visibility: hidden` trên cả vệt — chữ, mũi tên, thanh tỷ trọng, chữ có màu riêng như lãi
+ * xanh / lỗ đỏ đều ẩn theo, mà vẫn giữ chỗ — rồi `::after` tự bật lại `visible` để vẽ vệt. Không dùng
+ * `color: transparent`: `tokens.test.ts` cấm cách giấu chữ ấy trong mọi CSS Module.
+ */
+.khungCho {
+  position: relative;
+  display: inline-block;
+  min-width: 3.5em;
+  visibility: hidden;
+}
+
+/* Ôm đúng con số — xem prop `vua` ở `KhungCho.tsx`. Hai lớp nên thắng `.khungCho` bất kể thứ tự. */
+.khungCho.vua {
+  min-width: 0;
+}
+
+/*
+ * Hai tông lấy từ token sẵn có, tự đổi theo giao diện sáng/tối: nền `--color-border`, vệt sáng
+ * `--color-hairline` chạy ngang. Cao 0,9em giữa dòng chữ, bo nhẹ.
+ */
+.khungCho::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 0.9em;
+  transform: translateY(-50%);
+  visibility: visible;
+
+  border-radius: 4px;
+  background: linear-gradient(
+    90deg,
+    var(--color-border) 25%,
+    var(--color-hairline) 50%,
+    var(--color-border) 75%
+  );
+  background-size: 200% 100%;
+
+  animation: chay 1.2s linear infinite;
+}
+
+@keyframes chay {
+  from {
+    background-position: 100% 0;
+  }
+
+  to {
+    background-position: -100% 0;
+  }
+}
+
+/*
+ * Bật "giảm chuyển động" thì vệt KHÔNG chạy ngang mà thở chậm (đậm nhạt tại chỗ) — và phải ghi đè có chủ
+ * ý. Luật chung ở `globals.css` ép mọi hoạt ảnh về 0,01ms, mà một hoạt ảnh lặp vô hạn ở thời lượng ấy
+ * không đứng yên: nó nhấp nháy. Máy của chủ dự án bật thiết lập này (Windows tắt "Animation effects"),
+ * cùng lý do `.spinner` ở `TickerPickerSheet.module.css` ghi đè. Đổi độ đậm tại chỗ không phải chuyển
+ * động, và nó là thứ nói "đang tải" chứ không phải "ô này trống". `.khungCho::after` (0,1,1) thắng `*::after`
+ * (0,0,1) của luật chung khi cả hai cùng `!important`.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .khungCho::after {
+    animation: tho 0.8s ease-in-out infinite alternate !important;
+    animation-duration: 0.8s !important;
+  }
+}
+
+@keyframes tho {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0.45;
+  }
+}

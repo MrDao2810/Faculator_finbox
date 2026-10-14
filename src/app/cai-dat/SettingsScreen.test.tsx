@@ -77,6 +77,28 @@ describe('WF-13 — bốn khối đúng thứ tự wireframe', () => {
   });
 });
 
+/*
+ * ── Điện thoại: nhãn trái, cụm nút phải, ba cụm cùng một cỡ (14/10/2026) ──────────────────────
+ *
+ * Chủ dự án khoanh hai cụm nút rơi xuống dòng dưới nhãn và dạt về mép trái trên điện thoại:
+ * _"các chức năng kia cần thu nhỏ lại hơn 1 chút và chuyển sang bên phải, còn text thì bên trái"_.
+ * Bố cục và cỡ đều là CSS dưới 560px — jsdom không đo được, `kiem-cai-dat` trên Chrome thật đã đo
+ * (cùng dòng, sát mép phải, cao 34px cả ba, không tràn ngang ở 390 và 360). Ở đây gác hai điều mà
+ * CSS ấy dựa vào: cả ba cụm bật bản gọn, và cụm nút là con CUỐI của hàng (luật lưới đặt nó vào cột
+ * phải theo `:last-child`).
+ */
+describe('điện thoại: ba cụm nút ở màn Cài đặt dùng bản gọn và đứng cuối hàng', () => {
+  it('cả ba cụm mang lớp bản gọn, và là con cuối của hàng chứa nó', () => {
+    open();
+
+    for (const ten of ['Chế độ hiển thị', 'Giao diện', 'Đơn vị hiển thị']) {
+      const cum = screen.getByRole('group', { name: ten });
+      expect(cum.className, ten).toMatch(/compact/);
+      expect(cum.parentElement?.lastElementChild, ten).toBe(cum);
+    }
+  });
+});
+
 describe('đơn vị & biểu phí — cài đặt ghi được và nhớ được (SW-02)', () => {
   it('đổi bậc đơn vị thì ghi xuống localStorage', async () => {
     open();

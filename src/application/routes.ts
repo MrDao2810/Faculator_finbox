@@ -203,8 +203,8 @@ export const NAV_ITEMS: ReadonlyArray<NavItem> = [
  */
 const HEADER_TITLES: ReadonlyArray<{ path: string; key: MessageKey }> = [
   { path: ROUTES.formulas, key: 'page.formulas.title' },
-  /* 'Danh mục của tôi', không phải 'Danh mục' của thanh nav: đây là tiêu đề trang, và chữ "của
-     tôi" là thứ nói ra rằng kho này nằm trên máy người dùng. */
+  /* 'Danh mục' — từng là 'Danh mục của tôi' ("của tôi" nói ra rằng kho nằm trên máy người dùng).
+     Bản vẽ khổ điện thoại 14/10/2026 của chủ dự án ghi đúng một chữ "Danh mục" trên thanh trên. */
   { path: ROUTES.portfolio, key: 'portfolio.title' },
   { path: ROUTES.settings, key: 'page.settings.title' },
 ];
@@ -226,6 +226,27 @@ const HEADER_TITLES: ReadonlyArray<{ path: string; key: MessageKey }> = [
 export function headerTitleKey(pathname: string): MessageKey | null {
   const path = pathname.endsWith('/') ? pathname : `${pathname}/`;
   return HEADER_TITLES.find((entry) => entry.path === path)?.key ?? null;
+}
+
+/**
+ * Những màn tự đặt nút của mình lên thanh trên ở khổ điện thoại, thay cho cụm Sáng/Tối · ngôn ngữ.
+ *
+ * Chỉ `/danh-muc/` (14/10/2026): bản vẽ khổ điện thoại của chủ dự án đặt icon Tìm kiếm và icon Làm
+ * mới giá ở góc phải thanh trên và không vẽ hai nút Sáng/Tối, VI. Hỏi lại thì chủ dự án chốt: *"cứ
+ * làm theo thiết kế. còn button sáng tối thì để người dùng thay đổi ở màn home"* — tức hai nút ấy
+ * vẫn có ở các màn khác, chỉ màn này nhường chỗ. Cùng ngày, xem màn chạy thật, chủ dự án gạch icon
+ * Làm mới giá và cho ô tìm mở ra ngay trên thanh, nên nay chỉ còn icon Tìm kiếm.
+ *
+ * Bảng theo đường dẫn chứ không để màn tự báo lúc chạy: `HeaderControls` đọc nó lúc dựng HTML tĩnh,
+ * nên trang tĩnh của `/danh-muc/` đã giấu sẵn hai nút cũ — không nháy hai nút ấy rồi mới đổi sau
+ * hydrate. Khớp TUYỆT ĐỐI như `headerTitleKey()`.
+ */
+const HEADER_SCREEN_ACTIONS: ReadonlyArray<string> = [ROUTES.portfolio];
+
+/** Màn này có tự đặt nút lên thanh trên (khổ dưới 1024px) không — xem `HEADER_SCREEN_ACTIONS`. */
+export function headerHasScreenActions(pathname: string): boolean {
+  const path = pathname.endsWith('/') ? pathname : `${pathname}/`;
+  return HEADER_SCREEN_ACTIONS.includes(path);
 }
 
 /** Chỗ quay về mà thanh trên bày cho một màn TRONG — đúng bộ prop của `BackLink`. */

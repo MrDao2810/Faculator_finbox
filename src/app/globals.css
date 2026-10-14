@@ -227,6 +227,24 @@
   --color-selected-strong: #0b408e; /* đầu thẫm của dải — chữ trắng 9,82:1 */
   --color-on-selected: #ffffff;
 
+  /*
+   * Xanh đặc của bản vẽ màn Danh mục khổ điện thoại (14/10/2026): nút "Thêm mới" ghim đáy và tab
+   * đang chọn, chữ trắng. Đo thẳng trên ảnh bản vẽ của chủ dự án: nền #2563eb, chữ #ffffff.
+   *
+   * CÙNG một giá trị ở hai bảng màu, khác `--color-selected` (bảng tối đảo nó thành xanh nhạt chữ
+   * navy): bản vẽ vẽ ở giao diện tối và giữ xanh đặc chữ trắng — tách token để không kéo mọi nút đang
+   * chọn của sản phẩm đổi theo. Bản vẽ không có giao diện sáng; màu này là màu của bản vẽ, không phải
+   * màu suy ra.
+   */
+  --color-cta: #2563eb; /* chữ trắng trên nền này: 5,17:1 */
+  --color-on-cta: #ffffff;
+
+  /*
+   * Mũi tên "mở dòng" ở cuối mỗi dòng bảng Danh mục khổ điện thoại khi dòng ĐANG ĐÓNG — bản vẽ
+   * 14/10/2026 vẽ nó mờ hơn mọi chữ mờ của bảng (#5a6880 ở bảng tối). Bảng sáng: `--color-muted`.
+   */
+  --color-chevron: #58657a;
+
   /* ── Tông nhóm công thức ─────────────────────────────────────────────── */
   /*
    * Bảy tông cho 12 nhóm, và năm trong bảy dùng lại cặp đã có (accent · success · danger ·
@@ -342,6 +360,12 @@
   /* ── Màu trạng thái ──────────────────────────────────────────────────── */
   --color-danger: #b3202f; /* đỏ thẫm, tách hẳn sắc với xanh nhấn */
   --color-danger-soft: #fbe3e5;
+  /*
+   * Viền trang trí của nút đỏ (nút "Xoá" trong dòng chi tiết, màn Danh mục khổ điện thoại). Bản vẽ
+   * 14/10/2026 chỉ có giao diện tối (#6b3b42); bảng sáng giữ nguyên viền `--color-danger` đang dùng.
+   * Chữ đỏ mới là thứ nói "nút xoá", viền chỉ khoanh nút — cùng vai `--color-success-line`.
+   */
+  --color-danger-line: #b3202f;
   --color-success: #146b3a;
   /* Cặp nền + viền cho khối báo "đã đọc được N dòng" ở sheet dán dữ liệu WF-11.
      Chữ --color-success trên nền này đạt 5,48:1. */
@@ -662,6 +686,10 @@
   --color-selected: #5b9bff; /* chữ navy thẫm trên nền này: 6,54:1 */
   --color-selected-strong: #7ab5fc; /* sáng hơn — chữ navy thẫm 8,49:1 */
   --color-on-selected: #04162e; /* trên xanh sáng: 8,49 / 6,54 */
+  /* Đúng màu bản vẽ màn Danh mục khổ điện thoại — cùng giá trị bảng sáng, xem chú thích ở đó. */
+  --color-cta: #2563eb; /* chữ trắng 5,17:1 */
+  --color-on-cta: #ffffff;
+  --color-chevron: #5a6880; /* đo trên ảnh bản vẽ 14/10/2026 */
 
   /*
    * Thẻ đáp án KHÔNG đi theo phép đảo ở trên, và đây là chỗ khác nhau giữa hai vai.
@@ -693,6 +721,7 @@
   /* ── Màu trạng thái ──────────────────────────────────────────────────── */
   --color-danger: #f4a0a6; /* 8,81 / 7,72 */
   --color-danger-soft: #3a1a1f; /* cặp với --color-danger: 7,74:1 */
+  --color-danger-line: #6b3b42; /* viền nút Xoá — đo trên ảnh bản vẽ 14/10/2026 */
   --color-success: #7ddaa0; /* 10,48 / 9,19 */
   --color-success-soft: #10301f; /* cặp: 8,47:1 */
   --color-success-line: #376a4d; /* viền trang trí, khớp dải ~2,3:1 của bảng sáng */

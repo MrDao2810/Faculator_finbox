@@ -154,6 +154,123 @@
 }
 
 /*
+ * Dòng lãi/lỗ nằm trong `.hero` từ 14/10/2026 (xem `PortfolioSummary.tsx`). `.hero` xếp cách nhau
+ * `--space-1` còn thẻ xếp cách nhau `--space-3`; bù `--space-2` để khổ PC đứng đúng chỗ cũ.
+ */
+.hero > .gain {
+  margin-top: var(--space-2);
+}
+
+/* Phần mở ra được ở khổ điện thoại. Từ 1024px nó không là hộp nào: các dòng vẫn là con của thẻ. */
+.more {
+  display: contents;
+}
+
+/*
+ * ── Khổ dưới 1024px: MỘT hàng thu gọn (bản vẽ 14/10/2026) ──────────────────────────────────────
+ *
+ * Thẻ thành một dải phẳng giữa hai đường kẻ, như bản vẽ: không nền thẻ, không viền bo. Hàng đầu là
+ * nhãn · số · phần trăm lãi/lỗ · mũi tên. Đóng lại thì chỉ còn hàng ấy (và câu lý do khi số là `_ _` —
+ * FR-06, lý do phải đứng cạnh `_ _`); mở ra thì số tiền lãi/lỗ xuống dòng riêng, rồi các dòng số và
+ * dải giá phiên.
+ *
+ * Dải giá phiên (`.footer`) ẩn theo thẻ, TRỪ khi màn đánh dấu `data-luon-hien` (giá cũ hoặc tra hỏng):
+ * giá cũ chỉ được đứng trên màn khi màn nêu tên phiên của nó.
+ */
+@media (max-width: 1023.98px) {
+  /*
+   * Bản vẽ: hàng nằm trên nền trang #111827, KHÔNG kẻ trên (kẻ dưới của dải tab ngay trên đã ngăn), rồi tới
+   * thẳng thẻ bảng.
+   *
+   * KHÔNG kẻ dưới, dù bản vẽ có (1px #232c3e chạy hết bề ngang màn): chủ dự án gỡ nó ngày 14/10/2026 —
+   * _"xóa đường viền thừa ra … nằm ngay bên trên bảng và xát với bảng"_. Kẻ ấy nằm sát ngay trên viền khung
+   * bảng, nên đọc thành hai đường chồng nhau, và ở hai đầu nó chạy thẳng ra ngoài hai góc bo của khung. Viền
+   * trên của khung bảng đã là ranh giới. Đi cùng nó là `margin-inline: -10px` (chỉ để kẻ chạm mép màn).
+   */
+  .card {
+    gap: var(--space-3);
+    /* Bản vẽ: chữ cách mép màn 10px — đúng lề 10px của màn (`PortfolioScreen.module.css`). */
+    padding: 10px 0;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+  }
+
+  .hero {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: var(--space-2);
+    row-gap: var(--space-1);
+  }
+
+  /* Bản vẽ: nhãn 13px, số 16px, phần trăm 13px với mũi tên nhỏ hơn. */
+  .heroLabel {
+    font-size: 13px;
+  }
+
+  .heroValue {
+    font-size: var(--text-base);
+  }
+
+  .gainPercent {
+    font-size: 13px;
+  }
+
+  .gainPercent svg {
+    width: 12px;
+    height: 12px;
+  }
+
+  .hero > .gain {
+    margin-top: 0;
+  }
+
+  /* Mũi tên luôn ở mép phải hàng đầu, dù số ngắn hay dài. */
+  .hero > button {
+    order: 1;
+    margin-left: auto;
+  }
+
+  /* Câu lý do và dòng lãi/lỗ khi mở: xuống dòng riêng, trải hết bề ngang, dưới mũi tên. */
+  .hero > .reason {
+    order: 2;
+    flex-basis: 100%;
+  }
+
+  .card:not([data-mo]) .gainAmount {
+    display: none;
+  }
+
+  .card[data-mo] .hero > .gain {
+    order: 2;
+    flex-basis: 100%;
+  }
+
+  .card:not([data-mo]) .more,
+  .card:not([data-mo]) .footer:not([data-luon-hien]) {
+    display: none;
+  }
+
+  /*
+   * Dải thị giá của tab Mã (ngày phiên + nút Làm mới) ẩn hẳn ở khổ này lúc giá bình thường, thẻ mở cũng
+   * vậy — chủ dự án (14/10/2026): _"xóa ngày và tên button tải lại ở tab mã đi"_, khi icon Làm mới về lại
+   * thanh trên. Giá cũ hoặc tra hỏng (`data-luon-hien`) thì dải vẫn hiện, vì FR-06: giá cũ chỉ được đứng
+   * trên màn cạnh tên phiên của nó. Nút trong dải khi ấy ẩn riêng (`.priceButton` ở
+   * `PortfolioScreen.module.css`). Chân thẻ tab Công thức không mang lớp này nên không đổi.
+   */
+  .footPrice:not([data-luon-hien]) {
+    display: none;
+  }
+
+  .card[data-mo] .more {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+}
+
+/*
  * Hai lớp đổi màu chữ đứng CUỐI file, sau `.heroValue` và `.rowValue`: cả bốn là lớp đơn, nên với cùng
  * độ ưu tiên thì thứ tự khai báo quyết định ai thắng (cùng bẫy với `.panelCenter` ở
  * `BottomSheet.module.css`). Đặt trước là `_ _` vẫn đen và số đếm cảnh báo vẫn không cam.

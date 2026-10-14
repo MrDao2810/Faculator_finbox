@@ -37,8 +37,15 @@ export interface TabBarProps<T extends string> {
    * đổi cùng lúc: kiểu dáng (thẻ trắng, nhãn trái, số đếm phải), `aria-orientation`, và phím điều
    * hướng (↑/↓ thay cho ←/→). Đổi mỗi kiểu dáng mà quên hai thứ sau là cụm nhìn ra dọc nhưng trình
    * đọc màn hình vẫn báo ngang và mũi tên lên/xuống không làm gì.
+   *
+   * `'responsive'` (14/10/2026) là cụm tab của màn Danh mục từ khi có bản vẽ khổ điện thoại: dưới
+   * 1024px là thanh NGANG đúng dáng mặc định (khay, viên chọn tô màu, không icon — bản vẽ không vẽ
+   * icon), từ 1024px là thẻ DỌC như `'vertical'`. Chọn dáng bằng CSS chứ không `matchMedia` lúc dựng:
+   * HTML tĩnh không biết bề ngang màn, đọc nó lúc dựng là lệch hydrate. Vì chiều xếp đổi theo khổ mà
+   * markup thì không, cụm nhận CẢ HAI cặp phím (←/→ và ↑/↓) và không khai `aria-orientation` — một
+   * giá trị cố định sẽ sai ở một trong hai khổ, còn hai cặp phím thì đúng ở cả hai.
    */
-  orientation?: 'horizontal' | 'vertical';
+  orientation?: 'horizontal' | 'vertical' | 'responsive';
   className?: string;
 }
 
@@ -93,12 +100,27 @@ export function TabBar<T extends string>({
 }: TabBarProps<T>) {
   const buttons = useRef<Array<HTMLButtonElement | null>>([]);
   const vertical = orientation === 'vertical';
-  const classes = [styles.tabs, vertical ? styles.vertical : undefined, className]
+  const responsive = orientation === 'responsive';
+  const classes = [
+    styles.tabs,
+    vertical ? styles.vertical : undefined,
+    responsive ? styles.responsive : undefined,
+    className,
+  ]
     .filter(Boolean)
     .join(' ');
-  // Hai phím đi tới / đi lui đổi theo chiều xếp; Home và End giống nhau ở cả hai chiều.
-  const forwardKey = vertical ? 'ArrowDown' : 'ArrowRight';
-  const backwardKey = vertical ? 'ArrowUp' : 'ArrowLeft';
+  // Hai phím đi tới / đi lui đổi theo chiều xếp; Home và End giống nhau ở cả hai chiều. Dáng
+  // `responsive` nhận cả hai cặp, vì chiều xếp của nó đổi theo khổ màn — xem prop `orientation`.
+  const forwardKeys = vertical
+    ? ['ArrowDown']
+    : responsive
+      ? ['ArrowRight', 'ArrowDown']
+      : ['ArrowRight'];
+  const backwardKeys = vertical
+    ? ['ArrowUp']
+    : responsive
+      ? ['ArrowLeft', 'ArrowUp']
+      : ['ArrowLeft'];
 
   function moveTo(index: number) {
     const item = items[index];
@@ -112,16 +134,15 @@ export function TabBar<T extends string>({
     const here = items.findIndex((item) => item.value === value);
     if (here < 0 || items.length === 0) return;
 
-    const next =
-      event.key === forwardKey
-        ? (here + 1) % items.length
-        : event.key === backwardKey
-          ? (here - 1 + items.length) % items.length
-          : event.key === 'Home'
-            ? 0
-            : event.key === 'End'
-              ? items.length - 1
-              : null;
+    const next = forwardKeys.includes(event.key)
+      ? (here + 1) % items.length
+      : backwardKeys.includes(event.key)
+        ? (here - 1 + items.length) % items.length
+        : event.key === 'Home'
+          ? 0
+          : event.key === 'End'
+            ? items.length - 1
+            : null;
 
     if (next === null) return;
     // Chặn mặc định: mũi tên cuộn vùng chứa, Home/End nhảy đầu/cuối trang.

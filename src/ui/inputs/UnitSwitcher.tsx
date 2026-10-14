@@ -11,6 +11,12 @@ export interface UnitSwitcherProps {
   value: UnitScaleId;
   onChange: (value: UnitScaleId) => void;
   className?: string;
+  /**
+   * Bản GỌN cho hàng cài đặt trên điện thoại — chỉ có hiệu lực dưới 560px: nút thấp 28px như hai
+   * cụm Chế độ, Sáng/Tối đứng cùng màn, vùng chạm 44px chuyển sang lớp phủ. Xem `.compact` ở
+   * `UnitSwitcher.module.css`.
+   */
+  compact?: boolean;
 }
 
 /**
@@ -23,9 +29,11 @@ export interface UnitSwitcherProps {
  * Ba bậc là cố định của quy ước tiền tệ nên đọc từ `UNIT_SCALES` chứ không từ VariableSpec —
  * khác với các điều khiển còn lại của 2.3.
  */
-export function UnitSwitcher({ value, onChange, className }: UnitSwitcherProps) {
+export function UnitSwitcher({ value, onChange, className, compact = false }: UnitSwitcherProps) {
   const t = useT();
-  const classes = [styles.group, className].filter(Boolean).join(' ');
+  const classes = [styles.group, compact ? styles.compact : undefined, className]
+    .filter(Boolean)
+    .join(' ');
 
   return (
     <div className={classes} role="group" aria-label={t('input.unitLabel')}>

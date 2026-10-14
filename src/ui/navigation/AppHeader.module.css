@@ -107,3 +107,38 @@
   gap: var(--space-1);
   flex-shrink: 0;
 }
+
+/*
+ * Ô trống cho nút của màn (`HEADER_ACTIONS_ID`). `display: contents` để nó không thành một mục flex
+ * rỗng: một hộp 0px vẫn ăn một khoảng `gap`, nên ở mọi màn khác cụm nút sẽ lệch 4px. Nút màn đặt vào
+ * đây trở thành mục flex của `.controls`, đứng cạnh nhau như hai nút Sáng/Tối, VI.
+ */
+.screenActions {
+  display: contents;
+}
+
+/*
+ * Màn có nút riêng trên thanh (hiện chỉ Danh mục, `headerHasScreenActions()`): dưới 1024px hai nút
+ * Sáng/Tối và ngôn ngữ nhường chỗ — bản vẽ khổ điện thoại 14/10/2026 không vẽ hai nút ấy. Từ 1024px
+ * không đổi: màn ấy tự giấu nút của nó ở khổ PC.
+ *
+ * Cụm nút GIÃN hết chỗ còn lại sau tên màn (`flex: 1 1 0`) và dồn nút về mép phải: màn Danh mục mở ô
+ * tìm ngay trên thanh, giữa tên màn và icon Tìm kiếm, và ô ấy cần chỗ để giãn. Lúc chưa mở, cụm vẫn chỉ
+ * là một icon ở mép phải như cũ.
+ *
+ * `min-width` là một icon chứ không để `auto`: `auto` là bề ngang tối thiểu của NỘI DUNG, mà một ô
+ * `<input>` có bề ngang tự nhiên ~20 ký tự — đo ở 360px, mở ô ra là cụm đòi ~230px, gõ chữ (nút × hiện)
+ * là ~267px, và chữ "Danh mục" bị co thành "Danh m…". Sàn 44px thì ô co theo chỗ còn lại, tên màn giữ
+ * nguyên, và cụm vẫn không bao giờ hẹp hơn icon của nó.
+ */
+@media (max-width: 1023.98px) {
+  .controlsScreen {
+    flex: 1 1 0;
+    min-width: var(--tap-min);
+    justify-content: flex-end;
+  }
+
+  .controlsScreen > :not(.screenActions) {
+    display: none;
+  }
+}

@@ -278,7 +278,7 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'preset.draftExport':
     'Input numbers come from a fabricated sample dataset, not yet checked against real statements.',
 
-  'portfolio.title': 'My portfolio',
+  'portfolio.title': 'Portfolio',
   'portfolio.totalValue': 'Total value',
   'portfolio.beta': 'Portfolio beta',
   'portfolio.xirr': 'Portfolio XIRR',
@@ -362,6 +362,8 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   /* Viết thường vì nay là mảnh giữa câu ở dòng tiêu đề khối — xem `vi.ts`. */
   'portfolio.priceSession': 'Prices as of',
   'portfolio.priceRefresh': 'Refresh',
+  'portfolio.refreshPrices': 'Refresh prices',
+  'portfolio.details': 'Details',
   'portfolio.priceStale': 'Could not refresh market prices — showing saved ones.',
   'portfolio.priceNone': 'No market price found for any ticker yet.',
   /* "Add", không phải "Run": ô này CHỌN công thức để đính kèm, việc tính xảy ra sau khi lưu. */
@@ -597,9 +599,15 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'data.pending': 'Tickers awaiting figures',
   'data.pending.note':
     'Tickers brought into your portfolio from a watchlist, with no quantity or cost price yet.',
+  'data.portfolioSort': 'Tickers table order',
+  'data.portfolioSort.note':
+    'The column you clicked to sort the Tickers table in your portfolio, and the direction.',
   'data.saved': 'Saved calculations',
   'data.saved.note':
     'The calculations you saved from a formula screen, under the names you gave them.',
+  'data.savedSort': 'Formulas table order',
+  'data.savedSort.note':
+    'The column you clicked to sort the Formulas table in your portfolio, and the direction.',
   'data.drafts': 'Unsaved inputs',
   'data.drafts.note':
     'Numbers you were typing on a formula screen, kept so you need not start over after opening the data table or the guide and coming back.',

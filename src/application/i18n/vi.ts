@@ -741,7 +741,11 @@ export const vi = {
    * Nay còn là TÊN MÀN trên thanh trên (`headerTitleKey()`), không chỉ là `<h1>` trong thân màn.
    * Phụ đề `portfolio.subtitle` đi kèm nó đã bỏ hẳn (chủ dự án chốt 09/09/2026).
    */
-  'portfolio.title': 'Danh mục của tôi',
+  /*
+   * 'Danh mục' từ 14/10/2026 — bản vẽ khổ điện thoại của chủ dự án ghi đúng một chữ ấy trên thanh
+   * trên. Trước đó là 'Danh mục của tôi'.
+   */
+  'portfolio.title': 'Danh mục',
   'portfolio.totalValue': 'Tổng giá trị',
   'portfolio.beta': 'Beta danh mục',
   'portfolio.xirr': 'XIRR toàn DM',
@@ -1084,6 +1088,19 @@ export const vi = {
    */
   'portfolio.priceSession': 'Giá phiên',
   'portfolio.priceRefresh': 'Làm mới',
+  /*
+   * Icon Làm mới trên thanh trên ở khổ điện thoại, bên phải icon Tìm kiếm. Lịch sử cùng một ngày
+   * (14/10/2026): có theo bản vẽ đầu → chủ dự án gạch ("bỏ icon refect ở đầu đi chỉ để lại icon search")
+   * → chủ dự án cho về ("thêm lại icon refresh lên để ở bên phải của icon search"), cùng lúc bỏ ngày phiên
+   * và nút 'portfolio.priceRefresh' khỏi chân thẻ tab Mã ở khổ ấy. Tên khác nút ở chân thẻ: một icon
+   * không có chữ nào nói nó làm mới cái gì.
+   */
+  'portfolio.refreshPrices': 'Làm mới giá',
+  /*
+   * Nút mũi tên mở/đóng ở khổ điện thoại (14/10/2026): cuối mỗi dòng của hai bảng ('Chi tiết FPT')
+   * và cuối hàng thu gọn của thẻ tóm tắt. Trạng thái mở/đóng nằm ở aria-expanded, không ở chữ.
+   */
+  'portfolio.details': 'Chi tiết',
   'portfolio.priceStale': 'Chưa làm mới được thị giá — đang dùng giá đã lưu.',
   /*
    * Nguồn trả lời được nhưng không mã nào có giá. Cố ý KHÁC `portfolio.priceFailed`: ở đây mạng
@@ -1628,8 +1645,12 @@ export const vi = {
   'data.pending': 'Mã chờ nhập số liệu',
   'data.pending.note':
     'Các mã đưa vào Danh mục từ danh sách theo dõi, chưa có số lượng và giá vốn.',
+  'data.portfolioSort': 'Cách sắp bảng Mã',
+  'data.portfolioSort.note': 'Cột bạn bấm để sắp bảng Mã ở Danh mục, và chiều sắp.',
   'data.saved': 'Phép tính đã lưu',
   'data.saved.note': 'Những phép tính bạn bấm Lưu ở màn công thức, kèm tên bạn đặt cho chúng.',
+  'data.savedSort': 'Cách sắp bảng Công thức',
+  'data.savedSort.note': 'Cột bạn bấm để sắp bảng Công thức ở Danh mục, và chiều sắp.',
   'data.drafts': 'Số đang gõ dở',
   'data.drafts.note':
     'Số bạn vừa nhập ở màn công thức, giữ tạm để mở bảng dữ liệu hay trang hướng dẫn rồi quay lại không phải gõ lại từ đầu.',

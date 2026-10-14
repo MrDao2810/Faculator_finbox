@@ -25,12 +25,16 @@ const OPTIONS: ReadonlyArray<{ value: Theme; labelKey: 'theme.light' | 'theme.da
  * Hai component nhưng MỘT nguồn sự thật: cả hai đọc và ghi qua `usePreferences`, không cái nào
  * giữ state riêng. Việc áp màu do `PreferencesProvider` lo — nó ghi `data-theme` lên `<html>`.
  */
-export function ThemePicker() {
+export function ThemePicker({ compact = false }: { compact?: boolean } = {}) {
   const { theme, setTheme } = usePreferences();
   const t = useT();
 
   return (
-    <div className={styles.group} role="group" aria-label={t('theme.label')}>
+    <div
+      className={compact ? `${styles.group} ${styles.compact}` : styles.group}
+      role="group"
+      aria-label={t('theme.label')}
+    >
       {OPTIONS.map((option) => {
         const selected = option.value === theme;
         return (

@@ -10,6 +10,7 @@ import {
   backLinkFor,
   formulaListPath,
   formulaPath,
+  headerHasScreenActions,
   headerTitleKey,
   showsFooterDisclaimer,
 } from './routes';
@@ -159,6 +160,30 @@ describe('headerTitleKey()', () => {
    */
   it('Về chúng tôi cố ý đứng ngoài bảng — hero tự mang <h1>', () => {
     expect(headerTitleKey(ROUTES.about)).toBeNull();
+  });
+});
+
+/*
+ * Bản vẽ khổ điện thoại của màn Danh mục (14/10/2026) đặt icon Tìm kiếm (và ô tìm khi mở) lên thanh trên
+ * thay cho Sáng/Tối và ngôn ngữ. Chủ dự án chốt hai nút ấy vẫn ở các màn khác — nên bảng chỉ có một
+ * màn, và mở rộng nó là một quyết định phải đi qua đây.
+ */
+describe('headerHasScreenActions()', () => {
+  it('chỉ màn Danh mục tự đặt nút lên thanh trên, có hay không dấu gạch cuối', () => {
+    expect(headerHasScreenActions(ROUTES.portfolio)).toBe(true);
+    expect(headerHasScreenActions('/danh-muc')).toBe(true);
+  });
+
+  it('màn chính và các màn khác giữ Sáng/Tối và ngôn ngữ — khớp tuyệt đối', () => {
+    for (const path of [
+      ROUTES.formulas,
+      ROUTES.settings,
+      ROUTES.about,
+      '/cong-thuc/pe/',
+      '/danh-muc/x/',
+    ]) {
+      expect(headerHasScreenActions(path)).toBe(false);
+    }
   });
 });
 

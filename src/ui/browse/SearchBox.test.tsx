@@ -47,6 +47,25 @@ describe('SearchBox — bản gọn', () => {
   });
 });
 
+/*
+ * Bản trần (`bare`) là ô tìm trên thanh trên màn Danh mục ở khổ điện thoại: nơi gọi vẽ khung và đặt nút
+ * bật/tắt ở CUỐI khung — lúc mở là dấu X đóng ô. Kính lúp đầu ô mà còn thì một ô có hai kính lúp; nút xoá
+ * × mà còn thì cuối khung có hai dấu X làm hai việc khác nhau.
+ */
+describe('SearchBox — bản trần', () => {
+  it('không có kính lúp đầu ô, không có nút xoá; nhãn ẩn vẫn còn', () => {
+    render(<SearchBox value="fpt" onChange={vi.fn()} />);
+    expect(document.querySelectorAll('svg')).toHaveLength(2);
+    expect(screen.getByRole('button', { name: 'Xoá ô tìm kiếm' })).toBeTruthy();
+    cleanup();
+
+    render(<SearchBox value="fpt" onChange={vi.fn()} label="Tìm kiếm" bare />);
+    expect(screen.getByRole('searchbox', { name: 'Tìm kiếm' })).toBeTruthy();
+    expect(screen.queryByRole('button')).toBeNull();
+    expect(document.querySelectorAll('svg')).toHaveLength(0);
+  });
+});
+
 describe('SearchBox — nhãn và chữ mờ', () => {
   /*
    * Mặc định phải giữ NGUYÊN: ô này đang phục vụ màn Công thức và màn Tìm kiếm, và hai prop mới chỉ

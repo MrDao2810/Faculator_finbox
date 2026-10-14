@@ -112,13 +112,13 @@ describe('--color-hairline chỉ làm kẻ chia, không làm ranh giới', () =>
 });
 
 /**
- * Chín kẻ chia CỐ Ý ở lại `--color-border`, mỗi cái một lý do.
+ * Tám kẻ chia CỐ Ý ở lại `--color-border`, mỗi cái một lý do.
  *
  * Ghim danh sách chứ không chỉ đếm: đếm thì đổi một chỗ rồi thêm một chỗ khác là hoà, và ca kiểm
  * im lặng. Cùng lối với danh sách id trong `chart.test.ts` — một mục mới không được lọt qua mà
  * không có người xem xét.
  *
- * Ai muốn hạ một trong bảy dòng này xuống hairline thì phải sửa cả danh sách, và lúc đó sẽ đọc
+ * Ai muốn hạ một trong tám dòng này xuống hairline thì phải sửa cả danh sách, và lúc đó sẽ đọc
  * đúng lý do vì sao nó ở đây.
  */
 const GIU_COLOR_BORDER: ReadonlyArray<readonly [file: string, selector: string, lyDo: string]> = [
@@ -167,6 +167,11 @@ const GIU_COLOR_BORDER: ReadonlyArray<readonly [file: string, selector: string, 
     'Nền --color-sunken, cùng lý do đảo chiều. Phần tbody bên dưới thì đã chuyển sang hairline — hai bậc kẻ khác nhau ở đây là CỐ Ý, đầu bảng đậm hơn thân bảng. Đổi tên từ .preview khi WF-11 bỏ ô dán và thay bằng lưới nhập (22/09/2026).',
   ],
   [
+    'app/danh-muc/PortfolioScreen.module.css',
+    '.tabBand',
+    'Mép dưới dải nền cụm tab của màn Danh mục khổ điện thoại (14/10/2026). Màu ĐO trên ảnh bản vẽ của chủ dự án: #313d52, đúng --color-border bảng tối, cùng màu kẻ dưới thanh trên ngay phía trên. Dải nền surface đứng trên nền trang paper, hairline mảnh hơn và nhạt hơn bản vẽ.',
+  ],
+  [
     'app/du-lieu/DataTableScreen.module.css',
     '.table th',
     'Nền --color-sunken, cùng lý do. Cũng cùng cặp đầu-bảng/thân-bảng với PasteImportSheet.',
@@ -181,7 +186,7 @@ const GIU_COLOR_BORDER: ReadonlyArray<readonly [file: string, selector: string, 
  */
 
 describe('kẻ chia cố ý ở lại --color-border', () => {
-  it('đúng bảy chỗ, không thừa không thiếu', () => {
+  it('đúng tám chỗ, không thừa không thiếu', () => {
     const thucTe: string[] = [];
 
     for (const file of moduleCssFiles()) {

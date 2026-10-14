@@ -7,6 +7,7 @@ import { ROUTES } from '@/application';
 import { PreferencesProvider } from '@/application/preferences-context';
 
 import { AppHeader } from './AppHeader';
+import { HEADER_ACTIONS_ID } from './HeaderControls';
 
 /**
  * Thành phần của thanh trên.
@@ -169,4 +170,43 @@ describe('AppHeader — danh tính đổi theo màn', () => {
     dungThanh(ROUTES.data);
     expect(await screen.findByRole('link', { name: /Danh sách công thức/ })).toBeTruthy();
   });
+});
+
+/*
+ * Ô trống cho nút của màn và luật nhường chỗ (14/10/2026). Bản vẽ khổ điện thoại của màn Danh mục đặt
+ * icon Tìm kiếm ở góc phải thanh trên, không vẽ Sáng/Tối và VI; chủ dự án chốt hai nút
+ * ấy vẫn ở các màn khác.
+ *
+ * jsdom không áp CSS Module nên ca này không đo được "ẩn dưới 1024px" — nó gác thứ CSS dựa vào: class
+ * nhường chỗ có mặt ĐÚNG ở màn Danh mục, và ô trống có ở mọi màn (cổng của màn cần nó). Phần nhìn thấy
+ * được do `check:chrome` đo ở 360px.
+ */
+describe('AppHeader — ô trống cho nút của màn', () => {
+  it('mọi màn đều có ô trống, và nó trống khi màn không đặt gì vào', () => {
+    dungThanh(ROUTES.settings);
+
+    const o = document.getElementById(HEADER_ACTIONS_ID);
+    expect(o).not.toBeNull();
+    expect(o?.childElementCount).toBe(0);
+  });
+
+  it('chỉ màn Danh mục gắn class nhường chỗ; Sáng/Tối và VI vẫn nằm trong DOM', async () => {
+    dungThanh(ROUTES.portfolio);
+
+    const cum = document.getElementById(HEADER_ACTIONS_ID)?.parentElement;
+    expect(cum?.className).toMatch(/controlsScreen/);
+    // Ẩn bằng CSS dưới 1024px, không gỡ khỏi DOM: từ 1024px hai nút vẫn phải có ở màn này.
+    expect(await screen.findByRole('button', { name: 'Chuyển sang giao diện tối' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Chuyển sang tiếng Anh' })).toBeTruthy();
+  });
+
+  it.each([ROUTES.formulas, ROUTES.settings, ROUTES.about, '/cong-thuc/wacc/'])(
+    'màn %s giữ Sáng/Tối và VI ở mọi khổ — không có class nhường chỗ',
+    (path) => {
+      dungThanh(path);
+
+      const cum = document.getElementById(HEADER_ACTIONS_ID)?.parentElement;
+      expect(cum?.className).not.toMatch(/controlsScreen/);
+    },
+  );
 });

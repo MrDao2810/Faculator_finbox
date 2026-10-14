@@ -1,0 +1,69 @@
+/*
+ * Nút mũi tên mở/đóng — xem `ExpandToggle.tsx`. Chỉ có ở khổ dưới 1024px.
+ *
+ * Mũi tên trần, không nền không viền như bản vẽ; vùng chạm 44px là lớp phủ `::after` trong suốt, cùng
+ * cách `TabBar` và `Chip` nới đích bấm mà không làm dòng dày lên.
+ */
+.toggle {
+  display: none;
+}
+
+@media (max-width: 1023.98px) {
+  .toggle {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    /*
+     * 20px ngang: ở khổ 360px bảng Mã chỉ có ~326px, và bốn pixel của một mũi tên 24px là đúng bốn pixel
+     * bảng tràn ra (đo trên Chrome thật với giá vốn sáu chữ số).
+     */
+    width: 20px;
+    height: 24px;
+    padding: 0;
+
+    color: var(--color-muted);
+    background: transparent;
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+  }
+
+  /*
+   * Vùng chạm 44px neo vào MÉP PHẢI của nút và lan sang trái, không lan đều hai bên: nút đứng sát mép
+   * phải bảng, và phần lòi ra ngoài 10px của một lớp phủ căn giữa thành vùng tràn của khung cuộn —
+   * `.tableWrap` mọc thanh cuộn ngang 2px ở MỌI khổ (đo trên Chrome thật). Phía trái là chính dòng ấy,
+   * chạm vào cũng mở/đóng dòng như nhau.
+   */
+  .toggle::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: 0;
+    width: var(--tap-min);
+    height: var(--tap-min);
+    transform: translateY(-50%);
+  }
+
+  /* Bản vẽ: mũi tên rộng 9px, tức hình 16px (vẽ ở 18px là 10,5px). */
+  .toggle svg {
+    width: 16px;
+    height: 16px;
+    transition: transform 0.15s ease;
+  }
+
+  /* Đang mở: mũi tên lật lên và đổi sang màu nhấn, như dòng ASM trong bản vẽ. */
+  .toggle[aria-expanded='true'] {
+    color: var(--color-accent);
+  }
+
+  .toggle[aria-expanded='true'] svg {
+    transform: rotate(180deg);
+  }
+
+  .toggle:focus-visible {
+    outline: none;
+    box-shadow: var(--focus-ring);
+  }
+}

@@ -66,7 +66,7 @@ npm run format         # prettier --write .
 npm run format:check   # prettier --check .
 npm run check          # lint + typecheck + format:check + test — run before pushing
 npm run verify:static  # 51 assertions against a built out/ — run after build
-npm run check:chrome   # 173 assertions in a real headless Chrome (360×780, 560 and 1440) — needs out/ + Chrome
+npm run check:chrome   # 204 assertions in a real headless Chrome (360×780, 560 and 1440) — needs out/ + Chrome
 npm run size           # measures out/, gates First Load JS at 180 kB (NFR-PER-04 budget is 200 kB)
 npm run gen:summaries  # regenerates src/core/formulas/summaries.generated.ts
 npm run gen:icons      # regenerates the PWA PNGs from the icon geometry
@@ -431,23 +431,227 @@ the three-shape table (dòng gọn / 560px / 1024px) of 22/09/2026. What was dec
 - **On the Mã tab the search hides rows only.** Weight is still measured against the whole portfolio — a ticker
   alone on screen must not read "100%". It matches code and company name through `normalizeVi()`, like the
   ticker picker; the company name comes from the holding or, failing that, from `quotes`.
+- **The Mã table sorts by clicking a column header, at every width, and remembers it** (14/10/2026). The
+  owner asked for sorting on PC and phone and chose all three things: header click (no sort select), the
+  choice kept on the device (`ffb.portfolio.sort.v1`, a row in `STORAGE_ITEMS`), and the Mã table only — a
+  scope the owner widened the same afternoon (see the next bullet). The rules are pure, in
+  `src/application/portfolio-sort.ts`: a click cycles first direction →
+  reverse → the order added (Mã starts A→Z, numbers and Ngày mua start largest/newest); a `_ _` cell sorts
+  LAST in both directions (sorting it as 0 would invent a figure, FR-06); pending rows stay after the
+  holdings and sort only by Mã or Thị giá; ties keep the order added. Below 1024px Lãi/lỗ, % and Tỷ trọng
+  have no header, so a stored sort on one of them (set on PC, then a tablet rotated) shows the order added
+  while the store keeps it — `effectiveHoldingSort()`, fed by a `matchMedia` listener (`khoPC`), not by
+  `laKhoPC()`, which only reads at click time. The store is written in the click handler, never in an
+  effect on `sort` (that effect would also run on the load and write back what was just read), and the
+  key is removed on the third click. Each `<th>` holds a `<button>` named exactly the column label (so
+  `columnheader` names did not change) and carries `aria-sort` only while it is the sorted column; the
+  button's `::after` covers the whole cell, which is why `.holdHead th` is `position: relative`. **The
+  arrow's position is measured, not taste**: below 1024px it sits inline after the label (the auto-layout
+  table widens that column 1–4px; no sideways scroll at 360 or 390); from 1024px it is absolute, BEFORE
+  the label in the cell's own left padding (6px arrow + 2px gap = the 8px padding of the 1024–1279 band),
+  and after the label only in the Mã column, whose left is the table edge. Inline at 1024px it pushed
+  five labels 6–12px; absolute after the label it fell into the next cell under "Giá vốn" and "Tỷ trọng"
+  (both labels already reach their cell's right edge at 1024px) and that cell's background painted over
+  it. Measured in Chrome at 1440, 1280, 1024, 390 and 360: no label moves when the arrow appears. No
+  `check:chrome` assertion holds this yet.
+- **The Công thức table sorts by clicking a column header too** (14/10/2026, the owner: _"trong phần công
+  thức đang chưa có chức năng sort. thêm chức năng này cho tôi"_). Same `SortHeader`, same arrow CSS (the
+  first column, Công thức, takes the arrow after its label like Mã), its own store `ffb.saved.sort.v1` (a row
+  in `STORAGE_ITEMS`, after the drafts row, because the drafts row must sit right after the saved-calcs row).
+  The owner chose two things when asked: **Kết quả does not sort** (one column mixes ₫, %, lần, so any order
+  would rank 1,08 lần against 4.318 ₫; its `<th>` is plain text), and **Ngày lưu carries the arrow from the
+  start**, because the table is already newest-first. So unlike the Mã table there is no "unsorted" state:
+  the default IS `{ savedAt, desc }` (`DEFAULT_SAVED_SORT`), Công thức and Mã cycle A→Z → Z→A → default,
+  Ngày lưu toggles oldest-first ↔ default, and the key is removed whenever the default comes back. Rules
+  in `src/application/saved-calc-sort.ts`: the name sorts by the title ON SCREEN (`row.title`, not the
+  stored name) through `Intl.Collator('vi', { numeric: true })` — code-point order would put "Biên" before
+  "Ảnh" and "Định"; a row without a code sorts last in both directions; ties stay newest-first. Measured in
+  Chrome at 360–1440: no sideways scroll in any state (at 360px with "67.520.669,9 ₫" the name column
+  still fits its header plus the arrow), and from 1024px no label moves. `check:chrome` taps the Công
+  thức header with a real mouse at 360 and 560.
 - **The price strip moved into the summary card's footer** and is still ONE `<p role="status|alert">` carrying
   the loading / failed / stale / none spans and the refresh button. The session date is printed **once on the
   whole screen**: a stale price is only allowed because the screen names its session (`price-cache-store.ts`),
   and tests find the date with a single `getByText`.
-- **Small screens are NOT designed — the owner deferred them** ("phần dành cho mobile thì tạm thời tính sau").
-  Below 1024px the columns stack and each table scrolls sideways inside `.tableWrap`. The compact row of
-  WF-06, the 560px shape and their `check:chrome` assertions are gone; two remain (no page overflow, "Thêm mới"
-  reachable at 360 and 560). When a small-screen design arrives: add an `@media` in the `.layout` block and
-  rewrite both tables, do not restore from git. `.tableWrap` **must** be `position: relative`: the
-  `visually-hidden` labels in the table are `position: absolute`, and a scroller only clips an absolute
-  descendant when it is that descendant's containing block — without it they sat at their static position
-  (one at x=520) and widened the whole page to 569px on a 345px screen, with the table itself scrolling
-  correctly inside its frame.
+- **While prices load, every number that lives on the price is a loading bar** (`KhungCho.tsx`, 14/10/2026).
+  The owner pressed "Làm mới" and saw nothing reload but the date line: _"chức năng làm mới đang không làm cho
+  tôi cảm thấy dữ liệu đang được tải lại … thêm loading cho bảng dữ liệu bên dưới sao cho hợp lý khi tải
+  lại"_. Finbox answers in ~0.2 s, so the old strip text flashed for one frame. Now, while `priceLoading`:
+  the holdings `<table>` is `aria-busy`; Thị giá, Lãi/lỗ, Lãi/lỗ %, Tỷ trọng (and the phone detail row's three
+  figures, and a pending row's price) become a bar; the summary's Tổng giá trị and gain line do too, and the
+  reason under the hero is hidden ("missing price" while a price is on its way is false). Số CP, Giá vốn,
+  Ngày mua and Vốn đã bỏ ra do not depend on the price and stay put. The refresh/retry button is disabled with
+  a spinner, label unchanged (below 1024px the header's refresh icon spins instead — see the phone bullet). **A user-pressed refresh holds that state for `MIN_REFRESH_MS` (600 ms)** —
+  deliberate, the `SEARCH_DELAY_MS` precedent of `TickerPickerSheet`; the first load is never stretched.
+  Easy to break: the bar keeps the old text INSIDE it, hidden with `visibility` (the `::after` turns itself
+  back to `visible`), so a cell keeps its width and the auto-layout phone table does not jump; not
+  `color: transparent`, which `tokens.test.ts` forbids. When not loading, `KhungCho` returns its children
+  bare, so the DOM is exactly as before. Under reduced motion (the owner's machine) the bar breathes in place
+  instead of sweeping, an override on purpose for the same reason as the picker's spinner.
+- **Below 1024px the screen follows the owner's phone design of 14/10/2026** (the first small-screen design;
+  until then it was "tính sau" and the columns just stacked). One breakpoint, 1024px, for everything below it.
+  Everything is CSS in the `@media (max-width: 1023.98px)` block at the **end** of `PortfolioScreen.module.css`
+  (it must beat the table rules above it, the 1279.98px block included), except two things: what a click on
+  a Mã-table ROW does, and where the Công thức table's red X sits (see below). `laKhoPC()` reads
+  `matchMedia('(min-width: 1024px)')` **at click time** (never during render, the static HTML does not know
+  the width); no `matchMedia` (jsdom) means PC, which is what every older test pins. The X uses `khoPC`, a
+  `matchMedia` listener state that starts as PC for the same reason.
+  **Every colour and size in that block is MEASURED on the owner's image, not chosen.** The first build swapped
+  the drawing's colours for the product's existing ones (light-blue selected tab and add button with navy text,
+  the primitive's default tab look) and the owner answered: _"màu của button thêm mới như nào, màu của tabbar
+  khi chọn là như nào ? đừng tự sửa thiết kế của tôi và đừng bịa thiết kế"_. The fix read the PNG's pixels
+  (390×844 at 2×) and a screenshot of the screen at the same size, region by region, until every colour matched
+  by hex and every offset was within 1–2px. Where the drawing had a colour no token held, a token was added
+  rather than rounding to the nearest one: `--color-cta` / `--color-on-cta` (#2563eb, white — the same in both
+  palettes, because the dark palette's `--color-selected` is deliberately light blue), `--color-danger-line`
+  (#6b3b42 dark) and `--color-chevron` (#5a6880 dark). Sizes from the drawing: 10px side margins (the screen
+  widens past `--gutter` by 6px a side), 13px table text, 15px codes, 49px rows, 34px header row, 46px add
+  button, 38px detail buttons (44px tap overlay). Each rule carries its measured value in a comment. A new
+  phone design for this screen is checked the same way — measure it, do not eyeball it. **The owner later
+  overrode two of those measurements themselves** (14/10/2026): _"đồng bộ về 1 loại màu cho tôi chứ không
+  được để khác màu, kể cả ở bên Mã cũng thế. ngoại trừ tên mã tên công thức thì vẫn để là size to hơn 1 px
+  và in đậm"_. So below 1024px, in BOTH tables, every figure on a row is 13px, regular and `--color-ink`
+  (the same colour as the row's name), and the name — the code in the Mã table, the calculation name in
+  the Công thức table — is 14px and bold. That retires the drawing's 15px code, the old "quantity, cost
+  and buy date paler (`.holdMuted`), market price bold (`.holdPrice`)" pair, and the paler Tỷ trọng and
+  medium-weight gain figures of the detail row. Two colours remain on purpose: `_ _` (`.holdMissing`, the
+  FR-06 "no figure yet" signal) and the green/red of the gain figures in the detail row, which back up
+  the +/− sign. PC is unchanged. `check:chrome` compares computed size, weight and colour at 360 and 560.
+  What the design changed, and what is easy to break:
+  - **The header says "Danh mục" (`portfolio.title`, was "Danh mục của tôi") and carries TWO icons, Tìm kiếm
+    then Làm mới giá to its right, instead of Sáng/Tối and VI.** The owner: _"cứ làm theo thiết kế. còn button
+    sáng tối thì để người dùng thay đổi ở màn home"_ — the two buttons stay on every other screen.
+    `HeaderControls` (client) renders an empty slot `HEADER_ACTIONS_ID`; the screen `createPortal`s into it
+    after mount; `headerHasScreenActions()` in `routes.ts` (pathname-based, so the static HTML already hides
+    Sáng/Tối and VI below 1024px — no flash) lists the screens that do this, today only `/danh-muc/`. The slot
+    is `display: contents`, or an empty flex item adds a 4px gap on every screen. **The refresh icon went and
+    came back the same day** (14/10/2026): crossed out on a screenshot (_"bỏ icon refect ở đầu đi chỉ để lại
+    icon search"_), then restored (_"thêm lại icon refresh lên để ở bên phải của icon search đồng thời xóa
+    ngày và tên button tải lại ở tab mã đi. khi bấm vào tải lại thì cả ở màn Mã và công thức đều có hiệu ứng
+    tải lại như của màn Mã"_). So, below 1024px: the icon sits where the first design measured it (centres
+    52px apart, 30px from the right edge), spins and locks while loading (`aria-busy`), and calls `lamMoi()` —
+    prices for the Mã tab AND a re-read of the saved-calc and series stores for the Công thức tab, whose
+    Kết quả column and count become loading bars for `MIN_REFRESH_MS` (`savedLoading`). The summary card's
+    footer on the Mã tab is gone at this width — date and "Làm mới" button both (`.footPrice` in
+    `PortfolioSummary.module.css`, `.priceButton` here) — **except when the price is stale or failed**: that
+    strip still shows (without its button), because FR-06 lets a cached price stand only beside its session
+    date. From 1024px nothing changed: no header icon there, so the footer button is still the only refresh,
+    and the Công thức tab has no refresh control on PC.
+  - **The search box opens IN THE HEADER**, between the screen title and the right edge, the icon at its end
+    (the owner circled that spot on a screenshot, 14/10/2026: _"khi bấm vào icon search thì có thêm một popup
+    search ở chỗ rôi khoanh đỏ"_; before, it opened above the table). It is still ONE `SearchBox`, rendered
+    in ONE of two places: `searchInHeader` (phone width by `khoPC`, slot found, open or holding text) moves it
+    into the portal, inside `.headerSearch`, a frame that wraps the box AND the icon button, so the icon is
+    the same element open and closed and focus does not drop. Two boxes with CSS hiding one would be two
+    `searchbox`es. `SearchBox` gained `bare` (no border, no leading magnifier, no clear × — the frame and the
+    end button belong to the caller). **While open, the icon is an X, not the magnifier.** The first build
+    kept the magnifier in both states and the owner opened the box and could not close it: _"bật ô search lên
+    được rồi nhưng không có cách nào tắt đi được ? lỗi nghiêm trọng"_ — the magnifier did close it, but at
+    the end of a search field it reads as "search". The button keeps the name "Tìm kiếm" (state is
+    `aria-expanded`); `bare` drops the clear × because two X's side by side would do two different things.
+    Closing — the X or Esc — **clears the query**: a hidden search box with a live filter is a table missing
+    rows for no reason on screen; Esc also returns focus to the icon. **A tap outside closes the box only
+    while it is EMPTY** (a `pointerdown` listener on `document`): with text, the table below is the result
+    list and tapping a row is what the user came to do — closing there would clear the query and the row
+    would run away. Easy to
+    break: `.controlsScreen` (`AppHeader.module.css`) grows with `flex: 1 1 0` so the box has room, and its
+    `min-width` is one icon, NOT `auto` — an `<input>` has a ~20-character natural width, so with `auto`
+    the open box demanded ~230px at 360px (~267px once the × appeared) and squeezed the title to "Danh m…".
+    The frame is 36px tall, like the circled box (measured on the screenshot, 1:1); its look is the product's
+    search box, because the red stroke marks a place, not a drawing of a field. **While the box is open the
+    refresh icon is not rendered** (owner, 14/10/2026: _"sau khi bật search lên thì phải ẩn icon refresh đi
+    cho đến khi không sử dụng chức năng search"_): "open" includes holding text, so it comes back only on
+    close, which clears the query. The frame takes its room and ends at the gutter (`margin-right: 0`).
+    Removed from the DOM, not hidden by CSS, so it is no Tab stop while it cannot be seen; `check:chrome`
+    checks it is gone in all three open states and back after each close.
+  - **One "Thêm mới", not two.** Below 1024px the same `headTools` button is `position: fixed` above the
+    bottom tab bar, its edges aligned to the CONTENT column (`.content` is capped at `--content-max` and
+    centred, so at 768px edge-aligned would be 24px wider than the table). A second button would break every
+    `getByRole('button', { name: 'Thêm mới' })`. `.screen` pads its bottom by the button's height.
+  - **Tabs: `TabBar orientation="responsive"`** — horizontal below 1024px, the vertical card from 1024px. It
+    answers both arrow pairs and declares no `aria-orientation`, since the markup cannot know which one CSS
+    drew. Below 1024px it is NOT the primitive's default horizontal look: sunken tray with a `--color-border`
+    outline, 40px tabs, solid `--color-cta` selected tab, no icons — all from the drawing — and **no count**:
+    the drawing had "Mã 6 · Công thức 7", and the owner circled both numbers the same day (_"bỏ các text số
+    nằm trong tab"_). Hidden by CSS (`.responsive .count`), not by dropping `count`: from 1024px the vertical
+    card still prints it, the only place the holdings count appears on PC. `check:chrome` reads the tabs'
+    visible text at 360 and 560 and fails on a digit. It sits in
+    `.tabBand`, a surface-coloured strip flush under the header, full width, with a `--color-border` rule under
+    it (pinned in `hairline.test.ts`).
+  - **The summary card collapses to one row** ("Tổng giá trị · value · % · chevron"). Hidden by CSS, never
+    removed: the price strip must stay the screen's ONE `role="status"`. The gain line moved INSIDE `.hero` so
+    the percent can sit on that row. Exception, and it is FR-06: when the price is `'stale'` or `'failed'`
+    the footer (`data-luon-hien`) shows even collapsed — a cached price may only stand on screen beside its
+    session date. In normal state the date is behind the chevron; that reverses "always shown", by design.
+    **The card has NO bottom rule**, though the drawing has one (owner, 14/10/2026: _"xóa đường viền thừa
+    ra … nằm ngay bên trên bảng và xát với bảng"_): it ran the full screen width flush on top of the table
+    frame's border, so it read as a double line and stuck out past the frame's two rounded corners. The
+    table frame's own top border is the divider; `check:chrome` asserts the rule stays 0px at 360 and 560.
+    **The Công thức tab's card has NO chevron** (14/10/2026): it first copied the Mã card and opened three
+    counts (Trên số mã, Công thức khác nhau, Cần nạp lại chuỗi) plus the last save date; the owner
+    photographed those rows and said _"bỏ poup như ảnh sau ở màn công thức đi"_. `SavedSummary` never sets
+    `data-mo`, so the existing `.card:not([data-mo]) .more` rule keeps them hidden below 1024px, and the
+    card is the single "Đã lưu N phép tính" row. From 1024px nothing changed — `.more` is
+    `display: contents` there and the rows stand in the card as before.
+  - **The Mã table shows five columns (Mã · Số CP · Giá vốn · Thị giá · Ngày mua).** A row click toggles a
+    detail row under it (`openRow`, ONE open at a time — two open rows mean two red Xoá buttons on one
+    phone screen): Lãi/lỗ, Lãi/lỗ %, Tỷ trọng, then "Sửa" · "Xoá" (the owner renamed the design's "Bỏ mã";
+    pending rows get "Nhập số liệu" · "Xoá" and no figures). The column headers stay "Giá vốn", not the
+    design's "Giá mua" — the owner's call. The three figures are printed by `GainValue` /
+    `GainPercentValue` / `WeightValue`, shared with the PC cells. The detail row is rendered **only when
+    open** (else every gain figure exists twice in the DOM) and is `display: none` from 1024px.
+  - **The Công thức table has NO detail row at this width** (14/10/2026, second round). It first copied
+    the Mã table (three columns, a row tap opened Ngày lưu and "Mở"/"Nạp" · "Xoá"); the owner redrew it:
+    _"không có popup đổ xuống khi bấm vào mã nữa, chuyển date lên cùng hàng với cái số liệu kia giống như
+    bên Mã. bây giờ bấm vào công thức thì là vào phần sửa luôn, tạo thêm Icon xóa ở góc bên phải như ở
+    web"_. So below 1024px it keeps all four PC columns, a row tap opens the calculation exactly as on PC
+    (`router.push`, the name link included), and the red X sits at the END of the Ngày lưu cell, always
+    visible (`opacity: 1` re-declared, so a narrow desktop window shows it too). **Its spacing is
+    measured** (owner, same day: _"giãn cách icon X để dễ dàng thao tác hơn"_): the first build put a 20px
+    box 2px after the date with a 44px overlay anchored right, so the overlay covered the date's last
+    digits — a tap on the date deleted. Now a 28px box, an 8px gap, and the 44px overlay centred, so its
+    left edge stops exactly at the date and its right edge stops exactly at the table edge (the cell's
+    8px right padding). The room came from the Ngày lưu column's left padding (6 → 4px, header and cells
+    together): at 360px the name column's minimum is its nowrap HEADER "Công thức" (78px), and with a long
+    result like "67.520.669,9 ₫" the last cell has 35–36px for gap plus box; 12px + 28px overflowed the
+    table by 5px. `check:chrome` asserts the overlay does not reach the date. **The three figures of a row
+    — code, result, save date — are ONE size, 13px, below the name's 14px** (owner, same day: _"đồng bộ
+    size text của các số liệu … đảm bảo size đó nhỏ hơn size của tên công thức"_). Measured before: code
+    and result 14px bold, date 13px, so two of them matched the name's size and outweighed it. 13px is the
+    table-figure size of the phone drawing. **And ONE weight, regular**: the first pass left the weights
+    alone (code and result 700, date 400) and the owner came straight back: _"cùng size rồi nhưng sao chỗ
+    thì in đậm chỗ thì không vậy. đồng bộ để không in đậm. ngoại trừ tên công thức thì mới in đậm"_. The
+    name (`--weight-medium`) is now the only bold thing on the row. PC is unchanged (all 14px, code and
+    result bold). **And ONE colour**, the name's: the save date was paler (`--color-ink-soft`) until the
+    owner's next message extended the rule to both tables (see the phone-design paragraph above).
+    `check:chrome` compares the computed sizes, weights and colours. **It is ONE button that moves** — after the name on PC, in the
+    last cell on a phone — chosen by `khoPC` (a `matchMedia` listener), not two buttons with one hidden by
+    CSS: two "Xoá …" buttons are two targets for a screen reader and break every test that finds the X by
+    name. That is the screen's second JS-chosen difference between widths; it is safe because this
+    table's rows only exist after the store is read in an effect, so there is no static HTML to mismatch,
+    and the width effect runs in the same commit as the load. The Kết quả cell is `nowrap` here: with the
+    fourth column back, "67.520.669,9 ₫" broke its unit onto a line of its own at 390px. Cost, measured:
+    at 360px the name column is ~91px, so most names take two lines. The Mã table was deliberately NOT
+    changed with it — its detail row carries three figures that have no room on the row, and it is the
+    owner's drawing.
+  - **The chevron lives INSIDE the last visible cell** (Ngày mua), not in a
+    ninth column: a column that exists at one width is an empty header at the other, and the tests that
+    count cells per row stay valid. Its 44px tap overlay is anchored to the button's RIGHT edge — a centred
+    overlay poked 10px past the table and gave `.tableWrap` a 2px sideways scrollbar at every width. The
+    button is 20px wide because 24px made the table 4px wider than a 360px screen. Very long numbers (a
+    million-share holding at 360px) still scroll inside `.tableWrap`; the page never does.
+  - **Touching the code toggles the row too**: `.codeOpen` is `pointer-events: none` below 1024px, but
+    stays in the Tab order with its name ("Sửa FPT") for keyboards. The red X of the Mã table is
+    `display: none` there; Xoá lives in the detail row. (`.savedOpen` left that rule with the Công thức
+    table's detail row: a tap on the name now does what the row does.)
+    `.tableWrap` **must** still be `position: relative`: the `visually-hidden` labels in the table are
+    `position: absolute`, and a scroller only clips an absolute descendant when it is that descendant's
+    containing block — without it they sat at their static position (one at x=520) and widened the whole page to
+    569px on a 345px screen. `check:chrome` measures all of the above at 360 and 560 with a real mouse.
 - **The block titles here are the one exception to `section-title.test.ts`.** "Mã" and "Công thức" are 26px
   sentence case (`.mainTitle`), level with the "Danh mục" label, because on this screen they act
   as page titles and the design makes them a pair. `PortfolioScreen.module.css` left that test's list with a
-  tombstone saying why. The header still owns the `<h1>` ("Danh mục của tôi"), so the left-column label is
+  tombstone saying why. The header still owns the `<h1>` ("Danh mục"), so the left-column label is
   a plain `<p>`, not a heading.
 - **The tab card and the table start at the same height, and that is why the search box and the add button
   are 36px here** (12/10/2026). Both columns are "a title row + a `--space-3` gap + a card", so they were off by
@@ -596,12 +800,14 @@ The owner asked on 10/10 for the screen to be split into two dedicated parts and
 reverses their own 14/09/2026 call (_"bỏ tabbar đi"_). History worth keeping straight: the tab cluster was
 removed 14/09; the saved-calculations list came back 15/09 as a second block under Nắm giữ because "save, then
 see nothing" was reported as a bug; it is now the second tab. `TabBar` gained `orientation="vertical"` for it
-(`aria-orientation`, ↑/↓ instead of ←/→, a white bordered card with the count pushed right) — the screen is its
-only user. The tab labels are the block titles themselves (`portfolio.holdings`, `portfolio.savedTitle`; the
+(`aria-orientation`, ↑/↓ instead of ←/→, a white bordered card with the count pushed right); since 14/10/2026 the
+screen passes `"responsive"` instead (vertical from 1024px, horizontal below — see the phone-design bullet above),
+so `"vertical"` has no caller left. The tab labels are the block titles themselves (`portfolio.holdings`, `portfolio.savedTitle`; the
 one-word `tabHoldings`/`tabSaved` keys are gone), so in tests the `<h2>` is found by **role** (`tieuDeNamGiu()`),
 never by text, which now matches the tab too. The Công thức tab is **always built** when open, empty
 state included (the person chose the tab). The two lessons of 14–15/09 stay load-bearing: both tabs show their
-count on the bar even while closed, and the anchor `#phep-tinh-da-luu` (`savedCalcsPath()`, the Save button's
+count on the bar even while closed (from 1024px only since 14/10/2026 — the owner removed the count below it, see
+the phone bullet), and the anchor `#phep-tinh-da-luu` (`savedCalcsPath()`, the Save button's
 destination) opens the saved tab.
 
 **The saved tab is a table with a RESULT column** (12/10/2026), reversing the 10/2026 rule that the list shows
@@ -630,7 +836,8 @@ because the two tables swap in place when the tab changes.
 The name cell shows only the formula name when the stored name is an auto-generated
 suggestion (detected by rebuilding `suggestCalcNames()`, as `displayCalcName()` does — code and date have their
 own columns), and a hand-typed name with the formula name beneath it otherwise. **Only a search box sits above
-the table, and the order is fixed newest-first.** The design also drew a row of ticker chips ("Tất cả 7 · BHN 1
+the table; the order is newest-first until a column header is clicked** (header sorting since 14/10/2026, see
+the Mã-table sorting bullets above). The design also drew a row of ticker chips ("Tất cả 7 · BHN 1
 · AAA 1") and a sort select; both shipped for a few hours and the owner had the whole row deleted the same day
 (_"xóa cái này đi"_) — the search box already matches by ticker and the store holds at most 30 entries. A case
 in `PortfolioScreen.test.tsx` pins their absence, and the four keys carry a tombstone in `vi.ts`; ask before

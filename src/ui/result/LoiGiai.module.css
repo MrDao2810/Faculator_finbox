@@ -168,20 +168,44 @@
   font-weight: 600;
 }
 
-/* Dòng Nguồn: link trên, từng câu trích một dòng bên dưới. */
+/*
+ * Dòng Nguồn: link trên, từng câu trích một dòng bên dưới.
+ *
+ * `minmax(0, 1fr)`: cột ngầm của lưới là `auto`, tức nới theo bề ngang tối thiểu của nội dung — mà
+ * link không ngắt dòng (luật ngay dưới) thì bề ngang tối thiểu là cả đường dẫn. Đo ở 360px: cột
+ * phình ra, link lố mép khối 11px và không bao giờ tới lượt "…".
+ */
 .giaiNguon {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--space-1);
 }
 
 /*
- * `anywhere`: đường dẫn rút gọn không có dấu cách, và nhiều trang không có cả dấu gạch nối để ngắt
- * (`corporate.vanguard.com/content/dam/corp/research/…`), nên ở 390px nó tràn qua mép khối.
+ * Đường dẫn là MỘT khối không ngắt: đứng sau nhãn ("Giá FPT phiên 15/07/2026: ") mà không vừa phần
+ * còn lại thì nó xuống nguyên cả dòng; dài hơn cả khung thì cắt bằng "…" (`title` giữ đường dẫn đầy
+ * đủ). Từ 15/10/2026 chữ của link là CẢ đường dẫn (`shortUrl` thôi cắt ở 48 ký tự), nên "…" chỉ hiện
+ * khi chỗ trống thật sự hết. Dòng "nhãn + link" của khối Ví dụ còn cho link co vào cạnh nhãn — xem
+ * `.nguonDong` ở `ExampleBlock.module.css`.
+ *
+ * Trước 15/10/2026 nó là chữ thường mang `overflow-wrap: anywhere` (để
+ * `corporate.vanguard.com/content/dam/corp/research/…`, không dấu cách lẫn gạch nối, khỏi tràn mép
+ * khối ở 390px). Chủ dự án chụp hệ quả ở khổ điện thoại: đường dẫn bị ngắt ngay sau "du-" của
+ * `cafef.vn/du-lieu/…`, dòng đầu còn trống gần nửa bề ngang — _"text đang bị xuống dòng mà không
+ * gian bên cạnh lại dư thừa"_. `max-width` + `ellipsis` vẫn giữ lời hứa không tràn mép.
+ *
+ * `vertical-align: bottom`: một inline-block có `overflow` khác `visible` lấy đáy hộp làm đường
+ * chân chữ, để `baseline` thì link nhô lên khỏi hàng với nhãn đứng trước.
  */
 .giaiNguon a {
+  display: inline-block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: bottom;
   font-weight: 600;
   color: var(--color-accent);
-  overflow-wrap: anywhere;
 }
 
 /* Cụm `	ext{…}` tự nói nghĩa — in bằng chữ, cùng màu với ký hiệu MathML. */

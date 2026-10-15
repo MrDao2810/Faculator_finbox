@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 
-import { keepViNumberChars, parseViNumber, rawViNumber } from '@/application';
+import { englishNumberToVi, keepViNumberChars, parseViNumber, rawViNumber } from '@/application';
+import { usePreferences } from '@/application/preferences-context';
 
 import { filterTypedValue, guardFilteredDelete, resetFilteredDelete } from './filtered-change';
 
@@ -53,6 +54,7 @@ export function NumberCell({
 }: NumberCellProps) {
   /** Chuỗi thô trong lúc gõ. `null` nghĩa là đang hiện bản dựng lại từ `value`. */
   const [draft, setDraft] = useState<string | null>(null);
+  const { locale } = usePreferences();
 
   return (
     <input
@@ -66,7 +68,9 @@ export function NumberCell({
       onChange={(event) => {
         const raw = filterTypedValue(event, keepViNumberChars);
         setDraft(raw);
-        onChange(parseViNumber(raw));
+        /* Ở EN đọc được `-1,000,000` và `1,500.5` (`englishNumberToVi()`). Ô không có đơn vị nên
+           dạng một nhóm `92,000` vẫn là số lẻ kiểu Việt — chỉ hai dạng không thể nhầm được nới. */
+        onChange(parseViNumber(locale === 'en' ? englishNumberToVi(raw, '') : raw));
       }}
       onBlur={(event) => {
         resetFilteredDelete(event.currentTarget);

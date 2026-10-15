@@ -7,10 +7,16 @@
  * phần đường dẫn phía sau cắt ở `max` ký tự và thêm `…`. `href` vẫn là đường dẫn đầy đủ; hàm này
  * chỉ lo phần chữ.
  *
+ * Mặc định KHÔNG cắt (15/10/2026). Trước đó mặc định là 48 ký tự, và chủ dự án chụp
+ * `tradingeconomics.com/vietnam/government-bond-yi…` với nửa dòng trống bên phải: _"tại sao đủ
+ * không gian để hiển thị đầy đủ link mà lại phải ... như ảnh?"_. Một con số cố định không biết màn
+ * còn bao nhiêu chỗ; CSS thì biết — các chỗ in link (`.giaiNguon a`, `.source a`) mang
+ * `text-overflow: ellipsis` và tự cắt đúng ở mép chỗ trống thật.
+ *
  * Không ném lỗi với chuỗi không phải URL: `quiz.test.ts` đã gác `source.url` phải là https, và
  * một chuỗi lạ hiện ra còn hơn một link trống.
  */
-export function shortUrl(url: string, max = 48): string {
+export function shortUrl(url: string, max = Number.POSITIVE_INFINITY): string {
   const stripped = url
     .replace(/^https?:\/\//, '')
     .replace(/^www\./, '')

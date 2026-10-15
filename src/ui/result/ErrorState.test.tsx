@@ -54,13 +54,28 @@ describe('sáu loại lỗi của WF-15', () => {
       // Nhãn ngắn — dấu hiệu chữ, để không phụ thuộc màu (NFR-USA-06).
       expect(screen.getByText(WARNING_LABELS[code].vi)).not.toBeNull();
 
-      // Dòng gợi ý sửa (NFR-USA-04). Cả sáu mã của WF-15 đều phải có.
+      // Dòng gợi ý sửa (NFR-USA-04). Năm mã phải có; `INCOMPLETE_INPUT` thì không — ca riêng dưới.
+      if (code === 'INCOMPLETE_INPUT') return;
       expect(warning.fix, `mã ${code} thiếu gợi ý sửa`).toBeDefined();
       if (warning.fix !== undefined) {
         expect(screen.getByText(warning.fix.vi, { exact: false })).not.toBeNull();
       }
     });
   }
+
+  /*
+   * Ca ĐẢO NGƯỢC: chủ dự án bỏ "↳ Nhập nốt các ô còn trống rồi kết quả hiện ngay." (15/10/2026) — câu
+   * "Còn thiếu: …" đã nói thiếu ô nào. Câu gợi ý quay lại là một quyết định, không phải sơ suất.
+   */
+  it('INCOMPLETE_INPUT — chỉ nói thiếu ô nào, không có dòng ↳ gợi ý sửa', () => {
+    const warning = WF15.INCOMPLETE_INPUT;
+    const { container } = render(<ErrorState warning={warning} unit="lần" />);
+
+    expect(warning.fix).toBeUndefined();
+    expect(screen.getByText('Còn thiếu: Giá bán.')).not.toBeNull();
+    expect(container.textContent).not.toContain('↳');
+    expect(container.textContent).not.toContain('Nhập nốt các ô còn trống');
+  });
 });
 
 describe('bất biến FR-06 ở lớp hiển thị', () => {

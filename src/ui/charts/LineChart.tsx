@@ -14,6 +14,7 @@ import {
 } from '@/application';
 import type { ChartPoint, LineChart as LineChartModel, SeriesTone } from '@/application';
 import { usePick } from '@/application/preferences-context';
+import { useLabelText } from '@/ui/i18n/units';
 
 import styles from './chart.module.css';
 import { floatingLabel, textWidth, thin, tickAnchor } from './ticks';
@@ -295,6 +296,7 @@ export function LineChart({
   variant = 'line',
 }: LineChartProps) {
   const pick = usePick();
+  const labelText = useLabelText();
 
   /*
    * Hook LUÔN được gọi, kể cả khi `sizeProp` đã quyết định tất cả — quy tắc hook của React không
@@ -552,13 +554,14 @@ export function LineChart({
   const hoverText =
     hover === null
       ? ''
-      : `${hover.shortLabel ?? hover.label} · ${hover.shortValueLabel ?? hover.valueLabel}`;
+      : `${labelText(hover.shortLabel ?? hover.label)} · ${labelText(hover.shortValueLabel ?? hover.valueLabel)}`;
   const hoverPlace =
     hoverX === null
       ? null
       : floatingLabel(hoverX, hoverOnRight ? 'end' : 'start', hoverText, FLOAT_LABEL_SIZE, W);
 
-  const markedText = marked === undefined ? '' : (marked.shortValueLabel ?? marked.valueLabel);
+  const markedText =
+    marked === undefined ? '' : labelText(marked.shortValueLabel ?? marked.valueLabel);
   const markedPlace =
     marked === undefined
       ? null

@@ -77,10 +77,37 @@
   /* Hai cột ở 360px, tự giãn trên màn rộng. */
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   gap: var(--space-2);
+  /* Cho container query bên dưới đo CHÍNH lưới, không đo viewport — xem `[data-chi-ba-cot]`. */
+  container: ke-hang-ngay / inline-size;
 
   margin: 0;
   padding: 0;
   list-style: none;
+}
+
+/*
+ * Ô thứ chín: chỉ hiện khi lưới đúng ba cột (chủ dự án, 15/10/2026 — tám ô ở ba cột để hàng cuối
+ * hụt một chỗ). Mã gắn `data-chi-ba-cot` khi kệ đang thu gọn; xem `DAILY_SHELF_PREVIEW_3_COLS`.
+ *
+ * Ẩn là mặc định, hiện là ngoại lệ: trình duyệt không hiểu container query thì giữ đúng tám ô như
+ * trước, không bày ô thứ chín lẻ loi ở lưới hai cột.
+ *
+ * Dải đo là phép chia của `auto-fill`: số cột = sàn((bề ngang + 8) ÷ (150 + 8)), với 8 là
+ * `--space-2` của `gap` (container query không đọc được biến CSS — đổi `gap` hay 150px thì đổi hai
+ * số này theo). Ba cột khi 3 × 150 + 2 × 8 = 466 ≤ bề ngang < 4 × 150 + 3 × 8 = 624, tức viewport
+ * khoảng 498–655px với đệm 16px hai bên. Đo trên lưới chứ không trên viewport để khỏi phụ thuộc đệm.
+ * Chỉ dưới 1024px: từ đó lưới cố định bốn cột ở luật ngay dưới.
+ */
+.cards > li[data-chi-ba-cot] {
+  display: none;
+}
+
+@media (max-width: 1023.98px) {
+  @container ke-hang-ngay (466px <= width < 624px) {
+    .cards > li[data-chi-ba-cot] {
+      display: block;
+    }
+  }
 }
 
 /*

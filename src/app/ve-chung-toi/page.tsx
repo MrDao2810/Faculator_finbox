@@ -1,5 +1,8 @@
 import type { Metadata } from 'next';
 
+import { DocumentTitle } from '@/ui/i18n/DocumentTitle';
+
+import { PAGE_TITLES } from '../page-titles';
 import { AboutScreen } from './AboutScreen';
 
 /**
@@ -12,11 +15,16 @@ import { AboutScreen } from './AboutScreen';
  * toàn bộ chữ nằm sẵn trong HTML tĩnh.
  */
 export const metadata: Metadata = {
-  title: 'Về chúng tôi',
+  title: PAGE_TITLES.about.vi,
   description:
     'Faculator Finbox là gì, làm được gì, kiến trúc client-only không máy chủ, và những việc sản phẩm không làm.',
 };
 
 export default function AboutPage() {
-  return <AboutScreen />;
+  return (
+    <>
+      <DocumentTitle title={PAGE_TITLES.about} />
+      <AboutScreen />
+    </>
+  );
 }

@@ -4,6 +4,7 @@ import { type ReactNode } from 'react';
 
 import type { DrawableChart } from '@/application';
 import { useT, usePick } from '@/application/preferences-context';
+import { useLabelText } from '@/ui/i18n/units';
 
 import styles from './chart.module.css';
 
@@ -54,9 +55,12 @@ export interface ChartFrameProps {
 export function ChartFrame({ model, idBase, picker, action, children }: ChartFrameProps) {
   const t = useT();
   const pick = usePick();
+  const labelText = useLabelText();
   const captionId = `${idBase}-caption`;
 
   const rows = model.table.rows.length;
+  const current = currentLabel(model);
+  const currentText = current === undefined ? undefined : labelText(current);
 
   return (
     /*
@@ -144,15 +148,17 @@ export function ChartFrame({ model, idBase, picker, action, children }: ChartFra
                   );
                 }
                 const [head, ...values] = row;
-                const label = pick(head);
+                // Ô của bảng là chuỗi Domain dựng với đơn vị tiếng Việt — đổi đơn vị theo locale ở
+                // đây, và so dòng "hiện tại" trên CÙNG một bản đã đổi để dòng tô đậm không mất ở EN.
+                const label = labelText(pick(head));
                 return (
                   <tr
                     key={`${label}-${String(index)}`}
-                    className={label === currentLabel(model) ? styles.currentRow : undefined}
+                    className={label === currentText ? styles.currentRow : undefined}
                   >
                     <td>{label}</td>
                     {values.map((value, cell) => (
-                      <td key={`cell-${String(cell)}`}>{value}</td>
+                      <td key={`cell-${String(cell)}`}>{labelText(value)}</td>
                     ))}
                   </tr>
                 );

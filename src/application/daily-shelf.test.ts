@@ -2,7 +2,12 @@ import { describe, expect, it } from 'vitest';
 
 import { FORMULA_SUMMARIES } from '@/core/registry';
 
-import { DAILY_SHELF_IDS, DAILY_SHELF_PREVIEW, dailyShelfFormulas } from './daily-shelf';
+import {
+  DAILY_SHELF_IDS,
+  DAILY_SHELF_PREVIEW,
+  DAILY_SHELF_PREVIEW_3_COLS,
+  dailyShelfFormulas,
+} from './daily-shelf';
 import { PERSONAL_SLOTS } from './formula-usage';
 
 /**
@@ -64,6 +69,18 @@ describe('DAILY_SHELF_PREVIEW', () => {
 
   it('phần bày trước luôn còn ô ghim tay dù lịch sử lấy hết suất cá nhân hoá', () => {
     expect(PERSONAL_SLOTS).toBeLessThan(DAILY_SHELF_PREVIEW);
+  });
+
+  /*
+   * Dưới 1024px lưới có 2, 3 hoặc 4 cột (xem `FeaturedFormulas.module.css`). Mỗi dạng phải ra hàng
+   * cuối ĐỦ ô — chủ dự án chụp hàng cuối hụt một chỗ ở lưới ba cột (15/10/2026).
+   */
+  it('mỗi dạng lưới đều ra hàng cuối đủ ô: 8 ở 2 và 4 cột, 9 ở 3 cột', () => {
+    expect(DAILY_SHELF_PREVIEW % 2).toBe(0);
+    expect(DAILY_SHELF_PREVIEW % 4).toBe(0);
+    expect(DAILY_SHELF_PREVIEW_3_COLS % 3).toBe(0);
+    expect(DAILY_SHELF_PREVIEW_3_COLS).toBeGreaterThan(DAILY_SHELF_PREVIEW);
+    expect(DAILY_SHELF_PREVIEW_3_COLS).toBeLessThan(DAILY_SHELF_IDS.length);
   });
 });
 

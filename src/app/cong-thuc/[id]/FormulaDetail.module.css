@@ -872,6 +872,38 @@ button.iconButton::after {
 }
 
 /*
+ * ── Khổ dưới 1024px: trần HAI cột, và ô hẹp đứng lẻ chiếm trọn hàng (15/10/2026) ───────────────
+ *
+ * Chủ dự án khoanh ô "Hệ số beta (β)" của `capm` trên điện thoại: khung nhập nửa trái, nửa phải
+ * trống vì hai ô kề nó là thanh trượt chiếm trọn hàng — _"chuyển ô nhập sang bên phải để tối ưu
+ * không gian"_. Ô nào đứng lẻ do màn tính (`loneNarrowFlags()` ở `@/ui/inputs`), CSS chỉ vẽ.
+ *
+ * Bản đầu (cùng ngày) xếp ô lẻ nhãn TRÁI · khung PHẢI trên một hàng, hai cột `subgrid` của lưới.
+ * Chủ dự án khoanh ô "Giá mua" của `gia-hoa-von` ở hình ấy: _"như này thì không được. sửa lại để ô
+ * nhập ở dưới"_. Nên nay ô lẻ giữ ĐÚNG hình của mọi ô khác — nhãn trên, khung dưới, dòng phụ dưới
+ * khung, bốn hàng `subgrid` của luật `.fields > .field` — và chỉ khác ở chỗ chiếm trọn hàng, nên
+ * khung nhập rộng hết bề ngang thay vì nửa trái. Đừng dựng lại lối nhãn trái · khung phải.
+ *
+ * Trần hai cột là ĐIỀU KIỆN của phép tính ấy, không phải sở thích: `auto-fit` trần trụi chia ba,
+ * bốn cột từ khổ ~484px, và khi đó "ô cuối của dải lẻ" không còn là "ô đứng một mình". Đáy rãnh là
+ * nửa khung trừ khe, nên lưới không bao giờ quá hai cột; `auto-fit` vẫn xoá rãnh rỗng, nên công thức
+ * một ô vẫn nở hết bề ngang như trước. Cái giá, đã biết: ở khổ máy tính bảng (484–1023px) công thức
+ * ba, bốn ô hẹp nay xếp hai ô một hàng thay vì một hàng ngang.
+ */
+@media (max-width: 1023.98px) {
+  .fields {
+    grid-template-columns: repeat(
+      auto-fit,
+      minmax(max(140px, calc((100% - var(--space-4)) / 2)), 1fr)
+    );
+  }
+
+  .fields > .fieldLone {
+    grid-column: 1 / -1;
+  }
+}
+
+/*
  * TRẦN số cột ở khổ rộng. `auto-fit` không có trần, nên khi khung nới ra theo viewport nó chia
  * tiếp: đo ở 1440px trước khi có luật này, `pe` (2 ô) vẫn 2 ô nhưng những công thức nhiều biến
  * trải thành **7–8 cột** ô nhập rộng 140px — một hàng ô con con vắt ngang cả màn.

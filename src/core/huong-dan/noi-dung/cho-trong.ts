@@ -72,13 +72,34 @@ export function laKieuChoTrong(kieu: string): kieu is KieuChoTrong {
  *
  * Dưới ba tuần thì đếm tuần (0,6 tháng đọc khó hơn 3 tuần); từ khoảng một năm thì đếm năm.
  */
-export function thoiGianPhien(phien: number): string {
+export function thoiGianPhien(phien: number, ngon: NgonNgu = 'vi'): string {
   const thang = (phien * 12) / 250;
-  if (thang < 0.75) return `${formatNumber(Math.max(1, Math.round(phien / 5)))} tuần`;
+  if (thang < 0.75) return demDonVi(Math.max(1, Math.round(phien / 5)), 'tuan', ngon);
   const thangTron = Math.round(thang * 2) / 2;
-  if (thangTron < 12) return `${formatNumber(thangTron, { maxDecimals: 1 })} tháng`;
+  if (thangTron < 12) return demDonVi(thangTron, 'thang', ngon);
   const nam = Math.round((phien / 250) * 2) / 2;
-  return `${formatNumber(nam, { maxDecimals: 1 })} năm`;
+  return demDonVi(nam, 'nam', ngon);
+}
+
+/**
+ * Ngôn ngữ của câu đang điền (15/10/2026). Kho chữ nay có bản tiếng Anh, và một câu "{sessions}
+ * sessions is about {sessions|thoiGian}" mà điền ra "3 tháng" là câu nửa Anh nửa Việt.
+ *
+ * CHỈ chữ đơn vị đổi theo; con số vẫn in kiểu Việt (`2,5`), cùng quyết định 15/10/2026 của chủ dự án
+ * cho cả giao diện EN: số trên màn giữ CON-05, để số trong câu khớp số trong ô ngay cạnh.
+ */
+export type NgonNgu = 'vi' | 'en';
+
+const DON_VI: Readonly<Record<'tuan' | 'thang' | 'nam', Record<NgonNgu, [string, string]>>> = {
+  tuan: { vi: ['tuần', 'tuần'], en: ['week', 'weeks'] },
+  thang: { vi: ['tháng', 'tháng'], en: ['month', 'months'] },
+  nam: { vi: ['năm', 'năm'], en: ['year', 'years'] },
+};
+
+/** "1 week" / "2,5 months" — tiếng Việt không chia số nhiều, tiếng Anh chia theo đúng 1. */
+function demDonVi(so: number, donVi: keyof typeof DON_VI, ngon: NgonNgu): string {
+  const [motCai, nhieuCai] = DON_VI[donVi][ngon];
+  return `${formatNumber(so, { maxDecimals: 1 })} ${so === 1 ? motCai : nhieuCai}`;
 }
 
 /**
@@ -87,9 +108,10 @@ export function thoiGianPhien(phien: number): string {
  * Đây đúng là phép đổi câu "Nếu có 1,47 tỷ cổ phiếu thì nhập 1470" dạy: báo cáo ghi theo tỷ, ô nhận
  * theo triệu. Từ 1.000 triệu trở lên mới nói tỷ — nói "0,118 tỷ" là đổi ngược chiều cái câu ấy dạy.
  */
-export function soCoPhieuTrieu(trieu: number): string {
-  if (trieu >= 1000) return `${formatNumber(trieu / 1000, { maxDecimals: 3 })} tỷ`;
-  return `${formatNumber(trieu, { maxDecimals: 3 })} triệu`;
+export function soCoPhieuTrieu(trieu: number, ngon: NgonNgu = 'vi'): string {
+  if (trieu >= 1000)
+    return `${formatNumber(trieu / 1000, { maxDecimals: 3 })} ${ngon === 'en' ? 'billion' : 'tỷ'}`;
+  return `${formatNumber(trieu, { maxDecimals: 3 })} ${ngon === 'en' ? 'million' : 'triệu'}`;
 }
 
 /**
@@ -99,11 +121,14 @@ export function soCoPhieuTrieu(trieu: number): string {
  * trỏ vào một ô không có trong `thongSo`, hoặc mang kiểu lạ, thì để NGUYÊN — `noi-dung.test.ts`
  * bắt nó trước khi lên màn, và để nguyên thì người đọc ít ra còn thấy có chỗ hỏng thay vì một con
  * số bịa.
+ *
+ * `ngon` chọn chữ đơn vị của `thoiGian` và `coPhieu`; mặc định tiếng Việt.
  */
 export function dienCau(
   cau: string,
   thongSo: Readonly<Record<string, ThongSoO>>,
   giaTri?: Readonly<Record<string, number | null | undefined>>,
+  ngon: NgonNgu = 'vi',
 ): string {
   if (!cau.includes('{')) return cau;
 
@@ -121,8 +146,8 @@ export function dienCau(
     const so =
       typeof dangCo === 'number' && Number.isFinite(dangCo) && dangCo > 0 ? dangCo : o.macDinh;
 
-    if (kieu === 'thoiGian') return thoiGianPhien(so);
-    if (kieu === 'coPhieu') return soCoPhieuTrieu(so);
+    if (kieu === 'thoiGian') return thoiGianPhien(so, ngon);
+    if (kieu === 'coPhieu') return soCoPhieuTrieu(so, ngon);
     return formatNumber(so);
   });
 }

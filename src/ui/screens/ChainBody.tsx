@@ -14,7 +14,7 @@ import type {
   VariableSpec,
 } from '@/application';
 import { usePick, useT } from '@/application/preferences-context';
-import { LinkedInput, VariableField, isWideControl } from '@/ui/inputs';
+import { LinkedInput, VariableField, isWideControl, loneNarrowFlags } from '@/ui/inputs';
 import { InlineWarning } from '@/ui/result';
 
 import { useCalcText } from '../i18n/units';
@@ -208,6 +208,11 @@ export function ChainBody({
     const linkedKeys = new Set(step.fields.map((field) => field.spec.key));
     const ownInputs = inputs[step.formulaId] ?? {};
     const ownOverrides = overrides[step.formulaId] ?? {};
+    const shownVars = variablesForLevel(spec, mode);
+    /* Ô hẹp đứng lẻ trên hàng ở khổ điện thoại — cùng phép xét với khối Số liệu, xem `loneNarrowFlags()`. */
+    const loneFields = loneNarrowFlags(
+      shownVars.map((v) => linkedKeys.has(v.key) || isWideControl(v.type)),
+    );
 
     /*
      * Tên con số và vai của nó, xem mục "Thẻ gọi theo tên CON SỐ nó cấp" ở docblock đầu file.
@@ -255,7 +260,7 @@ export function ChainBody({
 
         <div className={styles.stepBody}>
           <div className={styles.fields}>
-            {variablesForLevel(spec, mode).map((variable) => {
+            {shownVars.map((variable, fieldIndex) => {
               const field = step.fields.find((f) => f.spec.key === variable.key);
 
               // Ô nhận giá trị từ bước trước: dựng LinkedInput để có nhãn nguồn, cảnh báo kế
@@ -291,7 +296,13 @@ export function ChainBody({
                   // Cùng luật với khối Số liệu: thanh trượt và nhóm nút chiếm trọn hàng. Thẻ bước
                   // còn hẹp hơn khối chính (thụt vào hai lần), nên bỏ luật này ở đây là ô lưới
                   // rơi xuống 143px — xem docblock của `isWideControl()`.
-                  className={isWideControl(variable.type) ? styles.fieldWide : styles.field}
+                  className={
+                    isWideControl(variable.type)
+                      ? styles.fieldWide
+                      : loneFields[fieldIndex] === true
+                        ? `${styles.field} ${styles.fieldLone}`
+                        : styles.field
+                  }
                 />
               );
             })}

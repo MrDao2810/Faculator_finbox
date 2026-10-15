@@ -39,12 +39,14 @@ export {
   NO_VALUE,
   UNIT_SCALES,
   draftViNumber,
+  englishNumberToVi,
   findUnitScale,
   formatCalcOutput,
   formatIsoDate,
   formatNumber,
   formatValueWithUnit,
   keepViNumberChars,
+  labelInEnglish,
   parseViNumber,
   rawViNumber,
   scaleToDong,
@@ -470,11 +472,12 @@ export {
   showsFooterDisclaimer,
 } from './routes';
 
-// Mười sáu ô (bày trước tám) của khối "Công thức dùng hằng ngày" ở đầu màn Công thức (FR-20)
+// Mười sáu ô (bày trước tám, chín khi lưới ba cột) của khối "Công thức dùng hằng ngày" (FR-20)
 export {
   DAILY_SHELF_IDS,
   DAILY_SHELF_OPEN_KEY,
   DAILY_SHELF_PREVIEW,
+  DAILY_SHELF_PREVIEW_3_COLS,
   dailyShelfFormulas,
 } from './daily-shelf';
 

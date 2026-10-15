@@ -1,12 +1,14 @@
 import type { Metadata } from 'next';
 
 import { FORMULA_MODULES } from '@/application';
+import { DocumentTitle } from '@/ui/i18n/DocumentTitle';
 
+import { PAGE_TITLES } from '../page-titles';
 import { DailyShelf } from './DailyShelf';
 import { FormulaListScreen } from './FormulaListScreen';
 
 export const metadata: Metadata = {
-  title: 'Công thức',
+  title: PAGE_TITLES.formulas.vi,
   description: `Thư viện ${String(FORMULA_MODULES.length)} công thức tài chính và chứng khoán Việt Nam — tra cứu, tính toán, giải thích; chia 12 nhóm.`,
 };
 
@@ -29,5 +31,10 @@ export const metadata: Metadata = {
  * `headerTitleKey()`). Trang vẫn đúng một `<h1>` — nó chỉ đổi chỗ.
  */
 export default function FormulaListPage() {
-  return <FormulaListScreen shelf={<DailyShelf />} />;
+  return (
+    <>
+      <DocumentTitle title={PAGE_TITLES.formulas} />
+      <FormulaListScreen shelf={<DailyShelf />} />
+    </>
+  );
 }

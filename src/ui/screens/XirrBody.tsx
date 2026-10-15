@@ -1,7 +1,7 @@
 'use client';
 
-import { cashflowsOf, checkCashflowSeries, emptyCashflowRow } from '@/application';
-import type { CalcOutput, CashflowRow } from '@/application';
+import { checkCashflowSeries, emptyCashflowRow } from '@/application';
+import type { CalcOutput, CashflowIssueCode, CashflowRow } from '@/application';
 import { useT, usePick } from '@/application/preferences-context';
 import { DateCell, NumberCell } from '@/ui/inputs';
 import { Button, Table } from '@/ui/primitives';
@@ -17,6 +17,9 @@ export interface XirrBodyProps {
 
 /** Trần số dòng — XIRR đọc vài giao dịch, không phải chuỗi giá hàng trăm phiên như WF-05. */
 const MAX_ROWS = 200;
+
+/** Lỗi mà chính ô trống đã cho thấy — không in thành câu dưới bảng. Xem `issueLines`. */
+const SELF_EVIDENT: ReadonlySet<CashflowIssueCode> = new Set(['MISSING_DATE', 'MISSING_AMOUNT']);
 
 /**
  * Thân riêng của XIRR — công thức duy nhất trong Registry mà đầu vào chính là một BẢNG có độ
@@ -44,6 +47,19 @@ export function XirrBody({ output, rows, onRowsChange }: XirrBodyProps) {
 
   const check = checkCashflowSeries(rows);
   const issueByIndex = new Map(check.rows.map((row) => [row.index, row.issues]));
+  /*
+   * Danh sách lỗi dưới bảng chỉ in lý do mà ô không tự cho thấy. "Thiếu ngày" / "Thiếu số tiền"
+   * không in nữa (chủ dự án, 15/10/2026 — "đoạn text dư thừa"): bảng mở ra với hai dòng trống nên
+   * hai câu ấy hiện ngay cho từng dòng, nhắc lại đúng điều ô trống đã nói. Dòng thiếu vẫn mang cờ
+   * "!" và vẫn bị loại khỏi phép tính, vì mã lỗi của nó còn nguyên trong `checkCashflowSeries`.
+   *
+   * Dòng đếm "N / M dòng tiền dùng được" dưới bảng cũng bỏ cùng ngày, theo yêu cầu riêng của chủ dự
+   * án ("không cần chú thích"): cờ "!" trên từng dòng đã chỉ ra dòng nào chưa dùng được.
+   */
+  const issueLines = check.rows.flatMap((row) => {
+    const shown = row.issues.filter((issue) => !SELF_EVIDENT.has(issue.code));
+    return shown.length === 0 ? [] : [{ index: row.index, issues: shown }];
+  });
 
   const setCell = (index: number, patch: Partial<CashflowRow>) => {
     onRowsChange(rows.map((row, position) => (position === index ? { ...row, ...patch } : row)));
@@ -67,8 +83,6 @@ export function XirrBody({ output, rows, onRowsChange }: XirrBodyProps) {
             + {t('xirr.addRow')}
           </Button>
         </div>
-
-        <p className={styles.hint}>{t('xirr.hint')}</p>
 
         <Table caption={t('xirr.tableTitle')} hideCaption>
           <thead>
@@ -143,9 +157,9 @@ export function XirrBody({ output, rows, onRowsChange }: XirrBodyProps) {
         </Table>
 
         {/* Nêu TỪNG dòng sai kèm lý do — cùng cách nghĩ với bảng chuỗi giá WF-05. */}
-        {check.rows.length > 0 && (
+        {issueLines.length > 0 && (
           <ul className={styles.issues}>
-            {check.rows.map((row) => (
+            {issueLines.map((row) => (
               <li key={row.index} className={styles.issue}>
                 <span className={styles.issueFlag} aria-hidden="true">
                   !
@@ -160,10 +174,6 @@ export function XirrBody({ output, rows, onRowsChange }: XirrBodyProps) {
             ))}
           </ul>
         )}
-
-        <p className={styles.summary}>
-          {cashflowsOf(rows).length} / {rows.length} {t('xirr.usable')}
-        </p>
       </section>
 
       <ResultBlock output={output} />

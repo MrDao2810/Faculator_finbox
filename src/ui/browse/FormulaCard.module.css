@@ -355,3 +355,68 @@
   white-space: nowrap;
   text-overflow: ellipsis;
 }
+
+/*
+ * ── Dưới 1024px: chữ của CẢ HAI biến thể nhỏ đi một bậc ─────────────────────────────────────
+ *
+ * Chủ dự án, 15/10/2026, chụp kệ "Công thức dùng hằng ngày" ở khổ điện thoại: _"hiện tại đang giữ
+ * nguyên size text của web nên nhìn rất to và chiếm không gian. giảm size text"_. Đo trước khi sửa:
+ * ô ~150px chở tên 16px đậm (tên dài vỡ ba dòng), mô tả 14px, nhãn 12px — đúng cỡ của ô PC rộng
+ * gấp đôi; mỗi ô cao 158px, cả kệ 656px ở 360px. Cùng ngày, lượt sau: _"tương tự giảm size ở phần
+ * danh sách công thức ở dưới"_ — biến thể hàng (danh sách `/cong-thuc/` và màn Tìm kiếm) theo cùng
+ * mức; đo trước khi sửa ở 360px, thẻ hàng cao 130–209px.
+ *
+ * Ba vai vẫn giữ thứ bậc, mỗi bậc nhỏ đi một nấc: tên 14 · mô tả 12 · nhãn 11. 11px không có trên
+ * thang (thang dừng ở `--text-xs` 12px) — cùng cỡ với nhãn `dt` của `LoiGiai.module.css`. Hai biến
+ * thể giảm CÙNG mức nên tên ô vẫn cùng bậc với `.name` như chú thích `.tileName` nói. Huy hiệu cấp
+ * độ (primitive `Badge`, 12px) không đổi: nó đã nhỏ hơn tên mới.
+ *
+ * Icon theo tên, 24 → 20px. Ở ô: hộp float cao đúng một dòng tên (14 × 1,25 = 17,5px), hình tràn
+ * 1,25px mỗi phía, dưới mức 2px mà chú thích `.tileIcon` đã đo là chưa chạm chữ dòng hai. Ở hàng:
+ * khung 32 → 28px, cùng tỉ lệ khung/hình như cũ. `CategoryIcon` khai 24px bằng thuộc tính; CSS
+ * `width`/`height` trên `<svg>` thắng thuộc tính trình bày ấy.
+ */
+@media (max-width: 1023.98px) {
+  .rowIcon {
+    width: 28px;
+    height: 28px;
+  }
+
+  .rowIcon svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .name {
+    font-size: var(--text-sm);
+  }
+
+  .description {
+    font-size: var(--text-xs);
+  }
+
+  .category {
+    font-size: 11px;
+  }
+
+  .tileIcon {
+    height: calc(var(--text-sm) * var(--leading-tight));
+  }
+
+  .tileIcon svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .tileName {
+    font-size: var(--text-sm);
+  }
+
+  .tileDescription {
+    font-size: var(--text-xs);
+  }
+
+  .tileCategory {
+    font-size: 11px;
+  }
+}

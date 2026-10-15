@@ -52,13 +52,13 @@ import type { Bilingual } from '../../types';
  * Kho này nằm trong `src/core/huong-dan/`, nên nó đã sẵn nằm sau cửa chỉ-lúc-build
  * `@/application/huong-dan` mà `build-only-imports.test.ts` đang gác — không cần luật mới.
  *
- * ── `en` là TUỲ CHỌN, và đó là một quyết định có tiền lệ ─────────────────────────────────────
+ * ── `en` vẫn TUỲ CHỌN về kiểu, nhưng kho đã dịch đủ ──────────────────────────────────────────
  *
- * Tài liệu chỉ có tiếng Việt. Thay vì dịch vội 766 câu, kho khai `en` tuỳ chọn và `pick()` tự rơi
- * về tiếng Việt — nhánh `value.en.trim() === ''` của nó có sẵn từ trước, đúng cho việc này. Cùng
- * nếp ngân hàng câu hỏi: 205/411 câu chưa có bản tiếng Anh, rơi về tiếng Việt IM LẶNG (câu thông
- * báo `quiz.notTranslated` đã bị bỏ 30/09/2026). `noi-dung.test.ts` đếm thành tiếng con số ấy để
- * nó không lặng lẽ đứng yên mãi.
+ * Tài liệu chỉ có tiếng Việt, nên lúc đầu kho khai `en` tuỳ chọn và `pick()` tự rơi về tiếng Việt.
+ * Ngày 15/10/2026 chủ dự án chọn "dịch nháp rồi duyệt": cả 755 chuỗi đã có `en` (đang chờ duyệt).
+ * Kiểu vẫn để `en?` để một công thức MỚI thêm vào Registry không gãy typecheck trước khi có người
+ * dịch; `noi-dung.test.ts` đỏ ngay khi một chuỗi thiếu bản tiếng Anh, nên tuỳ chọn ở kiểu không
+ * thành chỗ hở ở màn.
  */
 export interface BaiRieng {
   /** "Để làm gì" — một câu: mở màn này ra thì biết được điều gì. */

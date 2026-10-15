@@ -51,6 +51,9 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'lang.switchToEn': 'Switch to English',
   'lang.switchToVi': 'Switch to Vietnamese',
 
+  'sheet.close': 'Close',
+  'sheet.back': 'Back',
+
   'offline.title': 'Working offline',
   'offline.detail':
     'No internet connection. Every calculation still runs because the calculator lives on your device.',
@@ -272,6 +275,7 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
     'numbers. Loading one here only carries it over to the formulas that do use a ticker.',
   'preset.cannotCompute': 'no result with this ticker',
   'preset.lastPrice': 'Latest session price',
+  'preset.statements': 'Financial statements',
   'preset.browseMarket': 'Find another ticker across the market →',
   'preset.browseMarketCount': 'List of {n} other tickers →',
   'preset.draftTag': 'fabricated price history',
@@ -478,14 +482,13 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'series.allGood': 'No row is flagged.',
 
   'xirr.tableTitle': 'Cash flows',
-  'xirr.hint':
-    'Negative is money out, positive is money in — the last row is usually the current value.',
+  /* `xirr.hint` bỏ 15/10/2026 cùng bản Việt — lý do ở `vi.ts`. */
   'xirr.addRow': 'Add row',
   'xirr.removeRow': 'Delete row',
   'xirr.colDate': 'Date',
   'xirr.colAmount': 'Amount (₫)',
   'xirr.rowLabel': 'Row',
-  'xirr.usable': 'usable cash flows',
+  /* `xirr.usable` bỏ 15/10/2026 cùng bản Việt — lý do ở `vi.ts`. */
 
   'date.openCalendar': 'Pick a date on the calendar',
 

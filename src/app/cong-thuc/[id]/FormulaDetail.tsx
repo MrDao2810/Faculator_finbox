@@ -119,7 +119,7 @@ import type {
 } from '@/application';
 import { usePick, usePreferences, useT } from '@/application/preferences-context';
 import { useCalcText, useValueText } from '@/ui/i18n/units';
-import { LinkedInput, VariableField, isWideControl } from '@/ui/inputs';
+import { LinkedInput, VariableField, isWideControl, loneNarrowFlags } from '@/ui/inputs';
 import { Badge, Button } from '@/ui/primitives';
 import {
   ConstantsNote,
@@ -1647,6 +1647,17 @@ export function FormulaDetail({
   const linkedFields = new Map(chainStep?.fields.map((field) => [field.spec.key, field]) ?? []);
 
   /**
+   * Ô hẹp nào đứng một mình trên hàng ở khổ điện thoại — chiếm trọn hàng, xem `loneNarrowFlags()`.
+   *
+   * Lưới `.fieldsRepeat` (DCA) bỏ qua: số cột của nó là số ô của một nhóm, không phải trần hai cột
+   * mà hàm dựa vào, và mỗi nhóm đã tự lấp kín hàng của mình.
+   */
+  const loneFields =
+    repeatWidth > 1
+      ? []
+      : loneNarrowFlags(fieldsShown.map((v) => linkedFields.has(v.key) || isWideControl(v.type)));
+
+  /**
    * Đặt giá trị cho một ô của công thức đang xem.
    *
    * Ô móc nối đi đường KHÁC: gõ vào nó là **ghi đè**, không phải sửa ô nhập thường. Nếu ghi thẳng
@@ -3010,7 +3021,7 @@ export function FormulaDetail({
                   ? { style: { '--o-moi-nhom': repeatWidth } as CSSProperties }
                   : {})}
               >
-                {fieldsShown.map((variable) => {
+                {fieldsShown.map((variable, index) => {
                   const linked = linkedFields.get(variable.key);
                   // Ô móc nối mang thêm hàng nút Ghi đè / Hoàn tác nên luôn chiếm trọn hàng.
                   const wide = linked !== undefined || isWideControl(variable.type);
@@ -3022,7 +3033,11 @@ export function FormulaDetail({
               Khối chuỗi WF-04 vốn đã dựng theo lối này, nên bỏ lớp bọc cũng là đưa hai màn về
               cùng một hình dạng DOM.
             */
-                  const className = wide ? styles.fieldWide : styles.field;
+                  const className = wide
+                    ? styles.fieldWide
+                    : loneFields[index] === true
+                      ? `${styles.field} ${styles.fieldLone}`
+                      : styles.field;
 
                   /*
                   Mã đang cấp số cho ô này, hoặc `undefined` nếu không.

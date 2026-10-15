@@ -3,7 +3,8 @@
  *
  * WF-15 chốt đúng sáu loại lỗi chuẩn, mỗi loại phải có:
  *   · một câu nêu NGUYÊN NHÂN cụ thể, viết như nói với người mới (NFR-USA-04);
- *   · một dòng GỢI Ý SỬA, hiện sau mũi tên ↳ trên giao diện.
+ *   · một dòng GỢI Ý SỬA, hiện sau mũi tên ↳ trên giao diện — trừ `INCOMPLETE_INPUT` từ 15/10/2026,
+ *     xem `incompleteInput()`.
  *
  * Công thức không tự chế thông điệp. Muốn báo lỗi thì gọi hàm trong file này,
  * để cả 111 công thức nói cùng một giọng và đội nội dung sửa được ở một chỗ.
@@ -135,6 +136,11 @@ export function inheritedFrom(upstreamLabel: Bilingual, selfLabel?: Bilingual): 
 /**
  * Còn ô chưa nhập.
  *
+ * Mã DUY NHẤT trong sáu mã không mang dòng gợi ý sửa. Câu cũ "↳ Nhập nốt các ô còn trống rồi kết
+ * quả hiện ngay." bỏ ngày 15/10/2026 theo yêu cầu của chủ dự án: "Còn thiếu: …" ngay trên nó đã nói
+ * thiếu ô nào, nên cách sửa — điền ô ấy — không cần một dòng thứ hai. Đừng thêm lại một câu gợi ý
+ * chung cho mã này; ca kiểm ở `ErrorState.test.tsx` giữ điều đó.
+ *
  * @param missingLabels nhãn các ô còn trống
  */
 export function incompleteInput(missingLabels: ReadonlyArray<Bilingual>): CalcWarning {
@@ -145,10 +151,6 @@ export function incompleteInput(missingLabels: ReadonlyArray<Bilingual>): CalcWa
     message: {
       vi: vi.length > 0 ? `Còn thiếu: ${vi.join(', ')}.` : 'Còn ô chưa nhập.',
       en: en.length > 0 ? `Still missing: ${en.join(', ')}.` : 'There are empty fields.',
-    },
-    fix: {
-      vi: 'Nhập nốt các ô còn trống rồi kết quả hiện ngay.',
-      en: 'Fill in the remaining fields and the result appears right away.',
     },
   };
 }

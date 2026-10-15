@@ -116,14 +116,38 @@ describe('XirrBody — dải lỗi từng dòng', () => {
     const { container } = render(
       <XirrBody
         output={KHONG_TINH_DUOC}
-        rows={[emptyCashflowRow()]}
+        rows={[{ date: '2026-01-05', amount: 0 }]}
         onRowsChange={() => undefined}
       />,
     );
 
     expect(container.textContent).not.toContain('[object');
-    expect(screen.getByText(/Thiếu ngày của dòng tiền này/)).not.toBeNull();
-    expect(screen.getByText(/Thiếu số tiền/)).not.toBeNull();
+    expect(screen.getByText(/Số tiền bằng 0 không phải một dòng tiền/)).not.toBeNull();
+  });
+
+  /*
+   * Ca ĐẢO NGƯỢC, không xoá: chủ dự án bỏ câu gợi ý dưới tiêu đề bảng, hai câu "Thiếu …" của dòng
+   * trống (15/10/2026 — "đoạn text dư thừa") và dòng đếm "N / M dòng tiền dùng được" ("không cần chú
+   * thích"). Câu nào quay lại là một quyết định, không phải sơ suất.
+   */
+  it('dòng trống không in câu "Thiếu …"; không còn câu gợi ý âm/dương, không còn dòng đếm', () => {
+    const { container } = render(
+      <XirrBody
+        output={KHONG_TINH_DUOC}
+        rows={[emptyCashflowRow(), emptyCashflowRow()]}
+        onRowsChange={() => undefined}
+      />,
+    );
+
+    expect(screen.queryByText(/Thiếu ngày của dòng tiền này/)).toBeNull();
+    expect(screen.queryByText(/Thiếu số tiền/)).toBeNull();
+    expect(screen.queryByText(/Số âm là tiền chi ra/)).toBeNull();
+    expect(container.querySelector('ul')).toBeNull();
+    // Dòng trống vẫn mang cờ "!" — mã lỗi còn nguyên, chỉ câu là không in.
+    const co = [...container.querySelectorAll('tbody span')].filter((s) => s.textContent === '!');
+    expect(co).toHaveLength(2);
+    expect(screen.queryByText(/dòng tiền dùng được/)).toBeNull();
+    expect(container.textContent).not.toMatch(/\d+ \/ \d+/);
   });
 
   /*

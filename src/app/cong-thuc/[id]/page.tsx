@@ -6,6 +6,7 @@ import { baiHuongDanFor } from '@/application/huong-dan';
 import { expressionShape } from '@/application/quiz-math';
 import { substitutionShape } from '@/application/thay-so';
 import { viDuGiaiFor } from '@/application/vi-du';
+import { DocumentTitle } from '@/ui/i18n/DocumentTitle';
 
 import { FormulaDetail } from './FormulaDetail';
 import { buildNotationView } from './notation-view';
@@ -136,17 +137,20 @@ export default async function FormulaDetailPage({ params }: { params: Promise<{ 
   const bai = baiHuongDanFor(formula.id, AS_OF);
 
   return (
-    <FormulaDetail
-      spec={formula}
-      asOf={AS_OF}
-      notation={buildNotationView(formula, undefined, {
-        allSymbols: quiz.needsFormulaPicture || viDu !== undefined,
-      })}
-      quiz={quiz}
-      {...(viDu === undefined ? {} : { viDu })}
-      {...(viDuCay === undefined ? {} : { viDuCay })}
-      {...(thaySoCay === null ? {} : { thaySoCay })}
-      {...(bai === undefined ? {} : { bai })}
-    />
+    <>
+      <DocumentTitle title={formula.name} />
+      <FormulaDetail
+        spec={formula}
+        asOf={AS_OF}
+        notation={buildNotationView(formula, undefined, {
+          allSymbols: quiz.needsFormulaPicture || viDu !== undefined,
+        })}
+        quiz={quiz}
+        {...(viDu === undefined ? {} : { viDu })}
+        {...(viDuCay === undefined ? {} : { viDuCay })}
+        {...(thaySoCay === null ? {} : { thaySoCay })}
+        {...(bai === undefined ? {} : { bai })}
+      />
+    </>
   );
 }

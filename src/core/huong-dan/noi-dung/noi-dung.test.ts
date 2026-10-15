@@ -257,24 +257,84 @@ describe('giữ đúng khuôn của tài liệu', () => {
  * gác đúng việc ấy, và gác chặt hơn hẳn.
  */
 
-describe('nợ bản tiếng Anh, đếm thành tiếng', () => {
-  /*
-   * Hai lần giao đều chỉ có tiếng Việt, nên cả kho đang nợ bản `en` và `pick()` rơi về tiếng Việt
-   * IM LẶNG — cùng nếp ngân hàng câu hỏi (câu thông báo đã bỏ 30/09/2026).
-   *
-   * Đếm thành tiếng chứ không để lặng: hai con số này chỉ được phép đi XUỐNG, và ngày chúng về 0
-   * thì ca kiểm đỏ, đúng lúc cần một người vào đổi nó thành lời khẳng định đã dịch xong.
-   */
-  it('111 mục chưa có bản tiếng Anh cho ba dòng cả bài', () => {
-    const chuaDich = MUC.filter(([, bai]) =>
-      BA_DONG.every((khoa) => (bai[khoa].en ?? '').trim() === ''),
-    );
-    expect(chuaDich).toHaveLength(111);
+/*
+ * ── Bản tiếng Anh: đủ, và mang đúng những gì bản Việt mang ──────────────────────────────────
+ *
+ * Mộ chí: hai ca "nợ bản tiếng Anh, đếm thành tiếng" (111 mục, 263 ô chưa dịch) đã về 0 ngày
+ * 15/10/2026 — chủ dự án chọn "dịch nháp rồi duyệt" và cả 755 chuỗi đã có `en`. Đúng như lời hẹn
+ * của chính hai ca ấy, chúng đổi thành lời khẳng định đã dịch xong, kèm những gì máy kiểm được.
+ *
+ * Máy KHÔNG kiểm được nghĩa: một câu dịch đảo chiều ("cao là tốt" thành "thấp là tốt") hay đổi chỗ
+ * hai con số cùng đơn vị vẫn xanh ở đây. Bản dịch đang chờ chủ dự án đọc, như mọi chữ chưa duyệt.
+ */
+describe('bản tiếng Anh của kho', () => {
+  const VI = /[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]/i;
+  /** Chỗ trống, xếp lại — tiếng Anh được đổi thứ tự câu, không được thêm bớt chỗ trống. */
+  const choTrong = (cau: string) => [...choTrongCua(cau)].map((c) => `${c.khoa}|${c.kieu}`).sort();
+  /** Con số viết bằng chữ số, bỏ chỗ trống ra — giữ đúng ký tự, kể cả dấu `.` `,` kiểu Việt. */
+  const conSo = (cau: string) =>
+    (cau.replace(/\{[^}]*\}/g, ' ').match(/\d+(?:[.,]\d+)*/g) ?? []).sort();
+
+  /** Mọi cặp vi/en của kho, kèm trần độ dài riêng của từng loại dòng. */
+  const MOI_CAP = [
+    ...MUC.flatMap(([id, bai]) =>
+      BA_DONG.map((khoa) => ({
+        nhan: `${id}.${khoa}`,
+        id,
+        cau: bai[khoa],
+        tran: { deLamGi: 140, docKetQua: 200, deSai: 170 }[khoa],
+      })),
+    ),
+    ...MOI_O.flatMap(({ id, key, o }) =>
+      o === undefined
+        ? []
+        : [
+            { nhan: `${id}.${key}.layODau`, id, cau: o.layODau, tran: 100 },
+            ...(o.luuY === undefined
+              ? []
+              : [{ nhan: `${id}.${key}.luuY`, id, cau: o.luuY, tran: 100 }]),
+          ],
+    ),
+  ];
+
+  it('đủ 755 chuỗi, chuỗi nào cũng có bản tiếng Anh', () => {
+    expect(MOI_CAP).toHaveLength(755);
+    for (const { nhan, cau } of MOI_CAP) {
+      expect((cau.en ?? '').trim(), nhan).not.toBe('');
+    }
   });
 
-  it('263 ô chưa có bản tiếng Anh cho câu "lấy số ở đâu"', () => {
-    const chuaDich = MOI_O.filter(({ o }) => (o?.layODau.en ?? '').trim() === '');
-    expect(chuaDich).toHaveLength(263);
+  it('bản tiếng Anh không còn chữ có dấu tiếng Việt, không gạch ngang dài', () => {
+    for (const { nhan, cau } of MOI_CAP) {
+      const en = cau.en ?? '';
+      expect(VI.test(en), `${nhan}: ${en}`).toBe(false);
+      expect(/[–—]/.test(en), `${nhan}: ${en}`).toBe(false);
+      // "Dễ sai" là MỘT lỗi ở cả hai ngôn ngữ — cùng luật với bản Việt ở trên.
+      if (nhan.endsWith('.deSai')) expect(en.includes(' · '), `${nhan}: ${en}`).toBe(false);
+    }
+  });
+
+  /*
+   * Chỗ trống và con số phải KHỚP bản Việt: thiếu một chỗ trống là câu tiếng Anh đứng chết trong
+   * khi câu Việt đi theo ô — đúng lỗi 14/10/2026 quay lại qua cửa dịch. Số giữ đúng ký tự kiểu Việt
+   * vì giao diện EN vẫn in số kiểu Việt (quyết định 15/10/2026), nên số trong câu khớp số trong ô.
+   */
+  it('chỗ trống và con số khớp bản Việt', () => {
+    for (const { nhan, cau } of MOI_CAP) {
+      const en = cau.en ?? '';
+      expect(choTrong(en), `${nhan}: ${en}`).toEqual(choTrong(cau.vi));
+      expect(conSo(en), `${nhan}: ${en}`).toEqual(conSo(cau.vi));
+    }
+  });
+
+  it('điền ở số mặc định thì không vượt trần độ dài và không sót dấu ngoặc', () => {
+    for (const { nhan, id, cau, tran } of MOI_CAP) {
+      const spec = findFormulaModule(id)?.spec;
+      if (spec === undefined) continue;
+      const ra = dienCau(cau.en ?? '', thongSoTu(spec), undefined, 'en');
+      expect(ra.length, `${nhan}: ${ra}`).toBeLessThanOrEqual(tran);
+      expect(ra, `${nhan}: ${ra}`).not.toMatch(/[{}]/);
+    }
   });
 });
 

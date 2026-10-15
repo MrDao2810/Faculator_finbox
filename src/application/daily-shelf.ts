@@ -63,6 +63,21 @@ export const DAILY_SHELF_IDS = [
 export const DAILY_SHELF_PREVIEW = 8;
 
 /**
+ * Số ô bày trước khi lưới đang ĐÚNG BA CỘT — ba hàng đủ, không hụt chỗ nào.
+ *
+ * Dưới 1024px lưới là `auto-fill` thẻ tối thiểu 150px, và khung nội dung kẹp ở 720px, nên chỉ có
+ * ba dạng: 2 cột (điện thoại thường), 3 cột, 4 cột. Tám ô khít ở 2 và 4 cột nhưng ở 3 cột để hàng
+ * cuối trống một chỗ — chủ dự án chụp đúng cảnh ấy (15/10/2026): _"đang chỉ hiển thị 8 công thức
+ * khiến thừa không gian … sửa lại sao cho ở màn mobile có 9 công thức để khớp không gian"_.
+ *
+ * Mã không biết lưới đang mấy cột (HTML tĩnh không biết bề ngang), nên ô thứ chín KHÔNG mang
+ * `hidden` mà mang `data-chi-ba-cot`, và CSS bật nó lên bằng container query đo chính lưới
+ * (`FeaturedFormulas.module.css`). Ngoài khổ ba cột nó `display: none`, tức cũng rời thứ tự Tab
+ * và cây trợ năng như ô ẩn.
+ */
+export const DAILY_SHELF_PREVIEW_3_COLS = 9;
+
+/**
  * Cờ "kệ đang mở đủ" trong `sessionStorage` — `'1'` là mở, không có khoá là thu gọn.
  *
  * Không nhớ thì nút quay lại hỏng: `OriginTracker` khôi phục vị trí cuộn bằng một con số `scrollY`,

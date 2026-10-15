@@ -1,8 +1,8 @@
 'use client';
 
-import { formatCalcOutput, formatValueWithUnit, unitLabel } from '@/application';
+import { formatCalcOutput, formatValueWithUnit, labelInEnglish, unitLabel } from '@/application';
 import type { CalcOutput, FormatNumberOptions } from '@/application';
-import { usePick } from '@/application/preferences-context';
+import { usePick, usePreferences } from '@/application/preferences-context';
 
 /**
  * Hai hook đọc ĐƠN VỊ theo locale — gói WBS 3.6.3, đợt "vài chỗ chưa đổi ngôn ngữ".
@@ -38,6 +38,20 @@ export function useUnitText(): (unit: string) => string {
 export function useCalcText(): (out: CalcOutput, options?: FormatNumberOptions) => string {
   const pick = usePick();
   return (out, options) => formatCalcOutput(out, options, pick(unitLabel(out.unit)));
+}
+
+/**
+ * Nhãn số ĐÃ ĐỊNH DẠNG SẴN ở Domain (`'15,21 lần'`, `'300 tỷ ₫'`) theo locale — dành cho biểu đồ,
+ * nơi Domain trao chuỗi chứ không trao cặp số + đơn vị. Không dịch ở Domain, cùng lý do hai hook
+ * trên: phần chữ của file xuất đọc chuỗi gốc và phải giữ tiếng Việt. Xem `labelInEnglish()`.
+ *
+ * Biết trước, không đổi: hình biểu đồ trong file xuất là BẢN CHÉP `<svg>` đang hiện
+ * (`chart-snapshot.ts`), nên xuất lúc đang ở EN thì hình mang chữ tiếng Anh — tiêu đề trục đã như
+ * thế từ khi trục song ngữ, nay đơn vị trên hình đi cùng.
+ */
+export function useLabelText(): (label: string) => string {
+  const { locale } = usePreferences();
+  return (label: string) => (locale === 'en' ? labelInEnglish(label) : label);
 }
 
 /** `formatValueWithUnit()` nhưng đơn vị theo locale. */

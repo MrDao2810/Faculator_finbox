@@ -399,7 +399,18 @@
   color: var(--color-muted);
 }
 
+/*
+ * Cùng luật với `.nguonDong` của `ExampleBlock.module.css` (15/10/2026): đường dẫn in đầy đủ, không
+ * ngắt giữa chừng; còn ít nhất 16em cạnh chữ "Nguồn" thì đứng cùng dòng và lấp phần còn lại, không
+ * thì xuống dòng riêng; dài hơn chỗ trống thì cắt bằng "…" ngay ở mép.
+ */
 .source a {
+  flex: 1 1 16em;
+  min-width: 0;
+  max-width: max-content;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   color: var(--color-accent);
   font-weight: 600;
 }

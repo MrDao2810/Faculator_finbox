@@ -224,6 +224,52 @@ function isThousandGrouped(text: string): boolean {
 }
 
 /**
+ * Đơn vị đếm NGUYÊN: một số có đúng ba chữ số sau dấu phẩy (`92,000`) không thể là số lẻ thật ở
+ * ô mang đơn vị này — không ai nhập giá 92,000 ₫ với nghĩa 92 đồng, hay 1,500 cổ phiếu với nghĩa
+ * một cổ phiếu rưỡi. `'tỷ ₫'`, `'%'`, `'lần'`, `'điểm'` KHÔNG có ở đây: `0,002 tỷ ₫` hay `1,234 lần`
+ * là số lẻ thật.
+ */
+const WHOLE_COUNT_UNITS: ReadonlySet<string> = new Set([
+  '₫',
+  'CP',
+  'triệu CP',
+  'phiên',
+  'HĐ',
+  'sản phẩm',
+  'ngày',
+  'tháng',
+  'năm',
+  'kỳ',
+  'mã',
+  'vòng',
+]);
+
+/**
+ * Chuỗi người dùng gõ ở giao diện EN, đổi về lối viết Việt để `parseViNumber()` đọc đúng
+ * (15/10/2026). Chuỗi không thuộc ba dạng dưới thì trả NGUYÊN.
+ *
+ * Lỗi nó sửa, đo được: ở EN, gõ `92,000` vào ô giá ra **92**, gõ `1,500.5` ra **1,5005** — số sai
+ * mà không báo gì, đúng loại FR-06. Chủ dự án chốt giữ số hiện trên màn theo kiểu Việt cả ở EN
+ * (CON-05), nên chỉ CÁCH ĐỌC chuỗi gõ vào được nới, và chỉ ở ba dạng không thể là số Việt:
+ *
+ *   1. `1,500.5` — có cả phẩy nhóm ba chữ số lẫn chấm đứng sau: lối Việt không bao giờ đặt chấm
+ *      SAU phẩy.
+ *   2. `1,234,567` — từ hai dấu phẩy trở lên: số Việt chỉ có MỘT dấu phẩy thập phân.
+ *   3. `92,000` — một nhóm, CHỈ ở ô đếm nguyên (`WHOLE_COUNT_UNITS`). Ở ô `%` hay `lần` dạng này
+ *      vẫn là số lẻ: ô nhận 12,3329 từ CAPM, người dùng xoá một chữ số thành `12,332`, và đọc nó
+ *      thành 12.332 % là đổi một lần sửa nhỏ thành một con số sai gấp nghìn lần.
+ *
+ * Không dùng ở giao diện VI: ở đó `92,000` đã có nghĩa (92) và đổi nghĩa là phá thói quen sẵn có.
+ */
+export function englishNumberToVi(text: string, unit: string): string {
+  const raw = text.replace(MINUS_SIGNS, '-').trim();
+  if (/^-?\d{1,3}(,\d{3})+\.\d*$/.test(raw)) return raw.replace(/,/g, '').replace('.', ',');
+  if (/^-?\d{1,3}(,\d{3}){2,}$/.test(raw)) return raw.replace(/,/g, '');
+  if (/^-?\d{1,3},\d{3}$/.test(raw) && WHOLE_COUNT_UNITS.has(unit)) return raw.replace(',', '');
+  return text;
+}
+
+/**
  * Số thành chuỗi để ĐẶT VÀO ô nhập — không phải để đọc, nên không có dấu ngăn nghìn.
  *
  * Bắt buộc phải là vòng ngược của `parseViNumber()`, và `String(value)` thì không:
@@ -463,4 +509,51 @@ export function withScalePrefix(unit: string, prefix: Bilingual): Bilingual | nu
   if (SCALE_WORDS.includes(head) && !(head === 'tỷ' && prefix.vi === 'nghìn')) return null;
 
   return { vi: `${prefix.vi} ${unit}`, en: `${prefix.en} ${unitLabel(unit).en}` };
+}
+
+/**
+ * Mọi đơn vị có thể đứng CUỐI một nhãn số đã định dạng, kể cả đơn vị đã ghép bậc (`'triệu ₫'`,
+ * `'nghìn tỷ ₫'`), xếp dài trước ngắn sau để `'tỷ ₫'` thắng `'₫'`. Chỉ giữ cặp mà hai vế khác nhau.
+ * Dựng lười ở lần gọi đầu: bảng đơn vị và bảng bậc đều khai phía trên, nhưng hằng số ở cấp module
+ * thì thứ tự khai là thứ tự chạy, và một ngày ai đó dời khối này lên trên là gãy lúc nạp.
+ */
+let labelUnits: ReadonlyArray<readonly [string, string]> | undefined;
+
+function labelUnitPairs(): ReadonlyArray<readonly [string, string]> {
+  if (labelUnits !== undefined) return labelUnits;
+  const pairs = new Map<string, string>();
+  for (const unit of Object.keys(UNIT_EN)) {
+    for (const { prefix } of COMPACT_PREFIXES) {
+      const scaled = withScalePrefix(unit, prefix);
+      if (scaled !== null && scaled.vi !== '' && scaled.vi !== scaled.en) {
+        pairs.set(scaled.vi, scaled.en);
+      }
+    }
+  }
+  labelUnits = [...pairs].sort((a, b) => b[0].length - a[0].length);
+  return labelUnits;
+}
+
+/**
+ * Bản tiếng Anh của một NHÃN SỐ đã định dạng sẵn ở Domain: `'15,21 lần'` → `'15,21 times'`,
+ * `'4,62 triệu ₫'` → `'4,62 million ₫'`, `'_ _ tỷ ₫'` → `'_ _ billion ₫'` (15/10/2026).
+ *
+ * Chỉ đổi đơn vị đứng cuối, ngay sau một chữ số hoặc dấu chỗ trống `_`; con số giữ kiểu Việt (chủ
+ * dự án chốt cho cả giao diện EN). Chuỗi không khớp — ngày phiên `'08/09/2026'`, nhãn chặng bóc tách
+ * — trả nguyên.
+ *
+ * Vì sao cần: nhãn của biểu đồ (`ChartPoint.label`, `valueLabel`, `ChartBar.valueLabel`) là chuỗi
+ * dựng một lần bằng `formatValueWithUnit()` với đơn vị tiếng Việt. Đo trên Chrome ở EN: dấu "giá trị
+ * hiện tại" ghi `15,21 lần`, bảng số dưới hình ghi `300 tỷ ₫`. Đổi các trường ấy sang `Bilingual` là
+ * sửa mọi chỗ dựng và mọi ca kiểm `toEqual` của mô hình biểu đồ để nói lại đúng điều bảng `UNIT_EN`
+ * đã nói; dịch ở chỗ ĐỌC thì một bảng tra là đủ, và phần chữ của file xuất (luôn tiếng Việt) không
+ * bị đụng tới.
+ */
+export function labelInEnglish(label: string): string {
+  for (const [vi, en] of labelUnitPairs()) {
+    if (!label.endsWith(` ${vi}`)) continue;
+    const head = label.slice(0, label.length - vi.length - 1);
+    if (/[\d_]$/.test(head)) return `${head} ${en}`;
+  }
+  return label;
 }

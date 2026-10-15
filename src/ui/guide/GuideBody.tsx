@@ -255,7 +255,7 @@ function HangONhap({
 }) {
   const dien = (cau: Bilingual): Bilingual => ({
     vi: dienCau(cau.vi, thongSo, giaTri),
-    en: dienCau(cau.en, thongSo, giaTri),
+    en: dienCau(cau.en, thongSo, giaTri, 'en'),
   });
 
   return (

@@ -857,6 +857,23 @@ describe('WF-03 — lưới ô nhập', () => {
     expect(wideFields.length).toBeGreaterThan(0);
     expect(wideFields.every((el) => el.className.includes('fieldWide'))).toBe(true);
   });
+
+  it('ô hẹp đứng lẻ trên hàng mang lớp chiếm trọn hàng; ô ghép đủ cặp thì không', () => {
+    // CAPM: thanh trượt · ô số · thanh trượt — ô beta đứng một mình (chủ dự án, 15/10/2026).
+    const capm = render(<Man spec={specOf('capm')} />);
+    const le = [...capm.container.querySelectorAll('[class*="fields"] > div')].filter((el) =>
+      el.className.includes('fieldLone'),
+    );
+
+    expect(le.map((el) => el.querySelector('label')?.textContent)).toEqual(['Hệ số beta (β)']);
+    // Vẫn là ô hẹp: lớp mới cộng THÊM vào `field`, không thay nó.
+    expect(le.every((el) => /\bfield\b|_field_/.test(el.className))).toBe(true);
+    cleanup();
+
+    // P/E: hai ô số ghép đủ một hàng — không ô nào lẻ.
+    const pe = render(<Man spec={specOf('pe')} />);
+    expect(pe.container.querySelector('[class*="fieldLone"]')).toBeNull();
+  });
 });
 
 describe('WF-08 — hàng biểu phí đặt trên ô nhập', () => {
@@ -1413,6 +1430,40 @@ describe('WF-03 — khối dưới nếp gấp mang lớp hoãn dựng hình', (
     const viDu = container.querySelector('#khoi-vi-du')?.closest('section');
     expect(viDu).not.toBeNull();
     expect(String(viDu?.className)).not.toMatch(/deferred/);
+  });
+});
+
+/*
+ * Chủ dự án chụp Bảng biến của `xirr` chỉ còn hàng "BIẾN · ĐƠN VỊ · MÔ TẢ" (15/10/2026): "bảng này
+ * chưa có dữ liệu … tại sao lại xuất hiện trơ trọi". Không có biến nào để kê thì không dựng bảng.
+ */
+describe('WF-03 — Bảng biến rỗng thì không dựng', () => {
+  const bangBien = () => screen.queryByRole('table', { name: t('variable.tableCaption') });
+
+  it('xirr không khai ô nhập: không Bảng biến, và bản in không có bảng "Giá trị đầu vào" rỗng', async () => {
+    const { container } = render(<Man spec={specOf('xirr')} />);
+
+    expect(bangBien()).toBeNull();
+
+    await userEvent.click(screen.getByRole('button', { name: t('detail.download') }));
+    const banIn = container.querySelector('.print-region');
+    expect(banIn).not.toBeNull();
+    expect(banIn?.textContent).not.toContain('Giá trị đầu vào');
+  });
+
+  it('công thức chỉ có ô Nâng cao: ở Cơ bản không có bảng, sang Nâng cao thì bảng hiện đủ hàng', async () => {
+    const { unmount } = render(<Man spec={specOf('he-so-bien-thien')} />);
+    expect(bangBien()).toBeNull();
+    unmount();
+
+    manNangCao(specOf('he-so-bien-thien'));
+    const bang = await screen.findByRole('table', { name: t('variable.tableCaption') });
+    expect(within(bang).getAllByRole('rowheader').length).toBeGreaterThan(0);
+  });
+
+  it('công thức có ô nhập thì vẫn có Bảng biến', () => {
+    render(<Man spec={specOf('pe')} />);
+    expect(bangBien()).not.toBeNull();
   });
 });
 
@@ -2001,8 +2052,16 @@ describe('WF-03 — không công thức nào lọt giá trị vô nghĩa ra màn
       const expectedLabel =
         spec.id === 'xirr' ? WARNING_LABELS.INCOMPLETE_INPUT : WARNING_LABELS.MISSING_SERIES;
       expect(text, `${spec.id}: mã cảnh báo`).toContain(expectedLabel.vi);
-      // Phải có câu chỉ đường, không được chỉ báo lỗi rồi bỏ mặc.
-      expect(text, `${spec.id}: thiếu câu chỉ cách khắc phục`).toContain(t('result.fixPrefix'));
+      /*
+       * Phải chỉ đường, không được báo lỗi rồi bỏ mặc. `INCOMPLETE_INPUT` chỉ đường bằng chính câu
+       * "Còn thiếu: …" — dòng ↳ chung "Nhập nốt các ô còn trống…" đã bỏ ngày 15/10/2026 theo yêu cầu
+       * của chủ dự án (xem `incompleteInput()`), nên ở mã ấy câu phải NÊU TÊN thứ còn thiếu.
+       */
+      if (spec.id === 'xirr') {
+        expect(text, `${spec.id}: không nói thiếu gì`).toMatch(/Còn thiếu: \S/);
+      } else {
+        expect(text, `${spec.id}: thiếu câu chỉ cách khắc phục`).toContain(t('result.fixPrefix'));
+      }
 
       unmount();
     }

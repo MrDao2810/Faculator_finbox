@@ -103,13 +103,22 @@ check(
  * Kệ bày trước `DAILY_SHELF_PREVIEW` ô, phần còn lại nằm SẴN trong HTML nhưng mang `hidden` — bấm
  * "Xem tất cả" chỉ gỡ thuộc tính. Ai đó đổi sang "chỉ dựng phần còn lại sau khi bấm" thì phép đếm
  * link ở trên đã đỏ; phép này bắt chiều ngược lại: quên `hidden` thì kệ bày đủ 16 ô ngay từ đầu.
+ *
+ * Ngoại lệ là các ô tới `DAILY_SHELF_PREVIEW_3_COLS`: chúng mang `data-chi-ba-cot` thay cho
+ * `hidden`, để CSS chỉ bật lên khi lưới đúng ba cột (15/10/2026).
  */
 const shelfPreview = Number(/\bDAILY_SHELF_PREVIEW = (\d+)/.exec(shelfSource)?.[1] ?? NaN);
+const shelfPreview3 = Number(/\bDAILY_SHELF_PREVIEW_3_COLS = (\d+)/.exec(shelfSource)?.[1] ?? NaN);
 const soOAn = (shelfBlock.match(/<li hidden=""/g) ?? []).length;
+const soOBaCot = (shelfBlock.match(/<li data-chi-ba-cot=""/g) ?? []).length;
 check(
-  `kệ bày trước ${String(shelfPreview)} ô, ${String(shelfIds.length - shelfPreview)} ô còn lại mang hidden`,
-  Number.isInteger(shelfPreview) && shelfPreview > 0 && soOAn === shelfIds.length - shelfPreview,
-  `${String(soOAn)} ô ẩn`,
+  `kệ bày trước ${String(shelfPreview)} ô (${String(shelfPreview3)} khi lưới ba cột), ${String(shelfIds.length - shelfPreview3)} ô còn lại mang hidden`,
+  Number.isInteger(shelfPreview) &&
+    Number.isInteger(shelfPreview3) &&
+    shelfPreview > 0 &&
+    soOAn === shelfIds.length - shelfPreview3 &&
+    soOBaCot === shelfPreview3 - shelfPreview,
+  `${String(soOAn)} ô ẩn · ${String(soOBaCot)} ô chỉ ba cột`,
 );
 
 check(

@@ -1,10 +1,13 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
 
+import { DocumentTitle } from '@/ui/i18n/DocumentTitle';
+
+import { PAGE_TITLES } from '../page-titles';
 import { SearchScreen } from './SearchScreen';
 
 export const metadata: Metadata = {
-  title: 'Tìm công thức',
+  title: PAGE_TITLES.search.vi,
   description: 'Tìm nhanh trong thư viện công thức tài chính, gõ không dấu vẫn ra đúng.',
   /*
    * KHÔNG cho lập chỉ mục, và cũng không có trong `sitemap.ts`.
@@ -22,9 +25,12 @@ export const metadata: Metadata = {
  */
 export default function SearchPage() {
   return (
-    // Bắt buộc với output: 'export' — bên trong có useSearchParams().
-    <Suspense fallback={null}>
-      <SearchScreen />
-    </Suspense>
+    <>
+      <DocumentTitle title={PAGE_TITLES.search} />
+      {/* Bắt buộc với output: 'export' — bên trong có useSearchParams(). */}
+      <Suspense fallback={null}>
+        <SearchScreen />
+      </Suspense>
+    </>
   );
 }

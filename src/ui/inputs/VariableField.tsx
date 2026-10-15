@@ -67,6 +67,44 @@ export function isWideControl(type: ControlType): boolean {
 }
 
 /**
+ * Ô hẹp nào ĐỨNG MỘT MÌNH trên hàng của lưới hai cột — khổ dưới 1024px (15/10/2026).
+ *
+ * Chủ dự án khoanh ô "Hệ số beta (β)" của `capm` ở khổ điện thoại: ô số chiếm nửa trái, nửa phải
+ * trống trơn vì hai ô kề nó là thanh trượt chiếm trọn hàng — _"chuyển ô nhập sang bên phải để tối
+ * ưu không gian"_. Đo cả thư viện ở 360px: 35 công thức (39 ở Nâng cao, tính cả khối chuỗi) có
+ * đúng một hàng như thế. Ô được đánh dấu ở đây chiếm trọn hàng, nhãn trên, khung nhập dưới rộng hết
+ * bề ngang (`.fieldLone` ở hai file CSS của lưới). Bản đầu xếp nhãn trái · khung phải trên một hàng;
+ * chủ dự án bác cùng ngày — _"như này thì không được. sửa lại để ô nhập ở dưới"_.
+ *
+ * Tính trên thứ tự ô chứ không đo DOM: đo ở trình duyệt thì HTML tĩnh không biết, và hàng sẽ nhảy
+ * sau hydrate. Đúng được là nhờ hai điều kiện của lưới dưới 1024px — đổi một trong hai thì đổi hàm này:
+ *
+ * - **Đúng hai cột** (trần hai cột đặt ở CSS). Ô rộng chiếm `1 / -1`, nên mỗi dải ô hẹp liền nhau
+ *   bắt đầu ở cột 1 và ghép cặp; dải lẻ thì ô CUỐI dải đứng một mình.
+ * - **`auto-fit` xoá rãnh rỗng**: lưới chỉ có một ô thì ô ấy nở hết bề ngang, không thừa chỗ nào,
+ *   nên không đánh dấu. Có một ô rộng bất kỳ là cả hai rãnh có người, rãnh không bị xoá.
+ *
+ * `wide` là cờ "chiếm trọn hàng" của từng ô theo đúng thứ tự dựng — `isWideControl()` hoặc ô
+ * móc nối `LinkedInput`, đúng phép xét mà nơi gọi dùng để chọn lớp `fieldWide`.
+ */
+export function loneNarrowFlags(wide: readonly boolean[]): boolean[] {
+  const lone = wide.map(() => false);
+  if (wide.length < 2) return lone;
+
+  let run = 0;
+  wide.forEach((isWide, index) => {
+    if (isWide) {
+      run = 0;
+      return;
+    }
+    run += 1;
+    const endsRun = index === wide.length - 1 || wide[index + 1] === true;
+    if (endsRun && run % 2 === 1) lone[index] = true;
+  });
+  return lone;
+}
+
+/**
  * Chọn đúng điều khiển nhập liệu cho một biến — FR-05, LDR-01.
  *
  * Đây là chỗ biến lời hứa "giao diện sinh hoàn toàn từ VariableSpec" thành sự thật ở cấp màn

@@ -8,6 +8,7 @@ import {
   DAILY_SHELF_IDS,
   DAILY_SHELF_OPEN_KEY,
   DAILY_SHELF_PREVIEW,
+  DAILY_SHELF_PREVIEW_3_COLS,
   FORMULA_SUMMARIES,
   FORMULA_USAGE_KEY,
   formulaPath,
@@ -70,9 +71,25 @@ function thuTuTrenMan(): string[] {
     .map((li) => li.querySelector('a')?.textContent ?? '');
 }
 
-/** Thứ tự các ô người dùng đang NHÌN THẤY. */
+/**
+ * Thứ tự các ô người dùng NHÌN THẤY ở MỌI khổ lưới.
+ *
+ * Bỏ ô `data-chi-ba-cot`: CSS chỉ bật nó khi lưới ba cột, mà jsdom không có bố cục lẫn container
+ * query nên vẫn coi nó là đang hiện. Ô ấy có ca kiểm riêng bên dưới.
+ */
 function thuTuDangHien(): string[] {
-  return screen.getAllByRole('listitem').map((li) => li.querySelector('a')?.textContent ?? '');
+  return screen
+    .getAllByRole('listitem')
+    .filter((li) => !li.hasAttribute('data-chi-ba-cot'))
+    .map((li) => li.querySelector('a')?.textContent ?? '');
+}
+
+/** Các ô chỉ hiện khi lưới đúng ba cột. */
+function thuTuChiBaCot(): string[] {
+  return screen
+    .getAllByRole('listitem', { hidden: true })
+    .filter((li) => li.hasAttribute('data-chi-ba-cot'))
+    .map((li) => li.querySelector('a')?.textContent ?? '');
 }
 
 function nutMoRong(): HTMLButtonElement {
@@ -116,7 +133,10 @@ describe('FeaturedFormulas — chưa có lịch sử', () => {
       expect(html, id).toContain(`href="${formulaPath(id)}"`);
     }
     expect((html.match(/<li hidden=""/g) ?? []).length).toBe(
-      PINNED_IDS.length - DAILY_SHELF_PREVIEW,
+      PINNED_IDS.length - DAILY_SHELF_PREVIEW_3_COLS,
+    );
+    expect((html.match(/<li data-chi-ba-cot=""/g) ?? []).length).toBe(
+      DAILY_SHELF_PREVIEW_3_COLS - DAILY_SHELF_PREVIEW,
     );
   });
 });
@@ -129,6 +149,25 @@ describe('FeaturedFormulas — "Xem tất cả" mở rộng kệ tại chỗ', (
     expect(nutMoRong().getAttribute('aria-expanded')).toBe('false');
     expect(nutMoRong().getAttribute('aria-controls')).toBe(SHELF_GRID_ID);
     expect(document.getElementById(SHELF_GRID_ID)).not.toBeNull();
+  });
+
+  /*
+   * Tám ô ở lưới ba cột để hàng cuối hụt một chỗ (chủ dự án, 15/10/2026). Ô kế tiếp mang cờ để CSS
+   * bật nó lên đúng ở khổ ấy; jsdom không đo được khổ, nên ở đây chỉ kiểm cờ nằm đúng ô.
+   */
+  it('ô kế sau phần bày trước mang cờ "chỉ ba cột", không mang hidden; mở kệ thì gỡ cờ', () => {
+    moKe();
+
+    expect(thuTuChiBaCot()).toEqual(
+      PINNED_IDS.slice(DAILY_SHELF_PREVIEW, DAILY_SHELF_PREVIEW_3_COLS),
+    );
+    const items = screen.getAllByRole('listitem', { hidden: true });
+    expect(items[DAILY_SHELF_PREVIEW]?.hasAttribute('hidden')).toBe(false);
+    expect(items[DAILY_SHELF_PREVIEW_3_COLS]?.hasAttribute('hidden')).toBe(true);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Xem tất cả' }));
+
+    expect(thuTuChiBaCot()).toEqual([]);
   });
 
   it('bấm "Xem tất cả" thì bày đủ mọi ô, nút đổi thành "Thu gọn"; bấm lần nữa thì thu về', () => {
@@ -205,11 +244,12 @@ describe('FeaturedFormulas — đã có lịch sử', () => {
     expect(thuTu).toHaveLength(PINNED_IDS.length);
     expect([...thuTu].sort()).toEqual([...PINNED_IDS].sort());
 
-    // Cắt theo VỊ TRÍ sau khi sắp: ô thứ tám của bản vẽ bị đẩy xuống thành ô đầu của phần ẩn.
+    // Cắt theo VỊ TRÍ sau khi sắp: ô thứ tám của bản vẽ bị đẩy xuống thành ô "chỉ ba cột".
     const dangHien = thuTuDangHien();
     expect(dangHien).toHaveLength(DAILY_SHELF_PREVIEW);
     expect(dangHien[0]).toBe(chon);
     expect(dangHien).not.toContain(PINNED_IDS[DAILY_SHELF_PREVIEW - 1]);
+    expect(thuTuChiBaCot()).toEqual([PINNED_IDS[DAILY_SHELF_PREVIEW - 1]]);
   });
 
   it('công thức NGOÀI ghim hay mở thì chèn lên đầu và ghim cuối rơi ra', () => {

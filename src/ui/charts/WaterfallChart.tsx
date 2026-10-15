@@ -5,6 +5,7 @@ import { useRef, useState, type PointerEvent as ReactPointerEvent } from 'react'
 import { linearScale, pointerToViewBox } from '@/application';
 import type { WaterfallChart as WaterfallModel } from '@/application';
 import { usePick } from '@/application/preferences-context';
+import { useLabelText } from '@/ui/i18n/units';
 
 import styles from './chart.module.css';
 import { textWidth, thin, tickAnchor } from './ticks';
@@ -147,6 +148,7 @@ export function WaterfallChart({
   size: sizeProp,
 }: WaterfallChartProps) {
   const pick = usePick();
+  const labelText = useLabelText();
   const svgRef = useRef<SVGSVGElement>(null);
 
   const sizeTuDo = useChartSize();
@@ -342,7 +344,7 @@ export function WaterfallChart({
                       y={rowTop + ROW / 2}
                       textAnchor={anchor}
                     >
-                      {bar.shortValueLabel ?? bar.valueLabel}
+                      {labelText(bar.shortValueLabel ?? bar.valueLabel)}
                     </text>
                   );
                 })()}

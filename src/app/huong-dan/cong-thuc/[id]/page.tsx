@@ -3,7 +3,9 @@ import { notFound } from 'next/navigation';
 
 import { FORMULA_SUMMARIES } from '@/application';
 import { baiHuongDanFor } from '@/application/huong-dan';
+import { DocumentTitle } from '@/ui/i18n/DocumentTitle';
 
+import { guideTitle } from '../../../page-titles';
 import { GuideScreen } from './GuideScreen';
 
 /**
@@ -47,7 +49,7 @@ export async function generateMetadata({
   if (formula === undefined) return { title: 'Không tìm thấy công thức' };
 
   return {
-    title: `Hướng dẫn: ${formula.name.vi}`,
+    title: guideTitle(formula.name).vi,
     description: `Cần số gì, nạp số thế nào, đọc kết quả ra sao và vì sao ô kết quả có lúc để trống — hướng dẫn dùng ${formula.name.vi}.`,
   };
 }
@@ -57,5 +59,12 @@ export default async function GuidePage({ params }: { params: Promise<{ id: stri
   const bai = baiHuongDanFor(id, AS_OF);
   if (bai === undefined) notFound();
 
-  return <GuideScreen bai={bai} />;
+  const formula = FORMULA_SUMMARIES.find((f) => f.id === id);
+
+  return (
+    <>
+      {formula !== undefined && <DocumentTitle title={guideTitle(formula.name)} />}
+      <GuideScreen bai={bai} />
+    </>
+  );
 }

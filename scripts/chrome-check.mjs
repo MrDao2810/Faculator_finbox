@@ -447,6 +447,71 @@ window.__themeLog = [];
   await evaluate(`localStorage.removeItem('ffb.prefs.v1')`);
   await open('/cong-thuc/');
 
+  /* ── 0a1b. Chọn EN: tải lại không nháy qua chữ tiếng Việt ──────────────────── */
+
+  /*
+   * HTML tĩnh là tiếng Việt và chữ chỉ sang tiếng Anh sau hydrate, nên người đã chọn EN từng thấy
+   * cả trang tiếng Việt mỗi lần tải cứng (đo 15/10/2026). Bản vá che `<body>` bằng
+   * `data-locale-pending` từ script khởi động tới khi `PreferencesProvider` vẽ xong chữ Anh — xem
+   * `layout.tsx`. Cùng giới hạn với ca theme ở trên: jsdom gộp hai lượt commit nên không thấy cái
+   * nháy, chỉ trình duyệt thật đo được.
+   *
+   * Cách đo: quan sát viên cài TRƯỚC mọi script của trang ghi từng khung hình (rAF) ba điều — tấm
+   * che còn không, `<body>` có đang hiện không, và chữ của thanh điều hướng còn dấu tiếng Việt không.
+   * Bản hỏng có ít nhất một khung "đang hiện mà còn tiếng Việt"; bản đúng thì không có khung nào.
+   */
+  const LOCALE_WATCHER = `
+window.__localeLog = [];
+(function () {
+  var VN = /[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]/i;
+  function tick() {
+    var nav = document.querySelector('nav');
+    if (document.body && nav) {
+      window.__localeLog.push({
+        che: document.documentElement.hasAttribute('data-locale-pending'),
+        hien: getComputedStyle(document.body).visibility !== 'hidden',
+        viet: VN.test(nav.textContent || ''),
+      });
+    }
+    var cuoi = window.__localeLog[window.__localeLog.length - 1];
+    if (window.__localeLog.length < 600 && !(cuoi && !cuoi.viet && !cuoi.che)) requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+})();`;
+
+  await evaluate(`localStorage.setItem('ffb.prefs.v1', JSON.stringify({ locale: 'en' })), true`);
+  const localeWatcherId = await send('Page.addScriptToEvaluateOnNewDocument', {
+    source: LOCALE_WATCHER,
+  });
+  await open('/cong-thuc/');
+  await waitFor(`document.documentElement.lang === 'en'`);
+  await new Promise((r) => setTimeout(r, 600));
+
+  const khungNgonNgu = JSON.parse((await evaluate('JSON.stringify(window.__localeLog)')) ?? '[]');
+  const lotTiengViet = khungNgonNgu.filter((k) => k.hien && k.viet);
+  const daChe = khungNgonNgu.filter((k) => k.che).length;
+  check(
+    'chọn EN: tải lại không lộ ra khung hình tiếng Việt nào trước khi chữ sang tiếng Anh',
+    khungNgonNgu.length > 0 && lotTiengViet.length === 0,
+    `${String(khungNgonNgu.length)} khung đo, ${String(daChe)} khung còn che, ${String(lotTiengViet.length)} khung lộ tiếng Việt`,
+  );
+
+  const sauKhiGo = await evaluate(`(() => ({
+    che: document.documentElement.hasAttribute('data-locale-pending'),
+    hien: getComputedStyle(document.body).visibility,
+  }))()`);
+  check(
+    'chọn EN: tấm che đã gỡ và trang hiện sau hydrate — không kẹt trắng',
+    sauKhiGo?.che === false && sauKhiGo?.hien === 'visible',
+    JSON.stringify(sauKhiGo),
+  );
+
+  await send('Page.removeScriptToEvaluateOnNewDocument', {
+    identifier: localeWatcherId.result?.identifier ?? localeWatcherId.identifier,
+  });
+  await evaluate(`localStorage.removeItem('ffb.prefs.v1'), true`);
+  await open('/cong-thuc/');
+
   /* ── 0a2. Khối Công thức không có thanh cuộn dọc ẩn ──────────────────────── */
 
   /*
@@ -1720,7 +1785,7 @@ window.__themeLog = [];
    * text node và bốn thuộc tính chữ, bắt những chuỗi có dấu tiếng Việt. Không phép kiểm vitest nào
    * làm được việc này — nó cần cả trang thật, cả locale thật, và cả những khối nạp trễ.
    *
-   * Ba nhóm ngoại lệ dưới đây là CÓ CHỦ ĐÍCH hoặc là nợ đã ghi sổ; mọi chuỗi khác là lỗi.
+   * Hai nhóm ngoại lệ dưới đây (1 và 3) là CÓ CHỦ ĐÍCH; mọi chuỗi khác là lỗi. Nhóm 2 đã bỏ.
    */
   const MAN = [
     // '/' không còn trong danh sách: nó chỉ chuyển hướng về '/cong-thuc/' (15/09/2026).
@@ -1732,6 +1797,10 @@ window.__themeLog = [];
     '/danh-muc/',
     '/du-lieu/',
     '/cai-dat/',
+    // Thêm 15/10/2026 cùng đợt dịch kho hướng dẫn và trả nợ đơn vị trên biểu đồ.
+    '/cong-thuc/fcfe/',
+    '/huong-dan/cong-thuc/pe/',
+    '/ve-chung-toi/',
   ];
 
   /**
@@ -1746,27 +1815,12 @@ window.__themeLog = [];
    */
   const CO_Y = ['đồng'];
 
-  /**
-   * NHÓM 2 — số kèm đơn vị do Domain ghép sẵn. **Nợ đã ghi sổ, chưa xong.**
-   *
-   * `ChartPoint.label` / `valueLabel` (bảng số và vệt dò của biểu đồ) là chuỗi ĐƠN, dựng ở
-   * `sweep.ts` / `breakdown.ts` / `history.ts` bằng `formatValueWithUnit(x, spec.resultUnit)` —
-   * một chuỗi cho cả hai ngôn ngữ. Dịch được thì phải đổi bốn trường ấy thành `Bilingual`, kéo
-   * theo `ChartFrame`, `LineChart`, `WaterfallChart` và bản chép đem xuất file. Đó là đợt riêng.
-   *
-   * Ghim theo KHUÔN chứ không theo chuỗi cụ thể: con số đổi theo từng công thức và từng ô nhập,
-   * nên một danh sách chuỗi ở đây sẽ đỏ ngay lần ai đó sửa một giá trị mẫu.
-   *
-   * Khớp Ở BẤT KỲ ĐÂU trong chuỗi, không chỉ trọn chuỗi — và đó mới là chỗ phép kiểm này sắc.
-   * Câu mô tả biểu đồ do `build.ts` dựng là câu TIẾNG ANH có nhúng `marked.valueLabel`: "At the
-   * current value 46.000 ₫, the result is 15,21 lần." Bỏ các cụm số-kèm-đơn-vị ra rồi mới hỏi
-   * phần còn lại có dấu tiếng Việt không, nên câu ấy đi qua, còn một câu THẬT SỰ chưa dịch thì
-   * vẫn đỏ. Ghim trọn chuỗi thì cả câu ấy bị coi là lỗi và ngoại lệ phải nới rộng ra cả khối
-   * biểu đồ — lúc đó phép kiểm không còn gác được gì bên trong khối.
+  /*
+   * NHÓM 2 — "số kèm đơn vị do Domain ghép sẵn" — ĐÃ BỎ 15/10/2026, nợ đã trả. Nhãn của biểu đồ
+   * (vệt dò, dấu giá trị hiện tại, bảng số, câu mô tả) nay đổi đơn vị theo ngôn ngữ qua
+   * `labelInEnglish()` (`src/core/format.ts`) và hook `useLabelText()`. Ngoại lệ này từng nuốt mọi
+   * cụm "số + đơn vị Việt" ở BẤT KỲ đâu trên màn, nên giữ nó lại là che mất đúng loại lỗi vừa sửa.
    */
-  const DON_VI_VN =
-    '(lần|tỷ ₫|triệu CP|phiên|điểm|năm|tháng|ngày|kỳ|vòng|mã|HĐ|CP|sản phẩm|%\\/năm|%\\/phiên|%\\/kỳ|₫\\/CP\\/tháng|₫\\/CP|₫\\/tháng|₫\\/điểm)';
-  const SO_KEM_DON_VI = new RegExp(`[+\\-−]?[\\d.,\\s—]+${DON_VI_VN}`, 'g');
 
   /**
    * NHÓM 3 — ký hiệu toán học. Cố ý, và không sửa được ở tầng này.
@@ -1786,7 +1840,7 @@ window.__themeLog = [];
    */
   const daBiet = (c) => {
     if (c.loai === 'mathml') return true;
-    let conLai = c.t.replace(SO_KEM_DON_VI, ' ');
+    let conLai = c.t;
     for (const manh of CO_Y) conLai = conLai.split(manh).join(' ');
     return !VN.test(conLai);
   };
@@ -1842,7 +1896,7 @@ window.__themeLog = [];
   }
 
   check(
-    'chế độ EN: không còn chữ tiếng Việt nào ngoài ba nhóm ngoại lệ đã ghi',
+    'chế độ EN: không còn chữ tiếng Việt nào ngoài hai nhóm ngoại lệ đã ghi',
     conSot.length === 0,
     conSot.length === 0
       ? `quét ${String(MAN.length)} màn, mọi chuỗi còn lại đều nằm trong danh sách ngoại lệ`
@@ -2980,8 +3034,12 @@ window.__themeLog = [];
       };
     };
     const ke = document.querySelector('#cong-thuc-hang-ngay')?.closest('section') ?? null;
-    // Chỉ ô đang hiện: ô mang thuộc tính hidden có khung 0 × 0 ở toạ độ 0, làm sai phép đếm cột.
-    const oKe = ke === null ? [] : [...ke.querySelectorAll('li:not([hidden])')].map(r);
+    // Chỉ ô đang hiện: ô mang thuộc tính hidden có khung 0 × 0 ở toạ độ 0, làm sai phép đếm cột. Đo
+    // khung chứ không lọc theo [hidden]: ô "chỉ ba cột" không mang hidden mà bị CSS ẩn ở khổ này.
+    const oKe =
+      ke === null
+        ? []
+        : [...ke.querySelectorAll('li')].filter((li) => li.getClientRects().length > 0).map(r);
     const khoi = document.getElementById('danh-sach-cong-thuc');
     const tieuDe = khoi?.querySelector('h2') ?? null;
     const nhomMucDo = khoi?.querySelector('[role="group"]') ?? null;
@@ -3452,6 +3510,46 @@ window.__themeLog = [];
     dt360DanhTinh === null
       ? 'không thấy thanh trên'
       : `h1 "${String(dt360DanhTinh.chuH1)}" hiện ${String(dt360DanhTinh.h1Hien)} · Faculator hiện ${String(dt360DanhTinh.hieuHien)}`,
+  );
+
+  /*
+   * Kệ "Công thức dùng hằng ngày" thu gọn phải ra hàng cuối ĐỦ ô ở mọi khổ lưới. Chủ dự án chụp
+   * lưới ba cột có tám ô, hàng cuối hụt một chỗ (15/10/2026): ô thứ chín chỉ hiện ở ba cột, bằng
+   * container query — thứ jsdom không chạy, nên chỉ Chrome thật trả lời được. 360 là hai cột, 560
+   * là ba cột (lưới 528px, giữa hai mốc 466 và 624 của `FeaturedFormulas.module.css`).
+   */
+  const DOC_KE_THU_GON = `(() => {
+    const ke = document.querySelector('#cong-thuc-hang-ngay')?.closest('section') ?? null;
+    if (ke === null) return null;
+    const o = [...ke.querySelectorAll('li')]
+      .map((li) => li.getBoundingClientRect())
+      .filter((b) => b.width > 0 && b.height > 0);
+    return {
+      so: o.length,
+      cot: new Set(o.map((b) => Math.round(b.left))).size,
+      hang: new Set(o.map((b) => Math.round(b.top))).size,
+    };
+  })()`;
+
+  const ke360 = await evaluate(DOC_KE_THU_GON);
+  check(
+    'Điện thoại 360 · kệ thu gọn 8 ô, 2 cột × 4 hàng',
+    ke360 !== null && ke360.so === 8 && ke360.cot === 2 && ke360.hang === 4,
+    JSON.stringify(ke360),
+  );
+
+  await send('Emulation.setDeviceMetricsOverride', {
+    width: 560,
+    height: 900,
+    deviceScaleFactor: 1,
+    mobile: true,
+  });
+  await open('/cong-thuc/');
+  const ke560 = await evaluate(DOC_KE_THU_GON);
+  check(
+    '560 · kệ thu gọn 9 ô, 3 cột × 3 hàng — hàng cuối không hụt chỗ',
+    ke560 !== null && ke560.so === 9 && ke560.cot === 3 && ke560.hang === 3,
+    JSON.stringify(ke560),
   );
 
   /* ── Đợt 2: Cài đặt và bảng chuỗi giá ─────────────────────────────────── */

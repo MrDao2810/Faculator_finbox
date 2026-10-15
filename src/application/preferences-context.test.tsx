@@ -142,3 +142,45 @@ describe('PreferencesProvider — cửa `hydrated` không được chặn nhầm
     }
   });
 });
+
+/*
+ * Tấm che "chờ chữ tiếng Anh" (15/10/2026) — script khởi động ở `layout.tsx` đặt
+ * `data-locale-pending` cho người đã chọn EN, CSS ẩn `<body>` khi thuộc tính ấy còn.
+ *
+ * Cùng giới hạn đã ghi ở docblock đầu file: jsdom không thấy được cái NHÁY. Thứ kiểm được ở đây là
+ * rủi ro thật của bản vá — tấm che phải được gỡ, và chỉ được gỡ khi chữ đã là tiếng Anh. Một tấm che
+ * không ai gỡ là trang trắng tới hết hạn chót.
+ */
+describe('PreferencesProvider — gỡ tấm che chờ chữ tiếng Anh', () => {
+  function Chu() {
+    const { locale } = usePreferences();
+    return <p>{`ngôn ngữ ${locale}`}</p>;
+  }
+
+  it('gỡ thuộc tính sau lượt vẽ đã mang lựa chọn EN', async () => {
+    window.localStorage.setItem(PREFERENCES_STORAGE_KEY, JSON.stringify({ locale: 'en' }));
+    document.documentElement.dataset.localePending = '';
+
+    render(
+      <PreferencesProvider>
+        <Chu />
+      </PreferencesProvider>,
+    );
+
+    await screen.findByText('ngôn ngữ en');
+    await waitFor(() => {
+      expect(document.documentElement.dataset.localePending).toBeUndefined();
+    });
+  });
+
+  it('không có thuộc tính thì không làm gì — người dùng VI không đi qua tấm che', async () => {
+    render(
+      <PreferencesProvider>
+        <Chu />
+      </PreferencesProvider>,
+    );
+
+    await screen.findByText('ngôn ngữ vi');
+    expect(document.documentElement.dataset.localePending).toBeUndefined();
+  });
+});

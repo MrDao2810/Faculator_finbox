@@ -202,8 +202,10 @@ Every calculation function returns `CalcOutput` (`src/core/types.ts`), construct
 `fail()` requires a `CalcWarning`, whose `code` must be one of the six `WarningCode` values fixed by
 wireframe WF-15 (`DIVIDE_BY_ZERO`, `MEANINGLESS`, `MISSING_SERIES`, `MODEL_VIOLATION`, `INHERITED`,
 `INCOMPLETE_INPUT`). Messages are plain-language Vietnamese explaining the cause, plus a one-line
-`fix` suggestion (NFR-USA-04). Downstream formulas whose upstream failed must use `inherited()`
-rather than silently producing a number (FR-15).
+`fix` suggestion (NFR-USA-04) — except `INCOMPLETE_INPUT`, which since 15/10/2026 carries none: the
+owner had "↳ Nhập nốt các ô còn trống rồi kết quả hiện ngay." deleted, because "Còn thiếu: …" above it
+already names the field, so that message must always name what is missing. Downstream formulas
+whose upstream failed must use `inherited()` rather than silently producing a number (FR-15).
 
 **FR-15 runs for real since package 5.2.3.** All six `dependsOn` edges live in `valuation-dcf.ts`
 and form two branches:
@@ -1494,6 +1496,21 @@ the scale has no 34 step) and its unit 18 → 12px (`--text-xs`). Labels (12px) 
 (18px words, not figures) did not change, nor did anything below 1280px. Measured: a tile 79 → 71px, the
 DCA card 375 → 351px.
 
+**Below 1024px a narrow field alone on its row puts its label LEFT and its box RIGHT** (15/10/2026). The
+owner circled `capm`'s "Hệ số beta (β)" on a phone, its box in the left half and the right half empty
+because both neighbours are sliders: _"chuyển ô nhập sang bên phải để tối ưu không gian"_. Measured at
+360px: 35 formulas (39 in Advanced, chain block included) had such a row. `loneNarrowFlags()` in
+`@/ui/inputs` decides from the ORDER of fields (wide or narrow), never from the DOM, so the static HTML is
+already right: the last field of an odd run of narrow fields is lone; a grid of one field is not (`auto-fit`
+drops the empty track and the box fills the row). Lone fields get `fieldLone` on top of `field`, in BOTH
+`FormulaDetail.module.css` and `ChainBody.module.css`: the field spans the row and `subgrid`s the grid's two
+columns, so the label sits in the left column and the box lines up under the right box of the row above;
+hint and error go under the box. Two things are easy to break: **the grid is capped at TWO columns below
+1024px** (`minmax(max(140px, (100% − gap) / 2), 1fr)`) because the rule is only true in two columns — the
+cost, accepted, is that at 484–1023px three or four number fields now take two rows instead of one; and
+`.fieldsRepeat` (DCA) is skipped, since its column count is the group width. From 1024px nothing changed.
+No `check:chrome` assertion holds this yet; it was measured on all 111 at 360 and 768.
+
 A formula whose `calc` reads a market constant must also **declare the key** in
 `spec.usesConstants` — 14 of them do, across `derivatives.ts` (5), `fees.ts` (8) and `planning.ts`
 (1); 13 use the merged card and only `loi-nhuan-rong` does not, because it has a custom body. The declaration is what `ConstantsNote` reads to print the label, value, unit, effective date
@@ -2476,6 +2493,38 @@ now says so and sends the reader to Cột; the cure is a dot per lone point in `
 result more than FIVE points of first-stage growth, which `calc` contradicts on the example's own inputs
 (+5.991 ₫ against +9.460 ₫ — it is true against ONE point, +1.770 ₫).
 
+## English mode — what switches, what deliberately does not (15/10/2026)
+
+The owner asked to improve the VI → EN switch and chose three things when asked: **numbers stay in the Vietnamese
+format in EN too** (CON-05: `92.000 ₫`, `15,21 times`), but the input fields must read unambiguous English typing;
+**cover the page until the text is English** rather than build separate `/en/` pages; and **Claude drafts the guide's
+English, the owner reviews it**. What that produced, and what is easy to break:
+
+- **Tab title.** `metadata.title` is build-time Vietnamese (SEO keeps it). `DocumentTitle` (`src/ui/i18n/`) rewrites
+  `document.title` per locale from `src/app/page-titles.ts` (one source for metadata `.vi` and the leaf). In EN it
+  WATCHES the document: measured on dev, Next streams the page's metadata in ~1 s after hydrate and rebuilds a
+  Vietnamese `<title>` over a one-shot write.
+- **No Vietnamese flash on reload.** The boot script in `layout.tsx` sets `data-locale-pending` for a stored `en`, an
+  inline `@media screen` rule hides `<body>`, and `PreferencesProvider` removes the attribute in the first commit that
+  already carries English. `LOCALE_REVEAL_MS` (1.5 s) reveals the page anyway if JS is slow or broken: never trade a
+  flash for a blank page. `check:chrome` 0a1b counts frames that are visible AND Vietnamese.
+- **Chart labels.** `ChartPoint.label`/`valueLabel` stay single Vietnamese strings (the export text reads them).
+  `labelInEnglish()` swaps only the trailing unit after a digit or `_` (`lần` → `times`, `triệu ₫` → `million ₫`), via
+  `useLabelText()` at render time and directly in `build.ts`'s English summary. The row marked "current" in the data
+  table is compared on the TRANSLATED string, or the highlight disappears in EN. Known: an export made in EN copies
+  the live `<svg>`, so its chart carries English units (axis titles already did).
+- **Number input in EN.** `englishNumberToVi(text, unit)` rewrites only what cannot be a Vietnamese number before
+  `parseViNumber()` reads it: `1,500.5`, `1,234,567`, and a single group `92,000` ONLY in whole-count units (`₫`, `CP`,
+  `phiên`…). In `%`/`lần`/`tỷ ₫` a single group stays a decimal, because a field holding 12,3329 from CAPM becomes
+  `12,332` when the user deletes one digit, and reading that as 12.332 % is a thousand-fold silent error. The field
+  keeps showing what was typed; only the string that is PARSED changes.
+- **Guide text.** All 755 strings of `src/core/huong-dan/noi-dung/items.ts` have `en` (pending owner review). The
+  placeholders `{key|thoiGian}` / `{key|coPhieu}` fill English units through `dienCau(…, 'en')`; numbers keep the
+  Vietnamese format so the sentence matches the field beside it. `noi-dung.test.ts` gates completeness, no diacritics,
+  no long dash, identical placeholders and identical digit-numbers per string, and the length caps.
+- **Deliberately still Vietnamese in EN:** company and industry names (source data, like proper nouns), SEO metadata,
+  and the text of exported files.
+
 ## Notes
 
 - **There are two colour palettes, and both live in `src/app/globals.css`.** The dark one is a
@@ -2598,7 +2647,13 @@ result more than FIVE points of first-stage growth, which `calc` contradicts on 
     halves every 30 days; `PERSONAL_SLOTS = 4`) and owns the "Xem tất cả" / "Thu gọn" button: a
     `<button aria-expanded>` that shows only the first `DAILY_SHELF_PREVIEW = 8` tiles until clicked.
     The rest stay in the HTML with the `hidden` attribute, cut by **position after reordering**, so
-    personalised tiles are always in the visible part. The open state is remembered per tab in
+    personalised tiles are always in the visible part. **Except the 9th** (15/10/2026, the owner:
+    eight tiles left the last row one short on a three-column grid): it carries `data-chi-ba-cot`
+    instead of `hidden`, and `FeaturedFormulas.module.css` shows it only while the grid itself is
+    466–623px wide (`@container`, below 1024px), which is exactly where `auto-fill` of 150px tiles
+    makes three columns — so 8 at two and four columns, 9 at three (`DAILY_SHELF_PREVIEW_3_COLS`).
+    Those two numbers follow the `gap` and the 150px; change either and recompute them. Expanded
+    at three columns, 16 tiles still leave the last row two short — not decided. The open state is remembered per tab in
     `sessionStorage` (`DAILY_SHELF_OPEN_KEY`) and re-applied in a `useLayoutEffect`, so the page is
     already full height when `OriginTracker`'s back-button scroll restore runs. The shelf is always exactly `pinnedIds.length`
     tiles with no repeats (`rankFeaturedIds()` guarantees it). `FeaturedFormulas.test.tsx` compares

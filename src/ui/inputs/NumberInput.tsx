@@ -6,6 +6,7 @@ import {
   INPUT_MAX_DECIMALS,
   commitValue,
   draftViNumber,
+  englishNumberToVi,
   formatNumber,
   keepViNumberChars,
   parseViNumber,
@@ -13,7 +14,7 @@ import {
   unitLabel,
 } from '@/application';
 import type { InputState, Level, VariableSpec } from '@/application';
-import { useT, usePick } from '@/application/preferences-context';
+import { useT, usePick, usePreferences } from '@/application/preferences-context';
 import { Input, type InputTone } from '@/ui/primitives';
 
 import { filterTypedValue, guardFilteredDelete, resetFilteredDelete } from './filtered-change';
@@ -136,10 +137,18 @@ export function NumberInput({
   const edited = useRef(false);
   const t = useT();
   const pick = usePick();
+  const { locale } = usePreferences();
 
   const raw = draft ?? formatNumber(value, { maxDecimals: INPUT_MAX_DECIMALS });
+  /*
+   * Chuỗi đem ĐỌC, không phải chuỗi đem HIỆN. Ở EN, `92,000` hay `1,500.5` đổi về lối Việt trước
+   * khi đọc (`englishNumberToVi()`), còn ô vẫn giữ y nguyên thứ người dùng gõ — quy tắc 1 và 2 ở
+   * docblock. Ba chỗ đọc chuỗi (trạng thái ô, từng phím, lúc chốt) đều đi qua đây.
+   */
+  const docDuoc = (text: string): string =>
+    locale === 'en' ? englishNumberToVi(text, spec.unit) : text;
   const { state, note } = resolveInputState({
-    raw,
+    raw: docDuoc(raw),
     spec,
     focused,
     derivedFrom,
@@ -173,7 +182,13 @@ export function NumberInput({
   // Ngoài miền là lỗi thật sự nên đi đường `error` (có role="alert"); các dòng phụ khác
   // chỉ là thông tin nên đi đường `hint`.
   const error = state === 'outOfRange' ? note : undefined;
-  const hint = state === 'outOfRange' ? undefined : note;
+  /*
+   * Ô khoá theo chế độ: Domain trả dòng phụ `'nâng cao'` viết cứng (CON-02 cấm `src/core` đọc
+   * i18n), nên ở đây thay bằng khoá dịch — cùng khoá `SliderInput`, `Toggle`, `RadioGroup` đang
+   * dùng. Thiếu nó thì ở EN chế độ Cơ bản ô số khoá vẫn ghi "nâng cao".
+   */
+  const hint =
+    state === 'outOfRange' ? undefined : locked && !lockedByTicker ? t('input.lockedBadge') : note;
 
   return (
     <Input
@@ -238,7 +253,7 @@ export function NumberInput({
          * Với ô nhập tay bình thường cửa này vô hại: `value` là con số đã đẩy ở phím trước, nên
          * mọi phím gõ thật đều cho ra số khác nó.
          */
-        const parsed = parseViNumber(next);
+        const parsed = parseViNumber(docDuoc(next));
         if (parsed !== null && parsed !== value) onChange(parsed);
       }}
       onBlur={(event) => {
@@ -253,7 +268,7 @@ export function NumberInput({
          * đọc mọi lượt `onChange` là "người dùng ghi đè", nên chỉ NHÌN một ô đang nhận số từ
          * CAPM cũng đủ cắt đứt nó khỏi CAPM — dán nhãn "đã nhập tay" lên một con số không ai gõ.
          */
-        if (edited.current) onChange(commitValue(raw, spec));
+        if (edited.current) onChange(commitValue(docDuoc(raw), spec));
       }}
       onKeyDown={(event) => {
         /* Bù phím xoá cho ký tự vừa bị loại — bắt buộc đi kèm cửa lọc, xem docblock của nó. */

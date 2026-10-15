@@ -25,6 +25,7 @@ import {
   NO_VALUE,
   formatNumber,
   formatValueWithUnit,
+  labelInEnglish,
   unitLabel,
   withScalePrefix,
 } from '../format';
@@ -431,12 +432,18 @@ function buildBreakdownModel(
       : `Mọi phần đều ${cong > 0 ? 'cộng vào' : 'trừ ra'}.`,
     total === undefined ? '' : `Cộng lại được ${total.valueLabel}.`,
   ];
+  /*
+   * Bản tiếng Anh chia số ít/số nhiều ("1 part subtracts") và đổi đơn vị của tổng sang tiếng Anh —
+   * đo 15/10/2026 trên `fcfe` ở EN, câu đọc "2 parts add, 1 parts subtract … total 282 tỷ ₫".
+   */
+  const parts = (n: number, verb: string): string =>
+    n === 1 ? `1 part ${verb}s` : `${String(n)} parts ${verb}`;
   const sentencesEn = [
     `${name.en} breaks down into ${String(stages.length)} parts: ${stageListEn}.`,
     cong > 0 && tru > 0
-      ? `${String(cong)} parts add, ${String(tru)} parts subtract.`
+      ? `${parts(cong, 'add')}, ${parts(tru, 'subtract')}.`
       : `Every part ${cong > 0 ? 'adds in' : 'subtracts out'}.`,
-    total === undefined ? '' : `Together they total ${total.valueLabel}.`,
+    total === undefined ? '' : `Together they total ${labelInEnglish(total.valueLabel)}.`,
   ];
 
   return {
@@ -897,7 +904,7 @@ export function buildChartModel(args: ChartArgs): ChartModel {
       ? ''
       : onTime
         ? `${name.en}${seriesLabel === undefined ? '' : ` for ${seriesLabel}`} over ${String(points.length)} sessions, from ${first.label} to ${last.label}.`
-        : `Sweeping ${axisName.en} from ${first.label} to ${last.label} across ${String(points.length)} levels.`,
+        : `Sweeping ${axisName.en} from ${labelInEnglish(first.label)} to ${labelInEnglish(last.label)} across ${String(points.length)} levels.`,
     `${name.en} ranges from ${formatValueWithUnit(yExtent[0], unitLabel(spec.resultUnit).en)} to ${formatValueWithUnit(yExtent[1], unitLabel(spec.resultUnit).en)}.`,
     overlayRanges.length === 0
       ? ''
@@ -910,12 +917,12 @@ export function buildChartModel(args: ChartArgs): ChartModel {
     marked === undefined
       ? ''
       : onTime
-        ? `The most recent session ${marked.label} gives ${marked.valueLabel}.`
-        : `At the current value ${marked.label}, the result is ${marked.valueLabel}.`,
+        ? `The most recent session ${marked.label} gives ${labelInEnglish(marked.valueLabel)}.`
+        : `At the current value ${labelInEnglish(marked.label)}, the result is ${labelInEnglish(marked.valueLabel)}.`,
     missing === 0
       ? `Every ${unit.en} produced a result.`
       : warmUp > 0 && firstReal !== undefined
-        ? `The first ${String(warmUp)} sessions don't have enough data to calculate yet, so the line starts at ${firstReal.label}.`
+        ? `The first ${String(warmUp)} sessions don't have enough data to calculate yet, so the line starts at ${labelInEnglish(firstReal.label)}.`
         : `${String(missing)} of ${String(points.length)} ${unit.en} could not be calculated.`,
     referenceLines.length === 0
       ? ''

@@ -1,10 +1,13 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
 
+import { DocumentTitle } from '@/ui/i18n/DocumentTitle';
+
+import { PAGE_TITLES } from '../page-titles';
 import { DataTableScreen } from './DataTableScreen';
 
 export const metadata: Metadata = {
-  title: 'Bảng dữ liệu — chuỗi giá OHLCV',
+  title: PAGE_TITLES.dataTable.vi,
   description: 'Nhập và sửa chuỗi giá theo phiên để tính Beta, Sharpe và VaR ngay trên máy bạn.',
   /*
    * KHÔNG cho lập chỉ mục, và cũng không có trong `sitemap.ts`.
@@ -20,9 +23,12 @@ export const metadata: Metadata = {
  */
 export default function DataPage() {
   return (
-    // Bắt buộc với output: 'export' — bên trong có useSearchParams().
-    <Suspense fallback={null}>
-      <DataTableScreen />
-    </Suspense>
+    <>
+      <DocumentTitle title={PAGE_TITLES.dataTable} />
+      {/* Bắt buộc với output: 'export' — bên trong có useSearchParams(). */}
+      <Suspense fallback={null}>
+        <DataTableScreen />
+      </Suspense>
+    </>
   );
 }

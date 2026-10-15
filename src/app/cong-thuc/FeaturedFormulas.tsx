@@ -5,6 +5,7 @@ import { useEffect, useLayoutEffect, useMemo, useState, type ReactNode } from 'r
 import {
   DAILY_SHELF_OPEN_KEY,
   DAILY_SHELF_PREVIEW,
+  DAILY_SHELF_PREVIEW_3_COLS,
   FORMULA_SUMMARIES,
   FORMULA_USAGE_KEY,
   parseFormulaUsage,
@@ -45,10 +46,14 @@ const KNOWN_IDS = new Set(FORMULA_SUMMARIES.map((formula) => formula.id));
  *
  * ── Vì sao ô ẩn vẫn nằm trong HTML ─────────────────────────────────────────────────────────
  *
- * Tám ô sau mang thuộc tính `hidden`, không bị bỏ khỏi cây: bấm "Xem tất cả" chỉ gỡ thuộc tính, không
+ * Các ô sau mang thuộc tính `hidden`, không bị bỏ khỏi cây: bấm "Xem tất cả" chỉ gỡ thuộc tính, không
  * phải dựng thẻ ở máy khách, và thẻ server dựng giữ nguyên. `hidden` cũng rút các ô ấy khỏi thứ tự Tab
- * và cây trợ năng, nên người dùng bàn phím không phải đi qua tám link mình không nhìn thấy. Cắt theo
+ * và cây trợ năng, nên người dùng bàn phím không phải đi qua những link mình không nhìn thấy. Cắt theo
  * VỊ TRÍ sau khi sắp lại, nên ô cá nhân hoá luôn nằm trong phần nhìn thấy.
+ *
+ * Ô thứ chín là ngoại lệ (15/10/2026): nó mang `data-chi-ba-cot` thay cho `hidden`, và CSS chỉ cho nó
+ * hiện khi lưới đang đúng ba cột — tám ô ở lưới ba cột để hàng cuối hụt một chỗ. Lý do và con số
+ * nằm ở docblock `DAILY_SHELF_PREVIEW_3_COLS`.
  *
  * Nút là `<button aria-expanded>` chứ không phải link: nó mở rộng một vùng tại chỗ, không đưa người
  * dùng đi đâu. Trước khi hydrate bấm nút chưa làm gì — tám ô đầu vẫn đủ dùng, và danh sách đầy đủ
@@ -170,7 +175,15 @@ export function FeaturedFormulas({ heading, pinned }: FeaturedFormulasProps) {
       <ul id={SHELF_GRID_ID} className={styles.cards}>
         {tiles.map(({ id, card }, index) => (
           // Khoá ổn định để React DI CHUYỂN node thay vì tháo/lắp — không có nháy trắng.
-          <li key={id} hidden={!expanded && index >= DAILY_SHELF_PREVIEW}>
+          <li
+            key={id}
+            hidden={!expanded && index >= DAILY_SHELF_PREVIEW_3_COLS}
+            data-chi-ba-cot={
+              !expanded && index >= DAILY_SHELF_PREVIEW && index < DAILY_SHELF_PREVIEW_3_COLS
+                ? ''
+                : undefined
+            }
+          >
             {card}
           </li>
         ))}

@@ -124,6 +124,16 @@ describe('ChainBody — lưới ô nhập của thẻ bước', () => {
     });
   }
 
+  it('ô số đứng lẻ giữa hai thanh trượt mang lớp chiếm trọn hàng, như khối Số liệu', () => {
+    // Bước CAPM của `bien-an-toan`: Rf (trượt) · beta (ô số) · ERP (trượt) — beta đứng một mình.
+    const { container } = dungKhoi('bien-an-toan');
+
+    const le = [...container.querySelectorAll('[class*="fieldLone"]')].map(
+      (o) => o.querySelector('label')?.textContent,
+    );
+    expect(le).toContain('Hệ số beta (β)');
+  });
+
   it('ô số thì KHÔNG chiếm trọn hàng — nếu không lưới hai cột thành một cột', () => {
     // Ca đối chứng: không có nó thì "cho tất cả fieldWide" cũng làm ca trên xanh.
     const { container } = dungKhoi('gia-tri-noi-tai-fcff');

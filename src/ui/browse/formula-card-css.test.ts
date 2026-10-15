@@ -43,7 +43,11 @@ const CSS = readFileSync(
   'utf8',
 ).replace(/\/\*[\s\S]*?\*\//g, '');
 
-/** Thân của một luật ở bậc ngoài cùng. File này không có `@media` nào, nên đếm ngoặc là đủ. */
+/**
+ * Thân của luật ĐẦU TIÊN mang bộ chọn ấy — tức luật ở bậc ngoài cùng. File có đúng một `@media`
+ * (cỡ chữ của biến thể ô dưới 1024px, 15/10/2026), đặt ở CUỐI file, nên `indexOf` luôn gặp luật
+ * ngoài trước luật trong khối ấy.
+ */
 function than(selector: string): string {
   const mo = CSS.indexOf(`${selector} {`);
   expect(mo, `không tìm thấy luật \`${selector}\``).toBeGreaterThanOrEqual(0);

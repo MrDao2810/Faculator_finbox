@@ -4,6 +4,222 @@ Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 
 ---
 
+## Ô nhập đứng lẻ trên điện thoại: chiếm trọn hàng, nhãn trên · khung dưới (15/10/2026)
+
+**Trạng thái: CHƯA XONG — đã sửa lượt hai, chờ chủ dự án xem.**
+
+**Lượt hai, cùng ngày** — chủ dự án khoanh ô "Giá mua" của `gia-hoa-von` (nhãn trái, khung phải): _"như này thì không
+được. sửa lại để ô nhập ở dưới"_. Ô lẻ nay giữ đúng hình của mọi ô khác (nhãn trên, khung dưới, bốn hàng `subgrid`) và
+chỉ còn khác ở chỗ chiếm trọn hàng, nên khung nhập rộng hết bề ngang — không quay lại nửa phải bỏ trống của lượt đầu.
+
+- `FormulaDetail.module.css`, `ChainBody.module.css`: `.fields > .fieldLone` chỉ còn `grid-column: 1 / -1`; bỏ
+  `subgrid` hai cột, `align-items: center` và hai luật đặt nhãn cột 1 · khung cột 2. Chú thích ghi lối cũ đã bị bác.
+- `VariableField.tsx`, `FormulaDetail.tsx`: chú thích. `FormulaDetail.test.tsx`, `ChainBody.test.tsx`: đổi tên ca.
+  `loneNarrowFlags()` và trần hai cột giữ nguyên.
+- Đo qua dev :3000 (`gia-hoa-von`, `capm`) ở 360 và 520: nhãn trên khung, cùng mép trái, khung rộng bằng cả lưới
+  (328 / 488px); không tràn ngang; 1440 không đổi.
+
+Lượt đầu, giữ để biết vì sao có `loneNarrowFlags()`:
+
+Chủ dự án khoanh ô "Hệ số beta (β)" của `capm` trên điện thoại (khung nửa trái, nửa phải trống vì hai ô kề là thanh
+trượt): _"đối với những công thức màn mobile có thừa không gian như ảnh trên thì chuyển ô nhập sang bên phải để tối ưu
+không gian"_. Đo trên Chrome thật (dev server) trước khi sửa: ở 360px 35/111 công thức có ô số/ô chọn đứng lẻ nửa hàng
+(39 ở Nâng cao, tính cả khối chuỗi); ở 600–768px lưới `auto-fit` chia 3–4 cột nên còn lẻ kiểu khác.
+
+| File                                                                          | Sửa gì / vì sao                                                                                                                                                                                                                       |
+| ----------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/ui/inputs/VariableField.tsx` (+ `VariableField.test.ts` mới), `index.ts` | `loneNarrowFlags()`: từ thứ tự ô (rộng/hẹp), ô hẹp nào đứng một mình trong lưới hai cột — ô cuối của dải hẹp lẻ; lưới chỉ một ô thì không. Tính trên thứ tự chứ không đo DOM, nên HTML tĩnh đã đúng, không nhảy sau hydrate.          |
+| `src/app/cong-thuc/[id]/FormulaDetail.tsx`, `.module.css` (+test)             | Ô lẻ mang thêm lớp `fieldLone`. Dưới 1024px: lưới trần hai cột; ô lẻ chiếm trọn hàng, `subgrid` hai cột của lưới — nhãn cột trái, khung cột phải (thẳng dưới ô phải hàng trên), dòng phụ/lỗi dưới khung. Bỏ qua lưới `.fieldsRepeat`. |
+| `src/ui/screens/ChainBody.tsx`, `.module.css` (+test)                         | Cùng luật cho thẻ bước của khối chuỗi (Nâng cao), vì hai khối đứng chồng nhau trên cùng màn.                                                                                                                                          |
+
+Kiểm: lint, typecheck sạch; `vitest` 156 file / 3988 ca xanh. Đo lại trên Chrome thật cả 111 công thức (360 Cơ bản, 360 và
+768 Nâng cao): 0 ô còn đứng lẻ nửa hàng; 38 / 52 / 52 ô lẻ đều có nhãn trái, khung bám mép phải lưới, giữa dọc thẳng với
+nhãn. Từ 1024px không đổi gì (lớp mới không có luật nào ở đó). Chưa có ca `check:chrome` giữ bố cục này.
+
+**Việc còn lại / cần chủ dự án:**
+
+- Cái giá đã biết: ở khổ máy tính bảng (484–1023px) lưới nay tối đa hai cột, nên công thức 3–4 ô số liền nhau xếp hai ô
+  một hàng thay vì một hàng ngang — trần hai cột là điều kiện để "ô lẻ" tính đúng.
+- Không đụng (có sẵn từ trước): thanh trượt có nhãn dài ("Phần bù rủi ro thị trường (ERP)") đẩy con số xuống dòng riêng,
+  căn giữa, ở 360–390px.
+
+---
+
+## Cải tiến chuyển ngôn ngữ VI → EN (15/10/2026)
+
+**Trạng thái: CHƯA XONG — đã sửa, chờ chủ dự án xem (và đọc duyệt bản dịch hướng dẫn).**
+
+Chủ dự án: _"cải tiến chức năng chuyển đổi ngôn ngữ từ tiếng việt sang tiếng anh"_. Đo trước khi sửa bằng Chrome thật ở EN
+(17 màn, Nâng cao, 1440): từ điển giao diện đã đủ khoá; chỗ còn sót là tiêu đề tab (17/17 màn), đơn vị trên biểu đồ
+(`15,21 lần`, `300 tỷ ₫`), nút đóng sheet đọc "Đóng", dòng meta của sheet Nạp mẫu, 755 câu hướng dẫn chưa có `en`, cả trang
+nháy tiếng Việt mỗi lần tải cứng, và ô nhập đọc `92,000` thành 92. Chủ dự án chọn: giữ số kiểu Việt nhưng sửa ô nhập; che
+trang tới khi đổi xong chữ; Claude dịch nháp, chủ dự án duyệt.
+
+| File                                                                                                                         | Sửa gì / vì sao                                                                                                                                                                                                                                                                             |
+| ---------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/ui/i18n/DocumentTitle.tsx` (+test), `src/app/page-titles.ts`, 8 `page.tsx`                                              | Tiêu đề tab theo ngôn ngữ. Metadata vẫn đọc `.vi` (SEO). Ở EN lá canh `<title>` vì Next đổ metadata về SAU hydrate và đè lại tiếng Việt — đo được trên dev.                                                                                                                                 |
+| `src/app/layout.tsx`, `src/application/preferences-context.tsx` (+test)                                                      | Người đã chọn EN: script khởi động đặt `data-locale-pending`, CSS ẩn `<body>`, Provider gỡ sau lượt vẽ đã mang chữ Anh; hạn chót 1,5 s. Đo trên dev ở 360: 0 khung hình lộ tiếng Việt, che 0,6–1,2 s.                                                                                       |
+| `src/core/format.ts` (+test), `src/ui/i18n/units.ts`, `ChartFrame`, `LineChart`, `WaterfallChart`, `src/core/chart/build.ts` | `labelInEnglish()` đổi đơn vị cuối của nhãn số (`lần` → `times`, `triệu ₫` → `million ₫`) ở vệt dò, dấu giá trị hiện tại, bảng số, câu mô tả cho trình đọc màn hình; sửa "1 parts subtract". Số vẫn kiểu Việt.                                                                              |
+| `src/core/format.ts` (+test), `NumberInput`, `InlineNumber`, `NumberCell`                                                    | `englishNumberToVi()`: ở EN đọc `1,500.5`, `1,234,567`, và `92,000` ở ô đếm nguyên (₫, CP, phiên…). Ô `%`/`lần`/`tỷ ₫` giữ cách đọc Việt (`12,332` vẫn là 12,332). `NumberInput` còn in dòng phụ `'nâng cao'` cứng từ Domain ở ô khoá — nay qua `input.lockedBadge`.                        |
+| `src/ui/primitives/BottomSheet.tsx`, `vi.ts`/`en.ts`                                                                         | Nhãn nút đóng/quay lại qua `useT()` (`sheet.close`, `sheet.back`).                                                                                                                                                                                                                          |
+| `src/ui/sheets/PresetSheet.tsx`, `vi.ts`/`en.ts`                                                                             | Dòng "BCTC Q2/2026 · 248 phiên giá" dựng lại ở EN (`preset.statements`). Tên công ty và ngành giữ nguyên: dữ liệu nguồn như tên riêng.                                                                                                                                                      |
+| `src/core/huong-dan/noi-dung/items.ts`, `types.ts`, `cho-trong.ts` (+test), `noi-dung.test.ts`, `src/ui/guide/GuideBody.tsx` | 755 chuỗi hướng dẫn có `en` (6 agent dịch, mỗi phần qua script kiểm, Claude đọc mẫu). Chỗ trống kiểu thời gian (`thoiGian`) và số cổ phiếu (`coPhieu`) ra đơn vị Anh. Hai ca "nợ bản tiếng Anh" thành cổng: đủ, không dấu Việt, không gạch dài, chỗ trống và số khớp bản Việt, trần độ dài. |
+| `scripts/chrome-check.mjs`                                                                                                   | Ca mới đo nháy ngôn ngữ (0a1b); mục 7 bỏ ngoại lệ "số kèm đơn vị" (nợ đã trả), thêm 3 màn quét.                                                                                                                                                                                             |
+
+Kiểm: lint, typecheck sạch; `vitest` 154 file / 3976 ca xanh. Build trên bản sao (dev giữ :3000): `verify:static` 51/51;
+`check:chrome` 202/208 — 6 ca hỏng (nhãn trục tràn ở `lich-tra-no`, `diem-hoa-von`, `lai-kep` ×2, chặng `fcff`, hàng nút
+form thêm mã) hỏng y hệt trên bản HEAD sạch (198/204), không do đợt này; mọi ca EN đạt (0 khung lộ tiếng Việt, quét 11
+màn sạch). `size` đỏ sẵn ở HEAD (112 trang vượt cửa 180 kB); đợt này thêm khoảng +2,5 kB ở trang chi tiết (447,2 → 449,7)
+và +1,1 kB ở Danh mục (đo gồm cả thay đổi chưa commit của phiên song song).
+
+**Việc còn lại / cần chủ dự án:**
+
+- Đọc duyệt bản dịch hướng dẫn. Người dịch tự nêu mấy câu GỐC tiếng Việt có vẻ lệch (dịch trung thành, chưa sửa):
+  `lai-kep` và `lai-tien-gui` (`rate`) nói "hợp đồng vay", "vay mua nhà 8–12%" cho công thức tiết kiệm; `rsi-wilder.period`
+  dùng câu của SMA/EMA ("số phiên của đường trung bình", 20/50/200); `do-bien-dong-lich-su.sample.luuY` vừa theo ô vừa ghi
+  cứng "cửa sổ ba tháng"; `ev-ebitda.deLamGi` gọi EBITDA là "dòng tiền hoạt động"; `capm.riskFree.luuY` ghim "2026";
+  `no-tren-von-chu.deLamGi` nói "vay" trong khi công thức chia tổng nợ phải trả.
+- Hình biểu đồ trong file xuất là bản chép `<svg>` đang hiện, nên xuất lúc ở EN thì đơn vị trên hình cũng tiếng Anh (tiêu đề
+  trục vốn đã vậy). Phần chữ của file xuất vẫn tiếng Việt. Chưa đổi.
+- Metadata SEO (mô tả, từ khoá) vẫn tiếng Việt; không có trang `/en/` riêng — đã chọn hướng che trang thay vì dựng bản `/en/`.
+
+---
+
+## Thẻ công thức (kệ và danh sách): chữ nhỏ đi ở khổ điện thoại (15/10/2026)
+
+**Trạng thái: CHƯA XONG — đã sửa, chờ chủ dự án xem.**
+
+Chủ dự án: _"giảm size text của các công thức hiển thị ở ngoài này phiên bản mobile. hiện tại đang giữ nguyên size text
+của web nên nhìn rất to và chiếm không gian"_.
+
+- `src/ui/browse/FormulaCard.module.css`: khối `@media (max-width: 1023.98px)` cuối file cho biến thể ô — tên 16 → 14px,
+  mô tả 14 → 12px, nhãn nhóm 12 → 11px, icon 24 → 20px (hộp float cao theo dòng tên 17,5px). PC không đổi. Biến thể
+  hàng (danh sách bên dưới) không đụng.
+- `formula-card-css.test.ts`: chỉ sửa chú thích (file giờ có một `@media`, ở cuối, nên `than()` vẫn gặp luật ngoài
+  trước).
+- Đo qua dev :3000: ô cao 158 → 126/143px; cả kệ 656 → 561px ở 360, 490 → 428px ở 520; 1440 giữ 138px/284px. Ảnh chụp
+  360 và 520: icon thẳng dòng đầu của tên, không chạm chữ dòng hai; không tràn ngang.
+
+---
+
+## Cảnh báo "Còn thiếu": bỏ dòng "↳ Nhập nốt các ô còn trống rồi kết quả hiện ngay." (15/10/2026)
+
+**Trạng thái: CHƯA XONG — đã sửa, chờ chủ dự án xem.**
+
+Chủ dự án: _"xóa đoạn text '↳ Nhập nốt các ô còn trống rồi kết quả hiện ngay.'"_. Câu này là `fix` của
+`incompleteInput()`, nên hiện dưới MỌI cảnh báo "Còn thiếu: …" — ô trống ở bất kỳ công thức nào (`runFormula`) và bảng
+XIRR chưa đủ 2 dòng tiền. Các cảnh báo `INCOMPLETE_INPUT` của màn Danh mục (`portfolio.ts`) có câu gợi ý riêng, không
+đụng.
+
+- `src/core/warnings.ts`: `incompleteInput()` không còn `fix`; docblock ghi lý do và ngoại lệ trong luật "sáu mã đều có
+  gợi ý".
+- `src/ui/result/ErrorState.test.tsx`: ca "cả sáu mã phải có gợi ý" bỏ qua `INCOMPLETE_INPUT`; thêm ca đảo ngược — mã ấy
+  không có dòng ↳.
+- `FormulaDetail.test.tsx`: ca "không công thức nào là ngõ cụt" — với `xirr` đòi câu "Còn thiếu: <tên>" thay cho dòng ↳.
+- `CLAUDE.md`: mục FR-06 ghi ngoại lệ.
+- Toàn bộ vitest xanh (155 file).
+
+---
+
+## Bảng biến rỗng không còn hiện trơ hàng tiêu đề (15/10/2026)
+
+**Trạng thái: CHƯA XONG — đã sửa, chờ chủ dự án xem.**
+
+Chủ dự án chụp hàng "BIẾN · ĐƠN VỊ · MÔ TẢ" không có dòng nào: _"bảng này chưa có dữ liệu … tại sao lại xuất hiện trơ
+trọi như ảnh? sửa lỗi"_. Đếm trên Registry: `xirr` không khai biến nào (cả hai chế độ); `do-lech-chuan-loi-suat-phien`,
+`do-bien-dong-nam-hoa`, `do-lech-chuan-ban-phan`, `he-so-bien-thien` chỉ có biến Nâng cao nên rỗng ở Cơ bản. Khối Số liệu
+rỗng của `xirr` đã được chặn từ 06/10/2026, Bảng biến thì bị bỏ sót.
+
+- `src/ui/result/VariableTable.tsx`: không có biến nào thì trả `null`, không dựng cả hàng tiêu đề.
+- `src/ui/sheets/ExportSheet.tsx`: bản in PDF cùng lỗi ở bảng "Giá trị đầu vào" (tiêu đề không dòng) — giờ rỗng thì
+  không in, cùng luật Bảng biến ngay dưới nó. Tấm PNG (`draw-card.ts`) vốn đã bỏ qua khi rỗng.
+- `FormulaDetail.test.tsx`: ba ca — `xirr` không có bảng và bản in không có "Giá trị đầu vào"; `he-so-bien-thien` không
+  bảng ở Cơ bản, có bảng ở Nâng cao; `pe` vẫn có bảng.
+- Đo qua dev :3000 ở 390 và 1440: `xirr` không còn hàng tiêu đề nào, khối Ví dụ đứng sát đầu cột; `pe` giữ bảng.
+
+---
+
+## Dòng Nguồn: đường dẫn không ngắt giữa chừng ở khổ điện thoại (15/10/2026)
+
+**Trạng thái: CHƯA XONG — đã sửa, chờ chủ dự án xem.**
+
+Chủ dự án chụp dòng Nguồn của khối Ví dụ: _"text đang bị xuống dòng mà không gian bên cạnh lại dư thừa"_. Nhãn "Giá FPT
+phiên 15/07/2026:" và link chung một dòng; link không vừa phần còn lại nên trình duyệt ngắt ngay sau "du-" của
+`cafef.vn/du-lieu/…` (`overflow-wrap: anywhere` cũng cho ngắt ở bất kỳ đâu), dòng đầu còn trống gần nửa bề ngang.
+
+- `src/ui/result/LoiGiai.module.css`: `.giaiNguon a` thành một khối không ngắt (`inline-block`, `nowrap`, `max-width:
+100%`, `ellipsis`, `vertical-align: bottom`); không vừa thì xuống nguyên dòng, dài hơn khung thì cắt "…". `.giaiNguon`
+  thêm `grid-template-columns: minmax(0, 1fr)`: không có nó cột lưới phình theo link, đo ở 360px link lố mép 11px.
+- `src/ui/quiz/QuizBody.module.css`: `.source a` (nguồn của câu bài tập dạng đoạn văn) cùng luật, để hai chỗ in link nguồn
+  không lệch nhau.
+- Đo trên Chrome thật qua dev :3000, `gia-von-trung-binh-dca` và `xirr`: 360 link cắt "…" ở đúng mép (lố 0px), 390 và
+  520 link nguyên một dòng dưới nhãn, 1440 nhãn và link cùng hàng như cũ; không trang nào tràn ngang. `.source a` của
+  bài tập chưa đo bằng Chrome (chỉ hiện sau khi trả lời một câu). Chưa có phép `check:chrome` giữ việc này.
+
+**Lượt hai, cùng ngày** — chủ dự án chụp `capm`: _"tại sao đủ không gian để hiển thị đầy đủ link mà lại phải ... như
+ảnh?"_. Dấu "…" ấy do code: `shortUrl()` cắt chữ của link ở 48 ký tự bất kể màn còn bao nhiêu chỗ.
+
+- `src/ui/quiz/short-url.ts`: mặc định không cắt nữa (`max` = vô cực), chỉ bỏ giao thức và `www.`; CSS cắt "…" đúng ở
+  mép chỗ trống thật. `short-url.test.ts` thêm ca "không truyền `max` thì không cắt".
+- `src/ui/result/ExampleBlock.module.css`: `.nguonDong` thành hàng flex, link `flex: 1 1 16em` + `max-width:
+max-content`: còn ≥ 16em cạnh nhãn thì link cùng dòng và lấp phần còn lại, không thì xuống dòng riêng. Không có luật
+  này thì đường dẫn đầy đủ luôn rớt xuống dưới nhãn, kể cả ở PC. `src/ui/quiz/QuizBody.module.css` `.source a` cùng
+  luật.
+- Đo qua dev :3000 (`capm`, `xirr`) ở 360/390/460/520/1024/1440: không tràn ngang ở đâu; "…" chỉ còn khi link thật sự dài
+  hơn chỗ trống và luôn nằm sát mép (còn trống bên phải 0px). `capm` từ 460px in đủ
+  `tradingeconomics.com/vietnam/government-bond-yield`; ở 360/390 cột hẹp hơn đường dẫn ấy (294/324 so với 334px) nên vẫn
+  cắt vài ký tự cuối. PC 1440: link đầu đủ, cùng dòng với nhãn.
+
+---
+
+## XIRR: bỏ câu gợi ý và câu "Thiếu …" của bảng dòng tiền (15/10/2026)
+
+**Trạng thái: CHƯA XONG — đã sửa, chờ chủ dự án xem.**
+
+Chủ dự án: _"xóa đoạn text dư thừa này đi"_, chỉ ba câu: gợi ý "Số âm là tiền chi ra, số dương là tiền thu về — dòng
+cuối thường là giá trị hiện tại." và hai dòng "Dòng N: Thiếu ngày của dòng tiền này. Thiếu số tiền — âm là chi ra,
+dương là thu về." (bảng mở ra với hai dòng trống nên hai dòng ấy hiện ngay từ đầu).
+
+| File                                         | Vì sao                                                                                                                                         |
+| -------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/ui/screens/XirrBody.tsx`, `.module.css` | Bỏ `<p>` gợi ý và lớp `.hint`; danh sách lỗi lọc bỏ `MISSING_DATE` / `MISSING_AMOUNT` (`SELF_EVIDENT`), dòng không còn lý do nào thì không in. |
+| `src/application/i18n/vi.ts`, `en.ts`        | Bỏ khoá `xirr.hint`, để lại ghi chú lý do.                                                                                                     |
+| `src/core/cashflow-series.ts`                | Chỉ thêm ghi chú: mã hai lỗi thiếu vẫn cần để loại dòng khỏi phép tính.                                                                        |
+| `src/ui/screens/screens.test.tsx`            | Ca "nói thành câu" chuyển sang lỗi số tiền bằng 0; thêm ca đảo ngược: dòng trống không in câu nào, không còn câu gợi ý, vẫn có cờ "!".         |
+
+Giữ nguyên: cờ "!" và nền vàng của dòng thiếu, và câu của ngày gõ sai, số tiền bằng 0, ngày trùng (thiếu chúng thì dòng
+bị đánh dấu mà không biết vì sao).
+
+Lượt sau cùng ngày, chủ dự án: _"không cần chú thích '0 / 2 dòng tiền dùng được'"_ — bỏ `<p>` đếm trong `XirrBody.tsx`,
+lớp `.summary`, khoá `xirr.usable` (vi + en, để ghi chú lý do); ca đảo ngược trong `screens.test.tsx` giữ cả dòng đếm.
+
+---
+
+## Kệ "Công thức dùng hằng ngày": 9 ô khi lưới ba cột (15/10/2026)
+
+**Trạng thái: CHƯA XONG — đã sửa, chờ chủ dự án xem.**
+
+Chủ dự án chụp kệ ở khổ ba cột (8 ô, hàng cuối hụt một chỗ): _"sửa lỗi màn mobile đang chỉ hiển thị 8 công thức
+khiến thừa không gian. sửa lại sao cho ở màn mobile có 9 công thức để khớp không gian"_.
+
+Nguyên nhân: dưới 1024px lưới là `auto-fill` thẻ ≥150px trong khung ≤720px, nên ra 2, 3 hoặc 4 cột tuỳ bề ngang.
+8 ô khít ở 2 cột (điện thoại 360–~497px) và 4 cột, hụt ở 3 cột (viewport ~498–655px). Đặt cứng 9 cho mọi điện
+thoại thì lưới 2 cột lại thừa một ô lẻ, nên ô thứ chín chỉ hiện khi lưới đúng ba cột.
+
+| File                                               | Vì sao                                                                                                                                |
+| -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/application/daily-shelf.ts`, `index.ts`       | Hằng số mới `DAILY_SHELF_PREVIEW_3_COLS = 9`, docblock ghi lý do; xuất qua barrel.                                                    |
+| `src/app/cong-thuc/FeaturedFormulas.tsx`           | Kệ thu gọn: ô 1–8 hiện, ô 9 mang `data-chi-ba-cot` (không `hidden`), ô 10–16 `hidden`. Mở kệ thì gỡ cả hai.                           |
+| `FeaturedFormulas.module.css`                      | Lưới là container `ke-hang-ngay`; ô `data-chi-ba-cot` ẩn mặc định, hiện trong `@container (466px <= width < 624px)`, chỉ dưới 1024px. |
+| `daily-shelf.test.ts`, `FeaturedFormulas.test.tsx` | 8 chia hết cho 2 và 4, 9 chia hết cho 3; cờ nằm đúng ô 9, kể cả sau khi sắp theo lịch sử; mở kệ thì gỡ cờ.                            |
+| `scripts/verify-static.mjs`                        | Đếm 7 ô `hidden` + 1 ô `data-chi-ba-cot` trong HTML tĩnh.                                                                             |
+| `scripts/chrome-check.mjs`                         | Phép đếm ô ở PC 1440 lọc theo khung (ô 9 không mang `hidden`); thêm 360 → 8 ô 2 × 4 và 560 → 9 ô 3 × 3.                               |
+
+Còn lại, chưa làm: mở "Xem tất cả" ở lưới ba cột thì 16 ô ra 5 hàng + 1 (hàng cuối hụt hai chỗ). Chưa đụng vì
+muốn khít thì phải bớt một ô (một công thức không xem được ở khổ ấy) hoặc thêm hai ô vào kệ — việc của chủ dự án.
+
+---
+
 ## Hướng dẫn ô nhập: sửa câu của ô "Số đợt mua" (14/10/2026)
 
 **Trạng thái: CHƯA XONG — đã sửa, chờ chủ dự án xem.**

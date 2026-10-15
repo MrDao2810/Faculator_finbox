@@ -215,6 +215,26 @@
 }
 
 /*
+ * Khổ dưới 1024px: trần hai cột, ô hẹp đứng lẻ chiếm trọn hàng (nhãn trên, khung dưới) — bản sao
+ * CÙNG luật với khối Số liệu (chú thích đầy đủ ở `FormulaDetail.module.css`, cạnh `.fieldLone`,
+ * kể cả vì sao lối nhãn trái · khung phải đã bỏ). Hai khối đứng chồng nhau trên cùng một màn, nên
+ * một khối đổi mà khối kia không là hai lối xếp cho cùng một ô. Từ 1024px thẻ bước đã ghim hai cột
+ * (luật ngay dưới) nhưng ô lẻ giữ hình cũ, như khối Số liệu.
+ */
+@media (max-width: 1023.98px) {
+  .fields {
+    grid-template-columns: repeat(
+      auto-fit,
+      minmax(max(140px, calc((100% - var(--space-4)) / 2)), 1fr)
+    );
+  }
+
+  .fields > .fieldLone {
+    grid-column: 1 / -1;
+  }
+}
+
+/*
  * TRẦN số cột ở khổ rộng — cùng lý do với khối Số liệu (chú thích dài ở `FormulaDetail.module.css`).
  *
  * Từng là BỐN, vì khi ấy thẻ bước trải hết bề ngang khối (nó là con trải ngang của lưới `.detail`).

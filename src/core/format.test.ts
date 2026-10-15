@@ -11,9 +11,11 @@ import {
   formatValueWithUnit,
   hasUnitLabel,
   keepViNumberChars,
+  labelInEnglish,
   parseViNumber,
   INPUT_MAX_DECIMALS,
   draftViNumber,
+  englishNumberToVi,
   rawViNumber,
   scaleToDong,
   scaleToUnit,
@@ -397,6 +399,76 @@ describe('rút gọn số lớn cho nhãn trên hình', () => {
  * Hai ca dưới đây là thứ giữ cho nó không mục: một ca chặn đơn vị MỚI lọt vào mà quên bản dịch,
  * một ca chặn bản dịch thừa nằm lại sau khi đơn vị bị bỏ.
  */
+/*
+ * Ô nhập ở EN (15/10/2026): đo được `92,000` ra 92 và `1,500.5` ra 1,5005. Chỉ ba dạng không thể là
+ * số Việt được đổi; mọi thứ khác ra NGUYÊN để `parseViNumber()` đọc như cũ.
+ */
+describe('englishNumberToVi() — đọc số kiểu Anh ở giao diện EN', () => {
+  const doc = (text: string, unit: string) => parseViNumber(englishNumberToVi(text, unit));
+
+  it.each([
+    ['1,500.5', '%', 1500.5],
+    ['92,000.00', '₫', 92000],
+    ['-1,234.5', 'lần', -1234.5],
+    ['−1,234.5', 'lần', -1234.5],
+    ['1,234,567', '', 1234567],
+    ['-1,000,000', '₫', -1000000],
+    ['92,000', '₫', 92000],
+    ['1,470', 'triệu CP', 1470],
+    ['1,500', 'CP', 1500],
+  ])('%s (đơn vị "%s") → %d', (vao, unit, ra) => {
+    expect(doc(vao, unit)).toBe(ra);
+  });
+
+  /*
+   * Một nhóm ba chữ số ở ô số lẻ vẫn là số lẻ: ô nhận 12,3329 từ CAPM, xoá một chữ số thành
+   * `12,332` — đọc nó thành 12.332 % là biến một lần sửa nhỏ thành con số sai gấp nghìn lần.
+   */
+  it.each([
+    ['12,332', '%', 12.332],
+    ['1,234', 'lần', 1.234],
+    ['0,002', 'tỷ ₫', 0.002],
+    ['92,000', '', 92],
+    ['14,3', '₫', 14.3],
+    ['92.000', '₫', 92000],
+    ['14.3', '%', 14.3],
+  ])('%s (đơn vị "%s") giữ cách đọc kiểu Việt → %d', (vao, unit, ra) => {
+    expect(doc(vao, unit)).toBe(ra);
+  });
+
+  it('chuỗi không thuộc ba dạng thì trả nguyên, kể cả chuỗi gõ dở', () => {
+    for (const text of ['', '-', '1,', '92000', '1,50', '1,2,3', 'abc']) {
+      expect(englishNumberToVi(text, '₫')).toBe(text);
+    }
+  });
+});
+
+/*
+ * Nhãn biểu đồ ở EN (15/10/2026): đo trên Chrome thấy `15,21 lần`, `300 tỷ ₫`, `4,62 triệu ₫` còn
+ * nguyên trên hình và trong bảng số. Chỉ đơn vị cuối đổi; con số giữ kiểu Việt.
+ */
+describe('labelInEnglish() — đổi đơn vị cuối của một nhãn số', () => {
+  it.each([
+    ['15,21 lần', '15,21 times'],
+    ['300 tỷ ₫', '300 billion ₫'],
+    ['-48 tỷ ₫', '-48 billion ₫'],
+    ['4,62 triệu ₫', '4,62 million ₫'],
+    ['1,2 nghìn tỷ ₫', '1,2 thousand billion ₫'],
+    ['60 phiên', '60 sessions'],
+    ['12 %/năm', '12 %/year'],
+    [`${NO_VALUE} lần`, `${NO_VALUE} times`],
+  ])('%s → %s', (vao, ra) => {
+    expect(labelInEnglish(vao)).toBe(ra);
+  });
+
+  it.each([['92.000 ₫'], ['14,3 %'], ['08/09/2026'], ['Lãi vay sau thuế'], ['lần'], ['']])(
+    'để nguyên chuỗi không có đơn vị tiếng Việt sau một con số: %s',
+    (vao) => {
+      expect(labelInEnglish(vao)).toBe(vao);
+    },
+  );
+});
+
 describe('unitLabel() — bảng đơn vị song ngữ', () => {
   /** Mọi chuỗi đơn vị đang thật sự có trong Registry, đọc trực tiếp chứ không viết cứng. */
   const DUNG_THAT = (() => {

@@ -6,6 +6,7 @@ import {
   INPUT_MAX_DECIMALS,
   commitValue,
   draftViNumber,
+  englishNumberToVi,
   formatNumber,
   keepViNumberChars,
   parseViNumber,
@@ -13,7 +14,7 @@ import {
   unitLabel,
 } from '@/application';
 import type { VariableSpec } from '@/application';
-import { useT, usePick } from '@/application/preferences-context';
+import { useT, usePick, usePreferences } from '@/application/preferences-context';
 
 import { filterTypedValue, guardFilteredDelete, resetFilteredDelete } from './filtered-change';
 import styles from './InlineNumber.module.css';
@@ -99,13 +100,23 @@ export function InlineNumber({
   /* Đơn vị Domain là chuỗi tiếng Việt trần — dịch một lần, dùng cho cả hai nhánh dựng bên dưới. */
   const donVi = pick(unitLabel(spec.unit));
 
+  const { locale } = usePreferences();
+  /* Chuỗi đem ĐỌC ở EN — cùng luật và cùng lý do với `NumberInput` (`englishNumberToVi()`). */
+  const docDuoc = (text: string): string =>
+    locale === 'en' ? englishNumberToVi(text, spec.unit) : text;
+
   const raw = draft ?? formatNumber(value, { maxDecimals: INPUT_MAX_DECIMALS });
   /*
    * `focused: false` và `mode: 'advanced'` là cố ý: ô này không vẽ trạng thái 'editing' (không có
    * viền thường trực để đổi) và việc khoá theo chế độ đã do prop `readOnly` của nơi gọi quyết —
    * truyền `mode` thật vào sẽ sinh ra một đường khoá thứ hai, lệch với đường thứ nhất.
    */
-  const { state, note } = resolveInputState({ raw, spec, focused: false, mode: 'advanced' });
+  const { state, note } = resolveInputState({
+    raw: docDuoc(raw),
+    spec,
+    focused: false,
+    mode: 'advanced',
+  });
   const outOfRange = editable && !readOnly && state === 'outOfRange';
 
   const classes = [
@@ -130,7 +141,7 @@ export function InlineNumber({
     const nhap = draft;
     setDraft(null);
     if (nhap === null || !edited.current) return;
-    const next = commitValue(nhap, spec);
+    const next = commitValue(docDuoc(nhap), spec);
     if (next !== value) onChange(next);
   }
 
@@ -209,7 +220,7 @@ export function InlineNumber({
 
           // Quy tắc 0 — xem docblock. Chuỗi chưa ra số (`''`, `'-'`, `'1,'`) thì giữ nguyên giá
           // trị cũ chứ không đẩy `null` lên, vì nơi nhận chỉ biết nhận số (FR-06).
-          const parsed = parseViNumber(next);
+          const parsed = parseViNumber(docDuoc(next));
           if (parsed !== null && parsed !== value) onChange(parsed);
         }}
         onBlur={(event) => {

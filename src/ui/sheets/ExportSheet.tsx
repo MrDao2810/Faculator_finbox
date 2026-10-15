@@ -315,17 +315,21 @@ export function ExportSheet({
           </div>
         )}
 
-        <table>
-          <caption>Giá trị đầu vào</caption>
-          <tbody>
-            {content.inputs.map((row) => (
-              <tr key={row.label}>
-                <th scope="row">{row.label}</th>
-                <td>{row.value}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        {/* Rỗng thì không in, cùng luật với Bảng biến ngay dưới — `xirr` không khai ô nhập nào, và
+            bốn công thức chỉ có ô Nâng cao cũng rỗng khi xuất ở chế độ Cơ bản (15/10/2026). */}
+        {content.inputs.length > 0 && (
+          <table>
+            <caption>Giá trị đầu vào</caption>
+            <tbody>
+              {content.inputs.map((row) => (
+                <tr key={row.label}>
+                  <th scope="row">{row.label}</th>
+                  <td>{row.value}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
 
         {content.variables.length > 0 && (
           <table>

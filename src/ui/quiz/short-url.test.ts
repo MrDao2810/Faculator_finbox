@@ -14,6 +14,17 @@ describe('rút gọn đường dẫn nguồn làm chữ của link', () => {
     );
   });
 
+  /*
+   * Mặc định không cắt (15/10/2026): chỗ in link tự cắt "…" bằng CSS đúng ở mép chỗ trống thật. Con
+   * số cố định 48 từng cắt `tradingeconomics.com/vietnam/government-bond-yi…` khi còn nửa dòng trống.
+   */
+  it('không truyền `max` thì không cắt, chỉ bỏ giao thức và `www.`', () => {
+    const dai =
+      'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=07/15/2026';
+    expect(shortUrl(dai)).toBe(dai.replace('https://', ''));
+    expect(shortUrl(dai)).not.toContain('…');
+  });
+
   it('đường dẫn dài cắt đúng `max` ký tự kể cả dấu ba chấm', () => {
     const dai =
       'https://cafef.vn/chuyen-nguoc-doi-nhung-co-that-p-e-thap-khong-phai-la-diem-hap-dan.chn';

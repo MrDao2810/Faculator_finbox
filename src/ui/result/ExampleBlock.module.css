@@ -84,8 +84,29 @@
  * trước, tên nguồn cũ (`example.source`) đứng cuối, nhạt hơn. Màu và độ đậm của chính link do
  * `.giaiNguon a` của `LoiGiai.module.css` lo — cùng một kiểu với link nguồn của bài tập.
  */
+/*
+ * Nhãn + link trên một hàng flex (15/10/2026). Link in CẢ đường dẫn từ ngày ấy, nên chuyện "vừa hay
+ * không" không còn do một con số 48 ký tự quyết. Luật: còn ít nhất 16em cạnh nhãn thì link đứng
+ * cùng dòng và lấp hết phần còn lại, dài hơn thì cắt "…" ngay ở mép khối; không còn 16em thì link
+ * xuống dòng riêng, rộng hết khung. `max-width: max-content` để link ngắn không kéo vùng bấm ra quá
+ * chữ của nó.
+ *
+ * Để `display: inline-block` như trước thì một đường dẫn dài luôn rớt xuống dòng dưới nhãn, kể cả ở
+ * khổ PC còn trống cả trăm px cạnh nhãn — đúng thứ chủ dự án vừa chụp, chỉ đổi chỗ.
+ *
+ * `a[href]` chứ không `a`: `.giaiNguon a` của `LoiGiai.module.css` cùng độ đặc hiệu và cũng khai
+ * `max-width`; hai file CSS Module không có thứ tự nạp chắc chắn, nên phải hơn bằng độ đặc hiệu.
+ */
 .nguonDong {
-  display: block;
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 0.3em;
+}
+
+.nguonDong > a[href] {
+  flex: 1 1 16em;
+  min-width: 0;
+  max-width: max-content;
 }
 
 .nguonNhan {

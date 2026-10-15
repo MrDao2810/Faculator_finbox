@@ -73,7 +73,12 @@ export function emptyCashflowRow(): CashflowRow {
   return { date: '', amount: null };
 }
 
-/** Kiểm một dòng. Thiếu dữ liệu trước, giá trị vô nghĩa (bằng 0) sau. */
+/**
+ * Kiểm một dòng. Thiếu dữ liệu trước, giá trị vô nghĩa (bằng 0) sau.
+ *
+ * Câu của hai lỗi THIẾU không in lên màn từ 15/10/2026 (`XirrBody`, `SELF_EVIDENT`): ô trống đã
+ * tự nói điều ấy. Mã của chúng vẫn phải có, vì mã là thứ loại dòng ra khỏi phép tính.
+ */
 export function checkCashflowRow(row: CashflowRow): ReadonlyArray<CashflowRowIssue> {
   const issues: CashflowRowIssue[] = [];
 

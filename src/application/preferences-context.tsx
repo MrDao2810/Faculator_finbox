@@ -71,6 +71,18 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
   }, [prefs.locale]);
 
   /*
+   * Gỡ tấm che mà script khởi động đặt cho người đã chọn EN (`data-locale-pending`, xem
+   * `layout.tsx`). Chạy ở lượt vẽ đầu tiên SAU khi đọc xong `localStorage` — lượt ấy đã mang chữ
+   * tiếng Anh, vì `prefs` và `hydrated` đổi trong cùng một lượt. Effect của cha chạy sau effect của
+   * mọi con trong cùng lượt commit, nên lúc gỡ thì cây con đã vẽ xong. Không có thuộc tính (người
+   * dùng VI, máy chặn `localStorage`, môi trường test) thì `delete` là phép không làm gì.
+   */
+  useEffect(() => {
+    if (!hydrated) return;
+    delete document.documentElement.dataset.localePending;
+  }, [hydrated]);
+
+  /*
    * Bảng màu — ghi vào `<html>`, nhưng CHỈ SAU KHI đã đọc xong `localStorage`.
    *
    * ── Vì sao có cửa `hydrated`, và bỏ nó ra thì hỏng thế nào ────────────────────────────────

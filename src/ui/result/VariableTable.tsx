@@ -30,12 +30,19 @@ export interface VariableTableProps {
  *
  * Ở khổ PC cột Biến giữ 30% bảng — lớp `.variables` trong `VariableTable.module.css`, lý do ghi ở
  * đó. Lớp ghép TRƯỚC `className` từ ngoài (`deferred` của màn chi tiết) để cả hai cùng lên `<table>`.
+ *
+ * Không có biến nào để kê thì KHÔNG dựng gì, kể cả hàng tiêu đề (chủ dự án, 15/10/2026: _"bảng này
+ * chưa có dữ liệu … tại sao lại xuất hiện trơ trọi"_). Hai trường hợp: `xirr` khai `variables: []`
+ * (số liệu của nó là bảng dòng tiền), và bốn công thức mà mọi biến đều ở mức Nâng cao khi màn đang
+ * ở Cơ bản. Khối Số liệu rỗng của `xirr` đã được chặn từ 06/10/2026; bảng này thì bị bỏ sót.
  */
 export function VariableTable({ formula, mode = 'advanced', className }: VariableTableProps) {
   const t = useT();
   const pick = usePick();
   const variables = variablesForLevel(formula, mode);
   const classes = [styles.variables, className].filter(Boolean).join(' ');
+
+  if (variables.length === 0) return null;
 
   return (
     <Table caption={t('variable.tableCaption')} hideCaption className={classes}>

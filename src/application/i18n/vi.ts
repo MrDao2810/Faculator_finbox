@@ -57,6 +57,13 @@ export const vi = {
   'lang.switchToEn': 'Chuyển sang tiếng Anh',
   'lang.switchToVi': 'Chuyển sang tiếng Việt',
 
+  /*
+   * Nhãn cho trình đọc màn hình của nút thoát mọi sheet (`BottomSheet`). Hai chữ này từng gõ
+   * thẳng trong primitive, nên ở EN trình đọc màn hình vẫn đọc "Đóng" — đo 15/10/2026.
+   */
+  'sheet.close': 'Đóng',
+  'sheet.back': 'Quay lại',
+
   // Trạng thái mạng — FR-23
   'offline.title': 'Hoạt động ngoại tuyến',
   'offline.detail': 'Mất kết nối mạng. Mọi phép tính vẫn chạy vì máy tính nằm ngay trên máy bạn.',
@@ -686,6 +693,8 @@ export const vi = {
   'preset.cannotCompute': 'không ra kết quả với mã này',
   /* Dòng phụ cho công thức chỉ ăn chuỗi giá: mức giá là thứ duy nhất khác nhau giữa các mã. */
   'preset.lastPrice': 'Giá phiên gần nhất',
+  /* Chữ thay cho "BCTC" ở đầu kỳ báo cáo khi dựng lại dòng nguồn của sheet ở EN (`PresetSheet`). */
+  'preset.statements': 'BCTC',
   /* Lối sang kho mã lớn. Cố ý không chép số mã vào câu: con số đó do nguồn quyết, chép vào
      đây là để nó rữa trong im lặng. */
   'preset.browseMarket': 'Tìm mã khác trong toàn thị trường →',
@@ -1411,14 +1420,25 @@ export const vi = {
   'series.allGood': 'Không dòng nào đang lỗi.',
 
   'xirr.tableTitle': 'Dòng tiền',
-  'xirr.hint':
-    'Số âm là tiền chi ra, số dương là tiền thu về — dòng cuối thường là giá trị hiện tại.',
+  /*
+   * `xirr.hint` ('Số âm là tiền chi ra, số dương là tiền thu về — dòng cuối thường là giá trị hiện
+   * tại.') ĐÃ BỎ ngày 15/10/2026, cùng hai câu "Thiếu ngày của dòng tiền này." / "Thiếu số tiền — âm
+   * là chi ra, dương là thu về." mà bảng in dưới mỗi dòng còn trống. Chủ dự án gọi cả ba là "đoạn
+   * text dư thừa": bảng mở ra với hai dòng trống, nên hai câu "Thiếu …" hiện ngay từ đầu cho từng
+   * dòng, nhắc lại đúng điều ô trống đã cho thấy. Hai câu kia vẫn nằm trong `cashflow-series.ts` vì
+   * mã lỗi của chúng còn quyết dòng nào dùng được; `XirrBody` chỉ không in chúng nữa. Câu của
+   * ngày gõ sai, số tiền bằng 0 và ngày trùng vẫn in: thiếu chúng thì dòng bị đánh dấu "!" mà
+   * không ai biết vì sao.
+   */
   'xirr.addRow': 'Thêm dòng',
   'xirr.removeRow': 'Xoá dòng',
   'xirr.colDate': 'Ngày',
   'xirr.colAmount': 'Số tiền (₫)',
   'xirr.rowLabel': 'Dòng',
-  'xirr.usable': 'dòng tiền dùng được',
+  /*
+   * `xirr.usable` ("N / M dòng tiền dùng được" dưới bảng) ĐÃ BỎ cùng ngày 15/10/2026 — chủ dự án:
+   * "không cần chú thích". Cờ "!" trên từng dòng đã chỉ ra dòng nào chưa dùng được.
+   */
 
   /*
    * Nút lịch của ô ngày (`DateField` ở form Danh mục, `DateCell` ở bảng dòng tiền XIRR). Ô ngày là

@@ -88,12 +88,30 @@ export const viewport: Viewport = {
  *
  * Chỉ đọc, chỉ đặt thuộc tính, và nuốt mọi lỗi: trình duyệt chặn localStorage (chế độ riêng
  * tư của Safari) thì trang vẫn chạy bằng bảng sáng và chế độ Cơ bản chứ không gãy ngay từ `<head>`.
+ *
+ * ── Ngôn ngữ: che thân trang tới khi chữ đã sang tiếng Anh (15/10/2026) ─────────────────────
+ *
+ * Thuộc tính thứ ba, cùng một lượt đọc kho. HTML tĩnh là tiếng Việt, và `PreferencesProvider` chỉ
+ * đổi chữ sau hydrate, nên người đã chọn EN thấy cả trang tiếng Việt mỗi lần tải cứng rồi mới nhảy
+ * sang tiếng Anh — cùng loại nháy với bảng màu. Không thể vẽ sẵn chữ Anh trước khi JS chạy (trang
+ * tĩnh chỉ có một bản), nên cách chặn là CHE: script đặt `data-locale-pending`, luật CSS ở
+ * `THEME_BOOT_STYLE` ẩn `<body>`, và `PreferencesProvider` gỡ thuộc tính ngay sau lượt vẽ đầu tiên
+ * đã mang chữ Anh. Chủ dự án chọn cách này, biết giá của nó: người dùng EN thấy trang muộn hơn một
+ * nhịp; người dùng VI không đổi gì.
+ *
+ * Hạn chót `LOCALE_REVEAL_MS` là lưới an toàn: JS hỏng hay máy quá chậm thì trang vẫn hiện (bằng
+ * tiếng Việt) chứ không trắng mãi. `visibility` chứ không `display`: bố cục vẫn dựng sẵn, gỡ che là
+ * hiện ngay, không phải tính lại.
  */
+const LOCALE_REVEAL_MS = 1500;
+
 const THEME_BOOT_SCRIPT =
   `try{var p=JSON.parse(localStorage.getItem('${PREFERENCES_STORAGE_KEY}')||'{}');` +
   `var d=document.documentElement.dataset;` +
   `if(p.theme==='dark'){d.theme='dark'}` +
-  `if(p.mode==='advanced'){d.mode='advanced'}}catch(e){}`;
+  `if(p.mode==='advanced'){d.mode='advanced'}` +
+  `if(p.locale==='en'){d.localePending='';` +
+  `setTimeout(function(){delete d.localePending},${String(LOCALE_REVEAL_MS)})}}catch(e){}`;
 
 /*
  * Một luật CSS duy nhất, nằm THẲNG trong `<head>` — nửa còn lại của việc chặn nháy.
@@ -124,8 +142,13 @@ const THEME_BOOT_SCRIPT =
  * này đã đo và đã sửa một lần. Thẻ `<style>` này thì không kiểm soát được mình đứng trước hay sau
  * `<link>` của Next, nên nếu để trần thì nó có thể thắng ngược luật in ra. `@media screen` cắt
  * đứt khả năng đó ngay từ gốc: nó không bao giờ áp khi in, bất kể thứ tự.
+ *
+ * Luật thứ hai che thân trang khi người dùng đã chọn EN — xem `LOCALE_REVEAL_MS` ở trên. Nằm ở đây
+ * chứ không ở `globals.css` vì cùng lý do với luật thứ nhất: nó phải có mặt TRƯỚC lượt vẽ đầu.
  */
-const THEME_BOOT_STYLE = `@media screen{[data-theme='dark']{color-scheme:dark}}`;
+const THEME_BOOT_STYLE =
+  `@media screen{[data-theme='dark']{color-scheme:dark}` +
+  `html[data-locale-pending] body{visibility:hidden}}`;
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (

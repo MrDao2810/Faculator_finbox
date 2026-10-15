@@ -2,6 +2,8 @@
 
 import { useEffect, useId, useRef, type ReactNode } from 'react';
 
+import { useT } from '@/application/preferences-context';
+
 import styles from './BottomSheet.module.css';
 
 export interface BottomSheetProps {
@@ -182,9 +184,13 @@ export function BottomSheet({
  *
  * Nhãn cho trình đọc màn hình đổi theo dạng, không chỉ biểu tượng: "Đóng" và "Quay lại" là hai
  * lời hứa khác nhau về việc sắp xảy ra, và người không nhìn thấy mũi tên chỉ có nhãn để dựa vào.
- * Chữ nằm thẳng trong đây, cùng nếp với chuỗi "Đóng" từ trước: primitive không đọc i18n.
+ *
+ * Nhãn đi qua `useT()` (15/10/2026), cùng nếp `Switch`. Trước đó hai chữ gõ thẳng ở đây với lý do
+ * "primitive không đọc i18n", và hệ quả đo được trên Chrome ở chế độ EN: mọi sheet của sản phẩm
+ * vẫn đọc "Đóng" cho người dùng trình đọc màn hình.
  */
 function DismissButton({ kind, onClick }: { kind: 'close' | 'back'; onClick: () => void }) {
+  const t = useT();
   const back = kind === 'back';
 
   return (
@@ -193,7 +199,7 @@ function DismissButton({ kind, onClick }: { kind: 'close' | 'back'; onClick: () 
       className={back ? `${styles.close} ${styles.back}` : styles.close}
       onClick={onClick}
     >
-      <span className="visually-hidden">{back ? 'Quay lại' : 'Đóng'}</span>
+      <span className="visually-hidden">{t(back ? 'sheet.back' : 'sheet.close')}</span>
       <svg
         width="18"
         height="18"

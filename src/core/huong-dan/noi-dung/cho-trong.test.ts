@@ -39,6 +39,39 @@ describe('thoiGianPhien — số phiên ra thời gian lịch', () => {
   });
 });
 
+/*
+ * Bản tiếng Anh (15/10/2026): chỉ chữ đơn vị đổi, con số vẫn kiểu Việt — cùng quyết định cho cả
+ * giao diện EN, để số trong câu khớp số trong ô ngay cạnh. Tiếng Anh chia số nhiều theo đúng 1.
+ */
+describe('thoiGianPhien / soCoPhieuTrieu — bản tiếng Anh', () => {
+  it.each([
+    [5, '1 week'],
+    [10, '2 weeks'],
+    [20, '1 month'],
+    [55, '2,5 months'],
+    [60, '3 months'],
+    [250, '1 year'],
+    [375, '1,5 years'],
+  ])('%i phiên → %s', (phien, ra) => {
+    expect(thoiGianPhien(phien, 'en')).toBe(ra);
+  });
+
+  it.each([
+    [118, '118 million'],
+    [1470, '1,47 billion'],
+  ])('%d triệu → %s', (trieu, ra) => {
+    expect(soCoPhieuTrieu(trieu, 'en')).toBe(ra);
+  });
+
+  it('dienCau điền đơn vị tiếng Anh khi được bảo, mặc định vẫn tiếng Việt', () => {
+    const thongSo = { sessions: { macDinh: 60 } };
+    expect(
+      dienCau('{sessions} sessions is about {sessions|thoiGian}.', thongSo, undefined, 'en'),
+    ).toBe('60 sessions is about 3 months.');
+    expect(dienCau('{sessions|thoiGian}', thongSo)).toBe('3 tháng');
+  });
+});
+
 describe('soCoPhieuTrieu — số cổ phiếu (triệu) ra cách người ta nói', () => {
   it.each([
     [118, '118 triệu'],

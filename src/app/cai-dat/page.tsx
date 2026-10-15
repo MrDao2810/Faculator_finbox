@@ -1,9 +1,12 @@
 import type { Metadata } from 'next';
 
+import { DocumentTitle } from '@/ui/i18n/DocumentTitle';
+
+import { PAGE_TITLES } from '../page-titles';
 import { SettingsScreen } from './SettingsScreen';
 
 export const metadata: Metadata = {
-  title: 'Cài đặt',
+  title: PAGE_TITLES.settings.vi,
   description: 'Chế độ hiển thị, đơn vị và biểu phí, dữ liệu cục bộ, thông tin sản phẩm.',
 };
 
@@ -16,5 +19,10 @@ export const metadata: Metadata = {
  * KHÔNG có `<Suspense>` vì màn không dùng `useSearchParams()` — trang vẫn giữ nguyên HTML tĩnh.
  */
 export default function SettingsPage() {
-  return <SettingsScreen />;
+  return (
+    <>
+      <DocumentTitle title={PAGE_TITLES.settings} />
+      <SettingsScreen />
+    </>
+  );
 }

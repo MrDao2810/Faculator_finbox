@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 
 import type { FormulaSpec, Preset, PresetPick } from '@/application';
-import { useT, usePick } from '@/application/preferences-context';
+import { useT, usePick, usePreferences } from '@/application/preferences-context';
 import type { TickerCoverage } from '@/application/ticker-coverage';
 import { Badge, BottomSheet, Button } from '@/ui/primitives';
 
@@ -126,6 +126,7 @@ export function PresetSheet({
 }: PresetSheetProps) {
   const t = useT();
   const pick = usePick();
+  const { locale } = usePreferences();
   const calcText = useCalcText();
   const valueText = useValueText();
 
@@ -186,7 +187,16 @@ export function PresetSheet({
    * thật sự là điều duy nhất đáng nói.
    */
   function dongPhu(preset: Preset): string | null {
-    if (spec === undefined) return preset.meta;
+    if (spec === undefined) {
+      /*
+       * `preset.meta` là chuỗi tiếng Việt tầng Data ghép sẵn. Ở EN dựng lại từ hai mảnh có cấu trúc
+       * (15/10/2026 — đo trên Chrome: dòng này là chữ Việt duy nhất còn lại của sheet ngoài tên công
+       * ty và ngành, hai thứ là dữ liệu nguồn như tên riêng). Ở VI giữ y nguyên chuỗi cũ.
+       */
+      if (locale === 'vi') return preset.meta;
+      const ky = preset.fundamentals.period.replace(/^BCTC\b/, t('preset.statements'));
+      return `${ky} · ${valueText(preset.bars.length, 'phiên')}`;
+    }
 
     if (wantsSeries) {
       // Công thức ăn chuỗi: thứ khác nhau giữa các mã là MỨC GIÁ, nên nói ra mức giá.

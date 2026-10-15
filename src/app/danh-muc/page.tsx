@@ -1,9 +1,12 @@
 import type { Metadata } from 'next';
 
+import { DocumentTitle } from '@/ui/i18n/DocumentTitle';
+
+import { PAGE_TITLES } from '../page-titles';
 import { PortfolioScreen } from './PortfolioScreen';
 
 export const metadata: Metadata = {
-  title: 'Danh mục cá nhân',
+  title: PAGE_TITLES.portfolio.vi,
   description: 'Danh mục nắm giữ lưu ngay trên thiết bị, không cần đăng nhập.',
 };
 
@@ -12,5 +15,10 @@ export const metadata: Metadata = {
  * Phần động nằm ở `PortfolioScreen`; ở đây chỉ có metadata.
  */
 export default function PortfolioPage() {
-  return <PortfolioScreen />;
+  return (
+    <>
+      <DocumentTitle title={PAGE_TITLES.portfolio} />
+      <PortfolioScreen />
+    </>
+  );
 }

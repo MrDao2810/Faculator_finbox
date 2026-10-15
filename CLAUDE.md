@@ -727,6 +727,13 @@ Two rules about the form and the picker, unchanged by the redesign:
     scrollbar to scroll ten pixels; `check:chrome` measures that it does not.
   - **`PasteImportSheet` is untouched** and still falls back to docked at 768px, not 1024px, so in
     the 768–1023 band it floats while the other four dock. Nobody designed that band.
+  - **Below 1024px a docked sheet's title is 16px, not 18px** (15/10/2026). The owner circled the
+    save sheet's title, summary row and name field on a phone: _"size text đang quá lớn … giảm size
+    text. chỉ áp dụng cho mobile"_. The title rule is in the primitive, inside a
+    `screen and (max-width: 1023.98px)` block, so every docked sheet follows; a centred dialog keeps
+    20px because `.panelCenter .title` has two classes. The save sheet's own text went one step down in
+    `SaveCalcSheet.module.css` (name 12px, result 14px, field label 12px, typed text 16px — the iOS
+    no-zoom floor), through a `.nameField` class on its `Input`; the shared `Input` was not touched.
 - **A ticker already in the portfolio cannot be added again** (10/10/2026). `TickerPickerSheet`
   locks the "Chọn" button of every code in `heldCodes` and the "đã có" label beside it is the
   button's `aria-describedby`; the second lock reason (no fundamentals, 06/10) stacks, so the
@@ -796,7 +803,8 @@ and the source _"sẽ có một đường link hoặc API"_, shape undecided. Me
 labels were "Mã nắm giữ" and "Phép tính đã lưu" for a few hours on 12/10, as the design drew them; the owner cut
 both back the same afternoon, for the tab and the `<h2>` alike. Three knock-ons: each label now also equals a
 column header of its own table and "Công thức" equals a nav item, so nothing may look them up by text;
-`save.done` and `save.nameHint` name this place and moved with it ("Danh mục › Công thức"); and the EN labels are
+`save.done` names this place and moved with it ("Danh mục › Công thức"; `save.nameHint` did too, until the owner
+had it and `save.subtitle` deleted from the save sheet as filler on 15/10/2026); and the EN labels are
 "Tickers" / "Formulas", which `chrome-check.mjs` matches inside `[role="tab"]` only.
 The owner asked on 10/10 for the screen to be split into two dedicated parts and chose tabs when told it
 reverses their own 14/09/2026 call (_"bỏ tabbar đi"_). History worth keeping straight: the tab cluster was
@@ -1180,6 +1188,24 @@ the "?" popover is the only on-screen text about the chart. A source scan in `ch
 fullscreen overlay is switched off (`PHONG_TO_BAT`) and no rendering test can reach it. `model.note` (the
 `role="note"` line under the plot) is a different thing and was not touched.
 
+**On a chart, money and counts from 1.000 up are ALWAYS written in words** (15/10/2026, two rounds). The owner
+photographed `gia-hoa-von`'s hover trace on the Giá mua axis, `60.277,25 ₫ · 60,5 nghìn ₫`: _"bên trái là số mà bên
+phải lại là chữ ? đồng bộ hết về chữ cho tôi"_, then _"kiểm tra lại toàn bộ biểu đồ"_. Each axis picks its scale against
+its OWN character budget (Y 6, X 10), so `120.000` fits X and overflows Y. The first fix only converted charts that
+already had a word somewhere (74 charts in 19 formulas, of 616 measured: every picker entry of every formula, Line and
+Bars, default inputs and example series). The owner switched to another axis and saw an all-digits chart at once: _"vẫn
+chưa chuyển thành nghìn hoặc tỷ hoặc triệu"_ — 141 charts in 33 formulas (`pe`'s `46.000 ₫`, DCA's `4.000.000 ₫`, SMA's
+`72.750 ₫`). So the rule asks nothing about the rest of the chart: step 0 of `pickScale()` in `build.ts` sends every axis
+whose unit is in `DON_VI_DOI_CHU` (money and counts: `₫`, `tỷ ₫`, `₫/CP`, `₫/tháng`, `CP`, `sản phẩm`, `HĐ`…) and whose
+values reach 1.000 to the largest word scale that keeps the top value ≥ 1. That reverses the old "never turn `1.200 ₫`
+into `1,2 nghìn ₫`" for money and counts only; `pe` now reads `92 nghìn ₫ · 15,21 lần`, `EV (tỷ ₫)` 11.500 reads
+`EV (nghìn tỷ ₫)` 11,5. Hover traces, the "current value" marker and bar labels follow through `labelAtAxisScale()`.
+**`điểm` is deliberately left out**: at the thousand scale VN30's `1.024` and `1.030,4` both become `1,0x nghìn điểm`,
+erasing the gap the futures P&L is computed from; add it to `DON_VI_DOI_CHU` if the owner asks. `%` and `lần` can pass
+1.000 (`2.129,58 %`) and stay digits, since `nghìn %` is not a unit. The data table and the screen-reader summary still
+print full digits on purpose. The registry-wide gate in `chart.test.ts` ("mọi số tiền và số lượng từ 1.000 trở lên trên
+hình đều viết bằng chữ") turned red on `pe`'s `46.000 ₫` when step 0 was switched off.
+
 A formula gets a waterfall by declaring `spec.breakdown` (ordered stages, each with a `sign` and
 an optional `shortLabel`, keyed to an input variable **or** to a key in the result's `extras`).
 **All eleven** formulas tagged `waterfall`/`stackedBar` declare stages — nothing is left waiting.
@@ -1496,20 +1522,65 @@ the scale has no 34 step) and its unit 18 → 12px (`--text-xs`). Labels (12px) 
 (18px words, not figures) did not change, nor did anything below 1280px. Measured: a tile 79 → 71px, the
 DCA card 375 → 351px.
 
-**Below 1024px a narrow field alone on its row puts its label LEFT and its box RIGHT** (15/10/2026). The
-owner circled `capm`'s "Hệ số beta (β)" on a phone, its box in the left half and the right half empty
-because both neighbours are sliders: _"chuyển ô nhập sang bên phải để tối ưu không gian"_. Measured at
-360px: 35 formulas (39 in Advanced, chain block included) had such a row. `loneNarrowFlags()` in
-`@/ui/inputs` decides from the ORDER of fields (wide or narrow), never from the DOM, so the static HTML is
-already right: the last field of an odd run of narrow fields is lone; a grid of one field is not (`auto-fit`
-drops the empty track and the box fills the row). Lone fields get `fieldLone` on top of `field`, in BOTH
-`FormulaDetail.module.css` and `ChainBody.module.css`: the field spans the row and `subgrid`s the grid's two
-columns, so the label sits in the left column and the box lines up under the right box of the row above;
-hint and error go under the box. Two things are easy to break: **the grid is capped at TWO columns below
-1024px** (`minmax(max(140px, (100% − gap) / 2), 1fr)`) because the rule is only true in two columns — the
-cost, accepted, is that at 484–1023px three or four number fields now take two rows instead of one; and
+**Below 1024px the head of the detail screen is one scale step smaller** (15/10/2026; the owner circled the name with its
+badge, the "Ý nghĩa" block and the "Công thức" title on `macd-duong-chinh`: _"giảm size text các phần tôi khoanh đỏ, áp
+dụng cho màn mobile"_). Name 26 → 20px and the meaning paragraph 16 → 14px (`.title`, `.prose`, in a
+`max-width: 1023.98px` block of `FormulaDetail.module.css`); the "Nâng cao" badge is already 12px, the bottom of the
+scale. Block titles 14 → 12px go through a token, `--section-title-size` (`--text-sm` in `:root`, `--text-xs` set on
+`body` below 1024px, the `--gutter` pattern), because block titles are ONE style across the product: all 11 classes
+listed in `section-title.test.ts` read the token, so on a phone every block title of every screen is 12px, not just this
+screen's. A new block title must use `var(--section-title-size)`, not `--text-sm`, or the gate goes red. Every step went
+down by one, so the old relation holds: the block title is still 2px under the paragraph, bold and in capitals. The
+formula card followed the same day (_"text này ở màn mobile cũng cần giảm xuống nữa"_, on `don-bay-tong-hop`'s card): the
+KaTeX picture 1.15em → 1em (18.4 → 16px), the expression line from its `clamp()` to a flat 12px, the legend 14 → 12px —
+a second `max-width: 1023.98px` block after `.expression`, which must stay after `.formula :global(.katex)` to win. The
+1.15em existed for subscripts on phones; at 16px they are ~11px, the cost accepted.
+
+**Below 1024px a narrow field alone on its row spans the whole row, label ABOVE the box** (15/10/2026,
+two rounds). The owner circled `capm`'s "Hệ số beta (β)" on a phone, its box in the left half and the
+right half empty because both neighbours are sliders: _"chuyển ô nhập sang bên phải để tối ưu không
+gian"_. Measured at 360px: 35 formulas (39 in Advanced, chain block included) had such a row. The first
+build put the label in the left column and the box in the right (`subgrid`); the owner circled "Giá mua"
+on `gia-hoa-von` and rejected it the same day: _"như này thì không được. sửa lại để ô nhập ở dưới"_. So
+an input keeps the product's one shape, label above box, and the space is filled by WIDTH, not by turning
+the label sideways — do not rebuild the label-left layout. `loneNarrowFlags()` in `@/ui/inputs` decides
+from the ORDER of fields (wide or narrow), never from the DOM, so the static HTML is already right: the
+last field of an odd run of narrow fields is lone; a grid of one field is not (`auto-fit` drops the empty
+track and the box fills the row). Lone fields get `fieldLone` on top of `field`, in BOTH
+`FormulaDetail.module.css` and `ChainBody.module.css`, and that class does one thing: `grid-column: 1 / -1`.
+Two things are easy to break: **the grid is capped at TWO columns below 1024px**
+(`minmax(max(140px, (100% − gap) / 2), 1fr)`) because "lone" is only computed for two columns — the cost,
+accepted, is that at 484–1023px three or four number fields now take two rows instead of one; and
 `.fieldsRepeat` (DCA) is skipped, since its column count is the group width. From 1024px nothing changed.
-No `check:chrome` assertion holds this yet; it was measured on all 111 at 360 and 768.
+No `check:chrome` assertion holds this yet; it was measured on `gia-hoa-von` and `capm` at 360 and 520.
+
+**Below 1280px the Kết quả card is ONE row too: "KẾT QUẢ" left, the figure at the right edge**
+(15/10/2026). The owner circled "4 lần" under the label on a phone and drew an arrow to the right: _"khi
+ở màn mobile thì chuyển số sang bên phải cùng hàng với text Kết quả"_ — the same complaint the ≥1280 grid
+answered on 10/09/2026. It covers 1024–1279 as well, where the screen is still one column and the card was
+just as vertical. It is a wrapping flex row (`@media (max-width: 1279.98px)` in `ResultBlock.module.css`),
+not the PC's `1fr auto` grid: at 360px `lai-kep`'s "22.196.402,35 ₫" cannot fit beside the label, and a
+grid would squeeze "KẾT QUẢ" to zero width under the figure. Flex drops the figure to a second row, and
+`margin-left: auto` keeps it at the right edge there too. Measured at 360, 390, 768 and 1100 on five
+formulas: same row, flush right, no sideways scroll; the card is 73px tall at 360 (was ~95). **Below 1024px it
+was then made as compact as the PC card** (same day, _"giảm height của ô xanh này … giảm padding 2 bên ngoài,
+giảm size số 4 đó xuống"_): padding 8px × 12px, figure 26px (`--text-xl`), unit 14px, label still 12px — the
+≥1280 block's numbers, so the card is 48.5px; `lai-kep`'s long figure now fits beside the label at 360.
+`ErrorState`'s `.value` drops to 26px at the same mark (the "same figure size" promise its ≥1280 block keeps).
+1024–1279 keeps the 16px padding and the 32–40px clamp. "Padding 2 bên ngoài" was read as the card's inner
+left/right padding; the page gutter around it is unchanged, so it still lines up with the other blocks.
+
+**Below 1024px "Lưu vào danh mục · Thoát" stays pinned above the bottom tab bar while scrolling** (15/10/2026, owner:
+_"khi scroll nội dung lên xuống thì 2 button này đều ở dưới để người dùng có thể lưu bất cứ lúc nào"_). `.endActions`
+is `position: sticky` with `bottom: calc(var(--tabbar-height) + 1px + safe-area)` — the bar is 61px, its 1px top
+border included — a `--color-paper` background bled to the content column's edges and a hairline on top. Sticky, not
+the Danh mục screen's `fixed`: the row already sits at the end of the page, so at the bottom of the scroll it settles
+back into its own place above the disclaimer and nothing has to reserve space for it. It is still the ONE pair of
+buttons (see the comment at the call site). `z-index: 2` keeps it under the how-to panel (5) and the "?" popover (40),
+so a panel opened near the bottom covers the strip, not the other way round. It relies on `body` being
+`overflow-x: clip`, not `hidden`. `merged-card-css.test.ts` pins the block. The two sibling answer cards (`FeeTaxBody.headline`,
+`LoanScheduleBody.summary`) are NOT changed: they carry a longer label and a foot row, and they stay
+vertical on PC as well.
 
 A formula whose `calc` reads a market constant must also **declare the key** in
 `spec.usesConstants` — 14 of them do, across `derivatives.ts` (5), `fees.ts` (8) and `planning.ts`
@@ -1915,7 +1986,15 @@ Details in the UI. Each slot is a bare `<input>`, not the `Input` primitive: `In
 above the control, and a label in the middle of a formula destroys the formula — position is the
 label, and screen readers get `aria-label` with the slot's 1-based index. Slot width comes from the
 answer's character count (`beNgangO`, floored at 4 and capped at 13) so a 13-digit share count and a
-2-digit rate do not get the same box. `.blankInput[data-ket-qua]` **must be declared after
+2-digit rate do not get the same box. **Below 768px that rule is replaced** (15/10/2026, owner's phone
+screenshot of `don-bay-tong-hop`: the denominator cut off, _"giảm size text … ô khoanh đỏ đang rất lớn"_):
+the slot follows what has been TYPED (`--go`, set beside `--rong`), 36px while empty and never wider
+than the answer, and the formula text drops from 20px to 15px. Measured empty at 360px: 618px → 263px
+for that question, now inside its 268px frame; `so-graham` 471 → 301, `wacc` 500 → 358,
+`gia-von-trung-binh-dca` 668 → 436 and `do-bien-dong-lich-su` 862 → 623 still scroll, on their fixed
+text. Filled with long numbers any formula still scrolls, by design: the number being typed must stay
+readable whole. The text INSIDE a slot stays 16px because iOS zooms the page on focusing a smaller
+input. `.blankInput[data-ket-qua]` **must be declared after
 `.blankInput:disabled`** (a graded input is both), the same single-specificity ordering trap as
 `.panelCenter`. Grading is all-or-nothing, like `chon-nhieu`: three slots right out of four still
 produces the wrong number, so partial credit would tell the learner they were close when the result

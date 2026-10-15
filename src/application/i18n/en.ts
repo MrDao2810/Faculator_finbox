@@ -549,9 +549,8 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'export.failed': 'Could not export the file. Your browser may be blocking downloads.',
 
   'save.title': 'Save to portfolio',
-  'save.subtitle': 'Keep these inputs and this result to reopen later',
+  /* `save.subtitle` và `save.nameHint` đã BỎ cùng bản tiếng Việt — 15/10/2026. */
   'save.nameLabel': 'Name this calculation',
-  'save.nameHint': 'The name appears on the Formulas tab of the Portfolio screen.',
   'save.submit': 'Save to portfolio',
   'save.done': 'Saved to Portfolio › Formulas.',
   'save.goToPortfolio': 'View in portfolio',

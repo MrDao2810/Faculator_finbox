@@ -229,12 +229,17 @@ function usedNames(css: string): Set<string> {
  * `--o-moi-nhom` là số ô của MỘT nhóm ô lặp (13/10/2026), do `FormulaDetail.tsx` đặt trên lưới ô
  * nhập của công thức cho thêm bớt nhóm: hai với `gia-von-trung-binh-dca` (tiền và giá của một đợt
  * mua). CSS lấy nó làm số cột, để mỗi đợt nằm trọn một hàng.
+ *
+ * `--go` là số ký tự người học ĐÃ GÕ vào một ô trống của câu điền số (15/10/2026), do
+ * `QuizQuestion.tsx` đặt cạnh `--rong`. Dưới 768px ô co theo nó thay vì theo độ dài đáp án, để công
+ * thức còn trống vừa khung điện thoại — xem `.blankInput` ở `QuizBody.module.css`.
  */
 const LOCAL_VARIABLES = new Set([
   '--fill',
   '--weight',
   '--cao',
   '--rong',
+  '--go',
   '--ky-tu',
   '--ct-co-chu',
   '--paste-cols',

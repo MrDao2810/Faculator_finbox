@@ -117,6 +117,75 @@
 }
 
 /*
+ * ── Dưới 1280px: nhãn bên TRÁI, con số bên PHẢI, cùng một hàng ──────────────────────────────
+ *
+ * Chủ dự án khoanh "4 lần" nằm dưới chữ KẾT QUẢ trên điện thoại, vẽ mũi tên sang mép phải thẻ:
+ * _"khi ở màn mobile thì chuyển số sang bên phải cùng hàng với text Kết quả"_ (15/10/2026). Cùng
+ * lời phàn nàn đã sửa cho khổ PC ngày 10/09/2026 ở khối dưới: khuôn dọc để trống trọn nửa phải.
+ * Áp cho cả dải 1024–1279, vì ở đó màn vẫn MỘT cột và thẻ cũng dọc trơ trọi y như trên điện
+ * thoại — sửa riêng dưới 1024 thì dải ấy thành chỗ duy nhất còn khuôn dọc.
+ *
+ * Flex xuống dòng chứ không dùng lưới `1fr auto` như khổ PC: ở 360px một số tiền dài
+ * ("22.196.402,35 ₫" của `lai-kep`, đo được) không còn chỗ đứng cạnh nhãn. Lưới sẽ bóp cột nhãn
+ * về 0 và chữ KẾT QUẢ đè lên con số; flex thì đẩy cả cụm số xuống hàng dưới. `margin-left: auto`
+ * giữ cụm số ở MÉP PHẢI cả trong ca ấy — con số luôn đứng một chỗ, dài hay ngắn — và
+ * `justify-content: flex-end` của `.figure` giữ đơn vị bám mép phải khi nó phải xuống dòng.
+ *
+ * Cỡ chữ GIỮ NGUYÊN (nhãn 12px, số theo clamp 32–40px): lời yêu cầu chỉ đổi chỗ, không đổi cỡ.
+ * `align-items: center` vì cùng lý do đã ghi ở khối PC — canh theo đường chân thì nhãn nhỏ tụt
+ * xuống sát đáy thẻ. Câu diễn giải và nút gợi ý (nếu có) chiếm trọn hàng dưới.
+ *
+ * Không đụng `result-card.test.ts`: ca ấy chỉ đọc luật `.block` ở đầu dòng.
+ */
+@media (max-width: 1279.98px) {
+  .block {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: var(--space-4);
+    row-gap: var(--space-1);
+  }
+
+  .figure {
+    margin-left: auto;
+    justify-content: flex-end;
+  }
+
+  .block > :not(.eyebrow):not(.eyebrowNamed):not(.figure) {
+    flex-basis: 100%;
+  }
+}
+
+/*
+ * ── Dưới 1024px: thẻ thấp và gọn như ở PC (15/10/2026) ─────────────────────────────────────────
+ *
+ * Chủ dự án chụp thẻ "KẾT QUẢ · 4 lần" trên điện thoại: _"giảm height của ô xanh này đi để tiết
+ * kiệm không gian, đồng thời giảm padding 2 bên ngoài, giảm size số 4 đó xuống để đẹp hơn"_. Đo ở
+ * 390px trước khi sửa: thẻ cao 76px, lề 16px bốn phía, số 35px (clamp), đơn vị 18px.
+ *
+ * Nhãn và số đã cùng một hàng (khối ngay trên), nên chiều cao chỉ còn do lề trên dưới và hộp dòng
+ * của con số — đúng phép tính của khối 1280 bên dưới, và lấy đúng các số ấy: lề dọc 8px, số 26px
+ * (`--text-xl`), đơn vị 14px. Ra ~48,5px. Lề ngang 16 → 12px, một bậc: chữ vẫn phải thụt khỏi góc bo.
+ * Nhãn giữ 12px — khổ này mọi nhãn và tiêu đề khối đã ở 12px.
+ *
+ * `ErrorState.module.css` hạ `.value` theo cùng mốc, để thẻ không đổi cỡ số khi chuyển sang báo lỗi.
+ * Dải 1024–1279 không đổi: lời yêu cầu nói màn mobile.
+ */
+@media (max-width: 1023.98px) {
+  .block {
+    padding: var(--space-2) var(--space-3);
+  }
+
+  .value {
+    font-size: var(--text-xl);
+  }
+
+  .unit {
+    font-size: var(--text-sm);
+  }
+}
+
+/*
  * ── Khổ PC: nhãn bên TRÁI, con số bên PHẢI, cùng một hàng ───────────────────────────────────
  *
  * Ở ≥1280 thẻ này nằm trong cột phải 65% của màn chi tiết (xem khối 1280 ở
@@ -136,8 +205,9 @@
  * vị phải xuống dòng nó vẫn bám mép phải, không nhảy về trái.
  *
  * Mốc 1280 là mốc "nhiều cột" của màn chi tiết theo bảng BẬC MÀN ở `globals.css` — cùng mốc với
- * `.fields` một cột và nhãn "Loại biểu đồ" ẩn đi. Dải 1024–1279 màn giữ một cột và thẻ giữ khuôn
- * dọc. `.blockPlain` (chỉ có `.value`) vẫn đúng: một con rơi vào cột đầu.
+ * `.fields` một cột và nhãn "Loại biểu đồ" ẩn đi. Dải dưới 1280 nay cũng nhãn trái số phải, bằng
+ * flex xuống dòng ở khối ngay trên (15/10/2026). `.blockPlain` (chỉ có `.value`) vẫn đúng: một con
+ * rơi vào cột đầu.
  *
  * Khối này KHÔNG đổi token nào trong `FRAME`/`LABEL`/`VALUE` của `result-card.test.ts`, và ca kiểm
  * ấy chỉ đọc luật `.block` ở đầu dòng, nên luật thụt lề dưới đây không lọt vào phép so.

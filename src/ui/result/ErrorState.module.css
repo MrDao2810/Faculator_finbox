@@ -95,3 +95,10 @@
     font-size: var(--text-xl);
   }
 }
+
+/* Dưới 1024px thẻ kết quả cũng hạ số xuống `--text-xl` (15/10/2026) — cùng lời hứa như khối trên. */
+@media (max-width: 1023.98px) {
+  .value {
+    font-size: var(--text-xl);
+  }
+}

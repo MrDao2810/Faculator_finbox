@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { runFormula } from '../calc/run';
-import type { CalcContext } from '../calc/types';
+import type { CalcContext, CalcInputs } from '../calc/types';
 import { FORMULA_MODULES } from '../formulas';
 import { MARKET_CONFIG } from '../market';
 import { scheduleOrDefault } from '../market/resolve';
@@ -614,7 +614,8 @@ describe('buildChartModel()', () => {
     expect(model.kind).toBe('line');
     if (model.kind !== 'line') return;
     expect(model.title.vi).toBe('P/E theo Giá thị trường');
-    expect(model.x.title.vi).toBe('Giá thị trường (₫)');
+    // `nghìn ₫` từ 15/10/2026: tiền từ 1.000 trở lên viết bằng chữ — xem `DON_VI_DOI_CHU`.
+    expect(model.x.title.vi).toBe('Giá thị trường (nghìn ₫)');
     expect(model.y.title.vi).toBe('P/E (lần)');
   });
 
@@ -1227,7 +1228,7 @@ describe('buildChartModel()', () => {
 
       // Cột chuỗi chính vẫn gọi tên ĐẠI LƯỢNG kèm đơn vị như cũ; cột mới gọi tên đường.
       expect(model.table.columns).toHaveLength(3);
-      expect(model.table.columns[1]?.vi).toContain('(₫)');
+      expect(model.table.columns[1]?.vi).toMatch(/\((nghìn )?₫\)$/);
       expect(model.table.columns[2]?.vi).toBe('Giá đóng cửa');
 
       // Câu mô tả nhắc cả hai chuỗi — SVG ẩn với trình đọc màn hình, chữ là lối đọc duy nhất.
@@ -1455,7 +1456,8 @@ describe('buildChartModel()', () => {
     const model = modelOf('von-hoa-thi-truong');
     if (model.kind !== 'line') throw new Error('phải ra đường quét');
 
-    expect(model.y.title.vi).toMatch(/\((tỷ|triệu) ₫\)/);
+    // `nghìn tỷ ₫` từ 15/10/2026: hình đã có chữ thì `5.000 tỷ ₫` cũng thành `5 nghìn tỷ ₫`.
+    expect(model.y.title.vi).toMatch(/\((nghìn tỷ|tỷ|triệu) ₫\)/);
     for (const tick of model.y.ticks) expect(tick.label.length).toBeLessThan(10);
   });
 
@@ -1514,17 +1516,150 @@ describe('buildChartModel()', () => {
 
   /*
    * Nửa còn lại của luật, và là nửa dễ mất nhất khi ai đó "cải tiến" cách chọn bậc: nó phải IM khi
-   * nhãn vốn đã vừa. `pe` chạy bằng `lần`, `ev` bằng `tỷ ₫` với nhãn 6 ký tự — cả hai không được
-   * đụng tới, nếu không mỗi lần đổi ngưỡng là 100 biểu đồ đổi theo.
+   * nhãn vốn đã vừa — với đơn vị KHÔNG phải tiền hay số lượng. `pe` chạy bằng `lần` trên trục Y,
+   * `lai-lo-vi-the-long` bằng `điểm` trên trục X (ca riêng ở dưới); không được đụng tới.
+   *
+   * `pe` theo Giá thị trường (`(₫)`, nhãn `92.000`) và `ev` (`EV (tỷ ₫)`, nhãn `12.000`) từng đứng ở
+   * đây. Từ 15/10/2026 cả hai nói bằng chữ — tiền từ 1.000 trở lên luôn thế, xem `DON_VI_DOI_CHU`.
    */
-  it('KHÔNG chia bậc khi nhãn vốn đã vừa', () => {
+  it('KHÔNG chia bậc đơn vị không phải tiền hay số lượng khi nhãn vốn đã vừa', () => {
     const pe = modelOf('pe');
-    const ev = modelOf('ev');
-    if (pe.kind !== 'line' || ev.kind !== 'waterfall') throw new Error('kịch bản test đã đổi');
+    if (pe.kind !== 'line') throw new Error('kịch bản test đã đổi');
 
-    expect(pe.x.title.vi).toBe('Giá thị trường (₫)');
     expect(pe.y.title.vi).toBe('P/E (lần)');
-    expect(ev.y.title.vi).toBe('EV (tỷ ₫)');
+  });
+
+  /*
+   * ── Tiền và số lượng từ 1.000 trở lên luôn viết bằng chữ (15/10/2026) ────────────────────────
+   *
+   * Chủ dự án chụp vạch dò `60.277,25 ₫ · 60,5 nghìn ₫` trên `gia-hoa-von` theo Giá mua: _"bên trái
+   * là số mà bên phải lại là chữ ? đồng bộ hết về chữ"_, rồi _"kiểm tra lại toàn bộ biểu đồ"_. Lượt
+   * đầu chỉ đổi những hình đã có chữ (74 hình ở 19 công thức); chủ dự án chuyển sang trục khác và
+   * thấy ngay hình toàn số: _"vẫn chưa chuyển thành nghìn hoặc tỷ hoặc triệu"_ — 141 hình ở 33 công
+   * thức. Luật ở `DON_VI_DOI_CHU` bên `build.ts`.
+   *
+   * Ca quét dựng MỌI mục của ô chọn trục, dạng Đường lẫn Cột, với số mặc định và với chuỗi ví dụ —
+   * và hỏi đúng thứ người dùng đọc: chữ trên các trục, vạch dò của từng điểm, nhãn từng cột. Chỉ
+   * tiền và số lượng: `2.129,58 %` hay `1.042,77 lần` không có lối viết nào bằng chữ.
+   */
+  const DON_VI_TIEN_SO_LUONG = /(₫|CP|sản phẩm|HĐ)(\/[^)]*)?\)?$/;
+  /** Số tiền hay số lượng từ 1.000 trở lên viết đủ chữ số. */
+  const laSoDu = (text: string) => /\d\.\d{3}/.test(text) && DON_VI_TIEN_SO_LUONG.test(text);
+
+  it('mọi số tiền và số lượng từ 1.000 trở lên trên hình đều viết bằng chữ', () => {
+    const lech: string[] = [];
+    for (const formula of FORMULA_MODULES) {
+      const { spec } = formula;
+      const rows = spec.example.dataset?.rows ?? [];
+      const boSo: Array<readonly [CalcContext, CalcInputs]> = [[CTX, defaultInputs(spec)]];
+      if (rows.length > 0) {
+        boSo.push([
+          {
+            ...CTX,
+            bars: rows,
+            series: rows
+              .map((row) => row.close)
+              .filter((close): close is number => typeof close === 'number' && close > 0),
+            ...(spec.example.marketSeries === undefined
+              ? {}
+              : { marketSeries: spec.example.marketSeries }),
+          },
+          { ...defaultInputs(spec), ...spec.example.inputs },
+        ]);
+      }
+
+      for (const [ctx, inputs] of boSo) {
+        const output = runFormula(formula, inputs, ctx);
+        const dau = buildChartModel({ formula, inputs, ctx, output, level: 'advanced' });
+        const keys = dau.kind === 'unavailable' ? [] : dau.options.map((option) => option.key);
+        for (const sweepKey of keys) {
+          for (const zeroBaseline of [false, true]) {
+            const model = buildChartModel({
+              formula,
+              inputs,
+              ctx,
+              output,
+              level: 'advanced',
+              sweepKey,
+              zeroBaseline,
+            });
+            const ten = `${spec.id} · ${sweepKey}${zeroBaseline ? ' (Cột)' : ''}`;
+
+            const trucSoDu = (axis: {
+              title: { vi: string };
+              ticks: ReadonlyArray<{ label: string }>;
+            }) =>
+              DON_VI_TIEN_SO_LUONG.test(axis.title.vi) &&
+              axis.ticks.some((tick) => /\d\.\d{3}/.test(tick.label));
+
+            if (model.kind === 'waterfall') {
+              const nhan = model.bars.map((bar) => bar.shortValueLabel ?? bar.valueLabel);
+              if (nhan.some(laSoDu)) lech.push(`${ten}: cột ${nhan.join(' | ')}`);
+              if (trucSoDu(model.y)) lech.push(`${ten}: trục ${model.y.title.vi}`);
+              continue;
+            }
+            if (model.kind !== 'line') continue;
+
+            const truc = [model.x, model.y, ...(model.yRight === undefined ? [] : [model.yRight])];
+            for (const axis of truc) {
+              if (trucSoDu(axis)) lech.push(`${ten}: trục ${axis.title.vi}`);
+            }
+
+            for (const point of model.points) {
+              if (point.y === null) continue;
+              const cap = [
+                point.shortLabel ?? point.label,
+                point.shortValueLabel ?? point.valueLabel,
+              ];
+              if (cap.some(laSoDu)) {
+                lech.push(`${ten}: dò ${cap.join(' · ')}`);
+                break;
+              }
+            }
+          }
+        }
+      }
+    }
+
+    expect(lech).toEqual([]);
+  });
+
+  it('ảnh chủ dự án chụp: Giá mua và Giá hoà vốn thực cùng nói bằng nghìn ₫', () => {
+    const formula = moduleOf('gia-hoa-von');
+    const inputs = defaultInputs(formula.spec);
+    const model = buildChartModel({
+      formula,
+      inputs,
+      ctx: CTX,
+      output: runFormula(formula, inputs, CTX),
+      level: 'basic',
+      sweepKey: 'buyPrice',
+    });
+    if (model.kind !== 'line') throw new Error('phải ra đường quét');
+
+    expect(model.x.title.vi).toBe('Giá mua (nghìn ₫)');
+    expect(model.y.title.vi).toBe('Giá hoà vốn thực (nghìn ₫)');
+    const marked = model.points.find((point) => point.marked);
+    expect(marked?.shortLabel).toBe('92 nghìn ₫');
+    // Bảng số vẫn là chỗ tra số đầy đủ.
+    expect(marked?.label).toBe('92.000 ₫');
+  });
+
+  it('chỉ số VN30 giữ `1.024 điểm`: bậc nghìn xoá mất khoảng chênh lãi/lỗ tính trên đó', () => {
+    const formula = moduleOf('lai-lo-vi-the-long');
+    const inputs = defaultInputs(formula.spec);
+    const entry = buildChartModel({
+      formula,
+      inputs,
+      ctx: CTX,
+      output: runFormula(formula, inputs, CTX),
+      level: 'basic',
+      sweepKey: 'entryPoints',
+    });
+    if (entry.kind !== 'line') throw new Error('phải ra đường quét');
+
+    expect(entry.x.title.vi).toBe('Điểm mở vị thế (điểm)');
+    expect(entry.y.title.vi).toMatch(/triệu ₫/);
   });
 
   /*
@@ -1554,8 +1689,9 @@ describe('buildChartModel()', () => {
     expect(rows[rows.length - 1]?.[1]).toBe('989.691.880,64 ₫');
   });
 
+  // `capm`: hai trục đều là `%`, không chia bậc. Ca này từng dùng `pe`, có trục X nay nói `nghìn ₫`.
   it('bản ở bậc trục VẮNG MẶT hẳn khi trục không chia bậc', () => {
-    const model = modelOf('pe');
+    const model = modelOf('capm');
     if (model.kind !== 'line') throw new Error('phải ra đường quét');
 
     for (const point of model.points) {

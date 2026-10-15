@@ -239,3 +239,26 @@ describe('Thẻ gộp — luật CSS mà mất đi thì màn sai mà test không
     expect(conSo?.[1]).toMatch(/justify-content:\s*center/);
   });
 });
+
+/*
+ * Hàng nút "Lưu vào danh mục · Thoát" ghim đáy dưới 1024px (chủ dự án, 15/10/2026: "khi scroll nội dung
+ * lên xuống thì 2 button này đều ở dưới để người dùng có thể lưu bất cứ lúc nào"). Cùng lý do cả file này
+ * tồn tại: test React không chạy CSS Module, nên mất `sticky` là màn sai mà không ca nào đỏ.
+ */
+describe('Hàng nút cuối màn — ghim đáy ở khổ điện thoại', () => {
+  const khoi = KHOI_MEDIA.filter((k) => k.dieuKien.includes('max-width: 1023.98px'))
+    .map((k) => /^\s*\.endActions\s*\{([^}]*)\}/m.exec(k.than)?.[1])
+    .find((than) => than !== undefined);
+
+  it('sticky, đáy ngay trên thanh điều hướng dưới, có nền để nội dung không lộ qua', () => {
+    expect(khoi, 'thiếu luật .endActions trong @media (max-width: 1023.98px)').toBeDefined();
+    expect(khoi).toMatch(/position:\s*sticky;/);
+    expect(khoi).toMatch(/bottom:\s*calc\(var\(--tabbar-height\)/);
+    expect(khoi).toMatch(/background:\s*var\(--color-paper\);/);
+  });
+
+  it('khổ gốc KHÔNG ghim — từ 1024px hàng nút đứng yên ở cuối trang', () => {
+    const goc = /^\.endActions\s*\{([^}]*)\}/m.exec(KHO_GOC)?.[1] ?? '';
+    expect(goc).not.toMatch(/position:/);
+  });
+});

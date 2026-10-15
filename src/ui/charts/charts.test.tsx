@@ -752,7 +752,8 @@ describe('Biểu đồ độ nhạy — cách người dùng đọc được nó
   it('tiêu đề cột bảng chính là tên hai trục, kèm đơn vị', () => {
     draw('pe');
 
-    expect(screen.getByRole('columnheader', { name: 'Giá thị trường (₫)' })).not.toBeNull();
+    // `nghìn ₫` từ 15/10/2026: tiền từ 1.000 trở lên viết bằng chữ — `DON_VI_DOI_CHU` ở `build.ts`.
+    expect(screen.getByRole('columnheader', { name: 'Giá thị trường (nghìn ₫)' })).not.toBeNull();
     expect(screen.getByRole('columnheader', { name: 'P/E (lần)' })).not.toBeNull();
   });
 
@@ -1010,7 +1011,7 @@ describe('Biểu đồ độ nhạy — đổi trục X', () => {
     await userEvent.selectOptions(screen.getByLabelText('Xem kết quả đổi theo'), 'eps');
 
     expect(screen.getByText('P/E theo EPS')).not.toBeNull();
-    expect(screen.getByRole('columnheader', { name: 'EPS (₫)' })).not.toBeNull();
+    expect(screen.getByRole('columnheader', { name: 'EPS (nghìn ₫)' })).not.toBeNull();
   });
 
   it('chỉ một biến quét được thì không bày ô chọn ra làm gì', () => {
@@ -2067,13 +2068,15 @@ describe('Dò điểm — thác nước (hover từng cột)', () => {
    * `model.bars` — nên `<rect>` đầu tiên trong SVG và dòng đầu của bảng LUÔN cùng một cột. Test
    * dựa thẳng vào đối chiếu đó, không đoán giá trị.
    *
-   * `ev` còn được chọn vì một lý do thứ hai kể từ đợt rút gọn số lớn: đơn vị của nó vốn đã là
-   * `tỷ ₫` nên trục KHÔNG phải chia bậc, `shortValueLabel` vắng mặt, và hai chỗ nói đúng một chuỗi.
-   * Công thức mà trục có chia bậc thì hai chỗ nói hai chuỗi khác nhau một cách CÓ CHỦ ĐÍCH — ca
-   * ngay dưới đây chốt chuyện đó, và nó là lý do ca này không được đổi sang công thức khác cho tiện.
+   * Ca này dùng `fcff` chứ không `ev` như các ca bên dưới, vì nó cần một trục KHÔNG chia bậc:
+   * `shortValueLabel` vắng mặt thì hình và bảng nói đúng một chuỗi. Đơn vị `tỷ ₫` và mọi cột dưới
+   * 1.000, nên không bậc chữ nào đọc xuôi. `ev` làm việc này tới 15/10/2026, khi luật "một hình, một
+   * lối viết số" đổi trục của nó từ `11.500 tỷ ₫` sang `11,5 nghìn tỷ ₫` (`DON_VI_DOI_CHU` ở
+   * `build.ts`). Công thức mà trục có chia bậc thì hai chỗ nói hai chuỗi khác nhau một cách CÓ CHỦ
+   * ĐÍCH, nên đừng đổi ca này sang một công thức như thế cho tiện.
    */
   it('trỏ vào hàng đầu: hiện đúng giá trị CỦA CỘT ĐÓ (khớp dòng đầu bảng), viền đậm lên; rời ra thì tắt lại', () => {
-    const { container } = draw('ev');
+    const { container } = draw('fcff');
     gioKhungThacNuoc(container);
 
     const target = cacCot(container)[0];
@@ -2095,7 +2098,7 @@ describe('Dò điểm — thác nước (hover từng cột)', () => {
 
     expect(coGiaTriTrenHinh()).toBe(false);
 
-    const capture = screen.getByTestId('chart-ev-hover-capture');
+    const capture = screen.getByTestId('chart-fcff-hover-capture');
     fireEvent.pointerMove(capture, { pointerType: 'mouse', ...tamHang(0) });
     expect(target.getAttribute('class')).toMatch(/barHover/);
     expect(coGiaTriTrenHinh()).toBe(true);

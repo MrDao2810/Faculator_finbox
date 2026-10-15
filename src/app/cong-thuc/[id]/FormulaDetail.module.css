@@ -254,6 +254,40 @@ button.iconButton::after {
 }
 
 /*
+ * Dưới 1024px hàng nút GHIM ĐÁY trong lúc cuộn (15/10/2026). Chủ dự án chụp hai nút trên điện thoại:
+ * _"khi scroll nội dung lên xuống thì 2 button này đều ở dưới để người dùng có thể lưu bất cứ lúc
+ * nào"_. Trước đó muốn lưu phải cuộn qua biểu đồ, ví dụ và bài tập xuống tận cuối trang.
+ *
+ * `sticky` chứ không `fixed` (khác nút "Thêm mới" của màn Danh mục): hàng nút vốn đứng ở CUỐI màn,
+ * nên `sticky` vừa ghim nó ở đáy lúc cuộn, vừa trả nó về đúng chỗ cũ (trên dải miễn trừ) khi cuộn
+ * hết — không phải chừa lề dưới, không có hai vị trí phải giữ khớp. Vẫn là CÙNG hai nút, không dựng
+ * thêm bản sao (lý do ở chỗ dựng trong `FormulaDetail.tsx`).
+ *
+ * - Đáy = thanh điều hướng dưới: `--tabbar-height` + 1px viền trên của nó + vùng an toàn — đo trên
+ *   Chrome thật: thanh cao 61px ở 390px.
+ * - Nền `--color-paper` (nền trang) trải tới hai mép khung nội dung (lề âm bằng `--gutter`), để nội
+ *   dung cuộn bên dưới không lộ qua khe giữa hai nút; đường kẻ trên tách dải khỏi nội dung đang cuộn.
+ * - `z-index: 2`: trên nội dung thường, DƯỚI khung "cách tính" của ký hiệu (5), khung "?" (40), thanh
+ *   trên và thanh dưới (10) — một khung bật mở sát đáy phải đè lên dải, không bị dải che.
+ * - `body` mang `overflow-x: clip` chứ không `hidden` (xem `globals.css`), nên `sticky` chạy được.
+ *
+ * Từ 1024px không đổi: thanh điều hướng lên trên cùng, màn rộng, hàng nút đứng yên ở cuối trang.
+ */
+@media (max-width: 1023.98px) {
+  .endActions {
+    position: sticky;
+    bottom: calc(var(--tabbar-height) + 1px + env(safe-area-inset-bottom, 0px));
+    z-index: 2;
+
+    margin-inline: calc(var(--gutter) * -1);
+    padding: var(--space-2) var(--gutter);
+
+    background: var(--color-paper);
+    border-top: 1px solid var(--color-hairline);
+  }
+}
+
+/*
  * Bản in không có nút bấm. `header`/`nav` đã được `globals.css` ẩn sẵn ở `@media print`, nhưng
  * hàng này là `<div>` nên phải tự khai.
  */
@@ -328,7 +362,7 @@ button.iconButton::after {
  */
 .blockTitle {
   margin: 0;
-  font-size: var(--text-sm);
+  font-size: var(--section-title-size);
   font-weight: var(--weight-bold);
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -339,6 +373,26 @@ button.iconButton::after {
   margin: 0;
   font-size: var(--text-base);
   line-height: var(--leading-normal);
+}
+
+/*
+ * Khổ điện thoại: tên công thức và đoạn "Ý nghĩa" nhỏ đi đúng MỘT bậc của thang (15/10/2026).
+ *
+ * Chủ dự án khoanh ba chỗ trên `macd-duong-chinh` ở khổ điện thoại — tên công thức kèm huy hiệu,
+ * khối "Ý nghĩa", tiêu đề "Công thức" — _"giảm size text các phần tôi khoanh đỏ, áp dụng cho màn
+ * mobile"_. Mỗi chỗ xuống một bậc: tên 26 → 20px, đoạn ý nghĩa 16 → 14px, tiêu đề khối 14 → 12px
+ * (qua `--section-title-size` ở `globals.css`, vì tiêu đề khối là một kiểu chung cả sản phẩm). Cùng
+ * xuống một bậc nên tương quan cũ giữ nguyên: tiêu đề khối vẫn kém đoạn văn 2px, vẫn đậm và viết hoa.
+ * Huy hiệu "Nâng cao" đã ở bậc nhỏ nhất (12px), không còn bậc nào để xuống. Từ 1024px không đổi gì.
+ */
+@media (max-width: 1023.98px) {
+  .title {
+    font-size: var(--text-lg);
+  }
+
+  .prose {
+    font-size: var(--text-sm);
+  }
 }
 
 /*
@@ -650,6 +704,32 @@ button.iconButton::after {
    * làm min-content nhỏ đi — thiếu dòng này thì một "từ" không có chỗ ngắt đẩy tràn cả ô.
    */
   min-width: 0;
+}
+
+/*
+ * Khổ điện thoại: cả thẻ Công thức nhỏ đi một bậc (15/10/2026), cùng đợt với tên và đoạn "Ý nghĩa"
+ * ở trên. Chủ dự án chụp thẻ `don-bay-tong-hop` trên điện thoại: _"text này ở màn mobile cũng cần
+ * giảm xuống nữa"_. Đo ở 390px trước khi sửa: hình 18,4px, dòng chữ 12,9px, bảng ký hiệu 14px.
+ *
+ * - Hình: 1,15em → 1em (16px). Lý do cũ của 1,15em là chỉ số dưới khó đọc trên điện thoại; ở 16px
+ *   chúng còn ~11px, và hình nhỏ đi thì công thức dài cũng ít phải cuộn ngang hơn.
+ * - Dòng chữ: bỏ `clamp()`, đứng ở 12px — đáy cũ của chính `clamp()` ấy.
+ * - Bảng ký hiệu: 14 → 12px, bằng tiêu đề khối ở khổ này. Nút "Chú thích" 11px vẫn nhỏ hơn nó.
+ *
+ * Từ 1024px không đổi gì.
+ */
+@media (max-width: 1023.98px) {
+  .formula :global(.katex) {
+    font-size: 1em;
+  }
+
+  .expression {
+    font-size: var(--text-xs);
+  }
+
+  .symbols {
+    font-size: var(--text-xs);
+  }
 }
 
 /* Bản in: một vế không bị cắt đôi qua hai trang giấy. */

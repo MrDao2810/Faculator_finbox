@@ -15,7 +15,7 @@
 /* Tiêu đề khối — cùng một kiểu với bảy màn còn lại, xem `section-title.test.ts`. */
 .title {
   margin: 0;
-  font-size: var(--text-sm);
+  font-size: var(--section-title-size);
   font-weight: var(--weight-bold);
   letter-spacing: 0.04em;
   text-transform: uppercase;

@@ -180,6 +180,21 @@
   font-weight: var(--weight-bold);
 }
 
+/*
+ * Dưới 1024px tiêu đề tấm dán đáy hạ một bậc, 18 → 16px (15/10/2026). Chủ dự án khoanh "Lưu vào
+ * danh mục" trên điện thoại: _"size text đang quá lớn … giảm size text. chỉ áp dụng cho mobile"_.
+ * Đổi ở primitive chứ không riêng tấm Lưu: mọi tấm dán đáy dùng chung MỘT kiểu tiêu đề, sửa một tấm
+ * là để sản phẩm có hai cỡ tiêu đề tấm. Hộp thoại nổi giữa (`.panelCenter .title`, 20px) không đổi:
+ * hai lớp nên thắng luật này, và nó cố ý to hơn — xem chú thích ngay trên luật ấy.
+ *
+ * `screen and` vì cùng lý do với khối khổ web cuối file: dưới media in, bề ngang là bề ngang GIẤY.
+ */
+@media screen and (max-width: 1023.98px) {
+  .title {
+    font-size: var(--text-base);
+  }
+}
+
 .subtitle {
   margin: var(--space-1) 0 0;
   font-size: var(--text-xs);

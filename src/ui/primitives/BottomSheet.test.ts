@@ -219,3 +219,19 @@ describe('BottomSheet — khổ web tự nổi giữa màn', () => {
     expect(px(hep['width'])).toBeLessThan(px(thuong['width']));
   });
 });
+
+/*
+ * Dưới 1024px tiêu đề tấm dán đáy hạ 18 → 16px (chủ dự án, 15/10/2026, khoanh tiêu đề tấm Lưu: _"giảm
+ * size text … chỉ áp dụng cho mobile"_). Luật ở primitive nên mọi tấm dán đáy đi cùng. Ca này giữ ba
+ * điều: cỡ 16px, có `screen` (dưới media in bề ngang là bề ngang giấy), và hộp thoại nổi giữa vẫn 20px
+ * vì `.panelCenter .title` hai lớp nên thắng.
+ */
+describe('BottomSheet — tiêu đề nhỏ một bậc dưới 1024px', () => {
+  it('tiêu đề 16px trong khối screen, max-width 1023.98px; hộp thoại nổi giữa giữ 20px', () => {
+    const khoi = /@media screen and \(max-width: 1023\.98px\)\s*\{([\s\S]*?)\n\}/.exec(RULES)?.[1];
+
+    expect(khoi, 'thiếu khối @media screen and (max-width: 1023.98px)').toBeDefined();
+    expect(khoi ?? '').toMatch(/\.title\s*\{\s*font-size:\s*var\(--text-base\);\s*\}/);
+    expect(RULES).toMatch(/\.panelCenter \.title\s*\{\s*font-size:\s*var\(--text-lg\);\s*\}/);
+  });
+});

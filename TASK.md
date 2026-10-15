@@ -4,6 +4,212 @@ Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 
 ---
 
+## Bài tập điền số: công thức hiện đủ trên điện thoại (15/10/2026)
+
+**Trạng thái: CHƯA XONG — đã sửa, chờ chủ dự án xem.**
+
+Chủ dự án chụp câu điền số của `don-bay-tong-hop` trên điện thoại: mẫu số bị che, phải kéo ngang — _"giảm size text
+xuống … ô khoanh đỏ đang rất lớn và chiếm không gian -> giảm xuống"_. Đo trên Chrome (dev :3000) lúc chưa gõ: công thức
+rộng 618px trong khung 260px (khổ 360); mỗi ô 142px vì bề ngang theo đáp án 13 ký tự, chữ 20px.
+
+| File                              | Sửa gì / vì sao                                                                                                                                                                                                                                   |
+| --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/ui/quiz/QuizBody.module.css` | Dưới 768px: chữ công thức và tên đại lượng 15px, lề khung 8px; ô co theo số ký tự đã gõ (trống 36px, trần = độ dài đáp án); chữ trong ô giữ 16px (iOS phóng to trang khi ô nhập dưới 16px); chừa chỗ dưới cho thanh cuộn nổi. Từ 768px không đổi. |
+| `src/ui/quiz/QuizQuestion.tsx`    | Đặt thêm `--go` (số ký tự đã gõ) cạnh `--rong`.                                                                                                                                                                                                   |
+| `src/ui/tokens.test.ts`           | Thêm `--go` vào danh sách biến do JS đặt, kèm lý do.                                                                                                                                                                                              |
+| `CLAUDE.md`                       | Ghi luật mới cạnh đoạn `beNgangO`.                                                                                                                                                                                                                |
+
+Đo lại lúc còn trống ở 360px: `don-bay-tong-hop` 618 → 263px, vừa khung 268px (ảnh chụp: đủ năm ô và 400.000.000, không
+kéo ngang). Các câu khác hẹp đi khoảng một phần ba nhưng còn cuộn vì phần chữ cố định dài: `so-graham` 471 → 301,
+`wacc` 500 → 358, `gia-von-trung-binh-dca` 668 → 436, `do-bien-dong-lich-su` 862 → 623. Gõ đủ các số dài thì công thức
+vẫn cuộn ngang (cố ý: số đang gõ phải đọc trọn). Test `src/ui/quiz`, `tokens.test.ts` xanh. Chưa có ca `check:chrome`
+giữ việc này.
+
+---
+
+## Sheet "Lưu vào danh mục": bỏ phụ đề và dòng gợi ý dưới ô tên (15/10/2026)
+
+**Trạng thái: CHƯA XONG — đã sửa lượt hai, chờ chủ dự án xem.**
+
+**Lượt hai, cùng ngày** — chủ dự án khoanh tiêu đề, dòng tóm tắt và ô tên trên điện thoại: _"size text đang quá lớn ở những
+vùng khoanh đỏ. giảm size text. chỉ áp dụng cho mobile"_. Mỗi chỗ xuống một bậc, chỉ dưới 1024px.
+
+- `src/ui/primitives/BottomSheet.module.css`: `@media screen and (max-width: 1023.98px)` — `.title` 18 → 16px. Đổi ở
+  primitive nên MỌI tấm dán đáy trên điện thoại đi cùng (Xuất, Nạp mẫu, Chọn mã, Bảng dữ liệu…), để sản phẩm không có hai
+  cỡ tiêu đề tấm. Hộp thoại nổi giữa (form Danh mục) giữ 20px nhờ `.panelCenter .title`.
+- `src/ui/sheets/SaveCalcSheet.module.css` + `.tsx`: tên công thức 14 → 12px, kết quả 16 → 14px, nhãn ô 14 → 12px, chữ
+  trong ô 18 → 16px (16px là sàn: dưới đó iOS phóng trang khi chạm ô). Ô tên nhận lớp `.nameField`; `Input` chung không đổi.
+- Test: `BottomSheet.test.ts` và `SaveCalcSheet.test.tsx` mỗi file thêm ca ghim cỡ chữ; ca thứ hai của Save kiểm ô mang
+  lớp `.nameField`.
+- Đo Chrome thật (dev :3000) `don-bay-tong-hop`: 360 / 390 / 768 ra 16 / 12 / 14 / 12 / 16px, không tràn ngang; 1440 giữ 20 /
+  14 / 16 / 14 / 18px. Hộp thoại "Thêm mới" ở Danh mục 20px cả 390 lẫn 1440.
+- `vitest` `src/ui/sheets` + `src/ui/primitives`: xanh. `tokens.test.ts` đang đỏ vì biến `--go` ở `QuizBody.module.css` —
+  phần bài tập của một phiên khác đang sửa dở, không thuộc việc này.
+
+Lượt đầu:
+
+Chủ dự án: _"xóa các loại text dư thừa sau 'Giữ lại bộ số liệu và kết quả này để mở lại sau' và 'Tên hiện ở tab Công thức
+của màn Danh mục.'"_
+
+- `src/ui/sheets/SaveCalcSheet.tsx`: bỏ `subtitle` của `BottomSheet` và `hint` của ô tên. Sheet giờ cùng dạng với các
+  sheet khác (Xuất, Nạp mẫu, Chọn mã… vốn không có phụ đề).
+- `src/application/i18n/vi.ts`, `en.ts`: bỏ `save.subtitle`, `save.nameHint`, để tombstone. `save.done` ("Đã lưu vào Danh
+  mục › Công thức.") giữ nguyên — đó là câu báo đã lưu, không nằm trong lời giao.
+- `SaveCalcSheet.test.tsx`: ca mới ghim hai câu không quay lại, và ô tên không còn `aria-describedby` tới dòng gợi ý.
+- `CLAUDE.md`: câu nhắc `save.nameHint` ở mục tab Danh mục sửa theo.
+- `vitest` `src/ui/sheets` + i18n + `FormulaDetail.test.tsx`: 7 file xanh; typecheck, eslint, prettier sạch.
+
+---
+
+## Màn chi tiết trên điện thoại: hàng nút "Lưu vào danh mục · Thoát" ghim đáy khi cuộn (15/10/2026)
+
+**Trạng thái: CHƯA XONG — đã sửa, chờ chủ dự án xem.**
+
+Chủ dự án chụp hai nút cuối màn trên điện thoại: _"cải tiến chức năng ở màn mobile sau sao cho khi scroll nội dung lên
+xuống thì 2 button này đều ở dưới để người dùng có thể lưu bất cứ lúc nào"_.
+
+- `src/app/cong-thuc/[id]/FormulaDetail.module.css`: `.endActions` trong `@media (max-width: 1023.98px)` —
+  `position: sticky`, đáy = `--tabbar-height` + 1px viền + vùng an toàn (thanh dưới đo 61px), nền `--color-paper` trải tới
+  hai mép khung nội dung (lề âm `--gutter`), đường kẻ `--color-hairline` phía trên, đệm dọc 8px, `z-index: 2` (dưới khung
+  "cách tính" 5, khung "?" 40, hai thanh 10). `sticky` chứ không `fixed`: cuộn hết thì hàng nút về đúng chỗ cũ trên dải
+  miễn trừ, không phải chừa lề dưới. Vẫn là CÙNG hai nút, không dựng bản sao.
+- `src/app/cong-thuc/[id]/merged-card-css.test.ts`: hai ca — khối điện thoại có `sticky`/đáy/nền; khổ gốc không ghim.
+- Đo Chrome thật (dev :3000, tối): `pe` 390 ở đầu trang và giữa trang, hàng nút 678–739, sát đỉnh thanh dưới (739); cuộn
+  hết thì về chỗ cũ (572–633) trên dải miễn trừ. `ddm-hai-giai-doan` 360, `pe` 768 (dải gióng khung nội dung 24–744),
+  `xirr` 390 như thế; không tràn ngang. 1100px không đổi (`static`).
+- Cái giá: dải ~61px che thêm một phần nội dung khi cuộn (cộng với 61px của thanh dưới). Một ô nhận tiêu điểm bằng bàn phím
+  có thể nằm sau dải — thanh dưới vốn cũng thế, chưa có `scroll-padding` nào trong sản phẩm.
+
+---
+
+## Thẻ Kết quả dưới 1280px: nhãn trái, con số bên phải cùng hàng (15/10/2026)
+
+**Trạng thái: CHƯA XONG — đã sửa lượt hai, chờ chủ dự án xem.**
+
+**Lượt hai, cùng ngày** — chủ dự án chụp thẻ "KẾT QUẢ · 4 lần" trên điện thoại: _"giảm height của ô xanh này đi để tiết
+kiệm không gian, đồng thời giảm padding 2 bên ngoài, giảm size số 4 đó xuống để đẹp hơn. áp dụng cho màn mobile"_.
+
+- `src/ui/result/ResultBlock.module.css`: khối mới `@media (max-width: 1023.98px)` — lề 16px bốn phía → 8px dọc · 12px
+  ngang, số clamp 32–40 → 26px (`--text-xl`), đơn vị 18 → 14px. Lấy đúng các số của khối ≥1280 (thẻ một hàng ở PC). Nhãn
+  giữ 12px. "Padding 2 bên ngoài" hiểu là lề trái/phải BÊN TRONG thẻ; lề trang quanh thẻ không đổi, để thẻ còn thẳng mép
+  với các khối khác.
+- `src/ui/result/ErrorState.module.css`: `.value` hạ 26px dưới 1024px, cùng lời hứa "đổi sang báo lỗi không đổi cỡ số"
+  như khối ≥1280 sẵn có.
+- `src/ui/result-card.test.ts`: ca mới ghim lề, cỡ số, đơn vị và `ErrorState`.
+- Đo Chrome thật (dev :3000, tối): thẻ 76 → 48,5px ở 390 (`don-bay-tong-hop`), 72,5 → 48,5px ở 360 (`pe`); `lai-kep`
+  "22.196.402,35 ₫" ở 360 nay đứng CÙNG hàng với nhãn (trước rơi xuống hàng hai, thẻ 94,5px). Số cách mép phải 12px, không
+  tràn ngang ở 360 / 390 / 768. 1100px (82px, lề 16) và 1440px không đổi. `vitest` `src/ui` + `src/app/cong-thuc`: 74 file
+  xanh.
+- Không đụng: hai thẻ đáp án anh em (`FeeTaxBody.headline`, `LoanScheduleBody.summary`), cùng lý do lượt đầu — chúng dọc,
+  có dòng chân, chờ chủ dự án nói có đồng bộ không. Dải 1024–1279 vẫn thẻ cũ (lời yêu cầu nói mobile).
+
+Lượt đầu:
+
+Chủ dự án khoanh "4 lần" nằm dưới chữ KẾT QUẢ trên điện thoại, vẽ mũi tên sang mép phải: _"với phần này khi ở màn mobile
+thì chuyển số sang bên phải cùng hàng với text Kết quả"_.
+
+- `src/ui/result/ResultBlock.module.css`: khối mới `@media (max-width: 1279.98px)` — `.block` thành hàng flex xuống dòng,
+  `align-items: center`; `.figure` `margin-left: auto` + `justify-content: flex-end`; con khác (câu diễn giải, nút gợi ý)
+  chiếm trọn hàng dưới. Áp cả dải 1024–1279 vì ở đó màn vẫn một cột và thẻ cũng dọc trơ trọi; từ 1280 khối lưới cũ không
+  đổi. Cỡ chữ giữ nguyên.
+- Flex chứ không lưới: ở 360px số dài (`lai-kep` "22.196.402,35 ₫") không đủ chỗ cạnh nhãn, lưới sẽ bóp chữ KẾT QUẢ đè lên
+  số. Flex cho số xuống hàng dưới, vẫn bám mép phải.
+- `src/ui/result-card.test.ts`: ca mới ghim khối media (hàng, xuống dòng, canh giữa, số `margin-left: auto`).
+- `CLAUDE.md`: đoạn mới về thẻ Kết quả; đoạn "ô đứng lẻ" viết lại cho đúng lượt hai (nhãn trên, khung dưới, chiếm trọn
+  hàng) — đoạn cũ vẫn tả kiểu nhãn trái · khung phải đã bị bác.
+- Đo Chrome thật (dev :3000) trên `pe`, `lai-kep`, `ev`, `von-hoa-thi-truong`, `capm` ở 360 / 390 / 768 / 1100: cùng hàng,
+  số sát mép phải (0px), không tràn ngang; thẻ cao 73px ở 360 (trước ~95). Riêng `lai-kep` ở 360: số xuống hàng hai, vẫn mép
+  phải. 1440 không đổi (thẻ 49px). `vitest` `src/ui` + `src/app/cong-thuc`: 74 file xanh.
+- Không đụng: hai thẻ đáp án anh em (`FeeTaxBody.headline`, `LoanScheduleBody.summary`) — nhãn dài hơn, có dòng chân, và ở
+  PC cũng đang dọc. Chờ chủ dự án nói có đồng bộ hay không.
+
+---
+
+## Màn chi tiết trên điện thoại: tên, "Ý nghĩa", tiêu đề khối, thẻ Công thức nhỏ đi một bậc (15/10/2026)
+
+**Trạng thái: CHƯA XONG — đã sửa lượt hai, chờ chủ dự án xem.**
+
+**Lượt hai, cùng ngày** — chủ dự án chụp thẻ Công thức của `don-bay-tong-hop` trên điện thoại (hình, dòng chữ, bảng ký
+hiệu): _"text này ở màn mobile cũng cần giảm xuống nữa"_.
+
+- `FormulaDetail.module.css`: khối `@media (max-width: 1023.98px)` mới sau `.expression` — hình KaTeX 1,15em → 1em (18,4 →
+  16px), dòng chữ bỏ `clamp()` đứng ở 12px (`--text-xs`, đáy cũ của clamp; trước 12,9px ở 390), bảng ký hiệu 14 → 12px.
+  Nút "Chú thích" 11px vẫn nhỏ hơn bảng.
+- Cái giá: lý do cũ của 1,15em là chỉ số dưới khó đọc trên điện thoại; ở 16px chúng còn ~11px. Đổi lại công thức dài ít
+  phải cuộn ngang hơn.
+- Đo Chrome thật (dev :3000, tối): `don-bay-tong-hop` 390px ra 16 / 12 / 12px, thẻ 416 → 383px, không tràn ngang;
+  `ddm-hai-giai-doan` 360px như thế, không tràn; 1440px giữ 18,4 / 14 / 14px. Không ca kiểm nào ghim các cỡ này; bốn file
+  kiểm đọc CSS (`tokens`, `hairline`, `merged-card-css`, `section-title`) xanh.
+
+Lượt đầu:
+
+Chủ dự án khoanh ba chỗ trên `macd-duong-chinh` ở khổ điện thoại (tên công thức kèm huy hiệu, khối "Ý nghĩa", tiêu đề
+"Công thức"): _"giảm size text các phần tôi khoanh đỏ, áp dụng cho màn mobile"_. Mỗi chỗ xuống đúng một bậc của thang, dưới
+1024px; từ 1024px không đổi.
+
+- `FormulaDetail.module.css`: `@media (max-width: 1023.98px)` — `.title` 26 → 20px (`--text-lg`), `.prose` 16 → 14px
+  (`--text-sm`). Huy hiệu "Nâng cao" đã 12px, bậc nhỏ nhất, giữ nguyên.
+- Tiêu đề khối 14 → 12px qua token mới `--section-title-size` (`globals.css`: `--text-sm` ở `:root`, `--text-xs` đè trên
+  `body` dưới 1024px, cùng lối với `--gutter`). Tiêu đề khối là MỘT kiểu chung cả sản phẩm (`section-title.test.ts`), nên cả
+  11 lớp đổi `font-size` sang token: màn chi tiết, khối chuỗi, "Đang tính theo các mức sau", ba thân riêng (phí/thuế, lịch
+  trả nợ, XIRR), Cài đặt, danh sách công thức, kệ "dùng hằng ngày", bài hướng dẫn, Về chúng tôi. Tức trên điện thoại mọi
+  tiêu đề khối của sản phẩm đều 12px, không riêng màn chi tiết.
+- `section-title.test.ts`: `EXPECTED` đọc token; hai ca mới ghim 14px / 12px trong `globals.css`.
+- Đo Chrome thật (dev :3000, tối) `macd-duong-chinh`: 390px ra 20 / 14 / 12px, không tràn ngang; 1440px giữ 26 / 16 / 14px.
+  `vitest` 156 file / 3993 ca xanh.
+- Không đụng: "Giải thích cho người mới" (18px) và "Kết quả" (20px) là hai kiểu tiêu đề khác, không nằm trong ảnh.
+
+---
+
+## Biểu đồ: tiền và số lượng từ 1.000 trở lên luôn viết bằng chữ (15/10/2026)
+
+**Trạng thái: CHƯA XONG — đã sửa lượt hai, chờ chủ dự án xem.**
+
+**Lượt hai, cùng ngày** — chủ dự án chuyển sang trục khác của biểu đồ: _"vẫn còn lỗi chưa đồng bộ khi chuyển tab khác
+trong biểu đồ. vẫn chưa chuyển thành nghàn hoặc tỷ hoặc triệu"_. Lượt đầu chỉ đổi hình ĐÃ có chữ; đo lại, 141 hình ở 33
+công thức toàn số vẫn in số đủ (`pe` `46.000 ₫ · 7,6 lần`, DCA `4.000.000 ₫`, SMA `72.750 ₫`, MACD `-3.735,37 ₫`).
+
+- `src/core/chart/build.ts`: bước 0 của `pickScale()` — trục tiền/số lượng (`DON_VI_DOI_CHU`) có số ≥ 1.000 luôn sang bậc
+  chữ, không hỏi hình có chữ chưa. Gỡ hết phần dựng lại trục của lượt đầu (`CHU_BAC`, cờ `chu`, `xNguon`, `coChu`), trục Y
+  phải về chỗ cũ.
+- `src/core/chart/chart.test.ts`: cổng quét viết lại — mọi số tiền/số lượng ≥ 1.000 trên hình (trục, vạch dò, nhãn cột)
+  phải bằng chữ; tắt bước 0 thì cổng đỏ đúng `pe` `46.000 ₫`. Bốn ca ghim `(₫)` của `pe`/SMA đổi theo; ca "vắng bản rút
+  gọn khi trục không chia bậc" đổi sang `capm` (hai trục `%`).
+- `src/ui/charts/charts.test.tsx`: hai tiêu đề cột bảng của `pe` nay `(nghìn ₫)`.
+- Đo sau: 616 hình, còn 4 hình ở 2 công thức in số đủ, đều là `%`/`lần` (`2.129,58 %`, `1.042,77 lần`) — không có lối
+  viết bằng chữ. Chrome thật: `pe` theo EPS ra `EPS (nghìn ₫)` 2–10, vạch dò `4,08 nghìn ₫ · 22,53 lần`; DCA theo Tiền mua
+  đợt 1 ra `7,25 triệu ₫ · 34,3 nghìn ₫`. `vitest` 156 file / 3991 ca xanh, lint, typecheck sạch.
+- Cần chủ dự án: bảng số dưới biểu đồ có tiêu đề cột theo bậc (`Giá thị trường (nghìn ₫)`) mà ô vẫn in số đủ (`92.000 ₫`)
+  để tra số chính xác — giữ, hay đổi ô sang chữ luôn.
+
+Lượt đầu:
+
+Chủ dự án chụp vạch dò của `gia-hoa-von` theo Giá mua: _"60.277,25 ₫ · 60,5 nghìn ₫"_ — _"bên trái là số mà bên phải lại
+là chữ ? đồng bộ hết về chữ cho tôi"_, rồi _"kiểm tra lại toàn bộ biểu đồ khi vẽ để sửa lỗi trên"_. Nguyên nhân: mỗi trục tự
+chọn bậc theo ngân sách ký tự riêng (trục Y 6, trục X 10), nên `120.000` vừa trục X mà tràn trục Y. Đo trên toàn Registry
+(mọi mục của ô chọn trục, dạng Đường và Cột, số mặc định và chuỗi ví dụ — 616 hình): 74 hình ở 19 công thức lệch, như
+`46.000 ₫ · 5.428 tỷ ₫`, `1.000 CP · 138 nghìn ₫`, `150 tỷ ₫ · 17.189,48 ₫`. Hình thời gian và thác nước không lệch.
+
+| File                            | Sửa gì / vì sao                                                                                                                                                                                                                                                                                              |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `src/core/chart/build.ts`       | `CHU_BAC`, `DON_VI_DOI_CHU`, cờ `chu` ở `pickScale()`/`buildAxis()`. Trục nào trên hình đã mang chữ bậc (kể cả `tỷ ₫` có sẵn) thì dựng lại cả ba trục (X, Y, Y phải) với cờ `chu`: trục tiền/số lượng còn in số ≥ 1.000 đổi sang bậc chữ. Hình cột: trục `tỷ ₫` mà còn `11.500` thì thành `11,5 nghìn tỷ ₫`. |
+| `src/core/chart/chart.test.ts`  | Cổng quét toàn bộ (đã thử bỏ luật thì cổng đỏ đúng cặp trong ảnh); ca ảnh chủ dự án; ca ngoại lệ `điểm`; sửa hai ca ghim luật cũ (`ev` nay `nghìn tỷ ₫`, `von-hoa-thi-truong` nhận `nghìn tỷ ₫`).                                                                                                            |
+| `src/ui/charts/charts.test.tsx` | Ca "hover cột khớp dòng đầu bảng" đổi từ `ev` sang `fcff`, vì ca cần một trục không chia bậc mà `ev` nay đã chia.                                                                                                                                                                                            |
+
+Kiểm: lint, typecheck sạch; `vitest` 156 file / 3991 ca xanh. Chrome thật (dev :3000, 1440, tối): `gia-hoa-von` theo Giá mua
+ra trục `Giá mua (nghìn ₫)` 40–140, vạch dò `66,7 nghìn ₫ · 67 nghìn ₫`, dấu hiện tại `92,4 nghìn ₫`. Bảng số dưới
+`<details>` và câu mô tả cho trình đọc màn hình vẫn in số đầy đủ (chỗ tra số chính xác) — cố ý.
+
+**Việc còn lại / cần chủ dự án:**
+
+- Ngoại lệ có chủ đích: `điểm` (chỉ số VN30) giữ `1.024 điểm` cạnh `26,4 triệu ₫` ở `lai-lo-vi-the-long`/`-short`. Ở bậc
+  nghìn, điểm mở `1.024` và điểm đóng `1.030,4` cùng thành `1,0x nghìn điểm`, mất đúng khoảng chênh mà lãi/lỗ tính trên đó.
+  Chủ dự án muốn đổi cả chỗ này thì chỉ cần thêm `'điểm'` vào `DON_VI_DOI_CHU`.
+- Hệ quả nhìn thấy được: ở hình có chữ, số dưới 1 nghìn cũng nói theo bậc trục (`Khối lượng (nghìn CP)` vạch `0,4 … 1,6`,
+  `1 nghìn CP`); `pe` và mọi hình không có chữ nào giữ nguyên (`92.000 ₫ · 15,21 lần`).
+
+---
+
 ## Ô nhập đứng lẻ trên điện thoại: chiếm trọn hàng, nhãn trên · khung dưới (15/10/2026)
 
 **Trạng thái: CHƯA XONG — đã sửa lượt hai, chờ chủ dự án xem.**

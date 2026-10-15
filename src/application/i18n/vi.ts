@@ -1562,15 +1562,18 @@ export const vi = {
    * y như cách con số 50 của `portfolio.errFull` đang được ghim theo `MAX_HOLDINGS`.
    */
   'save.title': 'Lưu vào danh mục',
-  'save.subtitle': 'Giữ lại bộ số liệu và kết quả này để mở lại sau',
-  'save.nameLabel': 'Đặt tên cho phép tính',
   /*
-   * `nameHint` và `done` gọi đúng TÊN CHỖ mà người dùng sẽ thấy ngay sau khi lưu, nên chúng đi theo
-   * nhãn của tab: "tab Công thức" (tới 14/09/2026, khi tab bị bỏ) → "khối Phép tính đã lưu" → lại
-   * "tab Công thức" từ 12/10/2026, khi chủ dự án đổi nhãn tab và tiêu đề về "Công thức". Đổi
-   * `portfolio.savedTitle` mà quên hai câu này là để lại một lời chỉ đường tới cái tên không còn.
+   * `save.subtitle` ("Giữ lại bộ số liệu và kết quả này để mở lại sau") và `save.nameHint` ("Tên
+   * hiện ở tab Công thức của màn Danh mục.") đã BỎ ngày 15/10/2026 — chủ dự án gọi cả hai là "text
+   * dư thừa". Tiêu đề "Lưu vào danh mục" đã nói việc sheet làm, còn chỗ tên hiện ra thì người dùng
+   * thấy ngay sau khi lưu, qua `save.done` và việc màn tự chuyển sang Danh mục. Cùng lối với
+   * `quiz.lead` và `preset.seriesOnlyNote`: bỏ câu, giữ hành vi.
+   *
+   * `save.done` vẫn gọi đúng TÊN CHỖ mà người dùng sẽ thấy ngay sau khi lưu, nên nó đi theo nhãn của
+   * tab ("Danh mục › Công thức" từ 12/10/2026). Đổi `portfolio.savedTitle` mà quên câu này là để lại
+   * một lời chỉ đường tới cái tên không còn.
    */
-  'save.nameHint': 'Tên hiện ở tab Công thức của màn Danh mục.',
+  'save.nameLabel': 'Đặt tên cho phép tính',
   /*
    * `save.suggestions` ("Gợi ý tên") đã BỎ ngày 13/10/2026, cùng hàng chip mang nó. Chủ dự án: *"bỏ
    * phần gợi ý tên khi lưu công thức đi, để gọn gàng hơn"*. Ô tên vẫn được điền sẵn gợi ý đầu tiên,

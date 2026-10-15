@@ -144,7 +144,7 @@ export function SaveCalcSheet({
       open={open}
       onClose={onClose}
       title={t('save.title')}
-      subtitle={t('save.subtitle')}
+      // Không phụ đề, ô tên không dòng gợi ý — chủ dự án xoá cả hai câu 15/10/2026, xem `vi.ts`.
       // Chỉ một ô tên — ở khổ web tấm 720px là loãng, xem `BottomSheetProps.width`.
       width="narrow"
       footer={
@@ -187,7 +187,7 @@ export function SaveCalcSheet({
         <>
           <Input
             label={t('save.nameLabel')}
-            hint={t('save.nameHint')}
+            className={styles.nameField}
             value={name}
             maxLength={60}
             disabled={!hasResult || full}

@@ -340,7 +340,13 @@ export function QuizQuestion({
                         key={thuTu}
                         id={`${namePrefix}-${item.id}-o${thuTu}`}
                         className={styles.blankInput}
-                        style={{ '--rong': beNgangO(dap) } as CSSProperties}
+                        style={
+                          {
+                            '--rong': beNgangO(dap),
+                            // Số ký tự đã gõ — khổ điện thoại co ô theo nó, xem `.blankInput` ở CSS.
+                            '--go': (typed[thuTu] ?? '').length,
+                          } as CSSProperties
+                        }
                         aria-label={t('quiz.slotLabel').replace('{n}', String(thuTu + 1))}
                         value={typed[thuTu] ?? ''}
                         disabled={khoa}

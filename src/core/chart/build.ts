@@ -189,6 +189,39 @@ export function breakdownTitle(name: Bilingual): Bilingual {
 const MAX_TICK_CHARS_Y = 6;
 const MAX_TICK_CHARS_X = 10;
 
+/**
+ * ── Tiền và số lượng từ 1.000 trở lên LUÔN viết bằng chữ trên hình (15/10/2026) ───────────────────
+ *
+ * Chủ dự án chụp vạch dò của `gia-hoa-von` theo Giá mua: _"60.277,25 ₫ · 60,5 nghìn ₫"_ — _"bên trái
+ * là số mà bên phải lại là chữ ? đồng bộ hết về chữ cho tôi"_, rồi _"kiểm tra lại toàn bộ biểu đồ"_.
+ * Mỗi trục tự chọn bậc theo ngân sách ký tự của CHÍNH nó (trục Y 6, trục X 10), nên `120.000` vừa
+ * trục X mà tràn trục Y: một trục ra `(₫)`, trục kia ra `(nghìn ₫)`.
+ *
+ * Lượt đầu chỉ đổi khi trên hình ĐÃ có chữ (74 hình ở 19 công thức lệch kiểu ấy), nên hình toàn số
+ * vẫn giữ số. Chủ dự án chuyển sang trục khác của biểu đồ và thấy ngay: _"vẫn chưa chuyển thành nghìn
+ * hoặc tỷ hoặc triệu"_ — đo lại, 141 hình ở 33 công thức còn in `46.000 ₫`, `4.000.000 ₫`, `72.750 ₫`.
+ * Nên luật nay không hỏi hình có chữ chưa: trục tiền hay số lượng nào có số từ 1.000 trở lên thì đi
+ * thẳng sang bậc chữ (`pickScale()`), ở mọi trục, mọi hình, mọi dạng. Nó đảo luật cũ "không bao giờ
+ * đổi `1.200 ₫` thành `1,2 nghìn ₫`" — với tiền và số lượng; đơn vị khác vẫn theo luật cũ.
+ *
+ * Chỉ tiền và số lượng, vì chỉ ở đó "nghìn" là cách người ta viết thật. `'điểm'` cố ý KHÔNG có mặt:
+ * chỉ số VN30 viết `1.024 điểm`, và ở bậc nghìn `1.024` với `1.030,4` cùng thành `1,0x nghìn điểm` —
+ * mất đúng khoảng chênh mà lãi/lỗ vị thế phái sinh tính trên đó. `%` và `lần` có lúc vượt 1.000
+ * (`2.129,58 %` quy năm của một kỳ ngắn) nhưng `nghìn %` không phải một đơn vị.
+ */
+const DON_VI_DOI_CHU: ReadonlySet<string> = new Set([
+  '₫',
+  'tỷ ₫',
+  '₫/CP',
+  '₫/tháng',
+  '₫/điểm',
+  '₫/CP/tháng',
+  'CP',
+  'triệu CP',
+  'sản phẩm',
+  'HĐ',
+]);
+
 /** Bậc hiển thị đã chọn cho một trục, kèm đơn vị đã ghép tiền tố. */
 interface AxisScale {
   factor: number;
@@ -207,11 +240,13 @@ interface AxisScale {
  * Luật ở đây hỏi thẳng ràng buộc thật — **nhãn có vừa lề trái không** — rồi mới hỏi bậc nào đọc
  * xuôi nhất trong số những bậc vừa. Hai bước, theo đúng thứ tự đó:
  *
+ *   0. **Tiền và số lượng từ 1.000 trở lên đi thẳng sang bậc chữ** (15/10/2026, xem
+ *      `DON_VI_DOI_CHU`): bậc chữ LỚN NHẤT mà giá trị lớn nhất còn ≥ 1, ưu tiên bậc vừa ngân sách.
+ *      Không bậc chữ nào đọc xuôi (miền dưới 1.000, hay `'triệu CP'` không ghép thêm được bậc nào)
+ *      thì xuống bước 1.
  *   1. **Bậc 1 vừa ngân sách thì dừng luôn**, không chia gì. Đây là bước giữ cho luật im lặng ở
- *      `'%'`, `'lần'`, `'điểm'` mà không cần một ngoại lệ nào viết ra; im ở `ev` (11.500 tỷ ₫ →
- *      nhãn `12.000`, 6 ký tự) trong khi vẫn nổ ở `von-hoa-thi-truong` khi nạp FPT (136.160 tỷ ₫ →
- *      `150.000`, 7 ký tự) — cùng đơn vị, khác độ lớn, và đó mới là thứ đáng phân biệt; và không bao
- *      giờ đổi `1.200 ₫` thành `1,2 nghìn ₫`.
+ *      `'%'`, `'lần'`, `'điểm'` mà không cần một ngoại lệ nào viết ra. Trước bước 0 nó còn giữ `ev`
+ *      ở `12.000 tỷ ₫` và `1.200 ₫` không thành `1,2 nghìn ₫`; nay hai chỗ ấy thuộc bước 0.
  *   2. Phải chia rồi thì lấy bậc **LỚN NHẤT** vẫn vừa ngân sách mà giá trị lớn nhất còn ≥ 1. Không
  *      lấy bậc nhỏ nhất vừa đủ: `lai-kep` chạy tới 35 triệu ₫, bậc nghìn đã vừa 6 ký tự nên bậc nhỏ
  *      nhất dừng ở đó và cho ra `'22.196 nghìn ₫'` — đúng số, nhưng không ai viết tiền kiểu ấy. Điều
@@ -271,6 +306,14 @@ function pickScale(
   );
 
   const vua = phanBiet.filter((item) => item.ticks.every((tick) => tick.label.length <= maxChars));
+
+  // Bước 0: tiền và số lượng từ 1.000 trở lên viết bằng chữ — xem `DON_VI_DOI_CHU`.
+  if (DON_VI_DOI_CHU.has(unit)) {
+    const bangChu = phanBiet.filter((item) => item.factor > 1 && maxAbs / item.factor >= 1);
+    const trongNganSach = bangChu.filter((item) => vua.includes(item));
+    const chon = trongNganSach[trongNganSach.length - 1] ?? bangChu[bangChu.length - 1];
+    if (chon !== undefined) return chon;
+  }
 
   // Bậc 1 luôn đứng đầu `COMPACT_PREFIXES`; nó vừa thì không có lý do gì phải chia.
   const khongChia = vua[0];

@@ -691,6 +691,56 @@
 }
 
 /*
+ * ── Khổ dưới 768px: công thức điền số phải hiện đủ (15/10/2026) ───────────────────────────
+ *
+ * Chủ dự án chụp câu điền số của `don-bay-tong-hop` trên điện thoại: mẫu số bị cắt, phải kéo ngang
+ * mới thấy ô thứ ba — _"giảm size text xuống … ô khoanh đỏ đang rất lớn và chiếm không gian → giảm
+ * xuống"_. Đo trên Chrome lúc chưa gõ gì: công thức rộng 618px, khung chỉ có 260px ở khổ 360 và
+ * 290px ở 390; mỗi ô rộng 142px vì bề ngang lấy theo đáp án 13 ký tự (`2.000.000.000`), chữ 20px.
+ * Từ 768px công thức vừa khung nên trên đó không đổi gì.
+ *
+ * Ba việc, và một việc KHÔNG làm:
+ *
+ *   · Chữ công thức và tên đại lượng 20/18px → 15px (`--ct-co-chu` chảy xuống `CongThucDien`), lề
+ *     hai bên của khung 12 → 8px.
+ *   · Ô co theo thứ ĐÃ GÕ (`--go`, `QuizQuestion.tsx`) thay vì theo độ dài đáp án: ô trống chỉ còn
+ *     chỗ cho dấu "?", gõ tới đâu ô nở tới đó, trần vẫn là độ dài đáp án. Công thức lúc mở ra vì thế
+ *     vừa khung; điền xong mấy con số mười chữ số thì khung vẫn cuộn ngang — một con số người dùng
+ *     đang gõ phải đọc được trọn, không được thu ô lại để nó trôi khuất trong ô.
+ *   · `min-width` 36px cho ô trống: đủ to để chạm trúng.
+ *   · KHÔNG hạ chữ TRONG ô xuống dưới 16px: iOS tự phóng to cả trang khi chạm vào một ô nhập chữ
+ *     nhỏ hơn 16px — cùng lý do `SearchBox` của Danh mục chỉ thu nhỏ từ 1024px.
+ *
+ * Phải đứng SAU mọi luật `.blankInput` ở trên: cùng độ đặc hiệu, nên thứ tự quyết định.
+ */
+@media (max-width: 767.98px) {
+  .worked {
+    --ct-co-chu: 0.9375rem;
+
+    padding-inline: var(--space-2);
+  }
+
+  .workedName,
+  .workedEquals {
+    font-size: 0.9375rem;
+  }
+
+  /* Thanh cuộn của điện thoại NỔI trên nội dung, không chiếm chỗ: 2px cũ để nó đè lên viền dưới
+     của hàng ô cuối (đo trên ảnh chụp 360px khi đã gõ số dài). */
+  .workedExpr {
+    padding-bottom: var(--space-2);
+  }
+
+  .blankInput {
+    width: calc(max(var(--go, 0), 1) * 1ch + 0.75rem);
+    min-width: 2.25rem;
+    max-width: calc(var(--rong, 4) * 1ch + 0.75rem);
+    padding-inline: 0.2em;
+    font-size: 1rem;
+  }
+}
+
+/*
  * Đề bài của câu điền số là `<p>` chứ không phải `<legend>` như ba dạng kia — không có
  * `<fieldset>` nào để nó làm chú thích. Nên chép lại cỡ chữ ở đây thay vì để nó rơi về cỡ mặc
  * định, và `.prompt` vẫn là một lớp duy nhất nên thứ tự khai báo trong file quyết định.

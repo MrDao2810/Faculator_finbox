@@ -131,6 +131,50 @@ describe('Thẻ kết quả — một khuôn duy nhất', () => {
     );
   });
 
+  /*
+   * Dưới 1280px thẻ Kết quả cũng nhãn trái, số phải (chủ dự án, 15/10/2026: _"khi ở màn mobile thì
+   * chuyển số sang bên phải cùng hàng với text Kết quả"_). Flex XUỐNG DÒNG chứ không lưới: số dài ở
+   * 360px phải được rơi xuống hàng dưới thay vì bóp chữ KẾT QUẢ đè lên nó, và `margin-left: auto`
+   * giữ cụm số ở mép phải cả khi ấy. Ca này chỉ ghim khai báo; số đo ở TASK.md.
+   */
+  it('ResultBlock dưới 1280px: nhãn trái, số phải, số dài thì xuống hàng nhưng vẫn mép phải', () => {
+    const css = readFileSync(join(SRC_DIR, 'ui/result/ResultBlock.module.css'), 'utf8').replace(
+      /\/\*[\s\S]*?\*\//g,
+      '',
+    );
+    const khoi = /@media \(max-width: 1279\.98px\)\s*\{([\s\S]*?)\n\}/.exec(css)?.[1] ?? null;
+
+    expect(khoi, 'thiếu khối @media (max-width: 1279.98px)').not.toBeNull();
+    const the = /\.block\s*\{([^}]*)\}/.exec(khoi ?? '')?.[1] ?? '';
+    expect(the).toMatch(/flex-direction:\s*row;/);
+    expect(the).toMatch(/flex-wrap:\s*wrap;/);
+    expect(the).toMatch(/align-items:\s*center;/);
+    const conSo = /\.figure\s*\{([^}]*)\}/.exec(khoi ?? '')?.[1] ?? '';
+    expect(conSo).toMatch(/margin-left:\s*auto;/);
+  });
+
+  /*
+   * Dưới 1024px thẻ thấp và gọn (chủ dự án, 15/10/2026: _"giảm height của ô xanh này … giảm padding 2
+   * bên ngoài, giảm size số 4 đó xuống"_): lề 8px dọc · 12px ngang, số 26px, đơn vị 14px — thẻ ~48,5px.
+   * Khối lỗi hạ số theo cùng mốc, cùng lời hứa với ca "khối lỗi cao bằng khối kết quả" bên dưới.
+   */
+  it('ResultBlock dưới 1024px: lề hẹp, số --text-xl, khối lỗi hạ số theo', () => {
+    const khoiCua = (file: string): string => {
+      const css = readFileSync(join(SRC_DIR, file), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
+      return /@media \(max-width: 1023\.98px\)\s*\{([\s\S]*?)\n\}/.exec(css)?.[1] ?? '';
+    };
+    const luat = (khoi: string, lop: string): string =>
+      new RegExp(`\\.${lop}\\s*\\{([^}]*)\\}`).exec(khoi)?.[1] ?? '';
+
+    const the = khoiCua('ui/result/ResultBlock.module.css');
+    expect(luat(the, 'block')).toMatch(/padding:\s*var\(--space-2\) var\(--space-3\);/);
+    expect(luat(the, 'value')).toMatch(/font-size:\s*var\(--text-xl\);/);
+    expect(luat(the, 'unit')).toMatch(/font-size:\s*var\(--text-sm\);/);
+
+    const loi = khoiCua('ui/result/ErrorState.module.css');
+    expect(luat(loi, 'value')).toMatch(/font-size:\s*var\(--text-xl\);/);
+  });
+
   it('khối lỗi cao bằng khối kết quả, nên trang không xê dịch khi chuyển trạng thái', () => {
     const body = ruleBody(
       readFileSync(join(SRC_DIR, 'ui/result/ErrorState.module.css'), 'utf8'),

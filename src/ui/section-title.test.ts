@@ -28,9 +28,15 @@ import { describe, expect, it } from 'vitest';
 
 const SRC_DIR = fileURLToPath(new URL('..', import.meta.url));
 
-/** Bốn thuộc tính làm nên kiểu tiêu đề khối. Bố cục (margin, viền, flex) để từng màn tự lo. */
+/**
+ * Bốn thuộc tính làm nên kiểu tiêu đề khối. Bố cục (margin, viền, flex) để từng màn tự lo.
+ *
+ * Cỡ chữ đi qua token `--section-title-size` từ 15/10/2026: 14px từ 1024px, 12px dưới 1024px (chủ dự
+ * án khoanh "Ý NGHĨA", "CÔNG THỨC" trên điện thoại: _"giảm size text … áp dụng cho màn mobile"_). Đè ở
+ * một chỗ trong `globals.css` thì cả mười một lớp dưới đây đổi cùng nhau — vẫn một kiểu.
+ */
 const EXPECTED = {
-  'font-size': 'var(--text-sm)',
+  'font-size': 'var(--section-title-size)',
   'font-weight': 'var(--weight-bold)',
   'letter-spacing': '0.04em',
   'text-transform': 'uppercase',
@@ -114,6 +120,23 @@ describe('Tiêu đề khối — một kiểu duy nhất', () => {
 
       expect(body, `${file} .${className}`).not.toMatch(/color:\s*var\(--color-accent\)/);
     }
+  });
+});
+
+describe('Cỡ chữ tiêu đề khối theo khổ màn', () => {
+  const globals = readFileSync(join(SRC_DIR, 'app/globals.css'), 'utf8').replace(
+    /\/\*[\s\S]*?\*\//g,
+    '',
+  );
+
+  it('14px từ 1024px — token khai trong :root bằng --text-sm', () => {
+    expect(globals).toMatch(/:root\s*\{[^}]*--section-title-size:\s*var\(--text-sm\);/);
+  });
+
+  it('12px dưới 1024px — đè trên body trong @media (max-width: 1023.98px)', () => {
+    expect(globals).toMatch(
+      /@media \(max-width: 1023\.98px\)\s*\{\s*body\s*\{\s*--section-title-size:\s*var\(--text-xs\);/,
+    );
   });
 });
 

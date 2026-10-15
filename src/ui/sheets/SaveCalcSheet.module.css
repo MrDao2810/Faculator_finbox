@@ -36,6 +36,36 @@
 }
 
 /*
+ * Dưới 1024px dòng tóm tắt và ô tên hạ một bậc (15/10/2026). Chủ dự án khoanh cả hai trên điện
+ * thoại: _"size text đang quá lớn ở những vùng khoanh đỏ. giảm size text. chỉ áp dụng cho mobile"_.
+ *
+ * Tên công thức 14 → 12px, kết quả 16 → 14px, nhãn ô 14 → 12px, chữ trong ô 18 → 16px. Chữ trong ô
+ * dừng ở 16px là số đo chứ không phải khẩu vị: iOS phóng cả trang lên khi chạm vào một ô nhập dưới
+ * 16px. Từ 1024px không đổi gì.
+ *
+ * Ô tên là primitive `Input`, nên chỉnh qua lớp `.nameField` gắn ở nơi gọi, chọn theo THẺ (`label`,
+ * `input`): một lớp cộng một thẻ thắng `.label` / `.input` của `Input.module.css` bất kể file nào
+ * nạp trước. Không sửa `Input` chung: ô ấy còn ở màn chi tiết và form Danh mục, ngoài lời giao.
+ */
+@media (max-width: 1023.98px) {
+  .formula {
+    font-size: var(--text-xs);
+  }
+
+  .result {
+    font-size: var(--text-sm);
+  }
+
+  .nameField label {
+    font-size: var(--text-xs);
+  }
+
+  .nameField input {
+    font-size: var(--text-base);
+  }
+}
+
+/*
  * Hàng chip "Gợi ý tên" từng đứng ở đây (`.suggestions`, `.chips`, `.chip`). Chủ dự án bỏ ngày
  * 13/10/2026 — xem docblock của `SaveCalcSheet`.
  */

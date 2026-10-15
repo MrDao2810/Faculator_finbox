@@ -70,7 +70,7 @@
  */
 .blockTitle {
   margin: 0;
-  font-size: var(--text-sm);
+  font-size: var(--section-title-size);
   font-weight: var(--weight-bold);
   letter-spacing: 0.04em;
   text-transform: uppercase;

@@ -444,6 +444,15 @@
   --text-2xl: 32px; /* số kết quả lớn ở ResultBlock */
   --text-3xl: 40px;
 
+  /*
+   * Cỡ chữ của TIÊU ĐỀ KHỐI ("Ý NGHĨA", "CÔNG THỨC", "SỐ LIỆU"…) — một kiểu cho cả sản phẩm, xem
+   * `section-title.test.ts`. 14px từ 1024px; dưới 1024px hạ một bậc xuống 12px (chủ dự án khoanh tiêu
+   * đề khối trên màn chi tiết ở khổ điện thoại, 15/10/2026: _"giảm size text các phần tôi khoanh đỏ,
+   * áp dụng cho màn mobile"_). Token chứ không phải `@media` ở từng file: mười một lớp khai kiểu này,
+   * và đè ở một chỗ là cả mười một đổi cùng nhau. Bản 12px đè trên `body` ở khối `@media` phía dưới.
+   */
+  --section-title-size: var(--text-sm);
+
   --leading-tight: 1.25;
   --leading-normal: 1.5;
 
@@ -784,6 +793,13 @@
 @media (min-width: 1024px) {
   body {
     --gutter: var(--space-8);
+  }
+}
+
+/* Tiêu đề khối nhỏ đi một bậc ở khổ điện thoại — xem `--section-title-size` trong `:root`. */
+@media (max-width: 1023.98px) {
+  body {
+    --section-title-size: var(--text-xs);
   }
 }
 

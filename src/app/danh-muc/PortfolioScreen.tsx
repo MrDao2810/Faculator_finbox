@@ -57,6 +57,7 @@ import {
   removeHolding,
   removePendingCode,
   removeSavedCalc,
+  requestPersistentStorage,
   serializeCachedPrices,
   serializeHoldingSort,
   serializeHoldings,
@@ -681,6 +682,26 @@ export function PortfolioScreen() {
   const [asOf, setAsOf] = useState('');
   const [loaded, setLoaded] = useState(false);
 
+  /**
+   * Chuỗi thô của bốn kho mà TAB NÀY thấy lần cuối — lúc đọc, hay lúc chính nó ghi (16/10/2026).
+   *
+   * Chủ dự án hỏi dữ liệu của khách có mất khi thoát web không. Thoát thì không; nhưng HAI TAB thì có,
+   * đo trên Chrome thật: tab Danh mục mở sẵn, tab khác lưu "Bản C", tab này xoá "Bản A" — kho còn mỗi
+   * "Bản B", Bản C mất; bảng Mã y như thế với HPG. Màn ghi nguyên mảng trong state của nó, mà state ấy
+   * không biết tab kia vừa thêm gì.
+   *
+   * Ba lối chữa, dùng chung ref này để biết kho có đổi SAU lần cuối tab này nhìn thấy không:
+   *   1. `docLaiKho()` trước mỗi thao tác sửa — đọc lại rồi mới áp thay đổi lên bản mới nhất;
+   *   2. sự kiện `storage` (tab khác ghi) và lúc quay lại tab (`visibilitychange`, `pageshow`);
+   *   3. hai effect ghi bỏ qua khi chuỗi sắp ghi BẰNG chuỗi đã thấy — không ghi lại thứ vừa đọc lên.
+   */
+  const khoDaThay = useRef<{
+    holdings: string | null;
+    pending: string | null;
+    saved: string | null;
+    series: string | null;
+  }>({ holdings: null, pending: null, saved: null, series: null });
+
   const [sheet, setSheet] = useState<SheetKind | null>(null);
   const [mountedSheets, setMountedSheets] = useState<ReadonlySet<SheetKind>>(() => new Set());
   /**
@@ -752,7 +773,9 @@ export function PortfolioScreen() {
   useEffect(() => {
     let stored: Holding[] = [];
     try {
-      stored = parseHoldings(window.localStorage.getItem(PORTFOLIO_KEY));
+      const raw = window.localStorage.getItem(PORTFOLIO_KEY);
+      khoDaThay.current.holdings = raw;
+      stored = parseHoldings(raw);
       setHoldings(stored);
     } catch {
       // localStorage bị chặn — màn vẫn dùng được, chỉ không nhớ giữa hai lần mở.
@@ -780,7 +803,9 @@ export function PortfolioScreen() {
     const held = new Set(stored.map((holding) => holding.code));
     let waiting: string[] = [];
     try {
-      waiting = reconcilePending(parsePendingCodes(window.localStorage.getItem(PENDING_KEY)), held);
+      const raw = window.localStorage.getItem(PENDING_KEY);
+      khoDaThay.current.pending = raw;
+      waiting = reconcilePending(parsePendingCodes(raw), held);
     } catch {
       // Cùng lý do ngay trên — không đọc được thì coi như chưa có mã chờ nào.
     }
@@ -798,13 +823,17 @@ export function PortfolioScreen() {
     setPending(waiting);
 
     try {
-      setSavedCalcs(parseSavedCalcs(window.localStorage.getItem(SAVED_CALCS_KEY)));
+      const raw = window.localStorage.getItem(SAVED_CALCS_KEY);
+      khoDaThay.current.saved = raw;
+      setSavedCalcs(parseSavedCalcs(raw));
     } catch {
       // Cùng lý do ngay trên — không đọc được thì coi như chưa lưu gì, khối tự ẩn.
     }
 
     try {
-      setSeriesRows(parseStoredSeries(window.localStorage.getItem(PRICE_SERIES_KEY)).rows.length);
+      const raw = window.localStorage.getItem(PRICE_SERIES_KEY);
+      khoDaThay.current.series = raw;
+      setSeriesRows(parseStoredSeries(raw).rows.length);
     } catch {
       // Không đọc được kho chuỗi thì coi như trong máy không có chuỗi nào (0 dòng).
     }
@@ -858,13 +887,76 @@ export function PortfolioScreen() {
    * neo `#phep-tinh-da-luu` chỉ cần MỞ ĐÚNG TAB — xem effect nạp kho.
    */
 
-  /** Ghi lại kho phép tính đã lưu sau mỗi lần xoá một mục. */
-  const persistSaved = useCallback((next: ReadonlyArray<SavedCalc>): void => {
-    setSavedCalcs(next);
+  /**
+   * Sửa kho phép tính đã lưu: ĐỌC LẠI kho, áp `doi` lên bản vừa đọc, rồi ghi (16/10/2026).
+   *
+   * Bản cũ nhận thẳng mảng đã tính từ state của màn, nên một phép tính tab khác vừa lưu (không có
+   * trong state ấy) bị chính cú xoá ở tab này ghi đè mất — đo được trên Chrome thật, xem `khoDaThay`.
+   * `saveCalc()` ở màn chi tiết vốn đã đọc lại trước khi ghi; nay hai đầu ghi cùng một luật.
+   *
+   * Đọc hỏng thì áp lên bảng đang hiện — đọc hỏng không phải "kho rỗng", và áp lên `[]` là xoá sạch.
+   */
+  const capNhatDaLuu = useCallback(
+    (doi: (list: ReadonlyArray<SavedCalc>) => SavedCalc[]): void => {
+      let goc: ReadonlyArray<SavedCalc> = savedCalcs;
+      try {
+        goc = parseSavedCalcs(window.localStorage.getItem(SAVED_CALCS_KEY));
+      } catch {
+        // Kho bị chặn — dùng bảng đang hiện.
+      }
+      const next = doi(goc);
+      setSavedCalcs(next);
+      try {
+        const raw = serializeSavedCalcs(next);
+        window.localStorage.setItem(SAVED_CALCS_KEY, raw);
+        khoDaThay.current.saved = raw;
+      } catch {
+        // Hết dung lượng hoặc bị chặn — không chặn thao tác đang làm.
+      }
+    },
+    [savedCalcs],
+  );
+
+  /**
+   * Đọc lại bốn kho, và chỉ đặt lại state của kho nào ĐÃ ĐỔI so với lần cuối tab này thấy.
+   *
+   * Gọi ở đầu mỗi thao tác sửa mã (thêm, sửa, xoá, xoá dòng chờ): `setHoldings(bảnMới)` xếp hàng TRƯỚC
+   * `setHoldings((current) => …)` của thao tác, nên React đưa đúng bản mới vào `current`. Và gọi khi tab
+   * khác ghi hoặc khi người dùng quay lại tab này (effect ngay dưới hai effect ghi).
+   *
+   * Mã chờ đọc lại CÙNG lượt với mã nắm giữ: `reconcilePending()` bỏ mã chờ nào đã thành nắm giữ, nên
+   * phải so với bảng mã mới, không phải bảng cũ.
+   *
+   * Không đọc được thì giữ nguyên thứ đang hiện — cùng lý do `capNhatDaLuu`.
+   */
+  const docLaiKho = useCallback((): void => {
     try {
-      window.localStorage.setItem(SAVED_CALCS_KEY, serializeSavedCalcs(next));
+      const da = khoDaThay.current;
+      const rawH = window.localStorage.getItem(PORTFOLIO_KEY);
+      const rawP = window.localStorage.getItem(PENDING_KEY);
+      if (rawH !== da.holdings || rawP !== da.pending) {
+        const moi = parseHoldings(rawH);
+        da.holdings = rawH;
+        da.pending = rawP;
+        setHoldings(moi);
+        setPending(
+          reconcilePending(parsePendingCodes(rawP), new Set(moi.map((holding) => holding.code))),
+        );
+      }
+
+      const rawS = window.localStorage.getItem(SAVED_CALCS_KEY);
+      if (rawS !== da.saved) {
+        da.saved = rawS;
+        setSavedCalcs(parseSavedCalcs(rawS));
+      }
+
+      const rawC = window.localStorage.getItem(PRICE_SERIES_KEY);
+      if (rawC !== da.series) {
+        da.series = rawC;
+        setSeriesRows(parseStoredSeries(rawC).rows.length);
+      }
     } catch {
-      // Hết dung lượng hoặc bị chặn — không chặn thao tác đang làm.
+      // Kho bị chặn — giữ nguyên những gì đang hiện.
     }
   }, []);
 
@@ -888,10 +980,18 @@ export function PortfolioScreen() {
    * sống — màn chi tiết vẫn ghi vào — nhưng màn này thôi đọc và thôi ghi nó.
    */
 
+  /*
+   * Ghi kho mã. Bỏ qua khi chuỗi sắp ghi bằng đúng chuỗi tab này đã thấy (xem `khoDaThay`): vừa đọc lại
+   * từ tab khác thì không ghi ngược thứ vừa đọc lên. Kho chưa có khoá (`null`) thì vẫn ghi `[]` lúc mở
+   * màn, như trước — một ca trong `PortfolioScreen.test.tsx` ghim điều ấy.
+   */
   useEffect(() => {
     if (!loaded) return;
+    const raw = serializeHoldings(holdings);
+    if (raw === khoDaThay.current.holdings) return;
     try {
-      window.localStorage.setItem(PORTFOLIO_KEY, serializeHoldings(holdings));
+      window.localStorage.setItem(PORTFOLIO_KEY, raw);
+      khoDaThay.current.holdings = raw;
     } catch {
       // Hết dung lượng hoặc bị chặn — không chặn thao tác đang làm.
     }
@@ -903,9 +1003,12 @@ export function PortfolioScreen() {
    */
   useEffect(() => {
     if (!loaded) return;
+    const raw = pending.length === 0 ? null : serializePendingCodes(pending);
+    if (raw === khoDaThay.current.pending) return;
     try {
-      if (pending.length === 0) window.localStorage.removeItem(PENDING_KEY);
-      else window.localStorage.setItem(PENDING_KEY, serializePendingCodes(pending));
+      if (raw === null) window.localStorage.removeItem(PENDING_KEY);
+      else window.localStorage.setItem(PENDING_KEY, raw);
+      khoDaThay.current.pending = raw;
     } catch {
       // Hết dung lượng hoặc bị chặn — không chặn thao tác đang làm.
     }
@@ -932,6 +1035,38 @@ export function PortfolioScreen() {
       // Trình duyệt chặn History API — mã vẫn đã vào bảng, chỉ là URL còn tham số.
     }
   }, [loaded]);
+
+  /*
+   * Tab khác ghi kho (sự kiện `storage` chỉ đến các tab KHÁC tab ghi), hay người dùng quay lại tab này
+   * (`visibilitychange`; `pageshow` cho trang trả về từ bộ nhớ đệm lùi/tiến, nơi sự kiện `storage` lỡ
+   * mất) — đọc lại kho để bảng hiện đúng thứ đang nằm trên đĩa. `key === null` là `localStorage.clear()`.
+   *
+   * Không vòng lặp: tab kia nhận chuỗi mới, `khoDaThay` ghi nhận đúng chuỗi ấy, effect ghi thấy bằng
+   * nhau nên không ghi; và `setItem` cùng một giá trị thì trình duyệt không phát sự kiện nào.
+   *
+   * Khai SAU effect gỡ `?nhap=`: effect ấy phải đứng ngay dưới effect ghi kho mã chờ (xem chú thích của nó).
+   */
+  useEffect(() => {
+    if (!loaded) return undefined;
+    const khoTheoDoi = new Set([PORTFOLIO_KEY, PENDING_KEY, SAVED_CALCS_KEY, PRICE_SERIES_KEY]);
+    const onStorage = (event: StorageEvent): void => {
+      if (event.key === null || khoTheoDoi.has(event.key)) docLaiKho();
+    };
+    const onVisible = (): void => {
+      if (document.visibilityState === 'visible') docLaiKho();
+    };
+    const onPageShow = (): void => {
+      docLaiKho();
+    };
+    window.addEventListener('storage', onStorage);
+    document.addEventListener('visibilitychange', onVisible);
+    window.addEventListener('pageshow', onPageShow);
+    return () => {
+      window.removeEventListener('storage', onStorage);
+      document.removeEventListener('visibilitychange', onVisible);
+      window.removeEventListener('pageshow', onPageShow);
+    };
+  }, [loaded, docLaiKho]);
 
   /*
    * Mở trang công thức sau khi lưu — effect này PHẢI khai SAU hai effect ghi ở trên (danh mục, rồi
@@ -1086,17 +1221,8 @@ export function PortfolioScreen() {
    */
   const lamMoi = useCallback((): void => {
     setPriceAttempt((n) => n + 1);
-
-    try {
-      setSavedCalcs(parseSavedCalcs(window.localStorage.getItem(SAVED_CALCS_KEY)));
-    } catch {
-      // Không đọc được kho thì giữ bảng đang hiện — đọc hỏng không phải "đã xoá hết".
-    }
-    try {
-      setSeriesRows(parseStoredSeries(window.localStorage.getItem(PRICE_SERIES_KEY)).rows.length);
-    } catch {
-      // Cùng lý do ngay trên.
-    }
+    // Đọc lại kho bằng đúng lối của thao tác sửa và của tab khác — đọc hỏng thì giữ bảng đang hiện.
+    docLaiKho();
 
     setSavedLoading(true);
     if (savedTimer.current !== null) window.clearTimeout(savedTimer.current);
@@ -1104,7 +1230,7 @@ export function PortfolioScreen() {
       savedTimer.current = null;
       setSavedLoading(false);
     }, MIN_REFRESH_MS);
-  }, []);
+  }, [docLaiKho]);
 
   /**
    * Tra hỏng mà vẫn còn giá để hiện là `'stale'`; hỏng và trắng tay mới là `'failed'`.
@@ -1170,13 +1296,15 @@ export function PortfolioScreen() {
    */
   const removeRow = useCallback(
     (code: string): void => {
+      // Đọc lại kho trước: mã tab khác vừa thêm phải còn sau cú xoá này — xem `khoDaThay`.
+      docLaiKho();
       setHoldings((current) => removeHolding(current, code));
       if (editing === code) closeForm();
       // Dòng chi tiết của một mã vừa mất không còn gì để mở; không về `null` thì thêm lại đúng mã ấy là
       // nó tự mở ra.
       setOpenRow((now) => (now === code ? null : now));
     },
-    [editing, closeForm],
+    [editing, closeForm, docLaiKho],
   );
 
   /** Mở form ở chế độ SỬA, đổ sẵn số đang lưu. */
@@ -1218,11 +1346,12 @@ export function PortfolioScreen() {
   /** Xoá một dòng chờ — nút thùng rác của nó. Một lần bấm, không hỏi lại, như dòng nắm giữ. */
   const removePendingRow = useCallback(
     (code: string): void => {
+      docLaiKho();
       setPending((current) => removePendingCode(current, code));
       if (completing === code) closeForm();
       setOpenRow((now) => (now === code ? null : now));
     },
-    [completing, closeForm],
+    [completing, closeForm, docLaiKho],
   );
 
   /** Mở/đóng dòng chi tiết ở khổ điện thoại. Mở dòng này là đóng dòng đang mở — một dòng một lúc. */
@@ -1347,6 +1476,8 @@ export function PortfolioScreen() {
     const safeBuyDate = buyDate ?? '';
     const name = form.name.trim();
 
+    // Áp lên bản MỚI NHẤT của kho, không lên state có thể đã cũ — xem `khoDaThay`.
+    docLaiKho();
     setHoldings((current) =>
       editing === null
         ? addHolding(current, {
@@ -1384,8 +1515,10 @@ export function PortfolioScreen() {
      */
     if (plannedFormula !== null) setPendingOpen({ id: plannedFormula, code });
 
+    // Người dùng vừa giao cho máy một thứ đáng giữ — đúng lúc xin trình duyệt đừng dọn kho.
+    requestPersistentStorage();
     closeForm();
-  }, [form, editing, holdings, pending, advanced, plannedFormula, t, closeForm]);
+  }, [form, editing, holdings, pending, advanced, plannedFormula, t, closeForm, docLaiKho]);
 
   /*
    * ── Trạng thái "cộng dồn" của form đã BỎ (10/10/2026) ──────────────────────────────────────
@@ -2829,7 +2962,8 @@ export function PortfolioScreen() {
                               title={t('portfolio.savedRemove')}
                               onClick={(event) => {
                                 event.stopPropagation();
-                                persistSaved(removeSavedCalc(savedCalcs, row.saved.id));
+                                // Xoá trên bản vừa đọc lại, không trên bảng đang hiện — xem `capNhatDaLuu`.
+                                capNhatDaLuu((list) => removeSavedCalc(list, row.saved.id));
                               }}
                             >
                               <StatIcon d={TILE_ICONS.close} />

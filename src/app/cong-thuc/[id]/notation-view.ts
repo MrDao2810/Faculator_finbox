@@ -96,7 +96,7 @@ export function buildNotationView(
   });
 
   /*
-   * Mọi dòng bảng làm đích. Dòng không tìm được chỗ (`D` chỉ nằm trong tên `D/E`…, 8 trên 554 dòng
+   * Mọi dòng bảng làm đích. Dòng không tìm được chỗ (`D` chỉ nằm trong tên `D/E`…, 8 trên 567 dòng
    * của cả thư viện) thì lặng lẽ không có điểm chạm — khác `targets` ở trên, nơi một khung không
    * tìm được chỗ là lỗi dữ liệu và phải ném.
    */

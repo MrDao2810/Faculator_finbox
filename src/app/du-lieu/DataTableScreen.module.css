@@ -135,13 +135,6 @@
   color: var(--color-ink);
 }
 
-/* "Mới → cũ · sửa trực tiếp trong ô" — nói ra thứ tự đang dùng VÀ nói ô gõ được. */
-.cardHint {
-  margin: 0;
-  font-size: var(--text-xs);
-  color: var(--color-muted);
-}
-
 /* ── Cột kiểm tra dữ liệu ─────────────────────────────────────────────────── */
 
 .checkCard {

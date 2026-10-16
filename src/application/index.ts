@@ -633,6 +633,9 @@ export {
   serializeSavedCalcs,
 } from './saved-calc-store';
 
+/* Xin trình duyệt giữ kho lâu dài — gọi ngay sau một cú Lưu, xem docblock. */
+export { requestPersistentStorage } from './persistent-storage';
+
 export type { BackContext, Origin } from './origin-screen';
 export {
   ORIGIN_KEY,

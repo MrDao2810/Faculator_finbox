@@ -1156,22 +1156,22 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
   },
   wacc: {
     tinh: {
-      vi: 'chi phí vốn bình quân của FPT theo cơ cấu vốn ngày 30/06/2026',
-      en: "FPT's weighted average cost of capital on its 2026-06-30 capital structure",
+      vi: 'chi phí vốn bình quân của FPT, vốn chủ theo vốn hoá phiên 11/09/2026',
+      en: "FPT's weighted average cost of capital, with equity at its 2026-09-11 market cap",
     },
     gan: [
       {
         kyHieu: 'E',
         moTa: {
-          vi: 'là vốn chủ sở hữu FPT theo sổ sách ngày 30/06/2026: 40.995,7 tỷ ₫',
-          en: "is FPT's book equity at 2026-06-30: 40995.7 billion ₫",
+          vi: 'là vốn chủ sở hữu FPT theo giá thị trường, tức vốn hoá theo giá đóng cửa phiên 11/09/2026: 124.631,5 tỷ ₫',
+          en: "is FPT's equity at market value, its market cap at the 2026-09-11 close: 124631.5 billion ₫",
         },
       },
       {
         kyHieu: 'D',
         moTa: {
-          vi: 'là nợ vay ngắn hạn cộng dài hạn của FPT cùng ngày: 17.444 tỷ ₫',
-          en: "is FPT's short-term plus long-term borrowings on the same date: 17444 billion ₫",
+          vi: 'là nợ vay ngắn hạn cộng dài hạn của FPT ngày 30/06/2026: 17.444 tỷ ₫',
+          en: "is FPT's short-term plus long-term borrowings at 2026-06-30: 17444 billion ₫",
         },
       },
       {
@@ -1197,15 +1197,22 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
       },
     ],
     thaySo: {
-      vi: '40.995,7 ÷ (40.995,7 + 17.444) × 11,92 + 17.444 ÷ (40.995,7 + 17.444) × 4,2 × (1 − 20 ÷ 100)',
-      en: '40995.7 ÷ (40995.7 + 17444) × 11.92 + 17444 ÷ (40995.7 + 17444) × 4.2 × (1 − 20 ÷ 100)',
+      vi: '124.631,5 ÷ (124.631,5 + 17.444) × 11,92 + 17.444 ÷ (124.631,5 + 17.444) × 4,2 × (1 − 20 ÷ 100)',
+      en: '124631.5 ÷ (124631.5 + 17444) × 11.92 + 17444 ÷ (124631.5 + 17444) × 4.2 × (1 − 20 ÷ 100)',
     },
     nguon: [
       {
-        url: 'https://cafef.vn/du-lieu/bao-cao-tai-chinh/fpt/bsheet/2026/2/0/0/bao-cao-tai-chinh-cong-ty-co-phan-fpt.chn',
+        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=09/11/2026&EndDate=09/11/2026&PageIndex=1&PageSize=20',
         nhan: {
-          vi: 'Vốn chủ sở hữu FPT, cột Quý 2- 2026',
-          en: "FPT's equity, Q2 2026 column",
+          vi: 'Giá FPT phiên 11/09/2026, nhân số cổ phiếu ra vốn hoá',
+          en: 'FPT price, 2026-09-11 session, times shares gives market cap',
+        },
+      },
+      {
+        url: 'https://cafef.vn/du-lieu/hose/fpt/chi-tiet-tinh-eps.chn',
+        nhan: {
+          vi: 'Số cổ phiếu FPT lưu hành cuối kỳ 30/06/2026',
+          en: 'FPT shares outstanding at 30 June 2026',
         },
       },
       {
@@ -1345,8 +1352,8 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
       {
         kyHieu: 'WACC',
         moTa: {
-          vi: 'là chi phí vốn bình quân của FPT, lấy từ công thức WACC: 9,37%/năm',
-          en: "is FPT's weighted average cost of capital, taken from the WACC formula: 9.37%/year",
+          vi: 'là chi phí vốn bình quân của FPT, lấy từ công thức WACC: 10,87%/năm',
+          en: "is FPT's weighted average cost of capital, taken from the WACC formula: 10.87%/year",
         },
       },
       {
@@ -1365,8 +1372,8 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
       },
     ],
     thaySo: {
-      vi: '(5.168,3 × (1 + 5 ÷ 100) ÷ ((9,37 − 5) ÷ 100) − (−11.527,6)) ÷ 1.714,33 × 1.000',
-      en: '(5168.3 × (1 + 5 ÷ 100) ÷ ((9.37 − 5) ÷ 100) − (−11527.6)) ÷ 1714.33 × 1000',
+      vi: '(5.168,3 × (1 + 5 ÷ 100) ÷ ((10,87 − 5) ÷ 100) − (−11.527,6)) ÷ 1.714,33 × 1.000',
+      en: '(5168.3 × (1 + 5 ÷ 100) ÷ ((10.87 − 5) ÷ 100) − (−11527.6)) ÷ 1714.33 × 1000',
     },
     nguon: [
       {
@@ -1485,8 +1492,8 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
       {
         kyHieu: 'V',
         moTa: {
-          vi: 'là giá trị nội tại một cổ phiếu FPT ước tính bằng mô hình DCF: 79.161 ₫',
-          en: 'is the intrinsic value of one FPT share estimated with the DCF model: 79161 ₫',
+          vi: 'là giá trị nội tại một cổ phiếu FPT ước tính bằng mô hình DCF: 60.651 ₫',
+          en: 'is the intrinsic value of one FPT share estimated with the DCF model: 60651 ₫',
         },
       },
       {
@@ -1498,8 +1505,8 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
       },
     ],
     thaySo: {
-      vi: '(79.161 − 72.700) ÷ 79.161 × 100',
-      en: '(79161 − 72700) ÷ 79161 × 100',
+      vi: '(60.651 − 72.700) ÷ 60.651 × 100',
+      en: '(60651 − 72700) ÷ 60651 × 100',
     },
     nguon: [
       {

@@ -9,7 +9,9 @@
   ],
   "//preview": "Cổng 4173 chứ KHÔNG để `serve` tự chọn 3000: bản dựng thật đăng ký service worker cho origin nó chạy, mà `next dev` cũng ở 3000. Trùng cổng nghĩa là service worker của bản preview còn sống và chặn mọi điều hướng của dev server sau đó — trang hiện ra là bản cache cũ, chunk nó xin thì dev server không có, React không gắn được và cả màn hoá ra chết bấm. Khác cổng thì hai bên không bao giờ đụng nhau.",
   "scripts": {
-    "dev": "next dev",
+    "//dev": "Cổng 3000 GHI CỐ ĐỊNH, và `predev` chặn khi cổng đang bận: không chỉ định cổng thì `next dev` lặng lẽ nhảy sang 3001 khi 3000 còn bị một server cũ giữ, mà localStorage theo cổng — danh mục và phép tính đã lưu ở 3000 hoá ra 'mất'. Lý do đầy đủ ở scripts/check-dev-port.mjs.",
+    "predev": "node scripts/check-dev-port.mjs",
+    "dev": "next dev -p 3000",
     "prebuild": "node scripts/check-no-dev.mjs",
     "build": "next build",
     "preview": "npx --yes serve out -l 4173",

@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -2839,6 +2839,40 @@ describe('WF-03 — lưu phép tính vào danh mục', () => {
     expect((oNhap(/Giá thị trường/) as HTMLInputElement).value).toBe('50.000');
   });
 
+  /*
+   * Chủ dự án báo (16/10/2026): nạp mã, chỉnh số, lưu — rồi mở lại từ Danh mục thì _"không thấy mã đó
+   * trong công thức đâu"_. Bản lưu CÓ mã, và `?luu=` có đọc nó ra, nhưng chỉ đặt `loadedPreset`, trong
+   * khi con chip mã ở hàng nút đọc `stickyTicker`. Nên màn bày nút "Nạp mẫu" như chưa từng có mã nào.
+   */
+  it('`?luu=` của một bản lưu có mã: chip mã hiện lại, không gọi mạng, không đè bộ số đã lưu', async () => {
+    window.localStorage.setItem(
+      SAVED_CALCS_KEY,
+      JSON.stringify([
+        {
+          id: 'pe-ma',
+          formulaId: 'pe',
+          name: 'FPT · P/E',
+          code: 'FPT',
+          inputs: { price: 81_234, eps: 6_100 },
+          resultValue: 13.32,
+          resultUnit: 'lần',
+          savedAt: Date.now(),
+          needsSeries: false,
+        },
+      ]),
+    );
+    window.history.replaceState({}, '', '/cong-thuc/pe/?luu=pe-ma');
+
+    render(<Man spec={specOf('pe')} />);
+
+    expect(
+      await screen.findByRole('button', { name: `${t('detail.tickerChange')} FPT` }),
+    ).not.toBeNull();
+    expect(screen.queryByRole('button', { name: t('detail.loadPreset') })).toBeNull();
+    expect(feed.snapshots).not.toHaveBeenCalled();
+    expect((oNhap(/Giá thị trường/) as HTMLInputElement).value).toBe('81.234');
+  });
+
   it('công thức chuỗi giá: mở lại mà chuỗi đã khác thì nói ra, không im lặng đổi số', async () => {
     window.localStorage.setItem(
       SAVED_CALCS_KEY,
@@ -3752,6 +3786,67 @@ describe('WF-03 — giữ chuỗi đã thay tại chỗ khi rời màn rồi qua
     render(<Man spec={specOf('ty-so-sharpe')} />);
     await screen.findByRole('button', { name: t('detail.exampleLoaded') });
     expect(screen.getByTestId('result-text').textContent).toBe(truocKhiRoi);
+  });
+
+  /*
+   * Chip mã nói "chuỗi trên màn là của mã này" (16/10/2026). Chủ dự án báo ở bảng dữ liệu: nạp mẫu
+   * FPT rồi dán bộ số khác, đầu biểu đồ vẫn ghi FPT. Ở màn này chip mắc đúng lỗi ấy — dán chuỗi hay
+   * xem ví dụ minh hoạ thì chip "FPT" vẫn đứng đầu khối Số liệu. Mã của lượt xem vẫn được giữ (ca
+   * `?ma=` ngay trên cần nó), chỉ chip thôi hiện.
+   */
+  it('xem ví dụ minh hoạ khi đang có mã thì chip mã tắt, nút "Nạp mẫu" trở lại — kể cả sau F5', async () => {
+    seedActiveTicker('ty-so-sharpe');
+    render(<Man spec={specOf('ty-so-sharpe')} />);
+    await screen.findByRole('button', { name: /Đổi mã FPT/ });
+
+    await userEvent.click(screen.getByRole('button', { name: t('detail.loadExample') }));
+
+    expect(screen.queryByRole('button', { name: /Đổi mã/ })).toBeNull();
+    expect(screen.getByRole('button', { name: t('detail.loadPreset') })).not.toBeNull();
+    cleanup();
+
+    render(<Man spec={specOf('ty-so-sharpe')} />);
+    await screen.findByRole('button', { name: t('detail.exampleLoaded') });
+    expect(screen.queryByRole('button', { name: /Đổi mã/ })).toBeNull();
+  });
+
+  it('dán chuỗi của mình khi đang có mã thì chip mã tắt', async () => {
+    seedActiveTicker('ty-so-sharpe');
+    render(<Man spec={specOf('ty-so-sharpe')} />);
+    await screen.findByRole('button', { name: /Đổi mã FPT/ });
+
+    await userEvent.click(screen.getByRole('button', { name: t('detail.pasteSeries') }));
+    // Tấm mở ra là thấy sẵn chuỗi đang dùng (một phiên của FPT), nên phải xoá trước.
+    await userEvent.click(await screen.findByRole('button', { name: 'Xoá hết' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Dữ liệu mẫu' }));
+    await userEvent.click(await screen.findByRole('button', { name: 'Nạp 64 dòng' }));
+
+    await waitFor(() => {
+      expect(screen.queryByRole('button', { name: /Đổi mã/ })).toBeNull();
+    });
+    expect(screen.getByRole('button', { name: t('detail.loadPreset') })).not.toBeNull();
+    expect(screen.getByTestId('result-text').textContent).not.toContain(NO_VALUE);
+  });
+
+  it('cùng mã trên `?ma=` thì chuỗi đã thay thắng VÀ chip vẫn tắt sau khi mã nạp xong', async () => {
+    feed.snapshots.mockResolvedValue(new Map([['FPT', FPT_SNAPSHOT]]));
+    window.history.replaceState({}, '', '/cong-thuc/ty-so-sharpe/?ma=FPT');
+
+    render(<Man spec={specOf('ty-so-sharpe')} />);
+    await screen.findByRole('button', { name: /Đổi mã FPT/ });
+    await userEvent.click(screen.getByRole('button', { name: t('detail.loadExample') }));
+    cleanup();
+    feed.snapshots.mockClear();
+
+    render(<Man spec={specOf('ty-so-sharpe')} />);
+    // Nhánh `?ma=` chạy bất đồng bộ: chờ nó nạp mã xong rồi mới được kết luận về chip.
+    await waitFor(() => {
+      expect(feed.snapshots).toHaveBeenCalled();
+    });
+    await screen.findByRole('button', { name: t('detail.exampleLoaded') });
+    await waitFor(() => {
+      expect(screen.queryByRole('button', { name: /Đổi mã/ })).toBeNull();
+    });
   });
 
   it('bấm Huỷ thì chuỗi cũng bị xoá, không quay về ở lần mở sau', async () => {

@@ -75,6 +75,7 @@ import {
   removeDraft,
   removeRepeatGroup,
   repeatControls,
+  requestPersistentStorage,
   resolveRepeat,
   resolveRepeatSpec,
   runChain,
@@ -932,7 +933,17 @@ export function FormulaDetail({
     // Trộn CHỒNG lên bộ mặc định chứ không thay hẳn: bản lưu cũ có thể thiếu ô mà công thức nay
     // mới thêm, và một ô trống sẽ thành "thiếu đầu vào" thay vì giữ giá trị mặc định của nó.
     setInputs((current) => ({ ...current, ...saved.inputs }));
-    if (saved.code !== undefined) setLoadedPreset(saved.code);
+    /*
+     * Mã đi vào CẢ HAI ô trạng thái, không riêng `loadedPreset` (16/10/2026). Con chip mã ở hàng nút
+     * đọc `stickyTicker`; chỉ đặt `loadedPreset` thì màn bày nút "Nạp mẫu" như chưa từng có mã nào —
+     * chủ dự án lưu một phép tính kèm mã rồi mở lại từ Danh mục và _"không thấy mã đó trong công thức
+     * đâu"_. Không gọi mạng và không nạp lại số của mã: bộ số đã lưu là thứ người dùng tự chốt, kể
+     * cả những ô họ đã sửa sau khi nạp mã.
+     */
+    if (saved.code !== undefined) {
+      setLoadedPreset(saved.code);
+      setStickyTicker(saved.code);
+    }
     setRestored({
       name: saved.name,
       ...(saved.code === undefined ? {} : { code: saved.code }),
@@ -1152,6 +1163,22 @@ export function FormulaDetail({
   const workingSourceRef = useRef<WorkingSeriesSource | null>(null);
 
   /**
+   * Bản STATE của `workingSourceRef`, cho phần vẽ: chip mã chỉ hiện khi chuỗi trên màn đúng là của
+   * mã (16/10/2026). Mọi chỗ gán ref đều gán cả cái này, cùng giá trị.
+   *
+   * Chủ dự án báo ở bảng dữ liệu: nạp mẫu FPT rồi dán bộ số khác, đầu biểu đồ vẫn ghi "FPT". Màn
+   * này mắc đúng lỗi ấy ở con chip: dán chuỗi giá, hay bấm "Xem ví dụ minh hoạ" (chuỗi ví dụ có thể
+   * là STB hay VN-Index), thì `loadedPreset` và nhãn "↳ FPT" của ô đã tắt nhưng chip "FPT" vẫn
+   * đứng đầu khối Số liệu.
+   *
+   * KHÔNG xoá `stickyTicker` để chữa: nó còn là mã của LƯỢT XEM, thứ `WorkingSeries.code` và bản
+   * nháp dùng để đối chiếu với `?ma=` khi quay lại từ bảng dữ liệu (dán chuỗi của mình khi đang xem
+   * FPT rồi đi bảng và Back thì chuỗi ấy phải thắng 248 phiên của FPT). Xoá nó là mất đúng chuỗi
+   * vừa dán ở cú quay lại ấy. Nên mã vẫn sống, chỉ chip thôi nói thay cho chuỗi không phải của mã.
+   */
+  const [nguonChuoi, setNguonChuoi] = useState<WorkingSeriesSource | null>(null);
+
+  /**
    * Bản ghi đọc lên lúc mở màn, giữ lại cho nhánh `?ma=` bất đồng bộ đọc — cùng vai `draftRef`.
    */
   const workingSeriesRef = useRef<WorkingSeries | null>(null);
@@ -1164,6 +1191,7 @@ export function FormulaDetail({
    */
   const applyWorkingSeries = useCallback((record: WorkingSeries) => {
     workingSourceRef.current = record.source;
+    setNguonChuoi(record.source);
     setBars(record.rows);
     setSeriesCount(record.rows.length);
     setMarketSeriesOverride(record.marketSeries);
@@ -1862,6 +1890,7 @@ export function FormulaDetail({
        * động của người dùng — xoá ở đó là xoá đúng thứ effect khôi phục ngay dưới sắp đọc lên.
        */
       workingSourceRef.current = null;
+      setNguonChuoi(null);
       workingSeriesRef.current = null;
       try {
         window.sessionStorage.removeItem(WORKING_SERIES_KEY);
@@ -2032,6 +2061,7 @@ export function FormulaDetail({
 
     // Nạp chuỗi — cờ bật trước, effect ghi bám `bars` lo phần còn lại.
     workingSourceRef.current = 'example';
+    setNguonChuoi('example');
     setBars(rows);
     setSeriesCount(rows.length);
     setMarketSeriesOverride(example.marketSeries ?? null);
@@ -2159,6 +2189,8 @@ export function FormulaDetail({
       return false;
     }
 
+    // Đã nằm trên đĩa; giờ xin trình duyệt đừng dọn kho — xem `persistent-storage.ts`.
+    requestPersistentStorage();
     router.push(savedCalcsPath());
     return true;
   }
@@ -2176,6 +2208,7 @@ export function FormulaDetail({
    */
   function resetAll(): void {
     workingSourceRef.current = null;
+    setNguonChuoi(null);
     workingSeriesRef.current = null;
 
     /*
@@ -2753,10 +2786,12 @@ export function FormulaDetail({
 
               Điều kiện là `stickyTicker` chứ không phải `loadedPreset`: hai thứ lệch nhau khi mã
               không điền được ô nào (xem `applyPreset`), và đúng lúc ấy người dùng CÀNG cần lối
-              bỏ mã. Thanh cũ đã dùng `stickyTicker`, chip giữ nguyên điều kiện ấy.
+              bỏ mã. Thanh cũ đã dùng `stickyTicker`, chip giữ nguyên điều kiện ấy — cộng một vế
+              từ 16/10/2026: chuỗi trên màn là chuỗi dán hay chuỗi ví dụ (`nguonChuoi`) thì không
+              có chip, nút "Nạp mẫu" đứng lại chỗ ấy. Lý do ở docblock của `nguonChuoi`.
             */}
             {presetHelps &&
-              (stickyTicker === null ? (
+              (stickyTicker === null || nguonChuoi !== null ? (
                 <Button
                   variant="secondary"
                   size="sm"
@@ -3673,6 +3708,7 @@ export function FormulaDetail({
             // Chuỗi dán tại chỗ cũng chỉ sống trong state của màn — cất lại để nó qua được cú
             // rời màn, cùng đường với ví dụ minh hoạ. Xem `WORKING_SERIES_KEY`.
             workingSourceRef.current = 'paste';
+            setNguonChuoi('paste');
             setSeriesCount(result.rows.length);
             // Dán chuỗi thật của riêng mình thì thôi ở trạng thái "ví dụ minh hoạ" — người dùng
             // vừa đưa vào đúng thứ khối minh hoạ tồn tại để thay thế.

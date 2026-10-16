@@ -165,6 +165,11 @@ Mã phát hiện (A1, B3…) là mã lô rà cộng số thứ tự, dùng để
 - **Bằng chứng:** Ghi một dòng theo BRIEF. Phụ, gặp khi đối chiếu: cùng ngày 30/06/2026 các ví dụ P/B, BVPS, ROE dùng vốn chủ 39.851,5 tỷ ₫ (multiples.ts dòng 261). Probe tham khảo: E bằng vốn hoá 124.631,5 tỷ ₫ (ví dụ EV, valuation-multiples.ts dòng 352) cho WACC khoảng 10,87%, kéo theo ví dụ DCF và biên an toàn.
 - **Sửa (vi):** Chờ chủ dự án quyết (đã biết).
 - **Sửa (en):** Pending the project owner's decision (known issue).
+- **Đã áp 16/10/2026 (Q3 phương án a):** chủ dự án khoanh "vốn chủ" ở tiêu đề và "vốn chủ theo sổ sách"
+  ở dòng Thay số, _"2 định nghĩa đang bị nhầm lẫn"_. E thành vốn hoá 124.631,5 tỷ ₫ (cùng số ví dụ
+  `ev`), WACC 10,869%. Kéo theo A9: ví dụ DCF nhập WACC 10,87 (khớp số màn WACC hiện) ra 60.651 ₫; ví
+  dụ `bien-an-toan` ra −19,8661%. Ghi chú cả ba ví dụ viết lại; câu độ nhạy của A8 đo lại trên số mới
+  (g − 1 điểm: −13,67%; g + 1 điểm: +19,28%); ghi chú biên an toàn bỏ "ở trên" (một phần A13).
 
 #### `gia-tri-noi-tai-fcff` — Giá trị nội tại từ FCFF (DCF)
 

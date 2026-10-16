@@ -452,3 +452,89 @@ describe('sửa bảng thì chuỗi đã thay tại chỗ ở màn chi tiết h�
     expect(window.sessionStorage.getItem(WORKING_SERIES_KEY)).toBeNull();
   });
 });
+
+/*
+ * Hai câu chủ dự án bảo xoá như chữ dư (16/10/2026): dòng nhỏ cạnh "Bảng số liệu", và phần đuôi của
+ * mục chú thích phiên lỗi trên biểu đồ. Con số "N phiên lỗi" ở lại — hình thiếu phiên thì phải nói ra.
+ */
+describe('DataTableScreen — không còn chữ dư quanh bảng và biểu đồ', () => {
+  it('không có "Mới → cũ · sửa trực tiếp trong ô", và mục phiên lỗi chỉ còn con số', async () => {
+    napBang([
+      ...CHI_CO_GIA_DONG,
+      { date: '3', open: null, high: null, low: null, close: null, volume: null },
+    ]);
+    moMan();
+    await screen.findByLabelText('Dòng 1 · Đóng');
+
+    const chu = document.body.textContent;
+    expect(chu).not.toContain('Mới → cũ');
+    expect(chu).not.toContain('sửa trực tiếp trong ô');
+    expect(chu).toContain('1 phiên lỗi');
+    expect(chu).not.toContain('chưa vẽ, sửa ở bảng dưới');
+  });
+});
+
+/**
+ * Mã là nhãn của CHUỖI, nên chuỗi đổi nguồn thì mã phải đi (16/10/2026).
+ *
+ * Chủ dự án báo: nạp mẫu FPT, rồi "Dán Excel/CSV" bộ dữ liệu mẫu — biểu đồ và bảng vẽ chuỗi mới mà
+ * đầu thẻ biểu đồ vẫn ghi "FPT · 248 phiên". Mã gieo ở đây là "ZZZ": không trùng mã nào của sheet
+ * nạp mẫu, nên "không còn chữ ZZZ trên màn" không bị một danh sách mã khác làm nhiễu.
+ */
+describe('DataTableScreen — dán đè hay xoá bảng thì mã cũ không còn', () => {
+  const MA_CU = 'ZZZ';
+
+  function napBangCoMa(): void {
+    window.localStorage.setItem(
+      PRICE_SERIES_KEY,
+      serializeStoredSeries({ code: MA_CU, rows: CHI_CO_GIA_DONG }),
+    );
+  }
+
+  function maTrongKho(): string {
+    const raw = window.localStorage.getItem(PRICE_SERIES_KEY) ?? '{}';
+    return (JSON.parse(raw) as { code?: string }).code ?? '';
+  }
+
+  it('dán bộ dữ liệu mẫu đè lên bảng của mã thì mã biến mất, cả trên màn lẫn trong kho', async () => {
+    napBangCoMa();
+    moMan();
+    await screen.findByLabelText('Dòng 1 · Đóng');
+    // Có mã trên màn thì mới có cái để mất — không thì ca này không chứng minh được gì.
+    expect(document.body.textContent).toContain(MA_CU);
+
+    await userEvent.click(screen.getByRole('button', { name: 'Dán Excel/CSV' }));
+    // Tấm mở ra là thấy sẵn bảng đang dùng, nên nút ở chỗ "Dữ liệu mẫu" đang là "Xoá hết".
+    await userEvent.click(await screen.findByRole('button', { name: 'Xoá hết' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Dữ liệu mẫu' }));
+    await userEvent.click(await screen.findByRole('button', { name: 'Nạp 64 dòng' }));
+
+    await waitFor(() => {
+      expect(document.body.textContent).not.toContain(MA_CU);
+    });
+    expect(maTrongKho()).toBe('');
+  });
+
+  it('xoá cả bảng rồi gõ dòng mới thì dòng ấy không mang mã cũ', async () => {
+    napBangCoMa();
+    vi.spyOn(window, 'confirm').mockReturnValue(true);
+    moMan();
+    await screen.findByLabelText('Dòng 1 · Đóng');
+
+    await userEvent.click(screen.getByRole('button', { name: 'Xoá' }));
+    await userEvent.click(screen.getByRole('button', { name: /Thêm dòng/ }));
+
+    await screen.findByLabelText('Dòng 1 · Ngày');
+    expect(document.body.textContent).not.toContain(MA_CU);
+    expect(maTrongKho()).toBe('');
+  });
+
+  it('chỉ MỞ màn thì mã vẫn còn — bảng có dòng thì nhãn của nó không bị xoá nhầm', async () => {
+    napBangCoMa();
+    moMan();
+    await screen.findByLabelText('Dòng 1 · Đóng');
+
+    expect(document.body.textContent).toContain(MA_CU);
+    expect(maTrongKho()).toBe(MA_CU);
+  });
+});

@@ -1086,6 +1086,25 @@ describe('sắp xếp lại hàng nút và lưới đáp án — 24/09/2026', ()
   });
 
   /*
+   * Hai nút CÙNG CỠ (15/10/2026). "Bỏ qua" từng là `size="sm"`: cao 36px cạnh nút 44px, nên nền xám lúc
+   * trỏ chuột vào thấp hơn nút bên cạnh — chủ dự án chụp đúng chỗ ấy. Bỏ lớp biến thể ra thì hai nút phải
+   * mang cùng bộ lớp; một lớp cỡ lọt vào bên nào là ca này đỏ.
+   */
+  it('nút Bỏ qua cùng cỡ với nút Kiểm tra — không mang lớp cỡ nhỏ', () => {
+    render(<QuizBody formulaId="pe" items={BA_CAU} />);
+    fireEvent.click(screen.getByRole('button'));
+
+    const boLopBienThe = (nut: HTMLElement): string[] =>
+      nut.className
+        .split(/\s+/)
+        .filter((lop) => !/ghost|primary/.test(lop))
+        .sort();
+    expect(boLopBienThe(screen.getByRole('button', { name: t('quiz.skip') }))).toEqual(
+      boLopBienThe(screen.getByRole('button', { name: t('quiz.check') })),
+    );
+  });
+
+  /*
    * Hai cột ở khổ PC quyết định bằng ĐỘ DÀI ĐÁP ÁN, đo lúc dựng. Đo bằng JS lúc chạy thì lượt
    * dựng đầu tiên trên trình duyệt sẽ khác HTML tĩnh — xem `khoHaiCot()` ở `QuizQuestion`.
    *

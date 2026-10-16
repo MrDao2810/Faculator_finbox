@@ -1408,11 +1408,19 @@ export const vi = {
   'series.legendUp': 'Phiên tăng',
   'series.legendDown': 'Phiên giảm',
   'series.legendLast': 'Đóng cửa gần nhất',
-  'series.legendSkipped': 'phiên lỗi — chưa vẽ, sửa ở bảng dưới',
+  /*
+   * Từng là "phiên lỗi — chưa vẽ, sửa ở bảng dưới". Chủ dự án bảo xoá phần đuôi ngày 16/10/2026
+   * như chữ dư: chấm đỏ và con số đã nói có phiên bị bỏ, còn cột "Kiểm tra dữ liệu" ngay dưới gọi
+   * tên từng dòng kèm nút "Tới dòng N".
+   */
+  'series.legendSkipped': 'phiên lỗi',
 
   'series.tableTitle': 'Bảng số liệu',
-  /* Chủ dự án chốt 10/09/2026: ngày mới nhất lên ĐẦU bảng. Câu này nói ra thứ tự đang dùng. */
-  'series.tableHint': 'Mới → cũ · sửa trực tiếp trong ô',
+  /*
+   * Mộ chí: `series.tableHint` ("Mới → cũ · sửa trực tiếp trong ô"), dòng nhỏ cạnh tiêu đề "Bảng số
+   * liệu". Chủ dự án bảo xoá ngày 16/10/2026 như chữ dư: cột Ngày đã cho thấy thứ tự, và ô có viền
+   * đã cho thấy gõ được.
+   */
   'series.checkTitle': 'Kiểm tra dữ liệu',
   'series.checkFloor': 'Beta, Sharpe',
   'series.checkCap': 'tối đa',

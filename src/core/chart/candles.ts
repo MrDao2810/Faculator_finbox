@@ -76,8 +76,8 @@ export interface CandleModel {
   drawnCount: number;
   /**
    * Số phiên trong đoạn bị BỎ vì đang có lỗi. Bản vẽ dành hẳn một mục chú thích cho con số này
-   * ("2 phiên lỗi — chưa vẽ, sửa ở bảng dưới"): hình vẽ thiếu phiên mà không nói ra là đúng loại
-   * im lặng FR-06 sinh ra để chặn.
+   * ("2 phiên lỗi", phần đuôi "— chưa vẽ, sửa ở bảng dưới" bỏ từ 16/10/2026): hình vẽ thiếu phiên
+   * mà không nói ra là đúng loại im lặng FR-06 sinh ra để chặn.
    */
   skippedCount: number;
   /** Vị trí (trong `rows` gốc) của những phiên bị bỏ, theo thứ tự bảng. */

@@ -471,10 +471,9 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'series.legendUp': 'Up session',
   'series.legendDown': 'Down session',
   'series.legendLast': 'Latest close',
-  'series.legendSkipped': 'flagged sessions — not drawn, fix them in the table below',
+  'series.legendSkipped': 'flagged sessions',
 
   'series.tableTitle': 'Data table',
-  'series.tableHint': 'Newest → oldest · edit straight in the cell',
   'series.checkTitle': 'Data check',
   'series.checkFloor': 'Beta, Sharpe',
   'series.checkCap': 'max',

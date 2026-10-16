@@ -925,20 +925,29 @@ export const WACC: FormulaModule = {
         en: 'Using the book value of equity instead of market capitalization, or forgetting to multiply the cost of debt by (1 − tax rate).',
       },
     },
+    /*
+     * E là VỐN HOÁ, đúng như bảng ký hiệu, mô tả ô và "Sai lầm thường gặp" ở trên (16/10/2026). Ví dụ
+     * từng nhập vốn chủ sổ sách 40.995,7 tỷ ₫ ngày 30/06/2026, tức mắc đúng lỗi chính trang này cảnh
+     * báo; chủ dự án đọc thấy "vốn chủ" ở tiêu đề và "vốn chủ theo sổ sách" ở dòng Thay số là hai thứ
+     * khác nhau. Vốn hoá lấy cùng số với ví dụ `ev` (giá phiên 11/09/2026 × số cổ phiếu 30/06/2026),
+     * nợ vay vẫn là số 30/06/2026. Đổi E kéo theo WACC 9,36% → 10,87%, nên ví dụ
+     * `gia-tri-noi-tai-fcff` (nhận WACC từ đây) và `bien-an-toan` (nhận giá trị nội tại từ DCF) đổi
+     * theo trong cùng lượt.
+     */
     example: {
       title: {
-        vi: 'FPT — vốn chủ 40.995,7 tỷ ₫ ngày 30/06/2026, nợ vay 17.444 tỷ, Re 11,92%, Rd 4,2%, thuế 20%',
-        en: 'FPT — equity 40,995.7 billion ₫ at 2026-06-30, debt 17,444 billion, Re 11.92%, Rd 4.2%, tax 20%',
+        vi: 'FPT — vốn hoá 124.631,5 tỷ ₫ phiên 11/09/2026, nợ vay 17.444 tỷ ngày 30/06/2026, Re 11,92%, Rd 4,2%, thuế 20%',
+        en: 'FPT — market cap 124,631.5 billion ₫ at the 2026-09-11 close, debt 17,444 billion at 2026-06-30, Re 11.92%, Rd 4.2%, tax 20%',
       },
-      inputs: { equity: 40_995.7, debt: 17_444, costEquity: 11.92, costDebt: 4.2, taxRate: 20 },
-      expected: 9.3649,
+      inputs: { equity: 124_631.5, debt: 17_444, costEquity: 11.92, costDebt: 4.2, taxRate: 20 },
+      expected: 10.869,
       note: {
-        vi: 'Vốn chủ chiếm khoảng 70% cơ cấu và đắt hơn nợ nhiều lần nên gánh phần lớn kết quả. Chi phí nợ thấp vì FPT vay chủ yếu ngắn hạn bằng ngoại tệ lãi suất thấp, lại được khấu trừ thuế nên sau thuế chỉ còn 3,36%.',
-        en: 'Equity is about 70% of the structure and costs several times more than debt, so it carries most of the figure. The cost of debt is low because FPT borrows mostly short-term in low-rate foreign currencies, and interest is tax-deductible, leaving 3.36% after tax.',
+        vi: 'Tính theo vốn hoá thì vốn chủ chiếm khoảng 88% cơ cấu và đắt hơn nợ nhiều lần nên gánh gần trọn kết quả. Lấy nhầm vốn chủ sổ sách 40.995,7 tỷ ₫ thay cho vốn hoá thì WACC chỉ ra 9,36%, thấp hơn khoảng 1,5 điểm phần trăm. Chi phí nợ thấp vì FPT vay chủ yếu ngắn hạn bằng ngoại tệ lãi suất thấp, lại được khấu trừ thuế nên sau thuế chỉ còn 3,36%.',
+        en: 'At market value, equity is about 88% of the structure and costs several times more than debt, so it carries almost all of the figure. Using the book equity of 40,995.7 billion ₫ instead of the market cap gives only 9.36%, about 1.5 percentage points too low. The cost of debt is low because FPT borrows mostly short-term in low-rate foreign currencies, and interest is tax-deductible, leaving 3.36% after tax.',
       },
       source: {
-        vi: 'CafeF, báo cáo tài chính hợp nhất quý 2/2026 của FPT Corp (mã FPT), chốt 15/09/2026.',
-        en: 'CafeF, FPT Corp’s (ticker FPT) consolidated Q2 2026 financial statements, locked in 2026-09-15.',
+        vi: 'CafeF, báo cáo tài chính hợp nhất quý 2/2026 của FPT Corp (mã FPT); vốn hoá theo giá phiên 11/09/2026, chốt 15/09/2026.',
+        en: 'CafeF, FPT Corp’s (ticker FPT) consolidated Q2 2026 financial statements; market cap at the 2026-09-11 close, locked in 2026-09-15.',
       },
     },
     tests: [
@@ -1660,14 +1669,16 @@ export const GIA_TRI_NOI_TAI_FCFF: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'FPT — FCFF 5.168,3 tỷ ₫, tăng 5%/năm, WACC 9,37%, nợ vay ròng −11.527,6 tỷ, 1.714,33 triệu CP',
-        en: 'FPT — FCFF 5,168.3 billion ₫, growing 5%/year, WACC 9.37%, net debt −11,527.6 billion, 1,714.33 million shares',
+        vi: 'FPT — FCFF 5.168,3 tỷ ₫, tăng 5%/năm, WACC 10,87%, nợ vay ròng −11.527,6 tỷ, 1.714,33 triệu CP',
+        en: 'FPT — FCFF 5,168.3 billion ₫, growing 5%/year, WACC 10.87%, net debt −11,527.6 billion, 1,714.33 million shares',
       },
-      inputs: { fcff: 5_168.3, growth: 5, wacc: 9.37, netDebt: -11_527.6, shares: 1_714.33 },
-      expected: 79_161,
+      // WACC là kết quả ví dụ của `wacc` (10,869%) làm tròn như màn hiện; từng là 9,37 khi ví dụ ấy
+      // còn tính vốn chủ theo sổ sách (16/10/2026, xem ghi chú ở ví dụ `wacc`).
+      inputs: { fcff: 5_168.3, growth: 5, wacc: 10.87, netDebt: -11_527.6, shares: 1_714.33 },
+      expected: 60_651,
       note: {
-        vi: 'Nợ vay ròng âm nghĩa là FPT giữ tiền và đầu tư tài chính ngắn hạn nhiều hơn nợ vay, nên phần ấy cộng thêm vào giá trị của cổ đông. Kết quả phụ thuộc nặng vào hiệu WACC − g: hạ g một điểm phần trăm là giá trị rơi hơn 20%, nên bản định giá nghiêm túc luôn kèm bảng độ nhạy hai chiều thay vì một con số duy nhất.',
-        en: 'Negative net debt means FPT holds more cash and short-term investments than borrowings, so that balance adds to the shareholders’ share. The result leans heavily on the WACC − g spread: cutting g by one percentage point takes over 20% off the value, which is why a serious valuation always ships a two-way sensitivity table instead of a single figure.',
+        vi: 'Nợ vay ròng âm nghĩa là FPT giữ tiền và đầu tư tài chính ngắn hạn nhiều hơn nợ vay, nên phần ấy cộng thêm vào giá trị của cổ đông. Kết quả thấp hơn thị giá 72.700 ₫ phiên 11/09/2026: với dòng tiền và các giả định này, thị trường đang trả nhiều hơn mức dòng tiền biện minh được. Kết quả cũng phụ thuộc nặng vào hiệu WACC − g: hạ g một điểm phần trăm là giá trị rơi gần 14%, còn nâng một điểm thì tăng hơn 19%, nên bản định giá nghiêm túc luôn kèm bảng độ nhạy hai chiều thay vì một con số duy nhất.',
+        en: 'Negative net debt means FPT holds more cash and short-term investments than borrowings, so that balance adds to the shareholders’ share. The result sits below the 72,700 ₫ market price of the 2026-09-11 session: on this cash flow and these assumptions, the market is paying more than the cash flow can justify. The result also leans heavily on the WACC − g spread: cutting g by one percentage point takes nearly 14% off the value, while raising it by one point adds more than 19%, which is why a serious valuation always ships a two-way sensitivity table instead of a single figure.',
       },
       source: {
         vi: 'CafeF, bảng cân đối kế toán ngày 30/06/2026 của FPT Corp (mã FPT), chốt 15/09/2026.',
@@ -2269,14 +2280,16 @@ export const BIEN_AN_TOAN: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'FPT — thị giá 72.700 ₫ phiên 11/09/2026 so với giá trị nội tại 79.161 ₫ từ DCF',
-        en: 'FPT — market price 72,700 ₫ on 2026-09-11 against an intrinsic value of 79,161 ₫ from DCF',
+        vi: 'FPT — thị giá 72.700 ₫ phiên 11/09/2026 so với giá trị nội tại 60.651 ₫ từ DCF',
+        en: 'FPT — market price 72,700 ₫ on 2026-09-11 against an intrinsic value of 60,651 ₫ from DCF',
       },
-      inputs: { intrinsic: 79_161, price: 72_700 },
-      expected: 8.1618,
+      // Giá trị nội tại là kết quả ví dụ DCF; từng là 79.161 ₫ (biên +8,16%) khi WACC còn tính vốn chủ
+      // theo sổ sách (16/10/2026, xem ghi chú ở ví dụ `wacc`).
+      inputs: { intrinsic: 60_651, price: 72_700 },
+      expected: -19.8661,
       note: {
-        vi: 'Giá trị nội tại lấy nguyên từ mô hình DCF ở trên, nên biên này thừa hưởng mọi giả định của mô hình đó. Graham đòi biên tối thiểu 30–50% chính vì lý do ấy: ở mức đệm chưa tới mười điểm phần trăm, chỉ một giả định lệch nhẹ là kết luận đảo chiều.',
-        en: 'The intrinsic value is taken straight from the DCF model above, so this margin inherits every assumption that model makes. Graham asked for at least 30–50% for exactly that reason: with a cushion under ten percentage points, a single assumption drifting slightly flips the conclusion.',
+        vi: 'Biên âm nghĩa là thị giá đã cao hơn giá trị nội tại mà mô hình DCF ước ra: theo chính các giả định ấy, mua ở giá này là trả đắt chứ không có khoản đệm nào. Giá trị nội tại thừa hưởng mọi giả định của mô hình đó, nên Graham đòi biên tối thiểu 30–50% trước khi mua.',
+        en: 'A negative margin means the market price is already above the intrinsic value the DCF model estimates: on its own assumptions, buying at this price means overpaying, with no cushion at all. The intrinsic value inherits every assumption that model makes, which is why Graham asked for a margin of at least 30–50% before buying.',
       },
       source: {
         vi: 'Investing.com, giá đóng cửa FPT Corp (mã FPT) phiên 11/09/2026.',

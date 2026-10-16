@@ -15,6 +15,7 @@ export const HOW_TO_FUNDAMENTALS: Readonly<Record<string, FormulaHowTo>> = {
     skipped: {
       EPS: 'ket-qua',
       '\\text{LNST}': 'nhap-tho',
+      '\\text{Cổ tức ưu đãi}': 'nhap-tho',
       '\\text{Số CP lưu hành}': 'nhap-tho',
       '10^9': 'hang-so',
     },
@@ -36,21 +37,36 @@ export const HOW_TO_FUNDAMENTALS: Readonly<Record<string, FormulaHowTo>> = {
 
   roe: {
     entries: [],
-    skipped: { ROE: 'ket-qua', '\\text{LNST}': 'nhap-tho', '100': 'hang-so' },
+    skipped: {
+      ROE: 'ket-qua',
+      '\\text{LNST}': 'nhap-tho',
+      '\\text{Vốn chủ sở hữu}': 'nhap-tho',
+      '100': 'hang-so',
+    },
     whyNone:
       'Lợi nhuận sau thuế và vốn chủ sở hữu đều đọc thẳng trên báo cáo tài chính, và calc chỉ chia hai số ấy rồi nhân 100 đúng như hình.',
   },
 
   roa: {
     entries: [],
-    skipped: { ROA: 'ket-qua', '\\text{LNST}': 'nhap-tho', '100': 'hang-so' },
+    skipped: {
+      ROA: 'ket-qua',
+      '\\text{LNST}': 'nhap-tho',
+      '\\text{Tổng tài sản}': 'nhap-tho',
+      '100': 'hang-so',
+    },
     whyNone:
       'Lợi nhuận sau thuế và tổng tài sản đều đọc thẳng trên báo cáo tài chính, và calc chỉ chia hai số ấy rồi nhân 100 đúng như hình.',
   },
 
   'bien-loi-nhuan-rong': {
     entries: [],
-    skipped: { ROS: 'ket-qua', '\\text{LNST}': 'nhap-tho', '100': 'hang-so' },
+    skipped: {
+      ROS: 'ket-qua',
+      '\\text{LNST}': 'nhap-tho',
+      '\\text{Doanh thu thuần}': 'nhap-tho',
+      '100': 'hang-so',
+    },
     whyNone:
       'Lợi nhuận sau thuế và doanh thu thuần đều đọc thẳng trên báo cáo kết quả kinh doanh, và calc chỉ chia hai số ấy rồi nhân 100 đúng như hình.',
   },
@@ -73,28 +89,47 @@ export const HOW_TO_FUNDAMENTALS: Readonly<Record<string, FormulaHowTo>> = {
    */
   'no-tren-von-chu': {
     entries: [],
-    skipped: { 'D/E': 'ket-qua', D: 'nhap-tho', E: 'nhap-tho' },
+    skipped: {
+      'D/E': 'ket-qua',
+      D: 'nhap-tho',
+      E: 'nhap-tho',
+      '\\text{Tổng nợ phải trả}': 'nhap-tho',
+      '\\text{Vốn chủ sở hữu}': 'nhap-tho',
+    },
     whyNone:
       'Tổng nợ phải trả và vốn chủ sở hữu đều đọc thẳng trên bảng cân đối kế toán, và calc chỉ chia hai số ấy đúng như hình.',
   },
 
   'thanh-toan-hien-hanh': {
     entries: [],
-    skipped: { '\\text{Current ratio}': 'ket-qua' },
+    skipped: {
+      '\\text{Current ratio}': 'ket-qua',
+      '\\text{Tài sản ngắn hạn}': 'nhap-tho',
+      '\\text{Nợ ngắn hạn}': 'nhap-tho',
+    },
     whyNone:
       'Tài sản ngắn hạn và nợ ngắn hạn đều đọc thẳng trên bảng cân đối kế toán, và calc chỉ chia hai số ấy đúng như hình.',
   },
 
   'thanh-toan-nhanh': {
     entries: [],
-    skipped: { '\\text{Quick ratio}': 'ket-qua' },
+    skipped: {
+      '\\text{Quick ratio}': 'ket-qua',
+      '\\text{Tài sản ngắn hạn}': 'nhap-tho',
+      '\\text{Hàng tồn kho}': 'nhap-tho',
+      '\\text{Nợ ngắn hạn}': 'nhap-tho',
+    },
     whyNone:
       'Tài sản ngắn hạn, hàng tồn kho và nợ ngắn hạn đều đọc thẳng trên bảng cân đối kế toán, còn phép trừ tồn kho và phép chia đã hiện trọn trong hình.',
   },
 
   'vong-quay-tong-tai-san': {
     entries: [],
-    skipped: { '\\text{Vòng quay}': 'ket-qua' },
+    skipped: {
+      '\\text{Vòng quay}': 'ket-qua',
+      '\\text{Doanh thu thuần}': 'nhap-tho',
+      '\\text{Tổng tài sản}': 'nhap-tho',
+    },
     whyNone:
       'Doanh thu thuần và tổng tài sản đều đọc thẳng trên báo cáo tài chính, và calc chỉ chia hai số ấy đúng như hình.',
   },

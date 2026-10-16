@@ -153,8 +153,9 @@ export function LoiGiai({
             {/*
               `<dl>` con: mỗi ký hiệu là một `<dt>`, con số và nghĩa là `<dd>` — "V: bằng 42.500, là
               giá trị nội tại…" đọc đúng thành một cặp với trình đọc màn hình. Ký hiệu có dòng trong
-              bảng thì in MathML của bảng và nghĩa của bảng; cụm `\text{…}` tự nói nghĩa (bảng không có
-              dòng riêng) thì in đúng chữ ấy.
+              bảng thì in MathML của bảng và nghĩa của bảng. Từ 16/10/2026 mọi cụm `\text{…}` của hình
+              đều có dòng (luật 1 của `latex-symbols.ts`); nhánh in chữ trơn còn cho cụm chỉ nằm trong
+              một dòng ghép (`\text{mục tiêu}` trong `P_{\text{mục tiêu}}`).
             */}
             <dl className={styles.giaiThay}>
               {gan.map((dong) => {

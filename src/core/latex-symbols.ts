@@ -10,8 +10,13 @@
  *
  * Luật:
  *
- * 1. `\text{…}` — chữ thường tiếng Việt ("Vốn chủ sở hữu") tự giải thích, bỏ. Riêng VIẾT TẮT ngắn
- *    không dấu cách (`LNST`, `TSNH`, `Cov`, `Payout`) là token, vì người mới không tự đọc ra được.
+ * 1. `\text{…}` — MỌI cụm là token. VIẾT TẮT ngắn không dấu cách (`LNST`, `TSNH`, `Cov`, `Payout`) ra
+ *    token trần; cụm chữ thường ("Tài sản ngắn hạn") ra token `\text{…}`. Cụm chữ thường từng được
+ *    coi là tự giải thích nên bỏ, và 13 cụm ở 8 công thức vì thế không có dòng bảng nào: chủ dự án
+ *    chỉ vào "Tài sản ngắn hạn" và "Nợ ngắn hạn" của hệ số thanh toán hiện hành, bảng bên phải chỉ có
+ *    "Current ratio" trong khi Bảng biến cuối trang lại giải thích cả hai — _"bên trên không có chú
+ *    thích mà bên dưới lại có?"_ (16/10/2026). Tên một khoản trên báo cáo tài chính chưa nói nó gồm
+ *    những gì, nên nó cần một dòng như mọi ký hiệu khác.
  * 2. Lệnh trình bày và toán tử (`\frac`, `\sum`, `\max`, `\ln`, `\times`, `\left`…) bỏ. Chữ Hy Lạp
  *    (`\beta`, `\sigma`, `\Delta`…) giữ làm token, vì chúng là ký hiệu.
  * 3. `\bar{X}`, `\overline{X}`, `\hat{X}` là ký hiệu RIÊNG (trung bình của X) → token cả cụm, kèm
@@ -103,8 +108,9 @@ export function latexSymbolTokens(latex: string): ReadonlyArray<string> {
 
   // 1. \text{…}
   rest = rest.replace(/\\text\{([^{}]*)\}/g, (_m, inner: string) => {
-    const word = inner.trim();
+    const word = inner.trim().replace(/\s+/g, ' ');
     if (ABBREVIATION.test(word)) tokens.add(word);
+    else if (word !== '') tokens.add(`\\text{${word}}`);
     return ' ';
   });
 

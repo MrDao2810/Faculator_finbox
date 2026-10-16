@@ -451,8 +451,9 @@ export interface FormulaSpec extends FormulaSummary {
    * `L = max{k : r_{t+1} < 0, …}` và nói "không hiểu các giá trị".
    *
    * Ba luật, đều có cửa gác ở `formulas.test.ts`: mọi công thức đều có bảng; mỗi mục chép nguyên văn
-   * từ `latex`; và gộp các mục lại phải PHỦ HẾT mọi chữ cái, chữ Hy Lạp, viết tắt và hằng số đáng
-   * hỏi trong `latex` (`latexSymbolTokens()` tách chúng ra). Hằng số 0, 1, 2 không bị đòi, nhưng
+   * từ `latex`; và gộp các mục lại phải PHỦ HẾT mọi chữ cái, chữ Hy Lạp, cụm `\text{…}` (cả viết tắt
+   * lẫn chữ Việt như "Tài sản ngắn hạn", từ 16/10/2026) và hằng số đáng hỏi trong `latex`
+   * (`latexSymbolTokens()` tách chúng ra). Hằng số 0, 1, 2 không bị đòi, nhưng
    * nên có khi không hiển nhiên — số 1 của IRR. `100` thì bị đòi từ 17/09/2026, khi chủ dự án hỏi
    * "tại sao lại nhân với 100".
    *

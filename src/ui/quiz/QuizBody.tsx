@@ -476,6 +476,11 @@ export function QuizBody({
 
               Dòng gợi ý "Chọn một đáp án để mở nút Kiểm tra" đã BỎ HẲN cùng lần ấy — nút xám và
               không bấm được đã nói đúng điều đó rồi, thêm một câu nữa là thừa.
+
+              "Bỏ qua" CÙNG CỠ với "Kiểm tra" (15/10/2026). Nó từng là `size="sm"` — cao 36px cạnh
+              nút 44px — nên lúc trỏ chuột vào, nền xám hiện ra thấp hơn nút bên cạnh. Chủ dự án
+              chụp đúng chỗ ấy: _"bo tròn xung quanh bị nhỏ hơn button bên cạnh"_. Vai phụ của nó do
+              `ghost` lo (không nền, chữ dịu), không cần thêm cỡ nhỏ.
             */}
             <div className={styles.actions}>
               {!answered ? (
@@ -483,7 +488,7 @@ export function QuizBody({
                   <Button onClick={check} disabled={!traLoiDuoc}>
                     {t('quiz.check')}
                   </Button>
-                  <Button variant="ghost" size="sm" onClick={skip}>
+                  <Button variant="ghost" onClick={skip}>
                     {t('quiz.skip')}
                   </Button>
                 </>

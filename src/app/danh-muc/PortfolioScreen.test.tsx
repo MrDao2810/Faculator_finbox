@@ -4116,3 +4116,174 @@ describe('WF-06 — sắp bảng Công thức bằng tiêu đề cột', () => {
     expect(window.localStorage.getItem(PORTFOLIO_SORT_KEY)).toBeNull();
   });
 });
+
+/*
+ * ── Hai tab cùng mở Danh mục: không tab nào ghi đè mất dữ liệu của tab kia (16/10/2026) ─────────────
+ *
+ * Chủ dự án hỏi dữ liệu của khách có mất khi thoát web không. Thoát thì không; HAI TAB thì có — đo trên
+ * Chrome thật trước khi sửa: tab khác lưu "Bản C", tab này xoá "Bản A", kho còn mỗi "Bản B". Màn ghi
+ * nguyên mảng trong state của nó. Các ca dưới ghi kho từ "tab khác" KHÔNG phát sự kiện ở hai ca đầu —
+ * đúng khoảng hở tab này chưa kịp biết — nên chúng gác cú đọc lại TRƯỚC thao tác, còn các ca sau gác
+ * đường sự kiện `storage` / quay lại tab.
+ */
+describe('Danh mục — hai tab cùng mở, không tab nào ghi đè mất dữ liệu của tab kia', () => {
+  const banLuu = (id: string, name: string): Record<string, unknown> => ({
+    id,
+    formulaId: 'pe',
+    name,
+    inputs: { price: 50_000, eps: 5_000 },
+    resultValue: 10,
+    resultUnit: 'lần',
+    savedAt: new Date(2026, 7, 25, 10, 0, 0).getTime(),
+    needsSeries: false,
+  });
+  const tenTrongKho = (): string[] =>
+    (
+      JSON.parse(window.localStorage.getItem(SAVED_CALCS_KEY) ?? '[]') as Array<{ name: string }>
+    ).map((item) => item.name);
+  const maTrongKho = (): string[] =>
+    (JSON.parse(window.localStorage.getItem(PORTFOLIO_KEY) ?? '[]') as Array<{ code: string }>).map(
+      (item) => item.code,
+    );
+  /** "Tab khác" ghi thẳng vào kho — tab đang thử không nhận được gì. */
+  const tabKhacGhi = (key: string, sua: (list: unknown[]) => unknown[]): string => {
+    const raw = JSON.stringify(
+      sua(JSON.parse(window.localStorage.getItem(key) ?? '[]') as unknown[]),
+    );
+    window.localStorage.setItem(key, raw);
+    return raw;
+  };
+
+  it('tab khác lưu thêm một phép tính, tab này xoá một dòng: phép tính của tab kia còn nguyên', async () => {
+    window.localStorage.setItem(
+      SAVED_CALCS_KEY,
+      JSON.stringify([banLuu('pe-a', 'Bản A'), banLuu('pe-b', 'Bản B')]),
+    );
+    render(<PortfolioScreen />);
+    await bamTab('Công thức');
+    await screen.findByRole('link', { name: 'Mở Bản A' });
+
+    tabKhacGhi(SAVED_CALCS_KEY, (list) => [banLuu('pe-c', 'Bản C'), ...list]);
+    await userEvent.click(screen.getByRole('button', { name: 'Xoá Bản A' }));
+
+    expect(tenTrongKho()).toEqual(['Bản C', 'Bản B']);
+  });
+
+  it('tab khác thêm một mã, tab này xoá một mã: mã của tab kia còn nguyên', async () => {
+    window.localStorage.setItem(
+      PORTFOLIO_KEY,
+      JSON.stringify([
+        { code: 'FPT', quantity: 100, costPrice: 60_000, buyDate: '2026-01-02', beta: null },
+        { code: 'VNM', quantity: 50, costPrice: 60_000, buyDate: '2026-01-02', beta: null },
+      ]),
+    );
+    render(<PortfolioScreen />);
+    const vnm = await dongMa('VNM');
+
+    tabKhacGhi(PORTFOLIO_KEY, (list) => [
+      ...list,
+      { code: 'HPG', quantity: 200, costPrice: 25_000, buyDate: '2026-01-03', beta: null },
+    ]);
+    await userEvent.click(within(vnm).getByRole('button', { name: 'Xoá VNM' }));
+
+    await waitFor(() => {
+      expect(maTrongKho()).toEqual(['FPT', 'HPG']);
+    });
+  });
+
+  it('tab khác thêm một mã, tab này thêm một mã khác: kho có cả hai', async () => {
+    seedHolding();
+    render(<PortfolioScreen />);
+    await dongMa('FPT');
+
+    tabKhacGhi(PORTFOLIO_KEY, (list) => [
+      ...list,
+      { code: 'VNM', quantity: 50, costPrice: 60_000, buyDate: '2026-01-02', beta: null },
+    ]);
+    await chonMaTrongForm('HPG');
+    await userEvent.type(screen.getByLabelText('Số cổ phiếu nắm giữ'), '200');
+    await userEvent.type(screen.getByLabelText('Giá vốn một cổ phiếu (₫)'), '25000');
+    await userEvent.click(screen.getByRole('button', { name: 'Thêm vào danh mục' }));
+
+    await waitFor(() => {
+      expect([...maTrongKho()].sort()).toEqual(['FPT', 'HPG', 'VNM']);
+    });
+  });
+
+  it('tab khác lưu một phép tính: bảng của tab này hiện nó ngay qua sự kiện storage', async () => {
+    window.localStorage.setItem(SAVED_CALCS_KEY, JSON.stringify([banLuu('pe-a', 'Bản A')]));
+    render(<PortfolioScreen />);
+    await bamTab('Công thức');
+    await screen.findByRole('link', { name: 'Mở Bản A' });
+
+    const moi = tabKhacGhi(SAVED_CALCS_KEY, (list) => [banLuu('pe-c', 'Bản C'), ...list]);
+    fireEvent(window, new StorageEvent('storage', { key: SAVED_CALCS_KEY, newValue: moi }));
+
+    expect(await screen.findByRole('link', { name: 'Mở Bản C' })).toBeTruthy();
+  });
+
+  it('tab khác xoá sạch kho (Cài đặt): bảng tab này trống theo, và KHÔNG ghi mã cũ trở lại', async () => {
+    seedHolding();
+    render(<PortfolioScreen />);
+    await dongMa('FPT');
+
+    window.localStorage.clear();
+    fireEvent(window, new StorageEvent('storage', { key: null }));
+
+    await waitFor(() => {
+      expect(screen.queryByRole('button', { name: 'Sửa FPT' })).toBeNull();
+    });
+    expect(maTrongKho()).toEqual([]);
+  });
+
+  it('quay lại tab (visibilitychange): đọc lại kho, mã tab kia vừa thêm hiện ra', async () => {
+    seedHolding();
+    render(<PortfolioScreen />);
+    await dongMa('FPT');
+
+    tabKhacGhi(PORTFOLIO_KEY, (list) => [
+      ...list,
+      { code: 'HPG', quantity: 200, costPrice: 25_000, buyDate: '2026-01-03', beta: null },
+    ]);
+    fireEvent(document, new Event('visibilitychange'));
+
+    expect(await screen.findByRole('button', { name: 'Sửa HPG' })).toBeTruthy();
+  });
+});
+
+/*
+ * Xin trình duyệt giữ kho lâu dài — `requestPersistentStorage()` (16/10/2026). Chỉ lúc người dùng VỪA
+ * LƯU, không lúc mở màn: Firefox hỏi người dùng một câu, và câu ấy chỉ có nghĩa ngay sau cú Lưu.
+ */
+describe('Danh mục — xin giữ kho lâu dài sau cú Lưu', () => {
+  let persist: ReturnType<typeof vi.fn>;
+
+  beforeEach(() => {
+    persist = vi.fn(() => Promise.resolve(true));
+    Object.defineProperty(window.navigator, 'storage', {
+      configurable: true,
+      value: { persisted: () => Promise.resolve(false), persist },
+    });
+  });
+
+  afterEach(() => {
+    Reflect.deleteProperty(window.navigator, 'storage');
+  });
+
+  it('mở màn thì KHÔNG xin; thêm một mã thì xin', async () => {
+    seedHolding();
+    render(<PortfolioScreen />);
+    await dongMa('FPT');
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(persist).not.toHaveBeenCalled();
+
+    await chonMaTrongForm('HPG');
+    await userEvent.type(screen.getByLabelText('Số cổ phiếu nắm giữ'), '200');
+    await userEvent.type(screen.getByLabelText('Giá vốn một cổ phiếu (₫)'), '25000');
+    await userEvent.click(screen.getByRole('button', { name: 'Thêm vào danh mục' }));
+
+    await waitFor(() => {
+      expect(persist).toHaveBeenCalledTimes(1);
+    });
+  });
+});

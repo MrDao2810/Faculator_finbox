@@ -873,6 +873,38 @@ carry a clause. A second sentence appears only when some holding has no price:
 `total` sums `row.value ?? 0`, so an unpriced holding drops out of the denominator and the
 remaining weights add up to 100% while the portfolio does not.
 
+## Data on the customer's machine — what survives, what does not (16/10/2026)
+
+Holdings, pending codes and saved calculations live ONLY in the customer's `localStorage`: no account, no server.
+The owner asked whether a customer loses them on leaving the site. Measured: **closing the tab or the browser loses
+nothing** (every write is a synchronous `setItem` right after the action; the holdings write waits for `loaded`, so
+the first render never writes `[]` over real data; a parser drops only the malformed entry; a full store refuses with
+a message). What was found and fixed, and the rules that keep it fixed:
+
+- **Two tabs used to overwrite each other.** Measured in Chrome before the fix: `/danh-muc/` open, another tab saves
+  "Bản C", this tab deletes "Bản A" → the store holds only "Bản B"; same for holdings (HPG lost after deleting VNM).
+  The screen wrote whole arrays from its own state. Now `PortfolioScreen` keeps `khoDaThay` (the raw string of each of
+  the four stores it last saw), `docLaiKho()` re-reads and resets only what changed — called at the start of every
+  holding/pending edit (React queues the fresh `setHoldings` before the edit's updater) and on `storage`,
+  `visibilitychange` and `pageshow` — the two write effects skip when the string equals what was seen, and saved
+  calcs go through `capNhatDaLuu()`, read-modify-write like `saveCalc()` on the detail screen. **Any new screen that
+  writes a list store must read the store right before writing**, never write an array held in state. Six cases in
+  `PortfolioScreen.test.tsx` pin it; all six were red on the old code.
+- **`requestPersistentStorage()`** (`src/application/persistent-storage.ts`) asks the browser to keep the store
+  (Chrome may otherwise evict a best-effort origin under disk pressure). Called right after a successful save — a
+  holding in `submit()`, a calculation in `saveCalc()` — never on load, because **Firefox shows a permission prompt**.
+  It does not lift Safari's 7-day ITP cap (a site not opened in 7 days of Safari use loses its storage; a home-screen
+  web app is exempt).
+- **The origin is the store.** Changing the domain (`*.pages.dev` → a custom domain), a per-deploy preview URL, or a
+  different port in dev each shows an empty store. Pick the production domain before launch and never move it.
+- **`npm run dev` is pinned to `-p 3000`, and `predev` (`scripts/check-dev-port.mjs`) refuses when 3000 is busy.** The
+  owner's "data gone after restarting debug" was a `next dev` from the day before still holding 3000 (its terminal
+  closed, the process alive), so the new one silently moved to 3001 — another origin, another store. `next dev` only
+  moves ports when none is given (`allowRetry = portSource === 'default'`). The guard prints the PID holding the port.
+
+Not built, an owner decision: a backup export/import of the portfolio, the only cure for a store the browser itself
+deletes (private mode, cleared site data, ITP, another device).
+
 ## Dates — one written form on screen, day/month/year
 
 **Every date the product shows or accepts is written `DD/MM/YYYY`, and no date control may be drawn by the
@@ -1009,6 +1041,17 @@ back a "drop this column" choice under another word.
   1024×560 and 800×700, picker open and closed; the drawn rows always reach the frame's bottom. Below 768px it
   is a docked bottom sheet whose whole body scrolls, as before.
 
+**A ticker code is the label of a SERIES, so a series from another source drops it** (16/10/2026). The owner
+loaded FPT on `/du-lieu/`, then imported the sheet's sample data, and the chart head still read "FPT · 248 phiên ·
+20/01/2025 → 31/12/2025" over 64 other sessions. `DataTableScreen` now sets `code` to `''` in `importPaste()` and
+whenever the table runs out of rows (Xoá, or removing rows one by one), so the CSV file name and the detail screen
+stop inheriting it; typing in a cell keeps it, as before. On the detail screen the same defect was the chip: after
+"Dán chuỗi giá" or "Xem ví dụ minh hoạ" the "FPT" chip stayed at the head of the Số liệu block. The chip now also
+needs `nguonChuoi === null` (a state mirror of `workingSourceRef`, set at every one of its five assignments);
+`stickyTicker` itself is **not** cleared, because it is the visit's ticker that `WorkingSeries.code` and the draft
+match against `?ma=`: clearing it would let FPT's 248 sessions overwrite a pasted series on the way back from the
+data table. Six cases (three per screen) pin it, and all six were red on the old code.
+
 **Four causes of "empty columns after loading" were found, all reproduced**: the role set to "Không dùng"; the
 clipped Volume column; the overlaid file; and the **VN-Index example dataset, which carried closes only**, so
 loading the example on the nine formulas that use it (`beta`, the six ratios in `risk-ratios.ts`, `var-lich-su`,
@@ -1035,6 +1078,10 @@ guide page. Inside a visit (a reload, "Mở bảng dữ liệu →" and back, th
 kept exactly as before; that round trip is an older owner-reported bug and must not regress. Any other
 screen ends the visit — the list, search, the portfolio, settings, a **different** formula — and the next
 open starts clean. `?ma=`, `?luu=` and `?so=` still load what the URL asks for, onto a clean screen.
+**A saved calculation's ticker must go into BOTH `loadedPreset` and `stickyTicker`** (16/10/2026): the
+ticker chip reads `stickyTicker`, and the `?luu=` effect used to set only `loadedPreset`, so a calculation
+saved with FPT reopened from Danh mục showing "Nạp mẫu" — the owner: _"không thấy mã đó trong công thức
+đâu"_. It still fetches nothing and overwrites none of the saved numbers.
 
 The owner was asked one question and chose "reset everything", typed numbers included. That **reverses
 two earlier decisions**, so do not rebuild either without asking: the ticker no longer follows the user
@@ -1246,9 +1293,14 @@ screen as a `<dl>` to the **right** of the formula (below it under 1024px), each
 at build time like the formula itself (`latexToInlineMathml`, `page.tsx`). `formulas.test.ts`
 gates it three ways: every formula has a legend; every entry is a verbatim substring of `latex`;
 and the entries' tokens cover every token `latexSymbolTokens()` (`src/core/latex-symbols.ts`)
-extracts from `latex` — names, Greek letters, `\text{}` abbreviations, running indices (t, i, j,
+extracts from `latex` — names, Greek letters, **every** `\text{}` fragment, running indices (t, i, j,
 k, s, n are split off; any other subscript makes the whole thing one symbol: `r_f`, `P_{mua}`,
-`\sigma_p`) and numbers other than 0, 1, 2 (`100` included — see below). The owner asked for this after pointing at
+`\sigma_p`) and numbers other than 0, 1, 2 (`100` included — see below). **A Vietnamese word in
+`\text{}` is not self-explanatory** (16/10/2026): only abbreviations used to count, so 13 fragments
+in 8 `fundamentals.ts` pictures (`\text{Tài sản ngắn hạn}`, `\text{Nợ ngắn hạn}`, `\text{Vốn chủ sở
+hữu}`…) had no legend row, while the Bảng biến at the foot of the page explained the same field. The
+owner, on `thanh-toan-hien-hanh`: _"bên trên không có chú thích mà bên dưới lại có?"_. Each now has a
+row whose meaning follows that field's `description` (what the item contains, plus the unit). The owner asked for this after pointing at
 `L = max{k : r_{t+1} < 0, …}` and saying "không hiểu các giá trị" (16/09/2026), and chose this
 layout over two earlier attempts that put a paragraph or a term → meaning table _under_ the
 expression line ("quê mùa"). Keep the legend a legend: phrases, not sentences; nothing narrates
@@ -1906,7 +1958,13 @@ Four things there are load-bearing:
 pushed to the right edge to line up with "Thoát" on the row above, then reversed it the same day:
 at 1440px the two buttons sat most of a card apart and stopped reading as one pair. The hint line
 under them ("Chọn một đáp án để mở nút Kiểm tra") is gone too — a greyed-out, unclickable button
-already says that. Do not add a `margin-left: auto` to anything in that row.
+already says that. Do not add a `margin-left: auto` to anything in that row. **Both buttons are the
+default size** (15/10/2026): "Bỏ qua" was `ghost` + `size="sm"`, 36px beside the 44px "Kiểm tra", so its hover
+box came up shorter than its neighbour and the owner photographed it (_"bo tròn xung quanh bị nhỏ hơn button bên
+cạnh"_). `ghost` alone already marks it as the minor choice. A Chrome sweep of 15 screens at 390 and 1440 (every row
+of two or more visible buttons, compared by height) found no other mixed pair; a case in `QuizBody.test.tsx` pins
+this one. **Rule for new rows: buttons standing side by side share one size**, or the ghost one's hover box shows the
+difference.
 
 **`quiz.test.ts` RE-COMPUTES the line rather than eyeballing it.** It strips the square brackets,
 parses what follows the `=` (Vietnamese number notation, `+ − × ÷ ^ ( ) √ ln | | ⌊ ⌋ ⌈ ⌉`) and requires the
@@ -2095,7 +2153,7 @@ commentary. Eight things are load-bearing:
   no steps (a raw input like `P`) opens a title-only panel — exactly its "ký hiệu: nghĩa" legend
   row — and its `aria-label` is the bare meaning, since calling it "Cách tính" would be false.
   That needs a picture with EVERY symbol marked, which is `NotationView.latexHtmlAllSymbols`, a
-  second marking of the same MathML (546 of 554 rows found; the 8 misses are the names
+  second marking of the same MathML (559 of 567 rows found; the 8 misses are the names
   `mathml-marks.ts` already lists). It is a separate string rather than extra marks on
   `latexHtml` because the card gives every `[data-sym]` a hand cursor, and it is built only when
   `quiz-view.ts`'s `needsFormulaPicture` says the page has a question that prints the picture.
@@ -2121,12 +2179,13 @@ commentary. Eight things are load-bearing:
 - **The Thay số row (`giai.gan`) names which SYMBOL takes which figure, and it is gated four
   ways** in `quiz.test.ts` ("Thay số — ký hiệu nào nhận con số nào"): every picture-bearing `giai`
   has one; every `kyHieu` is a `spec.symbols` latex OR a `\text{…}` fragment verbatim in
-  `spec.latex` (many pictures spell words like `\text{Tài sản ngắn hạn}` with no legend row); every
+  `spec.latex` (since 16/10/2026 every such fragment has a legend row too, so the second branch only
+  serves one that sits inside a compound row, like `\text{mục tiêu}` in `P_{\text{mục tiêu}}`); every
   number in a `giaTri` appears verbatim in the facts, the prompt, the `worked` line or `thaySo`,
   in both languages; and in a fill-in question every blank is covered — compared with its minus
   sign stripped, since `blanksOf` keeps "−0,0246" while the number tokenizer does not. There is no
-  meaning field: the UI reads the meaning from the page's legend (a `\text{…}` fragment prints
-  bare, it reads itself). **A row is either `giaTri` ("V = 42.500" plus the legend's meaning) or a
+  meaning field: the UI reads the meaning from the page's legend (a fragment with no row of its own
+  prints bare). **A row is either `giaTri` ("V = 42.500" plus the legend's meaning) or a
   `moTa` sentence** printed right after the symbol with no "=" and WITHOUT the legend's meaning —
   149 of the 431 rows. The owner rejected both shapes that came before it the same afternoon:
   "C*i = 12.000.000 · 12.000.000 · 12.000.000" (the "·" is the multiplication dot of the very

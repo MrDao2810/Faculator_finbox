@@ -71,12 +71,16 @@ describe('latexSymbolTokens — tách ký hiệu có nghĩa khỏi hình công t
     ).toEqual(['L', 'W', '\\overline{r^{+}}', '\\overline{r^{-}}', 'r']);
   });
 
-  it('\\text: chữ Việt tự giải thích thì bỏ, viết tắt thì giữ', () => {
+  /*
+   * Cụm chữ Việt từng được bỏ như "tự giải thích" (16/10/2026, xem luật 1 ở docblock của hàm): nay nó
+   * là token, nên bảng ký hiệu phải có dòng cho "Cổ tức ưu đãi" như cho "LNST".
+   */
+  it('\\text: viết tắt ra token trần, cụm chữ Việt ra token \\text{…} — không cụm nào bị bỏ', () => {
     expect(
       latexSymbolTokens(
         'EPS = \\frac{\\text{LNST} - \\text{Cổ tức ưu đãi}}{\\text{Số CP lưu hành}}',
       ),
-    ).toEqual(['EPS', 'LNST']);
+    ).toEqual(['EPS', 'LNST', '\\text{Cổ tức ưu đãi}', '\\text{Số CP lưu hành}']);
     // `i` là chỉ số chạy (cổ phiếu thứ i), `m` là nhãn (thị trường) → `R_{m}` là ký hiệu riêng.
     expect(latexSymbolTokens('\\beta_i = \\frac{\\text{Cov}(R_i, R_m)}{\\text{Var}(R_m)}')).toEqual(
       ['Cov', 'R', 'R_{m}', 'Var', '\\beta', 'i'],
@@ -85,6 +89,7 @@ describe('latexSymbolTokens — tách ký hiệu có nghĩa khỏi hình công t
       'E',
       'EPS',
       'P',
+      '\\text{mục tiêu}',
     ]);
   });
 

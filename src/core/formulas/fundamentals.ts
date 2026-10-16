@@ -158,6 +158,13 @@ export const EPS_CO_BAN: FormulaModule = {
         },
       },
       {
+        latex: '\\text{Cổ tức ưu đãi}',
+        meaning: {
+          vi: 'cổ tức trả cho cổ phiếu ưu đãi trong kỳ, không có thì bằng 0, tỷ ₫',
+          en: 'dividends paid on preferred shares for the period, 0 if there are none, billion ₫',
+        },
+      },
+      {
         latex: '\\text{Số CP lưu hành}',
         meaning: {
           vi: 'số cổ phiếu (CP) phổ thông đang lưu hành',
@@ -441,6 +448,13 @@ export const ROE: FormulaModule = {
         },
       },
       {
+        latex: '\\text{Vốn chủ sở hữu}',
+        meaning: {
+          vi: 'vốn chủ sở hữu trên bảng cân đối kế toán cuối kỳ, tỷ ₫',
+          en: 'equity on the balance sheet at period end, billion ₫',
+        },
+      },
+      {
         latex: '100',
         meaning: { vi: 'đổi tỷ lệ ra phần trăm', en: 'converts the ratio to a percentage' },
       },
@@ -569,6 +583,13 @@ export const ROA: FormulaModule = {
         },
       },
       {
+        latex: '\\text{Tổng tài sản}',
+        meaning: {
+          vi: 'tổng tài sản trên bảng cân đối kế toán cuối kỳ, tỷ ₫',
+          en: 'total assets on the balance sheet at period end, billion ₫',
+        },
+      },
+      {
         latex: '100',
         meaning: { vi: 'đổi tỷ lệ ra phần trăm', en: 'converts the ratio to a percentage' },
       },
@@ -677,6 +698,13 @@ export const BIEN_LOI_NHUAN_RONG: FormulaModule = {
         meaning: {
           vi: 'lợi nhuận sau thuế trong kỳ, tỷ ₫',
           en: 'net income after tax for the period, billion ₫',
+        },
+      },
+      {
+        latex: '\\text{Doanh thu thuần}',
+        meaning: {
+          vi: 'doanh thu bán hàng và cung cấp dịch vụ sau các khoản giảm trừ, tỷ ₫',
+          en: 'revenue from goods and services after deductions, billion ₫',
         },
       },
       {
@@ -921,6 +949,20 @@ export const NO_TREN_VON_CHU: FormulaModule = {
         latex: 'E',
         meaning: { vi: 'vốn chủ sở hữu (equity), tỷ ₫', en: 'equity, billion ₫' },
       },
+      {
+        latex: '\\text{Tổng nợ phải trả}',
+        meaning: {
+          vi: 'toàn bộ nợ ngắn hạn và dài hạn trên bảng cân đối kế toán, không riêng nợ vay, tỷ ₫',
+          en: 'all short- and long-term liabilities on the balance sheet, not just borrowings, billion ₫',
+        },
+      },
+      {
+        latex: '\\text{Vốn chủ sở hữu}',
+        meaning: {
+          vi: 'vốn chủ sở hữu trên bảng cân đối kế toán cuối kỳ, tỷ ₫',
+          en: 'equity on the balance sheet at period end, billion ₫',
+        },
+      },
     ],
     chartType: 'sensitivity',
     level: 'basic',
@@ -1065,6 +1107,20 @@ export const THANH_TOAN_HIEN_HANH: FormulaModule = {
         latex: '\\text{Current ratio}',
         meaning: { vi: 'hệ số thanh toán hiện hành, tính bằng lần', en: 'current ratio, in times' },
       },
+      {
+        latex: '\\text{Tài sản ngắn hạn}',
+        meaning: {
+          vi: 'tiền, đầu tư ngắn hạn, phải thu và hàng tồn kho, tỷ ₫',
+          en: 'cash, short-term investments, receivables and inventory, billion ₫',
+        },
+      },
+      {
+        latex: '\\text{Nợ ngắn hạn}',
+        meaning: {
+          vi: 'các khoản phải trả trong vòng 12 tháng tới, tỷ ₫',
+          en: 'amounts payable within the next 12 months, billion ₫',
+        },
+      },
     ],
     chartType: 'sensitivity',
     level: 'basic',
@@ -1178,6 +1234,27 @@ export const THANH_TOAN_NHANH: FormulaModule = {
       {
         latex: '\\text{Quick ratio}',
         meaning: { vi: 'hệ số thanh toán nhanh, tính bằng lần', en: 'quick ratio, in times' },
+      },
+      {
+        latex: '\\text{Tài sản ngắn hạn}',
+        meaning: {
+          vi: 'tiền, đầu tư ngắn hạn, phải thu và hàng tồn kho, tỷ ₫',
+          en: 'cash, short-term investments, receivables and inventory, billion ₫',
+        },
+      },
+      {
+        latex: '\\text{Hàng tồn kho}',
+        meaning: {
+          vi: 'giá trị hàng tồn kho, phần tài sản ngắn hạn khó đổi ra tiền nhất, tỷ ₫',
+          en: 'the value of inventory, the part of current assets hardest to turn into cash, billion ₫',
+        },
+      },
+      {
+        latex: '\\text{Nợ ngắn hạn}',
+        meaning: {
+          vi: 'các khoản phải trả trong vòng 12 tháng tới, tỷ ₫',
+          en: 'amounts payable within the next 12 months, billion ₫',
+        },
       },
     ],
     chartType: 'sensitivity',
@@ -1319,6 +1396,20 @@ export const VONG_QUAY_TONG_TAI_SAN: FormulaModule = {
         meaning: {
           vi: 'vòng quay tổng tài sản, tính bằng số vòng trong kỳ',
           en: 'total asset turnover, counted in turns per period',
+        },
+      },
+      {
+        latex: '\\text{Doanh thu thuần}',
+        meaning: {
+          vi: 'doanh thu bán hàng và cung cấp dịch vụ sau các khoản giảm trừ, tỷ ₫',
+          en: 'revenue from goods and services after deductions, billion ₫',
+        },
+      },
+      {
+        latex: '\\text{Tổng tài sản}',
+        meaning: {
+          vi: 'tổng tài sản trên bảng cân đối kế toán cuối kỳ, tỷ ₫',
+          en: 'total assets on the balance sheet at period end, billion ₫',
         },
       },
     ],

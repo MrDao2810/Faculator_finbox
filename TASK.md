@@ -4,6 +4,190 @@ Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 
 ---
 
+## Bảng dữ liệu: xoá hai câu dư (16/10/2026)
+
+**Trạng thái: CHƯA XONG — đã sửa, chờ chủ dự án xem.**
+
+Chủ dự án: _"xóa các text dư 'Mới → cũ · sửa trực tiếp trong ô' ' — chưa vẽ, sửa ở bảng dưới'"_.
+
+- `series.tableHint` bỏ hẳn (mộ chí ở `vi.ts`, xoá khỏi `en.ts`), cùng `<p>` trong `DataTableScreen.tsx` và lớp
+  `.cardHint` trong `DataTableScreen.module.css`.
+- `series.legendSkipped`: chỉ còn "phiên lỗi" / "flagged sessions", nên chú thích biểu đồ nến in "1 phiên lỗi". Giữ con số
+  vì hình thiếu phiên thì phải nói ra (FR-06). Docblock `candles.ts` sửa theo.
+- Test: `DataTableScreen.test.tsx` +1 ca ghim cả hai. `vitest` toàn bộ 157 file / 4.021 ca xanh; lint, typecheck, prettier
+  sạch.
+
+## Dán dữ liệu khác đè lên chuỗi của mã thì mã cũ vẫn bám theo (16/10/2026)
+
+**Trạng thái: CHƯA XONG — đã sửa, chờ chủ dự án xem.**
+
+Chủ dự án: Mở bảng dữ liệu → nạp mẫu một mã → "Dán Excel/CSV" bộ dữ liệu mẫu → biểu đồ và bảng vẽ chuỗi mới mà đầu thẻ
+vẫn ghi "FPT · 248 phiên · 20/01/2025 → 31/12/2025". _"đọc lại toàn bộ những phần có áp dụng chức năng này rồi sửa lại"_.
+
+- Rà: tấm "Bảng dữ liệu" (`PasteImportSheet`) có hai nơi dùng, `/du-lieu/` và màn chi tiết. Cả hai mắc cùng lỗi.
+- `src/app/du-lieu/DataTableScreen.tsx`: `importPaste()` xoá `code`; một effect xoá `code` khi bảng hết dòng (nút Xoá,
+  hay bỏ từng dòng). Chờ `loaded`, không thì lúc mở màn nó xoá nhầm mã vừa đọc từ kho. Sửa ô thì mã vẫn giữ như cũ.
+- `src/app/cong-thuc/[id]/FormulaDetail.tsx`: dán chuỗi hoặc "Xem ví dụ minh hoạ" khi đang có mã thì chip "FPT" vẫn
+  đứng đầu khối Số liệu. Thêm state `nguonChuoi` (bản vẽ được của `workingSourceRef`, gán ở cả năm chỗ gán ref); chip
+  chỉ hiện khi `nguonChuoi === null`, ngược lại nút "Nạp mẫu" đứng lại chỗ ấy. KHÔNG xoá `stickyTicker`: nó là mã của
+  lượt xem, dùng để `?ma=` biết chuỗi đã dán thắng khi quay lại từ bảng dữ liệu.
+- Test: `DataTableScreen.test.tsx` +3 ca, `FormulaDetail.test.tsx` +3 ca (gồm F5 và đường `?ma=`). Chạy trên mã cũ: 5
+  ca đỏ, ca "chỉ mở màn thì mã vẫn còn" xanh như phải thế. `vitest` toàn bộ 157 file / 4.020 ca xanh; lint, typecheck,
+  prettier sạch.
+- Chrome thật (dev :3001), đúng các bước trên: sau khi dán, đầu thẻ còn "64 phiên · 22/06/2026 → 22/09/2026", phụ đề
+  về "Mã cổ phiếu", mã trong kho rỗng.
+- `CLAUDE.md`: ghi luật "mã là nhãn của chuỗi" ở mục tấm Bảng dữ liệu.
+- Đã biết, để nguyên: mở tấm chỉ để xem rồi bấm "Nạp N dòng" mà không đổi gì thì mã cũng mất (mọi lần nạp từ tấm đều
+  coi là số của người dùng, như màn chi tiết vẫn làm từ trước).
+
+## Bảng ký hiệu thiếu dòng cho cụm chữ trong hình công thức (16/10/2026)
+
+**Trạng thái: CHƯA XONG — đã sửa, chờ chủ dự án xem.**
+
+Chủ dự án khoanh "Tài sản ngắn hạn" và "Nợ ngắn hạn" trong hình của hệ số thanh toán hiện hành: bảng ký hiệu bên phải chỉ
+có "Current ratio", trong khi Bảng biến cuối trang giải thích cả hai — _"bên trên không có chú thích mà bên dưới lại có?
+rà soát lại toàn bộ và sửa lỗi"_.
+
+- Đo trên 111 hình: 41 cụm `\text{…}`, 13 cụm ở 8 công thức không có dòng bảng — `eps-co-ban` (Cổ tức ưu đãi), `roe`
+  (Vốn chủ sở hữu), `roa` (Tổng tài sản), `bien-loi-nhuan-rong` (Doanh thu thuần), `no-tren-von-chu` (Tổng nợ phải trả,
+  Vốn chủ sở hữu), `thanh-toan-hien-hanh` (Tài sản ngắn hạn, Nợ ngắn hạn), `thanh-toan-nhanh` (thêm Hàng tồn kho),
+  `vong-quay-tong-tai-san` (Doanh thu thuần, Tổng tài sản). Mọi ký hiệu khác đã có dòng. Gốc: luật 1 của
+  `src/core/latex-symbols.ts` coi cụm chữ Việt là "tự giải thích" nên cửa gác không đòi.
+- `src/core/latex-symbols.ts`: mọi cụm `\text{…}` nay là token (viết tắt vẫn ra token trần như cũ), nên công thức mới
+  thiếu dòng sẽ đỏ ở `formulas.test.ts`. `latex-symbols.test.ts` sửa hai ca theo luật mới.
+- `src/core/formulas/fundamentals.ts`: 13 dòng mới, nghĩa theo mô tả ô ở Bảng biến, kèm đơn vị ("tiền, đầu tư ngắn hạn,
+  phải thu và hàng tồn kho, tỷ ₫"). `src/core/how-to/fundamentals.ts`: xếp 13 dòng là `nhap-tho`.
+- Hệ quả trên màn: rê chuột vào cụm trong hình sáng đúng dòng (cả 13 gắn được: 559 trên 567 dòng,
+  `notation.test.ts`). Ở lời giải Bài tập, dòng "Tài sản ngắn hạn = 36.000 tỷ ₫" nay in thêm nghĩa của bảng như "LNST"
+  vẫn in; chú thích trong `LoiGiai.tsx` sửa theo.
+- `CLAUDE.md`, `src/core/registry/types.ts`, `notation-view.ts`: cập nhật luật và số đếm.
+- Kiểm: `vitest` toàn bộ 157 file / 4.014 ca xanh; lint, typecheck, prettier sạch. Chụp `thanh-toan-nhanh` ở 1440 trên
+  dev: bảng có đủ 4 dòng.
+
+## Ví dụ WACC dùng vốn hoá thay cho vốn chủ sổ sách, sửa cả chuỗi DCF và biên an toàn (16/10/2026)
+
+**Trạng thái: CHƯA XONG — đã sửa, chờ chủ dự án xem.**
+
+Chủ dự án khoanh tiêu đề ví dụ WACC ("vốn chủ 40.995,7 tỷ ₫") và dòng Thay số ("vốn chủ sở hữu FPT theo sổ sách"):
+_"2 định nghĩa đang bị nhầm lẫn là vốn chủ sở hữu và vốn chủ sở hữu trong sổ sách"_. Bảng ký hiệu, mô tả ô và "Sai lầm
+thường gặp" của chính trang đều nói E là vốn chủ theo giá thị trường (vốn hoá), ví dụ lại nhập số sổ sách, tức mắc đúng
+lỗi trang cảnh báo. Đây là mục Q3 / A7 của `REVIEW-2.md`, vốn chờ chủ dự án quyết. Hỏi một câu, chủ dự án chọn "đổi
+sang vốn hoá, sửa cả chuỗi".
+
+- `src/core/formulas/valuation-dcf.ts`:
+  - `wacc`: E = 124.631,5 tỷ ₫ (vốn hoá theo giá phiên 11/09/2026, cùng số ví dụ `ev`), nợ vay giữ 17.444 tỷ ngày
+    30/06/2026. Kết quả 9,3649% → 10,869%. Ghi chú viết lại: vốn chủ ~88% cơ cấu, thêm một câu "lấy nhầm vốn chủ sổ sách
+    40.995,7 tỷ ₫ thì chỉ ra 9,36%, thấp hơn ~1,5 điểm". Dòng nguồn ghi thêm vốn hoá. Docblock ghi lý do.
+  - `gia-tri-noi-tai-fcff`: WACC 9,37 → 10,87, kết quả 79.161 → 60.651 ₫, nay thấp hơn thị giá 72.700 ₫. Ghi chú thêm câu
+    so với thị giá; câu độ nhạy đo lại (g − 1 điểm: −13,67%, g + 1 điểm: +19,28%; câu cũ "rơi hơn 20%" vốn đã sai, A8).
+  - `bien-an-toan`: giá trị nội tại 79.161 → 60.651 ₫, biên 8,1618% → −19,8661%. Ghi chú viết lại cho biên âm, bỏ "mô hình
+    DCF ở trên" (trên màn này không có DCF, A13).
+- `src/core/vi-du/items.ts`: lời giải ba ví dụ. WACC: dòng E "vốn chủ sở hữu FPT theo giá thị trường, tức vốn hoá…", dòng
+  Áp vào công thức, nguồn thay link bảng cân đối bằng hai link của ví dụ `ev` (giá phiên 11/09/2026, số cổ phiếu). DCF và
+  biên an toàn: số WACC / giá trị nội tại và dòng Áp vào công thức.
+- `src/core/formulas/REVIEW-2.md`: ghi đã áp ở A7 (kéo theo A9, một phần A8 và A13).
+- Test: `vitest` toàn bộ 157 file / 4.014 ca xanh (gồm `formulas.test.ts` chạy ví dụ qua `calc`, `vi-du.test.ts` tính lại
+  dòng Áp vào công thức trong 0,5%, `prose-audit.test.ts`). `gen:summaries` không đổi file sinh.
+- Còn lại: chủ dự án đọc ba ghi chú mới; câu so sánh với vốn chủ sổ sách ở ví dụ WACC bỏ được nếu thấy thừa.
+
+## Rà logic lưu trong máy khách: dữ liệu Danh mục có mất khi thoát web không (16/10/2026)
+
+**Trạng thái: CHƯA XONG — đã sửa (lượt hai, cùng ngày), chờ chủ dự án xem.**
+
+**Lượt hai** — chủ dự án: _"sửa các lỗi nêu trên"_.
+
+- **Hai tab ghi đè** — `src/app/danh-muc/PortfolioScreen.tsx`: ref `khoDaThay` (chuỗi thô của 4 kho tab này thấy lần
+  cuối); `docLaiKho()` đọc lại và chỉ đặt lại kho nào đã đổi — gọi ở đầu `submit`, `removeRow`, `removePendingRow`, trong
+  `lamMoi`, và khi có sự kiện `storage` / `visibilitychange` / `pageshow`; hai effect ghi bỏ qua khi chuỗi sắp ghi bằng
+  chuỗi đã thấy; xoá phép tính đi qua `capNhatDaLuu()` (đọc lại kho → áp → ghi) thay cho `persistSaved(mảng state)`.
+  Effect nghe sự kiện khai SAU effect gỡ `?nhap=` (effect ấy phải đứng ngay dưới effect ghi kho mã chờ).
+- **Xin giữ kho** — `src/application/persistent-storage.ts` (mới, xuất qua barrel): `requestPersistentStorage()`, gọi
+  ngay sau cú Lưu thành công ở `submit()` (Danh mục) và `saveCalc()` (màn chi tiết), KHÔNG lúc mở trang vì Firefox hiện hộp
+  hỏi. Đã được giữ thì không xin lại. Không gỡ được luật 7 ngày của Safari.
+- **Cổng dev** — `package.json`: `dev` thành `next dev -p 3000` (Next chỉ tự nhảy cổng khi không chỉ định), thêm `predev`
+  → `scripts/check-dev-port.mjs` (mới): cổng 3000 bận thì dừng, in số tiến trình giữ cổng và lệnh tắt. Thử trên máy: in
+  đúng "Tiến trình giữ cổng: 24252". Đã tắt server mồ côi 10912 / 24252 (15/10, cha đã mất, kiểm tra đúng ngày và đúng
+  thư mục trước khi tắt); server hôm nay ở :3001 (16280) để nguyên. Cổng 3000 nay trống, `predev` thoát 0.
+- **Tên miền** — không phải mã: ghi luật vào `CLAUDE.md` (mục "Data on the customer's machine").
+- Test: `PortfolioScreen.test.tsx` +7 ca (6 hai tab: xoá phép tính, xoá mã, thêm mã, sự kiện `storage`, `clear()` từ Cài
+  đặt không hồi sinh mã cũ, quay lại tab; 1 xin giữ kho: không lúc mở màn, có sau khi thêm mã) — chạy trên mã CŨ: 7/7 đỏ.
+  `persistent-storage.test.ts` 4 ca. `vitest src/app/danh-muc src/application FormulaDetail.test.tsx`: 31 file / 719 ca
+  xanh; typecheck, lint, prettier sạch.
+- Chrome thật (dev, mã mới), đúng kịch bản lượt đầu: xoá "Bản A" → kho còn "Bản C (tab khác) · Bản B"; xoá VNM → kho còn
+  "FPT · HPG".
+- Chưa làm (quyết định sản phẩm): nút xuất / nhập file sao lưu Danh mục.
+
+Lượt đầu (rà và đo):
+
+Chủ dự án: _"mỗi lần tôi tắt chạy debug thì rồi chạy lại thì ko thấy lưu lại nội dung trong danh mục. kiểm tra lại logic lưu
+trong local máy của khách xem nếu chạy thật thì máy của khác có bị lỗi mất thông tin khi out web hoặc thoát web hay không"_.
+
+- **Lỗi trên máy dev là do CỔNG, không phải mã.** Hai `next dev` chạy song song: một từ 15/10 14:06 (tiến trình 10912 /
+  24252, terminal đã đóng mà server còn sống) giữ :3000, lần chạy 16/10 09:35 từ terminal VS Code nhảy sang :3001.
+  `localStorage` theo ORIGIN (giao thức + máy + cổng), nên `localhost:3000` và `localhost:3001` là hai kho riêng. Không có
+  phiên debug trình duyệt nào của VS Code (trình duyệt đang mở cổng debug là của GPMLogin, không liên quan).
+- **Thoát tab / tắt trình duyệt: không mất.** Mọi lần ghi là `localStorage.setItem` đồng bộ ngay sau thao tác (Lưu phép
+  tính ghi trước khi chuyển trang; mã ghi trong effect chờ `loaded`, nên lần mở đầu không ghi mảng rỗng đè lên). Bộ đọc chỉ
+  bỏ đúng mục hỏng, không xoá cả kho. Đầy kho (50 mã, 30 phép tính) thì bị chặn kèm câu báo, không lặng lẽ đẩy mục cũ ra.
+  Bản nháp ô nhập và mã đang xem mất khi vào lại công thức là CỐ Ý (quyết định 13/10/2026).
+- **Lỗi thật trong mã: hai tab ghi đè nhau** (không có bộ nghe `storage` nào trong `src`). Đo Chrome thật: tab Danh mục mở
+  sẵn, tab khác lưu "Bản C", tab này xoá "Bản A" → kho còn mỗi "Bản B", **Bản C mất**; bảng Mã: tab khác thêm HPG, tab này
+  xoá VNM → kho còn mỗi FPT, **HPG mất**. Nguyên nhân: `persistSaved()` và effect ghi `holdings` ghi cả mảng từ state của
+  tab, không đọc lại kho. (`saveCalc()` ở màn chi tiết đã đọc lại trước khi ghi nên không dính.)
+- **Ngoài tầm mã** (trình duyệt tự xoá): chế độ ẩn danh; người dùng xoá dữ liệu trang; đổi máy / đổi trình duyệt (không có
+  tài khoản để đồng bộ); Safari iPhone xoá kho của trang không được mở trong 7 ngày dùng Safari (ITP; web thêm ra màn hình
+  chính thì không bị); Chrome có thể dọn khi đầy đĩa nếu kho chưa xin `navigator.storage.persist()`; ĐỔI TÊN MIỀN (từ
+  `*.pages.dev` sang tên miền riêng, hay link xem thử của từng bản dựng) là kho mới tinh.
+- Đề xuất, chờ duyệt: (1) sửa hai tab ghi đè — đọc lại kho ngay trước mỗi lần ghi và nghe sự kiện `storage` để tab kia cập
+  nhật; (2) xin `navigator.storage.persist()`; (3) chốt tên miền chính thức trước khi phát hành; (4) cân nhắc nút xuất /
+  nhập file sao lưu Danh mục — quyết định sản phẩm.
+
+---
+
+## Mở lại phép tính đã lưu kèm mã: chip mã không hiện (16/10/2026)
+
+**Trạng thái: CHƯA XONG — đã sửa, chờ chủ dự án xem.**
+
+Chủ dự án: _"trong công thức có thể thêm được mã mà lúc tôi thao tác có lưu cả công thức kèm mã đó và các chỉ số thao tác
+rồi mà lúc vào danh mục rồi bấm vào công thức đó xem lại thì không thấy mã đó trong công thức đâu ? sửa lỗi"_.
+
+- Nguyên nhân: bản lưu CÓ mã (`SavedCalc.code`), và effect `?luu=` có đọc ra — nhưng chỉ đặt `loadedPreset`. Con chip mã ở
+  hàng nút (huy hiệu mã · Đổi mã · ×) dựng theo `stickyTicker`, nên màn bày nút "Nạp mẫu" như chưa từng có mã. Số đã lưu
+  vẫn đúng; chỉ cái mã là biến mất khỏi màn.
+- `src/app/cong-thuc/[id]/FormulaDetail.tsx`: effect `?luu=` đặt cả `setStickyTicker(saved.code)`. Không gọi mạng, không
+  nạp lại số của mã — bộ số đã lưu (kể cả ô đã sửa sau khi nạp mã) giữ nguyên.
+- `src/app/cong-thuc/[id]/FormulaDetail.test.tsx`: ca mới — bản lưu `pe` có mã FPT mở bằng `?luu=` thì có nút "Đổi mã FPT",
+  không có "Nạp mẫu", không gọi mạng, ô giữ số đã lưu. Chạy trên mã CŨ: đỏ đúng "Unable to find … Đổi mã FPT".
+- Chrome thật (dev :3000, mạng Finbox thật, 390px): `pe?ma=FPT` → sửa ô Giá thị trường → Lưu → sang Danh mục, thấy dòng "Mở
+  FPT · P/E …" → bấm → `?luu=…`: chip "Đổi mã FPT" có, ô giữ số đã sửa, kết quả bằng lúc lưu (1.704,45 lần).
+- `vitest` nhóm "lưu phép tính vào danh mục": 26 ca xanh; lint, prettier sạch.
+- Không sửa (giới hạn có sẵn): mở lại KHÔNG dựng lại nhãn "↳ FPT" dưới từng ô — bản lưu không ghi ô nào đến từ mã, ô nào
+  người dùng tự sửa. Công thức chuỗi giá lưu kèm mã vẫn cần nạp lại chuỗi khi mở lại (dòng "Cần nạp lại chuỗi giá" như
+  trước), vì bản lưu không cất chuỗi; nay chip mã hiện ra nên bấm vào là chọn lại mã được ngay.
+
+---
+
+## Bài tập: nút "Bỏ qua câu này" cùng cỡ với "Kiểm tra" (15/10/2026)
+
+**Trạng thái: CHƯA XONG — đã sửa, chờ chủ dự án xem.**
+
+Chủ dự án chụp hàng nút bài tập lúc trỏ chuột vào "Bỏ qua câu này": _"bo tròn xung quanh bị nhỏ hơn button bên cạnh.
+đối chiếu với toàn bộ những button có hover như ảnh sau và sửa lại sao cho đẹp hơn. áp dụng cho cả web lẫn mobile"_.
+
+- Nguyên nhân: nút ấy là `ghost` + `size="sm"` (cao 36px, chữ 14px) đứng cạnh "Kiểm tra" cỡ mặc định (44px, 16px). Nền xám
+  lúc trỏ vào là hộp 36px, thấp hơn nút bên cạnh 8px.
+- `src/ui/quiz/QuizBody.tsx`: bỏ `size="sm"` — nay 44px, 16px, cùng bo góc với "Kiểm tra". Vai phụ vẫn do `ghost` lo.
+- `src/ui/quiz/QuizBody.test.tsx`: ca mới — bỏ lớp biến thể ra thì hai nút cùng bộ lớp. Đỏ khi trả `size="sm"` về (đã thử).
+- Rà cả sản phẩm: đọc 40 chỗ dùng `size="sm"`, rồi đo Chrome thật (dev :3000, tối, nâng cao) 15 màn ở 390 và 1440 — mọi
+  hàng có từ hai nút nhìn thấy trở lên, so chiều cao: danh sách, `pe` (cả lúc làm bài tập), DCA, `wacc`, `xirr`, phí, lịch
+  trả nợ, SMA, Danh mục, Cài đặt, Bảng dữ liệu, Tìm kiếm, Về chúng tôi, bài hướng dẫn. Không còn cặp lệch nào; phép rà báo
+  đúng `Kiểm tra=44 | Bỏ qua câu này=36` khi trả `sm` về. Các cặp ghost/khác còn lại vốn cùng cỡ ("Bỏ đợt · Thêm đợt",
+  thanh công cụ Bảng dữ liệu, chân sheet dán dữ liệu — đều 36px). Chưa rà được các sheet đang mở bằng Chrome; đọc mã thì
+  chúng cùng cỡ.
+- `vitest src/ui/quiz`: 3 file / 79 ca xanh; lint, prettier sạch.
+
+---
+
 ## Bài tập điền số: công thức hiện đủ trên điện thoại (15/10/2026)
 
 **Trạng thái: CHƯA XONG — đã sửa, chờ chủ dự án xem.**

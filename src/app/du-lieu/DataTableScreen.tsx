@@ -410,8 +410,18 @@ export function DataTableScreen() {
     );
   }, []);
 
-  /** Nhận kết quả từ sheet WF-11. Dán ĐÈ bảng cũ chứ không nối thêm — nối thì sinh ngày trùng. */
+  /**
+   * Nhận kết quả từ sheet WF-11. Dán ĐÈ bảng cũ chứ không nối thêm — nối thì sinh ngày trùng.
+   *
+   * Và xoá MÃ, cùng lúc với số. Mã là nhãn nói bảng này là chuỗi của mã nào, mà dán đè thì số đã
+   * là của người dùng. Chủ dự án báo 16/10/2026: nạp mẫu FPT, rồi "Dán Excel/CSV" bộ dữ liệu mẫu,
+   * biểu đồ vẽ chuỗi mới mà đầu thẻ vẫn ghi "FPT · 248 phiên · 20/01/2025 → 31/12/2025". Nhãn ấy
+   * còn đi theo bảng vào tên file CSV và về màn chi tiết, nên giữ lại là gắn tên FPT lên số của
+   * người khác (FR-06). Cùng luật với màn chi tiết: chuỗi dán ở đó được bàn giao sang đây với mã
+   * rỗng (`handOverToDataTable()`).
+   */
   const importPaste = useCallback((result: PasteResult) => {
+    setCode('');
     setFromDraft(false);
     setRows(
       sortRowsByDate(
@@ -447,6 +457,17 @@ export function DataTableScreen() {
     if (!window.confirm(t('series.clearConfirm'))) return;
     setRows([]);
   }, [t]);
+
+  /*
+   * Bảng hết dòng thì cũng hết mã — bằng nút "Xoá" hay bằng cách bỏ từng dòng một. Thiếu đoạn này
+   * thì dòng gõ tay đầu tiên sau đó lại hiện dưới nhãn của mã cũ, cùng lỗi với `importPaste()`.
+   *
+   * Chờ `loaded`: lúc gắn, effect đọc kho đặt mã và dòng trong cùng nhịp với effect này, mà effect
+   * này còn thấy mảng rỗng của lần render đầu — không chờ là nó xoá mã vừa đọc lên.
+   */
+  useEffect(() => {
+    if (loaded && rows.length === 0) setCode('');
+  }, [loaded, rows.length]);
 
   /*
    * Thanh tiến độ của cột kiểm tra. Hai mốc trên thanh, đều là con số THẬT của sản phẩm chứ không
@@ -516,7 +537,7 @@ export function DataTableScreen() {
                 <h2 className={styles.cardTitle} id="khoi-bang-so-lieu">
                   {t('series.tableTitle')}
                 </h2>
-                <p className={styles.cardHint}>{t('series.tableHint')}</p>
+                {/* Dòng "Mới → cũ · sửa trực tiếp trong ô" đã bỏ — mộ chí `series.tableHint` ở vi.ts. */}
               </div>
 
               {/* Khung cuộn ngang riêng — bảng 6 cột không thể vừa 360px, và cả trang thì

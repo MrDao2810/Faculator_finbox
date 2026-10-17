@@ -2898,6 +2898,16 @@ English, the owner reviews it**. What that produced, and what is easy to break:
     `/du-lieu/` is now reached from the detail screens of price-series formulas only. A usage entry
     is written once per page view, after 8 s of visible dwell **or** the first edit to an input —
     never on mount, since `?ma=` fills the fields by itself.
+  - **Below 1024px the search box sticks under the header while the list scrolls** (17/10/2026, owner: _"scroll nội
+    dung trong phần công thức đến đâu thì thanh search cũng cần để yên trên top giống như cơ chế của header"_).
+    `.searchSlot` is `position: sticky` at `--header-height` + 1px + safe area, on a `--color-paper` band bled to the
+    gutters, `z-index: 2` — the `.endActions` pattern of the detail screen, upside down. **It must stay a DIRECT child
+    of the screen**: `sticky` only sticks inside its parent, and it used to share a `.searchArea` wrapper with the
+    "Tìm gần đây" chips, inside which it would scroll away after a few dozen pixels. The chips now sit in their own
+    `.recentSlot` (rendered only when there are chips; a −8px margin keeps their 12px gap), and the band's 8px padding
+    is cancelled by −8px margins, so nothing moves at rest. No line under the band: at rest it would be a stray rule
+    between the box and the chips. Two cases in `FormulaListScreen.test.tsx` pin the structure and the rule; no
+    `check:chrome` assertion yet.
   - Search history is **one** store again (`ffb.recent.v1`), shared with `/tim-kiem/`, because both
     boxes now search the whole library. The old `ffb.recent.home.v1` is merged in once on first open,
     then deleted, and "Xoá toàn bộ" still sweeps it (`LEGACY_STORAGE_KEYS`).
@@ -2919,6 +2929,13 @@ English, the owner reviews it**. What that produced, and what is easy to break:
     of WF-09's paint-every-match). The owner's words: _"ưu tiên hiển thị lên đầu công thức khớp với
     câu search … sau đó những câu có chứa cụm liên quan … bôi màu vàng nhạt thể hiện đây là câu
     phụ"_. `FormulaForTickerSheet` keeps tier 1 only, because its rows print no description to paint.
+  - **Every alphabetical comparison follows the language ON SCREEN** (17/10/2026). `compareName()` in `search.ts`
+    compared `name.vi` with the `vi` collation in every mode, so in English "A–Z" came out in the order of the
+    Vietnamese names; the owner reported it. It now compares the name as displayed (`name.en`, falling back to
+    `name.vi` when empty, the same rule as `pick()`) with an `Intl.Collator` of that language, and `lang` reaches
+    every comparator that breaks ties by name: A–Z, Z–A, the default featured order, "Cơ bản trước", the two history
+    sorts, and the order of search hits. The first render is still Vietnamese (`DEFAULT_PREFERENCES`), so the static
+    HTML still matches. Seven English cases in `search.test.ts` pin it.
 - **Nothing under `src/ui/charts/` may call `useId()`.** That whole directory sits behind the
   `next/dynamic` boundary in `FormulaChart.tsx`, where React's generated ids differ between the
   static HTML and the client hydration pass — measured as 5 hydration warnings per chart page. Every

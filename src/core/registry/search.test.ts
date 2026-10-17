@@ -440,6 +440,68 @@ describe('selectFormulas()', () => {
 });
 
 /*
+ * Sắp theo chữ cái của NGÔN NGỮ ĐANG HIỆN (17/10/2026). Chủ dự án báo: ở giao diện tiếng Anh, sắp xếp
+ * vẫn ra thứ tự của tên tiếng Việt. Bộ bốn fixture có thứ tự Việt và Anh khác hẳn nhau
+ * (Việt: Chi phí… · Giá hoà vốn… · Trả góp… · Tỷ số…; Anh: Equated… · Price… · Real… · Weighted…),
+ * nên so `name.vi` ở chế độ tiếng Anh làm mọi ca dưới đây đỏ.
+ */
+describe('selectFormulas() — sắp theo tên của ngôn ngữ đang hiện', () => {
+  const EN = { lang: 'en' } as const;
+  const ids = (ra: ReadonlyArray<{ id: string }>) => ra.map((f) => f.id);
+
+  it('tiếng Anh: A–Z theo tên tiếng Anh, khác thứ tự tiếng Việt', () => {
+    const anh = ids(selectFormulas(ALL, { ...BASE_QUERY, sort: 'az' }, EN));
+    expect(anh).toEqual(['emi', 'pe', 'gia-hoa-von', 'wacc']);
+    expect(ids(selectFormulas(ALL, { ...BASE_QUERY, sort: 'az' }))).toEqual([
+      'wacc',
+      'gia-hoa-von',
+      'emi',
+      'pe',
+    ]);
+  });
+
+  it('tiếng Anh: Z–A là đảo ngược của A–Z tiếng Anh', () => {
+    const az = ids(selectFormulas(ALL, { ...BASE_QUERY, sort: 'az' }, EN));
+    const za = ids(selectFormulas(ALL, { ...BASE_QUERY, sort: 'za' }, EN));
+    expect(za).toEqual([...az].reverse());
+  });
+
+  it('tiếng Anh: mặc định vẫn đưa nổi bật lên trước, phá hoà theo tên tiếng Anh', () => {
+    expect(ids(selectFormulas(ALL, BASE_QUERY, EN))).toEqual(['pe', 'gia-hoa-von', 'emi', 'wacc']);
+  });
+
+  it('tiếng Anh: “Cơ bản trước” sắp trong từng mức theo tên tiếng Anh', () => {
+    expect(ids(selectFormulas(ALL, { ...BASE_QUERY, sort: 'basic' }, EN))).toEqual([
+      'emi',
+      'pe',
+      'gia-hoa-von',
+      'wacc',
+    ]);
+  });
+
+  it('tiếng Anh: công thức chưa có điểm lịch sử rơi xuống theo thứ tự mặc định tiếng Anh', () => {
+    const ra = selectFormulas(
+      ALL,
+      { ...BASE_QUERY, sort: 'used' },
+      { ...EN, usageOrder: new Map([['wacc', 3]]) },
+    );
+    expect(ids(ra)).toEqual(['wacc', 'pe', 'gia-hoa-von', 'emi']);
+  });
+
+  it('tiếng Anh: tên tiếng Anh rỗng thì sắp theo tên tiếng Việt, đúng chữ màn đang in', () => {
+    const chuaDich = make({ id: 'an-chia', categoryId: 'loans', name: { vi: 'Ăn chia', en: '' } });
+    const ra = ids(selectFormulas([...ALL, chuaDich], { ...BASE_QUERY, sort: 'az' }, EN));
+    expect(ra[0]).toBe('an-chia');
+  });
+
+  it('khi đang tìm, A–Z tiếng Anh sắp trong từng tầng theo tên tiếng Anh', () => {
+    // Ba mô tả tiếng Anh mở đầu bằng "The" — cả ba là khớp phụ, cùng một tầng.
+    const ra = ids(selectFormulas(ALL, { ...BASE_QUERY, q: 'the', sort: 'az' }, EN));
+    expect(ra).toEqual(['emi', 'gia-hoa-von', 'wacc']);
+  });
+});
+
+/*
  * Hai cách sắp dựa trên lịch sử dùng. Điểm do tầng Application chấm rồi đưa xuống, nên ở đây
  * chỉ cần một `Map` dựng tay — chính vì vậy chúng test được bằng Node mà không đụng localStorage.
  */

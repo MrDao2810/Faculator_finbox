@@ -5,11 +5,49 @@
   min-width: 0;
 }
 
-.searchArea {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
+/*
+ * Hàng chip lịch sử nép sát ô tìm hơn các khối khác một bậc: 12px chứ không 20px của `.screen`. Hai
+ * thứ từng nằm chung một khung `gap: --space-3`; khung ấy bỏ đi để ô tìm ghim được (xem `.searchSlot`),
+ * nên lề âm trả lại đúng con số cũ: 20px − 8px = 12px.
+ */
+.recentSlot {
   min-width: 0;
+  margin-top: calc(var(--space-3) - var(--space-5));
+}
+
+/*
+ * Dưới 1024px ô tìm GHIM DƯỚI THANH TRÊN trong lúc cuộn (17/10/2026). Chủ dự án: _"scroll nội dung
+ * trong phần công thức đến đâu thì thanh search cũng cần để yên trên top giống như cơ chế của
+ * header"_. Trước đó cuộn qua kệ và vài thẻ là ô tìm trôi khỏi màn, muốn tìm phải cuộn ngược lên đầu.
+ *
+ * Cùng khuôn với hàng nút "Lưu vào danh mục · Thoát" ghim đáy ở màn chi tiết (`FormulaDetail.module.css`,
+ * `.endActions`), lộn ngược lên trên:
+ *
+ * - Đỉnh = đáy thanh trên: `--header-height` + 1px viền dưới của nó + vùng an toàn — đúng ba thứ
+ *   `AppHeader.module.css` cộng lại.
+ * - `sticky` chứ không `fixed`: lúc chưa cuộn ô tìm đứng đúng chỗ cũ, không phải chừa lề trên cho nó.
+ *   `sticky` chỉ dính trong khối cha, nên ô tìm phải là con trực tiếp của `.screen` (khối kéo tới hết
+ *   danh sách) — lý do nó không còn nằm chung khung với hàng chip.
+ * - Dải nền `--color-paper` (nền trang) trải tới hai mép khung nội dung bằng lề âm `--gutter`, và
+ *   đệm 8px trên dưới, để thẻ cuộn bên dưới không lộ qua khe hai bên hay sát mép ô. Lề âm 8px trên
+ *   dưới trả lại đúng phần đệm ấy, nên lúc chưa cuộn ô tìm và mọi khối dưới nó KHÔNG XÊ một pixel.
+ *   Không kẻ đường dưới dải: lúc chưa cuộn nó sẽ thành một vạch thừa giữa ô tìm và hàng chip.
+ * - `z-index: 2`: trên thẻ công thức, DƯỚI thanh trên và thanh dưới (10) — cùng bậc với `.endActions`.
+ * - `body` mang `overflow-x: clip` chứ không `hidden` (xem `globals.css`), nên `sticky` chạy được.
+ *
+ * Từ 1024px không đổi: thanh điều hướng lên trên cùng, ô tìm đứng yên ở đầu màn như cũ.
+ */
+@media (max-width: 1023.98px) {
+  .searchSlot {
+    position: sticky;
+    top: calc(var(--header-height) + 1px + env(safe-area-inset-top, 0px));
+    z-index: 2;
+
+    margin: calc(var(--space-2) * -1) calc(var(--gutter) * -1);
+    padding: var(--space-2) var(--gutter);
+
+    background: var(--color-paper);
+  }
 }
 
 /*

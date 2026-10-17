@@ -1,5 +1,8 @@
 // @vitest-environment jsdom
 
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+
 import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { StrictMode } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
@@ -476,5 +479,48 @@ describe('FormulaListScreen — quay về từ một kết quả tìm', () => {
 
     expect(oTim().value).toBe('P/E');
     expect(cancelScrollRestore).not.toHaveBeenCalled();
+  });
+});
+
+/*
+ * Ô tìm ghim dưới thanh trên ở khổ điện thoại (17/10/2026, chủ dự án: "scroll nội dung trong phần công
+ * thức đến đâu thì thanh search cũng cần để yên trên top giống như cơ chế của header").
+ *
+ * Hai nửa, và jsdom không thấy nửa nào: nó không chạy CSS Module, nên mất `sticky` là màn sai mà không
+ * ca hành vi nào đỏ; còn `sticky` chỉ dính trong khối CHA, nên bọc ô tìm chung khung với hàng chip là ô
+ * tìm trôi đi sau vài chục pixel cuộn dù luật CSS vẫn nguyên. Ca đầu gác cấu trúc, ca sau đọc thẳng luật.
+ */
+describe('ô tìm ghim dưới thanh trên ở khổ điện thoại', () => {
+  it('khung bọc ô tìm nằm cùng cha với khối danh sách và không chứa hàng chip lịch sử', async () => {
+    window.localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify([PE.name.vi]));
+    moMan();
+    const chip = await screen.findByRole('button', { name: PE.name.vi });
+
+    const cha = khoiDanhSach().parentElement;
+    let khung: HTMLElement = oTim();
+    while (khung.parentElement !== null && khung.parentElement !== cha) khung = khung.parentElement;
+
+    expect(khung.parentElement, 'ô tìm phải là con trực tiếp của màn, kéo tới hết danh sách').toBe(
+      cha,
+    );
+    expect(khung.contains(chip), 'hàng chip lịch sử không được ghim theo ô tìm').toBe(false);
+  });
+
+  it('dưới 1024px khung ô tìm là sticky, đỉnh ngay dưới thanh trên, có nền; từ 1024px đứng yên', () => {
+    const css = readFileSync(
+      join(process.cwd(), 'src/app/cong-thuc/FormulaListScreen.module.css'),
+      'utf8',
+    ).replace(/\/\*[\s\S]*?\*\//g, '');
+
+    const ghim = /@media \(max-width: 1023\.98px\)\s*\{\s*\.searchSlot\s*\{([^}]*)\}/.exec(
+      css,
+    )?.[1];
+    expect(ghim, 'thiếu luật .searchSlot trong @media (max-width: 1023.98px)').toBeDefined();
+    expect(ghim).toMatch(/position:\s*sticky;/);
+    expect(ghim).toMatch(/top:\s*calc\(var\(--header-height\) \+ 1px/);
+    expect(ghim).toMatch(/background:\s*var\(--color-paper\);/);
+
+    const ngoaiMedia = css.replace(/@media[^{]*\{(?:[^{}]*\{[^}]*\})*\s*\}/g, '');
+    expect(ngoaiMedia).not.toMatch(/\.searchSlot\s*\{[^}]*position:/);
   });
 });

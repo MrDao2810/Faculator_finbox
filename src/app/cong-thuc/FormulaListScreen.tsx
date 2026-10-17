@@ -301,29 +301,38 @@ export function FormulaListScreen({ shelf }: FormulaListScreenProps) {
         Không có `<h1>` trong thân màn: tiêu đề "Công thức" do thanh trên dựng (`headerTitleKey()`).
         Trang vẫn đúng một `<h1>` — `verify-static.mjs` đếm.
       */}
-      <div className={styles.searchArea}>
-        <div className={styles.searchSlot}>
-          <SearchBox
-            inputRef={inputRef}
-            value={params.q}
-            onChange={setQuery}
-            onCancel={() => {
-              setQuery('');
-            }}
-            onSubmit={flushUrl}
-          />
-        </div>
+      {/*
+        Ô tìm là con TRỰC TIẾP của `.screen`, không bọc chung với hàng chip: dưới 1024px nó ghim dưới
+        thanh trên lúc cuộn, mà `sticky` chỉ dính trong khối cha — bọc trong khối chỉ cao bằng ô tìm
+        cộng hàng chip thì cuộn qua khối ấy là ô tìm trôi theo. Lý do và số đo ở `.searchSlot`.
+      */}
+      <div className={styles.searchSlot}>
+        <SearchBox
+          inputRef={inputRef}
+          value={params.q}
+          onChange={setQuery}
+          onCancel={() => {
+            setQuery('');
+          }}
+          onSubmit={flushUrl}
+        />
+      </div>
 
-        {/* Chip lịch sử chỉ ở trạng thái chưa gõ — đang tìm thì kết quả mới là thứ cần đọc. */}
-        {!searching && (
+      {/*
+        Chip lịch sử chỉ ở trạng thái chưa gõ — đang tìm thì kết quả mới là thứ cần đọc. Điều kiện
+        `recent.length > 0` lặp lại đúng điều kiện `RecentSearches` tự trả `null`: thiếu nó, khung
+        bọc rỗng vẫn là một mục của lưới flex và cộng thêm một khoảng `gap` dưới ô tìm.
+      */}
+      {!searching && recent.length > 0 && (
+        <div className={styles.recentSlot}>
           <RecentSearches
             variant="inline"
             terms={recent}
             onPick={pickRecent}
             onClear={clearRecent}
           />
-        )}
-      </div>
+        </div>
+      )}
 
       {/*
         Vùng thông báo dựng NGAY TỪ LẦN RENDER ĐẦU và không bao giờ tháo, chỉ đổi chữ bên trong —

@@ -188,9 +188,32 @@ export function matchFormula(
   return { tier: 2, score: (hits.some((hit) => hit.tron) ? 2 : 1) + noiBat };
 }
 
-/** So sánh tên theo thứ tự chữ cái tiếng Việt. */
-function compareName(a: FormulaSummary, b: FormulaSummary): number {
-  return a.name.vi.localeCompare(b.name.vi, 'vi');
+/**
+ * Bộ so chữ của từng ngôn ngữ, dựng một lần: một lượt sắp 111 công thức gọi phép so vài trăm lần, mà
+ * `localeCompare(…, 'vi')` dựng lại bộ so ở mỗi lần gọi. Kết quả y hệt `localeCompare` cùng ngôn ngữ.
+ */
+const BO_SO_TEN: Readonly<Record<SearchLang, Intl.Collator>> = {
+  vi: new Intl.Collator('vi'),
+  en: new Intl.Collator('en'),
+};
+
+/** Tên đúng như màn hiện: tiếng Anh rỗng thì màn in tiếng Việt, cùng lẽ với `descriptionText`. */
+function nameText(formula: FormulaSummary, lang: SearchLang): string {
+  if (lang === 'en' && formula.name.en.trim() !== '') return formula.name.en;
+  return formula.name.vi;
+}
+
+/**
+ * So sánh tên theo thứ tự chữ cái của NGÔN NGỮ ĐANG HIỆN (17/10/2026).
+ *
+ * Trước ngày ấy hàm chỉ so `name.vi`, nên ở giao diện tiếng Anh "A–Z" ra thứ tự của tên tiếng Việt:
+ * thẻ "Price-to-Earnings…" đứng theo chữ "Hệ số P/E", danh sách trông như xáo trộn. Chủ dự án báo lỗi
+ * và chốt sắp theo hai trường hợp: tên Việt theo bảng chữ Việt, tên Anh theo bảng chữ Anh. Mọi phép
+ * so có phá hoà bằng chữ cái (mặc định, theo mức, theo lịch sử, thứ tự kết quả tìm) đi qua hàm này,
+ * nên cả năm cách sắp cùng đổi theo ngôn ngữ.
+ */
+function compareName(a: FormulaSummary, b: FormulaSummary, lang: SearchLang): number {
+  return BO_SO_TEN[lang].compare(nameText(a, lang), nameText(b, lang));
 }
 
 /**
@@ -200,9 +223,9 @@ function compareName(a: FormulaSummary, b: FormulaSummary): number {
  * `recent`/`used` chỉ chấm điểm được tối đa 24 công thức có trong lịch sử, 87 công thức còn lại
  * phải rơi xuống dưới theo một thứ tự có nghĩa chứ không phải theo thứ tự Registry.
  */
-function compareDefault(a: FormulaSummary, b: FormulaSummary): number {
+function compareDefault(a: FormulaSummary, b: FormulaSummary, lang: SearchLang): number {
   const featured = Number(b.isFeatured ?? false) - Number(a.isFeatured ?? false);
-  return featured !== 0 ? featured : compareName(a, b);
+  return featured !== 0 ? featured : compareName(a, b, lang);
 }
 
 /**
@@ -216,9 +239,9 @@ function compareDefault(a: FormulaSummary, b: FormulaSummary): number {
  * này không đổi gì — nó chỉ có tác dụng ở chế độ Nâng cao. Cố ý không ẩn lựa chọn: ẩn/hiện mục
  * trong `<select>` theo trạng thái là link `?sort=basic` chia sẻ đi mở ra một màn khác.
  */
-function compareByLevel(a: FormulaSummary, b: FormulaSummary): number {
+function compareByLevel(a: FormulaSummary, b: FormulaSummary, lang: SearchLang): number {
   const byLevel = Number(a.level === 'advanced') - Number(b.level === 'advanced');
-  return byLevel !== 0 ? byLevel : compareName(a, b);
+  return byLevel !== 0 ? byLevel : compareName(a, b, lang);
 }
 
 /** Không có lịch sử thì mọi công thức đều vô hạng — dùng chung một map rỗng, khỏi cấp phát. */
@@ -237,15 +260,15 @@ const EMPTY_ORDER: ReadonlyMap<string, number> = new Map();
  * KHÔNG bọc `{ formula, score }` rồi sắp: `FIELD_INDEX` khoá theo chính object công thức, sao
  * chép là chỉ mục từ khoá trượt 100% (xem docblock của nó ở trên).
  */
-function compareByUsage(order: ReadonlyMap<string, number>) {
+function compareByUsage(order: ReadonlyMap<string, number>, lang: SearchLang) {
   return (a: FormulaSummary, b: FormulaSummary): number => {
     const scoreA = order.get(a.id);
     const scoreB = order.get(b.id);
 
-    if (scoreA === undefined) return scoreB === undefined ? compareDefault(a, b) : 1;
+    if (scoreA === undefined) return scoreB === undefined ? compareDefault(a, b, lang) : 1;
     if (scoreB === undefined) return -1;
 
-    return scoreB - scoreA || compareDefault(a, b);
+    return scoreB - scoreA || compareDefault(a, b, lang);
   };
 }
 
@@ -268,7 +291,7 @@ function searchHits(
     if (tier !== 0) hits.push({ formula, tier, score });
   }
   return hits.sort(
-    (a, b) => a.tier - b.tier || b.score - a.score || compareName(a.formula, b.formula),
+    (a, b) => a.tier - b.tier || b.score - a.score || compareName(a.formula, b.formula, lang),
   );
 }
 
@@ -330,7 +353,8 @@ export interface SelectOptions {
   usageOrder?: ReadonlyMap<string, number>;
   /**
    * Ngôn ngữ của mô tả đang hiện — khớp phụ chỉ dò mô tả ấy, để thẻ khớp phụ nào cũng có chữ được
-   * tô. Mặc định `'vi'`. Nơi gọi trên màn truyền `locale` của người dùng.
+   * tô. Nó cũng chọn bảng chữ cái mà mọi cách sắp dùng để phá hoà (`compareName`). Mặc định `'vi'`.
+   * Nơi gọi trên màn truyền `locale` của người dùng.
    */
   lang?: SearchLang;
 }
@@ -339,11 +363,12 @@ export interface SelectOptions {
 function comparatorFor(
   sort: FormulaQuery['sort'],
   usageOrder: ReadonlyMap<string, number> | undefined,
+  lang: SearchLang,
 ): ((a: FormulaSummary, b: FormulaSummary) => number) | null {
-  if (sort === 'az') return compareName;
-  if (sort === 'za') return (a, b) => compareName(b, a);
-  if (sort === 'basic') return compareByLevel;
-  if (sort === 'recent' || sort === 'used') return compareByUsage(usageOrder ?? EMPTY_ORDER);
+  if (sort === 'az') return (a, b) => compareName(a, b, lang);
+  if (sort === 'za') return (a, b) => compareName(b, a, lang);
+  if (sort === 'basic') return (a, b) => compareByLevel(a, b, lang);
+  if (sort === 'recent' || sort === 'used') return compareByUsage(usageOrder ?? EMPTY_ORDER, lang);
   return null;
 }
 
@@ -362,15 +387,16 @@ export function selectFormulas(
   options: SelectOptions = {},
 ): FormulaSummary[] {
   const categories = options.categories ?? CATEGORIES;
+  const lang = options.lang ?? 'vi';
   const faceted = applyFacets(formulas, query, categories);
-  const compare = comparatorFor(query.sort, options.usageOrder);
+  const compare = comparatorFor(query.sort, options.usageOrder, lang);
 
   if (!hasSearchTerms(query.q)) {
     // Chưa tìm gì: 'featured' là công thức nổi bật lên trước.
-    return faceted.sort(compare ?? compareDefault);
+    return faceted.sort(compare ?? ((a, b) => compareDefault(a, b, lang)));
   }
 
-  const hits = searchHits(faceted, query.q, options.lang ?? 'vi');
+  const hits = searchHits(faceted, query.q, lang);
   if (compare === null) return hits.map((hit) => hit.formula);
 
   const chinh = hits.filter((hit) => hit.tier === 1).map((hit) => hit.formula);

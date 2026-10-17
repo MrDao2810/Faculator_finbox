@@ -4,6 +4,66 @@ Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 
 ---
 
+## Sắp xếp công thức theo ngôn ngữ đang hiện (17/10/2026)
+
+**Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án xem.**
+
+Chủ dự án báo: ở giao diện tiếng Anh, sắp xếp công thức vẫn ra thứ tự tiếng Việt. Họ muốn sắp theo hai trường hợp, tiếng
+Anh và tiếng Việt.
+
+- **Nguyên nhân**: `compareName()` trong `src/core/registry/search.ts` luôn so `name.vi` bằng `localeCompare(…, 'vi')`.
+  Mọi nơi gọi `selectFormulas()` đã truyền `lang: locale`, nhưng `lang` chỉ đi tới phần khớp mô tả.
+- **`search.ts`**:
+  - `compareName(a, b, lang)` so tên ĐANG HIỆN. Tên tiếng Anh rỗng thì so tên tiếng Việt, cùng luật với `pick()`.
+  - Mỗi ngôn ngữ có một `Intl.Collator` dựng sẵn (`BO_SO_TEN`).
+  - `lang` được truyền vào `compareDefault`, `compareByLevel`, `compareByUsage`, `comparatorFor` và phần xếp kết quả
+    tìm. Nên cả năm cách sắp (Nổi bật, A–Z, Z–A, Cơ bản trước, theo lịch sử) và thứ tự kết quả tìm đều đổi theo ngôn
+    ngữ.
+  - Tiếng Việt không đổi: cùng bộ so `vi` như cũ.
+- **HTML tĩnh**: lần render đầu vẫn là tiếng Việt (`DEFAULT_PREFERENCES`), nên vẫn khớp bản build. Người dùng tiếng Anh
+  thấy thứ tự tiếng Anh sau hydrate, trong lúc trang còn bị `data-locale-pending` che.
+- **Test** — `search.test.ts` thêm 7 ca tiếng Anh: A–Z (kèm đối chứng thứ tự tiếng Việt khác hẳn), Z–A, mặc định, Cơ
+  bản trước, theo lịch sử, tên tiếng Anh rỗng, và A–Z khi đang tìm.
+- **Kiểm**:
+  - `eslint`, `tsc --noEmit`, `prettier` sạch.
+  - `search.test.ts`, `FormulaListScreen.test.tsx` và `src/app/tim-kiem` xanh: 105/105.
+  - Trên dev server (Chrome headless, 1440px, chế độ Nâng cao, đủ 111 thẻ): EN A–Z và Z–A khớp `Intl.Collator('en')`,
+    VI A–Z khớp `Intl.Collator('vi')`.
+
+---
+
+## Màn Công thức: ô tìm ghim dưới thanh trên ở khổ điện thoại (17/10/2026)
+
+**Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án xem.**
+
+Chủ dự án: _"khi ở màn mobile thì scroll nội dung trong phần công thức đến đâu thì thanh search cũng cần để yên trên
+top giống như có chế của header"_. Trước đó ô tìm ở `/cong-thuc/` cuộn đi cùng kệ và danh sách.
+
+- **`src/app/cong-thuc/FormulaListScreen.tsx`** — ô tìm thành con TRỰC TIẾP của `.screen`. Nó từng nằm chung khung
+  `.searchArea` với hàng chip "Tìm gần đây", mà `sticky` chỉ dính trong khối cha, nên trong khung ấy nó sẽ trôi đi sau
+  vài chục pixel. Hàng chip có khung riêng `.recentSlot`, chỉ dựng khi có chip.
+- **`FormulaListScreen.module.css`**:
+  - Bỏ `.searchArea`.
+  - `.recentSlot` có lề trên âm 8px, nên chip vẫn cách ô tìm đúng 12px như cũ.
+  - Dưới 1024px `.searchSlot` là `sticky`. Đỉnh của nó = `--header-height` + 1px viền + vùng an toàn. Nền
+    `--color-paper` trải tới hai mép khung nội dung, đệm 8px trên dưới, `z-index: 2`. Đây là khuôn của `.endActions`
+    ở màn chi tiết, lộn ngược lên trên.
+  - Đệm 8px được bù bằng lề âm 8px, nên lúc chưa cuộn không gì xê dịch.
+  - Không kẻ đường dưới dải: lúc chưa cuộn nó sẽ thành vạch thừa giữa ô tìm và chip.
+  - Từ 1024px không đổi.
+- **Test** — `FormulaListScreen.test.tsx` thêm hai ca. Ca đầu gác cấu trúc: khung ô tìm cùng cha với khối danh sách và
+  không chứa chip. Ca sau đọc thẳng luật CSS. jsdom không chạy CSS, nên thiếu hai ca này thì không ca nào thấy lỗi.
+- **Đo trên Chrome thật** (dev server, script tạm ngoài repo):
+  - Ở 360 và 768: cuộn 1500px và cuộn tới cuối, dải luôn ở `top = 57` = đáy thanh trên. Đáy dải ở 117.
+  - Lúc chưa cuộn: khung ô tìm ở 77 (= 57 + 20px đệm trên của nội dung), chip ở 133 (cách 12px), kệ ở 144. Các số này
+    giống bố cục cũ.
+  - Không cuộn ngang. Ở 1440 ô tìm vẫn `static`.
+- **Chưa làm**: `/tim-kiem/` (chỉ còn đường vào từ trang 404) không đổi.
+- `npx eslint`, `tsc --noEmit`, `prettier --check` sạch; `FormulaListScreen.test.tsx` 29/29 xanh. Chưa chạy
+  `check:chrome`. Chưa có phép đo nào của nó cho ô tìm ghim.
+
+---
+
 ## Ô tìm: khớp theo cụm, khớp tên lên đầu, khớp phụ tô vàng (16/10/2026)
 
 **Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án xem.**

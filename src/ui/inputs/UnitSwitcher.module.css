@@ -25,8 +25,10 @@
   cursor: pointer;
 }
 
-.option:hover:not(.selected) {
-  color: var(--color-ink);
+@media (hover: hover) {
+  .option:hover:not(.selected) {
+    color: var(--color-ink);
+  }
 }
 
 /* Đang chọn: nền + màu chữ + in đậm — ba dấu hiệu (NFR-USA-06). */

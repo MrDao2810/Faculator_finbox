@@ -44,20 +44,21 @@ export {
   resolveRepeatSpec,
 } from './repeat';
 
-export type { SelectOptions } from './search';
+export type { SearchLang, SearchMatch, SelectOptions } from './search';
 export {
   countByCategoryFor,
   countBySegmentFor,
   countHiddenByLevel,
   formulasForLevel,
+  hasSearchTerms,
+  matchFormula,
   normalizeVi,
-  scoreFormula,
   searchFormulas,
   selectFormulas,
   tokenize,
 } from './search';
 
-export { highlightParts, highlightRanges } from './highlight';
+export { descriptionHitParts, highlightParts, highlightRanges } from './highlight';
 export type { HighlightPart, HighlightRange } from './highlight';
 
 export { CATEGORIES, categoriesOf, expectedCountOf, findCategory } from './categories';

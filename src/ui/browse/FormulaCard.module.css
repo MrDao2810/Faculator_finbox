@@ -33,9 +33,11 @@
  * đặc màu tông trên nền thẻ, nên tô nền thẻ cùng họ màu là icon chìm mất đúng lúc con trỏ đang
  * ở trên nó.
  */
-.card:hover {
-  border-color: var(--category-ink);
-  box-shadow: var(--shadow-sm);
+@media (hover: hover) {
+  .card:hover {
+    border-color: var(--category-ink);
+    box-shadow: var(--shadow-sm);
+  }
 }
 
 /*
@@ -243,9 +245,11 @@
  * đang ở trên nó. Từ đợt đổi màu Finbox lý do này còn chặt hơn: tông chỉ còn một, nên nền thẻ tô
  * theo tông sẽ cùng màu với icon ở MỌI thẻ, không riêng vài nhóm.
  */
-.tile:hover {
-  border-color: var(--category-ink);
-  box-shadow: var(--shadow-sm);
+@media (hover: hover) {
+  .tile:hover {
+    border-color: var(--category-ink);
+    box-shadow: var(--shadow-sm);
+  }
 }
 
 /*

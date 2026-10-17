@@ -84,8 +84,10 @@
   transform: translate(-50%, -50%);
 }
 
-.clear:hover {
-  color: var(--color-accent);
+@media (hover: hover) {
+  .clear:hover {
+    color: var(--color-accent);
+  }
 }
 
 /*
@@ -153,9 +155,11 @@
   transform: translateY(-50%);
 }
 
-.chip:hover {
-  border-color: var(--color-accent);
-  background: var(--color-accent-soft);
+@media (hover: hover) {
+  .chip:hover {
+    border-color: var(--color-accent);
+    background: var(--color-accent-soft);
+  }
 }
 
 /*
@@ -194,8 +198,10 @@
   transform: translate(-50%, -50%);
 }
 
-.clearIcon:hover {
-  color: var(--color-accent);
-  border-color: var(--color-accent);
-  background: var(--color-accent-soft);
+@media (hover: hover) {
+  .clearIcon:hover {
+    color: var(--color-accent);
+    border-color: var(--color-accent);
+    background: var(--color-accent-soft);
+  }
 }

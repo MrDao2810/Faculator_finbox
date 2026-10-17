@@ -124,8 +124,10 @@
   cursor: pointer;
 }
 
-.range:hover {
-  color: var(--color-ink);
+@media (hover: hover) {
+  .range:hover {
+    color: var(--color-ink);
+  }
 }
 
 /*

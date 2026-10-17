@@ -59,8 +59,10 @@
   transform: translateY(-50%);
 }
 
-.option:hover {
-  color: var(--color-ink);
+@media (hover: hover) {
+  .option:hover {
+    color: var(--color-ink);
+  }
 }
 
 /*

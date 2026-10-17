@@ -181,8 +181,8 @@ export const PHI_GIAO_DICH_MUA: FormulaModule = {
       inputs: { quantity: 1_000, buyPrice: 62_900 },
       expected: 94_350,
       note: {
-        vi: 'Mức 0,15% ở đây là bậc phí trực tuyến phổ biến chứ không phải mức luật định: cùng một lệnh, nơi thu 0,03% nơi thu 0,35%, chênh nhau cả chục lần. Đổi biểu phí ở màn Cài đặt rồi tính lại nếu tài khoản của bạn dùng mức khác.',
-        en: 'The 0.15% here is a common online tier, not a statutory rate: the same order costs 0.03% at one broker and 0.35% at another, more than a tenfold spread. Switch the fee schedule in Settings and recompute if your own account uses a different rate.',
+        vi: 'So với 62.900.000 ₫ tiền mua 1.000 cổ phiếu FPT: phí 94.350 ₫ bị trừ thêm ngoài số tiền ấy, nên giá vốn thật của mỗi cổ phiếu là 62.994,35 ₫ chứ không phải giá khớp 62.900 ₫. Con số tính theo mức phí 0,15% của SSI, nếu công ty chứng khoán của bạn thu mức khác thì lấy 62.900.000 ₫ nhân với mức ấy.',
+        en: 'Compared with the 62,900,000 ₫ paid for 1,000 FPT shares: the 94,350 ₫ fee is charged on top of that amount, so each share really costs 62,994.35 ₫, not the 62,900 ₫ matched price. The figure uses SSI’s 0.15% fee rate, and if your broker charges a different rate, multiply 62,900,000 ₫ by that rate instead.',
       },
       source: {
         vi: 'Biểu phí giao dịch trực tuyến SSI; giá FPT (mã FPT) phiên 24/07/2026.',
@@ -281,8 +281,8 @@ export const PHI_GIAO_DICH_BAN: FormulaModule = {
       inputs: { quantity: 1_000, sellPrice: 72_700 },
       expected: 109_050,
       note: {
-        vi: 'Phí bán tính trên giá trị bán chứ không trên giá vốn, nên cùng một lượng cổ phiếu mà giá đã tăng thì phí bán cao hơn phí mua. Cộng cả hai chiều, riêng phí môi giới của vòng mua – bán này là 203.400 ₫.',
-        en: 'The sell fee is charged on the sale value rather than the cost basis, so with the same share count a risen price means a bigger fee than on the buy leg. Across both legs, brokerage alone comes to 203,400 ₫ on this round trip.',
+        vi: 'So với 72.700.000 ₫ tiền bán 1.000 cổ phiếu FPT: phí 109.050 ₫ bị trừ ngay khỏi số tiền ấy, tức 109,05 ₫ trên mỗi cổ phiếu bán ra. Đây mới là phí của lệnh bán, nếu lô này mua vào ở 62.900 ₫ thì còn 94.350 ₫ phí mua, nên riêng phí môi giới cả vòng mua bán là 203.400 ₫.',
+        en: 'Compared with the 72,700,000 ₫ received for 1,000 FPT shares: the 109,050 ₫ fee comes straight out of that amount, which is 109.05 ₫ on every share sold. This is only the sell order’s fee, and if the lot was bought at 62,900 ₫, the buy fee adds 94,350 ₫, making brokerage alone 203,400 ₫ for the round trip.',
       },
       source: {
         vi: 'Biểu phí giao dịch trực tuyến SSI; giá FPT (mã FPT) phiên 11/09/2026.',
@@ -376,8 +376,8 @@ export const THUE_CHUYEN_NHUONG: FormulaModule = {
       inputs: { quantity: 1_000, sellPrice: 72_700 },
       expected: 72_700,
       note: {
-        vi: 'Thuế thu trên giá trị bán chứ không trên khoản lãi: cùng lô này mà cắt lỗ ở 55.000 ₫ thì vẫn nộp 55.000 ₫ tiền thuế. Mức 0,1% được giữ nguyên khi Luật Thuế thu nhập cá nhân 109/2025/QH15 có hiệu lực, không phân biệt cổ phiếu niêm yết hay chưa niêm yết.',
-        en: 'The tax falls on the sale value, not on the gain: cutting this same lot at a loss at 55,000 ₫ still owes 55,000 ₫ in tax. The 0.1% rate carried over unchanged when Personal Income Tax Law 109/2025/QH15 took effect, with no distinction between listed and unlisted shares.',
+        vi: 'So với 72.700.000 ₫ tiền bán 1.000 cổ phiếu FPT: thuế 72.700 ₫ chỉ bằng một phần nghìn, nhưng cộng với 109.050 ₫ phí bán thì tiền thật về tài khoản còn 72.518.250 ₫. Khoản thuế này không phụ thuộc lô lãi hay lỗ vì tính trên tiền bán, nên kể cả khi bán lỗ cả lô ở 55.000 ₫ thì vẫn nộp 55.000 ₫.',
+        en: 'Compared with the 72,700,000 ₫ received for 1,000 FPT shares: the 72,700 ₫ tax is just one thousandth of it, but together with the 109,050 ₫ sell fee the cash that actually reaches the account is 72,518,250 ₫. The tax ignores whether the lot made a profit or a loss, since it is charged on the sale value, so even selling the whole lot at a loss at 55,000 ₫ would still cost 55,000 ₫ in tax.',
       },
       source: {
         vi: 'Luật Thuế thu nhập cá nhân 109/2025/QH15, Điều 13 khoản 2, hiệu lực 01/07/2026; giá FPT (mã FPT) phiên 11/09/2026.',
@@ -480,8 +480,8 @@ export const THUE_CO_TUC: FormulaModule = {
       inputs: { quantity: 1_000, dividendPerShare: 1_000 },
       expected: 50_000,
       note: {
-        vi: 'Công ty chứng khoán khấu trừ ngay tại nguồn, nhà đầu tư nhận về 950.000 ₫ mà không phải tự kê khai. Đáng lưu ý khi so với gửi tiết kiệm: lãi tiền gửi được miễn thuế thu nhập cá nhân, còn cổ tức tiền mặt chịu 5%.',
-        en: 'The brokerage withholds it at source, so 950,000 ₫ reaches the investor with nothing to file. Worth noting against a savings deposit: interest income is exempt from personal income tax, while a cash dividend bears 5%.',
+        vi: 'So với 1.000.000 ₫ cổ tức công bố cho 1.000 cổ phiếu FPT: thuế 50.000 ₫, tức 5%, bị giữ lại, nên tiền thật về tài khoản là 950.000 ₫. Doanh nghiệp trả cổ tức đã trừ sẵn khoản này trước khi chuyển tiền, nên bạn không phải tự kê khai hay nộp thêm.',
+        en: 'Compared with the 1,000,000 ₫ dividend announced for 1,000 FPT shares: 50,000 ₫, or 5%, is withheld as tax, so the cash that actually reaches the account is 950,000 ₫. The paying company deducts it before transferring the money, so there is nothing for you to declare or pay separately.',
       },
       source: {
         vi: 'Cổ tức tiền mặt CTCP FPT (mã FPT) đợt chốt quyền 02/12/2025; thuế suất theo Luật Thuế thu nhập cá nhân 109/2025/QH15, Điều 12.',
@@ -588,8 +588,8 @@ export const PHI_LUU_KY: FormulaModule = {
       inputs: { quantity: 1_000, months: 2 },
       expected: 540,
       note: {
-        vi: 'Phí tính theo số cổ phiếu chứ không theo giá trị: cùng 2,5 tỷ ₫, tài khoản nắm cổ phiếu giá 5.000 ₫ trả 135.000 ₫ mỗi tháng, còn nắm FPT chỉ khoảng 9.300 ₫. Khoản này nhỏ nhưng đã rời tài khoản trước khi bán nên vẫn phải cộng vào giá hoà vốn.',
-        en: 'The fee follows the share count, not the value: on the same 2.5 billion ₫, an account holding 5,000 ₫ shares pays 135,000 ₫ a month while one holding FPT pays about 9,300 ₫. Small as it is, it has already left the account before you sell, so it still belongs in the break-even price.',
+        vi: 'So với 94.350 ₫ phí mua lô 1.000 cổ phiếu FPT này ở giá 62.900 ₫: phí lưu ký 540 ₫ chỉ bằng khoảng 0,6% phí mua, một khoản rất nhỏ trong chi phí của lô. Con số tính tròn 2 tháng, trong khi từ 24/07 đến 11/09/2026 chỉ có 49 ngày, nếu tính theo ngày thì chỉ khoảng 435 ₫.',
+        en: 'Compared with the 94,350 ₫ buy fee on this lot of 1,000 FPT shares at 62,900 ₫: the 540 ₫ custody fee is only about 0.6% of it, a very small part of the lot’s costs. It is charged for 2 full months, while 2026-07-24 to 2026-09-11 is only 49 days, which counted by the day would come to only about 435 ₫.',
       },
       source: {
         vi: 'Quyết định 1541/QĐ-BTC về giá dịch vụ lưu ký, hiệu lực 07/05/2025; thời gian nắm giữ 24/07 đến 11/09/2026.',
@@ -603,7 +603,7 @@ export const PHI_LUU_KY: FormulaModule = {
         expected: 1_350,
       },
       {
-        name: 'bán ngay trong tháng đầu vẫn tính một tháng',
+        name: 'giữ trọn một tháng thì tính đúng một tháng phí',
         inputs: { quantity: 1_000, months: 1 },
         expected: 270,
       },
@@ -738,8 +738,8 @@ export const GIA_HOA_VON: FormulaModule = {
       inputs: { quantity: 1_000, months: 2, buyPrice: 62_900 },
       expected: 63_153,
       note: {
-        vi: 'Ngay khi lệnh mua khớp, khoản đầu tư đã âm 0,40%: giá hoà vốn cao hơn giá mua 253 ₫, đúng bằng tổng ma sát của 0,15% phí mua, 0,15% phí bán, 0,1% thuế bán và phí lưu ký. Quay vòng 12 lần một năm thì riêng ma sát đó ngốn khoảng 4,8% vốn.',
-        en: 'The moment the buy order matches, the position is already 0.40% under water: the break-even price sits 253 ₫ above the buy price, exactly the friction of a 0.15% buy fee, a 0.15% sell fee, a 0.1% sell tax and the custody fee. Turn the capital over 12 times a year and that friction alone eats about 4.8% of it.',
+        vi: 'So với giá mua 62.900 ₫: phải bán được từ 63.153 ₫ mỗi cổ phiếu mới hoà vốn, cao hơn giá mua 253 ₫, khoảng 0,4%, để bù phí mua, phí bán, thuế bán và phí lưu ký. Nếu bán đúng giá mua thì 1.000 cổ phiếu này vẫn lỗ 252.140 ₫ dù giá không hề giảm.',
+        en: 'Compared with the 62,900 ₫ buy price: each share has to sell for at least 63,153 ₫ to break even, 253 ₫ or about 0.4% higher, to cover the buy fee, sell fee, sell tax and custody fee. Selling at exactly the buy price would still lose 252,140 ₫ on these 1,000 shares even though the price never fell.',
       },
       source: {
         vi: 'Biểu phí giao dịch trực tuyến SSI; giá mua FPT (mã FPT) phiên 24/07/2026.',
@@ -828,6 +828,13 @@ export const LOI_NHUAN_RONG: FormulaModule = {
       vi: 'Lợi nhuận ròng = Khối lượng × (Giá bán − Giá mua) − Tổng chi phí',
       en: 'Net profit = Quantity × (Sell price − Buy price) − Total costs',
     },
+    substitutionDerived: {
+      fMua: '{quantity} × {buyPrice} × {fee.brokerage.buy}',
+      fBan: '{quantity} × {sellPrice} × {fee.brokerage.sell}',
+      thue: '{quantity} × {sellPrice} × {tax.transfer.sell}',
+      fLk: '{quantity} × {months} × {fee.custody}',
+    },
+    substitution: '{quantity} × ({sellPrice} − {buyPrice}) − ({fMua} + {fBan} + {thue} + {fLk})',
     symbols: [
       {
         latex: 'L_{rong}',
@@ -910,8 +917,8 @@ export const LOI_NHUAN_RONG: FormulaModule = {
       inputs: { quantity: 1_000, months: 2, buyPrice: 62_900, sellPrice: 72_700 },
       expected: 9_523_360,
       note: {
-        vi: 'Lãi gộp 9.800.000 ₫ nhưng tổng phí và thuế 276.640 ₫ lấy đi 2,8% khoản lãi. Tỷ lệ đó nghe nhỏ vì thương vụ lãi đậm: nếu giá chỉ nhích 1% thì chính khoản chi phí ấy ngốn hơn 40% lợi nhuận, còn giá đi ngang thì lỗ đúng bằng chi phí.',
-        en: 'Gross profit is 9,800,000 ₫, but 276,640 ₫ of fees and tax take 2.8% of it. That share looks small only because the trade ran well: had the price risen just 1%, the same costs would eat over 40% of the profit, and a flat price leaves a loss exactly the size of the costs.',
+        vi: 'So với khoản chênh 9.800.000 ₫ giữa tiền bán và tiền mua: lãi thật về túi là 9.523.360 ₫, vì phí và thuế của cả vòng lấy đi 276.640 ₫, khoảng 2,8% khoản chênh. Tỷ lệ ấy nhỏ chỉ vì lần này giá lên mạnh, nếu giá bán chỉ cao hơn giá mua 1% thì phí và thuế sẽ lấy đi hơn 40% khoản chênh.',
+        en: 'Compared with the 9,800,000 ₫ gap between sale proceeds and purchase cost: the profit that actually lands is 9,523,360 ₫, because fees and tax on the round trip take 276,640 ₫, about 2.8% of the gap. That share is small only because the price rose strongly this time, and if the sale price were just 1% over the buy price, fees and tax would take more than 40% of the gap.',
       },
       source: {
         vi: 'Biểu phí giao dịch trực tuyến SSI; giá FPT (mã FPT) phiên 24/07/2026 và 11/09/2026.',
@@ -995,8 +1002,8 @@ export const ROI_RONG: FormulaModule = {
       {
         latex: 'L_{rong}',
         meaning: {
-          vi: 'lợi nhuận ròng sau phí và thuế, ₫, phụ thuộc cả giá bán (ô Giá bán)',
-          en: 'net profit after fees and taxes, ₫, also depends on the Sell price field',
+          vi: 'lợi nhuận ròng sau phí và thuế, phụ thuộc cả ô Giá bán, ₫',
+          en: 'net profit after fees and taxes, also depends on the Sell price field, ₫',
         },
       },
       {
@@ -1061,8 +1068,8 @@ export const ROI_RONG: FormulaModule = {
       inputs: { quantity: 1_000, months: 2, buyPrice: 62_900, sellPrice: 72_700 },
       expected: 15.1177,
       note: {
-        vi: 'Tỷ suất tính trên giá thuần là 15,58%; phần chênh 0,46 điểm phần trăm chính là phí và thuế. Mẫu số ở đây là vốn thực bỏ ra, đã gồm phí mua và phí lưu ký, nên kết quả thấp hơn cách chia cho riêng tiền mua.',
-        en: 'The rate on the raw prices alone is 15.58%; the 0.46 percentage-point gap is exactly the fees and tax. The denominator here is the capital actually deployed, buy fee and custody fee included, so the result lands below one divided by the purchase money alone.',
+        vi: 'So với mức lãi 15,58% nếu chỉ tính chênh lệch giá mua và giá bán: sau mọi khoản phí và thuế, mỗi 100 ₫ vốn thật bỏ ra còn lãi 15,12 ₫, tức phí và thuế kéo mức lãi xuống chưa tới nửa điểm phần trăm. Đây là lãi của 49 ngày chứ không phải một năm, nên không so thẳng được với lãi suất tiết kiệm theo năm.',
+        en: 'Compared with the 15.58% return from the gap between the buy and sell prices alone: after every fee and tax, each 100 ₫ of capital actually put in earns 15.12 ₫, so fees and tax pull the return down by less than half a percentage point. This is the return over 49 days, not over a year, so it cannot be set directly against an annual savings rate.',
       },
       source: {
         vi: 'Biểu phí giao dịch trực tuyến SSI; giá FPT (mã FPT) phiên 24/07/2026 và 11/09/2026.',

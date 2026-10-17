@@ -29,7 +29,7 @@ import type { FormulaSpec } from './registry/types';
  * bản dùng chung sẽ đọc sai ngay lần đầu ai đó gọi `.test()` trên nó.
  */
 export function choTrong(): RegExp {
-  return /\{([A-Za-z0-9_.]+)\}/g;
+  return /\{([A-Za-z0-9_.@#]+)\}/g;
 }
 
 /** Khoá biến mà một mẫu thay số nhắc tới — dùng cho cửa gác ở `formulas.test.ts`. */
@@ -47,4 +47,26 @@ export function substitutionKeys(template: string): ReadonlyArray<string> {
  */
 export function laKhoaHangSo(key: string): boolean {
   return key.includes('.');
+}
+
+/**
+ * Khoá này trỏ tới một con số mà CHỈ `calc` biết — đọc từ `extras` của kết quả đang in (16/10/2026).
+ *
+ * Viết `{@meanReturn}`: dấu `@` đứng đầu, phần sau là tên trong `extras`. Sinh ra cho 35 công thức ăn
+ * chuỗi giá, nơi ký hiệu của hình (lợi suất bình quân một phiên, độ lệch chuẩn, đường EMA phiên
+ * trước…) tính từ 20–250 giá đóng cửa chứ không từ một ô nhập nào, và cho nghiệm dò ra của IRR/XIRR.
+ * Lấy từ CHÍNH kết quả đang in, nên con số trong hình và con số sau dấu "=" là một lần tính, không
+ * phải hai.
+ */
+export function laKhoaKetQua(key: string): boolean {
+  return key.startsWith('@');
+}
+
+/** Bảng giá trị `{@ten}` của một kết quả: mỗi khoá `extras` mang thêm dấu `@` ở đầu. */
+export function giaTriKetQua(
+  extras: Readonly<Record<string, number>> | undefined,
+): Record<string, number> {
+  const bang: Record<string, number> = {};
+  for (const [key, value] of Object.entries(extras ?? {})) bang[`@${key}`] = value;
+  return bang;
 }

@@ -45,8 +45,10 @@
   border-radius: var(--radius-md);
 }
 
-.tile:hover {
-  border-color: var(--category-ink);
+@media (hover: hover) {
+  .tile:hover {
+    border-color: var(--category-ink);
+  }
 }
 
 /* Icon nhóm — chỉ còn nét, không ô nền, cùng mẫu với `.tileIcon`/`.rowIcon` của FormulaCard. */

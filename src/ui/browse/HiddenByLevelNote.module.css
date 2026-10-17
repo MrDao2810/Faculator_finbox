@@ -74,6 +74,8 @@
   transform: translateY(-50%);
 }
 
-.action:hover {
-  color: var(--color-accent-strong);
+@media (hover: hover) {
+  .action:hover {
+    color: var(--color-accent-strong);
+  }
 }

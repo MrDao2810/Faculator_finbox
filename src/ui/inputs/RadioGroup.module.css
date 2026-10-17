@@ -39,8 +39,10 @@
   cursor: pointer;
 }
 
-.option:hover {
-  border-color: var(--color-border-strong);
+@media (hover: hover) {
+  .option:hover {
+    border-color: var(--color-border-strong);
+  }
 }
 
 .fieldset:disabled .option {

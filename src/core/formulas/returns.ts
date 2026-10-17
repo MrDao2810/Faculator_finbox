@@ -98,8 +98,8 @@ export const ROI: FormulaModule = {
       inputs: { cost: 62_900_000, current: 72_700_000 },
       expected: 15.5803,
       note: {
-        vi: 'ROI không có chiều thời gian: một kỳ 49 ngày và một kỳ 5 năm vẫn cho cùng con số. Muốn so sánh công bằng thì dùng CAGR hoặc lợi suất quy năm, và nhớ rằng ROI chưa trừ phí lẫn thuế.',
-        en: 'ROI carries no sense of time: a 49-day holding and a five-year one produce the same figure. For a fair comparison use CAGR or an annualized return, and remember ROI leaves out fees and taxes.',
+        vi: 'So với lãi gửi tiết kiệm trong cùng 49 ngày: dù tính theo mức 6,8%/năm của kỳ hạn 12 tháng, gửi tiền cũng chỉ được khoảng 0,91%, còn khoản FPT này lãi 15,58%, gấp khoảng 17 lần. Con số chưa trừ phí mua, phí bán, thuế bán và phí lưu ký, trừ hết thì còn 15,12%.',
+        en: 'Compared with savings interest over the same 49 days: even at the 6.8%/year rate of a 12-month deposit, the money would earn only about 0.91%, while this FPT holding gained 15.58%, roughly 17 times as much. The figure leaves out the buy fee, sell fee, sell tax and custody fee, and with all of them deducted it drops to 15.12%.',
       },
       source: {
         vi: 'Giá đóng cửa FPT trên Investing.com, phiên 24/07/2026 và 11/09/2026.',
@@ -221,8 +221,8 @@ export const HPR: FormulaModule = {
       inputs: { startPrice: 62_900, endPrice: 72_700, dividend: 0 },
       expected: 15.5803,
       note: {
-        vi: 'Cổ tức bằng 0 nên HPR trùng khít ROI — hai bên chỉ tách nhau khi trong kỳ có đợt chốt quyền. Nắm qua một đợt cổ tức 1.000 ₫/CP thì HPR lên 17,17% trong khi lợi suất chỉ theo giá vẫn giữ nguyên.',
-        en: 'With a zero dividend, HPR lands exactly on ROI — the two only part ways when an ex-dividend date falls inside the period. Holding through a 1,000 ₫/share payout would lift HPR to 17.17% while the price-only return stays where it is.',
+        vi: 'So với giá mua 62.900 ₫ một cổ phiếu FPT: sau 49 ngày mỗi cổ phiếu lời 9.800 ₫, tức 15,58% tiền bỏ ra, và toàn bộ phần lời ấy đến từ giá vì trong kỳ không có cổ tức. Đây là mức lời của riêng 49 ngày, chưa trừ phí mua bán và thuế, không phải mức lời một năm.',
+        en: 'Compared with the 62,900 ₫ paid for one FPT share: after 49 days each share had gained 9,800 ₫, or 15.58% of the money put in, and all of that gain came from the price because no dividend was paid in the period. This is the gain for those 49 days alone, before trading fees and taxes, not a yearly gain.',
       },
       source: {
         vi: 'Giá đóng cửa FPT trên Investing.com, phiên 24/07/2026 và 11/09/2026; đợt chốt quyền cổ tức gần nhất 02/12/2025.',
@@ -346,8 +346,8 @@ export const CAGR: FormulaModule = {
       inputs: { start: 10_000, end: 33_913, years: 9.12 },
       expected: 14.3284,
       note: {
-        vi: 'Con số khớp mức tăng luỹ kế +239,1% in trên cùng bản báo cáo. Đây là tốc độ tăng ĐỀU giả định chứ không phải năm nào quỹ cũng lãi chừng ấy — riêng ba tháng gần nhất quỹ âm 5,9%.',
-        en: 'The figure matches the +239.1% cumulative gain printed in the same report. It is an assumed STEADY growth rate, not a return earned in every single year — the latest three months were down 5.9%.',
+        vi: 'So với NAV 10.000 ₫ mỗi chứng chỉ quỹ lúc VESAF ra đời: sau 9,12 năm NAV lên 33.913 ₫, gấp khoảng 3,39 lần, tương đương mỗi năm tăng đều 14,33%. Mức này là của người mua đúng ngày quỹ ra đời và giữ tới 31/05/2026, không có nghĩa năm nào quỹ cũng tăng đúng chừng ấy.',
+        en: 'Compared with the 10,000 ₫ NAV per fund unit when VESAF launched: after 9.12 years the NAV stood at 33,913 ₫, about 3.39 times as much, which equals a steady rise of 14.33% a year. That rate belongs to someone who bought on the launch day and held until 2026-05-31, and it does not mean the fund rose by exactly that much every year.',
       },
       source: {
         vi: 'Báo cáo tháng 5/2026 của quỹ VESAF (VinaCapital), NAV/CCQ ngày 31/05/2026, quỹ thành lập 18/04/2017.',
@@ -502,8 +502,8 @@ export const TY_SUAT_CO_TUC: FormulaModule = {
       inputs: { price: 72_700, dividendPerShare: 2_000 },
       expected: 2.751,
       note: {
-        vi: 'Chưa bằng một nửa lãi suất tiết kiệm 12 tháng 6,8%/năm, lại còn bị khấu trừ 5% thuế cổ tức trong khi lãi tiết kiệm được miễn. Tỷ suất này còn đổi theo giá: ở mức 62.900 ₫ nó là 3,18%.',
-        en: 'Less than half the 6.8%/year twelve-month savings rate, and it is docked 5% dividend tax while deposit interest is exempt. The yield also moves with the price: at 62,900 ₫ it would be 3.18%.',
+        vi: 'So với thị giá 72.700 ₫ của FPT: mỗi cổ phiếu được chia 2.000 ₫ cổ tức tiền mặt một năm, tức cứ 100 ₫ bỏ ra mua cổ phiếu thì nhận về khoảng 2,75 ₫ cổ tức. Đó là mức trước thuế, trừ 5% thuế cổ tức thì tiền thực nhận còn 1.900 ₫ mỗi cổ phiếu, khoảng 2,61% thị giá.',
+        en: "Compared with FPT's 72,700 ₫ share price: each share receives a 2,000 ₫ cash dividend a year, so every 100 ₫ spent on the stock brings back about 2.75 ₫ in dividends. That is before tax, and after the 5% dividend tax the cash actually received is 1,900 ₫ a share, about 2.61% of the price.",
       },
       source: {
         vi: 'Lịch sử cổ tức FPT trên cotuc.vn (mức 20% mệnh giá duy trì từ 2018) và giá đóng cửa phiên 11/09/2026.',
@@ -562,6 +562,31 @@ export interface XirrOptions {
 const DAYS_PER_YEAR = 365;
 
 /**
+ * Dòng tiền của XIRR ĐÚNG THEO THỨ TỰ bộ giải dùng: xếp theo ngày, mỗi dòng mang số ngày tính từ
+ * dòng đầu tiên. Tách khỏi `xirr()` ngày 16/10/2026 để `calc` trả đúng những con số này cho dải thay
+ * số — dải in lại phương trình `Σ CFᵢ ÷ (1 + XIRR)^(dᵢ ÷ 365) ≈ 0`, nên thứ tự và số ngày phải là
+ * của bộ giải, không phải của bảng người dùng gõ (bảng có thể chưa xếp theo ngày).
+ */
+export function xirrDiem(
+  cashflows: ReadonlyArray<Cashflow>,
+): Array<{ days: number; amount: number }> | null {
+  const sorted = [...cashflows].sort((a, b) => a.date.localeCompare(b.date));
+  const first = sorted[0];
+  if (first === undefined) return null;
+
+  const start = Date.parse(`${first.date}T00:00:00Z`);
+  if (Number.isNaN(start)) return null;
+
+  const diem: Array<{ days: number; amount: number }> = [];
+  for (const flow of sorted) {
+    const at = Date.parse(`${flow.date}T00:00:00Z`);
+    if (Number.isNaN(at)) return null;
+    diem.push({ days: (at - start) / 86_400_000, amount: flow.amount });
+  }
+  return diem;
+}
+
+/**
  * Suất sinh lợi nội tại theo dòng tiền có ngày thực (XIRR).
  *
  * Newton-Raphson trước cho nhanh, rơi về chia đôi khi đạo hàm quá nhỏ hoặc bước nhảy văng ra
@@ -579,19 +604,9 @@ export function xirr(cashflows: ReadonlyArray<Cashflow>, options: XirrOptions = 
   // Không đổi dấu thì không có suất sinh lợi nào làm giá trị hiện tại về 0.
   if (!hasPositive || !hasNegative) return null;
 
-  const sorted = [...cashflows].sort((a, b) => a.date.localeCompare(b.date));
-  const first = sorted[0];
-  if (first === undefined) return null;
-
-  const start = Date.parse(`${first.date}T00:00:00Z`);
-  if (Number.isNaN(start)) return null;
-
-  const points: Array<{ years: number; amount: number }> = [];
-  for (const flow of sorted) {
-    const at = Date.parse(`${flow.date}T00:00:00Z`);
-    if (Number.isNaN(at)) return null;
-    points.push({ years: (at - start) / 86_400_000 / DAYS_PER_YEAR, amount: flow.amount });
-  }
+  const diem = xirrDiem(cashflows);
+  if (diem === null) return null;
+  const points = diem.map((d) => ({ years: d.days / DAYS_PER_YEAR, amount: d.amount }));
 
   const npv = (rate: number): number =>
     points.reduce((sum, p) => sum + p.amount / Math.pow(1 + rate, p.years), 0);
@@ -715,6 +730,11 @@ export const XIRR: FormulaModule = {
       vi: 'Tổng các [Dòng tiền ÷ (1 + XIRR)^(Số ngày kể từ dòng tiền đầu tiên ÷ 365)] = 0',
       en: 'Sum of [Cash flow ÷ (1 + XIRR)^(Days since the first cash flow ÷ 365)] = 0',
     },
+    substitutionRepeat: {
+      tong: { count: '@n', join: '+', term: '{@cf#} ÷ (1 + {@x})^({@d#} ÷ 365)' },
+    },
+    substitution: '{tong}',
+    substitutionRhs: '0',
     symbols: [
       {
         latex: 'XIRR',
@@ -796,8 +816,8 @@ export const XIRR: FormulaModule = {
       ],
       expected: 96.5541,
       note: {
-        vi: 'XIRR gộp cả ba lần mua theo đúng số ngày thực của từng dòng tiền — việc mà ROI và CAGR không làm được. Kỳ nắm giữ chỉ 22–58 ngày nên con số quy năm bị phóng đại rất mạnh, đọc như một thước so sánh chứ không phải mức kỳ vọng.',
-        en: 'XIRR combines all three purchases using the actual number of days behind each cash flow — something ROI and CAGR cannot do. The holding periods run only 22–58 days, so the annualized figure is heavily magnified; read it as a yardstick, not an expectation.',
+        vi: 'So với 20.170.000 ₫ bỏ ra qua ba lần mua: bán hết thu về 21.810.000 ₫, lời 1.640.000 ₫, khoảng 8,13% số vốn, nhưng mỗi khoản chỉ nằm trong cổ phiếu từ 21 tới 58 ngày nên tính theo năm thành 96,55%/năm. Đó là nhịp lời nếu giữ được tốc độ ấy suốt một năm, không phải phần đã lời thật.',
+        en: 'Compared with the 20,170,000 ₫ put in across three purchases: selling everything brought back 21,810,000 ₫, a gain of 1,640,000 ₫ or about 8.13% of the money, but each sum stayed in the stock only 21 to 58 days, so on a yearly basis it comes to 96.55%/year. That is the pace of gain if it could be kept up for a full year, not the gain actually made.',
       },
       source: {
         vi: 'Giá đóng cửa FPT trên Investing.com, các phiên 15/07, 24/07, 21/08 và 11/09/2026.',
@@ -862,7 +882,19 @@ export const XIRR: FormulaModule = {
     const rate = xirr(flows, { guess: XIRR_DIEM_XUAT_PHAT });
     if (rate === null) return fail(unit, xirrNotConverged());
 
-    return ok(rate * 100, unit);
+    /*
+     * Cho dải thay số (16/10/2026): nghiệm dạng tỷ lệ (`x`), số dòng (`n`), và từng dòng theo ĐÚNG
+     * thứ tự bộ giải — tiền `cfᵢ`, số ngày `dᵢ` kể từ dòng đầu. Dải in lại phương trình với nghiệm
+     * thay vào và "≈ 0".
+     */
+    const extras: Record<string, number> = { x: rate };
+    const diem = xirrDiem(flows) ?? [];
+    extras['n'] = diem.length;
+    diem.forEach((d, i) => {
+      extras[`cf${i + 1}`] = d.amount;
+      extras[`d${i + 1}`] = d.days;
+    });
+    return ok(rate * 100, unit, { extras });
   },
 };
 

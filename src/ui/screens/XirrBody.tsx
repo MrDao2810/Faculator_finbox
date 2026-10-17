@@ -1,5 +1,7 @@
 'use client';
 
+import type { ReactNode } from 'react';
+
 import { checkCashflowSeries, emptyCashflowRow } from '@/application';
 import type { CalcOutput, CashflowIssueCode, CashflowRow } from '@/application';
 import { useT, usePick } from '@/application/preferences-context';
@@ -13,6 +15,8 @@ export interface XirrBodyProps {
   output: CalcOutput;
   rows: ReadonlyArray<CashflowRow>;
   onRowsChange: (rows: ReadonlyArray<CashflowRow>) => void;
+  /** Dòng thay số của công thức (16/10/2026) — đặt ngay sau khối Kết quả mà nó tính ra. */
+  thaySo?: ReactNode;
 }
 
 /** Trần số dòng — XIRR đọc vài giao dịch, không phải chuỗi giá hàng trăm phiên như WF-05. */
@@ -30,7 +34,7 @@ const SELF_EVIDENT: ReadonlySet<CashflowIssueCode> = new Set(['MISSING_DATE', 'M
  * dở dang nếu thiếu bảng này — rồi `ResultBlock` tự vẽ khối Kết quả chuẩn ngay dưới, dùng đúng
  * `output` mà `FormulaDetail` đã tính (không tính lại — xem docblock ở `DetailBodyProps.output`).
  */
-export function XirrBody({ output, rows, onRowsChange }: XirrBodyProps) {
+export function XirrBody({ output, rows, onRowsChange, thaySo }: XirrBodyProps) {
   const t = useT();
   /*
    * BẮT BUỘC cho câu lỗi từng dòng: `CashflowRowIssue.message` là `Bilingual` (`{vi, en}`), không
@@ -177,6 +181,7 @@ export function XirrBody({ output, rows, onRowsChange }: XirrBodyProps) {
       </section>
 
       <ResultBlock output={output} />
+      {thaySo}
     </div>
   );
 }

@@ -179,8 +179,8 @@ export const TRA_GOP_NIEN_KIM: FormulaModule = {
       inputs: { amount: 3_000_000_000, rate: 8, years: 20 },
       expected: 25_093_202,
       note: {
-        vi: 'Khoản trả giữ nguyên suốt 240 kỳ nên dễ lập kế hoạch chi tiêu, đổi lại những năm đầu gần như chỉ trả lãi, gốc giảm rất chậm. Mức ngân hàng báo cho người vay — khoảng 28 triệu ₫/tháng — nằm giữa con số niên kim này và kỳ đầu của cách trả gốc đều (32,5 triệu ₫), nên không trùng hẳn phương thức nào.',
-        en: 'The payment stays the same across all 240 periods, which makes budgeting easy, but the early years are almost entirely interest and the principal falls very slowly. The roughly 28 million VND a month the bank quoted sits between this annuity figure and the first equal-principal period (32.5 million VND), so it matches neither method exactly.',
+        vi: 'So với khoảng 28 triệu ₫/tháng người vay trong trường hợp này phải trả: trả đều ở lãi 8%/năm chỉ cần 25.093.202 ₫ mỗi tháng, thấp hơn khoảng 2,9 triệu ₫, nên khoản trả thật không khớp cách trả đều ở mức lãi này. Lãi 8%/năm chỉ cố định 24 tháng đầu, sau đó lãi đổi thì khoản trả mỗi tháng đổi theo.',
+        en: 'Compared with the roughly 28 million VND a month the borrower in this case pays: equal payments at 8%/year need only 25,093,202 VND a month, about 2.9 million VND less, so the real payment does not match equal payments at this rate. The 8%/year rate is fixed only for the first 24 months, and after that the monthly payment changes whenever the rate does.',
       },
       source: {
         vi: 'VietnamFinance, trường hợp vay mua nhà 3 tỷ ₫ tại Hà Nội, 28/03/2026.',
@@ -337,8 +337,8 @@ export const TRA_GOP_GOC_DEU: FormulaModule = {
       inputs: { amount: 3_000_000_000, rate: 8, years: 20 },
       expected: 32_500_000,
       note: {
-        vi: 'Kỳ đầu gồm 12,5 triệu ₫ gốc và 20 triệu ₫ lãi, rồi nhẹ dần từng tháng vì lãi tính trên dư nợ còn lại. Cùng một bộ số mà hai phương thức chênh nhau hơn 7 triệu ₫ ngay kỳ đầu, nên phải biết ngân hàng đang tính theo cách nào thì đối chiếu mới có nghĩa.',
-        en: 'The first period is 12.5 million VND of principal plus 20 million VND of interest, then eases month by month as interest is charged on the remaining balance. On the very same figures the two methods differ by more than 7 million VND in the first period, so a comparison only means something once you know which method the bank uses.',
+        vi: 'So với 25.093.202 ₫/tháng nếu cùng khoản vay trả đều mỗi tháng: tháng đầu trả gốc đều tốn 32.500.000 ₫, nặng hơn khoảng 7,4 triệu ₫, gồm 12,5 triệu ₫ gốc và 20 triệu ₫ lãi. Đây chỉ là tháng nặng nhất, mỗi tháng sau nhẹ đi khoảng 83 nghìn ₫ và từ tháng thứ 90 đã thấp hơn khoản trả đều.',
+        en: 'Compared with 25,093,202 VND a month if the same loan were repaid in equal monthly payments: the first equal-principal month costs 32,500,000 VND, about 7.4 million VND more, made up of 12.5 million VND of principal and 20 million VND of interest. This is only the heaviest month, as each later month is about 83 thousand VND lighter and from month 90 it falls below the equal payment.',
       },
       source: {
         vi: 'VietnamFinance, trường hợp vay mua nhà 3 tỷ ₫ tại Hà Nội, 28/03/2026.',
@@ -410,6 +410,13 @@ export const LICH_TRA_NO: FormulaModule = {
       vi: 'Tổng lãi = Cộng tiền lãi của tất cả các kỳ',
       en: 'Total interest = Sum of the interest of every period',
     },
+    substitutionDerived: {
+      i: '{rate} ÷ 100 ÷ 12',
+      n: '{years} × 12',
+      a: '{amount} × {i} × (1 + {i})^{n} ÷ ((1 + {i})^{n} − 1)',
+    },
+    substitution: '{n} × {a} − {amount}',
+    substitutionCases: { key: 'method', byValue: { 2: '{amount} × {i} × ({n} + 1) ÷ 2' } },
     symbols: [
       {
         latex: '\\text{Tổng lãi}',
@@ -491,8 +498,8 @@ export const LICH_TRA_NO: FormulaModule = {
       inputs: { amount: 3_000_000_000, rate: 8, years: 20, method: 1 },
       expected: 3_022_368_497,
       note: {
-        vi: 'Tiền lãi cả kỳ hạn còn nhiều hơn chính số tiền đã vay; đổi sang gốc đều thì tổng lãi còn khoảng 2,41 tỷ ₫, đánh đổi bằng những năm đầu nặng hơn. Con số này còn giả định lãi suất đứng yên suốt 20 năm, trong khi trường hợp thật chỉ được ưu đãi 24 tháng rồi thả nổi 14–15%/năm.',
-        en: 'The interest over the whole term exceeds the amount borrowed; switching to equal principal brings it down to about 2.41 billion VND, at the cost of heavier early years. The figure also assumes the rate never moves for 20 years, whereas the real case had only 24 promotional months before floating to 14–15%/year.',
+        vi: 'So với 3 tỷ ₫ tiền gốc đã vay: tổng lãi 20 năm khoảng 3,02 tỷ ₫ còn nhỉnh hơn cả số vay, tức mỗi đồng vay về phải trả thêm hơn một đồng tiền lãi. Con số giả định lãi 8%/năm giữ nguyên suốt 20 năm, trong khi khoản vay này chỉ cố định lãi 24 tháng đầu, lãi sau đó cao hơn thì tổng lãi cũng cao hơn.',
+        en: 'Compared with the 3 billion VND principal borrowed: total interest over 20 years of about 3.02 billion VND is slightly more than the loan itself, so every dong borrowed costs more than one dong in interest. The figure assumes the 8%/year rate holds for all 20 years, while this loan fixes it only for the first 24 months, so a higher rate after that means more total interest.',
       },
       source: {
         vi: 'VietnamFinance, trường hợp vay mua nhà 3 tỷ ₫ tại Hà Nội, 28/03/2026.',
@@ -809,8 +816,8 @@ export const LAI_KEP: FormulaModule = {
       inputs: { principal: 1_000_000_000, rate: 8.1, years: 1, perYear: 2 },
       expected: 1_082_640_250,
       note: {
-        vi: 'Hai kỳ nhập lãi cho tiền lãi nhiều hơn lãi đơn khoảng 1,64 triệu ₫ — đó chính là phần “lãi của lãi” sinh ra trong sáu tháng cuối. Sức mạnh của lãi kép chỉ lộ rõ khi kéo dài nhiều năm, và chỉ đúng nếu không rút giữa chừng lẫn lãi suất giữ nguyên qua các kỳ.',
-        en: 'Two compounding periods earn about 1.64 million VND more than simple interest — that extra is the “interest on interest” generated in the final six months. Compounding only shows its strength over many years, and only if the money is left untouched and the rate holds from one term to the next.',
+        vi: 'So với 1 tỷ ₫ gửi ban đầu: cuối năm có 1.082.640.250 ₫, tức lãi bằng 8,26% số gửi, nhỉnh hơn mức 8,1%/năm ghi trên sổ vì lãi sáu tháng đầu được gửi tiếp và sinh thêm khoảng 1,64 triệu ₫. Con số giả định lúc tái tục ngân hàng vẫn trả 8,1%/năm, lãi kỳ sau thấp hơn thì cuối năm nhận ít hơn.',
+        en: "Compared with the 1 billion VND deposited at the start: the year ends with 1,082,640,250 VND, interest of 8.26% of the deposit, a little more than the 8.1%/year on the book because the first six months' interest is redeposited and earns about 1.64 million VND more. The figure assumes the bank still pays 8.1%/year at the rollover, and a lower rate for the second term means less at year end.",
       },
       source: {
         vi: 'Diễn đàn VOZ, thớt lãi suất tiết kiệm các ngân hàng năm 2026: kỳ hạn 6 tháng 8,1%/năm tại Cake by VPBank.',
@@ -890,7 +897,10 @@ export const LAI_TIEN_GUI: FormulaModule = {
       { latex: 'P', meaning: { vi: 'số tiền gửi, ₫', en: 'deposit amount, ₫' } },
       {
         latex: 'r',
-        meaning: { vi: 'lãi suất / năm, nhập theo %', en: 'annual interest rate, in %' },
+        meaning: {
+          vi: 'lãi suất / năm, dạng thập phân (8% là 0,08)',
+          en: 'annual interest rate, as a decimal (8% is 0.08)',
+        },
       },
       {
         latex: '12',
@@ -939,8 +949,8 @@ export const LAI_TIEN_GUI: FormulaModule = {
       inputs: { principal: 1_000_000_000, rate: 8.1, months: 6 },
       expected: 40_500_000,
       note: {
-        vi: 'Công thức quy ước mỗi tháng 30 ngày nên cao hơn cách ngân hàng tính theo số ngày thực (180/365) chừng 600 nghìn ₫ — đủ để lệch với sổ tiết kiệm thật. Tiền lãi tiết kiệm được miễn thuế thu nhập cá nhân, khác cổ tức tiền mặt vốn chịu thuế suất 5%.',
-        en: 'The formula assumes 30-day months, so it runs about 600 thousand VND above a bank’s actual-day calculation (180/365) — enough to differ from a real savings book. Savings interest is exempt from personal income tax, unlike cash dividends, which are taxed at 5%.',
+        vi: 'So với 1 tỷ ₫ gửi vào: hết 6 tháng nhận 40.500.000 ₫ tiền lãi, bằng 4,05% số gửi, đúng một nửa mức 8,1%/năm vì chỉ gửi nửa năm. Ngân hàng tính theo số ngày gửi thực trên năm 365 ngày, kỳ 6 tháng dài 181 tới 184 ngày, nên tiền lãi thật có thể thấp hơn hoặc cao hơn con số này tới khoảng 333 nghìn ₫.',
+        en: 'Compared with the 1 billion VND deposited: after 6 months you receive 40,500,000 VND of interest, 4.05% of the deposit, exactly half the 8.1%/year rate because the money is held for half a year. Banks count the actual days held over a 365-day year, and a 6-month term runs 181 to 184 days, so the real interest can be lower or higher than this figure by up to about 333 thousand VND.',
       },
       source: {
         vi: 'Diễn đàn VOZ, thớt lãi suất tiết kiệm các ngân hàng năm 2026: kỳ hạn 6 tháng 8,1%/năm tại Cake by VPBank.',
@@ -1008,8 +1018,8 @@ export const TIET_KIEM_MUC_TIEU: FormulaModule = {
       {
         latex: 'n',
         meaning: {
-          vi: 'số tháng gửi, mỗi tháng một khoản',
-          en: 'number of months, one deposit per month',
+          vi: 'số tháng gửi, mỗi tháng một khoản gửi vào cuối tháng',
+          en: 'number of months, one deposit at the end of each month',
         },
       },
       {
@@ -1070,8 +1080,8 @@ export const TIET_KIEM_MUC_TIEU: FormulaModule = {
       inputs: { target: 1_000_000_000, rate: 6.8, months: 48 },
       expected: 18_186_897,
       note: {
-        vi: 'Nếu tiền không sinh lãi thì phải để dành khoảng 20,83 triệu ₫ mỗi tháng, tức tiền lãi gánh hộ chừng 127 triệu ₫ trong bốn năm. Điều công thức không nói: mức để dành này đòi thu nhập hộ gia đình khoảng 25–30 triệu ₫/tháng và kỷ luật chi tiêu rất chặt.',
-        en: 'With no interest at all the couple would have to set aside about 20.83 million VND a month, so the interest covers roughly 127 million VND over the four years. What the formula does not say: keeping this up calls for a household income of about 25–30 million VND a month and very tight spending discipline.',
+        vi: 'So với 20,83 triệu ₫/tháng nếu chia đều 1 tỷ ₫ cho 48 tháng: chỉ cần gửi 18.186.897 ₫/tháng, nhẹ hơn khoảng 2,65 triệu ₫, vì tiền lãi gánh hộ khoảng 127 triệu ₫ trong bốn năm. Khoản này chỉ đủ nếu lãi giữ được 6,8%/năm suốt 48 tháng, lãi chỉ 4,8%/năm thì phải gửi khoảng 18,94 triệu ₫/tháng.',
+        en: 'Compared with 20.83 million VND a month from splitting 1 billion VND evenly over 48 months: the deposit is only 18,186,897 VND a month, about 2.65 million VND lighter, because interest carries about 127 million VND over the four years. That holds only if the rate stays at 6.8%/year for all 48 months, and at just 4.8%/year the deposit becomes about 18.94 million VND a month.',
       },
       source: {
         vi: 'Biểu lãi suất tiết kiệm trực tuyến 12 tháng nhóm Big4, VietNamNet 09/09/2026.',

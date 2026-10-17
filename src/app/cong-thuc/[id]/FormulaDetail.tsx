@@ -43,6 +43,7 @@ import {
   defaultInputs,
   encodeShareInputs,
   datSoThaySo,
+  giaTriKetQua,
   formatNumber,
   displayCalcName,
   draftFor,
@@ -2440,20 +2441,61 @@ export function FormulaDetail({
    * `substitutionConstants` tra qua đúng `ctx` mà `calc` nhận, nên đổi biểu phí ở Cài đặt là dải và
    * con số kết quả đổi cùng một lượt dựng. Khoá hằng số có dấu chấm còn khoá ô nhập thì không, nên
    * hai bảng trộn vào nhau không đè được lên nhau.
+   *
+   * Nguồn THỨ BA (16/10/2026): `extras` của chính kết quả đang in, dưới khoá `{@ten}` — lợi suất bình
+   * quân một phiên của chuỗi giá, nghiệm IRR dò ra. Chủ dự án đòi MỌI công thức có dải này, mà 35
+   * công thức ăn chuỗi giá có ký hiệu tính từ hàng trăm giá đóng cửa chứ không từ ô nào.
+   *
+   * Và dải có mặt ở MỌI khuôn màn, không chỉ thẻ gộp: ngoài thẻ gộp nó đứng ngay dưới thẻ Kết quả.
+   *
+   * `output.value` đi vào để ĐỐI CHIẾU: `datSoThaySo` tăng chữ số lẻ tới khi bấm lại các số in ra
+   * đúng bằng con số sau dấu "=", không được thì trả `null` và màn không in dòng nào — một dòng thay
+   * số sai là một lời hứa sai với người đang cầm máy tính bấm lại.
    */
-  const cayThaySo = useMemo(
+  const dongThaySo = useMemo(
     () =>
-      merged && thaySoCay !== undefined
-        ? datSoThaySo(thaySoCay, { ...effectiveInputs, ...substitutionConstants(spec, ctx) })
+      thaySoCay !== undefined && output.value !== null
+        ? datSoThaySo(
+            thaySoCay,
+            {
+              ...effectiveInputs,
+              ...substitutionConstants(spec, ctx),
+              ...giaTriKetQua(output.extras),
+            },
+            output.value,
+          )
         : null,
-    [merged, thaySoCay, effectiveInputs, spec, ctx],
+    [thaySoCay, effectiveInputs, spec, ctx, output],
   );
   /*
    * `formatNumber` KHÔNG tham số, đúng như `ResultBlock` gọi nó — tức cùng số chữ số lẻ. Để mặc
    * định khác nhau thì dải đáy ghi `= 15,2066` ngay dưới con số lớn ghi `15,21`, và người đọc có
    * hai con số cho cùng một phép tính.
    */
-  const vePhaiThaySo = output.value === null ? null : formatNumber(output.value);
+  const vePhaiThaySo =
+    dongThaySo === null ? null : `${dongThaySo.dau} ${formatNumber(dongThaySo.vePhai)}`;
+  /*
+   * `role="math"` + `aria-label`: cây vẽ bằng `<span>` xếp tầng, nên trình đọc màn hình đọc nó thành
+   * một dãy số rời — mất phép chia, mất dấu căn. Nhãn là chính dòng chữ cũ, tức thứ người dùng bàn
+   * phím vẫn nghe được y như trước. Cùng khuôn `LoiGiai` đã dựng.
+   *
+   * Dòng thay số KHÔNG hiện ở khổ hẹp. Việc ẩn do CSS lo (`display: none` dưới 1280), không do
+   * React: một điều kiện ở React sẽ cần biết bề ngang màn, mà lượt dựng đầu tiên phải khớp HTML
+   * dựng sẵn lúc build.
+   */
+  const khoiThaySo =
+    dongThaySo !== null && vePhaiThaySo !== null ? (
+      <p className={styles.substitution}>
+        <span
+          className={styles.substitutionHinh}
+          role="math"
+          aria-label={`${chuCuaCay(dongThaySo.cay)} ${vePhaiThaySo}`}
+        >
+          <CongThucDien cay={dongThaySo.cay} oNhap={() => null} />
+        </span>
+        <span className={styles.substitutionRa}>{vePhaiThaySo}</span>
+      </p>
+    ) : null;
 
   /*
    * ── Bảng hằng số, và ở khuôn gộp nó RỜI khỏi cột phải (06/10/2026) ──────────────────────────
@@ -2510,6 +2552,13 @@ export function FormulaDetail({
       )}
 
       {/*
+        Dòng thay số ngoài thẻ gộp (16/10/2026): ngay dưới con số mà nó tính ra. Thẻ gộp đặt dòng
+        này ở đáy thẻ (xem chỗ dựng thẻ gộp); thân riêng tự in kết quả thì tự đặt dòng sau con số
+        của nó, qua prop `thaySo` của `DetailBody`.
+      */}
+      {!merged && !ownsResult(spec.id) && khoiThaySo}
+
+      {/*
         Dòng đếm ô dưới con số ("2 ô · 2 ô lấy theo mã") đã BỎ 01/10/2026 — cùng ảnh chụp và cùng
         yêu cầu đã bỏ câu "Cách đọc kết quả" ở đúng chỗ này. Tombstone `tile.count`/
         `tile.countTicker` ở `vi.ts`.
@@ -2524,6 +2573,7 @@ export function FormulaDetail({
           output={output}
           cashflowRows={cashflowRows}
           onCashflowRowsChange={setCashflowRows}
+          {...(ownsResult(spec.id) && khoiThaySo !== null ? { thaySo: khoiThaySo } : {})}
         />
       )}
     </section>
@@ -3358,23 +3408,8 @@ export function FormulaDetail({
             cần biết bề ngang màn, mà lượt dựng đầu tiên phải khớp HTML dựng sẵn lúc build.
           */}
           {merged && ketQuaBlock}
-          {/*
-            `role="math"` + `aria-label`: cây vẽ bằng `<span>` xếp tầng, nên trình đọc màn hình đọc
-            nó thành một dãy số rời — mất phép chia, mất dấu căn. Nhãn là chính dòng chữ cũ, tức
-            thứ người dùng bàn phím vẫn nghe được y như trước. Cùng khuôn `LoiGiai` đã dựng.
-          */}
-          {merged && cayThaySo !== null && vePhaiThaySo !== null && (
-            <p className={styles.substitution}>
-              <span
-                className={styles.substitutionHinh}
-                role="math"
-                aria-label={`${chuCuaCay(cayThaySo)} = ${vePhaiThaySo}`}
-              >
-                <CongThucDien cay={cayThaySo} oNhap={() => null} />
-              </span>
-              <span className={styles.substitutionRa}>{`= ${vePhaiThaySo}`}</span>
-            </p>
-          )}
+          {/* Dòng thay số dựng một lần ở `khoiThaySo`; ngoài thẻ gộp nó đứng trong `ketQuaBlock`. */}
+          {merged && khoiThaySo}
         </div>
 
         {/* ── 7. Giải thích cho người mới — FR-03 ──────────────────────────── */}

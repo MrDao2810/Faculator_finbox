@@ -44,6 +44,11 @@
   margin-inline: 0.28em;
 }
 
+/* Dấu chấm phẩy giữa các đối số của `max(a; b)`: dính số đứng trước, cách số đứng sau. */
+.ctPhay {
+  margin-inline: 0 0.28em;
+}
+
 /* Dấu âm dính liền số đứng sau: `−21` là một số, không phải một phép trừ. */
 .ctDauLien {
   margin-inline: 0 0.02em;

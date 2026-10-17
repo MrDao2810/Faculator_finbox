@@ -501,7 +501,7 @@ export const FORMULA_SUMMARIES: ReadonlyArray<FormulaSummary> = [
     id: 'cvar-lich-su',
     categoryId: 'risk',
     name: { vi: 'CVaR — tổn thất kỳ vọng phần đuôi', en: 'Conditional VaR (expected shortfall)' },
-    description: { vi: 'Mức lỗ trung bình của riêng những phiên tệ hơn ngưỡng VaR — trả lời câu "nếu ngày xấu thật sự xảy ra thì mất bao nhiêu".', en: 'The average loss of just the sessions worse than the VaR threshold — answering "if the bad day actually happens, how much do I lose".' },
+    description: { vi: 'Mức lỗ trung bình của riêng những phiên không tốt hơn ngưỡng VaR — trả lời câu "nếu ngày xấu thật sự xảy ra thì mất bao nhiêu".', en: 'The average loss of just the sessions no better than the VaR threshold — answering "if the bad day actually happens, how much do I lose".' },
     level: 'advanced',
     tags: ['cvar', 'expected shortfall', 'ton that ky vong', 'duoi phan phoi', 'es'],
   },

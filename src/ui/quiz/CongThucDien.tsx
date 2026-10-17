@@ -152,6 +152,27 @@ function ve(nut: Nut, oNhap: CongThucDienProps['oNhap']): ReactNode {
       );
 
     /*
+     * `max(a; b; c)` — cùng hình `ln(…)`, đối số ngăn bằng dấu chấm phẩy vì dấu phẩy là dấu thập
+     * phân. Sinh ra cho dải thay số của chuỗi phiên giảm dài nhất (16/10/2026).
+     */
+    case 'max': {
+      const cao = chieuCao(nut);
+      return (
+        <span className={styles.ctBoc}>
+          <span className={styles.ctHam}>max</span>
+          <Glyph cao={cao} chu="(" lop={styles.ctNgoac} />
+          {nut.ds.map((d, i) => (
+            <span key={i} className={styles.ctBoc}>
+              {i > 0 && <span className={styles.ctPhay}>;</span>}
+              {ve(d, oNhap)}
+            </span>
+          ))}
+          <Glyph cao={cao} chu=")" lop={styles.ctNgoac} />
+        </span>
+      );
+    }
+
+    /*
      * Phân số: hai tầng xếp dọc, gạch ngang là `border-top` của mẫu số. Đây là hình mà chủ dự án
      * chỉ vào ảnh `β = Cov(Rᵢ, Rₘ) / Var(Rₘ)` và đòi: "trình bày trên dưới có gạch phân rõ như
      * công thức kìa thì mới hiểu."

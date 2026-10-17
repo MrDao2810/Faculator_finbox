@@ -135,9 +135,14 @@
   border-radius: var(--radius-md);
 }
 
-.link:hover,
 .link:focus-visible {
   border-color: var(--color-border-strong);
+}
+
+@media (hover: hover) {
+  .link:hover {
+    border-color: var(--color-border-strong);
+  }
 }
 
 .name {

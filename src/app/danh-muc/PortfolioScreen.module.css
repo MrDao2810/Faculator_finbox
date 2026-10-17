@@ -201,9 +201,11 @@
   cursor: pointer;
 }
 
-.addButton:hover {
-  background: var(--color-selected-strong);
-  border-color: var(--color-selected-strong);
+@media (hover: hover) {
+  .addButton:hover {
+    background: var(--color-selected-strong);
+    border-color: var(--color-selected-strong);
+  }
 }
 
 /*
@@ -757,9 +759,11 @@
   inset: -4px;
 }
 
-.rowAction:hover {
-  color: var(--color-ink);
-  background: var(--color-sunken);
+@media (hover: hover) {
+  .rowAction:hover {
+    color: var(--color-ink);
+    background: var(--color-sunken);
+  }
 }
 
 .rowAction:focus-visible {
@@ -822,13 +826,17 @@
  * "nhấn mạnh" của từng bảng, như `--color-accent-strong` (xem chú thích của token ấy ở `globals.css`).
  * `background: transparent` khai lại là bắt buộc: thiếu nó thì `.rowAction:hover` vẽ lại ô nền xám.
  */
-.rowRemove:hover {
-  color: color-mix(in srgb, var(--color-danger) 62%, var(--color-ink));
-  background: transparent;
+@media (hover: hover) {
+  .rowRemove:hover {
+    color: color-mix(in srgb, var(--color-danger) 62%, var(--color-ink));
+    background: transparent;
+  }
 }
 
-.rowRemove:hover svg {
-  stroke-width: 2.3;
+@media (hover: hover) {
+  .rowRemove:hover svg {
+    stroke-width: 2.3;
+  }
 }
 
 @media (hover: hover) {
@@ -1288,8 +1296,10 @@
   cursor: pointer;
 }
 
-.clearFormula:hover {
-  color: var(--color-accent-strong);
+@media (hover: hover) {
+  .clearFormula:hover {
+    color: var(--color-accent-strong);
+  }
 }
 
 /*

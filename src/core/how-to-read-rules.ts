@@ -119,7 +119,7 @@ export const TEN_CO_SO = /VN30F?\w*|VN-?Index/gi;
 const SO = /\d+(?:[.,]\d+)*/g;
 
 /** Luật 9: viết tắt in hoa hợp lệ. Mọi từ in hoa khác (≥ 2 chữ) bị coi là chữ nhấn. */
-const VIET_TAT: ReadonlySet<string> = new Set([
+export const VIET_TAT: ReadonlySet<string> = new Set([
   ...TEN_CONG_THUC.filter((ten) => ten === ten.toUpperCase() && !ten.includes('/')),
   'VN',
   'VN30',
@@ -139,7 +139,7 @@ const VIET_TAT: ReadonlySet<string> = new Set([
   'EBIT',
 ]);
 
-const TU_IN_HOA = /(?<![\p{L}\p{N}])\p{Lu}[\p{Lu}\p{N}]+(?![\p{L}\p{N}])/gu;
+export const TU_IN_HOA = /(?<![\p{L}\p{N}])\p{Lu}[\p{Lu}\p{N}]+(?![\p{L}\p{N}])/gu;
 
 export interface CachDocInput {
   id: string;

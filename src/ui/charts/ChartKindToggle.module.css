@@ -145,8 +145,10 @@
   transform: translateY(-50%);
 }
 
-.kindOption:hover:not(.kindSelected) {
-  color: var(--color-ink);
+@media (hover: hover) {
+  .kindOption:hover:not(.kindSelected) {
+    color: var(--color-ink);
+  }
 }
 
 /* Đang chọn: nền, màu chữ VÀ in đậm — ba dấu hiệu, không riêng màu (NFR-USA-06). */

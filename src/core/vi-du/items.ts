@@ -526,8 +526,8 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
       {
         kyHieu: 'DPS',
         moTa: {
-          vi: 'là cổ tức tiền mặt FPT trả trong một năm, bằng 20% mệnh giá: 2.000 ₫ mỗi cổ phiếu',
-          en: 'is the cash dividend FPT pays in a year, 20% of par: 2000 ₫ per share',
+          vi: 'là cổ tức tiền mặt FPT trả trong một năm: 2.000 ₫ mỗi cổ phiếu',
+          en: 'is the cash dividend FPT pays in a year: 2000 ₫ per share',
         },
       },
       {
@@ -3666,8 +3666,8 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
       {
         kyHieu: 'k',
         moTa: {
-          vi: 'là hệ số làm mượt của đường 12 phiên: 2 ÷ (12 + 1), khoảng 0,1538',
-          en: 'is the smoothing factor of the 12-session line: 2 ÷ (12 + 1), about 0.1538',
+          vi: 'là hệ số làm mượt của đường 12 phiên: 2 ÷ (12 + 1)',
+          en: 'is the smoothing factor of the 12-session line: 2 ÷ (12 + 1)',
         },
       },
       {
@@ -3995,14 +3995,14 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
       {
         kyHieu: '\\sigma_{n}',
         moTa: {
-          vi: 'là độ lệch chuẩn mẫu của các giá đóng cửa ấy: 1.714,15 ₫',
-          en: 'is the sample standard deviation of those closes: 1714.15 ₫',
+          vi: 'là độ lệch chuẩn của các giá đóng cửa ấy, chia cho 20: 1.670,75 ₫',
+          en: 'is the standard deviation of those closes, divided by 20: 1670.75 ₫',
         },
       },
     ],
     thaySo: {
-      vi: '71.560 + 2 × 1.714,15',
-      en: '71560 + 2 × 1714.15',
+      vi: '71.560 + 2 × 1.670,75',
+      en: '71560 + 2 × 1670.75',
     },
     nguon: [
       {
@@ -4044,14 +4044,14 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
       {
         kyHieu: '\\sigma_{n}',
         moTa: {
-          vi: 'là độ lệch chuẩn mẫu của các giá đóng cửa ấy: 1.714,15 ₫',
-          en: 'is the sample standard deviation of those closes: 1714.15 ₫',
+          vi: 'là độ lệch chuẩn của các giá đóng cửa ấy, chia cho 20: 1.670,75 ₫',
+          en: 'is the standard deviation of those closes, divided by 20: 1670.75 ₫',
         },
       },
     ],
     thaySo: {
-      vi: '71.560 − 2 × 1.714,15',
-      en: '71560 − 2 × 1714.15',
+      vi: '71.560 − 2 × 1.670,75',
+      en: '71560 − 2 × 1670.75',
     },
     nguon: [
       {
@@ -4072,15 +4072,15 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
       {
         kyHieu: 'BB_{tren}',
         moTa: {
-          vi: 'là dải trên của FPT phiên 15/09/2026 với k = 2: 74.988,3 ₫',
-          en: 'is FPT’s upper band on the 2026-09-15 session with k = 2: 74988.3 ₫',
+          vi: 'là dải trên của FPT phiên 15/09/2026 với k = 2: 74.901,5 ₫',
+          en: 'is FPT’s upper band on the 2026-09-15 session with k = 2: 74901.5 ₫',
         },
       },
       {
         kyHieu: 'BB_{duoi}',
         moTa: {
-          vi: 'là dải dưới cùng phiên, cũng với k = 2: 68.131,7 ₫',
-          en: 'is the lower band on the same session, also with k = 2: 68131.7 ₫',
+          vi: 'là dải dưới cùng phiên, cũng với k = 2: 68.218,5 ₫',
+          en: 'is the lower band on the same session, also with k = 2: 68218.5 ₫',
         },
       },
       {
@@ -4099,8 +4099,8 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
       },
     ],
     thaySo: {
-      vi: '(74.988,3 − 68.131,7) ÷ 71.560 × 100',
-      en: '(74988.3 − 68131.7) ÷ 71560 × 100',
+      vi: '(74.901,5 − 68.218,5) ÷ 71.560 × 100',
+      en: '(74901.5 − 68218.5) ÷ 71560 × 100',
     },
     nguon: [
       {
@@ -4191,21 +4191,21 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
       {
         kyHieu: 'BB_{duoi}',
         moTa: {
-          vi: 'là dải dưới của FPT cùng phiên, tính trên 20 phiên từ 14/08 với k = 2: 68.131,7 ₫',
-          en: 'is FPT’s lower band on the same session, computed over the 20 sessions from 2026-08-14 with k = 2: 68131.7 ₫',
+          vi: 'là dải dưới của FPT cùng phiên, tính trên 20 phiên từ 14/08 với k = 2: 68.218,5 ₫',
+          en: 'is FPT’s lower band on the same session, computed over the 20 sessions from 2026-08-14 with k = 2: 68218.5 ₫',
         },
       },
       {
         kyHieu: 'BB_{tren}',
         moTa: {
-          vi: 'là dải trên, cùng 20 phiên và cùng k = 2: 74.988,3 ₫',
-          en: 'is the upper band, over the same 20 sessions and the same k = 2: 74988.3 ₫',
+          vi: 'là dải trên, cùng 20 phiên và cùng k = 2: 74.901,5 ₫',
+          en: 'is the upper band, over the same 20 sessions and the same k = 2: 74901.5 ₫',
         },
       },
     ],
     thaySo: {
-      vi: '(72.700 − 68.131,7) ÷ (74.988,3 − 68.131,7) × 100',
-      en: '(72700 − 68131.7) ÷ (74988.3 − 68131.7) × 100',
+      vi: '(72.700 − 68.218,5) ÷ (74.901,5 − 68.218,5) × 100',
+      en: '(72700 − 68218.5) ÷ (74901.5 − 68218.5) × 100',
     },
     nguon: [
       {

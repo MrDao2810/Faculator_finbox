@@ -26,8 +26,10 @@
   cursor: pointer;
 }
 
-.button:hover {
-  border-color: var(--color-accent);
+@media (hover: hover) {
+  .button:hover {
+    border-color: var(--color-accent);
+  }
 }
 
 /*

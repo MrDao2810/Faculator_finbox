@@ -76,7 +76,9 @@ const MA_PHAN_VI: ReadonlyArray<string> = [
   'percentileLinear(sorted, 1 - confidence / 100)',
   'const h = (sorted.length - 1) * ratio',
   'const lower = Math.floor(h)',
-  'return a + (h - lower) * (b - a)',
+  /* Phép nội suy tách thành `percentileParts()` ngày 16/10/2026, để dải thay số in đúng a, b, w. */
+  'return { a, b, w: h - lower }',
+  'parts.a + parts.w * (parts.b - parts.a)',
 ];
 
 export const HOW_TO_RISK_DRAWDOWN: Readonly<Record<string, FormulaHowTo>> = {

@@ -11,6 +11,7 @@ import {
 } from 'react';
 
 import {
+  CATEGORIES,
   CLEARED_SELECT_FILTERS,
   FORMULA_LIST_ANCHOR,
   FORMULA_SUMMARIES,
@@ -151,7 +152,7 @@ export interface FormulaListScreenProps {
 export function FormulaListScreen({ shelf }: FormulaListScreenProps) {
   const t = useT();
   const pick = usePick();
-  const { mode, hydrated, setMode } = usePreferences();
+  const { mode, hydrated, setMode, locale } = usePreferences();
   const inputRef = useRef<HTMLInputElement>(null);
 
   const { params, setQuery, setFilters, reset, flushUrl, applySearch, markResultOpened } =
@@ -212,27 +213,33 @@ export function FormulaListScreen({ shelf }: FormulaListScreenProps) {
    * các thẻ Nâng cao của `allMatches` cho ra đúng `basicMatches`.
    */
   const basicMatches = useMemo(
-    () => selectFormulas(BASIC_POOL, params, { usageOrder }),
-    [params, usageOrder],
+    () => selectFormulas(BASIC_POOL, params, { usageOrder, lang: locale }),
+    [params, usageOrder, locale],
   );
   const allMatches = useMemo(
-    () => selectFormulas(FORMULA_SUMMARIES, params, { usageOrder }),
-    [params, usageOrder],
+    () => selectFormulas(FORMULA_SUMMARIES, params, { usageOrder, lang: locale }),
+    [params, usageOrder, locale],
   );
 
   /* Trước hydrate: đủ 111 (HTML tĩnh). Sau hydrate: đúng chế độ người dùng đã chọn. */
   const formulas = hydrated && mode === 'basic' ? basicMatches : allMatches;
 
-  const basicCategoryCounts = useMemo(() => countByCategoryFor(BASIC_POOL, params), [params]);
-  const allCategoryCounts = useMemo(() => countByCategoryFor(FORMULA_SUMMARIES, params), [params]);
+  const basicCategoryCounts = useMemo(
+    () => countByCategoryFor(BASIC_POOL, params, CATEGORIES, locale),
+    [params, locale],
+  );
+  const allCategoryCounts = useMemo(
+    () => countByCategoryFor(FORMULA_SUMMARIES, params, CATEGORIES, locale),
+    [params, locale],
+  );
 
   /**
    * Bao nhiêu công thức khớp bộ lọc này nhưng chế độ Cơ bản đang giấu. Không phụ thuộc chế độ đang
    * chọn — dòng báo chỉ HIỆN ở chế độ Cơ bản, và CSS lo vế ấy.
    */
   const hiddenByLevel = useMemo(
-    () => countHiddenByLevel(FORMULA_SUMMARIES, params, 'basic'),
-    [params],
+    () => countHiddenByLevel(FORMULA_SUMMARIES, params, 'basic', CATEGORIES, locale),
+    [params, locale],
   );
 
   const searching = params.q.trim() !== '';
@@ -421,7 +428,11 @@ export function FormulaListScreen({ shelf }: FormulaListScreenProps) {
             }
           >
             {(formula) => (
-              <FormulaCard formula={formula} onSelect={searching ? rememberResult : undefined} />
+              <FormulaCard
+                formula={formula}
+                onSelect={searching ? rememberResult : undefined}
+                query={searching ? params.q : undefined}
+              />
             )}
           </VirtualList>
         ) : registryEmpty ? (

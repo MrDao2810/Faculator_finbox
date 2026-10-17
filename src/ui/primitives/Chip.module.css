@@ -34,8 +34,10 @@
   transform: translateY(-50%);
 }
 
-.chip:hover:not(:disabled) {
-  background: var(--color-sunken);
+@media (hover: hover) {
+  .chip:hover:not(:disabled) {
+    background: var(--color-sunken);
+  }
 }
 
 /*

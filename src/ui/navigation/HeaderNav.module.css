@@ -51,8 +51,10 @@
   border-bottom: 2px solid transparent;
 }
 
-.link:hover {
-  color: var(--color-ink);
+@media (hover: hover) {
+  .link:hover {
+    color: var(--color-ink);
+  }
 }
 
 .link:focus-visible {

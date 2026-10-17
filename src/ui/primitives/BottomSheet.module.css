@@ -219,8 +219,10 @@
   cursor: pointer;
 }
 
-.close:hover {
-  background: var(--color-sunken);
+@media (hover: hover) {
+  .close:hover {
+    background: var(--color-sunken);
+  }
 }
 
 /*

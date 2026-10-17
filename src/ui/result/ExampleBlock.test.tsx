@@ -78,7 +78,8 @@ describe('ExampleBlock — lời giải có cấu trúc, cùng hình lời giả
   it('kết quả lấy từ ví dụ của Registry, câu diễn giải của ví dụ thành dòng Đọc kết quả', () => {
     const spec = specOf('pe');
     veLoiGiai();
-    expect(screen.getByText(/12,39/)).toBeTruthy();
+    // Khớp NGUYÊN chữ của hàng Kết quả: từ 16/10/2026 hàng Đọc kết quả cũng nhắc lại "12,39 lần".
+    expect(screen.getByText('12,39 lần')).toBeTruthy();
     expect(screen.getByText(spec.example.note?.vi ?? '∅')).toBeTruthy();
   });
 
@@ -113,7 +114,8 @@ describe('ExampleBlock — chưa có lời giải thì lùi về hình chỉ-đ�
     expect(container.querySelector('input')).toBeNull();
     expect(screen.getByText('Ví dụ thực tế')).toBeTruthy();
     expect(screen.getByText('72.700 ₫')).toBeTruthy();
-    expect(screen.getByText(/12,39/)).toBeTruthy();
+    // Khớp NGUYÊN chữ của hàng Kết quả: từ 16/10/2026 hàng Đọc kết quả cũng nhắc lại "12,39 lần".
+    expect(screen.getByText('12,39 lần')).toBeTruthy();
   });
 });
 

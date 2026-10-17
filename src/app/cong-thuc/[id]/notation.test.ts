@@ -43,8 +43,9 @@ function viewOf(spec: FormulaSpec): NotationView | Error {
 
 /*
  * Bản hình gắn dấu MỌI ký hiệu — cho dòng Công thức trong khối lời giải của Bài tập (25/09/2026).
- * Đo trên cả thư viện: 559 trên 567 dòng bảng tìm được chỗ (546 trên 554 trước khi 13 cụm chữ như
- * "Tài sản ngắn hạn" có dòng riêng, 16/10/2026); 8 dòng còn lại chỉ nằm lọt trong một tên dài hơn
+ * Đo trên cả thư viện: 560 trên 568 dòng bảng tìm được chỗ (546 trên 554 trước khi 13 cụm chữ như
+ * "Tài sản ngắn hạn" có dòng riêng, 16/10/2026; 559 trên 567 trước dòng `100` của thời gian nhân đôi,
+ * cùng ngày); 8 dòng còn lại chỉ nằm lọt trong một tên dài hơn
  * (`D` trong `D/E`…), đúng tám dòng docblock `mathml-marks.ts` đã kể.
  */
 describe('buildNotationView() — bản hình gắn dấu mọi ký hiệu', () => {
@@ -54,7 +55,7 @@ describe('buildNotationView() — bản hình gắn dấu mọi ký hiệu', () 
     expect(buildNotationView(spec).latexHtmlAllSymbols).toBeUndefined();
   });
 
-  it('cả 111 công thức dựng được, gỡ dấu ra đúng từng byte hình gốc, và phủ 559 trên 567 dòng', () => {
+  it('cả 111 công thức dựng được, gỡ dấu ra đúng từng byte hình gốc, và phủ 560 trên 568 dòng', () => {
     let tong = 0;
     let coCho = 0;
     const lech: string[] = [];
@@ -68,8 +69,8 @@ describe('buildNotationView() — bản hình gắn dấu mọi ký hiệu', () 
     }
     expect(lech).toEqual([]);
     if (canKiem.length === FORMULAS.length) {
-      expect(tong).toBe(567);
-      expect(coCho).toBe(559);
+      expect(tong).toBe(568);
+      expect(coCho).toBe(560);
     }
   });
 });

@@ -1,5 +1,8 @@
+import { lamTronLen, lamTronXuong } from '../lam-tron';
+
 /**
- * Cây công thức của dòng điền số / dòng "Áp vào công thức" — module LÁ, không import gì (29/09/2026).
+ * Cây công thức của dòng điền số / dòng "Áp vào công thức" — module LÁ (29/09/2026). Thứ duy nhất nó
+ * nhập là `../lam-tron`, cũng là một module lá không nhập gì (16/10/2026).
  *
  * Tách khỏi `worked-line.ts` để bộ VẼ (`CongThucDien.tsx`) dùng được mà không kéo theo bộ phân tích
  * cú pháp: khối Ví dụ thực tế nằm trong First Load JS của cả 111 trang chi tiết và vẽ cây dựng sẵn
@@ -31,7 +34,13 @@ export type Nut =
    */
   | { t: 'can' | 'ln' | 'am' | 'tri' | 'san' | 'tran'; a: Nut }
   /** Dấu ngoặc tròn, do `themNgoac` cài sẵn trước khi trao cho giao diện. */
-  | { t: 'ngoac'; a: Nut };
+  | { t: 'ngoac'; a: Nut }
+  /**
+   * `max(a; b; c)` — số lớn nhất của một danh sách (16/10/2026). Sinh ra cho dải thay số của
+   * `chuoi-phien-giam-dai-nhat`, hình `L = max{k : …}`: dải liệt kê độ dài mọi chuỗi phiên giảm rồi
+   * lấy lớn nhất. Ngăn bằng dấu chấm phẩy vì dấu phẩy đã là dấu thập phân.
+   */
+  | { t: 'max'; ds: ReadonlyArray<Nut> };
 
 /**
  * Chiều cao của một nhánh, tính theo số tầng phân số.
@@ -60,6 +69,8 @@ export function chieuCao(nut: Nut): number {
       return chieuCao(nut.a);
     case 'luythua':
       return chieuCao(nut.a);
+    case 'max':
+      return Math.max(1, ...nut.ds.map(chieuCao));
     default:
       return Math.max(chieuCao(nut.a), chieuCao(nut.b));
   }
@@ -111,6 +122,8 @@ export function datSoVaoCay(cay: Nut, so: ReadonlyArray<string>): Nut {
     case 'chiaDong':
     case 'luythua':
       return { t: cay.t, a: datSoVaoCay(cay.a, so), b: datSoVaoCay(cay.b, so) };
+    case 'max':
+      return { t: 'max', ds: cay.ds.map((d) => datSoVaoCay(d, so)) };
     default:
       return { t: cay.t, a: datSoVaoCay(cay.a, so) };
   }
@@ -177,6 +190,8 @@ export function chuCuaCay(cay: Nut): string {
       return `|${con(cay.a)}|`;
     case 'san':
       return `⌊${con(cay.a)}⌋`;
+    case 'max':
+      return `max(${cay.ds.map(con).join('; ')})`;
     default:
       return `⌈${con(cay.a)}⌉`;
   }
@@ -240,11 +255,11 @@ export function tinhCay(cay: Nut, so: ReadonlyArray<number> = []): number | null
     }
     case 'san': {
       const v = giaTri(cay.a);
-      return v === null ? null : ket(Math.floor(v));
+      return v === null ? null : ket(lamTronXuong(v));
     }
     case 'tran': {
       const v = giaTri(cay.a);
-      return v === null ? null : ket(Math.ceil(v));
+      return v === null ? null : ket(lamTronLen(v));
     }
     case 'can': {
       const v = giaTri(cay.a);
@@ -254,7 +269,133 @@ export function tinhCay(cay: Nut, so: ReadonlyArray<number> = []): number | null
       const v = giaTri(cay.a);
       return v === null || v <= 0 ? null : ket(Math.log(v));
     }
+    case 'max': {
+      const cacSo = cay.ds.map(giaTri);
+      if (cacSo.length === 0 || cacSo.some((v) => v === null)) return null;
+      return ket(Math.max(...(cacSo as number[])));
+    }
     default:
       return giaTri(cay.a);
+  }
+}
+
+/* ── Luật ngoặc — chuyển từ `worked-line.ts` sang đây ngày 16/10/2026, để dải thay số lúc chạy
+ * (`substitution-cay.ts`) cài ngoặc bằng ĐÚNG luật của bộ phân tích mà không phải nhập bộ phân tích. */
+
+/** Độ ưu tiên của từng phép, để biết khi nào phải thêm ngoặc. */
+const UU_TIEN: Readonly<Record<Nut['t'], number>> = {
+  cong: 1,
+  tru: 1,
+  nhan: 2,
+  am: 2,
+  chia: 3,
+  /* Chia một dòng đứng ngang hàng nhân, như trong dòng chữ: `a × b ÷ c` đọc từ trái sang phải. */
+  chiaDong: 2,
+  luythua: 4,
+  can: 5,
+  ln: 5,
+  tri: 5,
+  san: 5,
+  tran: 5,
+  so: 5,
+  o: 5,
+  ngoac: 5,
+  max: 5,
+};
+
+/**
+ * Cài dấu ngoặc tròn vào cây, để giao diện chỉ việc vẽ chứ không phải biết luật ưu tiên.
+ *
+ * `canToiThieu` là độ ưu tiên mà ngữ cảnh cha đòi hỏi: thấp hơn thì phải bọc ngoặc. Nhờ vậy
+ * `(a + b) × c` giữ ngoặc còn `a + b × c` thì không — ngoặc chỉ xuất hiện khi nó mang nghĩa, đúng
+ * như cách sách toán viết.
+ *
+ * `chia` KHÔNG bọc ngoặc quanh hai vế vì gạch phân số đã tách chúng rồi — đây chính là chỗ hình vẽ
+ * hơn hẳn dòng chữ: `(a + b) ÷ c` viết ra phải có ngoặc, vẽ thành phân số thì không. Cùng lý do
+ * với `can` và `tri`: vạch căn và hai vạch đứng tự làm việc của dấu ngoặc.
+ *
+ * Để ở Domain chứ không ở giao diện vì đây là luật TOÁN, không phải luật bày biện; và vì có nó thì
+ * `CongThucDien.tsx` không cần giữ một bản sao bảng ưu tiên, thứ chắc chắn sẽ lệch sau vài lần sửa.
+ *
+ * ── Chỉ MỘT tầng gạch phân số (25/09/2026) ──────────────────────────────────────────────────
+ *
+ * `trongPhanSo` bật khi đã đi vào tử hoặc mẫu của một phân số (hoặc vào số mũ). Từ đó mọi phép
+ * chia vẽ trên một dòng (`chiaDong`, dấu "÷") thay vì chồng thêm một gạch phân số nữa. Chủ dự án
+ * nhìn câu giá vốn DCA — ba phân số `12.000.000 / giá` chồng trong mẫu của một phân số lớn — và nói
+ * "quá khó nhìn … đổi thiết kế sao cho vừa dễ hiểu vừa gọn". Sách toán cũng viết đúng như vậy:
+ * phân số trong phân số thì tầng trong viết ngang.
+ *
+ * Chia một dòng thì CẦN ngoặc, khác phân số: `(12 − 4) ÷ 100`. Nên nó theo đúng luật ưu tiên như
+ * phép nhân — vế trái cần ít nhất bậc nhân, vế phải cần cao hơn bậc nhân (`a ÷ (b × c)` giữ ngoặc).
+ */
+export function themNgoac(nut: Nut, canToiThieu: number, trongPhanSo = false): Nut {
+  const boc = (con: Nut): Nut => (UU_TIEN[nut.t] < canToiThieu ? { t: 'ngoac', a: con } : con);
+  const trong = trongPhanSo;
+  /*
+   * Số âm đứng SAU một dấu phép tính thì luôn có ngoặc (16/10/2026). Bảng ưu tiên xếp dấu trừ đơn
+   * ngang phép nhân, nên trước ngày này `a − (−b)` vẽ ra `a − −b` và `a × (−b)` ra `a × −b` — đo
+   * được trên khối Ví dụ của VaR lịch sử: `(−0,018598 − −0,020701)`. Hai dấu trừ liền nhau đọc như
+   * một lỗi in, và người chép tay dễ bỏ mất một dấu.
+   */
+  const vePhai = (con: Nut): Nut => (con.t === 'am' ? { t: 'ngoac', a: con } : con);
+
+  switch (nut.t) {
+    case 'so':
+    case 'o':
+      return nut;
+    case 'am':
+      /* `−(−0,0358)`, không phải `−−0,0358` — cùng luật với số âm đứng sau một dấu phép tính. */
+      return boc({ t: 'am', a: vePhai(themNgoac(nut.a, UU_TIEN.am, trong)) });
+    case 'cong':
+      return boc({
+        t: 'cong',
+        a: themNgoac(nut.a, UU_TIEN.cong, trong),
+        b: vePhai(themNgoac(nut.b, UU_TIEN.cong, trong)),
+      });
+    case 'tru':
+      /* Vế phải cần độ ưu tiên CAO hơn: `a − (b − c)` khác hẳn `a − b − c`. */
+      return boc({
+        t: 'tru',
+        a: themNgoac(nut.a, UU_TIEN.tru, trong),
+        b: vePhai(themNgoac(nut.b, UU_TIEN.tru + 1, trong)),
+      });
+    case 'nhan':
+      return boc({
+        t: 'nhan',
+        a: themNgoac(nut.a, UU_TIEN.nhan, trong),
+        b: vePhai(themNgoac(nut.b, UU_TIEN.nhan, trong)),
+      });
+    case 'chia':
+    case 'chiaDong': {
+      if (!trong) {
+        return { t: 'chia', a: themNgoac(nut.a, 0, true), b: themNgoac(nut.b, 0, true) };
+      }
+      const dong: Nut = {
+        t: 'chiaDong',
+        a: themNgoac(nut.a, UU_TIEN.chiaDong, true),
+        b: themNgoac(nut.b, UU_TIEN.chiaDong + 1, true),
+      };
+      return UU_TIEN.chiaDong < canToiThieu ? { t: 'ngoac', a: dong } : dong;
+    }
+    case 'luythua':
+      /* Số mũ viết nhỏ trên cao — phân số trong đó cũng viết một dòng: `^(1 ÷ 3)`. */
+      return boc({
+        t: 'luythua',
+        a: themNgoac(nut.a, UU_TIEN.luythua + 1, trong),
+        b: themNgoac(nut.b, 0, true),
+      });
+    case 'can':
+      return { t: 'can', a: themNgoac(nut.a, 0, trong) };
+    case 'tri':
+    case 'san':
+    case 'tran':
+      return { t: nut.t, a: themNgoac(nut.a, 0, trong) };
+    case 'ln':
+      return { t: 'ln', a: themNgoac(nut.a, 0, trong) };
+    case 'ngoac':
+      return { t: 'ngoac', a: themNgoac(nut.a, 0, trong) };
+    case 'max':
+      /* Như `ln(…)`: cặp ngoặc của hàm đã gom từng đối số, không cần thêm. */
+      return { t: 'max', ds: nut.ds.map((d) => themNgoac(d, 0, trong)) };
   }
 }

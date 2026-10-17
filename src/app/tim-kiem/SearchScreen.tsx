@@ -59,7 +59,7 @@ const SUGGESTED_IDS: ReadonlyArray<string> = ['co-lenh-rui-ro', 'roi', 'gia-hoa-
  */
 export function SearchScreen() {
   const { params, setParams } = useListParams();
-  const { mode } = usePreferences();
+  const { mode, locale } = usePreferences();
   const t = useT();
   const pick = usePick();
   const inputRef = useRef<HTMLDivElement>(null);
@@ -95,8 +95,8 @@ export function SearchScreen() {
   const pool = useMemo(() => formulasForLevel(FORMULA_SUMMARIES, mode), [mode]);
 
   const results = useMemo(
-    () => (trimmed === '' ? [] : selectFormulas(pool, { ...params, q: trimmed })),
-    [pool, params, trimmed],
+    () => (trimmed === '' ? [] : selectFormulas(pool, { ...params, q: trimmed }, { lang: locale })),
+    [pool, params, trimmed, locale],
   );
 
   /*
@@ -127,8 +127,16 @@ export function SearchScreen() {
 
   const hiddenByLevel = useMemo(
     () =>
-      trimmed === '' ? 0 : countHiddenByLevel(FORMULA_SUMMARIES, { ...params, q: trimmed }, mode),
-    [params, trimmed, mode],
+      trimmed === ''
+        ? 0
+        : countHiddenByLevel(
+            FORMULA_SUMMARIES,
+            { ...params, q: trimmed },
+            mode,
+            CATEGORIES,
+            locale,
+          ),
+    [params, trimmed, mode, locale],
   );
 
   /**

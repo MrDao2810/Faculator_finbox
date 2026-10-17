@@ -135,8 +135,10 @@
  * gì cả. Lỗi thuộc loại không ai thấy — trỏ chuột vào và không có chuyện gì xảy ra thì trông
  * giống một cụm tab không có trạng thái hover, chứ không giống hỏng.
  */
-.tab:hover:not(:disabled) {
-  background: var(--color-tab-hover);
+@media (hover: hover) {
+  .tab:hover:not(:disabled) {
+    background: var(--color-tab-hover);
+  }
 }
 
 /*
@@ -161,8 +163,10 @@
   font-weight: var(--weight-bold);
 }
 
-.active:hover:not(:disabled) {
-  background: var(--gradient-highlight);
+@media (hover: hover) {
+  .active:hover:not(:disabled) {
+    background: var(--gradient-highlight);
+  }
 }
 
 .icon {
@@ -202,8 +206,10 @@
 }
 
 /* Khay trắng nên hover của cụm ngang (`--color-tab-hover` là trắng) sẽ tàng hình: dùng nền chìm. */
-.vertical .tab:hover:not(:disabled) {
-  background: var(--color-sunken);
+@media (hover: hover) {
+  .vertical .tab:hover:not(:disabled) {
+    background: var(--color-sunken);
+  }
 }
 
 .vertical .active,
@@ -312,8 +318,10 @@
     text-align: left;
   }
 
-  .responsive .tab:hover:not(:disabled) {
-    background: var(--color-sunken);
+  @media (hover: hover) {
+    .responsive .tab:hover:not(:disabled) {
+      background: var(--color-sunken);
+    }
   }
 
   .responsive .active,

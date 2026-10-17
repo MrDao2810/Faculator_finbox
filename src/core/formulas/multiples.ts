@@ -14,8 +14,32 @@
 
 import { ok } from '../calc-output';
 import type { FormulaModule } from '../calc/types';
+import type { CalcOutput } from '../types';
 import { divideByZero, meaningless } from '../warnings';
 import { SOURCE_CFA, SOURCE_VAS, numberVar } from './shared';
+
+/**
+ * Giá thị trường bằng 0 thì bội số giá ra "0 lần" — một con số trông hợp lệ nhưng không nói gì về
+ * doanh nghiệp nào (FR-06). Ô giá cho gõ 0 (`min: 0`), nên P/E, P/B và P/S phải tự chặn, như
+ * `von-hoa-thi-truong` và E/P đã chặn. Thêm 16/10/2026, lượt rà công thức. Trả `null` khi giá dùng được.
+ */
+export function chanGiaKhongDuong(price: number, boiSo: string): CalcOutput | null {
+  if (price > 0) return null;
+  return {
+    value: null,
+    unit: 'lần',
+    warning: meaningless(
+      {
+        vi: `Giá thị trường bằng 0 thì ${boiSo} không phản ánh giá trị nào.`,
+        en: `A market price of zero means ${boiSo} does not reflect any real value.`,
+      },
+      {
+        vi: 'Nhập giá đóng cửa gần nhất của cổ phiếu.',
+        en: 'Enter the most recent closing price of the share.',
+      },
+    ),
+  };
+}
 
 /*
  * ── P/E ────────────────────────────────────────────────────────────────────────────────
@@ -105,8 +129,8 @@ export const PE: FormulaModule = {
       inputs: { price: 72_700, eps: 5_867 },
       expected: 12.3913,
       note: {
-        vi: 'Thị trường đang trả khoảng 12,4 đồng cho mỗi đồng lợi nhuận một năm của FPT, thấp hơn hẳn vùng 20–25 lần giai đoạn 2023–2024. Lưu ý về nền so sánh: EPS bốn quý gần nhất vẫn còn phần FPT Telecom của các quý 2025, trong khi từ 2026 khoản này không còn hợp nhất.',
-        en: 'The market is paying about 12.4 dong for each dong of FPT’s annual profit, well below the 20–25x band of 2023–2024. A caveat on the comparison base: trailing four-quarter EPS still carries FPT Telecom for the 2025 quarters, while from 2026 that unit is no longer consolidated.',
+        vi: 'So với thị giá 72.700 ₫ của FPT: lãi bốn quý gần nhất của mỗi cổ phiếu là 5.867 ₫, nên P/E 12,39 lần nghĩa là bạn đang trả 12,39 đồng cho mỗi đồng lãi một năm, và nếu lãi giữ nguyên thì cần khoảng 12,4 năm lãi như thế mới bằng số tiền bỏ ra mua.',
+        en: "Compared with FPT's price of 72,700 ₫: each share earned 5,867 ₫ over the last four quarters, so a P/E of 12.39 times means you are paying 12.39 dong for each dong of annual profit, and if profit holds steady it would take about 12.4 years of that profit to add up to the purchase price.",
       },
       source: {
         vi: 'Giá FPT (mã FPT) phiên 11/09/2026; EPS bốn quý gần nhất theo báo cáo tài chính quý 2/2026.',
@@ -127,11 +151,20 @@ export const PE: FormulaModule = {
         expected: null,
         expectedWarning: 'MEANINGLESS',
       },
+      {
+        name: 'giá 0 thì báo lỗi chứ không in "0 lần"',
+        inputs: { price: 0, eps: 6_050 },
+        expected: null,
+        expectedWarning: 'MEANINGLESS',
+      },
     ],
     source: [SOURCE_CFA, SOURCE_VAS],
   },
   calc: (v) => {
     const eps = v('eps');
+
+    const giaKhongDuong = chanGiaKhongDuong(v('price'), 'P/E');
+    if (giaKhongDuong !== null) return giaKhongDuong;
 
     if (eps === 0) {
       return {
@@ -256,8 +289,8 @@ export const PB: FormulaModule = {
       inputs: { price: 72_700, bookValuePerShare: 23_246 },
       expected: 3.1274,
       note: {
-        vi: 'Giá trị của một doanh nghiệp công nghệ nằm ở con người và hợp đồng chứ không ở tài sản ghi trên sổ, nên P/B của FPT luôn cao hơn nhóm sản xuất và không đặt cạnh HPG hay VNM để so được. Phần vốn chủ sở hữu thực sự đứng sau mỗi cổ phiếu chỉ bằng chưa tới một phần ba thị giá.',
-        en: 'A technology company’s value sits in its people and contracts rather than in assets on the books, so FPT’s P/B is structurally above manufacturers and cannot be read against HPG or VNM. The equity actually standing behind each share is under a third of the market price.',
+        vi: 'So với mốc 1 lần: P/B 3,13 lần nghĩa là thị trường trả 72.700 ₫ cho một cổ phiếu FPT chỉ có 23.246 ₫ vốn của cổ đông ghi trên sổ, gấp hơn ba lần. Giá trị của công ty công nghệ như FPT nằm nhiều ở con người và thương hiệu, thứ sổ sách không ghi, nên vượt mốc 1 lần chưa hẳn là đắt.',
+        en: "Compared with the 1 times mark: a P/B of 3.13 times means the market pays 72,700 ₫ for an FPT share backed by only 23,246 ₫ of shareholders' equity on the books, more than three times as much. A technology company like FPT holds much of its value in people and brand, which the books do not record, so being above the 1 times mark does not by itself mean expensive.",
       },
       source: {
         vi: 'Giá FPT (mã FPT) phiên 11/09/2026; vốn chủ sở hữu 39.851,5 tỷ ₫ trên 1.714.326.422 CP theo báo cáo tài chính quý 2/2026.',
@@ -282,11 +315,20 @@ export const PB: FormulaModule = {
         expected: null,
         expectedWarning: 'MEANINGLESS',
       },
+      {
+        name: 'giá 0 thì báo lỗi chứ không in "0 lần"',
+        inputs: { price: 0, bookValuePerShare: 25_000 },
+        expected: null,
+        expectedWarning: 'MEANINGLESS',
+      },
     ],
     source: [SOURCE_CFA, SOURCE_VAS],
   },
   calc: (v) => {
     const bvps = v('bookValuePerShare');
+
+    const giaKhongDuong = chanGiaKhongDuong(v('price'), 'P/B');
+    if (giaKhongDuong !== null) return giaKhongDuong;
 
     if (bvps === 0) {
       return {

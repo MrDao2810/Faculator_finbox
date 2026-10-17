@@ -229,6 +229,59 @@ describe('FormulaListScreen — ô tìm lọc cả danh sách tại chỗ', () =
   });
 });
 
+/*
+ * 16/10/2026: chủ dự án gõ "%b" và nhận 96 thẻ, phần lớn không liên quan. Luật mới ở
+ * `search.ts`/`phrase.ts`; hai ca dưới đây giữ nó ở đúng màn đã báo lỗi.
+ */
+describe('FormulaListScreen — khớp tên lên đầu, khớp phụ tô vàng', () => {
+  beforeEach(() => {
+    window.localStorage.setItem(
+      PREFERENCES_STORAGE_KEY,
+      JSON.stringify({ mode: 'advanced', locale: 'vi', theme: 'light' }),
+    );
+  });
+
+  function theCua(id: string): HTMLElement {
+    const the = within(khoiDanhSach())
+      .getAllByRole('link')
+      .find((a) => new RegExp(`/cong-thuc/${id}/?$`).test(a.getAttribute('href') ?? ''));
+    if (the === undefined) throw new Error(`Không thấy thẻ ${id}.`);
+    return the;
+  }
+
+  it('"%b" chỉ còn đúng thẻ %B', async () => {
+    moMan();
+    await waitFor(() => {
+      expect(idTrongDanhSach()).toHaveLength(TONG);
+    });
+
+    fireEvent.change(oTim(), { target: { value: '%b' } });
+
+    expect(idTrongDanhSach()).toEqual(['phan-tram-b-bollinger']);
+    expect(khoiDanhSach().querySelectorAll('mark')).toHaveLength(0);
+  });
+
+  it('"p/e": thẻ khớp tên đứng trên, thẻ chỉ nhắc P/E trong mô tả đứng dưới và tô đúng cụm ấy', async () => {
+    moMan();
+    await waitFor(() => {
+      expect(idTrongDanhSach()).toHaveLength(TONG);
+    });
+
+    fireEvent.change(oTim(), { target: { value: 'p/e' } });
+
+    const ids = idTrongDanhSach();
+    expect(ids.slice(0, 2)).toEqual(['pe', 'peg']);
+    expect([...ids.slice(2)].sort()).toEqual(['gia-muc-tieu', 'ty-suat-loi-nhuan-tren-gia']);
+
+    // Khớp chính không tô gì; khớp phụ tô đúng "P/E" trong mô tả, chữ trên thẻ không đổi.
+    expect(theCua('pe').querySelectorAll('mark')).toHaveLength(0);
+    const phu = theCua('gia-muc-tieu');
+    expect([...phu.querySelectorAll('mark')].map((m) => m.textContent)).toEqual(['P/E']);
+    const moTa = FORMULA_SUMMARIES.find((f) => f.id === 'gia-muc-tieu')?.description.vi ?? '';
+    expect(phu.textContent).toContain(moTa);
+  });
+});
+
 describe('FormulaListScreen — hàng chip nhóm và nút xoá bộ lọc', () => {
   it('chọn một nhóm thì danh sách chỉ còn nhóm ấy và URL mang ?category=', async () => {
     window.localStorage.setItem(

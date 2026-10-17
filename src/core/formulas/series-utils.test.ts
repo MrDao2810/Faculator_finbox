@@ -7,6 +7,7 @@ import {
   lastSma,
   maxDrawdown,
   mean,
+  populationStdDev,
   requireBars,
   requireCloses,
   sampleStdDev,
@@ -85,6 +86,12 @@ describe('mean / sampleStdDev', () => {
   it('dưới hai phần tử trả NaN chứ không trả 0 — 0 là một khẳng định sai', () => {
     expect(Number.isNaN(sampleStdDev([5]))).toBe(true);
     expect(Number.isNaN(mean([]))).toBe(true);
+  });
+
+  it('độ lệch chuẩn TỔNG THỂ của dải Bollinger chia n — cùng chuỗi trên ra đúng 2', () => {
+    expect(populationStdDev([2, 4, 4, 4, 5, 5, 7, 9])).toBeCloseTo(2, 12);
+    expect(populationStdDev([5])).toBe(0);
+    expect(Number.isNaN(populationStdDev([]))).toBe(true);
   });
 });
 

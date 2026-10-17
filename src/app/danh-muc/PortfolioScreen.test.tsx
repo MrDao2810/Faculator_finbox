@@ -624,11 +624,11 @@ describe('WF-06 — từ mã sang công thức', () => {
     expect(within(sheet).getByRole('button', { name: /ROE/ })).toBeTruthy();
 
     /*
-     * Lọc bằng chính `scoreFormula` + `tokenize` của ô tìm toàn cục, nên gõ KHÔNG DẤU vẫn ra
-     * đúng: "co tuc" khớp "cổ tức". Viết một bản so chuỗi riêng cho sheet sẽ làm ca này đỏ.
+     * Lọc bằng chính `matchFormula` của ô tìm toàn cục, nên gõ KHÔNG DẤU vẫn ra đúng: "co tuc"
+     * khớp "cổ tức". Viết một bản so chuỗi riêng cho sheet sẽ làm ca này đỏ.
      *
-     * Không khẳng định "mọi kết quả đều có chữ cổ tức trong TÊN": `scoreFormula` tra cả mô tả và
-     * `tags`, nên các mô hình chiết khấu cổ tức (Gordon, DDM) cũng khớp — đúng như ở màn Tìm kiếm.
+     * Không khẳng định "mọi kết quả đều có chữ cổ tức trong TÊN": khớp chính tra cả `tags`, nên các
+     * mô hình chiết khấu cổ tức (Gordon, DDM) cũng khớp — đúng như ở màn Công thức.
      */
     await userEvent.clear(box);
     await userEvent.type(box, 'co tuc');

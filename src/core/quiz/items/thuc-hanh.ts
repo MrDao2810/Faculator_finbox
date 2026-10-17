@@ -3155,34 +3155,34 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
       },
       {
         label: {
-          vi: 'Độ lệch chuẩn mẫu của 20 giá đóng cửa ấy',
-          en: 'Sample standard deviation of those 20 closes',
+          vi: 'Độ lệch chuẩn của 20 giá đóng cửa ấy, chia cho n như Bollinger',
+          en: 'Standard deviation of those 20 closes, divided by n as Bollinger does',
         },
-        value: { vi: '6.466 ₫', en: '6466 ₫' },
+        value: { vi: '6.302 ₫', en: '6302 ₫' },
       },
       {
         label: { vi: 'Hệ số k, mặc định của Bollinger', en: 'Multiplier k, the Bollinger default' },
         value: { vi: '2', en: '2' },
       },
     ],
-    expected: 199613,
+    expected: 199941,
     tolerance: { kind: 'tuong-doi', value: 0.001 },
     unit: { vi: '₫', en: '₫' },
     worked: {
-      vi: 'Dải dưới = [212.545] − [2] × [6.466]',
-      en: 'Lower band = [212545] − [2] × [6466]',
+      vi: 'Dải dưới = [212.545] − [2] × [6.302]',
+      en: 'Lower band = [212545] − [2] × [6302]',
     },
     explain: {
-      vi: 'Đường giữa là trung bình 20 phiên 212.545 ₫, đặt vào ô đầu; phần bị trừ đi là hệ số k = 2 nhân độ lệch chuẩn mẫu của cùng 20 giá đóng cửa ấy, 6.466 ₫: 212.545 − 2 × 6.466 = 199.613 ₫. Giá đóng cửa 198.000 ₫ nằm dưới dải dưới 1.613 ₫, tức phiên 17/08 đã đóng cửa thủng dải. Bẫy thứ nhất là trung bình 10 phiên 211.060 ₫: ghép nó với độ lệch chuẩn 20 phiên ra 198.128 ₫, một dải lai của hai chu kỳ, và khoảng thủng dải co từ 1.613 ₫ xuống còn 128 ₫. Bẫy thứ hai là giá thấp nhất 20 phiên 194.600 ₫: đó là mép dưới của kênh Donchian, dựng từ đáy giá, còn dải Bollinger dựng từ trung bình và độ lệch chuẩn. Lấy giá đóng cửa làm tâm thì ra 185.068 ₫ và cú thủng dải biến mất hẳn. Sau phiên này VIC hồi lên 230.000 ₫ ngày 26/08, nhưng thủng dải dưới rồi rơi tiếp cũng là chuyện thường: dải chỉ đo độ phân tán của giá, không báo trước hướng đi.',
-      en: 'The middle line is the 20-session average of 212545 ₫, placed in the first slot; what gets subtracted is the multiplier k = 2 times the sample standard deviation of those same 20 closes, 6466 ₫: 212545 − 2 × 6466 = 199613 ₫. The 198000 ₫ close sits 1613 ₫ below the lower band, so the 2026-08-17 session closed through the band. The first trap is the 10-session average of 211060 ₫: pairing it with the 20-session standard deviation gives 198128 ₫, a hybrid of two periods, and the break shrinks from 1613 ₫ to just 128 ₫. The second trap is the 20-session low of 194600 ₫: that is the bottom edge of a Donchian channel, built from price lows, while a Bollinger band is built from an average and a standard deviation. Centering the band on the closing price gives 185068 ₫ and the break disappears entirely. After this session VIC recovered to 230000 ₫ on 2026-08-26, but breaking below the lower band and then falling further is just as common: the band only measures how dispersed price is, it does not forecast direction.',
+      vi: 'Đường giữa là trung bình 20 phiên 212.545 ₫, đặt vào ô đầu; phần bị trừ đi là hệ số k = 2 nhân độ lệch chuẩn của cùng 20 giá đóng cửa ấy, chia cho n như Bollinger, 6.302 ₫: 212.545 − 2 × 6.302 = 199.941 ₫. Giá đóng cửa 198.000 ₫ nằm dưới dải dưới 1.941 ₫, tức phiên 17/08 đã đóng cửa thủng dải. Bẫy thứ nhất là trung bình 10 phiên 211.060 ₫: ghép nó với độ lệch chuẩn 20 phiên ra 198.456 ₫, một dải lai của hai chu kỳ, và khoảng thủng dải co từ 1.941 ₫ xuống còn 456 ₫. Bẫy thứ hai là giá thấp nhất 20 phiên 194.600 ₫: đó là mép dưới của kênh Donchian, dựng từ đáy giá, còn dải Bollinger dựng từ trung bình và độ lệch chuẩn. Lấy giá đóng cửa làm tâm thì ra 185.396 ₫ và cú thủng dải biến mất hẳn. Sau phiên này VIC hồi lên 230.000 ₫ ngày 26/08, nhưng thủng dải dưới rồi rơi tiếp cũng là chuyện thường: dải chỉ đo độ phân tán của giá, không báo trước hướng đi.',
+      en: 'The middle line is the 20-session average of 212545 ₫, placed in the first slot; what gets subtracted is the multiplier k = 2 times the standard deviation of those same 20 closes, divided by n as Bollinger does, 6302 ₫: 212545 − 2 × 6302 = 199941 ₫. The 198000 ₫ close sits 1941 ₫ below the lower band, so the 2026-08-17 session closed through the band. The first trap is the 10-session average of 211060 ₫: pairing it with the 20-session standard deviation gives 198456 ₫, a hybrid of two periods, and the break shrinks from 1941 ₫ to just 456 ₫. The second trap is the 20-session low of 194600 ₫: that is the bottom edge of a Donchian channel, built from price lows, while a Bollinger band is built from an average and a standard deviation. Centering the band on the closing price gives 185396 ₫ and the break disappears entirely. After this session VIC recovered to 230000 ₫ on 2026-08-26, but breaking below the lower band and then falling further is just as common: the band only measures how dispersed price is, it does not forecast direction.',
     },
     giai: {
       tinh: {
         vi: 'Dải Bollinger dưới của VIC phiên 17/08/2026',
         en: 'The lower Bollinger band of VIC on 2026-08-17',
       },
-      thaySo: { vi: '212.545 − 2 × 6.466', en: '212545 − 2 × 6466' },
-      ketQua: { vi: '199.613 ₫', en: '199613 ₫' },
+      thaySo: { vi: '212.545 − 2 × 6.302', en: '212545 − 2 × 6302' },
+      ketQua: { vi: '199.941 ₫', en: '199941 ₫' },
       gan: [
         {
           kyHieu: 'SMA_{n}',
@@ -3195,8 +3195,8 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
         {
           kyHieu: '\\sigma_{n}',
           moTa: {
-            vi: 'là độ lệch chuẩn của 20 giá đóng cửa ấy: 6.466 ₫',
-            en: 'is the standard deviation of those 20 closes: 6466 ₫',
+            vi: 'là độ lệch chuẩn của 20 giá đóng cửa ấy, chia cho n: 6.302 ₫',
+            en: 'is the standard deviation of those 20 closes, divided by n: 6302 ₫',
           },
         },
         { kyHieu: 'n', giaTri: { vi: '20', en: '20' } },
@@ -3239,41 +3239,41 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
       },
       {
         label: {
-          vi: 'Độ lệch chuẩn mẫu của 20 giá đóng cửa ấy',
-          en: 'Sample standard deviation of those 20 closes',
+          vi: 'Độ lệch chuẩn của 20 giá đóng cửa ấy, chia cho n như Bollinger',
+          en: 'Standard deviation of those 20 closes, divided by n as Bollinger does',
         },
-        value: { vi: '2.839 ₫', en: '2839 ₫' },
+        value: { vi: '2.767 ₫', en: '2767 ₫' },
       },
       {
         label: {
-          vi: 'Độ lệch chuẩn mẫu của 10 giá đóng cửa gần nhất, từ 28/08 đến 15/09/2026',
-          en: 'Sample standard deviation of the latest 10 closes, 2026-08-28 to 2026-09-15',
+          vi: 'Độ lệch chuẩn của 10 giá đóng cửa gần nhất, từ 28/08 đến 15/09/2026',
+          en: 'Standard deviation of the latest 10 closes, 2026-08-28 to 2026-09-15',
         },
-        value: { vi: '2.457 ₫', en: '2457 ₫' },
+        value: { vi: '2.331 ₫', en: '2331 ₫' },
       },
       {
         label: { vi: 'Hệ số k, mặc định của Bollinger', en: 'Multiplier k, the Bollinger default' },
         value: { vi: '2', en: '2' },
       },
     ],
-    expected: 89473,
+    expected: 89329,
     tolerance: { kind: 'tuong-doi', value: 0.001 },
     unit: { vi: '₫', en: '₫' },
     worked: {
-      vi: 'Dải trên = [83.795] + [2] × [2.839]',
-      en: 'Upper band = [83795] + [2] × [2839]',
+      vi: 'Dải trên = [83.795] + [2] × [2.767]',
+      en: 'Upper band = [83795] + [2] × [2767]',
     },
     explain: {
-      vi: 'Đường giữa của dải là trung bình 20 phiên 83.795 ₫, nên số này vào ô đầu; hệ số k = 2 nhân với độ lệch chuẩn mẫu của đúng 20 giá đóng cửa ấy, 2.839 ₫: 83.795 + 2 × 2.839 = 89.473 ₫. Giá đóng cửa 91.400 ₫ nằm trên dải trên 1.927 ₫, tức phiên 15/09 đã đóng cửa ra ngoài vùng dao động quen thuộc của 20 phiên. Bẫy thứ nhất là dựng dải quanh giá đóng cửa: 91.400 + 2 × 2.839 ra 97.078 ₫, và cú vượt dải biến mất chỉ vì đặt sai tâm. Bẫy thứ hai là độ lệch chuẩn 10 phiên 2.457 ₫: ghép nó với trung bình 20 phiên ra 88.709 ₫, một dải lai của hai chu kỳ chứ không phải dải của chu kỳ nào. Giá cao nhất 20 phiên 91.500 ₫ là cách dựng mép trên của kênh Donchian, không thuộc công thức này. Và vượt dải trên chỉ nói giá đang ở mép trên vùng dao động, tự nó không phải tín hiệu bán.',
-      en: 'The middle line of the band is the 20-session average of 83795 ₫, so it goes into the first slot; the multiplier k = 2 then scales the sample standard deviation of exactly those 20 closes, 2839 ₫: 83795 + 2 × 2839 = 89473 ₫. The 91400 ₫ close sits 1927 ₫ above the upper band, so the 2026-09-15 session closed outside the usual 20-session trading range. The first trap is building the band around the closing price: 91400 + 2 × 2839 gives 97078 ₫, and the breakout vanishes purely because the center is wrong. The second trap is the 10-session standard deviation of 2457 ₫: pairing it with the 20-session average gives 88709 ₫, a hybrid of two periods rather than the band of either one. The 20-session high of 91500 ₫ is how the top edge of a Donchian channel is built, and it does not belong in this formula. And closing above the upper band only says price is at the top edge of its range; on its own it is not a sell signal.',
+      vi: 'Đường giữa của dải là trung bình 20 phiên 83.795 ₫, nên số này vào ô đầu; hệ số k = 2 nhân với độ lệch chuẩn của đúng 20 giá đóng cửa ấy, chia cho n như Bollinger, 2.767 ₫: 83.795 + 2 × 2.767 = 89.329 ₫. Giá đóng cửa 91.400 ₫ nằm trên dải trên 2.071 ₫, tức phiên 15/09 đã đóng cửa ra ngoài vùng dao động quen thuộc của 20 phiên. Bẫy thứ nhất là dựng dải quanh giá đóng cửa: 91.400 + 2 × 2.767 ra 96.934 ₫, và cú vượt dải biến mất chỉ vì đặt sai tâm. Bẫy thứ hai là độ lệch chuẩn 10 phiên 2.331 ₫: ghép nó với trung bình 20 phiên ra 88.457 ₫, một dải lai của hai chu kỳ chứ không phải dải của chu kỳ nào. Giá cao nhất 20 phiên 91.500 ₫ là cách dựng mép trên của kênh Donchian, không thuộc công thức này. Và vượt dải trên chỉ nói giá đang ở mép trên vùng dao động, tự nó không phải tín hiệu bán.',
+      en: 'The middle line of the band is the 20-session average of 83795 ₫, so it goes into the first slot; the multiplier k = 2 then scales the standard deviation of exactly those 20 closes, divided by n as Bollinger does, 2767 ₫: 83795 + 2 × 2767 = 89329 ₫. The 91400 ₫ close sits 2071 ₫ above the upper band, so the 2026-09-15 session closed outside the usual 20-session trading range. The first trap is building the band around the closing price: 91400 + 2 × 2767 gives 96934 ₫, and the breakout vanishes purely because the center is wrong. The second trap is the 10-session standard deviation of 2331 ₫: pairing it with the 20-session average gives 88457 ₫, a hybrid of two periods rather than the band of either one. The 20-session high of 91500 ₫ is how the top edge of a Donchian channel is built, and it does not belong in this formula. And closing above the upper band only says price is at the top edge of its range; on its own it is not a sell signal.',
     },
     giai: {
       tinh: {
         vi: 'Dải Bollinger trên của GAS phiên 15/09/2026',
         en: 'The upper Bollinger band of GAS on 2026-09-15',
       },
-      thaySo: { vi: '83.795 + 2 × 2.839', en: '83795 + 2 × 2839' },
-      ketQua: { vi: '89.473 ₫', en: '89473 ₫' },
+      thaySo: { vi: '83.795 + 2 × 2.767', en: '83795 + 2 × 2767' },
+      ketQua: { vi: '89.329 ₫', en: '89329 ₫' },
       gan: [
         {
           kyHieu: 'SMA_{n}',
@@ -3286,8 +3286,8 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
         {
           kyHieu: '\\sigma_{n}',
           moTa: {
-            vi: 'là độ lệch chuẩn của 20 giá đóng cửa ấy: 2.839 ₫',
-            en: 'is the standard deviation of those 20 closes: 2839 ₫',
+            vi: 'là độ lệch chuẩn của 20 giá đóng cửa ấy, chia cho n: 2.767 ₫',
+            en: 'is the standard deviation of those 20 closes, divided by n: 2767 ₫',
           },
         },
         { kyHieu: 'n', giaTri: { vi: '20', en: '20' } },

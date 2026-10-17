@@ -4,6 +4,234 @@ Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 
 ---
 
+## Ô tìm: khớp theo cụm, khớp tên lên đầu, khớp phụ tô vàng (16/10/2026)
+
+**Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án xem.**
+
+Chủ dự án gõ "%b" ở `/cong-thuc/` và nhận 96 thẻ, phần lớn không liên quan. Họ muốn công thức khớp câu tìm lên đầu, rồi
+tới công thức có cụm liên quan trong mô tả, cụm ấy "bôi màu vàng nhạt thể hiện đây là câu phụ".
+
+Nguyên nhân: `tokenize()` vứt mọi ký hiệu nên "%b" thành "b", rồi từng từ khớp TIỀN TỐ của bất kỳ từ nào trong tên, thẻ
+hay mô tả, không cần thứ tự. Đo trên 111 công thức: "%b" ra 96 (41 chỉ khớp mô tả), "p/e" ra 52 (38), "p/b" ra 85.
+
+- **`src/core/registry/phrase.ts` (mới)** — cắt chuỗi thành mảnh, có nhớ vị trí trong chuỗi gốc:
+  - Ký hiệu `% / & + ×` là một mảnh chứ không phải dấu ngăn.
+  - Cụm phải liền nhau, đúng thứ tự. Ký hiệu trong chuỗi đích mà người dùng không gõ thì bỏ qua, nên "p e" vẫn ra P/E.
+  - Hai mảnh gõ liền nhau chỉ khớp hai mảnh cũng liền nhau, nên "%b" không khớp "100% bám".
+- **`search.ts`** — `matchFormula()` xếp mỗi công thức vào một trong hai tầng, thay cho `scoreFormula()`:
+  - Khớp chính: mã, tên Việt/Anh hoặc một từ khoá.
+  - Khớp phụ: mô tả của ngôn ngữ đang hiện. Các từ phải khớp trọn, trừ từ cuối dài từ 3 ký tự. Chuỗi dưới 2 ký tự
+    không dò mô tả.
+  - Chuỗi dưới 3 ký tự chỉ khớp dở ở đầu mã hoặc tên, không ở từ khoá ẩn. Không có luật này thì "b" ra CAGR qua từ
+    khoá "binh quan nam".
+  - `selectFormulas` luôn để khớp chính trên khớp phụ; A–Z, lịch sử dùng… chỉ sắp trong từng tầng.
+  - Các hàm đếm nhận thêm `lang`.
+- **`highlight.ts`** — tô theo đúng hàm khớp: `descriptionHitParts()` chỉ trả mẩu tô cho khớp phụ.
+- **Giao diện**:
+  - `DescriptionHit` là lá client mới, đọc locale.
+  - `FormulaCard` nhận `query`, chỉ màn Công thức truyền.
+  - `GroupCard` của `/tim-kiem/` không còn tô tên. Nó chỉ tô cụm khớp ở mô tả của khớp phụ, cùng luật với màn Công
+    thức.
+  - `FormulaForTickerSheet` ở Danh mục chỉ giữ khớp chính, vì dòng của nó không in mô tả.
+- **Số đo sau khi sửa** (111 công thức):
+
+  | Chuỗi gõ   | Kết quả (khớp chính / khớp phụ) |
+  | ---------- | ------------------------------- |
+  | "%b"       | 1 (%B)                          |
+  | "p/e"      | 2 / 2                           |
+  | "p/b"      | 1                               |
+  | "pe"       | 6                               |
+  | "ev"       | 3, EV đứng đầu                  |
+  | "b"        | 13                              |
+  | "lai suat" | 2 / 5                           |
+
+  Màu tô dùng lại `.hit` của `Highlight` (`--color-warning-soft` + chữ đậm): #f8e7b4 ở bản sáng, hổ phách sẫm ở bản
+  tối.
+
+- **Test**:
+  - `search.test.ts` có 13 ca mới ("khớp cụm — %b không còn ra 96 kết quả").
+  - `highlight.test.ts` được viết lại theo luật cụm, thêm `descriptionHitParts`.
+  - `FormulaListScreen.test.tsx` có 2 ca ở mức màn.
+  - Toàn bộ: 159 file, 4.053 ca xanh. Lint, typecheck, prettier sạch.
+
+Đảo một quyết định cũ: WF-09 (`/tim-kiem/`) từng tô vàng tên lẫn mô tả của MỌI kết quả. Nay màu vàng chỉ còn nghĩa
+"khớp phụ". Thứ tự tầng cũng đè lên cách sắp: chọn A–Z thì khớp phụ vẫn ở dưới.
+
+Còn lại: chủ dự án xem trên màn. Chưa quyết thì giữ nguyên:
+
+- Có cần dòng tiêu đề ngăn hai tầng không.
+- Có tô cả câu mô tả thay vì chỉ cụm khớp không.
+
+---
+
+## Dòng thay số cho CẢ 111 công thức, chuẩn xác tới chữ số cuối (16/10/2026)
+
+**Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án xem.**
+
+Chủ dự án chụp `ty-so-treynor` (không có dòng thay số) cạnh `tra-gop-nien-kim` (có), hỏi vì sao nhiều công thức
+không có, rồi: _"sửa sao cho hợp lý nhất và toàn bộ công thức đều có đầy đủ phần tôi yêu cầu. nhưng cần hợp lý và chuẩn
+xác tuyệt đối cho tôi vì đây là tính toán chi tiết mà người dùng sử dụng"_.
+
+Trước: 61/111 có dải, và dải chỉ sống trong thẻ gộp. 50 công thức thiếu: 35 ăn chuỗi giá, 9 không dùng thẻ gộp (5 bóc
+tách, 4 chuỗi định giá), 3 thân riêng, 4 thẻ gộp cố ý bỏ (số số hạng thay đổi, dò nghiệm).
+
+- **Hạ tầng** (`src/core/substitution*.ts`, `registry/types.ts`):
+  - Khoá `{@ten}` đọc từ `extras` của chính kết quả.
+  - `substitutionRepeat` viết Σ/∏ đủ từng số hạng (`#` là chỉ số, `skipZero`).
+  - `substitutionRhs` cho phương trình dò nghiệm, in "≈ vế phải".
+  - `substitutionCases` chọn mẫu theo ô lựa chọn.
+  - Ký hiệu dẫn xuất theo chỉ số (`'rTl#'`).
+- **Nút `max(a; b)`** thêm vào cây (`nut.ts`, bộ phân tích, hai bộ tính, `CongThucDien`).
+- **Luật ngoặc `themNgoac` chuyển sang `nut.ts`**: dải lúc chạy dùng đúng luật của bộ phân tích. Số âm sau một phép tính
+  hay sau dấu trừ đơn nay có ngoặc. Trước đó khối Ví dụ của VaR vẽ `−0,018598 − −0,020701`.
+- **Chuẩn xác tuyệt đối**: `datSoThaySo` nhận con số kết quả, tăng chữ số lẻ tới khi các số IN RA bấm lại đúng chuỗi khối
+  Kết quả in; không được thì không in dải. Cổng cũ cho lệch 0,5%, và dải `tra-gop-nien-kim` in `= 7.457.049,5` trong khi
+  bấm lại ra 7.457.051,59; nay in `i = 0,007916666667` và khớp.
+- **Màn** (`FormulaDetail.tsx`, `DetailBody`, `FeeTaxBody`, `XirrBody`): dải ở mọi khuôn.
+  - Thẻ gộp: như cũ.
+  - Ngoài thẻ gộp: ngay dưới thẻ Kết quả.
+  - Thân riêng tự in kết quả: sau con số của nó.
+  - Vẫn chỉ từ 1280px, như mọi dải trước đây.
+- **50 mẫu mới**, theo đúng dạng khối Ví dụ thực tế đã rà:
+  - 9 định giá / bóc tách.
+  - Lợi nhuận ròng.
+  - Lịch trả nợ: dạng đóng của Σ lãi, `n × A − P` hoặc `P × i × (n + 1) ÷ 2` theo cách trả.
+  - DCA, trung bình hình học, DDM hai giai đoạn: viết đủ từng số hạng.
+  - IRR niên kim, XIRR: `≈`.
+  - 35 công thức chuỗi giá: `calc` trả thêm đúng các ký hiệu của hình.
+  - Chuỗi phiên giảm: `max(2; 2; 1; 4; …) = 4`.
+  - ATR: `max(H − L; |H − C|; |L − C|)`.
+- **Hai lỗi thật của `calc`, sửa tận gốc**:
+  - `Math.floor` của một thương đúng bằng số nguyên có thể ra kém 1. Thêm `src/core/lam-tron.ts`, dùng ở
+    `co-vi-the-phai-sinh`, `so-hop-dong-toi-da`, `so-ky-dca` và hai bộ tính cây.
+  - Nghiệm `irr-nien-kim` dừng ở 1e-12: thay ngược vào phương trình ra 2.999.999.999,94 cho khoản vay 3 tỷ ₫. Nay mài
+    thêm bằng Newton.
+- **Cổng kiểm** (`formulas.test.ts`):
+  - Mọi công thức có dải; danh sách ngoại lệ rỗng.
+  - Trên bộ ví dụ, mặc định, × 0,9, × 1,1 và mọi lựa chọn: mẫu ở độ chính xác đầy đủ lệch `calc` ≤ 1e-9, VÀ các số in
+    ra bấm lại đúng chuỗi kết quả.
+  - Ca "đổi biểu phí" nay gồm `loi-nhuan-rong`.
+- **Đo Chrome thật** trên bản build tĩnh ở bản sao, 1440px, 16 trang (mỗi kiểu khuôn một trang, gồm XIRR sau khi gõ hai
+  dòng tiền):
+  - Dải hiện, số sau "=" trùng khối Kết quả, không tràn ngang.
+  - Ở 390px dải ẩn.
+  - `verify:static` 51/51.
+- **Kiểm tra**: `vitest` toàn bộ xanh (159 file, 4.053 ca; 48 ca "skipped" là `.skip` có sẵn), typecheck sạch, lint
+  sạch — đo lại sau khi phiên `faculator-finbox-ec` xong lượt của họ (giữa chừng từng có 12 ca đỏ ở phần tìm kiếm và
+  số dòng ký hiệu, đều của phiên ấy). Hình `thoi-gian-nhan-doi` đổi thành `ln 2 ÷ ln(1 + r) ≈ 72 ÷ (100 × r)`; dải
+  thay số vẫn là vế chính xác `ln(2) ÷ ln(1 + r)`, đúng phép `calc` tính.
+- **Phối hợp**: phiên `faculator-finbox-ec` sửa song song `technical-volatility.ts` (Bollinger chia n). Mẫu Bollinger
+  đọc σ từ `calc` nên tự theo thay đổi ấy.
+- **Còn mở cho chủ dự án**:
+  - (a) Dải vẫn chỉ hiện từ 1280px; có muốn hiện trên điện thoại không.
+  - (b) `lich-tra-no` in dạng đóng của tổng lãi, không viết 240 số hạng. Hình vẫn vẽ Σ.
+  - (c) Với số dẫn xuất, dải có thể dài chữ số lẻ, ví dụ `25.093.202,06980399`, vì đó là mức cần để bấm lại đúng.
+  - (d) EMA, đường tín hiệu, ATR: khi chuỗi chỉ vừa đủ n phiên thì không có phiên trước, dải không hiện.
+
+---
+
+## Rà toán 111 công thức: Bollinger chia n, sửa bước cách tính và chặn FR-06 (16/10/2026)
+
+**Trạng thái: CHƯA XONG — đã sửa phần lỗi rõ, 21 mục chờ chủ dự án quyết (`REVIEW-3.md`).**
+
+Chủ dự án khoanh "n − 1" trong khung cách tính của dải Bollinger trên: _"phần công thức của 'dải trên' đang bị sai công
+thức,... cần rà soát lại toàn bộ công thức và sửa lỗi"_.
+
+- Bollinger chia n (chốt Q1 của `REVIEW-2.md`): `populationStdDev` mới ở `series-utils.ts` (có ca kiểm), `bollingerParts`
+  gọi nó. Số mới tính bằng script độc lập: ca kiểm 10 phiên, ví dụ FPT (dải trên 74.988 → 74.901 ₫, dải dưới 68.132 →
+  68.219 ₫, độ rộng 9,58 → 9,34%, khoảng cả năm 4,96–34,73%, %B 66,63 → 67,06%). Đổi theo: lời ví dụ, mô tả ô k, sai lầm
+  thường gặp, ký hiệu σ, dòng chữ, khung cách tính (bỏ 6 cờ `pendingReview: 'Q1'`, bước σ chia n và lấy n phiên GẦN
+  NHẤT), lời giải ví dụ ở `vi-du/items.ts`, và Q455 (VIC) / Q456 (GAS) ở `quiz/items/thuc-hanh.ts` — tính lại từ 20 giá
+  đóng cửa lấy về từ đúng trang CafeF câu hỏi dẫn (khớp số cũ khi chia n − 1).
+- Rà cả 111 công thức bằng 10 agent chỉ đọc, viết lại từng công thức từ định nghĩa: `calc` khớp ở mọi ví dụ và ca kiểm.
+  Sửa thêm (chi tiết ở bảng "Đã sửa" của `REVIEW-3.md`): bước cách tính của độ biến động lịch sử (n − 2), ATR và RSI
+  (số đầu tiên thuộc phiên 2), đường tín hiệu MACD, ROI ròng (`F_{lk}(M)` → `F_{lk}`); dòng chữ ATR; hình thời gian nhân
+  đôi `72 ÷ (100 × r)`; chặn FR-06 ở `ddm-hai-giai-doan` (cổ tức 0) và P/E, P/B, P/S (giá 0, `chanGiaKhongDuong()`), kèm
+  ca kiểm; ngày đáo hạn VN30F; lãi/lỗ Long/Short theo điểm giá hợp đồng; tên ca kiểm phí lưu ký; ký hiệu của lãi tiền
+  gửi, tiết kiệm mục tiêu, Sortino, CVaR, cửa sổ N, tài sản ngắn hạn, câu ý nghĩa RSI.
+- Rà rồi không đổi: 16 công thức ra % mà hình không có "× 100" — quy ước lãi suất viết dạng tỷ lệ (ghi vào CLAUDE.md).
+- Phiên song song (thêm dải thay số cho 111 công thức) sửa cùng các file: hai bên chỉ sửa từng chỗ, đã nhắn nhau trước
+  mỗi file. Hai ca đỏ còn lại lúc chạy toàn bộ không thuộc việc này: `registry/search` + `highlight` (một phiên đang
+  viết lại phần tìm kiếm) và `example-note-rules.test.ts` (file chưa theo dõi của phiên khác).
+- Còn lại: chủ dự án chốt R1–R21 ở `REVIEW-3.md` (đáng nhất: R1 cách lấy phân vị VaR, R2 EBIT của FCFF, R3 tiền trong EV).
+
+---
+
+## Bảng ký hiệu: bỏ lời chú về ô nhập trong ngoặc (16/10/2026)
+
+**Trạng thái: CHƯA XONG — đã sửa, chờ chủ dự án xem.**
+
+Chủ dự án khoanh "(ô nhập tay)" ở dòng `β_p` của `ty-so-treynor`: _"sửa lại những đoạn text vô nghĩa như khoanh đỏ này
+đi"_.
+
+- Rà 563 dòng chú thích ký hiệu của 111 công thức (script `scratchpad/ngoac-chu-thich.mjs`, không nằm trong repo):
+  33 dòng có ngoặc. Sửa 12 dòng, ở 10 công thức:
+  - `ty-so-treynor` β_p: bỏ "(ô nhập tay)" — mọi ô ở khối Số liệu đều nhập tay, ngoặc không nói gì về β.
+  - Chín dòng mà ngoặc chép lại đúng chữ đứng trước: `n` của SMA, EMA, hai công thức "số phiên nhìn lại", đường trung
+    bình đem ra so (`technical-trend.ts`), chu kỳ dải Bollinger, số phiên gộp, số phiên giá lấy mẫu
+    (`technical-volatility.ts`). Bỏ ngoặc ở cả `vi` lẫn `en`.
+  - Hai dòng giữ thông tin nhưng bỏ ngoặc: `ty-so-thang-thua` "…vượt ngưỡng h, tức ô Ngưỡng bỏ qua phiên đi ngang" (h
+    không có dòng riêng, tên ô là thứ duy nhất nói h lấy từ đâu); `roi-rong` L_rong "…phụ thuộc cả ô Giá bán, ₫" (giá
+    bán không có trên hình), đơn vị dời về cuối cho giống các dòng khác.
+- Để nguyên 21 dòng có ngoặc còn lại: phép toán thật (`(DT − BP) ÷ EBIT`, `(1 + năm)^(1/m) − 1`…) hoặc lời giải nghĩa có
+  ích ("Long (vị thế mua)", "nợ (debt)", "(8% là 0,08)", "(250 cho chuỗi theo ngày)").
+- Ca kiểm mới trong `formulas.test.ts` ("không mang lời chú về ô nhập trong ngoặc"): chặn "(ô" có dấu cách theo sau, `nhập tay`,
+  `field)`, `entered manually` ở cả hai ngôn ngữ. Trả `risk-ratios.ts` về bản cũ: đỏ đúng 4 dòng (đã thử).
+- Đổi chữ này cũng đổi theo ở chỗ đọc lại nghĩa ký hiệu: khung "cách tính" khi rê vào ký hiệu và dòng Thay số của bài tập,
+  ví dụ thực tế.
+
+---
+
+## Màn cảm ứng: nút còn màu sau khi chạm — kiểu trỏ chuột chỉ cho máy có chuột (16/10/2026)
+
+**Trạng thái: CHƯA XONG — đã sửa, chờ chủ dự án xem.**
+
+Chủ dự án (điện thoại): _"click vào button "Xem ví dụ thực tế" và scroll xuống dưới rồi nhưng khi kéo màn hình lên trên thì
+vẫn thấy button "Xem ví dụ thực tế" còn màu"_.
+
+- Nguyên nhân: màn cảm ứng không có chuột, nên phần tử vừa chạm cứ là `:hover` tới cú chạm sau; `.secondary:hover` (nền
+  `--color-accent-soft`) khai trần nên dính. Không riêng nút ấy: 61 / 64 luật `:hover` của sản phẩm khai trần (nút, chip,
+  tab, thẻ công thức, ô lịch, nút X…), chỉ màn Danh mục đã bọc 3 luật.
+- Sửa cả sản phẩm, một lượt bằng script (`scratchpad/boc-hover.mjs`, không nằm trong repo): 56 luật bọc TẠI CHỖ trong
+  `@media (hover: hover)` (thứ tự khai giữ nguyên — các bẫy "luật khai sau thắng" như `.rowRemove` sau `.rowAction` không
+  đổi); 5 nhóm `:hover, :focus-visible` tách đôi để nửa bàn phím vẫn áp mọi máy; luật trong `@media (min-width: …)` thì
+  lồng thêm khối. Để nguyên 5 luật vô hại: 4 nhóm "chống hover" (`.a, .a:hover`, chỉ giữ màu nghỉ) và 1 luật trong
+  `prefers-reduced-motion`. 37 file CSS đổi; prettier sạch.
+- `src/ui/hover-media.test.ts` (mới): quét mọi file CSS, luật `:hover` nào tô màu ngoài khối ấy là đỏ; kèm ca tự kiểm bộ
+  dò. Trả `Button.module.css` về bản cũ: đỏ đúng 4 luật (đã thử).
+- Chrome thật (dev :3001), `pe`: giả lập cảm ứng 390px (`(hover: hover)` = false) — chạm "Xem ví dụ thực tế ↓", trang
+  cuộn tới ví dụ, cuộn lên lại: nút vẫn khớp `:hover` nhưng nền `rgb(255, 255, 255)` như chưa chạm. PC 1440 chuột thật:
+  rê vào vẫn đổi `rgb(227, 235, 253)`.
+- `vitest`: 157 file / 4021 ca xanh sau khi bọc (trước khi thêm ca mới).
+
+---
+
+## Viết lại hàng "Đọc kết quả" của cả 111 ví dụ (16/10/2026)
+
+**Trạng thái: CHƯA XONG — đã sửa, chờ chủ dự án đọc.**
+
+Chủ dự án khoanh hàng "Đọc kết quả" của DDM hai giai đoạn: _"cách đọc kết quả đang sai và rất khó hiểu. rà xoát lại
+toàn bộ câu ví dụ thực tế để sửa những lỗi đọc kết quả như này"_. Đoạn ấy không đọc con số 43.845 ₫, nhắc lại nguồn của
+g₁, dùng chữ màn không định nghĩa, và so độ nhạy ngược với `calc`. Chủ dự án chọn khuôn "So với [mốc]: …" tối đa hai câu,
+và cách làm nhiều agent.
+
+- Luật mới: `src/core/example-note-rules.ts` + `example-note-rules.test.ts` (111 × 2, cộng ba ca mẫu). `how-to-read-rules.ts`
+  xuất thêm `VIET_TAT`, `TU_IN_HOA` để dùng chung.
+- Viết lại: workflow 16 agent (8 nháp + 8 soát đối kháng, chạy lại `calc` cho từng số), 0 lỗi hạ tầng; tôi đọc lại cả 111 và
+  sửa tay 3 đoạn (thêm "nếu" ở EV/EBITDA, viết lại tỷ số thắng/thua và câu 2 của EMA cho dễ hiểu). Áp bằng script dò cây
+  cú pháp vào 17 file `src/core/formulas/*.ts`.
+- Kéo theo: `src/core/vi-du/items.ts` bỏ hai con số chỉ đoạn cũ mới có ("20% mệnh giá" ở DPS, "0,1538" ở k của EMA);
+  `prose-audit.test.ts` phép I chấp nhận thêm ba dạng "gấp N lần" có chỗ dựa; `ExampleBlock.test.tsx` tìm hàng Kết quả bằng
+  nguyên chữ "12,39 lần" (đoạn mới cũng nhắc 12,39).
+- `CLAUDE.md` (mục khối Ví dụ thực tế) ghi luật; `REVIEW-2.md` thêm mục đối chiếu 16/10: phát hiện nào về note đã chữa, phát
+  hiện nào ở chỗ khác vẫn còn.
+- Kiểm: `vitest` toàn bộ 159 file, 4.028 ca xanh, trừ 2 ca "dải thay số" trong `formulas.test.ts` hỏng vì
+  `substitution-cay.ts` / `DongThaySo` của session song song đang làm dở (typecheck cũng chỉ đỏ ở đó). Lint, prettier sạch.
+  Chụp `ddm-hai-giai-doan` trên dev: hàng mới hiện đúng.
+- Còn lại (chờ chủ dự án): khoảng 40 phát hiện của `REVIEW-2.md` ở tiêu đề ví dụ, mô tả ô, mục diễn giải vẫn còn — danh
+  sách ở cuối file ấy. Đặc biệt `ty-so-treynor` (E1) và `ty-so-thong-tin` (E2) ghép số không cùng gốc; hàng Đọc kết quả mới
+  nói thẳng điều đó, nhưng sửa số liệu ví dụ là việc phải quyết.
+
 ## Bảng dữ liệu: xoá hai câu dư (16/10/2026)
 
 **Trạng thái: CHƯA XONG — đã sửa, chờ chủ dự án xem.**

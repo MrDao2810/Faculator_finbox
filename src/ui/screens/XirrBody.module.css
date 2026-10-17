@@ -105,8 +105,10 @@
   cursor: pointer;
 }
 
-.removeButton:hover {
-  color: var(--color-danger);
+@media (hover: hover) {
+  .removeButton:hover {
+    color: var(--color-danger);
+  }
 }
 
 .issues {

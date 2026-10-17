@@ -39,8 +39,10 @@
   inset: -8px;
 }
 
-.calendarButton:hover {
-  color: var(--color-accent);
+@media (hover: hover) {
+  .calendarButton:hover {
+    color: var(--color-accent);
+  }
 }
 
 .calendarButton:focus-visible {

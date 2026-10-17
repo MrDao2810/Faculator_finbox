@@ -10,8 +10,8 @@ import { T } from '../i18n/T';
 /* Nhập thẳng từ file chứ không qua barrel — cùng lý do đã ghi ở `FormulaCard.tsx`. */
 import { Badge } from '../primitives/Badge';
 import { CategoryIcon, toneClass } from './CategoryIcon';
+import { DescriptionHit } from './DescriptionHit';
 import styles from './GroupCard.module.css';
-import { Highlight } from './Highlight';
 
 export interface GroupCardProps {
   category: Category;
@@ -25,7 +25,10 @@ export interface GroupCardProps {
   total?: number;
   /** Số dòng KHỚP khi đang tìm — đầu thẻ in "7 / 13". Chỉ có nghĩa khi có `total`. */
   hits?: number;
-  /** Chuỗi đang tìm, để tô sáng đoạn khớp. Rỗng thì chữ hiện nguyên. */
+  /**
+   * Chuỗi đang tìm. Dòng KHỚP PHỤ tô vàng cụm khớp trong mô tả; tên không tô (16/10/2026, cùng luật
+   * với màn Công thức, xem `DescriptionHit`). Rỗng thì chữ hiện nguyên.
+   */
   query?: string;
   /** Gọi khi bấm một dòng — nơi gọi dùng để ghi "Tìm gần đây" (WF-09). */
   onSelect?: (formula: FormulaSummary) => void;
@@ -109,12 +112,10 @@ export function GroupCard({
               }}
             >
               <span className={styles.body}>
-                <span className={styles.formulaName}>
-                  <Highlight text={pick(formula.name)} query={query} />
-                </span>
+                <span className={styles.formulaName}>{pick(formula.name)}</span>
                 {showHints && (
                   <span className={styles.hint}>
-                    <Highlight text={pick(formula.description)} query={query} />
+                    <DescriptionHit formula={formula} query={query} />
                   </span>
                 )}
               </span>

@@ -146,7 +146,9 @@
   transform: translateY(-50%);
 }
 
-.noneInChip:hover {
-  border-color: var(--color-accent);
-  background: var(--color-accent-soft);
+@media (hover: hover) {
+  .noneInChip:hover {
+    border-color: var(--color-accent);
+    background: var(--color-accent-soft);
+  }
 }

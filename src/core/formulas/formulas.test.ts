@@ -30,8 +30,8 @@ import { MARKET_CONFIG } from '../market';
 import { scheduleOrDefault } from '../market/resolve';
 import { latexSymbolTokens } from '../latex-symbols';
 import { evaluateWorked } from '../quiz/worked-line';
-import { laKhoaHangSo, substitutionKeys } from '../substitution';
-import { datSoThaySo } from '../substitution-cay';
+import { giaTriKetQua, laKhoaHangSo, laKhoaKetQua, substitutionKeys } from '../substitution';
+import { datSoThaySo, giaTriMauDayDu } from '../substitution-cay';
 import { substitutionShape } from '../substitution-shape';
 import { chuCuaCay, tinhCay } from '../quiz/nut';
 import { createRegistry, defaultInputs } from '../registry/build';
@@ -230,12 +230,16 @@ describe('Registry với toàn bộ công thức thật', () => {
       if (hinh === null) throw new Error(`${id} — không phân tích được mẫu thay số`);
 
       const oNhap = { ...defaultInputs(formula.spec), ...example.inputs };
-      const cay = datSoThaySo(hinh, { ...oNhap, ...substitutionConstants(formula.spec, ctxDoi) });
-      expect(cay, `${id} — thiếu số cho một chỗ trống khi đổi biểu phí`).not.toBeNull();
-      if (cay === null) continue;
-
-      const theoDai = tinhCay(cay);
       const theoCalc = runFormula(formula, oNhap, ctxDoi).value;
+      const dong = datSoThaySo(
+        hinh,
+        { ...oNhap, ...substitutionConstants(formula.spec, ctxDoi) },
+        theoCalc ?? undefined,
+      );
+      expect(dong, `${id} — không in được dải bấm lại ra đúng số khi đổi biểu phí`).not.toBeNull();
+      if (dong === null) continue;
+
+      const theoDai = tinhCay(dong.cay);
       const theoCalcGoc = runFormula(formula, oNhap, CTX).value;
       expect(theoCalc, `${id} — calc phải tính được với biểu phí thử`).not.toBeNull();
       expect(theoDai, `${id} — không tính lại được dải`).not.toBeNull();
@@ -250,9 +254,10 @@ describe('Registry với toàn bộ công thức thật', () => {
     }
 
     /*
-     * Ghim danh sách: 13 công thức tra hằng số có mẫu. `loi-nhuan-rong` là công thức thứ 14 và cố ý
-     * KHÔNG có — nó dùng thân riêng (bảng bóc tách WF-08) chứ không dùng thẻ gộp, mà dải thay số
-     * chỉ sống trong thẻ gộp, nên một mẫu ở đó là dữ liệu không màn nào đọc.
+     * Ghim danh sách: cả 14 công thức tra hằng số có mẫu. `loi-nhuan-rong` từng là ngoại lệ — nó
+     * dùng thân riêng (bảng bóc tách WF-08), mà tới 16/10/2026 dải thay số chỉ sống trong thẻ gộp.
+     * Từ ngày ấy dải có ở mọi khuôn màn (thân riêng tự in kết quả thì đặt dải ngay sau con số của
+     * nó), và chủ dự án đòi mọi công thức đều có, nên ngoại lệ hết lý do.
      */
     expect(daThu.sort()).toEqual([
       'co-vi-the-phai-sinh',
@@ -260,6 +265,7 @@ describe('Registry với toàn bộ công thức thật', () => {
       'gia-hoa-von',
       'lai-lo-vi-the-long',
       'lai-lo-vi-the-short',
+      'loi-nhuan-rong',
       'phi-giao-dich-ban',
       'phi-giao-dich-mua',
       'phi-luu-ky',
@@ -273,7 +279,7 @@ describe('Registry với toàn bộ công thức thật', () => {
       ALL_FORMULAS.filter(
         (spec) => (spec.usesConstants?.length ?? 0) > 0 && spec.substitution === undefined,
       ).map((spec) => spec.id),
-    ).toEqual(['loi-nhuan-rong']);
+    ).toEqual([]);
   });
 
   /*
@@ -284,29 +290,81 @@ describe('Registry với toàn bộ công thức thật', () => {
    * chạy (`substitutionShape` → `datSoThaySo`). Gác đường cũ trong khi màn chạy đường mới là để
    * ngỏ đúng khoảng trống mà một ca kiểm sinh ra để bịt.
    *
-   * Lời hứa được gác vẫn y nguyên: ai lấy máy tính bấm lại đúng thứ đang hiện trên màn phải ra
-   * đúng con số khối Kết quả in. Khác ở chỗ "thứ đang hiện trên màn" giờ là một hình vẽ, nên phép
-   * tính lại chạy trên chính cái cây được vẽ.
+   * ── Từ 16/10/2026: CHUẨN XÁC TUYỆT ĐỐI, không còn dung sai 0,5% ──────────────────────────
+   *
+   * Lời hứa của dòng: ai lấy máy tính bấm lại đúng thứ đang hiện trên màn phải ra đúng con số khối
+   * Kết quả in. Ca cũ cho lệch 0,5%, và dưới mức ấy có lỗi thật: dải của `tra-gop-nien-kim` in
+   * `i = 0,00791667` rồi `= 7.457.049,5`, bấm lại ra 7.457.051,59. Chủ dự án đòi "chuẩn xác tuyệt
+   * đối vì đây là tính toán chi tiết mà người dùng sử dụng". Nên nay hai vế, tách nhau:
+   *
+   *   · MẪU LÀ CÙNG MỘT PHÉP TÍNH với `calc`: tính mẫu ở độ chính xác đầy đủ, lệch `calc` không quá
+   *     1e-9 (tương đối). Một mẫu xấp xỉ — dù chỉ lệch ở chữ số thứ năm — đỏ ở đây.
+   *   · DÒNG IN RA BẤM LẠI ĐÚNG CHUỖI SỐ: `datSoThaySo` tăng chữ số lẻ tới khi khớp; ca này đòi nó
+   *     khớp được (không trả `null`), rồi tự bấm lại các số in ra để chắc.
+   *
+   * Và không chỉ trên số của ví dụ: thêm số mặc định, mọi ô nhập cùng nhân 0,9 rồi 1,1, và từng lựa
+   * chọn của ô chọn — một mẫu đúng ở đúng một bộ số là một mẫu chưa được chứng minh.
    */
-  it('dòng thay số bấm lại ra đúng kết quả của ví dụ', () => {
+  function boSoThu(formula: (typeof FORMULA_MODULES)[number]): Array<Record<string, number>> {
+    const { spec } = formula;
+    const goc = { ...defaultInputs(spec), ...spec.example.inputs };
+    const dieuChinh = (heSo: number): Record<string, number> => {
+      const bo: Record<string, number> = { ...goc };
+      for (const variable of spec.variables) {
+        if (variable.options !== undefined || variable.key === spec.repeat?.countKey) continue;
+        const v = goc[variable.key];
+        if (v === undefined || v === 0) continue;
+        const moi = clampToSpec(Number((v * heSo).toPrecision(10)), variable);
+        bo[variable.key] = Number.isInteger(v) && variable.step === 1 ? Math.round(moi) : moi;
+      }
+      return bo;
+    };
+    const bo: Array<Record<string, number>> = [
+      goc,
+      defaultInputs(spec),
+      dieuChinh(0.9),
+      dieuChinh(1.1),
+    ];
+    for (const variable of spec.variables) {
+      for (const option of variable.options ?? []) {
+        bo.push({ ...goc, [variable.key]: option.value });
+      }
+    }
+    return bo;
+  }
+
+  it('dòng thay số chuẩn xác tuyệt đối: cùng phép tính với calc, và bấm lại ra đúng số in', () => {
     for (const formula of FORMULA_MODULES) {
-      const { id, substitution, substitutionDerived, variables, example } = formula.spec;
+      const {
+        id,
+        substitution,
+        substitutionDerived,
+        substitutionRepeat,
+        substitutionRhs,
+        variables,
+      } = formula.spec;
       if (substitution === undefined) continue;
 
       /*
-       * Khoá hợp lệ của một mẫu gồm ba loại: ô nhập, ký hiệu dẫn xuất khai trước đó, và (từ
-       * 13/10/2026) hằng số thị trường. Loại thứ ba có ca riêng phía trên soát nó với
-       * `usesConstants`, nên ở đây chỉ cần nhận ra nó để khỏi báo nhầm là "không phải ô nhập".
+       * Khoá hợp lệ của một mẫu: ô nhập, ký hiệu dẫn xuất khai trước đó, hằng số thị trường (có ca
+       * riêng phía trên soát với `usesConstants`), số `calc` trả (`{@…}`, kiểm bằng cách dải phải
+       * dựng được bên dưới), và chỗ nhường cho một phần lặp.
        */
       const oNhap = new Set(variables.map((variable) => variable.key));
       const danXuat = Object.entries(substitutionDerived ?? {});
+      const lap = Object.entries(substitutionRepeat ?? {});
+      /* Khoá có `#` (theo chỉ số) hợp lệ khi bản chỉ số 1 của nó hợp lệ, hoặc chính nó đã khai. */
+      const hopLe = (key: string, daKhai: ReadonlySet<string>): boolean =>
+        [key, key.replace('#', '1')].some(
+          (k) => oNhap.has(k) || daKhai.has(k) || laKhoaHangSo(k) || laKhoaKetQua(k),
+        );
 
       /*
        * Khoá dẫn xuất trùng tên một ô nhập thì giá trị tính ra sẽ ĐÈ lên số người dùng gõ, lặng lẽ.
        * Không phép tính nào sai, chỉ con số trong hình là của người khác.
        */
-      for (const [khoa] of danXuat) {
-        expect(oNhap.has(khoa), `${id} — khoá dẫn xuất "${khoa}" trùng tên một ô nhập`).toBe(false);
+      for (const [khoa] of [...danXuat, ...lap]) {
+        expect(oNhap.has(khoa), `${id} — khoá "${khoa}" của mẫu trùng tên một ô nhập`).toBe(false);
       }
 
       /* Biểu thức dẫn xuất chỉ được nhắc ô nhập và khoá khai TRƯỚC nó — thứ tự khai là thứ tự tính. */
@@ -314,16 +372,33 @@ describe('Registry với toàn bộ công thức thật', () => {
       for (const [khoa, bieuThuc] of danXuat) {
         for (const key of substitutionKeys(bieuThuc)) {
           expect(
-            oNhap.has(key) || daKhai.has(key) || laKhoaHangSo(key),
+            hopLe(key, daKhai),
             `${id}.${khoa} — nhắc tới "${key}", không phải ô nhập và cũng chưa khai trước đó`,
           ).toBe(true);
         }
         daKhai.add(khoa);
       }
 
-      for (const key of substitutionKeys(substitution)) {
+      /* Số hạng của phần lặp: `#` đổi thành chỉ số đầu, khoá đúng bằng `#` là chính chỉ số. */
+      for (const [khoa, khai] of lap) {
+        expect(hopLe(khai.count, daKhai), `${id}.${khoa} — khoá đếm "${khai.count}" lạ`).toBe(true);
+        for (const key of substitutionKeys(khai.term)) {
+          if (key === '#') continue;
+          expect(
+            hopLe(key, daKhai),
+            `${id}.${khoa} — số hạng nhắc tới "${key}", không phải ô nhập`,
+          ).toBe(true);
+        }
+      }
+
+      const choLap = new Set(lap.map(([khoa]) => khoa));
+      for (const key of [
+        ...substitutionKeys(substitution),
+        ...substitutionKeys(substitutionRhs ?? ''),
+        ...Object.values(formula.spec.substitutionCases?.byValue ?? {}).flatMap(substitutionKeys),
+      ]) {
         expect(
-          oNhap.has(key) || daKhai.has(key) || laKhoaHangSo(key),
+          hopLe(key, daKhai) || choLap.has(key),
           `${id} — mẫu thay số nhắc tới "${key}", không phải ô nhập và cũng không khai dẫn xuất`,
         ).toBe(true);
       }
@@ -332,42 +407,82 @@ describe('Registry với toàn bộ công thức thật', () => {
       expect(hinh, `${id} — không phân tích được mẫu thay số`).not.toBeNull();
       if (hinh === null) continue;
 
-      /* Ba nguồn số, đúng như màn trộn chúng: mặc định, số của ví dụ, rồi hằng số của biểu phí. */
-      const cay = datSoThaySo(hinh, {
-        ...defaultInputs(formula.spec),
-        ...example.inputs,
-        ...substitutionConstants(formula.spec, CTX),
-      });
-      expect(cay, `${id} — thiếu số cho một chỗ trống của mẫu thay số`).not.toBeNull();
-      if (cay === null) continue;
+      const ctx = ctxCuaViDu(formula.spec);
+      let daThu = 0;
+      for (const bo of boSoThu(formula)) {
+        const out = runFormula(formula, bo, ctx);
+        if (out.value === null) continue;
 
-      const again = tinhCay(cay);
-      expect(again, `${id} — không tính lại được hình thay số`).not.toBeNull();
-      expect(
-        Math.abs((again ?? 0) - example.expected) / Math.max(Math.abs(example.expected), 1),
-        `${id} — hình thay số ra ${String(again)}, ví dụ ra ${String(example.expected)}`,
-      ).toBeLessThanOrEqual(0.005);
+        /* Bốn nguồn số, đúng như màn trộn chúng. */
+        const values = {
+          ...bo,
+          ...substitutionConstants(formula.spec, ctx),
+          ...giaTriKetQua(out.extras),
+        };
+        const nhan = `${id} ${JSON.stringify(bo)}`;
 
-      /*
-       * Nhãn `aria-label` của hình phải nói ĐÚNG phép tính mà hình vẽ ra.
-       *
-       * Hình gom bằng hình học — gạch phân số, vạch căn, chữ nhỏ nâng lên — còn chữ thì chỉ gom
-       * được bằng dấu ngoặc. Lỗi thật đã gặp ngày 05/10/2026: nhãn của `tra-gop-nien-kim` đọc ra
-       * `… ÷ (1 + i)^240 − 1`, tức mẫu số mất cặp ngoặc, nên người dùng bàn phím nghe một phép tính
-       * khác hẳn thứ người dùng chuột đang nhìn. Không cửa gác nào khác thấy được: hình vẫn đúng,
-       * con số vẫn đúng, chỉ cái nhãn là sai.
-       *
-       * Phép kiểm chặt nhất có thể: viết cây ra chữ rồi ĐỌC LẠI bằng bộ phân tích, hai con số phải
-       * trùng nhau tới từng chữ số — đây là cùng một biểu thức nên không có chỗ cho dung sai.
-       */
-      const chu = chuCuaCay(cay);
-      const docLai = evaluateWorked(chu);
-      expect(docLai, `${id} — không đọc lại được nhãn chữ của hình: ${chu}`).not.toBeNull();
-      expect(
-        Math.abs((docLai ?? 0) - (again ?? 0)) / Math.max(Math.abs(again ?? 1), 1),
-        `${id} — nhãn chữ ra ${String(docLai)} còn hình ra ${String(again)}: ${chu}`,
-      ).toBeLessThanOrEqual(1e-9);
+        const day = giaTriMauDayDu(hinh, values);
+        expect(day, `${nhan} — thiếu số cho một chỗ trống của mẫu`).not.toBeNull();
+        if (day === null) continue;
+        if (substitutionRhs === undefined) {
+          expect(
+            Math.abs(day.veTrai - out.value) / Math.max(Math.abs(out.value), 1),
+            `${nhan} — mẫu ra ${String(day.veTrai)}, calc ra ${String(out.value)}`,
+          ).toBeLessThanOrEqual(1e-9);
+        }
+
+        const dong = datSoThaySo(hinh, values, out.value);
+        expect(dong, `${nhan} — không in được dòng nào bấm lại ra đúng số`).not.toBeNull();
+        if (dong === null) continue;
+
+        const lai = tinhCay(dong.cay);
+        expect(lai, `${nhan} — không tính lại được hình thay số`).not.toBeNull();
+        expect(formatNumber(lai ?? Number.NaN).replace(/^-0$/, '0'), nhan).toBe(
+          formatNumber(dong.vePhai).replace(/^-0$/, '0'),
+        );
+        if (substitutionRhs === undefined) {
+          expect(dong.dau, nhan).toBe('=');
+          expect(formatNumber(dong.vePhai), nhan).toBe(formatNumber(out.value));
+        } else {
+          expect(dong.dau, nhan).toBe('≈');
+        }
+
+        /*
+         * Nhãn `aria-label` của hình phải nói ĐÚNG phép tính mà hình vẽ ra.
+         *
+         * Hình gom bằng hình học — gạch phân số, vạch căn, chữ nhỏ nâng lên — còn chữ thì chỉ gom
+         * được bằng dấu ngoặc. Lỗi thật đã gặp ngày 05/10/2026: nhãn của `tra-gop-nien-kim` đọc ra
+         * `… ÷ (1 + i)^240 − 1`, tức mẫu số mất cặp ngoặc, nên người dùng bàn phím nghe một phép
+         * tính khác hẳn thứ người dùng chuột đang nhìn.
+         *
+         * Phép kiểm chặt nhất có thể: viết cây ra chữ rồi ĐỌC LẠI bằng bộ phân tích, hai con số phải
+         * trùng nhau tới từng chữ số — đây là cùng một biểu thức nên không có chỗ cho dung sai.
+         */
+        const chu = chuCuaCay(dong.cay);
+        const docLai = evaluateWorked(chu);
+        expect(docLai, `${nhan} — không đọc lại được nhãn chữ của hình: ${chu}`).not.toBeNull();
+        expect(
+          Math.abs((docLai ?? 0) - (lai ?? 0)) / Math.max(Math.abs(lai ?? 1), 1),
+          `${nhan} — nhãn chữ ra ${String(docLai)} còn hình ra ${String(lai)}: ${chu}`,
+        ).toBeLessThanOrEqual(1e-9);
+
+        daThu += 1;
+      }
+
+      expect(daThu, `${id} — không bộ số nào tính được để thử dải thay số`).toBeGreaterThan(0);
     }
+  });
+
+  /*
+   * Chủ dự án, 16/10/2026: "toàn bộ công thức đều có đầy đủ phần tôi yêu cầu". Trước ngày ấy 50
+   * trên 111 công thức không có dải — 35 công thức ăn chuỗi giá, 9 công thức không dùng thẻ gộp, 3
+   * thân riêng và 4 công thức có số số hạng thay đổi hay phải dò nghiệm. Danh sách ngoại lệ RỖNG, và
+   * phải giữ rỗng: công thức mới nào vào Registry cũng phải mang mẫu.
+   */
+  it('MỌI công thức đều có dòng thay số', () => {
+    expect(
+      ALL_FORMULAS.filter((spec) => spec.substitution === undefined).map((spec) => spec.id),
+    ).toEqual([]);
   });
 
   /*
@@ -632,6 +747,26 @@ describe('Registry với toàn bộ công thức thật', () => {
       ),
     );
     expect(coGach, `bảng ký hiệu có gạch ngang:\n${coGach.join('\n')}`).toEqual([]);
+  });
+
+  /*
+   * Lỗi thật đã gặp (16/10/2026): `ty-so-treynor` ghi "hệ số beta của danh mục, lần (ô nhập tay)", và
+   * chủ dự án khoanh đúng cái ngoặc ấy, gọi là "đoạn text vô nghĩa". Mọi ô ở khối Số liệu đều nhập tay,
+   * nên ngoặc không nói gì về β. Cùng lần rà ra chín dòng "số phiên nhìn lại (ô Số phiên nhìn lại)": ngoặc
+   * chép lại đúng chữ đứng trước nó. Khi tên ô thật sự cần (đại lượng tính theo một ô không có mặt trên
+   * hình), nó vào câu bằng chữ: ", tính theo ô Thời gian nắm giữ", ", tức ô Ngưỡng bỏ qua phiên đi
+   * ngang" — không bao giờ là một cái ngoặc dán đuôi.
+   */
+  it('nghĩa của ký hiệu không mang lời chú về ô nhập trong ngoặc', () => {
+    const chuO = /\(ô |nhập tay|field\)|entered manually/;
+    const sai = canKiemKyHieu.flatMap((spec) =>
+      (spec.symbols ?? []).flatMap((symbol) =>
+        (['vi', 'en'] as const)
+          .filter((ngon) => chuO.test(symbol.meaning[ngon]))
+          .map((ngon) => `${spec.id} · ${symbol.latex} · ${ngon}: "${symbol.meaning[ngon]}"`),
+      ),
+    );
+    expect(sai, `bảng ký hiệu có lời chú về ô nhập:\n${sai.join('\n')}`).toEqual([]);
   });
 
   /*

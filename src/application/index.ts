@@ -68,8 +68,9 @@ export {
  * `substitutionShape` dựng cây lúc build và nằm ở `@/application/thay-so` (không qua barrel, vì nó
  * kéo theo bộ phân tích cú pháp); `datSoThaySo` đặt số lúc chạy và đi qua đây vì nó nhẹ.
  */
-export type { DanXuatCay, ThaySoCay } from '@/core/substitution-cay';
+export type { DanXuatCay, DongThaySo, LapCay, ThaySoCay } from '@/core/substitution-cay';
 export { datSoThaySo } from '@/core/substitution-cay';
+export { giaTriKetQua } from '@/core/substitution';
 
 // ── Trạng thái ô nhập — 5 trạng thái WF-16 (gói 2.3.1) ──────────────────────
 export type { InputState, InputStateArgs, InputStateResult } from '@/core/input-state';
@@ -371,6 +372,8 @@ export type {
   HighlightPart,
   Registry,
   RegistryIssue,
+  SearchLang,
+  SearchMatch,
   Segment,
 } from '@/core/registry';
 
@@ -393,12 +396,14 @@ export {
   expectedCountOf,
   featuredFormulas,
   findCategory,
+  descriptionHitParts,
   formulasForLevel,
+  hasSearchTerms,
   highlightParts,
+  // Xếp MỘT công thức vào tầng khớp, cho nơi cần LỌC một danh sách đã có thứ tự riêng thay vì sắp
+  // lại theo độ liên quan (xem `FormulaForTickerSheet`).
+  matchFormula,
   normalizeVi,
-  // `scoreFormula` + `tokenize`: hai mảnh rời của phép tìm, cho nơi cần LỌC một danh sách đã có
-  // thứ tự riêng thay vì sắp lại theo độ liên quan (xem `FormulaForTickerSheet`).
-  scoreFormula,
   searchFormulas,
   selectFormulas,
   tokenize,

@@ -29,6 +29,8 @@ export type { VirtualListProps } from './VirtualList';
 export { SearchResults } from './SearchResults';
 export type { SearchResultsProps } from './SearchResults';
 
+export { DescriptionHit } from './DescriptionHit';
+export type { DescriptionHitProps } from './DescriptionHit';
 export { Highlight } from './Highlight';
 export type { HighlightProps } from './Highlight';
 

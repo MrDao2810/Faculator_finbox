@@ -15,6 +15,7 @@ import { T } from '../i18n/T';
  */
 import { Badge } from '../primitives/Badge';
 import { CategoryIcon, toneClass } from './CategoryIcon';
+import { DescriptionHit } from './DescriptionHit';
 import styles from './FormulaCard.module.css';
 
 export interface FormulaCardProps {
@@ -44,6 +45,12 @@ export interface FormulaCardProps {
    * mới: màn Công thức chỉ đánh dấu "rời màn để xem kết quả" ở ca đầu (xem `markResultOpened()`).
    */
   onSelect?: (formula: FormulaSummary, event: ReactMouseEvent<HTMLAnchorElement>) => void;
+  /**
+   * Chuỗi đang tìm — chỉ nơi gọi phía client truyền, và chỉ khi đang tìm. Có nó thì thẻ KHỚP PHỤ
+   * tô vàng cụm khớp trong mô tả (xem `DescriptionHit`); không có thì mô tả hiện nguyên như cũ.
+   * Chỉ biến thể hàng dùng: kệ ô của trang chủ bị ẩn khi đang tìm.
+   */
+  query?: string;
 }
 
 /**
@@ -68,6 +75,7 @@ function FormulaCardBase({
   showCategory = true,
   variant = 'row',
   onSelect,
+  query,
 }: FormulaCardProps) {
   const category = findCategory(formula.categoryId);
   const isBasic = formula.level === 'basic';
@@ -164,7 +172,11 @@ function FormulaCardBase({
         </span>
 
         <p className={styles.description}>
-          <Pick value={formula.description} />
+          {query === undefined ? (
+            <Pick value={formula.description} />
+          ) : (
+            <DescriptionHit formula={formula} query={query} />
+          )}
         </p>
 
         {showCategory && category !== undefined && (

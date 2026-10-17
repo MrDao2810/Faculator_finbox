@@ -114,6 +114,18 @@ export function sampleStdDev(values: ReadonlyArray<number>): number {
 }
 
 /**
+ * Độ lệch chuẩn TỔNG THỂ (chia n) — quy ước của dải Bollinger: Bollinger coi n phiên trong cửa sổ là
+ * cả tổng thể đang mô tả, không phải mẫu rút ra để ước lượng gì khác. Chủ dự án chốt 16/10/2026 (Q1 ở
+ * `REVIEW-2.md`), khi khoanh "n − 1" trong khung cách tính của dải trên. Dưới 1 phần tử trả NaN.
+ */
+export function populationStdDev(values: ReadonlyArray<number>): number {
+  if (values.length < 1) return Number.NaN;
+  const average = mean(values);
+  const squared = values.reduce((sum, value) => sum + (value - average) ** 2, 0);
+  return Math.sqrt(squared / values.length);
+}
+
+/**
  * Mức sụt giảm sâu nhất từ đỉnh (max drawdown), trả PHÂN SỐ DƯƠNG: 0,25 nghĩa là đáy từng
  * thấp hơn đỉnh trước đó 25%. Chuỗi tăng đều trả 0 — không rơi phiên nào là drawdown 0, đó
  * là kết quả thật chứ không phải lỗi.

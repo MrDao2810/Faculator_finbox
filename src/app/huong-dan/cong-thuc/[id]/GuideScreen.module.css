@@ -132,8 +132,14 @@
   text-decoration: none;
 }
 
-.railLink:hover,
 .railLink:focus-visible {
   color: var(--color-accent);
   text-decoration: underline;
+}
+
+@media (hover: hover) {
+  .railLink:hover {
+    color: var(--color-accent);
+    text-decoration: underline;
+  }
 }

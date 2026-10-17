@@ -42,7 +42,12 @@
   text-decoration: none;
 }
 
-.full:hover,
 .full:focus-visible {
   text-decoration: underline;
+}
+
+@media (hover: hover) {
+  .full:hover {
+    text-decoration: underline;
+  }
 }

@@ -68,10 +68,10 @@ const EMA_TIN_HIEU: ReadonlyArray<HowToStep> = [
     },
   },
   {
-    latex: 'EMA_{tin hieu} = MACD_t \\times k + EMA_{t-1} \\times (1 - k)',
+    latex: 'EMA_{tin hieu} = MACD_t \\times k + EMA_{tin hieu,\\,t-1} \\times (1 - k)',
     expression: {
-      vi: 'EMA chu kỳ tín hiệu = MACD phiên t × k + EMA phiên trước × (1 − k), EMA đầu tiên là trung bình n giá trị MACD đầu',
-      en: 'EMA of the signal period = MACD of session t × k + Previous EMA × (1 − k), the first EMA is the average of the first n MACD values',
+      vi: 'EMA chu kỳ tín hiệu = MACD phiên t × k + EMA chu kỳ tín hiệu phiên trước × (1 − k), EMA đầu tiên là trung bình n giá trị MACD đầu',
+      en: 'EMA of the signal period = MACD of session t × k + Previous signal EMA × (1 − k), the first EMA is the average of the first n MACD values',
     },
   },
 ];
@@ -86,10 +86,10 @@ const TRUNG_BINH_TANG: ReadonlyArray<HowToStep> = [
     },
   },
   {
-    latex: '\\overline{Gain}_n = \\frac{G_1 + G_2 + \\dots + G_n}{n}',
+    latex: '\\overline{Gain}_n = \\frac{G_2 + \\dots + G_{n+1}}{n}',
     expression: {
-      vi: 'Trung bình tăng đầu tiên = Tổng n mức tăng đầu tiên của chuỗi ÷ Số phiên n',
-      en: 'First average gain = Sum of the first n gains in the series ÷ Number of periods n',
+      vi: 'Trung bình tăng đầu tiên = Tổng n mức tăng đầu tiên của chuỗi, từ phiên thứ hai ÷ Số phiên n',
+      en: 'First average gain = Sum of the first n gains in the series, from the second session ÷ Number of periods n',
     },
   },
   {
@@ -111,10 +111,10 @@ const TRUNG_BINH_GIAM: ReadonlyArray<HowToStep> = [
     },
   },
   {
-    latex: '\\overline{Loss}_n = \\frac{L_1 + L_2 + \\dots + L_n}{n}',
+    latex: '\\overline{Loss}_n = \\frac{L_2 + \\dots + L_{n+1}}{n}',
     expression: {
-      vi: 'Trung bình giảm đầu tiên = Tổng n mức giảm đầu tiên của chuỗi ÷ Số phiên n',
-      en: 'First average loss = Sum of the first n losses in the series ÷ Number of periods n',
+      vi: 'Trung bình giảm đầu tiên = Tổng n mức giảm đầu tiên của chuỗi, từ phiên thứ hai ÷ Số phiên n',
+      en: 'First average loss = Sum of the first n losses in the series, from the second session ÷ Number of periods n',
     },
   },
   {

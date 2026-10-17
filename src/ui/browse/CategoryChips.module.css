@@ -84,9 +84,11 @@
   transform: translateY(-50%);
 }
 
-.face:hover {
-  border-color: var(--color-accent);
-  background: var(--color-accent-soft);
+@media (hover: hover) {
+  .face:hover {
+    border-color: var(--color-accent);
+    background: var(--color-accent-soft);
+  }
 }
 
 /*
@@ -164,9 +166,11 @@ input:checked + .face .count {
     cursor: pointer;
   }
 
-  .arrow:hover:not(:disabled) {
-    color: var(--color-accent);
-    border-color: var(--color-accent);
+  @media (hover: hover) {
+    .arrow:hover:not(:disabled) {
+      color: var(--color-accent);
+      border-color: var(--color-accent);
+    }
   }
 
   /* Hết đường cuộn thì nút mờ đi và thôi nhận chuột — vẫn giữ chỗ để hàng không xô lệch. */

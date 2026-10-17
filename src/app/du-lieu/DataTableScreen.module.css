@@ -249,8 +249,10 @@
   cursor: pointer;
 }
 
-.issueJump:hover {
-  text-decoration: underline;
+@media (hover: hover) {
+  .issueJump:hover {
+    text-decoration: underline;
+  }
 }
 
 .issueBody {
@@ -386,8 +388,10 @@
   color: var(--color-muted);
 }
 
-.cell:hover {
-  border-color: var(--color-accent);
+@media (hover: hover) {
+  .cell:hover {
+    border-color: var(--color-accent);
+  }
 }
 
 /*
@@ -459,8 +463,10 @@
   cursor: pointer;
 }
 
-.removeButton:hover {
-  color: var(--color-danger);
+@media (hover: hover) {
+  .removeButton:hover {
+    color: var(--color-danger);
+  }
 }
 
 /*

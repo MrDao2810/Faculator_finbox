@@ -378,6 +378,19 @@ function gapNLanMaKhongGap(): Finding[] {
           (x) => x !== 0 && Math.abs(Math.abs(ketQua / x) - boi) / boi < 0.35,
         );
         if (khop) continue;
+        /*
+         * Từ 16/10/2026 hàng "Đọc kết quả" của ví dụ đọc kết quả bằng chính con số của nó, nên còn
+         * ba cách "gấp N lần" có chỗ dựa mà phép trên không thấy: N là chính kết quả ("gấp 8,14
+         * lần" ở EV/EBITDA), N là mức nhân của một kết quả % ("tăng 176,65%, gấp khoảng 2,77 lần"),
+         * hay N là tỷ lệ của hai con số đứng ngay trong câu ("30,44% … 18,59% … gấp khoảng 1,6 lần").
+         * Bội số không dựa vào con số nào vẫn đỏ như cũ.
+         */
+        const gan = (x: number): boolean => Math.abs(x - boi) / boi < 0.06;
+        if (gan(Math.abs(ketQua)) || (spec.resultUnit === '%' && gan(1 + ketQua / 100))) continue;
+        const soTrongCau = [...text.matchAll(/\d+(?:\.\d{3})*(?:,\d+)?/g)]
+          .map((s) => Number(s[0].replace(/\./g, '').replace(',', '.')))
+          .filter((x) => Number.isFinite(x) && x > 0);
+        if (soTrongCau.some((a) => soTrongCau.some((b) => b !== a && gan(a / b)))) continue;
         out.push({
           id: spec.id,
           truong,

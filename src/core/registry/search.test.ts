@@ -5,8 +5,8 @@ import {
   countBySegmentFor,
   countHiddenByLevel,
   formulasForLevel,
+  matchFormula,
   normalizeVi,
-  scoreFormula,
   searchFormulas,
   selectFormulas,
   tokenize,
@@ -163,37 +163,166 @@ describe('searchFormulas() — NFR-USA-03, gõ không dấu vẫn ra đúng', ()
   });
 });
 
-describe('scoreFormula()', () => {
-  it('không khớp thì 0 điểm', () => {
-    expect(scoreFormula(PE, tokenize('vay no'))).toBe(0);
+describe('matchFormula()', () => {
+  it('không khớp thì tầng 0, điểm 0', () => {
+    expect(matchFormula(PE, 'vay no')).toEqual({ tier: 0, score: 0 });
   });
 
-  it('từ khoá rỗng thì 0 điểm', () => {
-    expect(scoreFormula(PE, [])).toBe(0);
+  it('chuỗi rỗng hoặc toàn dấu ngăn thì không khớp', () => {
+    expect(matchFormula(PE, '').tier).toBe(0);
+    expect(matchFormula(PE, ' -- ').tier).toBe(0);
   });
 
   it('công thức nổi bật được cộng điểm (FR-20)', () => {
-    const featured = scoreFormula(HOA_VON, tokenize('gia'));
-    const plain = scoreFormula(make({ ...HOA_VON, isFeatured: false }), tokenize('gia'));
+    const featured = matchFormula(HOA_VON, 'gia').score;
+    const plain = matchFormula(make({ ...HOA_VON, isFeatured: false }), 'gia').score;
     expect(featured).toBeGreaterThan(plain);
   });
 
   /*
-   * Chỉ mục từ khoá (`FIELD_INDEX`, đợt 13) nhớ bộ từ đã cắt theo THAM CHIẾU object. Hai điều
+   * Chỉ mục mảnh (`FIELD_INDEX`, đợt 13) nhớ bộ mảnh đã cắt theo THAM CHIẾU object. Hai điều
    * phải đúng, và cả hai đều lặng lẽ nếu sai — kết quả vẫn ra số, chỉ là ra số sai hoặc mất hết
    * phần nhanh.
    */
   it('chấm cùng một công thức nhiều lần luôn ra cùng một điểm', () => {
-    const lan1 = scoreFormula(PE, tokenize('dinh gia'));
-    const lan2 = scoreFormula(PE, tokenize('dinh gia'));
-    expect(lan2).toBe(lan1);
-    expect(lan1).toBeGreaterThan(0);
+    const lan1 = matchFormula(PE, 'dinh gia');
+    const lan2 = matchFormula(PE, 'dinh gia');
+    expect(lan2).toEqual(lan1);
+    expect(lan1.tier).toBe(1);
   });
 
   it('hai công thức khác nhau không dùng chung chỉ mục của nhau', () => {
     // `vay no` chỉ khớp EMI. Nếu chỉ mục lẫn khoá thì PE cũng ra điểm.
-    expect(scoreFormula(EMI, tokenize('vay'))).toBeGreaterThan(0);
-    expect(scoreFormula(PE, tokenize('vay'))).toBe(0);
+    expect(matchFormula(EMI, 'vay').tier).toBe(1);
+    expect(matchFormula(PE, 'vay').tier).toBe(0);
+  });
+});
+
+/*
+ * 16/10/2026: chủ dự án gõ "%b" ở màn Công thức và nhận 96 kết quả. Bản cũ vứt dấu "%", rồi cho
+ * "b" khớp tiền tố của bất kỳ từ nào trong tên, thẻ hay MÔ TẢ, không cần đúng thứ tự — nên "bao
+ * nhiêu", "bình quân", "biến động" đều là khớp. Các ca dưới đây chạy trên mẫu thu nhỏ của đúng
+ * những công thức đã lọt vào.
+ */
+describe('khớp cụm — "%b" không còn ra 96 kết quả', () => {
+  const PHAN_TRAM_B = make({
+    id: 'phan-tram-b-bollinger',
+    categoryId: 'technical',
+    name: { vi: '%B — vị trí giá trong dải Bollinger', en: '%B — position in the Bollinger Bands' },
+    description: {
+      vi: 'Giá đóng cửa đang nằm ở đâu giữa hai dải: 0% là dải dưới, 100% là dải trên.',
+      en: 'Where the close sits between the two bands: 0% is the lower band, 100% the upper.',
+    },
+    tags: ['bollinger', 'phan tram b'],
+  });
+  const PB = make({
+    id: 'pb',
+    categoryId: 'valuation',
+    name: { vi: 'P/B — hệ số giá trên giá trị sổ sách', en: 'P/B — price to book' },
+    description: { vi: 'Thị giá đang gấp bao nhiêu lần giá trị sổ sách của một cổ phiếu.', en: '' },
+    tags: ['pb', 'p b'],
+  });
+  const BETA = make({
+    id: 'beta',
+    categoryId: 'risk',
+    name: { vi: 'Beta — hệ số rủi ro hệ thống', en: 'Beta — systematic risk' },
+    description: {
+      vi: 'Mức một cổ phiếu biến động mạnh hay yếu hơn thị trường, 100% bám theo chỉ số khi bằng 1.',
+      en: 'How strongly a stock moves against the market.',
+    },
+  });
+  const MUC_TIEU = make({
+    id: 'gia-muc-tieu',
+    categoryId: 'valuation',
+    name: { vi: 'Giá mục tiêu', en: 'Target price' },
+    description: {
+      vi: 'Mức giá kỳ vọng nếu thị trường định giá cổ phiếu theo đúng P/E mục tiêu đã chọn.',
+      en: 'The expected price if the market values the stock at the chosen target P/E.',
+    },
+    tags: ['gia muc tieu'],
+  });
+  const CAGR = make({
+    id: 'cagr',
+    categoryId: 'returns',
+    name: { vi: 'CAGR — tăng trưởng kép hằng năm', en: 'CAGR — compound annual growth rate' },
+    tags: ['cagr', 'binh quan nam'],
+  });
+  const PEG = make({
+    id: 'peg',
+    categoryId: 'valuation',
+    name: { vi: 'PEG — P/E trên tăng trưởng', en: 'PEG — P/E to growth' },
+  });
+  const BO = [PE, PB, PHAN_TRAM_B, BETA, MUC_TIEU, CAGR, PEG];
+  const ids = (q: string, lang: 'vi' | 'en' = 'vi') => searchFormulas(BO, q, lang).map((f) => f.id);
+
+  it('"%b" chỉ ra %B — dấu % là một phần của chuỗi tìm, không phải dấu ngăn', () => {
+    expect(ids('%b')).toEqual(['phan-tram-b-bollinger']);
+  });
+
+  it('hai mảnh gõ liền nhau chỉ khớp hai mảnh cũng liền nhau: "%b" không khớp "100% bám"', () => {
+    expect(matchFormula(BETA, '%b').tier).toBe(0);
+  });
+
+  it('ký hiệu đã gõ phải có mặt: "p/e" không khớp "P/B", "p/b" không khớp "P/E"', () => {
+    expect(matchFormula(PB, 'p/e').tier).toBe(0);
+    expect(ids('p/b')).toEqual(['pb']);
+  });
+
+  it('ký hiệu người dùng không gõ thì được bỏ qua: "p e" vẫn ra "P/E"', () => {
+    expect(matchFormula(PE, 'p e').tier).toBe(1);
+    expect(matchFormula(PE, 'p/e').tier).toBe(1);
+  });
+
+  it('khớp tên lên đầu, rồi tới công thức chỉ có cụm trong mô tả', () => {
+    expect(ids('p/e')).toEqual(['pe', 'peg', 'gia-muc-tieu']);
+    expect(matchFormula(PEG, 'p/e').tier).toBe(1);
+    expect(matchFormula(MUC_TIEU, 'p/e').tier).toBe(2);
+  });
+
+  it('các từ phải đứng liền nhau, đúng thứ tự: "gia dinh" không khớp "Định giá"', () => {
+    expect(matchFormula(PE, 'gia dinh').tier).toBe(0);
+    expect(matchFormula(PE, 'dinh gia').tier).toBe(1);
+  });
+
+  it('một chữ cái không bao giờ dò mô tả — "m" không khớp "Mức giá kỳ vọng"', () => {
+    expect(matchFormula(MUC_TIEU, 'm').tier).toBe(0);
+  });
+
+  it('chuỗi ngắn chỉ khớp dở ở đầu mã hoặc tên, không ở từ khoá ẩn', () => {
+    // "binh quan nam" là từ khoá ẩn của CAGR: "b" làm CAGR lọt vào danh sách mà không thấy vì sao.
+    expect(matchFormula(CAGR, 'b').tier).toBe(0);
+    expect(matchFormula(BETA, 'b').tier).toBe(1);
+    // Đủ ba ký tự thì từ khoá ẩn khớp dở như thường.
+    expect(matchFormula(CAGR, 'bin').tier).toBe(1);
+    // Khớp TRỌN từ thì ở đâu cũng được: "b" của "%B" và "P/B".
+    expect(matchFormula(PB, 'b').tier).toBe(1);
+  });
+
+  it('ở mô tả, từ cuối chỉ khớp dở khi đã gõ từ 3 ký tự', () => {
+    expect(matchFormula(MUC_TIEU, 'ky vo').tier).toBe(0);
+    expect(matchFormula(MUC_TIEU, 'ky von').tier).toBe(2);
+    expect(matchFormula(MUC_TIEU, 'ky vong').tier).toBe(2);
+  });
+
+  it('khớp phụ dò đúng mô tả của ngôn ngữ đang hiện', () => {
+    expect(matchFormula(MUC_TIEU, 'expected price', 'en').tier).toBe(2);
+    expect(matchFormula(MUC_TIEU, 'expected price', 'vi').tier).toBe(0);
+    expect(matchFormula(MUC_TIEU, 'gia ky vong', 'vi').tier).toBe(2);
+    expect(matchFormula(MUC_TIEU, 'gia ky vong', 'en').tier).toBe(0);
+  });
+
+  it('mô tả tiếng Anh rỗng thì dò tiếng Việt — đúng thứ màn in ra', () => {
+    expect(matchFormula(PB, 'thi gia dang', 'en').tier).toBe(2);
+  });
+
+  it('trùng trọn mã đứng trên khớp phần đầu mã', () => {
+    expect(ids('pe')[0]).toBe('pe');
+  });
+
+  it('A–Z chỉ sắp TRONG từng tầng: khớp phụ vẫn đứng dưới khớp chính', () => {
+    // A–Z thuần thì "Giá mục tiêu" đứng trước "PEG" và "Tỷ số giá…".
+    const ra = selectFormulas(BO, { ...BASE_QUERY, q: 'p/e', sort: 'az' }).map((f) => f.id);
+    expect(ra).toEqual(['peg', 'pe', 'gia-muc-tieu']);
   });
 });
 

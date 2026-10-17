@@ -7,12 +7,15 @@
  * ứng với ký tự thứ mấy của chuỗi GỐC. Viết trong JSX thì chỉ kiểm được bằng mắt; ở đây kiểm
  * được bằng Node.
  *
- * Luật tô phải khớp đúng luật chấm điểm của `scoreFormula`: khớp theo TIỀN TỐ của một từ.
- * Tô kiểu khác thì người dùng thấy một dòng kết quả không có chữ nào được tô, và tưởng máy
- * trả sai.
+ * Luật tô LÀ luật khớp: cả hai đi qua `phraseHits()` của `phrase.ts`, với cùng ngưỡng tiền tố
+ * `TIEN_TO_MO_TA` mà `matchFormula` dùng cho mô tả. Tô theo một luật khác thì người dùng thấy một
+ * thẻ khớp phụ không có chữ nào được tô, và tưởng máy trả sai (16/10/2026: chủ dự án gặp đúng
+ * cảnh ấy với 41 thẻ của "%b", nhưng ở màn Công thức khi đó chưa tô gì cả).
  */
 
-import { normalizeVi, tokenize } from './search';
+import { normalizeVi, phraseHits, terms } from './phrase';
+import { descriptionText, matchFormula, TIEN_TO_MO_TA, type SearchLang } from './search';
+import type { FormulaSummary } from './types';
 
 /** Một đoạn khớp, tính bằng chỉ số trong chuỗi GỐC. `end` là vị trí sau ký tự cuối. */
 export interface HighlightRange {
@@ -26,109 +29,46 @@ export interface HighlightPart {
   hit: boolean;
 }
 
-interface NormalizedText {
-  /** Chuỗi đã bỏ dấu, hạ chữ thường. */
-  normalized: string;
-  /** `starts[i]` là vị trí trong chuỗi gốc của ký tự thứ i trong `normalized`. */
-  starts: number[];
-  /** `ends[i]` là vị trí ngay sau ký tự gốc ấy. */
-  ends: number[];
-}
-
 /**
- * Bỏ dấu nhưng GIỮ được đường về chuỗi gốc.
+ * Vị trí trong chuỗi gốc ngay sau `n` ký tự đã bỏ dấu, đếm từ `start`.
  *
- * Không dùng thẳng `normalizeVi(cả chuỗi)` rồi lấy chỉ số: `String.normalize('NFD')` tách một
- * ký tự thành nhiều ký tự nên chỉ số lệch ngay từ chữ có dấu đầu tiên. Chuẩn hoá từng ký tự
- * một thì mỗi ký tự gốc cho ra 0 hoặc 1 ký tự đã bỏ dấu, và ta ghi lại được cặp chỉ số.
- *
- * Duyệt theo ĐIỂM MÃ (`for...of`) chứ không theo đơn vị UTF-16, để ký tự ngoài mặt phẳng cơ
- * bản — emoji chẳng hạn — không bị cắt đôi.
+ * Dùng khi từ cuối chỉ khớp phần đầu ("bolli" của "Bollinger"): tô đúng phần đã gõ, như bản cũ.
  */
-function normalizeWithMap(text: string): NormalizedText {
-  let normalized = '';
-  const starts: number[] = [];
-  const ends: number[] = [];
-
-  let offset = 0;
-  for (const char of text) {
-    const piece = normalizeVi(char);
-    for (let i = 0; i < piece.length; i += 1) {
-      starts.push(offset);
-      ends.push(offset + char.length);
-    }
-    normalized += piece;
-    offset += char.length;
+function sauNKyTu(text: string, start: number, n: number): number {
+  let dem = 0;
+  let viTri = start;
+  for (const char of text.slice(start)) {
+    if (dem >= n) break;
+    dem += normalizeVi(char).length;
+    viTri += char.length;
   }
-
-  return { normalized, starts, ends };
-}
-
-/** Ký tự có được tính là một phần của từ hay không — cùng luật cắt từ với `tokenize`. */
-function isWordChar(char: string | undefined): boolean {
-  return char !== undefined && /[a-z0-9]/.test(char);
+  return viTri;
 }
 
 /**
  * Vị trí các đoạn cần tô trong `text`, theo chỉ số của chính chuỗi gốc.
  *
- * Trả về mảng đã sắp xếp và đã gộp các đoạn chồng nhau, nên nơi gọi cắt chuỗi tuần tự được
- * mà không phải lo hai đoạn đè lên nhau (gõ "di dinh" là ra đúng ca đó).
- * Chuỗi rỗng hoặc không khớp gì thì trả mảng rỗng — không bao giờ ném lỗi.
+ * Mỗi đoạn là một lần cụm đã gõ xuất hiện — tô cả cụm, kể cả ký hiệu nằm giữa ("p e" tô trọn
+ * "P/E"). Trả về mảng đã sắp, các đoạn không chồng nhau. Chuỗi rỗng hoặc không khớp gì thì trả
+ * mảng rỗng — không bao giờ ném lỗi.
  */
 export function highlightRanges(text: string, query: string): HighlightRange[] {
-  const tokens = tokenize(query);
-  if (text === '' || tokens.length === 0) return [];
+  const q = terms(query);
+  if (text === '' || q.length === 0) return [];
 
-  const { normalized, starts, ends } = normalizeWithMap(text);
-  const found: HighlightRange[] = [];
+  const f = terms(text);
+  const cuoiQ = q[q.length - 1];
+  const ranges: HighlightRange[] = [];
 
-  // Quét từng từ trong chuỗi đích, đúng cách `tokenize` cắt từ.
-  let index = 0;
-  while (index < normalized.length) {
-    if (!isWordChar(normalized[index])) {
-      index += 1;
-      continue;
-    }
-
-    let wordEnd = index;
-    while (wordEnd < normalized.length && isWordChar(normalized[wordEnd])) wordEnd += 1;
-
-    const word = normalized.slice(index, wordEnd);
-
-    // Từ khoá nào là tiền tố của từ này thì tô đúng phần tiền tố ấy. Lấy đoạn DÀI NHẤT: gõ
-    // "d dinh" thì hai từ khoá cùng khớp "định", tô đoạn dài hơn mới đúng ý người dùng.
-    let longest = 0;
-    for (const token of tokens) {
-      if (word.startsWith(token) && token.length > longest) longest = token.length;
-    }
-
-    if (longest > 0) {
-      const start = starts[index];
-      const end = ends[index + longest - 1];
-      if (start !== undefined && end !== undefined) found.push({ start, end });
-    }
-
-    index = wordEnd;
+  for (const hit of phraseHits(f, q, TIEN_TO_MO_TA)) {
+    const dau = f[hit.from];
+    const cuoi = f[hit.to - 1];
+    if (dau === undefined || cuoi === undefined || cuoiQ === undefined) continue;
+    const end = hit.tron ? cuoi.end : sauNKyTu(text, cuoi.start, cuoiQ.text.length);
+    ranges.push({ start: dau.start, end });
   }
 
-  return mergeRanges(found);
-}
-
-/** Gộp các đoạn chồng hoặc dính nhau. Đầu vào đã theo thứ tự tăng dần vì quét từ trái sang. */
-function mergeRanges(ranges: ReadonlyArray<HighlightRange>): HighlightRange[] {
-  const merged: HighlightRange[] = [];
-
-  for (const range of ranges) {
-    const last = merged[merged.length - 1];
-    if (last !== undefined && range.start <= last.end) {
-      last.end = Math.max(last.end, range.end);
-      continue;
-    }
-    merged.push({ ...range });
-  }
-
-  return merged;
+  return ranges;
 }
 
 /**
@@ -153,4 +93,21 @@ export function highlightParts(text: string, query: string): HighlightPart[] {
   if (cursor < text.length) parts.push({ text: text.slice(cursor), hit: false });
 
   return parts;
+}
+
+/**
+ * Mô tả của một KHỚP PHỤ, đã cắt sẵn để tô vàng cụm khớp — `null` khi công thức không phải khớp
+ * phụ (khớp chính, hoặc không khớp).
+ *
+ * Chủ dự án (16/10/2026): công thức khớp tên lên đầu, những thẻ chỉ có cụm liên quan trong mô tả
+ * xếp sau và "phải bôi màu vàng nhạt thể hiện đây là câu phụ có liên quan". Vì vậy màu vàng chỉ
+ * xuất hiện ở khớp phụ: tô cả thẻ khớp chính thì màu vàng không còn nói được "đây là kết quả phụ".
+ */
+export function descriptionHitParts(
+  formula: FormulaSummary,
+  query: string,
+  lang: SearchLang,
+): HighlightPart[] | null {
+  if (matchFormula(formula, query, lang).tier !== 2) return null;
+  return highlightParts(descriptionText(formula, lang), query);
 }

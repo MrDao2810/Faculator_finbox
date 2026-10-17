@@ -2,7 +2,12 @@
 
 import { useMemo, useState } from 'react';
 
-import { FORMULA_SUMMARIES, LIVE_PRESET_FORMULAS, scoreFormula, tokenize } from '@/application';
+import {
+  FORMULA_SUMMARIES,
+  LIVE_PRESET_FORMULAS,
+  hasSearchTerms,
+  matchFormula,
+} from '@/application';
 import type { Level } from '@/application';
 import { usePick, useT } from '@/application/preferences-context';
 import { BottomSheet } from '@/ui/primitives';
@@ -128,21 +133,22 @@ export function FormulaForTickerSheet({
   );
 
   /**
-   * Lọc bằng CHÍNH phép chấm điểm của ô tìm toàn cục (`scoreFormula` + `tokenize`), không viết
-   * bản so chuỗi thứ hai.
+   * Lọc bằng CHÍNH phép khớp của ô tìm toàn cục (`matchFormula`), không viết bản so chuỗi thứ hai.
    *
-   * Nhờ vậy gõ ở đây khớp y hệt gõ ở màn Tìm kiếm: bỏ dấu ("dinh gia" ra "Định giá"), khớp theo
-   * tiền tố, và tra cả `tags` chứ không chỉ tên — nên "pe" ra P/E dù tên đầy đủ là "P/E — hệ số
-   * giá trên lợi nhuận".
+   * Nhờ vậy gõ ở đây khớp y hệt gõ ở màn Công thức: bỏ dấu ("dinh gia" ra "Định giá"), khớp cụm
+   * theo tiền tố, và tra cả `tags` chứ không chỉ tên — nên "pe" ra P/E dù tên đầy đủ là "P/E — hệ
+   * số giá trên lợi nhuận".
+   *
+   * Chỉ giữ KHỚP CHÍNH (16/10/2026): dòng ở đây chỉ in tên, không in mô tả, nên một khớp phụ — có
+   * mặt nhờ một cụm trong mô tả — sẽ là dòng không có lý do nào nhìn thấy được.
    *
    * Cố ý KHÔNG sắp lại theo điểm liên quan: danh sách này đang xếp theo tỷ lệ ô điền được, và đó
    * là thứ người dùng chọn theo. Với nhiều nhất 31 dòng chia hai nhóm, sắp lại chỉ làm dòng nhảy
    * chỗ mỗi lần gõ thêm một chữ.
    */
   const filtered = useMemo(() => {
-    const tokens = tokenize(query);
-    if (tokens.length === 0) return rows;
-    return rows.filter((row) => scoreFormula(row.summary, tokens) > 0);
+    if (!hasSearchTerms(query)) return rows;
+    return rows.filter((row) => matchFormula(row.summary, query).tier === 1);
   }, [rows, query]);
 
   /** Đóng thì xoá luôn từ khoá, để lần mở sau bắt đầu từ danh sách đầy đủ — cùng nếp PresetSheet. */

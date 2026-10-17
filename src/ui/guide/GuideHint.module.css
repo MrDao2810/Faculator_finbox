@@ -47,11 +47,18 @@
  * đổi sang màu nhấn. Không đổi kích thước, đệm hay độ dày viền — luật "không có gì xê dịch" của
  * khung cách tính; một vòng tròn phình ra dưới con trỏ làm hàng tiêu đề nhảy.
  */
-.hint:hover,
 .hint:focus-visible {
   color: var(--color-accent);
   background: var(--color-sunken);
   border-color: var(--color-accent);
+}
+
+@media (hover: hover) {
+  .hint:hover {
+    color: var(--color-accent);
+    background: var(--color-sunken);
+    border-color: var(--color-accent);
+  }
 }
 
 /* Vòng tiêu điểm để luật chung của `globals.css` lo — khai lại ở đây là một bậc dư. */

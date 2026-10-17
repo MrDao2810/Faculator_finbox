@@ -3,10 +3,10 @@
  *
  * Ba chỗ cần biết trước khi sửa, khung viết theo mã chứ không theo sách:
  *
- * 1. Độ lệch chuẩn của bốn công thức Bollinger là độ lệch chuẩn MẪU của chính GIÁ đóng cửa:
- *    `bollingerParts()` gọi `sampleStdDev(window)`, chia n − 1, còn Bollinger chia n. Chưa chốt (Q1
- *    ở `REVIEW-2.md`), nên mọi khung có bước độ lệch chuẩn ghi `pendingReview: 'Q1'`. Bước ấy không
- *    dùng được `doLechChuanMau()` của `recipes.ts`, vì bước đó tính trên LỢI SUẤT.
+ * 1. Độ lệch chuẩn của bốn công thức Bollinger tính trên chính GIÁ đóng cửa và chia n, như Bollinger:
+ *    `bollingerParts()` gọi `populationStdDev(window)`. Tới 16/10/2026 nó chia n − 1, và bước này vẽ
+ *    đúng cái n − 1 ấy; chủ dự án khoanh nó là sai công thức, chốt Q1 ở `REVIEW-2.md`. Bước ấy không
+ *    dùng được `doLechChuanMau()` của `recipes.ts`: bước đó tính trên LỢI SUẤT và chia n − 1.
  * 2. Độ rộng dải và %B không tính riêng hai dải: mã lấy `2 * parts.deviation`, đúng bằng dải trên trừ
  *    dải dưới. Khung vẫn tả từng dải, vì dòng chữ của hai công thức gọi tên từng dải.
  * 3. Độ biến động lịch sử dùng lợi suất LOG (`Math.log(current / previous)`), không phải lợi suất đơn
@@ -22,26 +22,26 @@ const TRUNG_BINH_N_PHIEN: Bilingual = { vi: 'Trung bình n phiên', en: 'n-sessi
 const DUONG_GIUA: Bilingual = { vi: 'Đường giữa', en: 'Middle line' };
 
 /**
- * Độ lệch chuẩn MẪU của n giá đóng cửa trong cửa sổ — `bollingerParts()`: `closes.slice(-period)`
- * rồi `sampleStdDev(window)`, chia n − 1. Q1 chốt chia n thì sửa bước này.
+ * Độ lệch chuẩn của n giá đóng cửa trong cửa sổ, chia n — `bollingerParts()`: `closes.slice(-period)`
+ * rồi `populationStdDev(window)`.
  */
 function doLechChuanGia(giua: Bilingual): HowToStep {
   return {
-    latex: '\\sigma_{n} = \\sqrt{\\frac{1}{n - 1} \\sum_{i=1}^{n} (P_i - SMA_{n})^2}',
+    latex: '\\sigma_{n} = \\sqrt{\\frac{1}{n} \\sum_{i=0}^{n-1} (P_{t-i} - SMA_{n})^2}',
     expression: {
-      vi: `Độ lệch chuẩn mẫu của n phiên = Căn bậc hai của (Tổng bình phương (Giá đóng cửa từng phiên − ${giua.vi}) ÷ (n − 1))`,
-      en: `Sample standard deviation of n sessions = Square root of (Sum of squares (Each session close − ${giua.en}) ÷ (n − 1))`,
+      vi: `Độ lệch chuẩn của n phiên = Căn bậc hai của (Tổng bình phương (Giá đóng cửa từng phiên trong n phiên gần nhất − ${giua.vi}) ÷ n)`,
+      en: `Standard deviation of n sessions = Square root of (Sum of squares (Each close of the last n sessions − ${giua.en}) ÷ n)`,
     },
   };
 }
 
-/** Dải trên: `middle + deviation`, với `deviation = k * sampleStdDev(window)`. */
+/** Dải trên: `middle + deviation`, với `deviation = k * populationStdDev(window)`. */
 function daiTren(giua: Bilingual): HowToStep {
   return {
     latex: 'BB_{tren} = SMA_{n} + k \\cdot \\sigma_{n}',
     expression: {
-      vi: `Dải trên = ${giua.vi} + Hệ số k × Độ lệch chuẩn mẫu của n phiên`,
-      en: `Upper band = ${giua.en} + Multiplier k × Sample standard deviation of n sessions`,
+      vi: `Dải trên = ${giua.vi} + Hệ số k × Độ lệch chuẩn của n phiên`,
+      en: `Upper band = ${giua.en} + Multiplier k × Standard deviation of n sessions`,
     },
   };
 }
@@ -51,8 +51,8 @@ function daiDuoi(giua: Bilingual): HowToStep {
   return {
     latex: 'BB_{duoi} = SMA_{n} - k \\cdot \\sigma_{n}',
     expression: {
-      vi: `Dải dưới = ${giua.vi} − Hệ số k × Độ lệch chuẩn mẫu của n phiên`,
-      en: `Lower band = ${giua.en} − Multiplier k × Sample standard deviation of n sessions`,
+      vi: `Dải dưới = ${giua.vi} − Hệ số k × Độ lệch chuẩn của n phiên`,
+      en: `Lower band = ${giua.en} − Multiplier k × Standard deviation of n sessions`,
     },
   };
 }
@@ -72,12 +72,11 @@ export const HOW_TO_TECHNICAL_VOLATILITY: Readonly<Record<string, FormulaHowTo>>
         kind: 'derived',
         symbol: '\\sigma_{n}',
         phrases: {
-          vi: ['Độ lệch chuẩn mẫu của n phiên đó'],
-          en: ['Sample standard deviation of those n sessions'],
+          vi: ['Độ lệch chuẩn của n phiên đó'],
+          en: ['Standard deviation of those n sessions'],
         },
         steps: [doLechChuanGia(TRUNG_BINH_N_PHIEN)],
-        calcEvidence: ['closes.slice(-period)', 'deviation: k * sampleStdDev(window)'],
-        pendingReview: 'Q1',
+        calcEvidence: ['closes.slice(-period)', 'deviation: k * populationStdDev(window)'],
       },
     ],
     skipped: { 'BB_{tren}': 'ket-qua', n: 'nhap-tho', k: 'nhap-tho' },
@@ -97,12 +96,11 @@ export const HOW_TO_TECHNICAL_VOLATILITY: Readonly<Record<string, FormulaHowTo>>
         kind: 'derived',
         symbol: '\\sigma_{n}',
         phrases: {
-          vi: ['Độ lệch chuẩn mẫu của n phiên đó'],
-          en: ['Sample standard deviation of those n sessions'],
+          vi: ['Độ lệch chuẩn của n phiên đó'],
+          en: ['Standard deviation of those n sessions'],
         },
         steps: [doLechChuanGia(TRUNG_BINH_N_PHIEN)],
-        calcEvidence: ['closes.slice(-period)', 'deviation: k * sampleStdDev(window)'],
-        pendingReview: 'Q1',
+        calcEvidence: ['closes.slice(-period)', 'deviation: k * populationStdDev(window)'],
       },
     ],
     skipped: { 'BB_{duoi}': 'ket-qua', n: 'nhap-tho', k: 'nhap-tho' },
@@ -118,18 +116,16 @@ export const HOW_TO_TECHNICAL_VOLATILITY: Readonly<Record<string, FormulaHowTo>>
         symbol: 'BB_{tren}',
         phrases: { vi: ['Dải trên'], en: ['Upper band'] },
         steps: [doLechChuanGia(DUONG_GIUA), daiTren(DUONG_GIUA)],
-        calcEvidence: ['deviation: k * sampleStdDev(window)', '2 * parts.deviation'],
+        calcEvidence: ['deviation: k * populationStdDev(window)', '2 * parts.deviation'],
         formulaId: 'dai-bollinger-tren',
-        pendingReview: 'Q1',
       },
       {
         kind: 'derived',
         symbol: 'BB_{duoi}',
         phrases: { vi: ['Dải dưới'], en: ['Lower band'] },
         steps: [doLechChuanGia(DUONG_GIUA), daiDuoi(DUONG_GIUA)],
-        calcEvidence: ['deviation: k * sampleStdDev(window)', '2 * parts.deviation'],
+        calcEvidence: ['deviation: k * populationStdDev(window)', '2 * parts.deviation'],
         formulaId: 'dai-bollinger-duoi',
-        pendingReview: 'Q1',
       },
       {
         kind: 'derived',
@@ -159,10 +155,14 @@ export const HOW_TO_TECHNICAL_VOLATILITY: Readonly<Record<string, FormulaHowTo>>
         phrases: { vi: ['ATR phiên trước'], en: ['Previous ATR'] },
         steps: [
           {
-            latex: 'ATR_{dau} = \\frac{TR_1 + TR_2 + \\dots + TR_n}{n}',
+            /*
+             * Dao động thực đầu tiên thuộc phiên 2: phiên 1 chưa có giá đóng cửa phiên trước
+             * (`trueRanges` bắt đầu từ `bars[1]`). Viết `TR_1` thì đọc như có một phiên trước phiên 1.
+             */
+            latex: 'ATR_{dau} = \\frac{TR_2 + \\dots + TR_{n+1}}{n}',
             expression: {
-              vi: 'ATR đầu tiên = Tổng n dao động thực đầu tiên ÷ n',
-              en: 'First ATR = Sum of the first n true ranges ÷ n',
+              vi: 'ATR đầu tiên = Tổng n dao động thực đầu tiên, từ phiên thứ hai ÷ n',
+              en: 'First ATR = Sum of the first n true ranges, from the second session ÷ n',
             },
           },
           {
@@ -198,18 +198,19 @@ export const HOW_TO_TECHNICAL_VOLATILITY: Readonly<Record<string, FormulaHowTo>>
         symbol: 'BB_{duoi}',
         phrases: { vi: ['Dải dưới'], en: ['Lower band'] },
         steps: [doLechChuanGia(TRUNG_BINH_N_PHIEN), daiDuoi(TRUNG_BINH_N_PHIEN)],
-        calcEvidence: ['deviation: k * sampleStdDev(window)', 'parts.middle - parts.deviation'],
+        calcEvidence: ['deviation: k * populationStdDev(window)', 'parts.middle - parts.deviation'],
         formulaId: 'dai-bollinger-duoi',
-        pendingReview: 'Q1',
       },
       {
         kind: 'derived',
         symbol: 'BB_{tren}',
         phrases: { vi: ['Dải trên'], en: ['Upper band'] },
         steps: [doLechChuanGia(TRUNG_BINH_N_PHIEN), daiTren(TRUNG_BINH_N_PHIEN)],
-        calcEvidence: ['deviation: k * sampleStdDev(window)', 'const width = 2 * parts.deviation'],
+        calcEvidence: [
+          'deviation: k * populationStdDev(window)',
+          'const width = 2 * parts.deviation',
+        ],
         formulaId: 'dai-bollinger-tren',
-        pendingReview: 'Q1',
       },
     ],
     skipped: { '\\%B': 'ket-qua', C: 'nhap-tho', '100': 'hang-so' },
@@ -276,10 +277,16 @@ export const HOW_TO_TECHNICAL_VOLATILITY: Readonly<Record<string, FormulaHowTo>>
             },
           },
           {
-            latex: '\\sigma = \\sqrt{\\frac{1}{n - 1} \\sum_{t=1}^{n} (u_t - \\bar{u})^2}',
+            /*
+             * n ở đây là n của hình: số phiên GIÁ lấy mẫu (ô Số phiên giá lấy mẫu). n giá cho n − 1 lợi
+             * suất log, từ phiên 2 tới phiên n, nên độ lệch chuẩn mẫu chia n − 2. Tới 16/10/2026 bước
+             * này viết n cho số lợi suất, nên ai thay n = 55 phiên như lời giải ví dụ thì chia 54 và ra
+             * 30,08 %/năm thay vì 30,37 trên màn.
+             */
+            latex: '\\sigma = \\sqrt{\\frac{1}{n - 2} \\sum_{t=2}^{n} (u_t - \\bar{u})^2}',
             expression: {
-              vi: 'Độ lệch chuẩn mẫu của lợi suất log mỗi phiên = Căn bậc hai của (Tổng bình phương (Lợi suất log phiên t − Lợi suất log trung bình) ÷ (Số lợi suất log n − 1))',
-              en: 'Sample standard deviation of per-session log returns = Square root of (Sum of squares (Log return of session t − Mean log return) ÷ (Number of log returns n − 1))',
+              vi: 'Độ lệch chuẩn mẫu của lợi suất log mỗi phiên = Căn bậc hai của (Tổng bình phương (Lợi suất log phiên t − Lợi suất log trung bình) ÷ (Số phiên giá lấy mẫu n − 2))',
+              en: 'Sample standard deviation of per-session log returns = Square root of (Sum of squares (Log return of session t − Mean log return) ÷ (Sample sessions n − 2))',
             },
           },
         ],

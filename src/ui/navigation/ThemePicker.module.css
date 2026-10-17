@@ -39,8 +39,10 @@
   transform: translateY(-50%);
 }
 
-.option:hover:not(.selected) {
-  color: var(--color-ink);
+@media (hover: hover) {
+  .option:hover:not(.selected) {
+    color: var(--color-ink);
+  }
 }
 
 /*

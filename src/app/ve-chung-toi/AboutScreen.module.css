@@ -420,8 +420,10 @@
   border-radius: var(--radius-md);
 }
 
-.ctaAction:hover {
-  background: var(--color-accent-strong);
+@media (hover: hover) {
+  .ctaAction:hover {
+    background: var(--color-accent-strong);
+  }
 }
 
 .ctaAction:focus-visible {

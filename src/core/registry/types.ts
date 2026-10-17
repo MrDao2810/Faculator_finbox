@@ -380,18 +380,27 @@ export interface FormulaSpec extends FormulaSummary {
    * `usesConstants` phải được mẫu nhắc tới; và đổi mọi mức của biểu phí thì dải tính lại vẫn ra
    * đúng số `calc` trả — ca cuối là thứ khiến một con số chép tay đỏ ngay.
    *
-   * Tuỳ chọn: công thức chưa khai thì khối gộp bỏ hẳn dòng này, không in một dòng nửa vời. Hiện
-   * 61 trên 111 công thức có mẫu. Những ca cố ý BỎ, để khỏi ai viết lại:
+   * **CẢ 111 công thức có mẫu từ 16/10/2026** — chủ dự án: *"toàn bộ công thức đều có đầy đủ phần tôi
+   * yêu cầu … chuẩn xác tuyệt đối cho tôi vì đây là tính toán chi tiết mà người dùng sử dụng"*. Ca
+   * kiểm "MỌI công thức đều có dòng thay số" ở `formulas.test.ts` giữ danh sách ngoại lệ RỖNG. Những
+   * ca từng cố ý bỏ nay đi bằng các trường bên dưới:
    *
-   *   · `loi-nhuan-rong` — công thức thứ 14 tra hằng số, và là công thức duy nhất trong số đó dùng
-   *     thân riêng (bảng bóc tách WF-08) chứ không dùng thẻ gộp. Dải thay số chỉ sống trong thẻ
-   *     gộp, nên một mẫu ở đây là dữ liệu không màn nào đọc.
-   *   · `ddm-hai-giai-doan`, `gia-von-trung-binh-dca` — cộng dồn qua một số kỳ / số đợt do người
-   *     dùng đặt, nên số hạng của phép cộng không cố định.
-   *   · `loi-suat-trung-binh-hinh-hoc` — số kỳ do người dùng thêm bớt (2 tới 12, xem `RepeatGroup`),
-   *     nên số thừa số của tích không cố định. Cùng ca với `gia-von-trung-binh-dca` ngay trên.
-   *   · `irr-nien-kim`, `xirr` — dò nghiệm, không có biểu thức đóng. Cùng ca với `PHUONG_TRINH_AN`
-   *     của khối Ví dụ thực tế (`src/core/vi-du/kiem.ts`).
+   *   · 35 công thức ăn chuỗi giá: ký hiệu tính từ chuỗi (lợi suất bình quân một phiên, σ, EMA phiên
+   *     trước…) vào mẫu bằng `{@ten}`, đọc từ `extras` của chính kết quả — `calc` trả thêm đúng các
+   *     con số ấy.
+   *   · Số số hạng thay đổi (DCA, trung bình hình học, DDM hai giai đoạn, CVaR, XIRR):
+   *     `substitutionRepeat`.
+   *   · Dò nghiệm (`irr-nien-kim`, `xirr`): `substitutionRhs`, dải in "≈ vế phải".
+   *   · `lich-tra-no`: dạng đóng của tổng lãi theo cách trả, `substitutionCases`.
+   *   · `chuoi-phien-giam-dai-nhat`: `max(k₁; k₂; …)`, nút `max` của cây.
+   *
+   * Và dải có mặt ở MỌI khuôn màn, không chỉ thẻ gộp: ngoài thẻ gộp nó đứng ngay dưới thẻ Kết quả;
+   * thân riêng tự in kết quả (`loi-nhuan-rong`, `xirr`) đặt nó sau con số của mình.
+   *
+   * **Chuẩn xác tuyệt đối** nghĩa là hai điều, cửa gác ở `formulas.test.ts` giữ cả hai trên nhiều bộ
+   * số (ví dụ, mặc định, mọi ô × 0,9 và × 1,1, từng lựa chọn): mẫu tính ở độ chính xác đầy đủ lệch
+   * `calc` không quá 1e-9; và các số IN RA bấm lại ra đúng chuỗi con số khối Kết quả in —
+   * `datSoThaySo` tăng chữ số lẻ tới khi khớp, không khớp thì màn không in dải.
    */
   substitution?: string;
   /**
@@ -427,12 +436,67 @@ export interface FormulaSpec extends FormulaSummary {
    *     thì viết khoá của nó, `{fee.brokerage.buy}`.
    *
    * 21 trên 61 mẫu cần trường này; 40 mẫu còn lại vốn đã thay thẳng ký hiệu (`{price} ÷ {eps}`).
-   * (Câu này từng ghi "21 trên 48"; đếm lại ngày 13/10/2026 thì lúc ấy là 17 trên 48.)
+   * (Câu này từng ghi "21 trên 48"; đếm lại ngày 13/10/2026 thì lúc ấy là 17 trên 48. Từ 16/10/2026
+   * cả 111 công thức có mẫu; con số này chưa đếm lại.)
+   *
+   *   · KHOÁ CÓ `#` (16/10/2026) là ký hiệu theo chỉ số: `'rTl#': '{r#} ÷ 100'` cho ra `rTl1`, `rTl2`…
+   *     cho từng ô `r1`, `r2`… đang có — để số hạng của `substitutionRepeat` in lợi suất từng kỳ dạng
+   *     tỷ lệ như mọi tỷ lệ khác của dải.
    *
    * Cửa gác: `formulas.test.ts` tính lại cả dòng rồi đối chiếu `calc`, nên một mẫu dẫn xuất sai sẽ
    * làm lệch kết quả và đỏ ngay — không có đường nào để nó sai mà vẫn xanh.
    */
   substitutionDerived?: Readonly<Record<string, string>>;
+  /**
+   * Phần LẶP của mẫu — tổng (hay tích) có số số hạng do người dùng hoặc dữ liệu quyết (16/10/2026).
+   *
+   * Sinh ra khi chủ dự án đòi MỌI công thức có dải thay số. Bốn công thức từng cố ý không có vì số
+   * số hạng không cố định: DCA (số đợt mua), lợi suất trung bình hình học (số kỳ), DDM hai giai đoạn
+   * (số năm tăng trưởng) và CVaR (số phiên lỗ nặng nhất). Hình của chúng viết `Σ` hay `∏`; dải viết
+   * tổng ấy ra đủ từng số hạng.
+   *
+   * Khoá của bản ghi là chỗ trống trong `substitution` nhường cho cả tổng: mẫu
+   * `({tongTien}) ÷ ({tongCo})` với `tongTien: { count: 'lots', join: '+', term: '{amount#}' }`.
+   * Trong `term`, `#` là chỉ số: `{amount#}` ở số hạng thứ 3 đọc ô `amount3`, `{#}` là chính số 3.
+   * `count` là khoá mang số số hạng — ô nhập, ký hiệu dẫn xuất hay `{@…}` của `calc`.
+   */
+  substitutionRepeat?: Readonly<
+    Record<
+      string,
+      {
+        count: string;
+        from?: number;
+        /** `max` gom các số hạng vào một `max(a; b; …)` — hình `L = max{k : …}` của chuỗi phiên giảm. */
+        join: '+' | '×' | 'max';
+        term: string;
+        /**
+         * Bỏ số hạng thứ `i` khi khoá này (có `#`) bằng 0 — cho đúng những đợt `calc` cũng bỏ qua.
+         * DCA coi "tiền mua đợt i = 0" là đợt không có (kể cả khi giá đợt ấy cũng 0), nên dải không
+         * in một số hạng `0 ÷ 0` mà `calc` chưa bao giờ tính.
+         */
+        skipZero?: string;
+      }
+    >
+  >;
+  /**
+   * Mẫu RIÊNG theo giá trị của một ô lựa chọn (16/10/2026) — `substitution` là mẫu mặc định, mẫu ở
+   * đây thay nó khi ô `key` mang giá trị tương ứng.
+   *
+   * Sinh ra cho `lich-tra-no`: hình viết "Tổng lãi = Σ lãi từng kỳ" — 240 số hạng ở khoản vay 20 năm,
+   * không ai đọc nổi — nên dải viết DẠNG ĐÓNG của chính tổng ấy, mà dạng đóng khác nhau theo cách
+   * trả: trả góp đều thì `n × A − P`, gốc đều thì `P × i × (n + 1) ÷ 2`. Cả hai đúng bằng tổng lãi
+   * về toán; cửa gác đối chiếu với `calc` tới 1e-9 ở MỌI lựa chọn.
+   */
+  substitutionCases?: { key: string; byValue: Readonly<Record<number, string>> };
+  /**
+   * Vế phải của PHƯƠNG TRÌNH mà dải vẽ, cho công thức có kết quả là một NGHIỆM (16/10/2026).
+   *
+   * IRR niên kim và XIRR không có biểu thức đóng: `calc` dò nghiệm. Dải của chúng vì thế không thể
+   * viết "phép tính = kết quả" — nó viết lại phương trình với nghiệm đã thay vào và in "≈ vế phải":
+   * `… ≈ 3.000.000.000` (số tiền vay), `… ≈ 0` (tổng dòng tiền chiết khấu). Cùng cách khối Ví dụ thực
+   * tế làm với `PHUONG_TRINH_AN`. Cú pháp như `substitution`.
+   */
+  substitutionRhs?: string;
   /*
    * ── Mộ chí: `derivedSubstitution` (05/10/2026 → 06/10/2026) ──────────────────────────────
    *

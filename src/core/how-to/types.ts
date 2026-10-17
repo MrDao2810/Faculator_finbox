@@ -71,7 +71,8 @@ export interface DerivedHowTo extends HowToBase {
   formulaId?: string;
   /**
    * Câu hỏi còn mở trong `src/core/formulas/REVIEW-2.md` mà quyết xong có thể đổi `calc` — khung này
-   * phải sửa theo. Ví dụ `'Q1'` cho độ lệch chuẩn của dải Bollinger (chia n hay n−1).
+   * phải sửa theo. Ví dụ `'Q2'` cho chuẩn so sánh của tỷ số thông tin. (`'Q1'`, độ lệch chuẩn của dải
+   * Bollinger, đã chốt chia n ngày 16/10/2026.)
    */
   pendingReview?: string;
 }

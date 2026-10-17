@@ -91,9 +91,10 @@ export const HOW_TO_PERFORMANCE: Readonly<Record<string, FormulaHowTo>> = {
       r: 'nhap-tho',
       '\\approx': 'phep-toan',
       '72': 'hang-so',
+      '100': 'hang-so',
     },
     whyNone:
-      'Lợi suất năm là số gõ thẳng, phần còn lại là hằng số 2, 72 và phép logarit đã hiện trọn trong hình.',
+      'Lợi suất năm là số gõ thẳng, phần còn lại là hằng số 2, 72, 100 và phép logarit đã hiện trọn trong hình.',
   },
 
   'loi-suat-quy-nam-theo-ngay': {

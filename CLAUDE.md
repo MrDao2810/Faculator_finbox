@@ -1310,7 +1310,11 @@ the minus sign `−` of real arithmetic. On 17/09/2026 the owner read the em das
 a short one, the same complaint that had already removed dashes from the expression line. Join
 with words and commas (", tức …", ", nên …", ranges as "từ 0 đến 100"), not with parentheses or
 `/`, which are maths in that same table; a gate in `formulas.test.ts` rejects both characters in
-`vi` and `en`. `FFB_SYMBOL_IDS=a,b` narrows the legend gates to a few ids while editing one group
+`vi` and `en`. **No note about the input field in parentheses** (16/10/2026): the owner circled
+`ty-so-treynor`'s "hệ số beta của danh mục, lần (ô nhập tay)" as meaningless text — every field is
+typed — and nine rows read like "số phiên nhìn lại (ô Số phiên nhìn lại)", repeating the words before
+them. When the field name does add something it goes into the phrase (", tính theo ô …", ", tức ô …");
+a gate rejects "(ô" followed by a space, `nhập tay`, `field)` and `entered manually`. `FFB_SYMBOL_IDS=a,b` narrows the legend gates to a few ids while editing one group
 file.
 
 **The formula, its expression line and `calc` must describe the same arithmetic, constants
@@ -1327,6 +1331,22 @@ ratio in the picture with no `÷ 100` (`1 + r`, `r − g`); a result that is a r
 price amounts read as a percentage carries `× 100` (ROE, ROI, drawdown, VaR). When the gate cannot
 see a mismatch (how `calc` converts an annual rate to a per-session one, which returns a threshold
 drops), the legend row has to say it.
+
+**A rate is a ratio on the picture, input or result** (confirmed 16/10/2026, third audit). 16 formulas
+print a % result from a picture with no `× 100` (CAGR, EAR, XIRR, real return, return standard
+deviation, Treynor…), and that is the convention, not a gap: `r = (…)^{1/t} − 1` gives 0,1487 and the
+screen prints 14,87 %. The `× 100` rule above is for a ratio of two money or price AMOUNTS (ROE, ROI,
+drawdown). What the picture must never do is use one rate symbol at two scales: `thoi-gian-nhan-doi`
+drew `≈ 72 ÷ r` (900 years at r = 0,08) and now draws `72 ÷ (100 × r)`.
+
+**The Bollinger bands divide the standard deviation by n** (16/10/2026). The owner circled the
+`1/(n − 1)` in the upper band's how-to panel as a wrong formula. Bollinger, the source the page cites,
+uses the population form; `sampleStdDev` (÷ n − 1) had been there since the first build and was open
+question Q1 of `REVIEW-2.md`. `bollingerParts()` calls `populationStdDev()`; historical volatility and
+every return-based deviation keep `sampleStdDev`, which is right for a sample of returns. The audit that
+followed (10 read-only agents, every formula recomputed from its definition) is in
+`src/core/formulas/REVIEW-3.md`: what was fixed, and 21 definition choices (VaR quantile, FCFF's EBIT,
+EV's cash, ROE on ending balances…) waiting on the owner.
 
 **The expression line must read every half of the picture.** On 18/09/2026 the owner pointed at
 `ty-so-sortino`, whose picture draws two equations (the ratio, then the downside deviation) under a
@@ -1654,9 +1674,9 @@ declaring a template, because a template could only reach input fields, and 12 t
 owner opened `roi-rong`, saw that it had no strip while `cagr` did, and asked for it. So a
 placeholder may now be a constant key written verbatim with its dots, `{fee.brokerage.buy}`
 (`laKhoaHangSo()` tells it from an input key, which never has a dot), and `substitutionConstants()`
-resolves it through the same `ctx` that `calc` receives. **61 of 111 formulas have a strip**; 13 of
-the 14 constant-reading formulas got one, and `loi-nhuan-rong` deliberately did not, because the
-strip lives only in the merged card and that formula has a custom body. Three things to keep:
+resolves it through the same `ctx` that `calc` receives. Since 16/10/2026 **all 111 formulas have a
+strip** and all 14 constant-reading formulas are among them (see the next paragraph). Three things to
+keep:
 
 - **A percent constant enters the picture as a RATIO** (0,15% → 0,0015), the same convention as
   every rate the user types (`r = {rate} ÷ 100` in 21 templates). The "Đang tính theo các mức sau"
@@ -1673,6 +1693,53 @@ strip lives only in the merged card and that formula has a custom body. Three th
   and Thời gian nắm giữ inputs do not appear in the strip at all. The owner was told this before
   the work and chose the strip over reusing the WF-08 breakdown table. The hover panel on those
   three symbols in the picture is where each number is explained.
+
+**Every formula has a strip, on every layout, and it is exact to the last printed digit**
+(16/10/2026). The owner photographed `ty-so-treynor` (no strip) beside `tra-gop-nien-kim` (strip) and
+asked why many formulas had none, then: _"sửa sao cho hợp lý nhất và toàn bộ công thức đều có đầy đủ
+phần tôi yêu cầu. nhưng cần hợp lý và chuẩn xác tuyệt đối cho tôi vì đây là tính toán chi tiết mà
+người dùng sử dụng"_. Before that day 50 formulas had no strip: 35 series formulas, 9 that are not
+merged cards (5 waterfalls, 4 chain formulas), 3 custom bodies, and 4 merged cards skipped on purpose
+(variable term count or an implicit root). What changed, and what is easy to break:
+
+- **The strip renders on every layout** (`khoiThaySo` in `FormulaDetail`): at the foot of the merged
+  card as before; right under the Kết quả card otherwise; and for the two custom bodies that print
+  their own result (`ownsResult`: `loi-nhuan-rong`, `xirr`) it is passed down as `DetailBody`'s
+  `thaySo` prop and placed after their own figure. It is still PC-only (`.substitution` is
+  `display: none` below 1280px); mobile was not asked for.
+- **"Exact" is two gates in `formulas.test.ts`, run on many input sets** (example, defaults, every
+  input × 0,9 and × 1,1, every option): the template evaluated at full precision
+  (`giaTriMauDayDu`) must equal `calc` to 1e-9, and the PRINTED numbers must recompute to the exact
+  string the Kết quả block prints. The old gate allowed 0,5%, and under it `tra-gop-nien-kim`
+  printed `i = 0,00791667 … = 7.457.049,5` while that line recomputes to 7.457.051,59. Now
+  `datSoThaySo` takes the result, raises the decimals step by step (`BAC_LE`: 8/4 → up to 16/12)
+  until the printed line matches, and returns `null` — no strip at all — if it never does. That
+  is why the annuity strip now prints `i = 0,007916666667`.
+- **Series formulas read `{@key}`**: `calc` returns the picture's symbols in `extras` (mean return
+  per session, per-session r_f, σ, the previous session's EMA, the VaR interpolation's a/b/w, the
+  Bollinger σ…), computed by the very operations the result uses, and `giaTriKetQua()` prefixes them
+  with `@`. Their shapes follow the reviewed "Ví dụ thực tế" lines (per-session %, aggregates at
+  symbol level). A recursion (EMA, signal line, ATR) needs a previous session: with exactly n
+  sessions the value is the seed average, the extra is absent and no strip shows.
+- **New template fields**: `substitutionRepeat` (a Σ or ∏ written out term by term, `#` is the
+  index, `skipZero` drops rounds `calc` skips — DCA, geometric mean, DDM two-stage, CVaR, XIRR);
+  `substitutionRhs` (an implicit equation prints "≈ right-hand side" — `irr-nien-kim`, `xirr`);
+  `substitutionCases` (a template per option value — `lich-tra-no` writes the closed form of Σ
+  interest: `n × A − P` for equal payments, `P × i × (n + 1) ÷ 2` for equal principal); derived keys
+  with `#` (`'rTl#': '{r#} ÷ 100'`).
+- **`max(a; b; c)` is a node of the tree** (`Nut`, parser, evaluators, renderer). `L = max{k : …}` of
+  `chuoi-phien-giam-dai-nhat` has no arithmetic, so its strip lists the length of every losing
+  streak; ATR substitutes `TR_t` by its own definition, `max(H − L; |H − C|; |L − C|)`. Arguments are
+  separated by `;` because the comma is the decimal mark.
+- **Two real defects surfaced and were fixed at the root, not in the strip.** `Math.floor` of an
+  exact integer quotient can return one less (`450.000.000 × 0,018 ÷ 1.350.000` computed as
+  5,999999999 → 5): `src/core/lam-tron.ts` (`lamTronXuong`/`lamTronLen`, 1e-9 relative) is used by
+  `calc` of `co-vi-the-phai-sinh`, `so-hop-dong-toi-da`, `so-ky-dca` and by both tree evaluators. And
+  `irr-nien-kim`'s bisection stopped at 1e-12, so substituting its root back gave
+  2.999.999.999,94 for a 3 billion loan; a few Newton steps now polish the root.
+- **`themNgoac` moved to `nut.ts`** so the runtime strip parenthesises with the parser's own rule,
+  and it now brackets a negative number after an operator or a unary minus (`a − (−b)`, `−(−b)`):
+  before, the VaR example drew `−0,018598 − −0,020701`.
 
 ## The understanding-check block — WF-19
 
@@ -2153,7 +2220,7 @@ commentary. Eight things are load-bearing:
   no steps (a raw input like `P`) opens a title-only panel — exactly its "ký hiệu: nghĩa" legend
   row — and its `aria-label` is the bare meaning, since calling it "Cách tính" would be false.
   That needs a picture with EVERY symbol marked, which is `NotationView.latexHtmlAllSymbols`, a
-  second marking of the same MathML (559 of 567 rows found; the 8 misses are the names
+  second marking of the same MathML (560 of 568 rows found; the 8 misses are the names
   `mathml-marks.ts` already lists). It is a separate string rather than extra marks on
   `latexHtml` because the card gives every `[data-sym]` a hand cursor, and it is built only when
   `quiz-view.ts`'s `needsFormulaPicture` says the page has a question that prints the picture.
@@ -2379,6 +2446,26 @@ inputs of `fcff`/`fcfe` don't match the named source; ~37 source names say Inves
 every automated read, so their links go to CafeF/VNDirect pages that carry the same closes; CafeF's
 VN-Index history mangles 11 sessions (links use VNDirect's API) and its Q1–Q2/2026 statement tables
 are shifted one row (links avoid the misaligned lines or use stockanalysis).
+
+**The "Đọc kết quả" row (`example.note`) reads THIS example's number against an anchor, in at most two
+sentences** (16/10/2026). The owner circled the row on `ddm-hai-giai-doan`: _"cách đọc kết quả đang sai và rất
+khó hiểu. rà xoát lại toàn bộ"_. That note never read 43.845 ₫ (about 40% below the 72.700 ₫ market price), its
+first sentence repeated where g₁ came from (the Thay số row's job), it used words the page never defines ("giá
+trị cuối kỳ"), and its sensitivity claim was backwards against `calc`. Measured over 111: about 40 notes only
+described the formula's mechanism, 46 had long dashes, and about 15 still carried claims `REVIEW-2.md` had found
+false on 17/09. The owner chose the `howToRead` shape applied to the example's own figures: "So với [mốc]: …"
+/ "Compared with …:", the anchor not ending in a digit, the first sentence restating the result and what it means
+for this case, an optional second sentence only for a caveat that changes how to read that number (a period
+mismatch, a value that looks wrong, the assumption it hangs on, with a probed sensitivity). Not allowed: where
+an input came from, the formula's mechanism in general, textbook facts, UI promises, market facts the example
+does not carry. `src/core/example-note-rules.ts` gates the machine-visible half over all 111 × 2
+(`example-note-rules.test.ts`): opening, one colon, two sentences, 60–320 / 400 characters, no long dash, no
+self-reference ("ví dụ", "biểu đồ", "trên màn"), no "mẫu số / tử số / đầu vào / tham số", no emphasis
+capitals (abbreviations in the example's own title or source are allowed), no buy/sell phrasing. What it cannot
+see — every number true to `calc` and the source — was checked by 8 drafting and 8 adversarial agents that re-ran
+`calc` for each figure; a new note must be checked the same way. `prose-audit.test.ts` check I ("gấp N lần")
+learned three more grounded forms at the same time: N is the result itself, the multiple of a % result, or the
+ratio of two numbers in the same sentence.
 
 ## The example datasets — 250 real sessions, so "Xem ví dụ minh hoạ" draws a full chart (14/10/2026)
 
@@ -2665,6 +2752,15 @@ English, the owner reviews it**. What that produced, and what is easy to break:
 
 ## Notes
 
+- **Every `:hover` style sits inside `@media (hover: hover)`** (16/10/2026). On a touch screen the element just
+  tapped stays `:hover` until the next tap elsewhere, so an unconditional hover colour sticks: the owner tapped "Xem
+  ví dụ thực tế ↓" on a phone, scrolled back up and found the button still light blue (`.secondary:hover`). 61 of the
+  product's 64 hover rules were bare; 56 were wrapped in place in one pass (file order unchanged, so every "declared
+  after" trap still holds), the five `:hover, :focus-visible` groups were split so the keyboard half applies
+  everywhere. Allowed outside: an "anti-hover" group (`.a, .a:hover { … }`, which only re-asserts the resting look)
+  and a reset inside `prefers-reduced-motion`. `src/ui/hover-media.test.ts` scans every CSS file and was red on the
+  old `Button.module.css`. Measured in Chrome with touch emulation: after the tap the button still matches `:hover`
+  but its background stays white; with a mouse at 1440 it still turns light blue.
 - **There are two colour palettes, and both live in `src/app/globals.css`.** The dark one is a
   second token block under `[data-theme='dark']`; the 67 CSS Modules were not touched, because
   `tokens.test.ts` had already forced every colour through a token. Three rules hold it together.
@@ -2805,6 +2901,24 @@ English, the owner reviews it**. What that produced, and what is easy to break:
   - Search history is **one** store again (`ffb.recent.v1`), shared with `/tim-kiem/`, because both
     boxes now search the whole library. The old `ffb.recent.home.v1` is merged in once on first open,
     then deleted, and "Xoá toàn bộ" still sweeps it (`LEGACY_STORAGE_KEYS`).
+  - **Search matches a PHRASE, in two tiers, and only the second tier is painted** (16/10/2026). The owner
+    typed "%b" and got 96 cards: the old scorer dropped every symbol (`tokenize`), then let each word
+    prefix-match ANY word of the name, tags or description in any order, so "b" matched "bao nhiêu",
+    "bình quân"… across the library ("p/e" gave 52, "p/b" 85). Now `phrase.ts` cuts text into terms
+    that keep `% / & + ×` and their position in the original string, and `matchFormula()` in
+    `search.ts` places a formula in **tier 1** (the phrase, contiguous and in order, in the id, either
+    name or one tag) or **tier 2** (the phrase in the description of the language ON SCREEN — the
+    `lang` option, fed from `locale`). Typed symbols must be present and glued as typed ("%b" ≠ "100%
+    bám"); untyped symbols in the target are skipped ("p e" still finds "P/E"). In a description every
+    word matches whole except a last word of 3+ characters; a query under 2 characters never reaches
+    descriptions; a query under 3 characters prefix-matches only at the START of the id or a name,
+    never inside a hidden tag. Tier 1 always precedes tier 2: a chosen sort (A–Z, history) orders
+    WITHIN each tier. `descriptionHitParts()` (`highlight.ts`) runs the SAME matcher, so the yellow
+    `<mark>` (`DescriptionHit`, the existing `.hit` style) appears exactly on tier-2 cards and nowhere
+    else — on `/cong-thuc/` and on `/tim-kiem/`, whose `GroupCard` no longer paints names (a reversal
+    of WF-09's paint-every-match). The owner's words: _"ưu tiên hiển thị lên đầu công thức khớp với
+    câu search … sau đó những câu có chứa cụm liên quan … bôi màu vàng nhạt thể hiện đây là câu
+    phụ"_. `FormulaForTickerSheet` keeps tier 1 only, because its rows print no description to paint.
 - **Nothing under `src/ui/charts/` may call `useId()`.** That whole directory sits behind the
   `next/dynamic` boundary in `FormulaChart.tsx`, where React's generated ids differ between the
   static HTML and the client hydration pass — measured as 5 hydration warnings per chart page. Every

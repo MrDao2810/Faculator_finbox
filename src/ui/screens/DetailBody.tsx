@@ -1,6 +1,7 @@
 'use client';
 
 import dynamic from 'next/dynamic';
+import type { ReactNode } from 'react';
 
 import type { CalcContext, CalcOutput, CashflowRow } from '@/application';
 
@@ -189,6 +190,12 @@ export interface DetailBodyProps {
    */
   cashflowRows?: ReadonlyArray<CashflowRow>;
   onCashflowRowsChange?: (rows: ReadonlyArray<CashflowRow>) => void;
+  /**
+   * Dòng thay số của công thức, dựng sẵn ở `FormulaDetail` (16/10/2026). Chỉ truyền cho thân riêng
+   * TỰ IN kết quả (`ownsResult`): con số nằm trong thân, nên dòng tính ra nó phải đứng ngay sau con
+   * số ấy, mà chỉ thân biết chỗ đó ở đâu.
+   */
+  thaySo?: ReactNode;
 }
 
 export function DetailBody({
@@ -198,8 +205,9 @@ export function DetailBody({
   output,
   cashflowRows,
   onCashflowRowsChange,
+  thaySo,
 }: DetailBodyProps) {
-  if (id === 'loi-nhuan-rong') return <FeeTaxBody inputs={inputs} ctx={ctx} />;
+  if (id === 'loi-nhuan-rong') return <FeeTaxBody inputs={inputs} ctx={ctx} thaySo={thaySo} />;
   if (id === 'lich-tra-no') return <LoanScheduleBody inputs={inputs} />;
   if (
     id === 'xirr' &&
@@ -207,7 +215,14 @@ export function DetailBody({
     cashflowRows !== undefined &&
     onCashflowRowsChange !== undefined
   ) {
-    return <XirrBody output={output} rows={cashflowRows} onRowsChange={onCashflowRowsChange} />;
+    return (
+      <XirrBody
+        output={output}
+        rows={cashflowRows}
+        onRowsChange={onCashflowRowsChange}
+        thaySo={thaySo}
+      />
+    );
   }
   return null;
 }

@@ -152,8 +152,8 @@ export const DIEM_HOA_VON: FormulaModule = {
       inputs: { fixedCost: 2_431_800_000_000, unitPrice: 1_000_000, variableCost: 689_600 },
       expected: 7_834_407,
       note: {
-        vi: 'Điểm hoà vốn tương đương khoảng 7.834 tỷ ₫ doanh thu mỗi quý, thấp hơn doanh thu thực khoảng 43% — đó là khoảng doanh thu có thể hụt trước khi hoạt động kinh doanh chuyển sang lỗ. Cách quy ước ở đây coi toàn bộ giá vốn là biến phí và toàn bộ chi phí bán hàng cộng quản lý là định phí, một giả định đơn giản hoá.',
-        en: 'The break-even point works out to roughly 7,834 billion ₫ of revenue per quarter, about 43% below actual revenue — that is how far revenue could fall before operations turn loss-making. The convention here treats all cost of goods sold as variable and all selling plus administrative expense as fixed, which is a simplifying assumption.',
+        vi: 'So với doanh thu quý 2/2026 của FPT, 13.788,5 tỷ ₫: hoà vốn ở 7.834.407 sản phẩm, tức khoảng 7.834 tỷ ₫ doanh thu, thấp hơn khoảng 43%, nên doanh thu phải hụt chừng ấy thì việc kinh doanh mới lỗ. Con số coi cả giá vốn là biến phí, chi phí bán hàng cộng quản lý là định phí, nên mức 43% chỉ là ước lượng thô.',
+        en: "Compared with FPT's Q2 2026 revenue of 13,788.5 billion ₫: break-even is 7,834,407 units, about 7,834 billion ₫ of revenue, roughly 43% lower, so revenue would have to fall that far before operations start losing money. The figure treats all cost of goods sold as variable cost and selling plus administrative expense as fixed cost, so the 43% is only a rough estimate.",
       },
       source: {
         vi: 'Báo cáo tài chính quý 2/2026 của FPT (mã FPT): doanh thu thuần, giá vốn hàng bán, chi phí bán hàng và chi phí quản lý doanh nghiệp.',
@@ -389,8 +389,8 @@ export const DON_BAY_TONG_HOP: FormulaModule = {
       },
       expected: 2.6171,
       note: {
-        vi: 'Doanh thu đổi 1% thì lợi nhuận sau lãi vay đổi khoảng 2,6% theo cả hai chiều. Phần lớn độ nhạy đến từ cơ cấu định phí chứ không từ nợ vay, vì chi phí lãi vay rất nhỏ so với lợi nhuận hoạt động; doanh nghiệp bất động sản hay thép thường nhạy hơn nhiều với chu kỳ.',
-        en: 'A 1% change in revenue moves after-interest profit by about 2.6% in either direction. Most of that sensitivity comes from the fixed-cost structure rather than from debt, because interest expense is tiny next to operating profit; property and steel companies are typically far more cycle-sensitive.',
+        vi: 'So với mốc 1 lần: 2,62 lần nghĩa là doanh thu quý của FPT đổi 1% thì lợi nhuận sau khi trừ lãi vay đổi khoảng 2,62% cùng chiều, doanh thu hụt 10% thì lợi nhuận ấy hụt khoảng 26%. Phần lớn độ nhạy ấy đến từ định phí hoạt động, với đòn bẩy hoạt động 2,32 lần, còn lãi vay chỉ nhân thêm 1,13 lần.',
+        en: "Compared with the 1 times mark: 2.62 times means that when FPT's quarterly revenue moves 1%, profit after interest moves about 2.62% the same way, so a 10% revenue shortfall cuts that profit by about 26%. Most of that sensitivity comes from fixed operating costs, an operating leverage of 2.32 times, while interest multiplies it by only 1.13 times.",
       },
       source: {
         vi: 'Báo cáo tài chính quý 2/2026 của FPT (mã FPT): doanh thu thuần, giá vốn hàng bán, chi phí bán hàng và quản lý, chi phí lãi vay.',

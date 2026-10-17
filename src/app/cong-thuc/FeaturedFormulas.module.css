@@ -47,8 +47,10 @@
   transform: translateY(-50%);
 }
 
-.toggle:hover {
-  text-decoration: underline;
+@media (hover: hover) {
+  .toggle:hover {
+    text-decoration: underline;
+  }
 }
 
 .toggle:focus-visible {

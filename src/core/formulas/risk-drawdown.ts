@@ -75,15 +75,28 @@ function windowOf(closes: ReadonlyArray<number>, lookback: number, min: number):
  * Chuỗi rỗng trả NaN — `ok()` đổi thành fail, không có con số bịa nào lọt ra.
  */
 function percentileLinear(sorted: ReadonlyArray<number>, p: number): number {
-  if (sorted.length === 0) return Number.NaN;
+  const parts = percentileParts(sorted, p);
+  return parts === null ? Number.NaN : parts.a + parts.w * (parts.b - parts.a);
+}
+
+/**
+ * Ba con số của phép nội suy phân vị: quan sát đứng trước `a`, quan sát đứng sau `b`, trọng số `w`
+ * (phần lẻ của h). Tách khỏi `percentileLinear` ngày 16/10/2026 để dải thay số của VaR in đúng
+ * `a + w × (b − a)` mà `calc` vừa tính, không tính lại một lần thứ hai.
+ */
+function percentileParts(
+  sorted: ReadonlyArray<number>,
+  p: number,
+): { a: number; b: number; w: number } | null {
+  if (sorted.length === 0) return null;
   const ratio = Math.min(Math.max(p, 0), 1);
   const h = (sorted.length - 1) * ratio;
   const lower = Math.floor(h);
   const upper = Math.min(lower + 1, sorted.length - 1);
   const a = sorted[lower];
   const b = sorted[upper];
-  if (a === undefined || b === undefined) return Number.NaN;
-  return a + (h - lower) * (b - a);
+  if (a === undefined || b === undefined) return null;
+  return { a, b, w: h - lower };
 }
 
 /** Giá trị lựa chọn lạ rơi về 95% — cùng cách xử lý với `methodOf` bên personal.ts. */
@@ -96,6 +109,8 @@ interface LossTail {
   returns: number[];
   /** Ngưỡng VaR dưới dạng lợi suất ÂM, ví dụ −0,01 là mốc lỗ 1%. */
   threshold: number;
+  /** Ba con số của phép nội suy ra `threshold` — cho dải thay số của VaR. */
+  parts?: { a: number; b: number; w: number };
 }
 
 /**
@@ -126,6 +141,7 @@ function lossTailOf(
   const returns = simpleReturns(windowOf(closes, lookback, MIN_VAR_BARS));
   const sorted = [...returns].sort((a, b) => a - b);
   const threshold = percentileLinear(sorted, 1 - confidence / 100);
+  const parts = percentileParts(sorted, 1 - confidence / 100);
 
   if (!Number.isFinite(threshold)) {
     return meaningless(
@@ -139,7 +155,7 @@ function lossTailOf(
       },
     );
   }
-  return { returns, threshold };
+  return { returns, threshold, ...(parts === null ? {} : { parts }) };
 }
 
 /*
@@ -291,6 +307,8 @@ export const SUT_GIAM_SAU_NHAT: FormulaModule = {
       vi: 'Sụt giảm sâu nhất = lớn nhất của (Đỉnh cao nhất tính tới phiên đó − Giá phiên đó) ÷ Đỉnh cao nhất tính tới phiên đó × 100',
       en: 'Maximum drawdown = largest of (highest peak up to that session − price at that session) ÷ highest peak up to that session × 100',
     },
+    /* Thay số tại đúng phiên mà vế `max` của hình đạt: đỉnh tính tới phiên ấy và giá phiên ấy. */
+    substitution: '({@dinh} − {@day}) ÷ {@dinh} × 100',
     symbols: [
       {
         latex: 'MDD',
@@ -338,8 +356,8 @@ export const SUT_GIAM_SAU_NHAT: FormulaModule = {
       {
         latex: 'N',
         meaning: {
-          vi: 'số phiên trong cửa sổ, lớn nhất của 30 và ô Số phiên gần nhất đưa vào tính',
-          en: 'sessions in the window, the larger of 30 and the Sessions to include field',
+          vi: 'số phiên trong cửa sổ, lớn nhất của 30 và ô Số phiên gần nhất, tối đa cả chuỗi',
+          en: 'window length, the larger of 30 and the Sessions to include field, at most the series',
         },
       },
       {
@@ -383,8 +401,8 @@ export const SUT_GIAM_SAU_NHAT: FormulaModule = {
       dataset: FPT_2026,
       expected: 15.0273,
       note: {
-        vi: 'Khoảng rơi được đo từ đỉnh đầu tháng 7 xuống đáy cuối tháng 7/2026 — mức đau mà người vào lệnh sai thời điểm thực sự phải ngồi qua, thứ độ lệch chuẩn không nói ra. Càng sụt sâu thì càng khó giữ đủ lâu để chờ hồi.',
-        en: 'The fall is measured from the early-July peak down to the late-July 2026 trough — the pain someone who timed the entry badly actually has to sit through, which a standard deviation never spells out. The deeper the fall, the harder it is to hold long enough for a recovery.',
+        vi: 'So với giá đỉnh 73.200 ₫ của FPT: từ đỉnh ấy ngày 07/07/2026, giá đóng cửa rơi xuống 62.200 ₫ ngày 27/07/2026, nên ai mua ở đỉnh ấy mà bán ở đáy thì lỗ 15,03%, cú rơi sâu nhất trong 55 phiên. Giá cao nhất cả 55 phiên là 74.500 ₫ ngày 10/09/2026, sau đó chỉ lùi về 72.400 ₫, nên ai mua ở giá ấy lỗ nhiều nhất 2,82%.',
+        en: "Compared with FPT's peak close of 73,200 ₫: from that peak on 2026-07-07 the close fell to 62,200 ₫ on 2026-07-27, so anyone who bought at that peak and sold at the bottom lost 15.03%, the deepest fall in the 55 sessions. The highest close of all 55 sessions was 74,500 ₫ on 2026-09-10, after which the price only slipped to 72,400 ₫, so anyone who bought there lost at most 2.82%.",
       },
       source: {
         vi: 'VNDirect, giá đóng cửa CTCP FPT (mã FPT), chuỗi 250 phiên 12/09/2025–15/09/2026.',
@@ -425,7 +443,26 @@ export const SUT_GIAM_SAU_NHAT: FormulaModule = {
     if (!Array.isArray(closes)) return fail('%', closes);
 
     const window = windowOf(closes, v('lookback'), MIN_DRAWDOWN_BARS);
-    return ok(maxDrawdown(window) * 100, '%', { extras: { barsUsed: window.length } });
+    /*
+     * Đỉnh và giá của ĐÚNG phiên cho ra mức sụt sâu nhất — vế `max` của hình đạt tại đó — cho dải
+     * thay số (16/10/2026). Cùng vòng lặp với `maxDrawdown`, chỉ ghi lại thêm cặp số ấy; chuỗi không
+     * hề sụt thì cặp số là hai lần đỉnh, và dải in ra đúng 0.
+     */
+    let dinh = window[0] ?? Number.NaN;
+    let day = dinh;
+    let dinhChay = Number.NEGATIVE_INFINITY;
+    let sauNhat = 0;
+    for (const close of window) {
+      if (close > dinhChay) dinhChay = close;
+      else if (dinhChay > 0 && (dinhChay - close) / dinhChay > sauNhat) {
+        sauNhat = (dinhChay - close) / dinhChay;
+        dinh = dinhChay;
+        day = close;
+      }
+    }
+    return ok(maxDrawdown(window) * 100, '%', {
+      extras: { barsUsed: window.length, dinh, day },
+    });
   },
 };
 
@@ -447,6 +484,7 @@ export const SUT_GIAM_HIEN_TAI: FormulaModule = {
       vi: 'Sụt giảm hiện tại = (Đỉnh cao nhất trong cửa sổ − Giá phiên gần nhất) ÷ Đỉnh cao nhất trong cửa sổ × 100',
       en: 'Current drawdown = (highest peak in the window − most recent session price) ÷ highest peak in the window × 100',
     },
+    substitution: '({@peak} − {@lastClose}) ÷ {@peak} × 100',
     symbols: [
       {
         latex: 'DD_{t}',
@@ -514,8 +552,8 @@ export const SUT_GIAM_HIEN_TAI: FormulaModule = {
       dataset: FPT_2026,
       expected: 2.4161,
       note: {
-        vi: 'Khác mức sụt giảm sâu nhất vốn soi cả quá khứ, con số này chỉ so phiên gần nhất với đỉnh nằm trong cửa sổ. Về 0 nghĩa là giá vừa lập đỉnh mới của kỳ.',
-        en: 'Unlike maximum drawdown, which scans the whole past, this figure only compares the most recent session with the peak inside the window. Reaching 0 means the price has just set a new high for the period.',
+        vi: 'So với đỉnh 74.500 ₫ của FPT trong 55 phiên gần nhất: giá đóng cửa 72.700 ₫ phiên 15/09/2026 thấp hơn đỉnh ấy 2,42%, tức chỉ cần tăng khoảng 2,5% là về lại đỉnh. Con số nhỏ vì chỉ xét 55 phiên, xét cả 250 phiên thì đỉnh là 106.100 ₫ ngày 29/01/2026 và FPT đang thấp hơn đỉnh ấy 31,48%.',
+        en: "Compared with FPT's peak close of 74,500 ₫ in the last 55 sessions: the 72,700 ₫ close on 2026-09-15 is 2.42% below that peak, so a rise of only about 2.5% would take it back there. The figure is small because only 55 sessions are counted, and over the full 250 sessions the peak is 106,100 ₫ on 2026-01-29, with FPT now 31.48% below it.",
       },
       source: {
         vi: 'VNDirect, giá đóng cửa CTCP FPT (mã FPT), chuỗi 250 phiên 12/09/2025–15/09/2026.',
@@ -597,6 +635,11 @@ export const VAR_LICH_SU: FormulaModule = {
       vi: 'VaR = − Phân vị mức (1 − Độ tin cậy) của chuỗi lợi suất phiên × 100',
       en: 'VaR = − percentile at level (1 − confidence) of the session returns series × 100',
     },
+    /*
+     * Phân vị Q viết bằng chính phép nội suy `calc` dùng: quan sát đứng trước, cộng trọng số nhân
+     * khoảng cách tới quan sát đứng sau — cùng dạng khối Ví dụ thực tế đã in.
+     */
+    substitution: '−({@a} + {@w} × ({@b} − {@a})) × 100',
     symbols: [
       {
         latex: 'VaR_{\\alpha}',
@@ -629,8 +672,8 @@ export const VAR_LICH_SU: FormulaModule = {
       {
         latex: 'N',
         meaning: {
-          vi: 'số phiên trong cửa sổ, lớn nhất của 60 và ô Số phiên gần nhất đưa vào tính',
-          en: 'sessions in the window, the larger of 60 and the Sessions to include field',
+          vi: 'số phiên trong cửa sổ, lớn nhất của 60 và ô Số phiên gần nhất, tối đa cả chuỗi',
+          en: 'window length, the larger of 60 and the Sessions to include field, at most the series',
         },
       },
       {
@@ -674,8 +717,8 @@ export const VAR_LICH_SU: FormulaModule = {
       dataset: VNINDEX_2026,
       expected: 1.9755,
       note: {
-        vi: 'Đây là NGƯỠNG mà 95% số phiên không vượt qua, chứ không phải mức mất của phiên tệ nhất: ngay trong mẫu này đã có một phiên rơi 3,58%, sâu hơn hẳn ngưỡng.',
-        en: 'This is the THRESHOLD that 95% of sessions stay within, not what the worst session loses: this very sample already holds a session that fell 3.58%, far deeper than the threshold.',
+        vi: 'So với số vốn bỏ vào danh mục bám VN-Index: mất 1,98% số vốn ấy trong một phiên là mức mà khoảng 95% số phiên không vượt qua, cụ thể trong 71 phiên tới 15/09/2026 chỉ 4 phiên mất nhiều hơn. Phiên tệ nhất, 22/07/2026, mất 3,58%, nên 1,98% là ngưỡng của phiên xấu chứ chưa phải mức lỗ lớn nhất.',
+        en: 'Compared with the money put into a portfolio tracking the VN-Index: losing 1.98% of it in one session is a level about 95% of sessions stay within, and in the 71 sessions through 2026-09-15 only 4 sessions lost more. The worst one, on 2026-07-22, lost 3.58%, so 1.98% marks a bad session, not the largest possible loss.',
       },
       source: {
         vi: 'VNDirect, dữ liệu lịch sử VN-Index, chuỗi 250 phiên 12/09/2025–15/09/2026; 71 phiên cuối trùng số liệu Investing.com, đối chiếu chéo Vietstock.',
@@ -735,7 +778,10 @@ export const VAR_LICH_SU: FormulaModule = {
       );
     }
 
-    return ok(-tail.threshold * 100, '%', { extras: { observations: tail.returns.length } });
+    /* `a`, `b`, `w` cho dải thay số (16/10/2026): Q = a + w × (b − a), đúng phép nội suy vừa chạy. */
+    return ok(-tail.threshold * 100, '%', {
+      extras: { observations: tail.returns.length, ...(tail.parts ?? {}) },
+    });
   },
 };
 
@@ -749,20 +795,23 @@ export const CVAR_LICH_SU: FormulaModule = {
     categoryId: 'risk',
     name: { vi: 'CVaR — tổn thất kỳ vọng phần đuôi', en: 'Conditional VaR (expected shortfall)' },
     description: {
-      vi: 'Mức lỗ trung bình của riêng những phiên tệ hơn ngưỡng VaR — trả lời câu "nếu ngày xấu thật sự xảy ra thì mất bao nhiêu".',
-      en: 'The average loss of just the sessions worse than the VaR threshold — answering "if the bad day actually happens, how much do I lose".',
+      vi: 'Mức lỗ trung bình của riêng những phiên không tốt hơn ngưỡng VaR — trả lời câu "nếu ngày xấu thật sự xảy ra thì mất bao nhiêu".',
+      en: 'The average loss of just the sessions no better than the VaR threshold — answering "if the bad day actually happens, how much do I lose".',
     },
     latex: 'CVaR_{\\alpha} = -E\\left[r_N \\mid r_N \\le Q_{1-\\alpha}(r_N)\\right] \\times 100',
     expression: {
       vi: 'CVaR = − Trung bình các lợi suất phiên không cao hơn ngưỡng VaR × 100',
       en: 'CVaR = − average of the session returns no higher than the VaR threshold × 100',
     },
+    /* Phép trung bình E[…] viết đủ: tổng từng lợi suất của nhóm đuôi chia số phiên của nhóm. */
+    substitutionRepeat: { duoi: { count: '@tailCount', join: '+', term: '{@r#}' } },
+    substitution: '−({duoi}) ÷ {@tailCount} × 100',
     symbols: [
       {
         latex: 'CVaR_{\\alpha}',
         meaning: {
-          vi: 'mức lỗ bình quân của nhóm phiên tệ hơn ngưỡng VaR, số dương nghĩa là mất, %',
-          en: 'average loss of the sessions worse than the VaR threshold, positive means loss, %',
+          vi: 'mức lỗ bình quân của nhóm phiên không tốt hơn ngưỡng VaR, số dương là mất, %',
+          en: 'average loss of the sessions no better than the VaR threshold, positive means loss, %',
         },
       },
       {
@@ -789,8 +838,8 @@ export const CVAR_LICH_SU: FormulaModule = {
       {
         latex: 'N',
         meaning: {
-          vi: 'số phiên trong cửa sổ, lớn nhất của 60 và ô Số phiên gần nhất đưa vào tính',
-          en: 'sessions in the window, the larger of 60 and the Sessions to include field',
+          vi: 'số phiên trong cửa sổ, lớn nhất của 60 và ô Số phiên gần nhất, tối đa cả chuỗi',
+          en: 'window length, the larger of 60 and the Sessions to include field, at most the series',
         },
       },
       {
@@ -848,8 +897,8 @@ export const CVAR_LICH_SU: FormulaModule = {
       dataset: VNINDEX_2026,
       expected: 2.6858,
       note: {
-        vi: 'Phép tính lấy bình quân riêng nhóm phiên tệ hơn ngưỡng VaR nên kết quả luôn sâu hơn chính ngưỡng ấy: một bên nói cửa nằm ở đâu, một bên nói phía sau cửa sâu tới đâu.',
-        en: 'The calculation averages only the sessions worse than the VaR threshold, so the result always runs deeper than that threshold: one says where the doorway is, the other how far down it goes behind it.',
+        vi: 'So với ngưỡng VaR 1,98% của cùng 71 phiên: 4 phiên VN-Index lỗ vượt ngưỡng ấy mất trung bình 2,69% số vốn mỗi phiên, sâu hơn ngưỡng khoảng 0,71% số vốn. Bình quân ấy chỉ dựa trên 4 phiên, xét cả 250 phiên thì nhóm phiên tệ nhất có 13 phiên và mất trung bình 3,18% mỗi phiên.',
+        en: 'Compared with the 1.98% VaR threshold of the same 71 sessions: the 4 VN-Index sessions that went past it lost 2.69% of capital on average, about 0.71% of capital deeper than the threshold. That average rests on only 4 sessions, and over the full 250 sessions the group of worst sessions has 13 sessions, losing 3.18% each on average.',
       },
       source: {
         vi: 'VNDirect, dữ liệu lịch sử VN-Index, chuỗi 250 phiên 12/09/2025–15/09/2026; 71 phiên cuối trùng số liệu Investing.com, đối chiếu chéo Vietstock.',
@@ -924,7 +973,12 @@ export const CVAR_LICH_SU: FormulaModule = {
       );
     }
 
-    return ok(-trungBinhDuoi * 100, '%', { extras: { tailCount: worst.length } });
+    /* Từng lợi suất của nhóm đuôi (`r1`… `rk`), cho dải thay số viết đủ phép trung bình (16/10/2026). */
+    const extras: Record<string, number> = { tailCount: worst.length };
+    worst.forEach((r, i) => {
+      extras[`r${i + 1}`] = r;
+    });
+    return ok(-trungBinhDuoi * 100, '%', { extras });
   },
 };
 

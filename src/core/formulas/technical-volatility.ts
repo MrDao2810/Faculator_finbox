@@ -9,9 +9,12 @@
  *   1. KHÔNG công thức nào đọc `ctx.series` thô. Tất cả đi qua `requireCloses` / `requireBars`
  *      của `series-utils.ts` (hoặc hai lớp bọc `requireOhlc` / `requireVolumeBars` ngay dưới),
  *      nên thiếu phiên thì ra MISSING_SERIES chứ không ra một con số dựng từ chuỗi cụt.
- *   2. Độ lệch chuẩn dùng cho Bollinger là độ lệch chuẩn MẪU (chia n−1) — quy ước thống kê
- *      của `sampleStdDev`. Nhiều bảng giá chia n, nên dải của họ hẹp hơn của ta một chút;
- *      chỗ nào người rà soát dễ vấp là chỗ đó, đã ghi rõ trong mô tả biến và sai lầm thường gặp.
+ *   2. Độ lệch chuẩn dùng cho Bollinger chia n (`populationStdDev`), đúng như Bollinger: n phiên
+ *      trong cửa sổ là cả tổng thể mà dải mô tả. Tới 16/10/2026 nó chia n − 1 (`sampleStdDev`), lệch
+ *      với chính nguồn màn trích; chủ dự án khoanh "n − 1" trong khung cách tính của dải trên và chốt
+ *      Q1 ở `REVIEW-2.md`. Bảng giá nào chia n − 1 sẽ ra dải rộng hơn của ta một chút — đã ghi trong
+ *      mô tả biến và sai lầm thường gặp. Độ biến động lịch sử vẫn dùng `sampleStdDev`: đó là ước
+ *      lượng từ mẫu lợi suất, quy ước khác hẳn.
  *   3. Chuỗi xếp phiên CŨ trước, phiên MỚI CUỐI — cùng chiều bảng WF-05.
  *
  * Số trong `tests[]` tính bằng script Node độc lập (viết lại từ định nghĩa gốc, không import
@@ -26,7 +29,7 @@ import type { FormulaSource } from '../registry/types';
 import type { Bilingual, CalcOutput, CalcWarning, VariableSpec } from '../types';
 import { divideByZero, meaningless, missingSeries } from '../warnings';
 import { FPT_2026, FPT_BARS, FPT_PHIEN } from './market-series-2026';
-import { mean, requireBars, requireCloses, sampleStdDev } from './series-utils';
+import { mean, populationStdDev, requireBars, requireCloses, sampleStdDev } from './series-utils';
 import { SOURCE_CFA, sliderVar } from './shared';
 
 /*
@@ -194,8 +197,8 @@ const BOLLINGER_K: VariableSpec = sliderVar(
   0.5,
   {
     description: {
-      vi: 'Bollinger dùng 2. Độ lệch chuẩn ở đây là độ lệch chuẩn MẪU (chia cho n−1); bảng giá nào chia cho n sẽ ra dải hẹp hơn một chút.',
-      en: 'Bollinger uses 2. The standard deviation here is the SAMPLE standard deviation (divided by n−1); a price table that divides by n instead will produce a slightly narrower band.',
+      vi: 'Bollinger dùng 2. Độ lệch chuẩn ở đây chia cho n, đúng cách Bollinger tính; bảng giá nào chia cho n − 1 sẽ ra dải rộng hơn một chút.',
+      en: 'Bollinger uses 2. The standard deviation here divides by n, as Bollinger computes it; a price table that divides by n − 1 instead will produce a slightly wider band.',
     },
   },
 );
@@ -204,7 +207,23 @@ const BOLLINGER_K: VariableSpec = sliderVar(
 interface BollingerParts {
   middle: number;
   deviation: number;
+  /** σ trơn, chưa nhân k — ký hiệu `σ_n` của hình, cho dải thay số (16/10/2026). */
+  sigma: number;
   last: number;
+}
+
+/**
+ * Các con số của dải Bollinger cho dải thay số: đường giữa, σ, hai dải, giá phiên cuối. Một chỗ cho
+ * cả bốn công thức Bollinger, để bốn dải in cùng một bộ số với cùng một tên khoá.
+ */
+function bollingerExtras(parts: BollingerParts): Record<string, number> {
+  return {
+    duongGiua: parts.middle,
+    sigma: parts.sigma,
+    tren: parts.middle + parts.deviation,
+    duoi: parts.middle - parts.deviation,
+    gia: parts.last,
+  };
 }
 
 function bollingerParts(ctx: CalcContext, period: number, k: number): BollingerParts | CalcWarning {
@@ -215,7 +234,12 @@ function bollingerParts(ctx: CalcContext, period: number, k: number): BollingerP
   const last = window[window.length - 1];
   if (last === undefined) return missingSeries(period, window.length);
 
-  return { middle: mean(window), deviation: k * sampleStdDev(window), last };
+  return {
+    middle: mean(window),
+    deviation: k * populationStdDev(window),
+    sigma: populationStdDev(window),
+    last,
+  };
 }
 
 /*
@@ -226,7 +250,7 @@ function bollingerParts(ctx: CalcContext, period: number, k: number): BollingerP
  * dùng chuỗi giá THẬT của FPT trong `market-series-2026.ts` chứ không dùng chuỗi ở đây.
  */
 
-/** Mười phiên số tròn: trung bình 104,6 · độ lệch chuẩn mẫu 3,2042. */
+/** Mười phiên số tròn: trung bình 104,6 · độ lệch chuẩn (chia n) 3,0397. */
 const CLOSES_KIEM = [100, 102, 101, 103, 105, 104, 106, 108, 107, 110] as const;
 
 /** Chuỗi cụt để kiểm nhánh thiếu phiên. */
@@ -292,9 +316,10 @@ export const DAI_BOLLINGER_TREN: FormulaModule = {
     },
     latex: 'BB_{tren} = SMA_{n} + k \\cdot \\sigma_{n}',
     expression: {
-      vi: 'Dải trên = Trung bình n phiên + Hệ số k × Độ lệch chuẩn mẫu của n phiên đó',
-      en: 'Upper band = n-session average + Multiplier k × Sample standard deviation of those n sessions',
+      vi: 'Dải trên = Trung bình n phiên + Hệ số k × Độ lệch chuẩn của n phiên đó',
+      en: 'Upper band = n-session average + Multiplier k × Standard deviation of those n sessions',
     },
+    substitution: '{@duongGiua} + {k} × {@sigma}',
     symbols: [
       {
         latex: 'BB_{tren}',
@@ -327,8 +352,8 @@ export const DAI_BOLLINGER_TREN: FormulaModule = {
       {
         latex: '\\sigma_{n}',
         meaning: {
-          vi: 'độ lệch chuẩn mẫu của giá đóng cửa n phiên đó, ₫',
-          en: 'sample standard deviation of those n closes, in VND',
+          vi: 'độ lệch chuẩn của giá đóng cửa n phiên đó, chia cho n, ₫',
+          en: 'standard deviation of those n closes, divided by n, in VND',
         },
       },
     ],
@@ -351,8 +376,8 @@ export const DAI_BOLLINGER_TREN: FormulaModule = {
         en: "Compared with the stock's latest closing price: a close at or above this figure means the price has reached the top edge of its usual range over the last n sessions, and a close below it means the price has not yet reached that top edge.",
       },
       commonMistakes: {
-        vi: 'Coi chạm dải trên là tín hiệu bán. Bollinger nói rõ dải chỉ mô tả vùng giá, không phải lệnh mua bán. Ngoài ra độ lệch chuẩn ở đây chia cho n−1, một số bảng giá chia cho n nên dải của họ hẹp hơn chút ít.',
-        en: 'Treating a touch of the upper band as a sell signal. Bollinger himself made clear the band only describes a price zone, not a buy or sell order. Also, the standard deviation here divides by n−1; some price tables divide by n instead, so their bands come out slightly narrower.',
+        vi: 'Coi chạm dải trên là tín hiệu bán. Bollinger nói rõ dải chỉ mô tả vùng giá, không phải lệnh mua bán. Ngoài ra độ lệch chuẩn ở đây chia cho n như Bollinger, một số bảng giá chia cho n − 1 nên dải của họ rộng hơn chút ít.',
+        en: 'Treating a touch of the upper band as a sell signal. Bollinger himself made clear the band only describes a price zone, not a buy or sell order. Also, the standard deviation here divides by n, as Bollinger does; some price tables divide by n − 1 instead, so their bands come out slightly wider.',
       },
     },
     example: {
@@ -363,10 +388,10 @@ export const DAI_BOLLINGER_TREN: FormulaModule = {
       inputs: { period: 20, k: 2 },
       series: FPT_PHIEN,
       dataset: FPT_2026,
-      expected: 74_988,
+      expected: 74_901,
       note: {
-        vi: 'Dải trên bằng trung bình 20 phiên cộng hai lần độ lệch chuẩn, nên theo phân phối chuẩn chỉ chừng 5% số phiên ra được ngoài hai dải — chạm mép trên là chuyện hiếm. Nhưng trong xu hướng tăng mạnh, giá có thể bám dải trên nhiều phiên liền: dải Bollinger đo biến động chứ không dự báo hướng.',
-        en: 'The upper band is the 20-session average plus twice the standard deviation, so under a normal distribution only about 5% of sessions land outside the two bands — touching the upper edge is rare. In a strong uptrend, though, price can hug the upper band for many sessions in a row: Bollinger bands measure volatility, they do not forecast direction.',
+        vi: 'So với giá đóng cửa phiên cuối của FPT là 72.700 ₫: dải trên 74.901 ₫ cao hơn giá khoảng 2.201 ₫, bằng chừng 3,0% giá, tức giá chưa chạm tới mép trên vùng lên xuống quen thuộc của 20 phiên vừa qua.',
+        en: "Compared with FPT's last closing price of 72,700 ₫: the upper band at 74,901 ₫ is about 2,201 ₫ higher, roughly 3.0% of the price, so the price has not reached the top edge of its usual range over the past 20 sessions.",
       },
       source: {
         vi: 'VNDirect, dữ liệu lịch sử FPT, 250 phiên 12/09/2025–15/09/2026.',
@@ -378,19 +403,19 @@ export const DAI_BOLLINGER_TREN: FormulaModule = {
         name: 'mười phiên số tròn, chu kỳ 10 và k = 2',
         inputs: { period: 10, k: 2 },
         series: CLOSES_KIEM,
-        expected: 111.0083,
+        expected: 110.6795,
       },
       {
         name: 'hạ k xuống 1 thì dải trên tụt lại gần đường giữa',
         inputs: { period: 10, k: 1 },
         series: CLOSES_KIEM,
-        expected: 107.8042,
+        expected: 107.6397,
       },
       {
         name: 'chu kỳ 5 chỉ lấy năm phiên cuối nên dải trên khác hẳn',
         inputs: { period: 5, k: 2 },
         series: CLOSES_KIEM,
-        expected: 111.4721,
+        expected: 111,
       },
       {
         name: 'chuỗi phẳng thì dải co lại đúng bằng đường giữa',
@@ -421,7 +446,7 @@ export const DAI_BOLLINGER_TREN: FormulaModule = {
     const parts = bollingerParts(ctx, period, v('k'));
     if (!('middle' in parts)) return fail(unit, parts);
 
-    return ok(parts.middle + parts.deviation, unit, { extras: { duongGiua: parts.middle } });
+    return ok(parts.middle + parts.deviation, unit, { extras: bollingerExtras(parts) });
   },
 };
 
@@ -440,9 +465,10 @@ export const DAI_BOLLINGER_DUOI: FormulaModule = {
     },
     latex: 'BB_{duoi} = SMA_{n} - k \\cdot \\sigma_{n}',
     expression: {
-      vi: 'Dải dưới = Trung bình n phiên − Hệ số k × Độ lệch chuẩn mẫu của n phiên đó',
-      en: 'Lower band = n-session average − Multiplier k × Sample standard deviation of those n sessions',
+      vi: 'Dải dưới = Trung bình n phiên − Hệ số k × Độ lệch chuẩn của n phiên đó',
+      en: 'Lower band = n-session average − Multiplier k × Standard deviation of those n sessions',
     },
+    substitution: '{@duongGiua} − {k} × {@sigma}',
     symbols: [
       {
         latex: 'BB_{duoi}',
@@ -475,8 +501,8 @@ export const DAI_BOLLINGER_DUOI: FormulaModule = {
       {
         latex: '\\sigma_{n}',
         meaning: {
-          vi: 'độ lệch chuẩn mẫu của giá đóng cửa n phiên đó, ₫',
-          en: 'sample standard deviation of those n closes, in VND',
+          vi: 'độ lệch chuẩn của giá đóng cửa n phiên đó, chia cho n, ₫',
+          en: 'standard deviation of those n closes, divided by n, in VND',
         },
       },
     ],
@@ -511,10 +537,10 @@ export const DAI_BOLLINGER_DUOI: FormulaModule = {
       inputs: { period: 20, k: 2 },
       series: FPT_PHIEN,
       dataset: FPT_2026,
-      expected: 68_132,
+      expected: 68_219,
       note: {
-        vi: 'Dải dưới đối xứng với dải trên qua đường giữa, nên nó chỉ nói giá đang ở mép dưới vùng dao động quen thuộc. Ngay trong chuỗi này có hai phiên cuối tháng 7 thủng dải dưới rồi giá hồi lên trong tháng 8, nhưng thủng dải xong rơi tiếp cũng là chuyện thường khi tin xấu là thật — Bollinger không phân biệt được hai tình huống đó.',
-        en: 'The lower band mirrors the upper one around the middle line, so it only says price is at the bottom edge of its usual trading range. This very series has two late-July sessions that broke below it before price recovered in August, yet breaking below and continuing to fall is just as common when the bad news is real — Bollinger bands cannot tell the two cases apart.',
+        vi: 'So với giá đóng cửa phiên cuối của FPT là 72.700 ₫: dải dưới 68.219 ₫ thấp hơn giá khoảng 4.481 ₫, bằng chừng 6,2% giá, tức giá còn cách xa mép dưới vùng dao động thường ngày của 20 phiên vừa qua, vì đang nằm trên cả đường giữa 71.560 ₫.',
+        en: "Compared with FPT's last closing price of 72,700 ₫: the lower band at 68,219 ₫ is about 4,481 ₫ lower, roughly 6.2% of the price, so the price is still well clear of the bottom edge of its usual range over the past 20 sessions, since it sits over even the 71,560 ₫ middle line.",
       },
       source: {
         vi: 'VNDirect, dữ liệu lịch sử FPT, 250 phiên 12/09/2025–15/09/2026.',
@@ -526,19 +552,19 @@ export const DAI_BOLLINGER_DUOI: FormulaModule = {
         name: 'mười phiên số tròn, chu kỳ 10 và k = 2',
         inputs: { period: 10, k: 2 },
         series: CLOSES_KIEM,
-        expected: 98.1917,
+        expected: 98.5205,
       },
       {
         name: 'hạ k xuống 1 thì dải dưới nhích lên gần đường giữa',
         inputs: { period: 10, k: 1 },
         series: CLOSES_KIEM,
-        expected: 101.3958,
+        expected: 101.5603,
       },
       {
         name: 'chu kỳ 5 chỉ lấy năm phiên cuối',
         inputs: { period: 5, k: 2 },
         series: CLOSES_KIEM,
-        expected: 102.5279,
+        expected: 103,
       },
       {
         name: 'chỉ có 5 phiên mà đòi chu kỳ 10 thì thiếu chuỗi',
@@ -563,7 +589,7 @@ export const DAI_BOLLINGER_DUOI: FormulaModule = {
     const parts = bollingerParts(ctx, period, v('k'));
     if (!('middle' in parts)) return fail(unit, parts);
 
-    return ok(parts.middle - parts.deviation, unit, { extras: { duongGiua: parts.middle } });
+    return ok(parts.middle - parts.deviation, unit, { extras: bollingerExtras(parts) });
   },
 };
 
@@ -585,6 +611,7 @@ export const DO_RONG_DAI_BOLLINGER: FormulaModule = {
       vi: 'Độ rộng dải = (Dải trên − Dải dưới) ÷ Đường giữa × 100',
       en: 'Bandwidth = (Upper band − Lower band) ÷ Middle line × 100',
     },
+    substitution: '({@tren} − {@duoi}) ÷ {@duongGiua} × 100',
     symbols: [
       {
         latex: 'BW',
@@ -617,8 +644,8 @@ export const DO_RONG_DAI_BOLLINGER: FormulaModule = {
       {
         latex: 'n',
         meaning: {
-          vi: 'chu kỳ dải Bollinger, phiên (ô Chu kỳ dải Bollinger)',
-          en: 'Bollinger band period, in sessions (Bollinger band period field)',
+          vi: 'chu kỳ dải Bollinger, phiên',
+          en: 'Bollinger band period, in sessions',
         },
       },
       {
@@ -660,10 +687,10 @@ export const DO_RONG_DAI_BOLLINGER: FormulaModule = {
       inputs: { period: 20, k: 2 },
       series: FPT_PHIEN,
       dataset: FPT_2026,
-      expected: 9.5816,
+      expected: 9.339,
       note: {
-        vi: 'Chia cho đường giữa nên con số này so được qua thời gian và so được giữa các mã có thị giá khác nhau. Giai đoạn dải co hẹp — cái mà Bollinger gọi là "thắt nút" — thường đi trước một nhịp giá mạnh, nhưng nó chỉ trả lời "khi nào" chứ không trả lời "chiều nào", nên phải đọc kèm một chỉ báo xu hướng.',
-        en: 'Dividing by the middle line makes this number comparable across time and across stocks at different price levels. A stretch of narrowing bands — what Bollinger calls a "squeeze" — often precedes a strong price move, but it only answers "when", never "which way", so it has to be read alongside a trend indicator.',
+        vi: 'So với độ rộng dải của chính FPT trong năm qua, từ 4,96% đến 34,73%: 9,34% nằm ở khoảng giữa, hẹp hơn chừng sáu phần mười số phiên, tức giá FPT đang lên xuống ở mức bình thường của nó, dải chưa bóp hẹp bất thường mà cũng chưa nở rộng.',
+        en: "Compared with FPT's own bandwidth over the past year, from 4.96% to 34.73%: 9.34% sits in the middle ground, narrower than about six in ten sessions, so FPT's price is moving by its usual amount, with the bands neither unusually squeezed nor unusually wide.",
       },
       source: {
         vi: 'VNDirect, dữ liệu lịch sử FPT, 250 phiên 12/09/2025–15/09/2026.',
@@ -675,13 +702,13 @@ export const DO_RONG_DAI_BOLLINGER: FormulaModule = {
         name: 'mười phiên số tròn, chu kỳ 10 và k = 2',
         inputs: { period: 10, k: 2 },
         series: CLOSES_KIEM,
-        expected: 12.253,
+        expected: 11.6242,
       },
       {
         name: 'hạ k xuống 1 thì độ rộng giảm đúng một nửa',
         inputs: { period: 10, k: 1 },
         series: CLOSES_KIEM,
-        expected: 6.1265,
+        expected: 5.8121,
       },
       {
         name: 'chuỗi phẳng lì thì độ rộng đúng bằng 0 — đây là số thật, không phải lỗi',
@@ -714,7 +741,9 @@ export const DO_RONG_DAI_BOLLINGER: FormulaModule = {
 
     // Đường giữa luôn dương vì `usableCloses` đã loại mọi giá ≤ 0, nên phép chia này an toàn;
     // dù có lọt thì `ok()` vẫn chặn giá trị không hữu hạn trước khi ra tới màn.
-    return ok(((2 * parts.deviation) / parts.middle) * 100, unit);
+    return ok(((2 * parts.deviation) / parts.middle) * 100, unit, {
+      extras: bollingerExtras(parts),
+    });
   },
 };
 
@@ -740,9 +769,15 @@ export const ATR_DAO_DONG_THUC: FormulaModule = {
      * là "Chu kỳ ATR" cho trùng từng chữ với nhãn ô nhập và dòng bảng ký hiệu.
      */
     expression: {
-      vi: 'Dao động thực phiên này = số lớn nhất trong (Cao − Thấp), (Cao − Đóng cửa phiên trước), (Đóng cửa phiên trước − Thấp)\nATR phiên này = ((Chu kỳ ATR − 1) × ATR phiên trước + Dao động thực phiên này) ÷ Chu kỳ ATR',
-      en: "This session's true range = the largest of (High − Low), (High − Previous close), (Previous close − Low)\nThis session's ATR = ((ATR period − 1) × Previous ATR + This session's true range) ÷ ATR period",
+      vi: 'Dao động thực phiên này = số lớn nhất trong (Cao − Thấp), |Cao − Đóng cửa phiên trước|, |Thấp − Đóng cửa phiên trước|\nATR phiên này = ((Chu kỳ ATR − 1) × ATR phiên trước + Dao động thực phiên này) ÷ Chu kỳ ATR',
+      en: "This session's true range = the largest of (High − Low), |High − Previous close|, |Low − Previous close|\nThis session's ATR = ((ATR period − 1) × Previous ATR + This session's true range) ÷ ATR period",
     },
+    /*
+     * Hai vế của hình gộp vào một dòng: `TR_t` trong vế ATR được thay bằng chính định nghĩa của nó —
+     * số lớn nhất trong ba khoảng cách của phiên cuối (16/10/2026).
+     */
+    substitution:
+      '(({period} − 1) × {@atrTruoc} + max({@h} − {@l}; |{@h} − {@cTruoc}|; |{@l} − {@cTruoc}|)) ÷ {period}',
     symbols: [
       {
         latex: 'ATR_t',
@@ -848,8 +883,8 @@ export const ATR_DAO_DONG_THUC: FormulaModule = {
       dataset: FPT_2026,
       expected: 1_502.87,
       note: {
-        vi: 'Dao động thực lấy số lớn nhất trong ba khoảng nên tính được cả phần giá nhảy qua đêm mà biên độ trong phiên bỏ sót. Ứng dụng quen thuộc nhất là đặt cắt lỗ cách giá vào lệnh chừng 1,5–2 lần ATR, để nhiễu thường ngày không quét mất lệnh dừng.',
-        en: 'The true range takes the largest of three gaps, so it captures the overnight jump that an intraday high-minus-low misses. Its most common use is placing a stop roughly 1.5–2 ATR away from the entry price, so ordinary daily noise does not sweep the stop out.',
+        vi: 'So với giá đóng cửa phiên cuối của FPT là 72.700 ₫: 1.502,87 ₫ bằng khoảng 2,1% giá, tức gần đây mỗi phiên giá FPT thường lên xuống trong một khoảng rộng chừng ấy. Đây là mức bình quân, riêng phiên 15/09/2026 chỉ có dao động thực 1.000 ₫.',
+        en: "Compared with FPT's last close of 72,700 ₫: 1,502.87 ₫ is about 2.1% of the price, so lately FPT's price has typically moved within a range about that wide each session. This is an average, and the 2026-09-15 session on its own had a true range of only 1,000 ₫.",
       },
       source: {
         vi: 'VNDirect, dữ liệu lịch sử FPT, 250 phiên 12/09/2025–15/09/2026.',
@@ -921,12 +956,30 @@ export const ATR_DAO_DONG_THUC: FormulaModule = {
 
     // Wilder: mồi bằng trung bình cộng của `period` dao động đầu, rồi làm mượt dần về sau.
     let atr = mean(trueRanges.slice(0, period));
+    /* ATR phiên trước bước cuối — `ATR_{t−1}` của vế đệ quy, cho dải thay số (16/10/2026). */
+    let atrTruoc = Number.NaN;
     for (let i = period; i < trueRanges.length; i += 1) {
       const tr = trueRanges[i];
-      if (tr !== undefined) atr = (atr * (period - 1) + tr) / period;
+      if (tr === undefined) continue;
+      atrTruoc = atr;
+      atr = (atr * (period - 1) + tr) / period;
     }
 
-    return ok(atr, unit);
+    /*
+     * Phiên cuối và giá đóng cửa phiên trước — ba khoảng cách của `TR_t`. Chuỗi chỉ vừa đủ n + 1
+     * phiên thì ATR là trung bình gieo hạt, chưa có phiên trước: không trả `atrTruoc`, màn không in
+     * dải.
+     */
+    const cuoi = bars[bars.length - 1];
+    const truoc = bars[bars.length - 2];
+    const extras: Record<string, number> = {};
+    if (Number.isFinite(atrTruoc) && cuoi !== undefined && truoc !== undefined) {
+      extras['atrTruoc'] = atrTruoc;
+      extras['h'] = cuoi.high;
+      extras['l'] = cuoi.low;
+      extras['cTruoc'] = truoc.close;
+    }
+    return ok(atr, unit, { extras });
   },
 };
 
@@ -948,6 +1001,7 @@ export const PHAN_TRAM_B_BOLLINGER: FormulaModule = {
       vi: '%B = (Giá đóng cửa − Dải dưới) ÷ (Dải trên − Dải dưới) × 100',
       en: '%B = (Closing price − Lower band) ÷ (Upper band − Lower band) × 100',
     },
+    substitution: '({@gia} − {@duoi}) ÷ ({@tren} − {@duoi}) × 100',
     symbols: [
       {
         latex: '\\%B',
@@ -1026,10 +1080,10 @@ export const PHAN_TRAM_B_BOLLINGER: FormulaModule = {
       inputs: { period: 20, k: 2 },
       series: FPT_PHIEN,
       dataset: FPT_2026,
-      expected: 66.6263,
+      expected: 67.0582,
       note: {
-        vi: '%B quy vị trí giá về một thang chung: 0 là chạm dải dưới, 50 là đúng đường giữa, 100 là chạm dải trên, còn ra ngoài khoảng đó nghĩa là giá đã ra khỏi dải. Nhờ chuẩn hoá mà so được FPT với một mã giá 15.000 ₫ — điều không làm được khi nhìn ba đường Bollinger thô.',
-        en: '%B maps price position onto a common scale: 0 is the lower band, 50 is exactly the middle line, 100 is the upper band, and anything outside that range means price has left the band. That normalization is what lets FPT be compared with a 15,000 VND stock — something the three raw Bollinger lines cannot do.',
+        vi: 'So với hai mép 0% và 100% của dải: 67,06% nghĩa là giá đóng cửa 72.700 ₫ của FPT vẫn nằm trong dải, ở khoảng hai phần ba quãng từ dải dưới 68.218,5 ₫ lên dải trên 74.901,5 ₫, tức đã qua đường giữa 71.560 ₫ nhưng chưa chạm dải trên.',
+        en: "Compared with the band's two edges at 0% and 100%: 67.06% means FPT's close of 72,700 ₫ is still inside the band, about two thirds of the way from the lower band at 68,218.5 ₫ to the upper band at 74,901.5 ₫, so above the 71,560 ₫ middle line but not yet at the upper band.",
       },
       source: {
         vi: 'VNDirect, dữ liệu lịch sử FPT, 250 phiên 12/09/2025–15/09/2026.',
@@ -1041,13 +1095,13 @@ export const PHAN_TRAM_B_BOLLINGER: FormulaModule = {
         name: 'mười phiên số tròn, chu kỳ 10 và k = 2',
         inputs: { period: 10, k: 2 },
         series: CLOSES_KIEM,
-        expected: 92.1327,
+        expected: 94.4117,
       },
       {
         name: 'k = 1 làm dải hẹp lại nên giá vượt hẳn 100%',
         inputs: { period: 10, k: 1 },
         series: CLOSES_KIEM,
-        expected: 134.2654,
+        expected: 138.8235,
       },
       {
         name: 'chuỗi phẳng thì hai dải trùng nhau, không có bề rộng để chia',
@@ -1111,7 +1165,9 @@ export const PHAN_TRAM_B_BOLLINGER: FormulaModule = {
       );
     }
 
-    return ok(((parts.last - (parts.middle - parts.deviation)) / width) * 100, unit);
+    return ok(((parts.last - (parts.middle - parts.deviation)) / width) * 100, unit, {
+      extras: bollingerExtras(parts),
+    });
   },
 };
 
@@ -1133,6 +1189,7 @@ export const STOCHASTIC_K: FormulaModule = {
       vi: '%K = (Giá đóng cửa − Giá thấp nhất n phiên) ÷ (Giá cao nhất n phiên − Giá thấp nhất n phiên) × 100',
       en: '%K = (Closing price − n-session lowest price) ÷ (n-session highest price − n-session lowest price) × 100',
     },
+    substitution: '({@c} − {@lN}) ÷ ({@hN} − {@lN}) × 100',
     symbols: [
       {
         latex: '\\%K',
@@ -1237,8 +1294,8 @@ export const STOCHASTIC_K: FormulaModule = {
       bars: FPT_BARS,
       expected: 48.7805,
       note: {
-        vi: 'Mười bốn phiên gần nhất của FPT dao động trong khoảng 70.700–74.800 ₫ và giá đóng cửa rơi vào quãng giữa, tức chưa sát đỉnh cũng chưa sát đáy của biên độ. Chỉ báo này lấy cả giá cao nhất và thấp nhất trong phiên chứ không chỉ giá đóng cửa như RSI, nên phản ứng nhanh hơn.',
-        en: "FPT's last fourteen sessions ranged between 70,700 and 74,800 VND and the close lands in the middle of that band — neither near the high nor near the low. Unlike RSI, this indicator uses the intraday high and low as well as the close, so it reacts faster.",
+        vi: 'So với hai mốc quen dùng 20% và 80%: 48,78% nằm giữa hai mốc, tức giá đóng cửa 72.700 ₫ của FPT phiên 15/09/2026 ở gần giữa khoảng từ 70.700 ₫ đến 74.800 ₫ của 14 phiên gần nhất, chưa sát đỉnh cũng chưa sát đáy.',
+        en: "Compared with the usual 20% and 80% marks: 48.78% sits between them, so FPT's close of 72,700 ₫ on 2026-09-15 is near the middle of the 70,700 ₫ to 74,800 ₫ range of the last 14 sessions, close to neither the high nor the low.",
       },
       source: {
         vi: 'VNDirect, dữ liệu lịch sử FPT, 250 phiên 12/09/2025–15/09/2026.',
@@ -1310,7 +1367,9 @@ export const STOCHASTIC_K: FormulaModule = {
       );
     }
 
-    return ok(((last.close - lowest) / range) * 100, unit);
+    return ok(((last.close - lowest) / range) * 100, unit, {
+      extras: { c: last.close, hN: highest, lN: lowest },
+    });
   },
 };
 
@@ -1332,6 +1391,7 @@ export const VWAP: FormulaModule = {
       vi: 'VWAP = Tổng (Giá đóng cửa × Khối lượng) ÷ Tổng Khối lượng',
       en: 'VWAP = Sum of (Closing price × Volume) ÷ Total volume',
     },
+    substitution: '{@tongGiaTri} ÷ {@tongKhoiLuong}',
     symbols: [
       {
         latex: 'VWAP',
@@ -1364,8 +1424,8 @@ export const VWAP: FormulaModule = {
       {
         latex: 'n',
         meaning: {
-          vi: 'số phiên gộp gần nhất, phiên (ô Số phiên gộp)',
-          en: 'number of most recent pooled sessions (Sessions to pool field)',
+          vi: 'số phiên gộp gần nhất, phiên',
+          en: 'number of most recent pooled sessions',
         },
       },
     ],
@@ -1409,8 +1469,8 @@ export const VWAP: FormulaModule = {
       dataset: FPT_2026,
       expected: 71_930.86,
       note: {
-        vi: 'Mỗi phiên góp vào theo đúng số cổ phiếu đã khớp, nên phiên sôi động kéo bình quân về phía giá của nó: hai mươi phiên này có trung bình cộng giá đóng cửa 71.560 ₫, còn VWAP nhỉnh hơn vì phiên khối lượng nặng nhất trong kỳ lại là phiên giá cao. Các quỹ lớn dùng VWAP làm chuẩn đánh giá chất lượng khớp lệnh.',
-        en: 'Every session contributes in proportion to the shares it matched, so an active session pulls the average toward its own price: the plain average of these twenty closes is 71,560 VND, while VWAP comes out higher because the heaviest-volume session of the period was also a high-priced one. Large funds use VWAP as the benchmark for execution quality.',
+        vi: 'So với giá đóng cửa phiên cuối của FPT là 72.700 ₫: VWAP 71.930,86 ₫ thấp hơn khoảng 1,1%, tức bình quân theo khối lượng, người mua FPT trong 20 phiên ấy đang lãi nhẹ trước phí. VWAP nhỉnh hơn trung bình cộng 71.560 ₫ của 20 giá đóng cửa vì phiên giá cao khớp nhiều cổ phiếu hơn phiên giá thấp.',
+        en: "Compared with FPT's last close of 72,700 ₫: the VWAP of 71,930.86 ₫ is about 1.1% lower, so on a volume-weighted average, buyers of FPT over those 20 sessions are slightly in profit before fees. VWAP sits a little above the 71,560 ₫ plain average of the 20 closes because the higher-priced sessions matched more shares than the lower-priced ones.",
       },
       source: {
         vi: 'VNDirect, dữ liệu lịch sử FPT, 250 phiên 12/09/2025–15/09/2026.',
@@ -1482,7 +1542,9 @@ export const VWAP: FormulaModule = {
       );
     }
 
-    return ok(turnover / volume, unit, { extras: { tongKhoiLuong: volume } });
+    return ok(turnover / volume, unit, {
+      extras: { tongKhoiLuong: volume, tongGiaTri: turnover },
+    });
   },
 };
 
@@ -1505,6 +1567,7 @@ export const DO_BIEN_DONG_LICH_SU: FormulaModule = {
       vi: 'Độ biến động năm = Độ lệch chuẩn mẫu của lợi suất log mỗi phiên × căn bậc hai của Số phiên một năm × 100',
       en: 'Annual volatility = Sample standard deviation of per-session log returns × square root of Sessions per year × 100',
     },
+    substitution: '{@sigmaLog} × √{tradingDays} × 100',
     symbols: [
       {
         latex: '\\sigma_{nam}',
@@ -1551,8 +1614,8 @@ export const DO_BIEN_DONG_LICH_SU: FormulaModule = {
       {
         latex: 'n',
         meaning: {
-          vi: 'số phiên giá lấy mẫu (ô Số phiên giá lấy mẫu)',
-          en: 'number of sampled sessions (Sample sessions field)',
+          vi: 'số phiên giá lấy mẫu',
+          en: 'number of sampled sessions',
         },
       },
       {
@@ -1592,8 +1655,8 @@ export const DO_BIEN_DONG_LICH_SU: FormulaModule = {
         1,
         {
           description: {
-            vi: 'N phiên giá cho N−1 lợi suất. Giáo trình khuyên lấy ít nhất 60 phiên; dưới 20 phiên con số nhảy rất mạnh theo vài phiên cá biệt.',
-            en: 'N price sessions yield N−1 returns. Textbooks recommend at least 60 sessions; below 20 sessions the number swings wildly based on a handful of outlier sessions.',
+            vi: 'n phiên giá cho n − 1 lợi suất. Giáo trình khuyên lấy ít nhất 60 phiên; dưới 20 phiên con số nhảy rất mạnh theo vài phiên cá biệt.',
+            en: 'n price sessions yield n − 1 returns. Textbooks recommend at least 60 sessions; below 20 sessions the number swings wildly based on a handful of outlier sessions.',
           },
         },
       ),
@@ -1641,8 +1704,8 @@ export const DO_BIEN_DONG_LICH_SU: FormulaModule = {
       dataset: FPT_2026,
       expected: 30.3652,
       note: {
-        vi: 'Chỉ báo này dùng quy ước 252 phiên một năm theo thông lệ quốc tế, khác nhóm rủi ro vốn dùng 250 phiên: chênh lệch nhỏ, nhưng nếu hai màn hình không thống nhất thì cùng một mã sẽ hiện ra hai con số. Đây cũng là tham số bắt buộc của Black-Scholes khi định giá chứng quyền có bảo đảm.',
-        en: 'This indicator follows the international convention of 252 sessions per year, unlike the risk group which uses 250: the gap is small, but if two screens disagree the same stock will show two different numbers. It is also the mandatory volatility input to Black-Scholes when pricing covered warrants.',
+        vi: 'So với độ biến động của chính FPT trên cả 250 phiên là 32,31%/năm: 55 phiên gần nhất ra 30,37%/năm, thấp hơn một chút, tức gần đây giá FPT lên xuống êm hơn mức chung cả năm. Mẫu 55 phiên còn ngắn hơn mức tối thiểu 60 phiên mà giáo trình khuyên, lấy đủ 60 phiên thì ra 29,17%/năm.',
+        en: "Compared with FPT's own volatility over all 250 sessions, 32.31%/year: the last 55 sessions give 30.37%/year, a little lower, so FPT's price has moved slightly more calmly lately than over the year as a whole. The 55-session sample is also shorter than the minimum of 60 sessions that textbooks recommend, and a full 60 sessions gives 29.17%/year.",
       },
       source: {
         vi: 'VNDirect, dữ liệu lịch sử FPT, 250 phiên 12/09/2025–15/09/2026.',
@@ -1721,7 +1784,9 @@ export const DO_BIEN_DONG_LICH_SU: FormulaModule = {
       }
     }
 
-    return ok(sampleStdDev(logReturns) * Math.sqrt(days) * 100, unit);
+    return ok(sampleStdDev(logReturns) * Math.sqrt(days) * 100, unit, {
+      extras: { sigmaLog: sampleStdDev(logReturns) },
+    });
   },
 };
 
@@ -1743,6 +1808,8 @@ export const TY_LE_KHOI_LUONG: FormulaModule = {
       vi: 'Tỷ lệ khối lượng = Khối lượng phiên gần nhất ÷ Trung bình khối lượng n phiên liền trước',
       en: "Volume ratio = Most recent session's volume ÷ Average volume of the preceding n sessions",
     },
+    /* Mẫu số của hình là một ký hiệu có tên trong bảng ký hiệu (trung bình n phiên liền trước). */
+    substitution: '{@khoiLuong} ÷ {@khoiLuongTrungBinh}',
     symbols: [
       {
         latex: 'RVOL',
@@ -1843,8 +1910,8 @@ export const TY_LE_KHOI_LUONG: FormulaModule = {
       dataset: FPT_2026,
       expected: 0.6998,
       note: {
-        vi: 'Phiên gần nhất chỉ khớp chừng bảy phần mười mức bình quân của hai mươi phiên liền trước, tức thanh khoản đang mỏng đi; phải từ khoảng 1,5 lần trở lên mới được coi là đột biến. Tỷ lệ này không có hướng: trong chính chuỗi FPT, phiên 15/07 khớp 21,3 triệu cổ phiếu đi kèm giá giảm 5% còn phiên 03/08 khớp 16,3 triệu đi kèm giá tăng gần 7%.',
-        en: 'The latest session matched only about seven tenths of the average of the preceding twenty, meaning liquidity is thinning; roughly 1.5x and above is what counts as a spike. The ratio has no direction: within this same FPT series, 15 July matched 21.3 million shares while price fell 5%, and 3 August matched 16.3 million while price rose nearly 7%.',
+        vi: 'So với mốc 1 lần: 0,7 lần nghĩa là phiên 15/09/2026 FPT chỉ khớp 3.977.500 cổ phiếu, khoảng bảy phần mười mức bình quân 5.683.560 cổ phiếu của 20 phiên liền trước, tức giao dịch thưa hơn thường lệ. Lấy trung bình 10 hay 60 phiên thì vẫn dưới 1 lần, lần lượt là 0,68 và 0,57 lần.',
+        en: 'Compared with the 1 times mark: 0.7 times means FPT matched only 3,977,500 shares on 2026-09-15, about seven tenths of the 5,683,560-share average of the preceding 20 sessions, so trading was thinner than usual. Averaging over 10 or 60 sessions instead still stays below 1 times, at 0.68 and 0.57 times respectively.',
       },
       source: {
         vi: 'VNDirect, dữ liệu lịch sử FPT, 250 phiên 12/09/2025–15/09/2026.',
@@ -1915,7 +1982,9 @@ export const TY_LE_KHOI_LUONG: FormulaModule = {
       );
     }
 
-    return ok(last.volume / average, unit, { extras: { khoiLuongTrungBinh: average } });
+    return ok(last.volume / average, unit, {
+      extras: { khoiLuongTrungBinh: average, khoiLuong: last.volume },
+    });
   },
 };
 

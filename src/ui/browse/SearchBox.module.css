@@ -80,8 +80,10 @@
   cursor: pointer;
 }
 
-.clear:hover {
-  background: var(--color-sunken);
+@media (hover: hover) {
+  .clear:hover {
+    background: var(--color-sunken);
+  }
 }
 
 /*

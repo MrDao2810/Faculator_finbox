@@ -145,6 +145,7 @@ export const DO_LECH_CHUAN_LOI_SUAT_PHIEN: FormulaModule = {
       vi: 'Độ lệch chuẩn phiên = căn bậc hai của [Tổng bình phương (Lợi suất từng phiên − Lợi suất bình quân) ÷ (Số lợi suất − 1)]',
       en: "Session standard deviation = square root of [Sum of squares (each session's return − average return) ÷ (number of returns − 1)]",
     },
+    substitution: '√({@tongBp} ÷ ({@n} − 1))',
     symbols: [
       {
         latex: 's',
@@ -222,8 +223,8 @@ export const DO_LECH_CHUAN_LOI_SUAT_PHIEN: FormulaModule = {
       dataset: FPT_2026,
       expected: 1.925,
       note: {
-        vi: 'Theo quy tắc kinh nghiệm, khoảng 68% số phiên có lợi suất nằm trong ±1 độ lệch chuẩn quanh mức bình quân. Đây cũng là con số gốc mà độ biến động năm hoá và các tỷ số đo hiệu quả đều dựng lên từ đó.',
-        en: 'As a rule of thumb, about 68% of sessions have a return within ±1 standard deviation of the average. It is also the base figure that annualized volatility and the performance ratios are all built on.',
+        vi: 'So với giá đóng cửa 72.700 ₫ của FPT ở phiên cuối: 1,93% mỗi phiên tương đương cỡ 1.400 ₫, và trong 54 lần đổi giá của 55 phiên có 41 lần, khoảng ba phần tư, lên hoặc xuống không quá 1,93%. Phiên mạnh nhất, ngày 03/08/2026, tăng tới 6,86%, nên đây là cỡ dao động của phiên thường chứ không phải của phiên mạnh nhất.',
+        en: "Compared with FPT's last close of 72,700 ₫: 1.93% per session comes to roughly 1,400 ₫, and of the 54 price changes across the 55 sessions, 41, about three quarters, moved up or down by no more than 1.93%. The strongest session, on 2026-08-03, jumped 6.86%, so this is the size of an ordinary session's swing, not of the biggest one.",
       },
       source: {
         vi: 'VNDirect, giá đóng cửa CTCP FPT (mã FPT), chuỗi 250 phiên 12/09/2025–15/09/2026.',
@@ -264,7 +265,15 @@ export const DO_LECH_CHUAN_LOI_SUAT_PHIEN: FormulaModule = {
     const closes = windowCloses(ctx, v('sessions'), MIN_SESSIONS_STDDEV);
     if (!Array.isArray(closes)) return fail(unit, closes);
 
-    return ok(sampleStdDev(simpleReturns(closes)) * 100, unit);
+    /* Cho dải thay số (16/10/2026): tổng bình phương độ lệch (theo %²) và số lợi suất n. */
+    const returns = simpleReturns(closes);
+    const tb = mean(returns);
+    return ok(sampleStdDev(simpleReturns(closes)) * 100, unit, {
+      extras: {
+        tongBp: returns.reduce((sum, r) => sum + (r - tb) ** 2, 0) * 1e4,
+        n: returns.length,
+      },
+    });
   },
 };
 
@@ -286,6 +295,7 @@ export const DO_BIEN_DONG_NAM_HOA: FormulaModule = {
       vi: 'Độ biến động năm = Độ lệch chuẩn lợi suất phiên × căn bậc hai của Số phiên giao dịch trong một năm',
       en: 'Annualized volatility = per-session return standard deviation × square root of the number of trading sessions in a year',
     },
+    substitution: '{@s} × √{tradingDays}',
     symbols: [
       {
         latex: '\\sigma_{nam}',
@@ -366,8 +376,8 @@ export const DO_BIEN_DONG_NAM_HOA: FormulaModule = {
       dataset: FPT_2026,
       expected: 30.4376,
       note: {
-        vi: 'Phép quy năm nhân độ lệch chuẩn phiên với căn bậc hai của số phiên trong năm chứ không nhân thẳng, vì phương sai mới là thứ cộng dồn theo thời gian. Có thước đo năm rồi mới đặt cạnh được lãi suất tiết kiệm hay lợi suất trái phiếu.',
-        en: 'Annualizing multiplies the per-session standard deviation by the square root of the number of sessions in a year rather than by that number itself, because it is variance that accumulates over time. Only on a yearly scale can it sit beside a savings rate or a bond yield.',
+        vi: 'So với VN-Index trên cùng 55 phiên, dao động 18,59% một năm: FPT ở mức 30,44% một năm, tức đường giá gập ghềnh gấp khoảng 1,6 lần chỉ số. Con số giả định cả năm FPT dao động như 55 phiên này, khoảng hai tháng rưỡi, còn đo trên cả 250 phiên thì được 32,33%.',
+        en: 'Compared with the VN-Index over the same 55 sessions, which swung 18.59% a year: FPT comes in at 30.44% a year, so its price path was about 1.6 times as bumpy as the index. The figure assumes FPT swings all year the way it did in these 55 sessions, about two and a half months, while measured over the full 250 sessions it is 32.33%.',
       },
       source: {
         vi: 'VNDirect, giá đóng cửa CTCP FPT (mã FPT), chuỗi 250 phiên 12/09/2025–15/09/2026.',
@@ -426,7 +436,9 @@ export const DO_BIEN_DONG_NAM_HOA: FormulaModule = {
     const closes = windowCloses(ctx, v('sessions'), MIN_SESSIONS_STDDEV);
     if (!Array.isArray(closes)) return fail(unit, closes);
 
-    return ok(sampleStdDev(simpleReturns(closes)) * Math.sqrt(days) * 100, unit);
+    /* Cho dải thay số (16/10/2026): độ lệch chuẩn phiên `s` theo %, ký hiệu của hình. */
+    const s = sampleStdDev(simpleReturns(closes)) * 100;
+    return ok(sampleStdDev(simpleReturns(closes)) * Math.sqrt(days) * 100, unit, { extras: { s } });
   },
 };
 
@@ -448,6 +460,7 @@ export const DO_LECH_CHUAN_BAN_PHAN: FormulaModule = {
       vi: 'Độ lệch chuẩn bán phần = căn bậc hai của [Tổng bình phương (Lợi suất − Ngưỡng) của riêng các phiên dưới ngưỡng ÷ (Số lợi suất − 1)]',
       en: 'Downside deviation = square root of [Sum of squares (return − threshold) for sessions below the threshold only ÷ (number of returns − 1)]',
     },
+    substitution: '√({@tongBp} ÷ ({@n} − 1))',
     symbols: [
       {
         latex: 'DD',
@@ -549,8 +562,8 @@ export const DO_LECH_CHUAN_BAN_PHAN: FormulaModule = {
       dataset: FPT_2026,
       expected: 1.1989,
       note: {
-        vi: 'Chỉ những phiên có lợi suất dưới ngưỡng mới được đưa vào, nên kết quả luôn nhỏ hơn độ lệch chuẩn đầy đủ; hai con số càng sát nhau thì rủi ro càng dồn về chiều giảm. Đây cũng là mẫu số của tỷ số Sortino.',
-        en: 'Only sessions with a return below the threshold are counted, so the result is always smaller than the full standard deviation; the closer the two figures sit, the more the risk leans to the downside. It is also the denominator of the Sortino ratio.',
+        vi: 'So với độ lệch chuẩn lợi suất theo phiên của FPT, 1,93% trên cùng 55 phiên: riêng các phiên giảm chỉ cho ra 1,2%, tức quãng này FPT dao động mạnh ở phiên tăng hơn ở phiên giảm. Con số đi với ngưỡng 0%, đặt ô Ngưỡng lợi suất mỗi phiên là 2% thì nó thành 2,63%, vượt cả 1,93%, vì phiên tăng dưới 2% cũng bị tính vào.',
+        en: "Compared with FPT's per-session return standard deviation over the same 55 sessions, 1.93%: the down sessions alone give only 1.2%, so in this stretch FPT swung harder on up sessions than on down ones. The figure goes with a 0% threshold, and setting the Per-session return threshold field to 2% turns it into 2.63%, above 1.93%, since sessions up less than 2% are then counted too.",
       },
       source: {
         vi: 'VNDirect, giá đóng cửa CTCP FPT (mã FPT), chuỗi 250 phiên 12/09/2025–15/09/2026.',
@@ -602,7 +615,10 @@ export const DO_LECH_CHUAN_BAN_PHAN: FormulaModule = {
       0,
     );
 
-    return ok(Math.sqrt(sumSquared / (returns.length - 1)) * 100, unit);
+    /* Cho dải thay số (16/10/2026): tổng bình phương phần dưới ngưỡng (theo %²) và số lợi suất n. */
+    return ok(Math.sqrt(sumSquared / (returns.length - 1)) * 100, unit, {
+      extras: { tongBp: sumSquared * 1e4, n: returns.length },
+    });
   },
 };
 
@@ -624,6 +640,7 @@ export const HE_SO_BIEN_THIEN: FormulaModule = {
       vi: 'Hệ số biến thiên = Độ lệch chuẩn lợi suất ÷ Lợi suất bình quân',
       en: 'Coefficient of variation = return standard deviation ÷ average return',
     },
+    substitution: '{@s} ÷ {@rTb}',
     symbols: [
       {
         latex: 'CV',
@@ -687,8 +704,8 @@ export const HE_SO_BIEN_THIEN: FormulaModule = {
       dataset: STB_2026,
       expected: 33.6799,
       note: {
-        vi: 'Kết quả không mang đơn vị nên so được giữa những cổ phiếu có mức giá và biên độ khác hẳn nhau — càng thấp thì mỗi phần lợi suất càng phải chịu ít dao động. Lợi suất bình quân của kỳ càng sát 0 thì mẫu số càng mỏng và con số càng nhảy. Ví dụ dùng STB vì cả năm mã này đi lên, nên cửa sổ 90 phiên nào trong năm cũng có lợi suất bình quân dương và đều tính được.',
-        en: 'The result carries no unit, so it compares stocks whose prices and ranges are nothing alike — the lower it is, the less volatility each unit of return has to carry. The closer the period’s average return sits to 0, the thinner the denominator and the jumpier the figure. The example uses STB because the stock rose over the year, so every 90-session window in it has a positive average return and can be computed.',
+        vi: 'So với cả 250 phiên của chính STB, hệ số 15,46 lần: 90 phiên gần nhất ra 33,68 lần, tức dao động mỗi phiên lớn gấp 33,68 lần phần lãi bình quân, hơn gấp đôi mức của cả năm. Lãi bình quân 90 phiên chỉ 0,053% mỗi phiên, sát 0, nên con số rất nhạy, lấy 100 phiên thay cho 90 phiên là nó còn 14,48 lần.',
+        en: "Compared with STB's own full 250 sessions, at 15.46 times: the last 90 sessions give 33.68 times, meaning the per-session swing is 33.68 times the average gain, more than double the full-year level. The average gain over those 90 sessions is just 0.053% per session, close to 0, so the figure is very sensitive, and taking 100 sessions instead of 90 brings it down to 14.48 times.",
       },
       source: {
         vi: 'VNDirect, giá đóng cửa Ngân hàng TMCP Sài Gòn Thương Tín (mã STB), chuỗi 250 phiên 12/09/2025–15/09/2026.',
@@ -763,7 +780,10 @@ export const HE_SO_BIEN_THIEN: FormulaModule = {
       );
     }
 
-    return ok(sampleStdDev(returns) / average, unit);
+    /* Cho dải thay số (16/10/2026): hai ký hiệu của hình theo % một phiên. */
+    return ok(sampleStdDev(returns) / average, unit, {
+      extras: { s: sampleStdDev(returns) * 100, rTb: average * 100 },
+    });
   },
 };
 
@@ -785,6 +805,7 @@ export const BIEN_DO_DAO_DONG_LON_NHAT: FormulaModule = {
       vi: 'Biên độ dao động = (Giá đóng cửa cao nhất − Giá đóng cửa thấp nhất) ÷ Giá đóng cửa thấp nhất × 100',
       en: 'Price range = (highest closing price − lowest closing price) ÷ lowest closing price × 100',
     },
+    substitution: '({@pMax} − {@pMin}) ÷ {@pMin} × 100',
     symbols: [
       {
         latex: 'A',
@@ -853,8 +874,8 @@ export const BIEN_DO_DAO_DONG_LON_NHAT: FormulaModule = {
       dataset: FPT_2026,
       expected: 19.7749,
       note: {
-        vi: 'Biên độ giữa đỉnh và đáy dễ hình dung hơn độ lệch chuẩn nên hợp để đặt kỳ vọng về mức dao động phải ngồi qua. Bù lại nó chỉ đọc hai điểm cực trị, nên một phiên bất thường cũng đủ kéo con số đi.',
-        en: 'A trough-to-peak range is easier to picture than a standard deviation, which makes it good for setting expectations about the swings one has to sit through. In exchange it reads only two extreme points, so a single unusual session is enough to move it.',
+        vi: 'So với 55 phiên liền trước của chính FPT, biên độ 13%: lần này đỉnh 74.500 ₫ cao hơn đáy 62.200 ₫ tới 19,77%, tức vùng giá đã rộng ra, đáy và đỉnh cách nhau 12.300 ₫ mỗi cổ phiếu. Đáy ngày 27/07/2026 đến trước đỉnh ngày 10/09/2026, nên 19,77% là quãng giá đã tăng lên chứ không phải mức lỗ ai từng phải chịu.',
+        en: "Compared with FPT's own previous 55 sessions, with a range of 13%: this time the 74,500 ₫ high sits 19.77% above the 62,200 ₫ low, so the price band has widened, with the low and the high 12,300 ₫ a share apart. The low on 2026-07-27 came before the high on 2026-09-10, so 19.77% is a climb the price made, not a loss anyone had to sit through.",
       },
       source: {
         vi: 'VNDirect, giá đóng cửa CTCP FPT (mã FPT), chuỗi 250 phiên 12/09/2025–15/09/2026.',
@@ -901,7 +922,9 @@ export const BIEN_DO_DAO_DONG_LON_NHAT: FormulaModule = {
     const highest = closes.reduce((best, close) => (close > best ? close : best), closes[0] ?? 0);
     const lowest = closes.reduce((best, close) => (close < best ? close : best), closes[0] ?? 0);
 
-    return ok(((highest - lowest) / lowest) * 100, unit);
+    return ok(((highest - lowest) / lowest) * 100, unit, {
+      extras: { pMax: highest, pMin: lowest },
+    });
   },
 };
 
@@ -923,6 +946,13 @@ export const CHUOI_PHIEN_GIAM_DAI_NHAT: FormulaModule = {
       vi: 'Chuỗi giảm dài nhất = Số phiên giảm giá liên tiếp nhiều nhất trong kỳ',
       en: 'Longest losing streak = the greatest number of consecutive declining sessions in the period',
     },
+    /*
+     * Hình là `max{k : …}`, không có phép cộng trừ nhân chia nào để thay số. Dải liệt kê độ dài mọi
+     * chuỗi phiên giảm trong kỳ rồi lấy lớn nhất — đúng tập `{k}` mà hình nói tới, đếm lại được từ
+     * bảng giá (16/10/2026).
+     */
+    substitutionRepeat: { tapK: { count: '@soChuoi', join: 'max', term: '{@k#}' } },
+    substitution: '{tapK}',
     symbols: [
       {
         latex: 'L',
@@ -998,8 +1028,8 @@ export const CHUOI_PHIEN_GIAM_DAI_NHAT: FormulaModule = {
       dataset: FPT_2026,
       expected: 4,
       note: {
-        vi: 'Con số này đo sức chịu đựng chứ không đo tiền: biết trước rằng mấy phiên đỏ nối nhau là chuyện thường gặp thì đỡ hoảng khi gặp thật. Trong kỳ có hai đoạn dài bằng nhau, một ở giữa tháng 7 và một ở giữa tháng 8/2026.',
-        en: 'This one measures endurance rather than money: knowing in advance that a few red sessions in a row is an ordinary occurrence makes it less alarming when it happens. The period holds two runs of equal length, one in mid-July and one in mid-August 2026.',
+        vi: 'So với đợt giảm liền dài nhất của FPT trong cả 250 phiên, dài 6 phiên: trong 55 phiên gần nhất FPT giảm liền nhiều nhất 4 phiên, chưa trọn một tuần giao dịch, và có hai đợt như vậy. Đợt giữa tháng 7 đưa giá từ 72.100 ₫ xuống 66.800 ₫, mất 7,35%, đợt giữa tháng 8 chỉ mất 4,87%, nên con số đếm độ dài chứ không đo mức lỗ.',
+        en: "Compared with FPT's longest losing streak across all 250 sessions, 6 sessions long: in the last 55 sessions FPT fell at most 4 sessions in a row, short of a full trading week, and it did so twice. The mid-July run took the price from 72,100 ₫ to 66,800 ₫, a 7.35% drop, while the mid-August run cost only 4.87%, so the figure counts length, not loss.",
       },
       source: {
         vi: 'VNDirect, giá đóng cửa CTCP FPT (mã FPT), chuỗi 250 phiên 12/09/2025–15/09/2026.',
@@ -1044,16 +1074,29 @@ export const CHUOI_PHIEN_GIAM_DAI_NHAT: FormulaModule = {
     // trường hợp thiếu dữ liệu đã bị `windowCloses` chặn ở trên.
     let longest = 0;
     let current = 0;
+    /* Độ dài từng chuỗi phiên giảm, theo thứ tự thời gian — tập `{k}` mà hình lấy `max` (16/10/2026). */
+    const cacChuoi: number[] = [];
     for (const r of simpleReturns(closes)) {
       if (r < 0) {
         current += 1;
         if (current > longest) longest = current;
       } else {
+        if (current > 0) cacChuoi.push(current);
         current = 0;
       }
     }
+    if (current > 0) cacChuoi.push(current);
 
-    return ok(longest, unit);
+    /*
+     * Cho dải thay số: `max(k₁; k₂; …)`. Kỳ không có phiên giảm nào thì tập ấy rỗng và `calc` trả 0,
+     * nên dải in `max(0)` — đúng con số, không bỏ trống.
+     */
+    const ds = cacChuoi.length === 0 ? [0] : cacChuoi;
+    const extras: Record<string, number> = { soChuoi: ds.length };
+    ds.forEach((k, i) => {
+      extras[`k${i + 1}`] = k;
+    });
+    return ok(longest, unit, { extras });
   },
 };
 

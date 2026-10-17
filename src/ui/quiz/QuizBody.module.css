@@ -254,8 +254,10 @@
   cursor: pointer;
 }
 
-.choice:hover:not(:has(input:disabled)) {
-  border-color: var(--color-border-strong);
+@media (hover: hover) {
+  .choice:hover:not(:has(input:disabled)) {
+    border-color: var(--color-border-strong);
+  }
 }
 
 /*

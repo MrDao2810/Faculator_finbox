@@ -139,8 +139,8 @@ export const LOI_SUAT_NAM_HOA: FormulaModule = {
       inputs: { periodReturn: 5.55, periodsPerYear: 12 },
       expected: 91.2048,
       note: {
-        vi: 'Đây là phép ngoại suy, không phải dự báo: ngay tháng liền trước chỉ số giảm 6,7%, quy năm tháng đó sẽ ra một con số âm rất sâu. Quy năm chỉ có nghĩa khi lợi suất kỳ đủ ổn định và lặp lại được, như lãi suất tiền gửi.',
-        en: 'This is an extrapolation, not a forecast: the index fell 6.7% the month before, and annualizing that month would produce a deeply negative figure. Annualizing only means something when the period return is stable and repeatable, the way a deposit rate is.',
+        vi: 'So với mức tăng 5,55% của VN-Index riêng trong một tháng: nếu tháng nào cũng tăng đúng như thế, tháng sau tăng tiếp trên phần đã tăng, thì sau 12 tháng chỉ số tăng 91,2%, tức gần gấp đôi. Đây là phép giả định một tháng tốt lặp lại suốt năm, không phải dự báo VN-Index sẽ tăng chừng ấy.',
+        en: "Compared with the VN-Index's 5.55% rise in a single month: if every month rose by exactly that much, each month building on the gains before it, the index would be up 91.2% after 12 months, nearly doubling. This assumes one good month repeats all year and is not a forecast that the VN-Index will rise that much.",
       },
       source: {
         vi: 'Tạp chí Kinh tế Tài chính, VN-Index chốt tháng 8/2026 tại 1.832,12 điểm so với 1.735,78 điểm cuối tháng 7.',
@@ -296,8 +296,8 @@ export const LOI_SUAT_THUC: FormulaModule = {
       inputs: { nominal: 6.8, inflation: 4.45 },
       expected: 2.2499,
       note: {
-        vi: 'Gửi 1 tỷ đồng, sau một năm sổ ghi 1,068 tỷ nhưng sức mua chỉ tương đương 1,0225 tỷ của hôm nay. Lấy hai con số trừ thẳng cho nhau ra 2,35%, cao hơn kết quả đúng — càng lạm phát cao thì chênh càng rộng.',
-        en: 'Deposit 1 billion đồng and a year later the passbook says 1.068 billion, yet its purchasing power equals only 1.0225 billion of today. Subtracting the two figures directly gives 2.35%, above the correct answer — and the gap widens as inflation rises.',
+        vi: 'So với mốc 0% một năm: gửi 1 tỷ ₫ lãi 6,8%/năm thì cuối năm sổ ghi 1,068 tỷ ₫, nhưng sau lạm phát 4,45% chỉ mua được lượng hàng hôm nay giá khoảng 1,0225 tỷ ₫, tức sức mua tăng 2,25%. Kết quả thấp hơn phép trừ thẳng 6,8 − 4,45 = 2,35% vì chính phần dư ấy cũng bị lạm phát làm mất giá.',
+        en: 'Compared with the 0%-a-year mark: 1 billion ₫ deposited at 6.8%/year shows 1.068 billion ₫ a year later, but after 4.45% inflation it buys only what costs about 1.0225 billion ₫ today, a 2.25% gain in purchasing power. The result is lower than the plain subtraction 6.8 − 4.45 = 2.35% because that surplus is itself eroded by inflation.',
       },
       source: {
         vi: 'Lãi suất tiết kiệm trực tuyến nhóm Big4 tháng 9/2026 (VietNamNet); CPI bình quân 8 tháng đầu 2026 do Cục Thống kê công bố ngày 03/09/2026.',
@@ -470,8 +470,8 @@ export const LAI_SUAT_HIEU_DUNG: FormulaModule = {
       inputs: { rate: 6.6, perYear: 2 },
       expected: 6.7089,
       note: {
-        vi: 'Lãi kỳ đầu được nhập gốc nên mức thực hưởng nhỉnh hơn lãi niêm yết 0,11 điểm phần trăm — trên 1 tỷ đồng là khoảng 1,1 triệu. Cùng mức danh nghĩa đó, ghép hằng tháng đẩy lên 6,80% và ghép hằng ngày lên 6,82%.',
-        en: 'Interest from the first term rolls into the principal, so the effective rate sits 0.11 percentage points above the quoted one — about 1.1 million đồng on a 1 billion deposit. At the same nominal rate, monthly compounding lifts it to 6.80% and daily compounding to 6.82%.',
+        vi: 'So với lãi suất niêm yết 6,6%/năm: gửi kỳ 6 tháng rồi tái tục thì lãi kỳ đầu được nhập vào gốc, nên cả năm thực nhận 6,71%, nhỉnh hơn 0,11 điểm phần trăm, tức thêm khoảng 1,1 triệu ₫ tiền lãi trên mỗi 1 tỷ ₫ gửi. Mức này chỉ đạt được khi lúc tái tục ngân hàng vẫn trả đúng 6,6%/năm.',
+        en: "Compared with the quoted 6.6%/year rate: on a six-month deposit rolled over once, the first term's interest is added to the principal, so the year actually earns 6.71%, 0.11 percentage points more, or about 1.1 million ₫ of extra interest per 1 billion ₫ deposited. That only holds if the bank still pays exactly 6.6%/year when the deposit rolls over.",
       },
       source: {
         vi: 'Lãi suất tiết kiệm trực tuyến kỳ hạn 6–11 tháng nhóm Big4 tháng 9/2026 (VietNamNet).',
@@ -628,8 +628,8 @@ export const TONG_LOI_SUAT_TAI_DAU_TU: FormulaModule = {
       inputs: { priceGrowth: 19.29, dividendYield: 2.75, years: 5 },
       expected: 176.6492,
       note: {
-        vi: 'Phần vượt lên trên mức tăng giá đơn thuần chính là lãi kép của cổ tức: cổ tức mua thêm cổ phiếu, rồi số cổ phiếu mới đó lại nhận cổ tức. Điều kiện là phải thực sự mua lại, và ở Việt Nam còn phải trừ 5% thuế cổ tức trước khi tái đầu tư.',
-        en: 'Everything above the price-growth-only figure is dividends compounding: the payout buys more shares, and those new shares collect dividends in turn. It only holds if the shares are genuinely repurchased, and in Vietnam the 5% dividend tax comes off before anything is reinvested.',
+        vi: 'So với số vốn bỏ ra lúc đầu: sau 5 năm số tiền thành gấp khoảng 2,77 lần, tức tăng 176,65%, trong đó riêng phần giá tăng cho khoảng 141,56%, còn lại nhờ cổ tức đem mua thêm cổ phiếu. Con số giả định giá tăng đều 19,29% mỗi năm suốt 5 năm và tính cổ tức trước thuế, trừ 5% thuế cổ tức thì còn khoảng 174,8%.',
+        en: 'Compared with the money put in at the start: after five years it has grown to about 2.77 times, a 176.65% gain, of which price growth alone gives about 141.56% and the rest comes from dividends used to buy more shares. The figure assumes the price rises a steady 19.29% a year for all five years and counts the dividend before tax, and after the 5% dividend tax it drops to about 174.8%.',
       },
       source: {
         vi: 'Mức tăng giá lấy theo VN-Index giai đoạn 9/2024–8/2026, tỷ suất cổ tức lấy theo FPT tại thị giá 11/09/2026; hai nguồn ghép lại để minh hoạ tác động tái đầu tư.',
@@ -739,6 +739,9 @@ export const LOI_SUAT_TRUNG_BINH_HINH_HOC: FormulaModule = {
       vi: 'Lợi suất hình học = [(1 + r kỳ 1) × (1 + r kỳ 2) × …]^(1 ÷ Số kỳ) − 1',
       en: 'Geometric return = [(1 + period-1 return) × (1 + period-2 return) × …]^(1 ÷ Number of periods) − 1',
     },
+    substitutionDerived: { 'rTl#': '{r#} ÷ 100' },
+    substitutionRepeat: { tich: { count: 'periods', join: '×', term: '1 + {rTl#}' } },
+    substitution: '({tich}^(1 ÷ {periods}) − 1) × 100',
     symbols: [
       {
         latex: 'r_{G}',
@@ -850,8 +853,8 @@ export const LOI_SUAT_TRUNG_BINH_HINH_HOC: FormulaModule = {
       inputs: { periods: 3, r1: 12.1, r2: 40.87, r3: 2.67 },
       expected: 17.4778,
       note: {
-        vi: 'Trung bình cộng của ba kỳ là 18,55%, cao hơn khoảng 1,07 điểm phần trăm. Khoảng cách này luôn lệch về một phía và càng rộng khi biến động càng mạnh; chỉ trung bình hình học mới nhân dồn ra đúng giá trị cuối kỳ.',
-        en: 'The arithmetic average of the three periods is 18.55%, about 1.07 percentage points higher. That gap always leans the same way and widens as volatility grows; only the geometric mean compounds back to the true end value.',
+        vi: 'So với trung bình cộng 18,55% của ba kỳ: kết quả 17,48% thấp hơn 1,07 điểm phần trăm, vì phải tăng đều 17,48% mỗi kỳ, ba kỳ liền, mới ra mức VN-Index tăng cả quãng, khoảng 62,13%. Kỳ thứ ba chỉ dài 8 tháng nên 17,48% không phải mức mỗi năm, tính đủ 32 tháng thì chỉ số tăng khoảng 19,87% một năm.',
+        en: "Compared with the 18.55% simple average of the three periods: the result of 17.48% is 1.07 percentage points lower, because it takes a steady 17.48% per period, three periods in a row, to match the index's rise over the whole span, about 62.13%. The third period lasts only eight months, so 17.48% is not a yearly rate, and over the full 32 months the index grew about 19.87% a year.",
       },
       source: {
         vi: 'VN-Index chốt năm 2024 tại 1.266,78 điểm, chốt năm 2025 tại 1.784,49 điểm, chốt tháng 8/2026 tại 1.832,12 điểm.',
@@ -944,6 +947,8 @@ export const IRR_NIEN_KIM: FormulaModule = {
       vi: 'Tìm IRR sao cho: Vốn bỏ ra = Dòng thu mỗi kỳ × [1 − (1 + IRR)^(−Số kỳ)] ÷ IRR',
       en: 'Find the IRR such that: Capital invested = Payment per period × [1 − (1 + IRR)^(−Number of periods)] ÷ IRR',
     },
+    substitution: '{payment} × ((1 − (1 + {@irr})^(−{periods})) ÷ {@irr})',
+    substitutionRhs: '{investment}',
     symbols: [
       {
         latex: 'IRR',
@@ -1052,8 +1057,8 @@ export const IRR_NIEN_KIM: FormulaModule = {
       inputs: { investment: 3_000_000_000, payment: 28_000_000, periods: 240 },
       expected: 0.7932,
       note: {
-        vi: 'Quy theo cách ngân hàng niêm yết (nhân 12 kỳ) thì tương đương 9,52%/năm, cao hơn mức ưu đãi 8%/năm được chào — con số đưa vào đây là khoản người vay báo trả thực tế, không phải khoản suy ra từ lãi ưu đãi. IRR chính là chỗ bóc tách được khoảng cách đó.',
-        en: 'Quoted the way banks do it (twelve periods a year) this is 9.52%/year, above the 8%/year promotional rate offered — the number entered here is what the borrower reports actually paying, not a figure derived from that rate. IRR is precisely what exposes the gap.',
+        vi: 'So với mức ưu đãi 8%/năm chia 12, khoảng 0,67% mỗi tháng: trả đều 28 triệu ₫ suốt 240 tháng cho 3 tỷ ₫ vay ứng với lãi 0,79% mỗi tháng, nhân 12 ra khoảng 9,52% một năm, cao hơn mức ưu đãi. Lãi ưu đãi chỉ áp 24 tháng đầu nên từ tháng thứ 25 số tiền trả sẽ đổi, vì vậy 9,52% chưa phải lãi thật của khoản vay.',
+        en: "Compared with the 8%/year promotional rate divided by 12, about 0.67% a month: a flat 28 million ₫ for 240 months on a 3 billion ₫ loan implies 0.79% a month, or about 9.52% a year when multiplied by 12, above the promotional rate. That rate covers only the first 24 months, so from month 25 the monthly payment will change, and 9.52% is therefore not the loan's real interest rate.",
       },
       source: {
         vi: 'VietnamFinance ngày 28/03/2026, trường hợp vay 3 tỷ đồng kỳ hạn 20 năm, lãi ưu đãi 8%/năm trong 24 tháng đầu.',
@@ -1172,7 +1177,28 @@ export const IRR_NIEN_KIM: FormulaModule = {
       if (high - low < 1e-12) break;
     }
 
-    return ok(((low + high) / 2) * 100, unit);
+    /*
+     * Mài nghiệm bằng vài bước Newton sau khi chia đôi (16/10/2026).
+     *
+     * Chia đôi dừng ở độ rộng 1e-12, đủ cho con số % in ra nhưng KHÔNG đủ cho dải thay số: thay ngược
+     * nghiệm ấy vào phương trình của khoản 3 tỷ ₫ trong 240 kỳ ra 2.999.999.999,94 — lệch 6 hào, nên
+     * dòng "… ≈ 3.000.000.000" không bấm lại đúng. Newton từ một điểm đã sát nghiệm hội tụ bậc hai; mỗi
+     * bước chỉ được nhận khi nó làm phần dư nhỏ đi và nghiệm vẫn trong khoảng chia đôi đã khoá.
+     */
+    let irr = (low + high) / 2;
+    for (let buoc = 0; buoc < 5 && irr !== 0; buoc += 1) {
+      const chiet = Math.pow(1 + irr, -n);
+      const daoHam = (payment * (n * Math.pow(1 + irr, -n - 1) * irr - (1 - chiet))) / (irr * irr);
+      if (!Number.isFinite(daoHam) || daoHam === 0) break;
+      const moi = irr - npv(irr) / daoHam;
+      if (!(moi > low - 1e-9 && moi < high + 1e-9) || Math.abs(npv(moi)) >= Math.abs(npv(irr))) {
+        break;
+      }
+      irr = moi;
+    }
+
+    /* Nghiệm dạng tỷ lệ cho dải thay số (16/10/2026): dải in lại phương trình với IRR thay vào. */
+    return ok(irr * 100, unit, { extras: { irr } });
   },
 };
 
@@ -1189,10 +1215,15 @@ export const THOI_GIAN_NHAN_DOI: FormulaModule = {
       vi: 'Cần bao nhiêu năm để vốn tăng gấp đôi ở một mức lợi suất kép cho trước.',
       en: 'How many years it takes for capital to double at a given compound rate of return.',
     },
-    latex: 't = \\frac{\\ln 2}{\\ln(1 + r)} \\approx \\frac{72}{r}',
+    /*
+     * Vế nhẩm viết `72 ÷ (100 × r)` chứ không `72 ÷ r` (16/10/2026): hình viết r dạng tỷ lệ như mọi lãi
+     * suất khác, nên `72 ÷ r` với r = 0,08 đọc ra 900 năm. Bảng ký hiệu trước đó vá bằng câu "dạng thập
+     * phân ở vế ln và dạng % ở vế 72", tức một chữ r mang hai thang trên cùng một hình.
+     */
+    latex: 't = \\frac{\\ln 2}{\\ln(1 + r)} \\approx \\frac{72}{100 \\times r}',
     expression: {
-      vi: 'Số năm nhân đôi = ln(2) ÷ ln(1 + Lợi suất năm), xấp xỉ nhanh bằng 72 ÷ Lợi suất năm (%)',
-      en: 'Years to double = ln(2) ÷ ln(1 + Annual return), roughly 72 ÷ Annual return (%)',
+      vi: 'Số năm nhân đôi = ln(2) ÷ ln(1 + Lợi suất năm), xấp xỉ nhanh bằng 72 ÷ (100 × Lợi suất năm)',
+      en: 'Years to double = ln(2) ÷ ln(1 + Annual return), roughly 72 ÷ (100 × Annual return)',
     },
     substitutionDerived: { r: '{rate} ÷ 100' },
     substitution: 'ln(2) ÷ ln(1 + {r})',
@@ -1215,8 +1246,15 @@ export const THOI_GIAN_NHAN_DOI: FormulaModule = {
       {
         latex: 'r',
         meaning: {
-          vi: 'lợi suất kép mỗi năm, dạng thập phân ở vế ln và dạng % ở vế 72',
-          en: 'compound return per year, a decimal under ln and a percentage under 72',
+          vi: 'lợi suất kép mỗi năm, dạng thập phân (8% là 0,08)',
+          en: 'compound return per year, as a decimal (8% is 0.08)',
+        },
+      },
+      {
+        latex: '100',
+        meaning: {
+          vi: 'đổi r ra số phần trăm để chia nhẩm, 0,08 thành 8',
+          en: 'turns r into a percentage figure for mental division, 0.08 into 8',
         },
       },
       {
@@ -1281,8 +1319,8 @@ export const THOI_GIAN_NHAN_DOI: FormulaModule = {
       inputs: { rate: 6.8 },
       expected: 10.5361,
       note: {
-        vi: 'Quy tắc 72 nhẩm ra khoảng 10,6 năm, lệch chưa tới một phần mười năm nên đủ dùng để tính nhẩm. Nhưng tính trên lợi suất THỰC sau lạm phát 2,25%/năm thì phải mất khoảng 31,2 năm sức mua mới nhân đôi.',
-        en: 'The rule of 72 gives roughly 10.6 years, off by less than a tenth of a year, so it works fine as a mental shortcut. On the REAL return of 2.25%/year after inflation, though, doubling purchasing power takes about 31.2 years.',
+        vi: 'So với số tiền gửi ban đầu: với lãi 6,8%/năm nhập gốc, phải mất 10,54 năm, tức khoảng 10 năm 6 tháng, số tiền ấy mới thành gấp đôi. Sổ 12 tháng chỉ nhập lãi mỗi năm một lần, hết năm thứ 10 sổ ghi khoảng 1,93 lần, nên trên sổ phải hết năm thứ 11 mới qua mức gấp đôi.',
+        en: 'Compared with the amount first deposited: at 6.8%/year with interest added to the principal, it takes 10.54 years, roughly 10 years and 6 months, for that amount to double. A twelve-month deposit adds interest only once a year, and after year 10 the passbook shows about 1.93 times, so on the passbook it passes double only at the end of year 11.',
       },
       source: {
         vi: 'Lãi suất tiết kiệm trực tuyến 12 tháng nhóm Big4 tháng 9/2026 (VietNamNet).',
@@ -1429,8 +1467,8 @@ export const LOI_SUAT_QUY_NAM_THEO_NGAY: FormulaModule = {
       inputs: { buyPrice: 62_900, sellPrice: 72_700, days: 49 },
       expected: 194.0491,
       note: {
-        vi: 'Lãi thực của thương vụ chỉ là 15,58%; con số quy năm dùng để xếp cạnh các khoản có kỳ hạn khác nhau tại cùng một thời điểm, không phải mức kỳ vọng. Mẫu số ở đây là 365 ngày lịch chứ không phải 250 phiên như cách quy năm bên nhóm rủi ro.',
-        en: 'The trade itself gained just 15.58%; the annualized figure exists to line up investments of different lengths at one moment in time, not to set an expectation. The denominator here is 365 calendar days, not the 250 trading sessions used for annualizing in the risk group.',
+        vi: 'So với mức tăng giá 15,58% của lần mua bán này: giá chỉ lên chừng ấy trong 49 ngày, nhưng nếu lặp lại nhịp đó liên tục đủ 365 ngày thì cả năm tăng 194,05%, vốn gần gấp ba. Đó là mức tính trên giá, chưa trừ phí và thuế, trừ đi thì lần mua bán này còn lời khoảng 15,12% và quy năm còn khoảng 185%.',
+        en: 'Compared with the 15.58% price rise of this trade: the price rose only that much in 49 days, but repeating the same pace without a break for 365 days would make 194.05% over the year, nearly tripling the money. That is on price alone, before fees and taxes, and after them this trade gained about 15.12%, which annualizes to about 185%.',
       },
       source: {
         vi: 'Giá đóng cửa FPT trên Investing.com, phiên 24/07/2026 và 11/09/2026.',
@@ -1627,8 +1665,8 @@ export const LOI_SUAT_VUOT_CHUAN: FormulaModule = {
       inputs: { portfolioReturn: 15.58, benchmarkReturn: 6.47 },
       expected: 9.11,
       note: {
-        vi: 'Phần chênh mới là phần do việc tự chọn mã tạo ra: một mức lãi nghe giỏi vẫn có thể là kém nếu cùng kỳ cả thị trường còn tăng nhanh hơn. Để con số có nghĩa thì hai lợi suất phải đo trên cùng khoảng thời gian, và nên soi thêm mức rủi ro đi kèm.',
-        en: 'The gap is the part the stock picking actually created: a gain that sounds impressive can still be poor if the whole market climbed faster over the same stretch. For the figure to mean anything both returns must cover the identical span, and the risk taken deserves a look too.',
+        vi: 'So với mức tăng 6,47% của VN-Index cùng kỳ: FPT tăng 15,58%, hơn chỉ số 9,11 điểm phần trăm, tức trong 49 ngày ấy nắm FPT lời hơn mức chung của thị trường. Con số 9,11 là hiệu hai mức tăng nên tính bằng điểm phần trăm, còn theo tỷ lệ thì mức tăng của FPT gấp khoảng 2,4 lần của chỉ số.',
+        en: "Compared with the VN-Index's 6.47% rise over the same span: FPT rose 15.58%, 9.11 percentage points more than the index, so over those 49 days holding FPT beat the market as a whole. The 9.11 is the gap between two gains, so it is measured in percentage points, while as a ratio FPT's gain was about 2.4 times the index's.",
       },
       source: {
         vi: 'Giá đóng cửa FPT trên Investing.com; VN-Index đi từ 1.686,11 lên 1.795,21 điểm trong cùng khoảng thời gian.',

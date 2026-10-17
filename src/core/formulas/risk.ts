@@ -130,8 +130,8 @@ export const CO_LENH_RUI_RO: FormulaModule = {
       inputs: { capital: 500_000_000, riskPercent: 2, entryPrice: 72_700, stopPrice: 68_300 },
       expected: 2_273,
       note: {
-        vi: 'Mức cắt lỗ quyết định khối lượng chứ không phải ngược lại: khoảng cách tới cắt lỗ càng xa thì số cổ phiếu được phép nắm càng ít. Thực tế còn phải làm tròn xuống bội của 100 cổ phiếu theo lô giao dịch.',
-        en: 'The stop-loss level decides the quantity, not the other way round: the further the stop sits from the entry, the fewer shares are allowed. In practice the figure is then rounded down to a multiple of 100 shares per trading lot.',
+        vi: 'So với 10 triệu ₫ bạn chấp nhận mất, tức 2% vốn 500 triệu ₫: giá rơi từ 72.700 ₫ xuống mức cắt lỗ 68.300 ₫ thì mỗi cổ phiếu lỗ 4.400 ₫, nên lệnh này mua tối đa khoảng 2.273 cổ phiếu FPT. Số mua thật phải làm tròn xuống 2.272, vì đủ 2.273 cổ phiếu thì chạm cắt lỗ sẽ mất 10.001.200 ₫, quá mức đã đặt.',
+        en: 'Compared with the 10 million ₫ you accept losing, which is 2% of the 500 million ₫ capital: a drop from 72,700 ₫ to the 68,300 ₫ stop costs 4,400 ₫ per share, so this order can buy at most about 2,273 FPT shares. The real order must round down to 2,272, because a full 2,273 shares would lose 10,001,200 ₫ at the stop, more than the limit set.',
       },
       source: {
         vi: 'investing.com, giá đóng cửa CTCP FPT (mã FPT) phiên 11/09/2026; mức cắt lỗ lấy theo đáy phiên 14/08/2026.',

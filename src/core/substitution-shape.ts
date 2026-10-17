@@ -1,7 +1,7 @@
 import { expressionShape } from './quiz/worked-line';
 import type { FormulaSpec } from './registry/types';
 import { choTrong } from './substitution';
-import type { DanXuatCay, ThaySoCay } from './substitution-cay';
+import type { DanXuatCay, LapCay, ThaySoCay } from './substitution-cay';
 
 /**
  * Phân tích mẫu `spec.substitution` thành cây vẽ được — CHỈ CHẠY LÚC BUILD (05/10/2026).
@@ -52,5 +52,46 @@ export function substitutionShape(spec: FormulaSpec): ThaySoCay | null {
     danXuat.push({ khoaDat, cay: phan.cay, khoa: phan.khoa });
   }
 
-  return { cay: chinh.cay, khoa: chinh.khoa, danXuat };
+  /* Phần lặp: dựng cây của MỘT số hạng; lúc chạy `datSoThaySo` nhân nó lên theo số đợt. */
+  const lap: LapCay[] = [];
+  for (const [khoaDat, khai] of Object.entries(spec.substitutionRepeat ?? {})) {
+    const phan = cayCua(khai.term);
+    if (phan === null) return null;
+    lap.push({
+      khoaDat,
+      dem: khai.count,
+      tu: khai.from ?? 1,
+      noi: khai.join === '×' ? 'nhan' : khai.join === 'max' ? 'max' : 'cong',
+      cay: phan.cay,
+      khoa: phan.khoa,
+      ...(khai.skipZero === undefined ? {} : { boQuaKhiKhong: khai.skipZero }),
+    });
+  }
+
+  let vePhai: ThaySoCay['vePhai'];
+  if (spec.substitutionRhs !== undefined) {
+    const phan = cayCua(spec.substitutionRhs);
+    if (phan === null) return null;
+    vePhai = phan;
+  }
+
+  let theoLuaChon: ThaySoCay['theoLuaChon'];
+  if (spec.substitutionCases !== undefined) {
+    const cay: Record<string, { cay: ThaySoCay['cay']; khoa: string[] }> = {};
+    for (const [giaTri, mau] of Object.entries(spec.substitutionCases.byValue)) {
+      const phan = cayCua(mau);
+      if (phan === null) return null;
+      cay[giaTri] = phan;
+    }
+    theoLuaChon = { khoa: spec.substitutionCases.key, cay };
+  }
+
+  return {
+    cay: chinh.cay,
+    khoa: chinh.khoa,
+    danXuat,
+    ...(lap.length > 0 ? { lap } : {}),
+    ...(vePhai === undefined ? {} : { vePhai }),
+    ...(theoLuaChon === undefined ? {} : { theoLuaChon }),
+  };
 }

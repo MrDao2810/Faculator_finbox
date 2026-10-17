@@ -81,8 +81,12 @@
   background: var(--color-selected);
   color: var(--color-on-selected);
 }
-.primary:hover:not(:disabled) {
-  background: var(--color-selected-strong);
+/* Màu khi trỏ chuột chỉ cho máy CÓ chuột: trên màn cảm ứng nó dính lại sau một cú chạm — xem
+   `src/ui/hover-media.test.ts`. Cả bốn biến thể dưới đây cùng luật ấy. */
+@media (hover: hover) {
+  .primary:hover:not(:disabled) {
+    background: var(--color-selected-strong);
+  }
 }
 
 .secondary {
@@ -90,16 +94,20 @@
   color: var(--color-accent);
   border-color: var(--color-border-strong);
 }
-.secondary:hover:not(:disabled) {
-  background: var(--color-accent-soft);
+@media (hover: hover) {
+  .secondary:hover:not(:disabled) {
+    background: var(--color-accent-soft);
+  }
 }
 
 .ghost {
   background: transparent;
   color: var(--color-ink-soft);
 }
-.ghost:hover:not(:disabled) {
-  background: var(--color-sunken);
+@media (hover: hover) {
+  .ghost:hover:not(:disabled) {
+    background: var(--color-sunken);
+  }
 }
 
 .danger {
@@ -107,6 +115,8 @@
   color: var(--color-danger);
   border-color: var(--color-danger);
 }
-.danger:hover:not(:disabled) {
-  background: var(--color-danger-soft);
+@media (hover: hover) {
+  .danger:hover:not(:disabled) {
+    background: var(--color-danger-soft);
+  }
 }

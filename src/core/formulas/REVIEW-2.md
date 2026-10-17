@@ -96,6 +96,9 @@ theo), để lần đổi ví dụ sau không lặp lại lỗi này.
 ## Việc còn lại
 
 - [ ] Chủ dự án duyệt danh sách dưới đây và chốt Q1 tới Q10.
+  - **Q1 đã chốt (a) ngày 16/10/2026**: chủ dự án khoanh "n − 1" trong khung cách tính của dải trên là sai
+    công thức. Bốn công thức Bollinger chia n (`populationStdDev`); dải trên của ví dụ ra 74.901 ₫. Các
+    mục còn lại chuyển sang `REVIEW-3.md`, nơi đối chiếu lại với mã hiện tại.
 - [ ] Áp theo quyết định, chạy `npm run check`, cập nhật `TASK.md`.
 
 ## Danh sách đầy đủ theo file và công thức
@@ -1114,3 +1117,27 @@ Mã phát hiện (A1, B3…) là mã lô rà cộng số thứ tự, dùng để
 - **Bằng chứng:** planning.ts:1153–1157: sellValue = q × sellPrice, dividendValue = q × dividendPerShare, điều kiện sellValue === 0 && dividendValue === 0. Probe quantity 0 (giá bán 72.700, cổ tức 1.000) → MEANINGLESS, fix 'Nhập giá bán hoặc cổ tức lớn hơn 0.'
 - **Sửa (vi):** Nhập khối lượng lớn hơn 0, cùng giá bán hoặc cổ tức lớn hơn 0.
 - **Sửa (en):** Enter a quantity greater than 0, together with a sale price or dividend greater than 0.
+
+## Đối chiếu lại ngày 16/10/2026, lượt viết lại hàng "Đọc kết quả"
+
+Chủ dự án khoanh hàng "Đọc kết quả" của `ddm-hai-giai-doan` (A1) và bảo rà cả 111. Cả 111 `example.note`
+được viết lại theo khuôn "So với [mốc]: …" (luật ở `src/core/example-note-rules.ts`), 8 agent nháp và
+8 agent soát chạy lại `calc` cho từng con số. Các phát hiện về `example.note` dưới đây vì thế ĐÃ CHỮA:
+A1, A8, B1, B2 (phần note), B6 (phần note), B7, C2, E10, G1 (phần note), H1, H2, H6, X1, cùng câu
+"Beta dưới 1 nghĩa là biến động nhẹ hơn" ở note của `capm` (A5). A9 hết từ đợt WACC theo vốn hoá.
+
+Agent soát xác nhận các phát hiện sau VẪN CÒN, ở chỗ khác hàng "Đọc kết quả" (chưa sửa, chờ quyết):
+
+- Tiêu đề ví dụ: B4 (`ev`), G7 · G9 (`phi-luu-ky`, `gia-hoa-von`, `loi-nhuan-rong`, `roi-rong`: "2 tháng"
+  cho 49 ngày), F3 (`irr-nien-kim`), F4 (`loi-suat-trung-binh-hinh-hoc`), F5 (`tong-loi-suat-tai-dau-tu`),
+  C1 (`co-lenh-rui-ro`), E12 (`sut-giam-sau-nhat`), E1 (`ty-so-treynor`, S1), E2 (`ty-so-thong-tin`), D5
+  (`ema-n-phien`; cùng kiểu ở `macd-duong-chinh`, `rsi-wilder`), H8 (`thue-tncn-dau-tu`), G4
+  (`thue-co-tuc`), và hai ngày hiệu lực lệch nhau giữa dòng nguồn và lời giải của `so-hop-dong-toi-da`.
+- Mô tả ô, ký hiệu, mục diễn giải hay `calc`: C3, C4, C5, C8, C10, C11, B3, B6 (Ý nghĩa của `ev-ebitda`
+  vẫn nói "hoàn lại giá mua"), B8, A3, A6, A10, A11, A13 (phần Nâng cao), A14, E5, E6, E7, E13, E14, D4,
+  D10, D11, D14, F7, F12, F14, G11, G12, G13, G14, H3, H4, H9.
+- Gạch ngang dài hay chữ in hoa để nhấn còn ở Ý nghĩa, Sai lầm thường gặp hoặc mô tả ô của khoảng 25
+  công thức (vd `roa`, `capm`, `beta`, `ty-so-sharpe`, `don-bay-hieu-dung`, `gui-quay-vong`).
+
+Riêng `ty-so-treynor` và `ty-so-thong-tin`: hàng "Đọc kết quả" mới nói thẳng chỗ ví dụ ghép số không cùng
+gốc (E1, E2), vì sửa số liệu ví dụ là việc của chủ dự án.

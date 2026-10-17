@@ -1,5 +1,7 @@
 'use client';
 
+import type { ReactNode } from 'react';
+
 import { buildFeeBreakdown, formatNumber } from '@/application';
 import type { CalcContext } from '@/application';
 import { useT, usePick } from '@/application/preferences-context';
@@ -11,6 +13,8 @@ import styles from './FeeTaxBody.module.css';
 export interface FeeTaxBodyProps {
   inputs: Readonly<Record<string, number>>;
   ctx: CalcContext;
+  /** Dòng thay số của công thức (16/10/2026) — đặt ngay sau thẻ lợi nhuận ròng mà nó tính ra. */
+  thaySo?: ReactNode;
 }
 
 /**
@@ -23,7 +27,7 @@ export interface FeeTaxBodyProps {
  * Toàn bộ phép tính nằm ở `buildFeeBreakdown()` bên tầng Domain và có test so tới từng đồng
  * với ví dụ wireframe; ở đây chỉ còn phần bày ra màn.
  */
-export function FeeTaxBody({ inputs, ctx }: FeeTaxBodyProps) {
+export function FeeTaxBody({ inputs, ctx, thaySo }: FeeTaxBodyProps) {
   const t = useT();
   const pick = usePick();
   const calcText = useCalcText();
@@ -98,6 +102,8 @@ export function FeeTaxBody({ inputs, ctx }: FeeTaxBodyProps) {
           </span>
         </span>
       </section>
+
+      {thaySo}
 
       {breakdown.netProfit.warning !== undefined && (
         <InlineWarning warning={breakdown.netProfit.warning} />

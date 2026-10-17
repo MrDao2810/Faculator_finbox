@@ -38,9 +38,11 @@
   border-radius: var(--radius-sm);
 }
 
-.back:hover {
-  color: var(--color-accent-strong);
-  background: var(--color-accent-soft);
+@media (hover: hover) {
+  .back:hover {
+    color: var(--color-accent-strong);
+    background: var(--color-accent-soft);
+  }
 }
 
 /*
@@ -66,8 +68,10 @@
   transition: transform 120ms ease;
 }
 
-.back:hover .icon {
-  transform: translateX(-2px);
+@media (hover: hover) {
+  .back:hover .icon {
+    transform: translateX(-2px);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

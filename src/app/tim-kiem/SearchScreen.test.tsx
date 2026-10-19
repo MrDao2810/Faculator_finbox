@@ -138,3 +138,41 @@ describe('SearchScreen — lịch sử dùng chung với màn Công thức', () 
     expect(screen.getByRole('button', { name: PE.name.vi })).not.toBeNull();
   });
 });
+
+/**
+ * Dòng "N công thức nâng cao đang ẩn · Bật chế độ Nâng cao" đã bỏ ngày 19/10/2026 (chủ dự án: "bỏ đoạn
+ * giải thích này đi", mộ chí `list.hiddenByLevel` ở `vi.ts`). Ca ĐẢO chứ không xoá: dòng ấy quay lại
+ * phải là một quyết định, không phải một lần sơ ý.
+ *
+ * Còn lại có chủ ý: khi MỌI kết quả đều mức nâng cao, khối rỗng vẫn nói lý do và giữ nút bật, vì thiếu
+ * nút thì người dùng chỉ còn cách đổi từ khoá mãi mà không bao giờ ra.
+ */
+describe('SearchScreen — chế độ Cơ bản giấu kết quả nâng cao mà không kèm dòng giải thích', () => {
+  const coLink = (id: string): boolean =>
+    screen
+      .queryAllByRole('link')
+      .some((a) => new RegExp(`/cong-thuc/${id}/?$`).test(a.getAttribute('href') ?? ''));
+
+  it('có kết quả: PEG (nâng cao) bị giấu, và không còn dòng "nâng cao đang ẩn"', () => {
+    moMan();
+
+    fireEvent.change(oTim(), { target: { value: 'P/E' } });
+
+    expect(dongKetQua(PE.id)).not.toBeNull();
+    // Canary: PEG khớp "P/E" nhưng là mức nâng cao, nên ca này đúng là ca CÓ thứ đang ẩn.
+    expect(coLink('peg')).toBe(false);
+    expect(screen.queryByText(/nâng cao đang ẩn/)).toBeNull();
+  });
+
+  it('mọi kết quả đều nâng cao: khối rỗng nói lý do, có nút bật, không có dòng "nâng cao đang ẩn"', () => {
+    moMan();
+
+    fireEvent.change(oTim(), { target: { value: 'Sortino' } });
+
+    expect(screen.getByText('Ở đây chỉ có công thức nâng cao')).not.toBeNull();
+    expect(screen.queryByText(/nâng cao đang ẩn/)).toBeNull();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Bật chế độ Nâng cao' }));
+    expect(document.documentElement.dataset.mode).toBe('advanced');
+  });
+});

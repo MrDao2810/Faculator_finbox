@@ -67,7 +67,7 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'search.label': 'Find a formula',
   /* Ví dụ phải là chữ tìm ĐƯỢC ở bản EN: `search.ts` chấm cả `name.en`, và "Sharpe" trúng
      'Sharpe ratio'. Để nguyên "định giá" thì ô gợi ý ở màn tiếng Anh lại là tiếng Việt. */
-  'search.placeholder': 'Formula name, e.g. P/E or Sharpe',
+  'search.placeholder': 'Formula',
   'search.clear': 'Clear the search box',
 
   'search.recent.title': 'Recent searches',
@@ -107,7 +107,7 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'list.empty.registry.hint': 'The library is being filled in step by step.',
   'list.empty.noMatch.title': 'No formula found',
   /* Mộ chí: `list.empty.noMatch.scope` và `.hint` bỏ 01/10/2026 — lý do ghi ở `vi.ts`. */
-  'list.hiddenByLevel': 'advanced formula(s) hidden',
+  /* Mộ chí: `list.hiddenByLevel` bỏ 19/10/2026 — lý do ghi ở `vi.ts`. */
   'list.showAdvanced': 'Turn on Advanced mode',
   'list.empty.basicOnly.title': 'Only advanced formulas here',
   'list.empty.basicOnly.hint':
@@ -410,18 +410,16 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   /* `portfolio.formulaHint` đã xoá cùng bản Việt (14/09/2026) — xem lý do ở `vi.ts`. */
   'portfolio.pickCodeFirst': 'Pick a ticker first',
   /* `portfolio.formulaNeedsCode` đã xoá cùng bản Việt (22/09/2026) — xem bia mộ ở `vi.ts`. */
-  'portfolio.formulaClear': 'Clear the formula',
   'portfolio.formSubmitOpen': 'Add and open the formula',
   'portfolio.formSaveOpen': 'Save and open the formula',
-  'portfolio.formulasTitle': 'Formulas this ticker can fill',
+  'portfolio.formulasTitle': 'Formulas you can use with this ticker',
   /* `portfolio.formulasSubtitle` đã xoá cùng bản Việt (14/09/2026) — xem lý do ở `vi.ts`. */
-  'portfolio.formulasFilled': 'fields prefilled',
   'portfolio.formulasNoPrice':
     'No market price for this ticker, so formulas that need one are dropped or prefill fewer fields.',
 
   /* Cụm tab dọc ở cột trái — lịch sử các lần gỡ/đưa lại ghi ở `vi.ts`. */
-  'portfolio.savedEmpty':
-    'No saved calculations yet. Open a formula, enter your numbers, then tap “Save to portfolio” to keep the result here.',
+  /* Câu hướng dẫn cũ đã gỡ và chữ ngắn thay icon "fx" (19/10/2026) — lịch sử ở `vi.ts`. */
+  'portfolio.savedEmpty': 'No formulas yet',
   'portfolio.savedEmptyAction': 'Browse formulas',
   'portfolio.savedTitle': 'Formulas',
   'portfolio.savedOpen': 'Open',
@@ -788,7 +786,7 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'quiz.effectiveFrom': 'In force since',
   'quiz.result': 'Your result',
   /* Mộ chí: `quiz.localOnly` bỏ 24/09/2026 — lý do ghi ở `vi.ts`. */
-  'quiz.lastTime': 'Last attempt',
+  /* Mộ chí: `quiz.lastTime` bỏ 19/10/2026 — lý do ghi ở `vi.ts`. */
   'quiz.empty.title': 'No questions for this formula yet',
   'quiz.empty.body':
     'We only write a question when a real source records where people misread the formula. This one has none yet.',

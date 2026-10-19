@@ -147,6 +147,26 @@
   margin: var(--space-1) 0 0;
   font-size: var(--text-sm);
   color: var(--color-ink-soft);
+
+  /*
+   * Tối đa HAI dòng, phần dư thành "…" (19/10/2026), cùng cách `.tileDescription` của biến thể ô.
+   * Chủ dự án khoanh mô tả DCA tràn ba dòng: _"có thể là 2 câu, 3 câu, 10 câu, hay toàn bộ nội dung
+   * cũng được nhưng chỉ hiển thị 2 dòng thôi"_. Câu chữ giữ nguyên; chỉ phần hiển thị bị cắt.
+   */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+/*
+ * Khi tìm, thẻ khớp ở mô tả (bậc 2) tô vàng đúng cụm khớp (`DescriptionHit`). Cụm ấy có thể nằm ở
+ * dòng ba trở đi, mà cắt mất nó là thẻ hiện ra không nói vì sao nó khớp — nên thẻ có `<mark>` hiện đủ.
+ */
+.description:has(mark) {
+  display: block;
+  -webkit-line-clamp: unset;
+  overflow: visible;
 }
 
 /*
@@ -198,7 +218,14 @@
 
   margin-top: var(--space-2);
 
-  font-size: var(--text-xs);
+  /*
+   * In nghiêng, nhỉnh hơn một bậc (19/10/2026). Chủ dự án khoanh nhãn "Lợi nhuận & cổ tức" trên điện thoại:
+   * _"đang quá nhỏ so với mô tả bên trên, khiến người dùng khó phân biệt và hiểu nhầm. phần này thử in
+   * nghiêng và cho tăng size lên 1 chút"_, rồi _"bản web cũng nên sửa như vậy"_. Ở đây 12 → 13px, vẫn
+   * dưới mô tả 14px; dưới 1024px là 11 → 12px (khối cuối file). Ô kệ (`.tileCategory`) theo cùng luật.
+   */
+  font-size: 13px;
+  font-style: italic;
   font-weight: var(--weight-medium);
   color: var(--color-ink-soft);
 
@@ -351,7 +378,9 @@
   /* Nền biến mất thì khoảng thở phải tự dựng lại, không thì nhãn dính vào dòng mô tả. */
   padding-top: var(--space-1);
 
-  font-size: var(--text-xs);
+  /* Nghiêng, 13px — cùng luật với `.category` của thẻ hàng, xem chú thích ở đó. */
+  font-size: 13px;
+  font-style: italic;
   font-weight: var(--weight-medium);
   color: var(--color-ink-soft);
 
@@ -370,7 +399,8 @@
  * danh sách công thức ở dưới"_ — biến thể hàng (danh sách `/cong-thuc/` và màn Tìm kiếm) theo cùng
  * mức; đo trước khi sửa ở 360px, thẻ hàng cao 130–209px.
  *
- * Ba vai vẫn giữ thứ bậc, mỗi bậc nhỏ đi một nấc: tên 14 · mô tả 12 · nhãn 11. 11px không có trên
+ * Ba vai vẫn giữ thứ bậc, mỗi bậc nhỏ đi một nấc: tên 14 · mô tả 12 · nhãn 11 (nhãn lên lại 12px, in
+ * nghiêng, ngày 19/10/2026 — xem `.category` gốc). 11px không có trên
  * thang (thang dừng ở `--text-xs` 12px) — cùng cỡ với nhãn `dt` của `LoiGiai.module.css`. Hai biến
  * thể giảm CÙNG mức nên tên ô vẫn cùng bậc với `.name` như chú thích `.tileName` nói. Huy hiệu cấp
  * độ (primitive `Badge`, 12px) không đổi: nó đã nhỏ hơn tên mới.
@@ -399,8 +429,54 @@
     font-size: var(--text-xs);
   }
 
+  /*
+   * Nhãn nhóm 11 → 12px (19/10/2026; nét nghiêng ở luật gốc `.category`, áp mọi khổ). Cùng cỡ với mô tả,
+   * nên thứ tách hai dòng là nét nghiêng cộng nét đậm vừa (500 so với 400) và khe 8px phía trên.
+   */
   .category {
-    font-size: 11px;
+    font-size: var(--text-xs);
+  }
+
+  /*
+   * ── Thẻ hàng gọn hơn, nhãn cấp độ ở góc trên phải (19/10/2026) ───────────────────────────────
+   *
+   * Chủ dự án khoanh nhãn "Cơ bản" sau tên "Biên an toàn": _"tương tự giảm padding của phần này xuống,
+   * áp dụng cho mobile. đồng thời chuyển cơ bản nâng cao xuống vị trí tôi chỉ"_. Đo trước ở 360px: đệm
+   * 12px, thẻ cao 119–139px, và tên dài như "CAGR — tăng trưởng kép hằng năm" đẩy nhãn xuống một dòng
+   * riêng dưới tên. Bản đầu đặt nhãn ở góc DƯỚI phải, cùng hàng nhãn nhóm; xem xong, chủ dự án vẽ mũi tên
+   * lên góc trên: _"thử chuyển lên trên luôn nằm ở vị trí tôi chỉ xem sao"_.
+   *
+   * - Đệm dọc của thẻ 12 → 8px; đệm ngang giữ 12px.
+   * - Nhãn cấp độ là cột thứ ba của hàng tên, sát mép phải khối chữ (trái mũi tên ">"), căn giữa dọc
+   *   như icon và tên. Chỉ đổi CSS, không đổi DOM: `.heading` thành `display: contents` nên tên và nhãn
+   *   mỗi thứ là một ô lưới riêng. Thứ tự đọc vẫn là tên → cấp độ → mô tả → nhóm. Mô tả và nhãn nhóm
+   *   đã khai `1 / -1` nên tự trải cả ba cột. Từ 1024px nhãn vẫn bám ngay sau chữ cuối của tên (xem
+   *   `.levelBadge` gốc).
+   * - Cái giá: tên mất phần bề ngang của nhãn (56–70px cộng khe 12px), nên vài tên dài xuống dòng sớm hơn.
+   */
+  .card {
+    padding: var(--space-2) var(--space-3);
+  }
+
+  .body {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+  }
+
+  .heading {
+    display: contents;
+  }
+
+  .name {
+    grid-column: 2;
+    grid-row: 1;
+    min-width: 0;
+  }
+
+  .levelBadge {
+    grid-column: 3;
+    grid-row: 1;
+    align-self: center;
+    margin-left: 0;
   }
 
   .tileIcon {
@@ -421,6 +497,6 @@
   }
 
   .tileCategory {
-    font-size: 11px;
+    font-size: var(--text-xs);
   }
 }

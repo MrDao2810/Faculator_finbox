@@ -23,6 +23,7 @@ import {
   formulasForLevel,
   hasSelectFilters,
   isDefaultListParams,
+  localizeRecentSearches,
   parseFormulaUsage,
   selectFormulas,
   usageOrderMap,
@@ -36,7 +37,6 @@ import {
   CategoryChips,
   EmptyState,
   FormulaCard,
-  HiddenByLevelNote,
   RecentSearches,
   SearchBox,
   VirtualList,
@@ -166,10 +166,18 @@ export function FormulaListScreen({ shelf }: FormulaListScreenProps) {
    * Kho riêng cũ của trang chủ được gộp vào ở lần mở đầu tiên rồi xoá — xem `recent-searches.ts`.
    */
   const {
-    terms: recent,
+    terms: storedRecent,
     remember,
     clear: clearRecent,
   } = useRecentSearches(RECENT_SEARCHES_KEY, { absorbKey: LEGACY_HOME_RECENT_SEARCHES_KEY });
+  /*
+   * Chip in tên theo ngôn ngữ ĐANG BẬT, không theo ngôn ngữ lúc ghi (19/10/2026): kho chứa tên công
+   * thức, `localizeRecentSearches()` tra ngược ra công thức rồi `pick` lại. Xem docblock ở đó.
+   */
+  const recent = useMemo(
+    () => localizeRecentSearches(storedRecent, FORMULA_SUMMARIES, pick),
+    [storedRecent, pick],
+  );
 
   /*
    * Lịch sử mở công thức, cho hai cách sắp "Vừa xem gần đây" và "Hay dùng nhất".
@@ -260,10 +268,11 @@ export function FormulaListScreen({ shelf }: FormulaListScreenProps) {
    */
   const rememberResult = useCallback(
     (formula: FormulaSummary, event: ReactMouseEvent<HTMLAnchorElement>) => {
-      remember(pick(formula.name));
+      // Ghi tên GỐC (`vi`), không phải tên đang hiện: chip tự in lại theo ngôn ngữ lúc đọc.
+      remember(formula.name.vi);
       if (!opensElsewhere(event)) markResultOpened();
     },
-    [remember, pick, markResultOpened],
+    [remember, markResultOpened],
   );
 
   /** Bấm lại một thứ đã tìm: lọc NGAY tại chỗ, URL ghi ngay, tiêu điểm về ô tìm. */
@@ -415,15 +424,10 @@ export function FormulaListScreen({ shelf }: FormulaListScreenProps) {
         </div>
 
         {/*
-          Dòng "N công thức nâng cao đang ẩn" — chỉ khi danh sách CÒN mục (lúc rỗng thì khối rỗng đã
-          nói), và chỉ ở chế độ Cơ bản (CSS giấu ở chế độ Nâng cao; con số không phụ thuộc chế độ).
+          Không còn dòng "N công thức nâng cao đang ẩn · Bật chế độ Nâng cao" trên đầu danh sách: chủ
+          dự án bỏ 19/10/2026 (mộ chí `list.hiddenByLevel` ở `vi.ts`). `hiddenByLevel` vẫn dùng cho
+          khối rỗng bên dưới, khi chế độ Cơ bản làm danh sách trống hẳn.
         */}
-        {hiddenByLevel > 0 && basicMatches.length > 0 && (
-          <div className={styles.onlyBasic}>
-            <HiddenByLevelNote count={hiddenByLevel} />
-          </div>
-        )}
-
         {formulas.length > 0 ? (
           <VirtualList
             items={formulas}

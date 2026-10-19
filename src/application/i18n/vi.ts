@@ -87,7 +87,11 @@ export const vi = {
    * không cần biết mới dùng được, cứ gõ là ra. Khả năng bỏ dấu nằm ở `normalizeVi()` tầng Domain,
    * không phụ thuộc câu chữ nào cả.
    */
-  'search.placeholder': 'Tên công thức, ví dụ P/E hay định giá',
+  /*
+   * 'Tên công thức, ví dụ P/E hay định giá' → 'Công thức' (19/10/2026). Chủ dự án khoanh chữ mờ của ô
+   * tìm màn Công thức và yêu cầu đổi thành đúng chữ này. EN theo: 'Formula'.
+   */
+  'search.placeholder': 'Công thức',
   'search.clear': 'Xoá ô tìm kiếm',
 
   // Màn tìm kiếm WF-09 — gói 3.1.3
@@ -169,13 +173,16 @@ export const vi = {
    */
 
   /*
-   * Chế độ Cơ bản đang giấu bớt công thức — vế thứ hai của FR-09.
+   * Mộ chí: `list.hiddenByLevel` ('công thức nâng cao đang ẩn') bỏ ngày 19/10/2026. Nó là dòng
+   * "N công thức nâng cao đang ẩn · Bật chế độ Nâng cao" trên đầu danh sách `/cong-thuc/` và trong kết
+   * quả của `/tim-kiem/`, ở chế độ Cơ bản. Chủ dự án chụp đúng dòng ấy: _"bỏ đoạn giải thích này
+   * đi"_. Cùng lối với `quiz.lead`, `quiz.notTranslated`: bỏ CÂU, giữ hành vi.
    *
-   * Phải nói ra bằng SỐ và kèm nút bật, không im lặng cắt danh sách: người dùng không có cách
-   * nào đoán được vì sao nhóm "Tài chính DN" trống trơn (cả 2 công thức của nó đều mức nâng cao).
-   * Chữ cố ý khác `detail.hiddenInBasic` vì chỗ này ẩn CÔNG THỨC, chỗ kia ẩn BIẾN.
+   * Thứ còn lại, có chủ ý: khi chế độ Cơ bản làm danh sách RỖNG hẳn (nhóm "Tài chính DN" chỉ có công
+   * thức nâng cao), khối rỗng `list.empty.basicOnly.*` vẫn nói lý do và vẫn có nút bật bên dưới. Ở đó
+   * im lặng là một màn trống không lời, người dùng tưởng nhóm chưa làm. Màn Danh mục vẫn giữ dòng
+   * `portfolio.hiddenByLevel` của nó (ẩn Ô số liệu, không ẩn công thức), chờ chủ dự án quyết.
    */
-  'list.hiddenByLevel': 'công thức nâng cao đang ẩn',
   'list.showAdvanced': 'Bật chế độ Nâng cao',
   'list.empty.basicOnly.title': 'Ở đây chỉ có công thức nâng cao',
   'list.empty.basicOnly.hint':
@@ -1225,10 +1232,16 @@ export const vi = {
    * câu này cũng gỡ theo — trỏ vào một id không tồn tại thì trình đọc màn hình lặng thinh, không
    * lỗi, không cảnh báo, chỉ mất phần mô tả.
    */
-  'portfolio.formulaClear': 'Bỏ chọn công thức',
+  /*
+   * ⚠ `portfolio.formulaClear` ('Bỏ chọn công thức') đã XOÁ — 19/10/2026. Nút chữ gạch chân dưới ô
+   * "Thêm công thức", chỉ hiện khi đã chọn một công thức. Chủ dự án gọi là "text button thừa". Cái
+   * giá đã biết: muốn quay về "không mở công thức nào" thì đóng hộp thoại rồi mở lại (lần mở nào cũng
+   * đặt lại ô này). Đừng dựng lại nút chữ này mà không hỏi.
+   */
   'portfolio.formSubmitOpen': 'Thêm và mở công thức',
   'portfolio.formSaveOpen': 'Lưu và mở công thức',
-  'portfolio.formulasTitle': 'Công thức dùng được với mã này',
+  /* "dùng được" → "sử dụng được" (19/10/2026, chủ dự án). Mã vẫn nối sau dấu "·" ở chỗ dựng tiêu đề. */
+  'portfolio.formulasTitle': 'Công thức sử dụng được với mã này',
   /*
    * ── `portfolio.formulasSubtitle` đã XOÁ (14/09/2026) ──────────────────────────────────────
    *
@@ -1242,8 +1255,13 @@ export const vi = {
    * `portfolio.formSaveOpen` ("Lưu và mở công thức") nói đúng lúc nào thì trang mới mở. Đừng
    * dựng lại dòng phụ này mà không xét hai nhãn ấy trước.
    */
-  // Đứng SAU cặp số "2/2", nên viết thường và mở đầu bằng đơn vị.
-  'portfolio.formulasFilled': 'ô điền sẵn',
+  /*
+   * ⚠ `portfolio.formulasFilled` ('ô điền sẵn') đã XOÁ — 19/10/2026. Nó đứng sau cặp số trên mỗi
+   * dòng của sheet chọn công thức ("2/2 ô điền sẵn"). Chủ dự án hỏi "điền sẵn nghĩa là gì", nghe giải
+   * thích xong thì: _"không cần chú thích điền sẵn làm gì. xóa đoạn đó đi"_. Tỷ lệ ấy vẫn quyết định
+   * dòng nào có mặt và thứ tự xếp, chỉ không in ra. Bia mộ `portfolio.formulasSubtitle` ngay trên
+   * lấy con số này làm lý do bỏ câu phụ; nay cả hai đều không còn, sheet chỉ có tên công thức.
+   */
   'portfolio.formulasNoPrice':
     'Chưa tra được thị giá của mã này, nên các công thức cần giá đã bị lược bớt hoặc điền ít ô hơn.',
 
@@ -1267,9 +1285,13 @@ export const vi = {
    *   - 12/10/2026, chiều: chủ dự án rút hai nhãn về "Mã" và "Công thức" cho cả tab lẫn tiêu đề —
    *     đúng cặp chữ của bản tab 10/10. Vẫn hai khoá ấy, chỉ đổi chữ. `save.nameHint` và
    *     `save.done` đổi theo vì chúng gọi tên chỗ này.
+   *   - 19/10/2026: câu cũ của `savedEmpty` ("Chưa lưu phép tính nào. Mở một công thức, nhập số
+   *     liệu rồi bấm “Lưu vào danh mục” để giữ lại kết quả ở đây.") bị XOÁ — chủ dự án gọi là "đoạn
+   *     text thừa". Cùng ngày họ hỏi icon "fx" còn lại trong ô rỗng là gì, rồi cho thay icon ấy bằng
+   *     chữ "Chưa có công thức". Khoá quay lại với đúng mấy chữ đó, ô rỗng không còn icon. Đừng dựng
+   *     lại câu hướng dẫn khi chưa hỏi.
    */
-  'portfolio.savedEmpty':
-    'Chưa lưu phép tính nào. Mở một công thức, nhập số liệu rồi bấm “Lưu vào danh mục” để giữ lại kết quả ở đây.',
+  'portfolio.savedEmpty': 'Chưa có công thức',
   'portfolio.savedEmptyAction': 'Mở danh sách công thức',
   /*
    * Vừa là `<h2>` của tab, vừa là nhãn của tab dọc ở cột trái — xem `portfolio.holdings`. Từng là
@@ -2033,10 +2055,20 @@ export const vi = {
    * Thứ tự và chữ do chủ dự án đặt 25/09/2026: "Công thức áp dụng … để tính Biên an toàn", rồi
    * "Thay số" nói số nào là ký hiệu nào, rồi phép tính. Nhãn "Tính" riêng gộp vào `deTinh`.
    */
-  'quiz.giai.congThuc': 'Công thức áp dụng',
+  /*
+   * "Công thức áp dụng" → "Công thức" (19/10/2026, chủ dự án), cùng ngày dòng này được đứng cạnh hình
+   * ở khổ điện thoại: nhãn ngắn hơn ~55px là thêm chỗ cho hình công thức đứng cạnh nó thay vì xuống
+   * dòng. Chú thích trong mã còn gọi dòng này bằng tên cũ ở vài chỗ.
+   */
+  'quiz.giai.congThuc': 'Công thức',
   'quiz.giai.deTinh': 'để tính {x}',
   'quiz.giai.thaySo': 'Thay số',
-  'quiz.giai.apVao': 'Áp vào công thức',
+  /*
+   * "Áp vào công thức" → "Áp dụng công thức" (19/10/2026, chủ dự án). Khoá giữ tên `apVao`: đổi khoá
+   * chỉ để khớp chữ là sửa hai từ điển và các test gọi `t('quiz.giai.apVao')` mà màn không đổi gì.
+   * Chú thích trong mã còn gọi dòng này bằng tên cũ ở nhiều chỗ; đó là tên lịch sử của cùng một dòng.
+   */
+  'quiz.giai.apVao': 'Áp dụng công thức',
   'quiz.giai.ketQua': 'Kết quả',
   'quiz.source': 'Nguồn',
   'quiz.effectiveFrom': 'Hiệu lực từ',
@@ -2053,7 +2085,13 @@ export const vi = {
    * đi, `public/_headers` vẫn khoá `connect-src`. Cần nói lại thì dựng khoá mới và hỏi chủ dự
    * án trước — đừng đoán rằng bản cũ bị xoá nhầm.
    */
-  'quiz.lastTime': 'Lần gần nhất',
+  /*
+   * Mộ chí: `quiz.lastTime` ("Lần gần nhất", in thành "Lần gần nhất: 3/5" dưới hàng tiêu đề Bài tập
+   * ở trạng thái nghỉ) BỎ 19/10/2026, ở mọi khổ màn. Chủ dự án chụp thẻ nghỉ: _"không cần phải chú
+   * thích như ảnh. bỏ đi cả ở mobile lẫn web"_. Cùng lối với `quiz.lead`, `quiz.localOnly`: bỏ câu,
+   * giữ hành vi — điểm vẫn ghi vào `ffb.quiz.v1` khi làm xong, chỉ không còn chỗ nào đọc ra. Dựng
+   * lại là quyết định của chủ dự án, không phải sửa sót.
+   */
   'quiz.empty.title': 'Công thức này chưa có bộ câu hỏi',
   'quiz.empty.body':
     'Chúng tôi chỉ soạn câu khi tìm được nguồn thật ghi nhận người dùng hay hiểu sai ở đâu. Công thức này chưa có nguồn nào như vậy.',

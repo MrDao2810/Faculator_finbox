@@ -75,7 +75,7 @@ describe('SearchBox — nhãn và chữ mờ', () => {
     render(<SearchBox value="" onChange={vi.fn()} />);
 
     const input = screen.getByRole('searchbox', { name: 'Tìm công thức' });
-    expect(input.getAttribute('placeholder')).toBe('Tên công thức, ví dụ P/E hay định giá');
+    expect(input.getAttribute('placeholder')).toBe('Công thức');
   });
 
   it('nhãn và chữ mờ đi theo prop, và nhãn ẩn đổi cùng chữ mờ', () => {

@@ -1555,10 +1555,9 @@ export function PortfolioScreen() {
   /**
    * Chưa chọn được công thức vì chưa có mã.
    *
-   * Không phải chuyện thứ tự cho gọn: tỷ lệ "2/2 ô điền sẵn" của mỗi dòng trong sheet PHỤ THUỘC
-   * mã có tra được thị giá hay không (xem `hasPrice` ở `FormulaForTickerSheet`). Mở sheet khi
-   * chưa biết mã là in ra 31 con số chưa chắc đúng — đúng loại "số sai mà trông có lý" mà FR-06
-   * dựng ra để chặn.
+   * Không phải chuyện thứ tự cho gọn: số ô điền được của mỗi dòng trong sheet PHỤ THUỘC mã có tra
+   * được thị giá hay không (xem `hasPrice` ở `FormulaForTickerSheet`), và số ấy quyết định dòng
+   * nào có mặt, xếp thứ mấy. Mở sheet khi chưa biết mã là đưa ra một danh sách chưa chắc đúng.
    */
   const formulaLocked = formCode === null;
 
@@ -2771,13 +2770,13 @@ export function PortfolioScreen() {
               Ô chọn công thức — TUỲ CHỌN, và là thứ gộp hai luồng của màn làm một.
 
               Cùng khuôn `.codeField` ngay trên: một nút mở sheet, không phải `<select>`. Ở đây lý
-              do còn mạnh hơn — 31 dòng nhưng mỗi dòng mang thêm tỷ lệ "2/2 ô điền sẵn", thứ một
-              `<option>` không chở nổi.
+              do còn mạnh hơn — 34 dòng chia hai nhóm cấp độ, có ô tìm, thứ một `<select>` không
+              chở nổi.
 
-              Khoá lại khi chưa chọn mã, và đó không phải chuyện thứ tự cho gọn: tỷ lệ ô điền sẵn
-              của mỗi công thức PHỤ THUỘC mã có tra được thị giá hay không (xem `hasPrice` ở
-              `FormulaForTickerSheet`). Mở sheet khi chưa biết mã là in ra 31 con số chưa chắc
-              đúng — đúng loại "số sai mà trông có lý" mà FR-06 dựng ra để chặn.
+              Khoá lại khi chưa chọn mã, và đó không phải chuyện thứ tự cho gọn: số ô điền được của
+              mỗi công thức PHỤ THUỘC mã có tra được thị giá hay không (xem `hasPrice` ở
+              `FormulaForTickerSheet`), và nó quyết định dòng nào có mặt. Mở sheet khi chưa biết mã
+              là đưa ra một danh sách chưa chắc đúng.
             */}
                       <div className={styles.codeField}>
                         <span className={styles.codeLabel} id="portfolio-formula-label">
@@ -2832,17 +2831,11 @@ export function PortfolioScreen() {
                   thì trình đọc màn hình lặng thinh — không lỗi, không cảnh báo, chỉ mất phần mô
                   tả; đúng kiểu hỏng mà không cửa nào bắt được.
                 */}
-                        {plannedFormula !== null && (
-                          <button
-                            type="button"
-                            className={styles.clearFormula}
-                            onClick={() => {
-                              setPlannedFormula(null);
-                            }}
-                          >
-                            {t('portfolio.formulaClear')}
-                          </button>
-                        )}
+                        {/*
+                  Nút chữ "Bỏ chọn công thức" dưới ô đã BỎ (19/10/2026, chủ dự án gọi là "text button
+                  thừa"). Muốn bỏ công thức đã chọn thì đóng hộp thoại rồi mở lại: lần mở nào cũng
+                  đặt `plannedFormula` về `null`.
+                */}
                       </div>
 
                       {errors.form !== undefined && (
@@ -2897,9 +2890,10 @@ export function PortfolioScreen() {
 
                 {savedCalcs.length === 0 ? (
                   <div className={styles.empty}>
-                    <span className={styles.emptyIcon} aria-hidden="true">
-                      <StatIcon d={TILE_ICONS.tabSaved} />
-                    </span>
+                    {/*
+                      Chữ ngắn thay icon "fx" (19/10/2026): chủ dự án hỏi icon ấy là gì rồi cho thay. Câu
+                      hướng dẫn dài ở đây đã gỡ cùng ngày — lịch sử ở khoá `portfolio.savedEmpty`, `vi.ts`.
+                    */}
                     <p className={styles.emptyText}>{t('portfolio.savedEmpty')}</p>
                     <Link
                       className={`${styles.savedAction} ${styles.savedActionOpen}`}

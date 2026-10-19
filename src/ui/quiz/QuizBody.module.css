@@ -79,7 +79,7 @@
   color: var(--color-ink-soft);
 }
 
-.intro,
+/* `.intro` (hàng chứa điểm lần trước) bỏ 19/10/2026 cùng dòng ấy — xem `QuizBody.tsx`. */
 .card {
   display: flex;
   flex-direction: column;
@@ -568,11 +568,7 @@
  * không bấm được đã nói đúng điều đó.
  */
 
-.lastTime {
-  margin: 0;
-  font-size: 0.8125rem;
-  color: var(--color-muted);
-}
+/* `.lastTime` ("Lần gần nhất: 3/5") bỏ 19/10/2026 — chủ dự án: _"không cần phải chú thích như ảnh"_. */
 
 /* ── Câu điền số — WF-19C · S10–S12 ────────────────────────────────────────── */
 
@@ -765,6 +761,11 @@
  *     như nút: nhô 4px trên và dưới, vừa khít khe 8px giữa hai ô (`.choiceGrid`), nên không lấn
  *     sang ô bên cạnh. Bấm lên `::after` của `<label>` là bấm nhãn, nút chọn vẫn nhận. Lề ngang
  *     giữ 16px, không được nhắc tới.
+ *   · Lề TRÁI của ô đáp án 16 → 8px (lượt ba, cùng ngày; chủ dự án khoanh dải từ mép ô tới nút
+ *     tròn: _"giảm padding bên trái như ảnh để câu hỏi có thể nhiều không gian hiển thị hơn"_). Chữ
+ *     đáp án lấy thêm 8px bề ngang. Bỏ luôn lề trái mặc định 4–5px của trình duyệt trên nút tròn /
+ *     ô vuông, nên nút cách mép ô 9px (đệm 8 + viền 1), bằng khoảng trên dưới. Đo ở 390px: 22 → 9px,
+ *     chữ đáp án rộng thêm 13px. Lề phải và khe giữa nút, chữ cái, chữ đáp án giữ nguyên.
  *   · Nút trong hàng: 44 → 36px, chữ 16 → 14px, lề ngang 16 → 12px, đúng bộ số của `.sm` ở
  *     `Button.module.css`, kể cả lớp `::after` cao 44px để vùng chạm không nhỏ đi (NFR-USA-01).
  *     Áp lên MỌI nút của `.actions`, không truyền `size="sm"`: hai nút đứng cạnh nhau phải cùng
@@ -777,6 +778,42 @@
  * Phải đứng SAU `.prompt` và `.choice` ở trên: cùng độ đặc hiệu, nên thứ tự quyết định.
  */
 @media (max-width: 1023.98px) {
+  /*
+   * Thẻ thấp hơn (19/10/2026, chủ dự án khoanh cả thẻ ở trạng thái nghỉ: _"các phần khoanh đỏ kia
+   * cần giảm xuống"_). Lượt đầu chỉ hạ đệm thẻ 20 → 12 / 16px (78 → 62px) và chủ dự án hỏi lại ngay:
+   * _"vẫn chưa thấy giảm padding xung quanh phần này?"_ — đúng, vì phần trống mắt thấy quanh chữ
+   * phần lớn nằm TRONG nút "Bắt đầu kiểm tra": nút `sm` cao 36px, chữ ~18px, tức ~9px trống trên dưới
+   * chữ, cộng đệm ngang 12px của chính nút ở mép phải. Nên lượt hai:
+   *
+   *   - Đệm thẻ 8px trên dưới, 12px hai bên.
+   *   - Nút ở hàng tiêu đề ("Bắt đầu kiểm tra", "Thoát") cao 28px, và hàng theo nó (`min-height`
+   *     của `.head` là chiều cao nút, xem docblock ở trên). Vùng chạm vẫn 44px nhờ `::after` của
+   *     `.sm`, thò 8px mỗi phía — vừa đúng đệm thẻ, không ra ngoài khung.
+   *   - Đệm ngang của nút 12 → 8px, lề phải âm 4px.
+   *
+   * Lượt hai từng kéo nút ra trọn 12px đệm của nó (lề phải −12px), với lý lẽ "nút `ghost` không nền
+   * nên đệm ngang chỉ là khoảng trống". Sai ở chỗ nút ấy CÓ nền lúc hover, và chủ dự án hover vào
+   * thấy ngay: _"khi hover vào đang có padding quá rộng làm xát với bên ngoài"_ — nền xám chạm viền
+   * phải của thẻ. Nay nền hover cách viền thẻ 8px ở cả ba phía (trên, dưới: đệm thẻ 8px; phải: 12px
+   * đệm thẻ trừ 4px lề âm), và "»" cách mép thẻ 16px.
+   *
+   * Thẻ nghỉ 62 → 46px ở 390px; lúc đang làm bài cũng gọn theo. Khe phía trên thẻ do màn chi tiết lo
+   * (`.quizBlock`). Bộ chọn `.head > .headAction` (0,2,0) thắng `.sm` của primitive bất kể thứ tự.
+   */
+  .block {
+    padding: var(--space-2) var(--space-3);
+  }
+
+  .head {
+    min-height: 28px;
+  }
+
+  .head > .headAction {
+    min-height: 28px;
+    padding-inline: var(--space-2);
+    margin-right: calc(var(--space-1) * -1);
+  }
+
   .prompt {
     font-size: var(--text-sm);
   }
@@ -785,7 +822,63 @@
     position: relative;
     min-height: 36px;
     padding-block: var(--space-2);
+    padding-left: var(--space-2);
     font-size: 13px;
+  }
+
+  .choice input {
+    margin-left: 0;
+  }
+
+  /*
+   * Khung công thức của câu điền số gọn hơn (19/10/2026). Chủ dự án khoanh dải trống trên hàng ô "?"
+   * và phần trống bên phải ở câu CAPM: _"giảm padding tôi đã khoanh đỏ xuống để có thể có nhiều
+   * không gian hiển thị nội dung chính hơn"_. Đo ở 390px trước khi sửa: trên ô 22px, dưới 25px
+   * (đệm khung 16px, cộng 8px chừa cho thanh cuộn ở dưới 768px), hai bên 28px.
+   *
+   *   - Đệm trên 16 → 8px, đệm hai bên 8 → 4px (ô trên khổ 768–1023 cũng theo, trước là 12px).
+   *   - Đáy: khung 2px, khoảng 8px chừa cho thanh cuộn nổi nằm trong `.workedExpr` (trước chỉ dưới
+   *     768px). Tổng đáy bằng tổng đỉnh (8 + 2), nên hàng ô nằm giữa khung.
+   *
+   * Phần trống hai bên khi công thức ngắn KHÔNG phải đệm: cả cụm căn giữa khung (docblock `.worked`),
+   * nên công thức vừa khung thì chỗ dư chia đều hai phía. Đệm chỉ còn 4px; nó quyết định công thức
+   * DÀI (đang cuộn ngang) thấy được bao nhiêu.
+   *
+   * Đứng sau khối dưới 768px: cùng độ đặc hiệu, nên thứ tự quyết định.
+   */
+  .worked {
+    padding: var(--space-2) var(--space-1) 2px;
+  }
+
+  .workedExpr {
+    padding-bottom: var(--space-2);
+  }
+
+  /*
+   * Phần chấm điểm gọn hơn (19/10/2026). Chủ dự án khoanh dòng "Sai · Kết quả: 10 %/năm · Thứ tự
+   * đúng: …", hai khoảng trống trên dưới nó và cả hộp "Vì sao chưa đúng" của câu điền số CAGR:
+   * _"hãy giảm padding xuống, size text giảm xuống tương tự như bên trên đã yêu cầu"_. Đo ở 390px
+   * trước khi sửa: dòng kết luận 16px đậm, cách khung công thức và hộp lời giải mỗi bên 28px (lề
+   * mặc định 16px của `<p>` cộng khe 12px của cột); hộp đệm 12 / 16px.
+   *
+   *   - Dòng kết luận 16 → 14px, vẫn đậm, bỏ lề của `<p>`: khoảng trên dưới còn đúng khe 12px.
+   *     Bám `p.` vì `.markRight` / `.markWrong` còn tô dấu ✓ / ✕ (`<span>`) ở dải câu đã làm và màn
+   *     tổng kết, thứ không được khoanh. Áp cả dòng "Đúng / Sai" chung của câu chọn nhiều — cùng vai.
+   *   - Hộp đệm 8 / 12px. Lời giải dạng đoạn văn (`.explainBody`, câu không có lời giải có cấu trúc)
+   *     13 → 12px, cùng cỡ với lời giải có cấu trúc (`LoiGiai.module.css`) để hai dạng hộp một cỡ.
+   */
+  p.markRight,
+  p.markWrong {
+    margin: 0;
+    font-size: var(--text-sm);
+  }
+
+  .explain {
+    padding: var(--space-2) var(--space-3);
+  }
+
+  .explainBody {
+    font-size: var(--text-xs);
   }
 
   .choice::after {

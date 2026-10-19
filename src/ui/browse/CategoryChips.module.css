@@ -180,3 +180,21 @@ input:checked + .face .count {
     cursor: default;
   }
 }
+
+/*
+ * Dưới 1024px chip thấp và nhỏ chữ hơn một bậc (19/10/2026) — cùng lượt với Mức độ / Sắp xếp / dòng
+ * "Hiển thị" của màn Công thức; lời chủ dự án ở khối cuối `FormulaListScreen.module.css`.
+ *
+ * Chip 36 → 32px, chữ 14 → 12px, đệm ngang 12 → 10px. Khung cuộn GIỮ đệm dọc 4px nên hàng thấp đi
+ * đúng 4px. Cái giá, đã chọn: ô phủ chạm 44px nay bị `overflow` của khung xén còn 40px (chip 32 + 4 +
+ * 4). Nâng đệm lên 6px thì đủ lại 44px nhưng hàng cao y như cũ, tức là không tiết kiệm được chỗ nào.
+ *
+ * Đặt sau `.face` gốc: cùng trọng số, thứ tự file quyết.
+ */
+@media (max-width: 1023.98px) {
+  .face {
+    min-height: 32px;
+    padding: 0 10px;
+    font-size: var(--text-xs);
+  }
+}

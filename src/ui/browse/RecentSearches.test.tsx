@@ -1,5 +1,8 @@
 // @vitest-environment jsdom
 
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+
 import { cleanup, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
@@ -121,5 +124,48 @@ describe('RecentSearches — dạng inline, hàng chip dưới ô tìm ở trang
     expect(href.startsWith('/cong-thuc')).toBe(true);
     expect(href).toContain('q=P%2FE');
     expect(screen.queryByRole('button', { name: 'P/E' })).toBeNull();
+  });
+});
+
+/*
+ * Bản vẽ 19/10/2026: hàng "Tìm gần đây" + nút xoá, rồi MỘT hàng chip cuộn ngang, mỗi chip có icon đồng
+ * hồ. Hai lượt sau cùng ngày thu chip về 28px, chữ nét thường. Hai điều test React thấy được, hai
+ * điều chỉ CSS biết.
+ */
+describe('RecentSearches — bản vẽ 19/10/2026', () => {
+  it('mỗi chip mang icon đồng hồ ẩn khỏi trình đọc màn hình, tên chip vẫn đúng chữ', () => {
+    render(<RecentSearches terms={TERMS} onPick={vi.fn()} onClear={vi.fn()} variant="inline" />);
+
+    for (const term of TERMS) {
+      const chip = screen.getByRole('button', { name: term });
+      expect(chip.querySelector('svg')?.getAttribute('aria-hidden')).toBe('true');
+    }
+  });
+
+  it('dạng inline vẫn hiện chữ "Tìm gần đây" (không phải heading) và vùng lấy đúng chữ ấy làm tên', () => {
+    render(<RecentSearches terms={TERMS} onPick={vi.fn()} onClear={vi.fn()} variant="inline" />);
+
+    expect(screen.getByText('Tìm gần đây').tagName).toBe('SPAN');
+    expect(screen.getByRole('region', { name: 'Tìm gần đây' })).not.toBeNull();
+  });
+
+  /*
+   * `overflow-x: auto` cắt luôn chiều dọc, nên khung cuộn phải đệm đúng (44 − cao chip) ÷ 2 mỗi phía
+   * thì vùng chạm 44px của chip mới còn nguyên. Hai con số ở hai luật — đổi cao chip mà quên phép tính
+   * là vùng chạm bị xén lặng lẽ.
+   */
+  it('dưới 1024px hàng chip cuộn ngang, đệm dọc khung cuộn khớp chiều cao chip', () => {
+    const css = readFileSync(
+      join(process.cwd(), 'src/ui/browse/RecentSearches.module.css'),
+      'utf8',
+    ).replace(/\/\*[\s\S]*?\*\//g, '');
+
+    const caoChip = /\.chip\s*\{[^}]*min-height:\s*(\d+)px;/.exec(css)?.[1];
+    const khoi = /@media \(max-width: 1023\.98px\)\s*\{\s*\.chips\s*\{([^}]*)\}/.exec(css)?.[1];
+
+    expect(khoi, 'thiếu luật .chips dưới 1024px').toBeDefined();
+    expect(khoi).toMatch(/overflow-x:\s*auto;/);
+    expect(khoi).toContain(`padding: calc((var(--tap-min) - ${String(caoChip)}px) / 2)`);
+    expect(khoi).toContain(`margin: calc((var(--tap-min) - ${String(caoChip)}px) / -2)`);
   });
 });

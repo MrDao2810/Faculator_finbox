@@ -91,6 +91,22 @@
   overflow-wrap: anywhere;
 }
 
+/*
+ * Khổ điện thoại: con số 26px (`--text-xl`), đệm trên dưới 8px — cùng hai con số chủ dự án cho thẻ
+ * "Lợi nhuận ròng" ngày 19/10/2026 (_"giảm 2 size text, đồng thời giảm padding trên dưới xuống"_, lý
+ * lẽ ở `FeeTaxBody.module.css`). Thẻ này cùng khuôn đáp án nên theo luôn, để ba thẻ không lệch nhau.
+ * Phải đứng sau luật gốc của `.summary` và `.summaryValue`.
+ */
+@media (max-width: 1023.98px) {
+  .summary {
+    padding: var(--space-2) var(--space-4);
+  }
+
+  .summaryValue {
+    font-size: var(--text-xl);
+  }
+}
+
 /* Bản in trả thẻ về khuôn nền trắng viền xanh — xem docblock ở `ResultBlock.module.css`. */
 @media print {
   .summary {

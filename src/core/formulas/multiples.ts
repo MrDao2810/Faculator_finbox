@@ -247,6 +247,10 @@ export const PB: FormulaModule = {
       numberVar('price', { vi: 'Giá thị trường (P)', en: 'Market price (P)' }, '₫', 92_000, {
         min: 0,
         max: 10_000_000,
+        description: {
+          vi: 'Giá đóng cửa gần nhất của một cổ phiếu.',
+          en: 'The most recent closing price of one share.',
+        },
       }),
       numberVar(
         'bookValuePerShare',

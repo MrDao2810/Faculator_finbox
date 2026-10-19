@@ -21,6 +21,8 @@
  * lần mở đầu tiên rồi xoá (`useRecentSearches(…, { absorbKey })`).
  */
 
+import type { Bilingual } from '@/core/types';
+
 /**
  * Lịch sử tìm — dùng chung cho ô tìm ở màn Công thức và màn tìm WF-09 (`/tim-kiem/`).
  *
@@ -125,4 +127,35 @@ export function removeRecentSearch(list: ReadonlyArray<string>, term: string): s
 /** Chuỗi JSON để ghi vào localStorage. */
 export function serializeRecentSearches(list: ReadonlyArray<string>): string {
   return JSON.stringify(list.slice(0, MAX_RECENT_SEARCHES));
+}
+
+/**
+ * Chip "Tìm gần đây" in theo NGÔN NGỮ ĐANG BẬT, không theo ngôn ngữ lúc ghi (19/10/2026).
+ *
+ * Chủ dự án chuyển sang tiếng Anh và chip vẫn đọc "%B — vị trí giá trong dải Bollinger": kho ghi
+ * nguyên tên công thức theo ngôn ngữ của LÚC BẤM (`pick(formula.name)`), rồi chip in lại đúng chuỗi
+ * ấy. Một mục lịch sử là một CÔNG THỨC, không phải một chuỗi, nên ở đây tra ngược chuỗi ra công thức
+ * (khớp tên `vi` hoặc `en`, không phân biệt hoa thường) rồi in tên bằng `show` — tức `pick` của
+ * ngôn ngữ đang bật. Chuỗi không khớp công thức nào (kho cũ, tên đã đổi) giữ nguyên.
+ *
+ * Bỏ trùng theo CHUỖI IN RA: kho cũ có thể mang cùng một công thức hai lần, một bản Việt một bản
+ * Anh, và hai chip giống hệt nhau đứng cạnh nhau là lỗi nhìn thấy được. Từ nay hai màn ghi tên `vi`
+ * (dạng gốc), nên kho mới không sinh ra cặp ấy nữa.
+ */
+export function localizeRecentSearches(
+  terms: ReadonlyArray<string>,
+  formulas: ReadonlyArray<{ readonly name: Bilingual }>,
+  show: (name: Bilingual) => string,
+): string[] {
+  const shown: string[] = [];
+  for (const term of terms) {
+    const key = term.trim().toLowerCase();
+    const formula = formulas.find(
+      ({ name }) => name.vi.trim().toLowerCase() === key || name.en.trim().toLowerCase() === key,
+    );
+    const label = formula === undefined ? term : show(formula.name);
+    if (shown.some((existing) => existing.toLowerCase() === label.toLowerCase())) continue;
+    shown.push(label);
+  }
+  return shown;
 }

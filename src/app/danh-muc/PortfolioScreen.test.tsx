@@ -521,8 +521,9 @@ describe('WF-06 — từ mã sang công thức', () => {
   });
 
   /*
-   * Chưa có mã thì chưa chọn được công thức — tỷ lệ "2/2 ô điền sẵn" của mỗi dòng phụ thuộc mã có
-   * thị giá hay không, nên mở sheet lúc chưa biết mã là in ra 31 con số chưa chắc đúng (FR-06).
+   * Chưa có mã thì chưa chọn được công thức — số ô điền được của mỗi dòng phụ thuộc mã có thị giá
+   * hay không, và nó quyết định dòng nào có mặt, nên mở sheet lúc chưa biết mã là đưa ra một danh
+   * sách chưa chắc đúng.
    *
    * Nhưng ràng buộc ấy KHÔNG được biến ô thành ngõ cụt. Bản đầu để `disabled` và chủ dự án báo
    * ngay: "bấm vào chọn công thức không thấy hiệu ứng gì". Ca này khoá cách chữa: nút nói đúng
@@ -552,17 +553,29 @@ describe('WF-06 — từ mã sang công thức', () => {
     expect(within(sheet).getByText('Chọn mã cổ phiếu')).toBeTruthy();
   });
 
-  it('bỏ chọn được công thức đã chọn, và nhãn nút trở lại như cũ', async () => {
+  /*
+   * Nút chữ "Bỏ chọn công thức" đã bỏ 19/10/2026 (chủ dự án: "text button thừa"). Ca cũ khoá việc
+   * bấm nó thì nhãn nút lưu trở lại; ca này khoá điều ngược lại — nút ấy không quay về — và đường
+   * thay thế: đóng hộp thoại rồi mở lại thì ô công thức trống.
+   */
+  it('chọn công thức rồi thì không có nút "Bỏ chọn công thức"; mở lại hộp thoại thì ô trống', async () => {
     const sheet = await moSheetCongThuc();
     await userEvent.click(within(sheet).getByRole('button', { name: /P\/E — hệ số/ }));
 
-    await userEvent.click(screen.getByRole('button', { name: 'Bỏ chọn công thức' }));
+    expect(screen.getByRole('button', { name: 'Thêm và mở công thức' })).toBeTruthy();
+    expect(screen.queryByRole('button', { name: 'Bỏ chọn công thức' })).toBeNull();
+    expect(screen.queryByText('Bỏ chọn công thức')).toBeNull();
+
+    await userEvent.click(within(await tamTrenCung()).getByRole('button', { name: 'Đóng' }));
+    await userEvent.click(await screen.findByRole('button', { name: 'Thêm mới' }));
 
     /*
-     * Tra bằng CHỮ chứ không bằng tên nút: ô này lấy tên khả truy cập từ `aria-labelledby` trỏ vào
-     * nhãn "Thêm công thức", nên tên nút không đổi theo nội dung bên trong — y hệt ô chọn mã.
+     * Đọc CHỮ trong ô chứ không tra tên P/E khắp màn: tấm chọn công thức đã đóng vẫn nằm trong DOM
+     * với đủ 34 dòng. Ô lấy tên khả truy cập từ `aria-labelledby` ("Thêm công thức"), nên tên nút
+     * không đổi theo nội dung bên trong — y hệt ô chọn mã.
      */
-    expect(screen.getByText('Chọn công thức')).toBeTruthy();
+    const oCongThuc = screen.getByRole('button', { name: 'Thêm công thức' });
+    expect(oCongThuc.textContent).not.toMatch(/P\/E/);
     expect(screen.getByRole('button', { name: 'Thêm vào danh mục' })).toBeTruthy();
   });
 
@@ -661,13 +674,25 @@ describe('WF-06 — từ mã sang công thức', () => {
     expect(within(sheet).queryByRole('button', { name: /[Bb]iên an toàn/ })).toBeNull();
   });
 
-  it('mã thiếu thị giá: P/E hạ từ 2/2 xuống 1/2 ô, không hứa quá', async () => {
+  /*
+   * "2/2 ô điền sẵn" sau tên đã bỏ 19/10/2026 (chủ dự án: "không cần chú thích điền sẵn làm gì").
+   * Ca cũ ở đây khoá P/E in "1/2" khi mã thiếu giá; nay dòng chỉ còn tên, nên ca khoá hai điều còn
+   * lại: không dòng nào in tỷ lệ hay chữ "điền sẵn", và P/E — vẫn điền được EPS — vẫn có mặt.
+   */
+  it('dòng công thức chỉ in tên, không in tỷ lệ ô điền sẵn', async () => {
+    const sheet = await moSheetCongThuc();
+
+    expect(within(sheet).queryByText(/điền sẵn/)).toBeNull();
+    for (const nut of within(sheet).getAllByRole('button', { name: /./ })) {
+      expect(nut.textContent ?? '').not.toMatch(/\d+\/\d+ ô/);
+    }
+  });
+
+  it('mã thiếu thị giá: P/E vẫn còn trong danh sách vì vẫn điền được EPS', async () => {
     feed.snapshots.mockResolvedValue(new Map([['FPT', { ...FPT_SNAPSHOT, priceVnd: null }]]));
     const sheet = await moSheetCongThucKhiSua();
 
-    expect(within(sheet).getByRole('button', { name: /P\/E — hệ số/ }).textContent).toContain(
-      '1/2',
-    );
+    expect(within(sheet).getByRole('button', { name: /P\/E — hệ số/ })).toBeTruthy();
   });
 
   it('công thức nâng cao nằm trong nhóm Nâng cao', async () => {
@@ -2363,13 +2388,16 @@ describe('WF-06 — cụm hai tab dọc: Mã · Công thức', () => {
     expect(window.location.hash).toBe('');
   });
 
-  it('kho rỗng: tab Công thức hiện câu hướng dẫn và đường sang danh sách công thức', async () => {
+  it('kho rỗng: tab Công thức ghi "Chưa có công thức" thay icon, kèm đường sang danh sách công thức', async () => {
     render(<PortfolioScreen />);
     await tieuDeNamGiu();
 
     await bamTab('Công thức');
 
-    expect(screen.getByText(t('portfolio.savedEmpty'))).toBeTruthy();
+    const chu = screen.getByText('Chưa có công thức');
+    // Icon "fx" và câu hướng dẫn dài đều bị chủ dự án gỡ 19/10/2026 (lịch sử ở `vi.ts`).
+    expect(chu.parentElement?.querySelector('svg')).toBeNull();
+    expect(screen.queryByText(/Chưa lưu phép tính nào/)).toBeNull();
     const duong = screen.getByRole('link', { name: t('portfolio.savedEmptyAction') });
     expect(duong.getAttribute('href')).toMatch(/^\/cong-thuc\/?$/);
   });
@@ -2704,7 +2732,7 @@ describe('WF-06 — tab Công thức: bảng', () => {
     expect(chuCuaO(dongDaLuu()[0] as HTMLElement, 2)).toBe('_ _');
   });
 
-  it('bấm thùng rác thì gỡ khỏi kho, hết mục thì tab hiện câu rỗng và số đếm về 0', async () => {
+  it('bấm thùng rác thì gỡ khỏi kho, hết mục thì tab về ô rỗng và số đếm về 0', async () => {
     seedSaved();
     render(<PortfolioScreen />);
     await bamTab('Công thức');

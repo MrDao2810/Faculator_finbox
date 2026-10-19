@@ -1513,8 +1513,8 @@ describe('Dò điểm (crosshair)', () => {
    * tỷ ₫ cho nhãn `'0,0000005'` — 9 ký tự — và nó tràn qua `x = 0` rồi bị `<svg>` cắt IM LẶNG,
    * mất đúng những chữ số đầu.
    *
-   * Ca này chốt cả hai chiều: nhãn dài thì lề phải nới ra, nhãn thường thì lề KHÔNG được xê dịch
-   * (nếu không, 111 biểu đồ hiện có tự nhiên hẹp lại vì một trường hợp biên).
+   * Hai ca dưới chốt cả hai chiều: nhãn dài thì lề nới ra, nhãn ngắn thì lề chỉ vừa đủ cho nhãn
+   * (khổ điện thoại, từ 19/10/2026; trước đó là "lề giữ nguyên sàn 36").
    */
   /*
    * Nhãn trục Y, tách khỏi nhãn trục X. Không lọc theo `text-anchor`: nhãn vạch X sát mép phải
@@ -1545,15 +1545,32 @@ describe('Dò điểm (crosshair)', () => {
     expect(container.textContent).not.toContain('nghìn lần');
   });
 
-  it('nhãn trục Y ngắn thì lề trái giữ nguyên — 111 biểu đồ hiện có không hẹp lại', () => {
+  /*
+   * Ca này từng ghim chiều ngược lại: nhãn ngắn thì lề trái GIỮ NGUYÊN sàn 36. Ngày 19/10/2026 chủ dự
+   * án khoanh đúng khoảng trống ấy trên điện thoại (_"giảm padding xung quanh … để hiển thị nhiều không
+   * gian chart hơn"_), nên khổ `compact` bỏ sàn 36 (`PAD_COMPACT` ở `LineChart.tsx`). Luật mới: nhãn
+   * ngắn thì lề chỉ vừa đủ cho nhãn, cộng chút thở, không còn khoảng trống thừa bên trái nhãn.
+   * jsdom ở lại khổ `compact` (không có `matchMedia`), nên ca này đo đúng khổ điện thoại.
+   */
+  it('nhãn trục Y ngắn thì lề trái chỉ vừa đủ cho nhãn ở khổ điện thoại', () => {
     const { container } = draw('pe');
 
     const nhan = nhanTrucY(container);
     expect(nhan.length).toBeGreaterThan(0);
 
-    for (const el of nhan) {
-      expect(Number(el.getAttribute('x'))).toBe(CHART_GEOMETRY.PLOT.x0 - 5);
-    }
+    // Mọi nhãn trục Y canh `end` tại cùng MỘT chỗ, `x0 - 5`.
+    const x = Number(nhan[0]?.getAttribute('x'));
+    for (const el of nhan) expect(Number(el.getAttribute('x'))).toBe(x);
+
+    // Hẹp hơn hẳn sàn 36 cũ, mà không dưới sàn mới.
+    expect(x + 5).toBeLessThan(36);
+    expect(x + 5).toBeGreaterThanOrEqual(CHART_GEOMETRY.PLOT.x0);
+
+    // Nhãn rộng nhất (tính rộng tay hơn ước lượng 10%, như chữ thật) vẫn trong khung, và chỗ thừa
+    // bên trái nó không quá vài đơn vị.
+    const rongNhat = Math.max(...nhan.map((el) => textWidth(el.textContent ?? '', 10) * 1.1));
+    expect(x - rongNhat).toBeGreaterThanOrEqual(0);
+    expect(x - rongNhat).toBeLessThan(6);
   });
 
   it('nhãn vạch dò không thò ra ngoài viewBox ở bất kỳ chỗ nào trên vùng vẽ', () => {

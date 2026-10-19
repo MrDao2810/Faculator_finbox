@@ -2376,9 +2376,10 @@ window.__localeLog = [];
 
     /*
      * Một màu, một cỡ, một nét cho số liệu (chủ dự án 14/10/2026: "đồng bộ về 1 loại màu … kể cả ở bên
-     * Mã cũng thế. ngoại trừ tên mã tên công thức thì vẫn để là size to hơn 1 px và in đậm"). Dòng FPT:
-     * mã to hơn số liệu đúng 1px và đậm hơn; các số liệu cùng cỡ, cùng nét, và cùng MÀU với mã. Ô "_ _"
-     * không tính — nó cố ý nhạt (FR-06), và script này không có Finbox nên Thị giá luôn là "_ _".
+     * Mã cũng thế. ngoại trừ tên mã tên công thức thì vẫn để là size to hơn 1 px và in đậm"). Vế "to hơn
+     * 1px" đảo ngày 19/10/2026 khi chủ dự án thấy tên phép tính quá to: tên của dòng nay CÙNG cỡ số liệu,
+     * chỉ đậm hơn. Dòng FPT: mã cùng cỡ số liệu và đậm hơn; các số liệu cùng cỡ, cùng nét, và cùng MÀU với
+     * mã. Ô "_ _" không tính — nó cố ý nhạt (FR-06), và script này không có Finbox nên Thị giá luôn là "_ _".
      */
     const chuMa = await evaluate(`(() => {
       const nut = [...document.querySelectorAll('button')].find((b) => b.getAttribute('aria-label') === 'Sửa FPT');
@@ -2396,13 +2397,13 @@ window.__localeLog = [];
     })()`);
     const soDau = chuMa.so[0];
     check(
-      `${String(rong)} · Danh mục, bảng Mã: số liệu một cỡ, một nét, cùng màu với mã; mã to hơn 1px và đậm hơn`,
+      `${String(rong)} · Danh mục, bảng Mã: số liệu một cỡ, một nét, cùng màu với mã; mã cùng cỡ và đậm hơn`,
       soDau !== undefined &&
         chuMa.so.length >= 3 &&
         chuMa.so.every(
           (k) => k.co === soDau.co && k.net === soDau.net && k.mau === chuMa.ten.mau,
         ) &&
-        chuMa.ten.co === soDau.co + 1 &&
+        chuMa.ten.co === soDau.co &&
         chuMa.ten.net > soDau.net,
       `mã ${String(chuMa.ten.co)}px nét ${String(chuMa.ten.net)} ${chuMa.ten.mau} · ${chuMa.so.map((k) => `${k.chu}: ${String(k.co)}px nét ${String(k.net)} ${k.mau}`).join(' | ')}`,
     );
@@ -4506,6 +4507,10 @@ window.__localeLog = [];
    * size text của các số liệu … đảm bảo size đó nhỏ hơn size của tên công thức"), và MỘT nét, nhạt hơn
    * tên ("đồng bộ để không in đậm. ngoại trừ tên công thức thì mới in đậm"). Đo bằng cỡ chữ và độ đậm đã
    * tính của trình duyệt, vì luật nằm trong `@media` mà jsdom không áp.
+   *
+   * Từ 19/10/2026 tên phép tính về 13px, BẰNG cỡ ba số liệu, và tối đa hai dòng rồi "…" (chủ dự án: "đoạn
+   * text này đang lớn quá, giảm xuống, nếu quá dài thì có thể xuống đến hàng 2 và để ..."). Độ đậm là thứ
+   * còn tách tên khỏi số liệu. Dòng Beta mang tên tự đặt dài chính là dòng phải bị cắt ở 360px.
    */
   await evaluate(`(() => {
     const t = (thang, ngay) => new Date(2026, thang - 1, ngay, 10, 0, 0).getTime();
@@ -4545,6 +4550,16 @@ window.__localeLog = [];
           ngay: cuoi.textContent,
           ketQua: o[2].textContent,
           ketQuaDong: soDong(o[2]),
+          // Số dòng NHÌN THẤY của tên (dòng bị cắt vẫn có hộp chữ, nên đo chiều cao chứ không đếm hộp),
+          // và tên có bị cắt "…" hay không.
+          tenDong: (() => {
+            const a = o[0].querySelector('a');
+            return Math.round(a.clientHeight / parseFloat(getComputedStyle(a).lineHeight));
+          })(),
+          tenCat: (() => {
+            const a = o[0].querySelector('a');
+            return a.scrollHeight > a.clientHeight + 1;
+          })(),
           // Cỡ chữ: tên phép tính, và ba số liệu (mã — nếu dòng có mã —, kết quả, ngày lưu).
           coChu: (() => {
             const co = (el) => (el === null ? null : parseFloat(getComputedStyle(el).fontSize));
@@ -4736,10 +4751,13 @@ window.__localeLog = [];
             d.x.chamRong >= 44 &&
             d.x.chamCao >= 44 &&
             d.x.chamCachNgay >= 0 &&
-            // Ba số liệu một cỡ, nhỏ hơn tên (mã chỉ so ở dòng có mã).
+            // Tên tối đa hai dòng nhìn thấy (19/10/2026), phần thừa cắt bằng "…".
+            d.tenDong >= 1 &&
+            d.tenDong <= 2 &&
+            // Ba số liệu một cỡ, BẰNG cỡ tên từ 19/10/2026 (mã chỉ so ở dòng có mã).
             d.coChu.ketQua === d.coChu.ngay &&
             (d.coChu.ma === null || d.coChu.ma === d.coChu.ngay) &&
-            (d.coChu.ngay ?? 0) + 1 === d.coChu.ten &&
+            d.coChu.ngay === d.coChu.ten &&
             // …và một nét, nhạt hơn tên: chỉ tên phép tính in đậm.
             d.netChu.ketQua === d.netChu.ngay &&
             (d.netChu.ma === null || d.netChu.ma === d.netChu.ngay) &&
@@ -4750,11 +4768,13 @@ window.__localeLog = [];
             (d.mauChu.ma === null || d.mauChu.ma === d.mauChu.ten),
         ) &&
         nho.dong.some((d) => d.coChu.ma !== null) &&
+        // Ở 360px tên tự đặt dài của dòng Beta phải bị cắt thật, không thì ca trên chẳng thử được gì.
+        (rong > 400 || nho.dong.some((d) => d.tenCat)) &&
         lk?.ketQua.replace(/\s/g, ' ') === '67.520.669,9 ₫' &&
         sauXoa.dong === 2 &&
         sauXoa.url === '/danh-muc/' &&
         /^\/cong-thuc\/pe\/\?luu=pe-a$/.test(dichNho),
-      `cột "${nho.cot.join(' · ')}" · cuộn ${String(nho.cuon)}px · chi tiết ${String(nho.chiTiet)} · mũi tên ${String(nho.muiTen)} · ${nho.dong.map((d) => `${d.ten}: ${String(d.soO)} ô, kết quả "${d.ketQua}" ${String(d.ketQuaDong)} dòng, X mờ ${String(d.x?.mo)} màu ${String(d.x?.mau)} sau ngày ${String(d.x?.sauNgay)} cùng hàng ${String(d.x?.cungHang)} cách mép ${String(d.x?.cachMepBang)}px chạm ${String(d.x?.chamRong)}×${String(d.x?.chamCao)} cách chữ ngày ${String(d.x?.chamCachNgay)}px, cỡ chữ tên ${String(d.coChu.ten)} · mã ${String(d.coChu.ma)} · kết quả ${String(d.coChu.ketQua)} · ngày ${String(d.coChu.ngay)}, nét tên ${String(d.netChu.ten)} · mã ${String(d.netChu.ma)} · kết quả ${String(d.netChu.ketQua)} · ngày ${String(d.netChu.ngay)}, màu tên ${String(d.mauChu.ten)} · mã ${String(d.mauChu.ma)} · kết quả ${String(d.mauChu.ketQua)} · ngày ${String(d.mauChu.ngay)}`).join(' | ')} · sau X: ${String(sauXoa.dong)} dòng ở ${sauXoa.url} · chạm dòng → ${dichNho}`,
+      `cột "${nho.cot.join(' · ')}" · cuộn ${String(nho.cuon)}px · chi tiết ${String(nho.chiTiet)} · mũi tên ${String(nho.muiTen)} · ${nho.dong.map((d) => `${d.ten}: ${String(d.soO)} ô, tên ${String(d.tenDong)} dòng cắt ${String(d.tenCat)}, kết quả "${d.ketQua}" ${String(d.ketQuaDong)} dòng, X mờ ${String(d.x?.mo)} màu ${String(d.x?.mau)} sau ngày ${String(d.x?.sauNgay)} cùng hàng ${String(d.x?.cungHang)} cách mép ${String(d.x?.cachMepBang)}px chạm ${String(d.x?.chamRong)}×${String(d.x?.chamCao)} cách chữ ngày ${String(d.x?.chamCachNgay)}px, cỡ chữ tên ${String(d.coChu.ten)} · mã ${String(d.coChu.ma)} · kết quả ${String(d.coChu.ketQua)} · ngày ${String(d.coChu.ngay)}, nét tên ${String(d.netChu.ten)} · mã ${String(d.netChu.ma)} · kết quả ${String(d.netChu.ketQua)} · ngày ${String(d.netChu.ngay)}, màu tên ${String(d.mauChu.ten)} · mã ${String(d.mauChu.ma)} · kết quả ${String(d.mauChu.ketQua)} · ngày ${String(d.mauChu.ngay)}`).join(' | ')} · sau X: ${String(sauXoa.dong)} dòng ở ${sauXoa.url} · chạm dòng → ${dichNho}`,
     );
   }
   await send('Emulation.setDeviceMetricsOverride', {

@@ -133,7 +133,13 @@ export function LoiGiai({
 
   return (
     <dl className={[styles.giai, className].filter(Boolean).join(' ')}>
-      <div className={styles.giaiHang}>
+      {/*
+        Ba dòng ngắn đứng CẠNH nhãn ở khổ điện thoại khi vừa một hàng, dài quá mới xuống dòng
+        (19/10/2026): `giaiNgangHinh` cho dòng Công thức — chỉ hình sang phải, câu "để tính …" căn trái
+        dưới cả nhãn — và `giaiNgang` cho Áp dụng công thức, Kết quả. Ba dòng còn lại (Thay số, Đọc kết
+        quả, Nguồn) là đoạn chữ dài, vẫn nhãn trên. Xem `LoiGiai.module.css`.
+      */}
+      <div className={`${styles.giaiHang} ${styles.giaiNgangHinh}`}>
         <dt>{t('quiz.giai.congThuc')}</dt>
         <dd className={styles.giaiCongThuc}>
           {ghiDe === undefined ? (
@@ -202,7 +208,7 @@ export function LoiGiai({
         </div>
       )}
       {thaySo !== undefined && (
-        <div className={styles.giaiHang}>
+        <div className={`${styles.giaiHang} ${styles.giaiNgang}`}>
           <dt>{t('quiz.giai.apVao')}</dt>
           <dd className={styles.giaiSo}>
             {(() => {
@@ -239,7 +245,7 @@ export function LoiGiai({
           </dd>
         </div>
       )}
-      <div className={styles.giaiHang}>
+      <div className={`${styles.giaiHang} ${styles.giaiNgang}`}>
         <dt>{t('quiz.giai.ketQua')}</dt>
         <dd className={styles.giaiKetQua}>{ketQua}</dd>
       </div>

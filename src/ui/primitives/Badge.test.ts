@@ -66,11 +66,16 @@ describe('Badge — một chỗ khai duy nhất', () => {
     }
   });
 
-  it('hai danh sách mã dùng chung tone code, nên bề rộng cột mã bằng nhau', () => {
+  /*
+   * Không đòi đúng chuỗi `<Badge tone="code">`: tấm chọn mã gắn thêm `className` để hạ cỡ chữ ở khổ
+   * điện thoại (19/10/2026). Điều cần giữ là cả hai đi qua cùng MỘT vai, không phải thẻ không có thuộc
+   * tính nào khác.
+   */
+  it('hai danh sách mã dùng chung tone code, nên cột mã của hai tấm vẽ như nhau', () => {
     for (const name of ['ui/sheets/PresetSheet.tsx', 'ui/sheets/TickerPickerSheet.tsx']) {
       const source = readFileSync(join(UI_DIR, name), 'utf8');
 
-      expect(source).toContain('<Badge tone="code">');
+      expect(source).toContain('<Badge tone="code"');
       expect(source).not.toContain('styles.badge');
     }
   });

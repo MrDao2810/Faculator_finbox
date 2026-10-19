@@ -105,6 +105,10 @@ export const CO_LENH_RUI_RO: FormulaModule = {
         {
           min: 0,
           max: 10_000_000,
+          description: {
+            vi: 'Giá một cổ phiếu lúc vào lệnh mua. Phải cao hơn giá cắt lỗ.',
+            en: 'The share price when the buy order is entered. It must be above the stop-loss price.',
+          },
         },
       ),
       numberVar(

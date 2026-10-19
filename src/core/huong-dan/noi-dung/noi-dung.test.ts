@@ -452,18 +452,30 @@ describe('những chỗ TÀI LIỆU TỰ NHẬN còn mở', () => {
   });
 
   /*
-   * 20 ô mà `spec.variables[].description` còn trống — bảng biến ở cuối trang tính đang in "—" ở
-   * đúng 20 chỗ ấy, và `REVIEW.md` đã ghi đó là việc viết nội dung còn nợ.
+   * Mọi ô có mô tả, đủ hai thứ tiếng (19/10/2026). Ca này từng ghim con số 20: 20 ô ở 11 công thức
+   * (CAGR, HPR, Lãi tiền gửi, Tiết kiệm theo mục tiêu…) không có `description`, nên cột Mô tả của bảng
+   * biến cuối trang tính in "—" đúng 20 chỗ. Chủ dự án chụp bảng biến của CAGR và hỏi kiểm lại toàn bộ;
+   * cả 20 câu được viết trong một lượt, đối chiếu với `calc` của từng công thức.
    *
-   * Kho này KHÔNG lấp chỗ nợ đó: `layODau` nói "lấy ở đâu", không nói "ô này là gì", nên bảng biến
-   * vẫn trống như cũ. Ghim con số để đừng ai tưởng đợt này đã đóng nó.
+   * Kho này vẫn KHÔNG lấp chỗ ấy: `layODau` nói "lấy ở đâu", `description` nói "ô này là gì" (xem ca
+   * ngay trên). Nên luật đặt trên REGISTRY, mọi ô, cả ô khuôn của nhóm lặp (`repeat.fields`), vì bảng
+   * biến in cả đợt 4, kỳ 4 trở đi. Một công thức mới thêm ô mà quên mô tả thì đỏ ở đây.
    */
-  it('20 ô vẫn chưa có mô tả trong Registry — việc còn lại, kho này không lấp', () => {
-    // Nợ của REGISTRY (bảng biến in mọi ô, cả đợt 2, 3), nên đếm trên mọi ô chứ không trên ô của bài.
-    const thieuMoTa = MOI_O_REGISTRY.filter(
-      ({ bien }) => (bien.description?.vi ?? '').trim() === '',
+  it('mọi ô trong Registry đều có mô tả, đủ tiếng Việt lẫn tiếng Anh', () => {
+    const oKhuon = ALL_FORMULAS.flatMap((spec) =>
+      (spec.repeat?.fields ?? []).map((bien) => ({ id: spec.id, key: `${bien.key}{n}`, bien })),
     );
-    expect(thieuMoTa).toHaveLength(20);
+    const thieu = [...MOI_O_REGISTRY, ...oKhuon]
+      .filter(
+        ({ bien }) =>
+          (bien.description?.vi ?? '').trim() === '' || (bien.description?.en ?? '').trim() === '',
+      )
+      .map(({ id, key }) => `${id}.${key}`);
+
+    expect(thieu, 'ô thiếu mô tả (bảng biến sẽ in "—")').toEqual([]);
+    // Canary: phép quét thật sự gặp ô, và gặp cả ô khuôn.
+    expect(MOI_O_REGISTRY.length).toBeGreaterThan(200);
+    expect(oKhuon.length).toBeGreaterThan(0);
   });
 });
 

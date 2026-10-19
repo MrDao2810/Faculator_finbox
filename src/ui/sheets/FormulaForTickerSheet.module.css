@@ -149,17 +149,40 @@
   min-width: 0;
   font-size: var(--text-sm);
   font-weight: var(--weight-medium);
-  /* Tên công thức dài thì xuống dòng, không đẩy phần "2/2 ô" ra khỏi khung. */
+  /* Tên công thức dài thì xuống dòng, không tràn ra khỏi khung. */
   overflow-wrap: anywhere;
 }
 
 /*
- * "2/2 ô điền sẵn" — con số quan trọng ở đây là tỷ lệ, vì danh sách xếp theo nó: dòng đầu điền
- * đủ mọi ô, dòng cuối chỉ điền được một ô trong năm.
+ * `.fill` ("2/2 ô điền sẵn" sau tên) đã XOÁ 19/10/2026 cùng khoá `portfolio.formulasFilled` — bia
+ * mộ ở `vi.ts`. Danh sách vẫn xếp theo tỷ lệ ấy, chỉ không in ra.
  */
-.fill {
-  flex-shrink: 0;
-  font-family: var(--font-mono);
-  font-size: var(--text-xs);
-  color: var(--color-muted);
+
+/*
+ * Dưới 1024px ô tìm và các dòng thấp, nhỏ chữ hơn (19/10/2026). Chủ dự án khoanh ô tìm và danh sách
+ * trên điện thoại: _"các phần bên dưới và ô search cũng cần giảm height và size text giảm xuống"_.
+ *
+ * - Ô tìm 44 → 36px. Chữ GÕ VÀO vẫn 16px: dưới 16px Safari iOS phóng to cả trang khi chạm vào ô (cùng
+ *   lý do `SaveCalcSheet`). Chỉ chữ mờ "Tìm kiếm" xuống 14px — nó là thứ người ta nhìn thấy lúc ô trống.
+ *   `TickerPickerSheet` đổi cùng lúc: ô tìm của hai tấm phải nhìn như một (chú thích `.search` ở trên).
+ * - Dòng công thức: đệm dọc 12 → 8px, cao tối thiểu 44 → 40px, tên 14 → 13px (cỡ chữ bảng của màn Danh
+ *   mục ở khổ này).
+ */
+@media (max-width: 1023.98px) {
+  .search {
+    min-height: 36px;
+  }
+
+  .search::placeholder {
+    font-size: var(--text-sm);
+  }
+
+  .link {
+    min-height: 40px;
+    padding: var(--space-2) var(--space-3);
+  }
+
+  .name {
+    font-size: 13px;
+  }
 }

@@ -69,7 +69,6 @@ import {
   pickPresetsFor,
   presetInputs,
   presetRealKeys,
-  progressFor,
   putDraft,
   recordFormulaUsage,
   recordQuizResult,
@@ -872,14 +871,17 @@ export function FormulaDetail({
   /*
    * ── Kết quả bài kiểm tra hiểu bài (WF-19) ────────────────────────────────────────────────
    *
-   * Đọc một lần lúc vào màn để khối biết bày dòng "Lần gần nhất", ghi một lần khi làm xong.
-   * Không lưu từng câu: người bỏ dở giữa chừng thì lần sau làm lại từ đầu — bài dài nhất cũng
-   * chỉ 5 câu, khôi phục nửa chừng phức tạp hơn giá trị nó mang lại.
+   * Ghi một lần khi làm xong. Không lưu từng câu: người bỏ dở giữa chừng thì lần sau làm lại từ
+   * đầu — bài dài nhất cũng chỉ 5 câu, khôi phục nửa chừng phức tạp hơn giá trị nó mang lại.
+   *
+   * KHÔNG còn đọc ra lúc vào màn (19/10/2026). Thứ duy nhất đọc nó là dòng "Lần gần nhất: 3/5" dưới
+   * hàng tiêu đề Bài tập, và chủ dự án bỏ dòng ấy (_"không cần phải chú thích như ảnh"_). Việc ghi
+   * vẫn giữ — bỏ câu chữ, giữ hành vi, như các dòng `localOnly` trước đây — nên kho `ffb.quiz.v1`
+   * vẫn đủ dữ liệu nếu sau này có màn muốn hiện lại.
    *
    * Bọc try/catch như mọi chỗ chạm localStorage khác của màn này: trình duyệt chặn kho thì khối
    * vẫn làm bài được, chỉ là không nhớ kết quả.
    */
-  const [quizSaved, setQuizSaved] = useState<QuizProgress | null>(null);
 
   /*
    * Hình công thức cho dòng "Công thức" của khối lời giải trong Bài tập — rê vào ký hiệu mở khung
@@ -924,19 +926,9 @@ export function FormulaDetail({
     [spec, notation],
   );
 
-  useEffect(() => {
-    try {
-      const list = parseQuizProgress(window.localStorage.getItem(QUIZ_PROGRESS_KEY));
-      setQuizSaved(progressFor(list, spec.id));
-    } catch {
-      // Không đọc được thì coi như chưa làm bao giờ.
-    }
-  }, [spec.id]);
-
   const saveQuizResult = useCallback(
     (result: { right: number; total: number; wrong: string[] }) => {
       const entry: QuizProgress = { id: spec.id, ...result, at: Date.now() };
-      setQuizSaved(entry);
       try {
         const list = parseQuizProgress(window.localStorage.getItem(QUIZ_PROGRESS_KEY));
         window.localStorage.setItem(
@@ -3171,8 +3163,16 @@ export function FormulaDetail({
           một đoạn văn thứ hai nói cùng một điều ở xa hơn.
         */}
 
-              {/* Khối cấu hình riêng của công thức, ví dụ ô chọn biểu phí của WF-08. */}
-              {hasConfigBlock(spec.id) && <DetailConfig id={spec.id} />}
+              {/*
+                Khối cấu hình riêng của công thức, ví dụ ô chọn biểu phí của WF-08. Lớp bọc
+                `.config` chỉ để khổ điện thoại thu nhỏ chữ của khối này mà không đụng màn Cài
+                đặt, nơi cùng component đứng giữa các hàng khác — xem `.config` trong CSS.
+              */}
+              {hasConfigBlock(spec.id) && (
+                <div className={styles.config}>
+                  <DetailConfig id={spec.id} />
+                </div>
+              )}
 
               {/*
             Hai lớp trên CÙNG một thẻ, không phải lớp này thay lớp kia: `.fields` giữ nguyên lưới
@@ -3747,8 +3747,8 @@ export function FormulaDetail({
         items={quiz?.items ?? []}
         hinhCongThuc={quizPicture}
         kyHieu={quizKyHieu}
-        saved={quizSaved}
         onFinish={saveQuizResult}
+        className={styles.quizBlock}
       />
 
       {/*

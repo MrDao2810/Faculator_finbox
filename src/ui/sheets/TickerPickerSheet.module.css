@@ -36,6 +36,21 @@
   appearance: none;
 }
 
+/*
+ * Dưới 1024px ô tìm 44 → 36px, chữ mờ 14px (19/10/2026) — đổi CÙNG LÚC với ô tìm của
+ * `FormulaForTickerSheet`, tấm chủ dự án khoanh (lý do đầy đủ ở đó): hai tấm mở ra từ cùng một hộp thoại
+ * và ô tìm của chúng phải nhìn như một. Chữ gõ vào vẫn 16px, để Safari iOS không phóng to trang.
+ */
+@media (max-width: 1023.98px) {
+  .search {
+    min-height: 36px;
+  }
+
+  .search::placeholder {
+    font-size: var(--text-sm);
+  }
+}
+
 /* Ô cho ba câu trạng thái: đang tải, không khớp, lỗi. Căn giữa để không treo trên khoảng trắng. */
 .state {
   display: flex;
@@ -208,5 +223,55 @@
 @media (prefers-reduced-motion: reduce) {
   .spinner {
     animation-duration: 1.4s !important;
+  }
+}
+
+/*
+ * Dưới 1024px các dòng mã thấp và nhỏ chữ hơn (19/10/2026). Chủ dự án chụp tấm này trên điện thoại,
+ * ngay sau tấm chọn công thức: _"tương tự thì phần này cũng cần giảm height button và size text xuống"_.
+ * Cùng số đo với tấm chọn công thức đứng cạnh nó:
+ *
+ * - Dòng: đệm dọc 12 → 8px. Mã và tên doanh nghiệp 14 → 13px (mã vẫn đậm, vẫn đơn cách).
+ * - Nút "Chọn": cỡ `sm` 36px / 14px → 32px / 12px, đệm ngang 8px.
+ *
+ * Chiều cao dòng và nút của vòng này đã bị vòng hai hạ tiếp, xem đoạn dưới.
+ *
+ * Hai nhãn "đã có" / "chưa có dữ liệu" đã 12px, bậc nhỏ nhất, nên không đổi ở đây.
+ *
+ * Vòng hai cùng ngày (_"padding của các ô này đang khá cao, giảm xuống, button chọn cũng đang tròn quá,
+ * có thể giảm height xuống và giảm không bo tròn quá nhiều"_): dòng 50 → 40px, đúng chiều cao dòng của tấm
+ * chọn công thức (`min-height: 40px`, đệm dọc còn 4px để nút không đẩy dòng cao lên); nút "Chọn" 32 → 28px
+ * và bo 10 → 6px (`--radius-sm`), cùng độ bo với nhãn "đã có" đứng cạnh nó. Vùng chạm 44px của `.sm::after`
+ * thò 2px ra ngoài dòng mỗi phía, gọn trong khe 8px giữa hai dòng, nên hai nút liền nhau không chồng vùng chạm.
+ *
+ * Tên doanh nghiệp không đậm ở khổ này (19/10/2026, chủ dự án khoanh "An Phát Bioplastics": _"đoạn text
+ * chú thích không được để in đậm như kia"_). Mã là thứ người dùng tìm, tên chỉ là chú thích cho mã, nên
+ * trên dòng chỉ còn mã đậm. Từ 1024px tên vẫn `--weight-medium`.
+ *
+ * PHẢI đứng cuối file: `.item` và `.name` gốc cùng độ ưu tiên với hai luật ở đây, nên thứ tự file quyết
+ * định. Bản đầu đặt khối này ngay sau ô tìm, tức TRƯỚC `.item` gốc, và đo trên Chrome thấy dòng vẫn cao
+ * 57px. `.item > button` (0,1,1) thắng `.sm` của primitive (0,1,0) bất kể thứ tự bó CSS; `.item > .code`
+ * (0,2,0) thắng `.code` của `Badge` cùng lẽ. `.itemMuted` ghép `item` nên dòng mờ đi cùng.
+ */
+@media (max-width: 1023.98px) {
+  .item {
+    min-height: 40px;
+    padding: var(--space-1) var(--space-3);
+  }
+
+  .name,
+  .item > .code {
+    font-size: 13px;
+  }
+
+  .name {
+    font-weight: var(--weight-regular);
+  }
+
+  .item > button {
+    min-height: 28px;
+    padding: 0 var(--space-2);
+    font-size: var(--text-xs);
+    border-radius: var(--radius-sm);
   }
 }

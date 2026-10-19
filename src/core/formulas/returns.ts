@@ -192,6 +192,10 @@ export const HPR: FormulaModule = {
         {
           min: 0,
           max: 10_000_000,
+          description: {
+            vi: 'Giá một cổ phiếu ở đầu kỳ nắm giữ, thường là giá mua vào. Phải lớn hơn 0.',
+            en: 'The share price at the start of the holding period, usually the purchase price. Must be greater than 0.',
+          },
         },
       ),
       numberVar(
@@ -202,6 +206,10 @@ export const HPR: FormulaModule = {
         {
           min: 0,
           max: 10_000_000,
+          description: {
+            vi: 'Giá một cổ phiếu ở cuối kỳ nắm giữ: giá bán ra, hoặc thị giá hiện tại nếu vẫn đang giữ.',
+            en: 'The share price at the end of the holding period: the sale price, or the current market price if you still hold it.',
+          },
         },
       ),
       numberVar(
@@ -342,6 +350,10 @@ export const CAGR: FormulaModule = {
         {
           min: 0,
           max: 100_000_000_000,
+          description: {
+            vi: 'Khoản đầu tư đáng giá bao nhiêu ở đầu chặng tính. Phải lớn hơn 0.',
+            en: 'What the investment was worth at the start of the period measured. Must be greater than 0.',
+          },
         },
       ),
       numberVar(
@@ -352,9 +364,18 @@ export const CAGR: FormulaModule = {
         {
           min: 0,
           max: 100_000_000_000,
+          description: {
+            vi: 'Cũng khoản đầu tư ấy đáng giá bao nhiêu ở cuối chặng tính.',
+            en: 'What the same investment is worth at the end of the period measured.',
+          },
         },
       ),
-      sliderVar('years', { vi: 'Số năm (t)', en: 'Number of years (t)' }, 'năm', 5, 1, 50, 1),
+      sliderVar('years', { vi: 'Số năm (t)', en: 'Number of years (t)' }, 'năm', 5, 1, 50, 1, {
+        description: {
+          vi: 'Độ dài chặng tính, đếm bằng năm, từ mốc giá trị ban đầu tới mốc giá trị cuối kỳ.',
+          en: 'The length of the period measured, in years, from the starting value to the ending value.',
+        },
+      }),
     ],
     explanation: {
       meaning: {
@@ -506,6 +527,10 @@ export const TY_SUAT_CO_TUC: FormulaModule = {
       numberVar('price', { vi: 'Thị giá (P)', en: 'Market price (P)' }, '₫', 92_000, {
         min: 0,
         max: 10_000_000,
+        description: {
+          vi: 'Giá đóng cửa gần nhất của một cổ phiếu.',
+          en: 'The most recent closing price of one share.',
+        },
       }),
       numberVar(
         'dividendPerShare',
@@ -515,6 +540,10 @@ export const TY_SUAT_CO_TUC: FormulaModule = {
         {
           min: 0,
           max: 1_000_000,
+          description: {
+            vi: 'Tổng cổ tức tiền mặt trả cho một cổ phiếu trong một năm.',
+            en: 'Total cash dividend paid per share over one year.',
+          },
         },
       ),
     ],

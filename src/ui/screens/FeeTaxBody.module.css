@@ -332,6 +332,57 @@
   }
 }
 
+/*
+ * ── Khổ điện thoại: bảng phí và thẻ hoà vốn gọn hơn (19/10/2026) ──────────────────────────────
+ *
+ * Chủ dự án khoanh ba chỗ trên `loi-nhuan-rong` ở điện thoại: con số của một dòng phí ("138.000 ₫"),
+ * cả bảng, và thẻ "Giá hoà vốn thực" — _"giảm size text khoanh đỏ …, giảm height phần khoanh đỏ bên
+ * dưới. giảm padding …. áp dụng trong bản mobile"_. Đo ở 390px trước khi sửa: dòng phí cao 58px (đệm
+ * 8px trên dưới, 12px hai bên, khe nhãn–công thức 2px), dòng tổng 37px, số 14px đậm, thẻ hoà vốn 50px
+ * (đệm 12px).
+ *
+ * - Đệm dòng 8 / 12 → 6 / 10px, bỏ khe 2px dưới nhãn: dòng phí 58 → 52px, dòng tổng 37 → 33px.
+ * - Số của dòng phí 14 → 13px, cả dòng "Tổng chi phí" theo cùng (một cột số, một cỡ). Nhãn giữ 14px:
+ *   chủ dự án khoanh con số chứ không khoanh nhãn, và nét đậm vẫn tách số khỏi nhãn.
+ * - Thẻ hoà vốn: đệm 12 → 8px trên dưới, 10px hai bên cho chữ thẳng cột chữ của bảng phía trên;
+ *   50 → 42px. Con số 16px giữ nguyên — đây là mốc quan trọng nhất màn, và lời yêu cầu là chiều cao.
+ *
+ * Lượt hai, cùng ngày, thẻ "Lợi nhuận ròng": _"phần text số này đang quá lớn, giảm 2 size text, đồng
+ * thời giảm padding trên dưới xuống"_. Con số đang ăn `clamp(32px, 9vw, 40px)`, tức ~35px ở 390px;
+ * hai bậc thang chữ từ trần 40 là 32 rồi 26 (`--text-xl`) — cũng đúng cỡ con số của thẻ Kết quả
+ * dưới 1024px (`ResultBlock.module.css`), nên ba thẻ đáp án vẫn một khuôn. Đệm trên dưới 16 → 8px,
+ * cũng như thẻ Kết quả; hai bên giữ 16px. `LoanScheduleBody.module.css` theo cùng hai con số.
+ *
+ * Phải đứng SAU luật gốc của `.row`, `.rowFormula`, `.rowValue`, `.stat`, `.headline`,
+ * `.headlineValue`: cùng độ ưu tiên, `@media` không cộng điểm, chỉ thứ tự khai quyết định
+ * (`fee-tax-css.test.ts` giữ điều này). Từ 1024px không đổi gì.
+ */
+@media (max-width: 1023.98px) {
+  .row {
+    padding: 6px 10px;
+  }
+
+  .rowFormula {
+    margin-top: 0;
+  }
+
+  .rowValue {
+    font-size: 13px;
+  }
+
+  .stat {
+    padding: var(--space-2) 10px;
+  }
+
+  .headline {
+    padding: var(--space-2) var(--space-4);
+  }
+
+  .headlineValue {
+    font-size: var(--text-xl);
+  }
+}
+
 /* Bản in trả thẻ về khuôn nền trắng viền xanh — xem docblock ở `ResultBlock.module.css`. */
 @media print {
   .headline {

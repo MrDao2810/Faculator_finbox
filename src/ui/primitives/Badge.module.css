@@ -134,26 +134,31 @@
 }
 
 /*
- * ── Vai mã chứng khoán ────────────────────────────────────────────────────────
+ * ── Vai mã chứng khoán — CHỮ TRƠN từ 19/10/2026 ───────────────────────────────
  *
- * Chữ đều và bề rộng ghim, vì ở cả hai danh sách dùng nó người dùng dò theo MÃ chứ không theo
- * tên doanh nghiệp — mã phải xếp thành một cột thẳng để mắt chạy dọc được.
+ * Chữ đều (đơn cách), vì ở cả hai danh sách dùng nó (tấm chọn mã, tấm Nạp mẫu) người dùng dò theo MÃ
+ * chứ không theo tên doanh nghiệp — mã phải xếp thành một cột thẳng để mắt chạy dọc được.
  *
- * 64px là bề rộng chung thay cho hai con số cũ (PresetSheet 52px, TickerPickerSheet 72px). Hai
- * danh sách bày cùng một thứ — mã ba tới bốn ký tự — nên chênh lệch ấy là trôi dạt chứ không
- * phải chủ đích. 64px đủ cho mã bốn ký tự ở cỡ `--text-sm` mà không để mã ba ký tự bơi trong ô.
+ * Từng là một ô nền xanh nhạt bo góc, rộng ghim 64px, cao 34px. Chủ dự án khoanh nó ở tấm chọn mã:
+ * _"xung quanh ticker đang có bo tròn cũ, xóa đi và chỉ giữ ticker để tiết kiệm không gian"_ — đúng
+ * điều họ đã bảo ở bảng Mã ngày 13/10/2026 (`.codeOpen` ở `PortfolioScreen.module.css`). Nên vai này
+ * đi theo đúng lối ấy: bỏ nền, bo góc, đệm và chiều cao; giữ phông đơn cách, cỡ và độ đậm; màu
+ * `--color-ink` chứ không `--color-accent`, vì chữ accent đứng trơn đọc ra thành một liên kết.
+ *
+ * Đổi ở primitive chứ không ở từng tấm: hai danh sách mã phải nhìn như một (`Badge.test.ts` ghim cả hai
+ * cùng dùng vai này), và tấm Nạp mẫu chuyển qua lại với tấm chọn mã bằng "Tìm mã khác".
+ *
+ * `min-width: 3ch`: phông đơn cách nên `ch` là đúng bề một ký tự. Mã ba ký tự — gần như mọi mã — rộng
+ * đúng bằng nhau, cột tên doanh nghiệp bên cạnh vì thế vẫn thẳng; mã dài hơn (quỹ ETF) tự nới ra.
+ * `justify-content: flex-start` vì chữ trơn phải bám mép trái của cột, không canh giữa như ô có nền.
  */
 .code {
-  min-width: 64px;
-  min-height: 34px;
-  padding: 0 var(--space-2);
+  justify-content: flex-start;
+  min-width: 3ch;
 
   font-family: var(--font-mono);
   font-size: var(--text-sm);
   font-weight: var(--weight-bold);
   letter-spacing: 0.02em;
-  color: var(--color-accent);
-
-  background: var(--color-accent-soft);
-  border-radius: var(--radius-sm);
+  color: var(--color-ink);
 }

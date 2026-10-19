@@ -230,6 +230,45 @@ describe('FormulaListScreen — ô tìm lọc cả danh sách tại chỗ', () =
     expect(await screen.findByRole('button', { name: 'ROI' })).toBeTruthy();
     expect(window.localStorage.getItem(LEGACY_HOME_RECENT_SEARCHES_KEY)).toBeNull();
   });
+
+  /*
+   * 19/10/2026: chủ dự án chuyển sang tiếng Anh, chip vẫn đọc tên tiếng Việt — kho ghi tên theo
+   * ngôn ngữ LÚC BẤM và chip in lại nguyên chuỗi. Nay chip in theo ngôn ngữ đang bật, và kho ghi tên
+   * gốc `vi` ở mọi ngôn ngữ.
+   */
+  it('tiếng Anh: chip ghi bằng tên Việt hiện bằng tên Anh, bấm thì lọc theo tên Anh', async () => {
+    window.localStorage.setItem(
+      PREFERENCES_STORAGE_KEY,
+      JSON.stringify({ mode: 'basic', locale: 'en', theme: 'light' }),
+    );
+    window.localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify([PE.name.vi]));
+    moMan();
+
+    fireEvent.click(await screen.findByRole('button', { name: PE.name.en }));
+    expect(screen.queryByRole('button', { name: PE.name.vi })).toBeNull();
+    expect((screen.getByRole('searchbox') as HTMLInputElement).value).toBe(PE.name.en);
+    expect(idTrongDanhSach()).toContain('pe');
+  });
+
+  it('tiếng Anh: bấm một kết quả tìm vẫn ghi tên GỐC tiếng Việt vào kho', async () => {
+    window.localStorage.setItem(
+      PREFERENCES_STORAGE_KEY,
+      JSON.stringify({ mode: 'basic', locale: 'en', theme: 'light' }),
+    );
+    moMan();
+    fireEvent.change(screen.getByRole('searchbox') as HTMLInputElement, {
+      target: { value: 'P/E' },
+    });
+
+    const link = within(khoiDanhSach())
+      .getAllByRole('link')
+      .find((a) => /\/cong-thuc\/pe\/?$/.test(a.getAttribute('href') ?? ''));
+    fireEvent.click(link as HTMLElement);
+
+    expect(JSON.parse(window.localStorage.getItem(RECENT_SEARCHES_KEY) ?? '[]')).toEqual([
+      PE.name.vi,
+    ]);
+  });
 });
 
 /*
@@ -332,6 +371,23 @@ describe('FormulaListScreen — hàng chip nhóm và nút xoá bộ lọc', () =
     expect(screen.getByText('Ở đây chỉ có công thức nâng cao')).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: 'Bật chế độ Nâng cao' }));
     expect(document.documentElement.dataset.mode).toBe('advanced');
+  });
+
+  /*
+   * Ca ĐẢO, không xoá: dòng "N công thức nâng cao đang ẩn · Bật chế độ Nâng cao" trên đầu danh sách
+   * bỏ ngày 19/10/2026 (chủ dự án: "bỏ đoạn giải thích này đi", mộ chí `list.hiddenByLevel` ở
+   * `vi.ts`). Dòng ấy quay lại phải là một quyết định.
+   */
+  it('chế độ Cơ bản giấu thẻ nâng cao mà không còn dòng "nâng cao đang ẩn" trên đầu danh sách', async () => {
+    moMan();
+    await waitFor(() => {
+      expect(idTrongDanhSach()).toHaveLength(SO_CO_BAN);
+    });
+
+    // Canary: Cơ bản thật sự đang giấu bớt thẻ, nên ca này đúng là ca CÓ thứ đang ẩn.
+    expect(SO_CO_BAN).toBeLessThan(FORMULA_SUMMARIES.length);
+    expect(screen.queryByText(/nâng cao đang ẩn/)).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Bật chế độ Nâng cao' })).toBeNull();
   });
 });
 
@@ -521,5 +577,76 @@ describe('ô tìm ghim dưới thanh trên ở khổ điện thoại', () => {
 
     const ngoaiMedia = css.replace(/@media[^{]*\{(?:[^{}]*\{[^}]*\})*\s*\}/g, '');
     expect(ngoaiMedia).not.toMatch(/\.searchSlot\s*\{[^}]*position:/);
+  });
+});
+
+/*
+ * Bộ lọc của khối danh sách dưới 1024px (19/10/2026, chủ dự án: "giảm size text và giảm height bản
+ * những phần tôi khoanh đỏ áp dụng cho màn mobile"). Nhóm Cơ bản / Nâng cao (`ModeToggle`) và ô Sắp
+ * xếp đứng trên cùng hàng điều khiển, nên phải cao bằng nhau; hai con số nằm ở hai luật khác nhau và
+ * jsdom không chạy CSS, nên ca này đọc thẳng file.
+ */
+describe('bộ lọc của khối danh sách ở khổ điện thoại', () => {
+  /** Gộp thân mọi khối `@media (max-width: 1023.98px)` — đếm ngoặc, vì khối chứa nhiều luật. */
+  function khoiDuoi1024(css: string): string {
+    const quet = /@media([^{]*)\{/g;
+    let gop = '';
+    let khop = quet.exec(css);
+    while (khop !== null) {
+      const batDau = khop.index + khop[0].length;
+      let sau = 1;
+      let i = batDau;
+      while (i < css.length && sau > 0) {
+        if (css[i] === '{') sau += 1;
+        else if (css[i] === '}') sau -= 1;
+        i += 1;
+      }
+      if ((khop[1] ?? '').includes('max-width: 1023.98px')) gop += css.slice(batDau, i - 1);
+      quet.lastIndex = i;
+      khop = quet.exec(css);
+    }
+    return gop;
+  }
+
+  const khoi = khoiDuoi1024(
+    readFileSync(
+      join(process.cwd(), 'src/app/cong-thuc/FormulaListScreen.module.css'),
+      'utf8',
+    ).replace(/\/\*[\s\S]*?\*\//g, ''),
+  );
+
+  it('nhóm Mức độ và ô Sắp xếp cao bằng nhau, chữ nhỏ đi một bậc', () => {
+    const nut = /\.level button\s*\{([^}]*)\}/.exec(khoi)?.[1];
+    const sap = /\.controls > \.sort > select\s*\{([^}]*)\}/.exec(khoi)?.[1];
+    const cao = (than: string | undefined) =>
+      Number(/min-height:\s*(\d+)px;/.exec(than ?? '')?.[1]);
+
+    expect(nut, 'thiếu luật .level button dưới 1024px').toBeDefined();
+    expect(sap, 'thiếu luật ô Sắp xếp dưới 1024px').toBeDefined();
+    // Nhóm = nút + đệm 2px × 2 + viền 1px × 2 (`.group` của `ModeToggle.module.css`).
+    expect(cao(sap)).toBe(cao(nut) + 6);
+    expect(nut).toMatch(/font-size:\s*var\(--text-xs\);/);
+    expect(sap).toMatch(/font-size:\s*var\(--text-xs\);/);
+    expect(khoi).toMatch(/\.count\s*\{[^}]*font-size:\s*var\(--text-sm\);/);
+  });
+
+  /*
+   * Lượt hai cùng ngày, chủ dự án vẽ mũi tên: "thử đưa tiêu đề lên đầu của select rồi chuyển 2 select
+   * trên thành 1 hàng ngang". Nhãn lên trên, hai cụm chung một hàng, ô Sắp xếp giãn tới mép phải.
+   */
+  it('nhãn nằm trên điều khiển, hai cụm chung một hàng, ô Sắp xếp giãn lấp phần còn lại', () => {
+    const hang = /\.controls\s*\{([^}]*)\}/.exec(khoi)?.[1];
+    const mucDo = /\.level\s*\{([^}]*)\}/.exec(khoi)?.[1];
+    const sapXep = /\.controls > \.sort\s*\{([^}]*)\}/.exec(khoi)?.[1];
+    const o = /\.controls > \.sort > select\s*\{([^}]*)\}/.exec(khoi)?.[1];
+
+    expect(hang).toMatch(/flex-wrap:\s*nowrap;/);
+    expect(hang).toMatch(/align-items:\s*flex-end;/);
+    expect(mucDo).toMatch(/flex-direction:\s*column;/);
+    expect(mucDo).toMatch(/flex:\s*none;/);
+    expect(sapXep).toMatch(/flex-direction:\s*column;/);
+    expect(sapXep).toMatch(/flex:\s*1 1 0;/);
+    expect(o).toMatch(/width:\s*100%;/);
+    expect(o).toMatch(/min-width:\s*0;/);
   });
 });

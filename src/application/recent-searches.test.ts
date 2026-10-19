@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import {
   MAX_RECENT_SEARCHES,
   addRecentSearch,
+  localizeRecentSearches,
   parseRecentSearches,
   removeRecentSearch,
   serializeRecentSearches,
@@ -117,5 +118,44 @@ describe('đi vòng qua localStorage rồi đọc lại', () => {
   it('ghi không bao giờ vượt số mục tối đa', () => {
     const many = Array.from({ length: 50 }, (_, i) => `tu-khoa-${i}`);
     expect(parseRecentSearches(serializeRecentSearches(many))).toHaveLength(MAX_RECENT_SEARCHES);
+  });
+});
+
+describe('localizeRecentSearches() — chip in theo ngôn ngữ đang bật', () => {
+  const PE = {
+    name: { vi: 'P/E — hệ số giá trên lợi nhuận', en: 'P/E — price to earnings ratio' },
+  };
+  const ROE = {
+    name: { vi: 'ROE — tỷ suất lợi nhuận trên vốn chủ', en: 'ROE — return on equity' },
+  };
+  const KHONG_EN = { name: { vi: 'Thuế TNCN đầu tư', en: '' } };
+  const DS = [PE, ROE, KHONG_EN];
+  const en = (name: { vi: string; en: string }) => (name.en === '' ? name.vi : name.en);
+  const vi = (name: { vi: string; en: string }) => name.vi;
+
+  it('tên Việt đã ghi hiện bằng tên Anh khi đang ở tiếng Anh, và ngược lại', () => {
+    expect(localizeRecentSearches([PE.name.vi], DS, en)).toEqual([PE.name.en]);
+    expect(localizeRecentSearches([ROE.name.en], DS, vi)).toEqual([ROE.name.vi]);
+  });
+
+  it('khớp không phân biệt hoa thường và bỏ khoảng trắng hai đầu', () => {
+    expect(localizeRecentSearches(['  p/e — HỆ SỐ GIÁ TRÊN LỢI NHUẬN '], DS, en)).toEqual([
+      PE.name.en,
+    ]);
+  });
+
+  it('chuỗi không khớp công thức nào giữ nguyên', () => {
+    expect(localizeRecentSearches(['ROI', 'dinh gia'], DS, en)).toEqual(['ROI', 'dinh gia']);
+  });
+
+  it('công thức chưa có tên Anh thì in tên Việt, theo đúng luật của pick', () => {
+    expect(localizeRecentSearches([KHONG_EN.name.vi], DS, en)).toEqual([KHONG_EN.name.vi]);
+  });
+
+  it('một công thức ghi hai lần (bản Việt và bản Anh) chỉ thành một chip, giữ thứ tự', () => {
+    expect(localizeRecentSearches([PE.name.vi, ROE.name.vi, PE.name.en], DS, en)).toEqual([
+      PE.name.en,
+      ROE.name.en,
+    ]);
   });
 });

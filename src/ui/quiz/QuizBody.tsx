@@ -3,7 +3,7 @@
 import { useCallback, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 
-import type { QuizChoiceKey, QuizItem, QuizProgress, QuizText } from '@/application';
+import type { QuizChoiceKey, QuizItem, QuizText } from '@/application';
 import { usePreferences, useT } from '@/application/preferences-context';
 import { Button } from '@/ui/primitives';
 
@@ -54,8 +54,10 @@ export interface QuizBodyProps {
   hinhCongThuc?: ReactNode;
   /** Bảng ký hiệu của trang, cho dòng "Thay số" của lời giải — xem `QuizKyHieu`. */
   kyHieu?: ReadonlyArray<QuizKyHieu>;
-  /** Kết quả lần gần nhất đọc từ máy, `null` nếu chưa làm bao giờ. */
-  saved?: QuizProgress | null;
+  /*
+   * Không còn `saved` (19/10/2026). Nó là kết quả lần gần nhất đọc từ máy, chỉ để in dòng "Lần gần
+   * nhất: 3/5" dưới hàng tiêu đề; chủ dự án bỏ dòng ấy — xem chú thích ở chỗ nó từng đứng.
+   */
   /** Gọi khi làm xong, để màn chi tiết ghi vào localStorage. */
   onFinish?: (result: { right: number; total: number; wrong: string[] }) => void;
   /*
@@ -82,7 +84,6 @@ export function QuizBody({
   items,
   hinhCongThuc,
   kyHieu,
-  saved = null,
   onFinish,
   className,
 }: QuizBodyProps) {
@@ -290,8 +291,8 @@ export function QuizBody({
         nút CHỮ (`ghost`), không phải nút đặc: một khối màu cạnh một nhãn nhỏ viết hoa sẽ nặng
         hơn chính nội dung nó dẫn vào.
 
-        `.intro` bên dưới chỉ dựng khi thật sự có gì để nói: đã có điểm lần trước. Không còn dòng
-        nào dựng vô điều kiện ở trạng thái nghỉ.
+        Dưới hàng này KHÔNG còn dòng nào ở trạng thái nghỉ, kể cả dòng điểm lần trước (bỏ 19/10/2026,
+        xem chú thích ngay dưới hàng).
 
         Hàng này KHÔNG dùng `space-between`. Nhãn và cụm tiến độ thuộc về nhau nên đứng sát nhau
         bên trái; chỉ nút bên phải tự đẩy mình ra mép bằng `.headAction`. Có `space-between` thì
@@ -359,20 +360,18 @@ export function QuizBody({
 
       {/*
         Câu "Công thức này mới có ít câu, vì tư liệu thật chỉ có thế…" (`quiz.few.body`) đã BỎ
-        ngày 29/09/2026 — chủ dự án gọi nó là chữ thừa. Hàng này nay chỉ còn điểm lần trước.
+        ngày 29/09/2026 — chủ dự án gọi nó là chữ thừa.
 
         Câu "These questions are not translated yet…" (`quiz.notTranslated`) BỎ cùng lý do,
         30/09/2026: chủ dự án gọi nó là "câu giải thích vô nghĩa", muốn tiết kiệm không gian.
         Bản tiếng Việt vẫn hiện y như cũ khi câu chưa có `en` (`chu()` ở trên tự rơi về `.vi`) —
         chỉ bỏ CÂU THÔNG BÁO việc đó, không đổi hành vi rơi về tiếng Việt.
+
+        Dòng điểm lần trước ("Lần gần nhất: 3/5", `quiz.lastTime`) BỎ 19/10/2026, ở mọi khổ màn —
+        chủ dự án chụp thẻ nghỉ: _"không cần phải chú thích như ảnh. bỏ đi cả ở mobile lẫn web"_.
+        Đó là thứ cuối cùng hàng này còn in, nên thẻ nghỉ nay chỉ còn đúng hàng tiêu đề. Bỏ câu chữ,
+        giữ hành vi: điểm vẫn ghi vào máy khi làm xong (`onFinish`), chỉ không còn chỗ nào đọc ra.
       */}
-      {phase === 'idle' && saved !== null && (
-        <div className={styles.intro}>
-          <p className={styles.lastTime}>
-            {t('quiz.lastTime')}: {saved.right}/{saved.total}
-          </p>
-        </div>
-      )}
 
       {phase === 'asking' && item !== undefined && (
         <>

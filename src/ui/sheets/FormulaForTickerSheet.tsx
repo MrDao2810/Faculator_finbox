@@ -109,8 +109,9 @@ export function FormulaForTickerSheet({
    *
    * `LIVE_PRESET_FORMULAS.filled` đo trên một ảnh chụp ĐỦ cả giá lẫn số liệu cơ bản. Nhưng
    * `finbox/map.ts` đối chiếu hai thứ đó độc lập, nên một mã có thể có số liệu cơ bản hợp lệ mà
-   * `priceVnd` vẫn `null` — và mã như thế vẫn nằm trong danh mục, vẫn có nút ƒ. Nếu cứ in con số
-   * ghim ra thì sheet hứa "2/2 ô điền sẵn" cho P/E rồi mở ra trang chỉ điền được EPS.
+   * `priceVnd` vẫn `null` — và mã như thế vẫn nằm trong danh mục, vẫn có nút ƒ. Con số ghim nói
+   * QUÁ cho mã ấy: P/E "2/2" mà mở ra trang chỉ điền được EPS. Từ 19/10/2026 dòng không in tỷ lệ
+   * nữa, nhưng nó vẫn quyết định dòng nào bị bỏ và thứ tự xếp, nên vẫn phải hiệu chỉnh.
    *
    * Trừ xong thì **bỏ hẳn dòng còn 0 ô** — cùng luật mà `live-preset.test.ts` đã đặt cho ca đủ
    * giá: một dòng không điền được ô nào là rác trong danh sách chọn.
@@ -180,7 +181,12 @@ export function FormulaForTickerSheet({
         type="search"
         inputMode="search"
         autoComplete="off"
-        placeholder={t('search.placeholder')}
+        /*
+         * "Tìm kiếm" chứ không phải chữ "Công thức" của ô tìm chính
+         * (19/10/2026, chủ dự án: _"ô search nên để nội dung ngắn gọn là 'Tìm kiếm'"_). Dùng lại khoá ô
+         * tìm của chính màn Danh mục — cùng màn, cùng một chữ.
+         */
+        placeholder={t('portfolio.search')}
         value={query}
         onChange={(event) => {
           setQuery(event.target.value);
@@ -230,10 +236,12 @@ export function FormulaForTickerSheet({
                         close();
                       }}
                     >
+                      {/*
+                        Dòng chỉ còn tên công thức. "2/2 ô điền sẵn" sau tên đã BỎ (19/10/2026, chủ
+                        dự án: "không cần chú thích điền sẵn làm gì"). Tỷ lệ ấy vẫn quyết định dòng
+                        nào có mặt và thứ tự xếp — chỉ không in ra nữa.
+                      */}
                       <span className={styles.name}>{pick(row.summary.name)}</span>
-                      <span className={styles.fill}>
-                        {row.filled}/{row.total} {t('portfolio.formulasFilled')}
-                      </span>
                     </button>
                   </li>
                 ))}

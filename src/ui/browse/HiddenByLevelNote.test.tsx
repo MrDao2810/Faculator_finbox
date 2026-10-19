@@ -27,10 +27,10 @@ afterEach(() => {
 });
 
 describe('HiddenByLevelNote — FR-09', () => {
-  it('nói ra bằng SỐ chứ không chỉ "một vài công thức đang ẩn"', () => {
+  it('nói ra bằng SỐ chứ không chỉ "một vài ô đang ẩn"', () => {
     mo(29);
 
-    const note = screen.getByText(/công thức nâng cao đang ẩn/);
+    const note = screen.getByText(/ô nâng cao đang ẩn/);
     expect(note.textContent).toContain('29');
   });
 
@@ -54,28 +54,23 @@ describe('HiddenByLevelNote — FR-09', () => {
   });
 
   /*
-   * Màn Danh mục ẩn Ô SỐ LIỆU chứ không ẩn công thức, nên nó mượn cùng khối này với một câu
-   * khác. Ca này gác việc `labelKey` thật sự đổi chữ — dùng chung khối mà vẫn nói đúng thứ
-   * đang thiếu là toàn bộ lý do prop ấy tồn tại.
+   * Màn Danh mục ẩn Ô SỐ LIỆU chứ không ẩn công thức. Từ 19/10/2026 đây là nơi duy nhất còn dùng
+   * khối này (danh sách và Tìm kiếm đã bỏ dòng "N công thức nâng cao đang ẩn"), nên câu phải nói
+   * về ô, không bao giờ về công thức.
    */
-  it('labelKey đổi được câu chữ cho chỗ ẩn Ô thay vì ẩn CÔNG THỨC', () => {
-    render(
-      <PreferencesProvider>
-        <HiddenByLevelNote count={2} labelKey="portfolio.hiddenByLevel" />
-      </PreferencesProvider>,
-    );
+  it('nói về Ô số liệu, không nói về CÔNG THỨC', () => {
+    mo(2);
 
     expect(screen.getByText(/ô nâng cao đang ẩn/).textContent).toContain('2');
     expect(screen.queryByText(/công thức nâng cao đang ẩn/)).toBeNull();
-    // Nút bật vẫn là nút cũ — đó là thứ không được phép khác nhau giữa các màn.
     expect(screen.getByRole('button', { name: 'Bật chế độ Nâng cao' })).toBeTruthy();
   });
 
   /*
-   * Không ẩn gì thì không được để lại ô trống: ba màn dùng chung khối này đều xếp theo flex
-   * có `gap`, nên một thẻ <p> rỗng vẫn ăn một khoảng trắng lửng giữa danh sách.
+   * Không ẩn gì thì không được để lại ô trống: thẻ tóm tắt xếp theo flex có `gap`, nên một thẻ
+   * <p> rỗng vẫn ăn một khoảng trắng lửng dưới các dòng số.
    */
-  it('không ẩn công thức nào thì không dựng gì cả', () => {
+  it('không ẩn ô nào thì không dựng gì cả', () => {
     const { container } = render(
       <PreferencesProvider>
         <HiddenByLevelNote count={0} />
@@ -84,7 +79,7 @@ describe('HiddenByLevelNote — FR-09', () => {
     expect(container.innerHTML).toBe('');
   });
 
-  it('số âm cũng không dựng gì — không bao giờ hiện "-1 công thức"', () => {
+  it('số âm cũng không dựng gì — không bao giờ hiện "-1 ô"', () => {
     const { container } = render(
       <PreferencesProvider>
         <HiddenByLevelNote count={-3} />

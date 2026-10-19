@@ -16,6 +16,10 @@
  * Là `<button>` nên phải tự gỡ nền, viền và đệm mặc định của trình duyệt. Nhìn thấy chỉ cao một dòng
  * chữ để hàng tiêu đề không phình; vùng chạm 44px mở bằng `::after`, cùng kỹ thuật chip "Tìm gần đây"
  * và cụm Cơ bản / Nâng cao (NFR-USA-01).
+ *
+ * Nét THƯỜNG, không đậm (19/10/2026, chủ dự án: _"button text Thu gọn thì không nên để in đậm"_).
+ * Trước là `--weight-medium` (500), mà trên Windows nét 500 vẽ ra như 600. Màu nhấn đã đủ nói "bấm
+ * được"; một nút cạnh tiêu đề khối không được đậm ngang tiêu đề. Áp cho cả "Xem tất cả" vì là một nút.
  */
 .toggle {
   position: relative;
@@ -32,7 +36,7 @@
 
   font: inherit;
   font-size: var(--text-sm);
-  font-weight: var(--weight-medium);
+  font-weight: var(--weight-regular);
   color: var(--color-accent);
   white-space: nowrap;
 }

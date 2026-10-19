@@ -253,3 +253,110 @@
 .giaiSoRa {
   white-space: nowrap;
 }
+
+/*
+ * ── Khổ điện thoại: dòng ngắn đứng CẠNH nhãn khi vừa (19/10/2026) ──────────────────────────────
+ *
+ * Chủ dự án vẽ mũi tên trên khối Ví dụ của `ev-ebitda` ở điện thoại, từ hình công thức, từ phép tính
+ * "113.103,9 ÷ 13.901,9" và từ "8,14 lần" sang khoảng trống bên phải nhãn của chính chúng: _"đối với
+ * công thức nếu ngắn và gọn thì có thể để sang bên phải như tôi chỉ, bên dưới áp vào công thức và
+ * đáp án cũng tương tự. nếu quá dài thì mới xuống dòng"_. Dưới 560px mọi nhãn đang nằm TRÊN nội dung
+ * (xem `.giai`), nên ba dòng ngắn tốn mỗi dòng một hàng nhãn đứng trơ trọi. Ba dòng kia (Thay số,
+ * Đọc kết quả, Nguồn) là đoạn chữ, vẫn nhãn trên. Từ 560px không đổi gì.
+ *
+ * `.giaiNgang` — Áp dụng công thức, Kết quả: hàng flex xuống dòng, nhãn trái, nội dung dạt PHẢI
+ * (`margin-left: auto`, cùng lối thẻ Kết quả ở `ResultBlock.module.css`). "Vừa hay không" do chính
+ * flex quyết: rộng hơn chỗ còn lại cạnh nhãn thì rơi xuống hàng dưới, vẫn dạt phải; `max-width: 100%`
+ * để phép tính rộng hơn cả khối vẫn cuộn trong khung của nó như cũ. Canh giữa: nhãn ngang vạch phân số.
+ */
+@media (max-width: 559.98px) {
+  .giaiHang.giaiNgang {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: var(--space-3);
+    row-gap: 2px;
+  }
+
+  .giaiHang.giaiNgang > dt {
+    flex: none;
+  }
+
+  .giaiHang.giaiNgang > dd {
+    max-width: 100%;
+    margin-left: auto;
+  }
+
+  /*
+   * `.giaiNgangHinh` — Công thức áp dụng: chỉ HÌNH sang phải, câu "để tính …" là dòng chữ căn TRÁI
+   * chạy hết bề ngang khối, dưới cả nhãn.
+   *
+   * Bản đầu (cùng ngày) cho dòng này cùng hàng flex với hai dòng kia, nên câu đuôi — nằm chung
+   * `<dd>` với hình — bị bó vào phần bề ngang bên phải nhãn và canh phải theo hình, vỡ thành bốn
+   * năm dòng lởm chởm. Chủ dự án: _"thật sự là máy móc đến thế là cùng? tôi chỉ nói là công thức
+   * chuyển sang phải chứ text với nội dung thì căn trái giùm đi. căn phải theo nhìn rất xấu"_.
+   *
+   * Nên dòng này dùng FLOAT chứ không flex: nhãn trôi trái, hình trôi phải — vừa chỗ cạnh nhãn thì
+   * đứng cạnh, không vừa thì float tự tụt xuống dưới nhãn (vẫn sát phải, `max-width: 100%` để hình
+   * rộng hơn khối cuộn trong khung của nó như cũ). Câu đuôi `clear: both` nên luôn bắt đầu dưới cả
+   * hai, từ mép trái của khối. `<dd>` không lập ngữ cảnh khối mới, nên hộp của nó trải hết hàng dưới
+   * nhãn — đó là chỗ câu đuôi lấy được trọn bề ngang. Hàng là `flow-root` để bọc trọn hai float.
+   *
+   * Không tách câu đuôi ra `<dd>` thứ hai: từ 560px hai `<dd>` là hai hàng lưới, tức đổi luôn bản PC.
+   * Không `display: contents` cho `<dd>`: lối ấy đã bị loại ở `.giaiHang` vì vài trình duyệt gỡ phần
+   * tử khỏi cây trợ năng. Cái giá của float: nhãn canh MÉP TRÊN với hình, không canh đường chân —
+   * với hình một dòng thì lệch dưới 3px, với hình có số mũ thì nhãn đứng ngang số mũ.
+   */
+  .giaiHang.giaiNgangHinh {
+    display: flow-root;
+  }
+
+  .giaiNgangHinh > dt {
+    float: left;
+    margin-bottom: 2px;
+  }
+
+  .giaiNgangHinh > .giaiCongThuc {
+    display: block;
+  }
+
+  .giaiNgangHinh .giaiHinh,
+  .giaiNgangHinh .giaiGhiDe {
+    float: right;
+    max-width: 100%;
+    margin-left: var(--space-3);
+  }
+
+  .giaiNgangHinh .giaiDeTinh {
+    display: block;
+    clear: both;
+    padding-top: 2px;
+  }
+}
+
+/*
+ * ── Dưới 1024px: chữ nhỏ một bậc, dòng sát hơn (19/10/2026) ────────────────────────────────────
+ *
+ * Chủ dự án khoanh hộp "Vì sao chưa đúng" của câu điền số CAGR trên điện thoại: _"hãy giảm padding
+ * xuống, size text giảm xuống tương tự như bên trên đã yêu cầu. áp dụng cho mobile và các công thức
+ * có ví dụ"_. Khối này là MỘT thành phần cho cả lời giải bài tập lẫn khối Ví dụ thực tế (docblock
+ * đầu file), nên đổi ở đây là đổi cả hai — đúng vế "các công thức có ví dụ".
+ *
+ *   - Chữ 13 → 12px (`--text-xs`). Hình công thức đi theo vì nó đặt cỡ bằng `em` (15,6 → 14,4px).
+ *     Nhãn dòng (CÔNG THỨC ÁP DỤNG…) đã 11px, đáy của thang, giữ nguyên.
+ *   - Khoảng giữa các dòng 12 → 8px, bằng khoảng của bản hai cột từ 560px.
+ *   - Phép tính vẽ ở dòng "Áp vào công thức" 16,8 → 15px, đúng cỡ công thức của ô điền số ở khổ
+ *     điện thoại (`--ct-co-chu` ở `QuizBody.module.css`).
+ *
+ * Cuối file: `row-gap` của `.giai` cùng độ đặc hiệu với khối 560px ở trên, thứ tự quyết định.
+ */
+@media (max-width: 1023.98px) {
+  .giai {
+    row-gap: var(--space-2);
+    font-size: var(--text-xs);
+  }
+
+  .giaiSoHinh [data-cong-thuc] {
+    font-size: 0.9375rem;
+  }
+}

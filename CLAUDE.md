@@ -252,7 +252,11 @@ the number had no name, nothing on the card said where it went, and on PC the bl
 "Ví dụ thực tế", far from the field it feeds, so the cards read as part of the example. The owner
 chose this over keeping the formula name plus a caption, and kept the block's PC position. The
 second line follows the static `dependsOn` edge, not override state; `LinkedInput` shows that at
-the field. `ChainBody.test.tsx` sweeps every chain page for it.
+the field. `ChainBody.test.tsx` sweeps every chain page for it. **Below 1024px that second line starts
+at the card's left edge, under the ▸** (19/10/2026, owner circled it on `fcfe`: it sat in the text column
+after the triangle and left an empty strip on the left). The summary becomes a two-row grid
+(`'dau ten so' / 'vai vai vai'`, `.stepText` is `display: contents`, a role-less `<span>`); the line went
+3 → 2 rows at 390. From 1024px unchanged. `chain-mobile-css.test.ts` pins it.
 
 ## The one network call — `MarketFeed`
 
@@ -514,7 +518,11 @@ the three-shape table (dòng gọn / 560px / 1024px) of 22/09/2026. What was dec
   được để khác màu, kể cả ở bên Mã cũng thế. ngoại trừ tên mã tên công thức thì vẫn để là size to hơn 1 px
   và in đậm"_. So below 1024px, in BOTH tables, every figure on a row is 13px, regular and `--color-ink`
   (the same colour as the row's name), and the name — the code in the Mã table, the calculation name in
-  the Công thức table — is 14px and bold. That retires the drawing's 15px code, the old "quantity, cost
+  the Công thức table — is bold. It was 14px until 19/10/2026, when the owner circled a calculation name
+  wrapping onto three lines (_"đoạn text này đang lớn quá, giảm xuống, nếu quá dài thì có thể xuống đến
+  hàng 2 và để ..."_): the name is now 13px in both tables, the SAME size as the figures, so weight alone
+  sets it apart, and the calculation name stops at two lines with "…" (`-webkit-line-clamp` on
+  `.savedOpen`; the full name stays in its `aria-label`). That retires the drawing's 15px code, the old "quantity, cost
   and buy date paler (`.holdMuted`), market price bold (`.holdPrice`)" pair, and the paler Tỷ trọng and
   medium-weight gain figures of the detail row. Two colours remain on purpose: `_ _` (`.holdMissing`, the
   FR-06 "no figure yet" signal) and the green/red of the gain figures in the detail row, which back up
@@ -617,7 +625,8 @@ the three-shape table (dòng gọn / 560px / 1024px) of 22/09/2026. What was dec
     together): at 360px the name column's minimum is its nowrap HEADER "Công thức" (78px), and with a long
     result like "67.520.669,9 ₫" the last cell has 35–36px for gap plus box; 12px + 28px overflowed the
     table by 5px. `check:chrome` asserts the overlay does not reach the date. **The three figures of a row
-    — code, result, save date — are ONE size, 13px, below the name's 14px** (owner, same day: _"đồng bộ
+    — code, result, save date — are ONE size, 13px, below the name's 14px** (the name joined them at 13px
+    on 19/10/2026, see the phone-design paragraph above; owner, same day: _"đồng bộ
     size text của các số liệu … đảm bảo size đó nhỏ hơn size của tên công thức"_). Measured before: code
     and result 14px bold, date 13px, so two of them matched the name's size and outweighed it. 13px is the
     table-figure size of the phone drawing. **And ONE weight, regular**: the first pass left the weights
@@ -1646,7 +1655,9 @@ hoà"_): below 1024px unit and description 14 → 12px. The variable name went 1
 text beside it; on 19/10/2026 the owner circled the name column again together with the column-header row (_"giảm cả ở
 đây màn mobile nữa"_), so the name is now 12px bold, set apart by weight only, and the header row 11px (below the
 scale, the size of the other small capitals in the product; `table.variables thead th` so it outranks the primitive's
-`.table thead th`). The rule is in `VariableTable.module.css`, not `Table.module.css`, which also serves the loan
+`.table thead th`). The same day the body rows' top and bottom padding went 12 → 8px (_"giảm padding phần khoanh
+đỏ như ảnh xuống"_, circled above the first name, between rows and under the last description); side padding and the
+header row kept 12px. The rule is in `VariableTable.module.css`, not `Table.module.css`, which also serves the loan
 schedule and the XIRR table. The "Giải thích cho người mới" block followed on 19/10/2026 (_"những phần nội dung và tiêu
 đề trong ô sau đều đang rất lớn ở màn mobile"_): below 1024px its title 18 → 16px, the item headers 16 → 14px, the
 paragraphs 14 → 12px, in `ExplanationAccordion.module.css`; the "Ví dụ thực tế" title, the same 18px bold style, went
@@ -1671,6 +1682,29 @@ accepted, is that at 484–1023px three or four number fields now take two rows 
 `.fieldsRepeat` (DCA) is skipped, since its column count is the group width. From 1024px nothing changed.
 No `check:chrome` assertion holds this yet; it was measured on `gia-hoa-von` and `capm` at 360 and 520.
 
+**Below 1024px the Số liệu grid is tight and the slider thumb is 20px** (19/10/2026, owner, five empty bands circled on
+`capm`, then the number beside a slider's label). The slider's head row is `--leading-tight` with its `InlineNumber` at
+16px / unit 12px and no vertical padding (33 → 22px); the range input keeps its 44px tap height but takes 28px of flow
+(`margin-block: -8px`, overlapping the gap and the non-clickable min/max marks), thumb 28 → 20px; a narrow `.field`
+drops its bottom padding (its two empty `subgrid` rows already leave 8px); the grid's negative bottom margin returns the
+last row's 8px, so `.fields + .repeatActions` stops pulling up. The 28px above Kết quả (`.result`'s deliberate extra
+`--space-2`) is untouched. Measured at 390: `capm`'s block 332 → 262px. All structural selectors in
+`FormulaDetail.module.css`, copied into `ChainBody.module.css`; `inputs-mobile-css.test.ts` pins both copies and the
+thumb staying centred on the track.
+
+**Below 1024px the input fields are one step smaller, on all 111 formulas** (19/10/2026, owner, circling the fee row,
+the labels and the boxes of `loi-nhuan-rong`: _"giảm padding … giảm size text … giảm height select … áp dụng trong bản
+mobile"_, then _"phải áp dụng cho toàn bộ công thức"_). Every label in the Số liệu grid 14 → 12px (number, select,
+slider and button-group labels alike, so one block has one label size), number and select boxes 44 → 36px with 10px
+side padding, the typed number 18 → 16px (the iOS no-zoom floor, never lower) and its unit 12px, the button group
+36px (buttons 30px with a 44px `::after`), 8px between rows instead of 12; the fee row ("Biểu phí", text since there
+is one schedule) 12 / 14px. The rules are structural selectors in `FormulaDetail.module.css` (and a copy in
+`ChainBody.module.css` for the Advanced chain block), because the primitives also serve Danh mục, Cài đặt and the save
+sheet; the fee row is reached through a `.config` wrapper so Settings keeps its 14px row. **The number-box selector is
+`div:has(> input:not([type='range']))`**: without the `:not`, the slider's own root matches (its range input is a
+direct child) and every slider is indented 10px. Sweep in Chrome at 390, both modes: 110 grids, every label 12px,
+every box 36px, no sideways scroll. Slider tracks and their figures, and the DCA Bỏ/Thêm buttons, were not touched.
+
 **Below 1280px the Kết quả card is ONE row too: "KẾT QUẢ" left, the figure at the right edge**
 (15/10/2026). The owner circled "4 lần" under the label on a phone and drew an arrow to the right: _"khi
 ở màn mobile thì chuyển số sang bên phải cùng hàng với text Kết quả"_ — the same complaint the ≥1280 grid
@@ -1689,22 +1723,37 @@ left/right padding; the page gutter around it is unchanged, so it still lines up
 
 **Below 1024px "Lưu vào danh mục · Thoát" stays pinned above the bottom tab bar while scrolling** (15/10/2026, owner:
 _"khi scroll nội dung lên xuống thì 2 button này đều ở dưới để người dùng có thể lưu bất cứ lúc nào"_). `.endActions`
-is `position: sticky` with `bottom: calc(var(--tabbar-height) + 1px + safe-area)` — the bar is 61px, its 1px top
-border included — a `--color-paper` background bled to the content column's edges and a hairline on top. Sticky, not
+is `position: sticky` with `bottom: calc(var(--tabbar-height) + 1px + safe-area)` — the bar is 53px since 19/10/2026
+(61px before), its 1px top border included — a `--color-paper` background bled to the content column's edges and a hairline on top. Sticky, not
 the Danh mục screen's `fixed`: the row already sits at the end of the page, so at the bottom of the scroll it settles
 back into its own place above the disclaimer and nothing has to reserve space for it. It is still the ONE pair of
 buttons (see the comment at the call site). `z-index: 2` keeps it under the how-to panel (5) and the "?" popover (40),
 so a panel opened near the bottom covers the strip, not the other way round. It relies on `body` being
 `overflow-x: clip`, not `hidden`. `merged-card-css.test.ts` pins the block. Since 19/10/2026 the two buttons inside it
 are the `sm` size below 1024px (36px, 14px text, a 44px `::after` tap area), set by `.endActions > button` in CSS rather
-than `size="sm"`, because PC keeps the default size; the band went 61 → 53px. The chart's control row shrank the same
+than `size="sm"`, because PC keeps the default size; the band went 61 → 53px. The tail of the page around it shrank
+the same day (owner circled the gap above "Bài tập", the quiz card and the disclaimer band): the gaps above the quiz card
+and above the disclaimer 20 → 12px (negative `margin-top` on `.quizBlock`, a class the screen hands to `QuizPanel`, and
+on `.endActions + [role='note']` — the `.detail` gap of the nine blocks is untouched), the page's bottom space 32 → 16px
+(negative `margin-bottom` on `.detail`, this screen only, not `AppShell`'s `.content`), the quiz card 78 → 46px
+(`QuizBody.module.css`: padding 8/12px, and — after the owner asked _"vẫn chưa thấy giảm padding xung quanh phần
+này?"_, because most of the visible space was inside the 36px `sm` head button — the head row and its button 28px,
+the button's side padding 8px with a −4px right margin; pulling it out by its whole 12px padding made its hover fill
+touch the card's border, which the owner caught on hover, so the fill now stays 8px inside the border on three sides) and the disclaimer notice 54 → 48px (`DisclaimerBar.module.css`, so Danh mục's follows);
+`tail-mobile-css.test.ts` pins it. The chart's control row shrank the same
 day, below 1024px only: labels 14 → 12px, the axis `<select>` 16 → 14px text and 40 → 36px tall, the Đường / Cột
 group 40 → 36px (buttons 34 → 30px). The two heights live in two files (`chart.module.css`,
 `ChartKindToggle.module.css`) and must stay equal — the owner's earlier rule — which `chart-controls-css.test.ts` pins;
 `--control-h-compact` was not touched because `GroupCard` and `CandleChart` use it too. Known cost: iOS Safari zooms the
 page when a `<select>` under 16px is tapped, as it already does for the Công thức list's sort select. The two sibling answer cards (`FeeTaxBody.headline`,
-`LoanScheduleBody.summary`) are NOT changed: they carry a longer label and a foot row, and they stay
-vertical on PC as well.
+`LoanScheduleBody.summary`) stay vertical, on PC as well: they carry a longer label and a foot row. Below 1024px
+they did follow the Kết quả card's figure on 19/10/2026 (owner, on `loi-nhuan-rong`'s "Lợi nhuận ròng": _"giảm 2
+size text, đồng thời giảm padding trên dưới xuống"_): figure 26px (`--text-xl`, two steps down from the 40px ceiling
+of their clamp) and 8px top/bottom padding, 16px sides kept; the loan card follows unasked because the three answer
+cards are one mould. `FeeTaxBody`'s fee table and its "Giá hoà vốn thực" card did shrink below 1024px on
+19/10/2026 (owner, on `loi-nhuan-rong`): rows 6/10px padding with no gap under the label (58 → 52px), row figures 13px
+(labels stay 14px, they were not circled), the card 8/10px padding (50 → 42px). The block sits at the end of
+`FeeTaxBody.module.css`, after the base rules it overrides, which `fee-tax-css.test.ts` pins.
 
 A formula whose `calc` reads a market constant must also **declare the key** in
 `spec.usesConstants` — 14 of them do, across `derivatives.ts` (5), `fees.ts` (8) and `planning.ts`
@@ -1967,8 +2016,11 @@ on purpose: a solid block of colour beside a small uppercase label outweighs the
 into. Idle, that row is the WHOLE block — 78px measured — because `quiz.lead` ("Không chấm điểm,
 chỉ để bạn tự soát lại.") is gone: the owner deleted it that morning, had it restored that
 afternoon, then deleted it again on sight, so its tombstone is the second one on that key and it
-is final. `.intro` under the header renders only when there is something real to say — a score
-from last time. **There is no "few questions" state any more** (29/09/2026): a quiz under three
+is final. **Nothing renders under the header any more, not even last time's score** (19/10/2026): the
+"Lần gần nhất: 3/5" line (`quiz.lastTime`, the old `.intro`) went at every width — _"không cần phải chú thích như
+ảnh. bỏ đi cả ở mobile lẫn web"_. Drop the sentence, keep the behaviour: `onFinish` still writes the score to
+`ffb.quiz.v1`, but `FormulaDetail` no longer reads it on mount and `QuizBody` has no `saved` prop; a case in
+`FormulaDetail.test.tsx` seeds a stored score and pins that the idle card does not print it. **There is no "few questions" state any more** (29/09/2026): a quiz under three
 questions used to say "Làm thử" instead of "Bắt đầu kiểm tra", hide the progress bar and print
 "Công thức này mới có ít câu, vì tư liệu thật chỉ có thế…"; the owner had the button unified, the
 sentence dropped as filler, and pointed at the progress bar the short quizzes were missing. Every
@@ -2091,7 +2143,10 @@ prompt goes 15 → 14px and the choices 14 → 13px, and a choice box drops to 8
 `min-height` (_"padding của các phần câu hỏi bản mobile cũng đang quá cao"_). Lowering the padding alone changes nothing
 on a one-line answer, which the 44px `min-height` was holding. The box keeps a 44px tap area through its own `::after`,
 4px above and below, which fits exactly in the 8px gap of `.choiceGrid`: widen that overlay or narrow the gap and one
-answer's tap area covers the next.
+answer's tap area covers the next. The box's LEFT padding is 8px too (owner, circling the strip before the radio:
+_"giảm padding bên trái … để câu hỏi có thể nhiều không gian hiển thị hơn"_), and the radio/checkbox loses the
+browser's default 4–5px left margin, so it sits 9px from the box edge (was 22px) and the answer text gains 13px; the
+right padding stays 16px.
 
 **`quiz.test.ts` RE-COMPUTES the line rather than eyeballing it.** It strips the square brackets,
 parses what follows the `=` (Vietnamese number notation, `+ − × ÷ ^ ( ) √ ln | | ⌊ ⌋ ⌈ ⌉`) and requires the
@@ -2179,7 +2234,15 @@ for that question, now inside its 268px frame; `so-graham` 471 → 301, `wacc` 5
 `gia-von-trung-binh-dca` 668 → 436 and `do-bien-dong-lich-su` 862 → 623 still scroll, on their fixed
 text. Filled with long numbers any formula still scrolls, by design: the number being typed must stay
 readable whole. The text INSIDE a slot stays 16px because iOS zooms the page on focusing a smaller
-input. `.blankInput[data-ket-qua]` **must be declared after
+input. Below 1024px the formula frame (`.worked`) pads 8px on top, 4px at the sides and 2px at the bottom, with the
+8px room for the floating scrollbar inside `.workedExpr` (19/10/2026, owner circling the strip above CAPM's slots
+and the right edge: _"giảm padding … để có thể có nhiều không gian hiển thị nội dung chính hơn"_); CAPM's frame went
+70 → 48px. The empty space either side of a SHORT formula is centring, not padding. The graded part followed the
+same day (_"giảm padding xuống, size text giảm xuống … áp dụng cho mobile và các công thức có ví dụ"_): below 1024px
+the verdict line (`p.markRight` / `p.markWrong`, the fill-in "Sai · Kết quả … · Thứ tự đúng …" and the multi-select
+"Đúng / Sai") is 14px with no `<p>` margin (28 → 12px either side), the "Vì sao chưa đúng" box pads 8/12px and its
+prose 12px, and `LoiGiai` — shared with the "Ví dụ thực tế" block, which is what "công thức có ví dụ" covers — is 12px
+text, 8px between rows, the drawn arithmetic 15px. CAGR at 390: answer box 398 → 336px, example block 759 → 662px. `.blankInput[data-ket-qua]` **must be declared after
 `.blankInput:disabled`** (a graded input is both), the same single-specificity ordering trap as
 `.panelCenter`. Grading is all-or-nothing, like `chon-nhieu`: three slots right out of four still
 produces the wrong number, so partial credit would tell the learner they were close when the result
@@ -2334,6 +2397,24 @@ commentary. Eight things are load-bearing:
   formula name, right beside the picture, where a long dash reads as minus), and the UI lowercases
   its first letter after "để tính" unless it opens with an abbreviation (`giuaCau`). Below 560px
   the labels stack above their values: "CÔNG THỨC ÁP DỤNG" is ~130px and ate half of a 390px row.
+  **Except three short rows since 19/10/2026** — Công thức (was "Công thức áp dụng" until later that
+  day, shortened by the owner, which also lets more pictures fit beside it: `fcfe`'s now does at 390),
+  Áp dụng công thức (renamed from "Áp vào công thức" that day; the key is still `quiz.giai.apVao`, and
+  many comments still use both old names), Kết quả. The owner drew arrows on `ev-ebitda`'s example: _"nếu ngắn và gọn thì có thể
+  để sang bên phải … nếu quá dài thì mới xuống dòng"_. Áp dụng công thức and Kết quả carry
+  `.giaiNgang` and below 560px are a wrapping flex row, value pushed right (`margin-left: auto`), so
+  flex itself decides "fits": a value wider than the room beside its label drops to its own line,
+  still right-aligned. **Only the PICTURE goes right; text stays left.** The Công thức row first did
+  the same and squeezed its "để tính …" tail (same `<dd>` as the picture) into the room right of the
+  label, right-aligned; the owner: _"thật sự là máy móc đến thế là cùng? tôi chỉ nói là công thức
+  chuyển sang phải chứ text với nội dung thì căn trái giùm đi"_. So that row (`.giaiNgangHinh`) uses
+  floats: label `float: left`, picture `float: right` (drops below the label by itself when it does
+  not fit), tail `clear: both` — a full-width, left-aligned line under both. Not a second `<dd>` (from
+  560px it would be a second grid row and change the PC layout), not `display: contents` (ruled out
+  above for a11y). Cost: the label aligns with the picture's top, not its baseline. Measured: `cagr`
+  and `capm` pictures sit beside the label at 390; `ev-ebitda`'s drops at 360, `ddm-hai-giai-doan`'s
+  at both (and still scrolls). `loi-giai-css.test.ts` pins it, including no `text-align: right` in
+  that block.
 - **Rows share one column via `subgrid`**, not `display: contents` (which drops the `<div>` that
   groups each `dt`/`dd` pair from the accessibility tree in some browsers). A per-row grid made
   each label column as wide as its own label, so the four values started at four positions.
@@ -2823,6 +2904,12 @@ English, the owner reviews it**. What that produced, and what is easy to break:
 
 ## Notes
 
+- **Below 1024px the two frame bars are shorter** (19/10/2026, owner: _"padding và height … đang quá cao"_):
+  `--header-height` 48px (56px from 1024px) and `--tabbar-height` 52px, set in the `max-width: 1023.98px` body block
+  of `globals.css`'s "BẬC MÀN". The header's `.inner` drops its 4px vertical padding at the same mark, or the detail
+  screen's `BackLink` (a 44px tap target) makes that one header 52px while every other screen's is 48px, and the bar
+  jumps on every navigation; `bar-height-css.test.ts` pins the pair. Everything that needs the two heights reads the
+  tokens (sticky search, sticky end buttons, Danh mục's fixed "Thêm mới"), so nothing else changed.
 - **Every `:hover` style sits inside `@media (hover: hover)`** (16/10/2026). On a touch screen the element just
   tapped stays `:hover` until the next tap elsewhere, so an unconditional hover colour sticks: the owner tapped "Xem
   ví dụ thực tế ↓" on a phone, scrolled back up and found the button still light blue (`.secondary:hover`). 61 of the
@@ -2979,9 +3066,36 @@ English, the owner reviews it**. What that produced, and what is easy to break:
     is cancelled by −8px margins, so nothing moves at rest. No line under the band: at rest it would be a stray rule
     between the box and the chips. Two cases in `FormulaListScreen.test.tsx` pin the structure and the rule; no
     `check:chrome` assertion yet.
+  - **Below 1024px the list's filters are one step smaller** (19/10/2026, owner: _"giảm size text và giảm height"_):
+    the "Mức độ" / "Sắp xếp" labels 12px, the Cơ bản / Nâng cao buttons 28px with 12px text (the numbers of
+    `ModeToggle`'s `compact`, which only applies under 560px, so the screen sets them itself through `.level button`),
+    the sort `<select>` 44 → 34px and 12px — equal to the toggle group, pinned in `FormulaListScreen.test.tsx`; this
+    reverses the old "keep 44px below 1024px" note — the category chips 32px and 12px (`CategoryChips.module.css`;
+    the scroller keeps its 4px padding, so the chip's 44px tap overlay is clipped to 40px, the price of a shorter
+    row), and "Hiển thị · N công thức" 14px. A second round the same day (_"đưa tiêu đề lên đầu của select rồi chuyển
+    2 select trên thành 1 hàng ngang"_): each label now sits ABOVE its control with the `Select` field's 4px gap, and
+    the two groups share one `nowrap` row aligned at the bottom, the toggle at its natural width and the sort select
+    growing to the content edge (`flex: 1 1 0`, `min-width: 0` instead of the 10rem floor). PC keeps labels beside.
+  - **"Tìm gần đây" follows the owner's drawing of 19/10/2026, then two same-day trims**: a title row ("Tìm gần
+    đây", 12px bold muted, sentence case) with a trash icon on the right, then ONE horizontally scrolling row of
+    chips, each with a clock icon (28px tall, 13px regular text, 8/10px padding after the owner's _"giảm padding
+    tiếp và text có thể không cần in đậm"_). The drawing had the word "Xoá"; the owner switched it back to the icon
+    the same hour. Below 1024px the row scrolls INSIDE the content column: the drawing bled it into both gutters, and
+    the owner circled the right edge the same day (_"padding phải đang chưa có, bị quá xát so với màn phải"_), since
+    everything else stops at the gutter. It pads itself `(--tap-min − 28px) / 2` vertically,
+    because `overflow-x: auto` also clips vertically and would cut the chips' 44px tap overlay; a case in
+    `RecentSearches.test.tsx` ties that padding to the chip height. From 1024px the chips wrap (a mouse cannot swipe
+    a scrollbar-less row) — that half is not in the drawing. Both variants share the look: `block` on `/tim-kiem/`
+    keeps its `<h2>`, `inline` labels its region with a plain span. The drawing's colours are uniformly darker than
+    the product's (page #0f1626 vs #111827), a capture colour profile, so each maps to its existing token.
   - Search history is **one** store again (`ffb.recent.v1`), shared with `/tim-kiem/`, because both
     boxes now search the whole library. The old `ffb.recent.home.v1` is merged in once on first open,
     then deleted, and "Xoá toàn bộ" still sweeps it (`LEGACY_STORAGE_KEYS`).
+    **A history entry is a FORMULA, so a chip prints in the language ON SCREEN** (19/10/2026, the owner switched to
+    English and the chip still read "%B — vị trí giá trong dải Bollinger"). Both screens write `formula.name.vi`
+    whatever the locale, and `localizeRecentSearches()` maps each stored string back to a formula (its `vi` OR `en`
+    name, case-insensitive) and prints `pick(name)`; a string that matches no formula prints as stored. It also
+    dedupes by the printed label, because older stores can hold one formula twice, once per language.
   - **Search matches a PHRASE, in two tiers, and only the second tier is painted** (16/10/2026). The owner
     typed "%b" and got 96 cards: the old scorer dropped every symbol (`tokenize`), then let each word
     prefix-match ANY word of the name, tags or description in any order, so "b" matched "bao nhiêu",

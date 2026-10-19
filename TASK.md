@@ -4,6 +4,773 @@ Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 
 ---
 
+## Nhãn "Công thức"; thẻ bước của khối chuỗi: dòng vai trò về mép trái ở khổ điện thoại (19/10/2026)
+
+**Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án xem.**
+
+Chủ dự án, hai ảnh: khối Ví dụ của `fcfe` khoanh nhãn "CÔNG THỨC ÁP DỤNG"; khối "Số liệu lấy từ công thức khác" khoanh
+dòng "kết quả của FCFF …, dùng cho FCFE …". Lời nhắn: _"công thức áp dụng đổi thành Công thức. và sau đó là các màn có
+'Số liệu lấy từ công thức khác' thì cần điều chỉnh 1 chút phần tôi khoanh đỏ cho sang bên trái thay vì dóng xuống dòng
+như ảnh làm thừa 1 khoảng bên trái. áp dụng mobile. và những công thức tương tự"_.
+
+- **`src/application/i18n/vi.ts`**: `quiz.giai.congThuc` đổi thành "Công thức". Áp cho cả khối Ví dụ lẫn lời giải Bài
+  tập.
+  - Tiếng Anh vẫn là "Formula used".
+  - Nhãn ngắn hơn ~55px, nên hình FCFE nay đứng vừa cạnh nhãn ở 390px.
+- **`src/ui/screens/ChainBody.module.css`**, khối dưới 1024px:
+  - Dòng tóm tắt của thẻ bước thành lưới hai hàng: hàng trên ▸ · tên con số · con số; hàng dưới dòng vai trò trải cả ba
+    cột, bắt đầu từ mép trái thẻ.
+  - `.stepText` thành `display: contents`. Nó là một `<span>` không vai trò, nên không mất gì với trình đọc màn hình.
+  - Áp cho mọi màn có khối chuỗi (`wacc`, `mo-hinh-gordon`, `bien-an-toan`, `fcfe`, `gia-tri-noi-tai-fcff`, chế độ Nâng
+    cao). Từ 1024px không đổi.
+- **`src/ui/screens/chain-mobile-css.test.ts`** (mới): ghim lưới và thứ tự khai.
+- Đo ở 390px:
+  - `fcfe`: dòng vai trò bắt đầu ở x=29, cùng dấu ▾, thay vì x=54. Còn 2 dòng thay vì 3.
+  - `wacc`: dòng vai trò cũng về mép trái.
+  - Không cuộn ngang.
+- `vitest` `src/ui/screens`, `src/ui/result`, `src/ui/quiz`, i18n, `src/app/cong-thuc/[id]` xanh (532 ca). `eslint`,
+  `tsc`, `prettier` sạch.
+
+---
+
+## Lời giải (Ví dụ thực tế, Bài tập): dòng ngắn đứng cạnh nhãn ở khổ điện thoại; "Áp dụng công thức" (19/10/2026)
+
+**Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án xem.**
+
+Chủ dự án vẽ mũi tên trên khối Ví dụ của `ev-ebitda` ở điện thoại, từ hình công thức, từ phép tính và từ "8,14 lần"
+sang khoảng trống bên phải nhãn của chúng. Lời nhắn: _"đối với công thức nếu ngắn và gọn thì có thể để sang bên phải như
+tôi chỉ, bên dưới áp vào công thức và đáp án cũng tương tự. nếu quá dài thì mới xuống dòng. Thay đổi text 'Áp vào công
+thức' thành 'Áp dụng công thức'"_.
+
+- **`src/application/i18n/vi.ts`**: `quiz.giai.apVao` đổi thành "Áp dụng công thức". Khoá giữ tên cũ. Tiếng Anh vẫn là
+  "Plugged in", vì chủ dự án chỉ đổi chữ tiếng Việt.
+- **`src/ui/result/LoiGiai.tsx`**: dòng Công thức áp dụng mang lớp `giaiNgangHinh`; Áp dụng công thức và Kết quả mang
+  `giaiNgang`. Khối Ví dụ thực tế và lời giải Bài tập dùng chung thành phần này, nên cả hai theo.
+- **`src/ui/result/LoiGiai.module.css`**, dưới 560px:
+  - Áp dụng công thức, Kết quả: hàng flex xuống dòng, nhãn trái, nội dung dạt phải. Rộng hơn chỗ cạnh nhãn thì rơi
+    xuống dòng dưới, vẫn dạt phải; phép tính dài vẫn cuộn ngang trong khung như cũ.
+  - Công thức áp dụng: chỉ HÌNH sang phải. Câu "để tính …" là dòng chữ căn trái, chạy hết bề ngang dưới cả nhãn.
+  - Ba dòng kia (Thay số, Đọc kết quả, Nguồn) vẫn nhãn trên. Từ 560px không đổi.
+- **Bản đầu sai một chỗ, chủ dự án bắt ngay.** Dòng Công thức từng dùng cùng hàng flex với hai dòng kia. Câu "để tính …"
+  nằm chung `<dd>` với hình, nên bị bó vào phần bề ngang cạnh nhãn, canh phải, vỡ bốn năm dòng. Chủ dự án: _"thật sự là
+  máy móc đến thế là cùng? tôi chỉ nói là công thức chuyển sang phải chứ text với nội dung thì căn trái giùm đi. căn phải
+  theo nhìn rất xấu"_.
+  - Nay dòng ấy dùng float: nhãn trôi trái, hình trôi phải. Không vừa thì hình tự tụt xuống dưới nhãn.
+  - Câu đuôi `clear: both`, căn trái từ mép khối.
+  - Cái giá: nhãn canh mép trên của hình, không canh đường chân.
+- **`src/ui/result/loi-giai-css.test.ts`** (mới): ghim luật CSS và dòng nào mang lớp nào. Ghim thêm việc khối điện thoại
+  không còn `text-align: right` nào.
+- **Đo trong Chrome sau khi sửa lần hai:**
+  - 390px, `cagr` và `capm`: hình đứng cạnh nhãn, câu "để tính …" căn trái bên dưới.
+  - 360px, `ev-ebitda`: hình xuống dòng, vẫn sát phải.
+  - 360px và 390px, `ddm-hai-giai-doan`: hình xuống dòng và vẫn cuộn ngang.
+  - Không cuộn ngang ở đâu.
+- `vitest` `src/ui/result`, `src/ui/quiz`, i18n, `FormulaDetail.test.tsx` xanh. `eslint`, `tsc`, `prettier` sạch.
+
+---
+
+## Danh mục › Công thức: ô rỗng chỉ còn "Chưa có công thức" (19/10/2026)
+
+**Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án xem.**
+
+Hai bước cùng ngày:
+
+1. _"xóa đoạn text thừa 'Chưa lưu phép tính nào. Mở một công thức, nhập số liệu rồi bấm “Lưu vào danh mục” để giữ lại
+   kết quả ở đây.' đi"_. Ô rỗng còn icon "fx" và đường "Mở danh sách công thức".
+2. Chủ dự án hỏi "Fx" là gì. Trả lời: icon trang trí của tab Công thức, phóng to trong ô rỗng. Tiếp theo: _"thay cái đó
+   thành đoạn text 'Chưa có công thức'"_.
+
+- **`src/app/danh-muc/PortfolioScreen.tsx`**: ô rỗng tab Công thức bỏ icon, thay bằng `<p>` "Chưa có công thức" (cùng
+  kiểu chữ `.emptyText` với "Chưa có mã nào."). Đường "Mở danh sách công thức" giữ nguyên.
+- **`src/application/i18n/vi.ts`, `en.ts`**: `portfolio.savedEmpty` đổi chữ thành "Chưa có công thức" / "No formulas
+  yet". Lịch sử cụm tab trong `vi.ts` ghi cả hai bước.
+- **`src/app/danh-muc/PortfolioScreen.test.tsx`**:
+  - Ca "kho rỗng": có chữ "Chưa có công thức", khối không còn `<svg>`, không còn câu dài, đường sang danh sách vẫn có.
+  - Ca "xoá hết mục": về lại chữ ô rỗng.
+- Không đổi, để chủ dự án quyết: ô rỗng tab Mã vẫn có icon ba cột trên "Chưa có mã nào." — icon ấy từ bản thiết kế đợt
+  12, nên gỡ theo là đảo thiết kế, chưa tự làm. Icon "fx" cạnh nhãn tab Công thức ở thẻ tab trên PC cũng giữ.
+- Kiểm: `PortfolioScreen.test.tsx` và test i18n xanh (214 ca), typecheck, eslint, prettier sạch.
+
+---
+
+## Biểu đồ ở khổ điện thoại: vùng vẽ rộng hơn, bớt khoảng trống quanh hình (19/10/2026)
+
+**Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án xem.**
+
+Chủ dự án khoanh bốn khoảng trống quanh biểu đồ `capm` trên điện thoại: hai bên vùng vẽ, dưới tên trục X, dưới "Xem số
+liệu". Yêu cầu: _"điều chỉnh giảm padding xung quanh … để hiển thị nhiều không gian chart hơn"_.
+
+Đo ở 360px trước khi sửa:
+
+- Thẻ rộng 328px, vùng vẽ 259px.
+- Chữ trục trái cách mép thẻ 32px: 12px đệm thẻ, cộng 20 đơn vị trống trong SVG vì sàn lề trái 36.
+- Chữ trục phải cách mép thẻ 22px.
+- Hàng "Xem số liệu" cao 44px, nên trên và dưới dòng chữ trống chừng 14px mỗi bên.
+
+- **`src/ui/charts/LineChart.tsx`**: thêm `PAD_COMPACT`, chỉ cho khổ `compact` (dưới 768px).
+  - Lề trái bỏ sàn 36, chỉ vừa đủ cho nhãn Y dài nhất: `textWidth × 1,1` + 5 + 3, sàn 14.
+    - Hệ số 1,1 là số ĐO: chữ số thật rộng chừng 5,4 đơn vị, không phải 4,9 như ước lượng.
+    - Bản đầu cộng phẳng 1 đơn vị thì nhãn "20" chạm sát mép SVG, và nhãn "100" chỉ cách mép thẻ 7px.
+  - Lề phải 10 → 6, đủ cho chấm "giá trị hiện tại" ở đầu đường.
+  - Khổ `wide` giữ nguyên. `PLOT` tĩnh (cho test và bản in) theo khổ `compact` mới.
+- **`src/ui/charts/chart.module.css`**: khối dưới 1024px ở cuối file.
+  - Khung vẽ tràn vào đệm thẻ 8px mỗi bên. Tiêu đề, hàng chọn trục và "Xem số liệu" vẫn ở lề 12px.
+  - "Xem số liệu" cao 44 → 28px. Lớp phủ `::after` giữ vùng chạm 44px.
+  - Bảng mở ra lùi xuống 8px, để lớp phủ không đè lên hàng tiêu đề bảng.
+  - Đệm đáy thẻ 12 → 8px.
+- **Đo sau khi sửa** (dev server, Chrome headless, nền tối):
+  - 360px:
+    - Vùng vẽ 259 → 293px (+13%).
+    - Chữ trục cách mép thẻ 8–12px bên trái, 10px bên phải.
+    - Đo trên `capm`, `pe`, `lai-kep`, `ev-ebitda`, `von-hoa-thi-truong`, `gia-tri-tuong-lai`, `diem-hoa-von`,
+      `lich-tra-no`.
+    - Không chữ nào tràn khỏi SVG, trang không cuộn ngang.
+  - 390px: vùng vẽ 321px.
+  - 560px: trần 460px vẫn giữ.
+- **Test:**
+  - `charts.test.tsx`: ca "nhãn trục Y ngắn thì lề trái giữ nguyên 36" đổi thành "lề chỉ vừa đủ cho nhãn ở khổ điện
+    thoại". Ca cũ ghim đúng khoảng trống chủ dự án vừa khoanh.
+  - `chart-controls-css.test.ts`: thêm hai ca ghim khối CSS mới. Một ca kiểm khung tràn; một ca kiểm hàng 28px vẫn có
+    lớp phủ 44px.
+- `typecheck`, `eslint`, `prettier` sạch; `npm test` xanh (165 file, 4344 ca).
+- **Chưa chạy `check:chrome`** (cần bản build). Bốn phép đo "không nhãn nào tràn khỏi viewBox" của nó cần chạy lại.
+
+---
+
+## Cuối màn chi tiết gọn hơn ở khổ điện thoại: thẻ Bài tập, ô miễn trừ (19/10/2026)
+
+**Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án xem.**
+
+Chủ dự án khoanh ba dải ở cuối màn chi tiết trên điện thoại: khe giữa "Nguồn tham khảo" và thẻ Bài tập, chính thẻ Bài
+tập, và vùng dưới hàng nút "Lưu vào danh mục · Thoát" (ô miễn trừ cùng khoảng trống quanh nó). Lời nhắn: _"bản mobile
+thì các phần khoanh đỏ kia cần giảm xuống"_.
+
+- **Đo ở 390px trên `capm` trước khi sửa:**
+  - Khe 20px trên thẻ Bài tập và trên ô miễn trừ. Đây là `gap` của `.detail`.
+  - Thẻ Bài tập cao 78px, đệm 20px bốn phía.
+  - Ô miễn trừ cao 54px.
+  - Dưới ô miễn trừ là 32px đệm đáy của khung nội dung.
+- **`src/app/cong-thuc/[id]/FormulaDetail.module.css` + `.tsx`:**
+  - Hai khe 20 → 12px, bằng lề âm trên `.quizBlock` (lớp mới, màn trao cho `QuizPanel`) và trên ô miễn trừ đứng sau
+    hàng nút. Nhịp 20px giữa chín khối còn lại không đổi.
+  - Đệm đáy 32 → 16px, bằng lề âm dưới `.detail`, chỉ màn này. Khung `AppShell` của mọi màn không đụng.
+- **`src/ui/quiz/QuizBody.module.css`**: thẻ Bài tập đệm 12px trên dưới, 16px hai bên. Thẻ nghỉ 78 → 62px.
+  - **Lượt hai.** Chủ dự án: _"vẫn chưa thấy giảm padding xung quanh phần này?"_. Phần trống mắt thấy quanh chữ nằm
+    phần lớn TRONG nút "Bắt đầu kiểm tra": nút `sm` cao 36px, chữ ~18px, cộng đệm ngang 12px của chính nút.
+  - Đệm thẻ còn 8px trên dưới, 12px hai bên.
+  - Hàng tiêu đề và nút của nó ("Bắt đầu kiểm tra", "Thoát") cao 28px. Vùng chạm vẫn 44px nhờ `::after` của `.sm`.
+  - Nút kéo lề phải −12px, nên "»" cách mép thẻ 12px, bằng "BÀI TẬP" bên trái.
+  - Thẻ nghỉ 62 → 46px. Đã xem trạng thái đang làm bài ("Câu 1 / 5 · Thoát"), hiển thị ổn.
+  - **Lượt ba.** Chủ dự án hover vào nút: _"khi hover vào đang có padding quá rộng làm xát với bên ngoài"_. Lề −12px
+    làm nền xám lúc hover chạm viền phải của thẻ. Nay đệm ngang của nút 12 → 8px, lề phải −4px. Đo bằng chuột thật ở
+    390px: nền hover cách viền thẻ 8px cả trên, dưới, phải; "»" cách mép thẻ 16px.
+- **`src/ui/navigation/DisclaimerBar.module.css`**: ô vàng dòng 1,5 → 1,4, đệm dọc 8 → 6px, 54 → 48px. Màn Danh mục
+  dùng cùng ô nên theo luôn; đã xem ảnh màn ấy ở 390px. Dải xám chân trang không đổi.
+- **`src/app/cong-thuc/[id]/tail-mobile-css.test.ts`** (mới): ghim các luật trên, cùng việc màn trao `quizBlock` cho
+  `QuizPanel`.
+- Đo sau khi sửa: khe 12px, thẻ 62px, ô miễn trừ 48px, đáy 16px. Không cuộn ngang.
+- `vitest` `src/app/cong-thuc/[id]`, `src/ui/quiz`, `src/ui/navigation` và các cổng CSS xanh (491 ca). `eslint`,
+  `tsc`, `prettier` sạch. Chưa chạy `check:chrome`.
+
+---
+
+## Lời giải bài tập và Ví dụ thực tế gọn hơn ở khổ điện thoại (19/10/2026)
+
+**Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án xem.**
+
+Chủ dự án khoanh câu điền số CAGR đã chấm sai: hai khoảng trống quanh dòng "Sai · Kết quả: 10 %/năm · Thứ tự đúng: …", chính
+dòng ấy, và cả hộp "Vì sao chưa đúng". Lời họ: _"hãy giảm padding xuống, size text giảm xuống tương tự như bên trên đã yêu
+cầu. áp dụng cho mobile và các công thức có ví dụ"_.
+
+- **Đo ở 390px trước khi sửa**:
+  - Dòng kết luận 16px đậm, cách khung công thức và hộp mỗi bên 28px: lề mặc định 16px của `<p>` cộng khe 12px.
+  - Hộp đệm 12 / 16px.
+  - Lời giải chữ 13px, dòng cách 12px, phép tính vẽ 16,8px.
+- **`src/ui/quiz/QuizBody.module.css`**, khối dưới 1024px:
+  - `p.markRight` / `p.markWrong` 14px, bỏ lề. Không đụng dấu ✓ / ✕ (`<span>`) ở dải câu đã làm.
+  - `.explain` đệm 8 / 12px.
+  - `.explainBody` (lời giải dạng đoạn văn) 12px.
+- **`src/ui/result/LoiGiai.module.css`**, khối mới dưới 1024px: `.giai` 12px, dòng cách 8px; phép tính vẽ 15px. Thành phần
+  này dùng chung cho khối Ví dụ thực tế, nên mọi công thức có ví dụ theo luôn.
+- **Đo bằng Chrome, CAGR**:
+  - 390px: dòng kết luận cách trên dưới 12px; hộp 398 → 336px; khối Ví dụ 759 → 662px.
+  - 360px: hộp 355px.
+  - 1440px không đổi. Không cuộn ngang.
+- `CLAUDE.md`: thêm vào đoạn câu điền số. `prettier` sạch. Test `src/ui/quiz`, `src/ui/result`, `FormulaDetail`, `tokens`,
+  `hover-media` xanh.
+
+---
+
+## Bài tập: bỏ dòng "Lần gần nhất: 3/5" ở mọi khổ màn (19/10/2026)
+
+**Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án xem.**
+
+Chủ dự án chụp thẻ Bài tập ở trạng thái nghỉ, khoanh dòng "Lần gần nhất: 3/5": _"không cần phải chú thích như ảnh. bỏ
+đi cả ở mobile lẫn web"_.
+
+- **`src/ui/quiz/QuizBody.tsx`**: bỏ khối in dòng điểm và prop `saved`; tombstone tại chỗ. Thẻ nghỉ nay chỉ còn hàng
+  tiêu đề "BÀI TẬP · Bắt đầu kiểm tra »".
+- **`src/ui/quiz/QuizBody.module.css`**: bỏ `.intro` (khỏi luật chung với `.card`) và `.lastTime`.
+- **`src/app/cong-thuc/[id]/FormulaDetail.tsx`**: bỏ state `quizSaved`, effect đọc `ffb.quiz.v1` lúc vào màn, import
+  `progressFor`. **Việc ghi điểm khi làm xong giữ nguyên** — bỏ câu chữ, giữ hành vi, như các lần bỏ `localOnly`.
+- **i18n**: xoá `quiz.lastTime` ở `vi.ts` (mộ chí) và `en.ts`.
+- **Test**: `FormulaDetail.test.tsx` thêm ca "có điểm lần trước trong máy cũng không in dòng Lần gần nhất". Ca nạp sẵn
+  điểm 3/5 vào kho và dựng màn kèm một câu hỏi, để thẻ ở đúng trạng thái nghỉ.
+- `CLAUDE.md`: sửa câu "`.intro` under the header renders only when…".
+- `eslint`, `prettier` sạch. Test `src/ui/quiz`, `FormulaDetail`, i18n, `quiz-progress`, `build-only-imports` xanh.
+- `tsc` báo 2 lỗi ở `PortfolioScreen.test.tsx` (`portfolio.savedEmpty`). Đó là khoá phiên khác đang gỡ ở màn Danh mục,
+  không phải của mục này.
+- **Còn mở**: điểm vẫn ghi vào máy mà không chỗ nào đọc ra. Nếu chủ dự án muốn, có thể bỏ luôn việc ghi.
+
+---
+
+## Bài tập: khung công thức điền số bớt đệm ở khổ điện thoại (19/10/2026)
+
+**Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án xem.**
+
+Chủ dự án khoanh dải trống trên hàng ô "?" và phần trống bên phải của câu CAPM "Chi phí vốn chủ = ? + ? × ?": _"giảm
+padding tôi đã khoanh đỏ xuống để có thể có nhiều không gian hiển thị nội dung chính hơn. áp dụng bản mobile"_.
+
+- **Đo ở 390px trước khi sửa**: trên ô 22px, dưới 25px, hai bên 28px. 28px ấy là 8px đệm cộng 20px dư do cả cụm căn giữa
+  khung.
+- **`src/ui/quiz/QuizBody.module.css`**, khối dưới 1024px:
+  - `.worked` đệm `8px 4px 2px`, trước là `16px 8px` dưới 768px và `16px 12px` ở 768–1023px.
+  - `.workedExpr` chừa 8px ở đáy cho thanh cuộn nổi ở mọi khổ dưới 1024px, trước chỉ dưới 768px.
+  - Đỉnh và đáy cùng 10px.
+- **Đo sau**:
+  - Khung CAPM 70 → 48px. Trên ô 14px, dưới 11px.
+  - Câu dài `do-bien-dong-lich-su` cuộn ngang, thấy thêm 8px. Không cuộn trang ở 360 và 390px.
+  - 1440px không đổi.
+- **Chưa đổi**: khi công thức ngắn, phần trống hai bên là do căn giữa, không phải đệm, nên vẫn còn (20–24px mỗi bên ở
+  390px với CAPM). Muốn bỏ thì phải dạt công thức sang trái, và chỗ trống sẽ dồn hết sang phải.
+- `CLAUDE.md`: thêm một câu vào đoạn ô trống của câu điền số. `prettier` sạch. Test `src/ui/quiz`, `FormulaDetail`,
+  `tokens`, `hover-media` xanh.
+
+---
+
+## Bài tập: ô đáp án bớt lề trái ở khổ điện thoại (19/10/2026)
+
+**Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án xem.**
+
+Chủ dự án khoanh dải từ mép ô đáp án tới nút tròn (câu beta "Bạn tra beta … ra ba số khác nhau"): _"giảm padding bên
+trái như ảnh để câu hỏi có thể nhiều không gian hiển thị hơn, áp dụng cho mobile"_.
+
+- **`src/ui/quiz/QuizBody.module.css`**, khối dưới 1024px:
+  - `.choice` lề trái 16 → 8px.
+  - `.choice input` bỏ lề trái mặc định của trình duyệt (radio 5px, checkbox 4px).
+  - Lề phải 16px và khe giữa nút, chữ cái, chữ đáp án giữ nguyên.
+- **Đo bằng Chrome trên `beta`, bấm "Bắt đầu kiểm tra"**:
+  - 390px: nút tròn cách mép ô 22 → 9px, chữ đáp án rộng 241 → 254px.
+  - 360px: chữ rộng 224px.
+  - 1440px: không đổi. Không cuộn ngang.
+- `CLAUDE.md`: thêm một câu vào đoạn "Below 1024px the whole row is 36px" của khối Bài tập.
+- `prettier` sạch. Test `src/ui/quiz`, `tokens`, `hover-media` xanh.
+
+---
+
+## Bảng biến: hàng thấp hơn ở khổ điện thoại (19/10/2026)
+
+**Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án xem.**
+
+Chủ dự án khoanh ba khoảng trống trong Bảng biến của `capm` trên điện thoại: trên tên biến đầu tiên, giữa hai hàng, dưới câu
+mô tả cuối. Lời họ: _"giảm padding phần khoanh đỏ như ảnh xuống. áp dụng cho mobile"_.
+
+- **`src/ui/result/VariableTable.module.css`**, khối dưới 1024px: đệm trên và dưới của ô thân bảng (`tbody th`, `tbody td`)
+  12 → 8px. Đệm ngang giữ 12px. Hàng tiêu đề cột giữ nguyên, vì không bị khoanh.
+- Không đụng `Table.module.css`, vì primitive còn phục vụ lịch trả nợ và bảng XIRR.
+- **Đo bằng Chrome**:
+  - 390px: ô `8px 12px`. Bảng `capm` có 3 hàng, mỗi hàng thấp đi 8px. `loi-nhuan-rong` mỗi hàng 53px. Không cuộn ngang.
+  - 1440px: vẫn `12px`.
+- `CLAUDE.md`: thêm một câu vào đoạn Bảng biến.
+- `prettier` sạch. Test `result`, `tokens`, `hover-media`, `section-title` xanh.
+
+---
+
+## Khối Số liệu bớt khoảng trống, nút kéo thanh trượt nhỏ lại ở khổ điện thoại (19/10/2026)
+
+**Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án xem.**
+
+Chủ dự án khoanh năm dải trống trong khối Số liệu của `capm` trên điện thoại, và nút tròn của thanh trượt: _"những phần
+như ảnh này đang có padding quá lớn, giảm xuống để tiết kiệm không gian. đồng thời slider tròn … bản mobile cần giảm
+xuống cho gọn"_. Giữa lượt, thêm con số cạnh nhãn ("3,7", "8"): _"giảm cả size text số này xuống bản mobile nữa"_.
+
+- **Đo ở 390px trước khi sửa** (khối cao 332px):
+  - Hàng nhãn thanh trượt cao 33px vì con số 18px ở dòng 1,5, nên nhãn tụt ~9px.
+  - Ô trượt cao 44px, rãnh 6px ở giữa, nên ~19px trống mỗi phía. Nút kéo 28px.
+  - Dưới ô "Hệ số beta" trống 16px: 8px từ hai hàng `subgrid` rỗng, cộng 8px đệm đáy.
+  - Hàng ô cuối để lại 8px trên đầu thẻ Kết quả.
+- **`src/app/cong-thuc/[id]/FormulaDetail.module.css`**, khối dưới 1024px:
+  - Hàng nhãn thanh trượt dùng `--leading-tight`. Con số cạnh nhãn 18 → 16px, đơn vị 14 → 12px, bỏ đệm dọc. Hàng
+    33 → 22px.
+  - Nút kéo 28 → 20px. Ô trượt vẫn cao 44px để giữ vùng chạm, nhưng lề âm 8px trên dưới cho nó chỉ chiếm 28px.
+  - Ô hẹp bỏ đệm đáy. Lưới có lề âm 8px ở đáy. `.fields + .repeatActions` thôi kéo lên, vì khoảng ấy đã bị lấy.
+  - Khoảng 28px trên đầu Kết quả giữ nguyên: đó là khoảng tách "nhập xong · đáp án" có chủ ý của `.result`.
+- **`src/ui/screens/ChainBody.module.css`**: bản sao cùng luật cho khối chuỗi (chế độ Nâng cao).
+- **`src/app/cong-thuc/[id]/inputs-mobile-css.test.ts`** (mới): ghim đủ luật ở cả hai bản sao. Ghim thêm nút kéo nằm
+  giữa rãnh, và lề âm không lấn vào nút.
+- **Đo sau khi sửa:**
+  - `capm` 332 → 262px ở 390px, nút kéo cách hàng trên và hàng mốc 8px mỗi phía.
+  - Soát bằng ảnh ở 360px: `gia-von-trung-binh-dca` (hàng nút đợt), `lich-tra-no` (nhóm nút), `lai-kep`.
+  - Không cuộn ngang ở đâu.
+- `vitest` `src/app/cong-thuc/[id]`, `src/ui/screens`, `src/ui/inputs` và các cổng CSS xanh. `eslint`, `tsc`,
+  `prettier` sạch. Chưa chạy `check:chrome`.
+
+---
+
+## Bảng "Bóc tách chi phí" và thẻ "Giá hoà vốn thực" gọn hơn ở khổ điện thoại (19/10/2026)
+
+**Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án xem.**
+
+Chủ dự án khoanh ba chỗ trên `loi-nhuan-rong` ở điện thoại: con số "138.000 ₫", cả bảng phí, và thẻ "Giá hoà vốn
+thực". Lời nhắn: _"giảm size text khoanh đỏ …, giảm height phần khoanh đỏ bên dưới. giảm padding …. áp dụng trong bản
+mobile"_.
+
+- **`src/ui/screens/FeeTaxBody.module.css`**: thêm một khối `max-width: 1023.98px` ở cuối file, trước `@media print`.
+  - Dòng phí: đệm 8 / 12 → 6 / 10px, bỏ khe 2px dưới nhãn. Dòng phí cao 58 → 52px, dòng "Tổng chi phí" 37 → 33px.
+  - Con số của các dòng phí 14 → 13px, dòng tổng theo cùng. Nhãn giữ 14px vì chủ dự án không khoanh nhãn.
+  - Thẻ hoà vốn: đệm 12 → 8 / 10px, cao 50 → 42px. Con số 16px giữ nguyên.
+- **`src/ui/screens/fee-tax-css.test.ts`** (mới): ghim bốn luật. Ghim thêm việc khối phải đứng sau luật gốc, vì hai
+  bên cùng độ ưu tiên.
+- Đo trong Chrome ở 390px, nền tối:
+  - Bảng phí 271 → 243px.
+  - Thẻ hoà vốn 50 → 42px.
+  - Ở 360 và 390px không cuộn ngang.
+- Từ 1024px không đổi gì.
+- `vitest` các test liên quan đều xanh: `src/ui/screens`, `result-card`, `section-title`, `hover-media`, 83 ca.
+  `eslint`, `tsc` và `prettier` sạch.
+- **Còn hỏi:** nhãn 14px nay to hơn con số 13px. Nếu muốn hai thứ cùng cỡ, hạ nhãn xuống 13px.
+- **Lượt hai, cùng ngày: thẻ "Lợi nhuận ròng".** Chủ dự án: _"phần text số này đang quá lớn, giảm 2 size text, đồng
+  thời giảm padding trên dưới xuống"_.
+  - Con số `clamp(32px, 9vw, 40px)`, khoảng 35px ở 390px, xuống `--text-xl` 26px. "2 size" hiểu là hai bậc thang chữ
+    từ trần 40: 40 → 32 → 26. Cũng đúng cỡ con số của thẻ Kết quả dưới 1024px.
+  - Đệm trên dưới 16 → 8px, hai bên giữ 16px. Thẻ cao 128 → 100px ở 390px, không cuộn ngang ở 360 và 390px.
+  - **`LoanScheduleBody.module.css`** (thẻ tóm tắt của `lich-tra-no`) theo cùng hai con số, vì ba thẻ đáp án là một
+    khuôn (`result-card.test.ts`). Chủ dự án không khoanh thẻ này, đây là phần tự đồng bộ.
+  - `fee-tax-css.test.ts` ghim thêm hai thẻ. `vitest` `src/ui/screens`, `result-card`, `hover-media` xanh (69 ca).
+
+---
+
+## Viết mô tả cho 20 ô nhập còn thiếu; bảng biến hết "—" (19/10/2026)
+
+**Trạng thái: CHƯA XONG — đã làm. Nội dung 20 câu chờ chủ dự án duyệt.**
+
+Chủ dự án chụp bảng biến của CAGR (cột Mô tả in "—" ở cả ba ô) và gửi danh sách 8 công thức tìm được, rồi bảo
+_"viết"_ sau khi xem kết quả rà. Rà máy cả 111 công thức: 20 ô ở 11 công thức thiếu `description`. Các ô này
+chưa từng được viết, không phải bị xoá; `noi-dung.test.ts` ghim con số 20 như một khoản nội dung còn nợ.
+
+- **20 câu mới, tiếng Việt và tiếng Anh**, mỗi câu nói ô LÀ GÌ, theo đúng lối các ô anh em:
+  - Ô giá trong cùng họ dùng cùng câu: "Giá đóng cửa gần nhất của một cổ phiếu.", "Giá khớp lệnh mua, tính cho một cổ
+    phiếu."
+  - Lợi suất kỳ 1, kỳ 2 viết theo câu có sẵn của kỳ 3.
+  - Không câu nào chép câu "lấy số ở đâu" của bài hướng dẫn.
+  - Đối chiếu từng câu với `calc`:
+    - "Phải lớn hơn 0" chỉ ở chỗ `calc` thật sự báo chia cho 0: Giá đầu kỳ của HPR, Giá trị ban đầu của CAGR.
+    - "Phải cao hơn giá cắt lỗ" ở Giá vào lệnh: `calc` báo lỗi khi giá cắt lỗ cao hơn hoặc bằng giá vào lệnh.
+    - "Lãi chỉ tính trên số gốc này" ở Lãi tiền gửi: `calc` là lãi đơn P × r ÷ 12 × T.
+    - "Lãi nhập gốc hằng tháng" ở Tiết kiệm theo mục tiêu: `calc` lấy lãi năm chia 12 rồi ghép theo tháng.
+    - "Kết quả là lợi suất của một kỳ" ở IRR niên kim: đơn vị kết quả là %/kỳ.
+- **File:**
+  - `src/core/formulas/returns.ts`: HPR ×2, CAGR ×3, Tỷ suất cổ tức ×2.
+  - `src/core/formulas/performance.ts`: Tổng lợi suất có tái đầu tư ×1, Lợi suất TB hình học ×2, IRR niên kim ×1,
+    Lợi suất quy năm ×2.
+  - `src/core/formulas/personal.ts`: Lãi tiền gửi ×3, Tiết kiệm theo mục tiêu ×2.
+  - `src/core/formulas/risk.ts`: Cỡ lệnh ×1.
+  - `src/core/formulas/multiples.ts`: P/B ×1.
+- **`noi-dung.test.ts`**: ca "20 ô vẫn chưa có mô tả" đổi thành luật "mọi ô trong Registry đều có mô tả, đủ tiếng Việt
+  lẫn tiếng Anh". Luật soi cả ô khuôn của nhóm lặp, vì bảng biến in cả đợt 4, kỳ 4 trở đi. Công thức mới thêm ô mà quên
+  mô tả thì đỏ.
+- Rà lại: 0/269 ô thiếu. `typecheck`, `eslint`, `prettier` sạch. `gen:summaries` không lệch. `npm test` xanh (162 file,
+  4324 ca).
+
+---
+
+## Màn chi tiết, khổ điện thoại: ô nhập gọn hơn, cả 111 công thức (19/10/2026)
+
+**Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án xem.**
+
+Chủ dự án khoanh khối Số liệu của `loi-nhuan-rong` (hàng biểu phí, hàng nhãn, lưới bốn ô): _"giảm padding các phần
+trong ảnh sau. giảm size text khoanh đỏ trong ảnh, giảm height select trong ảnh. áp dụng trong bản mobile"_, rồi giữa
+lượt: _"phải áp dụng cho toàn bộ công thức"_.
+
+- **Số đo trước → sau dưới 1024px** (đo ở 390px):
+  - Nhãn mọi ô 14 → 12px: ô số, ô chọn, thanh trượt, nhóm nút. Một khối một cỡ nhãn.
+  - Khung ô số và ô chọn 44 → 36px, đệm ngang 12 → 10px. Số gõ 18 → 16px (sàn chống phóng trang của iOS), đơn vị 14 →
+    12px.
+  - Nhóm nút ("Phương thức trả" của `lich-tra-no`) 50 → 36px, nút 30px, vùng chạm 44px bằng `::after`.
+  - Khoảng giữa hai hàng ô 12 → 8px.
+  - Hàng biểu phí: "Biểu phí" 14 → 12px, "Mặc định HOSE 2026" 16 → 14px (là chữ, không phải ô chọn, vì mới có một biểu
+    phí), cả hàng 71 → 65px.
+- **File**:
+  - `src/app/cong-thuc/[id]/FormulaDetail.module.css`: luật bộ chọn cấu trúc trong khối `max-width: 1023.98px` của
+    `.fields`. Không sửa primitive vì `Input`/`Select`/`SliderInput`/`ButtonGroup` còn dùng ở Danh mục, Cài đặt, hộp Lưu.
+  - `src/app/cong-thuc/[id]/FormulaDetail.tsx`: bọc `DetailConfig` trong `<div className={styles.config}>` để thu chữ
+    hàng biểu phí mà màn Cài đặt (cùng component) giữ nguyên.
+  - `src/ui/screens/ChainBody.module.css`: bản sao cùng luật cho ô của khối chuỗi (chế độ Nâng cao).
+  - `CLAUDE.md`: một đoạn sau đoạn "narrow field alone on its row".
+- **Lỗi bắt được khi đo**: bản đầu dùng `div:has(> input)`, trúng cả thẻ gốc của ô thanh trượt (rãnh trượt là `input`
+  con trực tiếp), làm mọi thanh trượt thụt vào 10px. Sửa thành `div:has(> input:not([type='range']))`.
+- **Quét Chrome cả 111 màn ở 390px, hai chế độ**: 110 màn có lưới ô (XIRR nhập bằng bảng dòng tiền). Cơ bản 157 ô số,
+  95 thanh trượt, 3 ô chọn, 1 nhóm nút; Nâng cao 182 / 110 / 4 / 1. Mọi nhãn 12px, mọi khung 36px, số gõ 16px, thanh
+  trượt không đệm, không màn nào cuộn ngang.
+- Không đổi: rãnh và con số của thanh trượt, hai nút Bỏ đợt / Thêm đợt của DCA, khổ từ 1024px trở lên.
+- `tsc`, `eslint`, `prettier` sạch. Test `FormulaDetail`, `ChainBody`, `screens`, `merged-card-css`, `tokens`,
+  `hover-media`, `section-title`, `contrast` xanh.
+
+---
+
+## Khối "Tìm gần đây" theo bản vẽ mới (19/10/2026)
+
+**Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án xem.**
+
+Chủ dự án gửi ảnh bản cũ, có chip xếp nhiều hàng và ô thùng rác cuối hàng. Kèm ảnh bản mới: hàng "Tìm gần đây · Xoá" và
+một hàng chip cuộn ngang có icon đồng hồ. Lời họ: _"điều chỉnh lại phần danh sách tìm kiếm theo phiên bản mới tôi cho
+sau đây"_. Sau đó, trong cùng lượt, có thêm hai lần sửa:
+
+- _"text xóa đổi lại thành icon xóa. text cần giảm size xuống. ô height cũng cần thu gọn xuống, giảm padding"_.
+- _"giảm padding tiếp và text có thể không cần in đậm"_.
+
+- **Đo trên ảnh bản vẽ** (đọc điểm ảnh bằng Chrome headless; ảnh 1:1 với px CSS — ảnh bản cũ cho chip 32px đúng 32 điểm
+  ảnh):
+  - Chip cao 40px, khe 8px, bo ~16px.
+  - Icon 14px vẽ, cách mép trong 12px, chữ cách icon 6px. Chữ 15px nét 500.
+  - Tiêu đề 14px đậm. Hàng chip tràn qua lề phải tới mép màn.
+  - Bản dựng đầu khớp trong 1–2px: chip 183,4 so với 184px, đỉnh chữ hoa tiêu đề tới chip 27 so với 27px, icon và
+    đầu chữ trùng vị trí.
+  - Màu ảnh lệch ĐỀU so với sản phẩm (nền #0f1626 thay #111827, chip #18213a thay #1b2435…), tức hồ sơ màu của
+    công cụ chụp, nên mỗi màu lấy token tương ứng.
+- **Bản cuối sau hai lượt sửa** (`src/ui/browse/RecentSearches.tsx`, `.module.css`):
+  - Hàng tiêu đề: "Tìm gần đây" 12px đậm `--color-muted`, câu thường. Icon thùng rác 24px dạt phải, vùng chạm 44px.
+  - Chip: cao 28px, đệm 8/10px, icon đồng hồ 14px, khe 4px, chữ 13px nét thường, bo `--radius-md`.
+  - Dưới 1024px hàng chip cuộn ngang (bản đầu tràn lề hai phía, đã bỏ — xem gạch cuối mục). Khung cuộn đệm dọc (44 − 28) ÷ 2 = 8px cho vùng chạm khỏi bị
+    cắt.
+  - Từ 1024px chip xuống hàng, khe dọc 16px. Phần này là tự dựng, bản vẽ chỉ có khổ điện thoại.
+  - Cả hai dạng (`inline` ở màn Công thức, `block` ở `/tim-kiem/`) cùng một hình theo quy ước đồng bộ bề mặt anh em.
+    Dạng `block` giữ `<h2>`, dạng `inline` dùng nhãn thường làm tên vùng.
+- Khoá `search.recent.clearShort` thêm rồi gỡ trong cùng lượt (nút về lại icon).
+- **Test** — `RecentSearches.test.tsx` thêm 3 ca:
+  - Chip có icon đồng hồ `aria-hidden`.
+  - Dạng `inline` có chữ tiêu đề là `<span>` và vùng mang đúng tên ấy.
+  - Đệm khung cuộn khớp cao chip.
+  - Các ca cũ (nút xoá chỉ icon, tên "Xoá lịch sử") vẫn xanh.
+- **Đo trên dev server**:
+  - 390px: khối cao 60px (bản đầu theo bản vẽ 73px), chip đầu 149px, hàng chip cuộn được.
+  - 1440px: màn Công thức một hàng, màn tìm hai hàng cạnh ô tìm.
+  - Không cuộn ngang ở khổ nào.
+- `eslint`, `tsc`, `prettier` sạch. Test `src/ui/browse`, `FormulaListScreen`, `src/app/tim-kiem`, i18n, `FormulaDetail`
+  và các cổng CSS xanh.
+- **Bỏ phần tràn lề** (chủ dự án khoanh mép phải trên điện thoại: _"padding phải đang chưa có, bị quá xát so với màn
+  phải"_). Ô tìm, kệ và nút thùng rác đều dừng cách mép 16px, riêng hàng chip chạm mép màn. `RecentSearches.module.css`
+  `.chips` dưới 1024px: lề ngang `-gutter` và đệm ngang `gutter` về 0, bỏ `scroll-padding-inline`; đệm dọc 8px giữ nguyên.
+  Hàng chip giờ cuộn trong cột nội dung. Đo bằng Chrome ở 360, 390 và 768px trên cả `/cong-thuc/` và `/tim-kiem/`:
+  - Mép phải hàng chip trùng mép ô tìm và nút thùng rác (344 / 374 / 728px).
+  - Cuộn hết thì chip cuối dừng đúng mép cột.
+  - Trang không cuộn ngang. Hàng cao 44px, vùng chạm không bị xén.
+
+---
+
+## Mô tả trên thẻ danh sách tối đa 2 dòng (19/10/2026)
+
+**Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án xem.**
+
+Chủ dự án khoanh mô tả DCA tràn ba dòng ở danh sách và các ô kệ bị cắt "…": _"một số đoạn mô tả khi ở ngoài này đang quá
+dài, cần giảm bớt xuống sao cho đủ 2 dòng là hợp lý nhất"_.
+
+- **Lượt đầu hiểu sai, đã trả lại.** Claude đọc yêu cầu thành "viết lại câu mô tả cho ngắn" và hỏi hướng; chủ dự án chọn
+  viết lại cả 111 câu ≤ 45 ký tự (vừa 2 dòng ở ô kệ 134px của khổ 360). Làm xong thì thẻ danh sách (272px) chỉ còn 1 dòng,
+  chủ dự án hỏi _"2 dòng mà? tại sao lại 1 dòng?"_ rồi nói rõ: _"có thể là 2 câu, 3 câu, 10 câu, hay toàn bộ nội dung cũng
+  được nhưng chỉ hiển thị 2 dòng thôi"_. 111 câu đã trả về nguyên văn; các file `src/core/formulas/*.ts` và
+  `summaries.generated.ts` giống hệt bản commit.
+- **Cách làm đúng**: `src/ui/browse/FormulaCard.module.css` `.description` (thẻ danh sách, cả màn Công thức) cắt còn 2 dòng
+  bằng `-webkit-line-clamp: 2`, như `.tileDescription` của ô kệ đã làm từ trước. Áp mọi khổ màn.
+  - Ngoại lệ: `.description:has(mark)` hiện đủ. Khi tìm, thẻ khớp ở mô tả tô vàng cụm khớp; cụm ấy có thể ở dòng ba, cắt đi
+    là thẻ không nói vì sao nó khớp.
+- Đo bằng Chrome trên dev server: ở 360px không thẻ nào quá 2 dòng, 6 thẻ bị cắt "…" (DCA, ATR, rút trước hạn, số kỳ DCA,
+  Stochastic, thuế TNCN); ở 1440px 3 thẻ bị cắt. Tìm "được bỏ qua" thì thẻ DCA có `<mark>` và hiện đủ 4 dòng.
+- Test: `src/ui/browse` + `FormulaListScreen.test.tsx` xanh, prettier sạch.
+- **Nhãn nhóm in nghiêng, 11 → 12px dưới 1024px** (chủ dự án khoanh "Lợi nhuận & cổ tức": _"đang quá nhỏ so với mô tả bên
+  trên, khiến người dùng khó phân biệt và hiểu nhầm. phần này thử in nghiêng và cho tăng size lên 1 chút"_).
+  `FormulaCard.module.css`, khối dưới 1024px: `.category` (thẻ danh sách) và `.tileCategory` (ô kệ, đồng bộ cùng luật)
+  thành `--text-xs` + `font-style: italic`. Đo ở 390px: nhãn 12px nghiêng ở cả hai; 1440px giữ 12px thẳng. `src/ui/browse`
+  xanh.
+- **PC theo luôn** (chủ dự án: _"bản web cũng nên sửa như vậy"_): nét nghiêng chuyển lên luật gốc của `.category` và
+  `.tileCategory` (mọi khổ), cỡ gốc 12 → 13px (vẫn dưới mô tả 14px); khối dưới 1024px chỉ còn `--text-xs`. Đo: 1440px nhãn
+  13px nghiêng, 390px 12px nghiêng, ở cả thẻ danh sách lẫn ô kệ. Một ca `RecentSearches.test.tsx` đỏ là do phiên song song đang
+  sửa `RecentSearches.tsx` (nút xoá có chữ "Xoá"), không liên quan.
+
+---
+
+## Bỏ dòng "N công thức nâng cao đang ẩn · Bật chế độ Nâng cao" (19/10/2026)
+
+**Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án xem. Còn một câu hỏi về màn Danh mục (cuối mục).**
+
+Chủ dự án chụp dòng "2 công thức nâng cao đang ẩn · Bật chế độ Nâng cao": _"bỏ đoạn giải thích này đi"_.
+
+- **Bỏ ở hai màn dùng câu này:**
+  - `src/app/cong-thuc/FormulaListScreen.tsx`: dòng trên đầu danh sách, kèm lớp `.onlyBasic` trong
+    `FormulaListScreen.module.css` (chỉ dòng ấy dùng).
+  - `src/app/tim-kiem/SearchScreen.tsx`: dòng dưới câu đếm kết quả, và dòng dưới khối rỗng.
+- **Giữ lại, có chủ ý:** khi chế độ Cơ bản làm danh sách RỖNG hẳn (nhóm "Tài chính DN", hoặc tìm "Sortino"), khối rỗng
+  "Ở đây chỉ có công thức nâng cao" vẫn nói lý do và vẫn có nút "Bật chế độ Nâng cao".
+  - Màn Công thức vốn có nút ấy trong khối rỗng.
+  - Màn Tìm kiếm thì nút ấy từng nằm ở dòng vừa bỏ, nên được chuyển vào khối rỗng, giống màn Công thức.
+- **`vi.ts` / `en.ts`**: xoá khoá `list.hiddenByLevel`, để mộ chí (nguyên văn yêu cầu, thứ còn lại và vì sao).
+- **`src/ui/browse/HiddenByLevelNote.tsx`**: nay chỉ màn Danh mục dùng.
+  - Bỏ prop `labelKey`, câu luôn là `portfolio.hiddenByLevel`.
+  - `PortfolioSummary.tsx` thôi truyền prop.
+- **Test:**
+  - `HiddenByLevelNote.test.tsx`: viết lại theo câu "ô".
+  - `FormulaListScreen.test.tsx`: thêm một ca đảo. Chế độ Cơ bản đang giấu thẻ mà không có dòng "nâng cao đang ẩn".
+  - `SearchScreen.test.tsx`: thêm hai ca.
+    - Tìm "P/E" thì PEG bị giấu, không có dòng ấy.
+    - Tìm "Sortino" thì khối rỗng có nút bật, bấm vào là chuyển chế độ.
+- `typecheck`, `eslint`, `prettier` sạch; `npm test` xanh (162 file, 4321 ca).
+- **Chờ chủ dự án:** thẻ tóm tắt màn Danh mục ở chế độ Cơ bản vẫn có dòng cùng kiểu "2 ô nâng cao đang ẩn · Bật chế độ
+  Nâng cao". Dòng ấy báo rằng Beta danh mục và XIRR toàn DM đang ẩn. Bỏ luôn hay giữ?
+
+---
+
+## Thanh trên và thanh điều hướng dưới thấp hơn ở khổ điện thoại (19/10/2026)
+
+**Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án xem.**
+
+Chủ dự án chụp hai thanh khung trên điện thoại: thanh trên ("Công thức" + Sáng/Tối + VI) và thanh điều hướng dưới. Lời
+họ: _"padding và height của các phần này đang quá cao, cần giảm xuống"_.
+
+- **`src/app/globals.css`** — khối `max-width: 1023.98px` của "BẬC MÀN" (cùng chỗ `--section-title-size`):
+  - `--header-height` 56 → 48px.
+  - `--tabbar-height` 60 → 52px.
+  - Từ 1024px thanh trên vẫn 56px.
+- **`src/ui/navigation/AppHeader.module.css`** — dưới 1024px `.inner` bỏ đệm dọc 4px. Còn đệm thì nút quay lại 44px của
+  màn chi tiết kéo thanh màn ấy lên 52px trong khi các màn khác 48px.
+- Mọi chỗ cần biết hai chiều cao đều đọc token, nên tự theo: ô tìm ghim, hàng nút ghim đáy, nút "Thêm mới" của Danh
+  mục, neo danh sách. Không chỗ nào chép số.
+- **Test** — `src/ui/navigation/bar-height-css.test.ts` (mới) ghim hai con số và cặp "thanh trên không đệm dọc, cao
+  ≥ 44px".
+- **Đo trên dev server** (360, 390px; 7 màn: Công thức, chi tiết `pe`, Danh mục, Cài đặt, Về chúng tôi, Bảng dữ
+  liệu, hướng dẫn `pe`):
+  - Thanh trên 49px, thanh dưới 53px (tính cả viền 1px) trên MỌI màn, kể cả màn chi tiết.
+  - Ô tìm ghim sát thanh trên, hàng nút ghim sát thanh dưới. Nút "Thêm mới" cách thanh dưới 12px như cũ.
+  - Không nhãn thanh dưới nào bị cắt, không cuộn ngang.
+  - 1440px: thanh trên 57px như cũ.
+- Test `src/ui/navigation`, các cổng CSS, `FormulaListScreen`, `merged-card-css`, `src/app/danh-muc` xanh.
+  - Lần chạy đầu `PortfolioScreen.test.tsx` đỏ hàng loạt, đúng lúc một phiên khác đang sửa các file ấy. Chạy lại:
+    188/188 xanh.
+  - Chưa chạy `check:chrome`.
+
+---
+
+## Ô tìm: chữ mờ "Công thức"; chip "Tìm gần đây" theo ngôn ngữ đang bật (19/10/2026)
+
+**Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án xem.**
+
+Chủ dự án khoanh chữ mờ của ô tìm và chip lịch sử: _"đổi text 'Tên công thức,...' thành 'Công thức' và phần lịch sử …
+tại sao sau khi chuyển sang ngôn ngữ tiếng anh thì lại vẫn giữ tiếng việt ? sửa lỗi"_.
+
+- **Chữ mờ**: `search.placeholder` 'Tên công thức, ví dụ P/E hay định giá' → 'Công thức' (EN 'Formula name, e.g. P/E or
+  Sharpe' → 'Formula'). Khoá mặc định của `SearchBox`, nên áp cả màn Công thức lẫn `/tim-kiem/`. `SearchBox.test.tsx` cập
+  nhật.
+- **Chip lịch sử — nguyên nhân**: hai màn ghi `pick(formula.name)`, tức tên theo ngôn ngữ LÚC BẤM, rồi chip in lại nguyên
+  chuỗi. Bấm ở tiếng Việt thì chuyển sang tiếng Anh vẫn thấy tên Việt.
+- **Sửa**:
+  - `src/application/recent-searches.ts`: hàm mới `localizeRecentSearches(terms, formulas, show)` tra ngược chuỗi ra công
+    thức (khớp tên `vi` hoặc `en`, không phân biệt hoa thường) rồi in tên theo ngôn ngữ đang bật; chuỗi không khớp giữ
+    nguyên; bỏ trùng theo chữ in ra. Xuất qua barrel `@/application`.
+  - `FormulaListScreen.tsx`, `SearchScreen.tsx`: ghi `formula.name.vi` ở mọi ngôn ngữ; chip đọc qua `localizeRecentSearches`.
+    Bấm chip thì ô tìm nhận tên đang hiện, tìm vẫn ra vì bậc 1 khớp cả tên Việt lẫn tên Anh.
+  - Chưa xử lý: kho cũ ghi TÊN ANH TRƯỚC 19/10/2026 (33 tên Anh đã đổi trong đợt giữ ký hiệu) không khớp tên hiện tại,
+    nên chip ấy vẫn in nguyên chuỗi cũ.
+- Test: `recent-searches.test.ts` +5 ca; `FormulaListScreen.test.tsx` +2 ca tiếng Anh (chip ra tên Anh và lọc đúng; bấm
+  kết quả vẫn ghi tên Việt). `tsc`, `eslint`, `prettier` sạch; các file test liên quan xanh.
+- `CLAUDE.md`: thêm luật "một mục lịch sử là một công thức" vào mục lịch sử tìm.
+
+---
+
+## Thẻ công thức (danh sách và Tìm kiếm), khổ điện thoại: đệm gọn hơn, nhãn cấp độ ở góc trên phải (19/10/2026)
+
+**Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án xem.**
+
+Chủ dự án khoanh nhãn "Cơ bản" sau tên thẻ "Biên an toàn": _"tương tự giảm padding của phần này xuống, áp dụng cho mobile.
+đồng thời chuyển cơ bản nâng cao xuống vị trí tôi chỉ"_ (mũi tên xuống góc dưới phải). Xem bản đầu xong, chủ dự án vẽ mũi tên
+lên góc trên phải: _"thử chuyển lên trên luôn nằm ở vị trí tôi chỉ xem sao"_.
+
+- **`src/ui/browse/FormulaCard.module.css`**: thêm vào khối dưới 1024px của biến thể hàng.
+  - Đệm dọc của thẻ 12 → 8px. Đệm ngang giữ 12px.
+  - Nhãn cấp độ là cột thứ ba của hàng tên: sát mép phải khối chữ, bên trái mũi tên ">", căn giữa dọc với icon và tên.
+  - Chỉ đổi CSS, không đổi DOM: `.heading` thành `display: contents`. Thứ tự đọc vẫn là tên → cấp độ → mô tả → nhóm.
+  - Từ 1024px không đổi: nhãn vẫn bám ngay sau chữ cuối của tên.
+  - Bản đầu (nhãn ở góc dưới phải, cùng hàng nhãn nhóm) đã thay bằng bản này, không giữ lại.
+- **Đo trên dev server**, Chrome headless, nền tối, chế độ Nâng cao, 111 thẻ:
+  - 360px và 390px:
+    - Nhãn cùng tâm với icon (lệch 0).
+    - Nhãn sát mép phải khối chữ (0px).
+    - Tên cách nhãn ít nhất 12px.
+    - Không cuộn ngang.
+  - Chiều cao thẻ:
+    - Thẻ một dòng tên: 119 → 111px.
+    - "CAGR — tăng trưởng kép hằng năm": 139 → 125px.
+  - Cái giá: tên mất 68–82px bề ngang, nên vài tên dài xuống dòng sớm hơn. Thẻ cao nhất 146 → 161px.
+  - 1440px: số đo như cũ.
+- Áp dụng cho cả màn Tìm kiếm vì dùng chung thẻ. Kệ "Công thức dùng hằng ngày" (biến thể ô) không đổi, vì kệ không có nhãn
+  cấp độ.
+- `prettier` sạch; `npm test` xanh (161 file, 4309 ca).
+  - Lần chạy đầu có một ca `PortfolioScreen.test.tsx` quá 5 giây khi cả bộ chạy song song.
+  - Chạy riêng file đó thì xanh, chạy lại cả bộ cũng xanh.
+
+---
+
+## Màn Công thức, khổ điện thoại: bộ lọc của khối danh sách gọn hơn (19/10/2026)
+
+**Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án xem.**
+
+Chủ dự án khoanh cả vùng dưới "DANH SÁCH CÔNG THỨC" trên điện thoại: Mức độ, Sắp xếp, hàng chip nhóm, dòng "Hiển thị".
+Lời họ: _"giảm size text và giảm height bản những phần tôi khoanh đỏ áp dụng cho màn mobile"_. Mỗi thứ xuống một bậc,
+chỉ dưới 1024px.
+
+- **`src/app/cong-thuc/FormulaListScreen.module.css`** — khối mới ở cuối file:
+  - Nhãn "Mức độ" và "Sắp xếp": 14 → 12px.
+  - Cơ bản / Nâng cao: nút 32 → 28px, chữ 12px, đệm ngang 8px. Đây là số của bản `compact` ở Cài đặt, mà bản ấy chỉ
+    có hiệu lực dưới 560px. Nhóm cao 34px.
+  - Ô Sắp xếp: 44 → 34px, bằng nhóm nút; chữ 14 → 12px. Việc này đảo ghi chú cũ "dưới 1024px giữ 44px", theo lời chủ
+    dự án. Nhãn `<label for>` đứng ngay cạnh vẫn mở được ô.
+  - "Hiển thị · N công thức": 16 → 14px.
+- **`src/ui/browse/CategoryChips.module.css`** — chip 36 → 32px, chữ 14 → 12px, đệm ngang 12 → 10px.
+  - Khung cuộn giữ đệm dọc 4px nên hàng thấp đi 4px.
+  - Cái giá: ô phủ chạm bị khung xén còn 40px. Nâng đệm cho đủ 44px thì hàng cao y như cũ.
+- **Test** — `FormulaListScreen.test.tsx` thêm một ca đọc CSS. Ca này ghim: ô Sắp xếp cao bằng nhóm Mức độ (nút + 6px),
+  hai cỡ chữ 12px, dòng đếm 14px.
+- **Đo trên dev server** (Chrome headless, nền tối):
+  - 360 và 390px: nhãn 12px, nhóm 34px (nút 28px), ô Sắp xếp 34px, chip 32px (khung 40px), dòng đếm 14px. Không cuộn
+    ngang.
+  - Từ tiêu đề khối tới hết dòng đếm: 189,5px.
+  - 1440px: không đổi (38 / 36 / 36px, chữ 14px, đếm 16px).
+- `eslint`, `tsc`, `prettier` sạch. Test `src/ui/browse`, `src/ui/navigation`, `FormulaListScreen` và các cổng CSS xanh.
+- **Lượt hai, cùng ngày** — chủ dự án vẽ mũi tên: _"thử đưa tiêu đề lên đầu của select rồi chuyển 2 select trên thành
+  1 hàng ngang"_.
+  - Cùng khối CSS: mỗi cụm thành cột "nhãn trên, điều khiển dưới", khe 4px như `.field` của `Select`.
+  - Hai cụm chung một hàng (`nowrap`, mép dưới thẳng, cách 12px). Nhóm Mức độ giữ bề ngang tự nhiên. Ô Sắp xếp giãn
+    tới mép phải khung nội dung (`flex: 1 1 0`, `width: 100%`, `min-width: 0` thay sàn 10rem).
+  - Test: thêm một ca ghim bố cục ấy.
+  - Đo (VI và EN): ở 360, 390, 768px hai cụm cùng hàng, nhãn ở trên, ô chạm mép phải khung (344 / 374 / 728px), không
+    cuộn ngang. Lựa chọn dài nhất vừa ô: 360px VI 92/135px, EN 98/144px. 1440px vẫn bố cục cũ, nhãn bên trái.
+
+---
+
+## Màn Công thức, khổ điện thoại: vùng tìm gọn hơn (19/10/2026)
+
+**Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án xem.**
+
+Chủ dự án khoanh ô tìm cùng khoảng trống trên nó và khoảng trống giữa hàng chip với "CÔNG THỨC DÙNG HẰNG NGÀY": _"ở màn
+mobile phần search này cần giảm padding xuống và giảm 1 chút size text"_.
+
+- `src/app/cong-thuc/FormulaListScreen.module.css`: khối mới dưới 1024px, ngay sau khối ghim ô tìm.
+  - Khoảng thanh trên → ô tìm 20 → 12px (`.screen` kéo lên 8px). Lúc đã ghim vẫn 8px như cũ.
+  - Ô tìm 44 → 36px. Nút × hộp 28px, lớp phủ 44px (bản gọn của `SearchBox`), để khung không cao lại khi có chữ.
+  - Chữ mờ 16 → 14px. Chữ gõ vào giữ 16px (iOS phóng trang khi ô dưới 16px).
+  - Ô tìm → chip, chip → kệ, ô tìm → kệ (khi không có chip): đều 12px (trước 12 / 20 / 20).
+  - Chọn theo cấu trúc trong `.searchSlot`, không sửa `SearchBox` dùng chung.
+- Đo bằng Chrome headless trên dev server, 390px: ô tìm cách thanh trên 12px, cao 36px, chữ mờ 14px, ô → chip 12px, chip →
+  tiêu đề kệ 15px (12px khoảng cách + đệm trong của tiêu đề), gõ chữ thì ô vẫn 36px, cuộn thì ô ghim cách thanh trên 8px,
+  không cuộn ngang. 1440px không đổi.
+- Test: `FormulaListScreen.test.tsx` và các cửa CSS xanh, prettier sạch.
+- **Nút "Thu gọn" / "Xem tất cả" của kệ không in đậm** (chủ dự án: _"button text Thu gọn thì không nên để in đậm"_):
+  `FeaturedFormulas.module.css` `.toggle` từ `--weight-medium` sang `--weight-regular`, mọi khổ màn (là một nút, hai nhãn).
+  `FeaturedFormulas.test.tsx` 17/17 xanh.
+- **Dòng "Hiển thị · N công thức" sát hơn dưới 1024px** (chủ dự án: _"điều chỉnh padding ở phần này, giảm xuống ở màn
+  mobile"_): `.summary` bỏ sàn cao 32px và kéo lề âm 4px trên dưới. Đo trên dev server ở 390px: chữ cách hàng chip nhóm và
+  thẻ đầu 9px mỗi phía (trước ~17px); 1440px giữ 17–18px. Có nút "Xoá bộ lọc" thì hàng cao theo nút như cũ.
+
+---
+
+## Danh mục, khổ điện thoại: tên phép tính 13px, tối đa hai dòng rồi "…" (19/10/2026)
+
+**Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án xem.**
+
+Chủ dự án khoanh "Giá hoà vốn thực" ở bảng Công thức: _"ở bàn mobile thì đoạn text này đang lớn quá, giảm xuống, nếu quá
+dài thì có thể xuống đến hàng 2 và để ..."_.
+
+- **`src/app/danh-muc/PortfolioScreen.module.css`** (khối dưới 1024px):
+  - Tên phép tính (`.savedOpen`) 14 → 13px.
+  - Tối đa hai dòng, phần thừa cắt bằng "…" (`-webkit-line-clamp: 2`). Tên đầy đủ vẫn nằm trong `aria-label`.
+  - Bỏ `min-height: 28px` ở khổ này: nó chỉ để tên cao bằng dấu X đứng cạnh ở PC.
+  - Mã ở bảng Mã (`.codeOpen`) cũng 14 → 13px, vì hai bảng dùng chung một kiểu dòng.
+  - **Đảo vế "tên to hơn số liệu 1px" của ngày 14/10.** Tên nay bằng cỡ số liệu, chỉ còn độ đậm tách tên ra.
+- **`scripts/chrome-check.mjs`**:
+  - Hai ca đổi từ "tên = số liệu + 1px" sang "tên = số liệu".
+  - Ca bảng Công thức đòi tên tối đa hai dòng nhìn thấy. Ở 360px dòng Beta có tên tự đặt dài phải bị cắt thật.
+- **`CLAUDE.md`**: hai đoạn nói "tên 14px" ghi thêm quyết định mới.
+- **Đo trên dev server** (Chrome headless, nền tối):
+  - 360px: "Giá hoà vốn thực" 2 dòng, không cắt. "CAPM — chi phí vốn chủ sở hữu" và tên Beta dài cắt ở dòng 2 bằng "…".
+  - 390px: "Giá hoà vốn thực" vừa 1 dòng.
+  - Không cuộn ngang ở cả hai khổ.
+  - 1440px: không đổi (14px, một dòng).
+- **Chưa làm (chờ chủ dự án):** dòng phụ dưới tên tự đặt (tên công thức, chữ nhạt 12px) vẫn xuống dòng tự do. Ở 360px tên
+  "Beta — hệ số rủi ro hệ thống" chiếm ba dòng.
+- `prettier`, `eslint` sạch; `npm test` xanh (161 file, 4307 ca). Chưa chạy `check:chrome` (cần bản build).
+
+---
+
+## Đầu hộp thoại nổi giữa cân trên dưới; tấm chọn mã gọn thêm ở khổ điện thoại (19/10/2026)
+
+**Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án xem. Phương án "đã có" (mục ngay dưới) vẫn chờ chọn.**
+
+Hai tin nhắn liền nhau về tấm chọn mã trên điện thoại:
+
+1. _"điều chỉnh lại padding bên trên mà tôi khoanh đỏ"_ (khoanh tiêu đề và vùng ô tìm), và tên doanh nghiệp không in đậm.
+2. _"padding của các ô này đang khá cao, giảm xuống, button chọn cũng đang tròn quá, có thể giảm height xuống và giảm
+   không bo tròn quá nhiều"_.
+
+- **`src/ui/primitives/BottomSheet.module.css`**: thêm khối `screen and (max-width: 1023.98px)` cho `.panelCenter`.
+  - Đo trước ở 390px: tiêu đề cách mép trên 16px, cách đường kẻ dưới 28px. Nguyên nhân là nút X 44px đứng `flex-start`.
+  - Đầu hộp căn giữa dọc, đệm 16px trên và dưới. Nút X lề âm 12px trên và dưới, vùng chạm vẫn 44px. Đầu hộp cao 65 → 53px.
+  - Thân: đệm trên 20 → 12px, bằng khoảng từ ô tìm xuống dòng đầu.
+  - Áp cho cả nhóm `.panelCenter`, vì ở màn Danh mục ba hộp chồng lên nhau: hộp Thêm/Sửa mã, tấm chọn mã, tấm chọn công
+    thức. Tấm dán đáy và khổ từ 1024px không đổi.
+  - Tấm Dán dữ liệu dưới 768px cũng là `.panelCenter`, nên cũng đổi theo.
+- **`src/ui/sheets/TickerPickerSheet.module.css`** (khối cuối file, dưới 1024px):
+  - Tên doanh nghiệp không đậm (500 → 400). Trên dòng chỉ còn mã đậm.
+  - Dòng 50 → 40px (`min-height: 40px`, đệm dọc 4px), bằng dòng của tấm chọn công thức.
+  - Nút "Chọn" 32 → 28px, bo 10 → 6px (`--radius-sm`, cùng độ bo nhãn "đã có").
+  - Vùng chạm 44px thò 2px ra ngoài dòng mỗi phía, nằm gọn trong khe 8px giữa hai dòng.
+- **Đo trên dev server ở 390px, nền tối:**
+  - Hộp Thêm mã và tấm chọn mã: tiêu đề 16px trên và 16px dưới, tâm tiêu đề trùng tâm X và tâm đầu hộp.
+  - Ô tìm: 12px trên, 12px dưới.
+  - Dòng 40px, nút 28px, bo 6px, tên 400.
+  - Tấm chọn công thức: tiêu đề hai dòng, X vẫn căn giữa.
+  - Không cuộn ngang.
+- **Không đổi `PresetSheet`.** Ở đó tên doanh nghiệp đậm vừa là có chủ ý, để tách khỏi tên ngành nhạt đứng sau nó.
+- `prettier` sạch; `npm test` xanh (161 file, 4307 ca).
+
+---
+
+## Bỏ "ô điền sẵn" và nút "Bỏ chọn công thức" ở hộp thoại thêm mã (19/10/2026)
+
+**Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án xem.**
+
+Chủ dự án hỏi "điền sẵn nghĩa là gì" (các dòng "2/2 ô điền sẵn" … "1/5 ô điền sẵn" trong tấm "Công thức sử dụng được với mã
+này"). Nghe giải thích xong: _"không cần chú thích điền sẵn làm gì. xóa đoạn đó đi. đồng thời xóa text button thừa là 'Bỏ
+chọn công thức' đi"_.
+
+- `src/ui/sheets/FormulaForTickerSheet.tsx` + `.module.css`: mỗi dòng chỉ còn tên công thức; xoá `.fill`. Tỷ lệ ô điền vẫn
+  quyết định dòng nào có mặt (0 ô thì bỏ) và thứ tự xếp, chỉ không in ra.
+- `src/app/danh-muc/PortfolioScreen.tsx` + `.module.css`: xoá nút chữ "Bỏ chọn công thức" và `.clearFormula`.
+  - Cái giá: chọn công thức rồi thì không quay về "không mở công thức nào" ngay trong hộp thoại được nữa. Đường thay thế:
+    đóng hộp thoại rồi mở lại (lần mở nào cũng đặt lại ô công thức).
+- `vi.ts` / `en.ts`: xoá `portfolio.formulasFilled` và `portfolio.formulaClear`, bia mộ ở `vi.ts`.
+- `src/data/live-preset.ts`: sửa chú thích nhắc tới "2/2 ô điền sẵn".
+- `PortfolioScreen.test.tsx`:
+  - ca "bỏ chọn được công thức" đảo thành: không có nút ấy, đóng rồi mở lại thì ô trống;
+  - ca "P/E hạ từ 2/2 xuống 1/2" thay bằng hai ca: dòng không in tỷ lệ hay chữ "điền sẵn"; mã thiếu giá thì P/E vẫn có mặt.
+- Kiểm: `tsc`, `eslint`, `prettier` sạch; `PortfolioScreen.test.tsx` 188/188; `src/application` + `src/ui` 1802 xanh.
+- **Hộp thoại "Thêm mã" gọn hơn dưới 1024px** (chủ dự án khoanh năm ô và hàng nút đáy: _"giảm height các ô … giảm size text
+  xuống nữa, các ô select cũng cần giảm height"_). Khối mới trong `PortfolioScreen.module.css`, sau bia mộ `.clearFormula`:
+  - ô nhập và hai nút mở sheet ("Chọn mã", "Thêm công thức") 44 → 36px;
+  - nhãn ô 14 → 12px; chữ gõ vào 18 → 16px (không thấp hơn: iOS phóng trang khi ô dưới 16px); chữ mờ "dd/mm/yyyy" 14px;
+  - "Thêm vào danh mục" / "Huỷ" 44 → 36px, chữ 16 → 14px, lớp phủ `::after` 44px.
+  - Chọn theo thẻ trong `.form` (`label`, `label + div`, `input`), không sửa primitive `Input`.
+  - Đo bằng Chrome headless trên dev server: 390px đúng các số trên, không cuộn ngang; 1440px giữ nguyên 44px / 14px / 18px.
+
+---
+
 ## Ô nhập mang ký hiệu của hình công thức (19/10/2026)
 
 **Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án xem.**
@@ -135,6 +902,71 @@ của bước và link "Xem công thức: …": _"cần giảm size text ở nh�
   - Khung nổi của hình trong lời giải Bài tập và Ví dụ dùng chung lớp nên đổi theo.
 - Kiểm: prettier sạch; `hover-media.test.ts` xanh. Không test nào đọc file CSS này. Chưa đo trong Chrome.
 - Kiểm: prettier sạch; `npx vitest run src/ui` 62 file xanh. Chưa đo trong Chrome.
+
+---
+
+## Tấm chọn mã: bỏ khung quanh mã, dòng và nút "Chọn" gọn hơn ở khổ điện thoại (19/10/2026)
+
+**Trạng thái: CHƯA XONG — đã làm phần 1 và 2; phần 3 ("đã có") chờ chủ dự án chọn phương án.**
+
+Chủ dự án chụp tấm chọn mã trên điện thoại:
+
+1. Giảm chiều cao nút và cỡ chữ.
+2. _"xung quanh ticker đang có bo tròn cũ, xóa đi và chỉ giữ ticker để tiết kiệm không gian"_.
+3. Nhãn "đã có" hơi thừa nhưng KHÔNG được xoá; đưa phương án thu gọn ở khổ điện thoại.
+
+- **`src/ui/primitives/Badge.module.css`** — vai `code` thành chữ trơn, ở mọi khổ màn:
+  - Bỏ nền, bo góc, đệm, `min-width: 64px`, `min-height: 34px`.
+  - Giữ phông đơn cách, cỡ, độ đậm. `min-width: 3ch`, màu `--color-ink`, theo đúng lối bảng Mã ngày 13/10.
+  - Vai này chỉ có hai nơi dùng: tấm chọn mã và tấm Nạp mẫu. Tấm Nạp mẫu đổi theo, có chủ ý, vì hai danh sách mã phải nhìn
+    như một.
+- **`src/ui/sheets/TickerPickerSheet.module.css`** — khối cuối file, dưới 1024px:
+  - Đệm dọc dòng 12 → 8px.
+  - Mã và tên doanh nghiệp 14 → 13px.
+  - Nút "Chọn" 36px / 14px → 32px / 12px. Vùng chạm 44px vẫn còn.
+  - **Khối phải đứng cuối file.** Bản đầu đặt nó trước `.item` gốc và đo được dòng vẫn 57px.
+- **`TickerPickerSheet.tsx`**: `Badge` thêm `className={styles.code}` để hạ cỡ ở khổ điện thoại.
+- **`Badge.test.ts`**: ca "hai danh sách mã dùng chung tone code" tìm `<Badge tone="code"` (không đòi thẻ không có thuộc tính
+  nào khác).
+- **Đo trên dev server** (Chrome headless, nền tối):
+  - 390px: dòng 50px (trước 57–62), mã và tên 13px, nút 32px / 12px, không cuộn ngang.
+  - 1440px: số đo như cũ, chỉ mã không còn khung.
+  - Tấm Nạp mẫu ở 1440px: mã chữ trơn, không cuộn ngang.
+- **Chờ chủ dự án**: chọn phương án thu gọn "đã có" ở khổ điện thoại (các phương án ở câu trả lời trong phiên 19/10/2026).
+- `prettier` sạch; `npm test` xanh.
+
+---
+
+## Tấm "Công thức sử dụng được với mã này": chữ mới, gọn hơn ở khổ điện thoại (19/10/2026)
+
+**Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án xem.**
+
+Chủ dự án khoanh tiêu đề, ô tìm và danh sách của tấm chọn công thức (mở từ hộp thoại Thêm/Sửa mã ở `/danh-muc/`):
+
+- Tiêu đề đổi thành "Công thức sử dụng được với mã này", và nhỏ chữ trên điện thoại.
+- Ô tìm ghi ngắn gọn "Tìm kiếm".
+- Ô tìm và các dòng giảm chiều cao, giảm cỡ chữ.
+
+Chữ đổi ở mọi khổ màn; cỡ chỉ đổi dưới 1024px.
+
+- **Chữ**:
+  - `portfolio.formulasTitle` → "Công thức sử dụng được với mã này". EN: "Formulas you can use with this ticker".
+  - **Mã vẫn nối sau dấu "·"** ("… · FPT"), chờ chủ dự án nói có bỏ không.
+  - Ô tìm dùng `portfolio.search` ("Tìm kiếm"). Không đổi `search.placeholder`, vì khoá ấy là của ô tìm chính màn Công thức.
+- **`BottomSheet.module.css`**: dưới 1024px `.panelCenter .title` cũng 16px như tấm dán đáy.
+  - Trước đó hộp thoại nổi giữa cố ý giữ 20px.
+  - Ở khổ này chỉ màn Danh mục mở tấm nổi giữa (Thêm/Sửa mã, chọn mã, chọn công thức), và chúng chồng lên nhau, nên hạ cả nhóm.
+  - Từ 1024px vẫn 20px.
+  - `BottomSheet.test.ts` sửa ca tương ứng, thêm điều kiện khối khổ hẹp đứng sau luật gốc.
+- **`FormulaForTickerSheet.module.css`** dưới 1024px:
+  - Ô tìm 44 → 36px, chữ mờ 14px. Chữ gõ vào giữ 16px để Safari iOS không phóng to trang.
+  - Dòng: cao 44 → 40px, đệm dọc 12 → 8px, tên 14 → 13px. "2/2 ô điền sẵn" giữ 12px.
+- **`TickerPickerSheet.module.css`**: ô tìm đổi cùng (36px, chữ mờ 14px), vì ô tìm hai tấm phải nhìn như một. Dòng mã của tấm này
+  không đổi.
+- **Đo trên dev server** (Chrome headless, nền tối):
+  - 390px: tiêu đề 16px, ô tìm 36px, chữ mờ 14px, dòng 40px, tên 13px, không cuộn ngang.
+  - 1440px: không đổi (20px, 44px, 16px, 14px).
+- `tsc`, `eslint`, `prettier` sạch; `npm test` xanh, 161 file.
 
 ---
 

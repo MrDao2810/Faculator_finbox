@@ -939,6 +939,10 @@ export const LAI_TIEN_GUI: FormulaModule = {
         {
           min: 0,
           max: 100_000_000_000,
+          description: {
+            vi: 'Số tiền gốc gửi vào. Lãi chỉ tính trên số gốc này, không nhập vào gốc.',
+            en: 'The principal deposited. Interest is earned on this principal only and is not added back to it.',
+          },
         },
       ),
       sliderVar(
@@ -949,8 +953,19 @@ export const LAI_TIEN_GUI: FormulaModule = {
         0,
         15,
         0.1,
+        {
+          description: {
+            vi: 'Lãi suất theo năm mà ngân hàng áp cho kỳ hạn bạn gửi.',
+            en: 'The annual rate the bank applies to the term you deposit for.',
+          },
+        },
       ),
-      sliderVar('months', { vi: 'Kỳ hạn (T)', en: 'Term (T)' }, 'tháng', 12, 1, 60, 1),
+      sliderVar('months', { vi: 'Kỳ hạn (T)', en: 'Term (T)' }, 'tháng', 12, 1, 60, 1, {
+        description: {
+          vi: 'Số tháng của kỳ hạn, từ ngày gửi tới ngày đáo hạn.',
+          en: 'The number of months in the term, from the deposit date to maturity.',
+        },
+      }),
     ],
     explanation: {
       meaning: {
@@ -1086,8 +1101,19 @@ export const TIET_KIEM_MUC_TIEU: FormulaModule = {
         0,
         20,
         0.1,
+        {
+          description: {
+            vi: 'Lợi suất bình quân mỗi năm bạn kỳ vọng cho các khoản đã góp, lãi nhập gốc hằng tháng.',
+            en: 'The average yearly return you expect on the money set aside, with interest added to the balance every month.',
+          },
+        },
       ),
-      sliderVar('months', { vi: 'Thời gian (n)', en: 'Time (n)' }, 'tháng', 60, 1, 360, 1),
+      sliderVar('months', { vi: 'Thời gian (n)', en: 'Time (n)' }, 'tháng', 60, 1, 360, 1, {
+        description: {
+          vi: 'Số tháng góp tiền, mỗi tháng một khoản bằng nhau, tính tới lúc cần đủ số tiền mục tiêu.',
+          en: 'The number of months of equal monthly deposits, up to when the target amount is needed.',
+        },
+      }),
     ],
     explanation: {
       meaning: {

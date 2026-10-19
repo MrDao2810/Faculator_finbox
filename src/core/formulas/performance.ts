@@ -609,7 +609,12 @@ export const TONG_LOI_SUAT_TAI_DAU_TU: FormulaModule = {
           },
         },
       ),
-      sliderVar('years', { vi: 'Số năm nắm giữ (n)', en: 'Years held (n)' }, 'năm', 5, 1, 50, 1),
+      sliderVar('years', { vi: 'Số năm nắm giữ (n)', en: 'Years held (n)' }, 'năm', 5, 1, 50, 1, {
+        description: {
+          vi: 'Số năm giữ cổ phiếu. Mỗi năm, cổ tức nhận được đem mua thêm chính cổ phiếu ấy.',
+          en: 'How many years the stock is held. Each year, the dividends received buy more of the same stock.',
+        },
+      }),
     ],
     explanation: {
       meaning: {
@@ -801,10 +806,18 @@ export const LOI_SUAT_TRUNG_BINH_HINH_HOC: FormulaModule = {
       numberVar('r1', { vi: 'Lợi suất kỳ 1 (r1)', en: 'Return in period 1 (r1)' }, '%', 10, {
         min: -100,
         max: 200,
+        description: {
+          vi: 'Lợi suất của kỳ thứ nhất. Kỳ lỗ thì nhập số âm.',
+          en: 'The return of the first period. Enter a negative number for a losing period.',
+        },
       }),
       numberVar('r2', { vi: 'Lợi suất kỳ 2 (r2)', en: 'Return in period 2 (r2)' }, '%', -5, {
         min: -100,
         max: 200,
+        description: {
+          vi: 'Lợi suất của kỳ thứ hai. Kỳ lỗ thì nhập số âm.',
+          en: 'The return of the second period. Enter a negative number for a losing period.',
+        },
       }),
       numberVar('r3', { vi: 'Lợi suất kỳ 3 (r3)', en: 'Return in period 3 (r3)' }, '%', 20, {
         min: -100,
@@ -1044,6 +1057,12 @@ export const IRR_NIEN_KIM: FormulaModule = {
         1,
         360,
         1,
+        {
+          description: {
+            vi: 'Có bao nhiêu kỳ nhận khoản thu đều. Kết quả là lợi suất của một kỳ, cùng độ dài với kỳ ở đây.',
+            en: 'How many periods the equal payment is received for. The result is the return for one period of that same length.',
+          },
+        },
       ),
     ],
     explanation: {
@@ -1444,10 +1463,18 @@ export const LOI_SUAT_QUY_NAM_THEO_NGAY: FormulaModule = {
       numberVar('buyPrice', { vi: 'Giá mua (Pmua)', en: 'Buy price (Pmua)' }, '₫', 80_000, {
         min: 0,
         max: 10_000_000,
+        description: {
+          vi: 'Giá khớp lệnh mua, tính cho một cổ phiếu.',
+          en: 'The matched buy price, per share.',
+        },
       }),
       numberVar('sellPrice', { vi: 'Giá bán (Pban)', en: 'Sell price (Pban)' }, '₫', 86_000, {
         min: 0,
         max: 10_000_000,
+        description: {
+          vi: 'Giá bán một cổ phiếu, đã khớp hay còn dự định đều được.',
+          en: 'The sell price per share, whether already matched or still planned.',
+        },
       }),
       sliderVar(
         'days',

@@ -232,6 +232,139 @@
   .fields > .fieldLone {
     grid-column: 1 / -1;
   }
+
+  /*
+   * Ô nhập gọn hơn (19/10/2026) — bản sao CÙNG luật với khối Số liệu, chú thích đầy đủ (số đo
+   * trước → sau, vì sao bộ chọn cấu trúc, vì sao `:not([type='range'])`) ở `FormulaDetail.module.css`
+   * cạnh `.config`. Chủ dự án: _"phải áp dụng cho toàn bộ công thức"_; khối chuỗi đứng ngay dưới
+   * khối Số liệu ở chế độ Nâng cao, nên ô của nó mà giữ 44px là hai cỡ ô trên một màn.
+   */
+  .fields label,
+  .fields div:has(+ [role='group']) > span:first-child {
+    font-size: var(--text-xs);
+  }
+
+  .fields div:has(> input:not([type='range'])) {
+    min-height: 36px;
+    padding: 0 10px;
+  }
+
+  .fields div:has(> input:not([type='range'])) > input {
+    font-size: var(--text-base);
+  }
+
+  .fields div:has(> input:not([type='range'])) > span {
+    font-size: var(--text-xs);
+  }
+
+  .fields select {
+    min-height: 36px;
+  }
+
+  .fields [role='group'] > button {
+    position: relative;
+    min-height: 30px;
+  }
+
+  .fields [role='group'] > button::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    height: var(--tap-min);
+    transform: translateY(-50%);
+  }
+
+  .fields > .fieldWide {
+    padding-bottom: var(--space-2);
+  }
+
+  /*
+   * Khoảng trống và nút kéo, lượt hai (19/10/2026) — bản sao cùng luật với khối Số liệu, số đo và lý
+   * do ở `FormulaDetail.module.css` (khối "Khoảng trống và nút kéo"): hàng nhãn thanh trượt dòng
+   * chặt, nút kéo 28 → 20px, ô trượt chiếm 28px trong dòng chảy dù vẫn cao 44px, ô hẹp hết đệm đáy,
+   * lưới trả lại khoảng trống của hàng ô cuối.
+   */
+  .fields {
+    margin-bottom: calc(var(--space-2) * -1);
+  }
+
+  .fields > .field {
+    padding-bottom: 0;
+  }
+
+  .fields div:has(+ input[type='range']) {
+    line-height: var(--leading-tight);
+  }
+
+  .fields div:has(+ input[type='range']) > span:last-child {
+    padding-block: 0;
+    font-size: var(--text-base);
+  }
+
+  .fields div:has(+ input[type='range']) > span:last-child > span:last-child:not(:first-child) {
+    font-size: var(--text-xs);
+  }
+
+  .fields input[type='range'] {
+    margin-block: -8px;
+  }
+
+  .fields input[type='range']::-webkit-slider-thumb {
+    width: 20px;
+    height: 20px;
+    margin-top: -7px;
+  }
+
+  .fields input[type='range']::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+  }
+
+  /*
+   * Dòng "kết quả của …, dùng cho …" chạy từ MÉP TRÁI thẻ, dưới cả dấu tam giác (19/10/2026). Chủ dự
+   * án khoanh nó trên thẻ FCFF của `fcfe` ở điện thoại: nó nằm trong cột chữ cạnh dấu ▸ nên thụt vào
+   * ~20px, chừa một dải trống bên trái suốt ba dòng — _"cho sang bên trái thay vì dóng xuống dòng như
+   * ảnh làm thừa 1 khoảng bên trái"_.
+   *
+   * Dòng tóm tắt đổi từ flex sang lưới hai hàng: hàng trên ▸ · tên con số · con số, hàng dưới dòng
+   * vai trò trải cả ba cột. `.stepText` (một `<span>` không vai trò gì) thành `display: contents` để
+   * tên và dòng vai trò làm ô lưới trực tiếp. Hàng trên vẫn canh chân chữ, lý do như docblock
+   * `.summary`. Khe giữa hai hàng là `margin-top` của dòng vai trò chứ không `row-gap`, để bước không
+   * có dòng ấy (bước không cấp số cho ô nào) không mang thêm khe rỗng. Từ 1024px không đổi.
+   */
+  .summary {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-areas:
+      'dau ten so'
+      'vai vai vai';
+    column-gap: var(--space-3);
+    row-gap: 0;
+    align-items: baseline;
+  }
+
+  .summary::before {
+    grid-area: dau;
+  }
+
+  .stepText {
+    display: contents;
+  }
+
+  .stepName {
+    grid-area: ten;
+  }
+
+  .stepValue {
+    grid-area: so;
+  }
+
+  .stepRole {
+    grid-area: vai;
+    margin-top: var(--space-1);
+  }
 }
 
 /*

@@ -400,8 +400,14 @@ export function TickerPickerSheet({
                   key={ticker.code}
                   className={khongDungDuoc(ticker.code) ? styles.itemMuted : styles.item}
                 >
-                  {/* Mã đứng riêng thành huy hiệu — cùng lý do như PresetSheet: mắt dò theo mã. */}
-                  <Badge tone="code">{ticker.code}</Badge>
+                  {/*
+                    Mã đứng riêng, chữ đơn cách — cùng lý do như PresetSheet: mắt dò theo mã. Từ
+                    19/10/2026 là chữ trơn, không còn ô nền (xem `.code` ở `Badge.module.css`).
+                    `styles.code` chỉ để khổ điện thoại hạ cỡ chữ.
+                  */}
+                  <Badge tone="code" className={styles.code}>
+                    {ticker.code}
+                  </Badge>
                   <span className={styles.name}>{ticker.name}</span>
 
                   {/*

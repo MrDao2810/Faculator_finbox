@@ -26,6 +26,17 @@
 }
 
 /*
+ * Khổ điện thoại: bỏ đệm dọc, thanh cao đúng `--header-height` (48px ở khổ này, lý do ở khối
+ * 1023.98px của `globals.css`). Còn 4px đệm thì nút quay lại 44px của màn chi tiết kéo thanh màn ấy
+ * lên 52px trong khi các màn khác 48px. Mọi thứ trong thanh vẫn canh giữa theo `align-items`.
+ */
+@media (max-width: 1023.98px) {
+  .inner {
+    padding-block: 0;
+  }
+}
+
+/*
  * ── Từ khổ có thanh điều hướng: LƯỚI ba cột, không phải hàng flex ────────────
  *
  * Chủ dự án gửi bốn ảnh thanh trên của bốn màn: _"mỗi lần click vào một tab thì giao diện lại bị

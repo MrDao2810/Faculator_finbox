@@ -49,6 +49,11 @@
  *   nhỏ đã dùng ở thẻ công thức và bảng ký hiệu. Bộ chọn có tên thẻ `table` để trọng số (0,1,3)
  *   thắng `.table thead th` (0,1,2) của primitive, không phụ thuộc thứ tự hai file trong bó CSS.
  *
+ * - Đệm trên và dưới của mỗi hàng thân bảng 12 → 8px (19/10/2026). Chủ dự án khoanh khoảng trống
+ *   trên tên biến đầu tiên, giữa hai hàng và dưới câu mô tả cuối: _"giảm padding phần khoanh đỏ như
+ *   ảnh xuống. áp dụng cho mobile"_. Chữ đã xuống 12px mà ô vẫn đệm 12px của primitive, nên khoảng
+ *   trống cao gần bằng một dòng chữ. Đệm ngang giữ 12px (không bị khoanh), hàng tiêu đề cột giữ nguyên.
+ *
  * Chỉ trong file này, không đụng `Table.module.css`: primitive còn phục vụ lịch trả nợ và bảng dòng
  * tiền XIRR. Từ 1024px không đổi.
  */
@@ -63,5 +68,10 @@
 
   .variables tbody td {
     font-size: var(--text-xs);
+  }
+
+  .variables tbody th,
+  .variables tbody td {
+    padding-block: var(--space-2);
   }
 }

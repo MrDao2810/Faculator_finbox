@@ -496,6 +496,7 @@ export {
   MAX_RECENT_SEARCHES,
   RECENT_SEARCHES_KEY,
   addRecentSearch,
+  localizeRecentSearches,
   mergeRecentSearches,
   parseRecentSearches,
   removeRecentSearch,

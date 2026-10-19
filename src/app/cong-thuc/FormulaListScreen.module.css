@@ -51,6 +51,64 @@
 }
 
 /*
+ * Dưới 1024px vùng tìm gọn hơn (19/10/2026). Chủ dự án khoanh ô tìm cùng khoảng trống trên nó, và
+ * khoảng trống giữa hàng chip với "CÔNG THỨC DÙNG HẰNG NGÀY": _"phần search này cần giảm padding
+ * xuống và giảm 1 chút size text"_.
+ *
+ * - Khoảng trên ô tìm 20 → 12px: `.screen` kéo lên 8px, trả bớt đệm trên của `.content` (AppShell)
+ *   cho riêng màn này. Lúc ô tìm đã ghim thì không đổi gì — dải nền vẫn đệm 8px dưới thanh trên.
+ * - Ô tìm 44 → 36px, cùng cỡ ô tìm của tấm chọn mã và ô tìm trên thanh trên của màn Danh mục ở khổ
+ *   này. Nút xoá × theo bản gọn của `SearchBox` (hộp 28px, lớp phủ 44px), vì nút 44px trong khung
+ *   36px sẽ kéo khung cao lại ngay khi có chữ.
+ * - Chữ mờ 16 → 14px. Chữ GÕ VÀO giữ 16px: dưới 16px iOS phóng cả trang khi chạm vào ô.
+ * - Khoảng ô tìm → khối kế tiếp, ô tìm → chip, chip → kệ: đều 12px (trước là 12 / 20 / 20). Lề dưới
+ *   âm 16px của `.searchSlot` = 8px đệm của dải + 8px rút khỏi `gap` 20px; `.recentSlot` bỏ lề trên
+ *   âm vì phần rút ấy đã nằm ở ô tìm, và mang lề dưới âm 8px cho khoảng chip → kệ.
+ *
+ * Ô tìm là `SearchBox` dùng chung nên chọn theo cấu trúc trong `.searchSlot` (`div:has(> input)` là
+ * khung, `button` là nút xoá — `SearchBox` không có nút nào khác), không sửa primitive. Từ 1024px
+ * không đổi gì.
+ */
+@media (max-width: 1023.98px) {
+  .screen {
+    margin-top: calc(var(--space-2) * -1);
+  }
+
+  .searchSlot {
+    margin-bottom: calc((var(--space-2) + var(--space-5) - var(--space-3)) * -1);
+  }
+
+  .searchSlot div:has(> input) {
+    min-height: 36px;
+  }
+
+  .searchSlot input::placeholder {
+    font-size: var(--text-sm);
+  }
+
+  .searchSlot button {
+    position: relative;
+    width: 28px;
+    height: 28px;
+  }
+
+  .searchSlot button::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: var(--tap-min);
+    height: var(--tap-min);
+    transform: translate(-50%, -50%);
+  }
+
+  .recentSlot {
+    margin-top: 0;
+    margin-bottom: calc((var(--space-5) - var(--space-3)) * -1);
+  }
+}
+
+/*
  * Ô tìm hãm lại ở khổ PC — bản vẽ gộp màn vẽ nó chiếm hơn nửa hàng một chút (~54%), không trải hết.
  *
  * Bậc 1024 chứ không 1280: từ 1024 khung bắt đầu nới theo viewport (bảng "BẬC MÀN" ở `globals.css`),
@@ -218,11 +276,6 @@
   display: inline;
 }
 
-/* Dòng "N công thức nâng cao đang ẩn" chỉ có nghĩa ở chế độ Cơ bản. */
-:global(html[data-mode='advanced']) .onlyBasic {
-  display: none;
-}
-
 /*
  * Thẻ mức Nâng cao TRƯỚC khi đọc xong tuỳ chọn — xem docblock `FormulaListScreen`.
  *
@@ -244,4 +297,92 @@ button.reset {
   margin-inline-start: auto;
   font-size: var(--text-xs);
   color: var(--color-accent);
+}
+
+/*
+ * ── Dưới 1024px: bộ lọc của khối danh sách nhỏ chữ và thấp hơn (19/10/2026) ──────────────────────
+ *
+ * Chủ dự án khoanh cả vùng dưới "DANH SÁCH CÔNG THỨC" trên điện thoại (Mức độ, Sắp xếp, hàng chip
+ * nhóm, dòng "Hiển thị"): _"giảm size text và giảm height bản những phần tôi khoanh đỏ áp dụng cho màn
+ * mobile"_. Mỗi thứ xuống một bậc:
+ *
+ * - Nhãn "Mức độ" và "Sắp xếp": 14 → 12px.
+ * - Cơ bản / Nâng cao: nút 32 → 28px, chữ 14 → 12px, đệm ngang 12 → 8px — đúng số của bản gọn
+ *   `.compact` trong `ModeToggle.module.css` (hàng Cài đặt). Không truyền `compact`: bản ấy chỉ có hiệu
+ *   lực dưới 560px. Nhóm cao 34px; ô phủ chạm 44px của nút giữ nguyên.
+ * - Ô Sắp xếp: 44 → 34px, BẰNG nhóm nút bên cạnh để hai điều khiển trên cùng hàng cao như nhau; chữ
+ *   14 → 12px. Đảo quyết định cũ "dưới 1024px giữ 44px" (khối 1024 ở trên) theo lời chủ dự án: ô chọn
+ *   không mở được ô phủ `::after`, nhưng nhãn "Sắp xếp" là `<label for>` đứng ngay cạnh nên chạm vào
+ *   nhãn cũng mở ô. Chữ trong ô vốn đã dưới 16px (iOS phóng to trang khi chạm), nay vẫn thế.
+ * - Hàng chip: ở `CategoryChips.module.css`, cùng mốc.
+ * - "Hiển thị · N công thức": 16 → 14px.
+ *
+ * Cùng ngày, lượt hai, chủ dự án vẽ mũi tên trên ảnh: _"thử đưa tiêu đề lên đầu của select rồi chuyển
+ * 2 select trên thành 1 hàng ngang"_. Trước đó mỗi điều khiển một hàng, nhãn đứng BÊN TRÁI.
+ *
+ * - Mỗi cụm thành một cột "nhãn trên, điều khiển dưới", khe 4px — đúng khe `.field` của primitive
+ *   `Select` và của hàng điều khiển biểu đồ, nên nhãn nằm cùng một kiểu ở mọi chỗ trên khổ này.
+ * - Hai cụm chung MỘT hàng (`nowrap`), mép dưới thẳng nhau (`flex-end`), cách 12px. Nhóm Mức độ giữ bề
+ *   ngang tự nhiên (`flex: none`); ô Sắp xếp giãn lấp phần còn lại tới mép phải khung nội dung, như
+ *   ô chọn trục của biểu đồ. `min-width: 0` thay cho sàn 10rem của khổ PC: ở 360px sàn ấy cộng nhóm nút
+ *   vẫn vừa, nhưng một chuỗi dịch dài hơn sẽ đẩy hàng tràn thay vì để ô tự cắt chữ bằng "…".
+ *
+ * Đặt CUỐI file: các luật cùng trọng số với luật gốc ở trên, thứ tự file quyết. `.level button`
+ * (0,1,1) thắng `.option` (0,1,0) của `ModeToggle` bất kể thứ tự hai file.
+ */
+@media (max-width: 1023.98px) {
+  .controlLabel,
+  .controls > .sort > label {
+    font-size: var(--text-xs);
+  }
+
+  .controls {
+    flex-wrap: nowrap;
+    align-items: flex-end;
+    gap: var(--space-3);
+    width: 100%;
+  }
+
+  .level {
+    flex: none;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-1);
+  }
+
+  .controls > .sort {
+    flex: 1 1 0;
+    min-width: 0;
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-1);
+  }
+
+  .level button {
+    min-height: 28px;
+    padding: 0 var(--space-2);
+    font-size: var(--text-xs);
+  }
+
+  .controls > .sort > select {
+    width: 100%;
+    min-width: 0;
+    min-height: 34px;
+    font-size: var(--text-xs);
+  }
+
+  .count {
+    font-size: var(--text-sm);
+  }
+
+  /*
+   * Dòng "Hiển thị · 79 công thức" sát hơn (19/10/2026, chủ dự án: _"điều chỉnh padding ở phần này,
+   * giảm xuống ở màn mobile"_). Trước: sàn cao 32px của `.summary` đệm thêm ~5px trên dưới quanh dòng
+   * chữ 14px, cộng khe 12px của `.list`, tức ~17px mỗi phía. Bỏ sàn và kéo lề âm 4px: chữ cách hàng
+   * chip và thẻ đầu đúng 8px. Khi có nút "Xoá bộ lọc" (36px) thì hàng cao theo nút, như cũ.
+   */
+  .summary {
+    min-height: 0;
+    margin-block: calc(var(--space-1) * -1);
+  }
 }

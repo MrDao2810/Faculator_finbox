@@ -990,3 +990,54 @@
   height: 100%;
   aspect-ratio: auto;
 }
+
+/*
+ * ── Dưới 1024px: vùng vẽ rộng hơn, đáy thẻ gọn hơn (19/10/2026) ───────────────────────────────
+ *
+ * Chủ dự án khoanh bốn khoảng trống quanh biểu đồ `capm` trên điện thoại (hai bên vùng vẽ, dưới tên
+ * trục X, dưới "Xem số liệu"): _"điều chỉnh giảm padding xung quanh … để hiển thị nhiều không gian chart
+ * hơn"_. Đo ở 360px trước khi sửa: thẻ rộng 328px mà vùng vẽ 259px; chữ trục trái cách mép thẻ 32px,
+ * chữ trục phải 22px; hàng "Xem số liệu" cao 44px nên trên và dưới dòng chữ trống mỗi bên chừng 14px.
+ *
+ * - Khung vẽ tràn vào đệm thẻ 8px mỗi bên (`align-self: center` với bề ngang nới 16px: khung rộng hơn
+ *   cột thì tràn đều hai bên). Tiêu đề, hàng chọn trục và "Xem số liệu" vẫn đứng ở lề 12px như mọi thẻ.
+ *   Trần 460px / 940px của `.plot` vẫn giữ, nên chữ SVG không phóng quá cỡ đọc. Lề TRONG SVG gọn đi ở
+ *   `PAD_COMPACT` (`LineChart.tsx`); khổ `wide` (768–1023px) chỉ được phần tràn này.
+ * - "Xem số liệu" thấp còn 28px; lớp phủ `::after` giữ vùng chạm 44px (NFR-USA-01), thò 8px lên khe
+ *   trên và 8px xuống đệm đáy. Bảng mở ra lùi xuống 8px để lớp phủ ấy không đè lên hàng tiêu đề bảng.
+ * - Đệm đáy thẻ 12 → 8px.
+ *
+ * `.chart > .plot` chứ không `.plot`: màn phóng to dựng `.plot` ngoài thẻ `.chart` và tự lo bề ngang
+ * (`.plotFill`). Khối này đứng cuối file để thắng `.summary` và `.plot` gốc cùng hạng ưu tiên.
+ */
+@media (max-width: 1023.98px) {
+  .chart {
+    padding-bottom: var(--space-2);
+  }
+
+  .chart > .plot {
+    align-self: center;
+    width: calc(100% + 2 * var(--space-2));
+    margin-inline: 0;
+  }
+
+  .summary {
+    position: relative;
+    min-height: 28px;
+    padding: 0;
+  }
+
+  .summary::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    height: var(--tap-min);
+    transform: translateY(-50%);
+  }
+
+  .data[open] > .tableScroll {
+    margin-top: var(--space-2);
+  }
+}

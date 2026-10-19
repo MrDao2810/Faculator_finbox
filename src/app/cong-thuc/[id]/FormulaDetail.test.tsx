@@ -14,6 +14,7 @@ import {
   ACTIVE_TICKER_KEY,
   PRESET_CONTRACT_VERSION,
   PRICE_SERIES_KEY,
+  QUIZ_PROGRESS_KEY,
   ROUTES,
   SAVED_CALCS_KEY,
   WARNING_LABELS,
@@ -27,7 +28,7 @@ import {
   serializeStoredSeries,
   t,
 } from '@/application';
-import type { BaiHuongDan, FormulaSpec } from '@/application';
+import type { BaiHuongDan, FormulaSpec, QuizItem } from '@/application';
 import { DEFAULT_PREFERENCES, PREFERENCES_STORAGE_KEY } from '@/application/preferences';
 import { PreferencesProvider } from '@/application/preferences-context';
 /*
@@ -1434,6 +1435,53 @@ describe('WF-03 — khối dưới nếp gấp mang lớp hoãn dựng hình', (
     const viDu = container.querySelector('#khoi-vi-du')?.closest('section');
     expect(viDu).not.toBeNull();
     expect(String(viDu?.className)).not.toMatch(/deferred/);
+  });
+});
+
+/*
+ * Dòng "Lần gần nhất: 3/5" dưới hàng tiêu đề Bài tập BỎ 19/10/2026, ở mọi khổ màn — chủ dự án:
+ * _"không cần phải chú thích như ảnh. bỏ đi cả ở mobile lẫn web"_. Điểm vẫn GHI vào kho khi làm
+ * xong, chỉ không còn chỗ nào đọc ra; ca này nạp sẵn một điểm cũ để chắc màn không in lại nó. Chữ
+ * viết tay chứ không đọc qua `t()`, vì khoá `quiz.lastTime` đã xoá. Dòng ấy quay lại thì phải là
+ * một quyết định, không phải một lần sửa lỡ tay.
+ */
+describe('WF-19 — thẻ Bài tập ở trạng thái nghỉ', () => {
+  it('có điểm lần trước trong máy cũng không in dòng "Lần gần nhất"', async () => {
+    window.localStorage.setItem(
+      QUIZ_PROGRESS_KEY,
+      JSON.stringify([{ id: 'pe', right: 3, total: 5, wrong: [], at: Date.now() }]),
+    );
+    // `Man` không truyền câu hỏi (ngân hàng chỉ đọc lúc build ở `page.tsx`), nên khối sẽ ở trạng
+    // thái rỗng — nơi dòng điểm vốn không in. Truyền một câu để khối ở đúng trạng thái nghỉ.
+    const cauHoi: QuizItem = {
+      id: 'Q001',
+      formulaId: 'pe',
+      format: 'trac-nghiem',
+      kind: 'doc-ket-qua',
+      evidence: 'ngo-nhan',
+      prompt: { vi: 'Đề bài' },
+      choices: { a: { vi: 'A' }, b: { vi: 'B' }, c: { vi: 'C' }, d: { vi: 'D' } },
+      answer: 'b',
+      explain: { vi: 'Nguồn ghi “trích dẫn”.' },
+      source: { url: 'https://vi.dụ/q001', kind: 'chuyen-gia', vietnam: true },
+    };
+    const spec = specOf('pe');
+    render(
+      <FormulaDetail
+        spec={spec}
+        asOf={AS_OF}
+        notation={buildNotationView(spec)}
+        quiz={{ items: [cauHoi] }}
+      />,
+    );
+
+    // Khối Bài tập nằm sau ranh giới nạp trễ (`QuizPanel`), nên chờ tiêu đề của nó hiện ra.
+    const tieuDe = await screen.findByRole('heading', { name: t('quiz.title') });
+    const baiTap = tieuDe.closest('section');
+    expect(baiTap).toBeInstanceOf(HTMLElement);
+    expect(baiTap?.textContent).toContain(t('quiz.start'));
+    expect(baiTap?.textContent).not.toContain('Lần gần nhất');
+    expect(baiTap?.textContent).not.toContain('3/5');
   });
 });
 

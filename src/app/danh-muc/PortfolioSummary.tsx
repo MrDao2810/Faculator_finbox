@@ -328,7 +328,7 @@ export function HoldingsSummary({
         Dòng "2 ô nâng cao đang ẩn · Bật chế độ Nâng cao" nằm NGAY dưới các dòng số, đúng chỗ câu hỏi
         "còn gì nữa không" nảy ra — trình đọc màn hình gặp nó ngay sau các dòng ấy.
       */}
-        {!advanced && <HiddenByLevelNote count={hiddenCount} labelKey="portfolio.hiddenByLevel" />}
+        {!advanced && <HiddenByLevelNote count={hiddenCount} />}
       </div>
 
       <div

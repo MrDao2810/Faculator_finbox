@@ -371,6 +371,29 @@ button.iconButton::after {
     height: var(--tap-min);
     transform: translateY(-50%);
   }
+
+  /*
+   * Cuối màn gọn hơn (19/10/2026). Chủ dự án khoanh ba dải ở cuối màn trên điện thoại — khe giữa
+   * "Nguồn tham khảo" và thẻ Bài tập, chính thẻ Bài tập, và cả vùng dưới hàng nút ghim (ô miễn trừ
+   * cùng khoảng trống quanh nó): _"bản mobile thì các phần khoanh đỏ kia cần giảm xuống"_. Đo ở
+   * 390px trên `capm` trước khi sửa: khe 20px (`gap` của `.detail`) trên thẻ Bài tập và trên ô miễn
+   * trừ, thẻ Bài tập cao 78px, ô miễn trừ 54px, rồi 32px đệm đáy của khung nội dung.
+   *
+   * - Hai khe 20 → 12px bằng lề âm trên chính khối đứng sau. Không hạ `gap` của `.detail`: đó là
+   *   nhịp chung của chín khối trên màn, và chỗ được khoanh chỉ là phần đuôi.
+   * - Đệm đáy 32 → 16px bằng lề âm dưới `.detail`, chỉ màn này: `.content` của `AppShell` là khung
+   *   của mọi màn, không ai khoanh các màn kia.
+   * - Thẻ Bài tập đệm 20 → 12 / 16px ở `QuizBody.module.css`; ô miễn trừ dòng 1,5 → 1,4, đệm 8 → 6px
+   *   dọc ở `DisclaimerBar.module.css` (màn Danh mục dùng cùng ô nên theo luôn).
+   */
+  .detail {
+    margin-bottom: calc(var(--space-4) * -1);
+  }
+
+  .quizBlock,
+  .endActions + [role='note'] {
+    margin-top: calc(var(--space-2) * -1);
+  }
 }
 
 /*
@@ -1103,6 +1126,176 @@ button.iconButton::after {
 
   .fields > .fieldLone {
     grid-column: 1 / -1;
+  }
+
+  /*
+   * ── Ô nhập gọn hơn (19/10/2026) ───────────────────────────────────────────────────────────────
+   *
+   * Chủ dự án khoanh khối Số liệu của `loi-nhuan-rong` trên điện thoại — hàng biểu phí, hàng nhãn và
+   * cả lưới ô: _"giảm padding các phần trong ảnh sau. giảm size text khoanh đỏ trong ảnh, giảm height
+   * select trong ảnh. áp dụng trong bản mobile"_, rồi _"phải áp dụng cho toàn bộ công thức"_. Ô nhập
+   * là một kiểu cho cả 111 màn, nên luật áp cho khối Số liệu của mọi công thức, và `ChainBody.module.css`
+   * mang bản sao cho ô của khối chuỗi (chế độ Nâng cao). Số đo trước → sau, ở 390px:
+   *
+   *   - Nhãn mọi ô (ô số, ô chọn, thanh trượt, nhóm nút) 14 → 12px. Nhãn trong một khối phải cùng
+   *     cỡ, nên thanh trượt và nhóm nút theo luôn dù hình chỉ có ô số. Thanh trượt chỉ đổi nhãn,
+   *     rãnh và con số giữ nguyên.
+   *   - Khung ô số và ô chọn 44 → 36px, đệm ngang khung 12 → 10px. Nhóm nút ("Phương thức trả" của
+   *     `lich-tra-no`) là ô chọn dạng nút, nên cả nhóm cũng về 36px (nút 44 → 30px, cộng đệm 2px và
+   *     viền 1px mỗi phía); vùng chạm của nút vẫn 44px nhờ `::after`, chép từ `.sm` của
+   *     `Button.module.css`.
+   *   - Số gõ trong ô 18 → 16px, KHÔNG thấp hơn: iOS phóng cả trang khi chạm vào ô nhập chữ dưới
+   *     16px. Đơn vị 14 → 12px. Ô chọn giữ chữ 16px cùng lý do.
+   *   - Khoảng giữa hai hàng ô 12 → 8px.
+   *
+   * Viết bằng bộ chọn cấu trúc vì lớp của ô nằm ở module khác (`Input.module.css`,
+   * `Select.module.css`, `SliderInput.module.css`, `ButtonGroup.module.css`); sửa ở đó là sửa luôn
+   * ô nhập của Danh mục, Cài đặt, hộp Lưu. Khung ô số là `div:has(> input:not([type='range']))`:
+   * phần `:not` là bắt buộc, vì rãnh trượt cũng là một `<input>` đứng ngay dưới thẻ gốc của ô thanh
+   * trượt — thiếu nó thì cả ô thanh trượt bị đệm 10px và thụt vào so với các ô khác (đo được ở
+   * `capm` bản đầu). Số của thanh trượt nằm trong `<span>` (`InlineNumber`) nên không bị trúng. Nhãn
+   * nhóm nút là `<span>` đứng trước `[role='group']`, không phải `<label>`.
+   */
+  .fields label,
+  .fields div:has(+ [role='group']) > span:first-child {
+    font-size: var(--text-xs);
+  }
+
+  .fields div:has(> input:not([type='range'])) {
+    min-height: 36px;
+    padding: 0 10px;
+  }
+
+  .fields div:has(> input:not([type='range'])) > input {
+    font-size: var(--text-base);
+  }
+
+  .fields div:has(> input:not([type='range'])) > span {
+    font-size: var(--text-xs);
+  }
+
+  .fields select {
+    min-height: 36px;
+  }
+
+  .fields [role='group'] > button {
+    position: relative;
+    min-height: 30px;
+  }
+
+  .fields [role='group'] > button::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    height: var(--tap-min);
+    transform: translateY(-50%);
+  }
+
+  .fields > .fieldWide {
+    padding-bottom: var(--space-2);
+  }
+
+  /*
+   * ── Khoảng trống và nút kéo, lượt hai (19/10/2026) ─────────────────────────────────────────
+   *
+   * Chủ dự án khoanh năm dải trống trong khối Số liệu của `capm` trên điện thoại, và nút tròn của
+   * thanh trượt: _"những phần như ảnh này đang có padding quá lớn, giảm xuống để tiết kiệm không
+   * gian. đồng thời slider tròn … bản mobile cần giảm xuống cho gọn"_. Đo ở 390px trước khi sửa, khối
+   * cao 332px:
+   *
+   *   - Hàng nhãn của thanh trượt cao 33px: con số cạnh nhãn là chữ 18px trên dòng 1,5 cộng đệm và
+   *     viền của `InlineNumber`, mà nhãn canh theo đường chân của nó nên tụt xuống ~9px. Dòng về
+   *     `--leading-tight`, ô số bỏ đệm dọc và chữ 16px (lời nhắn thứ hai, ngay dưới): hàng còn 22px,
+   *     nhãn chỉ còn cách đỉnh hàng 5px.
+   *   - Rãnh trượt cao 44px (vùng chạm, NFR-USA-01) với rãnh 6px ở giữa, tức ~19px trống mỗi phía,
+   *     nút 28px. Nút còn 20px; ô vẫn cao 44px nhưng lề âm 8px trên dưới cho nó chiếm 28px trong
+   *     dòng chảy. Vùng chạm 44px chồng 8px lên khe trên (4px khe + đáy đệm của ô số) và khe dưới
+   *     (4px khe + chữ hai mốc, không bấm được), nên không lấy mất chỗ bấm của ai.
+   *   - Ô số hẹp: hai hàng `subgrid` rỗng (gợi ý, lỗi) đã góp 8px khe bên dưới khung, cộng đệm đáy
+   *     8px nữa là 16px trống dưới ô "Hệ số beta". Đệm đáy về 0: còn 8px, cộng khe lưới 4px — bằng
+   *     đúng khoảng sau một thanh trượt (đệm 8px + 4px).
+   *   - Hàng ô cuối khối để lại 8px trống trên đầu thẻ Kết quả. Lề âm của lưới trả lại đúng 8px ấy;
+   *     28px còn lại là khoảng tách "nhập xong · đáp án bắt đầu" của `.result`, cố ý, không đụng.
+   *
+   * Sau cả hai lời nhắn, khối Số liệu của `capm` ở 390px cao 332 → 262px.
+   *
+   * `ChainBody.module.css` mang bản sao cho khối chuỗi (chế độ Nâng cao), cùng lý do lượt một.
+   */
+  .fields {
+    margin-bottom: calc(var(--space-2) * -1);
+  }
+
+  /*
+   * Hàng nút "Bỏ đợt · + Thêm đợt" (DCA, lợi suất hình học) vốn kéo lên 4px để bù khoảng trống cuối
+   * lưới; khoảng ấy nay đã bị lề âm trên lấy, kéo tiếp thì vùng chạm 44px của nút chạm khung ô cuối.
+   * Hai lớp nên thắng `.repeatActions` khai sau trong file.
+   */
+  .fields + .repeatActions {
+    margin-top: 0;
+  }
+
+  .fields > .field {
+    padding-bottom: 0;
+  }
+
+  .fields div:has(+ input[type='range']) {
+    line-height: var(--leading-tight);
+  }
+
+  /*
+   * Ô số cạnh nhãn (`InlineNumber`, con cuối của hàng): bỏ đệm dọc 2px (viền tiêu điểm vẫn còn), con
+   * số 18 → 16px, đơn vị 14 → 12px — chủ dự án khoanh "3,7" và "8" ngay sau lượt trên: _"giảm cả size
+   * text số này xuống bản mobile nữa để không gian có thể giảm thêm"_. 16px là cỡ số gõ trong ô
+   * "Hệ số beta" ngay dưới, và là sàn chống iOS phóng trang khi ô số này cho gõ thẳng. Đơn vị là con
+   * `<span>` cuối, không phải con đầu (con đầu là chính con số, hoặc dấu "!" khi ra ngoài miền).
+   */
+  .fields div:has(+ input[type='range']) > span:last-child {
+    padding-block: 0;
+    font-size: var(--text-base);
+  }
+
+  .fields div:has(+ input[type='range']) > span:last-child > span:last-child:not(:first-child) {
+    font-size: var(--text-xs);
+  }
+
+  .fields input[type='range'] {
+    margin-block: -8px;
+  }
+
+  /* Tâm nút trùng tâm rãnh: −(20 − 6) ÷ 2, cùng phép tính với nút 28px và 16px ở `SliderInput`. */
+  .fields input[type='range']::-webkit-slider-thumb {
+    width: 20px;
+    height: 20px;
+    margin-top: -7px;
+  }
+
+  .fields input[type='range']::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+  }
+
+  /*
+   * Hàng biểu phí (`FeeScheduleField`, chỉ `loi-nhuan-rong`) — cùng lượt: nhãn 14 → 12px theo nhãn
+   * các ô bên dưới, tên biểu phí 16 → 14px. Nó là CHỮ, không phải ô chọn (cấu hình mới có một biểu
+   * phí), nên "giảm height" ở đây là dòng chữ thấp đi: 24 → 21px. Ngày có biểu phí thứ hai, ô chọn
+   * quay lại và luật `select` của `.config` giữ nó 36px như ô chọn trong lưới.
+   *
+   * Màn Cài đặt dùng cùng component và KHÔNG đổi — các hàng khác của Cài đặt vẫn nhãn 14px; vì thế
+   * luật bám `.config` (lớp bọc ở `FormulaDetail.tsx`) chứ không sửa `FeeScheduleField.module.css`.
+   */
+  .config label,
+  .config span {
+    font-size: var(--text-xs);
+  }
+
+  .config span:nth-child(2) {
+    font-size: var(--text-sm);
+  }
+
+  .config select {
+    min-height: 36px;
   }
 }
 

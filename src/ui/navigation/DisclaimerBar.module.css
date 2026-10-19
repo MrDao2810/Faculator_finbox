@@ -75,3 +75,20 @@
   margin: 0;
   max-width: var(--content-max);
 }
+
+/*
+ * Ô vàng thấp hơn trên điện thoại (19/10/2026): chủ dự án khoanh nó ở cuối màn chi tiết — _"bản
+ * mobile thì các phần khoanh đỏ kia cần giảm xuống"_. Ở 390px câu miễn trừ xuống hai dòng; dòng
+ * 1,5 → 1,4 và đệm dọc 8 → 6px đưa ô 54 → ~48px. Màn Danh mục dùng cùng ô nên theo luôn. Icon nhích
+ * lên 1px theo dòng chặt hơn, để vẫn thẳng dòng đầu. Dải xám chân trang (`.bar`) không đổi.
+ */
+@media (max-width: 1023.98px) {
+  .notice {
+    padding: 6px var(--space-2);
+    line-height: 1.4;
+  }
+
+  .notice .icon {
+    margin-top: 1px;
+  }
+}

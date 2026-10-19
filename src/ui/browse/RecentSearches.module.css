@@ -1,3 +1,29 @@
+/*
+ * Khối "Tìm gần đây" — bản vẽ của chủ dự án, 19/10/2026: _"điều chỉnh lại phần danh sách tìm kiếm
+ * theo phiên bản mới tôi cho sau đây"_. Bản cũ xếp chip thành nhiều hàng (tên công thức tiếng Việt
+ * dài nên mỗi chip một hàng trên điện thoại) với một ô thùng rác cuối hàng; bản mới là hàng tiêu đề
+ * "Tìm gần đây · Xoá" và MỘT hàng chip cuộn ngang, mỗi chip có icon đồng hồ.
+ *
+ * Mọi con số dưới đây ĐO trên ảnh bản vẽ (tỉ lệ 1:1 với px CSS — ảnh chụp bản cũ đi kèm cho chip
+ * 32px đúng 32 điểm ảnh), không chọn theo cảm giác. Màu thì KHÔNG chép mã: cả bảng màu của ảnh tối
+ * đi đều tay so với sản phẩm — nền #0f1626 thay vì #111827, chip #18213a thay vì #1b2435, viền
+ * #2c3850 thay vì #313d52, chữ #dfe5ef thay vì #e8edf6 — tức là hồ sơ màu của công cụ chụp, không
+ * phải màu mới. Mỗi màu vì thế lấy token sản phẩm mà nó lệch đều theo.
+ *
+ * Hai dạng (`inline` ở màn Công thức, `block` ở màn tìm) cùng một hình; xem docblock prop `variant`.
+ *
+ * ── Lượt hai, cùng ngày ────────────────────────────────────────────────────────────────────────
+ *
+ * Xem bản dựng đúng số đo, chủ dự án sửa ba chỗ: _"text xóa đổi lại thành icon xóa. text cần giảm
+ * size xuống. ô height cũng cần thu gọn xuống, giảm padding"_. Nên các số của chip và tiêu đề dưới
+ * đây KHÔNG còn là số đo trên ảnh mà là bản thu gọn của chúng, mỗi thứ xuống một bậc: chip 40 → 32px,
+ * chữ chip 15 → 13px, đệm 12/16 → 10/12px, icon 16 → 14px, "Tìm gần đây" 14 → 12px, chữ "Xoá" →
+ * icon thùng rác. Bố cục của bản vẽ giữ nguyên: hàng tiêu đề trên, MỘT hàng chip cuộn ngang, khe 8px,
+ * icon đồng hồ, màu theo token — trừ chỗ hàng chip tràn tới mép màn, bỏ ngay trong ngày (xem `.chips`).
+ *
+ * Lượt ba, ngay sau đó: _"giảm padding tiếp và text có thể không cần in đậm"_ — chip 32 → 28px, đệm
+ * 10/12 → 8/10px, khe icon–chữ 6 → 4px, chữ chip nét thường.
+ */
 .recent {
   display: flex;
   flex-direction: column;
@@ -5,6 +31,7 @@
   min-width: 0;
 }
 
+/* Hàng tiêu đề: chữ "Tìm gần đây" thẳng mép trái chip đầu, "Xoá" dạt phải. */
 .head {
   display: flex;
   align-items: center;
@@ -13,23 +40,9 @@
 }
 
 /*
- * Khổ PC, dạng `block` (màn tìm WF-09): khối đứng CẠNH ô tìm và ăn hết phần hàng còn lại, nhưng
- * bên trong vẫn giữ nguyên hình hai tầng của bản điện thoại — tiêu đề và nút xoá trên một hàng,
- * chip ở hàng dưới.
- *
- * Bản trước dồn cả ba thứ thành MỘT hàng bằng `display: contents` trên `.head` cộng `order`. Nhìn
- * màn thật thì hỏng đúng chỗ đó: chip nhiều tới mức tự vỡ thành hai hàng, nên nút xoá bị đẩy hẳn
- * xuống hàng thứ ba, đứng lẻ loi dưới đáy. Chủ dự án chốt: _"đưa button xoá lên ngang hàng với Tìm
- * Gần Đây nhưng phải căn phải"_ — tức đúng bố cục `.head` vốn có, `justify-content: space-between`
- * ở ngay trên.
- *
- * Nên ở đây chỉ còn MỘT việc: cho khối giãn hết phần hàng còn lại. Không có nó thì `.recent` chỉ
- * rộng bằng nội dung, và "căn phải" sẽ dừng ở mép phải đám chip chứ không tới mép phải cột nội
- * dung. `min-width: 0` đi kèm, như mọi flex item khác của dự án.
- *
- * Chỉ áp cho `.block`: dạng `inline` ở trang chủ không có `.head`, và nó nằm trong một cột chứ
- * không đứng cạnh ô tìm. Mốc 1024 đi cùng `SearchScreen.module.css` — hàng trên của màn tìm chia
- * hai cột từ đó.
+ * Khổ PC, dạng `block` (màn tìm WF-09): khối đứng CẠNH ô tìm và ăn hết phần hàng còn lại, để "Xoá"
+ * dạt tới mép phải cột nội dung chứ không dừng ở mép phải đám chip. Mốc 1024 đi cùng
+ * `SearchScreen.module.css` — hàng trên của màn tìm chia hai cột từ đó.
  */
 @media (min-width: 1024px) {
   .block {
@@ -38,24 +51,21 @@
   }
 }
 
+/*
+ * "Tìm gần đây" — bản vẽ: 14px nét đậm (chữ hoa cao 10px, cả chữ rộng 80px), màu #9aa6ba →
+ * `--color-muted`, câu thường không viết hoa. Lượt hai thu về 12px — bậc tiêu đề khối của khổ điện
+ * thoại — và vẫn nhỏ hơn chữ chip một bậc, đúng tương quan bản vẽ vẽ.
+ */
 .title {
   margin: 0;
   font-size: var(--text-xs);
-  font-weight: var(--weight-medium);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  font-weight: var(--weight-bold);
   color: var(--color-muted);
 }
 
 /*
- * Nút xoá của dạng `block` — icon trần, không viền, đứng cuối hàng tiêu đề.
- *
- * Bản trước là nút CHỮ "Xoá lịch sử"; đổi sang icon theo yêu cầu thu gọn của chủ dự án. Không
- * viền và không nền (khác `.clearIcon` của dạng inline, vốn phải trông như một chip nữa để đứng
- * cùng hàng với chúng): ở đây nó đứng cạnh một tiêu đề chứ không cạnh chip nào.
- *
- * Ô icon chỉ 24px cho hàng tiêu đề khỏi cao lên, nhưng vùng chạm vẫn đủ 44px nhờ `::after` —
- * NFR-USA-01. Đây là kỹ thuật nút chữ cũ đã dùng, giữ nguyên.
+ * Nút xoá — icon thùng rác trần, không viền, không nền, dạt phải hàng tiêu đề. Ô icon 24px cho hàng
+ * tiêu đề khỏi cao lên; vùng chạm vẫn 44 × 44px nhờ `::after` (NFR-USA-01).
  */
 .clear {
   position: relative;
@@ -77,8 +87,8 @@
 .clear::after {
   content: '';
   position: absolute;
-  left: 50%;
   top: 50%;
+  left: 50%;
   width: var(--tap-min);
   height: var(--tap-min);
   transform: translate(-50%, -50%);
@@ -91,50 +101,84 @@
 }
 
 /*
- * Khoảng hở NGANG giữ 8px, hở DỌC nới lên 12px.
+ * Hàng chip — MỘT hàng cuộn ngang, khe 8px (đo: chip đầu hết ở x 193, chip sau bắt đầu ở x 202).
  *
- * Không phải khẩu vị: chip chỉ còn cao 32px nhưng vùng chạm của nó vẫn là 44px, tức tràn 6px ra
- * mỗi phía. Để `row-gap` ở 8px thì vùng chạm hai hàng chồng lên nhau 4px và mép trên của chip
- * hàng dưới ăn mất cú chạm dành cho hàng trên. 12px thì hai vùng chạm vừa chạm nhau, không chồng.
+ * Dưới 1024px hàng cuộn TRONG cột nội dung, dừng ở lề như ô tìm, kệ và nút thùng rác. Bản vẽ cho hàng
+ * tràn qua lề tới mép màn (chip thứ hai bị cắt ngay mép ảnh) và bản dựng đầu làm đúng thế, bằng lề âm
+ * `--gutter` hai bên; chủ dự án xem trên máy rồi khoanh mép phải, cùng ngày 19/10/2026: _"padding
+ * phải đang chưa có, bị quá xát so với màn phải"_ — mọi thứ khác cách mép 16px, riêng chip chạm mép.
+ * Nên lề ngang về 0: chip bị cắt ở mép cột, cuộn hết thì chip cuối dừng đúng mép cột.
+ *
+ * Đệm dọc 8px cộng lề âm 8px: chip cao 28px, vùng chạm 44px mở bằng `::after`, mà `overflow-x: auto`
+ * cắt luôn chiều dọc — thiếu 8px ấy thì vùng chạm bị xén còn 28px. Lề âm giữ khoảng cách nhìn thấy
+ * đúng như không có đệm. Số 8 = (44 − 28) ÷ 2, viết thành phép tính để đổi cao chip là thấy phải đổi
+ * (`RecentSearches.test.tsx` so hai chỗ với nhau).
  */
 .chips {
   display: flex;
-  flex-wrap: wrap;
-  column-gap: var(--space-2);
-  row-gap: var(--space-3);
+  gap: var(--space-2);
 
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
+@media (max-width: 1023.98px) {
+  .chips {
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+
+    margin: calc((var(--tap-min) - 28px) / -2) 0;
+    padding: calc((var(--tap-min) - 28px) / 2) 0;
+  }
+
+  .chips::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 /*
- * Chip vuông bo nhẹ, không còn viên thuốc — bản thiết kế Figma "FINBOX VERSION 2".
+ * Từ 1024px chip XUỐNG HÀNG thay vì cuộn: con trỏ chuột không vuốt ngang được, và một hàng cuộn
+ * không thanh cuộn thì chip thứ năm, thứ sáu là vô hình. Bản vẽ chỉ có khổ điện thoại — phần này là
+ * tự dựng. Khe dọc 16px: chip 28px có vùng chạm 44px, tức tràn 8px mỗi phía — khe 16px thì vùng chạm
+ * hai hàng vừa chạm nhau, không chồng.
+ */
+@media (min-width: 1024px) {
+  .chips {
+    flex-wrap: wrap;
+    row-gap: var(--space-4);
+  }
+}
+
+.item {
+  flex-shrink: 0;
+}
+
+/*
+ * Chip. Bản vẽ đo được: cao 40px, bo ~16px, icon 16px cách mép trong 12px, chữ cách icon 6px, đệm
+ * phải 16px, chữ 15px nét 500 (Segoe UI vẽ 500 bằng nét 600, đúng độ đậm trên ảnh). Lượt hai thu gọn
+ * theo lời chủ dự án, hai lượt: cao 28px, đệm 8 / 10px, khe icon–chữ 4px, chữ 13px (giữa hai bậc
+ * `--text-xs` và `--text-sm`, cùng cỡ chữ bảng của khổ điện thoại ở màn Danh mục) nét THƯỜNG. Bo về
+ * `--radius-md`: giữ `--radius-lg` 16px trên chip thấp thế này là thành viên thuốc, khác dáng bản vẽ.
  *
- * ── Cao 32px mà vùng chạm vẫn 44px ────────────────────────────────────────────────────────
- *
- * Bản trước để `min-height: var(--tap-min)`, tức 44px đặc, và ghi rằng đó là chỗ CỐ Ý lệch bản
- * vẽ (bản vẽ vẽ chip thấp hơn hẳn, đo trên ảnh ra khoảng 17pt) vì NFR-USA-01 thắng. Chủ dự án
- * báo khối này chiếm nhiều chỗ quá — sáu chip tên công thức tiếng Việt xuống ba hàng 44px.
- *
- * Nay lấy được cả hai: chiều cao NHÌN THẤY còn 32px, còn vùng chạm mở ra đủ 44px bằng `::after`
- * — đúng kỹ thuật nút xoá trong chính file này vẫn dùng. Nên KHÔNG hạ tiếp con số 32px mà không
- * xem lại `::after` và `row-gap` cùng lúc: ba số này ăn khớp với nhau.
+ * Chip là `<button>` ở màn tìm và màn Công thức, `<a>` khi có `hrefFor`; khai `inline-flex` để hai
+ * dạng ra đúng một hình.
  */
 .chip {
-  /* Chip là `<button>` ở màn tìm và `<a>` ở trang chủ; `<a>` mặc định là inline nên
-     `min-height` không ăn — khai `inline-flex` để hai dạng ra đúng một hình. */
   position: relative;
   display: inline-flex;
   align-items: center;
+  gap: var(--space-1);
 
-  min-height: var(--space-7);
-  padding: 0 var(--space-3);
+  min-height: 28px;
+  padding: 0 10px 0 var(--space-2);
 
   font-family: inherit;
-  font-size: var(--text-xs);
-  font-weight: var(--weight-bold);
+  font-size: 13px;
+  font-weight: var(--weight-regular);
   color: var(--color-ink);
+  white-space: nowrap;
   text-decoration: none;
 
   background: var(--color-surface);
@@ -143,8 +187,7 @@
   cursor: pointer;
 }
 
-/* Vùng chạm 44px quanh chip 32px — NFR-USA-01. Chỉ nới theo CHIỀU DỌC: nới ngang thì hai chip
-   cạnh nhau (hở 8px) chồng vùng chạm và cú chạm rơi vào chip bên trái. */
+/* Vùng chạm 44px quanh chip 28px — NFR-USA-01. Chỉ nới dọc: nới ngang là chồng lên chip bên cạnh. */
 .chip::after {
   content: '';
   position: absolute;
@@ -162,46 +205,8 @@
   }
 }
 
-/*
- * Nút xoá của dạng `inline` — cùng khổ, cùng viền, cùng bo góc với chip bên cạnh nó, chỉ khác là
- * mang icon. Vuông chứ không chữ nhật: nó không có chữ nên bề ngang không có gì để đo theo.
- *
- * Ba con số dưới đây phải đi theo `.chip`, không được đặt riêng: nó đứng CÙNG HÀNG với chip, nên
- * lệch một bậc là hàng chip có một ô cao hơn hẳn phần còn lại. Vùng chạm cũng mở bằng `::after`
- * y như chip, và ở đây mở cả hai chiều vì nó là ô cuối hàng, bên phải không có gì để đè lên.
- */
-.clearIcon {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  min-width: var(--space-7);
-  min-height: var(--space-7);
-  padding: 0;
-
+/* Đồng hồ — màu nét đậm nhất trên ảnh #8ea0bf → `--color-muted`. */
+.clock {
+  flex-shrink: 0;
   color: var(--color-muted);
-
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  cursor: pointer;
-}
-
-.clearIcon::after {
-  content: '';
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: var(--tap-min);
-  height: var(--tap-min);
-  transform: translate(-50%, -50%);
-}
-
-@media (hover: hover) {
-  .clearIcon:hover {
-    color: var(--color-accent);
-    border-color: var(--color-accent);
-    background: var(--color-accent-soft);
-  }
 }

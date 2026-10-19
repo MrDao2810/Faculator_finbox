@@ -75,3 +75,28 @@ describe('hàng điều khiển biểu đồ dưới 1024px', () => {
     expect(nut, 'nút = hàng − 2px đệm × 2 − 1px viền × 2').toBe((hang ?? 0) - 6);
   });
 });
+
+/*
+ * Khoảng trống quanh biểu đồ ở khổ điện thoại (19/10/2026, chủ dự án: _"giảm padding xung quanh … để
+ * hiển thị nhiều không gian chart hơn"_). Lề TRONG SVG có ca riêng ở `charts.test.tsx`; ở đây là phần
+ * CSS, thứ test React không chạy: khung vẽ tràn vào đệm thẻ, và hàng "Xem số liệu" thấp đi mà vùng chạm
+ * vẫn đủ 44px (NFR-USA-01). Lớp phủ chạm mất đi thì hàng 28px là một đích bấm quá nhỏ, không ai thấy.
+ */
+describe('biểu đồ dưới 1024px: vùng vẽ rộng hơn, đáy thẻ gọn hơn', () => {
+  it('khung vẽ tràn vào đệm thẻ 8px mỗi bên, căn giữa', () => {
+    const khung = luat(BIEU_DO, '.chart > .plot');
+    expect(khung).toMatch(/width:\s*calc\(100% \+ 2 \* var\(--space-2\)\);/);
+    expect(khung).toMatch(/align-self:\s*center;/);
+    expect(luat(BIEU_DO, '.chart')).toMatch(/padding-bottom:\s*var\(--space-2\);/);
+  });
+
+  it('"Xem số liệu" thấp 28px mà lớp phủ vẫn giữ vùng chạm 44px', () => {
+    const hang = luat(BIEU_DO, '.summary');
+    expect(soPx(hang, /min-height:\s*(\d+)px;/)).toBe(28);
+    expect(hang).toMatch(/position:\s*relative;/);
+
+    const phu = luat(BIEU_DO, '.summary::after');
+    expect(phu).toMatch(/height:\s*var\(--tap-min\);/);
+    expect(phu).toMatch(/position:\s*absolute;/);
+  });
+});

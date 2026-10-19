@@ -115,6 +115,26 @@ const SIZES = {
 const PAD = { top: 14, right: 10, bottom: 34, left: 36 } as const;
 
 /**
+ * Lề trái/phải của khổ `compact` — khổ của điện thoại (dưới 768px) — gọn hơn `PAD` (19/10/2026).
+ *
+ * Chủ dự án khoanh khoảng trống hai bên vùng vẽ trên điện thoại: _"điều chỉnh giảm padding xung quanh
+ * … để hiển thị nhiều không gian chart hơn"_. Đo ở 360px trên `capm`: nhãn trục Y "20" chỉ cần 16 đơn
+ * vị mà sàn `PAD.left = 36` giữ 36, nên bên trái nhãn trống 20 đơn vị; bên phải nhãn trục X cuối đã canh
+ * `end` tại `x1` (`tickAnchor`), nên 10 đơn vị lề phải chỉ còn chở dấu chấm ở đầu đường.
+ *
+ * - Trái: không còn sàn 36. Lề vừa đủ cho nhãn Y dài nhất, cộng `TICK_GAP` và 3 đơn vị thở, với sàn 14
+ *   cho trục chỉ có nhãn một ký tự. Bề ngang nhãn lấy `textWidth` NHÂN 1,1, và đó là con số ĐO: với
+ *   phông của sản phẩm trên Chrome, chữ số thật rộng chừng 5,4 đơn vị chứ không 4,9 như ước lượng. Bản
+ *   đầu cộng phẳng 1 đơn vị thì nhãn "20" chạm mép trái SVG (cách 0,2), và phần hụt lớn dần theo số ký
+ *   tự, nên phải nhân chứ không cộng. Nhãn trục X đầu tiên tự canh `start` khi `x0 < HALF_LABEL` (25),
+ *   nên lề hẹp không làm nó tràn mép.
+ * - Phải: 10 → 6, đủ cho chấm "giá trị hiện tại" (bán kính 4, nét 2) đứng ở đầu đường.
+ *
+ * Khổ `wide` (từ 768px) giữ `PAD` cũ: ở đó hình đã rộng tới 940px và chủ dự án không khoanh.
+ */
+const PAD_COMPACT = { right: 6, leftMin: 14, chuThat: 1.1, tho: 3 } as const;
+
+/**
  * Cỡ chữ của hai nhãn NỔI — vạch dò và dấu "giá trị hiện tại".
  *
  * Chép từ `.hoverLabel` / `.markerLabel` trong `chart.module.css` (cả hai đều 11px) vì `floatingLabel()`
@@ -127,11 +147,11 @@ const FLOAT_LABEL_SIZE = 11;
  * Vùng vẽ của khổ `compact` — mốc tĩnh cho `labelYFor()` và cho `CHART_GEOMETRY` mà test đọc.
  *
  * Chỉ đúng cho khổ `compact`. Thân component KHÔNG dùng hằng này mà gọi `plotOf()`, vì lề trái còn
- * co theo bề ngang nhãn trục Y thật.
+ * co theo bề ngang nhãn trục Y thật; `x0` ở đây là SÀN của lề ấy, vùng vẽ thật bắt đầu từ đó trở vào.
  */
 const PLOT = {
-  x0: PAD.left,
-  x1: SIZES.compact.W - PAD.right,
+  x0: PAD_COMPACT.leftMin,
+  x1: SIZES.compact.W - PAD_COMPACT.right,
   y0: PAD.top,
   y1: SIZES.compact.H - PAD.bottom,
 } as const;
@@ -167,8 +187,9 @@ const MAX_PAD_LEFT = 80;
  * ở đó nay chọn "nhãn dài nhưng phân biệt" thay vì "nhãn ngắn nhưng sai". Đổi lại, lề 36 cố định
  * không còn đủ, và một nhãn tràn qua `x = 0` bị `<svg>` cắt IM LẶNG — mất đúng những chữ số đầu.
  *
- * `PAD.left = 36` vẫn là sàn, nên 111 công thức ở số mặc định (nhãn tối đa 6 ký tự) không xê dịch
- * một đơn vị nào — đo được: `textWidth('123456', 10) + 5 = 34,4`, dưới sàn.
+ * Ở khổ `wide`, `PAD.left = 36` vẫn là sàn, nên nhãn tối đa 6 ký tự không xê dịch một đơn vị nào —
+ * đo được: `textWidth('123456', 10) + 5 = 34,4`, dưới sàn. Khổ `compact` bỏ sàn ấy từ 19/10/2026,
+ * xem `PAD_COMPACT`: lề trái chỉ vừa đủ cho nhãn, nên trục mang nhãn ngắn được vùng vẽ rộng hơn.
  */
 function plotOf(
   size: ChartSize,
@@ -177,11 +198,20 @@ function plotOf(
 ) {
   const { W, H } = SIZES[size];
   const rongNhat = Math.max(0, ...yLabels.map((tick) => textWidth(tick.label, TICK_FONT_SIZE)));
-  const x0 = Math.min(MAX_PAD_LEFT, Math.max(PAD.left, Math.ceil(rongNhat) + TICK_GAP));
+  const x0 = Math.min(
+    MAX_PAD_LEFT,
+    size === 'compact'
+      ? Math.max(
+          PAD_COMPACT.leftMin,
+          Math.ceil(rongNhat * PAD_COMPACT.chuThat) + TICK_GAP + PAD_COMPACT.tho,
+        )
+      : Math.max(PAD.left, Math.ceil(rongNhat) + TICK_GAP),
+  );
+  const lePhai = size === 'compact' ? PAD_COMPACT.right : PAD.right;
 
   return {
     x0,
-    x1: hasRightAxis ? W - PAD_RIGHT_AXIS : W - PAD.right,
+    x1: hasRightAxis ? W - PAD_RIGHT_AXIS : W - lePhai,
     y0: PAD.top,
     y1: H - PAD.bottom,
   } as const;

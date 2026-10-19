@@ -25,26 +25,47 @@ export type RecentSearchesProps = {
   terms: ReadonlyArray<string>;
   onClear: () => void;
   /**
-   * `block` — có tiêu đề "LỊCH SỬ TÌM KIẾM" và nút xoá dạng icon nằm cuối hàng tiêu đề. Dùng ở
-   * màn tìm WF-09, nơi khối này là NỘI DUNG CHÍNH của trạng thái nhàn nên xứng đáng một tiêu đề.
+   * Hai dạng cùng MỘT hình từ 19/10/2026 (bản vẽ của chủ dự án): hàng "Tìm gần đây" với icon thùng
+   * rác dạt phải ở trên, hàng chip có icon đồng hồ ở dưới. Chỉ khác ngữ nghĩa và chỗ đứng:
    *
-   * `inline` — bỏ tiêu đề, nút xoá thu về icon thùng rác đứng cuối hàng chip. Dùng ngay dưới ô
-   * tìm ở trang chủ (bản thiết kế Figma đợt này), nơi hàng chip chỉ là phụ trợ của ô tìm chứ
-   * không phải một mục ngang hàng với "Công thức dùng hằng ngày" — cho nó một `<h2>` nữa là dựng
-   * thêm một cấp tiêu đề giả giữa ô tìm và kệ.
+   * `block` — tiêu đề là `<h2>`. Dùng ở màn tìm WF-09, nơi khối này là NỘI DUNG CHÍNH của trạng
+   * thái nhàn nên xứng đáng một tiêu đề; từ 1024px khối đứng cạnh ô tìm (`.block`).
    *
-   * Cả hai dạng nay dùng CHUNG một icon thùng rác: bản trước dạng `block` là nút chữ "Xoá lịch
-   * sử" chiếm trọn bề ngang còn lại của hàng tiêu đề, mà nó chỉ làm đúng một việc mà icon cũng
-   * nói được — chủ dự án báo khối này chiếm nhiều chỗ quá.
+   * `inline` — tiêu đề là nhãn thường, không phải heading. Dùng ngay dưới ô tìm của màn Công thức,
+   * nơi hàng chip chỉ là phụ trợ của ô tìm chứ không phải một mục ngang hàng với "Công thức dùng
+   * hằng ngày" — cho nó một `<h2>` là dựng thêm một cấp tiêu đề giả giữa ô tìm và kệ.
    */
   variant?: 'block' | 'inline';
 } & RecentSearchesAction;
 
 /**
- * Icon thùng rác của nút xoá, dùng cho cả hai dạng.
- *
- * Tách ra vì hai dạng đặt nút ở hai chỗ khác nhau (cuối hàng chip / cuối hàng tiêu đề) nhưng phải
- * là cùng một hình — chép hai bản là mở đường cho hai hình khác nhau của cùng một hành động.
+ * Icon đồng hồ đầu mỗi chip — bản vẽ 19/10/2026: vòng tròn, kim từ tâm thẳng lên rồi chéo xuống phải.
+ * Bản vẽ cho ô 16px; cùng ngày chủ dự án thu chip lại ("ô height cũng cần thu gọn xuống"), nên ô còn
+ * 14px. Nét 2.25 đơn vị ≈ 1,3px ở cỡ này.
+ */
+function ClockIcon() {
+  return (
+    <svg
+      className={styles.clock}
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.25"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <circle cx="12" cy="12" r="9.25" />
+      <path d="M12 7.5V12l3.5 2" />
+    </svg>
+  );
+}
+
+/**
+ * Icon thùng rác của nút xoá. Bản vẽ 19/10/2026 đặt chữ "Xoá" ở đây; chủ dự án đổi lại ngay trong
+ * ngày: _"text xóa đổi lại thành icon xóa"_ — cùng hình thùng rác khối này đã dùng trước đó.
  */
 function TrashIcon() {
   return (
@@ -66,12 +87,12 @@ function TrashIcon() {
 }
 
 /**
- * Chip "Lịch sử tìm kiếm" — WF-09 trạng thái A (gói WBS 3.1.3).
+ * Chip "Tìm gần đây" — WF-09 trạng thái A (gói WBS 3.1.3).
  *
  * Không tự đọc localStorage: màn gọi nó đọc trong `useEffect` rồi truyền xuống. Đọc ngay lúc
  * khởi tạo state sẽ lệch hydration vì bản build là HTML tĩnh — bài học của đợt 2. Điều này càng
- * chặt ở trang chủ: `terms` rỗng thì component trả `null`, nên lần render đầu ở máy khách vẫn
- * giống hệt `out/index.html`.
+ * chặt ở màn Công thức: `terms` rỗng thì component trả `null`, nên lần render đầu ở máy khách vẫn
+ * giống hệt HTML tĩnh.
  *
  * LDR-04: chỉ là tên những công thức chính người dùng đã CHỌN trong kết quả tìm, nằm trên máy
  * họ, có nút xoá hết.
@@ -87,62 +108,26 @@ export function RecentSearches({
 
   if (terms.length === 0) return null;
 
-  const chips = (
-    <ul className={styles.chips}>
-      {terms.map((term) => (
-        <li key={term}>
-          {hrefFor !== undefined ? (
-            <Link className={styles.chip} href={hrefFor(term)}>
-              {term}
-            </Link>
-          ) : (
-            <button
-              type="button"
-              className={styles.chip}
-              onClick={() => {
-                onPick?.(term);
-              }}
-            >
-              {term}
-            </button>
-          )}
-        </li>
-      ))}
-
-      {variant === 'inline' && (
-        <li>
-          {/* Nút xoá chỉ có icon, nên nhãn phải nằm ở `aria-label` — NFR-USA-06. */}
-          <button
-            type="button"
-            className={styles.clearIcon}
-            onClick={onClear}
-            aria-label={t('search.recent.clear')}
-            title={t('search.recent.clear')}
-          >
-            <TrashIcon />
-          </button>
-        </li>
-      )}
-    </ul>
-  );
-
-  if (variant === 'inline') {
-    // Bỏ `<h2>` thì `aria-labelledby` cũng mất chỗ trỏ tới — nhãn chuyển thẳng lên `<section>`.
-    return (
-      <section className={styles.recent} aria-label={t('search.recent.title')}>
-        {chips}
-      </section>
-    );
-  }
+  /* Một màn chỉ có một khối này, nên `id` cố định là đủ — cùng lẽ `recent-title` vẫn dùng. */
+  const titleId = variant === 'block' ? 'recent-title' : 'recent-inline-title';
+  const title = t('search.recent.title');
 
   return (
-    /* `.block` chỉ để CSS khổ PC xếp dạng này thành một hàng — xem `RecentSearches.module.css`. */
-    <section className={`${styles.recent} ${styles.block}`} aria-labelledby="recent-title">
+    <section
+      className={variant === 'block' ? `${styles.recent} ${styles.block}` : styles.recent}
+      aria-labelledby={titleId}
+    >
       <div className={styles.head}>
-        <h2 className={styles.title} id="recent-title">
-          {t('search.recent.title')}
-        </h2>
-        {/* Cùng icon, cùng nhãn ẩn với dạng inline — chỉ khác chỗ đứng. */}
+        {variant === 'block' ? (
+          <h2 className={styles.title} id={titleId}>
+            {title}
+          </h2>
+        ) : (
+          <span className={styles.title} id={titleId}>
+            {title}
+          </span>
+        )}
+        {/* Nút xoá chỉ có icon, nên nhãn phải nằm ở `aria-label` — NFR-USA-06. */}
         <button
           type="button"
           className={styles.clear}
@@ -154,7 +139,29 @@ export function RecentSearches({
         </button>
       </div>
 
-      {chips}
+      <ul className={styles.chips}>
+        {terms.map((term) => (
+          <li key={term} className={styles.item}>
+            {hrefFor !== undefined ? (
+              <Link className={styles.chip} href={hrefFor(term)}>
+                <ClockIcon />
+                {term}
+              </Link>
+            ) : (
+              <button
+                type="button"
+                className={styles.chip}
+                onClick={() => {
+                  onPick?.(term);
+                }}
+              >
+                <ClockIcon />
+                {term}
+              </button>
+            )}
+          </li>
+        ))}
+      </ul>
     </section>
   );
 }

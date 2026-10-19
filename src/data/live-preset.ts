@@ -119,8 +119,9 @@ export interface LivePresetFormula {
    * `endPrice`/`sellPrice`, và `filled` ở trên nói QUÁ.
    *
    * Đo được: 15 trên 31 công thức lệch, trong đó 8 công thức tụt hẳn về 0 ô. Nơi hiển thị phải
-   * trừ cột này ra khi mã chưa có giá, nếu không màn hứa "2/2 ô điền sẵn" cho một trang mở ra sẽ
-   * trống một nửa.
+   * trừ cột này ra khi mã chưa có giá, nếu không sheet chọn công thức giữ lại những dòng mở ra
+   * không điền được ô nào và xếp sai thứ tự. (Tỷ lệ "2/2 ô điền sẵn" từng in trên mỗi dòng; bỏ
+   * 19/10/2026.)
    */
   priceFields: number;
 }

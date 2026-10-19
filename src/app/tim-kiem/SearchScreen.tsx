@@ -11,6 +11,7 @@ import {
   countHiddenByLevel,
   formulaListPath,
   formulasForLevel,
+  localizeRecentSearches,
   selectFormulas,
 } from '@/application';
 import type { FormulaSummary } from '@/application';
@@ -21,12 +22,12 @@ import { useRecentSearches } from '@/application/use-recent-searches';
 import {
   EmptyState,
   FormulaFolders,
-  HiddenByLevelNote,
   HotCategories,
   RecentSearches,
   SearchBox,
   SearchResults,
 } from '@/ui/browse';
+import { Button } from '@/ui/primitives';
 
 import styles from './SearchScreen.module.css';
 
@@ -59,7 +60,7 @@ const SUGGESTED_IDS: ReadonlyArray<string> = ['co-lenh-rui-ro', 'roi', 'gia-hoa-
  */
 export function SearchScreen() {
   const { params, setParams } = useListParams();
-  const { mode, locale } = usePreferences();
+  const { mode, locale, setMode } = usePreferences();
   const t = useT();
   const pick = usePick();
   const inputRef = useRef<HTMLDivElement>(null);
@@ -68,7 +69,16 @@ export function SearchScreen() {
    * Kho RIÊNG của màn này — chip ghi ở trang chủ không lọt sang đây và ngược lại. Xem docblock
    * `recent-searches.ts` về vì sao hai kho.
    */
-  const { terms: recent, remember, clear: clearRecent } = useRecentSearches(RECENT_SEARCHES_KEY);
+  const {
+    terms: storedRecent,
+    remember,
+    clear: clearRecent,
+  } = useRecentSearches(RECENT_SEARCHES_KEY);
+  // Chip in theo ngôn ngữ đang bật — xem `localizeRecentSearches()`.
+  const recent = useMemo(
+    () => localizeRecentSearches(storedRecent, FORMULA_SUMMARIES, pick),
+    [storedRecent, pick],
+  );
 
   // Ô nhập đi qua bản nháp cục bộ, không ghi thẳng URL từng phím — xem use-query-draft.ts.
   const commitQuery = useCallback(
@@ -145,11 +155,12 @@ export function SearchScreen() {
    * rồi không bấm gì vẫn ra một mục "Giá" trong lịch sử — sai với điều người dùng mong đợi:
    * lịch sử phải là công thức đã CHỌN, không phải chữ đã GÕ.
    *
-   * Vì vậy lưu lại TÊN công thức (`pick(formula.name)`) chứ không phải `trimmed`, và chỉ gọi từ
-   * `onClick` của dòng kết quả (`SearchResults`'s `onSelect`) — xem chỗ gọi bên dưới.
+   * Vì vậy lưu lại TÊN công thức chứ không phải `trimmed`, và chỉ gọi từ `onClick` của dòng kết
+   * quả (`SearchResults`'s `onSelect`) — xem chỗ gọi bên dưới. Tên GỐC `vi` (19/10/2026), không phải
+   * tên đang hiện: chip tự in lại theo ngôn ngữ lúc đọc (`localizeRecentSearches()`).
    */
   function onSelectResult(formula: FormulaSummary): void {
-    remember(pick(formula.name));
+    remember(formula.name.vi);
   }
 
   // Giữ đúng thứ tự đã chọn, không theo thứ tự Registry — id lạ thì bỏ qua chứ không vỡ màn.
@@ -210,8 +221,10 @@ export function SearchScreen() {
             {t('search.matchNote')} “{trimmed}” · {results.length} {t('search.resultCount')}
           </p>
 
-          <HiddenByLevelNote count={hiddenByLevel} />
-
+          {/*
+            Không còn dòng "N công thức nâng cao đang ẩn" dưới câu đếm kết quả: chủ dự án bỏ 19/10/2026
+            (mộ chí `list.hiddenByLevel` ở `vi.ts`), cùng lúc với dòng ấy ở màn Công thức.
+          */}
           <SearchResults
             formulas={results}
             query={trimmed}
@@ -255,9 +268,25 @@ export function SearchScreen() {
             /* Nhánh else từng in `list.empty.noMatch.scope` ("Sản phẩm chỉ có công thức…") — bỏ
                01/10/2026 cùng lúc và cùng lý do với `FormulaListScreen.tsx`. */
             lines={hiddenByLevel > 0 ? [t('list.empty.basicOnly.hint')] : []}
+            /*
+              Nút bật nằm TRONG khối rỗng, như khối rỗng cùng loại ở màn Công thức. Trước 19/10/2026 nó
+              là nút của dòng "N công thức nâng cao đang ẩn" đứng dưới khối; dòng ấy bỏ, nhưng một kết quả
+              rỗng vì chế độ mà không có đường bật lại thì người dùng chỉ còn cách đổi từ khoá mãi.
+            */
+            action={
+              hiddenByLevel > 0 ? (
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => {
+                    setMode('advanced');
+                  }}
+                >
+                  {t('list.showAdvanced')}
+                </Button>
+              ) : undefined
+            }
           />
-
-          <HiddenByLevelNote count={hiddenByLevel} />
 
           {suggestions.length > 0 && (
             <>

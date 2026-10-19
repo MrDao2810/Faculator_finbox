@@ -184,14 +184,52 @@
  * Dưới 1024px tiêu đề tấm dán đáy hạ một bậc, 18 → 16px (15/10/2026). Chủ dự án khoanh "Lưu vào
  * danh mục" trên điện thoại: _"size text đang quá lớn … giảm size text. chỉ áp dụng cho mobile"_.
  * Đổi ở primitive chứ không riêng tấm Lưu: mọi tấm dán đáy dùng chung MỘT kiểu tiêu đề, sửa một tấm
- * là để sản phẩm có hai cỡ tiêu đề tấm. Hộp thoại nổi giữa (`.panelCenter .title`, 20px) không đổi:
- * hai lớp nên thắng luật này, và nó cố ý to hơn — xem chú thích ngay trên luật ấy.
+ * là để sản phẩm có hai cỡ tiêu đề tấm.
+ *
+ * Hộp thoại nổi giữa (`.panelCenter .title`) cũng về 16px ở khổ này từ 19/10/2026 — trước đó nó cố ý
+ * giữ 20px. Chủ dự án khoanh tiêu đề tấm "Công thức sử dụng được với mã này" trên điện thoại (một tấm
+ * nổi giữa của màn Danh mục, xuống hai dòng ở 20px): _"giảm size text xuống khi ở màn mobile"_. Hạ cả
+ * nhóm chứ không riêng tấm ấy: ở khổ điện thoại chỉ màn Danh mục mở tấm nổi giữa (hộp thoại Thêm/Sửa mã,
+ * tấm chọn mã, tấm chọn công thức), và chúng chồng lên nhau, nên lệch cỡ là thấy ngay. Từ 1024px vẫn 20px.
+ * Luật hai lớp đứng SAU `.panelCenter .title` gốc nên thắng nhờ thứ tự file.
  *
  * `screen and` vì cùng lý do với khối khổ web cuối file: dưới media in, bề ngang là bề ngang GIẤY.
  */
 @media screen and (max-width: 1023.98px) {
-  .title {
+  .title,
+  .panelCenter .title {
     font-size: var(--text-base);
+  }
+}
+
+/*
+ * Dưới 1024px phần đầu hộp thoại nổi giữa cân trên dưới (19/10/2026). Chủ dự án khoanh tiêu đề và ô
+ * tìm của tấm chọn mã trên điện thoại: _"điều chỉnh lại padding bên trên mà tôi khoanh đỏ"_. Đo ở 390px:
+ * tiêu đề cách mép trên 16px mà cách đường kẻ dưới 28px, vì nút X 44px đứng `flex-start` với lề trên
+ * âm 8px nên nó kéo đáy tiêu đề xuống thêm 16px; còn ô tìm cách tiêu đề 20px mà cách dòng đầu 12px.
+ *
+ * - Tiêu đề: căn giữa theo trục dọc, đệm 16px cả trên lẫn dưới. Nút X ăn lề âm 12px trên và dưới nên
+ *   chỉ chiếm 20px, đúng một dòng tiêu đề, mà vùng chạm vẫn đủ 44px (nằm gọn trong 16px đệm). Đầu
+ *   hộp 65 → 53px. Lề ngang của X không đổi, nên dạng "quay lại" (`.back`) vẫn đúng bên.
+ * - Thân: đệm trên 20 → 12px, bằng khoảng từ ô tìm xuống dòng đầu (`margin-bottom` của `.search`).
+ *
+ * Đổi cả nhóm `.panelCenter` chứ không riêng tấm chọn mã: ở khổ này chúng là ba hộp chồng lên nhau ở
+ * màn Danh mục (hộp Thêm/Sửa mã, tấm chọn mã, tấm chọn công thức), lệch đầu hộp là thấy ngay. Tấm dán
+ * đáy không đổi: đệm trên 20px của nó chừa chỗ cho vạch kéo. Từ 1024px không đổi gì.
+ */
+@media screen and (max-width: 1023.98px) {
+  .panelCenter .header {
+    align-items: center;
+    padding: var(--space-4) var(--space-5);
+  }
+
+  .panelCenter .close {
+    margin-top: calc(-1 * var(--space-3));
+    margin-bottom: calc(-1 * var(--space-3));
+  }
+
+  .panelCenter .body {
+    padding-top: var(--space-3);
   }
 }
 

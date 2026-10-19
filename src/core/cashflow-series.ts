@@ -97,7 +97,7 @@ export function checkCashflowRow(row: CashflowRow): ReadonlyArray<CashflowRowIss
     issues.push({
       code: 'INVALID_DATE',
       message: {
-        vi: 'Ngày của dòng này chưa đọc được. Gõ theo ngày/tháng/năm, ví dụ 03/10/2026.',
+        vi: 'Ngày của dòng này chưa đọc được. Nhập theo ngày/tháng/năm, ví dụ 03/10/2026.',
         en: 'The date on this row cannot be read. Type it as day/month/year, for example 03/10/2026.',
       },
     });

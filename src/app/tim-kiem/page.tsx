@@ -8,7 +8,7 @@ import { SearchScreen } from './SearchScreen';
 
 export const metadata: Metadata = {
   title: PAGE_TITLES.search.vi,
-  description: 'Tìm nhanh trong thư viện công thức tài chính, gõ không dấu vẫn ra đúng.',
+  description: 'Tìm nhanh trong thư viện công thức tài chính, nhập không dấu vẫn ra đúng.',
   /*
    * KHÔNG cho lập chỉ mục, và cũng không có trong `sitemap.ts`.
    *

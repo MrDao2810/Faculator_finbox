@@ -65,3 +65,21 @@
   line-height: var(--leading-normal);
   color: var(--color-ink-soft);
 }
+
+/*
+ * Dưới 1024px chữ nhỏ đi một bậc (19/10/2026, chủ dự án: _"giảm size text của phần hướng dẫn sử dụng
+ * của 2 đoạn mới này bản mobile xuống"_): tên khung 16 → 14px, tên mục và thân 14 → 12px. Thứ bậc
+ * giữ nguyên: tên khung vẫn to nhất, tên mục vẫn đậm và màu `--color-ink` hơn thân cùng cỡ. 12px là
+ * cỡ khung cách tính của màn chi tiết đã dùng ở khổ này. PC không đổi.
+ */
+@media (max-width: 1023.98px) {
+  .title {
+    font-size: var(--text-sm);
+  }
+
+  .label,
+  .text,
+  .steps {
+    font-size: var(--text-xs);
+  }
+}

@@ -954,7 +954,7 @@ describe('WF-06 — sửa một mã đã thêm', () => {
       await userEvent.click(nut);
       const khung = await screen.findByRole('dialog', { name: 'Beta danh mục' });
 
-      expect(within(khung).getByText('Vì sao đang là _ _')).toBeTruthy();
+      expect(within(khung).getByText('Tại sao phần này đang để trống')).toBeTruthy();
       expect(within(khung).getByText(/Chưa có beta của FPT/)).toBeTruthy();
       expect(within(khung).getByText('Nhập beta của mã vào ô Beta rồi lưu.')).toBeTruthy();
       expect(within(khung).getByText(/^So với mốc 1 lần:/)).toBeTruthy();
@@ -978,7 +978,7 @@ describe('WF-06 — sửa một mã đã thêm', () => {
       expect(screen.queryByRole('dialog', { name: 'XIRR toàn danh mục' })).toBeNull();
     });
 
-    it('dòng đã ra số thì khung không có mục "Vì sao đang là _ _"', async () => {
+    it('dòng đã ra số thì khung không có mục "Tại sao phần này đang để trống"', async () => {
       window.localStorage.setItem(
         PORTFOLIO_KEY,
         JSON.stringify([
@@ -992,7 +992,7 @@ describe('WF-06 — sửa một mã đã thêm', () => {
 
       await userEvent.click(screen.getByRole('link', { name: 'Hướng dẫn: Beta danh mục' }));
       const khung = await screen.findByRole('dialog', { name: 'Beta danh mục' });
-      expect(within(khung).queryByText('Vì sao đang là _ _')).toBeNull();
+      expect(within(khung).queryByText('Tại sao phần này đang để trống')).toBeNull();
     });
 
     it('chế độ Cơ bản không có hai nút “?” (hai dòng ấy là của Nâng cao)', async () => {

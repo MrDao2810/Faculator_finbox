@@ -292,7 +292,7 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'portfolio.guide.what': 'What it is',
   'portfolio.guide.use': 'How to use it',
   'portfolio.guide.read': 'Reading the result',
-  'portfolio.guide.why': 'Why it shows _ _',
+  'portfolio.guide.why': 'Why this is blank',
   'portfolio.guide.openEdit': 'Edit a ticker: open one of the tickers in the table.',
   'portfolio.guide.beta.title': 'Portfolio beta',
   'portfolio.guide.beta.what':

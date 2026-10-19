@@ -138,6 +138,29 @@ của bước và link "Xem công thức: …": _"cần giảm size text ở nh�
 
 ---
 
+## Chữ "gõ" trong câu chỉ dẫn đổi thành "nhập" (19/10/2026)
+
+**Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án xem.**
+
+Chủ dự án: _"những nơi có hướng dẫn sử dụng đang có text 'gõ' đổi thành 'nhập' cho tôi"_. Rà cả `src`:
+
+- **Bài hướng dẫn công thức (WF-21) và các đoạn "Đọc biểu đồ"**: không còn chữ "gõ" nào hiện ra màn, chỉ còn trong chú thích
+  code. Khung "?" của Danh mục chủ dự án đã tự đổi sang "Nhập".
+- **Đã đổi 10 câu hiện ra màn**, đều là câu chỉ dẫn người dùng:
+  - `vi.ts`: `search.tip`, `detail.presetNoDataFix`, `portfolio.errBuyDateFormat`, `ticker.noMatch`, `data.drafts` cùng câu mô
+    tả của nó, `notFound.reason`, `notFound.suggest`.
+  - `src/core/cashflow-series.ts`: câu báo ngày hỏng ở bảng dòng tiền XIRR.
+  - `src/app/tim-kiem/page.tsx`: mô tả trang cho công cụ tìm kiếm.
+- **Không đổi**:
+  - `whyNone` trong `src/core/how-to/*.ts`: ghi chú nội bộ, không hiện ra màn.
+  - Thông báo lỗi của cổng kiểm `bieu-do/kiem.ts`: dành cho lập trình viên.
+  - Chú thích code.
+  - Hai lời giải của Bài tập trong `quiz/items/technical.ts` ("gõ 0,875 thay vì 87,5", "Gõ 4 … hay 2.000"): đây là bài tập,
+    không phải hướng dẫn sử dụng. Chờ chủ dự án chọn có đổi luôn không.
+- `prettier` sạch (`vi.ts` được xuống dòng lại một câu). `npm test` xanh, 161 file.
+
+---
+
 ## Danh mục ở khổ điện thoại: tab, nút "Thêm mới" và dòng lãi/lỗ nhỏ lại (19/10/2026)
 
 **Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án xem.**
@@ -211,6 +234,10 @@ gì, cần nhập gì và vì sao đang trống.
   - `portfolio.guide.xirr.done` đồng bộ cùng khuôn: "Lưu ý: Mọi mã đều phải có ngày mua thì "XIRR toàn DM" mới hiển thị số
     liệu." Đây là phần Claude tự đồng bộ, chờ chủ dự án xem.
   - Bản EN viết lại tương ứng. `PortfolioScreen.test.tsx` cập nhật câu bước 2 (187/187 xanh).
+- **Đề mục "Vì sao đang là \_ \_" đổi thành "Tại sao phần này đang để trống"** (chủ dự án: _"không nên để là vậy"_), EN "Why
+  this is blank". Áp cho cả hai khung vì `portfolio.guide.why` dùng chung. Ba chỗ trong `PortfolioScreen.test.tsx` cập nhật.
+- **Chữ hai khung nhỏ hơn dưới 1024px** (chủ dự án: _"giảm size text … bản mobile xuống"_): `SummaryGuidePanel.module.css`
+  thêm khối cuối file, tên khung 16 → 14px, tên mục và thân 14 → 12px. PC không đổi. Chưa đo trên Chrome.
 
 ---
 

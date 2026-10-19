@@ -93,7 +93,7 @@ export const vi = {
   // Màn tìm kiếm WF-09 — gói 3.1.3
   'search.recent.title': 'Tìm gần đây',
   'search.recent.clear': 'Xoá lịch sử',
-  'search.tip': 'Gõ tên công thức, tên viết tắt, hoặc điều bạn đang muốn tính.',
+  'search.tip': 'Nhập tên công thức, tên viết tắt, hoặc điều bạn đang muốn tính.',
   'search.matchNote': 'Khớp không dấu với',
   'search.resultCount': 'kết quả',
   'search.noMatch': 'Không tìm thấy',
@@ -436,7 +436,7 @@ export const vi = {
    */
   'detail.presetNoData': 'Công thức này không dùng số liệu của mã',
   'detail.presetNoDataFix':
-    'Nó chạy bằng số của chính bạn — gõ thẳng vào các ô ở trên, hoặc bấm "Xem ví dụ thực tế" để ' +
+    'Nó chạy bằng số của chính bạn — nhập thẳng vào các ô ở trên, hoặc bấm "Xem ví dụ thực tế" để ' +
     'dùng bộ số của ví dụ.',
   /*
    * ── Dải "AAA điền được 2 trong 4 ô…" ĐÃ BỎ, cùng cả cụm khoá `detail.presetPartial*` ──────
@@ -784,7 +784,7 @@ export const vi = {
   'portfolio.guide.what': 'Là gì',
   'portfolio.guide.use': 'Cách dùng',
   'portfolio.guide.read': 'Đọc kết quả',
-  'portfolio.guide.why': 'Vì sao đang là _ _',
+  'portfolio.guide.why': 'Tại sao phần này đang để trống',
   'portfolio.guide.openEdit': 'Bạn hãy sửa một mã: Sửa một mã trong bảng.',
   'portfolio.guide.beta.title': 'Beta danh mục',
   'portfolio.guide.beta.what':
@@ -1127,7 +1127,8 @@ export const vi = {
    * gõ dở, hoặc ngày không có trên lịch như 31/02. Ô `type="date"` cũ không cho gõ ra thứ ấy nên
    * trước đó không cần câu này. Ví dụ trong câu viết đúng dạng ô in ra, ngày trước tháng.
    */
-  'portfolio.errBuyDateFormat': 'Ngày mua chưa đọc được. Gõ theo ngày/tháng/năm, ví dụ 03/10/2026.',
+  'portfolio.errBuyDateFormat':
+    'Ngày mua chưa đọc được. Nhập theo ngày/tháng/năm, ví dụ 03/10/2026.',
   'portfolio.errBeta': 'Beta phải là một số, ví dụ 1,1 — hoặc để trống nếu chưa biết.',
   'portfolio.errFull': 'Danh mục đã đủ 50 mã. Bỏ bớt một mã trước khi thêm mã mới.',
   /*
@@ -1380,7 +1381,7 @@ export const vi = {
    * hứa một việc mà nút không còn làm.
    */
   'ticker.loading': 'Đang tải danh sách mã…',
-  'ticker.noMatch': 'Không có mã nào khớp. Thử gõ mã ngắn hơn, ví dụ “fpt”.',
+  'ticker.noMatch': 'Không có mã nào khớp. Thử nhập mã ngắn hơn, ví dụ “fpt”.',
   /*
    * Hai lúc chờ có vòng xoay của sheet (13/10/2026): đang lọc theo từ khoá vừa gõ, và đang bày
    * thêm một lượt 20 mã khi cuộn tới đáy. Câu sau chỉ trình đọc màn hình nghe — trên màn là vòng
@@ -1745,9 +1746,9 @@ export const vi = {
   'data.saved.note': 'Những phép tính bạn bấm Lưu ở màn công thức, kèm tên bạn đặt cho chúng.',
   'data.savedSort': 'Cách sắp bảng Công thức',
   'data.savedSort.note': 'Cột bạn bấm để sắp bảng Công thức ở Danh mục, và chiều sắp.',
-  'data.drafts': 'Số đang gõ dở',
+  'data.drafts': 'Số đang nhập dở',
   'data.drafts.note':
-    'Số bạn vừa nhập ở màn công thức, giữ tạm để mở bảng dữ liệu hay trang hướng dẫn rồi quay lại không phải gõ lại từ đầu.',
+    'Số bạn vừa nhập ở màn công thức, giữ tạm để mở bảng dữ liệu hay trang hướng dẫn rồi quay lại không phải nhập lại từ đầu.',
   'data.usage': 'Công thức đã mở',
   'data.usage.note':
     'Công thức bạn hay mở, dùng để xếp lại khối Công thức dùng hằng ngày theo thói quen.',
@@ -1919,8 +1920,8 @@ export const vi = {
 
   // Trang 404 — trước đợt 14 là bản mặc định tiếng Anh của Next, nằm ngoài AppShell.
   'notFound.title': 'Không tìm thấy trang này',
-  'notFound.reason': 'Đường dẫn có thể gõ sai, hoặc trang đã được dời chỗ.',
-  'notFound.suggest': 'Thử tìm công thức theo tên — gõ không dấu vẫn ra đúng.',
+  'notFound.reason': 'Đường dẫn có thể nhập sai, hoặc trang đã được dời chỗ.',
+  'notFound.suggest': 'Thử tìm công thức theo tên — nhập không dấu vẫn ra đúng.',
   'notFound.search': 'Tìm công thức',
   /* Thay `notFound.home` — không còn trang chủ riêng, màn Công thức là màn mở đầu. */
   'notFound.formulas': 'Về danh sách công thức',

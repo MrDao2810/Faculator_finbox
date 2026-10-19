@@ -563,7 +563,9 @@ describe('WF-03 — chín khối đúng thứ tự wireframe', () => {
     };
 
     let khung = await moKhung();
-    expect(within(khung).getByRole('heading', { name: 'P/E theo Giá thị trường' })).not.toBeNull();
+    expect(
+      within(khung).getByRole('heading', { name: 'P/E theo Giá thị trường (P)' }),
+    ).not.toBeNull();
     expect(within(khung).getAllByRole('heading', { level: 3 })).toHaveLength(1);
     expect(within(khung).getByText('Dạng Đường')).not.toBeNull();
     expect(within(khung).queryByText('Dạng Cột')).toBeNull();
@@ -580,7 +582,9 @@ describe('WF-03 — chín khối đúng thứ tự wireframe', () => {
     await user.click(screen.getByRole('button', { name: 'Cột' }));
     expect(screen.queryByRole('dialog')).toBeNull();
     khung = await moKhung();
-    expect(within(khung).getByRole('heading', { name: 'P/E theo Giá thị trường' })).not.toBeNull();
+    expect(
+      within(khung).getByRole('heading', { name: 'P/E theo Giá thị trường (P)' }),
+    ).not.toBeNull();
     expect(within(khung).getByText('Dạng Cột')).not.toBeNull();
     expect(within(khung).queryByText('Dạng Đường')).toBeNull();
     expect(khung.textContent).toContain('Mỗi cột là P/E ở một mức giá');
@@ -591,7 +595,7 @@ describe('WF-03 — chín khối đúng thứ tự wireframe', () => {
     expect(within(khung).getByRole('heading', { name: 'P/E theo EPS' })).not.toBeNull();
     expect(within(khung).getAllByRole('heading', { level: 3 })).toHaveLength(1);
     expect(khung.textContent).toContain('Mỗi cột là P/E ở một mức EPS');
-    expect(khung.textContent).not.toContain('P/E theo Giá thị trường');
+    expect(khung.textContent).not.toContain('P/E theo Giá thị trường (P)');
   });
 
   /*
@@ -1579,7 +1583,7 @@ describe('WF-03 — khối biểu đồ (FR-07, FR-08)', () => {
 
     // Thân biểu đồ nằm sau ranh giới nạp trễ nên tới sau một nhịp.
     expect(await screen.findByRole('figure')).not.toBeNull();
-    expect(screen.getByText('P/E theo Giá thị trường')).not.toBeNull();
+    expect(screen.getByText('P/E theo Giá thị trường (P)')).not.toBeNull();
   });
 
   it('đổi ô nhập thì biểu đồ và bảng số đổi theo, khớp con số ở khối Kết quả', async () => {
@@ -1842,7 +1846,7 @@ describe('WF-03 — nạp mã rồi thì biểu đồ vẽ theo số liệu củ
     render(<Man spec={specOf('pe')} />);
     await screen.findByRole('figure');
 
-    expect(screen.getByText('P/E theo Giá thị trường')).not.toBeNull();
+    expect(screen.getByText('P/E theo Giá thị trường (P)')).not.toBeNull();
 
     await userEvent.click(screen.getByRole('button', { name: 'Nạp mẫu' }));
     const maVuaNap = await napDongDau();
@@ -1968,7 +1972,7 @@ describe('WF-03 — mã thật từ API vẽ theo mười phiên thật', () => 
     await screen.findByRole('button', { name: /Đổi mã HPG/ });
 
     await screen.findByRole('figure');
-    expect(screen.getByText('P/E theo Giá thị trường')).not.toBeNull();
+    expect(screen.getByText('P/E theo Giá thị trường (P)')).not.toBeNull();
     expect((oNhap(/EPS/) as HTMLInputElement).value).toBe('5.867');
   });
 
@@ -1980,7 +1984,7 @@ describe('WF-03 — mã thật từ API vẽ theo mười phiên thật', () => 
     render(<Man spec={specOf('pe')} />);
     await screen.findByRole('button', { name: /Đổi mã HPG/ });
 
-    expect(screen.getByText('P/E theo Giá thị trường')).not.toBeNull();
+    expect(screen.getByText('P/E theo Giá thị trường (P)')).not.toBeNull();
   });
 });
 
@@ -4202,11 +4206,11 @@ describe('WF-03 — thêm bớt đợt mua và kỳ', () => {
     const bang = (): HTMLElement => screen.getByRole('table', { name: t('variable.tableCaption') });
 
     expect(within(bang()).getByRole('rowheader', { name: 'Số đợt mua' })).not.toBeNull();
-    expect(within(bang()).queryByRole('rowheader', { name: 'Giá mua đợt 4' })).toBeNull();
+    expect(within(bang()).queryByRole('rowheader', { name: 'Giá mua đợt 4 (P4)' })).toBeNull();
 
     await userEvent.click(nut(/^Thêm đợt mua$/));
-    expect(within(bang()).getByRole('rowheader', { name: 'Tiền mua đợt 4' })).not.toBeNull();
-    expect(within(bang()).getByRole('rowheader', { name: 'Giá mua đợt 4' })).not.toBeNull();
+    expect(within(bang()).getByRole('rowheader', { name: 'Tiền mua đợt 4 (C4)' })).not.toBeNull();
+    expect(within(bang()).getByRole('rowheader', { name: 'Giá mua đợt 4 (P4)' })).not.toBeNull();
   });
 
   it('Bỏ đợt: ô của đợt cuối rời màn, bỏ tới còn một đợt thì nút Bỏ cũng rời', async () => {

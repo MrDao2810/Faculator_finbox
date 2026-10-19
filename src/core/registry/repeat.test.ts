@@ -113,7 +113,7 @@ describe('thêm một nhóm', () => {
     ]);
 
     const tien = spec.variables.find((v) => v.key === 'amount4');
-    expect(tien?.label).toEqual({ vi: 'Tiền mua đợt 4', en: 'Amount invested, round 4' });
+    expect(tien?.label).toEqual({ vi: 'Tiền mua đợt 4 (C4)', en: 'Amount invested, round 4 (C4)' });
     expect(tien?.unit).toBe('₫');
     expect(tien?.defaultValue).toBe(0);
     // Ba đợt đầu giữ nguyên bản viết tay — cùng một object, không phải bản sinh từ mẫu.

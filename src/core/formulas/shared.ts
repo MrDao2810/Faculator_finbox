@@ -199,3 +199,24 @@ export function sliderVar(
   const { level = 'basic', description } = options;
   return { key, label, unit, type: 'slider', defaultValue, min, max, step, level, description };
 }
+
+/**
+ * Ô dùng chung, mang thêm KÝ HIỆU của hình ở cuối nhãn: 'Khối lượng' thành 'Khối lượng (Q)'.
+ *
+ * Chủ dự án, 19/10/2026: ký hiệu trong hình công thức phải hiện cả ở ô nhập, như 'Giá trị nội tại ước
+ * tính (V)' của Biên an toàn. Ký hiệu viết liền như trong hình (`P_{mua}` thành 'Pmua'), cùng kiểu
+ * '(D0)', '(g1)' đã có. Biến khai chung giữ nhãn trơn vì cùng một ô có thể mang ký hiệu ở hình này mà
+ * không ở hình kia: 'Thời gian nắm giữ' là M ở Phí lưu ký, nhưng ở Giá hoà vốn nó chỉ đi vào F_lk.
+ * Mỗi công thức tự gọi hàm này cho đúng ô hình của nó vẽ thành ký hiệu.
+ */
+export function withSymbol(variable: VariableSpec, symbol: string): VariableSpec {
+  return { ...variable, label: labelWithSymbol(variable.label, symbol) };
+}
+
+/**
+ * Như `withSymbol`, cho một NHÃN dùng chung truyền thẳng vào `sliderVar`. Hằng nhãn gốc giữ trơn vì
+ * nó còn đi vào câu cảnh báo ("Số phiên phải từ 1 trở lên"), nơi ký hiệu chỉ làm câu rối thêm.
+ */
+export function labelWithSymbol(label: Bilingual, symbol: string): Bilingual {
+  return { vi: `${label.vi} (${symbol})`, en: `${label.en} (${symbol})` };
+}

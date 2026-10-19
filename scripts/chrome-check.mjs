@@ -3003,10 +3003,10 @@ window.__localeLog = [];
     khungBieuDo !== null &&
       khungBieuDo.duong !== null &&
       khungBieuDo.cot !== null &&
-      khungBieuDo.duong.hinh.join('|') === 'P/E theo Giá thị trường' &&
+      khungBieuDo.duong.hinh.join('|') === 'P/E theo Giá thị trường (P)' &&
       khungBieuDo.duong.dang.join('|') === 'Dạng Đường' &&
       khungBieuDo.duong.phaiCuon === false &&
-      khungBieuDo.cot.hinh.join('|') === 'P/E theo Giá thị trường' &&
+      khungBieuDo.cot.hinh.join('|') === 'P/E theo Giá thị trường (P)' &&
       khungBieuDo.cot.dang.join('|') === 'Dạng Cột' &&
       khungBieuDo.cot.phaiCuon === false,
     JSON.stringify(khungBieuDo),

@@ -68,17 +68,23 @@ export const CO_LENH_RUI_RO: FormulaModule = {
     tags: ['co lenh', 'position size', 'quan tri rui ro', 'cat lo'],
     resultUnit: 'CP',
     variables: [
-      numberVar('capital', { vi: 'Vốn tài khoản', en: 'Account capital' }, '₫', 500_000_000, {
-        min: 0,
-        max: 100_000_000_000,
-        description: {
-          vi: 'Tổng vốn đang dùng để giao dịch.',
-          en: 'Total capital used for trading.',
+      numberVar(
+        'capital',
+        { vi: 'Vốn tài khoản (V)', en: 'Account capital (V)' },
+        '₫',
+        500_000_000,
+        {
+          min: 0,
+          max: 100_000_000_000,
+          description: {
+            vi: 'Tổng vốn đang dùng để giao dịch.',
+            en: 'Total capital used for trading.',
+          },
         },
-      }),
+      ),
       sliderVar(
         'riskPercent',
-        { vi: 'Rủi ro mỗi lệnh', en: 'Risk per trade' },
+        { vi: 'Rủi ro mỗi lệnh (r)', en: 'Risk per trade (r)' },
         '%',
         2,
         0.1,
@@ -91,18 +97,30 @@ export const CO_LENH_RUI_RO: FormulaModule = {
           },
         },
       ),
-      numberVar('entryPrice', { vi: 'Giá vào lệnh', en: 'Entry price' }, '₫', 92_000, {
-        min: 0,
-        max: 10_000_000,
-      }),
-      numberVar('stopPrice', { vi: 'Giá cắt lỗ', en: 'Stop-loss price' }, '₫', 86_000, {
-        min: 0,
-        max: 10_000_000,
-        description: {
-          vi: 'Mức giá sẽ bán ra để dừng lỗ.',
-          en: 'The price at which you will sell to stop the loss.',
+      numberVar(
+        'entryPrice',
+        { vi: 'Giá vào lệnh (Pvao)', en: 'Entry price (Pvao)' },
+        '₫',
+        92_000,
+        {
+          min: 0,
+          max: 10_000_000,
         },
-      }),
+      ),
+      numberVar(
+        'stopPrice',
+        { vi: 'Giá cắt lỗ (Pcat)', en: 'Stop-loss price (Pcat)' },
+        '₫',
+        86_000,
+        {
+          min: 0,
+          max: 10_000_000,
+          description: {
+            vi: 'Mức giá sẽ bán ra để dừng lỗ.',
+            en: 'The price at which you will sell to stop the loss.',
+          },
+        },
+      ),
     ],
     explanation: {
       meaning: {

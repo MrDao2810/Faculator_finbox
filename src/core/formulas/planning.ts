@@ -143,14 +143,20 @@ export const RUT_TRUOC_HAN: FormulaModule = {
     tags: ['rut truoc han', 'lai khong ky han', 'tiet kiem', 'early withdrawal'],
     resultUnit: '₫',
     variables: [
-      numberVar('principal', { vi: 'Số tiền gửi', en: 'Deposit amount' }, '₫', 100_000_000, {
-        min: 0,
-        max: 100_000_000_000,
-        description: {
-          vi: 'Số tiền gốc trên sổ tiết kiệm.',
-          en: 'The principal amount on the savings book.',
+      numberVar(
+        'principal',
+        { vi: 'Số tiền gửi (P)', en: 'Deposit amount (P)' },
+        '₫',
+        100_000_000,
+        {
+          min: 0,
+          max: 100_000_000_000,
+          description: {
+            vi: 'Số tiền gốc trên sổ tiết kiệm.',
+            en: 'The principal amount on the savings book.',
+          },
         },
-      }),
+      ),
       sliderVar(
         'contractRate',
         { vi: 'Lãi suất hợp đồng / năm', en: 'Contract rate / year' },
@@ -181,15 +187,24 @@ export const RUT_TRUOC_HAN: FormulaModule = {
           },
         },
       ),
-      sliderVar('monthsHeld', { vi: 'Thời gian đã gửi', en: 'Time held' }, 'tháng', 5, 0, 36, 1, {
-        description: {
-          vi: 'Số tháng đã gửi tính tới ngày rút.',
-          en: 'The number of months held up to the withdrawal date.',
+      sliderVar(
+        'monthsHeld',
+        { vi: 'Thời gian đã gửi (t)', en: 'Time held (t)' },
+        'tháng',
+        5,
+        0,
+        36,
+        1,
+        {
+          description: {
+            vi: 'Số tháng đã gửi tính tới ngày rút.',
+            en: 'The number of months held up to the withdrawal date.',
+          },
         },
-      }),
+      ),
       numberVar(
         'demandRate',
-        { vi: 'Lãi suất không kỳ hạn / năm', en: 'Demand-deposit rate / year' },
+        { vi: 'Lãi suất không kỳ hạn / năm (rkkh)', en: 'Demand-deposit rate / year (rkkh)' },
         '%',
         0.1,
         {
@@ -379,17 +394,23 @@ export const GUI_QUAY_VONG: FormulaModule = {
     tags: ['quay vong', 'ky ngan', 'ky dai', 'tiet kiem', 'rollover', 'lai kep'],
     resultUnit: '₫',
     variables: [
-      numberVar('principal', { vi: 'Số tiền gửi', en: 'Deposit amount' }, '₫', 100_000_000, {
-        min: 0,
-        max: 100_000_000_000,
-        description: {
-          vi: 'Số tiền gửi ban đầu, giữ nguyên suốt thời gian so sánh.',
-          en: 'The initial deposit amount, held constant throughout the comparison period.',
+      numberVar(
+        'principal',
+        { vi: 'Số tiền gửi (P)', en: 'Deposit amount (P)' },
+        '₫',
+        100_000_000,
+        {
+          min: 0,
+          max: 100_000_000_000,
+          description: {
+            vi: 'Số tiền gửi ban đầu, giữ nguyên suốt thời gian so sánh.',
+            en: 'The initial deposit amount, held constant throughout the comparison period.',
+          },
         },
-      }),
+      ),
       sliderVar(
         'shortRate',
-        { vi: 'Lãi suất kỳ ngắn / năm', en: 'Short-term rate / year' },
+        { vi: 'Lãi suất kỳ ngắn / năm (rn)', en: 'Short-term rate / year (rn)' },
         '%',
         4.7,
         0,
@@ -402,15 +423,24 @@ export const GUI_QUAY_VONG: FormulaModule = {
           },
         },
       ),
-      sliderVar('shortMonths', { vi: 'Kỳ hạn ngắn', en: 'Short term' }, 'tháng', 3, 1, 12, 1, {
-        description: {
-          vi: 'Hết mỗi kỳ, cả gốc lẫn lãi được gửi tiếp kỳ mới.',
-          en: 'At the end of each period, both principal and interest are rolled into the next period.',
+      sliderVar(
+        'shortMonths',
+        { vi: 'Kỳ hạn ngắn (m)', en: 'Short term (m)' },
+        'tháng',
+        3,
+        1,
+        12,
+        1,
+        {
+          description: {
+            vi: 'Hết mỗi kỳ, cả gốc lẫn lãi được gửi tiếp kỳ mới.',
+            en: 'At the end of each period, both principal and interest are rolled into the next period.',
+          },
         },
-      }),
+      ),
       sliderVar(
         'longRate',
-        { vi: 'Lãi suất kỳ dài / năm', en: 'Long-term rate / year' },
+        { vi: 'Lãi suất kỳ dài / năm (rd)', en: 'Long-term rate / year (rd)' },
         '%',
         5.5,
         0,
@@ -423,12 +453,21 @@ export const GUI_QUAY_VONG: FormulaModule = {
           },
         },
       ),
-      sliderVar('totalMonths', { vi: 'Tổng thời gian', en: 'Total time' }, 'tháng', 12, 1, 60, 1, {
-        description: {
-          vi: 'Tổng thời gian so sánh — cũng là kỳ hạn của sổ dài.',
-          en: 'The total comparison period — also the term of the long-term book.',
+      sliderVar(
+        'totalMonths',
+        { vi: 'Tổng thời gian (T)', en: 'Total time (T)' },
+        'tháng',
+        12,
+        1,
+        60,
+        1,
+        {
+          description: {
+            vi: 'Tổng thời gian so sánh — cũng là kỳ hạn của sổ dài.',
+            en: 'The total comparison period — also the term of the long-term book.',
+          },
         },
-      }),
+      ),
     ],
     explanation: {
       meaning: {
@@ -670,7 +709,7 @@ export const GIA_VON_TRUNG_BINH_DCA: FormulaModule = {
       dcaLotCount,
       numberVar(
         'amount1',
-        { vi: 'Tiền mua đợt 1', en: 'Amount invested, round 1' },
+        { vi: 'Tiền mua đợt 1 (C1)', en: 'Amount invested, round 1 (C1)' },
         '₫',
         10_000_000,
         {
@@ -682,17 +721,23 @@ export const GIA_VON_TRUNG_BINH_DCA: FormulaModule = {
           },
         },
       ),
-      numberVar('price1', { vi: 'Giá mua đợt 1', en: 'Purchase price, round 1' }, '₫', 50_000, {
-        min: 0,
-        max: 10_000_000,
-        description: {
-          vi: 'Giá khớp lệnh của đợt thứ nhất.',
-          en: 'The matched price of the first round.',
+      numberVar(
+        'price1',
+        { vi: 'Giá mua đợt 1 (P1)', en: 'Purchase price, round 1 (P1)' },
+        '₫',
+        50_000,
+        {
+          min: 0,
+          max: 10_000_000,
+          description: {
+            vi: 'Giá khớp lệnh của đợt thứ nhất.',
+            en: 'The matched price of the first round.',
+          },
         },
-      }),
+      ),
       numberVar(
         'amount2',
-        { vi: 'Tiền mua đợt 2', en: 'Amount invested, round 2' },
+        { vi: 'Tiền mua đợt 2 (C2)', en: 'Amount invested, round 2 (C2)' },
         '₫',
         10_000_000,
         {
@@ -704,17 +749,23 @@ export const GIA_VON_TRUNG_BINH_DCA: FormulaModule = {
           },
         },
       ),
-      numberVar('price2', { vi: 'Giá mua đợt 2', en: 'Purchase price, round 2' }, '₫', 40_000, {
-        min: 0,
-        max: 10_000_000,
-        description: {
-          vi: 'Nhập 0 nếu không có đợt này.',
-          en: 'Enter 0 if this round did not happen.',
+      numberVar(
+        'price2',
+        { vi: 'Giá mua đợt 2 (P2)', en: 'Purchase price, round 2 (P2)' },
+        '₫',
+        40_000,
+        {
+          min: 0,
+          max: 10_000_000,
+          description: {
+            vi: 'Nhập 0 nếu không có đợt này.',
+            en: 'Enter 0 if this round did not happen.',
+          },
         },
-      }),
+      ),
       numberVar(
         'amount3',
-        { vi: 'Tiền mua đợt 3', en: 'Amount invested, round 3' },
+        { vi: 'Tiền mua đợt 3 (C3)', en: 'Amount invested, round 3 (C3)' },
         '₫',
         10_000_000,
         {
@@ -726,14 +777,20 @@ export const GIA_VON_TRUNG_BINH_DCA: FormulaModule = {
           },
         },
       ),
-      numberVar('price3', { vi: 'Giá mua đợt 3', en: 'Purchase price, round 3' }, '₫', 25_000, {
-        min: 0,
-        max: 10_000_000,
-        description: {
-          vi: 'Nhập 0 nếu không có đợt này.',
-          en: 'Enter 0 if this round did not happen.',
+      numberVar(
+        'price3',
+        { vi: 'Giá mua đợt 3 (P3)', en: 'Purchase price, round 3 (P3)' },
+        '₫',
+        25_000,
+        {
+          min: 0,
+          max: 10_000_000,
+          description: {
+            vi: 'Nhập 0 nếu không có đợt này.',
+            en: 'Enter 0 if this round did not happen.',
+          },
         },
-      }),
+      ),
     ],
     /*
      * Đợt thứ tư trở đi. Ô của đợt mới mang số 0, đúng quy ước "0 là không có đợt này" đã có từ
@@ -744,22 +801,34 @@ export const GIA_VON_TRUNG_BINH_DCA: FormulaModule = {
     repeat: {
       countKey: 'lots',
       fields: [
-        numberVar('amount', { vi: 'Tiền mua đợt {n}', en: 'Amount invested, round {n}' }, '₫', 0, {
-          min: 0,
-          max: 100_000_000_000,
-          description: {
-            vi: 'Nhập 0 nếu không có đợt này.',
-            en: 'Enter 0 if this round did not happen.',
+        numberVar(
+          'amount',
+          { vi: 'Tiền mua đợt {n} (C{n})', en: 'Amount invested, round {n} (C{n})' },
+          '₫',
+          0,
+          {
+            min: 0,
+            max: 100_000_000_000,
+            description: {
+              vi: 'Nhập 0 nếu không có đợt này.',
+              en: 'Enter 0 if this round did not happen.',
+            },
           },
-        }),
-        numberVar('price', { vi: 'Giá mua đợt {n}', en: 'Purchase price, round {n}' }, '₫', 0, {
-          min: 0,
-          max: 10_000_000,
-          description: {
-            vi: 'Nhập 0 nếu không có đợt này.',
-            en: 'Enter 0 if this round did not happen.',
+        ),
+        numberVar(
+          'price',
+          { vi: 'Giá mua đợt {n} (P{n})', en: 'Purchase price, round {n} (P{n})' },
+          '₫',
+          0,
+          {
+            min: 0,
+            max: 10_000_000,
+            description: {
+              vi: 'Nhập 0 nếu không có đợt này.',
+              en: 'Enter 0 if this round did not happen.',
+            },
           },
-        }),
+        ),
       ],
       addLabel: { vi: 'Thêm đợt mua', en: 'Add a purchase round' },
       removeLabel: { vi: 'Bỏ đợt {n}', en: 'Remove round {n}' },
@@ -1052,17 +1121,23 @@ export const SO_KY_DCA: FormulaModule = {
     tags: ['dca', 'so ky', 'muc tieu', 'gop deu', 'dau tu dinh ky', 'periods to goal'],
     resultUnit: 'tháng',
     variables: [
-      numberVar('target', { vi: 'Số tiền mục tiêu', en: 'Target amount' }, '₫', 500_000_000, {
-        min: 0,
-        max: 100_000_000_000,
-        description: {
-          vi: 'Giá trị danh mục muốn đạt được.',
-          en: 'The portfolio value you want to reach.',
+      numberVar(
+        'target',
+        { vi: 'Số tiền mục tiêu (FV)', en: 'Target amount (FV)' },
+        '₫',
+        500_000_000,
+        {
+          min: 0,
+          max: 100_000_000_000,
+          description: {
+            vi: 'Giá trị danh mục muốn đạt được.',
+            en: 'The portfolio value you want to reach.',
+          },
         },
-      }),
+      ),
       numberVar(
         'contribution',
-        { vi: 'Mức góp mỗi tháng', en: 'Monthly contribution' },
+        { vi: 'Mức góp mỗi tháng (C)', en: 'Monthly contribution (C)' },
         '₫',
         10_000_000,
         {
@@ -1261,7 +1336,7 @@ export const THUE_TNCN_DAU_TU: FormulaModule = {
     tags: ['thue tncn', 'thue dau tu', 'chuyen nhuong', 'co tuc', 'personal income tax'],
     resultUnit: '₫',
     variables: [
-      numberVar('quantity', { vi: 'Khối lượng', en: 'Quantity' }, 'CP', 1_000, {
+      numberVar('quantity', { vi: 'Khối lượng (Q)', en: 'Quantity (Q)' }, 'CP', 1_000, {
         min: 0,
         max: 50_000_000,
         description: {
@@ -1269,7 +1344,7 @@ export const THUE_TNCN_DAU_TU: FormulaModule = {
           en: 'The number of shares held, receiving dividends and then sold during the year.',
         },
       }),
-      numberVar('sellPrice', { vi: 'Giá bán', en: 'Sale price' }, '₫', 97_000, {
+      numberVar('sellPrice', { vi: 'Giá bán (Pban)', en: 'Sale price (Pban)' }, '₫', 97_000, {
         min: 0,
         max: 10_000_000,
         description: {
@@ -1277,14 +1352,20 @@ export const THUE_TNCN_DAU_TU: FormulaModule = {
           en: 'The matched sale price, per share. Enter 0 if no sale has happened this year.',
         },
       }),
-      numberVar('dividendPerShare', { vi: 'Cổ tức tiền mặt', en: 'Cash dividend' }, '₫/CP', 2_000, {
-        min: 0,
-        max: 1_000_000,
-        description: {
-          vi: 'Cổ tức tiền mặt trên mỗi cổ phiếu, trước thuế. Nhập 0 nếu không có.',
-          en: 'The cash dividend per share, before tax. Enter 0 if there is none.',
+      numberVar(
+        'dividendPerShare',
+        { vi: 'Cổ tức tiền mặt (D)', en: 'Cash dividend (D)' },
+        '₫/CP',
+        2_000,
+        {
+          min: 0,
+          max: 1_000_000,
+          description: {
+            vi: 'Cổ tức tiền mặt trên mỗi cổ phiếu, trước thuế. Nhập 0 nếu không có.',
+            en: 'The cash dividend per share, before tax. Enter 0 if there is none.',
+          },
         },
-      }),
+      ),
     ],
     explanation: {
       meaning: {

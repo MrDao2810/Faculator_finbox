@@ -81,7 +81,7 @@ export const DIEM_HOA_VON: FormulaModule = {
        * vào ô: điểm hoà vốn ra 3,2 triệu sản phẩm thay vì 7,8 triệu, còn đòn bẩy tổng hợp thì hỏng
        * hẳn (ba ô cùng bị kẹp về một giá trị nên mẫu số thành 0 và công thức trả cảnh báo).
        */
-      numberVar('fixedCost', { vi: 'Định phí', en: 'Fixed cost' }, '₫', 500_000_000, {
+      numberVar('fixedCost', { vi: 'Định phí (FC)', en: 'Fixed cost (FC)' }, '₫', 500_000_000, {
         min: 0,
         max: 100_000_000_000_000,
         description: {
@@ -99,7 +99,7 @@ export const DIEM_HOA_VON: FormulaModule = {
        */
       numberVar(
         'unitPrice',
-        { vi: 'Giá bán một sản phẩm', en: 'Selling price per unit' },
+        { vi: 'Giá bán một sản phẩm (P)', en: 'Selling price per unit (P)' },
         '₫',
         50_000,
         {
@@ -113,7 +113,7 @@ export const DIEM_HOA_VON: FormulaModule = {
       ),
       numberVar(
         'variableCost',
-        { vi: 'Biến phí một sản phẩm', en: 'Variable cost per unit' },
+        { vi: 'Biến phí một sản phẩm (VC)', en: 'Variable cost per unit (VC)' },
         '₫',
         30_000,
         {
@@ -246,7 +246,7 @@ export const DON_BAY_TONG_HOP: FormulaModule = {
   spec: {
     id: 'don-bay-tong-hop',
     categoryId: 'corporate-finance',
-    name: { vi: 'Đòn bẩy tổng hợp (DOL × DFL)', en: 'Degree of total leverage' },
+    name: { vi: 'Đòn bẩy tổng hợp (DOL × DFL)', en: 'Degree of total leverage (DOL × DFL)' },
     description: {
       vi: 'Doanh thu thay đổi 1% thì EPS thay đổi bao nhiêu phần trăm, gộp cả đòn bẩy hoạt động và đòn bẩy tài chính.',
       en: 'How many percent EPS changes for a 1% change in revenue, combining both operating leverage and financial leverage.',
@@ -315,14 +315,14 @@ export const DON_BAY_TONG_HOP: FormulaModule = {
     ],
     resultUnit: 'lần',
     variables: [
-      numberVar('revenue', { vi: 'Doanh thu', en: 'Revenue' }, '₫', 2_000_000_000, {
+      numberVar('revenue', { vi: 'Doanh thu (DT)', en: 'Revenue (DT)' }, '₫', 2_000_000_000, {
         min: 0,
         max: 100_000_000_000_000,
         description: { vi: 'Doanh thu thuần trong kỳ.', en: 'Net revenue for the period.' },
       }),
       numberVar(
         'variableCost',
-        { vi: 'Tổng biến phí', en: 'Total variable cost' },
+        { vi: 'Tổng biến phí (BP)', en: 'Total variable cost (BP)' },
         '₫',
         1_200_000_000,
         {
@@ -348,7 +348,7 @@ export const DON_BAY_TONG_HOP: FormulaModule = {
           },
         },
       ),
-      numberVar('interest', { vi: 'Lãi vay', en: 'Interest expense' }, '₫', 100_000_000, {
+      numberVar('interest', { vi: 'Lãi vay (I)', en: 'Interest expense (I)' }, '₫', 100_000_000, {
         min: 0,
         max: 100_000_000_000_000,
         level: 'advanced',

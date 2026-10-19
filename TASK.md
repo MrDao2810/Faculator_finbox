@@ -4,6 +4,86 @@ Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 
 ---
 
+## Ô nhập mang ký hiệu của hình công thức (19/10/2026)
+
+**Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án xem.**
+
+Chủ dự án liệt kê Gordon, Số Graham, WACC, P/E, Lợi suất thực, Lợi suất năm hoá, HPR, ROI, Lợi suất vượt chuẩn, Lợi suất
+quy năm theo số ngày, Tỷ suất cổ tức, Cỡ lệnh theo % rủi ro: _"Các ký hiệu ở công thức cũng cần được biểu thị ở ô nhập
+liệu"_, mẫu là Biên an toàn ("Giá trị nội tại ước tính (V)"). Khi được hỏi, chủ dự án chọn **làm cả sản phẩm** và **viết
+ký hiệu liền như hình** (`P_{mua}` → "Pmua").
+
+- Đo: Gordon và Số Graham đã đủ ký hiệu từ trước. Toàn sản phẩm khoảng 95 công thức có ô thiếu.
+- Luật chọn ô: chỉ gắn khi ký hiệu trong hình CHÍNH LÀ số gõ vào ô. Ký hiệu tính ra từ ô (r_f của Sharpe, i của trả
+  góp, n của độ lệch chuẩn, F_lk của giá hoà vốn) thì không gắn.
+- `src/core/formulas/*.ts`: 112 nhãn khai riêng đổi bằng script; 49 ô khai chung đổi tại chỗ dùng bằng
+  `withSymbol()` / `labelWithSymbol()` mới ở `shared.ts` (cùng một ô có thể là ký hiệu ở hình này mà không ở hình kia).
+  Nhãn mẫu nhóm lặp: "Tiền mua đợt {n} (C{n})", "Giá mua đợt {n} (P{n})", "Lợi suất kỳ {n} (r{n})".
+  "(Re)", "(Rd)", "(Rf)", "(S)" sửa thành "(re)", "(rd)", "(rf)", "(Sps)" cho khớp hình. EN "Length of the first stage
+  (years)" thành "Length of the first stage in years (n)" để khỏi hai cặp ngoặc.
+- `src/core/huong-dan/bieu-do/noi-dung/*.ts`: ~150 đoạn "Đọc biểu đồ" gọi tên ô nguyên văn được sửa theo nhãn mới (vi + en);
+  ba đoạn tiếng Anh vượt trần 600 ký tự được rút gọn một cụm.
+- Test ghim nhãn cũ cập nhật: `FormulaDetail.test.tsx`, `GuideScreen.test.tsx`, `chart.test.ts`, `history.test.ts`,
+  `repeat.test.ts`, `charts.test.tsx`; `scripts/chrome-check.mjs` hai dòng so khớp tuyệt đối tên biểu đồ P/E.
+- Cửa gác mới `src/core/formulas/input-symbols.test.ts`: bảng ghim 111 công thức (ô → ký hiệu).
+- Hệ quả biết trước: tên trục biểu đồ có hai cặp ngoặc ("Giá mua (Pmua) (nghìn ₫)"), như P/S đã có.
+- Kiểm: lint, typecheck, prettier sạch; toàn bộ vitest xanh (một ca của `PortfolioScreen.test.tsx` đỏ chập chờn khi chạy
+  cả bộ, chạy riêng 187/187 xanh; file đó đang được sửa song song, không do đợt này). Chưa chạy `check:chrome`.
+
+## Nút "?" nhỏ hơn trên điện thoại (19/10/2026)
+
+**Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án xem.**
+
+Chủ dự án: _"icon ? và cùng khoanh tròn đang lớn quá. giảm xuống tiếp"_.
+
+- `src/ui/guide/GuideHint.module.css`: dưới 1024px vòng 24 → 20px, dấu "?" 12 → 11px; vùng chạm vẫn 44px (`::after`).
+  Từ 1024px giữ 24px vì thẻ gộp ở PC căn nhóm kết quả theo chiều cao hàng "?" (`--space-6`).
+- Kiểm: prettier sạch, `hover-media.test.ts` xanh. Không test nào đo cỡ nút này.
+
+---
+
+## Tên tiếng Anh giữ ký hiệu như tên tiếng Việt (19/10/2026)
+
+**Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án xem.**
+
+Chủ dự án tìm "p/e" ở hai ngôn ngữ: thẻ đầu là "P/E — hệ số giá trên lợi nhuận" nhưng sang tiếng Anh là "Price to earnings
+ratio", rồi chốt: _"tôi không nghĩ là nên dịch các ký tự khi dịch sang tiếng anh"_.
+
+- Đo: 34 / 111 tên tiếng Anh làm mất ký hiệu mà tên tiếng Việt có. Đổi 33 tên trong 9 file nhóm (`multiples.ts`,
+  `fundamentals.ts`, `valuation-multiples.ts`, `valuation-dcf.ts`, `returns.ts`, `performance.ts`, `technical-trend.ts`,
+  `technical-volatility.ts`, `corporate.ts`). Ký hiệu đứng đúng chỗ của bản Việt:
+  - "KÝ HIỆU — chữ" → `P/E — price to earnings ratio`, `ROE — return on equity`, `WACC — weighted average cost of capital`…
+  - "chữ (KÝ HIỆU)" → `Present value (PV)`, `Simple moving average (SMA)`, `Degree of total leverage (DOL × DFL)`…
+  - ký hiệu thay cả cụm → `Basic EPS`, `NCAV per share`, `Two-stage DDM`, `14-period RSI (Wilder)`,
+    `PEG — P/E to growth ratio`.
+  - KHÔNG đổi `thue-tncn-dau-tu`: TNCN là chữ viết tắt tiếng Việt, không phải ký hiệu tài chính. Chờ chủ dự án chốt.
+- `summaries.generated.ts` sinh lại bằng `npm run gen:summaries`.
+- Hệ quả: tiêu đề biểu đồ tiếng Anh cắt ở gạch dài nên thành "P/E vs …", thanh tổng bóc tách thành "EV", "WACC", "FCFF",
+  "FCFE". Bốn đoạn "Đọc biểu đồ" tiếng Anh gọi thanh bằng tên dài cũ được sửa ở `huong-dan/bieu-do/noi-dung/dinh-gia.ts`.
+- `src/core/chart/build.ts`: sửa chú thích `shortLabel()` (câu "tên tiếng Anh thường không có gạch dài" đã sai).
+- Không đổi: `giai.tinh` của bài tập và `phrases` của khung cách tính. Cả hai ngôn ngữ đều trích phần chữ, không kèm ký
+  hiệu. Bốn test dùng tên tiếng Anh cũ chỉ là dữ liệu mẫu riêng.
+- Kiểm: toàn bộ `npx vitest run` trước khi sửa hướng dẫn: 4 ca đỏ, đều ở `bieu-do.test.ts`. Sau khi sửa: `src/core/huong-dan`
+  315 ca xanh; chạy lại toàn bộ: 160 file, 4075 ca xanh. Prettier sạch.
+
+---
+
+## Chip "Tất cả nhóm" đổi thành "Tất cả" (19/10/2026)
+
+**Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án xem.**
+
+Chủ dự án: _"sửa text Button 'Tất cả nhóm' ở ngoài màn công thức đổi thành 'Tất cả'"_.
+
+- **`src/application/i18n/vi.ts`**: `filter.category.all` 'Tất cả nhóm' → 'Tất cả', kèm chú thích lý do (chữ "nhóm" đã
+  có ở tên cả hàng chip, `filter.category.label`).
+- **`src/application/i18n/en.ts`**: 'All groups' → 'All' cho khớp.
+- Khoá chỉ có một nơi dùng: chip đầu hàng nhóm của `/cong-thuc/` (`CategoryChips`).
+- Test và chú thích tìm theo chữ cũ đổi theo: `CategoryChips.test.tsx`, `FormulaListScreen.test.tsx`,
+  `CategoryChips.tsx`, `CategoryChips.module.css`.
+- Kiểm: prettier sạch; `CategoryChips.test.tsx`, `FormulaListScreen.test.tsx`, test i18n xanh (67 ca).
+
+---
+
 ## Màn chi tiết nhỏ chữ trên điện thoại: Giải thích, Bảng biến, Ví dụ, Bài tập, khung cách tính (19/10/2026)
 
 **Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án xem trên điện thoại.**
@@ -55,6 +135,82 @@ của bước và link "Xem công thức: …": _"cần giảm size text ở nh�
   - Khung nổi của hình trong lời giải Bài tập và Ví dụ dùng chung lớp nên đổi theo.
 - Kiểm: prettier sạch; `hover-media.test.ts` xanh. Không test nào đọc file CSS này. Chưa đo trong Chrome.
 - Kiểm: prettier sạch; `npx vitest run src/ui` 62 file xanh. Chưa đo trong Chrome.
+
+---
+
+## Danh mục ở khổ điện thoại: tab, nút "Thêm mới" và dòng lãi/lỗ nhỏ lại (19/10/2026)
+
+**Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án xem.**
+
+Chủ dự án gửi ba ảnh chụp `/danh-muc/` trên điện thoại: thanh tab Mã · Công thức, nút "Thêm mới", và số lãi/lỗ màu xanh
+"+905.723.634 đ". Lời họ: _"button quá cao, text quá lớn. giảm xuống và text xanh khoanh đỏ đang quá to ở màn mobile"_. Hai số
+đo cũ (tab 40px, nút 46px/15px) là số đo trên bản vẽ của chính chủ dự án; lần này chủ dự án tự đè lên.
+
+- **`src/ui/primitives/TabBar.module.css`** — `.responsive .tab` dưới 1024px:
+  - Cao 40 → 32px, chữ 14 → 13px. 13px là cỡ chữ bảng của khổ này.
+  - Khay 50 → 42px. Vùng chạm 44px vẫn do `.tab::after` lo.
+- **`src/app/danh-muc/PortfolioScreen.module.css`**:
+  - `.addButton` dưới 1024px: cao 46 → 36px, chữ 15 → 14px. Cùng cỡ với cặp nút ghim đáy màn chi tiết công thức, giảm cùng
+    ngày.
+  - Thêm `::after` 44px cho vùng chạm.
+  - Đệm đáy `.screen` đổi theo (46 → 36).
+- **`src/app/danh-muc/PortfolioSummary.module.css`**:
+  - `.gain` dưới 1024px 16 → 13px, nên số tiền lãi/lỗ bằng cỡ phần trăm cạnh nó và nhỏ hơn Tổng giá trị (16px).
+- **Đo trên dev server** (Chrome headless, nền tối, 390 và 360):
+  - Tab 32px, chữ 13px, khay 42px.
+  - "Thêm mới" 36px, chữ 14px, vùng chạm 44px.
+  - Số lãi/lỗ và phần trăm cùng 13px.
+  - Không cuộn ngang.
+- `prettier` sạch. Test `src/ui/primitives`, `src/app/danh-muc` và các cổng CSS xanh. Chưa chạy `check:chrome`.
+
+---
+
+## Nút "?" hướng dẫn cho Beta danh mục và XIRR toàn DM (19/10/2026)
+
+**Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án đọc chữ trong khung.**
+
+Chủ dự án hỏi cơ chế của hai dòng này, rồi: _"thêm hướng dẫn sử dụng vào đằng sau Beta danh mục và XIRR toàn DM"_. Hai dòng
+gần như luôn là `_ _` với người mới. Câu lý do dưới hai dòng đã bỏ từ 29/09/2026, nên trên màn không còn chỗ nào nói chúng là
+gì, cần nhập gì và vì sao đang trống.
+
+- **`src/app/danh-muc/SummaryGuidePanel.tsx` + `.module.css`** (mới): khung bật ra tại nút "?".
+  - Bốn mục: Là gì · Vì sao đang là `_ _` · Cách dùng · Đọc kết quả.
+  - Mục "Vì sao" chỉ hiện khi dòng chưa ra số. Nó in nguyên `warning.message` của `summarisePortfolio()`, nên luôn kể đúng mã
+    đang thiếu.
+  - Dùng lại `placePanel` / `anchorBox` / `viewportBounds` của màn chi tiết. Số đo khung chép từ `GuideHintPanel.module.css`.
+  - Khung đi qua `createPortal` vào `<body>`. Lý do: `.card` mang `container-type: inline-size`, và thuộc tính này biến thẻ
+    thành khối chứa của phần tử `position: fixed`.
+  - Đề mục 14px đậm màu `--color-ink`, thân 14px màu `--color-ink-soft`.
+  - Đóng bằng Esc, bấm ra ngoài, cuộn trang, hoặc bấm lại nút "?".
+- **`src/app/danh-muc/PortfolioSummary.tsx`**:
+  - `Row` nhận `hint`, đặt TRONG `<span>` nhãn, nên nhãn và giá trị vẫn là hai phần tử anh em mà `oThongKe` dựa vào.
+  - Nút "?" là `GuideHint`. `href` trỏ bài hướng dẫn của công thức `beta` / `xirr` cho Ctrl-bấm.
+  - Chỉ có ở chế độ Nâng cao.
+- **`PortfolioSummary.module.css`**: `a.rowHint`, khe 8px sau chữ và canh giữa dòng.
+- **`vi.ts` / `en.ts`**: 19 khoá `portfolio.guide.*`.
+  - Chữ do Claude viết, **chưa được chủ dự án duyệt**.
+  - Đọc kết quả theo khuôn "So với [mốc]: …".
+- **Test**: `PortfolioScreen.test.tsx` thêm 4 ca:
+  - khung Beta kể đúng mã thiếu, bấm lại thì đóng;
+  - khung XIRR kể ngày mua thiếu, Esc đóng;
+  - dòng đã ra số thì không có mục "Vì sao";
+  - chế độ Cơ bản không có nút.
+- **Đo trên dev server** (Chrome headless, chế độ Nâng cao, 2 mã):
+  - 1440px và 390px: nút "?" 24px ngay sau nhãn, khung đặt dưới nút, không cuộn ngang.
+  - **Khung XIRR cao khoảng 470px.** Khi dòng nằm thấp trên màn không cao, khung phải cuộn bên trong. Chờ chủ dự án chọn có
+    rút gọn không (ví dụ bỏ câu lưu ý cuối).
+- Lỗi gặp khi làm: câu EN có dấu `×` (U+00D7) làm đỏ ca "câu tiếng Anh không sót chữ có dấu", đã đổi thành "times".
+- `tsc`, `eslint`, `prettier` sạch. `npm test`: lần chạy toàn bộ chỉ đỏ đúng ca trên; sau khi sửa, test i18n xanh. Chưa chạy
+  `check:chrome`.
+- **Viết lại mục "Cách dùng" của Beta theo chữ chủ dự án** (cùng ngày). Chủ dự án đánh giá bản cũ _"chưa rõ ràng và đọc bị
+  quê mùa"_ và đưa nguyên câu mới:
+  - `portfolio.guide.openEdit`: "Bạn hãy sửa một mã: Sửa một mã trong bảng." Khoá này dùng chung, nên khung XIRR cũng đổi
+    theo.
+  - `portfolio.guide.beta.step`: "Gõ beta…" thành "Nhập beta…".
+  - `portfolio.guide.beta.done`: "Lưu ý: Mọi mã đều phải có beta thì "Beta danh mục" mới hiển thị số liệu."
+  - `portfolio.guide.xirr.done` đồng bộ cùng khuôn: "Lưu ý: Mọi mã đều phải có ngày mua thì "XIRR toàn DM" mới hiển thị số
+    liệu." Đây là phần Claude tự đồng bộ, chờ chủ dự án xem.
+  - Bản EN viết lại tương ứng. `PortfolioScreen.test.tsx` cập nhật câu bước 2 (187/187 xanh).
 
 ---
 

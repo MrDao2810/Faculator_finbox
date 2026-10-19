@@ -613,9 +613,9 @@ describe('buildChartModel()', () => {
 
     expect(model.kind).toBe('line');
     if (model.kind !== 'line') return;
-    expect(model.title.vi).toBe('P/E theo Giá thị trường');
+    expect(model.title.vi).toBe('P/E theo Giá thị trường (P)');
     // `nghìn ₫` từ 15/10/2026: tiền từ 1.000 trở lên viết bằng chữ — xem `DON_VI_DOI_CHU`.
-    expect(model.x.title.vi).toBe('Giá thị trường (nghìn ₫)');
+    expect(model.x.title.vi).toBe('Giá thị trường (P) (nghìn ₫)');
     expect(model.y.title.vi).toBe('P/E (lần)');
   });
 
@@ -1637,7 +1637,7 @@ describe('buildChartModel()', () => {
     });
     if (model.kind !== 'line') throw new Error('phải ra đường quét');
 
-    expect(model.x.title.vi).toBe('Giá mua (nghìn ₫)');
+    expect(model.x.title.vi).toBe('Giá mua (Pmua) (nghìn ₫)');
     expect(model.y.title.vi).toBe('Giá hoà vốn thực (nghìn ₫)');
     const marked = model.points.find((point) => point.marked);
     expect(marked?.shortLabel).toBe('92 nghìn ₫');
@@ -1658,7 +1658,7 @@ describe('buildChartModel()', () => {
     });
     if (entry.kind !== 'line') throw new Error('phải ra đường quét');
 
-    expect(entry.x.title.vi).toBe('Điểm mở vị thế (điểm)');
+    expect(entry.x.title.vi).toBe('Điểm mở vị thế (Pmo) (điểm)');
     expect(entry.y.title.vi).toMatch(/triệu ₫/);
   });
 

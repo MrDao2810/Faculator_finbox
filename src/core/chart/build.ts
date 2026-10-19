@@ -123,8 +123,9 @@ export interface ChartArgs {
  *
  * 'EPS — lợi nhuận trên mỗi cổ phiếu' thành 'EPS'. Tên đầy đủ hợp cho bảng biến và tiêu đề màn,
  * nhưng nhãn trục ở khổ 360px thì phải gọn. Chỉ cắt ở gạch dài có khoảng trắng hai bên nên không
- * chạm tới dấu nối trong từ. Tên tiếng Anh thường không có gạch dài đó nên vế `en` giữ nguyên cả
- * câu — chấp nhận được, đây chỉ là rút gọn cho vừa khổ, không phải chỗ đúng/sai.
+ * chạm tới dấu nối trong từ. Từ 19/10/2026 tên tiếng Anh giữ ký hiệu đúng như tên tiếng Việt
+ * ('P/E — price to earnings ratio'), nên hai vế cắt ra cùng một ký hiệu và tiêu đề biểu đồ hai ngôn
+ * ngữ khớp nhau ('P/E theo …' / 'P/E vs …'). Tên không có gạch dài thì vế ấy giữ nguyên cả câu.
  */
 function shortLabel(text: Bilingual): Bilingual {
   const [headVi] = text.vi.split(/\s[—–]\s/);

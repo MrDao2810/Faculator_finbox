@@ -2,7 +2,7 @@
  * Hàng chip nhóm — bản vẽ gộp trang chủ vào màn Công thức (15/09/2026).
  *
  * Hai nút ‹ › đứng CUỐI hàng, liền nhau, đúng chỗ bản vẽ đặt — không tách ra hai mép: tách ra thì
- * nút trái đứng đè lên chip "Tất cả nhóm" ở vị trí người dùng bấm nhiều nhất.
+ * nút trái đứng đè lên chip "Tất cả" ở vị trí người dùng bấm nhiều nhất.
  */
 .wrap {
   display: flex;

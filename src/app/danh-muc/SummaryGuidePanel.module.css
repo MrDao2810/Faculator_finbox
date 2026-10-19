@@ -1,0 +1,67 @@
+/*
+ * Khung "?" của Beta danh mục và XIRR toàn DM (19/10/2026).
+ *
+ * Nền, viền, bóng, góc bo, đệm và bề ngang chép từ `GuideHintPanel.module.css`: cùng một kiểu khung
+ * "?" trên cả sản phẩm. Thứ bậc chữ theo luật "đề mục nổi hơn nội dung": tên khung 16px đậm, tên mục
+ * 14px đậm màu `--color-ink`, thân 14px thường màu `--color-ink-soft` — mục đậm hơn và sáng hơn mọi
+ * dòng dưới nó.
+ */
+
+.panel {
+  position: fixed;
+  z-index: 40;
+  width: min(32rem, calc(100vw - 2 * var(--space-4)));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-modal);
+}
+
+.title {
+  margin: 0;
+  font-size: var(--text-base);
+  font-weight: var(--weight-bold);
+  line-height: var(--leading-tight);
+  color: var(--color-ink);
+}
+
+.muc {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.label {
+  margin: 0;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  color: var(--color-ink);
+}
+
+.text {
+  margin: 0;
+  font-size: var(--text-sm);
+  line-height: var(--leading-normal);
+  color: var(--color-ink-soft);
+}
+
+/* Cùng màu với câu lý do của thẻ tóm tắt (`.reason` ở `PortfolioSummary.module.css`). */
+.reason {
+  color: var(--color-warning);
+}
+
+.steps {
+  margin: 0;
+  padding-left: 1.25rem;
+  font-size: var(--text-sm);
+  line-height: var(--leading-normal);
+  color: var(--color-ink-soft);
+}

@@ -120,7 +120,11 @@ export const vi = {
    * ba tab mảng khi trang chủ gộp vào màn Công thức: bản vẽ chỉ còn một hàng chip nhóm.
    */
   'filter.category.label': 'Nhóm công thức',
-  'filter.category.all': 'Tất cả nhóm',
+  /*
+   * "Tất cả", không còn "Tất cả nhóm" (19/10/2026, chủ dự án). Chữ "nhóm" đã có ở tên của cả hàng chip
+   * (`filter.category.label`, đọc cùng nút trên trình đọc màn hình), và chip nào trong hàng cũng là một nhóm.
+   */
+  'filter.category.all': 'Tất cả',
   /*
    * Chữ thay cho con số trên chip của nhóm mà chế độ Cơ bản giấu sạch — hiện chỉ có
    * `corporate-finance` (2/2 công thức mức nâng cao). Chữ chứ không in `0`: số 0 đọc ra là "nhóm
@@ -758,6 +762,54 @@ export const vi = {
   'portfolio.totalValue': 'Tổng giá trị',
   'portfolio.beta': 'Beta danh mục',
   'portfolio.xirr': 'XIRR toàn DM',
+  /*
+   * ── Nút "?" cạnh Beta danh mục và XIRR toàn DM (19/10/2026) ──────────────────────────────────
+   *
+   * Chủ dự án hỏi cơ chế của hai dòng ấy, rồi: _"thêm hướng dẫn sử dụng vào đằng sau Beta danh mục
+   * và XIRR toàn DM"_. Hai dòng gần như luôn là `_ _` với người mới, và câu lý do dưới chúng đã bỏ từ
+   * 29/09/2026 (xem `PortfolioSummary.tsx`), nên trên màn không còn chỗ nào nói chúng là gì, cần nhập
+   * gì, và vì sao đang trống. Khung bật ra từ "?" trả lời cả ba, lý do lấy nguyên câu cảnh báo của
+   * `summarisePortfolio()` nên luôn kể đúng mã đang thiếu.
+   *
+   * Chữ dưới đây do Claude viết, CHƯA được chủ dự án duyệt. Đọc kết quả theo khuôn "So với [mốc]: …"
+   * của `howToRead`, mốc không kết thúc bằng chữ số.
+   *
+   * Mục "Cách dùng" của Beta do chủ dự án viết lại cùng ngày (bản cũ "chưa rõ ràng và đọc bị quê
+   * mùa"): `openEdit`, `beta.step`, `beta.done` lấy nguyên câu của chủ dự án. `openEdit` dùng chung
+   * với XIRR, và `xirr.done` được đồng bộ theo cùng khuôn "Lưu ý: … thì "<tên dòng>" mới hiển thị số
+   * liệu." — tên dòng gõ tay, khớp `portfolio.beta` / `portfolio.xirr`; đổi nhãn dòng thì đổi cả đây.
+   */
+  'portfolio.guide.betaHint': 'Hướng dẫn: Beta danh mục',
+  'portfolio.guide.xirrHint': 'Hướng dẫn: XIRR toàn danh mục',
+  'portfolio.guide.what': 'Là gì',
+  'portfolio.guide.use': 'Cách dùng',
+  'portfolio.guide.read': 'Đọc kết quả',
+  'portfolio.guide.why': 'Vì sao đang là _ _',
+  'portfolio.guide.openEdit': 'Bạn hãy sửa một mã: Sửa một mã trong bảng.',
+  'portfolio.guide.beta.title': 'Beta danh mục',
+  'portfolio.guide.beta.what':
+    'Cho biết cả danh mục thường lên xuống mạnh hay nhẹ hơn VN-Index bao nhiêu lần. Con số là beta ' +
+    'của từng mã, bình quân theo giá trị: mã chiếm phần lớn danh mục kéo kết quả về gần beta của nó.',
+  'portfolio.guide.beta.step': 'Nhập beta của mã vào ô Beta rồi lưu.',
+  'portfolio.guide.beta.done':
+    'Lưu ý: Mọi mã đều phải có beta thì "Beta danh mục" mới hiển thị số liệu.',
+  'portfolio.guide.beta.read':
+    'So với mốc 1 lần: trên 1 thì danh mục thường biến động mạnh hơn VN-Index, dưới 1 thì nhẹ hơn.',
+  'portfolio.guide.xirr.title': 'XIRR toàn danh mục',
+  'portfolio.guide.xirr.what':
+    'Lợi suất mỗi năm của cả danh mục. Mỗi mã được tính là một khoản chi (số CP × giá vốn) vào ngày ' +
+    'mua, còn toàn bộ giá trị hiện tại là một khoản thu vào hôm nay; XIRR là lãi suất năm làm hai ' +
+    'phía ấy cân nhau.',
+  'portfolio.guide.xirr.step': 'Nhập ngày mua theo dạng ngày/tháng/năm rồi lưu.',
+  'portfolio.guide.xirr.done':
+    'Lưu ý: Mọi mã đều phải có ngày mua thì "XIRR toàn DM" mới hiển thị số liệu.',
+  'portfolio.guide.xirr.read':
+    'So với lãi suất gửi tiết kiệm một năm: cao hơn thì danh mục đang sinh lời hơn gửi tiết kiệm, ' +
+    'âm là đang lỗ. Mã mới mua vài ngày làm con số bị phóng đại, vì lãi lỗ của vài ngày được quy ra ' +
+    'cả năm.',
+  'portfolio.guide.xirr.note':
+    'Chưa tính cổ tức và các lần bán bớt. Mua một mã nhiều đợt thì được tính như một lần mua vào ' +
+    'ngày sớm nhất.',
   /*
    * ── Thiết kế lại màn Danh mục: mười ba khoá đã XOÁ (12/10/2026) ──────────────────────────────
    *

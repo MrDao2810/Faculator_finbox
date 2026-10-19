@@ -273,8 +273,15 @@
     border-radius: var(--radius-md);
   }
 
+  /*
+   * Cao 32px, chữ 13px (19/10/2026) — chủ dự án chụp thanh tab trên điện thoại: _"button quá cao, text
+   * quá lớn. giảm xuống"_. Bản vẽ đo được 40px và chữ 14px; đây là chủ dự án tự đè lên số đo ấy. 13px là
+   * cỡ chữ bảng của khổ này (`PortfolioScreen.module.css`), nên tab không to hơn chữ trong bảng ngay dưới.
+   * Vùng chạm vẫn 44px nhờ `.tab::after` của luật gốc. Khay: 32 + 2 × 4 đệm + 2 viền = 42px.
+   */
   .responsive .tab {
-    min-height: 40px;
+    min-height: 32px;
+    font-size: 13px;
     border-radius: 8px;
     color: var(--color-ink-soft);
   }

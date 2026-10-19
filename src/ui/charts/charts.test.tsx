@@ -644,7 +644,7 @@ describe('Biểu đồ độ nhạy — cách người dùng đọc được nó
 
     const figure = screen.getByRole('figure');
     expect(figure.tagName).toBe('FIGURE');
-    expect(screen.getByText('P/E theo Giá thị trường')).not.toBeNull();
+    expect(screen.getByText('P/E theo Giá thị trường (P)')).not.toBeNull();
     expect(figure.textContent).toContain('Quét Giá thị trường');
     expect(figure.textContent).toContain('giá trị hiện tại');
   });
@@ -753,7 +753,9 @@ describe('Biểu đồ độ nhạy — cách người dùng đọc được nó
     draw('pe');
 
     // `nghìn ₫` từ 15/10/2026: tiền từ 1.000 trở lên viết bằng chữ — `DON_VI_DOI_CHU` ở `build.ts`.
-    expect(screen.getByRole('columnheader', { name: 'Giá thị trường (nghìn ₫)' })).not.toBeNull();
+    expect(
+      screen.getByRole('columnheader', { name: 'Giá thị trường (P) (nghìn ₫)' }),
+    ).not.toBeNull();
     expect(screen.getByRole('columnheader', { name: 'P/E (lần)' })).not.toBeNull();
   });
 
@@ -918,7 +920,7 @@ describe('Đường theo thời gian — nạp mã rồi thì vẽ theo số li�
     const labels = [...picker.options].map((option) => option.textContent);
 
     expect(labels[0]).toBe('Theo thời gian');
-    expect(labels).toContain('Giá thị trường');
+    expect(labels).toContain('Giá thị trường (P)');
     expect(picker.selectedIndex).toBe(0);
   });
 
@@ -1253,7 +1255,7 @@ describe.skip('Phóng to biểu đồ toàn màn hình', () => {
 
     // Tên vùng lấy từ tiêu đề biểu đồ, để trình đọc màn hình biết mình vừa vào đâu.
     expect(
-      within(overlay).getByRole('heading', { name: 'P/E theo Giá thị trường' }),
+      within(overlay).getByRole('heading', { name: 'P/E theo Giá thị trường (P)' }),
     ).not.toBeNull();
     expect(overlay.querySelector('svg')).not.toBeNull();
     expect(within(overlay).getByRole('button', { name: 'Thoát phóng to' })).not.toBeNull();

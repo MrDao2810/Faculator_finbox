@@ -1421,7 +1421,7 @@
    */
   .screen {
     margin-inline: calc(10px - var(--gutter));
-    padding-bottom: calc(46px + var(--space-3) * 2);
+    padding-bottom: calc(36px + var(--space-3) * 2);
   }
 
   /*
@@ -1499,9 +1499,25 @@
     bottom: calc(var(--tabbar-height) + env(safe-area-inset-bottom, 0px) + var(--space-3));
     z-index: 9;
 
-    /* Bản vẽ: cao 46px, chữ 15px. */
-    min-height: 46px;
-    font-size: 15px;
+    /*
+     * Cao 36px, chữ 14px (19/10/2026). Bản vẽ đo được 46px và chữ 15px; chủ dự án chụp nút trên điện
+     * thoại: _"button quá cao, text quá lớn. giảm xuống"_. Đúng số đo của cặp nút ghim đáy màn chi tiết
+     * công thức ("Lưu vào danh mục · Thoát", giảm cùng ngày): cùng vai nút ghim đáy, cùng một cỡ. Số 36
+     * này còn nằm ở đệm đáy `.screen` phía trên — đổi thì đổi cả hai.
+     */
+    min-height: 36px;
+    font-size: var(--text-sm);
+  }
+
+  /* Vùng chạm vẫn 44px: lớp phủ trong suốt, cùng cách khổ PC (`.addButton::after` trong khối 1024px). */
+  .addButton::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    height: var(--tap-min);
+    transform: translateY(-50%);
   }
 
   /* Bản vẽ: nền #2563eb, chữ và dấu cộng #ffffff (`--color-cta`), cả lúc trỏ vào. */

@@ -42,6 +42,7 @@ import {
   missingConstant,
   numberVar,
   rateOf,
+  withSymbol,
 } from './shared';
 
 /*
@@ -154,7 +155,7 @@ export const PHI_GIAO_DICH_MUA: FormulaModule = {
     level: 'basic',
     tags: ['phi mua', 'phi moi gioi', 'phi giao dich'],
     resultUnit: '₫',
-    variables: [quantity, buyPrice],
+    variables: [withSymbol(quantity, 'Q'), withSymbol(buyPrice, 'Pmua')],
     explanation: {
       meaning: {
         vi: 'Số tiền công ty chứng khoán thu trên giá trị lệnh mua đã khớp.',
@@ -254,7 +255,7 @@ export const PHI_GIAO_DICH_BAN: FormulaModule = {
     level: 'basic',
     tags: ['phi ban', 'phi moi gioi', 'phi giao dich'],
     resultUnit: '₫',
-    variables: [quantity, sellPrice],
+    variables: [withSymbol(quantity, 'Q'), withSymbol(sellPrice, 'Pban')],
     explanation: {
       meaning: {
         vi: 'Số tiền công ty chứng khoán thu trên giá trị lệnh bán đã khớp.',
@@ -349,7 +350,7 @@ export const THUE_CHUYEN_NHUONG: FormulaModule = {
     level: 'basic',
     tags: ['thue', 'thue cnck', 'chuyen nhuong'],
     resultUnit: '₫',
-    variables: [quantity, sellPrice],
+    variables: [withSymbol(quantity, 'Q'), withSymbol(sellPrice, 'Pban')],
     explanation: {
       meaning: {
         vi: 'Khoản thuế Nhà nước thu khi bán chứng khoán, tính trên giá trị bán.',
@@ -453,7 +454,7 @@ export const THUE_CO_TUC: FormulaModule = {
     level: 'basic',
     tags: ['thue co tuc', 'co tuc', 'dividend'],
     resultUnit: '₫',
-    variables: [quantity, dividendPerShare],
+    variables: [withSymbol(quantity, 'Q'), withSymbol(dividendPerShare, 'D')],
     explanation: {
       meaning: {
         vi: 'Phần cổ tức bị khấu trừ thuế trước khi chuyển về tài khoản nhà đầu tư.',
@@ -561,7 +562,7 @@ export const PHI_LUU_KY: FormulaModule = {
     level: 'basic',
     tags: ['phi luu ky', 'vsd', 'custody'],
     resultUnit: '₫',
-    variables: [quantity, months],
+    variables: [withSymbol(quantity, 'Q'), withSymbol(months, 'M')],
     explanation: {
       meaning: {
         vi: 'Khoản phí nhỏ thu hằng tháng cho việc lưu giữ cổ phiếu trên tài khoản.',
@@ -711,7 +712,7 @@ export const GIA_HOA_VON: FormulaModule = {
     isFeatured: true,
     tags: ['gia hoa von', 'hoa von', 'break even'],
     resultUnit: '₫',
-    variables: [quantity, months, buyPrice],
+    variables: [withSymbol(quantity, 'Q'), months, withSymbol(buyPrice, 'Pmua')],
     explanation: {
       meaning: {
         vi: 'Mức giá bán mà tại đó tiền thu về vừa đúng bằng tiền đã bỏ ra, không lãi không lỗ.',
@@ -890,7 +891,12 @@ export const LOI_NHUAN_RONG: FormulaModule = {
     isFeatured: true,
     tags: ['loi nhuan rong', 'lai rong', 'phi va thue'],
     resultUnit: '₫',
-    variables: [quantity, months, buyPrice, sellPrice],
+    variables: [
+      withSymbol(quantity, 'Q'),
+      months,
+      withSymbol(buyPrice, 'Pmua'),
+      withSymbol(sellPrice, 'Pban'),
+    ],
     explanation: {
       meaning: {
         vi: 'Phần tiền thật sự vào túi sau một vòng mua – bán, đã trừ mọi khoản phải nộp.',
@@ -1041,7 +1047,7 @@ export const ROI_RONG: FormulaModule = {
     level: 'basic',
     tags: ['roi rong', 'ty suat loi nhuan', 'hieu qua'],
     resultUnit: '%',
-    variables: [quantity, months, buyPrice, sellPrice],
+    variables: [withSymbol(quantity, 'Q'), months, withSymbol(buyPrice, 'Pmua'), sellPrice],
     explanation: {
       meaning: {
         vi: 'Sau khi trừ hết phí và thuế, mỗi trăm đồng vốn thật sự bỏ ra mang về bao nhiêu đồng lãi.',

@@ -30,7 +30,7 @@ import type { Bilingual, CalcOutput, CalcWarning, VariableSpec } from '../types'
 import { divideByZero, meaningless, missingSeries } from '../warnings';
 import { FPT_2026, FPT_BARS, FPT_PHIEN } from './market-series-2026';
 import { mean, populationStdDev, requireBars, requireCloses, sampleStdDev } from './series-utils';
-import { SOURCE_CFA, sliderVar } from './shared';
+import { SOURCE_CFA, sliderVar, withSymbol } from './shared';
 
 /*
  * ── Nguồn tham khảo của cả nhóm (FR-04) ────────────────────────────────────────────────
@@ -361,7 +361,7 @@ export const DAI_BOLLINGER_TREN: FormulaModule = {
     level: 'basic',
     tags: ['bollinger', 'dai tren', 'upper band', 'bien dong', 'ky thuat'],
     resultUnit: '₫',
-    variables: [BOLLINGER_PERIOD, BOLLINGER_K],
+    variables: [withSymbol(BOLLINGER_PERIOD, 'n'), withSymbol(BOLLINGER_K, 'k')],
     explanation: {
       meaning: {
         vi: 'Ranh giới trên của vùng giá "bình thường": dải tự nở ra khi thị trường động và tự co lại khi thị trường lặng, vì khoảng cách từ đường giữa lên tới nó đúng bằng k lần độ lệch chuẩn của giá.',
@@ -510,7 +510,7 @@ export const DAI_BOLLINGER_DUOI: FormulaModule = {
     level: 'basic',
     tags: ['bollinger', 'dai duoi', 'lower band', 'bien dong', 'ky thuat'],
     resultUnit: '₫',
-    variables: [BOLLINGER_PERIOD, BOLLINGER_K],
+    variables: [withSymbol(BOLLINGER_PERIOD, 'n'), withSymbol(BOLLINGER_K, 'k')],
     explanation: {
       meaning: {
         vi: 'Ranh giới dưới của vùng giá "bình thường", đối xứng với dải trên qua đường trung bình n phiên.',
@@ -660,7 +660,7 @@ export const DO_RONG_DAI_BOLLINGER: FormulaModule = {
     level: 'basic',
     tags: ['bollinger', 'do rong dai', 'bandwidth', 'that nut', 'squeeze', 'bien dong'],
     resultUnit: '%',
-    variables: [BOLLINGER_PERIOD, BOLLINGER_K],
+    variables: [withSymbol(BOLLINGER_PERIOD, 'n'), BOLLINGER_K],
     explanation: {
       meaning: {
         vi: 'Một con số cho biết dải đang nở hay đang bóp: chia cho đường giữa nên cổ phiếu giá thấp và cổ phiếu giá cao so sánh với nhau được.',
@@ -755,7 +755,7 @@ export const ATR_DAO_DONG_THUC: FormulaModule = {
   spec: {
     id: 'atr-dao-dong-thuc',
     categoryId: 'technical',
-    name: { vi: 'ATR — dao động thực trung bình', en: 'Average true range (Wilder)' },
+    name: { vi: 'ATR — dao động thực trung bình', en: 'ATR — average true range (Wilder)' },
     description: {
       vi: 'Biên độ một phiên thường đi được bao nhiêu đồng, đã tính cả khoảng nhảy giá so với phiên trước.',
       en: 'How many VND a session typically moves, including any price gap versus the previous session.',
@@ -848,7 +848,7 @@ export const ATR_DAO_DONG_THUC: FormulaModule = {
     tags: ['atr', 'dao dong thuc', 'true range', 'wilder', 'bien do', 'cat lo'],
     resultUnit: '₫',
     variables: [
-      sliderVar('period', { vi: 'Chu kỳ ATR', en: 'ATR period' }, 'phiên', 14, 5, 50, 1, {
+      sliderVar('period', { vi: 'Chu kỳ ATR (n)', en: 'ATR period (n)' }, 'phiên', 14, 5, 50, 1, {
         description: {
           vi: 'Wilder dùng 14 phiên. Chuỗi phải có ít nhất chu kỳ + 1 phiên, vì phiên đầu tiên chưa có giá đóng cửa hôm trước để tính dao động thực.',
           en: 'Wilder uses 14 sessions. The series must have at least period + 1 sessions, since the first session has no prior close from which to compute a true range.',
@@ -1251,7 +1251,7 @@ export const STOCHASTIC_K: FormulaModule = {
     variables: [
       sliderVar(
         'period',
-        { vi: 'Chu kỳ stochastic', en: 'Stochastic period' },
+        { vi: 'Chu kỳ stochastic (n)', en: 'Stochastic period (n)' },
         'phiên',
         14,
         5,
@@ -1381,7 +1381,10 @@ export const VWAP: FormulaModule = {
   spec: {
     id: 'vwap',
     categoryId: 'technical',
-    name: { vi: 'VWAP — giá bình quân theo khối lượng', en: 'Volume weighted average price' },
+    name: {
+      vi: 'VWAP — giá bình quân theo khối lượng',
+      en: 'VWAP — volume weighted average price',
+    },
     description: {
       vi: 'Giá trung bình của n phiên gần nhất, nhưng phiên khớp nhiều cổ phiếu được tính nặng hơn.',
       en: 'The average price over the last n sessions, but sessions with heavier matched volume are weighted more.',
@@ -1434,12 +1437,21 @@ export const VWAP: FormulaModule = {
     tags: ['vwap', 'gia binh quan', 'khoi luong', 'volume weighted', 'ky thuat'],
     resultUnit: '₫',
     variables: [
-      sliderVar('period', { vi: 'Số phiên gộp', en: 'Sessions to pool' }, 'phiên', 20, 5, 120, 1, {
-        description: {
-          vi: 'Số phiên gần nhất đưa vào bình quân. Mỗi phiên phải có đủ giá đóng cửa và khối lượng.',
-          en: 'The number of most recent sessions included in the average. Each session must have both a closing price and volume.',
+      sliderVar(
+        'period',
+        { vi: 'Số phiên gộp (n)', en: 'Sessions to pool (n)' },
+        'phiên',
+        20,
+        5,
+        120,
+        1,
+        {
+          description: {
+            vi: 'Số phiên gần nhất đưa vào bình quân. Mỗi phiên phải có đủ giá đóng cửa và khối lượng.',
+            en: 'The number of most recent sessions included in the average. Each session must have both a closing price and volume.',
+          },
         },
-      }),
+      ),
     ],
     explanation: {
       meaning: {
@@ -1647,7 +1659,7 @@ export const DO_BIEN_DONG_LICH_SU: FormulaModule = {
     variables: [
       sliderVar(
         'sample',
-        { vi: 'Số phiên giá lấy mẫu', en: 'Sample sessions' },
+        { vi: 'Số phiên giá lấy mẫu (n)', en: 'Sample sessions (n)' },
         'phiên',
         60,
         10,
@@ -1662,7 +1674,7 @@ export const DO_BIEN_DONG_LICH_SU: FormulaModule = {
       ),
       sliderVar(
         'tradingDays',
-        { vi: 'Số phiên giao dịch một năm', en: 'Trading sessions per year' },
+        { vi: 'Số phiên giao dịch một năm (N)', en: 'Trading sessions per year (N)' },
         'phiên',
         252,
         200,
@@ -1868,7 +1880,7 @@ export const TY_LE_KHOI_LUONG: FormulaModule = {
     variables: [
       sliderVar(
         'period',
-        { vi: 'Số phiên lấy trung bình', en: 'Sessions to average' },
+        { vi: 'Số phiên lấy trung bình (n)', en: 'Sessions to average (n)' },
         'phiên',
         20,
         5,

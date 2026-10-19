@@ -350,7 +350,7 @@ describe('buildChartModel — trục thời gian nối vào ô chọn đã có',
 
     expect(built.options.map((option) => option.key)).toEqual(['price', 'eps']);
     expect(built.sweepKey).toBe('price');
-    expect(built.title.vi).toBe('P/E theo Giá thị trường');
+    expect(built.title.vi).toBe('P/E theo Giá thị trường (P)');
   });
 
   it('người dùng chọn một biến thì tôn trọng lựa chọn ấy, không giành lái', () => {

@@ -925,6 +925,85 @@ describe('WF-06 — sửa một mã đã thêm', () => {
   });
 
   /*
+   * Nút "?" sau hai nhãn (19/10/2026): chủ dự án _"thêm hướng dẫn sử dụng vào đằng sau Beta danh mục
+   * và XIRR toàn DM"_. Câu lý do KHÔNG trở lại dưới hàng (ca ngay trên vẫn đứng); nó chỉ hiện trong
+   * khung, khi người ta bấm hỏi, và phải kể đúng mã đang thiếu.
+   */
+  describe('nút “?” của Beta danh mục và XIRR toàn DM', () => {
+    function seedThieu(): void {
+      window.localStorage.setItem(
+        PORTFOLIO_KEY,
+        JSON.stringify([
+          { code: 'FPT', quantity: 100, costPrice: 60_000, buyDate: '', beta: null },
+        ]),
+      );
+    }
+
+    async function choGiaVe(): Promise<void> {
+      await waitFor(async () => {
+        expect((await oThongKe('Tổng giá trị')).textContent).toContain('7.140.000');
+      });
+    }
+
+    it('mở khung Beta: là gì, vì sao đang trống (kể đúng mã), cách nhập; bấm lại thì đóng', async () => {
+      seedThieu();
+      await moManNangCao();
+      await choGiaVe();
+
+      const nut = screen.getByRole('link', { name: 'Hướng dẫn: Beta danh mục' });
+      await userEvent.click(nut);
+      const khung = await screen.findByRole('dialog', { name: 'Beta danh mục' });
+
+      expect(within(khung).getByText('Vì sao đang là _ _')).toBeTruthy();
+      expect(within(khung).getByText(/Chưa có beta của FPT/)).toBeTruthy();
+      expect(within(khung).getByText('Nhập beta của mã vào ô Beta rồi lưu.')).toBeTruthy();
+      expect(within(khung).getByText(/^So với mốc 1 lần:/)).toBeTruthy();
+
+      await userEvent.click(nut);
+      expect(screen.queryByRole('dialog', { name: 'Beta danh mục' })).toBeNull();
+    });
+
+    it('mở khung XIRR: lý do là ngày mua đang thiếu; Esc đóng', async () => {
+      seedThieu();
+      await moManNangCao();
+      await choGiaVe();
+
+      await userEvent.click(screen.getByRole('link', { name: 'Hướng dẫn: XIRR toàn danh mục' }));
+      const khung = await screen.findByRole('dialog', { name: 'XIRR toàn danh mục' });
+
+      expect(within(khung).getByText(/Thiếu hoặc sai ngày mua của FPT/)).toBeTruthy();
+      expect(within(khung).getByText(/ngày\/tháng\/năm/)).toBeTruthy();
+
+      await userEvent.keyboard('{Escape}');
+      expect(screen.queryByRole('dialog', { name: 'XIRR toàn danh mục' })).toBeNull();
+    });
+
+    it('dòng đã ra số thì khung không có mục "Vì sao đang là _ _"', async () => {
+      window.localStorage.setItem(
+        PORTFOLIO_KEY,
+        JSON.stringify([
+          { code: 'FPT', quantity: 100, costPrice: 60_000, buyDate: '2026-01-02', beta: 1.1 },
+        ]),
+      );
+      await moManNangCao();
+      await waitFor(async () => {
+        expect((await oThongKe('Beta danh mục')).textContent).toContain('1,1');
+      });
+
+      await userEvent.click(screen.getByRole('link', { name: 'Hướng dẫn: Beta danh mục' }));
+      const khung = await screen.findByRole('dialog', { name: 'Beta danh mục' });
+      expect(within(khung).queryByText('Vì sao đang là _ _')).toBeNull();
+    });
+
+    it('chế độ Cơ bản không có hai nút “?” (hai dòng ấy là của Nâng cao)', async () => {
+      seedHolding();
+      render(<PortfolioScreen />);
+      await tieuDeNamGiu();
+      expect(screen.queryByRole('link', { name: /^Hướng dẫn: (Beta|XIRR)/ })).toBeNull();
+    });
+  });
+
+  /*
    * Số dài không đâm thủng thẻ (29/09/2026) — chủ dự án chụp "866.777.778.513.713.70…" tràn qua ô
    * bên cạnh. Bố cục chỉ đo được trong Chrome (`check:chrome`); ca này ghim hai thứ CSS dựa vào:
    * `--ky-tu` đúng bằng số ký tự, và một `<wbr>` sau mỗi dấu chấm phân nhóm mà `textContent` không

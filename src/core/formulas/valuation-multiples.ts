@@ -107,7 +107,7 @@ export const PS: FormulaModule = {
   spec: {
     id: 'ps',
     categoryId: 'valuation',
-    name: { vi: 'P/S — hệ số giá trên doanh thu', en: 'Price to sales ratio' },
+    name: { vi: 'P/S — hệ số giá trên doanh thu', en: 'P/S — price to sales ratio' },
     description: {
       vi: 'Nhà đầu tư trả bao nhiêu đồng cho mỗi đồng doanh thu của doanh nghiệp.',
       en: 'How much investors pay for each dong of the company’s revenue.',
@@ -140,7 +140,7 @@ export const PS: FormulaModule = {
       sharePrice,
       numberVar(
         'salesPerShare',
-        { vi: 'Doanh thu trên mỗi cổ phiếu (S)', en: 'Revenue per share (S)' },
+        { vi: 'Doanh thu trên mỗi cổ phiếu (Sps)', en: 'Revenue per share (Sps)' },
         '₫',
         45_000,
         {
@@ -264,7 +264,7 @@ export const EV: FormulaModule = {
   spec: {
     id: 'ev',
     categoryId: 'valuation',
-    name: { vi: 'EV — giá trị doanh nghiệp', en: 'Enterprise value' },
+    name: { vi: 'EV — giá trị doanh nghiệp', en: 'EV — enterprise value' },
     description: {
       vi: 'Số tiền cần bỏ ra để mua trọn doanh nghiệp, gồm cả nợ và trừ đi tiền mặt.',
       en: 'The amount needed to buy the whole company, including its debt and net of its cash.',
@@ -582,7 +582,7 @@ export const EV_SALES: FormulaModule = {
   spec: {
     id: 'ev-sales',
     categoryId: 'valuation',
-    name: { vi: 'EV/Sales — EV trên doanh thu', en: 'EV to sales ratio' },
+    name: { vi: 'EV/Sales — EV trên doanh thu', en: 'EV/Sales — EV to sales ratio' },
     description: {
       vi: 'Giá mua trọn doanh nghiệp gấp bao nhiêu lần doanh thu một năm.',
       en: 'How many times the price to buy the whole company sits above one year of revenue.',
@@ -727,7 +727,7 @@ export const PEG: FormulaModule = {
   spec: {
     id: 'peg',
     categoryId: 'valuation',
-    name: { vi: 'PEG — P/E trên tăng trưởng', en: 'Price/earnings to growth ratio' },
+    name: { vi: 'PEG — P/E trên tăng trưởng', en: 'PEG — P/E to growth ratio' },
     description: {
       vi: 'P/E đã chia cho tốc độ tăng trưởng lợi nhuận, để so cổ phiếu tăng trưởng với nhau.',
       en: 'P/E divided by the earnings growth rate, so growth stocks can be compared with each other.',
@@ -1239,7 +1239,7 @@ export const NCAV: FormulaModule = {
   spec: {
     id: 'ncav-tren-co-phieu',
     categoryId: 'valuation',
-    name: { vi: 'NCAV trên cổ phiếu', en: 'Net current asset value per share' },
+    name: { vi: 'NCAV trên cổ phiếu', en: 'NCAV per share' },
     description: {
       vi: 'Giá trị tài sản ngắn hạn còn lại cho mỗi cổ phiếu sau khi trả hết mọi khoản nợ.',
       en: 'The current-asset value left per share after paying off every liability.',
@@ -1307,14 +1307,20 @@ export const NCAV: FormulaModule = {
     tags: ['ncav', 'net net', 'graham', 'tai san ngan han', 'dau tu gia tri'],
     resultUnit: '₫',
     variables: [
-      numberVar('currentAssets', { vi: 'Tài sản ngắn hạn', en: 'Current assets' }, 'tỷ ₫', 4_800, {
-        min: 0,
-        max: 10_000_000,
-        description: {
-          vi: 'Tiền, phải thu, hàng tồn kho — mục A trên bảng cân đối kế toán.',
-          en: 'Cash, receivables, inventory — section A on the balance sheet.',
+      numberVar(
+        'currentAssets',
+        { vi: 'Tài sản ngắn hạn (TSNH)', en: 'Current assets (TSNH)' },
+        'tỷ ₫',
+        4_800,
+        {
+          min: 0,
+          max: 10_000_000,
+          description: {
+            vi: 'Tiền, phải thu, hàng tồn kho — mục A trên bảng cân đối kế toán.',
+            en: 'Cash, receivables, inventory — section A on the balance sheet.',
+          },
         },
-      }),
+      ),
       numberVar(
         'totalLiabilities',
         { vi: 'Tổng nợ phải trả', en: 'Total liabilities' },

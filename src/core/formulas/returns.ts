@@ -23,7 +23,7 @@ export const ROI: FormulaModule = {
   spec: {
     id: 'roi',
     categoryId: 'returns',
-    name: { vi: 'ROI — tỷ suất lợi nhuận', en: 'Return on investment' },
+    name: { vi: 'ROI — tỷ suất lợi nhuận', en: 'ROI — return on investment' },
     description: {
       vi: 'Phần trăm lãi hoặc lỗ so với số vốn đã bỏ ra.',
       en: 'The percentage gain or loss relative to the capital invested.',
@@ -55,22 +55,34 @@ export const ROI: FormulaModule = {
     tags: ['roi', 'ty suat loi nhuan', 'hieu qua dau tu'],
     resultUnit: '%',
     variables: [
-      numberVar('cost', { vi: 'Vốn bỏ ra', en: 'Capital invested' }, '₫', 100_000_000, {
-        min: 0,
-        max: 100_000_000_000,
-        description: {
-          vi: 'Tổng số tiền đã đầu tư ban đầu.',
-          en: 'The total amount originally invested.',
+      numberVar(
+        'cost',
+        { vi: 'Vốn bỏ ra (Vdau)', en: 'Capital invested (Vdau)' },
+        '₫',
+        100_000_000,
+        {
+          min: 0,
+          max: 100_000_000_000,
+          description: {
+            vi: 'Tổng số tiền đã đầu tư ban đầu.',
+            en: 'The total amount originally invested.',
+          },
         },
-      }),
-      numberVar('current', { vi: 'Giá trị hiện tại', en: 'Current value' }, '₫', 125_000_000, {
-        min: 0,
-        max: 100_000_000_000,
-        description: {
-          vi: 'Giá trị của khoản đầu tư tại thời điểm đánh giá.',
-          en: 'The value of the investment at the time of evaluation.',
+      ),
+      numberVar(
+        'current',
+        { vi: 'Giá trị hiện tại (Vcuoi)', en: 'Current value (Vcuoi)' },
+        '₫',
+        125_000_000,
+        {
+          min: 0,
+          max: 100_000_000_000,
+          description: {
+            vi: 'Giá trị của khoản đầu tư tại thời điểm đánh giá.',
+            en: 'The value of the investment at the time of evaluation.',
+          },
         },
-      }),
+      ),
     ],
     explanation: {
       meaning: {
@@ -143,7 +155,7 @@ export const HPR: FormulaModule = {
   spec: {
     id: 'hpr',
     categoryId: 'returns',
-    name: { vi: 'HPR — lợi suất kỳ nắm giữ', en: 'Holding period return' },
+    name: { vi: 'HPR — lợi suất kỳ nắm giữ', en: 'HPR — holding period return' },
     description: {
       vi: 'Lợi suất một kỳ nắm giữ, tính cả chênh lệch giá lẫn cổ tức nhận được.',
       en: 'The holding-period return, including both the price change and dividends received.',
@@ -172,17 +184,29 @@ export const HPR: FormulaModule = {
     tags: ['hpr', 'loi suat', 'ky nam giu', 'co tuc'],
     resultUnit: '%',
     variables: [
-      numberVar('startPrice', { vi: 'Giá đầu kỳ', en: 'Starting price' }, '₫', 78_000, {
-        min: 0,
-        max: 10_000_000,
-      }),
-      numberVar('endPrice', { vi: 'Giá cuối kỳ', en: 'Ending price' }, '₫', 92_000, {
-        min: 0,
-        max: 10_000_000,
-      }),
+      numberVar(
+        'startPrice',
+        { vi: 'Giá đầu kỳ (Pdau)', en: 'Starting price (Pdau)' },
+        '₫',
+        78_000,
+        {
+          min: 0,
+          max: 10_000_000,
+        },
+      ),
+      numberVar(
+        'endPrice',
+        { vi: 'Giá cuối kỳ (Pcuoi)', en: 'Ending price (Pcuoi)' },
+        '₫',
+        92_000,
+        {
+          min: 0,
+          max: 10_000_000,
+        },
+      ),
       numberVar(
         'dividend',
-        { vi: 'Cổ tức nhận trong kỳ', en: 'Dividends received during the period' },
+        { vi: 'Cổ tức nhận trong kỳ (D)', en: 'Dividends received during the period (D)' },
         '₫/CP',
         2_000,
         {
@@ -274,7 +298,7 @@ export const CAGR: FormulaModule = {
   spec: {
     id: 'cagr',
     categoryId: 'returns',
-    name: { vi: 'CAGR — tăng trưởng kép hằng năm', en: 'Compound annual growth rate' },
+    name: { vi: 'CAGR — tăng trưởng kép hằng năm', en: 'CAGR — compound annual growth rate' },
     description: {
       vi: 'Tốc độ tăng trưởng bình quân mỗi năm của một khoản đầu tư.',
       en: 'The average annual growth rate of an investment.',
@@ -310,15 +334,27 @@ export const CAGR: FormulaModule = {
     tags: ['cagr', 'tang truong kep', 'binh quan nam'],
     resultUnit: '%',
     variables: [
-      numberVar('start', { vi: 'Giá trị ban đầu', en: 'Starting value' }, '₫', 100_000_000, {
-        min: 0,
-        max: 100_000_000_000,
-      }),
-      numberVar('end', { vi: 'Giá trị cuối kỳ', en: 'Ending value' }, '₫', 200_000_000, {
-        min: 0,
-        max: 100_000_000_000,
-      }),
-      sliderVar('years', { vi: 'Số năm', en: 'Number of years' }, 'năm', 5, 1, 50, 1),
+      numberVar(
+        'start',
+        { vi: 'Giá trị ban đầu (Vdau)', en: 'Starting value (Vdau)' },
+        '₫',
+        100_000_000,
+        {
+          min: 0,
+          max: 100_000_000_000,
+        },
+      ),
+      numberVar(
+        'end',
+        { vi: 'Giá trị cuối kỳ (Vcuoi)', en: 'Ending value (Vcuoi)' },
+        '₫',
+        200_000_000,
+        {
+          min: 0,
+          max: 100_000_000_000,
+        },
+      ),
+      sliderVar('years', { vi: 'Số năm (t)', en: 'Number of years (t)' }, 'năm', 5, 1, 50, 1),
     ],
     explanation: {
       meaning: {
@@ -467,14 +503,20 @@ export const TY_SUAT_CO_TUC: FormulaModule = {
     tags: ['ty suat co tuc', 'dividend yield', 'co tuc'],
     resultUnit: '%',
     variables: [
-      numberVar('price', { vi: 'Thị giá', en: 'Market price' }, '₫', 92_000, {
+      numberVar('price', { vi: 'Thị giá (P)', en: 'Market price (P)' }, '₫', 92_000, {
         min: 0,
         max: 10_000_000,
       }),
-      numberVar('dividendPerShare', { vi: 'Cổ tức cả năm', en: 'Annual dividend' }, '₫/CP', 2_000, {
-        min: 0,
-        max: 1_000_000,
-      }),
+      numberVar(
+        'dividendPerShare',
+        { vi: 'Cổ tức cả năm (D)', en: 'Annual dividend (D)' },
+        '₫/CP',
+        2_000,
+        {
+          min: 0,
+          max: 1_000_000,
+        },
+      ),
     ],
     explanation: {
       meaning: {

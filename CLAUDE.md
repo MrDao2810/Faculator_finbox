@@ -1317,6 +1317,35 @@ them. When the field name does add something it goes into the phrase (", tính t
 a gate rejects "(ô" followed by a space, `nhập tay`, `field)` and `entered manually`. `FFB_SYMBOL_IDS=a,b` narrows the legend gates to a few ids while editing one group
 file.
 
+**An input field ends its label with the picture's symbol for it** (19/10/2026), the shape `Biên an toàn` already
+had: "Giá trị nội tại ước tính (V)". The owner listed a dozen formulas (Gordon, P/E, WACC, HPR, ROI, Cỡ lệnh…):
+_"Các ký hiệu ở công thức cũng cần được biểu thị ở ô nhập liệu"_; measured, about 95 formulas had a field whose
+symbol was in the picture but not on the label, and the owner chose the whole product. Two decisions:
+
+- **The symbol is written run together, exactly as the picture draws it**: `P_{mua}` → "(Pmua)", `V_{cuoi}` →
+  "(Vcuoi)", `r_{danh\,nghia}` → "(rdanh nghia)", `\Delta B` → "(ΔB)", `\beta_p` → "(βp)", the old "(D0)", "(g1)" style.
+  The old "(Re)", "(Rd)", "(Rf)", "(S)" became "(re)", "(rd)", "(rf)", "(Sps)" because the pictures draw `r_e`, `r_d`,
+  `r_f`, `S_{ps}`. The same symbol goes on the English label.
+- **A field gets a symbol only when that symbol IS the number typed into it.** `r_f` of Sharpe is the yearly rate
+  already turned into a per-session one, `i` of the loan formulas is the yearly rate ÷ 12, `n` of the standard
+  deviation is sessions − 1, `F_{lk}` of break-even is derived from the months field: putting "(rf)", "(i)", "(n)",
+  "(M)" on those fields would say something false, so they stay bare. A label that already IS the symbol ("EBITDA",
+  "P/E hiện tại") or a picture written in Vietnamese words the label already contains ("Vốn chủ sở hữu") needs nothing.
+
+Shared fields keep a bare label and each formula adds its own symbol with `withSymbol(variable, 'Q')` (or
+`labelWithSymbol(label, 'n')` where a shared LABEL goes straight into `sliderVar`) in `formulas/shared.ts`, because
+one field can be a symbol in one picture and not in another: `months` is M on Phí lưu ký and only feeds `F_{lk}` on
+Giá hoà vốn; `sellPrice` is P_ban on Phí bán and absent from ROI ròng's picture; Bollinger's `k` is drawn on the two
+bands, not on the width or %B. The technical-trend label constants stay bare because they also word the
+`chuKyKhongHopLe` warning. Repeat templates carry `{n}` in the symbol too ("Tiền mua đợt {n} (C{n})"). Knock-on:
+the label is also the chart axis name, so axis titles read "Giá mua (Pmua) (nghìn ₫)" (P/S already had the two
+brackets), chart titles "P/E theo Giá thị trường (P)", and ~150 "Đọc biểu đồ" paragraphs that name their axis field
+verbatim were updated in both languages (`bieu-do.test.ts` requires the exact label). **The gate is a pinned table,
+`src/core/formulas/input-symbols.test.ts`**: every formula id must be in it (a new formula turns it red, so whoever
+adds one decides which fields carry which symbol), every label must match it in vi and en, no field may carry a
+symbol outside it, and each symbol must occur in the picture. Which field maps to which symbol needs `calc` read by
+hand, which is why it is pinned and not inferred.
+
 **The formula, its expression line and `calc` must describe the same arithmetic, constants
 included.** On 17/09/2026 the owner caught `sut-giam-hien-tai` drawing `(P_max − P_t) / P_max`
 while the line under it said "… × 100" ("tại sao trên công thức không có nhân với 100 mà bên
@@ -2780,6 +2809,17 @@ English, the owner reviews it**. What that produced, and what is easy to break:
   no long dash, identical placeholders and identical digit-numbers per string, and the length caps.
 - **Deliberately still Vietnamese in EN:** company and industry names (source data, like proper nouns), SEO metadata,
   and the text of exported files.
+- **A formula's English name keeps every symbol its Vietnamese name has, in the same place** (19/10/2026). The owner
+  searched "p/e" in both languages: the top cards read "P/E — hệ số giá trên lợi nhuận" but "Price to earnings ratio",
+  and _"tôi không nghĩ là nên dịch các ký tự khi dịch sang tiếng anh"_. Measured: 34 of 111 English names had dropped a
+  symbol the Vietnamese one carried; 33 now keep it (`P/E — price to earnings ratio`, `PEG — P/E to growth ratio`,
+  `Basic EPS`, `Two-stage DDM`, `Present value (PV)`, `14-period RSI (Wilder)`…). The one left alone is
+  `thue-tncn-dau-tu`: TNCN is a Vietnamese abbreviation of the tax's name, not a financial symbol, and means nothing
+  to an English reader. Knock-on, wanted: `chartName()` cuts at the long dash, so English chart titles and breakdown
+  bars now read "P/E vs …", "EV", "WACC" like the Vietnamese ones, and four English "Đọc biểu đồ" paragraphs that
+  named the total bar by the old long name were rewritten (`bieu-do.test.ts` caught them). Quiz `giai.tinh` and how-to
+  `phrases` quote the descriptive part without the symbol in BOTH languages, so they were not touched. No gate holds
+  the rule yet; a new formula's English name must be checked against its Vietnamese one by hand.
 
 ## Notes
 

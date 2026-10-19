@@ -33,7 +33,7 @@ function mo(props: Partial<Parameters<typeof CategoryChips>[0]> = {}) {
 }
 
 describe('CategoryChips — một nhóm radio, không phải 13 công tắc', () => {
-  it('đủ "Tất cả nhóm" + 12 nhóm, chung một name, trong một fieldset có tên', () => {
+  it('đủ "Tất cả" + 12 nhóm, chung một name, trong một fieldset có tên', () => {
     mo();
 
     const nhom = screen.getByRole('group', { name: 'Nhóm công thức' });
@@ -44,20 +44,18 @@ describe('CategoryChips — một nhóm radio, không phải 13 công tắc', ()
     expect(new Set(radios.map((r) => r.getAttribute('name'))).size).toBe(1);
   });
 
-  it('không chọn nhóm nào thì "Tất cả nhóm" đang chọn', () => {
+  it('không chọn nhóm nào thì "Tất cả" đang chọn', () => {
     mo();
-    expect((screen.getByRole('radio', { name: 'Tất cả nhóm' }) as HTMLInputElement).checked).toBe(
-      true,
-    );
+    expect((screen.getByRole('radio', { name: 'Tất cả' }) as HTMLInputElement).checked).toBe(true);
   });
 
-  it('bấm một nhóm thì báo đúng id; bấm "Tất cả nhóm" thì báo null', () => {
+  it('bấm một nhóm thì báo đúng id; bấm "Tất cả" thì báo null', () => {
     const { onChange } = mo({ value: 'risk' });
 
     fireEvent.click(screen.getByRole('radio', { name: /^Định giá/ }));
     expect(onChange).toHaveBeenLastCalledWith('valuation');
 
-    fireEvent.click(screen.getByRole('radio', { name: 'Tất cả nhóm' }));
+    fireEvent.click(screen.getByRole('radio', { name: 'Tất cả' }));
     expect(onChange).toHaveBeenLastCalledWith(null);
   });
 

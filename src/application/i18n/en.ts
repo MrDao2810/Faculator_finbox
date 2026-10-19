@@ -83,7 +83,7 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'search.noneIn': 'No results in:',
 
   'filter.category.label': 'Formula group',
-  'filter.category.all': 'All groups',
+  'filter.category.all': 'All',
   'filter.category.advancedOnly': 'Advanced only',
   'filter.category.scrollPrev': 'Previous groups',
   'filter.category.scrollNext': 'More groups',
@@ -286,6 +286,40 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'portfolio.totalValue': 'Total value',
   'portfolio.beta': 'Portfolio beta',
   'portfolio.xirr': 'Portfolio XIRR',
+  /* The "?" beside the two rows (19/10/2026) — reasoning in `vi.ts`. */
+  'portfolio.guide.betaHint': 'Guide: Portfolio beta',
+  'portfolio.guide.xirrHint': 'Guide: Portfolio XIRR',
+  'portfolio.guide.what': 'What it is',
+  'portfolio.guide.use': 'How to use it',
+  'portfolio.guide.read': 'Reading the result',
+  'portfolio.guide.why': 'Why it shows _ _',
+  'portfolio.guide.openEdit': 'Edit a ticker: open one of the tickers in the table.',
+  'portfolio.guide.beta.title': 'Portfolio beta',
+  'portfolio.guide.beta.what':
+    'How strongly the whole portfolio usually swings compared with the VN-Index. It is the beta of ' +
+    'each ticker averaged by market value, so the tickers that make up most of the portfolio pull ' +
+    'the result toward their own beta.',
+  'portfolio.guide.beta.step': 'Enter the ticker’s beta into the Beta field and save.',
+  'portfolio.guide.beta.done':
+    'Note: every ticker needs a beta before "Portfolio beta" shows a number.',
+  'portfolio.guide.beta.read':
+    'Compared with the 1 mark: above 1 the portfolio usually swings harder than the VN-Index, below ' +
+    '1 it swings less.',
+  'portfolio.guide.xirr.title': 'Portfolio XIRR',
+  'portfolio.guide.xirr.what':
+    'The yearly return of the whole portfolio. Each ticker counts as money paid out (shares times ' +
+    'cost price) on its buy date, and the whole current value counts as money received today; XIRR ' +
+    'is the yearly rate that makes the two sides balance.',
+  'portfolio.guide.xirr.step': 'Enter the buy date as day/month/year and save.',
+  'portfolio.guide.xirr.done':
+    'Note: every ticker needs a buy date before "Portfolio XIRR" shows a number.',
+  'portfolio.guide.xirr.read':
+    'Compared with a one-year savings rate: higher means the portfolio is earning more than a ' +
+    'deposit would, and negative means it is losing money. A ticker bought only days ago inflates ' +
+    'the figure, because a few days of gain or loss are scaled up to a whole year.',
+  'portfolio.guide.xirr.note':
+    'Dividends and partial sales are not counted. Several purchases of one ticker count as a single ' +
+    'purchase on the earliest date.',
   /* Mười ba khoá đã xoá ngày 12/10/2026 (thiết kế hai cột) — danh sách và lý do ở `vi.ts`. */
   'portfolio.hiddenByLevel': 'advanced tile(s) hidden',
   'portfolio.holdings': 'Tickers',

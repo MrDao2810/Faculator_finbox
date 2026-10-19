@@ -62,3 +62,18 @@
 }
 
 /* Vòng tiêu điểm để luật chung của `globals.css` lo — khai lại ở đây là một bậc dư. */
+
+/*
+ * Dưới 1024px: vòng 24 → 20px, dấu "?" 12 → 11px (19/10/2026). Chủ dự án, giữa đợt thu nhỏ chữ màn
+ * chi tiết trên điện thoại: _"icon ? và cùng khoanh tròn đang lớn quá. giảm xuống tiếp"_. Vùng chạm
+ * vẫn 44px nhờ `::after` ở trên. Từ 1024px giữ 24px: thẻ gộp ở PC căn nhóm "tên + con số" theo đúng
+ * chiều cao của hàng "?" (`.merged .blockHead` và `padding-top` của `.merged .result` trong
+ * `FormulaDetail.module.css` đều là `--space-6`), nên đổi cỡ ở đó là lệch tâm cả 64 thẻ.
+ */
+@media (max-width: 1023.98px) {
+  .hint {
+    width: 20px;
+    height: 20px;
+    font-size: 11px;
+  }
+}

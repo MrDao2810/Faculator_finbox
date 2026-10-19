@@ -77,7 +77,10 @@ export const MO_HINH_GORDON: FormulaModule = {
   spec: {
     id: 'mo-hinh-gordon',
     categoryId: 'valuation',
-    name: { vi: 'Mô hình Gordon (DDM một giai đoạn)', en: 'Gordon growth model' },
+    name: {
+      vi: 'Mô hình Gordon (DDM một giai đoạn)',
+      en: 'Gordon growth model (single-stage DDM)',
+    },
     description: {
       vi: 'Giá trị cổ phiếu từ dòng cổ tức tăng trưởng đều mãi mãi, chiết khấu về hiện tại.',
       en: 'Share value from a dividend stream growing at a constant rate forever, discounted back to the present.',
@@ -306,7 +309,7 @@ export const DDM_HAI_GIAI_DOAN: FormulaModule = {
   spec: {
     id: 'ddm-hai-giai-doan',
     categoryId: 'valuation',
-    name: { vi: 'DDM hai giai đoạn', en: 'Two-stage dividend discount model' },
+    name: { vi: 'DDM hai giai đoạn', en: 'Two-stage DDM' },
     description: {
       vi: 'Giá trị cổ phiếu khi cổ tức tăng nhanh vài năm đầu rồi chuyển về tăng trưởng đều dài hạn.',
       en: 'Share value when dividends grow fast for the first few years, then settle into steady long-term growth.',
@@ -427,7 +430,7 @@ export const DDM_HAI_GIAI_DOAN: FormulaModule = {
       ),
       sliderVar(
         'years',
-        { vi: 'Số năm giai đoạn đầu', en: 'Length of the first stage (years)' },
+        { vi: 'Số năm giai đoạn đầu (n)', en: 'Length of the first stage in years (n)' },
         'năm',
         5,
         1,
@@ -663,7 +666,7 @@ export const CAPM: FormulaModule = {
   spec: {
     id: 'capm',
     categoryId: 'valuation',
-    name: { vi: 'CAPM — chi phí vốn chủ sở hữu', en: 'Capital asset pricing model' },
+    name: { vi: 'CAPM — chi phí vốn chủ sở hữu', en: 'CAPM — capital asset pricing model' },
     description: {
       vi: 'Suất sinh lợi yêu cầu của cổ đông, tính từ lãi suất phi rủi ro và hệ số beta.',
       en: "Shareholders' required rate of return, computed from the risk-free rate and the beta coefficient.",
@@ -708,7 +711,7 @@ export const CAPM: FormulaModule = {
     variables: [
       sliderVar(
         'riskFree',
-        { vi: 'Lãi suất phi rủi ro (Rf)', en: 'Risk-free rate (Rf)' },
+        { vi: 'Lãi suất phi rủi ro (rf)', en: 'Risk-free rate (rf)' },
         '%',
         3.5,
         0,
@@ -830,7 +833,10 @@ export const WACC: FormulaModule = {
   spec: {
     id: 'wacc',
     categoryId: 'valuation',
-    name: { vi: 'WACC — chi phí vốn bình quân gia quyền', en: 'Weighted average cost of capital' },
+    name: {
+      vi: 'WACC — chi phí vốn bình quân gia quyền',
+      en: 'WACC — weighted average cost of capital',
+    },
     description: {
       vi: 'Chi phí huy động một đồng vốn của doanh nghiệp, trộn giữa vốn chủ và nợ vay sau lá chắn thuế.',
       en: 'The cost of raising one unit of capital for a company, blending equity and after-tax debt.',
@@ -915,7 +921,7 @@ export const WACC: FormulaModule = {
       }),
       sliderVar(
         'costEquity',
-        { vi: 'Chi phí vốn chủ (Re)', en: 'Cost of equity (Re)' },
+        { vi: 'Chi phí vốn chủ (re)', en: 'Cost of equity (re)' },
         '%',
         13.1,
         0,
@@ -930,7 +936,7 @@ export const WACC: FormulaModule = {
       ),
       sliderVar(
         'costDebt',
-        { vi: 'Chi phí nợ vay (Rd)', en: 'Cost of debt (Rd)' },
+        { vi: 'Chi phí nợ vay (rd)', en: 'Cost of debt (rd)' },
         '%',
         9,
         0,
@@ -945,7 +951,7 @@ export const WACC: FormulaModule = {
       ),
       sliderVar(
         'taxRate',
-        { vi: 'Thuế suất thuế TNDN', en: 'Corporate income tax rate' },
+        { vi: 'Thuế suất thuế TNDN (t)', en: 'Corporate income tax rate (t)' },
         '%',
         20,
         0,
@@ -1073,7 +1079,7 @@ export const FCFF: FormulaModule = {
   spec: {
     id: 'fcff',
     categoryId: 'valuation',
-    name: { vi: 'FCFF — dòng tiền tự do của doanh nghiệp', en: 'Free cash flow to firm' },
+    name: { vi: 'FCFF — dòng tiền tự do của doanh nghiệp', en: 'FCFF — free cash flow to firm' },
     description: {
       vi: 'Tiền còn lại cho cả chủ nợ lẫn cổ đông sau thuế và sau khi tái đầu tư, tính từ EBIT.',
       en: 'The cash left for both creditors and shareholders after tax and reinvestment, computed from EBIT.',
@@ -1175,7 +1181,7 @@ export const FCFF: FormulaModule = {
       ),
       sliderVar(
         'taxRate',
-        { vi: 'Thuế suất thuế TNDN', en: 'Corporate income tax rate' },
+        { vi: 'Thuế suất thuế TNDN (t)', en: 'Corporate income tax rate (t)' },
         '%',
         20,
         0,
@@ -1188,7 +1194,7 @@ export const FCFF: FormulaModule = {
           },
         },
       ),
-      numberVar('depreciation', { vi: 'Khấu hao', en: 'Depreciation' }, 'tỷ ₫', 120, {
+      numberVar('depreciation', { vi: 'Khấu hao (Dep)', en: 'Depreciation (Dep)' }, 'tỷ ₫', 120, {
         min: 0,
         max: 10_000_000,
         description: {
@@ -1332,7 +1338,7 @@ export const FCFE: FormulaModule = {
   spec: {
     id: 'fcfe',
     categoryId: 'valuation',
-    name: { vi: 'FCFE — dòng tiền tự do của cổ đông', en: 'Free cash flow to equity' },
+    name: { vi: 'FCFE — dòng tiền tự do của cổ đông', en: 'FCFE — free cash flow to equity' },
     description: {
       vi: 'Tiền còn lại riêng cho cổ đông sau khi trả lãi vay sau thuế và điều chỉnh vay nợ ròng.',
       en: 'The cash left specifically for shareholders after paying after-tax interest and adjusting for net borrowing.',
@@ -1432,7 +1438,7 @@ export const FCFE: FormulaModule = {
           },
         },
       ),
-      numberVar('interest', { vi: 'Chi phí lãi vay', en: 'Interest expense' }, 'tỷ ₫', 60, {
+      numberVar('interest', { vi: 'Chi phí lãi vay (I)', en: 'Interest expense (I)' }, 'tỷ ₫', 60, {
         min: 0,
         max: 1_000_000,
         description: {
@@ -1442,7 +1448,7 @@ export const FCFE: FormulaModule = {
       }),
       sliderVar(
         'taxRate',
-        { vi: 'Thuế suất thuế TNDN', en: 'Corporate income tax rate' },
+        { vi: 'Thuế suất thuế TNDN (t)', en: 'Corporate income tax rate (t)' },
         '%',
         20,
         0,
@@ -1455,14 +1461,20 @@ export const FCFE: FormulaModule = {
           },
         },
       ),
-      numberVar('netBorrowing', { vi: 'Vay ròng mới', en: 'New net borrowing' }, 'tỷ ₫', 30, {
-        min: -1_000_000,
-        max: 1_000_000,
-        description: {
-          vi: 'Tiền vay mới trừ nợ gốc đã trả trong kỳ; âm nghĩa là trả nợ nhiều hơn vay.',
-          en: 'New borrowing minus principal repaid during the period; negative means repayments exceeded new borrowing.',
+      numberVar(
+        'netBorrowing',
+        { vi: 'Vay ròng mới (ΔB)', en: 'New net borrowing (ΔB)' },
+        'tỷ ₫',
+        30,
+        {
+          min: -1_000_000,
+          max: 1_000_000,
+          description: {
+            vi: 'Tiền vay mới trừ nợ gốc đã trả trong kỳ; âm nghĩa là trả nợ nhiều hơn vay.',
+            en: 'New borrowing minus principal repaid during the period; negative means repayments exceeded new borrowing.',
+          },
         },
-      }),
+      ),
     ],
     explanation: {
       meaning: {
@@ -1570,7 +1582,7 @@ export const GIA_TRI_NOI_TAI_FCFF: FormulaModule = {
   spec: {
     id: 'gia-tri-noi-tai-fcff',
     categoryId: 'valuation',
-    name: { vi: 'Giá trị nội tại từ FCFF (DCF)', en: 'Intrinsic value from FCFF' },
+    name: { vi: 'Giá trị nội tại từ FCFF (DCF)', en: 'Intrinsic value from FCFF (DCF)' },
     description: {
       vi: 'Chiết khấu dòng tiền tự do của doanh nghiệp bằng WACC, trừ nợ ròng, chia cho số cổ phiếu.',
       en: "Discounting the firm's free cash flow by WACC, subtracting net debt, and dividing by the share count.",
@@ -1684,7 +1696,7 @@ export const GIA_TRI_NOI_TAI_FCFF: FormulaModule = {
           },
         },
       ),
-      numberVar('netDebt', { vi: 'Nợ vay ròng', en: 'Net debt' }, 'tỷ ₫', 300, {
+      numberVar('netDebt', { vi: 'Nợ vay ròng (Dròng)', en: 'Net debt (Dròng)' }, 'tỷ ₫', 300, {
         min: -1_000_000,
         max: 10_000_000,
         description: {
@@ -1899,7 +1911,7 @@ export const GIA_TRI_HIEN_TAI: FormulaModule = {
   spec: {
     id: 'gia-tri-hien-tai',
     categoryId: 'valuation',
-    name: { vi: 'Giá trị hiện tại (PV)', en: 'Present value' },
+    name: { vi: 'Giá trị hiện tại (PV)', en: 'Present value (PV)' },
     description: {
       vi: 'Một khoản tiền trong tương lai đáng giá bao nhiêu ở hôm nay.',
       en: 'How much a future sum of money is worth today.',
@@ -1963,7 +1975,7 @@ export const GIA_TRI_HIEN_TAI: FormulaModule = {
       ),
       sliderVar(
         'rate',
-        { vi: 'Tỷ lệ chiết khấu / năm', en: 'Discount rate / year' },
+        { vi: 'Tỷ lệ chiết khấu / năm (r)', en: 'Discount rate / year (r)' },
         '%',
         8,
         0,
@@ -1976,7 +1988,7 @@ export const GIA_TRI_HIEN_TAI: FormulaModule = {
           },
         },
       ),
-      sliderVar('years', { vi: 'Số năm', en: 'Years' }, 'năm', 10, 1, 50, 1, {
+      sliderVar('years', { vi: 'Số năm (n)', en: 'Years (n)' }, 'năm', 10, 1, 50, 1, {
         description: {
           vi: 'Khoảng cách từ hôm nay tới lúc nhận tiền.',
           en: 'The time from today until the money is received.',
@@ -2083,7 +2095,7 @@ export const GIA_TRI_TUONG_LAI: FormulaModule = {
   spec: {
     id: 'gia-tri-tuong-lai',
     categoryId: 'valuation',
-    name: { vi: 'Giá trị tương lai (FV)', en: 'Future value' },
+    name: { vi: 'Giá trị tương lai (FV)', en: 'Future value (FV)' },
     description: {
       vi: 'Một khoản tiền hôm nay lớn thành bao nhiêu sau nhiều năm sinh lợi kép.',
       en: 'How much a sum of money today grows to after years of compounding.',
@@ -2147,7 +2159,7 @@ export const GIA_TRI_TUONG_LAI: FormulaModule = {
       ),
       sliderVar(
         'rate',
-        { vi: 'Tỷ suất sinh lợi / năm', en: 'Rate of return / year' },
+        { vi: 'Tỷ suất sinh lợi / năm (r)', en: 'Rate of return / year (r)' },
         '%',
         10,
         -10,
@@ -2160,7 +2172,7 @@ export const GIA_TRI_TUONG_LAI: FormulaModule = {
           },
         },
       ),
-      sliderVar('years', { vi: 'Số năm', en: 'Years' }, 'năm', 15, 1, 50, 1, {
+      sliderVar('years', { vi: 'Số năm (n)', en: 'Years (n)' }, 'năm', 15, 1, 50, 1, {
         description: {
           vi: 'Thời gian để khoản tiền sinh lợi.',
           en: 'The length of time the money is invested.',

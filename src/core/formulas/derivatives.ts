@@ -18,7 +18,7 @@ import type { FormulaModule } from '../calc/types';
 import { lamTronXuong } from '../lam-tron';
 import type { FormulaSource } from '../registry/types';
 import { divideByZero, meaningless } from '../warnings';
-import { constantOf, missingConstant, numberVar, sliderVar } from './shared';
+import { constantOf, missingConstant, numberVar, sliderVar, withSymbol } from './shared';
 
 /*
  * ── Nguồn tham khảo của nhóm (FR-04) ───────────────────────────────────────────────────
@@ -151,10 +151,10 @@ export const GIA_LY_THUYET_VN30F: FormulaModule = {
     tags: ['vn30f', 'gia ly thuyet', 'hop dong tuong lai', 'cost of carry', 'futures', 'phai sinh'],
     resultUnit: 'điểm',
     variables: [
-      indexValue,
+      withSymbol(indexValue, 'S'),
       sliderVar(
         'riskFreeRate',
-        { vi: 'Lãi suất phi rủi ro / năm', en: 'Risk-free rate / year' },
+        { vi: 'Lãi suất phi rủi ro / năm (r)', en: 'Risk-free rate / year (r)' },
         '%',
         4.5,
         0,
@@ -169,7 +169,7 @@ export const GIA_LY_THUYET_VN30F: FormulaModule = {
       ),
       sliderVar(
         'dividendYield',
-        { vi: 'Tỷ suất cổ tức rổ VN30 / năm', en: 'VN30 basket dividend yield / year' },
+        { vi: 'Tỷ suất cổ tức rổ VN30 / năm (q)', en: 'VN30 basket dividend yield / year (q)' },
         '%',
         1.8,
         0,
@@ -183,7 +183,7 @@ export const GIA_LY_THUYET_VN30F: FormulaModule = {
           },
         },
       ),
-      numberVar('days', { vi: 'Số ngày đến đáo hạn', en: 'Days to expiry' }, 'ngày', 30, {
+      numberVar('days', { vi: 'Số ngày đến đáo hạn (d)', en: 'Days to expiry (d)' }, 'ngày', 30, {
         min: 0,
         max: 365,
         description: {
@@ -351,7 +351,7 @@ export const BASIS_VN30F: FormulaModule = {
     variables: [
       numberVar(
         'futuresPoints',
-        { vi: 'Giá hợp đồng tương lai', en: 'Futures contract price' },
+        { vi: 'Giá hợp đồng tương lai (F)', en: 'Futures contract price (F)' },
         'điểm',
         1_285.5,
         {
@@ -363,7 +363,7 @@ export const BASIS_VN30F: FormulaModule = {
           },
         },
       ),
-      indexValue,
+      withSymbol(indexValue, 'S'),
     ],
     explanation: {
       meaning: {
@@ -505,23 +505,35 @@ export const LAI_LO_VI_THE_LONG: FormulaModule = {
     tags: ['lai lo', 'vi the long', 'vn30f', 'mua', 'pnl', 'long', 'phai sinh'],
     resultUnit: '₫',
     variables: [
-      numberVar('entryPoints', { vi: 'Điểm mở vị thế', en: 'Opening points' }, 'điểm', 1_280, {
-        min: 0,
-        max: 10_000,
-        description: {
-          vi: 'Giá VN30F lúc mở vị thế mua.',
-          en: 'VN30F price when the long position was opened.',
+      numberVar(
+        'entryPoints',
+        { vi: 'Điểm mở vị thế (Pmo)', en: 'Opening points (Pmo)' },
+        'điểm',
+        1_280,
+        {
+          min: 0,
+          max: 10_000,
+          description: {
+            vi: 'Giá VN30F lúc mở vị thế mua.',
+            en: 'VN30F price when the long position was opened.',
+          },
         },
-      }),
-      numberVar('exitPoints', { vi: 'Điểm đóng vị thế', en: 'Closing points' }, 'điểm', 1_288, {
-        min: 0,
-        max: 10_000,
-        description: {
-          vi: 'Giá VN30F lúc đóng vị thế, hoặc giá hiện tại nếu chưa đóng.',
-          en: 'VN30F price when the position was closed, or the current price if still open.',
+      ),
+      numberVar(
+        'exitPoints',
+        { vi: 'Điểm đóng vị thế (Pdong)', en: 'Closing points (Pdong)' },
+        'điểm',
+        1_288,
+        {
+          min: 0,
+          max: 10_000,
+          description: {
+            vi: 'Giá VN30F lúc đóng vị thế, hoặc giá hiện tại nếu chưa đóng.',
+            en: 'VN30F price when the position was closed, or the current price if still open.',
+          },
         },
-      }),
-      contracts,
+      ),
+      withSymbol(contracts, 'N'),
     ],
     explanation: {
       meaning: {
@@ -669,23 +681,35 @@ export const LAI_LO_VI_THE_SHORT: FormulaModule = {
     tags: ['lai lo', 'vi the short', 'vn30f', 'ban', 'pnl', 'short', 'phai sinh'],
     resultUnit: '₫',
     variables: [
-      numberVar('entryPoints', { vi: 'Điểm mở vị thế', en: 'Opening points' }, 'điểm', 1_280, {
-        min: 0,
-        max: 10_000,
-        description: {
-          vi: 'Giá VN30F lúc mở vị thế bán.',
-          en: 'VN30F price when the short position was opened.',
+      numberVar(
+        'entryPoints',
+        { vi: 'Điểm mở vị thế (Pmo)', en: 'Opening points (Pmo)' },
+        'điểm',
+        1_280,
+        {
+          min: 0,
+          max: 10_000,
+          description: {
+            vi: 'Giá VN30F lúc mở vị thế bán.',
+            en: 'VN30F price when the short position was opened.',
+          },
         },
-      }),
-      numberVar('exitPoints', { vi: 'Điểm đóng vị thế', en: 'Closing points' }, 'điểm', 1_272, {
-        min: 0,
-        max: 10_000,
-        description: {
-          vi: 'Giá VN30F lúc đóng vị thế, hoặc giá hiện tại nếu chưa đóng.',
-          en: 'VN30F price when the position was closed, or the current price if still open.',
+      ),
+      numberVar(
+        'exitPoints',
+        { vi: 'Điểm đóng vị thế (Pdong)', en: 'Closing points (Pdong)' },
+        'điểm',
+        1_272,
+        {
+          min: 0,
+          max: 10_000,
+          description: {
+            vi: 'Giá VN30F lúc đóng vị thế, hoặc giá hiện tại nếu chưa đóng.',
+            en: 'VN30F price when the position was closed, or the current price if still open.',
+          },
         },
-      }),
-      contracts,
+      ),
+      withSymbol(contracts, 'N'),
     ],
     explanation: {
       meaning: {
@@ -848,7 +872,7 @@ export const SO_HOP_DONG_TOI_DA: FormulaModule = {
     tags: ['ky quy', 'so hop dong', 'margin', 'vn30f', 'ky quy ban dau', 'phai sinh'],
     resultUnit: 'HĐ',
     variables: [
-      numberVar('capital', { vi: 'Vốn ký quỹ', en: 'Margin capital' }, '₫', 200_000_000, {
+      numberVar('capital', { vi: 'Vốn ký quỹ (V)', en: 'Margin capital (V)' }, '₫', 200_000_000, {
         min: 0,
         max: 100_000_000_000,
         description: {
@@ -856,10 +880,10 @@ export const SO_HOP_DONG_TOI_DA: FormulaModule = {
           en: 'Amount of money deposited into the derivatives margin account.',
         },
       }),
-      futuresPoints,
+      withSymbol(futuresPoints, 'F'),
       numberVar(
         'marginRatio',
-        { vi: 'Tỷ lệ ký quỹ ban đầu', en: 'Initial margin ratio' },
+        { vi: 'Tỷ lệ ký quỹ ban đầu (k)', en: 'Initial margin ratio (k)' },
         '%',
         17,
         {
@@ -1054,7 +1078,7 @@ export const CO_VI_THE_PHAI_SINH: FormulaModule = {
     variables: [
       numberVar(
         'capital',
-        { vi: 'Vốn tài khoản phái sinh', en: 'Derivatives account capital' },
+        { vi: 'Vốn tài khoản phái sinh (V)', en: 'Derivatives account capital (V)' },
         '₫',
         500_000_000,
         {
@@ -1068,7 +1092,7 @@ export const CO_VI_THE_PHAI_SINH: FormulaModule = {
       ),
       sliderVar(
         'riskPercent',
-        { vi: 'Rủi ro mỗi lệnh', en: 'Risk per trade' },
+        { vi: 'Rủi ro mỗi lệnh (r)', en: 'Risk per trade (r)' },
         '%',
         2,
         0.1,
@@ -1081,14 +1105,20 @@ export const CO_VI_THE_PHAI_SINH: FormulaModule = {
           },
         },
       ),
-      numberVar('stopPoints', { vi: 'Khoảng cách cắt lỗ', en: 'Stop-loss distance' }, 'điểm', 15, {
-        min: 0,
-        max: 200,
-        description: {
-          vi: 'Số điểm chênh giữa điểm vào lệnh và điểm cắt lỗ — dùng được cho cả vị thế Long và Short.',
-          en: 'The point gap between the entry level and the stop-loss level — applies to both Long and Short positions.',
+      numberVar(
+        'stopPoints',
+        { vi: 'Khoảng cách cắt lỗ (ΔP)', en: 'Stop-loss distance (ΔP)' },
+        'điểm',
+        15,
+        {
+          min: 0,
+          max: 200,
+          description: {
+            vi: 'Số điểm chênh giữa điểm vào lệnh và điểm cắt lỗ — dùng được cho cả vị thế Long và Short.',
+            en: 'The point gap between the entry level and the stop-loss level — applies to both Long and Short positions.',
+          },
         },
-      }),
+      ),
     ],
     explanation: {
       meaning: {
@@ -1255,11 +1285,11 @@ export const DON_BAY_HIEU_DUNG: FormulaModule = {
     tags: ['don bay', 'leverage', 'vn30f', 'gia tri danh nghia', 'notional', 'phai sinh'],
     resultUnit: 'lần',
     variables: [
-      futuresPoints,
-      contracts,
+      withSymbol(futuresPoints, 'F'),
+      withSymbol(contracts, 'N'),
       numberVar(
         'equity',
-        { vi: 'Vốn thực có trong tài khoản', en: 'Actual equity in the account' },
+        { vi: 'Vốn thực có trong tài khoản (E)', en: 'Actual equity in the account (E)' },
         '₫',
         30_000_000,
         {

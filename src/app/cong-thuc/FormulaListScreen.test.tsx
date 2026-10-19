@@ -316,8 +316,7 @@ describe('FormulaListScreen — hàng chip nhóm và nút xoá bộ lọc', () =
     fireEvent.click(screen.getByRole('button', { name: 'Xoá bộ lọc' }));
 
     expect(
-      (within(khoiDanhSach()).getByRole('radio', { name: 'Tất cả nhóm' }) as HTMLInputElement)
-        .checked,
+      (within(khoiDanhSach()).getByRole('radio', { name: 'Tất cả' }) as HTMLInputElement).checked,
     ).toBe(true);
     expect(oTim().value).toBe('gia');
   });

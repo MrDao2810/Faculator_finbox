@@ -140,7 +140,7 @@ describe('GuideScreen', () => {
     expect(khoi).not.toBeNull();
 
     const ten = [...(khoi?.querySelectorAll('dt') ?? [])].map((dt) => dt.textContent);
-    expect(ten).toEqual(['Giá thị trường', 'EPS — lợi nhuận trên mỗi cổ phiếu']);
+    expect(ten).toEqual(['Giá thị trường (P)', 'EPS — lợi nhuận trên mỗi cổ phiếu']);
 
     const noi = [...(khoi?.querySelectorAll('dd') ?? [])].map((dd) => dd.textContent);
     expect(noi).toEqual([
@@ -285,7 +285,7 @@ describe('GuideScreen', () => {
     dungMan('pe');
     // Đường theo ô Giá thị trường mở ra ngay nên đứng đầu và mở sẵn; hai hình kia theo thứ tự ô chọn.
     expect(hinh()).toEqual([
-      { ten: 'P/E theo Giá thị trường', mo: true },
+      { ten: 'P/E theo Giá thị trường (P)', mo: true },
       { ten: 'P/E theo thời gian', mo: false },
       { ten: 'P/E theo EPS', mo: false },
     ]);
@@ -328,7 +328,7 @@ describe('GuideScreen', () => {
     // Chưa nạp chuỗi giá thì màn không vẽ gì; hình đầu tiên người dùng thấy là hình theo thời gian.
     expect(hinh()).toEqual([
       { ten: 'Trung bình động đơn giản (SMA) theo thời gian', mo: true },
-      { ten: 'Trung bình động đơn giản (SMA) theo Số phiên', mo: false },
+      { ten: 'Trung bình động đơn giản (SMA) theo Số phiên (n)', mo: false },
     ]);
     // Cả hai hình của công thức này đều chờ chuỗi giá.
     expect(screen.getAllByText('Chỉ vẽ sau khi đã nạp mã cổ phiếu hoặc chuỗi giá.')).toHaveLength(
@@ -355,7 +355,7 @@ describe('GuideScreen', () => {
     }));
 
     expect(muc).toEqual([
-      { ten: 'EPS cơ bản theo Lợi nhuận sau thuế', nangCao: false },
+      { ten: 'EPS cơ bản theo Lợi nhuận sau thuế (LNST)', nangCao: false },
       { ten: 'EPS cơ bản theo Cổ tức ưu đãi', nangCao: true },
       { ten: 'EPS cơ bản theo Số cổ phiếu lưu hành', nangCao: false },
     ]);

@@ -8,7 +8,7 @@ import { usePick, useT } from '@/application/preferences-context';
 import styles from './CategoryChips.module.css';
 
 export interface CategoryChipsProps {
-  /** Nhóm đang chọn — `null` là "Tất cả nhóm". */
+  /** Nhóm đang chọn — `null` là "Tất cả". */
   value: string | null;
   onChange: (categoryId: string | null) => void;
   /** Số công thức khớp của từng nhóm ở chế độ **Cơ bản** — `countByCategoryFor(bộ Cơ bản, …)`. */

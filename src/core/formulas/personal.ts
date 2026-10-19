@@ -15,7 +15,7 @@
 import { ok } from '../calc-output';
 import type { CalcValues, FormulaModule } from '../calc/types';
 import { divideByZero } from '../warnings';
-import { SOURCE_CORPORATE_FINANCE, numberVar, sliderVar } from './shared';
+import { SOURCE_CORPORATE_FINANCE, numberVar, sliderVar, withSymbol } from './shared';
 
 /*
  * ── Biến dùng chung ────────────────────────────────────────────────────────────────────
@@ -152,7 +152,7 @@ export const TRA_GOP_NIEN_KIM: FormulaModule = {
     isFeatured: true,
     tags: ['tra gop', 'emi', 'nien kim', 'vay mua nha'],
     resultUnit: '₫/tháng',
-    variables: [loanAmount, loanRate, loanYears],
+    variables: [withSymbol(loanAmount, 'P'), loanRate, loanYears],
     explanation: {
       meaning: {
         vi: 'Khoản tiền giống nhau ở mọi kỳ, trong đó phần lãi giảm dần còn phần gốc tăng dần.',
@@ -310,7 +310,7 @@ export const TRA_GOP_GOC_DEU: FormulaModule = {
     level: 'basic',
     tags: ['goc deu', 'tra gop', 'du no giam dan'],
     resultUnit: '₫',
-    variables: [loanAmount, loanRate, loanYears],
+    variables: [withSymbol(loanAmount, 'P'), loanRate, loanYears],
     explanation: {
       meaning: {
         vi: 'Mỗi kỳ trả một phần gốc như nhau cộng tiền lãi trên dư nợ còn lại, nên số tiền giảm dần.',
@@ -746,18 +746,33 @@ export const LAI_KEP: FormulaModule = {
     tags: ['lai kep', 'compound', 'tich luy'],
     resultUnit: '₫',
     variables: [
-      numberVar('principal', { vi: 'Số tiền gốc', en: 'Principal amount' }, '₫', 10_000_000, {
-        min: 0,
-        max: 100_000_000_000,
-        description: { vi: 'Số tiền gửi ban đầu.', en: 'The initial deposit amount.' },
-      }),
-      sliderVar('rate', { vi: 'Lãi suất / năm', en: 'Interest rate / year' }, '%', 8, 0, 20, 0.1, {
-        description: {
-          vi: 'Lãi suất danh nghĩa theo năm.',
-          en: 'The nominal annual interest rate.',
+      numberVar(
+        'principal',
+        { vi: 'Số tiền gốc (P)', en: 'Principal amount (P)' },
+        '₫',
+        10_000_000,
+        {
+          min: 0,
+          max: 100_000_000_000,
+          description: { vi: 'Số tiền gửi ban đầu.', en: 'The initial deposit amount.' },
         },
-      }),
-      sliderVar('years', { vi: 'Thời gian', en: 'Time' }, 'năm', 10, 1, 50, 1, {
+      ),
+      sliderVar(
+        'rate',
+        { vi: 'Lãi suất / năm (r)', en: 'Interest rate / year (r)' },
+        '%',
+        8,
+        0,
+        20,
+        0.1,
+        {
+          description: {
+            vi: 'Lãi suất danh nghĩa theo năm.',
+            en: 'The nominal annual interest rate.',
+          },
+        },
+      ),
+      sliderVar('years', { vi: 'Thời gian (t)', en: 'Time (t)' }, 'năm', 10, 1, 50, 1, {
         description: {
           vi: 'Số năm để tiền sinh lãi.',
           en: 'The number of years the money earns interest.',
@@ -765,7 +780,7 @@ export const LAI_KEP: FormulaModule = {
       }),
       {
         key: 'perYear',
-        label: { vi: 'Số lần nhập lãi / năm', en: 'Compounding frequency / year' },
+        label: { vi: 'Số lần nhập lãi / năm (n)', en: 'Compounding frequency / year (n)' },
         unit: 'lần',
         type: 'select',
         defaultValue: 12,
@@ -916,12 +931,26 @@ export const LAI_TIEN_GUI: FormulaModule = {
     tags: ['lai tien gui', 'tiet kiem', 'ky han', 'lai don'],
     resultUnit: '₫',
     variables: [
-      numberVar('principal', { vi: 'Số tiền gửi', en: 'Deposit amount' }, '₫', 100_000_000, {
-        min: 0,
-        max: 100_000_000_000,
-      }),
-      sliderVar('rate', { vi: 'Lãi suất / năm', en: 'Interest rate / year' }, '%', 5.5, 0, 15, 0.1),
-      sliderVar('months', { vi: 'Kỳ hạn', en: 'Term' }, 'tháng', 12, 1, 60, 1),
+      numberVar(
+        'principal',
+        { vi: 'Số tiền gửi (P)', en: 'Deposit amount (P)' },
+        '₫',
+        100_000_000,
+        {
+          min: 0,
+          max: 100_000_000_000,
+        },
+      ),
+      sliderVar(
+        'rate',
+        { vi: 'Lãi suất / năm (r)', en: 'Interest rate / year (r)' },
+        '%',
+        5.5,
+        0,
+        15,
+        0.1,
+      ),
+      sliderVar('months', { vi: 'Kỳ hạn (T)', en: 'Term (T)' }, 'tháng', 12, 1, 60, 1),
     ],
     explanation: {
       meaning: {
@@ -1035,14 +1064,20 @@ export const TIET_KIEM_MUC_TIEU: FormulaModule = {
     tags: ['tiet kiem muc tieu', 'goal savings', 'gui dinh ky'],
     resultUnit: '₫/tháng',
     variables: [
-      numberVar('target', { vi: 'Số tiền mục tiêu', en: 'Target amount' }, '₫', 1_000_000_000, {
-        min: 0,
-        max: 100_000_000_000,
-        description: {
-          vi: 'Số tiền muốn có được vào cuối kỳ.',
-          en: 'The amount you want to have by the end of the period.',
+      numberVar(
+        'target',
+        { vi: 'Số tiền mục tiêu (FV)', en: 'Target amount (FV)' },
+        '₫',
+        1_000_000_000,
+        {
+          min: 0,
+          max: 100_000_000_000,
+          description: {
+            vi: 'Số tiền muốn có được vào cuối kỳ.',
+            en: 'The amount you want to have by the end of the period.',
+          },
         },
-      }),
+      ),
       sliderVar(
         'rate',
         { vi: 'Lãi suất kỳ vọng / năm', en: 'Expected interest rate / year' },
@@ -1052,7 +1087,7 @@ export const TIET_KIEM_MUC_TIEU: FormulaModule = {
         20,
         0.1,
       ),
-      sliderVar('months', { vi: 'Thời gian', en: 'Time' }, 'tháng', 60, 1, 360, 1),
+      sliderVar('months', { vi: 'Thời gian (n)', en: 'Time (n)' }, 'tháng', 60, 1, 360, 1),
     ],
     explanation: {
       meaning: {

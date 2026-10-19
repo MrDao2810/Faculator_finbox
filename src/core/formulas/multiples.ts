@@ -49,7 +49,7 @@ export const PE: FormulaModule = {
   spec: {
     id: 'pe',
     categoryId: 'fundamentals',
-    name: { vi: 'P/E — hệ số giá trên lợi nhuận', en: 'Price to earnings ratio' },
+    name: { vi: 'P/E — hệ số giá trên lợi nhuận', en: 'P/E — price to earnings ratio' },
     description: {
       vi: 'Nhà đầu tư trả bao nhiêu đồng cho mỗi đồng lợi nhuận của doanh nghiệp.',
       en: "How many dong an investor pays for each dong of the company's profit.",
@@ -80,7 +80,7 @@ export const PE: FormulaModule = {
     tags: ['pe', 'p e', 'gia tren loi nhuan', 'boi so', 'dinh gia'],
     resultUnit: 'lần',
     variables: [
-      numberVar('price', { vi: 'Giá thị trường', en: 'Market price' }, '₫', 92_000, {
+      numberVar('price', { vi: 'Giá thị trường (P)', en: 'Market price (P)' }, '₫', 92_000, {
         min: 0,
         max: 10_000_000,
         description: {
@@ -210,7 +210,7 @@ export const PB: FormulaModule = {
   spec: {
     id: 'pb',
     categoryId: 'fundamentals',
-    name: { vi: 'P/B — hệ số giá trên giá trị sổ sách', en: 'Price to book ratio' },
+    name: { vi: 'P/B — hệ số giá trên giá trị sổ sách', en: 'P/B — price to book ratio' },
     description: {
       vi: 'Thị giá đang gấp bao nhiêu lần giá trị sổ sách của một cổ phiếu.',
       en: 'How many times the market price is above the book value of a share.',
@@ -244,13 +244,13 @@ export const PB: FormulaModule = {
     tags: ['pb', 'p b', 'gia tren gia tri so sach', 'boi so'],
     resultUnit: 'lần',
     variables: [
-      numberVar('price', { vi: 'Giá thị trường', en: 'Market price' }, '₫', 92_000, {
+      numberVar('price', { vi: 'Giá thị trường (P)', en: 'Market price (P)' }, '₫', 92_000, {
         min: 0,
         max: 10_000_000,
       }),
       numberVar(
         'bookValuePerShare',
-        { vi: 'Giá trị sổ sách / CP', en: 'Book value / share' },
+        { vi: 'Giá trị sổ sách / CP (BVPS)', en: 'Book value / share (BVPS)' },
         '₫',
         24_800,
         {

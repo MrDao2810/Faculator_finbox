@@ -17,8 +17,8 @@ export const BIEU_DO_DINH_GIA: Readonly<Record<string, BieuDoRieng>> = {
       },
       salesPerShare: {
         duong: d(
-          'Đường chạy từ trái sang phải theo ô Doanh thu trên mỗi cổ phiếu (S), từ một nửa đến gấp rưỡi con số bạn đang nhập; vạch đứt dọc có chấm tròn là đúng con số bạn nhập. Đây là phép thử nếu doanh thu mỗi cổ phiếu đổi mà giá đứng yên thì P/S ra bao nhiêu, không phải diễn biến thị trường. Đường đi xuống và thoải dần: doanh thu đứng sau mỗi cổ phiếu càng lớn thì cùng mức giá ấy càng rẻ so với sức bán hàng của doanh nghiệp.',
-          'The line runs left to right along the Revenue per share (S) field, from half to one and a half times the figure you have entered; the dashed vertical line with a dot marks your own figure. It is a what-if on revenue per share with the price held still, not market history. The line falls and flattens: the more revenue stands behind each share, the cheaper that same price is relative to what the company sells.',
+          'Đường chạy từ trái sang phải theo ô Doanh thu trên mỗi cổ phiếu (Sps), từ một nửa đến gấp rưỡi con số bạn đang nhập; vạch đứt dọc có chấm tròn là đúng con số bạn nhập. Đây là phép thử nếu doanh thu mỗi cổ phiếu đổi mà giá đứng yên thì P/S ra bao nhiêu, không phải diễn biến thị trường. Đường đi xuống và thoải dần: doanh thu đứng sau mỗi cổ phiếu càng lớn thì cùng mức giá ấy càng rẻ so với sức bán hàng của doanh nghiệp.',
+          'The line runs left to right along the Revenue per share (Sps) field, from half to one and a half times the figure you have entered; the dashed vertical line with a dot marks your own figure. It is a what-if on revenue per share with the price held still, not market history. The line falls and flattens: the more revenue stands behind each share, the cheaper that same price is relative to what the company sells.',
         ),
         cot: d(
           'Mỗi cột là P/S ở một mức doanh thu mỗi cổ phiếu, cột thấp dần về bên phải và cột tô đặc là mức bạn đang nhập. P/S không nhìn tới lợi nhuận: hai cột bằng nhau vẫn có thể là một doanh nghiệp lãi dày và một doanh nghiệp đang lỗ.',
@@ -73,7 +73,7 @@ export const BIEU_DO_DINH_GIA: Readonly<Record<string, BieuDoRieng>> = {
     },
     bocTach: d(
       'Hình này chỉ có một dạng: các thanh nằm ngang, đọc từ trên xuống. Vốn hoá và Nợ vay là hai thanh tô màu, tức hai khoản cộng vào; Tiền mặt là thanh viền nét đứt, tức khoản trừ ra; thanh sẫm cuối cùng là EV và bằng đúng con số ở khối Kết quả. Trong ba thanh thành phần, thanh dài nhất là khoản quyết định EV nhiều nhất. Hình không có xu thế nào để đọc: nó cho thấy cái giá mua trọn doanh nghiệp ghép từ những phần nào.',
-      'This chart has a single form: horizontal bars, read from top to bottom. Market cap and Debt are the two filled bars, the amounts added in; Cash is the bar with a dashed outline, the amount taken out; the dark bar at the end is Enterprise value and matches the figure in the Result block exactly. Of the three component bars, the longest is the part that drives the total most. There is no trend to read here: the chart shows which pieces the price of buying the whole company is made of.',
+      'This chart has a single form: horizontal bars, read from top to bottom. Market cap and Debt are the two filled bars, the amounts added in; Cash is the bar with a dashed outline, the amount taken out; the dark bar at the end is EV and matches the figure in the Result block exactly. Of the three component bars, the longest is the part that drives the total most. There is no trend to read here: the chart shows which pieces the price of buying the whole company is made of.',
     ),
   },
 
@@ -216,8 +216,8 @@ export const BIEU_DO_DINH_GIA: Readonly<Record<string, BieuDoRieng>> = {
     truc: {
       currentAssets: {
         duong: d(
-          'Đường chạy từ trái sang phải theo ô Tài sản ngắn hạn, từ một nửa đến gấp rưỡi con số bạn đang nhập; vạch đứt dọc có chấm tròn là đúng con số bạn nhập. Đây là phép thử nếu tài sản ngắn hạn đổi mà tổng nợ đứng yên thì NCAV mỗi cổ phiếu ra bao nhiêu, không phải diễn biến thị trường. Đường đi lên đều: mỗi đồng tài sản ngắn hạn thêm vào là một đồng còn lại cho cổ đông sau khi trả hết nợ; chỗ nào đường nằm dưới 0 là chỗ tài sản ngắn hạn chưa đủ phủ nợ.',
-          'The line runs left to right along the Current assets field, from half to one and a half times the figure you have entered; the dashed vertical line with a dot marks your own figure. It is a what-if on current assets with total liabilities held still, not market history. The line rises steadily: every extra unit of current assets is a unit left for shareholders once all debts are paid; wherever it sits below 0, current assets do not yet cover the liabilities.',
+          'Đường chạy từ trái sang phải theo ô Tài sản ngắn hạn (TSNH), từ một nửa đến gấp rưỡi con số bạn đang nhập; vạch đứt dọc có chấm tròn là đúng con số bạn nhập. Đây là phép thử nếu tài sản ngắn hạn đổi mà tổng nợ đứng yên thì NCAV mỗi cổ phiếu ra bao nhiêu, không phải diễn biến thị trường. Đường đi lên đều: mỗi đồng tài sản ngắn hạn thêm vào là một đồng còn lại cho cổ đông sau khi trả hết nợ; chỗ nào đường nằm dưới 0 là chỗ tài sản ngắn hạn chưa đủ phủ nợ.',
+          'The line runs left to right along the Current assets (TSNH) field, from half to one and a half times the figure you have entered; the dashed vertical line with a dot marks your own figure. It is a what-if on current assets with total liabilities held still, not market history. The line rises steadily: every extra unit of current assets is a unit left for shareholders once all debts are paid; wherever it sits below 0, current assets do not yet cover the liabilities.',
         ),
         cot: d(
           'Mỗi cột là NCAV mỗi cổ phiếu ở một mức tài sản ngắn hạn, cột tô đặc là mức bạn đang nhập. Cột quay xuống dưới vạch 0 ở bên trái là vùng nợ lớn hơn tài sản ngắn hạn; chỗ cột đổi sang mọc lên trên vạch 0 là lúc hai bên vừa bằng nhau.',
@@ -370,8 +370,8 @@ export const BIEU_DO_DINH_GIA: Readonly<Record<string, BieuDoRieng>> = {
       },
       years: {
         duong: d(
-          'Đường chạy từ trái sang phải theo ô Số năm giai đoạn đầu, từ khoảng một nửa đến khoảng gấp rưỡi số năm bạn đang nhập, mỗi điểm cách nhau một năm; vạch đứt dọc có chấm tròn là đúng số năm bạn nhập. Đây là phép thử nếu giai đoạn tăng nhanh kéo dài hay ngắn lại thì giá trị cổ phiếu ra bao nhiêu, không phải diễn biến thị trường. Khi giai đoạn đầu tăng nhanh hơn dài hạn, đường đi lên: mỗi năm tăng nhanh thêm vào là thêm một năm cổ tức lớn và một điểm xuất phát cao hơn cho giai đoạn dài hạn. Nhập tăng trưởng giai đoạn đầu thấp hơn tăng trưởng dài hạn thì đường đi xuống.',
-          'The line runs left to right along the Length of the first stage (years) field, from about half to about one and a half times the number of years you have entered, one point per year; the dashed vertical line with a dot marks your own figure. It is a what-if on how long the fast-growth stage lasts, not market history. When the first stage grows faster than the long term, the line rises: each extra year of fast growth adds one more large dividend and a higher starting point for the long-term stage. With first-stage growth entered below long-term growth, the line falls.',
+          'Đường chạy từ trái sang phải theo ô Số năm giai đoạn đầu (n), từ khoảng một nửa đến khoảng gấp rưỡi số năm bạn đang nhập, mỗi điểm cách nhau một năm; vạch đứt dọc có chấm tròn là đúng số năm bạn nhập. Đây là phép thử nếu giai đoạn tăng nhanh kéo dài hay ngắn lại thì giá trị cổ phiếu ra bao nhiêu, không phải diễn biến thị trường. Khi giai đoạn đầu tăng nhanh hơn dài hạn, đường đi lên: mỗi năm tăng nhanh thêm vào là thêm một năm cổ tức lớn và một điểm xuất phát cao hơn cho giai đoạn dài hạn. Nhập tăng trưởng giai đoạn đầu thấp hơn tăng trưởng dài hạn thì đường đi xuống.',
+          'The line runs left to right along the Length of the first stage in years (n) field, from about half to about one and a half times the number of years you have entered, one point per year; the dashed vertical line with a dot marks your own figure. It is a what-if on how long the fast-growth stage lasts, not market history. When the first stage grows faster than the long term, the line rises: each extra year of fast growth adds one more large dividend and a higher starting point for the long-term stage. With first-stage growth entered below long-term growth, the line falls.',
         ),
         cot: d(
           'Mỗi cột là giá trị cổ phiếu ứng với một độ dài của giai đoạn đầu, cột tô đặc là số năm bạn đang nhập. Khi giai đoạn đầu tăng nhanh hơn dài hạn, cột cao dần về bên phải, và bước từ cột này sang cột kế là giá của việc tin rằng doanh nghiệp tăng nhanh thêm một năm; giai đoạn đầu tăng chậm hơn dài hạn thì cột thấp dần. Chỉ có vài cột vì ô này nhận số năm tròn.',
@@ -409,8 +409,8 @@ export const BIEU_DO_DINH_GIA: Readonly<Record<string, BieuDoRieng>> = {
     truc: {
       riskFree: {
         duong: d(
-          'Đường chạy từ trái sang phải theo ô Lãi suất phi rủi ro (Rf), từ một nửa đến gấp rưỡi con số bạn đang nhập; vạch đứt dọc có chấm tròn là đúng con số bạn nhập. Đây là phép thử nếu lãi suất phi rủi ro đổi mà beta và phần bù rủi ro đứng yên thì chi phí vốn chủ ra bao nhiêu, không phải diễn biến thị trường. Đường đi lên đều: lãi suất phi rủi ro là mức sàn của mọi khoản đầu tư, nên nó nhích lên bao nhiêu thì suất sinh lợi cổ đông đòi hỏi nhích lên đúng bấy nhiêu.',
-          'The line runs left to right along the Risk-free rate (Rf) field, from half to one and a half times the figure you have entered; the dashed vertical line with a dot marks your own figure. It is a what-if on the risk-free rate with beta and the risk premium held still, not market history. The line rises steadily: the risk-free rate is the floor under every investment, so each move in it passes straight into the return shareholders require.',
+          'Đường chạy từ trái sang phải theo ô Lãi suất phi rủi ro (rf), từ một nửa đến gấp rưỡi con số bạn đang nhập; vạch đứt dọc có chấm tròn là đúng con số bạn nhập. Đây là phép thử nếu lãi suất phi rủi ro đổi mà beta và phần bù rủi ro đứng yên thì chi phí vốn chủ ra bao nhiêu, không phải diễn biến thị trường. Đường đi lên đều: lãi suất phi rủi ro là mức sàn của mọi khoản đầu tư, nên nó nhích lên bao nhiêu thì suất sinh lợi cổ đông đòi hỏi nhích lên đúng bấy nhiêu.',
+          'The line runs left to right along the Risk-free rate (rf) field, from half to one and a half times the figure you have entered; the dashed vertical line with a dot marks your own figure. It is a what-if on the risk-free rate with beta and the risk premium held still, not market history. The line rises steadily: the risk-free rate is the floor under every investment, so each move in it passes straight into the return shareholders require.',
         ),
         cot: d(
           'Mỗi cột là chi phí vốn chủ ở một mức lãi suất phi rủi ro, cột cao dần về bên phải và cột tô đặc là mức bạn đang nhập. Phần cột nằm trên chính mức lãi suất ấy không đổi từ cột này sang cột khác: đó là phần bù cho rủi ro, bằng beta nhân phần bù thị trường.',
@@ -464,8 +464,8 @@ export const BIEU_DO_DINH_GIA: Readonly<Record<string, BieuDoRieng>> = {
       },
       costEquity: {
         duong: d(
-          'Đường chạy từ trái sang phải theo ô Chi phí vốn chủ (Re), từ một nửa đến gấp rưỡi con số bạn đang nhập; vạch đứt dọc có chấm tròn là đúng con số bạn nhập. Đây là phép thử nếu chi phí vốn chủ đổi thì WACC ra bao nhiêu, không phải diễn biến thị trường. Đường đi lên đều nhưng không tăng một đổi một: vốn chủ chỉ là một phần nguồn vốn, nên chi phí vốn chủ tăng một điểm thì WACC tăng chưa tới một điểm.',
-          'The line runs left to right along the Cost of equity (Re) field, from half to one and a half times the figure you have entered; the dashed vertical line with a dot marks your own figure. It is a what-if on the cost of equity, not market history. The line rises steadily but less than one for one: equity is only part of the funding, so one more point of equity cost adds less than a point to WACC.',
+          'Đường chạy từ trái sang phải theo ô Chi phí vốn chủ (re), từ một nửa đến gấp rưỡi con số bạn đang nhập; vạch đứt dọc có chấm tròn là đúng con số bạn nhập. Đây là phép thử nếu chi phí vốn chủ đổi thì WACC ra bao nhiêu, không phải diễn biến thị trường. Đường đi lên đều nhưng không tăng một đổi một: vốn chủ chỉ là một phần nguồn vốn, nên chi phí vốn chủ tăng một điểm thì WACC tăng chưa tới một điểm.',
+          'The line runs left to right along the Cost of equity (re) field, from half to one and a half times the figure you have entered; the dashed vertical line with a dot marks your own figure. It is a what-if on the cost of equity, not market history. The line rises steadily but less than one for one: equity is only part of the funding, so one more point of equity cost adds less than a point to WACC.',
         ),
         cot: d(
           'Mỗi cột là WACC ở một mức chi phí vốn chủ, cột cao dần về bên phải và cột tô đặc là mức bạn đang nhập. Cột thấp hơn là vốn rẻ hơn, và vốn rẻ hơn làm mọi dòng tiền tương lai đáng giá hơn khi chiết khấu.',
@@ -474,8 +474,8 @@ export const BIEU_DO_DINH_GIA: Readonly<Record<string, BieuDoRieng>> = {
       },
       costDebt: {
         duong: d(
-          'Đường chạy từ trái sang phải theo ô Chi phí nợ vay (Rd), từ một nửa đến gấp rưỡi con số bạn đang nhập; vạch đứt dọc có chấm tròn là đúng con số bạn nhập. Đây là phép thử nếu lãi suất đi vay đổi thì WACC ra bao nhiêu, không phải diễn biến thị trường. Đường đi lên đều nhưng không tăng một đổi một: lãi vay chỉ tính trên phần nợ, và sau khi trừ lá chắn thuế thì mỗi điểm lãi suất thêm vào chỉ lọt một phần xuống chi phí vốn bình quân.',
-          'The line runs left to right along the Cost of debt (Rd) field, from half to one and a half times the figure you have entered; the dashed vertical line with a dot marks your own figure. It is a what-if on the borrowing rate, not market history. The line rises steadily but less than one for one: interest applies only to the debt portion, and after the tax shield only part of each extra point reaches the blended cost.',
+          'Đường chạy từ trái sang phải theo ô Chi phí nợ vay (rd), từ một nửa đến gấp rưỡi con số bạn đang nhập; vạch đứt dọc có chấm tròn là đúng con số bạn nhập. Đây là phép thử nếu lãi suất đi vay đổi thì WACC ra bao nhiêu, không phải diễn biến thị trường. Đường đi lên đều nhưng không tăng một đổi một: lãi vay chỉ tính trên phần nợ, và sau khi trừ lá chắn thuế thì mỗi điểm lãi suất thêm vào chỉ lọt một phần xuống chi phí vốn bình quân.',
+          'The line runs left to right along the Cost of debt (rd) field, from half to one and a half times the figure you have entered; the dashed vertical line with a dot marks your own figure. It is a what-if on the borrowing rate, not market history. The line rises steadily but less than one for one: interest applies only to the debt portion, and after the tax shield only part of each extra point reaches the blended cost.',
         ),
         cot: d(
           'Mỗi cột là WACC ở một mức chi phí nợ vay, cột cao dần về bên phải và cột tô đặc là mức bạn đang nhập. Bước từ cột này sang cột kế nhỏ hơn hẳn bước lãi suất tương ứng, vì lãi vay chỉ tính trên phần nợ và thuế còn gánh hộ thêm một phần.',
@@ -484,8 +484,8 @@ export const BIEU_DO_DINH_GIA: Readonly<Record<string, BieuDoRieng>> = {
       },
       taxRate: {
         duong: d(
-          'Đường chạy từ trái sang phải theo ô Thuế suất thuế TNDN, từ một nửa đến gấp rưỡi con số bạn đang nhập; vạch đứt dọc có chấm tròn là đúng con số bạn nhập. Đây là phép thử nếu thuế suất đổi thì WACC ra bao nhiêu, không phải diễn biến thị trường. Đường đi xuống đều, và các mức ghi trên trục dọc cho thấy cả đường chỉ hạ một khoảng hẹp: lãi vay được trừ trước khi tính thuế, nên thuế suất càng cao thì phần lãi nhà nước gánh hộ càng lớn và chi phí nợ sau thuế càng thấp.',
-          'The line runs left to right along the Corporate income tax rate field, from half to one and a half times the figure you have entered; the dashed vertical line with a dot marks your own figure. It is a what-if on the tax rate, not market history. The line falls steadily, and the levels on the vertical axis show that it drops only a narrow span: interest is deducted before tax, so the higher the tax rate, the more of the interest the state effectively pays and the lower the after-tax cost of debt.',
+          'Đường chạy từ trái sang phải theo ô Thuế suất thuế TNDN (t), từ một nửa đến gấp rưỡi con số bạn đang nhập; vạch đứt dọc có chấm tròn là đúng con số bạn nhập. Đây là phép thử nếu thuế suất đổi thì WACC ra bao nhiêu, không phải diễn biến thị trường. Đường đi xuống đều, và các mức ghi trên trục dọc cho thấy cả đường chỉ hạ một khoảng hẹp: lãi vay được trừ trước khi tính thuế, nên thuế suất càng cao thì phần lãi nhà nước gánh hộ càng lớn và chi phí nợ sau thuế càng thấp.',
+          'The line runs left to right along the Corporate income tax rate (t) field, from half to one and a half times the figure you have entered; the dashed vertical line with a dot marks your own figure. It is a what-if on the tax rate, not market history. The line falls steadily, and the levels on the vertical axis show that it drops only a narrow span: interest is deducted before tax, so the higher the tax rate, the more of the interest the state effectively pays and the lower the after-tax cost of debt.',
         ),
         cot: d(
           'Mỗi cột là WACC ở một mức thuế suất, cột thấp dần về bên phải và cột tô đặc là mức bạn đang nhập. Các cột gần bằng nhau: thuế chỉ chạm vào phần nợ, nên doanh nghiệp vay càng ít thì dãy cột càng phẳng.',
@@ -495,7 +495,7 @@ export const BIEU_DO_DINH_GIA: Readonly<Record<string, BieuDoRieng>> = {
     },
     bocTach: d(
       'Hình này chỉ có một dạng: các thanh nằm ngang, đọc từ trên xuống. Phần vốn chủ và Phần nợ vay là hai thanh tô màu cộng lại với nhau, mỗi thanh đã nhân sẵn tỷ trọng của nguồn vốn ấy và phần nợ đã trừ lá chắn thuế; thanh sẫm cuối cùng là WACC và bằng đúng con số ở khối Kết quả. Thanh nào dài hơn là nguồn vốn ấy đang gánh phần lớn chi phí vốn của doanh nghiệp.',
-      'This chart has a single form: horizontal bars, read from top to bottom. Equity portion and Debt portion are two filled bars that add together, each already multiplied by that source’s weight and the debt one already net of the tax shield; the dark bar at the end is Weighted average cost of capital and matches the figure in the Result block exactly. The longer bar is the funding source carrying most of the company’s cost of capital.',
+      'This chart has a single form: horizontal bars, read from top to bottom. Equity portion and Debt portion are two filled bars that add together, each already multiplied by that source’s weight and the debt one already net of the tax shield; the dark bar at the end is WACC and matches the figure in the Result block exactly. The longer bar is the funding source carrying most of the company’s cost of capital.',
     ),
   },
 
@@ -513,8 +513,8 @@ export const BIEU_DO_DINH_GIA: Readonly<Record<string, BieuDoRieng>> = {
       },
       taxRate: {
         duong: d(
-          'Đường chạy từ trái sang phải theo ô Thuế suất thuế TNDN, từ một nửa đến gấp rưỡi con số bạn đang nhập; vạch đứt dọc có chấm tròn là đúng con số bạn nhập. Đây là phép thử nếu thuế suất đổi thì FCFF ra bao nhiêu, không phải diễn biến thị trường. Đường đi xuống đều: thuế tính trên EBIT, nên thuế suất tăng một điểm thì dòng tiền tự do mất đúng một phần trăm của EBIT.',
-          'The line runs left to right along the Corporate income tax rate field, from half to one and a half times the figure you have entered; the dashed vertical line with a dot marks your own figure. It is a what-if on the tax rate, not market history. The line falls steadily: tax is charged on EBIT, so each extra point of tax takes exactly one percent of EBIT out of free cash flow.',
+          'Đường chạy từ trái sang phải theo ô Thuế suất thuế TNDN (t), từ một nửa đến gấp rưỡi con số bạn đang nhập; vạch đứt dọc có chấm tròn là đúng con số bạn nhập. Đây là phép thử nếu thuế suất đổi thì FCFF ra bao nhiêu, không phải diễn biến thị trường. Đường đi xuống đều: thuế tính trên EBIT, nên thuế suất tăng một điểm thì dòng tiền tự do mất đúng một phần trăm của EBIT.',
+          'The line runs left to right along the Corporate income tax rate (t) field, from half to one and a half times the figure you have entered; the dashed vertical line with a dot marks your own figure. It is a what-if on the tax rate, not market history. The line falls steadily: tax is charged on EBIT, so each extra point of tax takes exactly one percent of EBIT out of free cash flow.',
         ),
         cot: d(
           'Mỗi cột là FCFF ở một mức thuế suất, cột thấp dần về bên phải và cột tô đặc là mức bạn đang nhập. Doanh nghiệp đang hưởng ưu đãi thuế đứng ở cột cao bên trái; hết ưu đãi là trượt về các cột bên phải dù việc kinh doanh không đổi.',
@@ -523,8 +523,8 @@ export const BIEU_DO_DINH_GIA: Readonly<Record<string, BieuDoRieng>> = {
       },
       depreciation: {
         duong: d(
-          'Đường chạy từ trái sang phải theo ô Khấu hao, từ một nửa đến gấp rưỡi con số bạn đang nhập; vạch đứt dọc có chấm tròn là đúng con số bạn nhập. Đây là phép thử nếu khấu hao đổi mà EBIT đứng yên thì FCFF ra bao nhiêu, không phải diễn biến thị trường. Đường đi lên đều: khấu hao là chi phí ghi sổ chứ không phải tiền chi ra, nên nó được cộng trả lại nguyên vẹn vào dòng tiền.',
-          'The line runs left to right along the Depreciation field, from half to one and a half times the figure you have entered; the dashed vertical line with a dot marks your own figure. It is a what-if on depreciation with EBIT held still, not market history. The line rises steadily: depreciation is a book expense, not cash paid out, so it is added back to cash flow in full.',
+          'Đường chạy từ trái sang phải theo ô Khấu hao (Dep), từ một nửa đến gấp rưỡi con số bạn đang nhập; vạch đứt dọc có chấm tròn là đúng con số bạn nhập. Đây là phép thử nếu khấu hao đổi mà EBIT đứng yên thì FCFF ra bao nhiêu, không phải diễn biến thị trường. Đường đi lên đều: khấu hao là chi phí ghi sổ chứ không phải tiền chi ra, nên nó được cộng trả lại nguyên vẹn vào dòng tiền.',
+          'The line runs left to right along the Depreciation (Dep) field, from half to one and a half times the figure you have entered; the dashed vertical line with a dot marks your own figure. It is a what-if on depreciation with EBIT held still, not market history. The line rises steadily: depreciation is a book expense, not cash paid out, so it is added back to cash flow in full.',
         ),
         cot: d(
           'Mỗi cột là FCFF ở một mức khấu hao, cột cao dần về bên phải và cột tô đặc là mức bạn đang nhập. Khấu hao lớn thường đi cùng tài sản sắp phải thay, nên cột cao ở đây hãy đọc cạnh mức chi đầu tư.',
@@ -554,7 +554,7 @@ export const BIEU_DO_DINH_GIA: Readonly<Record<string, BieuDoRieng>> = {
     },
     bocTach: d(
       'Hình này chỉ có một dạng: các thanh nằm ngang, đọc từ trên xuống. EBIT sau thuế và Khấu hao là hai thanh tô màu, tiền đi vào; Chi đầu tư và Tăng VLĐ ròng là hai thanh viền nét đứt, tiền doanh nghiệp phải bỏ lại để tiếp tục hoạt động; thanh sẫm cuối cùng là FCFF và bằng đúng con số ở khối Kết quả. Nếu vốn lưu động giảm, thanh Tăng VLĐ ròng đổi sang tô màu vì tiền quay về. Hai thanh trừ dài gần bằng hai thanh cộng là doanh nghiệp làm ra tiền nhưng phải tái đầu tư gần hết.',
-      'This chart has a single form: horizontal bars, read from top to bottom. After-tax EBIT and Depreciation are the two filled bars, cash coming in; CapEx and Increase in net WC are the two bars with a dashed outline, cash the company must leave behind to keep operating; the dark bar at the end is Free cash flow to firm and matches the figure in the Result block exactly. If working capital falls, the Increase in net WC bar turns filled. When the two minus bars nearly match the two plus bars, the company makes cash but has to reinvest almost all of it.',
+      'This chart has a single form: horizontal bars, read from top to bottom. After-tax EBIT and Depreciation are the two filled bars, cash coming in; CapEx and Increase in net WC are the two bars with a dashed outline, cash the company must leave behind to keep operating; the dark bar at the end is FCFF and matches the figure in the Result block exactly. If working capital falls, the Increase in net WC bar turns filled. When the two minus bars nearly match the two plus bars, the company makes cash but has to reinvest almost all of it.',
     ),
   },
 
@@ -572,8 +572,8 @@ export const BIEU_DO_DINH_GIA: Readonly<Record<string, BieuDoRieng>> = {
       },
       interest: {
         duong: d(
-          'Đường chạy từ trái sang phải theo ô Chi phí lãi vay, từ một nửa đến gấp rưỡi con số bạn đang nhập; vạch đứt dọc có chấm tròn là đúng con số bạn nhập. Đây là phép thử nếu lãi vay đổi thì FCFE ra bao nhiêu, không phải diễn biến thị trường. Đường đi xuống đều nhưng không giảm một đổi một: lãi vay được trừ trước thuế, nên mỗi đồng lãi thêm vào chỉ lấy của cổ đông phần còn lại sau lá chắn thuế.',
-          'The line runs left to right along the Interest expense field, from half to one and a half times the figure you have entered; the dashed vertical line with a dot marks your own figure. It is a what-if on interest, not market history. The line falls steadily but less than one for one: interest is deducted before tax, so each extra unit of interest costs shareholders only what remains after the tax shield.',
+          'Đường chạy từ trái sang phải theo ô Chi phí lãi vay (I), từ một nửa đến gấp rưỡi con số bạn đang nhập; vạch đứt dọc có chấm tròn là đúng con số bạn nhập. Đây là phép thử nếu lãi vay đổi thì FCFE ra bao nhiêu, không phải diễn biến thị trường. Đường đi xuống đều nhưng không giảm một đổi một: lãi vay được trừ trước thuế, nên mỗi đồng lãi thêm vào chỉ lấy của cổ đông phần còn lại sau lá chắn thuế.',
+          'The line runs left to right along the Interest expense (I) field, from half to one and a half times the figure you have entered; the dashed vertical line with a dot marks your own figure. It is a what-if on interest, not market history. The line falls steadily but less than one for one: interest is deducted before tax, so each extra unit of interest costs shareholders only what remains after the tax shield.',
         ),
         cot: d(
           'Mỗi cột là FCFE ở một mức lãi vay, cột thấp dần về bên phải và cột tô đặc là mức bạn đang nhập. Lãi suất thả nổi tăng lên là doanh nghiệp tự trượt sang cột bên phải, không cần vay thêm đồng nào.',
@@ -582,8 +582,8 @@ export const BIEU_DO_DINH_GIA: Readonly<Record<string, BieuDoRieng>> = {
       },
       taxRate: {
         duong: d(
-          'Đường chạy từ trái sang phải theo ô Thuế suất thuế TNDN, từ một nửa đến gấp rưỡi con số bạn đang nhập; vạch đứt dọc có chấm tròn là đúng con số bạn nhập. Đây là phép thử nếu thuế suất đổi mà FCFF bạn nhập đứng yên thì FCFE ra bao nhiêu, không phải diễn biến thị trường. Đường đi lên đều, và các mức ghi trên trục dọc cho thấy cả đường chỉ nhích một khoảng hẹp: ở công thức này thuế chỉ chạm vào lãi vay, và thuế suất càng cao thì lá chắn thuế của lãi vay càng dày. Phần thuế đánh lên lợi nhuận đã nằm sẵn trong con số FCFF.',
-          'The line runs left to right along the Corporate income tax rate field, from half to one and a half times the figure you have entered; the dashed vertical line with a dot marks your own figure. It is a what-if on the tax rate with the FCFF you entered held still, not market history. The line rises steadily, and the levels on the vertical axis show that it gains only a narrow span: in this formula tax touches only interest, and a higher rate makes the interest tax shield thicker. The tax on operating profit is already inside the FCFF figure.',
+          'Đường chạy từ trái sang phải theo ô Thuế suất thuế TNDN (t), từ một nửa đến gấp rưỡi con số bạn đang nhập; vạch đứt dọc có chấm tròn là đúng con số bạn nhập. Đây là phép thử nếu thuế suất đổi mà FCFF bạn nhập đứng yên thì FCFE ra bao nhiêu, không phải diễn biến thị trường. Đường đi lên đều, và các mức ghi trên trục dọc cho thấy cả đường chỉ nhích một khoảng hẹp: ở công thức này thuế chỉ chạm vào lãi vay, và thuế suất càng cao thì lá chắn thuế của lãi vay càng dày. Phần thuế đánh lên lợi nhuận đã nằm sẵn trong con số FCFF.',
+          'The line runs left to right along the Corporate income tax rate (t) field, from half to one and a half times the figure you have entered; the dashed vertical line with a dot marks your own figure. It is a what-if on the tax rate with the FCFF you entered held still, not market history. The line rises steadily, and the levels on the vertical axis show that it gains only a narrow span: in this formula tax touches only interest, and a higher rate makes the interest tax shield thicker. The tax on operating profit is already inside the FCFF figure.',
         ),
         cot: d(
           'Mỗi cột là FCFE ở một mức thuế suất, cột cao dần về bên phải và cột tô đặc là mức bạn đang nhập. Đừng đọc dãy cột này thành thuế cao thì có lợi: muốn thấy thuế ăn vào dòng tiền thế nào thì phải đổi thuế suất ở chính công thức FCFF.',
@@ -592,8 +592,8 @@ export const BIEU_DO_DINH_GIA: Readonly<Record<string, BieuDoRieng>> = {
       },
       netBorrowing: {
         duong: d(
-          'Đường chạy từ trái sang phải theo ô Vay ròng mới, từ một nửa đến gấp rưỡi con số bạn đang nhập; vạch đứt dọc có chấm tròn là đúng con số bạn nhập. Đây là phép thử nếu khoản vay ròng đổi thì FCFE ra bao nhiêu, không phải diễn biến thị trường. Đường đi lên đều: tiền vay thêm trong kỳ là tiền vào tay doanh nghiệp, nên nó cộng thẳng vào phần cổ đông có thể rút ra.',
-          'The line runs left to right along the New net borrowing field, from half to one and a half times the figure you have entered; the dashed vertical line with a dot marks your own figure. It is a what-if on net borrowing, not market history. The line rises steadily: money borrowed during the period is cash in the company’s hands, so it adds straight to what shareholders could take out.',
+          'Đường chạy từ trái sang phải theo ô Vay ròng mới (ΔB), từ một nửa đến gấp rưỡi con số bạn đang nhập; vạch đứt dọc có chấm tròn là đúng con số bạn nhập. Đây là phép thử nếu khoản vay ròng đổi thì FCFE ra bao nhiêu, không phải diễn biến thị trường. Đường đi lên đều: tiền vay thêm trong kỳ là tiền vào tay doanh nghiệp, nên nó cộng thẳng vào phần cổ đông có thể rút ra.',
+          'The line runs left to right along the New net borrowing (ΔB) field, from half to one and a half times the figure you have entered; the dashed vertical line with a dot marks your own figure. It is a what-if on net borrowing, not market history. The line rises steadily: money borrowed during the period is cash in the company’s hands, so it adds straight to what shareholders could take out.',
         ),
         cot: d(
           'Mỗi cột là FCFE ở một mức vay ròng, cột cao dần về bên phải và cột tô đặc là mức bạn đang nhập. Cột cao nhờ vay không bền bằng cột cao nhờ kinh doanh: khoản vay hôm nay là lãi và gốc phải trả ở các kỳ sau.',
@@ -603,7 +603,7 @@ export const BIEU_DO_DINH_GIA: Readonly<Record<string, BieuDoRieng>> = {
     },
     bocTach: d(
       'Hình này chỉ có một dạng: các thanh nằm ngang, đọc từ trên xuống. FCFF là thanh tô màu mở đầu; Lãi vay sau thuế là thanh viền nét đứt, phần phải trả cho chủ nợ; Vay ròng mới là thanh tô màu khi doanh nghiệp vay thêm, và đổi sang viền nét đứt khi kỳ ấy trả nợ nhiều hơn vay; thanh sẫm cuối cùng là FCFE và bằng đúng con số ở khối Kết quả. Nếu thanh FCFE dài chủ yếu nhờ thanh Vay ròng mới thì dòng tiền của cổ đông đang đến từ nợ chứ không từ hoạt động kinh doanh.',
-      'This chart has a single form: horizontal bars, read from top to bottom. FCFF is the filled bar that opens it; After-tax interest is the bar with a dashed outline, what goes to lenders; New net borrowing is a filled bar when the company borrows more and a dashed one when it repays more than it borrows; the dark bar at the end is Free cash flow to equity and matches the figure in the Result block exactly. If that last bar is long mainly because of New net borrowing, shareholders’ cash is coming from debt rather than from the business.',
+      'This chart has a single form: horizontal bars, read from top to bottom. FCFF is the filled bar that opens it; After-tax interest is the bar with a dashed outline, what goes to lenders; New net borrowing is a filled bar when the company borrows more and a dashed one when it repays more than it borrows; the dark bar at the end is FCFE and matches the figure in the Result block exactly. If that last bar is long mainly because of New net borrowing, shareholders’ cash is coming from debt rather than from the business.',
     ),
   },
 
@@ -641,8 +641,8 @@ export const BIEU_DO_DINH_GIA: Readonly<Record<string, BieuDoRieng>> = {
       },
       netDebt: {
         duong: d(
-          'Đường chạy từ trái sang phải theo ô Nợ vay ròng, từ một nửa đến gấp rưỡi con số bạn đang nhập; vạch đứt dọc có chấm tròn là đúng con số bạn nhập. Đây là phép thử nếu nợ ròng đổi thì giá trị nội tại ra bao nhiêu, không phải diễn biến thị trường. Đường đi xuống đều: giá trị cả doanh nghiệp phải trả cho chủ nợ trước, nên mỗi đồng nợ ròng thêm vào bớt đi đúng một đồng khỏi phần của cổ đông.',
-          'The line runs left to right along the Net debt field, from half to one and a half times the figure you have entered; the dashed vertical line with a dot marks your own figure. It is a what-if on net debt, not market history. The line falls steadily: the value of the whole firm goes to lenders first, so every extra unit of net debt takes exactly one unit from the shareholders’ part.',
+          'Đường chạy từ trái sang phải theo ô Nợ vay ròng (Dròng), từ một nửa đến gấp rưỡi con số bạn đang nhập; vạch đứt dọc có chấm tròn là đúng con số bạn nhập. Đây là phép thử nếu nợ ròng đổi thì giá trị nội tại ra bao nhiêu, không phải diễn biến thị trường. Đường đi xuống đều: giá trị cả doanh nghiệp phải trả cho chủ nợ trước, nên mỗi đồng nợ ròng thêm vào bớt đi đúng một đồng khỏi phần của cổ đông.',
+          'The line runs left to right along the Net debt (Dròng) field, from half to one and a half times the figure you have entered; the dashed vertical line with a dot marks your own figure. It is a what-if on net debt, not market history. The line falls steadily: the value of the whole firm goes to lenders first, so every extra unit of net debt takes exactly one unit from the shareholders’ part.',
         ),
         cot: d(
           'Mỗi cột là giá trị nội tại ở một mức nợ ròng, cột thấp dần về bên phải và cột tô đặc là mức bạn đang nhập. Nợ ròng âm, tức tiền mặt nhiều hơn nợ vay, thì cộng thêm vào giá trị thay vì trừ đi.',
@@ -676,8 +676,8 @@ export const BIEU_DO_DINH_GIA: Readonly<Record<string, BieuDoRieng>> = {
       },
       rate: {
         duong: d(
-          'Đường chạy từ trái sang phải theo ô Tỷ lệ chiết khấu / năm, từ một nửa đến gấp rưỡi con số bạn đang nhập; vạch đứt dọc có chấm tròn là đúng con số bạn nhập. Đây là phép thử nếu tỷ lệ chiết khấu đổi thì giá trị hiện tại ra bao nhiêu, không phải diễn biến thị trường. Đường đi xuống và thoải dần: tỷ lệ chiết khấu là mức sinh lời bạn bỏ lỡ khi phải chờ, nên nó càng cao thì khoản tiền tương lai càng kém giá trị ở hôm nay.',
-          'The line runs left to right along the Discount rate / year field, from half to one and a half times the figure you have entered; the dashed vertical line with a dot marks your own figure. It is a what-if on the discount rate, not market history. The line falls and flattens: the discount rate is the return you give up by waiting, so the higher it is, the less a future sum is worth today.',
+          'Đường chạy từ trái sang phải theo ô Tỷ lệ chiết khấu / năm (r), từ một nửa đến gấp rưỡi con số bạn đang nhập; vạch đứt dọc có chấm tròn là đúng con số bạn nhập. Đây là phép thử nếu tỷ lệ chiết khấu đổi thì giá trị hiện tại ra bao nhiêu, không phải diễn biến thị trường. Đường đi xuống và thoải dần: tỷ lệ chiết khấu là mức sinh lời bạn bỏ lỡ khi phải chờ, nên nó càng cao thì khoản tiền tương lai càng kém giá trị ở hôm nay.',
+          'The line runs left to right along the Discount rate / year (r) field, from half to one and a half times the figure you have entered; the dashed vertical line with a dot marks your own figure. It is a what-if on the discount rate, not market history. The line falls and flattens: the discount rate is the return you give up by waiting, so the higher it is, the less a future sum is worth today.',
         ),
         cot: d(
           'Mỗi cột là giá trị hiện tại ở một tỷ lệ chiết khấu, cột thấp dần về bên phải và cột tô đặc là tỷ lệ bạn đang nhập. Với tỷ lệ chiết khấu dương, cột nào cũng thấp hơn số tiền tương lai; phần hụt là cái giá của việc phải chờ.',
@@ -686,8 +686,8 @@ export const BIEU_DO_DINH_GIA: Readonly<Record<string, BieuDoRieng>> = {
       },
       years: {
         duong: d(
-          'Đường chạy từ trái sang phải theo ô Số năm, từ một nửa đến gấp rưỡi số năm bạn đang nhập, mỗi điểm cách nhau một năm; vạch đứt dọc có chấm tròn là đúng số năm bạn nhập. Đây là phép thử nếu thời gian chờ đổi thì giá trị hiện tại ra bao nhiêu, không phải diễn biến thị trường. Đường đi xuống và thoải dần: mỗi năm phải chờ thêm lại chiết khấu thêm một lần, nên khoản tiền càng xa thì hôm nay càng nhỏ.',
-          'The line runs left to right along the Years field, from half to one and a half times the number of years you have entered, one point per year; the dashed vertical line with a dot marks your own figure. It is a what-if on how long you wait, not market history. The line falls and flattens: every extra year of waiting discounts the sum once more, so the further away the money is, the smaller it is today.',
+          'Đường chạy từ trái sang phải theo ô Số năm (n), từ một nửa đến gấp rưỡi số năm bạn đang nhập, mỗi điểm cách nhau một năm; vạch đứt dọc có chấm tròn là đúng số năm bạn nhập. Đây là phép thử nếu thời gian chờ đổi thì giá trị hiện tại ra bao nhiêu, không phải diễn biến thị trường. Đường đi xuống và thoải dần: mỗi năm phải chờ thêm lại chiết khấu thêm một lần, nên khoản tiền càng xa thì hôm nay càng nhỏ.',
+          'The line runs left to right along the Years (n) field, from half to one and a half times the number of years you have entered, one point per year; the dashed vertical line with a dot marks your own figure. It is a what-if on how long you wait, not market history. The line falls and flattens: every extra year of waiting discounts the sum once more, so the further away the money is, the smaller it is today.',
         ),
         cot: d(
           'Mỗi cột là giá trị hiện tại ứng với một số năm chờ, cột thấp dần về bên phải và cột tô đặc là số năm bạn đang nhập. Mỗi cột bằng cột bên trái nó nhân với cùng một hệ số nhỏ hơn một, nên dãy cột lùi theo tỷ lệ chứ không lùi theo số đồng.',
@@ -711,8 +711,8 @@ export const BIEU_DO_DINH_GIA: Readonly<Record<string, BieuDoRieng>> = {
       },
       rate: {
         duong: d(
-          'Đường chạy từ trái sang phải theo ô Tỷ suất sinh lợi / năm, từ một nửa đến gấp rưỡi con số bạn đang nhập; vạch đứt dọc có chấm tròn là đúng con số bạn nhập. Đây là phép thử nếu mức sinh lợi mỗi năm đổi thì số tiền cuối kỳ ra bao nhiêu, không phải diễn biến thị trường. Đường đi lên và càng lúc càng dốc: lãi sinh ra lại tiếp tục sinh lãi, nên mỗi điểm sinh lợi thêm vào đem về nhiều tiền hơn điểm trước đó.',
-          'The line runs left to right along the Rate of return / year field, from half to one and a half times the figure you have entered; the dashed vertical line with a dot marks your own figure. It is a what-if on the yearly return, not market history. The line rises and keeps steepening: returns earn returns of their own, so each extra point of return brings in more money than the point before.',
+          'Đường chạy từ trái sang phải theo ô Tỷ suất sinh lợi / năm (r), từ một nửa đến gấp rưỡi con số bạn đang nhập; vạch đứt dọc có chấm tròn là đúng con số bạn nhập. Đây là phép thử nếu mức sinh lợi mỗi năm đổi thì số tiền cuối kỳ ra bao nhiêu, không phải diễn biến thị trường. Đường đi lên và càng lúc càng dốc: lãi sinh ra lại tiếp tục sinh lãi, nên mỗi điểm sinh lợi thêm vào đem về nhiều tiền hơn điểm trước đó.',
+          'The line runs left to right along the Rate of return / year (r) field, from half to one and a half times the figure you have entered; the dashed vertical line with a dot marks your own figure. It is a what-if on the yearly return, not market history. The line rises and keeps steepening: returns earn returns of their own, so each extra point of return brings in more money than the point before.',
         ),
         cot: d(
           'Mỗi cột là số tiền cuối kỳ ở một mức sinh lợi, cột cao dần về bên phải và mỗi cột thêm nhiều hơn cột trước; cột tô đặc là mức bạn đang nhập. Các bậc lớn dần ấy chính là lãi kép nhìn bằng mắt.',
@@ -721,8 +721,8 @@ export const BIEU_DO_DINH_GIA: Readonly<Record<string, BieuDoRieng>> = {
       },
       years: {
         duong: d(
-          'Đường chạy từ trái sang phải theo ô Số năm, từ khoảng một nửa đến khoảng gấp rưỡi số năm bạn đang nhập, mỗi điểm cách nhau một năm; vạch đứt dọc có chấm tròn là đúng số năm bạn nhập. Đây là phép thử nếu thời gian nắm giữ đổi thì giá trị tương lai ra bao nhiêu, không phải diễn biến thị trường. Với tỷ suất sinh lợi dương, đường đi lên và dốc dần: lãi của năm sau tính trên cả lãi của những năm trước, nên càng về cuối mỗi năm thêm vào càng đem lại nhiều tiền hơn. Tỷ suất âm thì đường đi xuống, mỗi năm giữ thêm là mất thêm một phần.',
-          'The line runs left to right along the Years field, from about half to about one and a half times the number of years you have entered, one point per year; the dashed vertical line with a dot marks your own figure. It is a what-if on how long the money stays invested, not market history. With a positive rate of return the line rises and steepens: each year’s return is earned on all the earlier returns as well, so the later a year comes, the more money it adds. With a negative rate the line falls, each extra year losing a further slice.',
+          'Đường chạy từ trái sang phải theo ô Số năm (n), từ khoảng một nửa đến khoảng gấp rưỡi số năm bạn đang nhập, mỗi điểm cách nhau một năm; vạch đứt dọc có chấm tròn là đúng số năm bạn nhập. Đây là phép thử nếu thời gian nắm giữ đổi thì giá trị tương lai ra bao nhiêu, không phải diễn biến thị trường. Với tỷ suất sinh lợi dương, đường đi lên và dốc dần: lãi của năm sau tính trên cả lãi của những năm trước, nên càng về cuối mỗi năm thêm vào càng đem lại nhiều tiền hơn. Tỷ suất âm thì đường đi xuống, mỗi năm giữ thêm là mất thêm một phần.',
+          'The line runs left to right along the Years (n) field, from about half to about one and a half times the number of years you have entered, one point per year; the dashed vertical line with a dot marks your own figure. It is a what-if on how long the money stays invested, not market history. With a positive rate of return the line rises and steepens: each year’s return is earned on all the earlier returns as well, so the later a year comes, the more money it adds. With a negative rate the line falls, each extra year losing a further slice.',
         ),
         cot: d(
           'Mỗi cột là giá trị tương lai ứng với một số năm, cột tô đặc là số năm bạn đang nhập. Với tỷ suất sinh lợi dương, cột cao dần về bên phải và bước nhảy giữa hai cột cạnh nhau cũng lớn dần: đó là lãi kép hiện ra thành hình. Tỷ suất âm thì cột thấp dần.',

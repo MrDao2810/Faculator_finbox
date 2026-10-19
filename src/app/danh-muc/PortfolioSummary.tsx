@@ -1,17 +1,29 @@
 'use client';
 
-import { useState, type CSSProperties, type ReactNode } from 'react';
+import {
+  useCallback,
+  useState,
+  type CSSProperties,
+  type MouseEvent as ReactMouseEvent,
+  type ReactNode,
+} from 'react';
 
-import { formatNumber, isCalculated } from '@/application';
+import { formatNumber, guidePath, isCalculated } from '@/application';
 import type { CalcOutput } from '@/application';
 import { usePick, useT } from '@/application/preferences-context';
 import { HiddenByLevelNote } from '@/ui/browse';
+import { GuideHint } from '@/ui/guide';
 import { useCalcText } from '@/ui/i18n/units';
 import { coChoNgat } from '@/ui/result';
 
 import { ExpandToggle } from './ExpandToggle';
 import { KhungCho } from './KhungCho';
 import styles from './PortfolioSummary.module.css';
+import {
+  SummaryGuidePanel,
+  type SummaryGuideKind,
+  type SummaryGuideState,
+} from './SummaryGuidePanel';
 
 /**
  * Thẻ tóm tắt ở cột trái màn Danh mục — thay sáu ô `StatTile` đầu màn (12/10/2026, thiết kế hai cột).
@@ -25,7 +37,9 @@ import styles from './PortfolioSummary.module.css';
  * 1. Số dài co chữ cho vừa thẻ (29/09/2026): `--ky-tu` là số ký tự của chuỗi, CSS chia bề ngang lòng
  *    thẻ cho nó; `coChoNgat()` chèn chỗ ngắt sau mỗi dấu chấm phân nhóm làm lưới an toàn cuối.
  * 2. Beta và XIRR in `_ _` mà không kèm câu lý do (29/09/2026): với người mới chúng gần như luôn thiếu,
- *    câu lý do thành một đoạn cố định kể lại danh sách mã.
+ *    câu lý do thành một đoạn cố định kể lại danh sách mã. Từ 19/10/2026 câu ấy đọc được theo yêu cầu:
+ *    nút "?" sau nhãn mở `SummaryGuidePanel`, trong đó có cả lý do lẫn cách nhập cho đủ. Đừng đưa câu
+ *    lý do trở lại dưới hàng.
  * 3. Nhãn và giá trị là hai `<span>` ANH EM trong cùng một phần tử cha. `PortfolioScreen.test.tsx`
  *    dò con số bằng `findByText(nhãn).parentElement`; bọc nhãn vào một khối riêng là mười bốn ca đỏ
  *    mà không ca nào nói được lý do thật.
@@ -62,10 +76,18 @@ interface RowProps {
    * (FR-06) — không có số nào để gắn hậu tố vào.
    */
   suffix?: string;
+  /**
+   * Nút "?" đứng NGAY SAU chữ nhãn, bên trong `<span>` nhãn — không phải một ô thứ ba của hàng.
+   *
+   * Trong `<span>` để nhãn và giá trị vẫn là hai phần tử anh em (điều 3 ở docblock file): ca kiểm dò
+   * nhãn bằng `findByText`, mà hàm ấy chỉ đọc nút chữ TRỰC TIẾP của phần tử, nên một `<a>` con không
+   * làm lệch phép dò, còn `parentElement` vẫn là hàng.
+   */
+  hint?: ReactNode;
 }
 
 /** Một dòng "nhãn … giá trị" của thẻ. */
-function Row({ label, output, decimals = 0, showReason = true, suffix }: RowProps) {
+function Row({ label, output, decimals = 0, showReason = true, suffix, hint }: RowProps) {
   const pick = usePick();
   const calcText = useCalcText();
   const empty = !isCalculated(output);
@@ -76,7 +98,10 @@ function Row({ label, output, decimals = 0, showReason = true, suffix }: RowProp
 
   return (
     <div className={styles.row}>
-      <span className={styles.rowLabel}>{label}</span>
+      <span className={styles.rowLabel}>
+        {label}
+        {hint}
+      </span>
       <span className={empty ? `${styles.rowValue} ${styles.muted}` : styles.rowValue}>
         {coChoNgat(text)}
       </span>
@@ -204,6 +229,35 @@ export function HoldingsSummary({
   const valueEmpty = !isCalculated(totalValue);
   const [open, setOpen] = useState(false);
 
+  /* Khung "?" của Beta / XIRR đang mở — xem `SummaryGuidePanel`. */
+  const [goiY, setGoiY] = useState<SummaryGuideState | null>(null);
+  /* Ổn định qua các lượt dựng: khung gắn/gỡ bộ nghe theo nó. */
+  const dongGoiY = useCallback(() => {
+    setGoiY(null);
+  }, []);
+
+  /*
+   * Bấm lại đúng nút đang mở thì đóng. Khung bỏ qua cú bấm trên nút của nó (để cú bấm ấy không vừa
+   * đóng vừa mở lại), nên việc bật/tắt nằm ở đây.
+   *
+   * `href` là bài hướng dẫn của công thức cùng tên (`beta`, `xirr`): chỗ Ctrl-bấm hay chuột giữa đưa
+   * tới khi người ta muốn đọc sâu hơn. Hai dòng này không có bài riêng.
+   */
+  function nutGoiY(loai: SummaryGuideKind): ReactNode {
+    return (
+      <GuideHint
+        href={guidePath(loai)}
+        nhan={t(loai === 'beta' ? 'portfolio.guide.betaHint' : 'portfolio.guide.xirrHint')}
+        className={styles.rowHint}
+        onMo={(event: ReactMouseEvent<HTMLAnchorElement>) => {
+          const anchor = event.currentTarget;
+          const point = { x: event.clientX, y: event.clientY };
+          setGoiY((dang) => (dang?.loai === loai ? null : { loai, anchor, point }));
+        }}
+      />
+    );
+  }
+
   return (
     <div className={styles.card} data-mo={open ? '' : undefined}>
       <div className={styles.hero}>
@@ -248,6 +302,7 @@ export function HoldingsSummary({
                 decimals={2}
                 showReason={false}
                 suffix=""
+                hint={nutGoiY('beta')}
               />
               <Row
                 label={t('portfolio.xirr')}
@@ -255,10 +310,19 @@ export function HoldingsSummary({
                 decimals={1}
                 showReason={false}
                 suffix=" %"
+                hint={nutGoiY('xirr')}
               />
             </>
           )}
         </div>
+        {advanced && goiY !== null && (
+          <SummaryGuidePanel
+            state={goiY}
+            output={goiY.loai === 'beta' ? beta : xirr}
+            onClose={dongGoiY}
+            id={SUMMARY_GUIDE_ID}
+          />
+        )}
 
         {/*
         Dòng "2 ô nâng cao đang ẩn · Bật chế độ Nâng cao" nằm NGAY dưới các dòng số, đúng chỗ câu hỏi
@@ -284,6 +348,7 @@ export function HoldingsSummary({
  */
 const SUMMARY_MORE_ID = 'portfolio-summary-more';
 const SUMMARY_FOOT_ID = 'portfolio-summary-foot';
+const SUMMARY_GUIDE_ID = 'portfolio-summary-guide';
 
 export interface SavedSummaryProps {
   /** Tổng số phép tính đang lưu. */

@@ -28,7 +28,7 @@ import type { Bilingual, CalcOutput } from '../types';
 import { meaningless } from '../warnings';
 import { FPT_2026, FPT_PHIEN } from './market-series-2026';
 import { lastEma, lastSma, mean, requireCloses } from './series-utils';
-import { sliderVar } from './shared';
+import { labelWithSymbol, sliderVar } from './shared';
 
 /*
  * ── Nguồn tham khảo ────────────────────────────────────────────────────────────────────
@@ -262,7 +262,7 @@ export const SMA_N_PHIEN: FormulaModule = {
   spec: {
     id: 'sma-n-phien',
     categoryId: 'technical',
-    name: { vi: 'Trung bình động đơn giản (SMA)', en: 'Simple moving average' },
+    name: { vi: 'Trung bình động đơn giản (SMA)', en: 'Simple moving average (SMA)' },
     description: {
       vi: 'Giá đóng cửa bình quân của n phiên gần nhất — đường xu hướng cơ bản nhất.',
       en: 'The average closing price over the most recent n periods — the most basic trend line.',
@@ -315,7 +315,7 @@ export const SMA_N_PHIEN: FormulaModule = {
     tags: ['sma', 'trung binh dong', 'moving average', 'ma20', 'ma50', 'duong xu huong'],
     resultUnit: '₫',
     variables: [
-      sliderVar('period', NHAN_SO_PHIEN, 'phiên', 20, 2, 200, 1, {
+      sliderVar('period', labelWithSymbol(NHAN_SO_PHIEN, 'n'), 'phiên', 20, 2, 200, 1, {
         description: {
           vi: 'Chuỗi giá phải có ít nhất đúng bằng số phiên này. Mốc phổ thông: 20 phiên cho xu hướng ngắn hạn, 50 và 200 phiên cho trung và dài hạn.',
           en: 'The price series must have at least this many periods. Common benchmarks: 20 periods for a short-term trend, 50 and 200 periods for medium- and long-term.',
@@ -419,7 +419,7 @@ export const EMA_N_PHIEN: FormulaModule = {
   spec: {
     id: 'ema-n-phien',
     categoryId: 'technical',
-    name: { vi: 'Trung bình động luỹ thừa (EMA)', en: 'Exponential moving average' },
+    name: { vi: 'Trung bình động luỹ thừa (EMA)', en: 'Exponential moving average (EMA)' },
     description: {
       vi: 'Trung bình động đặt trọng số nặng hơn cho các phiên gần đây nên bám giá nhanh hơn SMA.',
       en: 'A moving average that weights recent periods more heavily, so it tracks price faster than SMA.',
@@ -476,7 +476,7 @@ export const EMA_N_PHIEN: FormulaModule = {
     tags: ['ema', 'trung binh luy thua', 'exponential moving average', 'ema12', 'ema26'],
     resultUnit: '₫',
     variables: [
-      sliderVar('period', NHAN_SO_PHIEN, 'phiên', 12, 2, 200, 1, {
+      sliderVar('period', labelWithSymbol(NHAN_SO_PHIEN, 'n'), 'phiên', 12, 2, 200, 1, {
         description: {
           vi: 'Chuỗi giá cần ít nhất đúng bằng số phiên này để mồi đường bằng trung bình đơn. Nạp được gấp ba lần chu kỳ thì phần mồi gần như hết ảnh hưởng.',
           en: 'The price series needs at least this many periods to seed the line with a simple average. Once about three times the period has been fed in, the seed effect has nearly worn off.',
@@ -900,7 +900,7 @@ export const RSI_WILDER: FormulaModule = {
   spec: {
     id: 'rsi-wilder',
     categoryId: 'technical',
-    name: { vi: 'RSI 14 phiên (Wilder)', en: 'Relative strength index (Wilder)' },
+    name: { vi: 'RSI 14 phiên (Wilder)', en: '14-period RSI (Wilder)' },
     description: {
       vi: 'Chỉ số sức mạnh tương đối 0–100, đo tỷ lệ giữa đà tăng và đà giảm gần đây.',
       en: 'A 0–100 relative strength index that measures the ratio between recent upward and downward momentum.',
@@ -973,7 +973,7 @@ export const RSI_WILDER: FormulaModule = {
       { value: 70, label: { vi: 'Quá mua', en: 'Overbought' } },
     ],
     variables: [
-      sliderVar('period', NHAN_SO_PHIEN, 'phiên', 14, 2, 100, 1, {
+      sliderVar('period', labelWithSymbol(NHAN_SO_PHIEN, 'n'), 'phiên', 14, 2, 100, 1, {
         description: {
           vi: 'Wilder dùng 14 phiên. Chuỗi giá phải có ít nhất số phiên này cộng thêm 1 để đủ lợi suất — 15 giá cho RSI 14. Cách làm mượt của Wilder còn kéo theo cả phần chuỗi phía trước, nên nạp chuỗi dài ngắn khác nhau thì con số cũng lệch nhau vài điểm.',
           en: "Wilder used 14 periods. The price series must have at least this many periods plus 1 to have enough returns — 15 prices for a 14-period RSI. Wilder's smoothing also carries the earlier part of the series with it, so a longer or shorter series shifts the figure by a few points.",
@@ -1102,7 +1102,7 @@ export const ROC_TOC_DO_THAY_DOI: FormulaModule = {
   spec: {
     id: 'roc-toc-do-thay-doi',
     categoryId: 'technical',
-    name: { vi: 'Tốc độ thay đổi giá (ROC)', en: 'Rate of change' },
+    name: { vi: 'Tốc độ thay đổi giá (ROC)', en: 'Rate of change (ROC)' },
     description: {
       vi: 'Giá hôm nay cao hơn hay thấp hơn giá của n phiên trước bao nhiêu phần trăm.',
       en: "How many percent today's price is above or below the price from n periods ago.",
@@ -1159,7 +1159,7 @@ export const ROC_TOC_DO_THAY_DOI: FormulaModule = {
     tags: ['roc', 'toc do thay doi', 'rate of change', 'dong luong', 'phan tram'],
     resultUnit: '%',
     variables: [
-      sliderVar('period', NHAN_SO_PHIEN_NHIN_LAI, 'phiên', 12, 1, 250, 1, {
+      sliderVar('period', labelWithSymbol(NHAN_SO_PHIEN_NHIN_LAI, 'n'), 'phiên', 12, 1, 250, 1, {
         description: {
           vi: 'So giá phiên cuối với giá của bấy nhiêu phiên trước. Chuỗi giá cần ít nhất số phiên này cộng 1.',
           en: 'Compares the last closing price with the price that many periods earlier. The price series needs at least this many periods plus 1.',
@@ -1314,7 +1314,7 @@ export const DONG_LUONG_MOMENTUM: FormulaModule = {
     tags: ['momentum', 'dong luong', 'chenh lech gia', 'da tang', 'da giam'],
     resultUnit: '₫',
     variables: [
-      sliderVar('period', NHAN_SO_PHIEN_NHIN_LAI, 'phiên', 10, 1, 250, 1, {
+      sliderVar('period', labelWithSymbol(NHAN_SO_PHIEN_NHIN_LAI, 'n'), 'phiên', 10, 1, 250, 1, {
         description: {
           vi: 'Khoảng cách tới phiên đem ra so sánh. Chuỗi giá cần ít nhất số phiên này cộng 1.',
           en: 'The distance to the period being compared against. The price series needs at least this many periods plus 1.',
@@ -1472,7 +1472,7 @@ export const KHOANG_CACH_GIA_SO_SMA: FormulaModule = {
     tags: ['khoang cach sma', 'do lech gia', 'price deviation', 'ma20', 'qua xa duong trung binh'],
     resultUnit: '%',
     variables: [
-      sliderVar('period', NHAN_CHU_KY_TRUNG_BINH, 'phiên', 20, 2, 200, 1, {
+      sliderVar('period', labelWithSymbol(NHAN_CHU_KY_TRUNG_BINH, 'n'), 'phiên', 20, 2, 200, 1, {
         description: {
           vi: 'Chu kỳ của SMA đem ra so. Chuỗi giá phải có ít nhất đúng bằng số phiên này. Mốc quen dùng là 20 và 50 phiên.',
           en: 'The period of the SMA being compared against. The price series must have at least this many periods. Common benchmarks are 20 and 50 periods.',

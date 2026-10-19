@@ -28,7 +28,7 @@ import { fail, ok } from '../calc-output';
 import type { FormulaModule } from '../calc/types';
 import type { FormulaSource } from '../registry/types';
 import { divideByZero, meaningless } from '../warnings';
-import { SOURCE_CFA, SOURCE_VAS, numberVar } from './shared';
+import { SOURCE_CFA, SOURCE_VAS, numberVar, withSymbol } from './shared';
 
 /*
  * ── Nguồn riêng của nhóm (FR-04) ───────────────────────────────────────────────────────
@@ -133,7 +133,7 @@ export const EPS_CO_BAN: FormulaModule = {
   spec: {
     id: 'eps-co-ban',
     categoryId: 'fundamentals',
-    name: { vi: 'EPS cơ bản', en: 'Basic earnings per share' },
+    name: { vi: 'EPS cơ bản', en: 'Basic EPS' },
     description: {
       vi: 'Mỗi cổ phiếu phổ thông làm ra bao nhiêu đồng lợi nhuận trong kỳ.',
       en: 'How much profit each common share earns during the period.',
@@ -181,7 +181,7 @@ export const EPS_CO_BAN: FormulaModule = {
     tags: ['eps', 'loi nhuan tren co phieu', 'earnings per share', 'chi so dn'],
     resultUnit: '₫',
     variables: [
-      netIncome,
+      withSymbol(netIncome, 'LNST'),
       numberVar(
         'preferredDividend',
         { vi: 'Cổ tức ưu đãi', en: 'Preferred dividends' },
@@ -286,7 +286,7 @@ export const BVPS: FormulaModule = {
   spec: {
     id: 'bvps',
     categoryId: 'fundamentals',
-    name: { vi: 'BVPS — giá trị sổ sách mỗi cổ phiếu', en: 'Book value per share' },
+    name: { vi: 'BVPS — giá trị sổ sách mỗi cổ phiếu', en: 'BVPS — book value per share' },
     description: {
       vi: 'Mỗi cổ phiếu đang nắm giữ bao nhiêu đồng vốn chủ sở hữu trên sổ sách.',
       en: 'How much book equity each share currently represents.',
@@ -424,7 +424,7 @@ export const ROE: FormulaModule = {
   spec: {
     id: 'roe',
     categoryId: 'fundamentals',
-    name: { vi: 'ROE — tỷ suất sinh lời trên vốn chủ', en: 'Return on equity' },
+    name: { vi: 'ROE — tỷ suất sinh lời trên vốn chủ', en: 'ROE — return on equity' },
     description: {
       vi: 'Một đồng vốn của cổ đông làm ra bao nhiêu đồng lợi nhuận trong một năm.',
       en: 'How much profit each unit of shareholder capital generates in a year.',
@@ -463,7 +463,7 @@ export const ROE: FormulaModule = {
     level: 'basic',
     tags: ['roe', 'ty suat sinh loi', 'von chu so huu', 'return on equity', 'chi so dn'],
     resultUnit: '%',
-    variables: [netIncome, equity],
+    variables: [withSymbol(netIncome, 'LNST'), equity],
     explanation: {
       meaning: {
         vi: 'Hiệu quả sử dụng vốn của cổ đông: bỏ 100 đồng vốn thì mỗi năm sinh ra bao nhiêu đồng lãi.',
@@ -559,7 +559,7 @@ export const ROA: FormulaModule = {
   spec: {
     id: 'roa',
     categoryId: 'fundamentals',
-    name: { vi: 'ROA — tỷ suất sinh lời trên tài sản', en: 'Return on assets' },
+    name: { vi: 'ROA — tỷ suất sinh lời trên tài sản', en: 'ROA — return on assets' },
     description: {
       vi: 'Một đồng tài sản của doanh nghiệp tạo ra bao nhiêu đồng lợi nhuận.',
       en: 'How much profit each unit of company assets generates.',
@@ -598,7 +598,7 @@ export const ROA: FormulaModule = {
     level: 'basic',
     tags: ['roa', 'ty suat sinh loi', 'tong tai san', 'return on assets', 'chi so dn'],
     resultUnit: '%',
-    variables: [netIncome, totalAssets],
+    variables: [withSymbol(netIncome, 'LNST'), totalAssets],
     explanation: {
       meaning: {
         vi: 'Hiệu quả dùng toàn bộ tài sản — cả vốn tự có lẫn vốn vay — để tạo ra lợi nhuận.',
@@ -677,7 +677,7 @@ export const BIEN_LOI_NHUAN_RONG: FormulaModule = {
   spec: {
     id: 'bien-loi-nhuan-rong',
     categoryId: 'fundamentals',
-    name: { vi: 'ROS — biên lợi nhuận ròng', en: 'Net profit margin' },
+    name: { vi: 'ROS — biên lợi nhuận ròng', en: 'ROS — net profit margin' },
     description: {
       vi: 'Cứ 100 đồng doanh thu thì doanh nghiệp giữ lại được bao nhiêu đồng lãi ròng.',
       en: 'Out of every 100 units of revenue, how much the company keeps as net profit.',
@@ -716,7 +716,7 @@ export const BIEN_LOI_NHUAN_RONG: FormulaModule = {
     level: 'basic',
     tags: ['ros', 'bien loi nhuan rong', 'net margin', 'profit margin', 'chi so dn'],
     resultUnit: '%',
-    variables: [netIncome, revenue],
+    variables: [withSymbol(netIncome, 'LNST'), revenue],
     explanation: {
       meaning: {
         vi: 'Phần trăm doanh thu còn lại sau khi trừ mọi chi phí, thuế và lãi vay.',
@@ -919,7 +919,7 @@ export const NO_TREN_VON_CHU: FormulaModule = {
   spec: {
     id: 'no-tren-von-chu',
     categoryId: 'fundamentals',
-    name: { vi: 'D/E — hệ số nợ trên vốn chủ', en: 'Debt to equity ratio' },
+    name: { vi: 'D/E — hệ số nợ trên vốn chủ', en: 'D/E — debt to equity ratio' },
     description: {
       vi: 'Doanh nghiệp đang vay bao nhiêu đồng nợ trên mỗi đồng vốn của cổ đông.',
       en: 'How much debt the company carries for every unit of shareholder capital.',
@@ -982,7 +982,7 @@ export const NO_TREN_VON_CHU: FormulaModule = {
        */
       numberVar(
         'totalLiabilities',
-        { vi: 'Tổng nợ phải trả', en: 'Total liabilities' },
+        { vi: 'Tổng nợ phải trả (D)', en: 'Total liabilities (D)' },
         'tỷ ₫',
         22_500,
         {
@@ -994,7 +994,7 @@ export const NO_TREN_VON_CHU: FormulaModule = {
           },
         },
       ),
-      equity,
+      withSymbol(equity, 'E'),
     ],
     explanation: {
       meaning: {
@@ -1535,7 +1535,7 @@ export const TY_LE_CHI_TRA_CO_TUC: FormulaModule = {
     variables: [
       numberVar(
         'dividendPerShare',
-        { vi: 'Cổ tức tiền mặt / CP', en: 'Cash dividend / share' },
+        { vi: 'Cổ tức tiền mặt / CP (DPS)', en: 'Cash dividend / share (DPS)' },
         '₫',
         2_000,
         {

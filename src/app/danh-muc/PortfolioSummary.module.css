@@ -117,6 +117,19 @@
   color: var(--color-ink-soft);
 }
 
+/*
+ * Nút "?" sau nhãn Beta danh mục / XIRR toàn DM (19/10/2026) — hình dáng là của `GuideHint`, ở đây chỉ
+ * có chỗ đứng: một khe 8px sau chữ, và canh giữa dòng chữ vì vòng tròn 24px cao hơn chữ 14px.
+ *
+ * `a.rowHint` (0,1,1) chứ không `.rowHint`: cùng trọng số với `.hint` của `GuideHint.module.css` thì
+ * thứ tự bó CSS quyết, mà thứ tự ấy không đoán trước được. Hai luật không tranh thuộc tính nào, nhưng
+ * viết chắc thì lần thêm thuộc tính sau không phải nghĩ.
+ */
+a.rowHint {
+  margin-left: var(--space-2);
+  vertical-align: middle;
+}
+
 .rowValue {
   justify-self: end;
   min-width: 0;
@@ -213,6 +226,12 @@
     font-size: var(--text-base);
   }
 
+  /*
+   * Cả dòng lãi/lỗ 13px (19/10/2026), số tiền cũng vậy. Trước đó số tiền giữ 16px của luật gốc, nên lúc thẻ
+   * mở nó to bằng chính Tổng giá trị và to hơn phần trăm 13px ngay cạnh — chủ dự án khoanh nó:
+   * _"text xanh khoanh đỏ đang quá to ở màn mobile -> giảm xuống"_. Một dòng, một cỡ, nhỏ hơn số lớn.
+   */
+  .gain,
   .gainPercent {
     font-size: 13px;
   }

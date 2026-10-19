@@ -26,7 +26,7 @@ import { divideByZero, meaningless } from '../warnings';
 import type { FormulaSource } from '../registry/types';
 import { FPT_2026, FPT_PHIEN, VNINDEX_2026, VNINDEX_PHIEN } from './market-series-2026';
 import { maxDrawdown, mean, requireCloses, simpleReturns } from './series-utils';
-import { SOURCE_CFA, sliderVar } from './shared';
+import { SOURCE_CFA, sliderVar, withSymbol } from './shared';
 
 /*
  * ── Nguồn tham khảo ────────────────────────────────────────────────────────────────────
@@ -372,7 +372,7 @@ export const SUT_GIAM_SAU_NHAT: FormulaModule = {
     level: 'basic',
     tags: ['sut giam', 'max drawdown', 'mdd', 'rui ro', 'dinh day'],
     resultUnit: '%',
-    variables: [drawdownLookback()],
+    variables: [withSymbol(drawdownLookback(), 'N')],
     explanation: {
       meaning: {
         vi: 'Nếu mua đúng đỉnh xấu nhất và bán đúng đáy sau đó thì mất bao nhiêu phần trăm — thước đo nỗi đau lớn nhất mà chuỗi giá này từng bắt người nắm giữ chịu.',
@@ -688,7 +688,7 @@ export const VAR_LICH_SU: FormulaModule = {
     level: 'advanced',
     tags: ['var', 'value at risk', 'gia tri chiu rui ro', 'phan vi', 'mo phong lich su'],
     resultUnit: '%',
-    variables: [confidenceVar(), varLookback()],
+    variables: [withSymbol(confidenceVar(), 'α'), withSymbol(varLookback(), 'N')],
     explanation: {
       meaning: {
         vi: 'Ngưỡng lỗ của một phiên xấu: trong cửa sổ quan sát, chỉ số ít phiên nằm ngoài mức độ tin cậy đang chọn mới lỗ nặng hơn con số này.',
@@ -868,7 +868,7 @@ export const CVAR_LICH_SU: FormulaModule = {
     level: 'advanced',
     tags: ['cvar', 'expected shortfall', 'ton that ky vong', 'duoi phan phoi', 'es'],
     resultUnit: '%',
-    variables: [confidenceVar(), varLookback()],
+    variables: [withSymbol(confidenceVar(), 'α'), withSymbol(varLookback(), 'N')],
     explanation: {
       meaning: {
         vi: 'Trung bình của phần đuôi trái: gom đúng những phiên lỗ nặng hơn ngưỡng VaR rồi lấy bình quân, nên nó đo độ sâu của kịch bản xấu chứ không chỉ đo mốc bắt đầu xấu.',

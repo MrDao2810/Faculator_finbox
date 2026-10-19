@@ -40,7 +40,7 @@ import {
   sampleStdDev,
   simpleReturns,
 } from './series-utils';
-import { SOURCE_CFA, numberVar, sliderVar } from './shared';
+import { SOURCE_CFA, numberVar, sliderVar, withSymbol } from './shared';
 
 /*
  * ── Nguồn tham khảo ────────────────────────────────────────────────────────────────────
@@ -565,7 +565,7 @@ export const TY_SO_SHARPE: FormulaModule = {
     level: 'advanced',
     tags: ['sharpe', 'ty so sharpe', 'rui ro dieu chinh', 'risk adjusted', 'do bien dong'],
     resultUnit: 'lần',
-    variables: [RISK_FREE_VAR, SESSIONS_VAR],
+    variables: [RISK_FREE_VAR, withSymbol(SESSIONS_VAR, 'm')],
     explanation: {
       meaning: {
         vi: 'Lãi nhiều mà đường giá gập ghềnh thì chưa chắc hơn lãi ít mà êm. Sharpe đặt phần lãi vượt trên lãi suất phi rủi ro lên bàn cân với độ lệch chuẩn của lợi suất từng phiên.',
@@ -766,7 +766,7 @@ export const TY_SO_SORTINO: FormulaModule = {
     level: 'advanced',
     tags: ['sortino', 'ty so sortino', 'downside risk', 'rui ro giam gia', 'do lech phan giam'],
     resultUnit: 'lần',
-    variables: [RISK_FREE_VAR, SESSIONS_VAR],
+    variables: [RISK_FREE_VAR, withSymbol(SESSIONS_VAR, 'm')],
     explanation: {
       meaning: {
         vi: 'Sharpe phạt cả những phiên tăng vọt vì chúng cũng làm độ lệch chuẩn phình ra. Sortino chỉ đo phần lợi suất rơi dưới ngưỡng chấp nhận được, nên đúng với cảm nhận rủi ro của người bỏ tiền.',
@@ -946,10 +946,10 @@ export const TY_SO_TREYNOR: FormulaModule = {
     resultUnit: '%/năm',
     variables: [
       RISK_FREE_VAR,
-      SESSIONS_VAR,
+      withSymbol(SESSIONS_VAR, 'm'),
       numberVar(
         'beta',
-        { vi: 'Hệ số beta của danh mục', en: 'Portfolio beta coefficient' },
+        { vi: 'Hệ số beta của danh mục (βp)', en: 'Portfolio beta coefficient (βp)' },
         'lần',
         1.2,
         {
@@ -1172,7 +1172,7 @@ export const TY_SO_THONG_TIN: FormulaModule = {
           },
         },
       ),
-      SESSIONS_VAR,
+      withSymbol(SESSIONS_VAR, 'm'),
     ],
     explanation: {
       meaning: {
@@ -1494,7 +1494,7 @@ export const TY_SO_THANG_THUA: FormulaModule = {
     variables: [
       sliderVar(
         'threshold',
-        { vi: 'Ngưỡng bỏ qua phiên đi ngang', en: 'Threshold to ignore flat sessions' },
+        { vi: 'Ngưỡng bỏ qua phiên đi ngang (h)', en: 'Threshold to ignore flat sessions (h)' },
         '%',
         0,
         0,

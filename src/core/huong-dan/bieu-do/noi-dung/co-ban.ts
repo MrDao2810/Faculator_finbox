@@ -7,8 +7,8 @@ export const BIEU_DO_CO_BAN: Readonly<Record<string, BieuDoRieng>> = {
     truc: {
       price: {
         duong: d(
-          'Đường chạy từ trái sang phải theo ô Giá thị trường, từ một nửa đến gấp rưỡi mức giá bạn đang nhập; vạch đứt dọc có chấm tròn là đúng mức bạn nhập. Đây là phép thử nếu giá đổi thì P/E ra bao nhiêu, không phải diễn biến thị trường. Đường đi lên đều: EPS giữ nguyên, giá càng cao thì P/E càng cao, tức cổ phiếu càng đắt so với lợi nhuận nó làm ra.',
-          'The line runs left to right along the Market price field, from half to one and a half times the price you have entered; the dashed vertical line with a dot marks your own price. It is a what-if on price, not market history. The line rises steadily: with EPS held still, a higher price means a higher P/E, so the share costs more for each unit of profit it earns.',
+          'Đường chạy từ trái sang phải theo ô Giá thị trường (P), từ một nửa đến gấp rưỡi mức giá bạn đang nhập; vạch đứt dọc có chấm tròn là đúng mức bạn nhập. Đây là phép thử nếu giá đổi thì P/E ra bao nhiêu, không phải diễn biến thị trường. Đường đi lên đều: EPS giữ nguyên, giá càng cao thì P/E càng cao, tức cổ phiếu càng đắt so với lợi nhuận nó làm ra.',
+          'The line runs left to right along the Market price (P) field, from half to one and a half times the price you have entered; the dashed vertical line with a dot marks your own price. It is a what-if on price, not market history. The line rises steadily: with EPS held still, a higher price means a higher P/E, so the share costs more for each unit of profit it earns.',
         ),
         cot: d(
           'Mỗi cột là P/E ở một mức giá, cột cao dần về bên phải và cột tô đặc là mức giá bạn đang nhập. So chiều cao hai cột là so P/E ở hai mức giá: cột cao gấp đôi là trả gấp đôi cho cùng một đồng lợi nhuận.',
@@ -42,8 +42,8 @@ export const BIEU_DO_CO_BAN: Readonly<Record<string, BieuDoRieng>> = {
     truc: {
       price: {
         duong: d(
-          'Đường chạy từ trái sang phải theo ô Giá thị trường, từ một nửa đến gấp rưỡi mức giá bạn đang nhập; vạch đứt dọc có chấm tròn là đúng mức bạn nhập. Đây là phép thử nếu giá đổi thì P/B ra bao nhiêu, không phải diễn biến thị trường. Đường đi lên đều: giá trị sổ sách giữ nguyên, giá càng cao thì P/B càng cao, tức bạn trả càng nhiều cho mỗi đồng vốn chủ ghi trên sổ.',
-          'The line runs left to right along the Market price field, from half to one and a half times the price you have entered; the dashed vertical line with a dot marks your own price. It is a what-if on price, not market history. The line rises steadily: with book value held still, a higher price means a higher P/B, so you pay more for each unit of equity on the books.',
+          'Đường chạy từ trái sang phải theo ô Giá thị trường (P), từ một nửa đến gấp rưỡi mức giá bạn đang nhập; vạch đứt dọc có chấm tròn là đúng mức bạn nhập. Đây là phép thử nếu giá đổi thì P/B ra bao nhiêu, không phải diễn biến thị trường. Đường đi lên đều: giá trị sổ sách giữ nguyên, giá càng cao thì P/B càng cao, tức bạn trả càng nhiều cho mỗi đồng vốn chủ ghi trên sổ.',
+          'The line runs left to right along the Market price (P) field, from half to one and a half times the price you have entered; the dashed vertical line with a dot marks your own price. It is a what-if on price, not market history. The line rises steadily: with book value held still, a higher price means a higher P/B, so you pay more for each unit of equity on the books.',
         ),
         cot: d(
           'Mỗi cột là P/B ở một mức giá, cột cao dần về bên phải và cột tô đặc là mức giá bạn đang nhập. Cột nào cao ngang mức một lần là chỗ giá bằng đúng giá trị sổ sách; cột thấp hơn thế là đang mua dưới sổ sách.',
@@ -52,8 +52,8 @@ export const BIEU_DO_CO_BAN: Readonly<Record<string, BieuDoRieng>> = {
       },
       bookValuePerShare: {
         duong: d(
-          'Đường chạy từ trái sang phải theo ô Giá trị sổ sách / CP, từ một nửa đến gấp rưỡi con số bạn đang nhập; vạch đứt dọc có chấm tròn là đúng con số bạn nhập. Đây là phép thử nếu giá trị sổ sách đổi mà giá đứng yên thì P/B ra bao nhiêu, không phải diễn biến thị trường. Đường đi xuống và thoải dần: sổ sách càng dày thì cùng mức giá ấy càng gần với phần vốn chủ đứng sau cổ phiếu.',
-          'The line runs left to right along the Book value / share field, from half to one and a half times the figure you have entered; the dashed vertical line with a dot marks your own figure. It is a what-if on book value with the price held still, not market history. The line falls and flattens: the thicker the book value, the closer that same price sits to the equity standing behind the share.',
+          'Đường chạy từ trái sang phải theo ô Giá trị sổ sách / CP (BVPS), từ một nửa đến gấp rưỡi con số bạn đang nhập; vạch đứt dọc có chấm tròn là đúng con số bạn nhập. Đây là phép thử nếu giá trị sổ sách đổi mà giá đứng yên thì P/B ra bao nhiêu, không phải diễn biến thị trường. Đường đi xuống và thoải dần: sổ sách càng dày thì cùng mức giá ấy càng gần với phần vốn chủ đứng sau cổ phiếu.',
+          'The line runs left to right along the Book value / share (BVPS) field, from half to one and a half times the figure you have entered; the dashed vertical line with a dot marks your own figure. It is a what-if on book value with the price held still, not market history. The line falls and flattens: the thicker the book value, the closer that same price sits to the equity standing behind the share.',
         ),
         cot: d(
           'Mỗi cột là P/B ở một mức giá trị sổ sách, cột thấp dần về bên phải và cột tô đặc là mức bạn đang nhập. Cột cao bên trái là vùng sổ sách mỏng, nơi giá gấp nhiều lần vốn chủ; càng sang phải khoảng chênh ấy càng thu lại.',
@@ -77,8 +77,8 @@ export const BIEU_DO_CO_BAN: Readonly<Record<string, BieuDoRieng>> = {
     truc: {
       netIncome: {
         duong: d(
-          'Đường chạy từ trái sang phải theo ô Lợi nhuận sau thuế, từ một nửa đến gấp rưỡi con số bạn đang nhập; vạch đứt dọc có chấm tròn là đúng con số bạn nhập. Đây là phép thử nếu lợi nhuận đổi thì EPS ra bao nhiêu, không phải diễn biến thị trường. Đường đi lên đều: số cổ phiếu giữ nguyên, lợi nhuận tăng bao nhiêu phần thì EPS tăng bấy nhiêu phần.',
-          'The line runs left to right along the Net income after tax field, from half to one and a half times the figure you have entered; the dashed vertical line with a dot marks your own figure. It is a what-if on profit, not market history. The line rises steadily: with the share count held still, EPS grows in exact proportion to profit.',
+          'Đường chạy từ trái sang phải theo ô Lợi nhuận sau thuế (LNST), từ một nửa đến gấp rưỡi con số bạn đang nhập; vạch đứt dọc có chấm tròn là đúng con số bạn nhập. Đây là phép thử nếu lợi nhuận đổi thì EPS ra bao nhiêu, không phải diễn biến thị trường. Đường đi lên đều: số cổ phiếu giữ nguyên, lợi nhuận tăng bao nhiêu phần thì EPS tăng bấy nhiêu phần.',
+          'The line runs left to right along the Net income after tax (LNST) field, from half to one and a half times the figure you have entered; the dashed vertical line with a dot marks your own figure. It is a what-if on profit, not market history. The line rises steadily: with the share count held still, EPS grows in exact proportion to profit.',
         ),
         cot: d(
           'Mỗi cột là EPS ở một mức lợi nhuận, cột cao dần về bên phải và cột tô đặc là mức bạn đang nhập. Chiều cao cột là số đồng lợi nhuận chia cho mỗi cổ phiếu: cột cao gấp rưỡi là mỗi cổ phiếu làm ra nhiều hơn một nửa.',
@@ -137,8 +137,8 @@ export const BIEU_DO_CO_BAN: Readonly<Record<string, BieuDoRieng>> = {
     truc: {
       netIncome: {
         duong: d(
-          'Đường chạy từ trái sang phải theo ô Lợi nhuận sau thuế, từ một nửa đến gấp rưỡi con số bạn đang nhập; vạch đứt dọc có chấm tròn là đúng con số bạn nhập. Đây là phép thử nếu lợi nhuận đổi thì ROE ra bao nhiêu, không phải diễn biến thị trường. Đường đi lên đều: cùng một lượng vốn chủ, lợi nhuận càng cao thì mỗi đồng vốn của cổ đông sinh lời càng nhiều.',
-          'The line runs left to right along the Net income after tax field, from half to one and a half times the figure you have entered; the dashed vertical line with a dot marks your own figure. It is a what-if on profit, not market history. The line rises steadily: on the same equity, more profit means every unit of shareholders’ capital earns more.',
+          'Đường chạy từ trái sang phải theo ô Lợi nhuận sau thuế (LNST), từ một nửa đến gấp rưỡi con số bạn đang nhập; vạch đứt dọc có chấm tròn là đúng con số bạn nhập. Đây là phép thử nếu lợi nhuận đổi thì ROE ra bao nhiêu, không phải diễn biến thị trường. Đường đi lên đều: cùng một lượng vốn chủ, lợi nhuận càng cao thì mỗi đồng vốn của cổ đông sinh lời càng nhiều.',
+          'The line runs left to right along the Net income after tax (LNST) field, from half to one and a half times the figure you have entered; the dashed vertical line with a dot marks your own figure. It is a what-if on profit, not market history. The line rises steadily: on the same equity, more profit means every unit of shareholders’ capital earns more.',
         ),
         cot: d(
           'Mỗi cột là ROE ở một mức lợi nhuận, cột cao dần về bên phải và cột tô đặc là mức bạn đang nhập. Khoảng cách giữa hai cột cho biết lợi nhuận phải thêm bao nhiêu thì ROE mới nhích lên một bậc.',
@@ -162,8 +162,8 @@ export const BIEU_DO_CO_BAN: Readonly<Record<string, BieuDoRieng>> = {
     truc: {
       netIncome: {
         duong: d(
-          'Đường chạy từ trái sang phải theo ô Lợi nhuận sau thuế, từ một nửa đến gấp rưỡi con số bạn đang nhập; vạch đứt dọc có chấm tròn là đúng con số bạn nhập. Đây là phép thử nếu lợi nhuận đổi thì ROA ra bao nhiêu, không phải diễn biến thị trường. Đường đi lên đều: cùng một khối tài sản, lợi nhuận càng cao thì mỗi đồng tài sản làm việc càng hiệu quả.',
-          'The line runs left to right along the Net income after tax field, from half to one and a half times the figure you have entered; the dashed vertical line with a dot marks your own figure. It is a what-if on profit, not market history. The line rises steadily: on the same asset base, more profit means every unit of assets works harder.',
+          'Đường chạy từ trái sang phải theo ô Lợi nhuận sau thuế (LNST), từ một nửa đến gấp rưỡi con số bạn đang nhập; vạch đứt dọc có chấm tròn là đúng con số bạn nhập. Đây là phép thử nếu lợi nhuận đổi thì ROA ra bao nhiêu, không phải diễn biến thị trường. Đường đi lên đều: cùng một khối tài sản, lợi nhuận càng cao thì mỗi đồng tài sản làm việc càng hiệu quả.',
+          'The line runs left to right along the Net income after tax (LNST) field, from half to one and a half times the figure you have entered; the dashed vertical line with a dot marks your own figure. It is a what-if on profit, not market history. The line rises steadily: on the same asset base, more profit means every unit of assets works harder.',
         ),
         cot: d(
           'Mỗi cột là ROA ở một mức lợi nhuận, cột cao dần về bên phải và cột tô đặc là mức bạn đang nhập. Cột thấp không hẳn là xấu: ngành cần nhiều tài sản như ngân hàng hay điện có ROA thấp tự nhiên, nên hãy so với doanh nghiệp cùng ngành.',
@@ -187,8 +187,8 @@ export const BIEU_DO_CO_BAN: Readonly<Record<string, BieuDoRieng>> = {
     truc: {
       netIncome: {
         duong: d(
-          'Đường chạy từ trái sang phải theo ô Lợi nhuận sau thuế, từ một nửa đến gấp rưỡi con số bạn đang nhập; vạch đứt dọc có chấm tròn là đúng con số bạn nhập. Đây là phép thử nếu lợi nhuận đổi thì ROS ra bao nhiêu, không phải diễn biến thị trường. Đường đi lên đều: doanh thu giữ nguyên, lợi nhuận càng cao thì phần doanh nghiệp giữ lại được trên mỗi đồng bán ra càng dày.',
-          'The line runs left to right along the Net income after tax field, from half to one and a half times the figure you have entered; the dashed vertical line with a dot marks your own figure. It is a what-if on profit, not market history. The line rises steadily: with revenue held still, more profit means the company keeps a thicker slice of every unit it sells.',
+          'Đường chạy từ trái sang phải theo ô Lợi nhuận sau thuế (LNST), từ một nửa đến gấp rưỡi con số bạn đang nhập; vạch đứt dọc có chấm tròn là đúng con số bạn nhập. Đây là phép thử nếu lợi nhuận đổi thì ROS ra bao nhiêu, không phải diễn biến thị trường. Đường đi lên đều: doanh thu giữ nguyên, lợi nhuận càng cao thì phần doanh nghiệp giữ lại được trên mỗi đồng bán ra càng dày.',
+          'The line runs left to right along the Net income after tax (LNST) field, from half to one and a half times the figure you have entered; the dashed vertical line with a dot marks your own figure. It is a what-if on profit, not market history. The line rises steadily: with revenue held still, more profit means the company keeps a thicker slice of every unit it sells.',
         ),
         cot: d(
           'Mỗi cột là ROS ở một mức lợi nhuận, cột cao dần về bên phải và cột tô đặc là mức bạn đang nhập. Chiều cao cột là phần của doanh thu còn lại thành lãi ròng, nên cột càng thấp thì doanh nghiệp càng ít chỗ đỡ khi chi phí tăng.',
@@ -237,8 +237,8 @@ export const BIEU_DO_CO_BAN: Readonly<Record<string, BieuDoRieng>> = {
     truc: {
       totalLiabilities: {
         duong: d(
-          'Đường chạy từ trái sang phải theo ô Tổng nợ phải trả, từ một nửa đến gấp rưỡi con số bạn đang nhập; vạch đứt dọc có chấm tròn là đúng con số bạn nhập. Đây là phép thử nếu nợ đổi thì D/E ra bao nhiêu, không phải diễn biến thị trường. Đường đi lên đều: vốn chủ giữ nguyên, vay thêm bao nhiêu thì gánh nợ đè lên mỗi đồng vốn của cổ đông nặng thêm bấy nhiêu.',
-          'The line runs left to right along the Total liabilities field, from half to one and a half times the figure you have entered; the dashed vertical line with a dot marks your own figure. It is a what-if on debt, not market history. The line rises steadily: with equity held still, every extra unit borrowed adds the same weight of debt onto each unit of shareholders’ capital.',
+          'Đường chạy từ trái sang phải theo ô Tổng nợ phải trả (D), từ một nửa đến gấp rưỡi con số bạn đang nhập; vạch đứt dọc có chấm tròn là đúng con số bạn nhập. Đây là phép thử nếu nợ đổi thì D/E ra bao nhiêu, không phải diễn biến thị trường. Đường đi lên đều: vốn chủ giữ nguyên, vay thêm bao nhiêu thì gánh nợ đè lên mỗi đồng vốn của cổ đông nặng thêm bấy nhiêu.',
+          'The line runs left to right along the Total liabilities (D) field, from half to one and a half times the figure you have entered; the dashed vertical line with a dot marks your own figure. It is a what-if on debt, not market history. The line rises steadily: with equity held still, every extra unit borrowed adds the same weight of debt onto each unit of shareholders’ capital.',
         ),
         cot: d(
           'Mỗi cột là D/E ở một mức nợ, cột cao dần về bên phải và cột tô đặc là mức bạn đang nhập. Cột nào chạm mức một lần là chỗ nợ bằng đúng vốn chủ; cao hơn thế là doanh nghiệp đang dùng tiền đi vay nhiều hơn tiền của cổ đông.',
@@ -247,8 +247,8 @@ export const BIEU_DO_CO_BAN: Readonly<Record<string, BieuDoRieng>> = {
       },
       equity: {
         duong: d(
-          'Đường chạy từ trái sang phải theo ô Vốn chủ sở hữu, từ một nửa đến gấp rưỡi con số bạn đang nhập; vạch đứt dọc có chấm tròn là đúng con số bạn nhập. Đây là phép thử nếu vốn chủ đổi mà nợ đứng yên thì D/E ra bao nhiêu, không phải diễn biến thị trường. Đường đi xuống và thoải dần: cùng một khối nợ mà vốn chủ càng dày thì gánh nợ trên mỗi đồng vốn của cổ đông càng nhẹ.',
-          'The line runs left to right along the Equity field, from half to one and a half times the figure you have entered; the dashed vertical line with a dot marks your own figure. It is a what-if on equity with debt held still, not market history. The line falls and flattens: against the same debt, thicker equity means a lighter load on each unit of shareholders’ capital.',
+          'Đường chạy từ trái sang phải theo ô Vốn chủ sở hữu (E), từ một nửa đến gấp rưỡi con số bạn đang nhập; vạch đứt dọc có chấm tròn là đúng con số bạn nhập. Đây là phép thử nếu vốn chủ đổi mà nợ đứng yên thì D/E ra bao nhiêu, không phải diễn biến thị trường. Đường đi xuống và thoải dần: cùng một khối nợ mà vốn chủ càng dày thì gánh nợ trên mỗi đồng vốn của cổ đông càng nhẹ.',
+          'The line runs left to right along the Equity (E) field, from half to one and a half times the figure you have entered; the dashed vertical line with a dot marks your own figure. It is a what-if on equity with debt held still, not market history. The line falls and flattens: against the same debt, thicker equity means a lighter load on each unit of shareholders’ capital.',
         ),
         cot: d(
           'Mỗi cột là D/E ở một mức vốn chủ, cột thấp dần về bên phải và cột tô đặc là mức bạn đang nhập. Thua lỗ ăn vào vốn chủ đẩy doanh nghiệp về các cột cao bên trái dù không vay thêm đồng nào.',
@@ -347,8 +347,8 @@ export const BIEU_DO_CO_BAN: Readonly<Record<string, BieuDoRieng>> = {
     truc: {
       dividendPerShare: {
         duong: d(
-          'Đường chạy từ trái sang phải theo ô Cổ tức tiền mặt / CP, từ một nửa đến gấp rưỡi con số bạn đang nhập; vạch đứt dọc có chấm tròn là đúng con số bạn nhập. Đây là phép thử nếu mức cổ tức đổi thì hệ số chi trả ra bao nhiêu, không phải diễn biến thị trường. Đường đi lên đều: EPS giữ nguyên, trả cổ tức càng cao thì phần lợi nhuận giữ lại để tái đầu tư càng mỏng.',
-          'The line runs left to right along the Cash dividend / share field, from half to one and a half times the figure you have entered; the dashed vertical line with a dot marks your own figure. It is a what-if on the dividend, not market history. The line rises steadily: with EPS held still, a larger dividend leaves a thinner slice of profit to reinvest.',
+          'Đường chạy từ trái sang phải theo ô Cổ tức tiền mặt / CP (DPS), từ một nửa đến gấp rưỡi con số bạn đang nhập; vạch đứt dọc có chấm tròn là đúng con số bạn nhập. Đây là phép thử nếu mức cổ tức đổi thì hệ số chi trả ra bao nhiêu, không phải diễn biến thị trường. Đường đi lên đều: EPS giữ nguyên, trả cổ tức càng cao thì phần lợi nhuận giữ lại để tái đầu tư càng mỏng.',
+          'The line runs left to right along the Cash dividend / share (DPS) field, from half to one and a half times the figure you have entered; the dashed vertical line with a dot marks your own figure. It is a what-if on the dividend, not market history. The line rises steadily: with EPS held still, a larger dividend leaves a thinner slice of profit to reinvest.',
         ),
         cot: d(
           'Mỗi cột là hệ số chi trả ở một mức cổ tức, cột cao dần về bên phải và cột tô đặc là mức bạn đang nhập. Chiều cao cột là phần lợi nhuận đem chia; phần còn thiếu để chạm mức toàn bộ lợi nhuận là phần doanh nghiệp giữ lại.',

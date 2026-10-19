@@ -16,7 +16,7 @@ export const FORMULA_SUMMARIES: ReadonlyArray<FormulaSummary> = [
   {
     id: 'pe',
     categoryId: 'fundamentals',
-    name: { vi: 'P/E — hệ số giá trên lợi nhuận', en: 'Price to earnings ratio' },
+    name: { vi: 'P/E — hệ số giá trên lợi nhuận', en: 'P/E — price to earnings ratio' },
     description: { vi: 'Nhà đầu tư trả bao nhiêu đồng cho mỗi đồng lợi nhuận của doanh nghiệp.', en: 'How many dong an investor pays for each dong of the company\'s profit.' },
     level: 'basic',
     isFeatured: true,
@@ -25,7 +25,7 @@ export const FORMULA_SUMMARIES: ReadonlyArray<FormulaSummary> = [
   {
     id: 'pb',
     categoryId: 'fundamentals',
-    name: { vi: 'P/B — hệ số giá trên giá trị sổ sách', en: 'Price to book ratio' },
+    name: { vi: 'P/B — hệ số giá trên giá trị sổ sách', en: 'P/B — price to book ratio' },
     description: { vi: 'Thị giá đang gấp bao nhiêu lần giá trị sổ sách của một cổ phiếu.', en: 'How many times the market price is above the book value of a share.' },
     level: 'basic',
     isFeatured: true,
@@ -34,7 +34,7 @@ export const FORMULA_SUMMARIES: ReadonlyArray<FormulaSummary> = [
   {
     id: 'eps-co-ban',
     categoryId: 'fundamentals',
-    name: { vi: 'EPS cơ bản', en: 'Basic earnings per share' },
+    name: { vi: 'EPS cơ bản', en: 'Basic EPS' },
     description: { vi: 'Mỗi cổ phiếu phổ thông làm ra bao nhiêu đồng lợi nhuận trong kỳ.', en: 'How much profit each common share earns during the period.' },
     level: 'basic',
     tags: ['eps', 'loi nhuan tren co phieu', 'earnings per share', 'chi so dn'],
@@ -42,7 +42,7 @@ export const FORMULA_SUMMARIES: ReadonlyArray<FormulaSummary> = [
   {
     id: 'bvps',
     categoryId: 'fundamentals',
-    name: { vi: 'BVPS — giá trị sổ sách mỗi cổ phiếu', en: 'Book value per share' },
+    name: { vi: 'BVPS — giá trị sổ sách mỗi cổ phiếu', en: 'BVPS — book value per share' },
     description: { vi: 'Mỗi cổ phiếu đang nắm giữ bao nhiêu đồng vốn chủ sở hữu trên sổ sách.', en: 'How much book equity each share currently represents.' },
     level: 'basic',
     tags: ['bvps', 'gia tri so sach', 'book value', 'chi so dn'],
@@ -50,7 +50,7 @@ export const FORMULA_SUMMARIES: ReadonlyArray<FormulaSummary> = [
   {
     id: 'roe',
     categoryId: 'fundamentals',
-    name: { vi: 'ROE — tỷ suất sinh lời trên vốn chủ', en: 'Return on equity' },
+    name: { vi: 'ROE — tỷ suất sinh lời trên vốn chủ', en: 'ROE — return on equity' },
     description: { vi: 'Một đồng vốn của cổ đông làm ra bao nhiêu đồng lợi nhuận trong một năm.', en: 'How much profit each unit of shareholder capital generates in a year.' },
     level: 'basic',
     tags: ['roe', 'ty suat sinh loi', 'von chu so huu', 'return on equity', 'chi so dn'],
@@ -58,7 +58,7 @@ export const FORMULA_SUMMARIES: ReadonlyArray<FormulaSummary> = [
   {
     id: 'roa',
     categoryId: 'fundamentals',
-    name: { vi: 'ROA — tỷ suất sinh lời trên tài sản', en: 'Return on assets' },
+    name: { vi: 'ROA — tỷ suất sinh lời trên tài sản', en: 'ROA — return on assets' },
     description: { vi: 'Một đồng tài sản của doanh nghiệp tạo ra bao nhiêu đồng lợi nhuận.', en: 'How much profit each unit of company assets generates.' },
     level: 'basic',
     tags: ['roa', 'ty suat sinh loi', 'tong tai san', 'return on assets', 'chi so dn'],
@@ -66,7 +66,7 @@ export const FORMULA_SUMMARIES: ReadonlyArray<FormulaSummary> = [
   {
     id: 'bien-loi-nhuan-rong',
     categoryId: 'fundamentals',
-    name: { vi: 'ROS — biên lợi nhuận ròng', en: 'Net profit margin' },
+    name: { vi: 'ROS — biên lợi nhuận ròng', en: 'ROS — net profit margin' },
     description: { vi: 'Cứ 100 đồng doanh thu thì doanh nghiệp giữ lại được bao nhiêu đồng lãi ròng.', en: 'Out of every 100 units of revenue, how much the company keeps as net profit.' },
     level: 'basic',
     tags: ['ros', 'bien loi nhuan rong', 'net margin', 'profit margin', 'chi so dn'],
@@ -82,7 +82,7 @@ export const FORMULA_SUMMARIES: ReadonlyArray<FormulaSummary> = [
   {
     id: 'no-tren-von-chu',
     categoryId: 'fundamentals',
-    name: { vi: 'D/E — hệ số nợ trên vốn chủ', en: 'Debt to equity ratio' },
+    name: { vi: 'D/E — hệ số nợ trên vốn chủ', en: 'D/E — debt to equity ratio' },
     description: { vi: 'Doanh nghiệp đang vay bao nhiêu đồng nợ trên mỗi đồng vốn của cổ đông.', en: 'How much debt the company carries for every unit of shareholder capital.' },
     level: 'basic',
     tags: ['de', 'd e', 'no tren von chu', 'don bay', 'debt to equity', 'chi so dn'],
@@ -122,7 +122,7 @@ export const FORMULA_SUMMARIES: ReadonlyArray<FormulaSummary> = [
   {
     id: 'ps',
     categoryId: 'valuation',
-    name: { vi: 'P/S — hệ số giá trên doanh thu', en: 'Price to sales ratio' },
+    name: { vi: 'P/S — hệ số giá trên doanh thu', en: 'P/S — price to sales ratio' },
     description: { vi: 'Nhà đầu tư trả bao nhiêu đồng cho mỗi đồng doanh thu của doanh nghiệp.', en: 'How much investors pay for each dong of the company’s revenue.' },
     level: 'basic',
     tags: ['ps', 'p s', 'gia tren doanh thu', 'boi so', 'dinh gia', 'price to sales'],
@@ -130,7 +130,7 @@ export const FORMULA_SUMMARIES: ReadonlyArray<FormulaSummary> = [
   {
     id: 'ev',
     categoryId: 'valuation',
-    name: { vi: 'EV — giá trị doanh nghiệp', en: 'Enterprise value' },
+    name: { vi: 'EV — giá trị doanh nghiệp', en: 'EV — enterprise value' },
     description: { vi: 'Số tiền cần bỏ ra để mua trọn doanh nghiệp, gồm cả nợ và trừ đi tiền mặt.', en: 'The amount needed to buy the whole company, including its debt and net of its cash.' },
     level: 'basic',
     tags: ['ev', 'gia tri doanh nghiep', 'enterprise value', 'von hoa', 'no vay'],
@@ -147,7 +147,7 @@ export const FORMULA_SUMMARIES: ReadonlyArray<FormulaSummary> = [
   {
     id: 'ev-sales',
     categoryId: 'valuation',
-    name: { vi: 'EV/Sales — EV trên doanh thu', en: 'EV to sales ratio' },
+    name: { vi: 'EV/Sales — EV trên doanh thu', en: 'EV/Sales — EV to sales ratio' },
     description: { vi: 'Giá mua trọn doanh nghiệp gấp bao nhiêu lần doanh thu một năm.', en: 'How many times the price to buy the whole company sits above one year of revenue.' },
     level: 'advanced',
     tags: ['ev sales', 'ev doanh thu', 'boi so', 'dinh gia', 'ev to sales'],
@@ -155,7 +155,7 @@ export const FORMULA_SUMMARIES: ReadonlyArray<FormulaSummary> = [
   {
     id: 'peg',
     categoryId: 'valuation',
-    name: { vi: 'PEG — P/E trên tăng trưởng', en: 'Price/earnings to growth ratio' },
+    name: { vi: 'PEG — P/E trên tăng trưởng', en: 'PEG — P/E to growth ratio' },
     description: { vi: 'P/E đã chia cho tốc độ tăng trưởng lợi nhuận, để so cổ phiếu tăng trưởng với nhau.', en: 'P/E divided by the earnings growth rate, so growth stocks can be compared with each other.' },
     level: 'advanced',
     tags: ['peg', 'tang truong', 'boi so', 'dinh gia', 'growth'],
@@ -180,7 +180,7 @@ export const FORMULA_SUMMARIES: ReadonlyArray<FormulaSummary> = [
   {
     id: 'ncav-tren-co-phieu',
     categoryId: 'valuation',
-    name: { vi: 'NCAV trên cổ phiếu', en: 'Net current asset value per share' },
+    name: { vi: 'NCAV trên cổ phiếu', en: 'NCAV per share' },
     description: { vi: 'Giá trị tài sản ngắn hạn còn lại cho mỗi cổ phiếu sau khi trả hết mọi khoản nợ.', en: 'The current-asset value left per share after paying off every liability.' },
     level: 'advanced',
     tags: ['ncav', 'net net', 'graham', 'tai san ngan han', 'dau tu gia tri'],
@@ -204,7 +204,7 @@ export const FORMULA_SUMMARIES: ReadonlyArray<FormulaSummary> = [
   {
     id: 'mo-hinh-gordon',
     categoryId: 'valuation',
-    name: { vi: 'Mô hình Gordon (DDM một giai đoạn)', en: 'Gordon growth model' },
+    name: { vi: 'Mô hình Gordon (DDM một giai đoạn)', en: 'Gordon growth model (single-stage DDM)' },
     description: { vi: 'Giá trị cổ phiếu từ dòng cổ tức tăng trưởng đều mãi mãi, chiết khấu về hiện tại.', en: 'Share value from a dividend stream growing at a constant rate forever, discounted back to the present.' },
     level: 'advanced',
     tags: ['gordon', 'ddm', 'chiet khau co tuc', 'dinh gia co tuc', 'dividend discount'],
@@ -212,7 +212,7 @@ export const FORMULA_SUMMARIES: ReadonlyArray<FormulaSummary> = [
   {
     id: 'ddm-hai-giai-doan',
     categoryId: 'valuation',
-    name: { vi: 'DDM hai giai đoạn', en: 'Two-stage dividend discount model' },
+    name: { vi: 'DDM hai giai đoạn', en: 'Two-stage DDM' },
     description: { vi: 'Giá trị cổ phiếu khi cổ tức tăng nhanh vài năm đầu rồi chuyển về tăng trưởng đều dài hạn.', en: 'Share value when dividends grow fast for the first few years, then settle into steady long-term growth.' },
     level: 'advanced',
     tags: ['ddm hai giai doan', 'two stage ddm', 'chiet khau co tuc', 'tang truong hai giai doan'],
@@ -220,7 +220,7 @@ export const FORMULA_SUMMARIES: ReadonlyArray<FormulaSummary> = [
   {
     id: 'capm',
     categoryId: 'valuation',
-    name: { vi: 'CAPM — chi phí vốn chủ sở hữu', en: 'Capital asset pricing model' },
+    name: { vi: 'CAPM — chi phí vốn chủ sở hữu', en: 'CAPM — capital asset pricing model' },
     description: { vi: 'Suất sinh lợi yêu cầu của cổ đông, tính từ lãi suất phi rủi ro và hệ số beta.', en: 'Shareholders\' required rate of return, computed from the risk-free rate and the beta coefficient.' },
     level: 'advanced',
     tags: ['capm', 'chi phi von chu', 'beta', 'phan bu rui ro', 'cost of equity'],
@@ -228,7 +228,7 @@ export const FORMULA_SUMMARIES: ReadonlyArray<FormulaSummary> = [
   {
     id: 'wacc',
     categoryId: 'valuation',
-    name: { vi: 'WACC — chi phí vốn bình quân gia quyền', en: 'Weighted average cost of capital' },
+    name: { vi: 'WACC — chi phí vốn bình quân gia quyền', en: 'WACC — weighted average cost of capital' },
     description: { vi: 'Chi phí huy động một đồng vốn của doanh nghiệp, trộn giữa vốn chủ và nợ vay sau lá chắn thuế.', en: 'The cost of raising one unit of capital for a company, blending equity and after-tax debt.' },
     level: 'advanced',
     tags: ['wacc', 'chi phi von binh quan', 'co cau von', 'la chan thue', 'cost of capital'],
@@ -236,7 +236,7 @@ export const FORMULA_SUMMARIES: ReadonlyArray<FormulaSummary> = [
   {
     id: 'fcff',
     categoryId: 'valuation',
-    name: { vi: 'FCFF — dòng tiền tự do của doanh nghiệp', en: 'Free cash flow to firm' },
+    name: { vi: 'FCFF — dòng tiền tự do của doanh nghiệp', en: 'FCFF — free cash flow to firm' },
     description: { vi: 'Tiền còn lại cho cả chủ nợ lẫn cổ đông sau thuế và sau khi tái đầu tư, tính từ EBIT.', en: 'The cash left for both creditors and shareholders after tax and reinvestment, computed from EBIT.' },
     level: 'advanced',
     tags: ['fcff', 'dong tien tu do', 'ebit', 'dcf', 'free cash flow'],
@@ -244,7 +244,7 @@ export const FORMULA_SUMMARIES: ReadonlyArray<FormulaSummary> = [
   {
     id: 'fcfe',
     categoryId: 'valuation',
-    name: { vi: 'FCFE — dòng tiền tự do của cổ đông', en: 'Free cash flow to equity' },
+    name: { vi: 'FCFE — dòng tiền tự do của cổ đông', en: 'FCFE — free cash flow to equity' },
     description: { vi: 'Tiền còn lại riêng cho cổ đông sau khi trả lãi vay sau thuế và điều chỉnh vay nợ ròng.', en: 'The cash left specifically for shareholders after paying after-tax interest and adjusting for net borrowing.' },
     level: 'advanced',
     tags: ['fcfe', 'dong tien tu do co dong', 'dcf', 'free cash flow to equity'],
@@ -252,7 +252,7 @@ export const FORMULA_SUMMARIES: ReadonlyArray<FormulaSummary> = [
   {
     id: 'gia-tri-noi-tai-fcff',
     categoryId: 'valuation',
-    name: { vi: 'Giá trị nội tại từ FCFF (DCF)', en: 'Intrinsic value from FCFF' },
+    name: { vi: 'Giá trị nội tại từ FCFF (DCF)', en: 'Intrinsic value from FCFF (DCF)' },
     description: { vi: 'Chiết khấu dòng tiền tự do của doanh nghiệp bằng WACC, trừ nợ ròng, chia cho số cổ phiếu.', en: 'Discounting the firm\'s free cash flow by WACC, subtracting net debt, and dividing by the share count.' },
     level: 'advanced',
     tags: ['dcf', 'gia tri noi tai', 'chiet khau dong tien', 'fcff', 'intrinsic value'],
@@ -260,7 +260,7 @@ export const FORMULA_SUMMARIES: ReadonlyArray<FormulaSummary> = [
   {
     id: 'gia-tri-hien-tai',
     categoryId: 'valuation',
-    name: { vi: 'Giá trị hiện tại (PV)', en: 'Present value' },
+    name: { vi: 'Giá trị hiện tại (PV)', en: 'Present value (PV)' },
     description: { vi: 'Một khoản tiền trong tương lai đáng giá bao nhiêu ở hôm nay.', en: 'How much a future sum of money is worth today.' },
     level: 'basic',
     tags: ['pv', 'gia tri hien tai', 'chiet khau', 'present value'],
@@ -268,7 +268,7 @@ export const FORMULA_SUMMARIES: ReadonlyArray<FormulaSummary> = [
   {
     id: 'gia-tri-tuong-lai',
     categoryId: 'valuation',
-    name: { vi: 'Giá trị tương lai (FV)', en: 'Future value' },
+    name: { vi: 'Giá trị tương lai (FV)', en: 'Future value (FV)' },
     description: { vi: 'Một khoản tiền hôm nay lớn thành bao nhiêu sau nhiều năm sinh lợi kép.', en: 'How much a sum of money today grows to after years of compounding.' },
     level: 'basic',
     tags: ['fv', 'gia tri tuong lai', 'lai gop', 'future value'],
@@ -351,7 +351,7 @@ export const FORMULA_SUMMARIES: ReadonlyArray<FormulaSummary> = [
   {
     id: 'roi',
     categoryId: 'returns',
-    name: { vi: 'ROI — tỷ suất lợi nhuận', en: 'Return on investment' },
+    name: { vi: 'ROI — tỷ suất lợi nhuận', en: 'ROI — return on investment' },
     description: { vi: 'Phần trăm lãi hoặc lỗ so với số vốn đã bỏ ra.', en: 'The percentage gain or loss relative to the capital invested.' },
     level: 'basic',
     isFeatured: true,
@@ -360,7 +360,7 @@ export const FORMULA_SUMMARIES: ReadonlyArray<FormulaSummary> = [
   {
     id: 'hpr',
     categoryId: 'returns',
-    name: { vi: 'HPR — lợi suất kỳ nắm giữ', en: 'Holding period return' },
+    name: { vi: 'HPR — lợi suất kỳ nắm giữ', en: 'HPR — holding period return' },
     description: { vi: 'Lợi suất một kỳ nắm giữ, tính cả chênh lệch giá lẫn cổ tức nhận được.', en: 'The holding-period return, including both the price change and dividends received.' },
     level: 'basic',
     tags: ['hpr', 'loi suat', 'ky nam giu', 'co tuc'],
@@ -368,7 +368,7 @@ export const FORMULA_SUMMARIES: ReadonlyArray<FormulaSummary> = [
   {
     id: 'cagr',
     categoryId: 'returns',
-    name: { vi: 'CAGR — tăng trưởng kép hằng năm', en: 'Compound annual growth rate' },
+    name: { vi: 'CAGR — tăng trưởng kép hằng năm', en: 'CAGR — compound annual growth rate' },
     description: { vi: 'Tốc độ tăng trưởng bình quân mỗi năm của một khoản đầu tư.', en: 'The average annual growth rate of an investment.' },
     level: 'basic',
     isFeatured: true,
@@ -411,7 +411,7 @@ export const FORMULA_SUMMARIES: ReadonlyArray<FormulaSummary> = [
   {
     id: 'lai-suat-hieu-dung',
     categoryId: 'returns',
-    name: { vi: 'Lãi suất hiệu dụng năm (EAR)', en: 'Effective annual rate' },
+    name: { vi: 'Lãi suất hiệu dụng năm (EAR)', en: 'Effective annual rate (EAR)' },
     description: { vi: 'Mức lãi thật sự nhận được cả năm khi lãi được ghép nhiều lần trong năm.', en: 'The interest actually earned over a full year when interest compounds several times a year.' },
     level: 'basic',
     tags: ['ear', 'lai suat hieu dung', 'ghep lai', 'effective annual rate', 'apr'],
@@ -612,7 +612,7 @@ export const FORMULA_SUMMARIES: ReadonlyArray<FormulaSummary> = [
   {
     id: 'sma-n-phien',
     categoryId: 'technical',
-    name: { vi: 'Trung bình động đơn giản (SMA)', en: 'Simple moving average' },
+    name: { vi: 'Trung bình động đơn giản (SMA)', en: 'Simple moving average (SMA)' },
     description: { vi: 'Giá đóng cửa bình quân của n phiên gần nhất — đường xu hướng cơ bản nhất.', en: 'The average closing price over the most recent n periods — the most basic trend line.' },
     level: 'basic',
     tags: ['sma', 'trung binh dong', 'moving average', 'ma20', 'ma50', 'duong xu huong'],
@@ -620,7 +620,7 @@ export const FORMULA_SUMMARIES: ReadonlyArray<FormulaSummary> = [
   {
     id: 'ema-n-phien',
     categoryId: 'technical',
-    name: { vi: 'Trung bình động luỹ thừa (EMA)', en: 'Exponential moving average' },
+    name: { vi: 'Trung bình động luỹ thừa (EMA)', en: 'Exponential moving average (EMA)' },
     description: { vi: 'Trung bình động đặt trọng số nặng hơn cho các phiên gần đây nên bám giá nhanh hơn SMA.', en: 'A moving average that weights recent periods more heavily, so it tracks price faster than SMA.' },
     level: 'basic',
     tags: ['ema', 'trung binh luy thua', 'exponential moving average', 'ema12', 'ema26'],
@@ -644,7 +644,7 @@ export const FORMULA_SUMMARIES: ReadonlyArray<FormulaSummary> = [
   {
     id: 'rsi-wilder',
     categoryId: 'technical',
-    name: { vi: 'RSI 14 phiên (Wilder)', en: 'Relative strength index (Wilder)' },
+    name: { vi: 'RSI 14 phiên (Wilder)', en: '14-period RSI (Wilder)' },
     description: { vi: 'Chỉ số sức mạnh tương đối 0–100, đo tỷ lệ giữa đà tăng và đà giảm gần đây.', en: 'A 0–100 relative strength index that measures the ratio between recent upward and downward momentum.' },
     level: 'basic',
     isFeatured: true,
@@ -653,7 +653,7 @@ export const FORMULA_SUMMARIES: ReadonlyArray<FormulaSummary> = [
   {
     id: 'roc-toc-do-thay-doi',
     categoryId: 'technical',
-    name: { vi: 'Tốc độ thay đổi giá (ROC)', en: 'Rate of change' },
+    name: { vi: 'Tốc độ thay đổi giá (ROC)', en: 'Rate of change (ROC)' },
     description: { vi: 'Giá hôm nay cao hơn hay thấp hơn giá của n phiên trước bao nhiêu phần trăm.', en: 'How many percent today\'s price is above or below the price from n periods ago.' },
     level: 'basic',
     tags: ['roc', 'toc do thay doi', 'rate of change', 'dong luong', 'phan tram'],
@@ -709,7 +709,7 @@ export const FORMULA_SUMMARIES: ReadonlyArray<FormulaSummary> = [
   {
     id: 'atr-dao-dong-thuc',
     categoryId: 'technical',
-    name: { vi: 'ATR — dao động thực trung bình', en: 'Average true range (Wilder)' },
+    name: { vi: 'ATR — dao động thực trung bình', en: 'ATR — average true range (Wilder)' },
     description: { vi: 'Biên độ một phiên thường đi được bao nhiêu đồng, đã tính cả khoảng nhảy giá so với phiên trước.', en: 'How many VND a session typically moves, including any price gap versus the previous session.' },
     level: 'basic',
     tags: ['atr', 'dao dong thuc', 'true range', 'wilder', 'bien do', 'cat lo'],
@@ -733,7 +733,7 @@ export const FORMULA_SUMMARIES: ReadonlyArray<FormulaSummary> = [
   {
     id: 'vwap',
     categoryId: 'technical',
-    name: { vi: 'VWAP — giá bình quân theo khối lượng', en: 'Volume weighted average price' },
+    name: { vi: 'VWAP — giá bình quân theo khối lượng', en: 'VWAP — volume weighted average price' },
     description: { vi: 'Giá trung bình của n phiên gần nhất, nhưng phiên khớp nhiều cổ phiếu được tính nặng hơn.', en: 'The average price over the last n sessions, but sessions with heavier matched volume are weighted more.' },
     level: 'basic',
     tags: ['vwap', 'gia binh quan', 'khoi luong', 'volume weighted', 'ky thuat'],
@@ -915,7 +915,7 @@ export const FORMULA_SUMMARIES: ReadonlyArray<FormulaSummary> = [
   {
     id: 'don-bay-tong-hop',
     categoryId: 'corporate-finance',
-    name: { vi: 'Đòn bẩy tổng hợp (DOL × DFL)', en: 'Degree of total leverage' },
+    name: { vi: 'Đòn bẩy tổng hợp (DOL × DFL)', en: 'Degree of total leverage (DOL × DFL)' },
     description: { vi: 'Doanh thu thay đổi 1% thì EPS thay đổi bao nhiêu phần trăm, gộp cả đòn bẩy hoạt động và đòn bẩy tài chính.', en: 'How many percent EPS changes for a 1% change in revenue, combining both operating leverage and financial leverage.' },
     level: 'advanced',
     tags: ['don bay tong hop', 'dtl', 'dol', 'dfl', 'don bay hoat dong', 'don bay tai chinh', 'leverage', 'eps'],

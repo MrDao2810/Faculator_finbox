@@ -334,7 +334,7 @@ export const DO_BIEN_DONG_NAM_HOA: FormulaModule = {
       stdDevWindowVar(),
       numberVar(
         'tradingDays',
-        { vi: 'Số phiên giao dịch trong một năm', en: 'Trading sessions per year' },
+        { vi: 'Số phiên giao dịch trong một năm (D)', en: 'Trading sessions per year (D)' },
         'phiên',
         250,
         {
@@ -520,7 +520,7 @@ export const DO_LECH_CHUAN_BAN_PHAN: FormulaModule = {
       stdDevWindowVar(),
       numberVar(
         'threshold',
-        { vi: 'Ngưỡng lợi suất mỗi phiên', en: 'Per-session return threshold' },
+        { vi: 'Ngưỡng lợi suất mỗi phiên (B)', en: 'Per-session return threshold (B)' },
         '%',
         0,
         {

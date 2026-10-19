@@ -89,17 +89,23 @@ export const LOI_SUAT_NAM_HOA: FormulaModule = {
     tags: ['nam hoa', 'annualized', 'quy nam', 'loi suat ky'],
     resultUnit: '%',
     variables: [
-      numberVar('periodReturn', { vi: 'Lợi suất một kỳ', en: 'Return per period' }, '%', 2, {
-        min: -100,
-        max: 100,
-        description: {
-          vi: 'Lợi suất của một kỳ ngắn, ví dụ 2 nghĩa là 2%/tháng.',
-          en: 'The return for one short period, e.g. 2 means 2% per month.',
+      numberVar(
+        'periodReturn',
+        { vi: 'Lợi suất một kỳ (rky)', en: 'Return per period (rky)' },
+        '%',
+        2,
+        {
+          min: -100,
+          max: 100,
+          description: {
+            vi: 'Lợi suất của một kỳ ngắn, ví dụ 2 nghĩa là 2%/tháng.',
+            en: 'The return for one short period, e.g. 2 means 2% per month.',
+          },
         },
-      }),
+      ),
       sliderVar(
         'periodsPerYear',
-        { vi: 'Số kỳ trong một năm', en: 'Number of periods per year' },
+        { vi: 'Số kỳ trong một năm (m)', en: 'Number of periods per year (m)' },
         'kỳ',
         12,
         1,
@@ -249,7 +255,10 @@ export const LOI_SUAT_THUC: FormulaModule = {
     variables: [
       numberVar(
         'nominal',
-        { vi: 'Lợi suất danh nghĩa / năm', en: 'Nominal return / year' },
+        {
+          vi: 'Lợi suất danh nghĩa / năm (rdanh nghia)',
+          en: 'Nominal return / year (rdanh nghia)',
+        },
         '%',
         10,
         {
@@ -261,7 +270,7 @@ export const LOI_SUAT_THUC: FormulaModule = {
           },
         },
       ),
-      numberVar('inflation', { vi: 'Lạm phát / năm', en: 'Inflation / year' }, '%', 4, {
+      numberVar('inflation', { vi: 'Lạm phát / năm (π)', en: 'Inflation / year (π)' }, '%', 4, {
         min: -50,
         max: 100,
         description: {
@@ -372,7 +381,7 @@ export const LAI_SUAT_HIEU_DUNG: FormulaModule = {
   spec: {
     id: 'lai-suat-hieu-dung',
     categoryId: 'returns',
-    name: { vi: 'Lãi suất hiệu dụng năm (EAR)', en: 'Effective annual rate' },
+    name: { vi: 'Lãi suất hiệu dụng năm (EAR)', en: 'Effective annual rate (EAR)' },
     description: {
       vi: 'Mức lãi thật sự nhận được cả năm khi lãi được ghép nhiều lần trong năm.',
       en: 'The interest actually earned over a full year when interest compounds several times a year.',
@@ -411,7 +420,7 @@ export const LAI_SUAT_HIEU_DUNG: FormulaModule = {
     variables: [
       sliderVar(
         'rate',
-        { vi: 'Lãi suất danh nghĩa / năm', en: 'Nominal rate / year' },
+        { vi: 'Lãi suất danh nghĩa / năm (r)', en: 'Nominal rate / year (r)' },
         '%',
         12,
         0,
@@ -426,7 +435,7 @@ export const LAI_SUAT_HIEU_DUNG: FormulaModule = {
       ),
       {
         key: 'perYear',
-        label: { vi: 'Số lần ghép lãi / năm', en: 'Compounding frequency / year' },
+        label: { vi: 'Số lần ghép lãi / năm (m)', en: 'Compounding frequency / year (m)' },
         unit: 'lần',
         type: 'select',
         defaultValue: 12,
@@ -574,7 +583,7 @@ export const TONG_LOI_SUAT_TAI_DAU_TU: FormulaModule = {
     variables: [
       numberVar(
         'priceGrowth',
-        { vi: 'Tăng giá bình quân / năm', en: 'Average price growth / year' },
+        { vi: 'Tăng giá bình quân / năm (g)', en: 'Average price growth / year (g)' },
         '%',
         8,
         {
@@ -588,7 +597,7 @@ export const TONG_LOI_SUAT_TAI_DAU_TU: FormulaModule = {
       ),
       numberVar(
         'dividendYield',
-        { vi: 'Tỷ suất cổ tức / năm', en: 'Dividend yield / year' },
+        { vi: 'Tỷ suất cổ tức / năm (y)', en: 'Dividend yield / year (y)' },
         '%',
         3,
         {
@@ -600,7 +609,7 @@ export const TONG_LOI_SUAT_TAI_DAU_TU: FormulaModule = {
           },
         },
       ),
-      sliderVar('years', { vi: 'Số năm nắm giữ', en: 'Years held' }, 'năm', 5, 1, 50, 1),
+      sliderVar('years', { vi: 'Số năm nắm giữ (n)', en: 'Years held (n)' }, 'năm', 5, 1, 50, 1),
     ],
     explanation: {
       meaning: {
@@ -711,7 +720,7 @@ const GEO_PERIODS_MAX = 12;
  */
 const geoPeriodCount: VariableSpec = {
   key: 'periods',
-  label: { vi: 'Số kỳ nhập liệu', en: 'Number of periods entered' },
+  label: { vi: 'Số kỳ nhập liệu (n)', en: 'Number of periods entered (n)' },
   unit: '',
   type: 'number',
   defaultValue: 3,
@@ -789,15 +798,15 @@ export const LOI_SUAT_TRUNG_BINH_HINH_HOC: FormulaModule = {
     resultUnit: '%',
     variables: [
       geoPeriodCount,
-      numberVar('r1', { vi: 'Lợi suất kỳ 1', en: 'Return in period 1' }, '%', 10, {
+      numberVar('r1', { vi: 'Lợi suất kỳ 1 (r1)', en: 'Return in period 1 (r1)' }, '%', 10, {
         min: -100,
         max: 200,
       }),
-      numberVar('r2', { vi: 'Lợi suất kỳ 2', en: 'Return in period 2' }, '%', -5, {
+      numberVar('r2', { vi: 'Lợi suất kỳ 2 (r2)', en: 'Return in period 2 (r2)' }, '%', -5, {
         min: -100,
         max: 200,
       }),
-      numberVar('r3', { vi: 'Lợi suất kỳ 3', en: 'Return in period 3' }, '%', 20, {
+      numberVar('r3', { vi: 'Lợi suất kỳ 3 (r3)', en: 'Return in period 3 (r3)' }, '%', 20, {
         min: -100,
         max: 200,
         description: {
@@ -815,14 +824,20 @@ export const LOI_SUAT_TRUNG_BINH_HINH_HOC: FormulaModule = {
     repeat: {
       countKey: 'periods',
       fields: [
-        numberVar('r', { vi: 'Lợi suất kỳ {n}', en: 'Return in period {n}' }, '%', 0, {
-          min: -100,
-          max: 200,
-          description: {
-            vi: 'Lợi suất của kỳ thứ {n}. Kỳ lỗ thì nhập số âm.',
-            en: 'The return of period {n}. Enter a negative number for a losing period.',
+        numberVar(
+          'r',
+          { vi: 'Lợi suất kỳ {n} (r{n})', en: 'Return in period {n} (r{n})' },
+          '%',
+          0,
+          {
+            min: -100,
+            max: 200,
+            description: {
+              vi: 'Lợi suất của kỳ thứ {n}. Kỳ lỗ thì nhập số âm.',
+              en: 'The return of period {n}. Enter a negative number for a losing period.',
+            },
           },
-        }),
+        ),
       ],
       addLabel: { vi: 'Thêm kỳ', en: 'Add a period' },
       removeLabel: { vi: 'Bỏ kỳ {n}', en: 'Remove period {n}' },
@@ -990,7 +1005,7 @@ export const IRR_NIEN_KIM: FormulaModule = {
     variables: [
       numberVar(
         'investment',
-        { vi: 'Vốn bỏ ra ban đầu', en: 'Initial capital invested' },
+        { vi: 'Vốn bỏ ra ban đầu (P)', en: 'Initial capital invested (P)' },
         '₫',
         100_000_000,
         {
@@ -1004,7 +1019,7 @@ export const IRR_NIEN_KIM: FormulaModule = {
       ),
       numberVar(
         'payment',
-        { vi: 'Dòng thu đều mỗi kỳ', en: 'Equal payment received per period' },
+        { vi: 'Dòng thu đều mỗi kỳ (C)', en: 'Equal payment received per period (C)' },
         '₫',
         25_000_000,
         {
@@ -1023,7 +1038,7 @@ export const IRR_NIEN_KIM: FormulaModule = {
        */
       sliderVar(
         'periods',
-        { vi: 'Số kỳ nhận tiền', en: 'Number of periods receiving payments' },
+        { vi: 'Số kỳ nhận tiền (n)', en: 'Number of periods receiving payments (n)' },
         'kỳ',
         5,
         1,
@@ -1279,7 +1294,7 @@ export const THOI_GIAN_NHAN_DOI: FormulaModule = {
     variables: [
       sliderVar(
         'rate',
-        { vi: 'Lợi suất kép / năm', en: 'Compound return / year' },
+        { vi: 'Lợi suất kép / năm (r)', en: 'Compound return / year (r)' },
         '%',
         8,
         0,
@@ -1426,20 +1441,29 @@ export const LOI_SUAT_QUY_NAM_THEO_NGAY: FormulaModule = {
     tags: ['quy nam', 'so ngay nam giu', 'annualized', 'hpr', 'luot song'],
     resultUnit: '%',
     variables: [
-      numberVar('buyPrice', { vi: 'Giá mua', en: 'Buy price' }, '₫', 80_000, {
+      numberVar('buyPrice', { vi: 'Giá mua (Pmua)', en: 'Buy price (Pmua)' }, '₫', 80_000, {
         min: 0,
         max: 10_000_000,
       }),
-      numberVar('sellPrice', { vi: 'Giá bán', en: 'Sell price' }, '₫', 86_000, {
+      numberVar('sellPrice', { vi: 'Giá bán (Pban)', en: 'Sell price (Pban)' }, '₫', 86_000, {
         min: 0,
         max: 10_000_000,
       }),
-      sliderVar('days', { vi: 'Số ngày nắm giữ', en: 'Days held' }, 'ngày', 90, 1, 1095, 1, {
-        description: {
-          vi: 'Tính theo ngày lịch, từ ngày mua tới ngày bán.',
-          en: 'Counted in calendar days, from the buy date to the sell date.',
+      sliderVar(
+        'days',
+        { vi: 'Số ngày nắm giữ (d)', en: 'Days held (d)' },
+        'ngày',
+        90,
+        1,
+        1095,
+        1,
+        {
+          description: {
+            vi: 'Tính theo ngày lịch, từ ngày mua tới ngày bán.',
+            en: 'Counted in calendar days, from the buy date to the sell date.',
+          },
         },
-      }),
+      ),
     ],
     explanation: {
       meaning: {
@@ -1616,17 +1640,23 @@ export const LOI_SUAT_VUOT_CHUAN: FormulaModule = {
     tags: ['vuot chuan', 'excess return', 'benchmark', 'so voi vn index', 'chenh lech'],
     resultUnit: '%',
     variables: [
-      numberVar('portfolioReturn', { vi: 'Lợi suất danh mục', en: 'Portfolio return' }, '%', 18.5, {
-        min: -100,
-        max: 500,
-        description: {
-          vi: 'Kết quả của danh mục trong kỳ đang xét.',
-          en: "The portfolio's result over the period under review.",
+      numberVar(
+        'portfolioReturn',
+        { vi: 'Lợi suất danh mục (rp)', en: 'Portfolio return (rp)' },
+        '%',
+        18.5,
+        {
+          min: -100,
+          max: 500,
+          description: {
+            vi: 'Kết quả của danh mục trong kỳ đang xét.',
+            en: "The portfolio's result over the period under review.",
+          },
         },
-      }),
+      ),
       numberVar(
         'benchmarkReturn',
-        { vi: 'Lợi suất chuẩn so sánh', en: 'Benchmark return' },
+        { vi: 'Lợi suất chuẩn so sánh (rb)', en: 'Benchmark return (rb)' },
         '%',
         12.2,
         {

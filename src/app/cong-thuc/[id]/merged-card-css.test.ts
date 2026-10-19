@@ -257,8 +257,73 @@ describe('Hàng nút cuối màn — ghim đáy ở khổ điện thoại', () =
     expect(khoi).toMatch(/background:\s*var\(--color-paper\);/);
   });
 
+  /*
+   * 19/10/2026, chủ dự án: "2 button kia cũng cần giảm height và size text". Số đo của cỡ `sm` nhưng
+   * chỉ dưới 1024px, nên luật nằm ở đây chứ không ở prop — và không test React nào thấy nó.
+   */
+  it('hai nút trong dải cao 36px, chữ 14px, vẫn có ô phủ chạm 44px', () => {
+    const duoi = KHOI_MEDIA.filter((k) => k.dieuKien.includes('max-width: 1023.98px'));
+    const nut = duoi
+      .map((k) => /^\s*\.endActions > button\s*\{([^}]*)\}/m.exec(k.than)?.[1])
+      .find((than) => than !== undefined);
+    const phu = duoi
+      .map((k) => /^\s*\.endActions > button::after\s*\{([^}]*)\}/m.exec(k.than)?.[1])
+      .find((than) => than !== undefined);
+
+    expect(
+      nut,
+      'thiếu luật .endActions > button trong @media (max-width: 1023.98px)',
+    ).toBeDefined();
+    expect(nut).toMatch(/min-height:\s*36px;/);
+    expect(nut).toMatch(/font-size:\s*var\(--text-sm\);/);
+    expect(nut).toMatch(/position:\s*relative;/);
+    expect(phu, 'thiếu ô phủ chạm .endActions > button::after').toMatch(
+      /height:\s*var\(--tap-min\);/,
+    );
+  });
+
   it('khổ gốc KHÔNG ghim — từ 1024px hàng nút đứng yên ở cuối trang', () => {
     const goc = /^\.endActions\s*\{([^}]*)\}/m.exec(KHO_GOC)?.[1] ?? '';
     expect(goc).not.toMatch(/position:/);
+  });
+});
+
+/*
+ * Hai hàng nút đầu màn gọn lại dưới 1024px (chủ dự án, 19/10/2026): Tải về / Chia sẻ chỉ còn icon,
+ * "Nạp mẫu · Xem ví dụ thực tế ↓" nhỏ đi. Test React dựng cả chữ lẫn icon ở mọi khổ, nên chỉ đọc CSS
+ * mới thấy được chữ có ẩn hay không.
+ */
+describe('Hai hàng nút đầu màn — gọn ở khổ điện thoại', () => {
+  const duoi = KHOI_MEDIA.filter((k) => k.dieuKien.includes('max-width: 1023.98px'));
+  const luat = (boChon: string): string | undefined =>
+    duoi
+      .map((k) => new RegExp(`^\\s*${boChon}\\s*\\{([^}]*)\\}`, 'm').exec(k.than)?.[1])
+      .find((than) => than !== undefined);
+
+  it('chữ của Tải về / Chia sẻ ẩn bằng bộ visually-hidden, KHÔNG display: none — vẫn là tên nút', () => {
+    const nhan = luat('\\.iconLabel');
+    expect(nhan, 'thiếu luật .iconLabel trong @media (max-width: 1023.98px)').toBeDefined();
+    expect(nhan).toMatch(/position:\s*absolute;/);
+    expect(nhan).toMatch(/clip:\s*rect\(0 0 0 0\);/);
+    expect(nhan).not.toMatch(/display:\s*none/);
+  });
+
+  it('nút icon vuông 32px, hai nút cách 12px để hai ô chạm 44px không đè nhau', () => {
+    expect(luat('button\\.iconButton')).toMatch(/width:\s*32px;/);
+    expect(luat('button\\.iconButton')).toMatch(/min-height:\s*32px;/);
+    expect(luat('button\\.iconButton::after')).toMatch(/width:\s*var\(--tap-min\);/);
+    expect(luat('\\.shareRow')).toMatch(/gap:\s*var\(--space-3\);/);
+  });
+
+  it('nút của khối Công thức cao 32px, chữ 12px; chip mã 30px + 2px viền', () => {
+    const nut = luat('\\.blockHeadActions \\.actions > button');
+    expect(nut, 'thiếu luật .blockHeadActions .actions > button').toBeDefined();
+    expect(nut).toMatch(/min-height:\s*32px;/);
+    expect(nut).toMatch(/font-size:\s*var\(--text-xs\);/);
+    expect(luat('\\.tickerPick,\\s*\\.tickerDrop')).toMatch(/min-height:\s*30px;/);
+  });
+
+  it('khổ gốc không ẩn chữ — từ 1024px nút vẫn có chữ như cũ', () => {
+    expect(KHO_GOC).not.toMatch(/^\.iconLabel\s*\{/m);
   });
 });

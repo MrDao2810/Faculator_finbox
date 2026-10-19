@@ -159,6 +159,32 @@
 }
 
 /*
+ * Khổ điện thoại: cùng nhịp với ô chọn trục bên cạnh (19/10/2026) — lý do và lời chủ dự án ở khối
+ * 1023.98px của `chart.module.css`.
+ *
+ * - Nhãn "Loại biểu đồ" 14 → 12px, bằng nhãn "Xem kết quả đổi theo".
+ * - Hàng thứ hai 40 → 36px, bằng ô chọn; nút 34 → 30px, vì 36 trừ đệm 4px và viền 2px của
+ *   `.kindGroup` — cùng phép tính của docblock `.kindOption`.
+ * - Chữ trong nút giữ 12px: đó đã là bậc nhỏ nhất của thang chữ.
+ * - Ô phủ 44px của nút nay thò 7px mỗi phía, tức tràn 4px ra ngoài hàng. Phía trên vừa đúng khe
+ *   `--space-1` tới nhãn. Phía dưới là khoảng cách xuống khung vẽ, đã đo trên Chrome: không chạm lớp
+ *   bắt sự kiện của biểu đồ.
+ */
+@media (max-width: 1023.98px) {
+  .kind {
+    grid-template-rows: auto minmax(36px, auto);
+  }
+
+  .kindLabel {
+    font-size: var(--text-xs);
+  }
+
+  .kindOption {
+    min-height: 30px;
+  }
+}
+
+/*
  * Khổ PC: nhãn "Loại biểu đồ" ẩn khỏi mắt, nhóm nút tự nói `Đường | Cột` — cùng nhịp với ô chọn
  * trục ở khối 1280 của `chart.module.css`, theo ảnh mẫu chủ dự án đưa (cụm nút nhỏ ở góc trên
  * phải thẻ biểu đồ, không nhãn). Nhãn vẫn ở DOM và vẫn là `aria-labelledby` của nhóm.

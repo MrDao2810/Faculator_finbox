@@ -4,6 +4,188 @@ Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 
 ---
 
+## Màn chi tiết nhỏ chữ trên điện thoại: Giải thích, Bảng biến, Ví dụ, Bài tập, khung cách tính (19/10/2026)
+
+**Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án xem trên điện thoại.**
+
+Chủ dự án chụp khối này ở khổ điện thoại: _"những phần nội dung và tiêu đề trong ô sau đều đang rất lớn ở màn mobile.
+giảm xuống"_.
+
+- **`src/ui/result/ExplanationAccordion.module.css`**: thêm khối `@media (max-width: 1023.98px)` ở cuối file. Mỗi cỡ
+  xuống một bậc của thang, như phần đầu màn chi tiết (15/10) và Bảng biến (17/10):
+  - tiêu đề "Giải thích cho người mới": 18 → 16px;
+  - tên mục ("Khi nào dùng", "Cách đọc kết quả", "Sai lầm thường gặp"): 16 → 14px;
+  - đoạn văn: 14 → 12px.
+  - Dấu ＋/− giữ 14px, hàng tên mục vẫn cao tối thiểu 44px. Từ 1024px không đổi gì.
+  - Sửa câu docblock cũ "không có media query nào ở đây" thành "không có media query BỐ CỤC nào" cho khỏi sai.
+- Khối chỉ có một nơi dùng (`FormulaDetail`), nên chỉ màn chi tiết đổi.
+
+Lượt 2, cùng ngày. Chủ dự án khoanh hàng tiêu đề cột và cột tên của Bảng biến, cùng tiêu đề "Ví dụ thực tế" ngay dưới:
+_"giảm cả ở đây màn mobile nữa"_.
+
+- **`src/ui/result/VariableTable.module.css`** (khối dưới 1024px của đợt 17/10, chưa commit):
+  - hàng tiêu đề cột BIẾN · ĐƠN VỊ · MÔ TẢ: 12 → 11px. Bộ chọn `table.variables thead th` (0,1,3) để thắng
+    `.table thead th` (0,1,2) của primitive;
+  - tên biến: 13 → 12px, vẫn đậm. Đảo lý do "tên phải to hơn mô tả" của đợt 17/10, ghi trong chú thích.
+  - Mô tả và Đơn vị giữ 12px, không được khoanh.
+- **`src/ui/result/ExampleBlock.module.css`**: tiêu đề "Ví dụ thực tế" 18 → 16px dưới 1024px, bằng tiêu đề khối Giải thích.
+  Thân khối không được khoanh nên giữ nguyên.
+- `CLAUDE.md`: sửa đoạn Bảng biến (13px và "hàng tiêu đề giữ 12px" đã cũ), thêm tiêu đề Ví dụ.
+- Kiểm: prettier sạch; `npx vitest run src/ui` 62 file xanh. Chưa đo trong Chrome.
+
+Lượt 3, cùng ngày. Chủ dự án khoanh đề bài cùng bốn đáp án của khối Bài tập, và hàng "Kiểm tra · Bỏ qua câu này":
+_"phần này màn mobile cũng cần giảm size text và button Kiểm tra cùng Bỏ qua câu này, giảm cả height xuống"_.
+
+- **`src/ui/quiz/QuizBody.module.css`**: khối `@media (max-width: 1023.98px)` mới ở cuối file:
+  - đề bài 15 → 14px, đáp án 14 → 13px;
+  - lượt 4, cùng ngày (_"padding của các phần câu hỏi bản mobile cũng đang quá cao"_): ô đáp án lề trên dưới 12 → 8px,
+    `min-height` 44 → 36px, thêm `::after` cao 44px giữ vùng chạm (nhô 4px mỗi phía, vừa khít khe 8px giữa hai ô). Hạ
+    lề thôi thì đáp án một dòng không thấp đi, vì `min-height` 44px giữ nó. Lề ngang giữ 16px;
+  - mọi nút trong `.actions`: 44 → 36px, chữ 16 → 14px, lề ngang 16 → 12px, thêm `::after` cao 44px giữ vùng chạm.
+    Chép bộ số của `.sm` thay vì truyền `size="sm"`, để hai nút vẫn cùng cỡ và ca kiểm 15/10 vẫn đúng. "Câu tiếp" và
+    hai nút màn tổng kết cũng nằm trong `.actions` nên thấp theo.
+  - Hàng "BÀI TẬP · Câu 1 / 5 · Thoát" không được khoanh, giữ nguyên.
+
+Lượt 5, cùng ngày. Chủ dự án mở khung "cách tính" của `V` trên `bien-an-toan` ở điện thoại, khoanh dòng tiêu đề, dòng chữ
+của bước và link "Xem công thức: …": _"cần giảm size text ở những chỗ khoanh đỏ để tiết kiệm không gian"_.
+
+- **`src/app/cong-thuc/[id]/FormulaNotationCard.module.css`**: khối `@media (max-width: 1023.98px)` mới ở cuối file,
+  `.panelTitle`, `.stepText`, `.panelLink` 14 → 12px (bằng hàng bảng ký hiệu và dòng chữ dưới hình ở khổ này).
+  - Không hạ `.panel`: hình KaTeX của bước kế thừa cỡ chữ khung, mà hình không được khoanh, nên giữ 14px.
+  - Khung nổi của hình trong lời giải Bài tập và Ví dụ dùng chung lớp nên đổi theo.
+- Kiểm: prettier sạch; `hover-media.test.ts` xanh. Không test nào đọc file CSS này. Chưa đo trong Chrome.
+- Kiểm: prettier sạch; `npx vitest run src/ui` 62 file xanh. Chưa đo trong Chrome.
+
+---
+
+## Nút Chia sẻ mở bảng chia sẻ của điện thoại (19/10/2026)
+
+**Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án thử trên điện thoại.**
+
+Chủ dự án: sau khi bấm icon Chia sẻ thì chỉ thấy đổi sang dấu tích, _"khá khó phát hiện"_, và muốn bấm là ra bảng chọn
+nền tảng như bảng chia sẻ của Facebook. Đã giải thích trước khi làm: web chỉ gọi được bảng chia sẻ CỦA HỆ ĐIỀU HÀNH (Web
+Share API), không gọi được bảng riêng do một app tự vẽ. Chủ dự án đồng ý.
+
+- **`src/app/cong-thuc/[id]/FormulaDetail.tsx`**:
+  - `dungBangChiaSeCuaMay()` mới: đúng khi có `navigator.share` và màn hẹp hơn 1024px, đọc `matchMedia` lúc bấm.
+  - `copyShareLink` đổi tên thành `shareLink`, có bốn nấc:
+    1. Bảng chia sẻ của máy.
+    2. Người dùng đóng bảng (`AbortError`) thì dừng, không sao chép thay.
+    3. Bảng hỏng vì lý do khác thì sao chép.
+    4. Không sao chép được thì `prompt()`.
+  - `navigator.share()` được gọi ngay trong cú bấm, trước mọi `await`, vì iOS đòi điều đó.
+  - State `copied` (boolean) thành `shareDone: 'copied' | 'shared' | null`.
+    - Gửi xong qua bảng thì nút giữ nguyên, không ghi "Đã sao chép link".
+    - Câu "chuỗi giá không đi theo link" vẫn bật cho công thức chuỗi giá.
+  - PC giữ lối sao chép, kể cả khi trình duyệt có `navigator.share` (Chrome trên Windows có).
+  - Không thêm lệnh gọi mạng, không đụng CSP.
+- **Test**: `FormulaDetail.test.tsx` thêm 6 ca:
+  - gọi `share` với tên và link có `so=`, không sao chép;
+  - `AbortError` thì dừng;
+  - lỗi khác thì sao chép;
+  - không có `share` thì sao chép;
+  - từ 1024px thì sao chép;
+  - câu ghi chú chuỗi giá sau khi gửi.
+- **Giới hạn đã biết**:
+  - Bảng chỉ mở trên HTTPS. Bản thật trên Cloudflare Pages và `localhost` thì được. Mở dev từ điện thoại qua `http://<IP máy>:3000`
+    thì không: lúc ấy cả `navigator.share` lẫn `navigator.clipboard` đều vắng, nút rơi xuống `prompt()`.
+  - Trình duyệt trong Zalo hay Facebook có thể không hỗ trợ, khi đó vẫn sao chép như trước.
+- `tsc`, `eslint`, `prettier` sạch; `npm test` xanh. Chưa thử trên điện thoại thật: Chrome headless không có bảng chia sẻ của
+  hệ điều hành để đo.
+
+---
+
+## Đầu màn chi tiết ở khổ điện thoại: Tải về / Chia sẻ chỉ còn icon, hàng nút khối Công thức nhỏ lại (19/10/2026)
+
+**Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án xem.**
+
+Chủ dự án khoanh hai cụm trên `bien-an-toan` ở điện thoại: _"2 button Tải về và chia sẻ bản mobile thì chuyển thành icon bỏ
+text đi. 2 button Nạp mẫu và xem ví dụ thực tế thì giảm size button xuống cho gọn hơn"_. Chỉ áp dụng dưới 1024px.
+
+- **`src/app/cong-thuc/[id]/FormulaDetail.tsx`**:
+  - Chữ của hai nút bọc trong `<span className={styles.iconLabel}>`.
+  - Thêm `CheckIcon`. Sau khi sao chép link, dưới 1024px dấu tích thay mắt xích trong 4 giây. Không có nó thì chữ "Đã sao
+    chép link" bị ẩn cùng nhãn và cú chạm trông như không làm gì. **Đây là phần mình tự thêm, bản vẽ không có** — chủ dự án
+    bỏ được nếu không muốn. Từ 1024px vẫn là mắt xích + chữ như cũ.
+- **`src/app/cong-thuc/[id]/FormulaDetail.module.css`** — hai khối `max-width: 1023.98px` mới:
+  - Tải về / Chia sẻ: nút vuông 32px, chỉ còn icon, hai nút cách 12px.
+    - Chữ ẩn bằng bộ khai báo của `.visually-hidden`, không `display: none`, nên vẫn là tên nút với trình đọc màn hình, test
+      và `check:chrome`.
+    - Ô phủ chạm nới thành 44 × 44. Tâm hai nút cách nhau đúng 44px nên hai ô phủ không đè nhau.
+  - "Nạp mẫu · Xem ví dụ thực tế ↓": nút cao 36 → 32px, chữ 14 → 12px, đệm ngang 12 → 8px.
+  - Chip mã (đứng chỗ "Nạp mẫu" khi đã nạp mã) nhỏ theo: 30px + 2px viền = 32px, chữ 12px.
+- **Test**: `merged-card-css.test.ts` thêm 4 ca ghim các luật trên, gồm cả ca "khổ gốc không ẩn chữ".
+- **Đo trên dev server** (`bien-an-toan`, Chrome headless, giả lập thiết bị):
+  - 360px: hai nút icon 32 × 32 ở mép phải hàng tiêu đề. "Nạp mẫu" 68 × 32, "Xem ví dụ thực tế ↓" 123 × 32, cả hai cùng hàng
+    với "CÔNG THỨC". Không cuộn ngang. Bấm Chia sẻ thì icon đổi sang dấu tích, tên nút thành "Đã sao chép link".
+  - 1023px: giống 360px.
+  - 1440px: không đổi (nút 30px có chữ, 36px chữ 14px).
+- `tsc`, `eslint`, `prettier` sạch; `npm test` xanh (4065 passed, chạy trước khi thêm 4 ca mới; 4 ca ấy chạy riêng cũng xanh). Chưa
+  chạy `check:chrome`. Chưa đo trạng thái có chip mã.
+
+---
+
+## Hàng điều khiển biểu đồ và hai nút cuối màn: thấp và nhỏ chữ hơn ở khổ điện thoại (19/10/2026)
+
+**Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án xem.**
+
+Chủ dự án khoanh hai cụm trên điện thoại. Cụm thứ nhất là nhãn "Xem kết quả đổi theo", ô chọn trục và cụm "Loại biểu đồ".
+Cụm thứ hai là "Lưu vào danh mục · Thoát". Lời họ: _"giảm size text đi, ô select giảm height xuống để tiết kiệm không gian.
+2 button kia cũng cần giảm height và size text"_.
+
+- **`src/ui/charts/chart.module.css`** — khối `max-width: 1023.98px` mới:
+  - Nhãn ô chọn 14 → 12px.
+  - Chữ trong ô 16 → 14px.
+  - Ô cao 40 → 36px.
+- **`src/ui/charts/ChartKindToggle.module.css`** — cùng mốc:
+  - Nhãn "Loại biểu đồ" 14 → 12px.
+  - Hàng thứ hai 40 → 36px, nút 34 → 30px, nên nhóm vẫn cao bằng ô chọn như chủ dự án đã chốt.
+  - Chữ nút giữ 12px, bậc nhỏ nhất.
+  - `--control-h-compact` không đổi, vì `GroupCard` và `CandleChart` còn dùng.
+- **`src/app/cong-thuc/[id]/FormulaDetail.module.css`** — `.endActions > button` trong khối 1023.98px đã có:
+  - Cao 36px, chữ 14px, đệm ngang 12px, ô phủ chạm 44px. Đây là số đo của cỡ `sm`.
+  - Viết bằng CSS chứ không bằng `size="sm"`, vì PC giữ cỡ mặc định.
+  - Dải ghim cao 61 → 53px.
+- **Test**:
+  - `src/ui/charts/chart-controls-css.test.ts` (mới) ghim cỡ chữ và điều kiện ô chọn cao bằng nhóm nút, giữa hai file.
+  - `merged-card-css.test.ts` thêm một ca cho hai nút.
+- **Đo trên dev server** (`pe`, nền tối, Chrome headless):
+  - 390px: ô chọn và nhóm nút cùng hàng, cùng mép trên và mép dưới, cao 36px.
+  - Ô phủ của nút Đường/Cột dừng cách khung vẽ 4px.
+  - Hai nút cuối cao 36px, chữ 14px. Ô phủ nằm trong dải, không chạm thanh điều hướng dưới.
+  - 360px: hai cụm xuống hai hàng, vì ô chọn cần tối thiểu 12rem. Chiều ngang hai cụm không đổi trong lần sửa này.
+  - 1440px: mọi số như cũ (40px, 16px, 44px).
+- **Cái giá đã biết**: chữ trong `<select>` dưới 16px thì Safari iOS phóng to trang khi chạm. Ô Sắp xếp của màn Công thức
+  cũng đang như vậy.
+- `eslint`, `tsc`, `prettier` sạch. Các cổng CSS (`radius`, `tokens`, `contrast`, `hover-media`), `merged-card-css` và
+  test `src/ui/charts`, `src/ui/primitives` xanh. Chưa chạy `check:chrome`.
+
+---
+
+## Bảng biến: chữ nhỏ đi một bậc ở khổ điện thoại (17/10/2026)
+
+**Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án xem.**
+
+Chủ dự án khoanh cột Biến và hai cột Đơn vị · Mô tả của Bảng biến (cuối màn chi tiết) trên điện thoại: _"giảm size text
+của các phần khoanh đỏ màn mobile xuống để giao diện hài hoà và đẹp hơn"_.
+
+- **`src/ui/result/VariableTable.module.css`** — khối `@media (max-width: 1023.98px)` mới:
+  - Đơn vị và Mô tả: 14 → 12px (`--text-xs`).
+  - Tên biến: 14 → 13px, vẫn đậm. Tên là tiêu đề của hàng nên phải to hơn chữ cùng hàng.
+  - Hàng tiêu đề cột (12px viết hoa) giữ nguyên.
+  - Không đụng `Table.module.css`, vì primitive ấy còn phục vụ lịch trả nợ và bảng XIRR. Từ 1024px không đổi.
+- **Đo trên dev server** (`var-lich-su`, nền tối, Chrome headless):
+  - 360px: tên 13px đậm, đơn vị và mô tả 12px. Bảng cao 386 → 298px; 390px: 323 → 260; 412px: 281 → 260.
+  - 1440px vẫn 14px.
+  - Không cuộn ngang.
+- **Còn lại, chưa sửa vì ngoài yêu cầu**: cột Biến vốn hẹp ở điện thoại (~76px ở 360, trước và sau như nhau). Tên dài vì
+  vậy xuống nhiều dòng, ví dụ "Số phiên gần nhất đưa vào tính", và "Độ tin cậy" thành hai dòng ở 360. Nguyên nhân là
+  `overflow-wrap: anywhere` của primitive. Cách chữa sẵn có là luật `width: 30%` + `break-word` mà khổ PC đang dùng.
+- Chưa có ca kiểm nào ghim hai cỡ chữ này. Các cổng CSS (`tokens`, `contrast`, `hover-media`) và test `src/ui/result`
+  xanh. `prettier` sạch.
+
+---
+
 ## Sắp xếp công thức theo ngôn ngữ đang hiện (17/10/2026)
 
 **Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án xem.**

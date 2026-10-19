@@ -765,6 +765,35 @@
 }
 
 /*
+ * ── Khổ điện thoại: hàng điều khiển nhỏ chữ và thấp hơn (19/10/2026) ─────────────────────────────
+ *
+ * Chủ dự án khoanh nhãn "Xem kết quả đổi theo", ô chọn trục và cụm "Loại biểu đồ" trên điện thoại:
+ * _"giảm size text đi, ô select giảm height xuống để tiết kiệm không gian"_.
+ *
+ * - Nhãn 14 → 12px (`--text-xs`), chữ trong ô 16 → 14px (`--text-sm`), ô cao 40 → 36px.
+ * - Nhóm Đường / Cột hạ theo ở `ChartKindToggle.module.css`, cùng mốc và cùng 36px: hai cột của hàng
+ *   phải CAO BẰNG NHAU, chủ dự án đã chốt (docblock đầu file đó). Đổi một con số là đổi cả hai chỗ.
+ * - 36px viết thẳng, không đổi `--control-h-compact`: token ấy còn là chiều cao dòng của `GroupCard`
+ *   và nút của `CandleChart`.
+ * - Cái giá, đã biết: chữ trong `<select>` dưới 16px thì Safari iOS phóng to trang khi chạm vào ô,
+ *   cùng chuyện ô Sắp xếp của màn Công thức (14px ở mọi khổ) đang chịu. Ô thấp hơn `--tap-min`
+ *   nhưng `<label for>` ngay trên nó cũng mở được ô, nên chỗ chạm được vẫn cao hơn 44px.
+ *
+ * Bộ chọn `.picker label` / `.picker select` (0,1,1) thắng `.label` / `.select` của primitive (0,1,0),
+ * và đứng SAU `.picker select` ở trên nên thắng nó theo thứ tự file.
+ */
+@media (max-width: 1023.98px) {
+  .picker label {
+    font-size: var(--text-xs);
+  }
+
+  .picker select {
+    min-height: 36px;
+    font-size: var(--text-sm);
+  }
+}
+
+/*
  * ── Khổ PC: hàng điều khiển lên CÙNG HÀNG với tiêu đề hình, dạt phải, nhãn ẩn khỏi mắt ──────────
  *
  * Chủ dự án đối chiếu với trang tham chiếu (finbox-calculator.pages.dev): ở đó `Tháng | Năm` và

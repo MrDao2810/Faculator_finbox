@@ -117,3 +117,15 @@
   display: block;
   color: var(--color-muted);
 }
+
+/*
+ * Dưới 1024px tiêu đề khối 18 → 16px (19/10/2026). Chủ dự án khoanh nó cùng Bảng biến ngay trên:
+ * _"giảm cả ở đây màn mobile nữa"_. Cùng cỡ với tiêu đề "Giải thích cho người mới" ở khổ này
+ * (`ExplanationAccordion.module.css`), vì hai tiêu đề vốn cùng kiểu 18px đậm. Phần thân khối không
+ * được khoanh nên giữ nguyên.
+ */
+@media (max-width: 1023.98px) {
+  .title {
+    font-size: var(--text-base);
+  }
+}

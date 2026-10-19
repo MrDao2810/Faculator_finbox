@@ -358,7 +358,8 @@ interface RestoredCalc {
  * `TabIcon` và `CategoryIcon`.
  *
  * `aria-hidden` cả hai: chữ ngay cạnh đã là tên của nút, nên icon lọt vào cây trợ năng chỉ khiến
- * trình đọc màn hình đọc thừa.
+ * trình đọc màn hình đọc thừa. Dưới 1024px chữ ấy bị ẩn bằng CSS (`.iconLabel`) nhưng vẫn ở trong
+ * DOM, nên nó vẫn là tên của nút.
  */
 function DownloadIcon() {
   return (
@@ -379,9 +380,10 @@ function DownloadIcon() {
 }
 
 /** Mắt xích nghiêng — dấu hiệu quen thuộc của "đường dẫn", không phải mũi tên chia sẻ của iOS. */
-function LinkIcon() {
+function LinkIcon({ className }: { className?: string }) {
   return (
     <svg
+      className={className}
       width="16"
       height="16"
       viewBox="0 0 24 24"
@@ -394,6 +396,54 @@ function LinkIcon() {
     >
       <path d="M10 13.5a4 4 0 0 0 5.7.4l3-3a4 4 0 0 0-5.7-5.7l-1.7 1.7" />
       <path d="M14 10.5a4 4 0 0 0-5.7-.4l-3 3a4 4 0 0 0 5.7 5.7l1.7-1.7" />
+    </svg>
+  );
+}
+
+/**
+ * Nút Chia sẻ có mở bảng chia sẻ CỦA ĐIỆN THOẠI không (19/10/2026).
+ *
+ * Chủ dự án: chỉ đổi icon sang dấu tích thì _"khá khó phát hiện"_, và muốn bấm Chia sẻ là ra bảng
+ * chọn Zalo, Messenger… như các app. Web Share API (`navigator.share`) mở đúng bảng của iOS/Android,
+ * liệt kê các app đã cài trên máy — không phải bảng riêng của một app nào, web không gọi được thứ ấy.
+ *
+ * Chỉ dưới 1024px, đúng mốc mọi `@media` của màn: Chrome trên Windows cũng có `navigator.share`,
+ * nhưng PC giữ lối sao chép như cũ. Đọc `matchMedia` lúc BẤM, không lúc dựng — HTML tĩnh không biết
+ * bề ngang màn (cùng lý do `laKhoPC()` ở màn Danh mục). Không có `matchMedia` (jsdom) thì coi là PC,
+ * nên mọi ca kiểm cũ vẫn đi lối sao chép.
+ *
+ * Không thêm lệnh gọi mạng nào: bảng chỉ nhận một chuỗi URL, CSP `connect-src` không dính tới.
+ */
+function dungBangChiaSeCuaMay(): boolean {
+  return (
+    'share' in navigator &&
+    typeof window.matchMedia === 'function' &&
+    !window.matchMedia('(min-width: 1024px)').matches
+  );
+}
+
+/**
+ * Dấu tích thay mắt xích trong 4 giây sau khi sao chép — CHỈ dưới 1024px (19/10/2026).
+ *
+ * Ở đó nút Chia sẻ chỉ còn icon, nên chữ "Đã sao chép link" bị ẩn cùng nhãn và cú chạm trông như
+ * không làm gì. Hiện lại chữ thì nút nở ngang và đẩy hàng tiêu đề xuống dòng; đổi icon thì nút
+ * đứng yên. Từ 1024px chữ vẫn hiện nên vẫn là mắt xích như cũ.
+ */
+function CheckIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.4"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M5 12.5l4.5 4.5L19 7.5" />
     </svg>
   );
 }
@@ -471,24 +521,29 @@ export function FormulaDetail({
   }
 
   /**
-   * Vừa sao chép link xong hay chưa — chỉ để đổi chữ trên nút và bật câu ghi chú.
+   * Vừa chia sẻ xong theo lối nào — chỉ để đổi chữ/icon trên nút và bật câu ghi chú.
+   *
+   * `'copied'`: link đã vào bộ nhớ tạm, nút ghi "Đã sao chép link" (dưới 1024px: dấu tích).
+   * `'shared'`: bảng chia sẻ của điện thoại đã gửi xong. Nút giữ nguyên — chính bảng ấy đã là dấu
+   * hiệu, và chữ "Đã sao chép link" thì sai — chỉ câu ghi chú về chuỗi giá bật lên.
    *
    * Tự tắt sau vài giây chứ không để mãi: nút ghi "Đã sao chép link" hoài thì lần bấm sau người
    * dùng không biết cú bấm ấy có ăn hay không. Hẹn giờ dọn trong effect ngay dưới.
    */
-  const [copied, setCopied] = useState(false);
+  const [shareDone, setShareDone] = useState<'copied' | 'shared' | null>(null);
+  const copied = shareDone === 'copied';
   useEffect(() => {
-    if (!copied) return;
+    if (shareDone === null) return;
     const timer = window.setTimeout(() => {
-      setCopied(false);
+      setShareDone(null);
     }, 4000);
     return () => {
       window.clearTimeout(timer);
     };
-  }, [copied]);
+  }, [shareDone]);
 
   /**
-   * Sao chép đường dẫn màn này KÈM bộ số đang nằm trong ô.
+   * Chia sẻ đường dẫn màn này KÈM bộ số đang nằm trong ô.
    *
    * Dựng từ `window.location.href` chứ không ghép tay từ `spec.id`: người dùng có thể đang ở một
    * tên miền xem thử, và một link chia sẻ trỏ sang tên miền khác thì vô dụng.
@@ -498,11 +553,21 @@ export function FormulaDetail({
    * người gửi** (người nhận không có), còn `?ma=` sẽ gọi mạng nạp đè số liệu mới lên đúng bộ số
    * vừa gửi đi. `?so=` mang sẵn con số thật rồi, không cần hai cái kia.
    *
-   * Ba nấc dự phòng cho việc sao chép, vì `navigator.clipboard` vắng mặt ở khá nhiều chỗ (trang
-   * không chạy HTTPS, WebView cũ, người dùng từ chối quyền). Nấc cuối là `prompt()` — xấu, nhưng
-   * nó vẫn để người dùng tự bôi đen mà chép, còn hơn một nút bấm vào không có gì xảy ra.
+   * Bốn nấc:
+   *
+   * 1. Dưới 1024px, có `navigator.share` → bảng chia sẻ CỦA ĐIỆN THOẠI (Zalo, Messenger, Tin nhắn…),
+   *    xem `dungBangChiaSeCuaMay()` (19/10/2026). Người dùng đóng bảng (`AbortError`) thì dừng ở
+   *    đó: họ đã chọn không chia sẻ, sao chép thay họ là làm một việc họ vừa bỏ.
+   * 2. Không có, hoặc bảng hỏng vì lý do khác (WebView chặn) → sao chép vào bộ nhớ tạm.
+   * 3. `navigator.clipboard` cũng vắng (trang không chạy HTTPS, WebView cũ, người dùng từ chối
+   *    quyền) → `prompt()`: xấu, nhưng nó vẫn để người dùng tự bôi đen mà chép, còn hơn một nút
+   *    bấm vào không có gì xảy ra.
+   *
+   * `navigator.share()` phải được GỌI ngay trong cú bấm (iOS đòi cử chỉ người dùng còn hiệu lực):
+   * hàm async bên dưới chạy đồng bộ tới `await` đầu tiên, và `await` đầu tiên chính là lời gọi ấy.
+   * Đừng chèn một `await` nào lên trước nó.
    */
-  const copyShareLink = useCallback(() => {
+  const shareLink = useCallback(() => {
     const url = new URL(window.location.href);
     url.searchParams.delete('luu');
     url.searchParams.delete('ma');
@@ -515,16 +580,34 @@ export function FormulaDetail({
     const link = url.toString();
 
     void (async () => {
+      if (dungBangChiaSeCuaMay()) {
+        try {
+          await navigator.share({ title: pick(spec.name), url: link });
+          setShareDone('shared');
+          return;
+        } catch (loi) {
+          // Đọc `name` chứ không `instanceof`: `DOMException` không chắc là `Error` ở mọi WebView.
+          if (
+            typeof loi === 'object' &&
+            loi !== null &&
+            'name' in loi &&
+            loi.name === 'AbortError'
+          ) {
+            return;
+          }
+          // Rơi xuống nấc sao chép.
+        }
+      }
       try {
         await navigator.clipboard.writeText(link);
-        setCopied(true);
+        setShareDone('copied');
         return;
       } catch {
         // Rơi xuống nấc dưới.
       }
       window.prompt(t('detail.shareLink'), link);
     })();
-  }, [inputs, activeSpec.variables, t]);
+  }, [inputs, activeSpec.variables, t, pick, spec.name]);
   const [loadedPreset, setLoadedPreset] = useState<string | null>(null);
   /**
    * Lượt nạp mẫu gần nhất: mã nào, và mã đó điền được ĐÚNG những ô nào.
@@ -2643,27 +2726,31 @@ export function FormulaDetail({
               }}
             >
               <DownloadIcon />
-              {t('detail.download')}
+              <span className={styles.iconLabel}>{t('detail.download')}</span>
             </Button>
 
-            <Button
-              variant="secondary"
-              size="sm"
-              className={styles.iconButton}
-              onClick={copyShareLink}
-            >
-              <LinkIcon />
-              {copied ? t('detail.shareCopied') : t('detail.shareLink')}
+            <Button variant="secondary" size="sm" className={styles.iconButton} onClick={shareLink}>
+              {copied ? (
+                <>
+                  <LinkIcon className={styles.wideOnly} />
+                  <CheckIcon className={styles.narrowOnly} />
+                </>
+              ) : (
+                <LinkIcon />
+              )}
+              <span className={styles.iconLabel}>
+                {copied ? t('detail.shareCopied') : t('detail.shareLink')}
+              </span>
             </Button>
           </span>
         </div>
 
         {/*
-          Chỉ nói với 35 công thức ăn chuỗi giá, và chỉ SAU khi vừa sao chép — trước đó nó là một
-          câu trả lời cho việc người dùng chưa làm. Xem `share-inputs.ts` về vì sao chuỗi giá không
-          đi vào URL được.
+          Chỉ nói với 35 công thức ăn chuỗi giá, và chỉ SAU khi vừa sao chép hoặc vừa gửi qua bảng
+          chia sẻ của điện thoại — trước đó nó là một câu trả lời cho việc người dùng chưa làm. Xem
+          `share-inputs.ts` về vì sao chuỗi giá không đi vào URL được.
         */}
-        {copied && wantsSeries && (
+        {shareDone !== null && wantsSeries && (
           <p className={styles.shareNote} role="status">
             {t('detail.shareNoSeries')}
           </p>

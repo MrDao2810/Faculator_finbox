@@ -275,3 +275,24 @@
 .panelTitle:last-child {
   margin-bottom: 0;
 }
+
+/*
+ * ── Dưới 1024px: chữ của khung nổi 14 → 12px (19/10/2026) ─────────────────────────────────────
+ *
+ * Chủ dự án mở khung của `V` trên `bien-an-toan` ở điện thoại, khoanh dòng tiêu đề, dòng chữ của
+ * bước và link "Xem công thức: …": _"cần giảm size text ở những chỗ khoanh đỏ để tiết kiệm không
+ * gian"_. 12px là cỡ của chính những thứ khung này lặp lại ở khổ ấy: dòng tiêu đề là một hàng bảng
+ * ký hiệu, dòng chữ của bước theo luật dòng chữ dưới hình chính, cả hai đều 12px dưới 1024px.
+ *
+ * Hạ từng lớp chứ KHÔNG hạ `.panel`: hình KaTeX của bước kế thừa cỡ chữ của khung, mà hình không
+ * được khoanh, nên nó giữ 14px. Ký hiệu trong dòng tiêu đề (`.panelSymbol`) thì nhỏ theo, vì nó
+ * nằm trong vùng khoanh. Khung nổi của hình trong lời giải Bài tập và Ví dụ dùng chung các lớp này
+ * nên đổi theo. Phải đứng SAU ba lớp ở trên: cùng độ đặc hiệu, nên thứ tự quyết định.
+ */
+@media (max-width: 1023.98px) {
+  .panelTitle,
+  .stepText,
+  .panelLink {
+    font-size: var(--text-xs);
+  }
+}

@@ -4362,3 +4362,119 @@ describe('WF-03 — thêm bớt đợt mua và kỳ', () => {
     });
   });
 });
+
+/*
+ * Nút Chia sẻ mở bảng chia sẻ CỦA ĐIỆN THOẠI dưới 1024px (19/10/2026). jsdom không có
+ * `navigator.share` lẫn `matchMedia`, nên mỗi ca tự gắn hai thứ ấy SAU khi dựng màn — màn đọc chúng
+ * lúc bấm — và `afterEach` gỡ đi, để không ca nào khác thấy một chiếc điện thoại.
+ */
+describe('Chia sẻ — dưới 1024px mở bảng chia sẻ của điện thoại', () => {
+  const PE = 'pe';
+
+  function datKho(rong: number): void {
+    window.matchMedia = vi.fn((q: string) => ({
+      matches: /min-width:\s*1024px/.test(q) ? rong >= 1024 : false,
+      media: q,
+      onchange: null,
+      addEventListener: () => undefined,
+      removeEventListener: () => undefined,
+      addListener: () => undefined,
+      removeListener: () => undefined,
+      dispatchEvent: () => false,
+    })) as unknown as typeof window.matchMedia;
+  }
+
+  function datShare(impl: (data: ShareData) => Promise<void>) {
+    const share = vi.fn(impl);
+    Object.defineProperty(navigator, 'share', { configurable: true, writable: true, value: share });
+    return share;
+  }
+
+  const nutChiaSe = (): HTMLElement => screen.getByRole('button', { name: t('detail.shareLink') });
+
+  afterEach(() => {
+    Reflect.deleteProperty(window, 'matchMedia');
+    Reflect.deleteProperty(navigator, 'share');
+  });
+
+  it('gọi navigator.share với tên công thức và link mang bộ số; không sao chép, nút giữ chữ', async () => {
+    const user = userEvent.setup();
+    render(<Man spec={specOf(PE)} />);
+    const ghi = vi.spyOn(navigator.clipboard, 'writeText');
+    datKho(390);
+    const share = datShare(() => Promise.resolve());
+
+    await user.click(nutChiaSe());
+
+    await waitFor(() => {
+      expect(share).toHaveBeenCalledTimes(1);
+    });
+    const duLieu = share.mock.calls[0]?.[0];
+    expect(duLieu?.title).toBe(specOf(PE).name.vi);
+    expect(duLieu?.url).toContain('so=');
+    expect(ghi).not.toHaveBeenCalled();
+    expect(screen.queryByRole('button', { name: t('detail.shareCopied') })).toBeNull();
+    expect(nutChiaSe()).not.toBeNull();
+  });
+
+  it('người dùng đóng bảng (AbortError) thì dừng, không sao chép thay', async () => {
+    const user = userEvent.setup();
+    render(<Man spec={specOf(PE)} />);
+    const ghi = vi.spyOn(navigator.clipboard, 'writeText');
+    datKho(390);
+    const share = datShare(() => Promise.reject(new DOMException('Đã huỷ', 'AbortError')));
+
+    await user.click(nutChiaSe());
+
+    await waitFor(() => {
+      expect(share).toHaveBeenCalledTimes(1);
+    });
+    expect(ghi).not.toHaveBeenCalled();
+    expect(nutChiaSe()).not.toBeNull();
+  });
+
+  it('bảng hỏng vì lý do khác thì rơi sang sao chép', async () => {
+    const user = userEvent.setup();
+    render(<Man spec={specOf(PE)} />);
+    datKho(390);
+    datShare(() => Promise.reject(new DOMException('Chặn', 'NotAllowedError')));
+
+    await user.click(nutChiaSe());
+
+    await screen.findByRole('button', { name: t('detail.shareCopied') });
+    expect(await navigator.clipboard.readText()).toContain('so=');
+  });
+
+  it('điện thoại không có navigator.share thì sao chép như cũ', async () => {
+    const user = userEvent.setup();
+    render(<Man spec={specOf(PE)} />);
+    datKho(390);
+
+    await user.click(nutChiaSe());
+
+    await screen.findByRole('button', { name: t('detail.shareCopied') });
+  });
+
+  it('từ 1024px vẫn sao chép, kể cả khi trình duyệt có navigator.share', async () => {
+    const user = userEvent.setup();
+    render(<Man spec={specOf(PE)} />);
+    datKho(1440);
+    const share = datShare(() => Promise.resolve());
+
+    await user.click(nutChiaSe());
+
+    await screen.findByRole('button', { name: t('detail.shareCopied') });
+    expect(share).not.toHaveBeenCalled();
+  });
+
+  it('gửi xong qua bảng thì công thức chuỗi giá vẫn nói chuỗi giá không đi theo link', async () => {
+    const user = userEvent.setup();
+    render(<Man spec={specOf('sma-n-phien')} />);
+    datKho(390);
+    datShare(() => Promise.resolve());
+
+    await user.click(nutChiaSe());
+
+    expect(await screen.findByText(t('detail.shareNoSeries'))).not.toBeNull();
+  });
+});

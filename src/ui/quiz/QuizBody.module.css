@@ -750,3 +750,68 @@
 .numberAsk .prompt {
   margin: 0;
 }
+
+/*
+ * ── Dưới 1024px: chữ câu hỏi nhỏ hơn, hàng nút thấp hơn (19/10/2026) ─────────────────────────
+ *
+ * Chủ dự án khoanh đề bài cùng bốn đáp án, rồi hàng "Kiểm tra · Bỏ qua câu này" trên điện thoại:
+ * _"phần này màn mobile cũng cần giảm size text và button Kiểm tra cùng Bỏ qua câu này, giảm cả
+ * height xuống"_.
+ *
+ *   · Đề bài 15 → 14px, đáp án 14 → 13px: đề vẫn to hơn đáp án một bậc.
+ *   · Ô đáp án thấp đi (lượt sau, cùng ngày: _"padding của các phần câu hỏi bản mobile cũng đang quá
+ *     cao"_): lề trên dưới 12 → 8px, `min-height` 44 → 36px. Hạ lề thôi thì đáp án một dòng không
+ *     thấp đi chút nào, vì `min-height` 44px mới là thứ giữ nó. Vùng chạm vẫn 44px nhờ `::after`
+ *     như nút: nhô 4px trên và dưới, vừa khít khe 8px giữa hai ô (`.choiceGrid`), nên không lấn
+ *     sang ô bên cạnh. Bấm lên `::after` của `<label>` là bấm nhãn, nút chọn vẫn nhận. Lề ngang
+ *     giữ 16px, không được nhắc tới.
+ *   · Nút trong hàng: 44 → 36px, chữ 16 → 14px, lề ngang 16 → 12px, đúng bộ số của `.sm` ở
+ *     `Button.module.css`, kể cả lớp `::after` cao 44px để vùng chạm không nhỏ đi (NFR-USA-01).
+ *     Áp lên MỌI nút của `.actions`, không truyền `size="sm"`: hai nút đứng cạnh nhau phải cùng
+ *     cỡ (luật 15/10, ca kiểm "nút Bỏ qua cùng cỡ với nút Kiểm tra"), còn prop không đổi được
+ *     theo khổ màn. "Câu tiếp" và hai nút của màn tổng kết cũng nằm trong `.actions` nên thấp theo,
+ *     để hàng nút không đổi cỡ giữa các bước.
+ *   · Trọng số `.actions > button` (0,1,1) thắng `.button` (0,1,0) của primitive, không phụ thuộc
+ *     thứ tự hai file trong bó CSS. Hàng tiêu đề "BÀI TẬP · Câu 1 / 5 · Thoát" không được khoanh.
+ *
+ * Phải đứng SAU `.prompt` và `.choice` ở trên: cùng độ đặc hiệu, nên thứ tự quyết định.
+ */
+@media (max-width: 1023.98px) {
+  .prompt {
+    font-size: var(--text-sm);
+  }
+
+  .choice {
+    position: relative;
+    min-height: 36px;
+    padding-block: var(--space-2);
+    font-size: 13px;
+  }
+
+  .choice::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    height: var(--tap-min);
+    transform: translateY(-50%);
+  }
+
+  .actions > button {
+    position: relative;
+    min-height: 36px;
+    padding: 0 var(--space-3);
+    font-size: var(--text-sm);
+  }
+
+  .actions > button::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    height: var(--tap-min);
+    transform: translateY(-50%);
+  }
+}

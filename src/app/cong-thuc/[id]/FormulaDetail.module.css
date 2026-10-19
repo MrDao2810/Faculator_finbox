@@ -97,6 +97,62 @@ button.iconButton::after {
   transform: translateY(-50%);
 }
 
+/* Dấu tích "đã sao chép" chỉ dùng dưới 1024px — xem `CheckIcon` trong `FormulaDetail.tsx`. */
+.narrowOnly {
+  display: none;
+}
+
+/*
+ * Dưới 1024px cặp nút Tải về / Chia sẻ chỉ còn icon (19/10/2026). Chủ dự án khoanh hai nút trên
+ * điện thoại: _"bản mobile thì chuyển thành icon bỏ text đi"_.
+ *
+ * Chữ bị ẩn bằng đúng bộ khai báo của `.visually-hidden` trong `globals.css`, KHÔNG bằng
+ * `display: none` và không bỏ khỏi DOM: nó vẫn là tên đọc được của nút ("Tải về", "Chia sẻ"), và
+ * mọi test lẫn `check:chrome` vẫn tìm nút theo chữ ấy. Không dùng thẳng lớp toàn cục vì từ 1024px
+ * chữ phải hiện; CSS quyết theo khổ nên HTML tĩnh vẫn khớp lần dựng đầu.
+ *
+ * Nút vuông 32px, hai nút cách 12px: tâm cách tâm đúng 44px, nên hai lớp phủ chạm 44 × 44 (nới cả
+ * chiều ngang, vì nút chỉ còn 32px) nằm sát nhau mà không đè lên nhau.
+ */
+@media (max-width: 1023.98px) {
+  .shareRow {
+    gap: var(--space-3);
+  }
+
+  button.iconButton {
+    width: 32px;
+    min-height: 32px;
+    padding: 0;
+  }
+
+  button.iconButton::after {
+    right: auto;
+    left: 50%;
+    width: var(--tap-min);
+    transform: translate(-50%, -50%);
+  }
+
+  .iconLabel {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .wideOnly {
+    display: none;
+  }
+
+  .narrowOnly {
+    display: block;
+  }
+}
+
 /* Câu "link không mang chuỗi giá" — chỉ hiện sau khi vừa sao chép, xem chỗ dựng nó. */
 .shareNote {
   margin: 0;
@@ -284,6 +340,36 @@ button.iconButton::after {
 
     background: var(--color-paper);
     border-top: 1px solid var(--color-hairline);
+  }
+
+  /*
+   * Hai nút trong dải ghim thấp và nhỏ chữ hơn (19/10/2026). Chủ dự án khoanh "Lưu vào danh mục ·
+   * Thoát" trên điện thoại: _"2 button kia cũng cần giảm height và size text"_. Dải ghim đè lên nội
+   * dung suốt lúc cuộn, nên mỗi pixel của nó là một pixel nội dung bị che.
+   *
+   * Đúng số đo của cỡ `sm` trong `Button.module.css` — cao 36px, chữ 14px, đệm ngang 12px — và cùng
+   * ô phủ vô hình 44px để vùng chạm vẫn đủ NFR-USA-01. Không truyền `size="sm"` ở chỗ dựng: khổ PC
+   * phải giữ cỡ mặc định (lý do ở chú thích chỗ dựng trong `FormulaDetail.tsx`), mà đổi prop theo
+   * khổ màn trong lúc render là lệch với HTML tĩnh. Ô phủ thò 4px mỗi phía, vẫn nằm trong đệm 8px của
+   * dải, không chạm thanh điều hướng dưới.
+   *
+   * Bộ chọn (0,1,1) thắng `.button` của primitive (0,1,0) bất kể thứ tự hai file trong bó CSS.
+   */
+  .endActions > button {
+    position: relative;
+    min-height: 36px;
+    padding: 0 var(--space-3);
+    font-size: var(--text-sm);
+  }
+
+  .endActions > button::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: 0;
+    left: 0;
+    height: var(--tap-min);
+    transform: translateY(-50%);
   }
 }
 
@@ -888,6 +974,43 @@ button.iconButton::after {
   font-weight: var(--weight-bold);
   letter-spacing: 0.02em;
   color: var(--color-accent);
+}
+
+/*
+ * Dưới 1024px hàng nút của khối Công thức nhỏ lại (19/10/2026). Chủ dự án khoanh "Nạp mẫu · Xem
+ * ví dụ thực tế ↓" trên điện thoại: _"giảm size button xuống cho gọn hơn"_.
+ *
+ * Từ cỡ `sm` (cao 36px, chữ 14px, đệm ngang 12px) xuống cao 32px, chữ 12px, đệm ngang 8px — cùng
+ * chiều cao với cặp nút icon Tải về / Chia sẻ ở đầu màn. Lớp phủ chạm 44px của `.sm::after` vẫn
+ * giữ nguyên.
+ *
+ * Con chip mã đứng đúng chỗ nút "Nạp mẫu" khi đã nạp mã, nên nhỏ theo: 30px + 2px viền = 32px,
+ * cùng phép trừ viền như luật gốc ở trên. Không theo thì hàng có một nút 32px cạnh một chip 36px.
+ *
+ * `.blockHeadActions .actions > button` (0,2,1) thắng `.sm` của primitive (0,1,0) bất kể thứ tự
+ * hai file trong bó CSS, và chỉ chạm hàng này: `.actions` của khối Số liệu không nằm trong
+ * `.blockHeadActions`. Hai luật chip cùng trọng số với luật gốc nên phải đứng SAU nó.
+ */
+@media (max-width: 1023.98px) {
+  .blockHeadActions .actions > button {
+    min-height: 32px;
+    padding: 0 var(--space-2);
+    font-size: var(--text-xs);
+  }
+
+  .tickerPick,
+  .tickerDrop {
+    min-height: 30px;
+    font-size: var(--text-xs);
+  }
+
+  .tickerPick {
+    padding: 0 var(--space-2);
+  }
+
+  .tickerCode {
+    font-size: var(--text-xs);
+  }
 }
 
 /*

@@ -1443,6 +1443,11 @@ have none, and each records why in `whyNone`. Things that are easy to break:
   has two children. The hide rule needs `.legend > .legendHidden`: `.symbols { display: grid }` loads
   later at the same specificity and silently wins. While the legend is hidden, a panel opened from the
   picture renders outside the `<dl>`.
+- **Below 1024px the panel's TEXT is 12px, its pictures are not** (19/10/2026, owner, circling the title, the step line
+  and the "Xem công thức" link of `V` on `bien-an-toan`: _"giảm size text … để tiết kiệm không gian"_). `.panelTitle`,
+  `.stepText` and `.panelLink` take `--text-xs` in a block at the end of `FormulaNotationCard.module.css`; `.panel`
+  stays 14px because the step's KaTeX picture inherits it and was not circled. 12px is the size the legend row and the
+  expression line already have at that width. The quiz and example pictures share these classes and follow.
 
 **A `spec.variables` entry can change the result while never appearing in the picture at all** — the
 legend gates above only check that every _token already in `latex`_ has a row; nothing ever checked the
@@ -1606,7 +1611,18 @@ down by one, so the old relation holds: the block title is still 2px under the p
 formula card followed the same day (_"text này ở màn mobile cũng cần giảm xuống nữa"_, on `don-bay-tong-hop`'s card): the
 KaTeX picture 1.15em → 1em (18.4 → 16px), the expression line from its `clamp()` to a flat 12px, the legend 14 → 12px —
 a second `max-width: 1023.98px` block after `.expression`, which must stay after `.formula :global(.katex)` to win. The
-1.15em existed for subscripts on phones; at 16px they are ~11px, the cost accepted.
+1.15em existed for subscripts on phones; at 16px they are ~11px, the cost accepted. The Bảng biến at the foot followed
+on 17/10/2026 (the owner circled its name column and its Đơn vị · Mô tả columns: _"giảm size text … để giao diện hài
+hoà"_): below 1024px unit and description 14 → 12px. The variable name went 14 → 13px that day, kept larger than the
+text beside it; on 19/10/2026 the owner circled the name column again together with the column-header row (_"giảm cả ở
+đây màn mobile nữa"_), so the name is now 12px bold, set apart by weight only, and the header row 11px (below the
+scale, the size of the other small capitals in the product; `table.variables thead th` so it outranks the primitive's
+`.table thead th`). The rule is in `VariableTable.module.css`, not `Table.module.css`, which also serves the loan
+schedule and the XIRR table. The "Giải thích cho người mới" block followed on 19/10/2026 (_"những phần nội dung và tiêu
+đề trong ô sau đều đang rất lớn ở màn mobile"_): below 1024px its title 18 → 16px, the item headers 16 → 14px, the
+paragraphs 14 → 12px, in `ExplanationAccordion.module.css`; the "Ví dụ thực tế" title, the same 18px bold style, went
+18 → 16px with it (`ExampleBlock.module.css`, title only). Neither title is a block title in the
+`section-title.test.ts` sense (sentence case, its own size), so neither reads `--section-title-size`.
 
 **Below 1024px a narrow field alone on its row spans the whole row, label ABOVE the box** (15/10/2026,
 two rounds). The owner circled `capm`'s "Hệ số beta (β)" on a phone, its box in the left half and the
@@ -1650,7 +1666,14 @@ the Danh mục screen's `fixed`: the row already sits at the end of the page, so
 back into its own place above the disclaimer and nothing has to reserve space for it. It is still the ONE pair of
 buttons (see the comment at the call site). `z-index: 2` keeps it under the how-to panel (5) and the "?" popover (40),
 so a panel opened near the bottom covers the strip, not the other way round. It relies on `body` being
-`overflow-x: clip`, not `hidden`. `merged-card-css.test.ts` pins the block. The two sibling answer cards (`FeeTaxBody.headline`,
+`overflow-x: clip`, not `hidden`. `merged-card-css.test.ts` pins the block. Since 19/10/2026 the two buttons inside it
+are the `sm` size below 1024px (36px, 14px text, a 44px `::after` tap area), set by `.endActions > button` in CSS rather
+than `size="sm"`, because PC keeps the default size; the band went 61 → 53px. The chart's control row shrank the same
+day, below 1024px only: labels 14 → 12px, the axis `<select>` 16 → 14px text and 40 → 36px tall, the Đường / Cột
+group 40 → 36px (buttons 34 → 30px). The two heights live in two files (`chart.module.css`,
+`ChartKindToggle.module.css`) and must stay equal — the owner's earlier rule — which `chart-controls-css.test.ts` pins;
+`--control-h-compact` was not touched because `GroupCard` and `CandleChart` use it too. Known cost: iOS Safari zooms the
+page when a `<select>` under 16px is tapped, as it already does for the Công thức list's sort select. The two sibling answer cards (`FeeTaxBody.headline`,
 `LoanScheduleBody.summary`) are NOT changed: they carry a longer label and a foot row, and they stay
 vertical on PC as well.
 
@@ -2031,7 +2054,15 @@ box came up shorter than its neighbour and the owner photographed it (_"bo tròn
 cạnh"_). `ghost` alone already marks it as the minor choice. A Chrome sweep of 15 screens at 390 and 1440 (every row
 of two or more visible buttons, compared by height) found no other mixed pair; a case in `QuizBody.test.tsx` pins
 this one. **Rule for new rows: buttons standing side by side share one size**, or the ghost one's hover box shows the
-difference.
+difference. **Below 1024px the whole row is 36px** (19/10/2026, owner: _"giảm size text và button Kiểm tra cùng Bỏ qua
+câu này, giảm cả height xuống"_): `.actions > button` in `QuizBody.module.css` copies `.sm`'s numbers (36px, 14px,
+12px side padding, the 44px `::after` tap area) onto EVERY button of `.actions`, not `size="sm"`, so the pair stays one
+size and the class-set test above still holds; "Câu tiếp" and the two summary buttons follow. In the same block the
+prompt goes 15 → 14px and the choices 14 → 13px, and a choice box drops to 8px vertical padding and a 36px
+`min-height` (_"padding của các phần câu hỏi bản mobile cũng đang quá cao"_). Lowering the padding alone changes nothing
+on a one-line answer, which the 44px `min-height` was holding. The box keeps a 44px tap area through its own `::after`,
+4px above and below, which fits exactly in the 8px gap of `.choiceGrid`: widen that overlay or narrow the gap and one
+answer's tap area covers the next.
 
 **`quiz.test.ts` RE-COMPUTES the line rather than eyeballing it.** It strips the square brackets,
 parses what follows the `=` (Vietnamese number notation, `+ − × ÷ ^ ( ) √ ln | | ⌊ ⌋ ⌈ ⌉`) and requires the

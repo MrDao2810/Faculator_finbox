@@ -2,7 +2,14 @@
 
 import { useId, type CSSProperties, type ReactNode } from 'react';
 
-import { formatValueWithUnit, isLockedForMode, snapToStep, unitLabel } from '@/application';
+import {
+  INPUT_MAX_DECIMALS,
+  formatNumber,
+  formatValueWithUnit,
+  isLockedForMode,
+  snapToStep,
+  unitLabel,
+} from '@/application';
 import type { Level, VariableSpec } from '@/application';
 import { useT, usePick } from '@/application/preferences-context';
 import { Badge } from '@/ui/primitives';
@@ -54,6 +61,31 @@ const GO_SO_TRUC_TIEP: boolean = false;
 function onStepGrid(value: number, spec: VariableSpec): boolean {
   if (spec.step === undefined || spec.step <= 0) return true;
   return Math.abs(value - snapToStep(value, spec)) < 1e-9;
+}
+
+/** Số chữ số sau dấu thập phân của một số như nó được viết trong Registry (0,1 → 1; 25 → 0). */
+function soChuSoLe(x: number): number {
+  const chu = String(x);
+  const cham = chu.indexOf('.');
+  return cham < 0 ? 0 : chu.length - cham - 1;
+}
+
+/**
+ * Số ký tự dài nhất mà con số cạnh nhãn in ra khi kéo trên lưới bước — chỗ giữ cho `InlineNumber`.
+ *
+ * Phần nguyên dài nhất ở đầu xa số 0 của miền (dấu chấm ngăn nghìn tính luôn), phần lẻ dài nhất
+ * là số chữ số lẻ của bước hoặc của mốc min (60–750 bước 1 → 3; 0–30 bước 0,1 → 4), cộng dấu trừ
+ * khi miền xuống dưới 0. Dấu chấm và dấu phẩy hẹp hơn 1ch nên kết quả là cận TRÊN: kéo không bao
+ * giờ làm ô nới ra. `SliderInput.test.tsx` thử mọi điểm lưới của mọi thanh trượt trong Registry.
+ */
+export function soKyTuGiuCho(spec: VariableSpec): number {
+  const min = spec.min ?? 0;
+  const max = spec.max ?? 100;
+  const le = Math.min(INPUT_MAX_DECIMALS, Math.max(soChuSoLe(spec.step ?? 1), soChuSoLe(min)));
+  const nguyen = formatNumber(Math.trunc(Math.max(Math.abs(min), Math.abs(max))), {
+    maxDecimals: 0,
+  }).length;
+  return (min < 0 ? 1 : 0) + nguyen + (le > 0 ? 1 + le : 0);
 }
 
 /**
@@ -165,6 +197,7 @@ export function SliderInput({
           id={boxId}
           describedBy={marksId}
           compact={compact}
+          soKyTuGiuCho={soKyTuGiuCho(spec)}
           className={styles.valueBox}
         />
       </div>

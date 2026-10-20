@@ -126,3 +126,53 @@ describe('khối Số liệu dưới 1024px — khoảng trống và nút kéo (
     expect(luat(SO_LIEU, '.fields + .repeatActions')).toMatch(/margin-top:\s*0;/);
   });
 });
+
+/*
+ * ── Ô chọn và nhóm nút đứng lẻ: lên cùng hàng với nhãn khi vừa (19/10/2026) ───────────────────────
+ *
+ * Chủ dự án khoanh ô "Độ tin cậy (α)" của `var-lich-su` ở điện thoại: khung chọn rộng hết hàng cho
+ * một chữ "95%", hàng nhãn trên trống gần hết — _"thu nhỏ ô select lại rồi đưa lên cùng hàng ngang"_.
+ * Nhóm nút ("Phương thức trả" của `lich-tra-no`) theo cùng luật vì nó là ô chọn dạng nút. Luật nằm ở
+ * CSS (test React không chạy CSS Module), nên ca dưới đọc thẳng hai file, như mọi ca ở trên.
+ */
+const O_CHON = '.fields > .fieldLone:has(> select)';
+const NHOM_NUT = ".fields > .fieldWide:has(> [role='group'])";
+
+const LUAT_O_CHON: ReadonlyArray<readonly [boChon: string, khaiBao: RegExp]> = [
+  // Gốc của cả hai là CỘT flex trong primitive — thiếu `row` thì hai con vẫn xếp dọc, giữa hàng.
+  [O_CHON, /display:\s*flex;\s*flex-direction:\s*row;\s*flex-wrap:\s*wrap;/],
+  // Bỏ `subgrid` là mất 8px của hai hàng phụ rỗng: đo được khe 4px thay vì 12px tới ô sau.
+  [O_CHON, /padding-bottom:\s*var\(--space-2\);/],
+  [`${O_CHON} > label`, /flex:\s*1000 1 auto;/],
+  [`${O_CHON} > select`, /flex:\s*1 1 auto;\s*width:\s*auto;/],
+  [NHOM_NUT, /flex-direction:\s*row;\s*flex-wrap:\s*wrap;/],
+  [`${NHOM_NUT} > div:first-child`, /flex:\s*1000 1 auto;/],
+  [`${NHOM_NUT} > [role='group']`, /flex:\s*1 1 auto;/],
+];
+
+describe('ô chọn và nhóm nút đứng lẻ dưới 1024px — nhãn trái, điều khiển gọn bên phải', () => {
+  it.each(LUAT_O_CHON)('%s — có ở khối Số liệu và khối chuỗi, cùng khai báo', (boChon, khaiBao) => {
+    expect(luat(SO_LIEU, boChon), `FormulaDetail: ${boChon}`).toMatch(khaiBao);
+    expect(luat(CHUOI, boChon), `ChainBody: ${boChon}`).toMatch(khaiBao);
+  });
+
+  /*
+   * Tỉ lệ `flex-grow` là cả phép sửa: chung hàng thì phần thừa về nhãn (ô giữ bề rộng nội dung, dạt
+   * phải), một mình hàng dưới thì ô hưởng trọn phần thừa (trải hết hàng — đúng hình cũ khi không vừa).
+   * Hai số mà xích lại gần nhau thì ô chung hàng bị kéo giãn ra giữa.
+   */
+  it('nhãn giãn gấp ít nhất 1000 lần điều khiển', () => {
+    for (const [nhan, dieuKhien] of [
+      [`${O_CHON} > label`, `${O_CHON} > select`],
+      [`${NHOM_NUT} > div:first-child`, `${NHOM_NUT} > [role='group']`],
+    ] as const) {
+      const gian = (boChon: string): number =>
+        Number(/flex:\s*(\d+)/.exec(luat(SO_LIEU, boChon) ?? '')?.[1]);
+      expect(gian(nhan) / gian(dieuKhien)).toBeGreaterThanOrEqual(1000);
+    }
+  });
+
+  it('chỉ ô SỐ lẻ giữ nhãn trên, khung dưới — luật mới không chạm tới nó', () => {
+    expect(luat(SO_LIEU, '.fields > .fieldLone')).toMatch(/^\s*grid-column:\s*1 \/ -1;\s*$/);
+  });
+});

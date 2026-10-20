@@ -4,6 +4,89 @@ Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 
 ---
 
+## Ô chọn và nhóm nút đứng lẻ: lên cùng hàng với nhãn ở khổ điện thoại (19/10/2026)
+
+**Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án xem.**
+
+Chủ dự án khoanh ô "Độ tin cậy (α)" của `var-lich-su` trên điện thoại: khung chọn rộng hết 328px cho chữ "95%", hàng nhãn
+trống. _"nếu như select ô chọn có nội dung ngắn mà bên trên này thừa nhiều không gian thì thu nhỏ ô select lại rồi đưa
+lên cùng hàng ngang … áp dung cho mobile"_.
+
+- Kiểm kê cả thư viện ở 360px (Nâng cao):
+  - Có đúng 4 ô chọn trong lưới Số liệu, cả 4 đều đứng lẻ: `var-lich-su` và `cvar-lich-su` ("95%", 30px chữ); `lai-kep`
+    và `lai-suat-hieu-dung` ("Mỗi tháng", 94px).
+  - Có đúng 1 nhóm nút: "Phương thức trả" của `lich-tra-no`.
+- **`src/app/cong-thuc/[id]/FormulaDetail.module.css`** (khối dưới 1024px) và bản sao ở **`src/ui/screens/ChainBody.module.css`**:
+  - Ô chọn đứng lẻ thành hàng flex xuống dòng được, `flex-grow` nhãn 1000 : ô 1.
+  - Vừa một hàng thì ô giữ bề rộng nội dung, dạt mép phải. Không vừa thì ô xuống hàng dưới, trải hết bề ngang, đúng hình
+    cũ.
+  - Phải đặt `flex-direction: row`: gốc của primitive là cột flex. Bản đầu thiếu dòng này, hai con vẫn xếp dọc và trôi
+    vào giữa hàng; đo thấy rồi mới sửa.
+  - Trả lại 8px đệm đáy: bỏ `subgrid` là mất hai hàng phụ rỗng, đo được khe tới ô sau chỉ còn 4px thay vì 12px.
+  - Nhóm nút theo cùng luật: nó là "ô chọn dạng nút", lượt ô nhập gọn hôm nay đã cho nó theo ô chọn về 36px.
+  - Ô SỐ đứng lẻ KHÔNG đổi: vẫn nhãn trên, khung dưới (luật bị bác 15/10 giữ nguyên).
+- **`src/app/cong-thuc/[id]/inputs-mobile-css.test.ts`**: thêm 9 ca. Ghim luật ở cả hai file, tỉ lệ 1000 : 1, và việc ô
+  số lẻ không bị chạm.
+- **`CLAUDE.md`**: thêm đoạn sau đoạn "input fields are one step smaller".
+- Đo trong Chrome (dev, nền tối), tiếng Việt và tiếng Anh, 320 / 360 / 390 / 768 / 1023 / 1024 / 1440:
+  - Dưới 1024px, vừa một hàng:
+    - Nhãn sát trái, ô dính phải, cùng tâm.
+    - Ô "95%" rộng 81px, "Mỗi tháng" 144px, nhóm nút 183px.
+    - Mỗi ô chọn thấp từ 58px xuống 36px.
+  - Không vừa (tiếng Anh ở 320–360px, "Số lần nhập lãi" tiếng Việt ở 320px): ô xuống hàng, rộng hết hàng như cũ.
+  - Khe giữa các ô đều 12px.
+  - Từ 1024px không đổi. Không trang nào cuộn ngang.
+- Kiểm tra:
+  - `vitest` toàn bộ: 168 file, 4365 ca xanh.
+  - `tsc`, `eslint`, `prettier` sạch.
+  - Chưa chạy `check:chrome` (cần build).
+
+---
+
+## Thanh trượt: con số đứng chung hàng với nhãn, dính mép phải (19/10/2026)
+
+**Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án xem.**
+
+Chủ dự án chụp "380 phiên" lơ lửng giữa hàng dưới nhãn "Số phiên gần nhất đưa vào tính" ở 360px: _"lỗi ở phần này. tôi
+đã yêu cầu từ trước là cần đồng bộ những phần có thiết kế tương tự rồi mà. sao lại có lỗi. đừng làm đối phó với tôi"_.
+
+- Nguyên nhân: ô số cạnh nhãn (`InlineNumber`) ghim 14ch, đủ chỗ cho 2.000.000.000 ₫. Với "380 phiên" (56px chữ), ô vẫn đòi
+  173px.
+  - Nhãn 171px cộng ô 173px vượt hàng 328px, nên cả ô xuống hàng dưới và nằm sát trái.
+  - Con số canh phải trong ô nên trông như lơ lửng giữa hàng, cách mép phải 155px.
+- **`src/ui/inputs/InlineNumber.tsx` + `.module.css`**: prop mới `soKyTuGiuCho` giữ chỗ theo số ký tự (`--ky-tu`) thay
+  cho 14ch.
+  - Bản chỉ đọc lấy chỗ giữ làm sàn, để số lệch lưới dài hơn nới ô ra chứ không đè lên đơn vị.
+  - Bản gõ được ghim đúng bằng chỗ giữ.
+- **`src/ui/inputs/SliderInput.tsx`**: `soKyTuGiuCho(spec)` tính chuỗi dài nhất của miền (phần nguyên dài nhất, số chữ
+  số lẻ của bước hoặc mốc min, dấu trừ). Ví dụ 60–750 phiên → 3 ký tự; 0–30 bước 0,1 → 4.
+- **`src/ui/inputs/SliderInput.module.css`**: `.valueBox` thêm `margin-left: auto`, cùng luật với thẻ Kết quả: nhãn quá dài
+  thì số xuống hàng nhưng vẫn dính mép phải. Ô nhỏ từ 1280px đặt lại `margin-left: 0`, vì lề tự động sẽ tắt `stretch`.
+- Test:
+  - **`SliderInput.test.tsx`**: thử mọi điểm kéo của mọi thanh trượt trong Registry (kể cả khuôn nhóm lặp) với chỗ giữ;
+    chỗ giữ tới được ô.
+  - **`slider-head-css.test.ts`** (mới): ghim CSS.
+- **`CLAUDE.md`**: thêm đoạn sau đoạn "input fields are one step smaller".
+- Đo trong Chrome trên 110 hàng thanh trượt × 6 khổ (Nâng cao); bố cục cũ giả lập bằng CSS bơm vào trên cùng trang:
+
+  | Khổ  | Trước: số rơi xuống, không dính phải | Sau |
+  | ---- | ------------------------------------ | --- |
+  | 360  | 17                                   | 0   |
+  | 390  | 4                                    | 0   |
+  | 1280 | 15                                   | 0   |
+  | 1440 | 4                                    | 0   |
+
+  Trước khi sửa có 19 công thức dính lỗi. Sau khi sửa không hàng nào phải rơi xuống, không trang nào cuộn ngang.
+
+- Rà chung mọi hàng "nhãn · số" (chế độ Cơ bản, 111 màn chi tiết, Danh mục có dữ liệu, danh sách, tìm kiếm, cài đặt,
+  bảng dữ liệu; 702 lượt trang × khổ):
+  - Không còn hàng nào có con số rơi xuống mà lệch khỏi mép phải.
+  - Hai chỗ bị bắt không cùng loại: dải thay số canh giữa của `ddm-hai-giai-doan` (PC), dòng link nguồn của
+    `so-hop-dong-toi-da`.
+- Kiểm tra: chung lượt với mục trên (168 file, 4365 ca xanh; `tsc`, `eslint`, `prettier` sạch).
+
+---
+
 ## Nhãn "Công thức"; thẻ bước của khối chuỗi: dòng vai trò về mép trái ở khổ điện thoại (19/10/2026)
 
 **Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án xem.**

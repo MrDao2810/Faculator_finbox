@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useRef, useState, type CSSProperties } from 'react';
 
 import {
   INPUT_MAX_DECIMALS,
@@ -46,6 +46,19 @@ export interface InlineNumberProps {
    * 14ch canh phải đẩy con số ra tận mép phải, cách nhãn của chính nó gần hết bề ngang ô.
    */
   compact?: boolean;
+  /**
+   * Giữ chỗ cho con số theo số ký tự, thay cho bề rộng ghim 14ch.
+   *
+   * 14ch là chỗ cho số dài nhất CẢ Registry (khoản vay 2.000.000.000 ₫). Một thanh trượt 60–750
+   * phiên chỉ in tối đa 3 ký tự, nên 14ch là ~110px trống vô hình bên trái con số — đủ để đẩy cả
+   * ô xuống hàng dưới nhãn dù con số nhìn thấy vừa thừa chỗ (chủ dự án chụp "380 phiên" lơ lửng
+   * giữa hàng ở 360px, 19/10/2026). Nơi gọi biết miền nên tự tính số ký tự dài nhất.
+   *
+   * Bản chỉ đọc là SÀN (`min-width`): kéo trong miền không bao giờ quá sàn nên hàng không nhích,
+   * còn số lệch lưới dài hơn (nạp từ mã, từ chuỗi) thì ô nới ra chứ không tràn đè lên đơn vị. Bản
+   * gõ được là bề rộng GHIM như cũ — chữ gõ dài hơn thì cuộn trong ô, bố cục không nhích từng phím.
+   */
+  soKyTuGiuCho?: number;
   className?: string;
 }
 
@@ -89,6 +102,7 @@ export function InlineNumber({
   ariaLabel,
   describedBy,
   compact = false,
+  soKyTuGiuCho,
   className,
 }: InlineNumberProps) {
   /** Chuỗi thô trong lúc gõ. `null` nghĩa là đang hiện bản đã định dạng của `value`. */
@@ -124,10 +138,14 @@ export function InlineNumber({
     readOnly ? styles.locked : undefined,
     outOfRange ? styles.invalid : undefined,
     compact ? styles.compact : undefined,
+    soKyTuGiuCho !== undefined ? styles.giuCho : undefined,
     className,
   ]
     .filter(Boolean)
     .join(' ');
+  /* Đọc ở `.giuCho` trong CSS — xem prop `soKyTuGiuCho`. */
+  const giuCho =
+    soKyTuGiuCho !== undefined ? ({ '--ky-tu': String(soKyTuGiuCho) } as CSSProperties) : undefined;
 
   /*
    * Chốt giá trị khi rời ô — nhưng CHỈ khi người dùng thật sự có gõ.
@@ -167,7 +185,7 @@ export function InlineNumber({
    */
   if (!editable) {
     return (
-      <span className={classes}>
+      <span className={classes} style={giuCho}>
         <span id={id} className={styles.input}>
           {formatNumber(value, { maxDecimals: INPUT_MAX_DECIMALS })}
         </span>
@@ -177,7 +195,7 @@ export function InlineNumber({
   }
 
   return (
-    <span className={classes}>
+    <span className={classes} style={giuCho}>
       {outOfRange && (
         /* Dấu chữ đứng cạnh viền đỏ — NFR-USA-06 cấm truyền đạt bằng riêng màu sắc. Ký tự thuần
            nên không qua i18n, cùng loại với '!' của cờ báo lỗi ở bảng dữ liệu WF-05. */

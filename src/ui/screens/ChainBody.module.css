@@ -234,6 +234,53 @@
   }
 
   /*
+   * Ô CHỌN đứng lẻ: nhãn trái, ô chọn gọn bên phải cùng hàng khi vừa (19/10/2026) — bản sao CÙNG
+   * luật với khối Số liệu, chú thích đầy đủ (lời chủ dự án, số đo, mẹo `flex-grow` 1000 : 1) ở
+   * `FormulaDetail.module.css` cạnh `.fieldLone`. Khối chuỗi hôm nay chưa có ô chọn nào; bản sao có
+   * mặt để ngày có thì hai khối không xếp cùng một ô theo hai lối.
+   */
+  .fields > .fieldLone:has(> select) {
+    display: flex;
+    /* Gốc của ô chọn (`Select.module.css` `.field`) là cột flex — phải đặt lại hướng. */
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-1) var(--space-3);
+    /*
+     * Hai hàng `subgrid` rỗng (gợi ý, lỗi) từng góp 8px khe dưới khung; bỏ `subgrid` là mất chúng,
+     * đo được khe tới ô sau còn 4px thay vì 12px như mọi ô khác. Trả lại đúng 8px ấy.
+     */
+    padding-bottom: var(--space-2);
+  }
+
+  .fields > .fieldLone:has(> select) > label {
+    flex: 1000 1 auto;
+    min-width: 0;
+  }
+
+  .fields > .fieldLone:has(> select) > select {
+    flex: 1 1 auto;
+    width: auto;
+  }
+
+  /* Nhóm nút cùng luật — chú thích ở `FormulaDetail.module.css`. Khối chuỗi hôm nay chưa có nhóm nút. */
+  .fields > .fieldWide:has(> [role='group']) {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-1) var(--space-3);
+  }
+
+  .fields > .fieldWide:has(> [role='group']) > div:first-child {
+    flex: 1000 1 auto;
+    min-width: 0;
+  }
+
+  .fields > .fieldWide:has(> [role='group']) > [role='group'] {
+    flex: 1 1 auto;
+  }
+
+  /*
    * Ô nhập gọn hơn (19/10/2026) — bản sao CÙNG luật với khối Số liệu, chú thích đầy đủ (số đo
    * trước → sau, vì sao bộ chọn cấu trúc, vì sao `:not([type='range'])`) ở `FormulaDetail.module.css`
    * cạnh `.config`. Chủ dự án: _"phải áp dụng cho toàn bộ công thức"_; khối chuỗi đứng ngay dưới

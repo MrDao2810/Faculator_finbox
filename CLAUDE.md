@@ -1705,6 +1705,30 @@ sheet; the fee row is reached through a `.config` wrapper so Settings keeps its 
 direct child) and every slider is indented 10px. Sweep in Chrome at 390, both modes: 110 grids, every label 12px,
 every box 36px, no sideways scroll. Slider tracks and their figures, and the DCA Bỏ/Thêm buttons, were not touched.
 
+**A slider's figure sits on its label's row, at the right edge, at every width** (19/10/2026). The owner photographed
+"380 phiên" floating mid-row under "Số phiên gần nhất đưa vào tính" at 360px: _"tôi đã yêu cầu từ trước là cần đồng
+bộ những phần có thiết kế tương tự rồi mà … đừng làm đối phó với tôi"_. The `InlineNumber` box was pinned at 14ch (room
+for 2.000.000.000 ₫), ~173px for a 56px figure, so the box wrapped under the label, sat at the left, and its
+right-aligned figure looked centred. Two halves: `SliderInput` passes `soKyTuGiuCho(spec)` (the longest string any grid
+value of that range prints, `--ky-tu`; a floor for the read-only `<span>`, a fixed width for the typed `<input>`), and
+`.valueBox` has `margin-left: auto`, the `ResultBlock` rule, so a label too long for one row still puts the figure flush
+right below it (`.compact .valueBox` resets it, an auto cross-axis margin kills `stretch`). Measured on 110 slider rows ×
+6 widths, the old layout simulated on the same page: 17 rows at 360, 4 at 390, 15 at 1280, 4 at 1440 (19 formulas)
+had the figure orphaned; after, 0 rows wrap at all. `SliderInput.test.tsx` walks every grid point of every slider in
+the Registry against the reservation; `slider-head-css.test.ts` pins the CSS.
+
+**Below 1024px a lone `<select>` and the button group go on the label's row when they fit** (19/10/2026, owner,
+circling `var-lich-su`'s "Độ tin cậy (α)" box, 328px wide for "95%": _"thu nhỏ ô select lại rồi đưa lên cùng hàng
+ngang"_). The Registry has 4 such selects (`var-lich-su`, `cvar-lich-su`: α; `lai-kep`, `lai-suat-hieu-dung`:
+compounding per year), all lone, and one button group (`lich-tra-no`'s "Phương thức trả"), which follows as "a select
+made of buttons". The cell becomes a wrapping flex ROW (the primitives' roots are flex COLUMNS, so `flex-direction:
+row` is load-bearing) with `flex-grow` 1000 : 1: sharing a row, the label takes the slack and the control keeps its
+content width at the right edge; wrapped below (EN labels at 320–360px), the control takes the whole row, the old
+look. "Short" is decided by layout, not by a character threshold. The lone select gets `padding-bottom: 8px` back,
+because dropping `subgrid` drops the two empty rows that gave it (measured: a 4px gap to the next field instead of
+12). This is the owner's call for CHOICE controls only; a lone NUMBER field keeps label above, box below (the
+15/10/2026 rejection stands). Copies in `ChainBody.module.css`; `inputs-mobile-css.test.ts` pins both.
+
 **Below 1280px the Kết quả card is ONE row too: "KẾT QUẢ" left, the figure at the right edge**
 (15/10/2026). The owner circled "4 lần" under the label on a phone and drew an arrow to the right: _"khi
 ở màn mobile thì chuyển số sang bên phải cùng hàng với text Kết quả"_ — the same complaint the ≥1280 grid

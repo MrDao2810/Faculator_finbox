@@ -1129,6 +1129,77 @@ button.iconButton::after {
   }
 
   /*
+   * ── Ô CHỌN đứng lẻ: nhãn trái, ô chọn gọn bên phải cùng hàng (19/10/2026) ───────────────────────
+   *
+   * Chủ dự án khoanh ô "Độ tin cậy (α)" của `var-lich-su` ở điện thoại: khung chọn rộng hết 328px
+   * cho một chữ "95%", còn hàng nhãn bên trên trống gần hết — _"nếu như select ô chọn có nội dung
+   * ngắn mà bên trên này thừa nhiều không gian thì thu nhỏ ô select lại rồi đưa lên cùng hàng
+   * ngang"_. Đo cả thư viện ở 360px (Nâng cao): đúng 4 ô chọn trong lưới, cả 4 đều đứng lẻ — "Độ tin
+   * cậy (α)" của `var-lich-su` · `cvar-lich-su` (chữ dài nhất 30px), "Số lần ghép/nhập lãi / năm"
+   * của `lai-suat-hieu-dung` · `lai-kep` (94px).
+   *
+   * Đây là yêu cầu RIÊNG cho ô chọn, không đảo luật "nhãn trên, khung dưới" của ô SỐ lẻ ngay trên
+   * (bác ngày 15/10/2026): ô số vẫn giữ hình ấy.
+   *
+   * "Ngắn" do bố cục quyết, không do một ngưỡng chữ: ô đổi sang hàng flex xuống dòng được, ô chọn
+   * rộng đúng bằng tuỳ chọn dài nhất (`width: auto` của `<select>`). Nhãn cộng ô vừa một hàng thì
+   * đứng chung hàng, ô dạt phải; không vừa thì ô xuống hàng dưới và trải hết bề ngang — đúng hình cũ.
+   * Mẹo nằm ở tỉ lệ `flex-grow` 1000 : 1: chung hàng thì phần thừa gần như về hết nhãn (ô giữ bề
+   * rộng nội dung), còn khi ô đứng một mình trên hàng dưới thì nó hưởng trọn phần thừa. Nhãn không bị
+   * ép xuống hai dòng để nhường chỗ: hàng flex ngắt theo bề rộng tự nhiên của từng con.
+   *
+   * Không còn `subgrid`: ô lẻ chiếm trọn hàng, không có ô bên cạnh để thẳng hàng. Vẫn span 4 hàng lưới
+   * như mọi ô. `ChainBody.module.css` mang bản sao, cùng lý do các lượt trước.
+   */
+  .fields > .fieldLone:has(> select) {
+    display: flex;
+    /* Gốc của ô chọn (`Select.module.css` `.field`) là cột flex — phải đặt lại hướng. */
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-1) var(--space-3);
+    /*
+     * Hai hàng `subgrid` rỗng (gợi ý, lỗi) từng góp 8px khe dưới khung; bỏ `subgrid` là mất chúng,
+     * đo được khe tới ô sau còn 4px thay vì 12px như mọi ô khác. Trả lại đúng 8px ấy.
+     */
+    padding-bottom: var(--space-2);
+  }
+
+  .fields > .fieldLone:has(> select) > label {
+    flex: 1000 1 auto;
+    min-width: 0;
+  }
+
+  .fields > .fieldLone:has(> select) > select {
+    flex: 1 1 auto;
+    width: auto;
+  }
+
+  /*
+   * Nhóm nút cùng luật, cùng ngày: nó là ô chọn dạng nút (lượt "ô nhập gọn hơn" ngay dưới đã cho nó
+   * theo ô chọn về 36px), và hàng nhãn của nó trống y như thế. Cả Registry có đúng một nhóm —
+   * "Phương thức trả" của `lich-tra-no` (Niên kim · Gốc đều) — luôn chiếm trọn hàng (`.fieldWide`).
+   * Gốc của nhóm (`ButtonGroup.module.css` `.wrap`) là cột flex; con đầu là hàng nhãn, con sau là
+   * `[role=group]`. Vừa một hàng thì nhóm co theo nút và dạt phải; không vừa (nhãn tiếng Anh dài ở
+   * 360px) thì nhóm xuống hàng dưới và trải hết bề ngang, hai nút giãn đều như cũ.
+   */
+  .fields > .fieldWide:has(> [role='group']) {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-1) var(--space-3);
+  }
+
+  .fields > .fieldWide:has(> [role='group']) > div:first-child {
+    flex: 1000 1 auto;
+    min-width: 0;
+  }
+
+  .fields > .fieldWide:has(> [role='group']) > [role='group'] {
+    flex: 1 1 auto;
+  }
+
+  /*
    * ── Ô nhập gọn hơn (19/10/2026) ───────────────────────────────────────────────────────────────
    *
    * Chủ dự án khoanh khối Số liệu của `loi-nhuan-rong` trên điện thoại — hàng biểu phí, hàng nhãn và

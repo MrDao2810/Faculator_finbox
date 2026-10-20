@@ -34,6 +34,15 @@
  * chứ không thành một hàng biểu mẫu chen vào bố cục.
  */
 .valueBox {
+  /*
+   * Nhãn quá dài cho một hàng thì con số xuống hàng dưới nhưng vẫn DÍNH MÉP PHẢI — cùng luật với
+   * con số của thẻ Kết quả (`ResultBlock.module.css`, dưới 1280px). Thiếu nó, ô số xuống hàng nằm
+   * sát mép trái và con số canh phải trong ô trông như lơ lửng giữa hàng: chủ dự án chụp "380
+   * phiên" như thế ở 360px (19/10/2026). Cùng hàng với nhãn thì nhãn đã tự giãn, dòng này vô hại.
+   * Chỗ giữ của ô theo miền (`soKyTuGiuCho`) là nửa kia: nhờ nó, nhãn và số vừa một hàng thì đứng
+   * chung một hàng, không bị 14ch trống vô hình đẩy xuống.
+   */
+  margin-left: auto;
   font-size: var(--text-md);
   font-weight: var(--weight-bold);
   color: var(--color-accent);
@@ -199,6 +208,8 @@
    * trong cùng một thẻ, nên đơn vị của chúng phải thẳng một hàng dọc.
    */
   .compact .valueBox {
+    /* Lề tự động ở trục ngang của cột flex tắt `stretch` — bỏ nó, ô mới trải hết hàng. */
+    margin-left: 0;
     align-self: stretch;
     /* Bằng số của ô nhập thường cạnh nó — 20px từ 14/10/2026, xem `.compact .input` ở `Input.module.css`. */
     font-size: var(--text-lg);

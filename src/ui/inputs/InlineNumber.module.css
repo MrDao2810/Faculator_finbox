@@ -53,6 +53,21 @@
   outline: none;
 }
 
+/*
+ * Giữ chỗ theo số ký tự nơi gọi tính (`soKyTuGiuCho`, đặt `--ky-tu`) thay cho 14ch — thanh trượt
+ * dùng để con số đứng chung hàng với nhãn. Ô gõ được: bề rộng ghim, như luật gốc ở trên. Bản chỉ
+ * đọc (`<span>`): sàn, để một số lệch lưới dài hơn nới ô ra chứ không tràn đè lên đơn vị. Phải
+ * khai TRƯỚC khối `.compact` cuối file — cùng độ đặc hiệu, và ô nhỏ trải hết hàng thì phải thắng.
+ */
+.giuCho .input {
+  width: calc(var(--ky-tu) * 1ch);
+}
+
+.giuCho span.input {
+  width: auto;
+  min-width: calc(var(--ky-tu) * 1ch);
+}
+
 .unit {
   font-size: var(--text-sm);
   color: var(--color-muted);

@@ -4,9 +4,10 @@ import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
+import { FORMULAS, INPUT_MAX_DECIMALS, formatNumber, snapToStep } from '@/application';
 import type { VariableSpec } from '@/application';
 
-import { SliderInput } from './SliderInput';
+import { SliderInput, soKyTuGiuCho } from './SliderInput';
 
 afterEach(cleanup);
 
@@ -270,5 +271,56 @@ describe('SliderInput — ô khoá ở chế độ Cơ bản', () => {
     await userEvent.type(box(), '3,75{Enter}');
 
     expect(onChange).toHaveBeenCalledWith(3.75);
+  });
+});
+
+/*
+ * ── Con số cạnh nhãn chỉ giữ chỗ bằng số dài nhất của miền (19/10/2026) ─────────────────────
+ *
+ * Chủ dự án chụp "380 phiên" lơ lửng giữa hàng dưới nhãn "Số phiên gần nhất đưa vào tính" ở 360px:
+ * ô số ghim 14ch (chỗ cho 2.000.000.000 ₫) nên đòi ~173px cho một con số 56px, cả ô xuống hàng dưới
+ * và nằm sát trái. Nay ô chỉ giữ chỗ bằng `soKyTuGiuCho(spec)`. Hai ca dưới gác hai vế: con số in ra
+ * khi kéo KHÔNG BAO GIỜ dài hơn chỗ giữ (dài hơn là hàng nhích lúc đang kéo), và chỗ giữ tới được ô.
+ */
+describe('SliderInput — chỗ giữ của con số theo miền của chính thanh trượt', () => {
+  /** Mọi thanh trượt của Registry, kể cả khuôn nhóm lặp (DCA, lợi suất hình học). */
+  const THANH_TRUOT = FORMULAS.flatMap((spec) => [
+    ...spec.variables,
+    ...(spec.repeat?.fields ?? []),
+  ]).filter((bien) => bien.type === 'slider');
+
+  it('Registry có đủ thanh trượt để ca dưới không xanh vì rỗng', () => {
+    expect(THANH_TRUOT.length).toBeGreaterThan(80);
+  });
+
+  it('mọi điểm kéo được của mọi thanh trượt in ra không dài hơn chỗ giữ', () => {
+    const vuot: string[] = [];
+    for (const bien of THANH_TRUOT) {
+      const min = bien.min ?? 0;
+      const max = bien.max ?? 100;
+      const buoc = bien.step ?? 1;
+      const soDiem = Math.floor((max - min) / buoc + 1e-9) + 1;
+      // Miền quá dày thì lấy 20.000 điểm rải đều, cộng hai đầu — đủ chạm mọi độ dài phần nguyên.
+      const nhay = Math.max(1, Math.ceil(soDiem / 20_000));
+      const giu = soKyTuGiuCho(bien);
+      for (let k = 0; k <= soDiem; k += nhay) {
+        const giaTri = snapToStep(Math.min(max, min + k * buoc), bien);
+        const chu = formatNumber(giaTri, { maxDecimals: INPUT_MAX_DECIMALS });
+        if (chu.length > giu) {
+          vuot.push(`${bien.key}: "${chu}" dài ${String(chu.length)} > ${String(giu)}`);
+          break;
+        }
+      }
+    }
+
+    expect(vuot).toEqual([]);
+  });
+
+  it('chỗ giữ tới được ô số: 0–30 bước 0,1 là bốn ký tự ("12,5"), không phải 14', () => {
+    const { container } = draw(RATE, 12);
+
+    const o = container.querySelector<HTMLElement>('[style*="--ky-tu"]');
+    expect(o?.style.getPropertyValue('--ky-tu')).toBe('4');
+    expect(soKyTuGiuCho(AMOUNT)).toBe('2.000.000.000'.length);
   });
 });

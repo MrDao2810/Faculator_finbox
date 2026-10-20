@@ -179,8 +179,8 @@ export const PS: FormulaModule = {
       inputs: { price: 72_700, salesPerShare: 37_157 },
       expected: 1.9566,
       note: {
-        vi: 'So với mốc 1 lần: 1,96 lần nghĩa là giá một cổ phiếu FPT, 72.700 ₫, gần gấp đôi phần doanh thu 37.157 ₫ mà cổ phiếu ấy mang về trong bốn quý gần nhất, tức thị trường đang trả khoảng 1,96 đồng cho mỗi đồng doanh thu một năm.',
-        en: 'Compared with the 1 times mark: 1.96 times means the price of one FPT share, 72,700 ₫, is nearly double the 37,157 ₫ of revenue that share brought in over the last four quarters, so the market is paying about 1.96 dong for each dong of annual revenue.',
+        vi: 'So với mốc 1 lần: 1,96 lần nghĩa là với giá 72.700 ₫ cho phần doanh thu 37.157 ₫ mà một cổ phiếu FPT mang về trong bốn quý gần nhất, thị trường đang trả 1,96 đồng cho mỗi đồng doanh thu một năm.',
+        en: 'Compared with the 1 times mark: 1.96 times means that, at 72,700 ₫ for the 37,157 ₫ of revenue one FPT share brought in over the last four quarters, the market is paying 1.96 dong for each dong of annual revenue.',
       },
       source: {
         vi: 'stockanalysis.com, doanh thu bốn quý gần nhất của CTCP FPT (mã FPT); giá phiên 11/09/2026.',
@@ -365,10 +365,10 @@ export const EV: FormulaModule = {
         en: 'FPT — market cap 124,631.5 billion ₫, debt 17,444 billion ₫, cash and short-term investments 28,971.6 billion ₫ (2026-06-30)',
       },
       inputs: { marketCap: 124_631.5, totalDebt: 17_444, cash: 28_971.6 },
-      expected: 113_104,
+      expected: 113_103.9,
       note: {
-        vi: 'So với vốn hoá 124.631,5 tỷ ₫ của FPT: EV 113.104 tỷ ₫ thấp hơn khoảng 11.528 tỷ ₫, nghĩa là FPT đang giữ tiền và đầu tư ngắn hạn nhiều hơn nợ vay, nên người mua trọn công ty, sau khi gánh nợ và cầm lại tiền, thực chất bỏ ra ít hơn giá của toàn bộ cổ phiếu.',
-        en: 'Compared with FPT’s market cap of 124,631.5 billion ₫: an EV of 113,104 billion ₫ is about 11,528 billion ₫ lower, meaning FPT holds more cash and short-term investments than debt, so a buyer of the whole company, after taking on the debt and keeping the cash, effectively pays less than the price of all its shares.',
+        vi: 'So với vốn hoá 124.631,5 tỷ ₫ của FPT: EV 113.103,9 tỷ ₫ thấp hơn vì FPT đang giữ 28.971,6 tỷ ₫ tiền và đầu tư ngắn hạn, nhiều hơn nợ vay 17.444 tỷ ₫ đúng 11.527,6 tỷ ₫, nên người mua trọn công ty, sau khi gánh nợ và cầm lại tiền, thực chất bỏ ra ít hơn giá của toàn bộ cổ phiếu.',
+        en: 'Compared with FPT’s market cap of 124,631.5 billion ₫: an EV of 113,103.9 billion ₫ is lower because FPT holds 28,971.6 billion ₫ of cash and short-term investments, exactly 11,527.6 billion ₫ more than its 17,444 billion ₫ of debt, so a buyer of the whole company, after taking on the debt and keeping the cash, effectively pays less than the price of all its shares.',
       },
       source: {
         vi: 'CafeF, bảng cân đối kế toán CTCP FPT (mã FPT) quý 2/2026; vốn hoá theo giá phiên 11/09/2026.',
@@ -506,8 +506,8 @@ export const EV_EBITDA: FormulaModule = {
       inputs: { ev: 113_103.9, ebitda: 13_901.9 },
       expected: 8.1359,
       note: {
-        vi: 'So với EBITDA quy năm 13.901,9 tỷ ₫ của FPT: giá mua trọn công ty, đã cộng nợ và trừ tiền mặt, gấp 8,14 lần, nhưng đó không phải 8 năm hoàn vốn vì EBITDA chưa trừ thuế, tiền chi đầu tư và vốn lưu động. EBITDA này là nửa đầu 2026 nhân đôi, nếu nửa cuối năm FPT làm ra nhiều hơn thì bội số cả năm sẽ thấp hơn.',
-        en: 'Compared with FPT’s annualized EBITDA of 13,901.9 billion ₫: the price of the whole company, with debt added and cash taken off, is 8.14 times that, but this is not an 8-year payback, because EBITDA comes before tax, capital spending and working capital. This EBITDA is the first half of 2026 doubled, so if the second half is stronger, it would make the full-year multiple lower.',
+        vi: 'So với EBITDA quy năm 13.901,9 tỷ ₫ của FPT: giá mua trọn công ty, đã cộng nợ và trừ tiền mặt, gấp 8,14 lần, nhưng đó không phải 8,14 năm hoàn vốn vì EBITDA chưa trừ thuế, tiền chi đầu tư và vốn lưu động. EBITDA này là nửa đầu 2026 nhân đôi, nếu nửa cuối năm FPT làm ra nhiều hơn thì bội số cả năm sẽ thấp hơn.',
+        en: 'Compared with FPT’s annualized EBITDA of 13,901.9 billion ₫: the price of the whole company, with debt added and cash taken off, is 8.14 times that, but this is not an 8.14-year payback, because EBITDA comes before tax, capital spending and working capital. This EBITDA is the first half of 2026 doubled, so if the second half is stronger, it would make the full-year multiple lower.',
       },
       source: {
         vi: 'CafeF, báo cáo tài chính CTCP FPT (mã FPT) 6 tháng đầu 2026; EV lấy từ công thức EV của nhóm này.',
@@ -651,8 +651,8 @@ export const EV_SALES: FormulaModule = {
       inputs: { ev: 113_103.9, revenue: 52_537 },
       expected: 2.1528,
       note: {
-        vi: 'So với doanh thu quy năm 52.537 tỷ ₫ của FPT: giá mua trọn công ty, đã cộng nợ và trừ tiền mặt, gấp 2,15 lần, tức mỗi 1 ₫ doanh thu một năm đang được định giá khoảng 2,15 ₫. Doanh thu này là nửa đầu 2026 nhân đôi và đã bỏ FPT Telecom, nên khi so với công ty khác, doanh thu của họ cũng phải tính cùng cách.',
-        en: 'Compared with FPT’s annualized revenue of 52,537 billion ₫: the price of the whole company, with debt added and cash taken off, is 2.15 times that, so each 1 ₫ of yearly revenue is valued at about 2.15 ₫. This revenue is the first half of 2026 doubled and already excludes FPT Telecom, so when comparing with other companies, their revenue has to be measured the same way.',
+        vi: 'So với doanh thu quy năm 52.537 tỷ ₫ của FPT: giá mua trọn công ty, đã cộng nợ và trừ tiền mặt, gấp 2,15 lần, tức mỗi 1 ₫ doanh thu một năm đang được định giá 2,15 ₫. Doanh thu này là nửa đầu 2026 nhân đôi và đã bỏ FPT Telecom, nên khi so với công ty khác, doanh thu của họ cũng phải tính cùng cách.',
+        en: 'Compared with FPT’s annualized revenue of 52,537 billion ₫: the price of the whole company, with debt added and cash taken off, is 2.15 times that, so each 1 ₫ of yearly revenue is valued at 2.15 ₫. This revenue is the first half of 2026 doubled and already excludes FPT Telecom, so when comparing with other companies, their revenue has to be measured the same way.',
       },
       source: {
         vi: 'CafeF, báo cáo kết quả kinh doanh CTCP FPT (mã FPT) quý 2/2026; EV lấy từ công thức EV của nhóm này.',
@@ -977,10 +977,10 @@ export const VON_HOA: FormulaModule = {
         en: 'FPT — price 72,700 ₫ at the 2026-09-11 close, 1,714.33 million shares outstanding',
       },
       inputs: { price: 72_700, shares: 1_714.33 },
-      expected: 124_632,
+      expected: 124_631.79,
       note: {
-        vi: 'So với giá 72.700 ₫ của một cổ phiếu FPT: vốn hoá 124.632 tỷ ₫ là số tiền cần để mua hết 1.714,33 triệu cổ phiếu đang lưu hành ở đúng giá ấy. Con số chỉ đúng cho phiên 11/09/2026, vì giá mỗi cổ phiếu lên hay xuống 1.000 ₫ là vốn hoá đổi khoảng 1.714 tỷ ₫ dù công ty không có gì khác đi.',
-        en: 'Compared with FPT’s price of 72,700 ₫ a share: a market cap of 124,632 billion ₫ is what it would take to buy all 1,714.33 million shares outstanding at exactly that price. The figure holds only for the 2026-09-11 session, because each 1,000 ₫ the share price moves up or down shifts the market cap by about 1,714 billion ₫ even though nothing has changed at the company.',
+        vi: 'So với giá 72.700 ₫ của một cổ phiếu FPT: vốn hoá 124.631,79 tỷ ₫ là số tiền cần để mua hết 1.714,33 triệu cổ phiếu đang lưu hành ở đúng giá ấy. Con số chỉ đúng cho phiên 11/09/2026, vì giá mỗi cổ phiếu lên hay xuống 1.000 ₫ là vốn hoá đổi 1.714,33 tỷ ₫ dù công ty không có gì khác đi.',
+        en: 'Compared with FPT’s price of 72,700 ₫ a share: a market cap of 124,631.79 billion ₫ is what it would take to buy all 1,714.33 million shares outstanding at exactly that price. The figure holds only for the 2026-09-11 session, because each 1,000 ₫ the share price moves up or down shifts the market cap by 1,714.33 billion ₫ even though nothing has changed at the company.',
       },
       source: {
         vi: 'Investing.com, giá lịch sử CTCP FPT (mã FPT), phiên 11/09/2026.',
@@ -1151,10 +1151,10 @@ export const SO_GRAHAM: FormulaModule = {
         en: 'FPT — EPS 5,867 ₫, book value 23,246 ₫/share as of 2026-06-30',
       },
       inputs: { eps: 5_867, bvps: 23_246 },
-      expected: 55_395,
+      expected: 55_395.36,
       note: {
-        vi: 'So với giá FPT phiên 11/09/2026 là 72.700 ₫: số Graham 55.395 ₫ thấp hơn khoảng 24%, tức giá đã vượt mức trần thận trọng theo chuẩn Graham. Lý do nằm ở giá trị sổ sách, giá gấp khoảng 3,1 lần mức 23.246 ₫ mỗi cổ phiếu, quá xa mức 1,5 lần Graham đặt ra, còn P/E khoảng 12,4 lần vẫn dưới mức 15.',
-        en: 'Compared with FPT’s 2026-09-11 price of 72,700 ₫: a Graham number of 55,395 ₫ is about 24% lower, so the price has already passed the cautious ceiling of Graham’s standard. The reason lies in book value, with the price at about 3.1 times the 23,246 ₫ of book value per share, far above the 1.5 times Graham set, while the P/E of about 12.4 times is still under the 15 mark.',
+        vi: 'So với giá FPT phiên 11/09/2026 là 72.700 ₫: số Graham 55.395,36 ₫ thấp hơn 23,80%, tức giá đã vượt mức trần thận trọng theo chuẩn Graham. Lý do nằm ở giá trị sổ sách, giá gấp 3,13 lần mức 23.246 ₫ mỗi cổ phiếu, quá xa mức 1,5 lần Graham đặt ra, còn P/E 12,39 lần vẫn dưới mức 15.',
+        en: 'Compared with FPT’s 2026-09-11 price of 72,700 ₫: a Graham number of 55,395.36 ₫ is 23.80% lower, so the price has already passed the cautious ceiling of Graham’s standard. The reason lies in book value, with the price at 3.13 times the 23,246 ₫ of book value per share, far above the 1.5 times Graham set, while the P/E of 12.39 times is still under the 15 mark.',
       },
       source: {
         vi: 'stockanalysis.com, EPS bốn quý gần nhất và BVPS 30/06/2026 của CTCP FPT (mã FPT).',
@@ -1361,10 +1361,10 @@ export const NCAV: FormulaModule = {
         en: 'FPT — current assets 45,702 billion ₫, total liabilities 32,738.4 billion ₫, 1,714.33 million shares (2026-06-30)',
       },
       inputs: { currentAssets: 45_702, totalLiabilities: 32_738.4, shares: 1_714.33 },
-      expected: 7_562,
+      expected: 7_561.9,
       note: {
-        vi: 'So với giá FPT phiên 11/09/2026 là 72.700 ₫: NCAV 7.562 ₫ chỉ bằng khoảng một phần mười, nghĩa là ngoài phần tài sản ngắn hạn còn lại sau khi trừ hết nợ, thị trường đang trả thêm khoảng 65.138 ₫ mỗi cổ phiếu cho tài sản dài hạn và lợi nhuận FPT sẽ làm ra sau này.',
-        en: 'Compared with FPT’s 2026-09-11 price of 72,700 ₫: an NCAV of 7,562 ₫ is only about a tenth of it, meaning that beyond the current assets left after paying off all liabilities, the market is paying about 65,138 ₫ more per share for long-term assets and the profit FPT will earn later.',
+        vi: 'So với giá FPT phiên 11/09/2026 là 72.700 ₫: NCAV 7.561,9 ₫ chỉ bằng 10,40% giá ấy, nghĩa là ngoài phần tài sản ngắn hạn còn lại sau khi trừ hết nợ, thị trường đang trả thêm 65.138,1 ₫ mỗi cổ phiếu cho tài sản dài hạn và lợi nhuận FPT sẽ làm ra sau này.',
+        en: 'Compared with FPT’s 2026-09-11 price of 72,700 ₫: an NCAV of 7,561.9 ₫ is only 10.40% of it, meaning that beyond the current assets left after paying off all liabilities, the market is paying 65,138.1 ₫ more per share for long-term assets and the profit FPT will earn later.',
       },
       source: {
         vi: 'CafeF, bảng cân đối kế toán CTCP FPT (mã FPT) quý 2/2026.',
@@ -1505,8 +1505,8 @@ export const TY_SUAT_LOI_NHUAN_TREN_GIA: FormulaModule = {
       inputs: { eps: 5_867, price: 72_700 },
       expected: 8.0702,
       note: {
-        vi: 'So với lãi tiết kiệm kỳ hạn một năm: 8,07% nghĩa là mỗi 100 ₫ trả cho cổ phiếu FPT ở giá 72.700 ₫ ứng với khoảng 8,07 ₫ lợi nhuận công ty làm ra một năm, nhiều hơn tiền lãi nếu lãi suất gửi của bạn dưới 8,07%. Nhưng 8,07 ₫ ấy không về túi bạn hết, vì công ty chỉ chia một phần làm cổ tức.',
-        en: 'Compared with a one-year savings rate: 8.07% means each 100 ₫ paid for FPT shares at 72,700 ₫ corresponds to about 8.07 ₫ of profit the company earns in a year, more than the interest if your deposit rate is under 8.07%. But those 8.07 ₫ do not all reach your pocket, because the company pays out only part of it as dividends.',
+        vi: 'So với lãi tiết kiệm kỳ hạn một năm: 8,07% nghĩa là mỗi 100 ₫ trả cho cổ phiếu FPT ở giá 72.700 ₫ ứng với 8,07 ₫ lợi nhuận công ty làm ra một năm, nhiều hơn tiền lãi nếu lãi suất gửi của bạn dưới 8,07%. Nhưng 8,07 ₫ ấy không về túi bạn hết, vì công ty chỉ chia một phần làm cổ tức.',
+        en: 'Compared with a one-year savings rate: 8.07% means each 100 ₫ paid for FPT shares at 72,700 ₫ corresponds to 8.07 ₫ of profit the company earns in a year, more than the interest if your deposit rate is under 8.07%. But those 8.07 ₫ do not all reach your pocket, because the company pays out only part of it as dividends.',
       },
       source: {
         vi: 'Investing.com, giá phiên 11/09/2026 và EPS bốn quý gần nhất của CTCP FPT (mã FPT).',
@@ -1672,8 +1672,8 @@ export const GIA_MUC_TIEU: FormulaModule = {
       inputs: { eps: 5_867, targetPe: 15 },
       expected: 88_005,
       note: {
-        vi: 'So với giá FPT phiên 11/09/2026 là 72.700 ₫: giá mục tiêu 88.005 ₫ cao hơn khoảng 21%, nghĩa là hôm ấy giá mỗi cổ phiếu chỉ bằng khoảng 12,4 lần lợi nhuận một năm của nó, thấp hơn mức 15 lần theo trung bình lịch sử của FPT. Mỗi 1 lần chọn cao hay thấp hơn mức 15 lần ấy làm giá mục tiêu đổi 5.867 ₫.',
-        en: 'Compared with FPT’s 2026-09-11 price of 72,700 ₫: a target price of 88,005 ₫ is about 21% higher, meaning the share price that day was only about 12.4 times a year’s earnings per share, below the 15 times of FPT’s historical average. Each 1 times chosen above or below that 15 times moves the target price by 5,867 ₫.',
+        vi: 'So với giá FPT phiên 11/09/2026 là 72.700 ₫: giá mục tiêu 88.005 ₫ cao hơn 21,05%, nghĩa là hôm ấy giá mỗi cổ phiếu chỉ bằng 12,39 lần lợi nhuận một năm của nó, thấp hơn mức 15 lần theo trung bình lịch sử của FPT. Mỗi 1 lần chọn cao hay thấp hơn mức 15 lần ấy làm giá mục tiêu đổi 5.867 ₫.',
+        en: 'Compared with FPT’s 2026-09-11 price of 72,700 ₫: a target price of 88,005 ₫ is 21.05% higher, meaning the share price that day was only 12.39 times a year’s earnings per share, below the 15 times of FPT’s historical average. Each 1 times chosen above or below that 15 times moves the target price by 5,867 ₫.',
       },
       source: {
         vi: 'stockanalysis.com, EPS bốn quý gần nhất của CTCP FPT (mã FPT); so với giá phiên 11/09/2026.',

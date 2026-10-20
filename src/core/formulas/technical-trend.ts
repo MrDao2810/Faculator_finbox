@@ -360,8 +360,8 @@ export const SMA_N_PHIEN: FormulaModule = {
       dataset: FPT_2026,
       expected: 71_560,
       note: {
-        vi: 'So với giá đóng cửa phiên cuối của FPT là 72.700 ₫: đường SMA 20 phiên ở 71.560 ₫ thấp hơn giá khoảng 1,6%, tức giá đang đứng trên mặt bằng 20 phiên vừa qua. Khoảng chênh ấy đến từ 10 phiên đầu, 14/08 đến 27/08/2026, bình quân chỉ 70.370 ₫, còn 10 phiên gần nhất bình quân 72.750 ₫, gần bằng giá.',
-        en: "Compared with FPT's last closing price of 72,700 ₫: the 20-session SMA at 71,560 ₫ is about 1.6% lower than the price, meaning the price is sitting over the average level of the past 20 sessions. That gap comes from the first 10 sessions, 2026-08-14 to 2026-08-27, which averaged only 70,370 ₫, while the 10 most recent sessions averaged 72,750 ₫, close to the price.",
+        vi: 'So với giá đóng cửa phiên cuối của FPT là 72.700 ₫: đường SMA 20 phiên ở 71.560 ₫ thấp hơn giá 1.140 ₫, bằng 1,57% giá, tức giá đang đứng trên mặt bằng 20 phiên vừa qua. Khoảng chênh ấy đến từ 10 phiên đầu, 14/08 đến 27/08/2026, bình quân chỉ 70.370 ₫, còn 10 phiên gần nhất bình quân 72.750 ₫, chỉ cao hơn giá 50 ₫.',
+        en: "Compared with FPT's last closing price of 72,700 ₫: the 20-session SMA at 71,560 ₫ is 1,140 ₫ lower than the price, 1.57% of it, meaning the price is sitting over the average level of the past 20 sessions. That gap comes from the first 10 sessions, 2026-08-14 to 2026-08-27, which averaged only 70,370 ₫, while the 10 most recent sessions averaged 72,750 ₫, only 50 ₫ above the price.",
       },
       source: {
         vi: 'VNDirect, dữ liệu lịch sử FPT, 250 phiên 12/09/2025–15/09/2026.',
@@ -509,10 +509,10 @@ export const EMA_N_PHIEN: FormulaModule = {
       inputs: { period: 12 },
       series: FPT_PHIEN,
       dataset: FPT_2026,
-      expected: 72_389,
+      expected: 72_389.04,
       note: {
-        vi: 'So với giá đóng cửa phiên 15/09/2026 của FPT là 72.700 ₫: đường EMA 12 phiên ở 72.389 ₫, tức giá chỉ nằm trên đường chừng 0,4%. Đường thấp hơn giá một chút vì nó vẫn tính một phần các phiên trước 26/08/2026, lúc giá phần lớn thấp hơn, trong khi 12 phiên gần nhất gần như đi ngang quanh 72.692 ₫.',
-        en: "Compared with FPT's close of 72,700 ₫ in the 2026-09-15 session: the 12-session EMA is at 72,389 ₫, so the price sits only about 0.4% over the line. The line sits slightly below the price because it still counts part of the sessions before 2026-08-26, when the price was mostly lower, while the last 12 sessions moved almost flat around 72,692 ₫.",
+        vi: 'So với giá đóng cửa phiên 15/09/2026 của FPT là 72.700 ₫: đường EMA 12 phiên ở 72.389,04 ₫, tức giá chỉ nằm trên đường 0,43%. Đường thấp hơn giá vì 13,47% trọng số của nó vẫn rơi vào các phiên trước 26/08/2026, bình quân theo trọng số chỉ 70.098,43 ₫, trong khi 12 phiên gần nhất bình quân 72.691,67 ₫.',
+        en: "Compared with FPT's close of 72,700 ₫ in the 2026-09-15 session: the 12-session EMA is at 72,389.04 ₫, so the price sits only 0.43% over the line. The line sits below the price because 13.47% of its weight still falls on the sessions before 2026-08-26, whose weighted average is only 70,098.43 ₫, while the last 12 sessions averaged 72,691.67 ₫.",
       },
       source: {
         vi: 'VNDirect, dữ liệu lịch sử FPT, 250 phiên 12/09/2025–15/09/2026.',
@@ -671,8 +671,8 @@ export const MACD_DUONG_CHINH: FormulaModule = {
       dataset: FPT_2026,
       expected: 893.4114,
       note: {
-        vi: 'So với mốc 0 đồng: 893,41 ₫ là số dương, tức EMA 12 phiên của FPT đang cao hơn EMA 26 phiên, nghĩa là mặt bằng giá gần đây cao hơn mặt bằng của quãng dài hơn. Khoảng cách ấy chỉ bằng chừng 1,2% giá 72.700 ₫ và đã hẹp lại ba phiên liền, từ 1.042 ₫ ở phiên 10/09/2026.',
-        en: "Compared with the 0 ₫ mark: 893.41 ₫ is positive, so FPT's 12-session EMA is higher than its 26-session EMA, meaning the price level of recent sessions is higher than that of a longer stretch. The gap is only about 1.2% of the 72,700 ₫ price and has narrowed for three sessions in a row, from 1,042 ₫ in the 2026-09-10 session.",
+        vi: 'So với mốc 0 đồng: 893,41 ₫ là số dương, tức EMA 12 phiên của FPT đang cao hơn EMA 26 phiên, nghĩa là mặt bằng giá gần đây cao hơn mặt bằng của quãng dài hơn. Khoảng cách ấy chỉ bằng 1,23% giá 72.700 ₫ và đã hẹp lại ba phiên liền, từ 1.042,42 ₫ ở phiên 10/09/2026.',
+        en: "Compared with the 0 ₫ mark: 893.41 ₫ is positive, so FPT's 12-session EMA is higher than its 26-session EMA, meaning the price level of recent sessions is higher than that of a longer stretch. The gap is only 1.23% of the 72,700 ₫ price and has narrowed for three sessions in a row, from 1,042.42 ₫ in the 2026-09-10 session.",
       },
       source: {
         vi: 'VNDirect, dữ liệu lịch sử FPT, 250 phiên 12/09/2025–15/09/2026.',
@@ -822,8 +822,8 @@ export const MACD_DUONG_TIN_HIEU: FormulaModule = {
       dataset: FPT_2026,
       expected: 879.0329,
       note: {
-        vi: 'So với đường MACD cùng phiên là 893,41 ₫: đường tín hiệu 879,03 ₫ thấp hơn khoảng 14 ₫, tức MACD vẫn nằm trên đường này và đà giá còn nghiêng lên, nhưng hai số đã gần bằng nhau. Khoảng cách ấy co lại nhanh, từ khoảng 216 ₫ ở phiên 10/09/2026, vì MACD giảm ba phiên liền.',
-        en: 'Compared with the MACD line in the same session, 893.41 ₫: the signal line at 879.03 ₫ is about 14 ₫ lower, so MACD is still on top and momentum still leans up, but the two figures are now almost equal. That gap has shrunk fast, from about 216 ₫ in the 2026-09-10 session, because MACD fell three sessions in a row.',
+        vi: 'So với đường MACD cùng phiên là 893,41 ₫: đường tín hiệu 879,03 ₫ thấp hơn 14,38 ₫, tức MACD vẫn nằm trên đường này và đà giá còn nghiêng lên, nhưng hai số đã gần bằng nhau. Khoảng cách ấy co lại nhanh, từ 216,44 ₫ ở phiên 10/09/2026, vì MACD giảm ba phiên liền.',
+        en: 'Compared with the MACD line in the same session, 893.41 ₫: the signal line at 879.03 ₫ is 14.38 ₫ lower, so MACD is still on top and momentum still leans up, but the two figures are now almost equal. That gap has shrunk fast, from 216.44 ₫ in the 2026-09-10 session, because MACD fell three sessions in a row.',
       },
       source: {
         vi: 'VNDirect, dữ liệu lịch sử FPT, 250 phiên 12/09/2025–15/09/2026.',
@@ -1008,8 +1008,8 @@ export const RSI_WILDER: FormulaModule = {
       dataset: FPT_2026,
       expected: 55.5886,
       note: {
-        vi: 'So với hai mốc quen dùng 70 và 30 điểm: 55,59 điểm nằm giữa hai mốc, hơi trên 50, tức phần tăng giá gần đây của FPT chỉ nhỉnh hơn phần giảm. Con số tính nối tiếp từ đầu chuỗi, nên chỉ nạp 20 phiên cuối sẽ ra 63,18 điểm, còn nạp từ 100 phiên trở lên thì quanh 55,59 điểm.',
-        en: "Compared with the usual 70 and 30 marks: 55.59 points sits between them and a little over 50, meaning FPT's recent price gains only slightly outweigh its losses. The figure is computed continuously from the start of the series, so loading only the last 20 sessions gives 63.18 points, while loading 100 sessions or more keeps it around 55.59 points.",
+        vi: 'So với hai mốc quen dùng 70 và 30 điểm: 55,59 điểm nằm giữa hai mốc và trên mức 50, tức phần tăng giá bình quân gần đây của FPT chỉ bằng 1,25 lần phần giảm. Con số tính nối tiếp từ đầu chuỗi, nên chỉ nạp 20 phiên cuối sẽ ra 63,18 điểm, còn nạp từ 123 phiên trở lên thì đều ra 55,59 điểm.',
+        en: "Compared with the usual 70 and 30 marks: 55.59 points sits between them and over 50, meaning FPT's recent average gain is only 1.25 times its average loss. The figure is computed continuously from the start of the series, so loading only the last 20 sessions gives 63.18 points, while loading 123 sessions or more always gives 55.59 points.",
       },
       source: {
         vi: 'VNDirect, dữ liệu lịch sử FPT, 250 phiên 12/09/2025–15/09/2026.',
@@ -1194,8 +1194,8 @@ export const ROC_TOC_DO_THAY_DOI: FormulaModule = {
       dataset: FPT_2026,
       expected: 2.8289,
       note: {
-        vi: 'So với mức tăng 1,10% của VN-Index trong cùng 12 phiên: FPT tăng 2,83%, hơn gấp đôi chỉ số, tức trong quãng ấy FPT đã đi khoẻ hơn thị trường chung. Con số treo nhiều vào phiên đem ra so, vì nhìn lại 10 phiên thay vì 12 thì FPT chỉ tăng 0,69%, dù vẫn khoẻ hơn VN-Index, vốn giảm 1,11% cùng kỳ.',
-        en: "Compared with the VN-Index's 1.10% rise over the same 12 sessions: FPT rose 2.83%, more than twice as much, so over that stretch FPT moved more strongly than the market as a whole. The figure depends heavily on which session it is measured from, since looking back 10 sessions instead of 12 gives FPT only 0.69%, though that still beats the VN-Index, which fell 1.11% over the same stretch.",
+        vi: 'So với mức tăng 1,10% của VN-Index trong cùng 12 phiên: FPT tăng 2,83%, gấp 2,57 lần chỉ số, tức trong quãng ấy FPT đã đi khoẻ hơn thị trường chung. Con số treo nhiều vào phiên đem ra so, vì nhìn lại 10 phiên thay vì 12 thì FPT chỉ tăng 0,69%, dù vẫn khoẻ hơn VN-Index, vốn giảm 1,11% cùng kỳ.',
+        en: "Compared with the VN-Index's 1.10% rise over the same 12 sessions: FPT rose 2.83%, 2.57 times as much, so over that stretch FPT moved more strongly than the market as a whole. The figure depends heavily on which session it is measured from, since looking back 10 sessions instead of 12 gives FPT only 0.69%, though that still beats the VN-Index, which fell 1.11% over the same stretch.",
       },
       source: {
         vi: 'VNDirect, dữ liệu lịch sử FPT, 250 phiên 12/09/2025–15/09/2026.',
@@ -1349,8 +1349,8 @@ export const DONG_LUONG_MOMENTUM: FormulaModule = {
       dataset: FPT_2026,
       expected: 500,
       note: {
-        vi: 'So với mốc 0 đồng: 500 ₫ là số dương, tức giá FPT phiên 15/09/2026 cao hơn 10 phiên trước đúng 500 ₫ một cổ phiếu. Mức ấy chỉ bằng khoảng 0,7% giá 72.200 ₫ của phiên đem ra so, nên sau 10 phiên giá mới nhích lên rất ít.',
-        en: "Compared with the 0 ₫ mark: 500 ₫ is positive, so FPT's price in the 2026-09-15 session is exactly 500 ₫ a share higher than 10 sessions earlier. That is only about 0.7% of the 72,200 ₫ price of the comparison session, so over those 10 sessions the price has barely moved up.",
+        vi: 'So với mốc 0 đồng: 500 ₫ là số dương, tức giá FPT phiên 15/09/2026 cao hơn 10 phiên trước đúng 500 ₫ một cổ phiếu. Mức ấy chỉ bằng 0,69% giá 72.200 ₫ của phiên đem ra so, nên sau 10 phiên giá mới nhích lên rất ít.',
+        en: "Compared with the 0 ₫ mark: 500 ₫ is positive, so FPT's price in the 2026-09-15 session is exactly 500 ₫ a share higher than 10 sessions earlier. That is only 0.69% of the 72,200 ₫ price of the comparison session, so over those 10 sessions the price has barely moved up.",
       },
       source: {
         vi: 'VNDirect, dữ liệu lịch sử FPT, 250 phiên 12/09/2025–15/09/2026.',
@@ -1507,8 +1507,8 @@ export const KHOANG_CACH_GIA_SO_SMA: FormulaModule = {
       dataset: FPT_2026,
       expected: 1.5931,
       note: {
-        vi: 'So với khoảng cách FPT thường có trong ba tháng qua: 1,59% là số dương nên giá đang nằm trên đường SMA 20 phiên, nhưng vẫn sát đường, vì từ 15/06 đến 15/09/2026 con số này dao động trong khoảng từ −9,71% đến 6,58% và hơn hai phần ba số phiên còn cách xa đường hơn bây giờ.',
-        en: 'Compared with the gap FPT has usually had over the past three months: 1.59% is positive, so the price sits over the 20-session SMA, but still close to it, since from 2026-06-15 to 2026-09-15 this figure ranged between −9.71% and 6.58% and in more than two thirds of those sessions the price was further from the line than now.',
+        vi: 'So với khoảng cách FPT thường có trong ba tháng qua: 1,59% là số dương nên giá đang nằm trên đường SMA 20 phiên, nhưng vẫn sát đường, vì từ 15/06 đến 15/09/2026 con số này dao động trong khoảng từ −9,71% đến 6,58% và 45 trong 63 phiên trước đó còn cách xa đường hơn bây giờ.',
+        en: 'Compared with the gap FPT has usually had over the past three months: 1.59% is positive, so the price sits over the 20-session SMA, but still close to it, since from 2026-06-15 to 2026-09-15 this figure ranged between −9.71% and 6.58% and in 45 of the 63 earlier sessions the price was further from the line than now.',
       },
       source: {
         vi: 'VNDirect, dữ liệu lịch sử FPT, 250 phiên 12/09/2025–15/09/2026.',
@@ -1654,8 +1654,8 @@ export const GIAO_CAT_HAI_DUONG_MA: FormulaModule = {
       dataset: FPT_2026,
       expected: 1_190,
       note: {
-        vi: 'So với con số này ở phiên liền trước là 1.315 ₫: 1.190 ₫ hẹp lại một chút nhưng vẫn dương, tức đường SMA 10 phiên vẫn nằm trên đường SMA 20 phiên, chưa có lần cắt mới. Đường ngắn mới nằm trên được 10 phiên, kể từ lần cắt lên phiên 28/08/2026, và lần cắt lên ấy đến chỉ hai phiên sau một lần cắt xuống.',
-        en: 'Compared with this figure in the previous session, 1,315 ₫: 1,190 ₫ is a little narrower but still positive, so the 10-session SMA is still over the 20-session SMA and there is no new crossing. The short line has been on top for only 10 sessions, since the upward crossing in the 2026-08-28 session, and that crossing came just two sessions after a downward one.',
+        vi: 'So với con số này ở phiên liền trước là 1.315 ₫: 1.190 ₫ hẹp lại 125 ₫ nhưng vẫn dương, tức đường SMA 10 phiên vẫn nằm trên đường SMA 20 phiên, chưa có lần cắt mới. Đường ngắn mới nằm trên được 10 phiên, kể từ lần cắt lên phiên 28/08/2026, và lần cắt lên ấy đến chỉ hai phiên sau một lần cắt xuống.',
+        en: 'Compared with this figure in the previous session, 1,315 ₫: 1,190 ₫ is 125 ₫ narrower but still positive, so the 10-session SMA is still over the 20-session SMA and there is no new crossing. The short line has been on top for only 10 sessions, since the upward crossing in the 2026-08-28 session, and that crossing came just two sessions after a downward one.',
       },
       source: {
         vi: 'VNDirect, dữ liệu lịch sử FPT, 250 phiên 12/09/2025–15/09/2026.',

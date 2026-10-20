@@ -223,8 +223,8 @@ export const DO_LECH_CHUAN_LOI_SUAT_PHIEN: FormulaModule = {
       dataset: FPT_2026,
       expected: 1.925,
       note: {
-        vi: 'So với giá đóng cửa 72.700 ₫ của FPT ở phiên cuối: 1,93% mỗi phiên tương đương cỡ 1.400 ₫, và trong 54 lần đổi giá của 55 phiên có 41 lần, khoảng ba phần tư, lên hoặc xuống không quá 1,93%. Phiên mạnh nhất, ngày 03/08/2026, tăng tới 6,86%, nên đây là cỡ dao động của phiên thường chứ không phải của phiên mạnh nhất.',
-        en: "Compared with FPT's last close of 72,700 ₫: 1.93% per session comes to roughly 1,400 ₫, and of the 54 price changes across the 55 sessions, 41, about three quarters, moved up or down by no more than 1.93%. The strongest session, on 2026-08-03, jumped 6.86%, so this is the size of an ordinary session's swing, not of the biggest one.",
+        vi: 'So với giá đóng cửa 72.700 ₫ của FPT ở phiên cuối: 1,93% mỗi phiên tương đương 1.403,11 ₫, và trong 54 lần đổi giá của 55 phiên có 41 lần, tức 75,93%, lên hoặc xuống không quá 1,93%. Phiên mạnh nhất, ngày 03/08/2026, tăng tới 6,86%, nên đây là mức dao động của phiên thường chứ không phải của phiên mạnh nhất.',
+        en: "Compared with FPT's last close of 72,700 ₫: 1.93% per session comes to 1,403.11 ₫, and of the 54 price changes across the 55 sessions, 41, or 75.93%, moved up or down by no more than 1.93%. The strongest session, on 2026-08-03, jumped 6.86%, so this is the size of an ordinary session's swing, not of the biggest one.",
       },
       source: {
         vi: 'VNDirect, giá đóng cửa CTCP FPT (mã FPT), chuỗi 250 phiên 12/09/2025–15/09/2026.',
@@ -376,8 +376,8 @@ export const DO_BIEN_DONG_NAM_HOA: FormulaModule = {
       dataset: FPT_2026,
       expected: 30.4376,
       note: {
-        vi: 'So với VN-Index trên cùng 55 phiên, dao động 18,59% một năm: FPT ở mức 30,44% một năm, tức đường giá gập ghềnh gấp khoảng 1,6 lần chỉ số. Con số giả định cả năm FPT dao động như 55 phiên này, khoảng hai tháng rưỡi, còn đo trên cả 250 phiên thì được 32,33%.',
-        en: 'Compared with the VN-Index over the same 55 sessions, which swung 18.59% a year: FPT comes in at 30.44% a year, so its price path was about 1.6 times as bumpy as the index. The figure assumes FPT swings all year the way it did in these 55 sessions, about two and a half months, while measured over the full 250 sessions it is 32.33%.',
+        vi: 'So với VN-Index trên cùng 55 phiên, dao động 18,59% một năm: FPT ở mức 30,44% một năm, tức đường giá gập ghềnh gấp 1,64 lần chỉ số. Con số giả định cả năm FPT dao động như 55 phiên này, từ 26/06/2026 tới 15/09/2026, còn đo trên cả 250 phiên thì được 32,33%.',
+        en: 'Compared with the VN-Index over the same 55 sessions, which swung 18.59% a year: FPT comes in at 30.44% a year, so its price path was 1.64 times as bumpy as the index. The figure assumes FPT swings all year the way it did in these 55 sessions, from 2026-06-26 to 2026-09-15, while measured over the full 250 sessions it is 32.33%.',
       },
       source: {
         vi: 'VNDirect, giá đóng cửa CTCP FPT (mã FPT), chuỗi 250 phiên 12/09/2025–15/09/2026.',
@@ -704,8 +704,8 @@ export const HE_SO_BIEN_THIEN: FormulaModule = {
       dataset: STB_2026,
       expected: 33.6799,
       note: {
-        vi: 'So với cả 250 phiên của chính STB, hệ số 15,46 lần: 90 phiên gần nhất ra 33,68 lần, tức dao động mỗi phiên lớn gấp 33,68 lần phần lãi bình quân, hơn gấp đôi mức của cả năm. Lãi bình quân 90 phiên chỉ 0,053% mỗi phiên, sát 0, nên con số rất nhạy, lấy 100 phiên thay cho 90 phiên là nó còn 14,48 lần.',
-        en: "Compared with STB's own full 250 sessions, at 15.46 times: the last 90 sessions give 33.68 times, meaning the per-session swing is 33.68 times the average gain, more than double the full-year level. The average gain over those 90 sessions is just 0.053% per session, close to 0, so the figure is very sensitive, and taking 100 sessions instead of 90 brings it down to 14.48 times.",
+        vi: 'So với cả 250 phiên của chính STB, hệ số 15,46 lần: 90 phiên gần nhất ra 33,68 lần, tức dao động mỗi phiên lớn gấp 33,68 lần phần lãi bình quân, con số gấp 2,18 lần mức của cả năm. Lãi bình quân 90 phiên chỉ 0,053% mỗi phiên, sát 0, nên con số rất nhạy, lấy 100 phiên thay cho 90 phiên là nó còn 14,48 lần.',
+        en: "Compared with STB's own full 250 sessions, at 15.46 times: the last 90 sessions give 33.68 times, meaning the per-session swing is 33.68 times the average gain, a figure 2.18 times the full-year level. The average gain over those 90 sessions is just 0.053% per session, close to 0, so the figure is very sensitive, and taking 100 sessions instead of 90 brings it down to 14.48 times.",
       },
       source: {
         vi: 'VNDirect, giá đóng cửa Ngân hàng TMCP Sài Gòn Thương Tín (mã STB), chuỗi 250 phiên 12/09/2025–15/09/2026.',

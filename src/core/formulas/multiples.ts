@@ -129,8 +129,8 @@ export const PE: FormulaModule = {
       inputs: { price: 72_700, eps: 5_867 },
       expected: 12.3913,
       note: {
-        vi: 'So với thị giá 72.700 ₫ của FPT: lãi bốn quý gần nhất của mỗi cổ phiếu là 5.867 ₫, nên P/E 12,39 lần nghĩa là bạn đang trả 12,39 đồng cho mỗi đồng lãi một năm, và nếu lãi giữ nguyên thì cần khoảng 12,4 năm lãi như thế mới bằng số tiền bỏ ra mua.',
-        en: "Compared with FPT's price of 72,700 ₫: each share earned 5,867 ₫ over the last four quarters, so a P/E of 12.39 times means you are paying 12.39 dong for each dong of annual profit, and if profit holds steady it would take about 12.4 years of that profit to add up to the purchase price.",
+        vi: 'So với thị giá 72.700 ₫ của FPT: lãi bốn quý gần nhất của mỗi cổ phiếu là 5.867 ₫, nên P/E 12,39 lần nghĩa là bạn đang trả 12,39 đồng cho mỗi đồng lãi một năm, và nếu lãi giữ nguyên thì cần 12,39 năm lãi như thế mới bằng số tiền bỏ ra mua.',
+        en: "Compared with FPT's price of 72,700 ₫: each share earned 5,867 ₫ over the last four quarters, so a P/E of 12.39 times means you are paying 12.39 dong for each dong of annual profit, and if profit holds steady it would take 12.39 years of that profit to add up to the purchase price.",
       },
       source: {
         vi: 'Giá FPT (mã FPT) phiên 11/09/2026; EPS bốn quý gần nhất theo báo cáo tài chính quý 2/2026.',
@@ -293,8 +293,8 @@ export const PB: FormulaModule = {
       inputs: { price: 72_700, bookValuePerShare: 23_246 },
       expected: 3.1274,
       note: {
-        vi: 'So với mốc 1 lần: P/B 3,13 lần nghĩa là thị trường trả 72.700 ₫ cho một cổ phiếu FPT chỉ có 23.246 ₫ vốn của cổ đông ghi trên sổ, gấp hơn ba lần. Giá trị của công ty công nghệ như FPT nằm nhiều ở con người và thương hiệu, thứ sổ sách không ghi, nên vượt mốc 1 lần chưa hẳn là đắt.',
-        en: "Compared with the 1 times mark: a P/B of 3.13 times means the market pays 72,700 ₫ for an FPT share backed by only 23,246 ₫ of shareholders' equity on the books, more than three times as much. A technology company like FPT holds much of its value in people and brand, which the books do not record, so being above the 1 times mark does not by itself mean expensive.",
+        vi: 'So với mốc 1 lần: P/B 3,13 lần nghĩa là thị trường trả 72.700 ₫ cho một cổ phiếu FPT chỉ có 23.246 ₫ vốn của cổ đông ghi trên sổ, gấp 3,13 lần. Giá trị của công ty công nghệ như FPT nằm nhiều ở con người và thương hiệu, thứ sổ sách không ghi, nên vượt mốc 1 lần chưa hẳn là đắt.',
+        en: "Compared with the 1 times mark: a P/B of 3.13 times means the market pays 72,700 ₫ for an FPT share backed by only 23,246 ₫ of shareholders' equity on the books, 3.13 times as much. A technology company like FPT holds much of its value in people and brand, which the books do not record, so being above the 1 times mark does not by itself mean expensive.",
       },
       source: {
         vi: 'Giá FPT (mã FPT) phiên 11/09/2026; vốn chủ sở hữu 39.851,5 tỷ ₫ trên 1.714.326.422 CP theo báo cáo tài chính quý 2/2026.',

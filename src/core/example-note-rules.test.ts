@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import { exampleNoteDuplicates, exampleNoteProblems } from './example-note-rules';
 import type { DocViDuInput } from './example-note-rules';
+import { formatNumber } from './format';
 import { ALL_FORMULAS } from './formulas';
 
 /**
@@ -38,6 +39,31 @@ describe('hàng "Đọc kết quả" của ví dụ', () => {
 
   it('không hai ví dụ nào dùng chung một đoạn', () => {
     expect(exampleNoteDuplicates(ALL_FORMULAS.map(inputOf))).toEqual([]);
+  });
+
+  /*
+   * Câu đầu ĐỌC đúng con số dòng "Kết quả" in ra, không làm tròn thành chữ (20/10/2026). Ba đoạn
+   * từng viết "khoảng 518 triệu ₫" cạnh dòng Kết quả 517.949.565 ₫; một đoạn cũ của DCF không nhắc
+   * con số nào của dòng ấy mà kể độ nhạy "hơn 20%" sai (thật 17,75%) — khách báo lỗi. Bản tiếng Anh
+   * viết số theo lối Anh (dấu phẩy ngăn nghìn, dấu chấm thập phân), nên đổi dấu trước khi dò. Dấu
+   * âm bỏ đi: câu có thể nói "âm 19,87%" thay vì "−19,87%".
+   */
+  it('câu đầu chứa đúng con số dòng Kết quả in ra, cả hai thứ tiếng', () => {
+    const thieu = ALL_FORMULAS.flatMap((spec) => {
+      const { note, expected } = spec.example;
+      if (note === undefined) return [];
+      const vi = formatNumber(Math.abs(expected));
+      const en = vi
+        .replace(/\./g, '\u0000')
+        .replace(',', '.')
+        .replace(/\u0000/g, ',');
+      const cauDau = (text: string) => text.split(/[.!?](?=\s)/)[0] ?? '';
+      return [
+        ...(cauDau(note.vi).includes(vi) ? [] : [`${spec.id}.vi: câu đầu thiếu ${vi}`]),
+        ...(cauDau(note.en).includes(en) ? [] : [`${spec.id}.en: câu đầu thiếu ${en}`]),
+      ];
+    });
+    expect(thieu, thieu.join('\n')).toEqual([]);
   });
 });
 

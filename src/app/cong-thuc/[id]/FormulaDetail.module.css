@@ -919,6 +919,30 @@ button.iconButton::after {
 }
 
 /*
+ * Khổ điện thoại: hai ghi chú vàng của khối Số liệu nhỏ và mỏng hơn (20/10/2026). Chủ dự án khoanh
+ * "Số liệu chỉ mang tính chất minh hoạ, không nên áp dụng cho thực tế." trên `beta`: _"giảm size text
+ * khoanh đỏ … và giảm padding, áp dụng cho màn mobile"_. Đo ở 390px trước khi sửa: chữ 14px, hai
+ * dòng, đệm 8/12px, ô cao 60px.
+ *
+ * Chữ 12px, đệm 6/8px, dòng 1,4 — đúng bộ số của ô miễn trừ ở cuối màn (`DisclaimerBar.module.css`),
+ * mặt vàng duy nhất khác đã được thu ở khổ này. `.presetMismatch` ("Công thức này không dùng số liệu
+ * của mã X") cùng khối, cùng mặt phẳng và cùng vai, nên theo luôn.
+ *
+ * Đây là chỗ DUY NHẤT hai mặt này xuống `--text-xs`: luật gốc ở trên giữ 14px như cả nhóm mặt cảnh
+ * báo (`warning-surface.test.ts` chặn `--text-xs` ở luật gốc). Ở khổ điện thoại 12px là cỡ chữ thường
+ * của chú giải, dòng diễn giải và hộp lời giải, nên câu vẫn đọc ngang chữ quanh nó. Phải đứng SAU
+ * hai luật gốc: cùng độ ưu tiên, chỉ thứ tự quyết định.
+ */
+@media (max-width: 1023.98px) {
+  .seriesShortNote,
+  .presetMismatch {
+    padding: 6px var(--space-2);
+    font-size: var(--text-xs);
+    line-height: 1.4;
+  }
+}
+
+/*
  * Thanh mã dính theo lượt duyệt: huy hiệu mã + hai nút thao tác.
  *
  * Đậm hơn `.pendingNote` có chủ đích: đây không phải một ghi chú, nó là dấu hiệu vì sao ô nhập

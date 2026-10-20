@@ -552,8 +552,8 @@ export const SUT_GIAM_HIEN_TAI: FormulaModule = {
       dataset: FPT_2026,
       expected: 2.4161,
       note: {
-        vi: 'So với đỉnh 74.500 ₫ của FPT trong 55 phiên gần nhất: giá đóng cửa 72.700 ₫ phiên 15/09/2026 thấp hơn đỉnh ấy 2,42%, tức chỉ cần tăng khoảng 2,5% là về lại đỉnh. Con số nhỏ vì chỉ xét 55 phiên, xét cả 250 phiên thì đỉnh là 106.100 ₫ ngày 29/01/2026 và FPT đang thấp hơn đỉnh ấy 31,48%.',
-        en: "Compared with FPT's peak close of 74,500 ₫ in the last 55 sessions: the 72,700 ₫ close on 2026-09-15 is 2.42% below that peak, so a rise of only about 2.5% would take it back there. The figure is small because only 55 sessions are counted, and over the full 250 sessions the peak is 106,100 ₫ on 2026-01-29, with FPT now 31.48% below it.",
+        vi: 'So với đỉnh 74.500 ₫ của FPT trong 55 phiên gần nhất: giá đóng cửa 72.700 ₫ phiên 15/09/2026 thấp hơn đỉnh ấy 2,42%, tức chỉ cần tăng 2,48% là về lại đỉnh. Con số nhỏ vì chỉ xét 55 phiên, xét cả 250 phiên thì đỉnh là 106.100 ₫ ngày 29/01/2026 và FPT đang thấp hơn đỉnh ấy 31,48%.',
+        en: "Compared with FPT's peak close of 74,500 ₫ in the last 55 sessions: the 72,700 ₫ close on 2026-09-15 is 2.42% below that peak, so a rise of only 2.48% would take it back there. The figure is small because only 55 sessions are counted, and over the full 250 sessions the peak is 106,100 ₫ on 2026-01-29, with FPT now 31.48% below it.",
       },
       source: {
         vi: 'VNDirect, giá đóng cửa CTCP FPT (mã FPT), chuỗi 250 phiên 12/09/2025–15/09/2026.',
@@ -717,8 +717,8 @@ export const VAR_LICH_SU: FormulaModule = {
       dataset: VNINDEX_2026,
       expected: 1.9755,
       note: {
-        vi: 'So với số vốn bỏ vào danh mục bám VN-Index: mất 1,98% số vốn ấy trong một phiên là mức mà khoảng 95% số phiên không vượt qua, cụ thể trong 71 phiên tới 15/09/2026 chỉ 4 phiên mất nhiều hơn. Phiên tệ nhất, 22/07/2026, mất 3,58%, nên 1,98% là ngưỡng của phiên xấu chứ chưa phải mức lỗ lớn nhất.',
-        en: 'Compared with the money put into a portfolio tracking the VN-Index: losing 1.98% of it in one session is a level about 95% of sessions stay within, and in the 71 sessions through 2026-09-15 only 4 sessions lost more. The worst one, on 2026-07-22, lost 3.58%, so 1.98% marks a bad session, not the largest possible loss.',
+        vi: 'So với số vốn bỏ vào danh mục bám VN-Index: mất 1,98% số vốn ấy trong một phiên là mức mà 66 trong 70 lần đổi giá của 71 phiên tới 15/09/2026, tức 94,29%, không vượt qua, chỉ 4 lần mất nhiều hơn. Phiên tệ nhất, 22/07/2026, mất 3,58%, nên 1,98% là ngưỡng của phiên xấu chứ chưa phải mức lỗ lớn nhất.',
+        en: 'Compared with the money put into a portfolio tracking the VN-Index: losing 1.98% of it in one session is a level that 66 of the 70 price changes across the 71 sessions through 2026-09-15, or 94.29%, stayed within, with only 4 losing more. The worst one, on 2026-07-22, lost 3.58%, so 1.98% marks a bad session, not the largest possible loss.',
       },
       source: {
         vi: 'VNDirect, dữ liệu lịch sử VN-Index, chuỗi 250 phiên 12/09/2025–15/09/2026; 71 phiên cuối trùng số liệu Investing.com, đối chiếu chéo Vietstock.',
@@ -897,8 +897,8 @@ export const CVAR_LICH_SU: FormulaModule = {
       dataset: VNINDEX_2026,
       expected: 2.6858,
       note: {
-        vi: 'So với ngưỡng VaR 1,98% của cùng 71 phiên: 4 phiên VN-Index lỗ vượt ngưỡng ấy mất trung bình 2,69% số vốn mỗi phiên, sâu hơn ngưỡng khoảng 0,71% số vốn. Bình quân ấy chỉ dựa trên 4 phiên, xét cả 250 phiên thì nhóm phiên tệ nhất có 13 phiên và mất trung bình 3,18% mỗi phiên.',
-        en: 'Compared with the 1.98% VaR threshold of the same 71 sessions: the 4 VN-Index sessions that went past it lost 2.69% of capital on average, about 0.71% of capital deeper than the threshold. That average rests on only 4 sessions, and over the full 250 sessions the group of worst sessions has 13 sessions, losing 3.18% each on average.',
+        vi: 'So với ngưỡng VaR 1,98% của cùng 71 phiên: 4 phiên VN-Index lỗ vượt ngưỡng ấy mất trung bình 2,69% số vốn mỗi phiên, sâu hơn ngưỡng 0,71% số vốn. Bình quân ấy chỉ dựa trên 4 phiên, xét cả 250 phiên thì nhóm phiên tệ nhất có 13 phiên và mất trung bình 3,18% mỗi phiên.',
+        en: 'Compared with the 1.98% VaR threshold of the same 71 sessions: the 4 VN-Index sessions that went past it lost 2.69% of capital on average, 0.71% of capital deeper than the threshold. That average rests on only 4 sessions, and over the full 250 sessions the group of worst sessions has 13 sessions, losing 3.18% each on average.',
       },
       source: {
         vi: 'VNDirect, dữ liệu lịch sử VN-Index, chuỗi 250 phiên 12/09/2025–15/09/2026; 71 phiên cuối trùng số liệu Investing.com, đối chiếu chéo Vietstock.',

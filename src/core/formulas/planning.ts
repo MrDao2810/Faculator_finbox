@@ -250,8 +250,8 @@ export const RUT_TRUOC_HAN: FormulaModule = {
       },
       expected: 250_000,
       note: {
-        vi: 'So với 20.250.000 ₫ tiền lãi ba tháng tính theo mức 8,1%/năm ghi trên sổ: rút sớm chỉ còn 250.000 ₫, tức bỏ lại 20.000.000 ₫, gần 99% tiền lãi của ba tháng đã gửi.',
-        en: 'Compared with the 20,250,000 VND that three months would earn at the 8.1%/year on the book: withdrawing early leaves only 250,000 VND, giving up 20,000,000 VND, almost 99% of the interest for the three months held.',
+        vi: 'So với 20.250.000 ₫ tiền lãi ba tháng tính theo mức 8,1%/năm ghi trên sổ: rút sớm chỉ còn 250.000 ₫, tức bỏ lại 20.000.000 ₫, bằng 98,77% tiền lãi của ba tháng đã gửi.',
+        en: 'Compared with the 20,250,000 VND that three months would earn at the 8.1%/year on the book: withdrawing early leaves only 250,000 VND, giving up 20,000,000 VND, 98.77% of the interest for the three months held.',
       },
       source: {
         vi: 'Thông tư 04/2022/TT-NHNN hiệu lực 01/08/2022; lãi suất không kỳ hạn 0,1%/năm niêm yết năm 2026.',
@@ -501,8 +501,8 @@ export const GUI_QUAY_VONG: FormulaModule = {
       },
       expected: -911_000,
       note: {
-        vi: 'So với mốc 0 đồng: âm 911.000 ₫ nghĩa là sau 12 tháng, sổ 12 tháng lãi 6,8%/năm cầm về nhiều hơn quay vòng hai sổ 6 tháng đúng số tiền ấy, không phải mất gốc. Lãi năm cao hơn 0,2 điểm phần trăm đáng 2 triệu ₫, gửi tiếp lãi vòng đầu chỉ bù lại khoảng 1,09 triệu ₫, và chỉ khi vòng hai vẫn được 6,6%/năm.',
-        en: "Compared with the 0 dong mark: minus 911,000 VND means that after 12 months the 12-month book at 6.8%/year returns exactly that much more than rolling two 6-month books, not that principal is lost. The 0.2 percentage-point higher annual rate is worth 2 million VND, and redepositing the first round's interest wins back only about 1.09 million VND, if the second round still pays 6.6%/year.",
+        vi: 'So với mốc 0 đồng: âm 911.000 ₫ nghĩa là sau 12 tháng, sổ 12 tháng lãi 6,8%/năm cầm về nhiều hơn quay vòng hai sổ 6 tháng đúng số tiền ấy, không phải mất gốc. Lãi năm cao hơn 0,2 điểm phần trăm đáng 2.000.000 ₫, gửi tiếp lãi vòng đầu chỉ bù lại 1.089.000 ₫, và chỉ khi vòng hai vẫn được 6,6%/năm.',
+        en: "Compared with the 0 dong mark: minus 911,000 VND means that after 12 months the 12-month book at 6.8%/year returns exactly that much more than rolling two 6-month books, not that principal is lost. The 0.2 percentage-point higher annual rate is worth 2,000,000 VND, and redepositing the first round's interest wins back only 1,089,000 VND, if the second round still pays 6.6%/year.",
       },
       source: {
         vi: 'Biểu lãi suất tiết kiệm trực tuyến nhóm Big4, VietNamNet 09/09/2026.',
@@ -866,10 +866,10 @@ export const GIA_VON_TRUNG_BINH_DCA: FormulaModule = {
         amount3: 10_000_000,
         price3: 72_000,
       },
-      expected: 67_028,
+      expected: 67_028.32,
       note: {
-        vi: 'So với giá 72.000 ₫ của đợt mua cuối: giá vốn trung bình 67.028 ₫ thấp hơn khoảng 4.972 ₫, tức nếu bán hết ở giá ấy thì 30 triệu ₫ đã bỏ ra đang lãi khoảng 7,4%, chưa trừ phí và thuế. Tính cả phí mua, phí bán và thuế bán thì giá phải từ khoảng 67.300 ₫ trở lên mới thật sự hoà vốn.',
-        en: 'Compared with the 72,000 VND paid in the last round: the 67,028 VND average cost is about 4,972 VND lower, so selling everything at that price would leave the 30 million VND invested about 7.4% ahead, before fees and tax. Counting the buy fee, sell fee and sell tax, the price has to reach about 67,300 VND before the position truly breaks even.',
+        vi: 'So với giá 72.000 ₫ của đợt mua cuối: giá vốn trung bình 67.028,32 ₫ thấp hơn 4.971,68 ₫, tức nếu bán hết ở giá ấy thì 30 triệu ₫ đã bỏ ra đang lãi 7,42%, chưa trừ phí và thuế. Tính cả phí mua, phí bán và thuế bán thì giá phải từ 67.297,11 ₫ trở lên mới thật sự hoà vốn.',
+        en: 'Compared with the 72,000 VND paid in the last round: the 67,028.32 VND average cost is 4,971.68 VND lower, so selling everything at that price would leave the 30 million VND invested 7.42% ahead, before fees and tax. Counting the buy fee, sell fee and sell tax, the price has to reach 67,297.11 VND before the position truly breaks even.',
       },
       source: {
         vi: 'Giá đóng cửa FPT các phiên 15/07, 24/07 và 21/08/2026, Investing.com.',
@@ -1394,8 +1394,8 @@ export const THUE_TNCN_DAU_TU: FormulaModule = {
       inputs: { quantity: 1_000, sellPrice: 72_700, dividendPerShare: 1_000 },
       expected: 122_700,
       note: {
-        vi: 'So với 73,7 triệu ₫ tiền bán 1.000 CP cộng cổ tức, trước thuế: tổng thuế 122.700 ₫ chỉ khoảng 0,17%, gồm 72.700 ₫ thuế khi bán và 50.000 ₫ thuế cổ tức. Cả hai khoản bị trừ thẳng trước khi tiền về tài khoản, và thuế khi bán vẫn bị trừ kể cả khi lần bán này lỗ.',
-        en: 'Compared with the 73.7 million ₫ from selling 1,000 shares plus the dividend, before tax: the 122,700 ₫ total tax is only about 0.17%, made up of 72,700 ₫ on the sale and 50,000 ₫ on the dividend. Both amounts are withheld before the money reaches your account, and the sale tax is withheld even if this sale is at a loss.',
+        vi: 'So với 73,7 triệu ₫ tiền bán 1.000 CP cộng cổ tức, trước thuế: tổng thuế 122.700 ₫ chỉ bằng 0,17%, gồm 72.700 ₫ thuế khi bán và 50.000 ₫ thuế cổ tức. Cả hai khoản bị trừ thẳng trước khi tiền về tài khoản, và thuế khi bán vẫn bị trừ kể cả khi lần bán này lỗ.',
+        en: 'Compared with the 73.7 million ₫ from selling 1,000 shares plus the dividend, before tax: the 122,700 ₫ total tax is only 0.17%, made up of 72,700 ₫ on the sale and 50,000 ₫ on the dividend. Both amounts are withheld before the money reaches your account, and the sale tax is withheld even if this sale is at a loss.',
       },
       source: {
         vi: 'Luật Thuế TNCN 2025 số 109/2025/QH15 hiệu lực 01/07/2026; giá FPT phiên 11/09/2026 và cổ tức đợt 02/12/2025.',

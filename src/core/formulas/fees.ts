@@ -377,8 +377,8 @@ export const THUE_CHUYEN_NHUONG: FormulaModule = {
       inputs: { quantity: 1_000, sellPrice: 72_700 },
       expected: 72_700,
       note: {
-        vi: 'So với 72.700.000 ₫ tiền bán 1.000 cổ phiếu FPT: thuế 72.700 ₫ chỉ bằng một phần nghìn, nhưng cộng với 109.050 ₫ phí bán thì tiền thật về tài khoản còn 72.518.250 ₫. Khoản thuế này không phụ thuộc lô lãi hay lỗ vì tính trên tiền bán, nên kể cả khi bán lỗ cả lô ở 55.000 ₫ thì vẫn nộp 55.000 ₫.',
-        en: 'Compared with the 72,700,000 ₫ received for 1,000 FPT shares: the 72,700 ₫ tax is just one thousandth of it, but together with the 109,050 ₫ sell fee the cash that actually reaches the account is 72,518,250 ₫. The tax ignores whether the lot made a profit or a loss, since it is charged on the sale value, so even selling the whole lot at a loss at 55,000 ₫ would still cost 55,000 ₫ in tax.',
+        vi: 'So với 72.700.000 ₫ tiền bán 1.000 cổ phiếu FPT: thuế 72.700 ₫ chỉ bằng 0,1% số tiền ấy, nhưng cộng với 109.050 ₫ phí bán thì tiền thật về tài khoản còn 72.518.250 ₫. Khoản thuế này không phụ thuộc lô lãi hay lỗ vì tính trên tiền bán, nên kể cả khi bán lỗ cả lô ở 55.000 ₫ thì vẫn nộp 55.000 ₫.',
+        en: 'Compared with the 72,700,000 ₫ received for 1,000 FPT shares: the 72,700 ₫ tax is just 0.1% of it, but together with the 109,050 ₫ sell fee the cash that actually reaches the account is 72,518,250 ₫. The tax ignores whether the lot made a profit or a loss, since it is charged on the sale value, so even selling the whole lot at a loss at 55,000 ₫ would still cost 55,000 ₫ in tax.',
       },
       source: {
         vi: 'Luật Thuế thu nhập cá nhân 109/2025/QH15, Điều 13 khoản 2, hiệu lực 01/07/2026; giá FPT (mã FPT) phiên 11/09/2026.',
@@ -589,8 +589,8 @@ export const PHI_LUU_KY: FormulaModule = {
       inputs: { quantity: 1_000, months: 2 },
       expected: 540,
       note: {
-        vi: 'So với 94.350 ₫ phí mua lô 1.000 cổ phiếu FPT này ở giá 62.900 ₫: phí lưu ký 540 ₫ chỉ bằng khoảng 0,6% phí mua, một khoản rất nhỏ trong chi phí của lô. Con số tính tròn 2 tháng, trong khi từ 24/07 đến 11/09/2026 chỉ có 49 ngày, nếu tính theo ngày thì chỉ khoảng 435 ₫.',
-        en: 'Compared with the 94,350 ₫ buy fee on this lot of 1,000 FPT shares at 62,900 ₫: the 540 ₫ custody fee is only about 0.6% of it, a very small part of the lot’s costs. It is charged for 2 full months, while 2026-07-24 to 2026-09-11 is only 49 days, which counted by the day would come to only about 435 ₫.',
+        vi: 'So với 94.350 ₫ phí mua lô 1.000 cổ phiếu FPT này ở giá 62.900 ₫: phí lưu ký 540 ₫ chỉ bằng 0,57% phí mua, một khoản rất nhỏ trong chi phí của lô. Con số tính tròn 2 tháng, trong khi từ 24/07 đến 11/09/2026 chỉ có 49 ngày, nếu tính theo ngày, lấy 12 tháng bằng 365 ngày, thì chỉ là 434,96 ₫.',
+        en: 'Compared with the 94,350 ₫ buy fee on this lot of 1,000 FPT shares at 62,900 ₫: the 540 ₫ custody fee is only 0.57% of it, a very small part of the lot’s costs. It is charged for 2 full months, while 2026-07-24 to 2026-09-11 is only 49 days, which counted by the day, taking 12 months as 365 days, would come to only 434.96 ₫.',
       },
       source: {
         vi: 'Quyết định 1541/QĐ-BTC về giá dịch vụ lưu ký, hiệu lực 07/05/2025; thời gian nắm giữ 24/07 đến 11/09/2026.',
@@ -737,10 +737,10 @@ export const GIA_HOA_VON: FormulaModule = {
         en: 'FPT — buy 1,000 shares at 62,900 ₫ on 2026-07-24 and hold for 2 months',
       },
       inputs: { quantity: 1_000, months: 2, buyPrice: 62_900 },
-      expected: 63_153,
+      expected: 63_152.77,
       note: {
-        vi: 'So với giá mua 62.900 ₫: phải bán được từ 63.153 ₫ mỗi cổ phiếu mới hoà vốn, cao hơn giá mua 253 ₫, khoảng 0,4%, để bù phí mua, phí bán, thuế bán và phí lưu ký. Nếu bán đúng giá mua thì 1.000 cổ phiếu này vẫn lỗ 252.140 ₫ dù giá không hề giảm.',
-        en: 'Compared with the 62,900 ₫ buy price: each share has to sell for at least 63,153 ₫ to break even, 253 ₫ or about 0.4% higher, to cover the buy fee, sell fee, sell tax and custody fee. Selling at exactly the buy price would still lose 252,140 ₫ on these 1,000 shares even though the price never fell.',
+        vi: 'So với giá mua 62.900 ₫: phải bán được từ 63.152,77 ₫ mỗi cổ phiếu mới hoà vốn, cao hơn giá mua 252,77 ₫, tức 0,4%, để bù phí mua, phí bán, thuế bán và phí lưu ký. Nếu bán đúng giá mua thì 1.000 cổ phiếu này vẫn lỗ 252.140 ₫ dù giá không hề giảm.',
+        en: 'Compared with the 62,900 ₫ buy price: each share has to sell for at least 63,152.77 ₫ to break even, 252.77 ₫ or 0.4% higher, to cover the buy fee, sell fee, sell tax and custody fee. Selling at exactly the buy price would still lose 252,140 ₫ on these 1,000 shares even though the price never fell.',
       },
       source: {
         vi: 'Biểu phí giao dịch trực tuyến SSI; giá mua FPT (mã FPT) phiên 24/07/2026.',
@@ -923,8 +923,8 @@ export const LOI_NHUAN_RONG: FormulaModule = {
       inputs: { quantity: 1_000, months: 2, buyPrice: 62_900, sellPrice: 72_700 },
       expected: 9_523_360,
       note: {
-        vi: 'So với khoản chênh 9.800.000 ₫ giữa tiền bán và tiền mua: lãi thật về túi là 9.523.360 ₫, vì phí và thuế của cả vòng lấy đi 276.640 ₫, khoảng 2,8% khoản chênh. Tỷ lệ ấy nhỏ chỉ vì lần này giá lên mạnh, nếu giá bán chỉ cao hơn giá mua 1% thì phí và thuế sẽ lấy đi hơn 40% khoản chênh.',
-        en: 'Compared with the 9,800,000 ₫ gap between sale proceeds and purchase cost: the profit that actually lands is 9,523,360 ₫, because fees and tax on the round trip take 276,640 ₫, about 2.8% of the gap. That share is small only because the price rose strongly this time, and if the sale price were just 1% over the buy price, fees and tax would take more than 40% of the gap.',
+        vi: 'So với khoản chênh 9.800.000 ₫ giữa tiền bán và tiền mua: lãi thật về túi là 9.523.360 ₫, vì phí và thuế của cả vòng lấy đi 276.640 ₫, tức 2,82% khoản chênh. Tỷ lệ ấy nhỏ chỉ vì lần này giá lên mạnh, nếu giá bán chỉ cao hơn giá mua 1% thì phí và thuế sẽ lấy đi 40,34% khoản chênh.',
+        en: 'Compared with the 9,800,000 ₫ gap between sale proceeds and purchase cost: the profit that actually lands is 9,523,360 ₫, because fees and tax on the round trip take 276,640 ₫, or 2.82% of the gap. That share is small only because the price rose strongly this time, and if the sale price were just 1% over the buy price, fees and tax would take 40.34% of the gap.',
       },
       source: {
         vi: 'Biểu phí giao dịch trực tuyến SSI; giá FPT (mã FPT) phiên 24/07/2026 và 11/09/2026.',
@@ -1074,8 +1074,8 @@ export const ROI_RONG: FormulaModule = {
       inputs: { quantity: 1_000, months: 2, buyPrice: 62_900, sellPrice: 72_700 },
       expected: 15.1177,
       note: {
-        vi: 'So với mức lãi 15,58% nếu chỉ tính chênh lệch giá mua và giá bán: sau mọi khoản phí và thuế, mỗi 100 ₫ vốn thật bỏ ra còn lãi 15,12 ₫, tức phí và thuế kéo mức lãi xuống chưa tới nửa điểm phần trăm. Đây là lãi của 49 ngày chứ không phải một năm, nên không so thẳng được với lãi suất tiết kiệm theo năm.',
-        en: 'Compared with the 15.58% return from the gap between the buy and sell prices alone: after every fee and tax, each 100 ₫ of capital actually put in earns 15.12 ₫, so fees and tax pull the return down by less than half a percentage point. This is the return over 49 days, not over a year, so it cannot be set directly against an annual savings rate.',
+        vi: 'So với mức lãi 15,58% nếu chỉ tính chênh lệch giá mua và giá bán: sau mọi khoản phí và thuế, mỗi 100 ₫ vốn thật bỏ ra còn lãi 15,12 ₫, tức phí và thuế kéo mức lãi xuống 0,46 điểm phần trăm. Đây là lãi của 49 ngày chứ không phải một năm, nên không so thẳng được với lãi suất tiết kiệm theo năm.',
+        en: 'Compared with the 15.58% return from the gap between the buy and sell prices alone: after every fee and tax, each 100 ₫ of capital actually put in earns 15.12 ₫, so fees and tax pull the return down by 0.46 percentage points. This is the return over 49 days, not over a year, so it cannot be set directly against an annual savings rate.',
       },
       source: {
         vi: 'Biểu phí giao dịch trực tuyến SSI; giá FPT (mã FPT) phiên 24/07/2026 và 11/09/2026.',

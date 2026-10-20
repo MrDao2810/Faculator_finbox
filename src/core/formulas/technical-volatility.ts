@@ -388,10 +388,10 @@ export const DAI_BOLLINGER_TREN: FormulaModule = {
       inputs: { period: 20, k: 2 },
       series: FPT_PHIEN,
       dataset: FPT_2026,
-      expected: 74_901,
+      expected: 74_901.5,
       note: {
-        vi: 'So với giá đóng cửa phiên cuối của FPT là 72.700 ₫: dải trên 74.901 ₫ cao hơn giá khoảng 2.201 ₫, bằng chừng 3,0% giá, tức giá chưa chạm tới mép trên vùng lên xuống quen thuộc của 20 phiên vừa qua.',
-        en: "Compared with FPT's last closing price of 72,700 ₫: the upper band at 74,901 ₫ is about 2,201 ₫ higher, roughly 3.0% of the price, so the price has not reached the top edge of its usual range over the past 20 sessions.",
+        vi: 'So với giá đóng cửa phiên cuối của FPT là 72.700 ₫: dải trên 74.901,5 ₫ cao hơn giá 2.201,5 ₫, bằng 3,03% giá, tức giá chưa chạm tới mép trên vùng lên xuống quen thuộc của 20 phiên vừa qua.',
+        en: "Compared with FPT's last closing price of 72,700 ₫: the upper band at 74,901.5 ₫ is 2,201.5 ₫ higher, 3.03% of the price, so the price has not reached the top edge of its usual range over the past 20 sessions.",
       },
       source: {
         vi: 'VNDirect, dữ liệu lịch sử FPT, 250 phiên 12/09/2025–15/09/2026.',
@@ -537,10 +537,10 @@ export const DAI_BOLLINGER_DUOI: FormulaModule = {
       inputs: { period: 20, k: 2 },
       series: FPT_PHIEN,
       dataset: FPT_2026,
-      expected: 68_219,
+      expected: 68_218.5,
       note: {
-        vi: 'So với giá đóng cửa phiên cuối của FPT là 72.700 ₫: dải dưới 68.219 ₫ thấp hơn giá khoảng 4.481 ₫, bằng chừng 6,2% giá, tức giá còn cách xa mép dưới vùng dao động thường ngày của 20 phiên vừa qua, vì đang nằm trên cả đường giữa 71.560 ₫.',
-        en: "Compared with FPT's last closing price of 72,700 ₫: the lower band at 68,219 ₫ is about 4,481 ₫ lower, roughly 6.2% of the price, so the price is still well clear of the bottom edge of its usual range over the past 20 sessions, since it sits over even the 71,560 ₫ middle line.",
+        vi: 'So với giá đóng cửa phiên cuối của FPT là 72.700 ₫: dải dưới 68.218,5 ₫ thấp hơn giá 4.481,5 ₫, bằng 6,16% giá, tức giá còn cách xa mép dưới vùng dao động thường ngày của 20 phiên vừa qua, vì đang nằm trên cả đường giữa 71.560 ₫.',
+        en: "Compared with FPT's last closing price of 72,700 ₫: the lower band at 68,218.5 ₫ is 4,481.5 ₫ lower, 6.16% of the price, so the price is still well clear of the bottom edge of its usual range over the past 20 sessions, since it sits over even the 71,560 ₫ middle line.",
       },
       source: {
         vi: 'VNDirect, dữ liệu lịch sử FPT, 250 phiên 12/09/2025–15/09/2026.',
@@ -689,8 +689,8 @@ export const DO_RONG_DAI_BOLLINGER: FormulaModule = {
       dataset: FPT_2026,
       expected: 9.339,
       note: {
-        vi: 'So với độ rộng dải của chính FPT trong năm qua, từ 4,96% đến 34,73%: 9,34% nằm ở khoảng giữa, hẹp hơn chừng sáu phần mười số phiên, tức giá FPT đang lên xuống ở mức bình thường của nó, dải chưa bóp hẹp bất thường mà cũng chưa nở rộng.',
-        en: "Compared with FPT's own bandwidth over the past year, from 4.96% to 34.73%: 9.34% sits in the middle ground, narrower than about six in ten sessions, so FPT's price is moving by its usual amount, with the bands neither unusually squeezed nor unusually wide.",
+        vi: 'So với độ rộng dải của chính FPT trong năm qua, từ 4,96% đến 34,73%: 9,34% nằm ở khoảng giữa, hẹp hơn 145 trong 230 phiên trước đó, tức giá FPT đang lên xuống ở mức bình thường của nó, dải chưa bóp hẹp bất thường mà cũng chưa nở rộng.',
+        en: "Compared with FPT's own bandwidth over the past year, from 4.96% to 34.73%: 9.34% sits in the middle ground, narrower than in 145 of the 230 earlier sessions, so FPT's price is moving by its usual amount, with the bands neither unusually squeezed nor unusually wide.",
       },
       source: {
         vi: 'VNDirect, dữ liệu lịch sử FPT, 250 phiên 12/09/2025–15/09/2026.',
@@ -883,8 +883,8 @@ export const ATR_DAO_DONG_THUC: FormulaModule = {
       dataset: FPT_2026,
       expected: 1_502.87,
       note: {
-        vi: 'So với giá đóng cửa phiên cuối của FPT là 72.700 ₫: 1.502,87 ₫ bằng khoảng 2,1% giá, tức gần đây mỗi phiên giá FPT thường lên xuống trong một khoảng rộng chừng ấy. Đây là mức bình quân, riêng phiên 15/09/2026 chỉ có dao động thực 1.000 ₫.',
-        en: "Compared with FPT's last close of 72,700 ₫: 1,502.87 ₫ is about 2.1% of the price, so lately FPT's price has typically moved within a range about that wide each session. This is an average, and the 2026-09-15 session on its own had a true range of only 1,000 ₫.",
+        vi: 'So với giá đóng cửa phiên cuối của FPT là 72.700 ₫: 1.502,87 ₫ bằng 2,07% giá, tức gần đây mỗi phiên giá FPT thường lên xuống trong một khoảng rộng chừng ấy. Đây là mức bình quân, riêng phiên 15/09/2026 chỉ có dao động thực 1.000 ₫.',
+        en: "Compared with FPT's last close of 72,700 ₫: 1,502.87 ₫ is 2.07% of the price, so lately FPT's price has typically moved within a range that wide each session. This is an average, and the 2026-09-15 session on its own had a true range of only 1,000 ₫.",
       },
       source: {
         vi: 'VNDirect, dữ liệu lịch sử FPT, 250 phiên 12/09/2025–15/09/2026.',
@@ -1082,8 +1082,8 @@ export const PHAN_TRAM_B_BOLLINGER: FormulaModule = {
       dataset: FPT_2026,
       expected: 67.0582,
       note: {
-        vi: 'So với hai mép 0% và 100% của dải: 67,06% nghĩa là giá đóng cửa 72.700 ₫ của FPT vẫn nằm trong dải, ở khoảng hai phần ba quãng từ dải dưới 68.218,5 ₫ lên dải trên 74.901,5 ₫, tức đã qua đường giữa 71.560 ₫ nhưng chưa chạm dải trên.',
-        en: "Compared with the band's two edges at 0% and 100%: 67.06% means FPT's close of 72,700 ₫ is still inside the band, about two thirds of the way from the lower band at 68,218.5 ₫ to the upper band at 74,901.5 ₫, so above the 71,560 ₫ middle line but not yet at the upper band.",
+        vi: 'So với hai mép 0% và 100% của dải: 67,06% nghĩa là giá đóng cửa 72.700 ₫ của FPT vẫn nằm trong dải, đã đi được 67,06% quãng từ dải dưới 68.218,5 ₫ lên dải trên 74.901,5 ₫, tức đã qua đường giữa 71.560 ₫ nhưng chưa chạm dải trên.',
+        en: "Compared with the band's two edges at 0% and 100%: 67.06% means FPT's close of 72,700 ₫ is still inside the band, 67.06% of the way from the lower band at 68,218.5 ₫ to the upper band at 74,901.5 ₫, so above the 71,560 ₫ middle line but not yet at the upper band.",
       },
       source: {
         vi: 'VNDirect, dữ liệu lịch sử FPT, 250 phiên 12/09/2025–15/09/2026.',
@@ -1294,8 +1294,8 @@ export const STOCHASTIC_K: FormulaModule = {
       bars: FPT_BARS,
       expected: 48.7805,
       note: {
-        vi: 'So với hai mốc quen dùng 20% và 80%: 48,78% nằm giữa hai mốc, tức giá đóng cửa 72.700 ₫ của FPT phiên 15/09/2026 ở gần giữa khoảng từ 70.700 ₫ đến 74.800 ₫ của 14 phiên gần nhất, chưa sát đỉnh cũng chưa sát đáy.',
-        en: "Compared with the usual 20% and 80% marks: 48.78% sits between them, so FPT's close of 72,700 ₫ on 2026-09-15 is near the middle of the 70,700 ₫ to 74,800 ₫ range of the last 14 sessions, close to neither the high nor the low.",
+        vi: 'So với hai mốc quen dùng 20% và 80%: 48,78% nằm giữa hai mốc, tức giá đóng cửa 72.700 ₫ của FPT phiên 15/09/2026 nằm trong khoảng từ 70.700 ₫ đến 74.800 ₫ của 14 phiên gần nhất, chỉ thấp hơn điểm giữa 72.750 ₫ có 50 ₫, chưa sát đỉnh cũng chưa sát đáy.',
+        en: "Compared with the usual 20% and 80% marks: 48.78% sits between them, so FPT's close of 72,700 ₫ on 2026-09-15 sits inside the 70,700 ₫ to 74,800 ₫ range of the last 14 sessions, only 50 ₫ under its 72,750 ₫ midpoint, close to neither the high nor the low.",
       },
       source: {
         vi: 'VNDirect, dữ liệu lịch sử FPT, 250 phiên 12/09/2025–15/09/2026.',
@@ -1481,8 +1481,8 @@ export const VWAP: FormulaModule = {
       dataset: FPT_2026,
       expected: 71_930.86,
       note: {
-        vi: 'So với giá đóng cửa phiên cuối của FPT là 72.700 ₫: VWAP 71.930,86 ₫ thấp hơn khoảng 1,1%, tức bình quân theo khối lượng, người mua FPT trong 20 phiên ấy đang lãi nhẹ trước phí. VWAP nhỉnh hơn trung bình cộng 71.560 ₫ của 20 giá đóng cửa vì phiên giá cao khớp nhiều cổ phiếu hơn phiên giá thấp.',
-        en: "Compared with FPT's last close of 72,700 ₫: the VWAP of 71,930.86 ₫ is about 1.1% lower, so on a volume-weighted average, buyers of FPT over those 20 sessions are slightly in profit before fees. VWAP sits a little above the 71,560 ₫ plain average of the 20 closes because the higher-priced sessions matched more shares than the lower-priced ones.",
+        vi: 'So với giá đóng cửa phiên cuối của FPT là 72.700 ₫: VWAP 71.930,86 ₫ thấp hơn giá 769,14 ₫, tức bình quân theo khối lượng, người mua FPT trong 20 phiên ấy đang lãi 1,07% trước phí. VWAP cao hơn 370,86 ₫ so với trung bình cộng 71.560 ₫ của 20 giá đóng cửa vì phiên giá cao khớp nhiều cổ phiếu hơn phiên giá thấp.',
+        en: "Compared with FPT's last close of 72,700 ₫: the VWAP of 71,930.86 ₫ is 769.14 ₫ lower, so on a volume-weighted average, buyers of FPT over those 20 sessions are 1.07% in profit before fees. VWAP sits 370.86 ₫ above the 71,560 ₫ plain average of the 20 closes because the higher-priced sessions matched more shares than the lower-priced ones.",
       },
       source: {
         vi: 'VNDirect, dữ liệu lịch sử FPT, 250 phiên 12/09/2025–15/09/2026.',
@@ -1716,8 +1716,8 @@ export const DO_BIEN_DONG_LICH_SU: FormulaModule = {
       dataset: FPT_2026,
       expected: 30.3652,
       note: {
-        vi: 'So với độ biến động của chính FPT trên cả 250 phiên là 32,31%/năm: 55 phiên gần nhất ra 30,37%/năm, thấp hơn một chút, tức gần đây giá FPT lên xuống êm hơn mức chung cả năm. Mẫu 55 phiên còn ngắn hơn mức tối thiểu 60 phiên mà giáo trình khuyên, lấy đủ 60 phiên thì ra 29,17%/năm.',
-        en: "Compared with FPT's own volatility over all 250 sessions, 32.31%/year: the last 55 sessions give 30.37%/year, a little lower, so FPT's price has moved slightly more calmly lately than over the year as a whole. The 55-session sample is also shorter than the minimum of 60 sessions that textbooks recommend, and a full 60 sessions gives 29.17%/year.",
+        vi: 'So với độ biến động của chính FPT trên cả 250 phiên là 32,31%/năm: 55 phiên gần nhất ra 30,37%/năm, thấp hơn, tức gần đây giá FPT lên xuống êm hơn mức chung cả năm. Mẫu 55 phiên còn ngắn hơn mức tối thiểu 60 phiên mà giáo trình khuyên, lấy đủ 60 phiên thì ra 29,17%/năm.',
+        en: "Compared with FPT's own volatility over all 250 sessions, 32.31%/year: the last 55 sessions give 30.37%/year, which is lower, so FPT's price has moved more calmly lately than over the year as a whole. The 55-session sample is also shorter than the minimum of 60 sessions that textbooks recommend, and a full 60 sessions gives 29.17%/year.",
       },
       source: {
         vi: 'VNDirect, dữ liệu lịch sử FPT, 250 phiên 12/09/2025–15/09/2026.',
@@ -1922,8 +1922,8 @@ export const TY_LE_KHOI_LUONG: FormulaModule = {
       dataset: FPT_2026,
       expected: 0.6998,
       note: {
-        vi: 'So với mốc 1 lần: 0,7 lần nghĩa là phiên 15/09/2026 FPT chỉ khớp 3.977.500 cổ phiếu, khoảng bảy phần mười mức bình quân 5.683.560 cổ phiếu của 20 phiên liền trước, tức giao dịch thưa hơn thường lệ. Lấy trung bình 10 hay 60 phiên thì vẫn dưới 1 lần, lần lượt là 0,68 và 0,57 lần.',
-        en: 'Compared with the 1 times mark: 0.7 times means FPT matched only 3,977,500 shares on 2026-09-15, about seven tenths of the 5,683,560-share average of the preceding 20 sessions, so trading was thinner than usual. Averaging over 10 or 60 sessions instead still stays below 1 times, at 0.68 and 0.57 times respectively.',
+        vi: 'So với mốc 1 lần: 0,7 lần nghĩa là phiên 15/09/2026 FPT chỉ khớp 3.977.500 cổ phiếu, bằng 69,98% mức bình quân 5.683.560 cổ phiếu của 20 phiên liền trước, tức giao dịch thưa hơn thường lệ. Lấy trung bình 10 hay 60 phiên thì vẫn dưới 1 lần, lần lượt là 0,68 và 0,57 lần.',
+        en: 'Compared with the 1 times mark: 0.7 times means FPT matched only 3,977,500 shares on 2026-09-15, 69.98% of the 5,683,560-share average of the preceding 20 sessions, so trading was thinner than usual. Averaging over 10 or 60 sessions instead still stays below 1 times, at 0.68 and 0.57 times respectively.',
       },
       source: {
         vi: 'VNDirect, dữ liệu lịch sử FPT, 250 phiên 12/09/2025–15/09/2026.',

@@ -223,10 +223,10 @@ export const EPS_CO_BAN: FormulaModule = {
         en: 'FPT H1 2026 — net income 5,055.1 billion ₫, 1.71 billion shares outstanding',
       },
       inputs: { netIncome: 5_055.1, preferredDividend: 0, sharesOutstanding: 1_714_326_422 },
-      expected: 2_949,
+      expected: 2_948.74,
       note: {
-        vi: 'So với mốc 0 đồng: kết quả dương nghĩa là 6 tháng đầu 2026 FPT có lãi, tính ra mỗi cổ phiếu phổ thông làm ra khoảng 2.949 ₫ lãi. Đây mới là lãi nửa năm, nên chỉ đặt cạnh EPS 6 tháng đầu các năm trước, không đặt cạnh EPS cả năm.',
-        en: 'Compared with the 0 dong mark: the positive result means FPT made a profit in the first half of 2026, working out to about 2,949 ₫ of profit for each common share. This is only half a year of profit, so set it beside first-half EPS of earlier years, not beside full-year EPS.',
+        vi: 'So với mốc 0 đồng: kết quả dương nghĩa là 6 tháng đầu 2026 FPT có lãi, tính ra mỗi cổ phiếu phổ thông làm ra 2.948,74 ₫ lãi. Đây mới là lãi nửa năm, nên chỉ đặt cạnh EPS 6 tháng đầu các năm trước, không đặt cạnh EPS cả năm.',
+        en: 'Compared with the 0 dong mark: the positive result means FPT made a profit in the first half of 2026, working out to 2,948.74 ₫ of profit for each common share. This is only half a year of profit, so set it beside first-half EPS of earlier years, not beside full-year EPS.',
       },
       source: {
         vi: 'Bản tin kết quả kinh doanh 6 tháng đầu 2026 của FPT, lấy trên CafeF ngày 15/09/2026.',
@@ -350,10 +350,10 @@ export const BVPS: FormulaModule = {
         en: 'FPT at 30 June 2026 — parent-company equity 39,851.5 billion ₫, 1.71 billion shares',
       },
       inputs: { equity: 39_851.5, sharesOutstanding: 1_714_326_422 },
-      expected: 23_246,
+      expected: 23_246.16,
       note: {
-        vi: 'So với thị giá FPT phiên 11/09/2026 là 72.700 ₫: mỗi cổ phiếu chỉ có 23.246 ₫ vốn của cổ đông ghi trên sổ, chưa tới một phần ba giá ấy, nghĩa là khoảng 49.454 ₫ trong giá là phần thị trường trả cho khả năng làm ra lãi của FPT, không phải cho tài sản ghi trên sổ.',
-        en: "Compared with FPT's 2026-09-11 close of 72,700 ₫: each share has only 23,246 ₫ of shareholders' equity on the books, under a third of that price, so about 49,454 ₫ of the price is what the market pays for FPT's ability to earn profit rather than for assets on the books.",
+        vi: 'So với thị giá FPT phiên 11/09/2026 là 72.700 ₫: mỗi cổ phiếu chỉ có 23.246,16 ₫ vốn của cổ đông ghi trên sổ, bằng 31,98% giá ấy, nghĩa là 49.453,84 ₫ trong giá là phần thị trường trả cho khả năng làm ra lãi của FPT, không phải cho tài sản ghi trên sổ.',
+        en: "Compared with FPT's 2026-09-11 close of 72,700 ₫: each share has only 23,246.16 ₫ of shareholders' equity on the books, 31.98% of that price, so 49,453.84 ₫ of the price is what the market pays for FPT's ability to earn profit rather than for assets on the books.",
       },
       source: {
         vi: 'Bảng cân đối kế toán hợp nhất 30/06/2026 của FPT, lấy trên CafeF ngày 15/09/2026.',
@@ -490,8 +490,8 @@ export const ROE: FormulaModule = {
       inputs: { netIncome: 5_055.1, equity: 39_851.5 },
       expected: 12.6848,
       note: {
-        vi: 'So với lãi suất gửi tiết kiệm kỳ hạn một năm: 12,68% mới là lãi của 6 tháng, tức mỗi 100 đồng vốn của cổ đông FPT làm ra 12,68 đồng lãi trong nửa đầu 2026, nên chưa đặt cạnh lãi suất một năm được. Nếu nửa cuối năm lãi bằng nửa đầu thì cả năm khoảng 25,4%, đó mới là số để so với lãi suất ấy.',
-        en: "Compared with a one-year savings deposit rate: 12.68% covers only 6 months, meaning each 100 dong of FPT shareholders' equity earned 12.68 dong in the first half of 2026, so it cannot yet be set beside a one-year rate. If the second half earns as much as the first, the full year comes to about 25.4%, and that is the figure to compare with the rate.",
+        vi: 'So với lãi suất gửi tiết kiệm kỳ hạn một năm: 12,68% mới là lãi của 6 tháng, tức mỗi 100 đồng vốn của cổ đông FPT làm ra 12,68 đồng lãi trong nửa đầu 2026, nên chưa đặt cạnh lãi suất một năm được. Nếu nửa cuối năm lãi bằng nửa đầu thì cả năm là 25,37%, đó mới là số để so với lãi suất ấy.',
+        en: "Compared with a one-year savings deposit rate: 12.68% covers only 6 months, meaning each 100 dong of FPT shareholders' equity earned 12.68 dong in the first half of 2026, so it cannot yet be set beside a one-year rate. If the second half earns as much as the first, the full year comes to 25.37%, and that is the figure to compare with the rate.",
       },
       source: {
         vi: 'Bản tin kết quả kinh doanh 6 tháng đầu 2026 và bảng cân đối kế toán 30/06/2026 của FPT, lấy trên CafeF ngày 15/09/2026.',
@@ -625,8 +625,8 @@ export const ROA: FormulaModule = {
       inputs: { netIncome: 5_055.1, totalAssets: 73_734.2 },
       expected: 6.8558,
       note: {
-        vi: 'So với tổng tài sản 73.734,2 tỷ ₫ của FPT: ROA 6,86% nghĩa là cứ 100 đồng tài sản công ty đang dùng, kể cả phần có nhờ vay nợ, làm ra 6,86 đồng lãi sau thuế trong 6 tháng đầu 2026. Đây mới là lãi nửa năm, nếu nửa cuối năm lãi bằng nửa đầu thì cả năm khoảng 13,7%.',
-        en: "Compared with FPT's total assets of 73,734.2 billion ₫: ROA of 6.86% means every 100 dong of assets the company uses, including those funded by borrowing and other liabilities, earned 6.86 dong of after-tax profit in the first half of 2026. This is only half a year of profit, and if the second half earns as much as the first, the full year comes to about 13.7%.",
+        vi: 'So với tổng tài sản 73.734,2 tỷ ₫ của FPT: ROA 6,86% nghĩa là cứ 100 đồng tài sản công ty đang dùng, kể cả phần có nhờ vay nợ, làm ra 6,86 đồng lãi sau thuế trong 6 tháng đầu 2026. Đây mới là lãi nửa năm, nếu nửa cuối năm lãi bằng nửa đầu thì cả năm là 13,71%.',
+        en: "Compared with FPT's total assets of 73,734.2 billion ₫: ROA of 6.86% means every 100 dong of assets the company uses, including those funded by borrowing and other liabilities, earned 6.86 dong of after-tax profit in the first half of 2026. This is only half a year of profit, and if the second half earns as much as the first, the full year comes to 13.71%.",
       },
       source: {
         vi: 'Bản tin kết quả kinh doanh 6 tháng đầu 2026 và bảng cân đối kế toán 30/06/2026 của FPT, lấy trên CafeF ngày 15/09/2026.',
@@ -871,8 +871,8 @@ export const BIEN_LOI_NHUAN_GOP: FormulaModule = {
       inputs: { revenue: 26_268.5, cogs: 17_745 },
       expected: 32.4476,
       note: {
-        vi: 'So với doanh thu thuần 26.268,5 tỷ ₫ của FPT: trừ giá vốn 17.745 tỷ ₫ còn 8.523,5 tỷ ₫ lãi gộp, tức cứ 100 đồng doanh thu trong 6 tháng đầu 2026 thì còn khoảng 32,45 đồng để trang trải chi phí bán hàng, quản lý, lãi vay và thuế, phần còn lại sau đó mới là lãi ròng.',
-        en: "Compared with FPT's net revenue of 26,268.5 billion ₫: taking away the 17,745 billion ₫ cost of goods sold leaves 8,523.5 billion ₫ of gross profit, so of every 100 dong of revenue in the first half of 2026 about 32.45 dong remained to cover selling and administrative costs, interest and tax, and only what is left after that is net profit.",
+        vi: 'So với doanh thu thuần 26.268,5 tỷ ₫ của FPT: trừ giá vốn 17.745 tỷ ₫ còn 8.523,5 tỷ ₫ lãi gộp, tức cứ 100 đồng doanh thu trong 6 tháng đầu 2026 thì còn 32,45 đồng để trang trải chi phí bán hàng, quản lý, lãi vay và thuế, phần còn lại sau đó mới là lãi ròng.',
+        en: "Compared with FPT's net revenue of 26,268.5 billion ₫: taking away the 17,745 billion ₫ cost of goods sold leaves 8,523.5 billion ₫ of gross profit, so of every 100 dong of revenue in the first half of 2026, 32.45 dong remained to cover selling and administrative costs, interest and tax, and only what is left after that is net profit.",
       },
       source: {
         vi: 'Báo cáo kết quả hoạt động kinh doanh hợp nhất 6 tháng đầu 2026 của FPT, lấy trên CafeF ngày 15/09/2026.',
@@ -1022,8 +1022,8 @@ export const NO_TREN_VON_CHU: FormulaModule = {
       inputs: { totalLiabilities: 32_738.4, equity: 40_995.7 },
       expected: 0.7986,
       note: {
-        vi: 'So với mốc 1 lần: 0,8 lần nghĩa là tổng nợ phải trả 32.738,4 tỷ ₫ của FPT vẫn ít hơn tổng vốn chủ 40.995,7 tỷ ₫, cứ 1 đồng vốn chủ có khoảng 0,8 đồng nợ phải trả. Số nợ ấy gồm cả khoản không tính lãi như tiền còn nợ nhà cung cấp, nên phần thật sự đi vay còn ít hơn 0,8 đồng.',
-        en: "Compared with the 1 times mark: 0.8 times means FPT's total liabilities of 32,738.4 billion ₫ are still smaller than its total equity of 40,995.7 billion ₫, about 0.8 dong of liabilities for every 1 dong of equity. Those liabilities include interest-free items such as money owed to suppliers, so the part that is actual borrowing is less than 0.8 dong.",
+        vi: 'So với mốc 1 lần: 0,8 lần nghĩa là tổng nợ phải trả 32.738,4 tỷ ₫ của FPT vẫn ít hơn tổng vốn chủ 40.995,7 tỷ ₫, cứ 1 đồng vốn chủ có 0,8 đồng nợ phải trả. Số nợ ấy gồm cả khoản không tính lãi như tiền còn nợ nhà cung cấp, nên phần thật sự đi vay còn ít hơn 0,8 đồng.',
+        en: "Compared with the 1 times mark: 0.8 times means FPT's total liabilities of 32,738.4 billion ₫ are still smaller than its total equity of 40,995.7 billion ₫, 0.8 dong of liabilities for every 1 dong of equity. Those liabilities include interest-free items such as money owed to suppliers, so the part that is actual borrowing is less than 0.8 dong.",
       },
       source: {
         vi: 'Bảng cân đối kế toán hợp nhất 30/06/2026 của FPT, lấy trên CafeF ngày 15/09/2026.',
@@ -1163,8 +1163,8 @@ export const THANH_TOAN_HIEN_HANH: FormulaModule = {
       inputs: { currentAssets: 45_702, currentLiabilities: 29_365.3 },
       expected: 1.5563,
       note: {
-        vi: 'So với mốc 1 lần: 1,56 lần nghĩa là tài sản ngắn hạn 45.702 tỷ ₫ của FPT đủ trả hết 29.365,3 tỷ ₫ nợ đến hạn trong 12 tháng tính từ 30/06/2026 mà vẫn dư khoảng 16.336,7 tỷ ₫, chưa cần trông vào tiền làm ra sau này hay vay thêm.',
-        en: "Compared with the 1 times mark: 1.56 times means FPT's current assets of 45,702 billion ₫ cover all 29,365.3 billion ₫ of liabilities due within 12 months of 30 June 2026 with about 16,336.7 billion ₫ to spare, without relying on future earnings or new borrowing.",
+        vi: 'So với mốc 1 lần: 1,56 lần nghĩa là tài sản ngắn hạn 45.702 tỷ ₫ của FPT đủ trả hết 29.365,3 tỷ ₫ nợ đến hạn trong 12 tháng tính từ 30/06/2026 mà vẫn dư 16.336,7 tỷ ₫, chưa cần trông vào tiền làm ra sau này hay vay thêm.',
+        en: "Compared with the 1 times mark: 1.56 times means FPT's current assets of 45,702 billion ₫ cover all 29,365.3 billion ₫ of liabilities due within 12 months of 30 June 2026 with 16,336.7 billion ₫ to spare, without relying on future earnings or new borrowing.",
       },
       source: {
         vi: 'Bảng cân đối kế toán hợp nhất 30/06/2026 của FPT, lấy trên CafeF ngày 15/09/2026.',
@@ -1306,8 +1306,8 @@ export const THANH_TOAN_NHANH: FormulaModule = {
       inputs: { currentAssets: 45_702, inventory: 1_183.1, currentLiabilities: 29_365.3 },
       expected: 1.516,
       note: {
-        vi: 'So với mốc 1 lần: 1,52 lần nghĩa là chưa cần bán món hàng nào trong kho, tài sản ngắn hạn còn lại của FPT vẫn đủ trả hết 29.365,3 tỷ ₫ nợ ngắn hạn và dư khoảng 15.153,6 tỷ ₫. Kết quả sát hệ số hiện hành 1,56 lần vì tồn kho chỉ 1.183,1 tỷ ₫, khoảng 2,6% tài sản ngắn hạn.',
-        en: "Compared with the 1 times mark: 1.52 times means that without selling anything from inventory, FPT's remaining current assets still cover all 29,365.3 billion ₫ of current liabilities with about 15,153.6 billion ₫ to spare. The result is close to the current ratio of 1.56 times because inventory is only 1,183.1 billion ₫, about 2.6% of current assets.",
+        vi: 'So với mốc 1 lần: 1,52 lần nghĩa là chưa cần bán món hàng nào trong kho, tài sản ngắn hạn còn lại của FPT vẫn đủ trả hết 29.365,3 tỷ ₫ nợ ngắn hạn và dư 15.153,6 tỷ ₫. Kết quả sát hệ số hiện hành 1,56 lần vì tồn kho chỉ 1.183,1 tỷ ₫, bằng 2,59% tài sản ngắn hạn.',
+        en: "Compared with the 1 times mark: 1.52 times means that without selling anything from inventory, FPT's remaining current assets still cover all 29,365.3 billion ₫ of current liabilities with 15,153.6 billion ₫ to spare. The result is close to the current ratio of 1.56 times because inventory is only 1,183.1 billion ₫, 2.59% of current assets.",
       },
       source: {
         vi: 'Bảng cân đối kế toán hợp nhất 30/06/2026 của FPT, lấy trên CafeF ngày 15/09/2026.',
@@ -1444,8 +1444,8 @@ export const VONG_QUAY_TONG_TAI_SAN: FormulaModule = {
       inputs: { revenue: 26_268.5, totalAssets: 73_734.2 },
       expected: 0.3563,
       note: {
-        vi: 'So với tổng tài sản 73.734,2 tỷ ₫ của FPT: 0,36 vòng nghĩa là doanh thu thuần 6 tháng đầu 2026 mới bằng khoảng 36% số ấy, mỗi 100 đồng tài sản mang về chừng 36 đồng doanh thu. Nếu nửa cuối năm bán được bằng nửa đầu thì cả năm khoảng 0,71 vòng, con số để so với các năm trước.',
-        en: "Compared with FPT's total assets of 73,734.2 billion ₫: 0.36 turns means net revenue for the first half of 2026 equaled only about 36% of those assets, roughly 36 dong of revenue for every 100 dong of assets. If the second half sells as much as the first, the full year comes to about 0.71 turns, the figure to compare with earlier years.",
+        vi: 'So với tổng tài sản 73.734,2 tỷ ₫ của FPT: 0,36 vòng nghĩa là doanh thu thuần 6 tháng đầu 2026 mới bằng 35,63% số ấy, mỗi 100 đồng tài sản mang về 35,63 đồng doanh thu. Nếu nửa cuối năm bán được bằng nửa đầu thì cả năm là 0,71 vòng, con số để so với các năm trước.',
+        en: "Compared with FPT's total assets of 73,734.2 billion ₫: 0.36 turns means net revenue for the first half of 2026 equaled only 35.63% of those assets, 35.63 dong of revenue for every 100 dong of assets. If the second half sells as much as the first, the full year comes to 0.71 turns, the figure to compare with earlier years.",
       },
       source: {
         vi: 'Báo cáo kết quả hoạt động kinh doanh hợp nhất 6 tháng đầu 2026 và bảng cân đối kế toán 30/06/2026 của FPT, lấy trên CafeF ngày 15/09/2026.',
@@ -1588,8 +1588,8 @@ export const TY_LE_CHI_TRA_CO_TUC: FormulaModule = {
       inputs: { dividendPerShare: 2_000, eps: 5_867 },
       expected: 34.089,
       note: {
-        vi: 'So với mốc 100%: 34,09% nghĩa là FPT đem ra trả cổ tức tiền mặt khoảng một phần ba số lãi mỗi cổ phiếu làm ra trong bốn quý gần nhất, 2.000 ₫ trên 5.867 ₫, và giữ lại khoảng hai phần ba để tiếp tục làm ăn.',
-        en: 'Compared with the 100% mark: 34.09% means FPT pays out about a third of what each share earned over the last four quarters as a cash dividend, 2,000 ₫ out of 5,867 ₫, and keeps about two thirds to reinvest in the business.',
+        vi: 'So với mốc 100%: 34,09% nghĩa là FPT đem ra trả cổ tức tiền mặt 2.000 ₫ trong 5.867 ₫ lãi mỗi cổ phiếu làm ra trong bốn quý gần nhất, và giữ lại 3.867 ₫, tức 65,91%, để tiếp tục làm ăn.',
+        en: 'Compared with the 100% mark: 34.09% means FPT pays out 2,000 ₫ of the 5,867 ₫ each share earned over the last four quarters as a cash dividend, and keeps 3,867 ₫, or 65.91%, to reinvest in the business.',
       },
       source: {
         vi: 'Lịch sử chi trả cổ tức FPT trên cotuc.vn, EPS bốn quý gần nhất theo CafeF, lấy ngày 15/09/2026.',

@@ -110,8 +110,8 @@ export const ROI: FormulaModule = {
       inputs: { cost: 62_900_000, current: 72_700_000 },
       expected: 15.5803,
       note: {
-        vi: 'So với lãi gửi tiết kiệm trong cùng 49 ngày: dù tính theo mức 6,8%/năm của kỳ hạn 12 tháng, gửi tiền cũng chỉ được khoảng 0,91%, còn khoản FPT này lãi 15,58%, gấp khoảng 17 lần. Con số chưa trừ phí mua, phí bán, thuế bán và phí lưu ký, trừ hết thì còn 15,12%.',
-        en: 'Compared with savings interest over the same 49 days: even at the 6.8%/year rate of a 12-month deposit, the money would earn only about 0.91%, while this FPT holding gained 15.58%, roughly 17 times as much. The figure leaves out the buy fee, sell fee, sell tax and custody fee, and with all of them deducted it drops to 15.12%.',
+        vi: 'So với lãi gửi tiết kiệm trong cùng 49 ngày: dù tính theo mức 6,8%/năm của kỳ hạn 12 tháng, gửi tiền cũng chỉ được 0,91%, còn khoản FPT này lãi 15,58%, gấp 17,07 lần. Con số chưa trừ phí mua, phí bán, thuế bán và phí lưu ký, trừ hết thì còn 15,12%.',
+        en: 'Compared with savings interest over the same 49 days: even at the 6.8%/year rate of a 12-month deposit, the money would earn only 0.91%, while this FPT holding gained 15.58%, 17.07 times as much. The figure leaves out the buy fee, sell fee, sell tax and custody fee, and with all of them deducted it drops to 15.12%.',
       },
       source: {
         vi: 'Giá đóng cửa FPT trên Investing.com, phiên 24/07/2026 và 11/09/2026.',
@@ -403,8 +403,8 @@ export const CAGR: FormulaModule = {
       inputs: { start: 10_000, end: 33_913, years: 9.12 },
       expected: 14.3284,
       note: {
-        vi: 'So với NAV 10.000 ₫ mỗi chứng chỉ quỹ lúc VESAF ra đời: sau 9,12 năm NAV lên 33.913 ₫, gấp khoảng 3,39 lần, tương đương mỗi năm tăng đều 14,33%. Mức này là của người mua đúng ngày quỹ ra đời và giữ tới 31/05/2026, không có nghĩa năm nào quỹ cũng tăng đúng chừng ấy.',
-        en: 'Compared with the 10,000 ₫ NAV per fund unit when VESAF launched: after 9.12 years the NAV stood at 33,913 ₫, about 3.39 times as much, which equals a steady rise of 14.33% a year. That rate belongs to someone who bought on the launch day and held until 2026-05-31, and it does not mean the fund rose by exactly that much every year.',
+        vi: 'So với NAV 10.000 ₫ mỗi chứng chỉ quỹ lúc VESAF ra đời: sau 9,12 năm NAV lên 33.913 ₫, gấp 3,39 lần, tương đương mỗi năm tăng đều 14,33%. Mức này là của người mua đúng ngày quỹ ra đời và giữ tới 31/05/2026, không có nghĩa năm nào quỹ cũng tăng đúng chừng ấy.',
+        en: 'Compared with the 10,000 ₫ NAV per fund unit when VESAF launched: after 9.12 years the NAV stood at 33,913 ₫, 3.39 times as much, which equals a steady rise of 14.33% a year. That rate belongs to someone who bought on the launch day and held until 2026-05-31, and it does not mean the fund rose by exactly that much every year.',
       },
       source: {
         vi: 'Báo cáo tháng 5/2026 của quỹ VESAF (VinaCapital), NAV/CCQ ngày 31/05/2026, quỹ thành lập 18/04/2017.',
@@ -573,8 +573,8 @@ export const TY_SUAT_CO_TUC: FormulaModule = {
       inputs: { price: 72_700, dividendPerShare: 2_000 },
       expected: 2.751,
       note: {
-        vi: 'So với thị giá 72.700 ₫ của FPT: mỗi cổ phiếu được chia 2.000 ₫ cổ tức tiền mặt một năm, tức cứ 100 ₫ bỏ ra mua cổ phiếu thì nhận về khoảng 2,75 ₫ cổ tức. Đó là mức trước thuế, trừ 5% thuế cổ tức thì tiền thực nhận còn 1.900 ₫ mỗi cổ phiếu, khoảng 2,61% thị giá.',
-        en: "Compared with FPT's 72,700 ₫ share price: each share receives a 2,000 ₫ cash dividend a year, so every 100 ₫ spent on the stock brings back about 2.75 ₫ in dividends. That is before tax, and after the 5% dividend tax the cash actually received is 1,900 ₫ a share, about 2.61% of the price.",
+        vi: 'So với thị giá 72.700 ₫ của FPT: mỗi cổ phiếu được chia 2.000 ₫ cổ tức tiền mặt một năm, tức cứ 100 ₫ bỏ ra mua cổ phiếu thì nhận về 2,75 ₫ cổ tức. Đó là mức trước thuế, trừ 5% thuế cổ tức thì tiền thực nhận còn 1.900 ₫ mỗi cổ phiếu, bằng 2,61% thị giá.',
+        en: "Compared with FPT's 72,700 ₫ share price: each share receives a 2,000 ₫ cash dividend a year, so every 100 ₫ spent on the stock brings back 2.75 ₫ in dividends. That is before tax, and after the 5% dividend tax the cash actually received is 1,900 ₫ a share, 2.61% of the price.",
       },
       source: {
         vi: 'Lịch sử cổ tức FPT trên cotuc.vn (mức 20% mệnh giá duy trì từ 2018) và giá đóng cửa phiên 11/09/2026.',
@@ -887,8 +887,8 @@ export const XIRR: FormulaModule = {
       ],
       expected: 96.5541,
       note: {
-        vi: 'So với 20.170.000 ₫ bỏ ra qua ba lần mua: bán hết thu về 21.810.000 ₫, lời 1.640.000 ₫, khoảng 8,13% số vốn, nhưng mỗi khoản chỉ nằm trong cổ phiếu từ 21 tới 58 ngày nên tính theo năm thành 96,55%/năm. Đó là nhịp lời nếu giữ được tốc độ ấy suốt một năm, không phải phần đã lời thật.',
-        en: 'Compared with the 20,170,000 ₫ put in across three purchases: selling everything brought back 21,810,000 ₫, a gain of 1,640,000 ₫ or about 8.13% of the money, but each sum stayed in the stock only 21 to 58 days, so on a yearly basis it comes to 96.55%/year. That is the pace of gain if it could be kept up for a full year, not the gain actually made.',
+        vi: 'So với 20.170.000 ₫ bỏ ra qua ba lần mua: bán hết thu về 21.810.000 ₫, lời 1.640.000 ₫, bằng 8,13% số vốn, nhưng mỗi khoản chỉ nằm trong cổ phiếu từ 21 tới 58 ngày nên tính theo năm thành 96,55%/năm. Đó là nhịp lời nếu giữ được tốc độ ấy suốt một năm, không phải phần đã lời thật.',
+        en: 'Compared with the 20,170,000 ₫ put in across three purchases: selling everything brought back 21,810,000 ₫, a gain of 1,640,000 ₫ or 8.13% of the money, but each sum stayed in the stock only 21 to 58 days, so on a yearly basis it comes to 96.55%/year. That is the pace of gain if it could be kept up for a full year, not the gain actually made.',
       },
       source: {
         vi: 'Giá đóng cửa FPT trên Investing.com, các phiên 15/07, 24/07, 21/08 và 11/09/2026.',

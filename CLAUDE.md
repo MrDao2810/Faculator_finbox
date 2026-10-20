@@ -1842,6 +1842,11 @@ amount box 74px. Below 1024px: cell padding 4px, inputs 36px, header 8px, date b
 its content (`width: 1%`), × column 32px with the button the full 44px row height, the rest to the amount box.
 Rows 44.5px, no overflow at 320/360/390. `XirrBody` passes `styles.cashflow` to `Table`, so `table.cashflow th/td`
 outranks the primitive's `.table th, .table td` (the `table.variables` pattern); `xirr-mobile-css.test.ts` pins it.
+**The two yellow notes of the Số liệu block are 12px below 1024px** (20/10/2026, owner circling `beta`'s "Số liệu chỉ
+mang tính chất minh hoạ…": _"giảm size text … và giảm padding, áp dụng cho màn mobile"_): `.seriesShortNote` and
+its sibling `.presetMismatch` take 12px, 6/8px padding and line-height 1.4, the disclaimer notice's numbers; the
+box went 60 → 47.6px at 390. This is the one place a warning surface uses `--text-xs`: `warning-surface.test.ts`
+still forbids it in the base rules and pins this mobile exception separately.
 
 A formula whose `calc` reads a market constant must also **declare the key** in
 `spec.usesConstants` — 14 of them do, across `derivatives.ts` (5), `fees.ts` (8) and `planning.ts`
@@ -2703,6 +2708,37 @@ see — every number true to `calc` and the source — was checked by 8 drafting
 `calc` for each figure; a new note must be checked the same way. `prose-audit.test.ts` check I ("gấp N lần")
 learned three more grounded forms at the same time: N is the result itself, the multiple of a % result, or the
 ratio of two numbers in the same sentence.
+
+**Every figure in the row is exact, and the Kết quả row above it is exactly what `calc` prints** (20/10/2026). A
+customer reported "[Bug] 'Đọc kết quả' ghi sai mức giảm giá trị khi hạ g 1 điểm % ('hơn 20%', thực tế ≈ 17,7%)"
+against a deployed build of `gia-tri-noi-tai-fcff`; the owner: _"kết quả ra như nào thì sao không đọc như vậy mà
+lại đọc kiểu khác … đây là ví dụ thực tế, thì cần lấy đầy đủ ví dụ thực tế nào nhưng cần xác định độ đúng sai, và
+chuẩn xác"_. The hedge was the defect class: "hơn 20%", "khoảng 17%", "gần gấp đôi", "chưa tới một phần ba" are
+claims nobody re-computes. So, in all 111 × 2 notes (7 agents, one file group each, every figure re-run through
+`runFormula` and the example's own series):
+
+- **A computed figure is written at display precision with no hedge word**: percentages and "lần"/points to 2
+  decimals (16,57%, 2,09 lần), money as `formatNumber` prints it (52.362,96 ₫). Fraction words became the number
+  ("bằng 31,98% giá ấy", "145 trong 230 phiên"). A hedge survives only on something the data cannot compute (a
+  source's "khoảng 28 triệu ₫/tháng", "ước lượng thô" on a cost split) or an anchor from a cited source.
+- **A figure derived from figures printed on the page is computed FROM the printed figures** (72.700 − 23.246,16
+  = 49.453,84), so a reader redoing the sum lands on our number. What-ifs ("g còn 4%") are `runFormula` outputs.
+- **`example.expected` is `calc`'s value rounded to 2 decimals.** 23 examples had a hand-rounded `expected`
+  (`ev` 113.104 vs `calc` 113.103,9; the Bollinger bands 74.901 vs 74.901,5), so the example's Kết quả row and
+  the screen's Kết quả block printed different strings, and sums in the note disagreed with the row. Gate:
+  `formulas.test.ts` "dòng Kết quả của ví dụ in đúng số calc trả về" compares the two `formatNumber` strings.
+- **The first sentence contains the printed result verbatim** (vi, and en with English separators; sign dropped
+  so "âm 19,87%" passes). Gate: `example-note-rules.test.ts` "câu đầu chứa đúng con số dòng Kết quả in ra". Three
+  notes had rounded it into words ("khoảng 518 triệu ₫").
+- **A chained example's input equals the upstream example's printed result**: `fcfe` and `gia-tri-noi-tai-fcff`
+  take FCFF 5.168,34 (was 5.168,3 while FCFF printed 5.168), `bien-an-toan` takes V 60.651,46; titles, notes and
+  the `src/core/vi-du/` Thay số rows moved with them. No gate holds this one; check it by hand when an upstream
+  example changes.
+
+Real errors this sweep found besides hedges: `lai-suat-hieu-dung` "khoảng 1,1 triệu ₫" (1.089.000), `beta`'s
+VN-Index volatility 18,37 (18,36), `co-lenh-rui-ro` "mua tối đa khoảng 2.273" (2.273 is over the limit; 2.272,73
+computed, 2.272 bought) and its title's "cắt lỗ dưới đáy tháng 8" (68.300 is August's lowest CLOSE; the low was
+67.300), `ema-n-phien`'s claim that earlier sessions were "phần lớn thấp hơn" (they were not).
 
 ## The example datasets — 250 real sessions, so "Xem ví dụ minh hoạ" draws a full chart (14/10/2026)
 

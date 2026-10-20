@@ -216,10 +216,10 @@ export const GIA_LY_THUYET_VN30F: FormulaModule = {
         en: 'VN30F1M in the 2026-09-14 session, three days before the September contract expires',
       },
       inputs: { indexValue: 1_928.57, riskFreeRate: 4.57, dividendYield: 1.8, days: 3 },
-      expected: 1_929,
+      expected: 1_929.01,
       note: {
-        vi: 'So với giá VN30F1M khớp cuối phiên cùng ngày là 1.930,9 điểm: giá lý thuyết 1.929 điểm thấp hơn khoảng 1,9 điểm, tức người mua hôm ấy đã trả thêm chừng ấy vì kỳ vọng chỉ số tăng. Còn 3 ngày là đáo hạn nên tỷ suất cổ tức, vốn là số ước lượng, về 0 hay gấp đôi cũng chỉ đổi kết quả chưa tới 0,3 điểm.',
-        en: 'Compared with the VN30F1M closing trade of 1,930.9 points that same session: the theoretical price of 1,929 points is about 1.9 points lower, so buyers that day paid roughly that much extra because they expected the index to rise. With 3 days left to expiry, setting the dividend yield, which is only an estimate, to 0 or doubling it moves the result by less than 0.3 points.',
+        vi: 'So với giá VN30F1M khớp cuối phiên cùng ngày là 1.930,9 điểm: giá lý thuyết 1.929,01 điểm thấp hơn 1,89 điểm, tức người mua hôm ấy đã trả thêm ngần ấy vì kỳ vọng chỉ số tăng. Còn 3 ngày là đáo hạn nên tỷ suất cổ tức, vốn là số ước lượng, về 0 hay gấp đôi cũng chỉ đổi kết quả 0,29 điểm.',
+        en: 'Compared with the VN30F1M closing trade of 1,930.9 points that same session: the theoretical price of 1,929.01 points is 1.89 points lower, so buyers that day paid that much extra because they expected the index to rise. With 3 days left to expiry, setting the dividend yield, which is only an estimate, to 0 or doubling it moves the result by only 0.29 points.',
       },
       source: {
         vi: 'Vietstock, bản tin chứng khoán phái sinh ngày 15/09/2026; VN30 đóng cửa phiên 14/09/2026. Tỷ suất cổ tức rổ VN30 là ước lượng.',
@@ -391,8 +391,8 @@ export const BASIS_VN30F: FormulaModule = {
       inputs: { futuresPoints: 1_930.9, indexValue: 1_928.57 },
       expected: 2.33,
       note: {
-        vi: 'So với khoảng chênh hợp lý chỉ chừng 0,44 điểm, tức giá lý thuyết 1.929,01 điểm của hợp đồng trừ chỉ số VN30 1.928,57 điểm: basis 2,33 điểm cao hơn khoảng 1,9 điểm, tức người mua VN30F1M phiên ấy trả thêm vì lạc quan về chỉ số. Chênh hợp lý nhỏ vì hợp đồng chỉ còn 3 ngày là đáo hạn.',
-        en: "Compared with a fair gap of only about 0.44 points, the contract's theoretical price of 1,929.01 points minus the VN30 index at 1,928.57 points: the basis of 2.33 points is about 1.9 points higher, so VN30F1M buyers that session paid extra out of optimism about the index. The fair gap is small because the contract had only 3 days left to expiry.",
+        vi: 'So với khoảng chênh hợp lý chỉ 0,44 điểm, tức giá lý thuyết 1.929,01 điểm của hợp đồng trừ chỉ số VN30 1.928,57 điểm: basis 2,33 điểm cao hơn 1,89 điểm, tức người mua VN30F1M phiên ấy trả thêm vì lạc quan về chỉ số. Chênh hợp lý nhỏ vì hợp đồng chỉ còn 3 ngày là đáo hạn.',
+        en: "Compared with a fair gap of only 0.44 points, the contract's theoretical price of 1,929.01 points minus the VN30 index at 1,928.57 points: the basis of 2.33 points is 1.89 points higher, so VN30F1M buyers that session paid extra out of optimism about the index. The fair gap is small because the contract had only 3 days left to expiry.",
       },
       source: {
         vi: 'Entrade, bản tin phái sinh ngày 15/09/2026, nơi mức basis 2,33 điểm được công bố độc lập; VN30 đóng cửa phiên 14/09/2026.',
@@ -922,8 +922,8 @@ export const SO_HOP_DONG_TOI_DA: FormulaModule = {
       inputs: { capital: 200_000_000, futuresPoints: 1_930.9, marginRatio: 17 },
       expected: 6,
       note: {
-        vi: 'So với vốn 200 triệu ₫ trong tài khoản: mỗi hợp đồng đòi khoảng 32,8 triệu ₫ ký quỹ ban đầu, nên mở được 6 hợp đồng và còn dư khoảng 3 triệu ₫, chưa đủ cho hợp đồng thứ bảy. Nếu công ty chứng khoán đòi ký quỹ 20% thay vì 17% thì chỉ còn mở được 5 hợp đồng.',
-        en: 'Compared with the 200 million ₫ in the account: each contract needs about 32.8 million ₫ of initial margin, so 6 contracts fit with about 3 million ₫ left over, not enough for a seventh. If the broker asks for 20% margin instead of 17%, only 5 contracts fit.',
+        vi: 'So với vốn 200 triệu ₫ trong tài khoản: mỗi hợp đồng đòi 32.825.300 ₫ ký quỹ ban đầu, nên mở được 6 hợp đồng và còn dư 3.048.200 ₫, chưa đủ cho hợp đồng thứ bảy. Nếu công ty chứng khoán đòi ký quỹ 20% thay vì 17% thì chỉ còn mở được 5 hợp đồng.',
+        en: 'Compared with the 200 million ₫ in the account: each contract needs 32,825,300 ₫ of initial margin, so 6 contracts fit with 3,048,200 ₫ left over, not enough for a seventh. If the broker asks for 20% margin instead of 17%, only 5 contracts fit.',
       },
       source: {
         vi: 'Thông báo tỷ lệ ký quỹ ban đầu của VSDC, hiệu lực 20/12/2024; giá VN30F1M phiên 14/09/2026.',
@@ -1328,8 +1328,8 @@ export const DON_BAY_HIEU_DUNG: FormulaModule = {
       inputs: { futuresPoints: 1_930.9, contracts: 6, equity: 200_000_000 },
       expected: 5.7927,
       note: {
-        vi: 'So với mức trần khoảng 5,88 lần mà ký quỹ ban đầu 17% của VSDC cho phép: 5,79 lần là đã sát trần, sáu hợp đồng dùng gần hết 200 triệu ₫ vốn làm ký quỹ, và giá hợp đồng giảm 1% là tài khoản mất khoảng 5,79%, tức gần 11,6 triệu ₫.',
-        en: 'Compared with the ceiling of about 5.88 times that the 17% VSDC initial margin allows: 5.79 times is already close to that ceiling, the six contracts tie up almost all of the 200 million ₫ as margin, and a 1% drop in the contract price costs the account about 5.79%, nearly 11.6 million ₫.',
+        vi: 'So với mức trần 5,88 lần mà ký quỹ ban đầu 17% của VSDC cho phép: 5,79 lần là đã sát trần, sáu hợp đồng dùng 196.951.800 ₫ trong 200 triệu ₫ vốn làm ký quỹ, và giá hợp đồng giảm 1% là tài khoản mất 5,79%, tức 11.585.400 ₫.',
+        en: 'Compared with the ceiling of 5.88 times that the 17% VSDC initial margin allows: 5.79 times is already close to that ceiling, the six contracts tie up 196,951,800 ₫ of the 200 million ₫ as margin, and a 1% drop in the contract price costs the account 5.79%, or 11,585,400 ₫.',
       },
       source: {
         vi: 'Bản quy định giao dịch hợp đồng tương lai chỉ số VN30 của MBS; giá VN30F1M phiên 14/09/2026.',

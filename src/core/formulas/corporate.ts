@@ -150,10 +150,10 @@ export const DIEM_HOA_VON: FormulaModule = {
         en: 'FPT in Q2 2026 — taking one "unit" to mean 1 million ₫ of revenue',
       },
       inputs: { fixedCost: 2_431_800_000_000, unitPrice: 1_000_000, variableCost: 689_600 },
-      expected: 7_834_407,
+      expected: 7_834_407.22,
       note: {
-        vi: 'So với doanh thu quý 2/2026 của FPT, 13.788,5 tỷ ₫: hoà vốn ở 7.834.407 sản phẩm, tức khoảng 7.834 tỷ ₫ doanh thu, thấp hơn khoảng 43%, nên doanh thu phải hụt chừng ấy thì việc kinh doanh mới lỗ. Con số coi cả giá vốn là biến phí, chi phí bán hàng cộng quản lý là định phí, nên mức 43% chỉ là ước lượng thô.',
-        en: "Compared with FPT's Q2 2026 revenue of 13,788.5 billion ₫: break-even is 7,834,407 units, about 7,834 billion ₫ of revenue, roughly 43% lower, so revenue would have to fall that far before operations start losing money. The figure treats all cost of goods sold as variable cost and selling plus administrative expense as fixed cost, so the 43% is only a rough estimate.",
+        vi: 'So với doanh thu quý 2/2026 của FPT, 13.788,5 tỷ ₫: hoà vốn ở 7.834.407,22 sản phẩm, tức 7.834,41 tỷ ₫ doanh thu, thấp hơn 43,18%, nên doanh thu phải hụt quá mức ấy thì việc kinh doanh mới lỗ. Con số coi cả giá vốn là biến phí, chi phí bán hàng cộng quản lý là định phí, nên mức 43,18% chỉ là ước lượng thô.',
+        en: "Compared with FPT's Q2 2026 revenue of 13,788.5 billion ₫: break-even is 7,834,407.22 units, or 7,834.41 billion ₫ of revenue, 43.18% lower, so revenue would have to fall by more than that before operations start losing money. The figure treats all cost of goods sold as variable cost and selling plus administrative expense as fixed cost, so the 43.18% is only a rough estimate.",
       },
       source: {
         vi: 'Báo cáo tài chính quý 2/2026 của FPT (mã FPT): doanh thu thuần, giá vốn hàng bán, chi phí bán hàng và chi phí quản lý doanh nghiệp.',
@@ -389,8 +389,8 @@ export const DON_BAY_TONG_HOP: FormulaModule = {
       },
       expected: 2.6171,
       note: {
-        vi: 'So với mốc 1 lần: 2,62 lần nghĩa là doanh thu quý của FPT đổi 1% thì lợi nhuận sau khi trừ lãi vay đổi khoảng 2,62% cùng chiều, doanh thu hụt 10% thì lợi nhuận ấy hụt khoảng 26%. Phần lớn độ nhạy ấy đến từ định phí hoạt động, với đòn bẩy hoạt động 2,32 lần, còn lãi vay chỉ nhân thêm 1,13 lần.',
-        en: "Compared with the 1 times mark: 2.62 times means that when FPT's quarterly revenue moves 1%, profit after interest moves about 2.62% the same way, so a 10% revenue shortfall cuts that profit by about 26%. Most of that sensitivity comes from fixed operating costs, an operating leverage of 2.32 times, while interest multiplies it by only 1.13 times.",
+        vi: 'So với mốc 1 lần: 2,62 lần nghĩa là doanh thu quý của FPT đổi 1% thì lợi nhuận sau khi trừ lãi vay đổi 2,62% cùng chiều, doanh thu hụt 10% thì lợi nhuận ấy hụt 26,17%. Phần lớn độ nhạy ấy đến từ định phí hoạt động, với đòn bẩy hoạt động 2,32 lần, còn lãi vay chỉ nhân thêm 1,13 lần.',
+        en: "Compared with the 1 times mark: 2.62 times means that when FPT's quarterly revenue moves 1%, profit after interest moves 2.62% the same way, so a 10% revenue shortfall cuts that profit by 26.17%. Most of that sensitivity comes from fixed operating costs, an operating leverage of 2.32 times, while interest multiplies it by only 1.13 times.",
       },
       source: {
         vi: 'Báo cáo tài chính quý 2/2026 của FPT (mã FPT): doanh thu thuần, giá vốn hàng bán, chi phí bán hàng và quản lý, chi phí lãi vay.',

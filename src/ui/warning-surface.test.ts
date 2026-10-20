@@ -95,6 +95,29 @@ describe('Mặt phẳng cảnh báo vàng', () => {
       expect(body, `${file} .${className}`).not.toMatch(/font-size:\s*var\(--text-xs\)/);
     }
   });
+
+  /*
+   * Ngoại lệ có chủ ý, CHỈ ở khổ điện thoại (20/10/2026). Chủ dự án khoanh "Số liệu chỉ mang tính chất
+   * minh hoạ, không nên áp dụng cho thực tế." trên `beta`: _"giảm size text … và giảm padding, áp dụng
+   * cho màn mobile"_. Dưới 1024px 12px là cỡ chữ thường của màn (chú giải, dòng diễn giải, hộp lời
+   * giải), không còn là cỡ "metadata" như lý lẽ ca trên — nên hai ghi chú vàng của khối Số liệu xuống
+   * 12px, đệm 6/8px, đúng bộ số của ô miễn trừ. Luật gốc vẫn bị ca trên giữ ở 14px.
+   */
+  it('dưới 1024px hai ghi chú vàng của khối Số liệu: chữ 12px, đệm 6/8px', () => {
+    const css = readFileSync(
+      join(SRC_DIR, 'app/cong-thuc/[id]/FormulaDetail.module.css'),
+      'utf8',
+    ).replace(/\/\*[\s\S]*?\*\//g, '');
+    const than =
+      /@media \(max-width: 1023\.98px\)\s*\{\s*\.seriesShortNote,\s*\.presetMismatch\s*\{([^}]*)\}/.exec(
+        css,
+      )?.[1] ?? '';
+    expect(than, 'thiếu luật điện thoại của .seriesShortNote / .presetMismatch').not.toBe('');
+    expect(than).toMatch(/font-size:\s*var\(--text-xs\);/);
+    expect(than).toMatch(/padding:\s*6px var\(--space-2\);/);
+    // Phải đứng sau hai luật gốc — cùng độ ưu tiên, thứ tự quyết định.
+    expect(css.indexOf('.presetMismatch {')).toBeLessThan(css.indexOf('.seriesShortNote,'));
+  });
 });
 
 /*

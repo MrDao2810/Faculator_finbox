@@ -4,6 +4,50 @@ Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 
 ---
 
+## "Đọc kết quả" của 111 ví dụ: mọi con số đúng và chính xác; dòng Kết quả bằng đúng số calc (20/10/2026)
+
+**Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án xem.**
+
+Khách báo lỗi trên bản đang chạy công khai: _"[Bug] 'Đọc kết quả' ghi sai mức giảm giá trị khi hạ g 1 điểm % ('hơn 20%', thực
+tế ≈ 17,7%)"_ (`gia-tri-noi-tai-fcff`). Chủ dự án: _"kết quả ra như nào thì sao không đọc như vậy mà lại đọc kiểu khác … đây
+là ví dụ thực tế, thì cần lấy đầy đủ ví dụ thực tế nào nhưng cần xác định độ đúng sai, và chuẩn xác"_.
+
+- **Đo trước khi sửa:**
+  - 750 con số trong 111 đoạn: 435 có sẵn trên trang, 171 tính lại khớp, 19 chỉ gần đúng, 125 máy không tự xác minh được.
+  - Kèm theo đó là các chữ ước lượng ("hơn 20%", "khoảng 17%", "gần gấp đôi").
+  - 3 đoạn làm tròn kết quả thành chữ ("khoảng 518 triệu ₫").
+  - 23 ví dụ có `expected` làm tròn tay, khác số `calc` in ra.
+- **Sửa câu "Đọc kết quả"** (`example.note`, vi và en, 17 file nhóm công thức). Chia 7 agent theo file, mỗi con số chạy lại
+  bằng `runFormula` trên số liệu thật của ví dụ:
+  - Số tính ra ghi ở độ chính xác màn hình và bỏ chữ ước lượng: 16,57%, 52.362,96 ₫, "145 trong 230 phiên".
+  - Số suy từ các số in trên trang thì tính từ chính các số ấy, để người đọc tự tính lại ra đúng.
+- **Lỗi số thật tìm được:**
+  - `lai-suat-hieu-dung` 1,1 triệu → 1.089.000 ₫.
+  - `beta` 18,37% → 18,36%.
+  - `co-lenh-rui-ro` "mua tối đa khoảng 2.273" → tính ra 2.272,73, mua 2.272.
+  - `ema-n-phien` "các phiên trước phần lớn thấp hơn" → không đúng, viết lại theo trọng số thật.
+  - Bản cũ của DCF "hơn 20%" (thật 17,75%) đã sửa từ trước; bản hiện tại ghi số chính xác.
+- **`example.expected` của 23 ví dụ = số `calc` làm tròn 2 chữ số lẻ**, để dòng Kết quả của ví dụ in đúng chuỗi khối Kết quả
+  của màn in: `ev` 113.103,9 tỷ ₫, Bollinger 74.901,5 / 68.218,5 ₫, `gia-tri-hien-tai` 517.949.565,49 ₫… Câu "Đọc kết quả"
+  của chúng đồng bộ theo.
+- **Chuỗi ví dụ khớp nhau:** `fcfe` và `gia-tri-noi-tai-fcff` lấy FCFF 5.168,34 (trước 5.168,3), `bien-an-toan` lấy V
+  60.651,46. Đề, câu "Đọc kết quả" và dòng Thay số ở `src/core/vi-du/items.ts` đổi theo.
+- **Đề và nguồn của `co-lenh-rui-ro`** ghi cắt lỗ "dưới đáy tháng 8" và "đáy phiên 14/08". Thật ra 68.300 là giá đóng cửa thấp
+  nhất tháng 8, đáy là 67.300; đã sửa.
+- **Hai cửa gác mới:**
+  - `formulas.test.ts`: dòng Kết quả của ví dụ in đúng số `calc`, ở độ chính xác màn hình.
+  - `example-note-rules.test.ts`: câu đầu chứa đúng con số dòng Kết quả in ra, cả hai thứ tiếng.
+- Đo lại sau khi sửa: 0 ví dụ lệch `calc`. `npm test` 171 file, 4398 ca xanh. `tsc`, `eslint`, `prettier` sạch.
+  `gen:summaries` không lệch.
+- **Chưa xác minh được trong repo (giữ nguyên, lấy theo nguồn đã dẫn):**
+  - Lãi suất tiết kiệm 6,8% / 6,6%, CPI 4,45%, lợi suất trái phiếu 4,57%, phần bù 8,13%.
+  - EPS 5.867 ₫, cổ tức 2.000 ₫.
+  - Giá VN30F1M 1.930,9, ký quỹ VSDC 17%.
+  - Cụm "mức phí 0,15% của SSI".
+- Bản công khai vẫn là bản cũ cho tới lần build kế tiếp.
+
+---
+
 ## Thanh trượt mảnh hơn; nút "Bắt đầu kiểm tra" nét thường, 12px — khổ điện thoại (20/10/2026)
 
 **Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án xem.**
@@ -84,6 +128,28 @@ nhiều"_.
   - Từ 1024px nút vốn ẩn.
 - **`src/app/cong-thuc/[id]/notation-card-css.test.ts`** (mới): ghim hai số trên và thứ tự khai.
 - `vitest` các test liên quan xanh. `eslint`, `prettier` sạch.
+
+---
+
+## Ghi chú vàng "Số liệu chỉ mang tính chất minh hoạ…" nhỏ và mỏng hơn ở khổ điện thoại (20/10/2026)
+
+**Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án xem.**
+
+Chủ dự án khoanh câu `detail.draftMarketSeries` ngay trên thẻ Kết quả (`beta`): _"giảm size text khoanh đỏ như hình
+sau và giảm padding, áp dụng cho màn mobile"_.
+
+- **Đo trước** (Chrome, 360 và 390px): chữ 14px, dòng 21px, đệm 8/12px, hai dòng, ô cao 60px.
+- **Đổi** (`FormulaDetail.module.css`, khối `max-width: 1023.98px` ngay sau hai luật gốc):
+  - `.seriesShortNote` và `.presetMismatch`: chữ 12px, đệm 6/8px, dòng 1,4. Đây đúng bộ số của ô miễn trừ cuối màn.
+  - `.presetMismatch` ("Công thức này không dùng số liệu của mã X") cùng khối, cùng mặt phẳng, cùng vai nên theo
+    luôn. Lời yêu cầu không nhắc nó.
+- **Đo sau:** ở 320, 360 và 390px, chữ 12px, vẫn hai dòng, ô cao 47,6px. Khe tới thẻ Kết quả vẫn 12px. Khổ 1100px không
+  đổi (14px, 39px).
+- **Ngoại lệ của cửa gác:**
+  - `warning-surface.test.ts` cấm `--text-xs` ở mọi mặt cảnh báo vàng. Ở luật gốc vẫn cấm.
+  - Luật điện thoại này là ngoại lệ có ghi lý do, ghim bằng ca riêng.
+- **Test:** `warning-surface.test.ts` (ca mới) và các test màn chi tiết xanh (682 ca). `eslint`, `prettier` sạch.
+- **Chưa đụng:** các mặt vàng ở màn khác (`InlineWarning`, danh sách lỗi của XIRR, dòng lỗi giá ở Danh mục).
 
 ---
 

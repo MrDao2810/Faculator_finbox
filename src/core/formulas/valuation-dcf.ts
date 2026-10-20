@@ -190,10 +190,10 @@ export const MO_HINH_GORDON: FormulaModule = {
         en: 'FPT — dividend 2,000 ₫/share, long-term growth 5%/year, required return 11.92% from CAPM',
       },
       inputs: { dividend: 2_000, growth: 5, requiredReturn: 11.92 },
-      expected: 30_347,
+      expected: 30_346.82,
       note: {
-        vi: 'So với giá FPT phiên 11/09/2026 là 72.700 ₫: giá trị 30.347 ₫ thấp hơn khoảng 58%, nghĩa là nếu chỉ tính dòng cổ tức 2.000 ₫ tăng 5% mỗi năm mãi mãi thì giá đang cao hơn hẳn giá trị dòng cổ tức ấy. Muốn ra bằng giá ấy, giữ suất sinh lợi yêu cầu ở 11,92%, cổ tức phải tăng khoảng 8,9% mỗi năm thay vì 5%.',
-        en: 'Compared with FPT’s 2026-09-11 price of 72,700 ₫: a value of 30,347 ₫ is about 58% lower, meaning that counting only a 2,000 ₫ dividend growing 5% a year forever, the price is far above what that dividend stream is worth. To reach that price with the required return kept at 11.92%, dividends would have to grow about 8.9% a year instead of 5%.',
+        vi: 'So với giá FPT phiên 11/09/2026 là 72.700 ₫: giá trị 30.346,82 ₫ thấp hơn 58,26%, nghĩa là nếu chỉ tính dòng cổ tức 2.000 ₫ tăng 5% mỗi năm mãi mãi thì giá đang cao hơn hẳn giá trị dòng cổ tức ấy. Muốn ra bằng giá ấy, giữ suất sinh lợi yêu cầu ở 11,92%, cổ tức phải tăng 8,92% mỗi năm thay vì 5%.',
+        en: 'Compared with FPT’s 2026-09-11 price of 72,700 ₫: a value of 30,346.82 ₫ is 58.26% lower, meaning that counting only a 2,000 ₫ dividend growing 5% a year forever, the price is far above what that dividend stream is worth. To reach that price with the required return kept at 11.92%, dividends would have to grow 8.92% a year instead of 5%.',
       },
       source: {
         vi: 'cotuc.vn, lịch sử cổ tức tiền mặt FPT Corp (mã FPT), chốt 15/09/2026.',
@@ -504,10 +504,10 @@ export const DDM_HAI_GIAI_DOAN: FormulaModule = {
         growthTerminal: 5,
         requiredReturn: 11.92,
       },
-      expected: 43_845,
+      expected: 43_845.09,
       note: {
-        vi: 'So với giá FPT phiên 11/09/2026 là 72.700 ₫: giá trị 43.845 ₫ thấp hơn khoảng 40%, nghĩa là với cổ tức tăng 14% mỗi năm trong 5 năm rồi 5% mãi mãi thì giá đang cao hơn giá trị dòng cổ tức ấy. Muốn ra bằng giá ấy, cổ tức 5 năm đầu phải tăng khoảng 27% mỗi năm thay vì 14%, hoặc từ năm thứ sáu khoảng 8,1% thay vì 5%.',
-        en: 'Compared with FPT’s 2026-09-11 price of 72,700 ₫: a value of 43,845 ₫ is about 40% lower, meaning that with dividends growing 14% a year for 5 years and then 5% forever, the price is above what that dividend stream is worth. To reach that price, dividend growth would have to be about 27% a year in the first 5 years instead of 14%, or about 8.1% from year six onward instead of 5%.',
+        vi: 'So với giá FPT phiên 11/09/2026 là 72.700 ₫: giá trị 43.845,09 ₫ thấp hơn 39,69%, nghĩa là với cổ tức tăng 14% mỗi năm trong 5 năm rồi 5% mãi mãi thì giá đang cao hơn giá trị dòng cổ tức ấy. Muốn ra bằng giá ấy, cổ tức 5 năm đầu phải tăng 27,29% mỗi năm thay vì 14%, hoặc từ năm thứ sáu là 8,1% thay vì 5%.',
+        en: 'Compared with FPT’s 2026-09-11 price of 72,700 ₫: a value of 43,845.09 ₫ is 39.69% lower, meaning that with dividends growing 14% a year for 5 years and then 5% forever, the price is above what that dividend stream is worth. To reach that price, dividend growth would have to be 27.29% a year in the first 5 years instead of 14%, or 8.1% from year six onward instead of 5%.',
       },
       source: {
         vi: 'CafeF, kết quả kinh doanh 6 tháng đầu 2026 của FPT Corp (mã FPT), chốt 15/09/2026.',
@@ -774,8 +774,8 @@ export const CAPM: FormulaModule = {
       inputs: { riskFree: 4.57, beta: 0.9043, erp: 8.13 },
       expected: 11.922,
       note: {
-        vi: 'So với lợi suất trái phiếu Chính phủ kỳ hạn 10 năm là 4,57%: chi phí vốn chủ 11,92% cao hơn khoảng 7,35 điểm phần trăm, là phần cổ đông FPT đòi thêm mỗi năm để chịu rủi ro cổ phiếu. Con số treo vào beta 0,9043 đo trên 55 phiên, chưa tới ba tháng giao dịch, mỗi 0,1 beta thêm hay bớt làm nó đổi khoảng 0,81 điểm.',
-        en: 'Compared with the 4.57% yield on 10-year government bonds: a cost of equity of 11.92% is about 7.35 percentage points higher, the extra FPT shareholders demand each year for carrying stock risk. The figure hangs on a beta of 0.9043 measured over 55 sessions, less than three months of trading, and each 0.1 of beta added or removed moves it by about 0.81 points.',
+        vi: 'So với lợi suất trái phiếu Chính phủ kỳ hạn 10 năm là 4,57%: chi phí vốn chủ 11,92% cao hơn 7,35 điểm phần trăm, là phần cổ đông FPT đòi thêm mỗi năm để chịu rủi ro cổ phiếu. Con số treo vào beta 0,9043 chỉ đo trên 55 phiên, từ 24/06 đến 11/09/2026, mỗi 0,1 beta thêm hay bớt làm nó đổi 0,81 điểm.',
+        en: 'Compared with the 4.57% yield on 10-year government bonds: a cost of equity of 11.92% is 7.35 percentage points higher, the extra FPT shareholders demand each year for carrying stock risk. The figure hangs on a beta of 0.9043 measured over only 55 sessions, from 2026-06-24 to 2026-09-11, and each 0.1 of beta added or removed moves it by 0.81 points.',
       },
       source: {
         vi: 'Trading Economics (lợi suất TPCP 10 năm) và Damodaran (phần bù rủi ro quốc gia), chốt 15/09/2026.',
@@ -1000,8 +1000,8 @@ export const WACC: FormulaModule = {
       inputs: { equity: 124_631.5, debt: 17_444, costEquity: 11.92, costDebt: 4.2, taxRate: 20 },
       expected: 10.869,
       note: {
-        vi: 'So với chi phí vốn chủ 11,92% của FPT: WACC 10,87% chỉ thấp hơn khoảng 1 điểm phần trăm, vì tính theo vốn hoá thì nợ vay, dù lãi chỉ 4,2%, chỉ chiếm khoảng 12% nguồn vốn nên kéo xuống không nhiều. Vì vậy kết quả gần như đi theo chi phí vốn chủ, chi phí ấy tăng 1 điểm thì WACC tăng khoảng 0,88 điểm.',
-        en: 'Compared with FPT’s cost of equity of 11.92%: a WACC of 10.87% is only about 1 percentage point lower, because at market value debt, though it costs just 4.2%, is only about 12% of total capital, so it pulls the figure down little. The result therefore largely tracks the cost of equity, and a 1 point rise there lifts WACC by about 0.88 points.',
+        vi: 'So với chi phí vốn chủ 11,92% của FPT: WACC 10,87% chỉ thấp hơn 1,05 điểm phần trăm, vì tính theo vốn hoá thì nợ vay, dù lãi chỉ 4,2%, chỉ chiếm 12,28% nguồn vốn nên kéo xuống không nhiều. Vì vậy kết quả gần như đi theo chi phí vốn chủ, chi phí ấy tăng 1 điểm thì WACC tăng 0,88 điểm.',
+        en: 'Compared with FPT’s cost of equity of 11.92%: a WACC of 10.87% is only 1.05 percentage points lower, because at market value debt, though it costs just 4.2%, is only 12.28% of total capital, so it pulls the figure down little. The result therefore largely tracks the cost of equity, and a 1 point rise there lifts WACC by 0.88 points.',
       },
       source: {
         vi: 'CafeF, báo cáo tài chính hợp nhất quý 2/2026 của FPT Corp (mã FPT); vốn hoá theo giá phiên 11/09/2026, chốt 15/09/2026.',
@@ -1261,10 +1261,10 @@ export const FCFF: FormulaModule = {
         capex: 5_097.9,
         nwcChange: 3_608.7,
       },
-      expected: 5_168,
+      expected: 5_168.34,
       note: {
-        vi: 'So với EBIT sau thuế năm 2025 của FPT là 11.079 tỷ ₫: dòng tiền tự do 5.168 tỷ ₫ chỉ bằng khoảng 47%, tức hơn nửa số lãi ấy đã chi vào tài sản cố định mới và vốn lưu động. Riêng vốn lưu động tăng 3.608,7 tỷ ₫ đã lấy gần một phần ba, khoản này không tăng thì dòng tiền tự do lên khoảng 8.777 tỷ ₫.',
-        en: 'Compared with FPT’s 2025 after-tax EBIT of 11,079 billion ₫: free cash flow of 5,168 billion ₫ is only about 47% of it, so more than half of that profit went into new fixed assets and working capital. The 3,608.7 billion ₫ rise in working capital alone took nearly a third, and had it not grown, free cash flow would have been about 8,777 billion ₫.',
+        vi: 'So với EBIT sau thuế năm 2025 của FPT là 11.079,04 tỷ ₫: dòng tiền tự do 5.168,34 tỷ ₫ chỉ bằng 46,65%, tức 53,35% số lãi ấy đã chi vào tài sản cố định mới và vốn lưu động. Riêng vốn lưu động tăng 3.608,7 tỷ ₫ đã lấy 32,57% số lãi ấy, khoản này không tăng thì dòng tiền tự do lên 8.777,04 tỷ ₫.',
+        en: 'Compared with FPT’s 2025 after-tax EBIT of 11,079.04 billion ₫: free cash flow of 5,168.34 billion ₫ is only 46.65% of it, so 53.35% of that profit went into new fixed assets and working capital. The 3,608.7 billion ₫ rise in working capital alone took 32.57% of that profit, and had it not grown, free cash flow would have been 8,777.04 billion ₫.',
       },
       source: {
         vi: 'StockAnalysis, báo cáo tài chính năm 2025 của FPT Corp (mã FPT), chốt 15/09/2026.',
@@ -1496,14 +1496,14 @@ export const FCFE: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'FPT năm 2025 — FCFF 5.168,3 tỷ ₫, lãi vay 809,8 tỷ, thuế 20%, vay ròng thêm 6.256,7 tỷ',
-        en: 'FPT in 2025 — FCFF 5,168.3 billion ₫, interest 809.8 billion, tax 20%, new net borrowing 6,256.7 billion',
+        vi: 'FPT năm 2025 — FCFF 5.168,34 tỷ ₫, lãi vay 809,8 tỷ, thuế 20%, vay ròng thêm 6.256,7 tỷ',
+        en: 'FPT in 2025 — FCFF 5,168.34 billion ₫, interest 809.8 billion, tax 20%, new net borrowing 6,256.7 billion',
       },
-      inputs: { fcff: 5_168.3, interest: 809.8, taxRate: 20, netBorrowing: 6_256.7 },
-      expected: 10_777,
+      inputs: { fcff: 5_168.34, interest: 809.8, taxRate: 20, netBorrowing: 6_256.7 },
+      expected: 10_777.2,
       note: {
-        vi: 'So với dòng tiền tự do của doanh nghiệp 5.168,3 tỷ ₫: dòng tiền còn lại cho cổ đông FPT năm 2025 là 10.777 tỷ ₫, hơn gấp đôi, vì được cộng thêm 6.256,7 tỷ ₫ vay ròng mới. Nếu vay ròng bằng 0 thì chỉ còn khoảng 4.520 tỷ ₫, nên hơn nửa con số này là tiền đi vay chứ không do kinh doanh làm ra.',
-        en: 'Compared with the 5,168.3 billion ₫ of free cash flow to the firm: the cash left for FPT shareholders in 2025 is 10,777 billion ₫, more than double, because 6,256.7 billion ₫ of new net borrowing is added on top. With net borrowing at zero only about 4,520 billion ₫ would remain, so more than half of this figure is borrowed money rather than cash the business earned.',
+        vi: 'So với dòng tiền tự do của doanh nghiệp 5.168,34 tỷ ₫: dòng tiền còn lại cho cổ đông FPT năm 2025 là 10.777,2 tỷ ₫, gấp 2,09 lần, vì được cộng thêm 6.256,7 tỷ ₫ vay ròng mới. Nếu vay ròng bằng 0 thì chỉ còn 4.520,5 tỷ ₫, nên 58,05% con số này là tiền đi vay chứ không do kinh doanh làm ra.',
+        en: 'Compared with the 5,168.34 billion ₫ of free cash flow to the firm: the cash left for FPT shareholders in 2025 is 10,777.2 billion ₫, 2.09 times as much, because 6,256.7 billion ₫ of new net borrowing is added on top. With net borrowing at zero only 4,520.5 billion ₫ would remain, so 58.05% of this figure is borrowed money rather than cash the business earned.',
       },
       source: {
         vi: 'StockAnalysis, bảng cân đối kế toán và kết quả kinh doanh 2024–2025 của FPT Corp (mã FPT), chốt 15/09/2026.',
@@ -1739,16 +1739,16 @@ export const GIA_TRI_NOI_TAI_FCFF: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'FPT — FCFF 5.168,3 tỷ ₫, tăng 5%/năm, WACC 10,87%, nợ vay ròng −11.527,6 tỷ, 1.714,33 triệu CP',
-        en: 'FPT — FCFF 5,168.3 billion ₫, growing 5%/year, WACC 10.87%, net debt −11,527.6 billion, 1,714.33 million shares',
+        vi: 'FPT — FCFF 5.168,34 tỷ ₫, tăng 5%/năm, WACC 10,87%, nợ vay ròng −11.527,6 tỷ, 1.714,33 triệu CP',
+        en: 'FPT — FCFF 5,168.34 billion ₫, growing 5%/year, WACC 10.87%, net debt −11,527.6 billion, 1,714.33 million shares',
       },
       // WACC là kết quả ví dụ của `wacc` (10,869%) làm tròn như màn hiện; từng là 9,37 khi ví dụ ấy
       // còn tính vốn chủ theo sổ sách (16/10/2026, xem ghi chú ở ví dụ `wacc`).
-      inputs: { fcff: 5_168.3, growth: 5, wacc: 10.87, netDebt: -11_527.6, shares: 1_714.33 },
-      expected: 60_651,
+      inputs: { fcff: 5_168.34, growth: 5, wacc: 10.87, netDebt: -11_527.6, shares: 1_714.33 },
+      expected: 60_651.46,
       note: {
-        vi: 'So với thị giá FPT phiên 11/09/2026 là 72.700 ₫: giá trị nội tại 60.651 ₫ thấp hơn khoảng 17%, tức theo các giả định này, mỗi cổ phiếu đáng ít hơn giá đang bán. Con số rất nhạy với giả định dòng tiền tăng đều 5%/năm, hạ còn 4% thì chỉ khoảng 52.363 ₫, nâng lên 6% thì khoảng 72.343 ₫, vẫn thấp hơn thị giá.',
-        en: 'Compared with FPT’s market price of 72,700 ₫ on the 2026-09-11 session: the intrinsic value of 60,651 ₫ is about 17% lower, so on these assumptions each share is worth less than it trades for. The figure is very sensitive to the assumed steady 5%/year growth in cash flow, dropping to only about 52,363 ₫ at 4% and reaching about 72,343 ₫ at 6%, still below the market price.',
+        vi: 'So với thị giá FPT phiên 11/09/2026 là 72.700 ₫: giá trị nội tại 60.651,46 ₫ thấp hơn 16,57%, tức theo các giả định này, mỗi cổ phiếu đáng ít hơn giá đang bán. Con số rất nhạy với giả định dòng tiền tăng đều 5%/năm, hạ còn 4% thì chỉ 52.362,96 ₫, nâng lên 6% thì 72.343,86 ₫, vẫn thấp hơn thị giá.',
+        en: 'Compared with FPT’s market price of 72,700 ₫ on the 2026-09-11 session: the intrinsic value of 60,651.46 ₫ is 16.57% lower, so on these assumptions each share is worth less than it trades for. The figure is very sensitive to the assumed steady 5%/year growth in cash flow, dropping to only 52,362.96 ₫ at 4% and reaching 72,343.86 ₫ at 6%, still below the market price.',
       },
       source: {
         vi: 'CafeF, bảng cân đối kế toán ngày 30/06/2026 của FPT Corp (mã FPT), chốt 15/09/2026.',
@@ -2019,10 +2019,10 @@ export const GIA_TRI_HIEN_TAI: FormulaModule = {
         en: 'How much is needed today to hold 1 billion ₫ in 10 years at a 6.8%/year deposit rate (September 2026)',
       },
       inputs: { futureValue: 1_000_000_000, rate: 6.8, years: 10 },
-      expected: 517_949_565,
+      expected: 517_949_565.49,
       note: {
-        vi: 'So với mục tiêu 1 tỷ ₫: chỉ cần gửi khoảng 518 triệu ₫ hôm nay, hơn một nửa mục tiêu, còn khoảng 482 triệu ₫ là lãi kép 6,8%/năm làm ra trong 10 năm. Con số chỉ đúng khi lãi suất giữ nguyên suốt 10 năm, nếu lãi hạ còn 5,8%/năm thì phải gửi khoảng 569 triệu ₫.',
-        en: 'Compared with the 1 billion ₫ target: depositing about 518 million ₫ today is enough, more than half the target, and compounding at 6.8%/year earns the remaining 482 million ₫ or so over 10 years. The figure holds only if the rate stays put for all 10 years, and at 5.8%/year you would need to deposit about 569 million ₫.',
+        vi: 'So với mục tiêu 1 tỷ ₫: chỉ cần gửi 517.949.565,49 ₫ hôm nay, bằng 51,79% mục tiêu, còn 482.050.434,51 ₫ là lãi kép 6,8%/năm làm ra trong 10 năm. Con số chỉ đúng khi lãi suất giữ nguyên suốt 10 năm, nếu lãi hạ còn 5,8%/năm thì phải gửi 569.040.690,93 ₫.',
+        en: 'Compared with the 1 billion ₫ target: depositing 517,949,565.49 ₫ today is enough, 51.79% of the target, and compounding at 6.8%/year earns the remaining 482,050,434.51 ₫ over 10 years. The figure holds only if the rate stays put for all 10 years, and at 5.8%/year you would need to deposit 569,040,690.93 ₫.',
       },
       source: {
         vi: 'VietNamNet, lãi suất tiết kiệm trực tuyến 12 tháng của Agribank, BIDV, Vietcombank và VietinBank, tháng 9/2026.',
@@ -2205,8 +2205,8 @@ export const GIA_TRI_TUONG_LAI: FormulaModule = {
       inputs: { presentValue: 100_000_000, rate: 6.8, years: 10 },
       expected: 193_068_991,
       note: {
-        vi: 'So với 100 triệu ₫ gửi ban đầu: sau 10 năm khoản gửi thành khoảng 193 triệu ₫, gần gấp đôi, trong đó khoảng 93 triệu ₫ là lãi. Con số chỉ đúng khi lãi được nhập gốc mỗi năm và lãi suất giữ nguyên 6,8% suốt 10 năm, nếu lãi hạ còn 5,8%/năm thì chỉ được khoảng 176 triệu ₫.',
-        en: 'Compared with the 100 million ₫ deposited at the start: after 10 years the deposit grows to about 193 million ₫, nearly double, of which about 93 million ₫ is interest. The figure holds only if interest is rolled into the principal every year and the rate stays at 6.8% throughout, and at 5.8%/year you would end up with only about 176 million ₫.',
+        vi: 'So với 100 triệu ₫ gửi ban đầu: sau 10 năm khoản gửi thành 193.068.991 ₫, gấp 1,93 lần, trong đó 93.068.991 ₫ là lãi. Con số chỉ đúng khi lãi được nhập gốc mỗi năm và lãi suất giữ nguyên 6,8% suốt 10 năm, nếu lãi hạ còn 5,8%/năm thì chỉ được 175.734.357,13 ₫.',
+        en: 'Compared with the 100 million ₫ deposited at the start: after 10 years the deposit grows to 193,068,991 ₫, 1.93 times as much, of which 93,068,991 ₫ is interest. The figure holds only if interest is rolled into the principal every year and the rate stays at 6.8% throughout, and at 5.8%/year you would end up with only 175,734,357.13 ₫.',
       },
       source: {
         vi: 'VietNamNet, lãi suất tiết kiệm trực tuyến kỳ hạn 12 tháng nhóm Big4, tháng 9/2026.',
@@ -2351,16 +2351,16 @@ export const BIEN_AN_TOAN: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'FPT — thị giá 72.700 ₫ phiên 11/09/2026 so với giá trị nội tại 60.651 ₫ từ DCF',
-        en: 'FPT — market price 72,700 ₫ on 2026-09-11 against an intrinsic value of 60,651 ₫ from DCF',
+        vi: 'FPT — thị giá 72.700 ₫ phiên 11/09/2026 so với giá trị nội tại 60.651,46 ₫ từ DCF',
+        en: 'FPT — market price 72,700 ₫ on 2026-09-11 against an intrinsic value of 60,651.46 ₫ from DCF',
       },
       // Giá trị nội tại là kết quả ví dụ DCF; từng là 79.161 ₫ (biên +8,16%) khi WACC còn tính vốn chủ
       // theo sổ sách (16/10/2026, xem ghi chú ở ví dụ `wacc`).
-      inputs: { intrinsic: 60_651, price: 72_700 },
-      expected: -19.8661,
+      inputs: { intrinsic: 60_651.46, price: 72_700 },
+      expected: -19.87,
       note: {
-        vi: 'So với giá trị nội tại 60.651 ₫ mà mô hình DCF ước ra: biên âm 19,87% nghĩa là thị giá 72.700 ₫ đã cao hơn giá trị ấy 12.049 ₫, gần một phần năm, nên không có khoảng đệm nào. Kể cả khi DCF giả định dòng tiền FPT tăng 6% thay vì 5% mỗi năm, giá trị nội tại cũng chỉ khoảng 72.343 ₫, biên vẫn âm khoảng 0,5%.',
-        en: 'Compared with the 60,651 ₫ intrinsic value the DCF model estimates: a margin of minus 19.87% means the 72,700 ₫ market price is already 12,049 ₫ above that value, nearly a fifth, so there is no cushion at all. Even if the DCF model assumes FPT’s cash flow grows 6% instead of 5% a year, the intrinsic value is only about 72,343 ₫, so the margin stays slightly negative, at about minus 0.5%.',
+        vi: 'So với giá trị nội tại 60.651,46 ₫ mà mô hình DCF ước ra: biên âm 19,87% nghĩa là thị giá 72.700 ₫ đã cao hơn giá trị ấy 12.048,54 ₫, nên không có khoảng đệm nào. Kể cả khi DCF giả định dòng tiền FPT tăng 6% thay vì 5% mỗi năm, giá trị nội tại cũng chỉ 72.343,86 ₫, biên vẫn âm 0,49%.',
+        en: 'Compared with the 60,651.46 ₫ intrinsic value the DCF model estimates: a margin of minus 19.87% means the 72,700 ₫ market price is already 12,048.54 ₫ above that value, so there is no cushion at all. Even if the DCF model assumes FPT’s cash flow grows 6% instead of 5% a year, the intrinsic value is only 72,343.86 ₫, so the margin stays slightly negative, at minus 0.49%.',
       },
       source: {
         vi: 'Investing.com, giá đóng cửa FPT Corp (mã FPT) phiên 11/09/2026.',

@@ -1289,8 +1289,8 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
       {
         kyHieu: 'FCFF',
         moTa: {
-          vi: 'là dòng tiền tự do của doanh nghiệp FPT năm 2025, lấy từ công thức FCFF: 5.168,3 tỷ ₫',
-          en: "is FPT's free cash flow to the firm in 2025, taken from the FCFF formula: 5168.3 billion ₫",
+          vi: 'là dòng tiền tự do của doanh nghiệp FPT năm 2025, lấy từ công thức FCFF: 5.168,34 tỷ ₫',
+          en: "is FPT's free cash flow to the firm in 2025, taken from the FCFF formula: 5168.34 billion ₫",
         },
       },
       {
@@ -1316,8 +1316,8 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
       },
     ],
     thaySo: {
-      vi: '5.168,3 − 809,8 × (1 − 20 ÷ 100) + 6.256,7',
-      en: '5168.3 − 809.8 × (1 − 20 ÷ 100) + 6256.7',
+      vi: '5.168,34 − 809,8 × (1 − 20 ÷ 100) + 6.256,7',
+      en: '5168.34 − 809.8 × (1 − 20 ÷ 100) + 6256.7',
     },
     nguon: [
       {
@@ -1338,8 +1338,8 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
       {
         kyHieu: 'FCFF',
         moTa: {
-          vi: 'là dòng tiền tự do của doanh nghiệp FPT, lấy từ công thức FCFF: 5.168,3 tỷ ₫',
-          en: "is FPT's free cash flow to the firm, taken from the FCFF formula: 5168.3 billion ₫",
+          vi: 'là dòng tiền tự do của doanh nghiệp FPT, lấy từ công thức FCFF: 5.168,34 tỷ ₫',
+          en: "is FPT's free cash flow to the firm, taken from the FCFF formula: 5168.34 billion ₫",
         },
       },
       {
@@ -1372,8 +1372,8 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
       },
     ],
     thaySo: {
-      vi: '(5.168,3 × (1 + 5 ÷ 100) ÷ ((10,87 − 5) ÷ 100) − (−11.527,6)) ÷ 1.714,33 × 1.000',
-      en: '(5168.3 × (1 + 5 ÷ 100) ÷ ((10.87 − 5) ÷ 100) − (−11527.6)) ÷ 1714.33 × 1000',
+      vi: '(5.168,34 × (1 + 5 ÷ 100) ÷ ((10,87 − 5) ÷ 100) − (−11.527,6)) ÷ 1.714,33 × 1.000',
+      en: '(5168.34 × (1 + 5 ÷ 100) ÷ ((10.87 − 5) ÷ 100) − (−11527.6)) ÷ 1714.33 × 1000',
     },
     nguon: [
       {
@@ -1492,8 +1492,8 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
       {
         kyHieu: 'V',
         moTa: {
-          vi: 'là giá trị nội tại một cổ phiếu FPT ước tính bằng mô hình DCF: 60.651 ₫',
-          en: 'is the intrinsic value of one FPT share estimated with the DCF model: 60651 ₫',
+          vi: 'là giá trị nội tại một cổ phiếu FPT ước tính bằng mô hình DCF: 60.651,46 ₫',
+          en: 'is the intrinsic value of one FPT share estimated with the DCF model: 60651.46 ₫',
         },
       },
       {
@@ -1505,8 +1505,8 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
       },
     ],
     thaySo: {
-      vi: '(60.651 − 72.700) ÷ 60.651 × 100',
-      en: '(60651 − 72700) ÷ 60651 × 100',
+      vi: '(60.651,46 − 72.700) ÷ 60.651,46 × 100',
+      en: '(60651.46 − 72700) ÷ 60651.46 × 100',
     },
     nguon: [
       {

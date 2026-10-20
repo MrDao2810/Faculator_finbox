@@ -138,6 +138,27 @@ describe('Registry với toàn bộ công thức thật', () => {
   });
 
   /*
+   * Dòng "Kết quả" của khối Ví dụ in `example.expected`, khối Kết quả của màn in số `calc` trả về —
+   * hai chỗ phải ra CÙNG một chuỗi ở độ chính xác màn hình (20/10/2026). Ca trên cho lệch tới 1 đơn
+   * vị, và 23 ví dụ đã lợi dụng khe ấy để ghi số làm tròn tay: `ev` in 113.104 tỷ ₫ trong khi `calc`
+   * ra 113.103,9, nên phép trừ trong câu "Đọc kết quả" ngay dưới không khớp chính con số ấy. Chủ dự
+   * án: _"kết quả ra như nào thì sao không đọc như vậy mà lại đọc kiểu khác"_.
+   */
+  it('dòng Kết quả của ví dụ in đúng số calc trả về, ở độ chính xác màn hình', () => {
+    const lech = FORMULA_MODULES.flatMap((formula) => {
+      const { id, example, resultUnit } = formula.spec;
+      const out = runFormula(formula, example.inputs, ctxCuaViDu(formula.spec)).value;
+      if (out === null) return [`${id}: calc không ra số`];
+      const vietTay = formatNumber(example.expected);
+      const theoCalc = formatNumber(out);
+      return vietTay === theoCalc
+        ? []
+        : [`${id} (${resultUnit}): ví dụ in ${vietTay}, calc in ${theoCalc}`];
+    });
+    expect(lech, lech.join('\n')).toEqual([]);
+  });
+
+  /*
    * Dòng "thay số" của khối gộp (`spec.substitution`, 01/10/2026) — in ra thứ như
    * `92.000 ÷ 6.050 = 15,21` ngay dưới con số kết quả.
    *

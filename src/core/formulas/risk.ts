@@ -146,18 +146,18 @@ export const CO_LENH_RUI_RO: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'Vốn 500 triệu ₫, rủi ro 2% mỗi lệnh, mua FPT giá phiên 11/09/2026, cắt lỗ dưới đáy tháng 8/2026',
-        en: 'Capital of 500 million ₫, 2% risk per trade, buying FPT at the 2026-09-11 close with a stop below the August 2026 low',
+        vi: 'Vốn 500 triệu ₫, rủi ro 2% mỗi lệnh, mua FPT giá phiên 11/09/2026, cắt lỗ ở giá đóng cửa thấp nhất tháng 8/2026',
+        en: 'Capital of 500 million ₫, 2% risk per trade, buying FPT at the 2026-09-11 close with a stop at the lowest close of August 2026',
       },
       inputs: { capital: 500_000_000, riskPercent: 2, entryPrice: 72_700, stopPrice: 68_300 },
-      expected: 2_273,
+      expected: 2_272.73,
       note: {
-        vi: 'So với 10 triệu ₫ bạn chấp nhận mất, tức 2% vốn 500 triệu ₫: giá rơi từ 72.700 ₫ xuống mức cắt lỗ 68.300 ₫ thì mỗi cổ phiếu lỗ 4.400 ₫, nên lệnh này mua tối đa khoảng 2.273 cổ phiếu FPT. Số mua thật phải làm tròn xuống 2.272, vì đủ 2.273 cổ phiếu thì chạm cắt lỗ sẽ mất 10.001.200 ₫, quá mức đã đặt.',
-        en: 'Compared with the 10 million ₫ you accept losing, which is 2% of the 500 million ₫ capital: a drop from 72,700 ₫ to the 68,300 ₫ stop costs 4,400 ₫ per share, so this order can buy at most about 2,273 FPT shares. The real order must round down to 2,272, because a full 2,273 shares would lose 10,001,200 ₫ at the stop, more than the limit set.',
+        vi: 'So với 10 triệu ₫ bạn chấp nhận mất, tức 2% vốn 500 triệu ₫: giá rơi từ 72.700 ₫ xuống mức cắt lỗ 68.300 ₫ thì mỗi cổ phiếu lỗ 4.400 ₫, nên lệnh này tính ra 2.272,73 cổ phiếu FPT. Số mua thật phải làm tròn xuống 2.272, vì đủ 2.273 cổ phiếu thì chạm cắt lỗ sẽ mất 10.001.200 ₫, quá mức đã đặt.',
+        en: 'Compared with the 10 million ₫ you accept losing, which is 2% of the 500 million ₫ capital: a drop from 72,700 ₫ to the 68,300 ₫ stop costs 4,400 ₫ per share, so this order works out to 2,272.73 FPT shares. The real order must round down to 2,272, because a full 2,273 shares would lose 10,001,200 ₫ at the stop, more than the limit set.',
       },
       source: {
-        vi: 'investing.com, giá đóng cửa CTCP FPT (mã FPT) phiên 11/09/2026; mức cắt lỗ lấy theo đáy phiên 14/08/2026.',
-        en: 'investing.com, FPT Corp’s (ticker FPT) close on 2026-09-11; the stop-loss level taken from the 2026-08-14 low.',
+        vi: 'investing.com, giá đóng cửa CTCP FPT (mã FPT) phiên 11/09/2026; mức cắt lỗ lấy theo giá đóng cửa phiên 14/08/2026, mức đóng cửa thấp nhất tháng 8/2026.',
+        en: 'investing.com, FPT Corp’s (ticker FPT) close on 2026-09-11; the stop-loss level taken from the 2026-08-14 close, the lowest close of August 2026.',
       },
     },
     tests: [

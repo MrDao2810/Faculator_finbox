@@ -88,7 +88,7 @@ export function XirrBody({ output, rows, onRowsChange, thaySo }: XirrBodyProps) 
           </Button>
         </div>
 
-        <Table caption={t('xirr.tableTitle')} hideCaption>
+        <Table caption={t('xirr.tableTitle')} hideCaption className={styles.cashflow}>
           <thead>
             <tr>
               <th className={styles.flagCol}>

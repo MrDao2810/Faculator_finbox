@@ -236,7 +236,12 @@ export const vi = {
   'unit.scale.million': 'triệu ₫',
   'unit.scale.dong': '₫',
   'input.revert': 'Nhận tự động',
-  'input.overridden': 'đã nhập tay',
+  /*
+   * Từng là "đã nhập tay". Chủ dự án 20/10/2026: _"ngôn ngữ cứ lấy từ 'Nhập tay' … nó quê mùa và không
+   * hay"_ — cả sản phẩm bỏ cụm ấy, `i18n.test.ts` chặn nó quay lại. Nhãn này vẫn là chữ (FR-15 đòi
+   * phân biệt bằng chữ, không chỉ bằng màu), chỉ đổi lời: con số tự động ở ô đã bị người dùng sửa.
+   */
+  'input.overridden': 'đã sửa',
   'input.autoFrom': 'Nhận tự động từ',
 
   /*
@@ -383,10 +388,10 @@ export const vi = {
    */
   'detail.tickerLoading': 'đang lấy dữ liệu thật của mã…',
   'detail.tickerFailed':
-    'không lấy được dữ liệu của mã — nhập tay, hoặc bấm “Nạp mẫu” để dùng bộ dữ liệu sẵn có.',
+    'không lấy được dữ liệu của mã — tự nhập số liệu, hoặc bấm “Nạp mẫu” để dùng bộ dữ liệu sẵn có.',
   'detail.tickerNoData':
     'mã này chưa có đủ dữ liệu cơ bản để nạp (báo cáo chưa đủ bốn quý liền nhau, hoặc các con số ' +
-    'không khớp nhau). Thử lại cũng vậy — chọn mã khác, hoặc nhập tay.',
+    'không khớp nhau). Thử lại cũng vậy — chọn mã khác, hoặc tự nhập số liệu.',
   /*
    * ── Hai nút icon ở hàng tiêu đề ────────────────────────────────────────────
    *
@@ -488,6 +493,9 @@ export const vi = {
   'detail.constantSource': 'Market Config · CON-10',
   'detail.constantsInUse': 'Đang tính theo các mức sau',
   'detail.constantSince': 'áp dụng từ',
+  /* Nút của khối 'Đang tính theo các mức sau' (20/10/2026) — xem `ConstantsNote.tsx`. */
+  'detail.constantsCollapse': 'Thu gọn',
+  'detail.constantsExpand': 'Mở rộng',
   /*
    * ── Mộ chí: `detail.derivedInUse` — "Từ các ô trên, công thức tính ra" (16/09 → 06/10/2026) ──
    *
@@ -559,8 +567,20 @@ export const vi = {
   'detail.draftMarketSeries': 'Số liệu chỉ mang tính chất minh hoạ, không nên áp dụng cho thực tế.',
   'detail.openDataTable': 'Mở bảng dữ liệu →',
   'detail.chart': 'Biểu đồ',
-  /* Nhãn ô chọn biến cho trục X của đường quét độ nhạy (FR-08). */
-  'chart.sweepLabel': 'Xem kết quả đổi theo',
+  /*
+   * Nhãn ô chọn biến cho trục X của đường quét độ nhạy (FR-08) — mỗi mục là một ô nhập (hình cho
+   * thấy kết quả khi CHỈ ô ấy đổi), cộng "Thời gian" khi đã nạp chuỗi giá và "Bóc tách" ở 11 công
+   * thức.
+   *
+   * "Xem kết quả đổi theo" → "Xem theo" (20/10/2026). Chủ dự án hỏi về nhãn này lần thứ hai: lần đầu
+   * 06/10 (_"«Xem kết quả đổi theo» là phần nào?"_), lần này _"đang không biết nói đến cái gì mặc
+   * dù là thay đổi biểu đồ. đổi lại cho ngắn gọn và dễ hiểu"_. "Xem theo" là đúng chữ chủ dự án tự
+   * dùng khi tả ô này ngày 13/10 (_"khi đổi dạng Xem theo thời gian, Khối lượng, thời gian nắm giữ"_),
+   * và đọc liền với tiêu đề hình ngay trên ("EV/EBITDA theo Giá trị doanh nghiệp (EV)"). Mục thời
+   * gian đổi cùng lượt từ "Theo thời gian" thành "Thời gian" (`HISTORY_LABEL`), kẻo hàng đọc thành
+   * "Xem theo · Theo thời gian". Chú thích trong mã còn gọi ô này bằng tên cũ ở nhiều chỗ.
+   */
+  'chart.sweepLabel': 'Xem theo',
   /*
    * Nhóm nút đổi lối vẽ.
    *
@@ -990,7 +1010,7 @@ export const vi = {
   /*
    * Nhãn trần, KHÔNG kèm "(để trống nếu chưa biết)" — chủ dự án chốt 14/09/2026 bỏ vế ấy.
    *
-   * Nó nói một điều mà dòng gợi ý ngay dưới đã nói đủ và nói rõ hơn ("nhập tay nếu bạn đã có số"),
+   * Nó nói một điều mà dòng gợi ý ngay dưới đã nói đủ và nói rõ hơn ("nếu đã có số, bạn nhập vào đây"),
    * nên đặt trong nhãn là bắt người dùng đọc cùng một câu hai lần — mà lại đọc trước, lúc còn chưa
    * biết beta là gì. Nhãn của một ô nhập nên gọi tên thứ nó nhận, không mang theo hướng dẫn.
    */
@@ -998,7 +1018,8 @@ export const vi = {
   'portfolio.formSubmit': 'Thêm vào danh mục',
   'portfolio.formCancel': 'Huỷ',
   /*
-   * Câu này phải NÓI BETA LÀ GÌ trước, rồi mới nói vì sao phải nhập tay.
+   * Câu này phải NÓI BETA LÀ GÌ trước, rồi mới nói vì sao người dùng phải tự nhập. Vế cuối từng là
+   * "nhập tay nếu bạn đã có số" — đổi 20/10/2026 cùng lượt bỏ cụm "nhập tay" (xem `input.overridden`).
    *
    * Bản trước chỉ có vế thứ hai ("chưa tính tự động được — cần chuỗi lợi suất của cả mã lẫn chỉ số
    * thị trường"), và chủ dự án báo đúng chỗ ấy: người chưa biết beta đọc xong vẫn không biết phải
@@ -1016,7 +1037,7 @@ export const vi = {
   'portfolio.betaHint':
     'Beta đo mức mã này nhảy mạnh hay yếu hơn VN-Index — beta 1,5 nghĩa là chỉ số nhích 1% thì mã ' +
     'thường nhích khoảng 1,5%, dưới 1 là nhẹ hơn thị trường. Sản phẩm chưa tự tính được vì cần ' +
-    'chuỗi lợi suất của cả mã lẫn chỉ số; nhập tay nếu bạn đã có số.',
+    'chuỗi lợi suất của cả mã lẫn chỉ số; nếu đã có số, bạn nhập vào đây.',
   /*
    * `portfolio.priceNote` ("Thị giá lấy từ Finbox theo phiên gần nhất, không phải giá khớp lệnh")
    * đã BỎ — chủ dự án chốt 14/09/2026, cùng đợt với "(để trống nếu chưa biết)" và "cập nhật tức thì".
@@ -1457,7 +1478,8 @@ export const vi = {
   'series.colLow': 'Thấp',
   'series.colClose': 'Đóng',
   'series.colVolume': 'Khối lượng',
-  'series.empty': 'Bảng đang trống. Bấm “Thêm dòng” để nhập tay, hoặc nạp một bộ số liệu mẫu.',
+  'series.empty':
+    'Bảng đang trống. Bấm “Thêm dòng” để nhập từng phiên, hoặc nạp một bộ số liệu mẫu.',
   'series.usable': 'phiên dùng được',
   'series.rowLabel': 'Dòng',
   /* Không còn `series.localOnly` / `series.localTag`: màn bảng dữ liệu bỏ dòng ghi chú

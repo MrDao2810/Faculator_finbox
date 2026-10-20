@@ -210,6 +210,8 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'detail.constantSource': 'Market Config · CON-10',
   'detail.constantsInUse': 'Calculated at these rates',
   'detail.constantSince': 'in effect since',
+  'detail.constantsCollapse': 'Collapse',
+  'detail.constantsExpand': 'Expand',
   'detail.pasteSeries': 'Paste a price series from Excel',
   'detail.loadExample': 'View illustrative example',
   'detail.exampleLoaded': 'Illustrative example loaded ✓',

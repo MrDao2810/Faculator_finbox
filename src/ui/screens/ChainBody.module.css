@@ -355,18 +355,28 @@
   }
 
   .fields input[type='range'] {
-    margin-block: -8px;
+    margin-block: -4px -22px;
+    padding-bottom: 18px;
+  }
+
+  /* Rãnh 4px, nút 14px (20/10/2026) — số đo và lý do ở `FormulaDetail.module.css`, cùng chỗ. */
+  .fields input[type='range']::-webkit-slider-runnable-track {
+    height: 4px;
+  }
+
+  .fields input[type='range']::-moz-range-track {
+    height: 4px;
   }
 
   .fields input[type='range']::-webkit-slider-thumb {
-    width: 20px;
-    height: 20px;
-    margin-top: -7px;
+    width: 14px;
+    height: 14px;
+    margin-top: -5px;
   }
 
   .fields input[type='range']::-moz-range-thumb {
-    width: 20px;
-    height: 20px;
+    width: 14px;
+    height: 14px;
   }
 
   /*
@@ -440,4 +450,42 @@
   font-size: var(--text-sm);
   font-weight: var(--weight-medium);
   color: var(--color-accent);
+}
+
+/*
+ * ── Đuôi thẻ bước gọn hơn dưới 1024px (20/10/2026) ───────────────────────────────────────────────
+ *
+ * Chủ dự án khoanh link "Mở màn riêng của bước này" cùng khoảng trống quanh nó, và khe giữa khối chuỗi
+ * với thẻ Kết quả, trên `bien-an-toan` ở điện thoại: _"giảm padding phần tôi khoanh đỏ xuống. đồng thời
+ * giảm size text phần tôi khoanh đỏ"_. Đo ở 390px trước khi sửa: link là khung 44px chữ 14px, từ đáy
+ * dòng chữ tới đáy thẻ còn 26px trống (15px dư của khung + 12px đệm đáy thẻ).
+ *
+ * - Chữ 14 → 12px. Khung nhìn thấy 44 → 28px, lớp phủ `::after` giữ vùng chạm 44px (NFR-USA-01), thò
+ *   8px lên khe trên và 8px xuống đệm đáy — cùng cách hàng "Xem số liệu" của biểu đồ.
+ * - Đệm đáy thân thẻ 12 → 8px: link luôn là con cuối của thân (`ChainBody.tsx`), nên lớp phủ chạm đúng
+ *   mép thẻ chứ không lấn ra ngoài.
+ * - Khe trên thẻ Kết quả nằm ở `FormulaDetail.module.css` (`.result`).
+ *
+ * Khối này đứng CUỐI file: `.openLink` và `.stepBody` gốc cùng hạng ưu tiên, thứ tự quyết định.
+ */
+@media (max-width: 1023.98px) {
+  .stepBody {
+    padding-bottom: var(--space-2);
+  }
+
+  .openLink {
+    position: relative;
+    min-height: 28px;
+    font-size: var(--text-xs);
+  }
+
+  .openLink::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    height: var(--tap-min);
+    transform: translateY(-50%);
+  }
 }

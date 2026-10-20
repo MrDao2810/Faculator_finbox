@@ -638,8 +638,9 @@ const dcaLotCount: VariableSpec = {
   step: 1,
   level: 'basic',
   description: {
-    vi: 'Số đợt đang nhập, từ 1 tới 12. Đổi bằng nút Thêm đợt mua và nút Bỏ đợt ở cuối khối Số liệu.',
-    en: 'The number of rounds entered, 1 to 12. Change it with the Add a purchase round and Remove round buttons at the end of the Inputs block.',
+    // Câu của chủ dự án, 20/10/2026 (thay "Số đợt đang nhập, từ 1 tới 12. Đổi bằng nút …").
+    vi: 'Số đợt có thể hiển thị là 12 đợt. Có thể thêm đợt mới, tối đa 12 đợt.',
+    en: 'Up to 12 rounds can be shown. You can add new rounds, up to 12.',
   },
 };
 

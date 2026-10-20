@@ -192,8 +192,10 @@ describe('từ điển tiếng Anh (gói 3.6.3, phần giao diện)', () => {
     const hint = vi['portfolio.betaHint'];
     expect(hint).toContain('1,5');
     expect(hint).toContain('VN-Index');
-    // Và vế "vì sao phải nhập tay" vẫn phải còn — nó là lý do ô này bắt người dùng tự gõ.
-    expect(hint).toMatch(/nhập tay/);
+    // Và vế "vì sao người dùng phải tự nhập" vẫn phải còn — nó là lý do ô này bắt người dùng tự gõ.
+    // Từng ghim bằng chữ "nhập tay"; cụm ấy bỏ khỏi cả sản phẩm ngày 20/10/2026 (ca cuối file).
+    expect(hint).toMatch(/chưa tự tính được/);
+    expect(hint).toMatch(/bạn nhập vào đây/);
   });
 });
 
@@ -372,6 +374,50 @@ describe('chính tả tiếng Anh theo một chuẩn duy nhất', () => {
     }
 
     expect([...new Set(saiSot)].sort(), saiSot.join(' · ')).toEqual([]);
+  });
+});
+
+/**
+ * Chữ trên màn không dùng cụm "nhập tay" (20/10/2026).
+ *
+ * Chủ dự án, đọc mô tả ô beta của CAPM ("… Nhập tay — tính bằng công thức Beta …"): _"tôi đã đưa ra
+ * nhiều yêu cầu liên quan đến việc ngôn ngữ cứ lấy từ 'Nhập tay' rồi. nó quê mùa và không hay"_. Lần
+ * trước (16/10) chỉ gác chú giải ký hiệu (`formulas.test.ts`), nên cụm ấy còn sống ở chín chỗ khác:
+ * mô tả ô, hướng dẫn, gợi ý sửa lỗi, nhãn "đã nhập tay", thông báo lỗi mã, bảng dữ liệu trống. Ca này
+ * soi MỌI chuỗi trong mã nguồn (không phải test) của bốn tầng có chữ người dùng đọc, sau khi bỏ chú
+ * thích — chú thích nói về "ô nhập tay" như một khái niệm kỹ thuật thì không sao.
+ */
+describe('chữ trên màn không dùng cụm "nhập tay"', () => {
+  const CUM = /nhập tay/i;
+
+  /** Bỏ chú thích khối và chú thích dòng; `[^:]` giữ lại "https://" trong chuỗi. */
+  function boChuThich(src: string): string {
+    return src.replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|[^:])\/\/.*$/gm, '$1');
+  }
+
+  it('máy dò bắt chuỗi có cụm ấy và bỏ qua chú thích', () => {
+    expect(CUM.test(boChuThich("vi: 'Nhập tay nếu đã có.',"))).toBe(true);
+    expect(CUM.test(boChuThich('/** ô nhập tay thuần */ const a = 1; // ô nhập tay'))).toBe(false);
+  });
+
+  it('từ điển tiếng Việt không còn cụm ấy', () => {
+    const viPham = Object.entries(vi)
+      .filter(([, text]) => CUM.test(text ?? ''))
+      .map(([key]) => key);
+    expect(viPham).toEqual([]);
+  });
+
+  it('mọi chuỗi trong src/core, src/application, src/ui, src/app không còn cụm ấy', () => {
+    const files = ['core', 'application', 'ui', 'app']
+      .flatMap((tang) => walk(join(SRC, tang)))
+      .filter((path) => !path.includes('.test.'));
+    // Đường dẫn hỏng thì `files` rỗng và ca đỗ vì không có gì để soi — chặn kiểu đỗ giả đó.
+    expect(files.length, `không quét được src từ ${SRC}`).toBeGreaterThan(100);
+
+    const viPham = files
+      .filter((path) => CUM.test(boChuThich(readFileSync(path, 'utf8'))))
+      .map((path) => path.slice(SRC.length));
+    expect(viPham).toEqual([]);
   });
 });
 

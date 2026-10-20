@@ -269,6 +269,7 @@ export type { RepeatControls, RepeatLimits } from '@/core/registry/repeat';
 export {
   addRepeatGroup,
   fillRepeat,
+  isLaterRepeatSlot,
   removeRepeatGroup,
   repeatControls,
   repeatIndexIn,

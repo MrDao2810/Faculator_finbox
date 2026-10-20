@@ -7,6 +7,9 @@ import {
   exportFileName,
   type ExportOptions,
 } from './export-content';
+import { findFormulaModule } from './formulas';
+import { defaultInputs } from './registry/build';
+import { resolveRepeatSpec } from './registry/repeat';
 import type { FormulaSpec } from './registry/types';
 import { divideByZero } from './warnings';
 
@@ -245,6 +248,28 @@ describe('tuỳ chọn kèm theo', () => {
       options({ includeChart: false }),
     );
     expect(content.includeChart).toBe(false);
+  });
+
+  /*
+   * 20/10/2026, cùng lần sửa Bảng biến trên màn: đợt 2, 3, 4… của nhóm lặp lặp lại đúng câu mô tả
+   * của đợt 1 (_"chỉ cần mô tả đợt 1 là được rồi"_). Bảng biến của file chỉ mô tả nhóm 1; bảng SỐ
+   * LIỆU vẫn đủ mọi đợt vì đó là con số người dùng đã nhập.
+   */
+  it('nhóm lặp: bảng biến chỉ mô tả đợt 1, bảng số liệu vẫn đủ mọi đợt', () => {
+    const dca = findFormulaModule('gia-von-trung-binh-dca');
+    expect(dca).toBeDefined();
+    if (dca === undefined) return;
+    const inputs = { ...defaultInputs(dca.spec), lots: 4, amount4: 1_000_000, price4: 20_000 };
+    const spec = resolveRepeatSpec(dca.spec, inputs);
+
+    const content = buildExportContent(spec, ok(30_000, '₫'), inputs, options());
+
+    expect(content.inputs.map((d) => d.label)).toContain('Giá mua đợt 4 (P4)');
+    const nhan = content.variables.map((d) => d.label);
+    expect(nhan).toHaveLength(3);
+    expect(nhan[0]).toMatch(/^Số đợt mua/);
+    expect(nhan[1]).toMatch(/^Tiền mua đợt 1 \(C1\)/);
+    expect(nhan[2]).toMatch(/^Giá mua đợt 1 \(P1\)/);
   });
 });
 

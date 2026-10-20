@@ -70,8 +70,10 @@ const LUAT_CHUNG: ReadonlyArray<readonly [boChon: string, khaiBao: RegExp]> = [
   [DAU_TRUOT, /line-height:\s*var\(--leading-tight\);/],
   [O_SO, /padding-block:\s*0;\s*font-size:\s*var\(--text-base\);/],
   [`${O_SO} > span:last-child:not(:first-child)`, /font-size:\s*var\(--text-xs\);/],
-  [".fields input[type='range']", /margin-block:\s*-8px;/],
-  [".fields input[type='range']::-moz-range-thumb", /width:\s*20px;\s*height:\s*20px;/],
+  [".fields input[type='range']", /margin-block:\s*-4px -22px;\s*padding-bottom:\s*18px;/],
+  [".fields input[type='range']::-webkit-slider-runnable-track", /height:\s*4px;/],
+  [".fields input[type='range']::-moz-range-track", /height:\s*4px;/],
+  [".fields input[type='range']::-moz-range-thumb", /width:\s*14px;\s*height:\s*14px;/],
 ];
 
 describe('khối Số liệu dưới 1024px — khoảng trống và nút kéo (19/10/2026)', () => {
@@ -82,44 +84,69 @@ describe('khối Số liệu dưới 1024px — khoảng trống và nút kéo (
 
   /*
    * Nút kéo phải nằm GIỮA rãnh: lề trên của nút = −(nút − rãnh) ÷ 2, cùng phép tính với nút 28px và
-   * 16px gốc ở `SliderInput.module.css`. Đổi cỡ nút mà quên lề là nút lệch khỏi rãnh.
+   * 16px gốc ở `SliderInput.module.css`. Đổi cỡ nút hay rãnh mà quên lề là nút lệch khỏi rãnh. Rãnh
+   * đọc từ luật điện thoại của chính khối (4px, 20/10/2026), không từ luật gốc 6px.
    */
-  it('nút kéo 20px nằm giữa rãnh, ở cả hai khối', () => {
-    const ranh = Number(
-      /\.slider::-webkit-slider-runnable-track\s*\{[^}]*height:\s*(\d+)px;/.exec(TRUOT)?.[1],
-    );
-    expect(ranh).toBeGreaterThan(0);
-
+  it('nút kéo 14px nằm giữa rãnh 4px, ở cả hai khối', () => {
     for (const [ten, css] of [
       ['FormulaDetail', SO_LIEU],
       ['ChainBody', CHUOI],
     ] as const) {
+      const ranh = Number(
+        /height:\s*(\d+)px;/.exec(
+          luat(css, ".fields input[type='range']::-webkit-slider-runnable-track") ?? '',
+        )?.[1],
+      );
       const than = luat(css, ".fields input[type='range']::-webkit-slider-thumb") ?? '';
       const nut = Number(/height:\s*(\d+)px;/.exec(than)?.[1]);
       const le = Number(/margin-top:\s*(-?\d+)px;/.exec(than)?.[1]);
-      expect(nut, ten).toBe(20);
+      expect(ranh, ten).toBe(4);
+      expect(nut, ten).toBe(14);
       expect(le, ten).toBe(-(nut - ranh) / 2);
     }
   });
 
   /*
-   * Ô trượt vẫn cao 44px (vùng chạm, NFR-USA-01) — lề âm chỉ thu chỗ nó chiếm trong dòng chảy. Lề âm
-   * mà lớn hơn nửa phần thừa quanh nút thì nút chồng lên chữ hàng trên, hàng dưới.
+   * Ô trượt vẫn cao 44px (vùng chạm, NFR-USA-01); đệm dưới đẩy nút lên nửa trên của ô, và hai lề âm
+   * thu chỗ ô chiếm trong dòng chảy (20/10/2026, chủ dự án: _"padding trên dưới phần khoanh đỏ … đang
+   * quá cao"_). Ca này dựng lại hình học từ chính các con số trong file:
+   *
+   *   - Vùng chạm KHÔNG lấn lên hàng nhãn: lề trên chỉ được nuốt đúng khe 4px (`.field` gap), vì hàng
+   *     trên có ô số gõ được — chạm vào đáy ô số mà thành kéo thanh trượt là lỗi.
+   *   - Thấy được trên nút và dưới nút bằng nhau, và không âm (nút không chồng lên chữ).
+   *   - Phần vùng chạm thừa xuống dưới chỉ phủ hàng mốc min/max (18px), thứ không bấm được.
    */
-  it('ô trượt giữ chiều cao chạm 44px, lề âm không lấn vào chính nút kéo', () => {
+  it('ô trượt giữ chạm 44px, không lấn hàng nhãn, nút cách đều hàng trên và hàng mốc', () => {
     expect(luat(TRUOT, '.slider')).toMatch(/min-height:\s*var\(--tap-min\);/);
 
     const CHAM = 44; // --tap-min
-    const le = Number(
-      /margin-block:\s*-(\d+)px;/.exec(luat(SO_LIEU, ".fields input[type='range']") ?? '')?.[1],
-    );
-    const nut = Number(
-      /height:\s*(\d+)px;/.exec(
-        luat(SO_LIEU, ".fields input[type='range']::-webkit-slider-thumb") ?? '',
-      )?.[1],
-    );
-    expect(le).toBeGreaterThan(0);
-    expect(le).toBeLessThanOrEqual((CHAM - nut) / 2);
+    const KHE = 4; // gap của `.field` ở SliderInput.module.css
+    const MOC = 18; // hàng mốc min/max: 12px × dòng 1,5
+
+    for (const [ten, css] of [
+      ['FormulaDetail', SO_LIEU],
+      ['ChainBody', CHUOI],
+    ] as const) {
+      const o = luat(css, ".fields input[type='range']") ?? '';
+      const khop = /margin-block:\s*(-?\d+)px\s+(-?\d+)px;/.exec(o);
+      const leTren = Number(khop?.[1]);
+      const leDuoi = Number(khop?.[2]);
+      const demDuoi = Number(/padding-bottom:\s*(\d+)px;/.exec(o)?.[1]);
+      const nut = Number(
+        /height:\s*(\d+)px;/.exec(
+          luat(css, ".fields input[type='range']::-webkit-slider-thumb") ?? '',
+        )?.[1],
+      );
+
+      const dinhNut = (CHAM - demDuoi - nut) / 2;
+      const thayTren = KHE + leTren + dinhNut;
+      const thayDuoi = CHAM - (dinhNut + nut) + KHE + leDuoi;
+
+      expect(KHE + leTren, `${ten}: vùng chạm lấn lên hàng nhãn`).toBeGreaterThanOrEqual(0);
+      expect(thayTren, ten).toBeGreaterThan(0);
+      expect(thayTren, ten).toBe(thayDuoi);
+      expect(-(KHE + leDuoi), `${ten}: vùng chạm thừa quá hàng mốc`).toBeLessThanOrEqual(MOC);
+    }
   });
 
   it('hàng nút Thêm / Bỏ đợt thôi kéo lên khi lưới đã trả lại khoảng trống cuối', () => {

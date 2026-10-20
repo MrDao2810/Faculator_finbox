@@ -728,8 +728,8 @@ export const CAPM: FormulaModule = {
         min: -3,
         max: 4,
         description: {
-          vi: 'Độ nhạy của cổ phiếu so với thị trường. Nhập tay — tính bằng công thức Beta của thư viện này (nhóm Rủi ro), hoặc lấy từ nguồn dữ liệu bên ngoài.',
-          en: "The stock's sensitivity relative to the market. Entered manually — compute it with this library's Beta formula (Risk group), or take it from an external data source.",
+          vi: 'Độ nhạy của cổ phiếu so với thị trường. Số liệu được nhập sẽ được tính bằng công thức Beta của thư viện này (nhóm Rủi ro), hoặc lấy từ nguồn dữ liệu bên ngoài.',
+          en: "The stock's sensitivity relative to the market. The figure you enter comes from this library's Beta formula (Risk group), or from an external data source.",
         },
       }),
       sliderVar(
@@ -1433,8 +1433,8 @@ export const FCFE: FormulaModule = {
           min: -1_000_000,
           max: 10_000_000,
           description: {
-            vi: 'Kết quả từ công thức FCFF, hoặc nhập tay nếu đã có sẵn.',
-            en: 'The result from the FCFF formula, or entered manually if already available.',
+            vi: 'Số liệu được nhập là kết quả của công thức FCFF, hoặc con số bạn đã có sẵn.',
+            en: 'The figure you enter is the result of the FCFF formula, or a figure you already have.',
           },
         },
       ),
@@ -1661,8 +1661,8 @@ export const GIA_TRI_NOI_TAI_FCFF: FormulaModule = {
           min: -1_000_000,
           max: 10_000_000,
           description: {
-            vi: 'Kết quả từ công thức FCFF, hoặc nhập tay nếu đã có sẵn.',
-            en: 'The result from the FCFF formula, or entered manually if already available.',
+            vi: 'Số liệu được nhập là kết quả của công thức FCFF, hoặc con số bạn đã có sẵn.',
+            en: 'The figure you enter is the result of the FCFF formula, or a figure you already have.',
           },
         },
       ),

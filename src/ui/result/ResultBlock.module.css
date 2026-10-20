@@ -170,10 +170,23 @@
  *
  * `ErrorState.module.css` hạ `.value` theo cùng mốc, để thẻ không đổi cỡ số khi chuyển sang báo lỗi.
  * Dải 1024–1279 không đổi: lời yêu cầu nói màn mobile.
+ *
+ * Nhãn "KẾT QUẢ" mang kiểu của tiêu đề khối (20/10/2026). Chủ dự án khoanh "SỐ LIỆU", "KẾT QUẢ",
+ * "BIỂU ĐỒ" xếp dọc trên `tra-gop-nien-kim`: _"cần điều chỉnh lại cho giống nhau về kích thước lẫn in
+ * đậm, áp dụng bản mobile"_. Đo ở 360/390px: cùng 12px nhưng nhãn nét 500, giãn 0,08em; hai tiêu đề
+ * khối nét 700, giãn 0,04em (`.blockTitle` ở `FormulaDetail.module.css`). Cỡ đọc chung token
+ * `--section-title-size` nên hai bên không thể trôi lệch; màu giữ trắng vì nền thẻ xanh. Hai thẻ đáp
+ * án cùng khuôn (`FeeTaxBody`, `LoanScheduleBody`) theo cùng ba khai báo.
  */
 @media (max-width: 1023.98px) {
   .block {
     padding: var(--space-2) var(--space-3);
+  }
+
+  .eyebrow {
+    font-size: var(--section-title-size);
+    font-weight: var(--weight-bold);
+    letter-spacing: 0.04em;
   }
 
   .value {

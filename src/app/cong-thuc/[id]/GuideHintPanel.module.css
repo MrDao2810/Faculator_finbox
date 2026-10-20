@@ -51,3 +51,13 @@
     text-decoration: underline;
   }
 }
+
+/*
+ * Dưới 1024px tiêu đề mục của khung 16 → 14px (20/10/2026) — cùng lượt hạ chữ thân bài ở
+ * `GuideBody.module.css`, đọc chú thích ở đó. Vẫn lớn hơn tên ô và thân bài (12px) một bậc.
+ */
+@media (max-width: 1023.98px) {
+  .panel h2 {
+    font-size: var(--text-sm);
+  }
+}

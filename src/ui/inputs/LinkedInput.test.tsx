@@ -77,7 +77,7 @@ describe('đang nhận giá trị tự động', () => {
     await userEvent.tab();
 
     expect(onOverrideChange).not.toHaveBeenCalled();
-    expect(screen.queryByText('đã nhập tay')).toBeNull();
+    expect(screen.queryByText('đã sửa')).toBeNull();
     expect(screen.queryByRole('button', { name: 'Nhận tự động' })).toBeNull();
     // Và con số vẫn là của CAPM, không bị chốt lại thành bản đã làm tròn.
     expect((screen.getByLabelText('WACC') as HTMLInputElement).value).toBe('14,3');
@@ -129,11 +129,11 @@ describe('đang nhận giá trị tự động', () => {
   });
 });
 
-describe('đã nhập tay', () => {
-  it('hiện nhãn chữ “đã nhập tay” chứ không chỉ đổi màu (FR-15, NFR-USA-06)', () => {
+describe('đã sửa (từng là "đã nhập tay", đổi 20/10/2026)', () => {
+  it('hiện nhãn chữ “đã sửa” chứ không chỉ đổi màu (FR-15, NFR-USA-06)', () => {
     render(<LinkedInput spec={wacc} upstream={capmOk} override={11} onOverrideChange={vi.fn()} />);
 
-    expect(screen.getByText('đã nhập tay')).not.toBeNull();
+    expect(screen.getByText('đã sửa')).not.toBeNull();
     expect((screen.getByLabelText('WACC') as HTMLInputElement).value).toBe('11');
   });
 
@@ -197,7 +197,7 @@ describe('thượng nguồn lỗi — cảnh báo kế thừa', () => {
     render(<LinkedInput spec={wacc} upstream={capmLoi} override={11} onOverrideChange={vi.fn()} />);
 
     expect(screen.queryByText(/Cần ít nhất 60 phiên giá/)).toBeNull();
-    expect(screen.getByText('đã nhập tay')).not.toBeNull();
+    expect(screen.getByText('đã sửa')).not.toBeNull();
     expect((screen.getByLabelText('WACC') as HTMLInputElement).value).toBe('11');
   });
 

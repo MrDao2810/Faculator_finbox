@@ -15,6 +15,7 @@ import { formatCalcOutput } from './format';
 import type { CalcOutput, Level, VariableSpec } from './types';
 import type { FormulaSpec } from './registry/types';
 import { variablesForLevel } from './registry/build';
+import { isLaterRepeatSlot } from './registry/repeat';
 
 export { DISCLAIMER_VI };
 
@@ -93,13 +94,20 @@ export function buildExportContent(
     value: describeInput(inputs[variable.key], variable),
   }));
 
+  /*
+   * Bảng biến của file chỉ mô tả nhóm 1 của nhóm lặp, như Bảng biến trên màn (20/10/2026, xem
+   * `VariableTable.tsx`): đợt 2, 3, 4… lặp lại đúng câu của đợt 1. Bảng SỐ LIỆU ngay trên thì giữ
+   * mọi đợt — đó là con số người dùng đã nhập, thiếu một đợt là file sai.
+   */
   const variableLines: ExportLine[] = options.includeDetails
-    ? shown.map((variable) => ({
-        label: `${variable.label.vi} (${variable.unit})`,
-        // Gạch NGANG, không phải `NO_VALUE`: đây là ô chữ trống, không phải con số còn thiếu —
-        // gạch dưới ở đây sẽ mời người đọc điền vào một cột họ không điền được. Xem `NO_VALUE`.
-        value: variable.description?.vi ?? '—',
-      }))
+    ? shown
+        .filter((variable) => !isLaterRepeatSlot(formula, variable.key))
+        .map((variable) => ({
+          label: `${variable.label.vi} (${variable.unit})`,
+          // Gạch NGANG, không phải `NO_VALUE`: đây là ô chữ trống, không phải con số còn thiếu —
+          // gạch dưới ở đây sẽ mời người đọc điền vào một cột họ không điền được. Xem `NO_VALUE`.
+          value: variable.description?.vi ?? '—',
+        }))
     : [];
 
   /*

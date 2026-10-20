@@ -17,6 +17,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 import { cleanup, render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it } from 'vitest';
 
 import { MARKET_CONFIG, resolveConstant, scheduleOrDefault } from '@/application';
@@ -203,5 +204,50 @@ describe('ConstantsNote — tên mức là đề mục, ghi chú là lời bên 
     // Hai câu nói ngược nhau ("Thông tư …" và "không phải mức luật định") không được cùng màu.
     expect(luat('note')).toMatch(/color:\s*var\(--color-ink\)/);
     expect(luat('basis')).toMatch(/color:\s*var\(--color-muted\)/);
+  });
+});
+
+/*
+ * Nút Thu gọn (20/10/2026, chủ dự án: _"cần có thêm một button text 'Thu gọn' để người dùng có thể bỏ
+ * qua đoạn này"_). Mở sẵn — HTML tĩnh là khối đang mở — và một nút làm cả hai chiều: lúc gọn lại
+ * khối chỉ còn hàng tiêu đề, nên nút phải nói được cách mở ra.
+ */
+describe('ConstantsNote — nút Thu gọn', () => {
+  it('mở sẵn: nút "Thu gọn" trỏ vào danh sách và báo đang mở', () => {
+    render(<ConstantsNote constants={[PHI_MOI_GIOI, PHI_LUU_KY]} />);
+
+    const nut = screen.getByRole('button', { name: 'Thu gọn' });
+    expect(nut.getAttribute('aria-expanded')).toBe('true');
+    const danhSach = document.getElementById(nut.getAttribute('aria-controls') ?? '');
+    expect(danhSach?.tagName).toBe('DL');
+    expect(danhSach?.hidden).toBe(false);
+  });
+
+  it('bấm thì danh sách ẩn, tiêu đề còn, nút thành "Mở rộng"; bấm lại thì hiện như cũ', async () => {
+    render(<ConstantsNote constants={[PHI_MOI_GIOI, PHI_LUU_KY]} />);
+    const danhSach = () => document.querySelector('dl');
+
+    await userEvent.click(screen.getByRole('button', { name: 'Thu gọn' }));
+    expect(danhSach()?.hidden).toBe(true);
+    expect(screen.getByRole('heading', { name: 'Đang tính theo các mức sau' })).not.toBeNull();
+    const moRong = screen.getByRole('button', { name: 'Mở rộng' });
+    expect(moRong.getAttribute('aria-expanded')).toBe('false');
+
+    await userEvent.click(moRong);
+    expect(danhSach()?.hidden).toBe(false);
+    expect(screen.getByRole('button', { name: 'Thu gọn' })).not.toBeNull();
+  });
+
+  /*
+   * `hidden` một mình KHÔNG ẩn được danh sách: `.list` khai `display: flex` (và lưới ở 1280px), thắng
+   * `display: none` mặc định của trình duyệt. jsdom không chạy CSS nên ca trên vẫn xanh khi thiếu luật;
+   * ca này đọc file.
+   */
+  it('CSS có luật ẩn danh sách mang hidden, đủ mạnh để thắng cả bản lưới', () => {
+    const css = readFileSync(
+      join(process.cwd(), 'src/ui/result/ConstantsNote.module.css'),
+      'utf8',
+    ).replace(/\/\*[\s\S]*?\*\//g, '');
+    expect(css).toMatch(/\.block > \.list\[hidden\]\s*\{\s*display:\s*none;/);
   });
 });

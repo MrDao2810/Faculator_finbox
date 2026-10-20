@@ -152,3 +152,57 @@
   background: var(--color-warning);
   border-radius: var(--radius-pill);
 }
+
+/*
+ * ── Khổ điện thoại: bảng dòng tiền gọn và vừa khung (20/10/2026) ───────────────────────────────
+ *
+ * Chủ dự án chụp bảng này trên điện thoại: _"đang thừa quá nhiều padding và quá rộng. điều chỉnh lại
+ * cho nhỏ gọn hơn để tiết kiệm không gian"_. Đo ở 360px trước khi sửa: bảng 348px trong khung 326px
+ * (cuộn ngang, nút × bị cắt ở mép), dòng 68,5px (đệm ô 12px + ô nhập 44px), hàng tiêu đề 42,5px, cột
+ * ngày 160px trong khi ô Số tiền chỉ 74px nên số mười chữ số bị cắt.
+ *
+ * - Đệm ô 12 → 4px, ô nhập 44 → 36px (cỡ ô số của khối Số liệu ở khổ này): dòng 44px.
+ * - Hàng tiêu đề đệm 8px; mép chữ "NGÀY" và "SỐ TIỀN" = 4px đệm ô + 4px đệm ô nhập, thẳng cột chữ dưới.
+ * - Ô ngày 104 → 88px (vẫn đủ "dd/mm/yyyy" ở 14px với 4px đệm mỗi bên), cột cờ 26px, cột × 32px:
+ *   phần còn lại dồn cho ô Số tiền.
+ * - Nút × bỏ đệm ô và cao bằng cả dòng (44px, `--tap-min` sẵn có), nên vùng chạm không phải bù.
+ *
+ * Bộ chọn `table.cashflow …` (hai lớp + thẻ) để vượt `.table th, .table td` của primitive `Table`,
+ * cùng lối `table.variables` ở `VariableTable.module.css`. Từ 1024px không đổi gì.
+ */
+@media (max-width: 1023.98px) {
+  table.cashflow th,
+  table.cashflow td {
+    padding: var(--space-1);
+  }
+
+  table.cashflow thead th {
+    padding: var(--space-2);
+  }
+
+  table.cashflow .flagCol:first-child {
+    width: 26px;
+    padding: 0 0 0 var(--space-2);
+  }
+
+  table.cashflow .flagCol:last-child {
+    width: 32px;
+    padding: 0;
+  }
+
+  /* Cột ngày chỉ rộng bằng ô ngày + nút lịch (`1%` co cột về bề rộng tối thiểu của ruột); bề ngang
+     còn lại thuộc về ô Số tiền, nơi một số mười chữ số mới cần chỗ. */
+  .dateCol {
+    width: 1%;
+    min-width: 0;
+  }
+
+  .cell {
+    min-height: 36px;
+    padding: 0 var(--space-1);
+  }
+
+  .dateCell {
+    min-width: 88px;
+  }
+}

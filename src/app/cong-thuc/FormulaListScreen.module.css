@@ -293,8 +293,16 @@
  * của `.ghost` trong primitive `Button`, cả hai đều một lớp — ngang trọng số thì thứ tự bó CSS quyết.
  * `Button` luôn dựng ra `<button>` thật nên bộ chọn có tên thẻ là chắc chắn.
  */
+/*
+ * `min-height: 0` (20/10/2026): nút KHÔNG được làm hàng cao lên. Chủ dự án chụp danh sách hai lần,
+ * "Tất cả" rồi "Định giá", và chỉ ra khoảng trống quanh dòng "Hiển thị" giãn ra khi đổi nhóm — đúng
+ * lúc nút này hiện. Đo trước khi sửa: nút `sm` cao 36px trong khi dòng chữ 21px, nên ở 390px chữ
+ * cách hàng chip và thẻ đầu 8 → 16px, ở 1440px 16 → 18px. Nay nút chỉ cao bằng dòng chữ 12px của nó;
+ * vùng chạm vẫn là lớp `::after` của `.sm` (44px, dưới 1024px còn 36px — xem khối điện thoại).
+ */
 button.reset {
   margin-inline-start: auto;
+  min-height: 0;
   font-size: var(--text-xs);
   color: var(--color-accent);
 }
@@ -379,10 +387,20 @@ button.reset {
    * Dòng "Hiển thị · 79 công thức" sát hơn (19/10/2026, chủ dự án: _"điều chỉnh padding ở phần này,
    * giảm xuống ở màn mobile"_). Trước: sàn cao 32px của `.summary` đệm thêm ~5px trên dưới quanh dòng
    * chữ 14px, cộng khe 12px của `.list`, tức ~17px mỗi phía. Bỏ sàn và kéo lề âm 4px: chữ cách hàng
-   * chip và thẻ đầu đúng 8px. Khi có nút "Xoá bộ lọc" (36px) thì hàng cao theo nút, như cũ.
+   * chip và thẻ đầu đúng 8px — kể cả khi nút "Xoá bộ lọc" hiện (20/10/2026; bản đầu để hàng cao
+   * theo nút 36px, và chủ dự án thấy khoảng trống giãn ra lúc đổi nhóm, xem `button.reset`).
    */
   .summary {
     min-height: 0;
     margin-block: calc(var(--space-1) * -1);
+  }
+
+  /*
+   * Vùng chạm của "Xoá bộ lọc" 44 → 36px ở khổ này: hàng chỉ cao 21px và cách hàng chip, thẻ đầu
+   * đúng 8px mỗi phía, nên lớp 44px (của `.sm`) lấn ~4px vào chip ngay trên và thẻ ngay dưới — chạm
+   * mép dưới một chip là xoá bộ lọc. 36px = 21 + 2 × 8 làm tròn xuống: phủ trọn khe, không lấn.
+   */
+  button.reset::after {
+    height: 36px;
   }
 }

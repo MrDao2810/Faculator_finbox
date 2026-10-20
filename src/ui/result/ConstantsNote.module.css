@@ -36,6 +36,54 @@
 }
 
 /*
+ * ── Hàng tiêu đề + nút "Thu gọn" / "Mở rộng" (20/10/2026) ─────────────────────────────────────
+ *
+ * Chủ dự án: _"phần giải thích 'Đang tính theo các mức sau' cần có thêm một button text 'Thu gọn' để
+ * người dùng có thể bỏ qua đoạn này"_. Nút CHỮ (ghost, không nền không viền lúc nghỉ), dạt phải cùng
+ * hàng với tiêu đề, cùng dáng nút "Chú thích" của thẻ Công thức: chữ nhỏ kèm mũi tên, mũi tên chúc
+ * xuống khi đang gọn. Thấp 24px để hàng tiêu đề không cao lên; vùng chạm vẫn 44px nhờ `::after` của
+ * `.sm`. Lề phải âm bằng đệm ngang của nút, để chữ "Thu gọn" thẳng mép phải nội dung như mọi thứ
+ * khác trong khối. Bộ chọn `.head > .toggle` (0,2,0) thắng `.sm` của primitive bất kể thứ tự nạp.
+ */
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.head > .toggle {
+  flex-shrink: 0;
+  gap: var(--space-1);
+  min-height: 24px;
+  margin-right: calc(var(--space-2) * -1);
+  padding: 0 var(--space-2);
+  font-size: var(--text-xs);
+}
+
+.toggleIcon {
+  flex-shrink: 0;
+  width: 13px;
+  height: 13px;
+  /* 120ms như Switch — globals.css đã tắt mọi transition khi người dùng xin giảm chuyển động. */
+  transition: transform 120ms ease;
+}
+
+/* Đang gọn thì mũi tên chúc xuống: bấm là mở ra. */
+.toggle[aria-expanded='false'] .toggleIcon {
+  transform: rotate(180deg);
+}
+
+/*
+ * Thuộc tính `hidden` không tự ẩn được danh sách: `display: none` của trình duyệt thua `display: flex`
+ * của `.list` và `display: grid` của `.compact .list` (luật tác giả luôn thắng luật mặc định). Ba lớp
+ * (0,3,0) để thắng cả bản lưới hai cột ở 1280px.
+ */
+.block > .list[hidden] {
+  display: none;
+}
+
+/*
  * ── Phân cấp trong MỘT mức: tên mức → trị số → căn cứ → ghi chú (13/10/2026) ─────────────────
  *
  * Chủ dự án khoanh bốn tên mức và ba dòng ghi chú rồi hỏi: *"các phần khoanh đỏ đang không rõ

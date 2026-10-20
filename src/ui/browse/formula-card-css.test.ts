@@ -114,3 +114,24 @@ describe('nhãn nhóm của thẻ công thức bám đáy thẻ', () => {
     expect(khai('.tileCategory', 'margin-top')).toBe('auto');
   });
 });
+
+/*
+ * Nhãn nhóm của Ô kệ dưới 1024px (20/10/2026): chủ dự án khoanh "Định giá" ở kệ "Công thức dùng hằng ngày"
+ * trên điện thoại — _"giảm 1 size text phần này"_. Ở 12px nó bằng đúng cỡ mô tả ngay trên; 11px đưa nó về dưới
+ * mô tả một bậc, như ở PC (13 dưới 14). Khối `@media` là thứ cuối file nên lấy phần sau nó.
+ */
+describe('nhãn nhóm của ô kệ nhỏ hơn mô tả một bậc', () => {
+  const KHOI_DUOI_1024 = CSS.slice(CSS.indexOf('@media (max-width: 1023.98px)'));
+  const co = (boChon: string): string | undefined =>
+    new RegExp(`\\${boChon}\\s*\\{[^}]*font-size:\\s*([^;]+);`).exec(KHOI_DUOI_1024)?.[1]?.trim();
+
+  it('dưới 1024px: mô tả 12px, nhãn nhóm 11px', () => {
+    expect(co('.tileDescription')).toBe('var(--text-xs)');
+    expect(co('.tileCategory')).toBe('11px');
+  });
+
+  it('từ 1024px: nhãn 13px vẫn dưới mô tả `--text-sm` (14px)', () => {
+    expect(khai('.tileCategory', 'font-size')).toBe('13px');
+    expect(khai('.tileDescription', 'font-size')).toBe('var(--text-sm)');
+  });
+});

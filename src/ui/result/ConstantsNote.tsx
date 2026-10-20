@@ -1,11 +1,21 @@
 'use client';
 
+import { useState } from 'react';
+
 import type { TypedMarketConstant } from '@/application';
 import { formatIsoDate } from '@/application';
 import { useT, usePick } from '@/application/preferences-context';
+import { Button } from '@/ui/primitives';
 
 import { useValueText } from '../i18n/units';
 import styles from './ConstantsNote.module.css';
+
+/**
+ * `id` của danh sách mức, cho `aria-controls` của nút Thu gọn. Cố định chứ không `useId()`: mỗi trang
+ * chỉ có một khối này, và một chuỗi cố định thì HTML tĩnh với lượt dựng đầu ở máy khách chắc chắn
+ * khớp nhau.
+ */
+const LIST_ID = 'detail-constants-list';
 
 export interface ConstantsNoteProps {
   constants: ReadonlyArray<TypedMarketConstant>;
@@ -54,12 +64,53 @@ export function ConstantsNote({ constants, compact = false }: ConstantsNoteProps
   const t = useT();
   const pick = usePick();
   const valueText = useValueText();
+  /*
+   * Thu gọn (20/10/2026, chủ dự án: _"phần giải thích 'Đang tính theo các mức sau' cần có thêm một
+   * button text 'Thu gọn' để người dùng có thể bỏ qua đoạn này"_). Mở sẵn, và KHÔNG nhớ qua trang —
+   * cùng lối nút "Chú thích" của thẻ Công thức: HTML tĩnh là khối đang mở, đọc trạng thái đã lưu thì
+   * khối sẽ sụp xuống ngay sau khi trang hiện. Mọi khổ màn, vì lời yêu cầu là cho người dùng bỏ qua
+   * đoạn này chứ không nói về chỗ trống.
+   */
+  const [thuGon, setThuGon] = useState(false);
   if (constants.length === 0) return null;
 
   return (
     <section className={compact ? `${styles.block} ${styles.compact}` : styles.block}>
-      <h3 className={styles.title}>{t('detail.constantsInUse')}</h3>
-      <dl className={styles.list}>
+      <div className={styles.head}>
+        <h3 className={styles.title}>{t('detail.constantsInUse')}</h3>
+        {/*
+          Một nút cho hai việc, chữ đổi theo trạng thái ("Thu gọn" / "Mở rộng") kèm mũi tên — lúc
+          gọn lại thì khối chỉ còn hàng này, nên nút phải nói được cách mở ra (cùng luật "mở ra phải
+          có đường đóng nhìn thấy", theo chiều ngược lại).
+        */}
+        <Button
+          variant="ghost"
+          size="sm"
+          className={styles.toggle}
+          aria-expanded={!thuGon}
+          aria-controls={LIST_ID}
+          onClick={() => {
+            setThuGon((dangGon) => !dangGon);
+          }}
+        >
+          {t(thuGon ? 'detail.constantsExpand' : 'detail.constantsCollapse')}
+          <svg
+            className={styles.toggleIcon}
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M6 15l6-6 6 6" />
+          </svg>
+        </Button>
+      </div>
+      <dl id={LIST_ID} className={styles.list} hidden={thuGon}>
         {constants.map((constant) => (
           <div key={`${constant.key}@${constant.effectiveFrom}`} className={styles.row}>
             <dt className={styles.label}>{pick(constant.label)}</dt>

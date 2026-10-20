@@ -324,3 +324,25 @@
     text-decoration: underline;
   }
 }
+
+/*
+ * ── Dưới 1024px chữ thân bài nhỏ đi một bậc (20/10/2026) ──────────────────────────────────────────
+ *
+ * Chủ dự án khoanh mục "Lấy số liệu ở đâu" trong khung "?" của `ev-ebitda` trên điện thoại — tiêu đề
+ * mục, tên hai ô "Giá trị doanh nghiệp (EV)", "EBITDA" và các đoạn dưới chúng: _"giảm size text ở
+ * hướng dẫn sử dụng phần tôi khoanh đỏ, áp dụng cho màn mobile"_. Theo đúng bộ số khung hướng dẫn của
+ * Danh mục đã nhận ngày 19/10 (`SummaryGuidePanel.module.css`): tên ô và thân 14 → 12px, tên ô vẫn
+ * đậm và màu `--color-ink` hơn thân cùng cỡ; tiêu đề khung 16 → 14px nằm ở `GuideHintPanel.module.css`.
+ *
+ * Đoạn "Đọc biểu đồ" (`.prose`) và khung lưu ý (`.caution`) theo cùng: chúng mở trong CÙNG khung "?",
+ * và một khung không nên có hai cỡ chữ thân bài. Trang hướng dẫn đầy đủ dùng chung các lớp này nên
+ * cũng theo ở khổ điện thoại; tiêu đề mục của trang ấy (`.sectionTitle`, 18px) không đổi. PC không đổi.
+ */
+@media (max-width: 1023.98px) {
+  .fieldLabel,
+  .fieldWhere,
+  .prose,
+  .caution {
+    font-size: var(--text-xs);
+  }
+}

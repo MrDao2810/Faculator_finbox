@@ -102,6 +102,13 @@
     padding: var(--space-2) var(--space-4);
   }
 
+  /* Nhãn thẻ mang kiểu tiêu đề khối, như "KẾT QUẢ" (20/10/2026) — lý lẽ ở `ResultBlock.module.css`. */
+  .summaryLabel {
+    font-size: var(--section-title-size);
+    font-weight: var(--weight-bold);
+    letter-spacing: 0.04em;
+  }
+
   .summaryValue {
     font-size: var(--text-xl);
   }

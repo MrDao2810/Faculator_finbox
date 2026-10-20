@@ -1,6 +1,6 @@
 'use client';
 
-import { unitLabel, variablesForLevel } from '@/application';
+import { isLaterRepeatSlot, unitLabel, variablesForLevel } from '@/application';
 import type { FormulaSpec, Level } from '@/application';
 import { useT, usePick } from '@/application/preferences-context';
 import { Table } from '@/ui/primitives';
@@ -39,7 +39,17 @@ export interface VariableTableProps {
 export function VariableTable({ formula, mode = 'advanced', className }: VariableTableProps) {
   const t = useT();
   const pick = usePick();
-  const variables = variablesForLevel(formula, mode);
+  /*
+   * Nhóm lặp chỉ mô tả nhóm 1 (20/10/2026). Chủ dự án bấm "+ Thêm đợt mua" ở `gia-von-trung-binh-dca`
+   * và mỗi lần bảng lại mọc thêm hai hàng "Tiền mua đợt N · Giá mua đợt N" mang cùng câu "Nhập 0 nếu
+   * không có đợt này." — _"chỉ cần mô tả đợt 1 là được rồi. không cần cứ tạo 1 cái là lại mô tả 1 cái
+   * mới"_. Cùng quy tắc bài hướng dẫn đã theo từ 14/10/2026 (`isLaterRepeatSlot`), nên bảng còn biến
+   * đếm và các ô của nhóm 1, dù đang có bao nhiêu nhóm. Áp cho MỌI công thức khai nhóm lặp (hôm nay:
+   * đợt mua của DCA, kỳ của lợi suất trung bình hình học).
+   */
+  const variables = variablesForLevel(formula, mode).filter(
+    (variable) => !isLaterRepeatSlot(formula, variable.key),
+  );
   const classes = [styles.variables, className].filter(Boolean).join(' ');
 
   if (variables.length === 0) return null;

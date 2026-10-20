@@ -44,15 +44,20 @@ const WF15: Readonly<Record<WarningCode, CalcWarning>> = {
 
 describe('sáu loại lỗi của WF-15', () => {
   for (const code of WARNING_CODES) {
-    it(`${code} — hiện nguyên nhân, gợi ý sửa và nhãn mã lỗi`, () => {
+    it(`${code} — hiện nguyên nhân và gợi ý sửa, KHÔNG in nhãn mã lỗi`, () => {
       const warning = WF15[code];
-      render(<ErrorState warning={warning} unit="lần" />);
+      const { container } = render(<ErrorState warning={warning} unit="lần" />);
 
-      // Câu nêu nguyên nhân.
+      // Câu nêu nguyên nhân — dấu hiệu chữ của thẻ, để không phụ thuộc màu (NFR-USA-06).
       expect(screen.getByText(warning.message.vi)).not.toBeNull();
 
-      // Nhãn ngắn — dấu hiệu chữ, để không phụ thuộc màu (NFR-USA-06).
-      expect(screen.getByText(WARNING_LABELS[code].vi)).not.toBeNull();
+      /*
+       * Nhãn mã lỗi ("Không có ý nghĩa"…) BỎ 20/10/2026 — chủ dự án: _"xóa đoạn cảnh báo 'Không có ý
+       * nghĩa' đi"_. Ca đảo chiều: nhãn quay lại phải là một quyết định. Mã vẫn đọc được ở
+       * `data-ma-loi` cho các ca kiểm khác.
+       */
+      expect(container.textContent).not.toContain(WARNING_LABELS[code].vi);
+      expect(screen.getByRole('alert').getAttribute('data-ma-loi')).toBe(code);
 
       // Dòng gợi ý sửa (NFR-USA-04). Năm mã phải có; `INCOMPLETE_INPUT` thì không — ca riêng dưới.
       if (code === 'INCOMPLETE_INPUT') return;

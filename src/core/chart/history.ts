@@ -33,8 +33,11 @@ import type { ChartPoint, ChartSeries } from './types';
  */
 export const HISTORY_KEY = '__time';
 
-/** Nhãn hiện trên ô chọn. */
-export const HISTORY_LABEL = { vi: 'Theo thời gian', en: 'Over time' };
+/**
+ * Nhãn hiện trên ô chọn. "Thời gian", không phải "Theo thời gian" từ 20/10/2026: nhãn của ô chọn đổi
+ * thành "Xem theo" (`chart.sweepLabel`), và để nguyên thì hàng đọc thành "Xem theo · Theo thời gian".
+ */
+export const HISTORY_LABEL = { vi: 'Thời gian', en: 'Over time' };
 
 /**
  * Tên đường giá vẽ kèm của `spec.priceOverlay`.

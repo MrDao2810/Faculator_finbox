@@ -87,4 +87,48 @@ describe('cuối màn chi tiết dưới 1024px (19/10/2026)', () => {
     expect(nut).toMatch(/padding-inline:\s*var\(--space-2\);/);
     expect(nut).toMatch(/margin-right:\s*calc\(var\(--space-1\) \* -1\);/);
   });
+
+  /*
+   * Lượt bốn (20/10/2026): _"'Bắt đầu kiểm tra' bản mobile không cần in đậm"_, rồi _"giảm 1 size text đó
+   * luôn"_ — "Thoát" cùng ô theo.
+   */
+  it('nút ở hàng tiêu đề Bài tập nét chữ thường, cỡ 12px', () => {
+    const nut = luat(BAI_TAP, '.head > .headAction');
+    expect(nut).toMatch(/font-weight:\s*var\(--weight-regular\);/);
+    expect(nut).toMatch(/font-size:\s*var\(--text-xs\);/);
+  });
+});
+
+/*
+ * Dòng kết luận sau khi chấm (`p.markRight` / `p.markWrong`) — 16 → 14px ngày 19/10, rồi 14 → 12px ngày
+ * 20/10/2026: chủ dự án khoanh lại "Sai · Kết quả: 7,875 lần · Thứ tự đúng: …" ở câu EV/EBITDA, _"giảm size
+ * đoạn text khoanh đỏ áp dụng bản mobile"_. Vẫn đậm và mang màu đúng/sai, nên nổi hơn chữ thường 12px của
+ * hộp lời giải ngay dưới. PC giữ cỡ gốc.
+ */
+describe('dòng kết luận của Bài tập dưới 1024px', () => {
+  it('12px, không lề — cả dòng đúng lẫn dòng sai', () => {
+    const than = /p\.markRight,\s*p\.markWrong\s*\{([^}]*)\}/.exec(BAI_TAP)?.[1] ?? '';
+    expect(than).toMatch(/margin:\s*0;/);
+    expect(than).toMatch(/font-size:\s*var\(--text-xs\);/);
+  });
+});
+
+/*
+ * Khe trên thẻ Kết quả (20/10/2026): chủ dự án khoanh khe giữa khối chuỗi và thẻ Kết quả của `bien-an-toan`
+ * trên điện thoại — _"giảm padding phần tôi khoanh đỏ xuống"_. 28px là `gap` 20px của `.detail` cộng
+ * `--space-2` dôi ở `.result` gốc; dưới 1024px phần dôi thành lề âm, còn 12px như hai khe ở đuôi màn.
+ * Luật gốc (ngoài khối) vẫn giữ phần dôi cho 1024–1279px.
+ */
+describe('khe trên thẻ Kết quả dưới 1024px', () => {
+  it('lề âm 8px: 20 + (−8) = 12px, cùng cỡ hai khe ở đuôi màn', () => {
+    expect(luat(MAN, '.result')).toMatch(/margin-top:\s*calc\(var\(--space-2\) \* -1\);/);
+    expect(luat(MAN, ".quizBlock,\n  .endActions + [role='note']")).toMatch(
+      /margin-top:\s*calc\(var\(--space-2\) \* -1\);/,
+    );
+  });
+
+  it('luật gốc vẫn dôi --space-2 cho khổ từ 1024px', () => {
+    const goc = boChuThich(doc('./FormulaDetail.module.css'));
+    expect(/^\.result\s*\{([^}]*)\}/m.exec(goc)?.[1]).toMatch(/margin-top:\s*var\(--space-2\);/);
+  });
 });

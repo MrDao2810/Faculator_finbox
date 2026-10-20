@@ -394,6 +394,18 @@ button.iconButton::after {
   .endActions + [role='note'] {
     margin-top: calc(var(--space-2) * -1);
   }
+
+  /*
+   * Khe trên thẻ Kết quả 28 → 12px (20/10/2026). Chủ dự án khoanh khe giữa khối chuỗi và thẻ Kết quả
+   * của `bien-an-toan` trên điện thoại: _"giảm padding phần tôi khoanh đỏ xuống"_. 28px là `gap` 20px
+   * của `.detail` cộng `--space-2` dôi thêm ở `.result` gốc (docblock đầu file: tách chặng nhập khỏi
+   * chặng đáp án). Dưới 1024px phần dôi ấy đổi thành lề âm, còn 12px — bằng hai khe đã gọn ở đuôi màn
+   * ngay trên. Áp cả khi Kết quả đứng sau khối Số liệu (chế độ Cơ bản): một chỗ chuyển "nhập → đáp án"
+   * chỉ một cỡ, dù khối đứng trước là gì. 1024–1279px và PC không đổi.
+   */
+  .result {
+    margin-top: calc(var(--space-2) * -1);
+  }
 }
 
 /*
@@ -1283,7 +1295,9 @@ button.iconButton::after {
    *   - Rãnh trượt cao 44px (vùng chạm, NFR-USA-01) với rãnh 6px ở giữa, tức ~19px trống mỗi phía,
    *     nút 28px. Nút còn 20px; ô vẫn cao 44px nhưng lề âm 8px trên dưới cho nó chiếm 28px trong
    *     dòng chảy. Vùng chạm 44px chồng 8px lên khe trên (4px khe + đáy đệm của ô số) và khe dưới
-   *     (4px khe + chữ hai mốc, không bấm được), nên không lấy mất chỗ bấm của ai.
+   *     (4px khe + chữ hai mốc, không bấm được), nên không lấy mất chỗ bấm của ai. (Ngày 20/10/2026
+   *     nút còn 14px và phần chạm thừa dồn hết xuống dưới — xem chú thích ngay trên luật
+   *     `.fields input[type='range']`.)
    *   - Ô số hẹp: hai hàng `subgrid` rỗng (gợi ý, lỗi) đã góp 8px khe bên dưới khung, cộng đệm đáy
    *     8px nữa là 16px trống dưới ô "Hệ số beta". Đệm đáy về 0: còn 8px, cộng khe lưới 4px — bằng
    *     đúng khoảng sau một thanh trượt (đệm 8px + 4px).
@@ -1331,20 +1345,49 @@ button.iconButton::after {
     font-size: var(--text-xs);
   }
 
+  /*
+   * Ô trượt cao 44px (vùng chạm) nhưng nút nằm ở NỬA TRÊN của ô (20/10/2026). Nút nhỏ còn 14px (luật
+   * ngay dưới) thì nằm giữa ô 44px nghĩa là ~15px trống mỗi phía, và chủ dự án khoanh đúng dải ấy trên
+   * `lich-tra-no`: _"padding trên dưới phần khoanh đỏ màn mobile đang quá cao. giảm xuống"_.
+   *
+   * Lề âm đều hai phía (bản 19/10 là −8px) không gỡ được: lề trên chỉ được nuốt đúng khe 4px, vì quá
+   * nữa là vùng chạm lấn lên ô số gõ được ở hàng nhãn. Nên phần chạm thừa dồn hết xuống DƯỚI: đệm dưới
+   * 18px đẩy rãnh (căn giữa trong phần nội dung còn 26px) lên, lề dưới −22px kéo hàng mốc min/max lên
+   * nằm dưới phần đệm ấy — chữ mốc không bấm được nên để vùng chạm phủ lên là vô hại. Kết quả: nút
+   * cách hàng nhãn 6px, cách hàng mốc 6px (trước 11px mỗi phía), mỗi thanh trượt thấp đi 10px.
+   * `inputs-mobile-css.test.ts` dựng lại phép tính này từ chính các con số.
+   */
   .fields input[type='range'] {
-    margin-block: -8px;
+    margin-block: -4px -22px;
+    padding-bottom: 18px;
   }
 
-  /* Tâm nút trùng tâm rãnh: −(20 − 6) ÷ 2, cùng phép tính với nút 28px và 16px ở `SliderInput`. */
+  /*
+   * Rãnh 6 → 4px, nút tròn 20 → 14px (20/10/2026, chủ dự án chụp một thanh trượt trên điện thoại:
+   * _"đường kéo cần giảm nhỏ xuống 2 size, điểm tròn cũng giảm 2 lần"_ — rãnh bớt 2px, nút chia đôi
+   * còn 10px — rồi hai lần _"điểm tròn cho to lên 1 size"_: mỗi lần 2px, 12 rồi 14px, số chẵn để tâm
+   * nút trùng đúng tâm rãnh). Ô trượt vẫn cao 44px nên vùng kéo không đổi: chạm đâu trên dải ấy cũng
+   * kéo được, không cần trúng nút.
+   *
+   * Tâm nút trùng tâm rãnh: −(14 − 4) ÷ 2, cùng phép tính với nút 28px và 16px ở `SliderInput`.
+   */
+  .fields input[type='range']::-webkit-slider-runnable-track {
+    height: 4px;
+  }
+
+  .fields input[type='range']::-moz-range-track {
+    height: 4px;
+  }
+
   .fields input[type='range']::-webkit-slider-thumb {
-    width: 20px;
-    height: 20px;
-    margin-top: -7px;
+    width: 14px;
+    height: 14px;
+    margin-top: -5px;
   }
 
   .fields input[type='range']::-moz-range-thumb {
-    width: 20px;
-    height: 20px;
+    width: 14px;
+    height: 14px;
   }
 
   /*

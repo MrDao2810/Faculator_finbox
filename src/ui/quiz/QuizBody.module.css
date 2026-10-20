@@ -808,10 +808,21 @@
     min-height: 28px;
   }
 
+  /*
+   * Nét chữ THƯỜNG (20/10/2026, chủ dự án: _"chuyển đổi text 'Bắt đầu kiểm tra' bản mobile không cần in
+   * đậm"_). Nút mang `--weight-medium` của primitive, mà Segoe UI không có nét 500 nên Chrome trên
+   * Windows vẽ bằng nét 600 — đọc ra đậm. "Thoát" đứng đúng ô ấy lúc đang làm bài nên theo cùng, kẻo
+   * hàng tiêu đề đổi nét chữ giữa hai trạng thái.
+   *
+   * Ngay sau đó: _"giảm 1 size text đó luôn"_ — 14 → 12px (`--text-xs`), một bậc thang chữ, bằng cỡ
+   * nhãn "BÀI TẬP" cùng hàng. Mũi tên "»" tính theo `em` nên nhỏ theo.
+   */
   .head > .headAction {
     min-height: 28px;
     padding-inline: var(--space-2);
     margin-right: calc(var(--space-1) * -1);
+    font-size: var(--text-xs);
+    font-weight: var(--weight-regular);
   }
 
   .prompt {
@@ -866,11 +877,16 @@
    *     tổng kết, thứ không được khoanh. Áp cả dòng "Đúng / Sai" chung của câu chọn nhiều — cùng vai.
    *   - Hộp đệm 8 / 12px. Lời giải dạng đoạn văn (`.explainBody`, câu không có lời giải có cấu trúc)
    *     13 → 12px, cùng cỡ với lời giải có cấu trúc (`LoiGiai.module.css`) để hai dạng hộp một cỡ.
+   *
+   * Lượt hai (20/10/2026): chủ dự án khoanh lại đúng dòng ấy ở câu EV/EBITDA, "Sai · Kết quả: 7,875 lần ·
+   * Thứ tự đúng: 5.000 · 1.200 · 400 · 300 · 800" — _"giảm size đoạn text khoanh đỏ áp dụng bản mobile"_.
+   * 14 → 12px, bậc kế trên thang: ở 14px nó to ngang câu hỏi. Vẫn đậm và mang màu đúng/sai, nên vẫn nổi
+   * hơn chữ thường 12px của hộp lời giải ngay dưới.
    */
   p.markRight,
   p.markWrong {
     margin: 0;
-    font-size: var(--text-sm);
+    font-size: var(--text-xs);
   }
 
   .explain {

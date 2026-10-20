@@ -1040,4 +1040,18 @@
   .data[open] > .tableScroll {
     margin-top: var(--space-2);
   }
+
+  /*
+   * Tên biểu đồ 16 → 15px (20/10/2026). Chủ dự án khoanh "Giá vốn trung bình khi mua DCA theo Giá mua
+   * đợt 3 (P3)" ở đầu thẻ trên điện thoại: _"giảm size text phần trong ảnh xuống áp dụng bản mobile. cần
+   * làm cho toàn bộ các công thức khác"_. Mọi biểu đồ của 103 công thức (đường, cột, bóc tách) in tên qua
+   * đúng lớp này ở `ChartFrame`, nên một luật là đủ.
+   *
+   * 15px chứ không 14px (`--text-sm`): ô chọn trục ngay dưới in chữ 14px ở khổ này (khối "hàng điều
+   * khiển" phía trên), và tên của một khối không được nhỏ bằng nội dung dưới nó. Ngoài thang, cùng cỡ
+   * câu hỏi của Bài tập (`.prompt`, 0,9375rem).
+   */
+  .captionTitle {
+    font-size: 0.9375rem;
+  }
 }

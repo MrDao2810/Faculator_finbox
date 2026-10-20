@@ -1,6 +1,6 @@
 'use client';
 
-import { NO_VALUE, WARNING_LABELS } from '@/application';
+import { NO_VALUE } from '@/application';
 import type { CalcWarning } from '@/application';
 import { useT, usePick } from '@/application/preferences-context';
 
@@ -31,12 +31,20 @@ export function ErrorState({ warning, unit, action, className }: ErrorStateProps
   const pick = usePick();
   const classes = [styles.block, className].filter(Boolean).join(' ');
 
+  /*
+   * Không còn nhãn mã lỗi ("Không có ý nghĩa", "Chia cho 0"…) ở góc thẻ — chủ dự án chụp thẻ lỗi của
+   * XIRR, 20/10/2026: _"xóa đoạn cảnh báo 'Không có ý nghĩa' đi"_. Câu nguyên nhân ngay dưới đã nói
+   * bằng lời thường điều nhãn ấy gọi bằng tên kỹ thuật, nên nhãn chỉ là một lần nói thứ hai. Dấu hiệu
+   * không dựa vào màu (NFR-USA-06) vẫn đủ: viền đứt, chỗ trống `_ _`, và chính câu nguyên nhân.
+   *
+   * Mã vẫn nằm trên thẻ ở `data-ma-loi`, không hiện ra mắt: ca kiểm cần biết thẻ đang báo mã nào
+   * (chờ chuỗi giá hay lỗi thật), và trước đây chúng đọc nó qua chữ của nhãn.
+   */
   return (
-    <div className={classes} role="alert">
+    <div className={classes} role="alert" data-ma-loi={warning.code}>
       <div className={styles.head}>
         <span className={styles.value}>{NO_VALUE}</span>
         {unit !== undefined && unit.trim() !== '' && <span className={styles.unit}>{unit}</span>}
-        <span className={styles.chip}>{pick(WARNING_LABELS[warning.code])}</span>
       </div>
 
       <p className={styles.message}>{pick(warning.message)}</p>

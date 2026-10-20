@@ -108,7 +108,8 @@ export function modelViolation(condition: Bilingual, fix?: Bilingual): CalcWarni
 
 /**
  * Cảnh báo kế thừa — thượng nguồn lỗi thì hạ nguồn không được âm thầm cho ra số (FR-15).
- * WF-15 yêu cầu gợi ý sửa phải chỉ ra hai lối đi: sửa thượng nguồn, hoặc nhập tay tại chỗ.
+ * WF-15 yêu cầu gợi ý sửa phải chỉ ra hai lối đi: sửa thượng nguồn, hoặc nhập thẳng tại chỗ.
+ * Không viết "nhập tay" — chủ dự án gọi cụm ấy là quê mùa (20/10/2026), xem `i18n.test.ts`.
  *
  * @param upstreamLabel tên công thức thượng nguồn đang lỗi, ví dụ 'Beta'
  * @param selfLabel     tên biến đang bị kế thừa lỗi, ví dụ 'WACC'
@@ -116,11 +117,11 @@ export function modelViolation(condition: Bilingual, fix?: Bilingual): CalcWarni
 export function inheritedFrom(upstreamLabel: Bilingual, selfLabel?: Bilingual): CalcWarning {
   const fix: Bilingual = selfLabel
     ? {
-        vi: `Mở ${upstreamLabel.vi} để sửa · hoặc nhập tay ${selfLabel.vi} tại đây.`,
+        vi: `Mở ${upstreamLabel.vi} để sửa · hoặc nhập thẳng ${selfLabel.vi} tại đây.`,
         en: `Open ${upstreamLabel.en} to fix it · or override ${selfLabel.en} here.`,
       }
     : {
-        vi: `Sửa ${upstreamLabel.vi} hoặc nhập tay giá trị này.`,
+        vi: `Sửa ${upstreamLabel.vi} hoặc nhập thẳng giá trị này.`,
         en: `Fix ${upstreamLabel.en} or enter this value manually.`,
       };
   return {

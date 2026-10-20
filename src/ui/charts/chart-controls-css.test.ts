@@ -100,3 +100,16 @@ describe('biểu đồ dưới 1024px: vùng vẽ rộng hơn, đáy thẻ gọn
     expect(phu).toMatch(/position:\s*absolute;/);
   });
 });
+
+/*
+ * Tên biểu đồ ở khổ điện thoại (20/10/2026, chủ dự án: _"giảm size text phần trong ảnh xuống áp dụng bản
+ * mobile. cần làm cho toàn bộ các công thức khác"_). 16 → 15px, không xuống 14px: tên của một khối
+ * không được nhỏ bằng nội dung dưới nó, mà ô chọn trục ngay dưới in chữ 14px ở khổ này.
+ */
+describe('tên biểu đồ dưới 1024px', () => {
+  it('15px — nhỏ đi mà vẫn lớn hơn chữ trong ô chọn trục ngay dưới', () => {
+    const ten = luat(BIEU_DO, '.captionTitle');
+    expect(ten).toMatch(/font-size:\s*0\.9375rem;/);
+    expect(luat(BIEU_DO, '.picker select')).toMatch(/font-size:\s*var\(--text-sm\);/);
+  });
+});

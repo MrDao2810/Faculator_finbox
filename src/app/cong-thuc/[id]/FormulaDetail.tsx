@@ -3676,7 +3676,10 @@ export function FormulaDetail({
         `--space-5` với `.detail`, nên điện thoại không đổi một pixel nào.
       */}
         <div className={styles.aside}>
-          {/* `activeSpec`: đợt mua người dùng vừa thêm cũng là một hàng của bảng này. */}
+          {/*
+            `activeSpec` vẫn là spec của các ô đang có, nhưng bảng chỉ mô tả biến đếm và nhóm 1 của
+            nhóm lặp (20/10/2026) — đợt mua vừa thêm KHÔNG thêm hàng nào. Xem `VariableTable.tsx`.
+          */}
           <VariableTable formula={activeSpec} mode={mode} className={styles.deferred} />
 
           {/* ── 9. Ví dụ và nguồn — FR-02, FR-04 ─────────────────────────────── */}

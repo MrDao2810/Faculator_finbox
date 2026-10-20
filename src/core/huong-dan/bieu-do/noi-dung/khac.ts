@@ -350,7 +350,7 @@ export const BIEU_DO_KHAC: Readonly<Record<string, BieuDoRieng>> = {
     truc: {
       principal: {
         duong: d(
-          'Đường chạy từ trái sang phải theo ô Số tiền gốc (P), từ một nửa đến gấp rưỡi con số bạn đang nhập; vạch đứt dọc có chấm tròn là đúng con số bạn nhập. Đây là phép thử nếu gửi số tiền khác thì cuối kỳ có bao nhiêu, không phải diễn biến thị trường. Đường đi lên đều: lãi suất và thời gian giữ nguyên, gốc lớn hơn bao nhiêu phần thì số tiền cuối lớn hơn bấy nhiêu phần. Muốn thấy đường cong của lãi kép thì chọn Thời gian ở dòng Xem kết quả đổi theo.',
+          'Đường chạy từ trái sang phải theo ô Số tiền gốc (P), từ một nửa đến gấp rưỡi con số bạn đang nhập; vạch đứt dọc có chấm tròn là đúng con số bạn nhập. Đây là phép thử nếu gửi số tiền khác thì cuối kỳ có bao nhiêu, không phải diễn biến thị trường. Đường đi lên đều: lãi suất và thời gian giữ nguyên, gốc lớn hơn bao nhiêu phần thì số tiền cuối lớn hơn bấy nhiêu phần. Muốn thấy đường cong của lãi kép thì chọn Thời gian ở ô Xem theo.',
           'The line runs left to right along the Principal amount (P) field, from half to one and a half times the figure you have entered; the dashed vertical line with a dot marks your own figure. It is a what-if on the ending amount for a different deposit, not market history. The line rises steadily: with the rate and the time held still, the ending amount grows in exact proportion to the principal. To see the curve of compounding itself, pick Time in the row that sets the horizontal axis.',
         ),
         cot: d(

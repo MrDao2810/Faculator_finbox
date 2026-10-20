@@ -331,13 +331,13 @@ describe('buildChartModel — trục thời gian nối vào ô chọn đã có',
     });
   }
 
-  it('có phiên giá thì "Theo thời gian" là mục ĐẦU và là mặc định', () => {
+  it('có phiên giá thì "Thời gian" là mục ĐẦU và là mặc định', () => {
     const built = model('pe', WITH_BARS);
     if (built.kind !== 'line') throw new Error('phải vẽ được');
 
     expect(built.options[0]).toEqual({
       key: HISTORY_KEY,
-      label: { vi: 'Theo thời gian', en: 'Over time' },
+      label: { vi: 'Thời gian', en: 'Over time' },
     });
     expect(built.sweepKey).toBe(HISTORY_KEY);
     expect(built.title.vi).toBe('P/E theo thời gian');

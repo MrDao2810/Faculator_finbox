@@ -958,8 +958,8 @@ export const TY_SO_TREYNOR: FormulaModule = {
           // Trước gói này câu mô tả cố ý KHÔNG nhắc "công thức Beta" vì thư viện chưa có — nay
           // đã đăng ký (`BETA` phía trên), nên nêu lại làm một nguồn thật.
           description: {
-            vi: 'Nhập tay: tính bằng công thức Beta của thư viện này (cần cả chuỗi giá cổ phiếu lẫn chuỗi VN-Index, mỗi chuỗi tối thiểu 60 phiên), lấy từ bảng dữ liệu công ty chứng khoán, báo cáo quỹ, hoặc trang thống kê của sở giao dịch. Beta 1 nghĩa là biến động ngang thị trường.',
-            en: "Enter manually: compute it with this library's Beta formula (it needs both the stock price series and the VN-Index series, at least 60 sessions each), or take it from a brokerage data table, a fund report, or an exchange statistics page. A beta of 1 means volatility in line with the market.",
+            vi: 'Số liệu được nhập sẽ được tính bằng công thức Beta của thư viện này (cần cả chuỗi giá cổ phiếu lẫn chuỗi VN-Index, mỗi chuỗi tối thiểu 60 phiên), hoặc lấy từ bảng dữ liệu công ty chứng khoán, báo cáo quỹ hay trang thống kê của sở giao dịch. Beta 1 nghĩa là biến động ngang thị trường.',
+            en: "The figure you enter comes from this library's Beta formula (it needs both the stock price series and the VN-Index series, at least 60 sessions each), or from a brokerage data table, a fund report or an exchange statistics page. A beta of 1 means volatility in line with the market.",
           },
         },
       ),

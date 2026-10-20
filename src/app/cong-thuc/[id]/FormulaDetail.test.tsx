@@ -17,7 +17,6 @@ import {
   QUIZ_PROGRESS_KEY,
   ROUTES,
   SAVED_CALCS_KEY,
-  WARNING_LABELS,
   WORKING_SERIES_KEY,
   formatIsoDate,
   parseFormulaUsage,
@@ -572,7 +571,7 @@ describe('WF-03 — chín khối đúng thứ tự wireframe', () => {
     expect(within(khung).queryByText('Dạng Cột')).toBeNull();
     expect(khung.textContent).toContain('Đường chạy từ trái sang phải theo ô Giá thị trường');
     // Không còn hai câu chỉ đường, và không sót chữ của hình nào khác.
-    expect(khung.textContent).not.toContain('Xem kết quả đổi theo');
+    expect(khung.textContent).not.toContain('Xem theo');
     expect(khung.textContent).not.toContain('Loại biểu đồ');
     expect(khung.textContent).not.toContain('P/E theo EPS');
     expect(khung.textContent).not.toContain('P/E theo thời gian');
@@ -591,7 +590,7 @@ describe('WF-03 — chín khối đúng thứ tự wireframe', () => {
     expect(khung.textContent).toContain('Mỗi cột là P/E ở một mức giá');
 
     // Đổi mục ở ô chọn: khung sang hình của ô EPS, vẫn ở dạng Cột vì nút Cột còn đang bấm.
-    await user.selectOptions(screen.getByLabelText('Xem kết quả đổi theo'), 'eps');
+    await user.selectOptions(screen.getByLabelText('Xem theo'), 'eps');
     khung = await moKhung();
     expect(within(khung).getByRole('heading', { name: 'P/E theo EPS' })).not.toBeNull();
     expect(within(khung).getAllByRole('heading', { level: 3 })).toHaveLength(1);
@@ -619,7 +618,7 @@ describe('WF-03 — chín khối đúng thứ tự wireframe', () => {
     expect(within(khung).queryByText('Dạng Đường')).toBeNull();
     expect(within(khung).queryByText('Dạng Cột')).toBeNull();
 
-    await user.selectOptions(screen.getByLabelText('Xem kết quả đổi theo'), 'totalDebt');
+    await user.selectOptions(screen.getByLabelText('Xem theo'), 'totalDebt');
     await user.click(screen.getByRole('link', { name: /Hướng dẫn: đọc biểu đồ/ }));
     khung = await screen.findByRole('dialog');
     expect(within(khung).getByRole('heading', { name: 'EV theo Nợ vay' })).not.toBeNull();
@@ -1911,7 +1910,7 @@ describe('WF-03 — nạp mã rồi thì biểu đồ vẽ theo số liệu củ
 
     await userEvent.click(screen.getByRole('button', { name: 'Nạp mẫu' }));
     const maVuaNap = await napDongDau();
-    await userEvent.selectOptions(screen.getByLabelText('Xem kết quả đổi theo'), 'eps');
+    await userEvent.selectOptions(screen.getByLabelText('Xem theo'), 'eps');
 
     expect(screen.getByText('P/E theo EPS')).not.toBeNull();
   });
@@ -2101,9 +2100,9 @@ describe('WF-03 — không công thức nào lọt giá trị vô nghĩa ra màn
        * của nó là một BẢNG dòng tiền, nên mã đúng là INCOMPLETE_INPUT — cùng bản chất "chờ
        * dữ liệu có cấu trúc từ người dùng", chỉ khác cấu trúc đó là bảng chứ không phải chuỗi.
        */
-      const expectedLabel =
-        spec.id === 'xirr' ? WARNING_LABELS.INCOMPLETE_INPUT : WARNING_LABELS.MISSING_SERIES;
-      expect(text, `${spec.id}: mã cảnh báo`).toContain(expectedLabel.vi);
+      // Mã đọc ở `data-ma-loi`: thẻ lỗi thôi in nhãn mã từ 20/10/2026 (xem `ErrorState.tsx`).
+      const expectedCode = spec.id === 'xirr' ? 'INCOMPLETE_INPUT' : 'MISSING_SERIES';
+      expect(alert.getAttribute('data-ma-loi'), `${spec.id}: mã cảnh báo`).toBe(expectedCode);
       /*
        * Phải chỉ đường, không được báo lỗi rồi bỏ mặc. `INCOMPLETE_INPUT` chỉ đường bằng chính câu
        * "Còn thiếu: …" — dòng ↳ chung "Nhập nốt các ô còn trống…" đã bỏ ngày 15/10/2026 theo yêu cầu
@@ -2236,7 +2235,10 @@ describe('WF-04 — chuỗi công thức ở chế độ Nâng cao', () => {
     await userEvent.type(beta, '-2');
 
     expect(screen.getByTestId('result-text').textContent).toContain(NO_VALUE);
-    expect(screen.getAllByText(WARNING_LABELS.INHERITED.vi).length).toBeGreaterThan(0);
+    // Thẻ Kết quả mang mã kế thừa — đọc ở `data-ma-loi`, thẻ lỗi thôi in nhãn mã từ 20/10/2026.
+    expect(
+      screen.getAllByRole('alert').some((o) => o.getAttribute('data-ma-loi') === 'INHERITED'),
+    ).toBe(true);
     // Ô r người dùng KHÔNG hề bỏ trống, nên tuyệt đối không được báo "Còn thiếu".
     expect(screen.queryByText(/Còn thiếu/)).toBeNull();
   });
@@ -4172,8 +4174,8 @@ describe('WF-03 — dải thay số của công thức tra hằng số thị tr�
  * đổi nên bạn cần thêm chức năng để giao diện thay đổi tương ứng"*.
  *
  * Phép tính của nhóm lặp đã có ca riêng ở `registry/repeat.test.ts`. Các ca dưới gác phần MÀN: ô
- * mới hiện đúng chỗ với đúng nhãn, mọi khối đọc danh sách ô (Bảng biến, link chia sẻ, bản nháp)
- * thấy cùng một danh sách, và hai luật cũ không bị thủng: không ô nào thành số 0 lặng lẽ (FR-06),
+ * mới hiện đúng chỗ với đúng nhãn, mọi khối đọc danh sách ô (link chia sẻ, bản nháp) thấy cùng một
+ * danh sách — trừ Bảng biến, chỉ mô tả nhóm 1 từ 20/10/2026 — và hai luật cũ không bị thủng: không ô nào thành số 0 lặng lẽ (FR-06),
  * và vào lại công thức thì về mặc định (ba đợt).
  */
 describe('WF-03 — thêm bớt đợt mua và kỳ', () => {
@@ -4249,16 +4251,37 @@ describe('WF-03 — thêm bớt đợt mua và kỳ', () => {
     expect(ketQua()).toContain('29.629,63');
   });
 
-  it('Bảng biến kê cả ô của đợt vừa thêm, và hàng của biến đếm', async () => {
+  /*
+   * ĐẢO CHIỀU ngày 20/10/2026. Ca cũ ("Bảng biến kê cả ô của đợt vừa thêm") ghim đúng thứ chủ dự án
+   * gọi là lỗi: mỗi lần bấm Thêm đợt mua, bảng mọc thêm hai hàng mang cùng câu "Nhập 0 nếu không có
+   * đợt này." — _"chỉ cần mô tả đợt 1 là được rồi"_. Bảng nay chỉ có biến đếm và nhóm 1, như bài
+   * hướng dẫn (`isLaterRepeatSlot`). Hàng chữ viết tay để thấy ngay nhãn nào đang bị cấm.
+   */
+  it('Bảng biến chỉ mô tả biến đếm và đợt 1, thêm đợt cũng không mọc hàng mới', async () => {
     render(<Man spec={specOf(DCA)} />);
     const bang = (): HTMLElement => screen.getByRole('table', { name: t('variable.tableCaption') });
+    const hang = (): string[] =>
+      within(bang())
+        .getAllByRole('rowheader')
+        .map((o) => o.textContent ?? '');
+    const truoc = ['Số đợt mua', 'Tiền mua đợt 1 (C1)', 'Giá mua đợt 1 (P1)'];
 
-    expect(within(bang()).getByRole('rowheader', { name: 'Số đợt mua' })).not.toBeNull();
-    expect(within(bang()).queryByRole('rowheader', { name: 'Giá mua đợt 4 (P4)' })).toBeNull();
+    expect(hang()).toEqual(truoc);
 
     await userEvent.click(nut(/^Thêm đợt mua$/));
-    expect(within(bang()).getByRole('rowheader', { name: 'Tiền mua đợt 4 (C4)' })).not.toBeNull();
-    expect(within(bang()).getByRole('rowheader', { name: 'Giá mua đợt 4 (P4)' })).not.toBeNull();
+    expect(oSo()).toHaveLength(8);
+    expect(hang()).toEqual(truoc);
+  });
+
+  it('lợi suất trung bình hình học: Bảng biến chỉ mô tả biến đếm và kỳ 1', () => {
+    render(<Man spec={specOf(HINH_HOC)} />);
+    const bang = screen.getByRole('table', { name: t('variable.tableCaption') });
+    const hang = within(bang)
+      .getAllByRole('rowheader')
+      .map((o) => o.textContent ?? '');
+
+    expect(hang).toHaveLength(2);
+    expect(hang.join(' ')).not.toMatch(/kỳ 2|kỳ 3/);
   });
 
   it('Bỏ đợt: ô của đợt cuối rời màn, bỏ tới còn một đợt thì nút Bỏ cũng rời', async () => {

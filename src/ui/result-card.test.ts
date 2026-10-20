@@ -175,6 +175,32 @@ describe('Thẻ kết quả — một khuôn duy nhất', () => {
     expect(luat(loi, 'value')).toMatch(/font-size:\s*var\(--text-xl\);/);
   });
 
+  /*
+   * Dưới 1024px nhãn của cả ba thẻ đáp án mang kiểu tiêu đề khối (20/10/2026). Chủ dự án khoanh "SỐ
+   * LIỆU", "KẾT QUẢ", "BIỂU ĐỒ": _"cần điều chỉnh lại cho giống nhau về kích thước lẫn in đậm, áp dụng
+   * bản mobile"_ — trước đó cùng 12px nhưng nhãn nét 500 và giãn gấp đôi. Ca này so với CHÍNH luật
+   * `.blockTitle` của màn chi tiết, không chép số, nên tiêu đề khối đổi thì nhãn thẻ phải đổi theo.
+   */
+  it('dưới 1024px nhãn ba thẻ đáp án cùng cỡ, cùng nét, cùng giãn chữ với tiêu đề khối', () => {
+    const khongChuThich = (file: string): string =>
+      readFileSync(join(SRC_DIR, file), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
+    const khaiBao = (than: string, thuocTinh: string): string | undefined =>
+      new RegExp(`${thuocTinh}\\s*:\\s*([^;]+);`).exec(than)?.[1]?.trim();
+
+    const tieuDe =
+      ruleBody(khongChuThich('app/cong-thuc/[id]/FormulaDetail.module.css'), 'blockTitle') ?? '';
+    for (const [file, , label] of ANSWER_CARDS) {
+      const khoi =
+        /@media \(max-width: 1023\.98px\)\s*\{([\s\S]*?)\n\}/.exec(khongChuThich(file))?.[1] ?? '';
+      const nhan = new RegExp(`\\.${label}\\s*\\{([^}]*)\\}`).exec(khoi)?.[1] ?? '';
+      for (const thuocTinh of ['font-size', 'font-weight', 'letter-spacing']) {
+        const goc = khaiBao(tieuDe, thuocTinh);
+        expect(goc, `.blockTitle — ${thuocTinh}`).toBeDefined();
+        expect(khaiBao(nhan, thuocTinh), `${file} .${label} — ${thuocTinh}`).toBe(goc);
+      }
+    }
+  });
+
   it('khối lỗi cao bằng khối kết quả, nên trang không xê dịch khi chuyển trạng thái', () => {
     const body = ruleBody(
       readFileSync(join(SRC_DIR, 'ui/result/ErrorState.module.css'), 'utf8'),

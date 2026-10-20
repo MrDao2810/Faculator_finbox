@@ -436,7 +436,7 @@ describe('Trang SMA — vẽ kèm đường giá đóng cửa', () => {
 
     expect(container.querySelector('path[data-series="gia-dong-cua"]')).not.toBeNull();
 
-    await user.selectOptions(screen.getByLabelText('Xem kết quả đổi theo'), 'period');
+    await user.selectOptions(screen.getByLabelText('Xem theo'), 'period');
 
     expect(container.querySelector('path[data-series="gia-dong-cua"]')).toBeNull();
     expect(container.querySelectorAll('[class*="legend"]')).toHaveLength(0);
@@ -601,7 +601,7 @@ describe('Trang SMA — vẽ kèm đường giá đóng cửa', () => {
     expect(ap).not.toHaveBeenCalled();
 
     // Đổi sang trục biến số thì bấm ghi được như mọi biểu đồ khác.
-    await user.selectOptions(screen.getByLabelText('Xem kết quả đổi theo'), 'period');
+    await user.selectOptions(screen.getByLabelText('Xem theo'), 'period');
     const vung2 = screen.getByTestId('chart-sma-n-phien-hover-capture');
     fireEvent.pointerDown(vung2, { clientX: 150, clientY: 100 });
     fireEvent.pointerUp(vung2, { clientX: 150, clientY: 100 });
@@ -789,7 +789,7 @@ describe('Biểu đồ độ nhạy — FR-06 ở tầng vẽ', () => {
     const { container, rerender } = render(view(good));
 
     // Luồng thật của người dùng: đưa EPS lên trục X, rồi gõ 0 vào ô EPS.
-    await userEvent.selectOptions(screen.getByLabelText('Xem kết quả đổi theo'), 'eps');
+    await userEvent.selectOptions(screen.getByLabelText('Xem theo'), 'eps');
     rerender(view(zero));
 
     // Vẫn còn đường cho nửa EPS dương...
@@ -913,13 +913,13 @@ describe('Đường theo thời gian — nạp mã rồi thì vẽ theo số li�
     expect(screen.getByRole('table').textContent).toMatch(/\d{2}\/\d{2}\/\d{4}/);
   });
 
-  it('ô chọn có mục "Theo thời gian" đứng đầu và đang được chọn', () => {
+  it('ô chọn có mục "Thời gian" đứng đầu và đang được chọn', () => {
     drawLoaded('pe');
 
-    const picker = screen.getByLabelText('Xem kết quả đổi theo') as HTMLSelectElement;
+    const picker = screen.getByLabelText('Xem theo') as HTMLSelectElement;
     const labels = [...picker.options].map((option) => option.textContent);
 
-    expect(labels[0]).toBe('Theo thời gian');
+    expect(labels[0]).toBe('Thời gian');
     expect(labels).toContain('Giá thị trường (P)');
     expect(picker.selectedIndex).toBe(0);
   });
@@ -927,7 +927,7 @@ describe('Đường theo thời gian — nạp mã rồi thì vẽ theo số li�
   it('đổi về một biến thì quay lại đường giả định, và lựa chọn đó được giữ', async () => {
     drawLoaded('pe');
 
-    await userEvent.selectOptions(screen.getByLabelText('Xem kết quả đổi theo'), 'eps');
+    await userEvent.selectOptions(screen.getByLabelText('Xem theo'), 'eps');
 
     expect(screen.getByText('P/E theo EPS')).not.toBeNull();
     expect(screen.queryByText('P/E theo thời gian')).toBeNull();
@@ -979,11 +979,11 @@ describe('Đường theo thời gian — nạp mã rồi thì vẽ theo số li�
   it('công thức không liên quan tới giá thì nạp mẫu cũng không sinh mục thời gian', () => {
     drawLoaded('lai-kep');
 
-    const picker = screen.queryByLabelText('Xem kết quả đổi theo');
+    const picker = screen.queryByLabelText('Xem theo');
     const labels =
       picker === null ? [] : [...(picker as HTMLSelectElement).options].map((o) => o.textContent);
 
-    expect(labels).not.toContain('Theo thời gian');
+    expect(labels).not.toContain('Thời gian');
   });
 
   it('không lọt NaN hay undefined ra màn ở chế độ thời gian', () => {
@@ -1002,7 +1002,7 @@ describe('Biểu đồ độ nhạy — đổi trục X', () => {
   it('ô chọn liệt kê đủ biến quét được, mặc định là biến Domain đã chọn', () => {
     draw('pe');
 
-    const picker = screen.getByLabelText('Xem kết quả đổi theo') as HTMLSelectElement;
+    const picker = screen.getByLabelText('Xem theo') as HTMLSelectElement;
     expect([...picker.options].map((option) => option.value)).toEqual(['price', 'eps']);
     expect(picker.value).toBe('price');
   });
@@ -1010,7 +1010,7 @@ describe('Biểu đồ độ nhạy — đổi trục X', () => {
   it('đổi ô chọn thì trục X và bảng đổi theo', async () => {
     draw('pe');
 
-    await userEvent.selectOptions(screen.getByLabelText('Xem kết quả đổi theo'), 'eps');
+    await userEvent.selectOptions(screen.getByLabelText('Xem theo'), 'eps');
 
     expect(screen.getByText('P/E theo EPS')).not.toBeNull();
     expect(screen.getByRole('columnheader', { name: 'EPS (nghìn ₫)' })).not.toBeNull();
@@ -1119,7 +1119,7 @@ describe('Mốc tham chiếu trên biểu đồ', () => {
     const { container } = drawDaoDong('rsi-wilder');
     expect(mocTrong(container)).toEqual(['30', '70']);
 
-    await userEvent.selectOptions(screen.getByLabelText('Xem kết quả đổi theo'), 'period');
+    await userEvent.selectOptions(screen.getByLabelText('Xem theo'), 'period');
 
     expect(mocTrong(container)).not.toContain('70');
   });
@@ -1218,7 +1218,7 @@ describe.skip('Phóng to biểu đồ toàn màn hình', () => {
 
     const row = container.querySelector('[class*="controls"]');
     if (row === null) throw new Error('Thiếu hàng điều khiển của biểu đồ.');
-    expect(within(row as HTMLElement).getByLabelText('Xem kết quả đổi theo')).not.toBeNull();
+    expect(within(row as HTMLElement).getByLabelText('Xem theo')).not.toBeNull();
     // Nút không được nằm ở cả hai chỗ — đây là chỗ bắt việc dựng lặp.
     expect(within(row as HTMLElement).queryByRole('button', { name: /Phóng to/ })).toBeNull();
   });
@@ -1230,7 +1230,7 @@ describe.skip('Phóng to biểu đồ toàn màn hình', () => {
   it('công thức chỉ có một biến quét được thì vẫn có nút phóng to', () => {
     draw('lai-suat-hieu-dung');
 
-    expect(screen.queryByLabelText('Xem kết quả đổi theo')).toBeNull();
+    expect(screen.queryByLabelText('Xem theo')).toBeNull();
     expect(screen.getByRole('button', { name: /Phóng to/ })).not.toBeNull();
   });
 
@@ -1268,7 +1268,7 @@ describe.skip('Phóng to biểu đồ toàn màn hình', () => {
     const overlay = manPhongTo();
     if (overlay === null) throw new Error('Bấm phóng to mà không mở lớp phủ.');
 
-    await userEvent.selectOptions(within(overlay).getByLabelText('Xem kết quả đổi theo'), 'eps');
+    await userEvent.selectOptions(within(overlay).getByLabelText('Xem theo'), 'eps');
 
     // Một state, hai chỗ dựng: tiêu đề trong lớp phủ đổi, và tiêu đề trên trang cũng đổi theo.
     expect(within(overlay).getByRole('heading', { name: 'P/E theo EPS' })).not.toBeNull();
@@ -1460,7 +1460,7 @@ describe('Dò điểm (crosshair)', () => {
     );
 
     const { container, rerender } = render(view(good));
-    await userEvent.selectOptions(screen.getByLabelText('Xem kết quả đổi theo'), 'eps');
+    await userEvent.selectOptions(screen.getByLabelText('Xem theo'), 'eps');
     rerender(view(zero));
 
     const gap = container.querySelector('rect[fill^="url(#"]');
@@ -1889,7 +1889,7 @@ describe('Ghi giá trị điểm vào ô Số liệu (onApplyPoint)', () => {
 
     expect(screen.getByText('P/E theo thời gian')).not.toBeNull();
     expect(container.querySelector('[class*="applyHint"]')).toBeNull();
-    expect(screen.queryByText(/Xem kết quả đổi theo.*biến số/)).toBeNull();
+    expect(screen.queryByText(/Xem theo.*biến số/)).toBeNull();
   });
 
   /*
@@ -2237,7 +2237,7 @@ describe('Dò điểm — thác nước (hover từng cột)', () => {
   it('cột giá trị lớn: hình hiện bản rút gọn, bảng số vẫn in đủ chữ số', async () => {
     const { container } = draw('lich-tra-no', undefined, 'advanced');
 
-    await userEvent.selectOptions(screen.getByLabelText('Xem kết quả đổi theo'), '__breakdown');
+    await userEvent.selectOptions(screen.getByLabelText('Xem theo'), '__breakdown');
     gioKhungThacNuoc(container);
 
     const bars = cacCot(container);
@@ -2590,7 +2590,7 @@ describe('báo hình đang hiện lên màn chi tiết', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Cột' }));
     expect(loiBaoCuoi(bao)).toEqual({ khoa: 'price', dang: 'cot', daVe: true });
 
-    await userEvent.selectOptions(screen.getByLabelText('Xem kết quả đổi theo'), 'eps');
+    await userEvent.selectOptions(screen.getByLabelText('Xem theo'), 'eps');
     // Lối vẽ là sở thích đọc của người dùng, không đặt lại khi đổi trục — lời báo cũng phải thế.
     expect(loiBaoCuoi(bao)).toEqual({ khoa: 'eps', dang: 'cot', daVe: true });
     expect(bao).toHaveBeenCalledTimes(3);
@@ -2611,11 +2611,11 @@ describe('báo hình đang hiện lên màn chi tiết', () => {
     const { bao } = drawBao('sma-n-phien', WITH_BARS);
     expect(loiBaoCuoi(bao)).toEqual({ khoa: '__time', dang: 'duong', daVe: true });
 
-    await userEvent.selectOptions(screen.getByLabelText('Xem kết quả đổi theo'), 'period');
+    await userEvent.selectOptions(screen.getByLabelText('Xem theo'), 'period');
     await userEvent.click(screen.getByRole('button', { name: 'Cột' }));
     expect(loiBaoCuoi(bao)).toEqual({ khoa: 'period', dang: 'cot', daVe: true });
 
-    await userEvent.selectOptions(screen.getByLabelText('Xem kết quả đổi theo'), '__time');
+    await userEvent.selectOptions(screen.getByLabelText('Xem theo'), '__time');
     expect(loiBaoCuoi(bao)).toEqual({ khoa: '__time', dang: 'duong', daVe: true });
   });
 

@@ -136,6 +136,20 @@
   .legend > .legendHidden {
     display: none;
   }
+
+  /*
+   * Đáy thẻ bớt trống (20/10/2026, chủ dự án khoanh dải dưới nút trên `pe`: _"giảm padding bottom của
+   * chú thích xuống, đang thừa quá nhiều"_). Đo ở 390px trước khi sửa: nút `sm` cao 36px mà chữ chỉ
+   * 11px, tức ~11px trống dưới chữ ngay trong nút, cộng 16px đệm đáy thẻ — 27px trống dưới
+   * "Chú thích". Nay nút cao 24px và lề âm 8px ăn bớt đệm đáy: còn ~13px. Vùng chạm vẫn 44px nhờ
+   * `::after` của `.sm`, thò 10px mỗi phía. Lề âm ở chính nút chứ không hạ đệm của thẻ: đệm ấy nằm
+   * ở `.formulaCard` của `FormulaDetail.module.css`, cùng một bậc ưu tiên với `.card` ở đây, và thứ
+   * tự nạp hai file không ai hứa.
+   */
+  .legend > .legendToggle {
+    min-height: 24px;
+    margin-bottom: calc(var(--space-2) * -1);
+  }
 }
 
 @media (min-width: 1024px) {

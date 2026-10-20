@@ -1158,7 +1158,7 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
       },
       wacc: {
         layODau: {
-          vi: 'Nhận tự động từ công thức WACC, hoặc nhập tay nếu bạn có ước tính riêng.',
+          vi: 'Nhận tự động từ công thức WACC, hoặc nhập ước tính riêng của bạn.',
           en: 'Auto-filled from the Weighted average cost of capital formula, or type in your own estimate.',
         },
         luuY: {

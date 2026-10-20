@@ -62,3 +62,31 @@ describe('ChainBody dưới 1024px — dòng vai trò chạy từ mép trái th�
     expect(CSS.indexOf('.summary {')).toBeLessThan(CSS.indexOf('@media (max-width: 1023.98px)'));
   });
 });
+
+/*
+ * Đuôi thẻ bước (20/10/2026): chủ dự án khoanh link "Mở màn riêng của bước này" và khoảng trống quanh
+ * nó trên `bien-an-toan` — _"giảm padding … đồng thời giảm size text"_. Link 12px trong khung 28px,
+ * lớp phủ giữ vùng chạm 44px; thân thẻ đệm đáy 8px. Mất lớp phủ thì khung 28px là đích bấm quá nhỏ.
+ */
+describe('ChainBody dưới 1024px — link "Mở màn riêng" và đáy thẻ bước gọn hơn', () => {
+  it('link 12px, khung 28px, lớp phủ chạm 44px', () => {
+    const link = luat('.openLink');
+    expect(link).toMatch(/font-size:\s*var\(--text-xs\);/);
+    expect(link).toMatch(/min-height:\s*28px;/);
+    expect(link).toMatch(/position:\s*relative;/);
+    const phu = luat('.openLink::after');
+    expect(phu).toMatch(/position:\s*absolute;/);
+    expect(phu).toMatch(/height:\s*var\(--tap-min\);/);
+  });
+
+  it('thân thẻ đệm đáy 8px', () => {
+    expect(luat('.stepBody')).toMatch(/padding-bottom:\s*var\(--space-2\);/);
+  });
+
+  /* `.openLink` và `.stepBody` gốc cùng hạng ưu tiên với bản điện thoại — bản điện thoại phải đứng sau. */
+  it('khối của lượt này đứng sau luật gốc của link và thân thẻ', () => {
+    const khoi = CSS.lastIndexOf('@media (max-width: 1023.98px)');
+    expect(CSS.indexOf('.openLink {')).toBeLessThan(khoi);
+    expect(CSS.indexOf('.stepBody {')).toBeLessThan(khoi);
+  });
+});

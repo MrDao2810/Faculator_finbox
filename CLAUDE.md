@@ -1149,7 +1149,8 @@ The declaration is `FormulaSpec.repeat` (`RepeatGroup` in `registry/types.ts`); 
   It therefore travels inside `inputs` through every store that already exists (draft, saved
   calculation, `?so=` link) with none of them knowing about repeat groups, and `calc` reads it with
   `v()`. The screen builds **no field** for it: the two buttons at the end of the Số liệu block
-  ("Bỏ đợt 4", "+ Thêm đợt mua") are its control. It still has a row in the Bảng biến and in exports.
+  ("Bỏ đợt 4", "+ Thêm đợt mua") are its control. It still has a row in the Bảng biến and in exports
+  (which describe only the counter and group 1 since 20/10/2026, see below).
   **The button row is right-aligned at every width, Bỏ first and Thêm at the right edge** (owner,
   14/10/2026: _"chuyển chỗ khoanh đỏ sang bên phải để gọn hơn … màn web lẫn mobile"_). The order was
   Thêm then Bỏ until then, and keeping it while right-aligning would make Thêm drift: from the minimum
@@ -1213,8 +1214,17 @@ had been stale since the Bỏ đợt button. `isLaterRepeatSlot()` in `repeat.ts
 such fields, so the popover and the full guide page list the counter plus group 1, and
 `noi-dung.test.ts` fails if the store carries text for one (it would never show). The guide is built from
 `spec.variables`, i.e. the three declared groups, so it could never list the groups actually on screen
-anyway. Not touched: the fields' `description` ("Nhập 0 nếu không có đợt này.") that the Bảng biến
-prints, and the "Đọc biểu đồ" paragraphs of the round-2 axes.
+anyway. Not touched then: the fields' `description` ("Nhập 0 nếu không có đợt này.") that the Bảng biến
+printed, and the "Đọc biểu đồ" paragraphs of the round-2 axes.
+
+**The Bảng biến and the export's variable table follow the same rule since 20/10/2026.** The owner pressed "+ Thêm
+đợt mua" on DCA and the table grew two rows each time, all reading "Nhập 0 nếu không có đợt này.": _"chỉ cần mô tả
+đợt 1 là được rồi. không cần cứ tạo 1 cái là lại mô tả 1 cái mới. kiểm tra lại toàn bộ những công thức mà có phần
+tạo thêm"_. `VariableTable` and `buildExportContent()`'s `variables` both drop `isLaterRepeatSlot()` fields, so for
+both repeat formulas the table is the counter plus group 1, however many groups are on screen (rounds 2–3 of the
+declared defaults included). The export's INPUT table still lists every group: those are the user's numbers. The
+round-2+ `description` texts now print nowhere on screen or in files; they were left in the data. A case in `FormulaDetail.test.tsx` (inverted from "Bảng biến kê cả ô của đợt vừa thêm")
+and one in `export-content.test.ts` pin it.
 
 One text here was written with the code and is NOT from the owner's `guide-111.json`: the reworded
 `periods` sentence (the old one described the removed button group; `r3`'s reworded sentence went with
@@ -1292,6 +1302,15 @@ rather than a _quantity_ ('Lịch trả nợ vay' labelling a bar that holds tot
 Breakdown is an _entry in the axis picker_ (`BREAKDOWN_KEY`), exactly like the time axis, not a
 separate screen, so `SweepPicker` and `ChartBody` stay unaware of it.
 
+**The axis picker is labelled "Xem theo" since 20/10/2026** (`chart.sweepLabel`, was "Xem kết quả đổi
+theo"; many comments, tests' history notes and docs below still use the old name). The owner asked
+twice what the old label meant (06/10, then _"đang không biết nói đến cái gì … đổi lại cho ngắn gọn và
+dễ hiểu"_); "Xem theo" is the owner's own phrase for this control and reads with the chart title above
+it ("EV/EBITDA theo Giá trị doanh nghiệp (EV)"). The time entry went "Theo thời gian" → "Thời gian"
+(`HISTORY_LABEL.vi`) in the same round, or the row read "Xem theo · Theo thời gian". The one guide
+paragraph that named the row (`lai-kep`'s principal axis) was rewritten. English unchanged ("See how the
+result changes with", "Over time").
+
 Other domain conventions already established: input controls are generated entirely from
 `VariableSpec` rather than hard-coded (FR-05); user input is bounded with `clampToSpec()`, which
 never throws and never returns NaN; tax/fee constants belong in `MarketConstant` records carrying
@@ -1323,8 +1342,15 @@ with words and commas (", tức …", ", nên …", ranges as "từ 0 đến 100
 `ty-so-treynor`'s "hệ số beta của danh mục, lần (ô nhập tay)" as meaningless text — every field is
 typed — and nine rows read like "số phiên nhìn lại (ô Số phiên nhìn lại)", repeating the words before
 them. When the field name does add something it goes into the phrase (", tính theo ô …", ", tức ô …");
-a gate rejects "(ô" followed by a space, `nhập tay`, `field)` and `entered manually`. `FFB_SYMBOL_IDS=a,b` narrows the legend gates to a few ids while editing one group
-file.
+a gate rejects "(ô" followed by a space, `nhập tay`, `field)` and `entered manually`. **"Nhập tay" is gone from
+every on-screen string, not just the legend** (20/10/2026). The owner, on `capm`'s beta description ("Nhập tay —
+tính bằng công thức Beta …"): _"tôi đã đưa ra nhiều yêu cầu liên quan đến việc ngôn ngữ cứ lấy từ 'Nhập tay' rồi.
+nó quê mùa và không hay"_, and suggested the replacement shape "Số liệu được nhập sẽ được tính bằng …". Nine
+places were rewritten (the beta and FCFF field descriptions, the WACC guide note, the INHERITED fix line, the
+ticker error lines, the portfolio beta hint, the empty data table) and `input.overridden` went "đã nhập tay" →
+"đã sửa". `i18n.test.ts` scans every non-test file of `src/core`, `src/application`, `src/ui` and `src/app` with
+comments stripped and fails on the phrase; comments may still use "ô nhập tay" as a technical term.
+`FFB_SYMBOL_IDS=a,b` narrows the legend gates to a few ids while editing one group file.
 
 **An input field ends its label with the picture's symbol for it** (19/10/2026), the shape `Biên an toàn` already
 had: "Giá trị nội tại ước tính (V)". The owner listed a dozen formulas (Gordon, P/E, WACC, HPR, ROI, Cỡ lệnh…):
@@ -1480,7 +1506,12 @@ have none, and each records why in `whyNone`. Things that are easy to break:
   no button, and the legend always shows there. `.legend` wraps `<dl>` and the button so the card still
   has two children. The hide rule needs `.legend > .legendHidden`: `.symbols { display: grid }` loads
   later at the same specificity and silently wins. While the legend is hidden, a panel opened from the
-  picture renders outside the `<dl>`.
+  picture renders outside the `<dl>`. The button is 24px tall with an 8px negative bottom margin
+  (20/10/2026, owner: _"giảm padding bottom của chú thích xuống, đang thừa quá nhiều"_): as a 36px `sm`
+  button with 11px text it left ~27px empty under the label, now ~13px; the card on `pe` went 241 → 221px
+  at 390. Its 44px tap area stays (`.sm::after`). The margin is on the button, not the card's padding,
+  because `.formulaCard` and `.card` share a specificity across two files. `notation-card-css.test.ts`
+  pins it.
 - **Below 1024px the panel's TEXT is 12px, its pictures are not** (19/10/2026, owner, circling the title, the step line
   and the "Xem công thức" link of `V` on `bien-an-toan`: _"giảm size text … để tiết kiệm không gian"_). `.panelTitle`,
   `.stepText` and `.panelLink` take `--text-xs` in a block at the end of `FormulaNotationCard.module.css`; `.panel`
@@ -1682,13 +1713,26 @@ accepted, is that at 484–1023px three or four number fields now take two rows 
 `.fieldsRepeat` (DCA) is skipped, since its column count is the group width. From 1024px nothing changed.
 No `check:chrome` assertion holds this yet; it was measured on `gia-hoa-von` and `capm` at 360 and 520.
 
-**Below 1024px the Số liệu grid is tight and the slider thumb is 20px** (19/10/2026, owner, five empty bands circled on
+**Below 1024px the Số liệu grid is tight and the slider is thin** (19/10/2026, owner, five empty bands circled on
 `capm`, then the number beside a slider's label). The slider's head row is `--leading-tight` with its `InlineNumber` at
-16px / unit 12px and no vertical padding (33 → 22px); the range input keeps its 44px tap height but takes 28px of flow
-(`margin-block: -8px`, overlapping the gap and the non-clickable min/max marks), thumb 28 → 20px; a narrow `.field`
+16px / unit 12px and no vertical padding (33 → 22px); the range input keeps its 44px tap height but took 28px of flow
+(`margin-block: -8px` that day, overlapping the gap and the non-clickable min/max marks; changed 20/10, below). The thumb
+went 28 → 20px that day, then
+on 20/10/2026 the owner asked for the track "2 size" thinner and the thumb halved (_"đường kéo cần giảm nhỏ xuống 2 size,
+điểm tròn cũng giảm 2 lần"_), then the thumb "1 size" bigger, twice (2px each): track 6 → 4px, thumb 14px (`margin-top: -5px`, even so
+it centres exactly). With a 14px thumb centred in a 44px box the gap around it was ~11px, and the owner circled it (_"padding trên dưới phần
+khoanh đỏ … đang quá cao"_). An even deeper symmetric margin was ruled out (it would put the tap area over the number box
+above), so the spare tap area now goes DOWN: `padding-bottom: 18px` lifts the track into the box's top part and
+`margin-block: -4px -22px` swallows only the 4px gap above and pulls the min/max marks (not clickable) up under the
+padding. Thumb 6px from the label row and 6px from the marks; each slider 10px shorter (84 → 74px). Sliders exist only in formula fields, so the two `.fields` copies cover all of
+them; `inputs-mobile-css.test.ts` reads the track from those rules, not the 6px base. A narrow `.field`
 drops its bottom padding (its two empty `subgrid` rows already leave 8px); the grid's negative bottom margin returns the
 last row's 8px, so `.fields + .repeatActions` stops pulling up. The 28px above Kết quả (`.result`'s deliberate extra
-`--space-2`) is untouched. Measured at 390: `capm`'s block 332 → 262px. All structural selectors in
+`--space-2`) was left alone that day; on 20/10/2026 the owner circled it under `bien-an-toan`'s chain block (_"giảm
+padding phần tôi khoanh đỏ xuống"_), so below 1024px the extra became a −8px margin and the gap is 12px, whatever block
+precedes the card (`tail-mobile-css.test.ts`); 1024–1279px keeps 28. The same round made the chain step's "Mở màn
+riêng của bước này" link 12px in a 28px box with a 44px `::after` tap overlay, and the step body's bottom padding
+8px. Measured at 390: `capm`'s block 332 → 262px. All structural selectors in
 `FormulaDetail.module.css`, copied into `ChainBody.module.css`; `inputs-mobile-css.test.ts` pins both copies and the
 thumb staying centred on the track.
 
@@ -1742,8 +1786,20 @@ was then made as compact as the PC card** (same day, _"giảm height của ô xa
 giảm size số 4 đó xuống"_): padding 8px × 12px, figure 26px (`--text-xl`), unit 14px, label still 12px — the
 ≥1280 block's numbers, so the card is 48.5px; `lai-kep`'s long figure now fits beside the label at 360.
 `ErrorState`'s `.value` drops to 26px at the same mark (the "same figure size" promise its ≥1280 block keeps).
+**The error card prints no warning-code chip any more, at any width** (20/10/2026, owner on XIRR's card: _"xóa đoạn
+cảnh báo 'Không có ý nghĩa' đi"_): the cause sentence below already says it in plain words. The code stays on the
+card as `data-ma-loi` (not shown), which is what tests read now; `InlineWarning` (chart, chain steps, linked inputs,
+fee table) still prints its label. Below 1024px the card also follows the result card's box (_"giảm size text …
+giảm cả padding"_): padding 8/12px, gap 4px, unit 14px, cause 14px, "↳" line 12px.
 1024–1279 keeps the 16px padding and the 32–40px clamp. "Padding 2 bên ngoài" was read as the card's inner
 left/right padding; the page gutter around it is unchanged, so it still lines up with the other blocks.
+**Below 1024px the card's label is styled as a block title** (20/10/2026, owner circling "SỐ LIỆU", "KẾT QUẢ",
+"BIỂU ĐỒ" on `tra-gop-nien-kim`: _"cần điều chỉnh lại cho giống nhau về kích thước lẫn in đậm, áp dụng bản
+mobile"_). All three were 12px, but the label was weight 500 with 0.08em spacing against the titles' 700 and
+0.04em. `.eyebrow` now takes `--section-title-size`, `--weight-bold` and 0.04em in the mobile block, and so do the
+labels of the two sibling answer cards (`FeeTaxBody.headlineLabel`, `LoanScheduleBody.summaryLabel`); the colour
+stays white on the blue card. `result-card.test.ts` compares the three against `.blockTitle` itself, not against
+copied numbers. 1024–1279 is unchanged (titles 14px, label 12px / 500), as asked.
 
 **Below 1024px "Lưu vào danh mục · Thoát" stays pinned above the bottom tab bar while scrolling** (15/10/2026, owner:
 _"khi scroll nội dung lên xuống thì 2 button này đều ở dưới để người dùng có thể lưu bất cứ lúc nào"_). `.endActions`
@@ -1763,7 +1819,9 @@ on `.endActions + [role='note']` — the `.detail` gap of the nine blocks is unt
 (`QuizBody.module.css`: padding 8/12px, and — after the owner asked _"vẫn chưa thấy giảm padding xung quanh phần
 này?"_, because most of the visible space was inside the 36px `sm` head button — the head row and its button 28px,
 the button's side padding 8px with a −4px right margin; pulling it out by its whole 12px padding made its hover fill
-touch the card's border, which the owner caught on hover, so the fill now stays 8px inside the border on three sides) and the disclaimer notice 54 → 48px (`DisclaimerBar.module.css`, so Danh mục's follows);
+touch the card's border, which the owner caught on hover, so the fill now stays 8px inside the border on three sides;
+on 20/10/2026 that button, "Bắt đầu kiểm tra" and "Thoát" alike, became 12px regular — _"không cần in đậm"_, then _"giảm 1
+size text đó luôn"_ — because `--weight-medium` renders as 600 on Windows) and the disclaimer notice 54 → 48px (`DisclaimerBar.module.css`, so Danh mục's follows);
 `tail-mobile-css.test.ts` pins it. The chart's control row shrank the same
 day, below 1024px only: labels 14 → 12px, the axis `<select>` 16 → 14px text and 40 → 36px tall, the Đường / Cột
 group 40 → 36px (buttons 34 → 30px). The two heights live in two files (`chart.module.css`,
@@ -1777,7 +1835,13 @@ of their clamp) and 8px top/bottom padding, 16px sides kept; the loan card follo
 cards are one mould. `FeeTaxBody`'s fee table and its "Giá hoà vốn thực" card did shrink below 1024px on
 19/10/2026 (owner, on `loi-nhuan-rong`): rows 6/10px padding with no gap under the label (58 → 52px), row figures 13px
 (labels stay 14px, they were not circled), the card 8/10px padding (50 → 42px). The block sits at the end of
-`FeeTaxBody.module.css`, after the base rules it overrides, which `fee-tax-css.test.ts` pins.
+`FeeTaxBody.module.css`, after the base rules it overrides, which `fee-tax-css.test.ts` pins. **XIRR's cash-flow
+table fits the phone frame since 20/10/2026** (owner: _"đang thừa quá nhiều padding và quá rộng"_). Measured at 360
+before: a 348px table in a 326px frame (sideways scroll, the × cut off), 68.5px rows, every cell padded 12px, the
+amount box 74px. Below 1024px: cell padding 4px, inputs 36px, header 8px, date box 88px with its column shrunk to
+its content (`width: 1%`), × column 32px with the button the full 44px row height, the rest to the amount box.
+Rows 44.5px, no overflow at 320/360/390. `XirrBody` passes `styles.cashflow` to `Table`, so `table.cashflow th/td`
+outranks the primitive's `.table th, .table td` (the `table.variables` pattern); `xirr-mobile-css.test.ts` pins it.
 
 A formula whose `calc` reads a market constant must also **declare the key** in
 `spec.usesConstants` — 14 of them do, across `derivatives.ts` (5), `fees.ts` (8) and `planning.ts`
@@ -1788,6 +1852,14 @@ value keeps flowing from `schedules.ts`, so a rate change moves the screen with 
 number copied into prose rots silently and lint cannot see it. `constants-gate.test.ts` holds both
 directions: a source scan catches an undeclared call site, and pulling each declared key out of the
 schedule must break the formula, which catches a declaration the calc never uses.
+
+**`ConstantsNote` has a "Thu gọn" / "Mở rộng" text button beside its title** (20/10/2026, owner: _"cần có
+thêm một button text 'Thu gọn' để người dùng có thể bỏ qua đoạn này"_). At every width, open by default and
+not remembered across pages (the legend toggle's rule: the static HTML is the open block). Collapsed, the
+block is just its title row (496 → 37px on `roi-rong` at 390). The list carries `hidden`, and
+`.block > .list[hidden] { display: none }` is load-bearing: `.list`'s own `display: flex` (grid at 1280 in
+the merged card) beats the browser's default for `hidden`, so without it the button flips its label and
+nothing hides. jsdom cannot see that; a case in `ConstantsNote.test.tsx` reads the CSS.
 
 **The substitution strip under the result ("dải thay số", `spec.substitution`) reaches market
 constants by KEY too** (13/10/2026). The strip is the drawn line at the foot of the merged card,

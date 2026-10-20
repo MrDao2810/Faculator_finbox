@@ -32,12 +32,13 @@
  * ── Màu: cùng `--color-ink-soft` với `.unit`, KHÔNG còn đỏ ──────────────────────────────────
  *
  * Chủ dự án chốt: *"không cần để `_` màu đỏ, để cùng màu với `%/năm`"*. Đúng — chỗ trống không
- * phải là cái sai; cái sai là điều `.chip` và `.message` đang nói. Một khoảng để điền tô đỏ đậm
- * ở cỡ 40px thì hét to hơn cả câu giải thích ngay dưới nó.
+ * phải là cái sai; cái sai là điều `.message` đang nói. Một khoảng để điền tô đỏ đậm ở cỡ 40px thì
+ * hét to hơn cả câu giải thích ngay dưới nó.
  *
  * NFR-USA-06 (không lấy màu làm dấu hiệu duy nhất) vẫn nguyên: khối này còn viền đứt màu cảnh
- * báo, nền `--color-danger-soft`, và `.chip` mang **tên mã lỗi bằng chữ**. Bỏ đỏ ở đây không bỏ
- * dấu hiệu nào cả — chỉ bớt một chỗ hét.
+ * báo, nền `--color-danger-soft`, và câu nguyên nhân bằng chữ. Bỏ đỏ ở đây không bỏ dấu hiệu nào
+ * cả — chỉ bớt một chỗ hét. (Nhãn mã lỗi `.chip` từng là dấu hiệu chữ thứ hai; bỏ 20/10/2026, xem
+ * dưới.)
  */
 .value {
   font-size: clamp(var(--text-2xl), 9vw, var(--text-3xl));
@@ -51,19 +52,12 @@
   color: var(--color-ink-soft);
 }
 
-/* Nhãn ngắn của mã lỗi — dấu hiệu chữ, không để màu là dấu hiệu duy nhất (NFR-USA-06). */
-.chip {
-  margin-left: auto;
-  padding: 2px var(--space-2);
-
-  font-size: var(--text-xs);
-  font-weight: var(--weight-medium);
-  color: var(--color-danger);
-
-  background: var(--color-surface);
-  border: 1px solid var(--color-danger);
-  border-radius: var(--radius-pill);
-}
+/*
+ * `.chip` — nhãn mã lỗi ở góc thẻ ("Không có ý nghĩa", "Chia cho 0"…) — BỎ 20/10/2026, ở mọi khổ
+ * màn. Chủ dự án chụp thẻ lỗi của XIRR: _"xóa đoạn cảnh báo 'Không có ý nghĩa' đi"_. Lý do và chỗ mã
+ * còn được giữ (`data-ma-loi`, không hiện) ở `ErrorState.tsx`. Dòng cảnh báo trong hàng
+ * (`InlineWarning` — biểu đồ, khối chuỗi, ô nhận tự động, bảng phí) vẫn in nhãn của nó.
+ */
 
 /* Câu nêu nguyên nhân — viết như nói với người mới (NFR-USA-04). */
 .message {
@@ -96,9 +90,38 @@
   }
 }
 
-/* Dưới 1024px thẻ kết quả cũng hạ số xuống `--text-xl` (15/10/2026) — cùng lời hứa như khối trên. */
+/*
+ * Dưới 1024px thẻ kết quả cũng hạ số xuống `--text-xl` (15/10/2026) — cùng lời hứa như khối trên.
+ *
+ * Phần còn lại của thẻ gọn theo (20/10/2026). Chủ dự án khoanh cả thẻ lỗi của XIRR trên điện thoại:
+ * _"giảm size text cho những phần text của công thức như ảnh này"_, rồi _"giảm cả padding của phần
+ * khoanh đỏ"_. Trước → sau:
+ *
+ *   - Đệm thẻ 16 → 8px trên dưới, 12px hai bên — đúng đệm của thẻ Kết quả ở khổ này
+ *     (`ResultBlock.module.css`), để hai trạng thái của cùng một chỗ đứng cùng khuôn. Khe giữa ba
+ *     dòng 8 → 4px.
+ *   - Đơn vị 18 → 14px, cũng là cỡ đơn vị của thẻ Kết quả ở khổ này.
+ *   - Câu nguyên nhân 16 → 14px, dòng "↳ Kiểm tra lại" 14 → 12px: vẫn một bậc dưới câu nguyên nhân.
+ */
 @media (max-width: 1023.98px) {
   .value {
     font-size: var(--text-xl);
+  }
+
+  .block {
+    gap: var(--space-1);
+    padding: var(--space-2) var(--space-3);
+  }
+
+  .unit {
+    font-size: var(--text-sm);
+  }
+
+  .message {
+    font-size: var(--text-sm);
+  }
+
+  .fix {
+    font-size: var(--text-xs);
   }
 }

@@ -1757,7 +1757,10 @@ scale, the size of the other small capitals in the product; `table.variables the
 header row kept 12px. The rule is in `VariableTable.module.css`, not `Table.module.css`, which also serves the loan
 schedule and the XIRR table. The "Giải thích cho người mới" block followed on 19/10/2026 (_"những phần nội dung và tiêu
 đề trong ô sau đều đang rất lớn ở màn mobile"_): below 1024px its title 18 → 16px, the item headers 16 → 14px, the
-paragraphs 14 → 12px, in `ExplanationAccordion.module.css`; the "Ví dụ thực tế" title, the same 18px bold style, went
+paragraphs 14 → 12px, in `ExplanationAccordion.module.css`; on 20/10/2026 its padding followed (_"padding của phần
+này đang quá rộng bản mobile"_): item header 44 → 36px with 12px sides and a centred 44px `::before` tap overlay (the
+`::after` is the ＋/− sign), paragraph 8/12px; `beta`'s block 452 → 404px at 390, pinned by
+`explanation-mobile-css.test.ts`. The "Ví dụ thực tế" title, the same 18px bold style, went
 18 → 16px with it (`ExampleBlock.module.css`, title only). Neither title is a block title in the
 `section-title.test.ts` sense (sentence case, its own size), so neither reads `--section-title-size`.
 
@@ -2166,7 +2169,12 @@ question must render identically in both places and two copies of that JSX would
 
 **The header row carries everything that is not a question** (24/09/2026, rewritten three times in
 one day). Idle it reads `BÀI TẬP ……… Bắt đầu kiểm tra »`; mid-quiz it reads
-`BÀI TẬP · Câu 2 / 5 · ▬▬ ▭ ▭ ▭ ▭ ……… Thoát`. The progress line used to sit inside the question card,
+`BÀI TẬP · Câu 2 / 5 · ▬▬ ▭ ▭ ▭ ▭ ……… Thoát`; on the summary it reads `BÀI TẬP ……… KẾT QUẢ KIỂM TRA 2 / 5`
+(20/10/2026, at every width: the owner circled the two rows that label and score used to take at the top of
+the summary card, the score at 32px, and drew arrows to the right: _"giảm size text xuống và chuyển đến vị trí
+tôi chỉ"_, then _"bản web cũng nên điều chỉnh lại như này cho gọn"_). The cluster is `.scoreLine`, pushed right
+by `margin-left: auto` like `.headAction`; the label keeps `.label` (12px), the score is 14px. Measured: the
+summary card 426 → 336px at 1440. A case in `QuizBody.test.tsx` pins both inside the heading's row. The progress line used to sit inside the question card,
 one row under an `<h2>` that said the same thing, and the start button used to be a solid block on
 a row of its own under a lead line — three stacked rows that existed only to get someone to press
 one button. The idle row carried a question count too (`BÀI TẬP · 4 câu`) until 29/09/2026, when the

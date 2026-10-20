@@ -45,8 +45,30 @@ import {
 import { PRESET_CONTRACT_VERSION } from './types';
 import type { DailyBar, Fundamentals, Preset } from './types';
 
-/** Phiên gần nhất của bộ mẫu. Cố định, không lấy ngày hệ thống. */
-const LAST_SESSION = '2025-12-31';
+/**
+ * Ngày (giờ Việt Nam, UTC+7) của một mốc ISO — dạng 'YYYY-MM-DD'.
+ *
+ * Trước 9 giờ sáng sàn chưa mở, nên thị giá đọc lúc ấy là giá đóng cửa của phiên HÔM TRƯỚC: lùi
+ * một ngày. Rơi vào thứ Bảy, Chủ nhật thì `tradingDays()` tự lùi về thứ Sáu.
+ */
+function ngayPhienCuaMoc(iso: string): string {
+  const gioVietNam = new Date(Date.parse(iso) + 7 * 3_600_000);
+  if (gioVietNam.getUTCHours() < 9) gioVietNam.setUTCDate(gioVietNam.getUTCDate() - 1);
+  return gioVietNam.toISOString().slice(0, 10);
+}
+
+/**
+ * Phiên gần nhất của bộ mẫu: chính phiên của thị giá thật neo ở phiên cuối (`makeBars`), suy từ lúc
+ * sinh file số liệu thật. Không lấy ngày hệ thống — bản build là HTML tĩnh (xem docblock đầu file).
+ *
+ * Từng là hằng số viết tay `'2025-12-31'`, đặt trước khi có số liệu thật và không ai dời khi
+ * `npm run gen:live-fundamentals` chạy lại. Chủ dự án bắt được ngày 20/10/2026: sheet Nạp mẫu ghi
+ * "BCTC Q2/2026" mà bảng dữ liệu chỉ tới 31/12/2025 — _"ở đó ghi là Q2/2026 rồi mà dưới bảng dữ
+ * liệu không có số liệu thì vô lý"_. Và giá thật lấy ngày 08/09/2026 bị ghi là giá phiên
+ * 31/12/2025. Suy từ mốc sinh file thì lần sinh sau tự kéo chuỗi theo; `provider.test.ts` ghim
+ * rằng phiên cuối không đứng trước ngày khoá sổ của kỳ BCTC.
+ */
+const LAST_SESSION = ngayPhienCuaMoc(LIVE_FUNDAMENTALS_FETCHED_AT);
 
 /** Đúng số phiên mà WF-10 ghi trên dòng mô tả nguồn. */
 const SESSION_COUNT = 248;

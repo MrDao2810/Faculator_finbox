@@ -82,7 +82,26 @@ describe('bộ số liệu mẫu', () => {
     }
 
     expect(bars[0]?.date.localeCompare(bars[bars.length - 1]?.date ?? '')).toBeLessThan(0);
-    expect(bars[bars.length - 1]?.date).toBe('2025-12-31');
+    // Phiên cuối là phiên của thị giá thật: 08/09/2026, ngày sinh file số liệu thật (11:36 giờ VN).
+    expect(bars[bars.length - 1]?.date).toBe('2026-09-08');
+  });
+
+  /*
+   * Sheet ghi "BCTC Q2/2026 · 248 phiên giá" ngay trên một dòng, nên chuỗi giá phải chạy qua hết kỳ
+   * ấy. Trước 20/10/2026 phiên cuối viết cứng 31/12/2025, nửa năm trước khi quý 2/2026 khép sổ, và
+   * chủ dự án mở bảng ra không thấy một phiên nào của kỳ đang ghi.
+   */
+  it('chuỗi giá phủ hết kỳ báo cáo ghi trên dòng mô tả', () => {
+    for (const preset of SAMPLE_PRESETS) {
+      const ky = /Q([1-4])\/(\d{4})/.exec(preset.fundamentals.period);
+      expect(ky, preset.fundamentals.period).not.toBeNull();
+      const quy = Number(ky?.[1]);
+      const nam = Number(ky?.[2]);
+      // Ngày cuối quý: ngày 0 của tháng đầu quý sau.
+      const cuoiQuy = new Date(Date.UTC(nam, quy * 3, 0)).toISOString().slice(0, 10);
+      const cuoi = preset.bars[preset.bars.length - 1]?.date ?? '';
+      expect(cuoi >= cuoiQuy, `${preset.code}: phiên cuối ${cuoi}, kỳ khép ${cuoiQuy}`).toBe(true);
+    }
   });
 
   it('số liệu cơ bản đủ trường và hợp lý', () => {

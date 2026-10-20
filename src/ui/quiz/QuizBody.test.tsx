@@ -177,6 +177,28 @@ describe('tổng kết', () => {
   });
 
   /*
+   * Nhãn "Kết quả kiểm tra" và điểm đứng TRÊN HÀNG "BÀI TẬP", ở mọi khổ (20/10/2026). Chủ dự án khoanh hai
+   * dòng ấy ở điện thoại và vẽ mũi tên sang phải, chọn cùng hàng với nhãn khối, rồi: _"bản web cũng nên
+   * điều chỉnh lại như này cho gọn"_. Trước đó chúng là hai dòng riêng đầu thẻ tổng kết, điểm 32px.
+   */
+  it('nhãn kết quả và điểm nằm cùng hàng với nhãn khối, sau nhãn khối', () => {
+    render(<QuizBody formulaId="pe" items={[cau('Q001'), cau('Q002')]} />);
+    fireEvent.click(screen.getByRole('button'));
+    fireEvent.click(screen.getByRole('radio', { name: /Lựa chọn B/ }));
+    fireEvent.click(screen.getByRole('button', { name: t('quiz.check') }));
+    fireEvent.click(screen.getByRole('button', { name: t('quiz.next') }));
+    fireEvent.click(screen.getByRole('button', { name: t('quiz.skip') }));
+
+    const hang = screen.getByRole('heading', { name: t('quiz.title') }).parentElement;
+    const nhan = screen.getByText(t('quiz.result'));
+    const diem = screen.getByText('1 / 2');
+    expect(hang?.contains(nhan)).toBe(true);
+    expect(hang?.contains(diem)).toBe(true);
+    // Thứ tự đọc: nhãn khối, nhãn kết quả, điểm.
+    expect(hang?.textContent).toBe(`${t('quiz.title')}${t('quiz.result')}1 / 2`);
+  });
+
+  /*
    * Màn tổng kết KHÔNG còn câu "Kết quả lưu trên máy bạn…" (bỏ 24/09/2026). Ca này đảo chiều
    * ca cũ chứ không xoá luôn: câu ấy từng là chỗ sản phẩm nói ra LDR-04 · NFR-SEC-01, nên nếu
    * có ngày nó quay về thì phải là một quyết định, không phải một lần sửa lỡ tay.

@@ -88,7 +88,16 @@
  * lớn ở màn mobile. giảm xuống"_. Mỗi cỡ xuống đúng một bậc của thang, như phần đầu màn chi tiết
  * (15/10) và Bảng biến (17/10): tiêu đề 18 → 16px, tên mục 16 → 14px, đoạn văn 14 → 12px. Thứ bậc
  * giữ nguyên: tiêu đề vẫn to nhất, tên mục vẫn đậm hơn và to hơn đoạn văn dưới nó. Dấu ＋/− giữ
- * 14px, bằng tên mục. Hàng tên mục vẫn cao tối thiểu 44px (NFR-USA-01), chỉ chữ nhỏ đi.
+ * 14px, bằng tên mục.
+ *
+ * Hôm sau (20/10/2026) tới phần đệm: _"điều chỉnh lại padding của phần này đang quá rộng bản
+ * mobile"_. Đo ở 390 trước khi sửa: hàng tên mục 44px (đệm 8 × 16px quanh dòng chữ 14px), đoạn văn
+ * đệm 12 × 16px. Nay hai bên 12px cho cả hàng tên mục lẫn đoạn văn (chữ hai phần vẫn thẳng một mép
+ * trái), đoạn văn 8px trên dưới — số của các thẻ khác trên màn điện thoại (thẻ Kết quả, thẻ Bài
+ * tập). Hàng tên mục cao đúng 36px: `min-height` quyết, đệm trên dưới 4px chỉ là phần sàn — đệm 8px
+ * cộng dòng chữ 21px ra 37px. Vùng chạm vẫn 44px nhờ lớp phủ `::before` (`::after` đã là dấu
+ * ＋/−), lấn khoảng 4px lên trên và 4px xuống dưới. Giữa hàng tên mục của hai mục gập liền nhau có
+ * 10px (khoảng cách 8px cộng hai viền), nên vùng chạm của mục này không đè lên mục kia.
  */
 @media (max-width: 1023.98px) {
   .title {
@@ -96,10 +105,25 @@
   }
 
   .summary {
+    position: relative;
+    min-height: 36px;
+    padding: var(--space-1) var(--space-3);
     font-size: var(--text-sm);
   }
 
+  /* Cao cố định, canh giữa: mục đang mở có viền dưới 1px nên khung đệm của nó chỉ còn 35px. */
+  .summary::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: 0;
+    left: 0;
+    height: var(--tap-min);
+    transform: translateY(-50%);
+  }
+
   .body {
+    padding: var(--space-2) var(--space-3);
     font-size: var(--text-xs);
   }
 }

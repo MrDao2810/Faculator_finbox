@@ -4,6 +4,73 @@ Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 
 ---
 
+## Bài tập, màn tổng kết: "Kết quả kiểm tra" và điểm lên hàng "BÀI TẬP", mọi khổ màn (20/10/2026)
+
+**Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án xem.**
+
+Chủ dự án khoanh "KẾT QUẢ KIỂM TRA" và "2 / 5" ở điện thoại, vẽ mũi tên sang phải: _"giảm size text xuống và chuyển
+đến vị trí tôi chỉ. áp dụng cho mobile"_. Hai mũi tên dừng ở hai độ cao khác nhau, nên hỏi lại; chủ dự án chọn "một
+hàng với BÀI TẬP". Giữa lúc làm thì nhắn thêm: _"bản web cũng nên điều chỉnh lại như này cho gọn"_.
+
+- **Sửa:**
+  - `src/ui/quiz/QuizBody.tsx`: nhãn và điểm rời đầu thẻ tổng kết, vào hàng tiêu đề trong khối `.scoreLine`, chỉ ở
+    màn tổng kết. Thứ tự đọc vẫn là nhãn khối, nhãn kết quả, điểm.
+  - `src/ui/quiz/QuizBody.module.css`: `.scoreLine` là hàng flex, `margin-left: auto` như `.headAction`. Nhãn giữ
+    lớp `.label` (12px, bằng "BÀI TẬP"); điểm 32 → 14px, vẫn đậm, màu nhấn.
+  - Lượt một chỉ áp dưới 1024px, bằng một cụm định vị tuyệt đối. Khi chủ dự án xin cả bản web, phần ấy gỡ ra, cụm
+    đứng thẳng trong hàng tiêu đề ở mọi khổ.
+- **Đo** (Chrome qua dev server, `beta`, bỏ qua cả 5 câu):
+  - 320, 390, 1024, 1440: cụm cùng hàng "BÀI TẬP", cùng trục giữa, mép phải trùng mép trong của thẻ; trang không
+    tràn.
+  - Tiếng Anh ở 320 ("EXERCISE … YOUR RESULT 0 / 5") vẫn một hàng.
+  - Thẻ tổng kết ở 1440: 426 → 336px.
+- **Test:** `QuizBody.test.tsx` thêm ca "nhãn kết quả và điểm nằm cùng hàng với nhãn khối, sau nhãn khối".
+  `src/ui/quiz`, `tail-mobile-css`, tokens, hover-media xanh (426 ca); eslint, prettier sạch.
+- CLAUDE.md: thêm một câu vào đoạn "The header row carries everything that is not a question".
+
+---
+
+## Khối "Giải thích cho người mới": đệm gọn lại dưới 1024px (20/10/2026)
+
+**Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án xem.**
+
+Chủ dự án chụp khối trên điện thoại (trang Beta): _"điều chỉnh lại padding của phần này đang quá rộng bản mobile"_.
+
+- **Sửa:** `src/ui/result/ExplanationAccordion.module.css`, khối `max-width: 1023.98px` — hàng tên mục cao 36px (từng
+  44px), đệm 4/12px với `min-height` quyết chiều cao; vùng chạm vẫn 44px nhờ lớp phủ `::before` cao cố định, canh giữa
+  hàng (`::after` đã là dấu ＋/−); đoạn văn đệm 8/12px (từng 12/16px). Chữ tên mục và đoạn văn vẫn thẳng một mép trái
+  (13px từ viền). Từ 1024px không đổi.
+- **Đo** (Chrome, `beta`): ở 390 mục đầu 124 → 108px, cả khối 452 → 404px; ở 360 470 → 422px; lớp phủ chạm 44px ở cả mục
+  mở lẫn mục gập; trang không tràn. 1440 giữ nguyên (44px, 8/16 và 12/16px).
+- **Test:** `explanation-mobile-css.test.ts` (mới, 3 ca). Toàn bộ vitest 178 file / 4.442 ca xanh; eslint, prettier sạch.
+- CLAUDE.md: thêm một câu vào đoạn về khối này ở màn chi tiết.
+
+---
+
+## Bộ số liệu mẫu: chuỗi giá chạy tới ngày lấy giá thật, phủ kỳ "BCTC Q2/2026" (20/10/2026)
+
+**Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án xem.**
+
+Chủ dự án mở sheet "Nạp bộ số liệu mẫu" (dòng "BCTC Q2/2026 · 248 phiên giá") rồi bảng dữ liệu chỉ tới 12/2025: _"ở đó
+ghi là Q2/2026 rồi mà dưới bảng dữ liệu không có số liệu thì vô lý. chỉ vẽ trên biểu đồ thì người dùng chưa chắc đã
+biết"_.
+
+- **Nguyên nhân:** `LAST_SESSION` trong `samples.ts` là hằng số viết tay `'2025-12-31'`, có từ trước khi bộ mẫu dùng số
+  liệu thật và không được dời khi `gen:live-fundamentals` chạy lại (08/09/2026). Hệ quả kép: chuỗi giá dừng nửa năm trước
+  khi quý 2/2026 khép sổ, và thị giá thật lấy ngày 08/09/2026 (neo ở phiên cuối) bị ghi là giá phiên 31/12/2025.
+- **Sửa:** `src/data/samples.ts` — phiên cuối suy từ `LIVE_FUNDAMENTALS_FETCHED_AT` theo giờ Việt Nam (trước 9 giờ thì
+  lùi một ngày vì sàn chưa mở; thứ Bảy, Chủ nhật thì `tradingDays()` tự lùi). Nay là 08/09/2026, nên 248 phiên chạy
+  26/09/2025 → 08/09/2026; lần sinh file sau tự kéo chuỗi theo. Chuỗi VN-Index mẫu dùng chung dãy ngày nên dời cùng.
+  247 phiên trước phiên cuối vẫn tự dựng (`isDraft: true` giữ nguyên).
+- **Test:** `provider.test.ts` — ca ngày đổi `'2025-12-31'` → `'2026-09-08'`; ca mới "chuỗi giá phủ hết kỳ báo cáo ghi
+  trên dòng mô tả" (phiên cuối không trước ngày khép quý của `period`, cho cả 27 mã; đỏ với hằng số cũ). Toàn bộ vitest
+  177 file / 4.439 ca xanh; tsc, eslint, prettier sạch.
+- **Đo** (Chrome, dev server, Nạp mẫu → FPT): đầu thẻ nến "248 phiên · 26/09/2025 → 08/09/2026", giá 72.300; bảng dòng 1
+  là 08/09, dòng 248 là 26/09, dòng năm "Từ năm 2025 tới 2026".
+- **Lưu ý:** bảng đã nạp mẫu từ trước vẫn nằm trong kho máy (`ffb.series.v1`) với ngày cũ; phải bấm Nạp mẫu lại mới thấy.
+
+---
+
 ## Thẻ nến /du-lieu/: thanh 1T/3T/6T/Cả chuỗi lên cùng hàng với giá, mọi khổ màn (20/10/2026)
 
 **Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án xem.**

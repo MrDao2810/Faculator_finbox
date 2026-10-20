@@ -356,6 +356,21 @@ export function QuizBody({
             </Button>
           </>
         )}
+        {/*
+          Màn tổng kết: nhãn "Kết quả kiểm tra" và điểm đứng ở ĐÂY, dạt phải, đúng ô của nút bên phải ở
+          hai trạng thái kia (20/10/2026). Chủ dự án khoanh hai dòng ấy ở điện thoại, vẽ mũi tên sang
+          phải: _"giảm size text xuống và chuyển đến vị trí tôi chỉ"_, chọn cùng hàng với "BÀI TẬP",
+          rồi _"bản web cũng nên điều chỉnh lại như này cho gọn"_. Trước đó chúng là hai dòng riêng đầu
+          thẻ tổng kết, điểm 32px.
+        */}
+        {phase === 'summary' && (
+          <div className={styles.scoreLine}>
+            <p className={styles.label}>{t('quiz.result')}</p>
+            <p className={styles.score}>
+              {rightCount} / {total}
+            </p>
+          </div>
+        )}
       </div>
 
       {/*
@@ -503,10 +518,6 @@ export function QuizBody({
 
       {phase === 'summary' && (
         <div className={styles.card}>
-          <p className={styles.label}>{t('quiz.result')}</p>
-          <p className={styles.score}>
-            {rightCount} / {total}
-          </p>
           <ul className={styles.review}>
             {queue.map((entry) => {
               const boQua = skippedIds.includes(entry.id);

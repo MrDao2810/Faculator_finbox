@@ -164,7 +164,7 @@ const GIU_COLOR_BORDER: ReadonlyArray<readonly [file: string, selector: string, 
   [
     'ui/sheets/PasteImportSheet.module.css',
     '.grid thead th',
-    'Nền --color-sunken, cùng lý do đảo chiều. Phần tbody bên dưới thì đã chuyển sang hairline — hai bậc kẻ khác nhau ở đây là CỐ Ý, đầu bảng đậm hơn thân bảng. Đổi tên từ .preview khi WF-11 bỏ ô dán và thay bằng lưới nhập (22/09/2026).',
+    'Mép dưới hàng tiêu đề DÍNH của lưới. Đổi tên từ .preview khi WF-11 bỏ ô dán và thay bằng lưới nhập (22/09/2026). Từ bản vẽ 20/10/2026 thân bảng không còn kẻ ngang nào (dòng sọc xen kẽ thay cho kẻ), nên đây là kẻ duy nhất của lưới; màu đo trên ảnh bản vẽ là #283250, đúng bậc --color-border.',
   ],
   [
     'app/danh-muc/PortfolioScreen.module.css',
@@ -173,8 +173,8 @@ const GIU_COLOR_BORDER: ReadonlyArray<readonly [file: string, selector: string, 
   ],
   [
     'app/du-lieu/DataTableScreen.module.css',
-    '.table th',
-    'Nền --color-sunken, cùng lý do. Cũng cùng cặp đầu-bảng/thân-bảng với PasteImportSheet.',
+    '.table thead th',
+    'Mép dưới hàng tiêu đề của bảng chuỗi giá. Từ 20/10/2026 bảng theo khuôn lưới PasteImportSheet ngay trên (dòng sọc thay cho kẻ ngang), nên đây là kẻ duy nhất của bảng, cùng bậc --color-border như bên ấy.',
   ],
 ];
 

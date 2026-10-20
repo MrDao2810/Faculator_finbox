@@ -212,7 +212,7 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'detail.constantSince': 'in effect since',
   'detail.constantsCollapse': 'Collapse',
   'detail.constantsExpand': 'Expand',
-  'detail.pasteSeries': 'Paste a price series from Excel',
+  'detail.pasteSeries': 'Use a price series from Excel',
   'detail.loadExample': 'View illustrative example',
   'detail.exampleLoaded': 'Illustrative example loaded ✓',
   /* `detail.exampleSeriesNote` đã bỏ cùng bản tiếng Việt — câu ấy nói sai về số liệu thật đứng
@@ -528,14 +528,12 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'paste.title': 'Data table',
   'paste.sample': 'Sample data',
   'paste.loadCsv': 'Load a CSV file',
-  'paste.columnsBtn': 'Columns',
   'paste.clear': 'Clear all',
   'paste.badRows': 'bad row(s)',
   'paste.seeBad': 'Show',
   'paste.skipBad': 'Skip',
   'paste.emptyCell': '– –',
-  'paste.gridCaption':
-    'Price series grid: one session per row, the head of each column says what that column is',
+  'paste.gridCaption': 'Price series grid: one session per row, press a column name to sort',
   'paste.rowNo': 'Row',
   // Ví dụ giữ nguyên quy ước số Việt Nam ở cả hai bản — đây là hình dạng dữ liệu người dùng dán.
   'paste.egDate': '15/07/2026',
@@ -548,9 +546,14 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'paste.col.low': 'Low price',
   'paste.col.close': 'Close price',
   'paste.col.volume': 'Volume',
-  'paste.validRows': 'session(s) read',
-  'paste.rangeFrom': 'from',
-  'paste.rangeTo': 'to',
+  'paste.short.date': 'Date',
+  'paste.short.open': 'Open',
+  'paste.short.high': 'High',
+  'paste.short.low': 'Low',
+  'paste.short.close': 'Close',
+  'paste.short.volume': 'Vol',
+  'paste.yearOne': 'Year {nam}',
+  'paste.yearRange': 'From {tu} to {den}',
   'paste.reordered':
     'The data is newest first. It has been flipped so the series runs oldest to newest.',
   'paste.orderUnknown':
@@ -745,9 +748,6 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'page.settings.title': 'Settings',
 
   'notFound.title': 'Page not found',
-  'notFound.reason': 'The address may be mistyped, or the page has moved.',
-  'notFound.suggest':
-    'Try finding the formula by name — typing without Vietnamese accents still works.',
   'notFound.search': 'Find a formula',
   'notFound.formulas': 'Go to the formula list',
 

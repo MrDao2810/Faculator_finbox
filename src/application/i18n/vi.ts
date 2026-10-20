@@ -523,7 +523,7 @@ export const vi = {
    * KHÔNG phải dựng lại khối này: hình đã nói tên và trị số rồi, thứ còn thiếu là "tính ra sao" —
    * mà đó đúng là việc của khung "cách tính" khi rê chuột vào ký hiệu (`src/core/how-to/`).
    */
-  'detail.pasteSeries': 'Dán chuỗi giá từ Excel',
+  'detail.pasteSeries': 'Sử dụng chuỗi giá từ Excel',
   'detail.loadExample': 'Xem ví dụ minh hoạ',
   'detail.exampleLoaded': 'Đã xem ví dụ minh hoạ ✓',
   /* `detail.exampleSeriesLabel` đã BỎ — câu biểu đồ giờ dùng `dataset.name` ('FPT', 'VN-Index')
@@ -1576,7 +1576,11 @@ export const vi = {
    */
   'paste.sample': 'Dữ liệu mẫu',
   'paste.loadCsv': 'Tải file CSV',
-  'paste.columnsBtn': 'Cột',
+  /*
+   * Mộ chí: `paste.columnsBtn` ("Cột"), nút "Cột 6/6" mở bảng gán loại cho từng cột của lưới. Chủ dự án
+   * gạch chéo cả nút lẫn bảng ngày 20/10/2026: _"bỏ tính năng mở cột này đi"_. Lưới luôn đủ sáu cột theo
+   * thứ tự cố định nên bảng ấy chỉ nhắc lại tên ở hàng tiêu đề; đầu cột nay là nút sắp xếp.
+   */
   'paste.clear': 'Xoá hết',
   /*
    * Mộ chí: `paste.viewing` ("Đang xem dòng") và `paste.inTotal` ("trong") — câu "Đang xem dòng 1 – 8
@@ -1588,7 +1592,7 @@ export const vi = {
   'paste.skipBad': 'Bỏ qua',
   /* Chữ mờ của ô còn trống giữa một dòng đã có dữ liệu — để trống hẳn thì đọc ra như hết bảng. */
   'paste.emptyCell': '– –',
-  'paste.gridCaption': 'Lưới nhập chuỗi giá: mỗi dòng một phiên, đầu mỗi cột chọn cột đó là gì',
+  'paste.gridCaption': 'Lưới nhập chuỗi giá: mỗi dòng một phiên, bấm tên cột để sắp xếp',
   'paste.rowNo': 'Dòng',
   /*
    * Chữ mờ trong ô, chỉ đặt ở dòng đầu.
@@ -1624,9 +1628,27 @@ export const vi = {
   'paste.col.low': 'Giá thấp nhất',
   'paste.col.close': 'Giá đóng cửa',
   'paste.col.volume': 'Khối lượng',
-  'paste.validRows': 'phiên đọc được',
-  'paste.rangeFrom': 'từ',
-  'paste.rangeTo': 'tới',
+  /*
+   * Tên NGẮN in trên đầu cột, theo bản vẽ của chủ dự án (20/10/2026). Tên đầy đủ ở trên vẫn là tên đọc
+   * được của nút sắp xếp và của từng ô ("Giá đóng cửa, Dòng 3").
+   */
+  'paste.short.date': 'Ngày',
+  'paste.short.open': 'Mở',
+  'paste.short.high': 'Cao',
+  'paste.short.low': 'Thấp',
+  'paste.short.close': 'Đóng',
+  'paste.short.volume': 'KL',
+  /*
+   * Dòng năm trên lưới (20/10/2026). Ô ngày chỉ in ngày/tháng cho gọn bảng; năm của cả chuỗi đứng ở đây.
+   * Chuỗi trải hai năm thì in khoảng, vì "Năm 2025" sẽ sai với nửa bảng.
+   */
+  'paste.yearOne': 'Năm {nam}',
+  'paste.yearRange': 'Từ năm {tu} tới {den}',
+  /*
+   * Mộ chí: `paste.validRows` ("phiên đọc được"), `paste.rangeFrom` ("từ"), `paste.rangeTo` ("tới") —
+   * câu "250 phiên đọc được, từ 12/09/2025 tới 15/09/2026" ở thanh dưới lưới. Chủ dự án bảo xoá ngày
+   * 20/10/2026. Số phiên còn trên nút Nạp, khoảng năm còn ở dòng năm trên lưới.
+   */
   'paste.reordered': 'Dữ liệu xếp phiên mới trước. Đã đảo lại cho chuỗi chạy từ cũ tới mới.',
   'paste.orderUnknown':
     'Không đọc được thứ tự phiên. Hãy chắc phiên cũ nhất nằm trên cùng, nếu ngược thì kết quả sẽ sai.',
@@ -1964,8 +1986,13 @@ export const vi = {
 
   // Trang 404 — trước đợt 14 là bản mặc định tiếng Anh của Next, nằm ngoài AppShell.
   'notFound.title': 'Không tìm thấy trang này',
-  'notFound.reason': 'Đường dẫn có thể nhập sai, hoặc trang đã được dời chỗ.',
-  'notFound.suggest': 'Thử tìm công thức theo tên — nhập không dấu vẫn ra đúng.',
+  /*
+   * `notFound.reason` ('Đường dẫn có thể nhập sai, hoặc trang đã được dời chỗ.') và
+   * `notFound.suggest` ('Thử tìm công thức theo tên — nhập không dấu vẫn ra đúng.') BỎ 20/10/2026,
+   * ở cả mobile lẫn web: chủ dự án khoanh hai câu dưới tiêu đề trang 404 và bảo xoá. Tiêu đề cộng
+   * hai nút "Tìm công thức" · "Về danh sách công thức" đã là lối ra. Cùng nếp với `quiz.lead`:
+   * bỏ câu, giữ hành vi. Hỏi chủ dự án trước khi dựng lại.
+   */
   'notFound.search': 'Tìm công thức',
   /* Thay `notFound.home` — không còn trang chủ riêng, màn Công thức là màn mở đầu. */
   'notFound.formulas': 'Về danh sách công thức',

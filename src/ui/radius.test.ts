@@ -199,7 +199,12 @@ describe('Bo góc', () => {
       ['ui/primitives/Select.module.css', 'select'],
       ['ui/primitives/Button.module.css', 'button'],
       ['ui/browse/SearchBox.module.css', 'control'],
-      ['app/du-lieu/DataTableScreen.module.css', 'cell'],
+      /*
+       * Mộ chí: `app/du-lieu/DataTableScreen.module.css → .cell` ở danh sách này tới 20/10/2026. Ô của
+       * bảng chuỗi giá từng là một hộp có viền bo `--radius-md`; bảng nay theo khuôn lưới "Bảng dữ
+       * liệu" (chủ dự án: _"thay đổi tương tự với bảng số liệu của phần Chuỗi giá OHLCV"_), ô trơn
+       * nằm trong ô bảng, không viền nên không bo — như ô của lưới popup, vốn chưa từng ở đây.
+       */
     ];
 
     for (const [file, className] of controls) {

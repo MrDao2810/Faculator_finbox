@@ -552,11 +552,6 @@ describe('PasteImportSheet — WF-11', () => {
     await userEvent.paste(text);
   };
 
-  /** Mở bảng chọn vai trò cột — từ lượt ba nó nằm sau nút "Cột", không còn ở mỗi đầu cột. */
-  const openColumns = async () => {
-    await userEvent.click(screen.getByRole('button', { name: /^Cột/ }));
-  };
-
   /** Nạp bộ mẫu. Nó tới qua  riêng nên phải chờ chunk ấy về. */
   const loadSample = async () => {
     await userEvent.click(screen.getByRole('button', { name: 'Dữ liệu mẫu' }));
@@ -594,11 +589,11 @@ describe('PasteImportSheet — WF-11', () => {
       'Giá cao nhất',
       'Giá thấp nhất',
       'Giá đóng cửa',
-      'Khối lượng',
+      // Tên ngắn "KL" không nằm trong tên đầy đủ nên được ghép vào sau — xem nút sắp xếp ở sheet.
+      'Khối lượng (KL)',
     ]) {
       expect(screen.getByRole('button', { name }), name).not.toBeNull();
     }
-    expect(screen.getByRole('button', { name: 'Cột 6/6' })).not.toBeNull();
     expect(screen.queryByRole('button', { name: 'Thêm cột' })).toBeNull();
 
     // Hình dạng cần gõ nằm ngay trong ô sẽ gõ, không phải một câu dặn ở trên.
@@ -623,11 +618,13 @@ describe('PasteImportSheet — WF-11', () => {
   it('mở ra là thấy ngay chuỗi màn ngoài đang dùng, không phải lưới trắng', () => {
     render(<PasteImportSheet open onClose={vi.fn()} onImport={vi.fn()} initialRows={LOADED} />);
 
-    expect((screen.getByLabelText('Ngày, Dòng 1') as HTMLInputElement).value).toBe('15/07/2026');
-    expect((screen.getByLabelText('Giá đóng cửa, Dòng 2') as HTMLInputElement).value).toBe(
+    // Ô ngày in gọn ngày/tháng; năm đứng một lần trên lưới — ca "dòng năm" ở dưới. Phiên mới nhất
+    // đứng đầu và mang số 1, nên "Dòng 1" là 16/07.
+    expect((screen.getByLabelText('Ngày, Dòng 1') as HTMLInputElement).value).toBe('16/07');
+    expect((screen.getByLabelText('Giá đóng cửa, Dòng 1') as HTMLInputElement).value).toBe(
       '25.700',
     );
-    expect((screen.getByLabelText('Khối lượng, Dòng 1') as HTMLInputElement).value).toBe(
+    expect((screen.getByLabelText('Khối lượng, Dòng 2') as HTMLInputElement).value).toBe(
       '1.250.000',
     );
     expect(screen.getByRole('button', { name: 'Nạp 2 dòng' })).not.toBeNull();
@@ -756,10 +753,11 @@ describe('PasteImportSheet — WF-11', () => {
 
     await paste('15/07/2026\t25,40\n16/07/2026\t25,70');
 
-    const line = screen.getByText(/2 phiên đọc được/);
-    expect(line.textContent).toContain('từ 15/07/2026 tới 16/07/2026');
+    // Số phiên đọc được nằm trên nút Nạp; năm của chuỗi ở dòng năm trên lưới.
+    expect(screen.getByRole('button', { name: 'Nạp 2 dòng' })).not.toBeNull();
+    expect(screen.getByText('Năm 2026')).not.toBeNull();
     // Ô thô của người dùng nằm nguyên trong lưới để soát lại, không phải số đã đọc xong.
-    expect((screen.getByLabelText('Giá đóng cửa, Dòng 1') as HTMLInputElement).value).toBe('25,40');
+    expect((screen.getByLabelText('Giá đóng cửa, Dòng 2') as HTMLInputElement).value).toBe('25,40');
   });
 
   it('dán thêm một cột vào lưới đang có dữ liệu thì không đụng vai trò cột đã chọn', async () => {
@@ -770,7 +768,7 @@ describe('PasteImportSheet — WF-11', () => {
     await userEvent.paste('25,40\n25,70');
 
     expect(screen.getByRole('button', { name: 'Ngày' })).not.toBeNull();
-    expect((screen.getByLabelText('Ngày, Dòng 1') as HTMLInputElement).value).toBe('15/07/2026');
+    expect((screen.getByLabelText('Ngày, Dòng 1') as HTMLInputElement).value).toBe('15/07');
     expect((screen.getByLabelText('Giá đóng cửa, Dòng 2') as HTMLInputElement).value).toBe('25,70');
   });
 
@@ -812,10 +810,13 @@ describe('PasteImportSheet — WF-11', () => {
 
     expect(screen.getByText(/1 dòng sai ngày/)).not.toBeNull();
 
-    const bad = screen.getByLabelText('Ngày, Dòng 2');
+    // Ngày không có trên lịch xếp CUỐI như ô trống, không lên đầu như phiên mới nhất: dòng 3 trên màn.
+    const bad = screen.getByLabelText('Ngày, Dòng 3');
     expect(bad.getAttribute('aria-invalid')).toBe('true');
     // Và ô giá cùng dòng KHÔNG bị đổ lỗi lây.
-    expect(screen.getByLabelText('Giá đóng cửa, Dòng 2').getAttribute('aria-invalid')).toBeNull();
+    expect(screen.getByLabelText('Giá đóng cửa, Dòng 3').getAttribute('aria-invalid')).toBeNull();
+    // Câu báo lỗi nói đúng số dòng đang thấy trên màn.
+    expect(screen.getByText(/\(dòng 3\)/)).not.toBeNull();
   });
 
   it('giá đóng cửa không đọc được thì tô ô giá, không tô ô ngày', async () => {
@@ -823,8 +824,9 @@ describe('PasteImportSheet — WF-11', () => {
 
     await paste('15/07/2026\t25,40\n16/07/2026\tn/a');
 
-    expect(screen.getByLabelText('Giá đóng cửa, Dòng 2').getAttribute('aria-invalid')).toBe('true');
-    expect(screen.getByLabelText('Ngày, Dòng 2').getAttribute('aria-invalid')).toBeNull();
+    // 16/07 là phiên mới nhất nên đứng đầu: dòng 1 trên màn.
+    expect(screen.getByLabelText('Giá đóng cửa, Dòng 1').getAttribute('aria-invalid')).toBe('true');
+    expect(screen.getByLabelText('Ngày, Dòng 1').getAttribute('aria-invalid')).toBeNull();
   });
 
   /* Vứt lặng lẽ ba dòng rồi báo "248 phiên sẵn sàng" đúng là thứ FR-06 tồn tại để chặn. */
@@ -857,39 +859,205 @@ describe('PasteImportSheet — WF-11', () => {
     await userEvent.upload(screen.getByLabelText('Tải file CSV'), file);
 
     await waitFor(() => {
-      expect(screen.getByText(/2 phiên đọc được/)).not.toBeNull();
+      expect(screen.getByRole('button', { name: 'Nạp 2 dòng' })).not.toBeNull();
     });
-    expect((screen.getByLabelText('Giá đóng cửa, Dòng 2') as HTMLInputElement).value).toBe('25.7');
+    expect((screen.getByLabelText('Giá đóng cửa, Dòng 1') as HTMLInputElement).value).toBe('25.7');
   });
 
   /*
    * Câu "Đang xem dòng 1 – 8 trong 249" ĐÃ BỎ (chủ dự án, 14/10/2026: "xóa text thừa này đi"). Ca này
    * từng ghim nó có mặt; nay ghim nó vắng mặt, để câu ấy quay lại là một quyết định chứ không là sơ suất.
-   * Câu xác nhận số phiên đọc được thì vẫn còn.
+   *
+   * Câu xác nhận "64 phiên đọc được, từ … tới …" cũng ĐÃ BỎ (chủ dự án, 20/10/2026: _"xóa đoạn text …
+   * đi"_), cùng một lối ghim. Số phiên còn trên nút Nạp.
    */
-  it('thanh trạng thái không còn câu "Đang xem dòng … trong …"', async () => {
+  it('thanh dưới lưới không còn câu "Đang xem dòng …" hay "… phiên đọc được, từ … tới …"', async () => {
     render(<PasteImportSheet open onClose={vi.fn()} onImport={vi.fn()} />);
 
     await loadSample();
 
     expect(screen.queryByText(/Đang xem dòng/)).toBeNull();
-    expect(screen.getByText(/phiên đọc được/)).not.toBeNull();
+    expect(screen.queryByText(/phiên đọc được/)).toBeNull();
+    expect(screen.getByRole('button', { name: 'Nạp 64 dòng' })).not.toBeNull();
   });
 
   /* ── Phân luồng cột ──────────────────────────────────────────────────── */
 
-  it('tên vai trò đứng ngay trên đầu cột, bấm vào là mở bảng chọn', async () => {
+  /*
+   * ── Bản vẽ 20/10/2026: tên cột ngắn là nút sắp xếp, ngày gọn, năm một lần, cột Đóng có màu ──────
+   *
+   * Chủ dự án gửi một bảng giá mẫu: _"đổi bảng dữ liệu thành kiểu mới này"_, và nói dấu ˅ cạnh tên
+   * cột _"là icon sắp xếp bảng. cần thêm vào cho tôi"_.
+   */
+
+  /** Ba phiên: đóng > mở, đóng < mở, đóng > mở. Giá đóng cửa 25.400 · 25.300 · 25.900. */
+  const BA_PHIEN = [
+    { date: '15/07/2026', open: 25100, high: 25600, low: 24900, close: 25400, volume: 1250000 },
+    { date: '16/07/2026', open: 25400, high: 25800, low: 25200, close: 25300, volume: 980000 },
+    { date: '17/07/2026', open: 25300, high: 26000, low: 25200, close: 25900, volume: 870000 },
+  ];
+
+  /** Giá trị từng ô của một cột, theo thứ tự ĐANG BÀY trên màn (cả dòng trống cuối lưới). */
+  const cotTrenMan = (ten: string) =>
+    screen
+      .getAllByLabelText(new RegExp(`^${ten}, Dòng \\d+$`))
+      .map((el) => (el as HTMLInputElement).value);
+
+  it('đầu cột in tên ngắn, nhưng tên đọc được của nút vẫn là tên đầy đủ', () => {
     render(<PasteImportSheet open onClose={vi.fn()} onImport={vi.fn()} />);
 
-    await paste('15/07\t25,10\t25,60\t24,90\t25,40');
-    expect(screen.getByRole('button', { name: 'Giá thấp nhất' })).not.toBeNull();
+    const dau = screen.getAllByRole('columnheader').map((th) => th.textContent);
+    expect(dau).toEqual(['Dòng', 'Ngày', 'Mở', 'Cao', 'Thấp', 'Đóng', 'KL']);
+    expect(screen.getByRole('button', { name: 'Giá mở cửa' }).textContent).toBe('Mở');
+  });
+
+  it('bấm tên cột: giảm dần, rồi tăng dần, rồi về mặc định — phiên mới nhất lên đầu', async () => {
+    render(<PasteImportSheet open onClose={vi.fn()} onImport={vi.fn()} initialRows={BA_PHIEN} />);
+    // aria-sort nằm trên ô tiêu đề, ô ấy lấy tên theo chữ đang in nên tìm qua nút của nó.
+    const dauDong = () => {
+      const th = screen.getByRole('button', { name: 'Giá đóng cửa' }).closest('th');
+      if (th === null) throw new Error('nút sắp xếp không nằm trong ô tiêu đề');
+      return th;
+    };
+
+    expect(dauDong().getAttribute('aria-sort')).toBeNull();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Giá đóng cửa' }));
+    expect(dauDong().getAttribute('aria-sort')).toBe('descending');
+    // Ô trống của dòng cuối lưới đứng cuối ở cả hai chiều, không chen vào như một con số 0.
+    expect(cotTrenMan('Giá đóng cửa')).toEqual(['25.900', '25.400', '25.300', '']);
+
+    await userEvent.click(screen.getByRole('button', { name: 'Giá đóng cửa' }));
+    expect(dauDong().getAttribute('aria-sort')).toBe('ascending');
+    expect(cotTrenMan('Giá đóng cửa')).toEqual(['25.300', '25.400', '25.900', '']);
+
+    await userEvent.click(screen.getByRole('button', { name: 'Giá đóng cửa' }));
+    expect(dauDong().getAttribute('aria-sort')).toBeNull();
+    // Mặc định là theo ngày, mới nhất trước: 17/07 · 16/07 · 15/07.
+    expect(cotTrenMan('Giá đóng cửa')).toEqual(['25.900', '25.300', '25.400', '']);
+  });
+
+  /*
+   * Chủ dự án (lượt hai, 20/10/2026) thấy ba dòng đầu là tháng 9/2025 của một chuỗi chạy tới 9/2026:
+   * _"thời gian gần nhất thì cần xếp lên đầu thay vì để xuống cuối bảng"_. Mở ra là đã xếp Ngày giảm
+   * dần; bấm Ngày thì đảo qua lại giữa cũ trước và mới trước.
+   */
+  it('mở ra là phiên mới nhất đứng đầu; bấm Ngày thì đảo qua lại', async () => {
+    render(<PasteImportSheet open onClose={vi.fn()} onImport={vi.fn()} initialRows={BA_PHIEN} />);
+    const dauNgay = () => screen.getByRole('button', { name: 'Ngày' }).closest('th');
+
+    expect(cotTrenMan('Ngày')).toEqual(['17/07', '16/07', '15/07', '']);
+    expect(dauNgay()?.getAttribute('aria-sort')).toBe('descending');
 
     await userEvent.click(screen.getByRole('button', { name: 'Ngày' }));
+    expect(cotTrenMan('Ngày')).toEqual(['15/07', '16/07', '17/07', '']);
+    expect(dauNgay()?.getAttribute('aria-sort')).toBe('ascending');
 
-    const first = screen.getByLabelText('Cột 1') as HTMLSelectElement;
-    expect(first.tagName).toBe('SELECT');
-    expect(first.value).toBe('date');
-    expect((screen.getByLabelText('Cột 5') as HTMLSelectElement).value).toBe('close');
+    await userEvent.click(screen.getByRole('button', { name: 'Ngày' }));
+    expect(cotTrenMan('Ngày')).toEqual(['17/07', '16/07', '15/07', '']);
+  });
+
+  /*
+   * Dán một mẩu không tiêu đề vào giữa bảng: mẩu đi XUỐNG theo thứ tự trên màn. Bảng bày mới trước, nên
+   * dòng ngay dưới trên màn là phiên cũ hơn — rải theo chỉ số lưới thì cột dán vào sẽ chạy ngược lên.
+   */
+  it('dán một cột số vào bảng đang bày mới trước thì số đi xuống đúng như trên màn', async () => {
+    render(<PasteImportSheet open onClose={vi.fn()} onImport={vi.fn()} initialRows={BA_PHIEN} />);
+
+    // Dòng trên cùng màn là 17/07, phiên mới nhất.
+    await userEvent.click(screen.getByLabelText('Giá mở cửa, Dòng 1'));
+    await userEvent.paste('11\n22');
+
+    expect((screen.getByLabelText('Giá mở cửa, Dòng 1') as HTMLInputElement).value).toBe('11');
+    expect((screen.getByLabelText('Giá mở cửa, Dòng 2') as HTMLInputElement).value).toBe('22');
+    expect((screen.getByLabelText('Giá mở cửa, Dòng 3') as HTMLInputElement).value).toBe('25.100');
+  });
+
+  /*
+   * Sắp xếp chỉ đổi thứ tự BÀY RA: bảng xếp kiểu gì thì số liệu nạp vào cũng không đổi một con số.
+   * Số thứ tự ở cột đầu thì đi theo màn — chủ dự án (lượt ba): _"sao số thứ tự 1 mà lại là ngày
+   * 12/09/2025 ? mà không phải là 15/09/2026"_. Dòng trên cùng luôn mang số 1, với mọi kiểu xếp.
+   */
+  it('số thứ tự đếm 1, 2, 3 từ trên xuống ở mọi kiểu xếp; thứ được nạp không đổi', async () => {
+    const onImport = vi.fn();
+    render(<PasteImportSheet open onClose={vi.fn()} onImport={onImport} initialRows={BA_PHIEN} />);
+    const soCotDau = () => screen.getAllByRole('rowheader').map((th) => th.textContent);
+
+    // Mặc định: 17/07 là dòng 1.
+    expect(soCotDau()).toEqual(['1', '2', '3', '4']);
+    expect((screen.getByLabelText('Ngày, Dòng 1') as HTMLInputElement).value).toBe('17/07');
+
+    await userEvent.click(screen.getByRole('button', { name: 'Giá đóng cửa' }));
+    expect(soCotDau()).toEqual(['1', '2', '3', '4']);
+    expect((screen.getByLabelText('Giá đóng cửa, Dòng 1') as HTMLInputElement).value).toBe(
+      '25.900',
+    );
+
+    await userEvent.click(screen.getByRole('button', { name: 'Nạp 3 dòng' }));
+    expect(onImport.mock.calls[0]?.[0]?.rows.map((row: { close: number }) => row.close)).toEqual([
+      25400, 25300, 25900,
+    ]);
+  });
+
+  /* Đang xếp mà sửa một ô thì dòng ấy đứng yên dưới ngón tay, không nhảy theo con số mới. */
+  it('sửa ô của cột đang xếp thì dòng không nhảy chỗ', async () => {
+    render(<PasteImportSheet open onClose={vi.fn()} onImport={vi.fn()} initialRows={BA_PHIEN} />);
+
+    await userEvent.click(screen.getByRole('button', { name: 'Giá đóng cửa' }));
+    const o = screen.getByLabelText('Giá đóng cửa, Dòng 2');
+    await userEvent.clear(o);
+    await userEvent.type(o, '99.000');
+
+    expect(cotTrenMan('Giá đóng cửa')).toEqual(['25.900', '99.000', '25.300', '']);
+  });
+
+  /*
+   * Ô ngày in gọn ngày/tháng — chủ dự án: _"bên trên ghi năm rồi thì bên dưới trong bảng chỉ cần ghi
+   * ngày tháng là tự biết"_. Chỉ là cách in: bấm vào ô là thấy lại cả ngày để sửa.
+   */
+  it('ô ngày in ngày/tháng, bấm vào thì hiện đủ năm để sửa', async () => {
+    render(<PasteImportSheet open onClose={vi.fn()} onImport={vi.fn()} initialRows={BA_PHIEN} />);
+    const o = screen.getByLabelText('Ngày, Dòng 1') as HTMLInputElement;
+
+    expect(o.value).toBe('17/07');
+    await userEvent.click(o);
+    expect(o.value).toBe('17/07/2026');
+    await userEvent.tab();
+    expect(o.value).toBe('17/07');
+  });
+
+  it('dòng năm trên lưới: một năm thì in năm ấy, hai năm thì in khoảng, lưới trắng thì không in', () => {
+    const { unmount } = render(
+      <PasteImportSheet open onClose={vi.fn()} onImport={vi.fn()} initialRows={BA_PHIEN} />,
+    );
+    expect(screen.getByText('Năm 2026')).not.toBeNull();
+    unmount();
+
+    const quaNam = [
+      { date: '30/12/2025', open: 25100, high: 25600, low: 24900, close: 25400, volume: 1250000 },
+      { date: '02/01/2026', open: 25400, high: 25800, low: 25200, close: 25300, volume: 980000 },
+    ];
+    const lan2 = render(
+      <PasteImportSheet open onClose={vi.fn()} onImport={vi.fn()} initialRows={quaNam} />,
+    );
+    expect(screen.getByText('Từ năm 2025 tới 2026')).not.toBeNull();
+    lan2.unmount();
+
+    render(<PasteImportSheet open onClose={vi.fn()} onImport={vi.fn()} />);
+    expect(screen.queryByText(/Năm \d{4}|Từ năm/)).toBeNull();
+  });
+
+  /* Cột Đóng: xanh khi đóng ≥ mở, cam khi đóng < mở — so với giá mở của CHÍNH phiên ấy. */
+  it('ô giá đóng cửa mang chiều so với giá mở cửa của cùng phiên', () => {
+    render(<PasteImportSheet open onClose={vi.fn()} onImport={vi.fn()} initialRows={BA_PHIEN} />);
+    const chieu = (dong: number) =>
+      screen.getByLabelText(`Giá đóng cửa, Dòng ${String(dong)}`).closest('td')?.dataset.xuHuong;
+
+    expect(chieu(1)).toBe('tang');
+    expect(chieu(2)).toBe('giam');
+    expect(chieu(3)).toBe('tang');
+    // Dòng trống cuối lưới: thiếu giá thì không tô.
+    expect(chieu(4)).toBeUndefined();
   });
 
   /*
@@ -908,23 +1076,19 @@ describe('PasteImportSheet — WF-11', () => {
     '16/07/2026\t25,40\t25,80\t25,20\t25,70\t980.000\t25,1',
   ].join('\n');
 
-  it('ô chọn vai trò cột có đúng sáu lựa chọn, không có "Không dùng"', async () => {
-    render(<PasteImportSheet open onClose={vi.fn()} onImport={vi.fn()} />);
+  /*
+   * Ca ĐẢO CHIỀU (20/10/2026): bảng chọn vai trò cột và nút "Cột 6/6" mở nó đã bỏ — chủ dự án gạch
+   * chéo cả hai: _"bỏ tính năng mở cột này đi"_. Nút hay ô chọn ấy quay lại phải là một quyết định.
+   */
+  it('không còn nút "Cột" hay ô chọn vai trò cột nào', async () => {
+    render(<PasteImportSheet open onClose={vi.fn()} onImport={vi.fn()} initialRows={LOADED} />);
 
-    await openColumns();
+    expect(screen.queryByRole('button', { name: /^Cột/ })).toBeNull();
+    expect(screen.queryByRole('combobox')).toBeNull();
 
-    const selects = screen.getAllByRole('combobox') as HTMLSelectElement[];
-    expect(selects).toHaveLength(6);
-    for (const select of selects) {
-      expect([...select.options].map((option) => option.text)).toEqual([
-        'Ngày',
-        'Giá mở cửa',
-        'Giá cao nhất',
-        'Giá thấp nhất',
-        'Giá đóng cửa',
-        'Khối lượng',
-      ]);
-    }
+    // Bấm tên cột là sắp xếp, không mở bảng nào.
+    await userEvent.click(screen.getByRole('button', { name: 'Giá đóng cửa' }));
+    expect(screen.queryByRole('combobox')).toBeNull();
     expect(screen.queryByText('Không dùng')).toBeNull();
   });
 
@@ -937,8 +1101,9 @@ describe('PasteImportSheet — WF-11', () => {
 
     await paste('15/07/2026\t25,40\n16/07/2026\t25,70');
 
-    expect(screen.getByRole('button', { name: 'Cột 6/6' })).not.toBeNull();
-    expect((screen.getByLabelText('Giá đóng cửa, Dòng 2') as HTMLInputElement).value).toBe('25,70');
+    // Sáu cột dữ liệu cộng cột số dòng.
+    expect(screen.getAllByRole('columnheader')).toHaveLength(7);
+    expect((screen.getByLabelText('Giá đóng cửa, Dòng 1') as HTMLInputElement).value).toBe('25,70');
     expect((screen.getByLabelText('Giá mở cửa, Dòng 1') as HTMLInputElement).value).toBe('');
     expect((screen.getByLabelText('Khối lượng, Dòng 1') as HTMLInputElement).value).toBe('');
   });
@@ -949,10 +1114,10 @@ describe('PasteImportSheet — WF-11', () => {
 
     await paste(THUA_COT);
 
-    // Sáu cột của chuỗi giá cộng một cột thừa: nút Cột đếm 6 trên 7.
-    expect(screen.getByRole('button', { name: 'Cột 6/7' })).not.toBeNull();
-    expect(screen.getByRole('button', { name: 'GT khớp lệnh' })).not.toBeNull();
-    expect((screen.getByLabelText('GT khớp lệnh, Dòng 1') as HTMLInputElement).value).toBe('31,7');
+    // Sáu cột của chuỗi giá cộng một cột thừa. Cột thừa không xếp được, nên tên nó không là nút.
+    expect(screen.getByRole('columnheader', { name: 'GT khớp lệnh' })).not.toBeNull();
+    expect(screen.queryByRole('button', { name: 'GT khớp lệnh' })).toBeNull();
+    expect((screen.getByLabelText('GT khớp lệnh, Dòng 2') as HTMLInputElement).value).toBe('31,7');
     expect(screen.queryByText('Không dùng')).toBeNull();
 
     // Cột thừa không lấy mất số của cột nào: cả sáu trường vẫn được nạp.
@@ -972,86 +1137,16 @@ describe('PasteImportSheet — WF-11', () => {
 
     await paste('15/07/2026\t25,10\t25,60\t24,90\t25,40\t1.250.000\t31,7');
 
-    expect(screen.getByRole('button', { name: 'Cột 7' })).not.toBeNull();
+    expect(screen.getByRole('columnheader', { name: 'Cột 7' })).not.toBeNull();
     expect((screen.getByLabelText('Cột 7, Dòng 1') as HTMLInputElement).value).toBe('31,7');
   });
 
   /*
-   * Hai cột cùng một vai trò thì bộ đọc lấy cột ĐẦU (`indexOf`), nên cột sau thành ô chết. Trước
-   * 13/10/2026 cột cũ bị đẩy sang "Không dùng", tức gán lại là lưới mất một vai trò. Nay hai cột
-   * ĐỔI CHỖ cho nhau, nên không cột số liệu nào bị bỏ lại.
+   * Ba ca đổi vai trò cột ("gán lại là hai cột đổi chỗ", "đổi kiểu gì vẫn đủ sáu trường", "cột thừa
+   * nhận một vai trò thì cột trống nó thay ra được bỏ") đã BỎ ngày 20/10/2026 cùng bảng chọn cột mà
+   * chúng kiểm. Cái giá, đã nói với chủ dự án: máy đoán sai vai trò một cột của file thì không còn chỗ
+   * sửa trên lưới — xem docblock `DEFAULT_COLUMNS` ở PasteImportSheet.tsx.
    */
-  it('một vai trò chỉ ở đúng một cột: gán lại là hai cột đổi chỗ, không cột nào bị bỏ', async () => {
-    const onImport = vi.fn();
-    render(<PasteImportSheet open onClose={vi.fn()} onImport={onImport} />);
-
-    // Ba cột 'Ngày · số · số' được đoán là Ngày · Giá mở cửa · Giá đóng cửa.
-    await paste('15/07/2026\t25,40\t99,90');
-    await openColumns();
-    expect((screen.getByLabelText('Cột 2') as HTMLSelectElement).value).toBe('open');
-    expect((screen.getByLabelText('Cột 5') as HTMLSelectElement).value).toBe('close');
-
-    await userEvent.selectOptions(screen.getByLabelText('Cột 2'), 'close');
-
-    expect((screen.getByLabelText('Cột 2') as HTMLSelectElement).value).toBe('close');
-    expect((screen.getByLabelText('Cột 5') as HTMLSelectElement).value).toBe('open');
-
-    // Con số đọc ra là của cột vừa gán, và số của cột kia vẫn được nạp dưới vai trò mới.
-    await userEvent.click(screen.getByRole('button', { name: /^Nạp/ }));
-    expect(onImport.mock.calls[0]?.[0]?.rows[0]).toMatchObject({ close: 25.4, open: 99.9 });
-  });
-
-  /*
-   * Đây là ca trong ảnh chủ dự án gửi: chuỗi đang dùng có đủ sáu cột, đặt một cột sang "Không
-   * dùng" rồi bấm Nạp là cột ấy mất trắng số liệu. Nay đổi kiểu gì thì sáu trường vẫn đủ.
-   */
-  it('đổi vai trò cột kiểu gì thì bấm Nạp vẫn đủ sáu trường số liệu', async () => {
-    const onImport = vi.fn();
-    render(<PasteImportSheet open onClose={vi.fn()} onImport={onImport} initialRows={LOADED} />);
-
-    await openColumns();
-    await userEvent.selectOptions(screen.getByLabelText('Cột 6'), 'open');
-    await userEvent.selectOptions(screen.getByLabelText('Cột 3'), 'low');
-
-    await userEvent.click(screen.getByRole('button', { name: /^Nạp/ }));
-    const rows = onImport.mock.calls[0]?.[0]?.rows as ReadonlyArray<Record<string, unknown>>;
-    expect(rows).toHaveLength(2);
-    for (const row of rows) {
-      for (const field of ['date', 'open', 'high', 'low', 'close', 'volume']) {
-        expect(row[field], field).not.toBeNull();
-        expect(row[field], field).not.toBe('');
-      }
-    }
-  });
-
-  /*
-   * Cột thừa có ô chọn riêng, đang hiện TÊN của chính nó. Chọn một vai trò cho nó là đổi chỗ với
-   * cột đang giữ vai trò ấy — đường để cứu một cột máy không nhận ra tên ('KLGD').
-   */
-  it('cột thừa nhận một vai trò thì cột trống nó thay ra được bỏ khỏi lưới', async () => {
-    const onImport = vi.fn();
-    render(<PasteImportSheet open onClose={vi.fn()} onImport={onImport} />);
-
-    await paste('Ngày\tĐóng\tKLGD\n15/07/2026\t25,40\t1.250.000\n16/07/2026\t25,70\t980.000');
-    expect(screen.getByRole('button', { name: 'Cột 6/7' })).not.toBeNull();
-
-    await openColumns();
-    const thua = screen.getByLabelText('Cột 7') as HTMLSelectElement;
-    // Ô chọn nói cột này đang là gì bằng tên của nó, và dòng ấy không chọn lại được.
-    expect(thua.selectedOptions[0]?.text).toBe('KLGD');
-    expect(thua.selectedOptions[0]?.disabled).toBe(true);
-
-    await userEvent.selectOptions(thua, 'volume');
-
-    // Cột "Khối lượng" dựng sẵn mà trống trơn thì đi; lưới về đúng sáu cột.
-    expect(screen.getByRole('button', { name: 'Cột 6/6' })).not.toBeNull();
-    expect(screen.queryByRole('button', { name: 'KLGD' })).toBeNull();
-
-    await userEvent.click(screen.getByRole('button', { name: /^Nạp/ }));
-    expect(onImport.mock.calls[0]?.[0]?.rows.map((row: { volume: number }) => row.volume)).toEqual([
-      1_250_000, 980_000,
-    ]);
-  });
 
   /*
    * Một file là cả một bộ dữ liệu, nên nó THAY lưới. Trước 13/10/2026 file đè lên lưới tại ô đầu:
@@ -1073,10 +1168,10 @@ describe('PasteImportSheet — WF-11', () => {
     await userEvent.upload(screen.getByLabelText('Tải file CSV'), file);
 
     await screen.findByRole('button', { name: 'Nạp 2 dòng' });
-    expect((screen.getByLabelText('Giá đóng cửa, Dòng 1') as HTMLInputElement).value).toBe('30.4');
+    expect((screen.getByLabelText('Giá đóng cửa, Dòng 2') as HTMLInputElement).value).toBe('30.4');
     expect((screen.getByLabelText('Giá mở cửa, Dòng 1') as HTMLInputElement).value).toBe('');
     // Không còn dòng nào của chuỗi cũ.
-    expect(screen.queryByDisplayValue('17/07/2026')).toBeNull();
+    expect(screen.queryByDisplayValue('17/07')).toBeNull();
 
     await userEvent.click(screen.getByRole('button', { name: /^Nạp/ }));
     expect(onImport.mock.calls[0]?.[0]?.rows.map((row: { close: number }) => row.close)).toEqual([
@@ -1095,9 +1190,9 @@ describe('PasteImportSheet — WF-11', () => {
     await userEvent.click(screen.getByLabelText('Giá cao nhất, Dòng 2'));
     await userEvent.paste('Ngày\tĐóng\tKL\n01/08/2026\t30,4\t500.000\n02/08/2026\t30,7\t600.000');
 
-    expect((screen.getByLabelText('Ngày, Dòng 1') as HTMLInputElement).value).toBe('01/08/2026');
-    expect((screen.getByLabelText('Giá đóng cửa, Dòng 1') as HTMLInputElement).value).toBe('30,4');
-    expect((screen.getByLabelText('Khối lượng, Dòng 2') as HTMLInputElement).value).toBe('600.000');
+    expect((screen.getByLabelText('Ngày, Dòng 1') as HTMLInputElement).value).toBe('02/08');
+    expect((screen.getByLabelText('Giá đóng cửa, Dòng 1') as HTMLInputElement).value).toBe('30,7');
+    expect((screen.getByLabelText('Khối lượng, Dòng 1') as HTMLInputElement).value).toBe('600.000');
     expect((screen.getByLabelText('Giá mở cửa, Dòng 1') as HTMLInputElement).value).toBe('');
     expect(screen.getByRole('button', { name: 'Nạp 2 dòng' })).not.toBeNull();
   });
@@ -1161,6 +1256,6 @@ describe('PasteImportSheet — WF-11', () => {
     await paste('# Faculator Finbox\nNgày,Đóng\n15/07/2026,25.4\n16/07/2026,25.7');
 
     expect(screen.getByRole('button', { name: 'Giá đóng cửa' })).not.toBeNull();
-    expect(screen.getByText(/2 phiên đọc được/)).not.toBeNull();
+    expect(screen.getByRole('button', { name: 'Nạp 2 dòng' })).not.toBeNull();
   });
 });

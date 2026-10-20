@@ -54,3 +54,30 @@
     border-color: var(--color-accent);
   }
 }
+
+/*
+ * Dưới 1024px hai nút nhỏ một bậc (20/10/2026, chủ dự án khoanh cặp nút: "giảm size xuống, giảm
+ * height cũng giảm xuống. áp dụng cho bản mobile"): cao 44 → 36px, chữ 14 → 12px, lề ngang 20 → 16px.
+ * Vùng chạm vẫn 44px nhờ lớp `::after` phủ dọc, đúng lối `.sm` của `Button.module.css`. Từ 1024px
+ * giữ nguyên. Khối này phải nằm CUỐI file: cùng độ ưu tiên với `.primary, .secondary` ở trên.
+ */
+@media (max-width: 1023.98px) {
+  .primary,
+  .secondary {
+    position: relative;
+    min-height: 36px;
+    padding: 0 var(--space-4);
+    font-size: var(--text-xs);
+  }
+
+  .primary::after,
+  .secondary::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    height: var(--tap-min);
+    transform: translateY(-50%);
+  }
+}

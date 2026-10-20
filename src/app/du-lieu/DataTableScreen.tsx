@@ -1,6 +1,7 @@
 'use client';
 
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import type { CSSProperties } from 'react';
 
 import {
   MAX_SERIES_ROWS,
@@ -13,7 +14,9 @@ import {
   emptyRow,
   formatNumber,
   keepSeriesDateChars,
+  parseSeriesDate,
   parseStoredSeries,
+  rawViNumber,
   removeRow,
   serializeStoredSeries,
   sortRowsByDate,
@@ -66,19 +69,102 @@ import styles from './DataTableScreen.module.css';
  * còn Beta, độ biến động và VaR đều đọc nó như một chuỗi thời gian. Lật mảng đã lưu là mọi con số
  * rủi ro của sản phẩm tính ngược, mà không có gì trên màn nói là đã ngược.
  *
- * Nên phép lật nằm ở đúng một chỗ: `hienThi` ngay dưới. Mọi thứ khác — lưu, kiểm, xuất CSV, vẽ
+ * Nên phép lật nằm ở đúng một chỗ: `thuTuBay` ngay dưới. Mọi thứ khác — lưu, kiểm, xuất CSV, vẽ
  * biểu đồ — vẫn làm việc trên mảng thời gian thật.
+ *
+ * ── 20/10/2026: bảng theo bản vẽ của lưới "Bảng dữ liệu" ──────────────────────────────────────
+ *
+ * Cùng ngày dựng lại lưới của popup "Bảng dữ liệu" (`PasteImportSheet`) theo bản vẽ, chủ dự án bảo
+ * _"thay đổi tương tự với bảng số liệu của phần Chuỗi giá OHLCV"_. Hai bảng là một bảng giá, nên một
+ * khuôn: tên cột ngắn bấm để sắp xếp, cột số thứ tự đếm theo màn, ô ngày in ngày/tháng với năm in một
+ * lần trên bảng, dòng sọc 32px không kẻ, cột Đóng tô theo giá mở, và cuộn ngang trong khung với cột
+ * số thứ tự và cột Ngày đứng yên. Luật nào khác bên popup thì ghi ngay tại chỗ ấy ở file này.
  */
 
-/** Sáu cột của bảng, đúng thứ tự wireframe. */
+/**
+ * Sáu cột của bảng, đúng thứ tự wireframe. `label` là tên đọc được của ô ("Dòng 3 · Khối lượng");
+ * `short` là tên in trên đầu cột, DÙNG CHUNG khoá với lưới của popup để hai bảng không thể lệch chữ.
+ */
 const COLUMNS = [
-  { key: 'date', label: 'series.colDate' },
-  { key: 'open', label: 'series.colOpen' },
-  { key: 'high', label: 'series.colHigh' },
-  { key: 'low', label: 'series.colLow' },
-  { key: 'close', label: 'series.colClose' },
-  { key: 'volume', label: 'series.colVolume' },
+  { key: 'date', label: 'series.colDate', short: 'paste.short.date' },
+  { key: 'open', label: 'series.colOpen', short: 'paste.short.open' },
+  { key: 'high', label: 'series.colHigh', short: 'paste.short.high' },
+  { key: 'low', label: 'series.colLow', short: 'paste.short.low' },
+  { key: 'close', label: 'series.colClose', short: 'paste.short.close' },
+  { key: 'volume', label: 'series.colVolume', short: 'paste.short.volume' },
 ] as const;
+
+type CotBang = (typeof COLUMNS)[number]['key'];
+
+/** Chiều cao một dòng, px — cùng con số với `ROW_H` của lưới popup. CSS đọc nó qua `--bang-dong-h`. */
+const ROW_H = 32;
+
+/**
+ * Chữ in trong ô ngày khi ô KHÔNG đang được sửa: chỉ ngày/tháng — năm in một lần trên bảng
+ * (`yearNote`). Ô không mang ngày đủ năm ('15/07', số thứ tự phiên '1') in đúng như đang có.
+ */
+function ngayGon(text: string): string {
+  const ngay = parseSeriesDate(text);
+  if (ngay === null || ngay.year === null) return text;
+  return `${String(ngay.day).padStart(2, '0')}/${String(ngay.month).padStart(2, '0')}`;
+}
+
+type ChieuSapXep = 'giam' | 'tang';
+
+/**
+ * Bảng đang xếp theo cột nào, chiều nào, và thứ tự dòng CHỐT ở lần xếp gần nhất.
+ *
+ * `thuTu === null` là thứ tự mặc định — ngày mới nhất lên đầu, tức mảng `rows` lật ngược, như bảng
+ * này vẫn bày từ 10/09/2026. Mọi thứ tự khác chốt thành danh sách chỉ số, để gõ sửa một ô của cột
+ * đang xếp không làm dòng nhảy đi dưới tay. `cu`: tiêu điểm vừa rời một dòng, phải xếp lại — xem
+ * `onLeave`.
+ */
+interface SapXep {
+  cot: CotBang;
+  chieu: ChieuSapXep;
+  thuTu: ReadonlyArray<number> | null;
+  cu: boolean;
+}
+
+const SAP_MAC_DINH: SapXep = { cot: 'date', chieu: 'giam', thuTu: null, cu: false };
+
+/**
+ * Thứ tự bày ra khi xếp theo một cột. Ngày: mảng `rows` vốn đã theo ngày nên chỉ cần lật hay không.
+ * Cột số: ô trống đứng CUỐI ở cả hai chiều (coi là 0 thì nó chen vào giữa như một con số có thật,
+ * FR-06), hai ô bằng nhau thì phiên mới hơn đứng trước — như thứ tự mặc định.
+ */
+function thuTuSapXep(rows: ReadonlyArray<SeriesRow>, cot: CotBang, chieu: ChieuSapXep): number[] {
+  const viTri = rows.map((_, index) => index);
+  if (cot === 'date') return chieu === 'tang' ? viTri : viTri.reverse();
+  return viTri.sort((a, b) => {
+    const ka = rows[a]?.[cot] ?? null;
+    const kb = rows[b]?.[cot] ?? null;
+    if (ka === null || kb === null) return ka === kb ? b - a : ka === null ? 1 : -1;
+    if (ka === kb) return b - a;
+    return chieu === 'tang' ? ka - kb : kb - ka;
+  });
+}
+
+/** Dấu ˅ cạnh tên cột — cùng hình với lưới popup. Đang xếp tăng dần thì lật lên thành ˄. */
+function SortIcon({ chieu }: { chieu: ChieuSapXep | null }) {
+  return (
+    <svg
+      className={styles.sortIcon}
+      data-chieu={chieu ?? undefined}
+      width="10"
+      height="10"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="3"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M6 9l6 6 6-6" />
+    </svg>
+  );
+}
 
 /** Số phiên tối thiểu để Beta và Sharpe có ý nghĩa thống kê — cùng ngưỡng với cảnh báo WF-15. */
 const MIN_USABLE_ROWS = 60;
@@ -114,8 +200,14 @@ interface SeriesRowFieldsProps {
   row: SeriesRow;
   /** Vị trí trong mảng `rows` — dùng cho mọi lời gọi ngược lên màn. */
   index: number;
-  /** Số dòng NGƯỜI DÙNG ĐẾM BẰNG MẮT, đếm từ 1 ở dòng trên cùng. Khác `index` vì bảng lật. */
+  /**
+   * Số dòng NGƯỜI DÙNG ĐẾM BẰNG MẮT, đếm từ 1 ở dòng trên cùng, với mọi kiểu sắp xếp. Khác `index`
+   * vì bảng lật. In ở cột đầu từ 20/10/2026 — trước đó nút "Tới dòng N" của cột kiểm nói tới một con
+   * số không in ở đâu trên bảng.
+   */
   displayNumber: number;
+  /** Dòng sọc — tính theo vị trí BÀY RA, nên sọc vẫn xen kẽ khi bảng đang sắp xếp. */
+  stripe: boolean;
   /** Dòng có vấn đề hay không. Truyền boolean chứ KHÔNG truyền mảng issues: mảng được dựng
    *  lại sau mỗi lần gõ nên sẽ phá memo, và ở đây dòng chỉ cần biết có tô vàng hay không. */
   bad: boolean;
@@ -136,15 +228,28 @@ const SeriesRowFields = memo(function SeriesRowFields({
   row,
   index,
   displayNumber,
+  stripe,
   bad,
   onChange,
   onRemove,
   onLeave,
 }: SeriesRowFieldsProps) {
   const t = useT();
+  /** Ô ngày đang được sửa — lúc ấy nó in đủ năm để sửa được, rời ô thì về ngày/tháng. */
+  const [suaNgay, setSuaNgay] = useState(false);
+  /*
+   * Giá đóng cửa so với giá mở cửa của CHÍNH phiên ấy — cùng luật màu với lưới popup (`trendOf`):
+   * xanh khi đóng ≥ mở, cam khi đóng < mở. Thiếu một trong hai thì không tô.
+   */
+  const xuHuong =
+    row.open === null || row.close === null ? undefined : row.close >= row.open ? 'tang' : 'giam';
+  const rowClass = [stripe ? styles.rowStripe : '', bad ? styles.badRow : '']
+    .filter((name) => name !== '')
+    .join(' ');
+
   return (
     <tr
-      className={bad ? styles.badRow : undefined}
+      className={rowClass === '' ? undefined : rowClass}
       /*
        * Sắp xếp lại NGAY KHI tiêu điểm rời khỏi cả dòng, không sớm hơn.
        *
@@ -157,16 +262,26 @@ const SeriesRowFields = memo(function SeriesRowFields({
         onLeave();
       }}
     >
-      <td className={styles.flagCol}>
-        {bad && (
-          <span className={styles.flag} aria-hidden="true">
-            !
-          </span>
-        )}
-      </td>
+      {/*
+        Số thứ tự trên màn. Dòng lỗi thì con số đậm và đỏ, như lưới popup — không viên tròn nào quanh
+        nó (chủ dự án bỏ ngày 20/10/2026). Vẫn đọc được số để đối với câu "Dòng N" bên cột kiểm.
+      */}
+      <th scope="row" className={styles.lineNo}>
+        <span className={bad ? styles.lineNoBad : undefined}>{displayNumber}</span>
+      </th>
 
       {COLUMNS.map((column) => (
-        <td key={column.key}>
+        <td
+          key={column.key}
+          className={
+            column.key === 'date'
+              ? styles.tdDate
+              : column.key === 'volume'
+                ? styles.tdSoft
+                : undefined
+          }
+          data-xu-huong={column.key === 'close' ? xuHuong : undefined}
+        >
           {column.key === 'date' ? (
             /*
               Ô Ngày: bàn phím SỐ, và một luật ghép dấu bù lại cho nó.
@@ -180,21 +295,32 @@ const SeriesRowFields = memo(function SeriesRowFields({
               Ghép dấu lúc RỜI Ô chứ không từng phím: chèn dấu giữa lúc đang gõ là con trỏ nhảy.
               Và nó không bao giờ đoán bừa — ghép không ra một ngày có thật thì trả nguyên xi, nên
               số thứ tự phiên ('1', '2' của chuỗi minh hoạ trang Beta) nằm im.
+
+              Không đang sửa thì ô chỉ in ngày/tháng (`ngayGon`, 20/10/2026); chạm vào là thấy lại đủ
+              năm. Chỉ là cách IN: giá trị của dòng vẫn đủ năm, nên lưu, kiểm và CSV không đổi.
+
+              Ô trống hiện `_ _` như năm ô số (chủ dự án, 20/10/2026: _"chỗ nhập ngày đang để trống
+              không có _ _ ở dưới ẩn ý là được nhập"_) — trắng trơn thì đọc ra là ô khoá.
             */
             <input
               id={oNgayId(index)}
-              className={`${styles.cell} ${styles.dateCell}`}
+              className={styles.cell}
               type="text"
               inputMode="numeric"
               autoComplete="off"
+              placeholder="_ _"
               aria-label={`${t('series.rowLabel')} ${displayNumber} · ${t(column.label)}`}
-              value={row.date}
+              value={suaNgay ? row.date : ngayGon(row.date)}
+              onFocus={() => {
+                setSuaNgay(true);
+              }}
               onChange={(event) => {
                 onChange(index, { date: filterTypedValue(event, keepSeriesDateChars) });
               }}
               /* Bù phím xoá cho ký tự vừa bị loại — bắt buộc đi kèm cửa lọc, xem docblock của nó. */
               onKeyDown={guardFilteredDelete}
               onBlur={(event) => {
+                setSuaNgay(false);
                 resetFilteredDelete(event.currentTarget);
                 /* Ghép dấu rồi đưa về MỘT lối viết: '20250715' và '2025-07-15' đều thành
                    '15/07/2025' — xem `ngayCuaBang()`. */
@@ -224,7 +350,7 @@ const SeriesRowFields = memo(function SeriesRowFields({
         </td>
       ))}
 
-      <td className={styles.flagCol}>
+      <td>
         <button
           type="button"
           className={styles.removeButton}
@@ -264,6 +390,13 @@ export function DataTableScreen() {
    */
   const [fromDraft, setFromDraft] = useState(false);
   const [loaded, setLoaded] = useState(false);
+  /** Cột đang sắp xếp — mặc định Ngày giảm dần, tức phiên mới nhất lên đầu. */
+  const [sapXep, setSapXep] = useState<SapXep>(SAP_MAC_DINH);
+  /** Bề ngang trong của khung cuộn, và mức sàn bề ngang của bảng đọc ra px — xem `colWidth`. */
+  const [frameWidth, setFrameWidth] = useState(0);
+  const [floorWidth, setFloorWidth] = useState(0);
+  const khung = useRef<HTMLDivElement>(null);
+  const bang = useRef<HTMLTableElement>(null);
 
   /*
    * Đọc localStorage trong effect, KHÔNG đọc lúc khởi tạo state: bản build là HTML tĩnh nên
@@ -326,24 +459,91 @@ export function DataTableScreen() {
   );
 
   /**
-   * Thứ tự BÀY RA MÀN: ngày mới nhất trước.
+   * Thứ tự BÀY RA MÀN: vị trí trên màn → chỉ số trong `rows`.
    *
-   * Chỉ đảo chiều, không sắp lại — `rows` vốn đã theo ngày (xem `onLeave` và lúc nạp). Nhờ vậy
-   * vị trí bày ra suy được bằng một phép trừ, và nút "Tới dòng N" ở cột kiểm tra dịch qua lại
-   * giữa hai hệ mà không phải dò.
+   * Mặc định là ngày mới nhất trước: chỉ đảo chiều, không sắp lại — `rows` vốn đã theo ngày (xem
+   * `onLeave` và lúc nạp). Khi đang xếp theo cột khác thì là thứ tự đã chốt; dòng sinh ra sau lần chốt
+   * ("Thêm dòng") đứng TRÊN CÙNG, đúng lời hứa của nút ấy, cho tới lần xếp lại sau.
    */
-  const hienThi = useMemo(() => rows.map((row, index) => ({ row, index })).reverse(), [rows]);
+  const thuTuBay = useMemo(() => {
+    if (sapXep.thuTu === null) return rows.map((_, index) => index).reverse();
+    const daXep = new Set(sapXep.thuTu);
+    const moi: number[] = [];
+    for (let index = rows.length - 1; index >= 0; index -= 1) {
+      if (!daXep.has(index)) moi.push(index);
+    }
+    return [...moi, ...sapXep.thuTu.filter((index) => index < rows.length)];
+  }, [rows, sapXep.thuTu]);
 
-  /** Vị trí bày ra của một dòng, đếm từ 1 — con số mà mọi nhãn và mọi câu báo lỗi phải dùng. */
-  const soDong = useCallback((index: number) => rows.length - index, [rows.length]);
+  const viTriTrenMan = useMemo(
+    () => new Map(thuTuBay.map((index, position) => [index, position])),
+    [thuTuBay],
+  );
+
+  /**
+   * Vị trí bày ra của một dòng, đếm từ 1 — con số mà cột số thứ tự, mọi nhãn và mọi câu báo lỗi
+   * phải dùng. Đi theo màn ở MỌI kiểu sắp xếp, như lưới popup (`soTrenMan`): dòng trên cùng là 1.
+   */
+  const soDong = useCallback(
+    (index: number) => (viTriTrenMan.get(index) ?? index) + 1,
+    [viTriTrenMan],
+  );
+
+  /*
+   * Xếp lại thứ tự đã chốt sau khi tiêu điểm rời một dòng (`onLeave` dựng cờ `cu`). Chạy trước lúc
+   * vẽ ra màn, nên không có khung hình nào bày thứ tự cũ trên mảng vừa sắp lại.
+   */
+  useLayoutEffect(() => {
+    if (!sapXep.cu) return;
+    setSapXep({
+      ...sapXep,
+      cu: false,
+      thuTu: sapXep.thuTu === null ? null : thuTuSapXep(rows, sapXep.cot, sapXep.chieu),
+    });
+  }, [sapXep, rows]);
+
+  /**
+   * Bấm tên cột — cùng luật với lưới popup: cột số lần đầu xếp GIẢM dần, lần hai đảo chiều, lần ba
+   * về mặc định (ngày mới nhất lên đầu). Cột Ngày đã giảm dần sẵn nên chỉ đảo qua lại giữa cũ trước
+   * và mới trước.
+   */
+  function bamSapXep(cot: CotBang) {
+    const dangXep = sapXep.cot === cot ? sapXep.chieu : null;
+    const chieu: ChieuSapXep | null =
+      cot === 'date'
+        ? dangXep === 'giam'
+          ? 'tang'
+          : null
+        : dangXep === null
+          ? 'giam'
+          : dangXep === 'giam'
+            ? 'tang'
+            : null;
+    setSapXep(
+      chieu === null
+        ? SAP_MAC_DINH
+        : { cot, chieu, thuTu: thuTuSapXep(rows, cot, chieu), cu: false },
+    );
+  }
 
   // Ba callback này phải ổn định qua các lần render, nếu không memo của từng dòng vô tác dụng.
   const setCell = useCallback((index: number, patch: Partial<SeriesRow>) => {
     setRows((current) => updateRow(current, index, patch));
   }, []);
 
+  /** Bỏ một dòng. Thứ tự đã chốt dịch chỉ số theo, để các dòng còn lại đứng yên chỗ cũ. */
   const dropRow = useCallback((index: number) => {
     setRows((current) => removeRow(current, index));
+    setSapXep((current) =>
+      current.thuTu === null
+        ? current
+        : {
+            ...current,
+            thuTu: current.thuTu
+              .filter((line) => line !== index)
+              .map((line) => (line > index ? line - 1 : line)),
+          },
+    );
   }, []);
 
   /**
@@ -352,9 +552,15 @@ export function DataTableScreen() {
    * Đây là vế thứ hai của yêu cầu chủ dự án: dòng mới hiện ngay trên đầu, *"sau khi nhập liệu
    * xong rồi mới check ngày rồi sort"*. Dòng chưa có ngày đọc được thì `sortRowsByDate()` để
    * nguyên tại chỗ, nên dòng vừa thêm ở lại đầu bảng cho tới khi ô ngày có nội dung thật.
+   *
+   * Đang xếp theo cột khác thì thứ tự đã chốt cũng xếp lại lúc này (cờ `cu`), cùng luật "nhập xong
+   * rồi mới sort". Nó còn là việc BẮT BUỘC: sắp mảng theo ngày làm đổi chỉ số, mà thứ tự đã chốt là
+   * một danh sách chỉ số — không xếp lại thì các dòng đổi chỗ cho nhau trên màn. Lưới popup không có
+   * vế này vì lưới của nó không bao giờ tự sắp lại.
    */
   const onLeave = useCallback(() => {
     setRows((current) => sortRowsByDate(current));
+    setSapXep((current) => (current.thuTu === null ? current : { ...current, cu: true }));
   }, []);
 
   /**
@@ -396,6 +602,8 @@ export function DataTableScreen() {
     setCode(preset.code);
     // Ghi nhớ bảng này dựng từ bộ mẫu bản thảo, để dấu vết đi theo cả vào file CSV tải về.
     setFromDraft(preset.isDraft);
+    // Bảng mới thì thứ tự mới: về ngày mới nhất trước, như lưới popup mỗi lần lưới được THAY.
+    setSapXep(SAP_MAC_DINH);
     setRows(
       sortRowsByDate(
         preset.bars.slice(-MAX_SERIES_ROWS).map((bar) => ({
@@ -423,6 +631,7 @@ export function DataTableScreen() {
   const importPaste = useCallback((result: PasteResult) => {
     setCode('');
     setFromDraft(false);
+    setSapXep(SAP_MAC_DINH);
     setRows(
       sortRowsByDate(
         // `parsePaste` trả chuỗi theo chiều cũ → mới, nên cắt phải cắt ĐẦU chuỗi: quá trần thì
@@ -456,7 +665,98 @@ export function DataTableScreen() {
   const clearAll = useCallback(() => {
     if (!window.confirm(t('series.clearConfirm'))) return;
     setRows([]);
+    setSapXep(SAP_MAC_DINH);
   }, [t]);
+
+  /**
+   * Năm của chuỗi, in một lần trên bảng thay cho phần năm của từng ô ngày — cùng luật với lưới popup.
+   * Chỉ đọc các dòng KHÔNG lỗi, nên một ô gõ nhầm năm 2062 không kéo dãn khoảng năm. Không phiên nào
+   * ghi đủ năm (chuỗi minh hoạ đánh số phiên '1', '2') thì không in gì.
+   */
+  const yearNote = useMemo(() => {
+    let tu = Number.POSITIVE_INFINITY;
+    let den = Number.NEGATIVE_INFINITY;
+    rows.forEach((row, index) => {
+      if (issueByIndex.has(index)) return;
+      const ngay = parseSeriesDate(row.date);
+      if (ngay === null || ngay.year === null) return;
+      tu = Math.min(tu, ngay.year);
+      den = Math.max(den, ngay.year);
+    });
+    if (!Number.isFinite(tu)) return null;
+    return tu === den
+      ? t('paste.yearOne').replace('{nam}', String(tu))
+      : t('paste.yearRange').replace('{tu}', String(tu)).replace('{den}', String(den));
+  }, [rows, issueByIndex, t]);
+
+  /**
+   * Bề ngang từng cột, tính bằng `ch` theo chữ DÀI NHẤT cột ấy đang in — cùng cách với lưới popup.
+   * Mức sàn là tên cột in đậm cộng dấu ˅; ô ngày tính theo chữ in gọn (ngày/tháng).
+   */
+  const widths = useMemo(
+    () =>
+      COLUMNS.map((column) => {
+        const head = t(column.short);
+        let longest = Math.ceil(Math.min(head.length, 12) * 1.2) + 2;
+        for (const row of rows) {
+          const value = column.key === 'date' ? null : row[column.key];
+          const text =
+            column.key === 'date' ? ngayGon(row.date) : value === null ? '' : rawViNumber(value);
+          longest = Math.max(longest, text.length);
+        }
+        return Math.min(longest, 16);
+      }),
+    [rows, t],
+  );
+  const widthSum = widths.reduce((sum, width) => sum + width, 0);
+  const coBang = rows.length > 0;
+
+  /*
+   * Đo khung cuộn và mức sàn của bảng ra px, để chia phần bề ngang DƯ cho riêng các cột số liệu.
+   *
+   * Hai cái bẫy đã đo ở lưới popup, nên chép cả cách chữa: `table-layout: fixed` tự chia phần dư theo
+   * tỷ lệ cho MỌI cột (cột số thứ tự 32 → 68px ở 1440), và mức sàn phải đo lại khi phông chữ tải xong
+   * và mỗi lần bảng đổi cỡ — `ch` là bề ngang chữ "0" của phông ĐANG DÙNG, đo trên phông thay thế thì
+   * bảng tràn khung ~30px.
+   */
+  useLayoutEffect(() => {
+    const frame = khung.current;
+    const table = bang.current;
+    if (frame === null || table === null) return undefined;
+    const doLai = (): void => {
+      setFrameWidth(frame.clientWidth);
+      const floor = Number.parseFloat(getComputedStyle(table).minWidth);
+      setFloorWidth(Number.isFinite(floor) ? floor : 0);
+    };
+    doLai();
+    let conHieuLuc = true;
+    // jsdom không có `document.fonts`.
+    if ('fonts' in document) {
+      void document.fonts.ready.then(() => {
+        if (conHieuLuc) doLai();
+      });
+    }
+    if (typeof ResizeObserver !== 'function') {
+      return () => {
+        conHieuLuc = false;
+      };
+    }
+    const observer = new ResizeObserver(doLai);
+    observer.observe(frame);
+    observer.observe(table);
+    return () => {
+      conHieuLuc = false;
+      observer.disconnect();
+    };
+  }, [coBang, widthSum]);
+  const spare = floorWidth > 0 && frameWidth > floorWidth ? frameWidth - floorWidth : 0;
+  /** Bề ngang một cột: chữ dài nhất + đệm hai bên + phần dư chia cho nó (làm tròn xuống, khỏi tràn 1px). */
+  const colWidth = (width: number): string => {
+    const share = widthSum > 0 ? Math.floor((spare * width) / widthSum) : 0;
+    return share > 0
+      ? `calc(${String(width)}ch + 1rem + ${String(share)}px)`
+      : `calc(${String(width)}ch + 1rem)`;
+  };
 
   /*
    * Bảng hết dòng thì cũng hết mã — bằng nút "Xoá" hay bằng cách bỏ từng dòng một. Thiếu đoạn này
@@ -538,40 +838,108 @@ export function DataTableScreen() {
                   {t('series.tableTitle')}
                 </h2>
                 {/* Dòng "Mới → cũ · sửa trực tiếp trong ô" đã bỏ — mộ chí `series.tableHint` ở vi.ts. */}
+                {/* Năm của chuỗi, thay cho phần năm của từng ô ngày (20/10/2026). */}
+                {yearNote !== null && <p className={styles.yearNote}>{yearNote}</p>}
               </div>
 
               {/* Khung cuộn ngang riêng — bảng 6 cột không thể vừa 360px, và cả trang thì
-                  KHÔNG được tràn ngang (bài học đợt 7 với bảng lịch trả nợ WF-14). */}
-              <div className={styles.tableWrap}>
-                <table className={styles.table}>
+                  KHÔNG được tràn ngang (bài học đợt 7 với bảng lịch trả nợ WF-14). Cột số thứ tự
+                  và cột Ngày đứng yên khi cuộn, như lưới popup. */}
+              <div className={styles.tableWrap} ref={khung}>
+                {/*
+                  `--bang-dong-h`: chiều cao dòng (`ROW_H`). `minWidth`: tổng bề ngang các cột (`widths`)
+                  cộng hai cột hẹp 2rem — khung rộng hơn thì bảng giãn lấp khung, hẹp hơn thì khung
+                  cuộn ngang. Mỗi cột số liệu cộng 1rem là đệm hai bên của ô.
+                */}
+                <table
+                  ref={bang}
+                  className={styles.table}
+                  style={
+                    {
+                      '--bang-dong-h': `${String(ROW_H)}px`,
+                      minWidth: `calc(4rem + ${String(widthSum)}ch + ${String(COLUMNS.length)}rem)`,
+                    } as CSSProperties
+                  }
+                >
+                  <colgroup>
+                    <col className={styles.colLine} />
+                    {widths.map((width, index) => (
+                      <col key={index} style={{ width: colWidth(width) }} />
+                    ))}
+                    <col className={styles.colRemove} />
+                  </colgroup>
                   <thead>
                     <tr>
-                      <th className={styles.flagCol}>
+                      <th scope="col" className={styles.lineHead}>
                         <span className="visually-hidden">{t('series.rowLabel')}</span>
                       </th>
-                      {COLUMNS.map((column) => (
-                        <th key={column.key} scope="col">
-                          {t(column.label)}
-                        </th>
-                      ))}
-                      <th className={styles.flagCol}>
+                      {COLUMNS.map((column) => {
+                        const label = t(column.label);
+                        const short = t(column.short);
+                        const chieu = sapXep.cot === column.key ? sapXep.chieu : null;
+                        return (
+                          <th
+                            key={column.key}
+                            scope="col"
+                            className={column.key === 'date' ? styles.thDate : undefined}
+                            aria-sort={
+                              chieu === null
+                                ? undefined
+                                : chieu === 'tang'
+                                  ? 'ascending'
+                                  : 'descending'
+                            }
+                          >
+                            {/*
+                              Tên đọc được là tên của ô ("Khối lượng"); tên ngắn không nằm trong nó
+                              ("KL") thì ghép vào sau, để ai gọi nút bằng chữ đang thấy vẫn gọi trúng.
+                            */}
+                            <button
+                              type="button"
+                              className={
+                                chieu === null
+                                  ? styles.colHead
+                                  : `${styles.colHead} ${styles.colHeadOn}`
+                              }
+                              aria-label={
+                                label.toLowerCase().includes(short.toLowerCase())
+                                  ? label
+                                  : `${label} (${short})`
+                              }
+                              title={label === short ? undefined : label}
+                              onClick={() => {
+                                bamSapXep(column.key);
+                              }}
+                            >
+                              <span className={styles.colHeadText}>{short}</span>
+                              <SortIcon chieu={chieu} />
+                            </button>
+                          </th>
+                        );
+                      })}
+                      <th scope="col">
                         <span className="visually-hidden">{t('series.removeRow')}</span>
                       </th>
                     </tr>
                   </thead>
                   <tbody>
-                    {hienThi.map((entry) => (
-                      <SeriesRowFields
-                        key={entry.index}
-                        row={entry.row}
-                        index={entry.index}
-                        displayNumber={soDong(entry.index)}
-                        bad={issueByIndex.has(entry.index)}
-                        onChange={setCell}
-                        onRemove={dropRow}
-                        onLeave={onLeave}
-                      />
-                    ))}
+                    {thuTuBay.map((index, position) => {
+                      const row = rows[index];
+                      if (row === undefined) return null;
+                      return (
+                        <SeriesRowFields
+                          key={index}
+                          row={row}
+                          index={index}
+                          displayNumber={position + 1}
+                          stripe={position % 2 === 1}
+                          bad={issueByIndex.has(index)}
+                          onChange={setCell}
+                          onRemove={dropRow}
+                          onLeave={onLeave}
+                        />
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>

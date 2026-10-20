@@ -1,6 +1,15 @@
 'use client';
 
-import { memo, useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
+import {
+  memo,
+  useCallback,
+  useEffect,
+  useId,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import type { CSSProperties } from 'react';
 
 import {
@@ -41,6 +50,20 @@ const COLUMN_LABEL_KEYS: Readonly<Record<SeriesColumnKind, MessageKey>> = {
   low: 'paste.col.low',
   close: 'paste.col.close',
   volume: 'paste.col.volume',
+};
+
+/**
+ * Tên NGẮN in trên đầu cột: "Mở", "Cao", "KL"… (20/10/2026, bản vẽ của chủ dự án). Tên đầy đủ ở
+ * `COLUMN_LABEL_KEYS` vẫn là tên đọc được của nút sắp xếp và của từng ô — "Mở" nghe một mình thì
+ * trình đọc màn hình không nói được là mở cái gì.
+ */
+const COLUMN_SHORT_KEYS: Readonly<Record<SeriesColumnKind, MessageKey>> = {
+  date: 'paste.short.date',
+  open: 'paste.short.open',
+  high: 'paste.short.high',
+  low: 'paste.short.low',
+  close: 'paste.short.close',
+  volume: 'paste.short.volume',
 };
 
 /** Chữ mờ ví dụ theo vai trò cột, chỉ đặt ở dòng đầu của một lưới còn trắng. */
@@ -95,10 +118,15 @@ export interface PasteImportSheetProps {
  *
  *   1. Lưới LUÔN có đủ sáu vai trò, mỗi vai trò ở đúng một cột. Không thao tác nào gỡ được một vai
  *      trò khỏi lưới, nên không cột số liệu nào bị bỏ lại lúc bấm Nạp.
- *   2. Ô chọn chỉ có sáu lựa chọn, và chọn là ĐỔI CHỖ hai cột cho nhau (`setColumnKind`).
+ *   2. Từ 20/10/2026 không còn ô chọn loại cột nào (chủ dự án gạch chéo nút "Cột 6/6" và bảng của
+ *      nó: _"bỏ tính năng mở cột này đi"_). Cột đứng đúng thứ tự `SERIES_COLUMNS`, nên cột Ngày luôn
+ *      là cột đầu — CSS dựa vào đó để giữ nó đứng yên khi cuộn ngang.
  *   3. Dữ liệu đưa vào có thừa cột thì cột ấy đứng thêm ở cuối lưới, dưới tên của chính nó trong
  *      dòng tiêu đề đã dán (`fitToSeriesColumns()` ở Domain). Nó không được nạp đi đâu: một phiên
  *      giá chỉ có sáu trường.
+ *
+ * Cái giá của luật 2, đã nói với chủ dự án trước khi bỏ: máy đoán sai vai trò một cột của file
+ * (ba cột số không tiêu đề, hay cột "KLGD") thì không còn chỗ sửa trên lưới — phải sửa file rồi dán lại.
  */
 const DEFAULT_COLUMNS: ReadonlyArray<ColumnKind> = SERIES_COLUMNS;
 
@@ -106,24 +134,17 @@ const DEFAULT_COLUMNS: ReadonlyArray<ColumnKind> = SERIES_COLUMNS;
 const BLANK_ROWS = 4;
 
 /**
- * Chiều cao một dòng lưới, tính bằng px, dưới 1024px — 44px để chạm.
+ * Chiều cao một dòng lưới, tính bằng px, ở MỌI khổ màn.
  *
  * Con số này là thứ duy nhất cho phép chỉ vẽ phần dòng đang nhìn thấy: biết chiều cao một dòng
  * thì biết dòng thứ mấy đang ở mép trên, và hai ô đệm trên dưới lo phần còn lại. CSS không tự khai
- * chiều cao dòng: nó đọc `--paste-row-h`, biến mà component đặt lên `<table>` từ chính hằng này
- * (hoặc `ROW_H_PC`), nên hai bên không thể lệch nhau — lệch là thanh cuộn trượt khỏi dữ liệu.
+ * chiều cao dòng: nó đọc `--paste-row-h`, biến mà component đặt lên `<table>` từ chính hằng này,
+ * nên hai bên không thể lệch nhau — lệch là thanh cuộn trượt khỏi dữ liệu.
+ *
+ * 32px ở cả điện thoại từ 20/10/2026 (bản vẽ của chủ dự án: dòng sọc, chữ 14px). Trước đó dưới 1024px
+ * là 44px để chạm, và một `matchMedia` chọn giữa hai con số; nay một con số thì không cần nó nữa.
  */
-const ROW_H = 44;
-
-/**
- * Chiều cao một dòng từ 1024px (14/10/2026). Chủ dự án khoanh lưới ở khổ PC: _"không gian thừa quá
- * nhiều, text chữ thì quá to chiếm không gian hiển thị số liệu"_. Chuột không cần 44px; 32px vừa chữ
- * 14px với đệm trên dưới đều nhau, và khung 440px hiện được 13 dòng thay vì 9.
- */
-const ROW_H_PC = 32;
-
-/** Cùng mốc với khối `@media (min-width: 1024px)` của file CSS kèm theo. */
-const KHO_PC = '(min-width: 1024px)';
+const ROW_H = 32;
 
 /** Vẽ dư vài dòng ngoài tầm nhìn, để cuộn nhanh không thấy khoảng trắng. */
 const OVERSCAN = 4;
@@ -150,14 +171,145 @@ function isBlank(grid: ReadonlyArray<ReadonlyArray<string>>): boolean {
   return grid.every((row) => row.every((cell) => cell.trim() === ''));
 }
 
-/** Mảng mới thiếu phần tử ở vị trí `at` — bỏ một cột khỏi dòng lưới, khỏi `columns`, khỏi `names`. */
-function dropAt<T>(list: ReadonlyArray<T>, at: number): T[] {
-  return list.filter((_, index) => index !== at);
-}
-
 /** Mã của một ô trong lưới, để phím Enter nhảy xuống đúng ô dưới. */
 function cellId(base: string, row: number, column: number): string {
   return `${base}-${row}-${column}`;
+}
+
+/* ── Ngày trong ô ──────────────────────────────────────────────────────────── */
+
+const NGAY_DU = /^\s*(\d{1,2})[/.-](\d{1,2})[/.-](\d{4})\s*$/;
+const NGAY_ISO = /^\s*(\d{4})-(\d{1,2})-(\d{1,2})(?:$|[T\s])/;
+const NGAY_THIEU_NAM = /^\s*(\d{1,2})[/.-](\d{1,2})\s*$/;
+
+/** Ngày, tháng, năm của một ô ngày ghi đủ năm (kiểu Việt hay ISO); `null` nếu ô không như thế. */
+function tachNgay(text: string): { ngay: number; thang: number; nam: number } | null {
+  const viet = NGAY_DU.exec(text);
+  if (viet !== null) return { ngay: Number(viet[1]), thang: Number(viet[2]), nam: Number(viet[3]) };
+  const iso = NGAY_ISO.exec(text);
+  if (iso !== null) return { ngay: Number(iso[3]), thang: Number(iso[2]), nam: Number(iso[1]) };
+  return null;
+}
+
+/**
+ * Chữ in trong ô ngày khi ô KHÔNG đang được sửa: chỉ ngày/tháng (20/10/2026). Chủ dự án: _"bên trên
+ * ghi năm rồi thì bên dưới trong bảng chỉ cần ghi ngày tháng là tự biết → tiết kiệm không gian bảng"_.
+ *
+ * Chỉ là cách IN: giá trị của ô vẫn đủ năm, nên bấm vào ô là thấy lại cả ngày để sửa, và thứ được nạp
+ * không đổi. Ô không mang đủ năm ('15/07', chữ gõ dở) in đúng như đang gõ.
+ */
+function ngayGon(text: string): string {
+  const ngay = tachNgay(text);
+  if (ngay === null) return text;
+  return `${String(ngay.ngay).padStart(2, '0')}/${String(ngay.thang).padStart(2, '0')}`;
+}
+
+/**
+ * Khoá sắp xếp của một ô ngày: năm·tháng·ngày ghép thành một số; ngày thiếu năm chỉ còn tháng·ngày.
+ *
+ * Tháng ngoài 1–12 hay ngày ngoài 1–31 là ô hỏng, xếp CUỐI như ô trống: không chặn thì '28/13/2026'
+ * thành khoá lớn nhất và đứng đầu bảng như phiên mới nhất.
+ */
+function khoaNgay(text: string): number | null {
+  const ngay = tachNgay(text);
+  const tach =
+    ngay ??
+    ((thieu) =>
+      thieu === null ? null : { ngay: Number(thieu[1]), thang: Number(thieu[2]), nam: 0 })(
+      NGAY_THIEU_NAM.exec(text),
+    );
+  if (tach === null || tach.thang < 1 || tach.thang > 12 || tach.ngay < 1 || tach.ngay > 31)
+    return null;
+  return tach.nam * 10_000 + tach.thang * 100 + tach.ngay;
+}
+
+/* ── Sắp xếp ───────────────────────────────────────────────────────────────── */
+
+type ChieuSapXep = 'giam' | 'tang';
+
+/**
+ * Bảng đang xếp theo cột nào, chiều nào, và THỨ TỰ DÒNG chốt lúc bấm.
+ *
+ * Thứ tự chốt một lần chứ không tính lại mỗi lần lưới đổi: đang xếp theo Giá đóng cửa mà gõ sửa một
+ * ô giá đóng cửa thì dòng ấy không được nhảy đi chỗ khác dưới ngón tay. Bấm lại tên cột thì xếp lại.
+ */
+interface SapXep {
+  cot: number;
+  chieu: ChieuSapXep;
+  thuTu: ReadonlyArray<number>;
+}
+
+/**
+ * Thứ tự dòng của lưới khi xếp theo một cột (20/10/2026 — dấu ˅ cạnh tên cột trong bản vẽ của chủ
+ * dự án là nút sắp xếp: _"dấu v đó là icon sắp xếp bảng. cần thêm vào cho tôi"_).
+ *
+ * Chỉ đổi thứ tự BÀY RA. Lưới và thứ được nạp giữ nguyên thứ tự gốc — bộ đọc vẫn tự xếp phiên theo
+ * ngày như trước, nên xếp bảng không làm đổi một con số nào. Số thứ tự in ở cột đầu thì đếm theo màn
+ * (`GridRow.number`), xem `soTrenMan`.
+ *
+ * Ô trống hay không đọc được đứng CUỐI ở cả hai chiều, cùng luật với bảng Mã của Danh mục: coi nó là 0
+ * thì nó chen vào giữa như một con số có thật (FR-06). Hai ô bằng nhau giữ thứ tự gốc.
+ */
+function thuTuSapXep(
+  grid: ReadonlyArray<ReadonlyArray<string>>,
+  cot: number,
+  laNgay: boolean,
+  chieu: ChieuSapXep,
+  style: NumberStyle,
+): number[] {
+  const khoa = grid.map((row) => {
+    const cell = row[cot] ?? '';
+    return laNgay ? khoaNgay(cell) : parseCellNumber(cell, style);
+  });
+  return grid
+    .map((_, index) => index)
+    .sort((a, b) => {
+      const ka = khoa[a] ?? null;
+      const kb = khoa[b] ?? null;
+      if (ka === null || kb === null) return ka === kb ? a - b : ka === null ? 1 : -1;
+      if (ka === kb) return a - b;
+      return chieu === 'tang' ? ka - kb : kb - ka;
+    });
+}
+
+/**
+ * Thứ tự MẶC ĐỊNH của lưới: phiên mới nhất lên đầu (20/10/2026). Chủ dự án nhìn ba dòng đầu là
+ * tháng 9/2025 trong khi chuỗi chạy tới tháng 9/2026: _"thời gian gần nhất thì cần xếp lên đầu thay vì
+ * để xuống cuối bảng"_. Chuỗi trong lưới (và thứ được nạp) vẫn xếp cũ trước như bộ đọc cần — chỉ thứ tự
+ * BÀY RA đổi, cùng cơ chế với nút sắp xếp, và cột Ngày mang dấu đang xếp ngay từ đầu.
+ *
+ * Tính lại mỗi lần lưới được THAY (mở sheet, dán, tải file, Xoá hết); trong lúc gõ thì chốt, như mọi
+ * thứ tự khác. Không có cột ngày thì giữ thứ tự gốc.
+ */
+function sapMacDinh(
+  grid: ReadonlyArray<ReadonlyArray<string>>,
+  columns: ReadonlyArray<ColumnKind>,
+): SapXep | null {
+  const cot = columns.indexOf('date');
+  if (cot < 0) return null;
+  // Cột ngày không cần quy ước số — 'vi' chỉ để đủ tham số.
+  return { cot, chieu: 'giam', thuTu: thuTuSapXep(grid, cot, true, 'giam', 'vi') };
+}
+
+/** Dấu ˅ cạnh tên cột. Đang xếp tăng dần thì lật lên thành ˄. */
+function SortIcon({ chieu }: { chieu: ChieuSapXep | null }) {
+  return (
+    <svg
+      className={styles.sortIcon}
+      data-chieu={chieu ?? undefined}
+      width="10"
+      height="10"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="3"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M6 9l6 6 6-6" />
+    </svg>
+  );
 }
 
 /**
@@ -223,10 +375,16 @@ function BadMark() {
 const GridRow = memo(function GridRow({
   base,
   line,
-  rowH,
+  number,
+  below,
+  stripe,
   cells,
   labels,
   numeric,
+  cellClasses,
+  dateColumn,
+  closeColumn,
+  closeTrend,
   rowWord,
   hints,
   badColumn,
@@ -235,13 +393,31 @@ const GridRow = memo(function GridRow({
   onBlock,
 }: {
   base: string;
+  /** Chỉ số dòng trong LƯỚI (đếm từ 0) — mã của ô và chỗ `onCell` ghi vào. */
   line: number;
-  /** Chiều cao dòng đang dùng — `ROW_H` hoặc `ROW_H_PC`. */
-  rowH: number;
+  /**
+   * Số thứ tự IN RA ở cột đầu và trong tên đọc được của ô ("Giá đóng cửa, Dòng 3"): vị trí trên màn,
+   * đếm từ 1 ở dòng trên cùng — xem `soTrenMan`.
+   */
+  number: number;
+  /**
+   * Dòng lưới đang bày NGAY DƯỚI dòng này, để Enter nhảy xuống đúng ô bên dưới trên màn — khi bảng
+   * đang sắp xếp, đó không còn là `line + 1`.
+   */
+  below: number | undefined;
+  /** Dòng sọc của bản vẽ: tính theo vị trí BÀY RA, nên sọc vẫn xen kẽ khi bảng đang sắp xếp. */
+  stripe: boolean;
   cells: ReadonlyArray<string>;
   labels: ReadonlyArray<string>;
   /** Cột nào là số — bật bàn phím số trên điện thoại. Cột ngày thì không, vì còn gõ dấu gạch. */
   numeric: ReadonlyArray<boolean>;
+  /** Lớp của từng ô theo vai trò cột (ngày, khối lượng…), dựng một lần cho cả lưới. */
+  cellClasses: ReadonlyArray<string | undefined>;
+  /** Cột Ngày — ô này in gọn ngày/tháng khi không đang sửa (`ngayGon`). `-1` nếu không có. */
+  dateColumn: number;
+  closeColumn: number;
+  /** Giá đóng cửa so với giá mở cửa của chính phiên này; `undefined` khi thiếu một trong hai. */
+  closeTrend: ChieuSapXep | undefined;
   /** Chữ "Dòng" theo locale, để tên đọc được của ô là 'Giá đóng cửa, Dòng 3'. */
   rowWord: string;
   /** Chữ mờ ví dụ; mảng rỗng với mọi dòng trừ dòng đầu của một lưới còn trắng. */
@@ -254,16 +430,30 @@ const GridRow = memo(function GridRow({
   onBlock: (text: string, row: number, column: number) => boolean;
 }) {
   const bad = badColumn >= 0;
+  /** Ô đang được sửa của dòng này — ô ngày ấy in đủ năm để sửa được. */
+  const [editing, setEditing] = useState(-1);
+
+  const rowClass = [stripe ? styles.rowStripe : '', bad ? styles.rowBad : '']
+    .filter((name) => name !== '')
+    .join(' ');
 
   return (
-    <tr className={bad ? styles.rowBad : undefined} style={{ height: `${rowH}px` }}>
+    <tr className={rowClass === '' ? undefined : rowClass} style={{ height: `${ROW_H}px` }}>
       <th scope="row" className={bad ? `${styles.lineNo} ${styles.lineNoBad}` : styles.lineNo}>
-        {line + 1}
+        {number}
       </th>
       {cells.map((value, column) => {
         const here = column === badColumn;
+        const shown = column === dateColumn && editing !== column ? ngayGon(value) : value;
+        const tdClass = [cellClasses[column] ?? '', here ? styles.cellBad : '']
+          .filter((name) => name !== '')
+          .join(' ');
         return (
-          <td key={column} className={here ? styles.cellBad : undefined}>
+          <td
+            key={column}
+            className={tdClass === '' ? undefined : tdClass}
+            data-xu-huong={column === closeColumn ? closeTrend : undefined}
+          >
             {here && <BadMark />}
             <input
               id={cellId(base, line, column)}
@@ -272,10 +462,16 @@ const GridRow = memo(function GridRow({
               inputMode={numeric[column] === true ? 'decimal' : undefined}
               autoComplete="off"
               spellCheck={false}
-              aria-label={`${labels[column] ?? ''}, ${rowWord} ${line + 1}`}
+              aria-label={`${labels[column] ?? ''}, ${rowWord} ${String(number)}`}
               aria-invalid={here ? true : undefined}
               placeholder={hints[column] ?? emptyMark}
-              value={value}
+              value={shown}
+              onFocus={() => {
+                setEditing(column);
+              }}
+              onBlur={() => {
+                setEditing(-1);
+              }}
               onChange={(event) => {
                 onCell(line, column, event.target.value);
               }}
@@ -285,10 +481,10 @@ const GridRow = memo(function GridRow({
               }}
               onKeyDown={(event) => {
                 // Enter đi xuống ô dưới như bảng tính; Tab sang ngang là sẵn của trình duyệt.
-                if (event.key !== 'Enter') return;
+                if (event.key !== 'Enter' || below === undefined) return;
                 event.preventDefault();
-                const below = document.getElementById(cellId(base, line + 1, column));
-                if (below instanceof HTMLInputElement) below.focus();
+                const next = document.getElementById(cellId(base, below, column));
+                if (next instanceof HTMLInputElement) next.focus();
               }}
             />
           </td>
@@ -343,30 +539,18 @@ export function PasteImportSheet({
   const [style, setStyle] = useState<NumberStyle | null>(null);
   /** Phần bị bỏ ngay lúc dán: dòng ghi chú đầu file, và phần vượt trần. */
   const [dropped, setDropped] = useState({ preamble: 0, truncated: 0 });
-  /** Bảng chọn vai trò cột đang mở hay không. */
-  const [picking, setPicking] = useState(false);
   /** Người dùng đã đồng ý bỏ các dòng lỗi chưa. */
   const [skipBad, setSkipBad] = useState(false);
   /** Cửa sổ dòng đang nhìn thấy, đo bằng px trên khung cuộn. */
   const [view, setView] = useState({ top: 0, height: ROW_H * 10 });
-  /**
-   * Chiều cao dòng theo khổ, THEO DÕI bằng `matchMedia` (xoay máy tính bảng là đổi). Khởi tạo bằng
-   * `ROW_H` — đúng HTML tĩnh và jsdom (không có `matchMedia`) — rồi effect chỉnh ngay lượt đầu.
-   */
-  const [rowH, setRowH] = useState(ROW_H);
-
-  useEffect(() => {
-    if (typeof window.matchMedia !== 'function') return undefined;
-    const media = window.matchMedia(KHO_PC);
-    const dongBo = (): void => {
-      setRowH(media.matches ? ROW_H_PC : ROW_H);
-    };
-    dongBo();
-    media.addEventListener('change', dongBo);
-    return () => {
-      media.removeEventListener('change', dongBo);
-    };
-  }, []);
+  /** Cột đang sắp xếp — mặc định Ngày giảm dần (`sapMacDinh`); `null` là thứ tự gốc. */
+  const [sapXep, setSapXep] = useState<SapXep | null>(() =>
+    sapMacDinh(blankGrid(DEFAULT_COLUMNS.length, BLANK_ROWS), DEFAULT_COLUMNS),
+  );
+  /** Bề ngang trong của khung lưới, và mức sàn bề ngang của bảng đọc ra px — xem `widths`. */
+  const [frameWidth, setFrameWidth] = useState(0);
+  const [floorWidth, setFloorWidth] = useState(0);
+  const table = useRef<HTMLTableElement>(null);
 
   const scroller = useRef<HTMLDivElement>(null);
 
@@ -374,8 +558,12 @@ export function PasteImportSheet({
    * Hai hàm truyền xuống `GridRow` phải ổn định để `memo` có tác dụng, nhưng chúng lại cần
    * trạng thái mới nhất. Giữ trạng thái trong một ref là cách rẻ nhất có cả hai.
    */
-  const latest = useRef({ grid, columns, names });
-  latest.current = { grid, columns, names };
+  const latest = useRef<{
+    grid: string[][];
+    columns: ColumnKind[];
+    names: string[];
+    order: ReadonlyArray<number> | null;
+  }>({ grid, columns, names, order: null });
 
   const parsed = useMemo(
     () => parseCells(grid, columns, style ?? undefined),
@@ -422,15 +610,31 @@ export function PasteImportSheet({
     return kinds.size === 1 ? [...kinds][0] : undefined;
   }, [result.skipped]);
 
-  /** Danh sách dòng bỏ qua kèm số dòng, đúng khuôn WF-11 — đọc được mà không phải cuộn lưới. */
-  const problems = useMemo(() => summarizeSkipped(result.skipped), [result.skipped]);
-
   const hasInput = !isBlank(grid);
   const badCount = result.skipped.length;
-  const first = result.rows[0];
-  const last = result.rows[result.rows.length - 1];
   const canImport = result.rows.length > 0 && (badCount === 0 || skipBad);
-  const assigned = columns.filter((kind) => kind !== 'ignore').length;
+  /** Quy ước số đang dùng để đọc ô: người dùng chốt, hoặc bộ đọc tự đoán. */
+  const numberStyle = style ?? parsed.numberStyle;
+
+  /**
+   * Năm của chuỗi, in trên lưới thay cho phần năm của từng ô ngày (20/10/2026, bản vẽ của chủ dự án:
+   * "Năm 2025"). Đọc từ các phiên ĐÃ ĐỌC ĐƯỢC, nên một ô gõ nhầm năm 2062 không kéo dãn khoảng năm.
+   * Chuỗi trải hai năm trở lên thì in khoảng; không phiên nào ghi đủ năm thì không in gì.
+   */
+  const yearNote = useMemo(() => {
+    let tu = Number.POSITIVE_INFINITY;
+    let den = Number.NEGATIVE_INFINITY;
+    for (const row of result.rows) {
+      const ngay = tachNgay(row.date);
+      if (ngay === null) continue;
+      tu = Math.min(tu, ngay.nam);
+      den = Math.max(den, ngay.nam);
+    }
+    if (!Number.isFinite(tu)) return null;
+    return tu === den
+      ? t('paste.yearOne').replace('{nam}', String(tu))
+      : t('paste.yearRange').replace('{tu}', String(tu)).replace('{den}', String(den));
+  }, [result.rows, t]);
 
   /** Ô số đầu tiên đọc được, để bày hai cách đọc khi quy ước số còn mập mờ. */
   const styleSample = useMemo(() => {
@@ -473,11 +677,188 @@ export function PasteImportSheet({
     [columns, t],
   );
 
+  const dateColumn = columns.indexOf('date');
+  const openColumn = columns.indexOf('open');
+  const closeColumn = columns.indexOf('close');
+  /*
+   * Màu chữ theo vai trò cột, đo trên bản vẽ 20/10/2026: số giá đậm nhất, ngày và khối lượng nhạt một
+   * bậc. Dựng một lần cho cả lưới để `GridRow` (memo) không vẽ lại vì một mảng mới mỗi lần gõ.
+   */
+  const cellClasses = useMemo(
+    () =>
+      columns.map((kind) =>
+        kind === 'date'
+          ? styles.tdDate
+          : kind === 'volume' || kind === 'ignore'
+            ? styles.tdSoft
+            : undefined,
+      ),
+    [columns],
+  );
+
+  /**
+   * Bề ngang từng cột, tính bằng `ch` theo chữ DÀI NHẤT cột ấy đang in — cả lưới, không riêng phần
+   * dòng đang vẽ, nên cuộn dọc không làm cột nhảy (`table-layout: fixed`).
+   *
+   * Chủ dự án (20/10/2026): _"nếu width không đủ để hiển thị số liệu thì có thể scroll ngang"_. Khung
+   * rộng hơn tổng này thì bảng giãn ra lấp khung; hẹp hơn thì khung cuộn ngang, trang không tràn. Cột
+   * ngày tính theo chữ in GỌN (ngày/tháng), vì đó là thứ đứng trong ô lúc không sửa. Mức sàn là tên
+   * cột cộng dấu ˅ (hai `ch`), để tên không bị cắt.
+   */
+  const widths = useMemo(
+    () =>
+      columns.map((kind, column) => {
+        const head = kind === 'ignore' ? (labels[column] ?? '') : t(COLUMN_SHORT_KEYS[kind]);
+        // Tên cột in đậm (12px): chữ hoa đậm như "Đ", "M" rộng hơn một `ch` (chữ "0" 14px thường), nên
+        // chừa thêm một phần năm, cộng hai `ch` cho dấu ˅. Đo ở 390px khi tên còn 13px: thiếu phần năm
+        // ấy thì "Ngày" bị cắt thành "Ng…".
+        let longest = Math.ceil(Math.min(head.length, 12) * 1.2) + 2;
+        for (const row of grid) {
+          const cell = row[column] ?? '';
+          const text = column === dateColumn ? ngayGon(cell) : cell.trim();
+          longest = Math.max(longest, text.length);
+        }
+        if (!hasInput) longest = Math.max(longest, (hints[column] ?? '').length);
+        return Math.min(longest, 16);
+      }),
+    [columns, labels, grid, dateColumn, hasInput, hints, t],
+  );
+  const widthSum = widths.reduce((sum, width) => sum + width, 0);
+
+  /*
+   * Mức sàn của bảng (`min-width`, tính bằng `ch`) đọc ra px sau khi vẽ, để chia phần bề ngang DƯ.
+   *
+   * Khung rộng hơn mức sàn thì bảng phải giãn lấp khung, nhưng `table-layout: fixed` tự chia phần dư
+   * theo tỷ lệ cho MỌI cột — đo ở 1440px: cột số dòng 32 → 68px, ô số đứng xa hẳn ngày của nó. Nên
+   * phần dư được chia ở đây, chỉ cho các cột số liệu, theo tỷ lệ bề ngang của chúng. Khung hẹp hơn mức
+   * sàn thì không có gì để chia, và khung cuộn ngang.
+   *
+   * Đo lại mỗi khi bảng đổi cỡ và khi phông chữ tải xong, không chỉ khi số cột hay chữ dài nhất đổi:
+   * `ch` là bề ngang chữ "0" của phông ĐANG DÙNG. Đo một lần lúc mở thì đo trên phông thay thế — lần
+   * đo đầu ở 1440px ra 430px trong khi mức sàn thật là 460px, và bảng tràn khung đúng 30px ấy.
+   */
+  useLayoutEffect(() => {
+    const node = table.current;
+    if (node === null) return undefined;
+    const doSan = (): void => {
+      const floor = Number.parseFloat(getComputedStyle(node).minWidth);
+      setFloorWidth(Number.isFinite(floor) ? floor : 0);
+    };
+    doSan();
+    let conHieuLuc = true;
+    // jsdom không có `document.fonts`.
+    if ('fonts' in document) {
+      void document.fonts.ready.then(() => {
+        if (conHieuLuc) doSan();
+      });
+    }
+    if (typeof ResizeObserver !== 'function') {
+      return () => {
+        conHieuLuc = false;
+      };
+    }
+    const observer = new ResizeObserver(doSan);
+    observer.observe(node);
+    return () => {
+      conHieuLuc = false;
+      observer.disconnect();
+    };
+  }, [open, widthSum, columns.length]);
+  const spare = floorWidth > 0 && frameWidth > floorWidth ? frameWidth - floorWidth : 0;
+  /** Bề ngang một cột: chữ dài nhất + đệm hai bên + phần dư chia cho nó (làm tròn xuống, khỏi tràn 1px). */
+  const colWidth = (width: number): string => {
+    const share = widthSum > 0 ? Math.floor((spare * width) / widthSum) : 0;
+    return share > 0
+      ? `calc(${String(width)}ch + 1rem + ${String(share)}px)`
+      : `calc(${String(width)}ch + 1rem)`;
+  };
+
+  /** Thứ tự BÀY RA: vị trí trên màn → chỉ số dòng trong lưới. `null` là thứ tự gốc. */
+  const order = useMemo(() => {
+    if (sapXep === null) return null;
+    const list = sapXep.thuTu.filter((index) => index < grid.length);
+    // Dòng sinh ra sau lúc bấm (gõ vào dòng cuối mở thêm dòng) đứng cuối, theo thứ tự sinh.
+    for (let index = sapXep.thuTu.length; index < grid.length; index += 1) list.push(index);
+    return list;
+  }, [sapXep, grid.length]);
+  const lineAt = (position: number): number =>
+    order === null ? position : (order[position] ?? position);
+  latest.current = { grid, columns, names, order };
+
+  /**
+   * Số thứ tự TRÊN MÀN (đếm từ 1) của một dòng lưới. Chủ dự án (20/10/2026, lượt ba): _"sao số thứ tự 1
+   * mà lại là ngày 12/09/2025 ? mà không phải là 15/09/2026"_ — bảng đã bày mới nhất lên đầu mà cột số
+   * thứ tự vẫn đếm theo thứ tự gốc, nên dòng trên cùng mang số 250. Nay số đi theo màn: 1 ở trên cùng,
+   * với mọi kiểu sắp xếp. Câu báo dòng lỗi ("dòng 3") dùng cùng số này, nên nó chỉ đúng dòng đang thấy.
+   */
+  const soTrenMan = useMemo(() => {
+    if (order === null) return (line: number): number => line + 1;
+    const viTri = new Map(order.map((line, position) => [line, position]));
+    return (line: number): number => (viTri.get(line) ?? line) + 1;
+  }, [order]);
+
+  /** Danh sách dòng bỏ qua kèm số dòng TRÊN MÀN, đúng khuôn WF-11 — đọc được mà không phải cuộn lưới. */
+  const problems = useMemo(
+    () =>
+      summarizeSkipped(
+        result.skipped
+          .map((row) => ({ ...row, line: soTrenMan(row.line - 1) }))
+          .sort((a, b) => a.line - b.line),
+      ),
+    [result.skipped, soTrenMan],
+  );
+  /**
+   * Giá đóng cửa so với giá mở cửa của CHÍNH phiên ấy — màu chữ cột Đóng trong bản vẽ 20/10/2026: xanh
+   * khi đóng ≥ mở, cam khi đóng < mở. Luật đọc ra từ số trong bản vẽ: phiên 19/09 mở 101,7 đóng 102,1
+   * được tô xanh dù thấp hơn phiên trước, nên mốc so là giá mở, không phải phiên trước.
+   *
+   * Màu chỉ là dấu phụ: con số đã nói đủ (NFR-USA-06). Thiếu một trong hai giá thì không tô.
+   */
+  const trendOf = (row: ReadonlyArray<string>): ChieuSapXep | undefined => {
+    const mo = parseCellNumber(row[openColumn] ?? '', numberStyle);
+    const dong = parseCellNumber(row[closeColumn] ?? '', numberStyle);
+    if (mo === null || dong === null) return undefined;
+    return dong >= mo ? 'tang' : 'giam';
+  };
+
+  /**
+   * Bấm tên cột: lần đầu xếp GIẢM dần (số lớn nhất lên trên — như bảng Mã của Danh mục), lần hai đảo
+   * chiều, lần ba về MẶC ĐỊNH, tức ngày mới nhất lên đầu (`sapMacDinh`). Cột Ngày đã giảm dần sẵn nên
+   * bấm nó chỉ đảo qua lại giữa cũ trước và mới trước — như cột Ngày lưu của bảng Công thức ở Danh mục.
+   * Cột thừa không xếp: nó không phải số liệu được nạp.
+   */
+  function bamSapXep(column: number) {
+    const kind = columns[column];
+    if (kind === undefined || kind === 'ignore') return;
+    const dangXep = sapXep?.cot === column ? sapXep.chieu : null;
+    const chieu: ChieuSapXep | null =
+      kind === 'date'
+        ? dangXep === 'giam'
+          ? 'tang'
+          : 'giam'
+        : dangXep === null
+          ? 'giam'
+          : dangXep === 'giam'
+            ? 'tang'
+            : null;
+    setSapXep(
+      chieu === null
+        ? sapMacDinh(grid, columns)
+        : {
+            cot: column,
+            chieu,
+            thuTu: thuTuSapXep(grid, column, kind === 'date', chieu, numberStyle),
+          },
+    );
+    if (scroller.current !== null) scroller.current.scrollTop = 0;
+    setView((current) => ({ ...current, top: 0 }));
+  }
+
   /* ── Cửa sổ dòng đang vẽ ─────────────────────────────────────────────── */
 
   const total = grid.length;
-  const rendered = Math.max(MIN_RENDERED, Math.ceil(view.height / rowH) + OVERSCAN * 2);
-  const from = Math.max(0, Math.floor(view.top / rowH) - OVERSCAN);
+  const rendered = Math.max(MIN_RENDERED, Math.ceil(view.height / ROW_H) + OVERSCAN * 2);
+  const from = Math.max(0, Math.floor(view.top / ROW_H) - OVERSCAN);
   const to = Math.min(total, from + rendered);
 
   const measure = useCallback((node: HTMLDivElement | null) => {
@@ -507,10 +888,12 @@ export function PasteImportSheet({
     if (initialRows === undefined || initialRows.length === 0) return;
 
     const cells = cellsFromRows(initialRows.slice(-maxRows));
+    const filled = [...cells.map((row) => [...row]), blankRow(DEFAULT_COLUMNS.length)];
     setColumns([...DEFAULT_COLUMNS]);
     setNames(blankRow(DEFAULT_COLUMNS.length));
-    setGrid([...cells.map((row) => [...row]), blankRow(DEFAULT_COLUMNS.length)]);
+    setGrid(filled);
     setStyle('vi');
+    setSapXep(sapMacDinh(filled, DEFAULT_COLUMNS));
   }, [open, primed, initialRows, maxRows]);
 
   /*
@@ -530,6 +913,7 @@ export function PasteImportSheet({
     if (node === null) return undefined;
     const doLai = (): void => {
       if (node.clientHeight === 0) return;
+      setFrameWidth(node.clientWidth);
       setView((current) =>
         current.height === node.clientHeight ? current : { ...current, height: node.clientHeight },
       );
@@ -548,11 +932,12 @@ export function PasteImportSheet({
   const reset = useCallback(() => {
     setColumns([...DEFAULT_COLUMNS]);
     setNames(blankRow(DEFAULT_COLUMNS.length));
-    setGrid(blankGrid(DEFAULT_COLUMNS.length, BLANK_ROWS));
+    const blank = blankGrid(DEFAULT_COLUMNS.length, BLANK_ROWS);
+    setGrid(blank);
     setStyle(null);
     setDropped({ preamble: 0, truncated: 0 });
     setSkipBad(false);
-    setPicking(false);
+    setSapXep(sapMacDinh(blank, DEFAULT_COLUMNS));
     // KHÔNG hạ `primed` ở đây: "Xoá hết" cũng gọi hàm này, mà hạ cờ thì hiệu ứng đổ lại chuỗi
     // cũ ngay lập tức và nút ấy thành vô dụng. Cờ chỉ hạ khi sheet thật sự đóng.
     setView({ top: 0, height: ROW_H * 10 });
@@ -598,7 +983,7 @@ export function PasteImportSheet({
       if (table.cells.length === 0) return false;
       if (!replace && table.cells.length === 1 && blockWidth <= 1) return false;
 
-      const { grid: current, columns: kinds, names: titles } = latest.current;
+      const { grid: current, columns: kinds, names: titles, order: shown } = latest.current;
 
       let nextColumns: ColumnKind[];
       let nextNames: string[];
@@ -619,21 +1004,38 @@ export function PasteImportSheet({
          * Lưới đang có dữ liệu: đây là dán thêm một mẩu vào chỗ con trỏ. Giữ nguyên vai trò các
          * cột đang có — không tự ý đổi cột của người dùng chỉ vì họ vừa dán thêm. Mẩu dán tràn
          * quá bề ngang lưới thì phần tràn thành cột thừa.
+         *
+         * Mẩu dán đi XUỐNG theo thứ tự trên màn, không theo thứ tự trong lưới: từ khi bảng mặc định
+         * bày phiên mới nhất lên đầu (20/10/2026), dòng ngay dưới trên màn là phiên CŨ hơn, tức dòng
+         * lưới đứng TRƯỚC. Rải theo chỉ số lưới thì cột số dán vào chạy ngược lên trên. Quá dòng cuối
+         * trên màn thì mẩu dán mở thêm dòng mới ở cuối lưới.
          */
         const width = Math.max(kinds.length, atColumn + blockWidth);
-        const height = Math.max(current.length, atRow + table.cells.length);
+        const start = shown === null ? atRow : Math.max(0, shown.indexOf(atRow));
+        const targets = table.cells.map((_, offset) => {
+          const position = start + offset;
+          if (shown === null) return position;
+          return position < shown.length
+            ? (shown[position] ?? position)
+            : current.length + position - shown.length;
+        });
+        const height = Math.max(current.length, ...targets.map((line) => line + 1));
+        const blockRow = new Map(targets.map((line, offset) => [line, offset]));
         nextColumns = Array.from(
           { length: width },
           (_, index): ColumnKind => kinds[index] ?? 'ignore',
         );
         nextNames = Array.from({ length: width }, (_, index) => titles[index] ?? '');
-        rows = Array.from({ length: height }, (_, row) =>
-          Array.from(
+        rows = Array.from({ length: height }, (_, row) => {
+          const offset = blockRow.get(row);
+          return Array.from(
             { length: width },
             (_, column) =>
-              table.cells[row - atRow]?.[column - atColumn] ?? current[row]?.[column] ?? '',
-          ),
-        );
+              (offset === undefined ? undefined : table.cells[offset]?.[column - atColumn]) ??
+              current[row]?.[column] ??
+              '',
+          );
+        });
       }
 
       /*
@@ -648,13 +1050,16 @@ export function PasteImportSheet({
         rows = kept;
       }
 
+      const nextGrid = [...rows, blankRow(nextColumns.length)];
       setColumns(nextColumns);
       setNames(nextNames);
-      setGrid([...rows, blankRow(nextColumns.length)]);
+      setGrid(nextGrid);
       // Bộ dữ liệu khác thì quy ước số và lời đồng ý bỏ dòng lỗi lần trước không còn đúng nữa.
       setStyle(null);
       setSkipBad(false);
       setDropped({ preamble: table.preamble, truncated });
+      // Bộ số mới thì thứ tự đã chốt của bộ cũ không còn nghĩa gì: về mặc định, mới nhất lên đầu.
+      setSapXep(sapMacDinh(nextGrid, nextColumns));
       setView({ top: 0, height: view.height });
       if (scroller.current !== null) scroller.current.scrollTop = 0;
       return true;
@@ -662,47 +1067,22 @@ export function PasteImportSheet({
     [maxRows, view.height],
   );
 
-  /**
-   * Đặt vai trò cho một cột — tức ĐỔI CHỖ nó với cột đang giữ vai trò ấy.
-   *
-   * Một vai trò chỉ được ở đúng MỘT cột: bộ đọc lấy cột đầu tiên mang vai trò ấy (`indexOf`), nên
-   * hai cột cùng là "Giá đóng cửa" thì cột sau thành ô chết. Trước 13/10/2026 cột cũ bị đẩy sang
-   * "Không dùng", tức mỗi lần gán lại là lưới mất một vai trò và số liệu của cột ấy không được nạp.
-   * Nay hai cột đổi vai cho nhau, nên sáu vai trò luôn còn đủ.
-   *
-   * Cột được chọn là cột thừa thì cột kia thành cột thừa thay nó. Nếu cột vừa nhả vai ấy trống
-   * trơn và không có tên thì bỏ hẳn: đó là cột dựng sẵn cho một vai trò mà dữ liệu không có (bảng
-   * dán ghi 'KLGD', máy không nhận ra là khối lượng), giữ lại chỉ là một cột rỗng đứng thừa.
+  /*
+   * `setColumnKind` — đổi vai trò một cột bằng cách đổi chỗ với cột đang giữ vai trò ấy — đã BỎ cùng
+   * bảng chọn cột (20/10/2026, xem docblock `DEFAULT_COLUMNS`). Lý do nó đổi CHỖ chứ không gán đè vẫn
+   * đáng nhớ nếu có ai dựng lại: bộ đọc lấy cột ĐẦU mang một vai trò (`indexOf`), nên hai cột cùng là
+   * "Giá đóng cửa" thì cột sau thành ô chết và số liệu của nó không được nạp.
    */
-  function setColumnKind(index: number, next: SeriesColumnKind) {
-    const previous = columns[index];
-    const from = columns.indexOf(next);
-    if (previous === undefined || from === index) return;
 
-    const kinds = columns.slice();
-    kinds[index] = next;
-    if (from !== -1) kinds[from] = previous;
-
-    const leftover =
-      from !== -1 &&
-      previous === 'ignore' &&
-      (names[from] ?? '') === '' &&
-      grid.every((row) => (row[from] ?? '').trim() === '');
-
-    if (!leftover) {
-      setColumns(kinds);
-      return;
-    }
-
-    setColumns(dropAt(kinds, from));
-    setNames(dropAt(names, from));
-    setGrid(grid.map((row) => dropAt(row, from)));
-  }
-
-  /** Nhảy tới dòng hỏng đầu tiên và đặt nó ngay dưới hàng tiêu đề. */
+  /**
+   * Nhảy tới dòng hỏng đầu tiên TRÊN MÀN và đặt nó ngay dưới hàng tiêu đề. Bảng đang sắp xếp thì đó
+   * không còn là dòng hỏng có số nhỏ nhất, nên tìm theo vị trí bày ra.
+   */
   function jumpToBad() {
     if (firstBad < 0 || scroller.current === null) return;
-    const top = firstBad * rowH;
+    const position = order === null ? firstBad : order.findIndex((line) => badRows.has(line));
+    if (position < 0) return;
+    const top = position * ROW_H;
     scroller.current.scrollTop = top;
     setView((current) => ({ ...current, top }));
   }
@@ -783,32 +1163,12 @@ export function PasteImportSheet({
         </>
       }
     >
+      {/*
+        Thanh công cụ: năm của chuỗi bên trái, hai lối đưa dữ liệu vào bên phải. Nút "Cột 6/6" và
+        bảng chọn vai trò cột từng đứng ở chỗ dòng năm — bỏ 20/10/2026, xem docblock `DEFAULT_COLUMNS`.
+      */}
       <div className={styles.toolbar}>
-        <button
-          type="button"
-          className={styles.toolButton}
-          aria-expanded={picking}
-          onClick={() => {
-            setPicking((current) => !current);
-          }}
-        >
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            aria-hidden="true"
-          >
-            <path d="M4 7h16M4 12h16M4 17h16" />
-          </svg>
-          {t('paste.columnsBtn')}{' '}
-          <span className={styles.toolCount}>
-            {formatNumber(assigned)}/{formatNumber(columns.length)}
-          </span>
-        </button>
+        {yearNote !== null && <p className={styles.yearNote}>{yearNote}</p>}
 
         <div className={styles.toolRight}>
           {/*
@@ -841,28 +1201,6 @@ export function PasteImportSheet({
         </div>
       </div>
 
-      {/*
-        Bảng chọn vai trò cột, mở ra từ nút "Cột".
-        Trước đây mỗi đầu cột đội một ô chọn; sáu ô chọn xếp ngang nuốt mất chỗ của chính dữ
-        liệu và làm hàng tiêu đề cao gấp đôi. Giờ đầu cột chỉ còn TÊN vai trò — vẫn đứng đúng
-        trên cột nó nói về, nên phần đối chiếu không mất gì — và bấm vào tên ấy thì mở bảng này.
-      */}
-      {picking && (
-        <div className={styles.pickPanel}>
-          {columns.map((kind, index) => (
-            <ColumnPicker
-              key={index}
-              index={index}
-              kind={kind}
-              label={labels[index] ?? ''}
-              onChange={(next) => {
-                setColumnKind(index, next);
-              }}
-            />
-          ))}
-        </div>
-      )}
-
       <div
         className={styles.gridScroll}
         ref={measure}
@@ -872,19 +1210,25 @@ export function PasteImportSheet({
         }}
       >
         {/*
-          `--paste-cols`: số cột của lưới, để CSS tính mức sàn bề ngang — sáu cột thì vừa khung, có
-          cột thừa thì bảng rộng ra đúng một cột. `--paste-row-h`: chiều cao dòng, nguồn DUY NHẤT
-          cho cả CSS lẫn phần vẽ theo cửa sổ (xem `ROW_H`). Xem `.grid` trong file CSS kèm theo.
+          `--paste-row-h`: chiều cao dòng, nguồn DUY NHẤT cho cả CSS lẫn phần vẽ theo cửa sổ (xem
+          `ROW_H`). `minWidth`: tổng bề ngang các cột (`widths`) — khung rộng hơn thì bảng giãn lấp
+          khung, hẹp hơn thì khung cuộn ngang. Mỗi cột cộng 1rem là đệm hai bên của ô.
         */}
         <table
+          ref={table}
           className={styles.grid}
-          style={{ '--paste-cols': columns.length, '--paste-row-h': `${rowH}px` } as CSSProperties}
+          style={
+            {
+              '--paste-row-h': `${String(ROW_H)}px`,
+              minWidth: `calc(2rem + ${String(widthSum)}ch + ${String(columns.length)}rem)`,
+            } as CSSProperties
+          }
         >
           <caption className="visually-hidden">{t('paste.gridCaption')}</caption>
           <colgroup>
             <col className={styles.colLine} />
-            {columns.map((kind, index) => (
-              <col key={index} className={kind === 'date' ? styles.colDate : styles.colNumber} />
+            {widths.map((width, index) => (
+              <col key={index} style={{ width: colWidth(width) }} />
             ))}
           </colgroup>
           <thead>
@@ -892,21 +1236,54 @@ export function PasteImportSheet({
               <th scope="col" className={styles.lineHead}>
                 <span className="visually-hidden">{t('paste.rowNo')}</span>
               </th>
-              {columns.map((kind, index) => (
-                <th key={index} scope="col">
-                  <button
-                    type="button"
-                    className={kind === 'ignore' ? styles.head : `${styles.head} ${styles.headOn}`}
-                    // Tên cột thừa dài thì bị cắt bằng dấu ba chấm; rê chuột vào là đọc được đủ.
-                    title={kind === 'ignore' ? labels[index] : undefined}
-                    onClick={() => {
-                      setPicking(true);
-                    }}
+              {columns.map((kind, index) => {
+                const label = labels[index] ?? '';
+                const thClass = index === dateColumn ? styles.thDate : undefined;
+                if (kind === 'ignore') {
+                  // Cột thừa không xếp được. Tên dài thì cắt bằng dấu ba chấm; rê chuột vào là đọc đủ.
+                  return (
+                    <th key={index} scope="col" className={thClass}>
+                      <span className={`${styles.head} ${styles.headExtra}`} title={label}>
+                        {label}
+                      </span>
+                    </th>
+                  );
+                }
+                const short = t(COLUMN_SHORT_KEYS[kind]);
+                const chieu = sapXep?.cot === index ? sapXep.chieu : null;
+                return (
+                  <th
+                    key={index}
+                    scope="col"
+                    className={thClass}
+                    aria-sort={
+                      chieu === null ? undefined : chieu === 'tang' ? 'ascending' : 'descending'
+                    }
                   >
-                    {labels[index]}
-                  </button>
-                </th>
-              ))}
+                    {/*
+                      Tên đọc được là tên ĐẦY ĐỦ ("Giá mở cửa"): "Mở" nghe một mình không nói được là
+                      mở cái gì. Tên ngắn không nằm trong tên đầy đủ ("KL") thì ghép vào sau, để ai gọi
+                      nút bằng chữ đang thấy trên màn vẫn gọi trúng.
+                    */}
+                    <button
+                      type="button"
+                      className={chieu === null ? styles.head : `${styles.head} ${styles.headOn}`}
+                      aria-label={
+                        label.toLowerCase().includes(short.toLowerCase())
+                          ? label
+                          : `${label} (${short})`
+                      }
+                      title={label === short ? undefined : label}
+                      onClick={() => {
+                        bamSapXep(index);
+                      }}
+                    >
+                      <span className={styles.headText}>{short}</span>
+                      <SortIcon chieu={chieu} />
+                    </button>
+                  </th>
+                );
+              })}
             </tr>
           </thead>
           <tbody>
@@ -915,32 +1292,43 @@ export function PasteImportSheet({
               chuỗi dù chỉ có vài chục dòng thật sự nằm trong DOM.
             */}
             {from > 0 && (
-              <tr aria-hidden="true" style={{ height: `${from * rowH}px` }}>
-                <td colSpan={columns.length + 1} />
+              <tr aria-hidden="true" style={{ height: `${String(from * ROW_H)}px` }}>
+                <td className={styles.spacer} colSpan={columns.length + 1} />
               </tr>
             )}
 
-            {grid.slice(from, to).map((row, offset) => (
-              <GridRow
-                key={from + offset}
-                base={base}
-                line={from + offset}
-                rowH={rowH}
-                cells={row}
-                labels={labels}
-                numeric={numeric}
-                rowWord={rowWord}
-                hints={from + offset === 0 && !hasInput ? hints : []}
-                badColumn={badRows.get(from + offset) ?? -1}
-                emptyMark={hasInput ? emptyMark : ''}
-                onCell={setCell}
-                onBlock={applyBlock}
-              />
-            ))}
+            {Array.from({ length: to - from }, (_, offset) => {
+              const position = from + offset;
+              const line = lineAt(position);
+              const row = grid[line] ?? [];
+              return (
+                <GridRow
+                  key={line}
+                  base={base}
+                  line={line}
+                  number={position + 1}
+                  below={position + 1 < total ? lineAt(position + 1) : undefined}
+                  stripe={position % 2 === 1}
+                  cells={row}
+                  labels={labels}
+                  numeric={numeric}
+                  cellClasses={cellClasses}
+                  dateColumn={dateColumn}
+                  closeColumn={closeColumn}
+                  closeTrend={trendOf(row)}
+                  rowWord={rowWord}
+                  hints={position === 0 && !hasInput ? hints : []}
+                  badColumn={badRows.get(line) ?? -1}
+                  emptyMark={hasInput ? emptyMark : ''}
+                  onCell={setCell}
+                  onBlock={applyBlock}
+                />
+              );
+            })}
 
             {to < total && (
-              <tr aria-hidden="true" style={{ height: `${(total - to) * rowH}px` }}>
-                <td colSpan={columns.length + 1} />
+              <tr aria-hidden="true" style={{ height: `${String((total - to) * ROW_H)}px` }}>
+                <td className={styles.spacer} colSpan={columns.length + 1} />
               </tr>
             )}
           </tbody>
@@ -949,8 +1337,12 @@ export function PasteImportSheet({
 
       {/*
         Câu "Đang xem dòng 1 – 8 trong 249" từng mở đầu thanh này; chủ dự án bảo xoá (14/10/2026:
-        _"xóa text thừa này đi"_). Thanh cuộn của lưới đã nói đang ở đâu, và câu xác nhận bên phải
-        đã nói đọc được bao nhiêu phiên. Mộ chí của hai khoá ở `vi.ts` (`paste.viewing`).
+        _"xóa text thừa này đi"_). Thanh cuộn của lưới đã nói đang ở đâu. Mộ chí của hai khoá ở
+        `vi.ts` (`paste.viewing`).
+
+        Câu xác nhận bên phải ("250 phiên đọc được, từ 12/09/2025 tới 15/09/2026") cũng đã bỏ, ngày
+        20/10/2026 — chủ dự án: _"xóa đoạn text … đi"_. Số phiên còn trên nút "Nạp 250 dòng", khoảng năm
+        còn ở dòng năm trên lưới. Thanh này nay chỉ còn phần báo dòng lỗi.
       */}
       <div className={styles.status} aria-live="polite">
         {badCount > 0 && (
@@ -963,19 +1355,6 @@ export function PasteImportSheet({
               {t('paste.seeBad')}
             </button>
           </>
-        )}
-
-        {/*
-          Câu xác nhận đọc được cái gì. Khoảng ngày là chỗ duy nhất bắt được một cú dán nhầm
-          bảng khác: số phiên có thể vẫn đúng, nhưng năm thì lệch hẳn và mắt thấy ngay.
-        */}
-        {result.rows.length > 0 && (
-          <span className={styles.statusOk}>
-            {formatNumber(result.rows.length)} {t('paste.validRows')}
-            {first !== undefined && last !== undefined && first.date !== '' && last.date !== ''
-              ? `, ${t('paste.rangeFrom')} ${displaySeriesDate(first.date)} ${t('paste.rangeTo')} ${displaySeriesDate(last.date)}`
-              : ''}
-          </span>
         )}
       </div>
 
@@ -1043,62 +1422,5 @@ export function PasteImportSheet({
         </div>
       )}
     </BottomSheet>
-  );
-}
-
-/**
- * Một dòng của bảng chọn vai trò cột: số thứ tự cột + ô chọn.
- *
- * Vẫn là `<select>` gốc chứ không phải menu tự dựng: trên điện thoại nó mở bánh xe chọn quen
- * thuộc, bàn phím và trình đọc màn hình xử đúng sẵn, và không tốn thêm dung lượng gói.
- *
- * ĐÚNG SÁU lựa chọn, là sáu cột của chuỗi giá. Lựa chọn thứ bảy "Không dùng" đã bỏ ngày
- * 13/10/2026 (xem docblock `DEFAULT_COLUMNS`) — đừng thêm lại một lựa chọn "bỏ cột" dưới tên nào
- * khác: bỏ được một cột là có lại đường để số liệu của nó lặng lẽ không được nạp.
- *
- * Cột thừa thì ô chọn đang hiện TÊN của chính cột ấy, là một dòng không chọn được: nó chỉ nói
- * cột này đang là gì. Chọn một trong sáu vai trò là đổi chỗ cột thừa với cột đang giữ vai trò đó.
- */
-function ColumnPicker({
-  index,
-  kind,
-  label,
-  onChange,
-}: {
-  index: number;
-  kind: ColumnKind;
-  /** Tên đang đứng trên đầu cột này trong lưới. Chỉ dùng tới khi cột là cột thừa. */
-  label: string;
-  onChange: (kind: SeriesColumnKind) => void;
-}) {
-  const id = useId();
-  const t = useT();
-
-  return (
-    <div className={styles.pickRow}>
-      <label className={styles.pickLabel} htmlFor={id}>
-        {t('paste.column')} {index + 1}
-      </label>
-      <select
-        id={id}
-        className={kind === 'ignore' ? styles.pick : `${styles.pick} ${styles.pickOn}`}
-        value={kind === 'ignore' ? '' : kind}
-        onChange={(event) => {
-          const next = SERIES_COLUMNS.find((option) => option === event.target.value);
-          if (next !== undefined) onChange(next);
-        }}
-      >
-        {kind === 'ignore' && (
-          <option value="" disabled>
-            {label}
-          </option>
-        )}
-        {SERIES_COLUMNS.map((option) => (
-          <option key={option} value={option}>
-            {t(COLUMN_LABEL_KEYS[option])}
-          </option>
-        ))}
-      </select>
-    </div>
   );
 }

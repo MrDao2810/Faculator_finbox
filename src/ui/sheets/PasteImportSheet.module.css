@@ -4,9 +4,9 @@
  * Ba lượt trong một ngày: bỏ chip gán cột, bỏ ô văn bản tự do, rồi tới bản vẽ này. Điều bản vẽ
  * đổi ở tầng CSS là bề ngang (popup nổi giữa màn ở khổ PC, vì lưới sáu cột cần chỗ) và chiều
  * cao dòng CỐ ĐỊNH — không có chiều cao cố định thì không tính được dòng thứ mấy đang ở mép trên,
- * mà không tính được thì phải vẽ cả 251 dòng. Con số ấy do PasteImportSheet.tsx quyết (`ROW_H` 44px
- * dưới 1024px, `ROW_H_PC` 32px từ 1024px) và đặt lên `<table>` thành `--paste-row-h`; file này chỉ
- * đọc biến ấy, nên không có hai con số để lệch nhau.
+ * mà không tính được thì phải vẽ cả 251 dòng. Con số ấy do PasteImportSheet.tsx quyết (`ROW_H`, 32px
+ * ở mọi khổ từ bản vẽ 20/10/2026 — xem khối "Lưới") và đặt lên `<table>` thành `--paste-row-h`; file
+ * này chỉ đọc biến ấy, nên không có hai con số để lệch nhau.
  */
 
 /*
@@ -105,45 +105,44 @@ dialog.wide > div {
   margin-bottom: var(--space-3);
 }
 
+/*
+ * Dòng năm của chuỗi ("Năm 2025"), chỗ nút "Cột 6/6" từng đứng (20/10/2026). Bản vẽ đặt nó ngay trên
+ * lưới, chữ nhỏ và mờ: nó là chú thích cho cột Ngày bên dưới, không phải một điều khiển.
+ */
+.yearNote {
+  margin: 0;
+  font-size: var(--text-xs);
+  color: var(--color-muted);
+}
+
+/* Không có dòng năm (lưới trắng, ngày thiếu năm) thì hai nút vẫn dạt phải. */
 .toolRight {
   display: flex;
   align-items: center;
   gap: var(--space-2);
+  margin-left: auto;
 }
 
-.toolButton {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-
-  min-height: var(--tap-min);
-  padding: var(--space-1) var(--space-3);
-
-  font-family: inherit;
-  font-size: var(--text-sm);
-  font-weight: var(--weight-medium);
-  color: var(--color-ink);
-
-  background: var(--color-surface);
-  border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-md);
-  cursor: pointer;
-}
-
-.toolCount {
-  font-family: var(--font-mono);
-  color: var(--color-muted);
-}
+/*
+ * Hai nút của thanh công cụ: cao 30px, chữ 12px, ở MỌI khổ (20/10/2026). Chủ dự án khoanh "Tải file CSV"
+ * và "Xoá hết" trên điện thoại: _"giảm height và size trong button khoanh đỏ"_. Trước đó 44px chữ 14px
+ * dưới 1024px (32px từ 1024px, 14/10/2026) — to nhất màn mà không chở số liệu nào, đứng cạnh dòng năm
+ * 12px. Dưới 1024px phần chạm vẫn 44px nhờ `::after` (cùng lối `.sm` của `Button.module.css`); 7px tràn
+ * ra mỗi phía nằm trong khoảng 12px dưới thanh, không đè lên lưới.
+ *
+ * `.linkButton` còn là nút "Xem" ở thanh trạng thái dưới lưới — chữ 12px ở đó là cỡ của chính thanh ấy.
+ */
 
 /* Nhãn của ô chọn file — ô thật bị giấu, nên nhãn phải mang đủ dáng một cái nút. */
 .fileButton {
+  position: relative;
   display: inline-flex;
   align-items: center;
 
-  min-height: var(--tap-min);
-  padding: var(--space-1) var(--space-3);
+  min-height: 30px;
+  padding: 0 var(--space-3);
 
-  font-size: var(--text-sm);
+  font-size: var(--text-xs);
   font-weight: var(--weight-medium);
   color: var(--color-accent);
 
@@ -159,11 +158,12 @@ dialog.wide > div {
 }
 
 .linkButton {
-  min-height: var(--tap-min);
-  padding: var(--space-1) var(--space-2);
+  position: relative;
+  min-height: 30px;
+  padding: 0 var(--space-2);
 
   font-family: inherit;
-  font-size: var(--text-sm);
+  font-size: var(--text-xs);
   font-weight: var(--weight-medium);
   color: var(--color-accent);
 
@@ -174,121 +174,52 @@ dialog.wide > div {
   text-underline-offset: 3px;
 }
 
-/*
- * Từ 1024px ba nút của thanh công cụ cao 32px, bằng ô chọn cột và một dòng lưới bên dưới (14/10/2026,
- * cùng lượt thu gọn lưới — xem khối "Khổ PC" cuối file). Đứng ở 44px giữa một sheet toàn 32px, chúng
- * là thứ to nhất màn mà không chở số liệu nào. Dưới 1024px giữ 44px để chạm.
- */
-@media (min-width: 1024px) {
-  .toolButton,
-  .fileButton,
-  .linkButton {
-    min-height: 32px;
+@media (max-width: 1023.98px) {
+  .fileButton::after,
+  .linkButton::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    height: var(--tap-min);
+    transform: translateY(-50%);
   }
-}
-
-/* ── Bảng chọn vai trò cột ───────────────────────────────────────────────── */
-
-.pickPanel {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: var(--space-2) var(--space-3);
-
-  margin-bottom: var(--space-3);
-  padding: var(--space-3);
-
-  background: var(--color-sunken);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-}
-
-.pickRow {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-}
-
-.pickLabel {
-  flex: none;
-  min-width: 4.5em;
-
-  font-size: var(--text-xs);
-  color: var(--color-muted);
 }
 
 /*
- * Vẫn là `<select>` gốc: trên điện thoại nó mở bánh xe chọn quen thuộc, bàn phím và trình đọc
- * màn hình xử đúng sẵn. `font-size` từ 16px trở lên, dưới mức đó iOS Safari phóng to cả trang.
+ * `.pickPanel` / `.pickRow` / `.pickLabel` / `.pick` / `.pickOn` — bảng chọn vai trò cột mở từ nút
+ * "Cột 6/6" (`.toolButton`, `.toolCount`) — BỎ 20/10/2026 cùng nút ấy. Xem docblock `DEFAULT_COLUMNS`
+ * ở `PasteImportSheet.tsx`.
  */
-.pick {
-  flex: 1 1 auto;
-  min-width: 0;
-  min-height: var(--tap-min);
-  padding: var(--space-1) var(--space-2);
-
-  font-family: inherit;
-  font-size: var(--text-base);
-  font-weight: var(--weight-medium);
-  color: var(--color-ink-soft);
-
-  background: var(--color-surface);
-  border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-}
-
-/* Cột đã nhận vai trò: đổi màu chữ, đổi viền VÀ đậm chữ — ba dấu hiệu, không riêng màu. */
-.pickOn {
-  color: var(--color-accent);
-  font-weight: var(--weight-bold);
-  border-color: var(--color-accent);
-}
-
-/*
- * Từ 1024px: sáu ô MỘT hàng ngang (chủ dự án, 14/10/2026: _"thu gọn lại dễ sử dụng hơn để tối ưu thành
- * 1 dòng ngang màn web để tiết kiệm không gian"_). Trước đó mỗi ô rộng tối thiểu 200px với nhãn "Cột N"
- * đứng bên trái, nên khung chỉ chứa bốn ô một hàng và sáu ô thành hai hàng.
- *
- * Ba việc, đều đo: nhãn lên TRÊN ô chọn (đứng bên trái nó ăn ~40px mỗi ô — đúng phần thiếu để sáu ô vừa
- * một hàng ở cửa sổ 1024px); ô thấp và chữ nhỏ hơn (dưới 1024px giữ 44px để chạm, và 16px vì iOS
- * phóng to trang khi chữ trong ô nhỏ hơn); và `auto-fit` chứ không cứng sáu cột — bảng có cột thừa
- * ("Cột 7") thì ô thứ bảy xuống hàng, không ép cả hàng hẹp tới mức cắt chữ "Giá thấp nhất".
- *
- * Ô chọn cao 32px chữ 13px — bằng một dòng lưới và cỡ chữ tiêu đề cột ngay dưới nó. Bản đầu (cùng ngày)
- * là 36px chữ 14px, rồi chủ dự án khoanh chính chữ trong các ô ấy: _"text chữ thì quá to"_.
- *
- * Thứ tự ô vẫn là thứ tự cột của lưới bên dưới, từ trái sang phải.
- */
-@media (min-width: 1024px) {
-  .pickPanel {
-    grid-template-columns: repeat(auto-fit, minmax(7.5rem, 1fr));
-    gap: var(--space-2);
-    padding: var(--space-2) var(--space-3);
-  }
-
-  .pickRow {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 2px;
-  }
-
-  .pickLabel {
-    min-width: 0;
-  }
-
-  .pick {
-    min-height: 32px;
-    font-size: 13px;
-  }
-}
 
 /* ── Lưới ────────────────────────────────────────────────────────────────── */
 
 /*
- * Khung cuộn cả hai chiều, chiều cao tính theo số dòng chẵn.
+ * ── Bản vẽ 20/10/2026 ──────────────────────────────────────────────────────────────────────────
  *
- * Chặn chiều cao ở đây là thứ giữ cho thanh trạng thái và nút Nạp luôn nhìn thấy — hai khối
- * người dùng phải đọc TRƯỚC khi bấm. Nó cũng là cái khung mà phần vẽ theo cửa sổ đo vào.
+ * Chủ dự án gửi một bảng giá mẫu và bảo đổi lưới theo nó, ở cả điện thoại lẫn PC: tên cột ngắn
+ * (Ngày · Mở · Cao · Thấp · Đóng · KL) kèm dấu ˅ để sắp xếp, dòng sọc xen kẽ thay cho kẻ ngang,
+ * không kẻ dọc, đầu bảng sáng hơn thân bảng, ô ngày chỉ in ngày/tháng (năm in một lần trên lưới),
+ * và cột Đóng tô xanh khi đóng ≥ mở, cam khi đóng < mở. Số trong ô giữ NGUYÊN như nhập — bản vẽ quy
+ * về nghìn đồng, chủ dự án bảo tạm giữ như cũ.
+ *
+ * Màu đo trên ảnh (bảng tối), rồi quy về token vì ảnh tối đều hơn sản phẩm một bậc: xanh #76b0ef →
+ * `--color-accent`, cam #e29d79 → `--color-highlight`, kẻ dưới đầu bảng #283250 → `--color-border`.
+ * Dải sọc (+3 độ sáng trên nền) và đầu bảng (+7) là hai mức pha `--color-ink` vào `--color-surface`
+ * — pha chứ không phải token mới, nên ở bảng sáng chúng tự thành hai mức xám nhạt cùng thứ bậc.
+ * Chữ: số giá `--color-ink`, ngày và khối lượng nhạt một bậc (`--color-ink-soft`).
+ *
+ * Cỡ: dòng 32px (`ROW_H`, mọi khổ), chữ ô 14px — tỷ lệ dòng/chữ của bản vẽ. Cái giá đã biết: chữ ô
+ * dưới 16px thì iOS Safari phóng to trang khi chạm vào ô, như ô sắp xếp ở danh sách công thức.
+ */
+
+/*
+ * Khung cuộn cả hai chiều. Chặn chiều cao ở đây là thứ giữ cho thanh trạng thái và nút Nạp luôn nhìn
+ * thấy — hai khối người dùng phải đọc TRƯỚC khi bấm. Nó cũng là cái khung mà phần vẽ theo cửa sổ đo vào.
+ *
+ * Bảng không vừa bề ngang thì CHỈ khung này cuộn ngang (chủ dự án, 20/10/2026: _"nếu width không đủ để
+ * hiển thị số liệu thì có thể scroll ngang"_); cột số dòng và cột Ngày đứng yên khi cuộn — xem dưới.
  */
 .gridScroll {
   /* Cùng bộ đôi với `.scroller` của primitive Table — lý do đầy đủ ghi ở Table.module.css. */
@@ -302,7 +233,7 @@ dialog.wide > div {
   overscroll-behavior: contain;
 
   background: var(--color-surface);
-  border: 1px solid var(--color-border-strong);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
 }
 
@@ -322,117 +253,172 @@ dialog.wide > div {
 }
 
 /*
- * Ba thứ ở đây đều bắt buộc, không phải để cho gọn.
- *
- * `table-layout: fixed` — chỉ một phần dòng nằm trong DOM, nên để trình duyệt tự cân bề ngang
- * cột theo nội dung thì mỗi lần cuộn các cột lại nhảy một kiểu.
- * `border-collapse: separate` — hàng tiêu đề dính, mà với `collapse` thì viền của nó bị vẽ lại
- * tại chỗ cũ, để lộ một đường kẻ trôi giữa bảng.
- * `width: 100%` + `min-width` tính theo số cột — bảng lấp vừa khung khi khung đủ rộng, và chỉ tràn
- * ra cho khung cuộn ngang khi các cột sắp hẹp hơn mức đọc được.
- *
- * ── Bề ngang cột là một phép tính, đo ngày 13/10/2026 ────────────────────────────────────────
- *
- * Bản trước đặt cứng 3rem + 11rem + 5 × 9,5rem = 984px cho sáu cột, với `width: max-content`. Khung
- * cuộn của popup rộng nhất (1040px) chỉ có 966px, nên sáu cột KHÔNG BAO GIỜ vừa: màn nào cũng có
- * một thanh cuộn ngang, và ở cửa sổ 1025px cột Khối lượng chỉ còn ló ra một mẩu — chủ dự án chụp
- * đúng cảnh ấy, kèm câu "một số cột sau khi nạp không thấy số liệu trên table". Thanh cuộn ngang
- * lại nằm ở đáy khung 440px, thường khuất dưới mép popup, nên không có gì báo là còn cột bên phải.
- *
- * Nay cột số KHÔNG đặt bề ngang: với `table-layout: fixed` chúng chia đều phần còn lại. Mức sàn
- * 8,25rem (132px) là số dài nhất bảng này thật sự gặp, khối lượng chín chữ số '450.907.795' — 11 ký
- * tự đơn cách 9,6px cộng 24px đệm. Cột ngày 9rem cho 'dd/mm/yyyy' cộng dấu báo lỗi. Sáu cột cần
- * 852px, vừa mọi cửa sổ từ khoảng 985px; hẹp hơn thì cuộn ngang như cũ.
- *
- * `--paste-cols` do PasteImportSheet.tsx đặt: số cột của lưới, sáu cộng số cột thừa. Cột thừa làm
- * mức sàn rộng ra đúng một cột, nên nó đẩy bảng tràn chứ không bóp sáu cột kia.
+ * Từ 1024px khung cao ĐẦY bằng tiêu đề 37px (36px + 1px kẻ dưới) + 12 dòng × 32px + 2px viền = 423px,
+ * không cắt nửa dòng ở mép dưới. Số viết tay chứ không qua `--paste-row-h`: biến ấy đặt trên `<table>`,
+ * là CON của khung này, nên khung không đọc được. Đổi `ROW_H` hay chiều cao tiêu đề thì đổi cả đây.
+ */
+@media (min-width: 1024px) {
+  .gridScroll {
+    flex-basis: 423px;
+  }
+}
+
+/*
+ * `table-layout: fixed` — chỉ một phần dòng nằm trong DOM, nên để trình duyệt tự cân bề ngang cột theo
+ * nội dung thì mỗi lần cuộn các cột lại nhảy một kiểu. Bề ngang từng cột do `PasteImportSheet.tsx` tính
+ * theo chữ dài nhất của CẢ cột (`<col style>`), và `min-width` của bảng là tổng ấy (đặt inline): khung
+ * rộng hơn thì bảng giãn lấp khung, hẹp hơn thì khung cuộn ngang.
+ * `border-collapse: separate` — hàng tiêu đề và hai cột đầu dính, mà với `collapse` thì viền của chúng
+ * bị vẽ lại tại chỗ cũ, để lộ một đường kẻ trôi giữa bảng.
  */
 .grid {
   width: 100%;
-  min-width: calc(2.5rem + 9rem + (var(--paste-cols, 6) - 1) * 8.25rem);
   table-layout: fixed;
   border-collapse: separate;
   border-spacing: 0;
   font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
 }
 
-/* 2,5rem: "251" (trần số dòng) chữ mono 12px rộng ~22px, đứng GIỮA cột — xem `.lineNo`. */
+/* 2rem: "251" (trần số dòng) chữ mono 11px rộng ~20px, đứng GIỮA cột — xem `.lineNo`. */
 .colLine {
-  width: 2.5rem;
-}
-
-.colDate {
-  width: 9rem;
-}
-
-/* Không đặt bề ngang: các cột số chia đều phần còn lại — xem khối chú thích của `.grid`. */
-.colNumber {
-  width: auto;
+  width: 2rem;
 }
 
 .grid thead th {
   position: sticky;
   top: 0;
-  z-index: 1;
+  z-index: 2;
 
-  height: 44px;
+  height: 36px;
   padding: 0;
 
-  background: var(--color-sunken);
+  background: color-mix(in srgb, var(--color-surface) 92%, var(--color-ink));
   border-bottom: 1px solid var(--color-border);
 }
 
 /*
- * Tên vai trò cột là một cái NÚT, không phải chữ chết: nó đứng đúng trên cột nó nói về, nên
- * đó cũng là chỗ tay tìm tới khi máy đoán sai. Bấm vào mở bảng chọn phía trên.
+ * Cột số dòng và cột Ngày đứng yên khi cuộn ngang: cuộn sang cột Khối lượng mà không còn thấy ngày là
+ * không biết con số ấy của phiên nào. Cột Ngày luôn là cột dữ liệu đầu (docblock `DEFAULT_COLUMNS`), và
+ * đứng ngay sau cột số dòng rộng 2rem (`.colLine`) — hai con số ấy phải đi cùng nhau.
+ * Ô dính cần nền đặc, nên nền dòng đặt trên TỪNG Ô chứ không trên `<tr>` (xem dưới).
+ */
+.grid thead th.lineHead,
+.grid tbody th {
+  position: sticky;
+  left: 0;
+}
+
+.grid thead th.thDate,
+.grid tbody td.tdDate {
+  position: sticky;
+  left: 2rem;
+}
+
+/* Góc trên trái nằm đè lên cả hàng tiêu đề lẫn hai cột dính khi cuộn theo hai chiều. */
+.grid thead th.lineHead,
+.grid thead th.thDate {
+  z-index: 3;
+}
+
+.grid tbody th,
+.grid tbody td.tdDate {
+  z-index: 1;
+}
+
+/*
+ * Tên cột là một NÚT sắp xếp (20/10/2026: _"dấu v đó là icon sắp xếp bảng"_): tên ngắn và dấu ˅, canh
+ * phải như số bên dưới. Bấm lần đầu xếp giảm dần, lần hai tăng dần (dấu lật lên ˄), lần ba về mặc định —
+ * Ngày giảm dần, phiên mới nhất lên đầu; luật ở `bamSapXep`. Cột đang xếp đổi màu cả chữ lẫn dấu, và mang
+ * `aria-sort` — nên mở ra là cột Ngày đã mang màu ấy.
+ *
+ * Chữ 12px (13px tới lượt hai cùng ngày; chủ dự án: _"các tiêu đề đang quá to. vì đã in đậm rồi nên không
+ * nhất thiết để size text lớn như vậy"_): đậm đã đủ tách nó khỏi số 14px bên dưới.
+ *
+ * `flex-direction: row` khai thẳng (20/10/2026): bản sao của luật này ở bảng `/du-lieu/` (`.colHead`)
+ * từng thừa hưởng `column` của một lớp trùng tên và rơi dấu ˅ xuống dưới chữ. Hai luật phải giống hệt
+ * (`bang-so-lieu-css.test.ts`), nên bên này khai cùng.
  */
 .head {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 3px;
+
   width: 100%;
-  height: 44px;
-  padding: 0 var(--space-3);
+  height: 36px;
+  padding: 0 var(--space-2);
 
   font-family: inherit;
-  font-size: var(--text-sm);
+  font-size: var(--text-xs);
   font-weight: var(--weight-bold);
-  text-align: right;
-  color: var(--color-muted);
-
-  /*
-   * Cột thừa đứng dưới tên của chính nó trong dữ liệu đã dán, và tên ấy dài bao nhiêu thì sản
-   * phẩm không quyết được ('GD thoả thuận · Giá trị (tỷ VND)'). Cắt bằng dấu ba chấm, không cho
-   * xuống dòng: hàng tiêu đề dính cao cố định 44px.
-   */
-  overflow: hidden;
-  text-overflow: ellipsis;
   white-space: nowrap;
+  color: var(--color-ink-soft);
 
   background: none;
   border: 0;
   cursor: pointer;
 }
 
-/* Sáu cột của chuỗi giá. Cột thừa giữ màu mờ của `.head`: nó có mặt nhưng không được nạp. */
-.headOn {
-  color: var(--color-ink);
+.head:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: -2px;
 }
 
-/* Cột ngày là chữ nên canh trái, cho khỏi lẫn với rừng cột số bên phải. */
-.grid th:nth-child(2) .head {
-  text-align: left;
+@media (hover: hover) {
+  .head:hover {
+    color: var(--color-ink);
+  }
+}
+
+.headText {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.headOn,
+.headOn:hover {
+  color: var(--color-accent);
+}
+
+.sortIcon {
+  flex: none;
+  color: var(--color-muted);
+}
+
+.headOn .sortIcon {
+  color: var(--color-accent);
+}
+
+.sortIcon[data-chieu='tang'] {
+  transform: rotate(180deg);
 }
 
 /*
- * Cột số thứ tự: hẹp hết mức, chữ mờ — nó chỉ để dò lại "dòng 41" trong câu cảnh báo.
- *
- * Số đứng GIỮA cột (14/10/2026). Trước đó nó căn phải với `padding: 0 var(--space-2)` — nhưng
- * `.grid tbody th` khai sau, cao hơn một bậc ưu tiên, và đặt `padding: 0`, nên đệm ấy chưa bao giờ có
- * hiệu lực: số dính sát kẻ dọc của cột Ngày, còn bên trái là một dải trống 30px. Chủ dự án khoanh
- * đúng hai chỗ ấy. Căn giữa thì không phụ thuộc đệm nữa.
+ * Cột thừa: tên của chính nó trong dữ liệu đã dán, mờ vì nó có mặt nhưng không được nạp, và không
+ * xếp được. Tên ấy dài bao nhiêu thì sản phẩm không quyết được ('GD thoả thuận · Giá trị (tỷ VND)'),
+ * nên cắt bằng dấu ba chấm.
  */
+.headExtra {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 36px;
+  color: var(--color-muted);
+  cursor: default;
+}
+
+/* Cột ngày là chữ nên canh trái, cho khỏi lẫn với rừng cột số bên phải. */
+.thDate .head {
+  justify-content: flex-start;
+}
+
+/* Cột số thứ tự: hẹp hết mức, chữ mờ — nó chỉ để dò lại "dòng 41" trong câu cảnh báo. */
 .lineHead,
 .lineNo {
   font-family: var(--font-mono);
-  font-size: var(--text-xs);
+  font-size: 11px;
   font-weight: var(--weight-regular);
   text-align: center;
   color: var(--color-muted);
@@ -444,37 +430,48 @@ dialog.wide > div {
 }
 
 /*
- * `--paste-row-h` do PasteImportSheet.tsx đặt lên `<table>` (44px dưới 1024px, 32px từ 1024px) — nguồn
- * DUY NHẤT của chiều cao dòng, cùng con số phần vẽ theo cửa sổ dùng để tính dòng nào đang ở mép trên.
+ * Dòng: không kẻ, nền đặt trên từng ô (hai cột đầu dính cần nền đặc), sọc xen kẽ theo VỊ TRÍ BÀY RA —
+ * `GridRow` nhận `stripe` từ vị trí trên màn, không từ `nth-child`, vì ô đệm của phần vẽ theo cửa sổ
+ * cũng là một `<tr>` và sẽ làm lệch chẵn lẻ mỗi lần cuộn.
+ *
+ * `--paste-row-h` do PasteImportSheet.tsx đặt lên `<table>` — nguồn DUY NHẤT của chiều cao dòng, cùng
+ * con số phần vẽ theo cửa sổ dùng để tính dòng nào đang ở mép trên.
  */
 .grid tbody th,
 .grid tbody td {
-  height: var(--paste-row-h, 44px);
+  height: var(--paste-row-h, 32px);
   padding: 0;
-  border-bottom: 1px solid var(--color-hairline);
+  background: var(--color-surface);
 }
 
-/* Kẻ dọc giữa các ô: không có nó thì hai cột số dính thành một khối chữ. */
-.grid tbody th + td,
-.grid tbody td + td {
-  border-left: 1px solid var(--color-hairline);
+/* `.grid` ở đầu: `.grid tbody td` phía trên có một lớp và hai tên thẻ, thiếu nó thì luật này thua. */
+.grid .rowStripe > th,
+.grid .rowStripe > td {
+  background: color-mix(in srgb, var(--color-surface) 96%, var(--color-ink));
+}
+
+/* Ô đệm của phần vẽ theo cửa sổ: không có gì để tô. */
+.grid tbody td.spacer {
+  background: none;
 }
 
 /*
  * Ô nhập.
  *
- * Không viền riêng: ô đã nằm trong ô bảng, thêm một khung nữa thành lưới đôi. Chiều cao trừ đi
- * đúng 1px của kẻ chia để dòng cao khớp hằng `ROW_H` bên .tsx, thứ phần vẽ theo cửa sổ dựa vào.
- * `font-size` từ 16px trở lên, dưới mức đó iOS Safari phóng to cả trang khi chạm.
+ * Không viền riêng: ô đã nằm trong ô bảng, thêm một khung nữa thành lưới đôi. Chiều cao đúng bằng
+ * dòng (không còn kẻ chia nào để trừ), khớp hằng `ROW_H` bên .tsx mà phần vẽ theo cửa sổ dựa vào.
+ * Chữ của sản phẩm với số đều nhau (`tabular-nums` ở `.grid`), không còn chữ mono: bản vẽ dùng chữ
+ * thường, và số đều bề ngang thì cột vẫn thẳng hàng.
  */
 .cell {
   display: block;
   width: 100%;
-  height: calc(var(--paste-row-h, 44px) - 1px);
-  padding: 0 var(--space-3);
+  height: var(--paste-row-h, 32px);
+  padding: 0 var(--space-2);
 
-  font-family: var(--font-mono);
-  font-size: var(--text-base);
+  font-family: inherit;
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
   text-align: right;
   color: var(--color-ink);
 
@@ -492,18 +489,32 @@ dialog.wide > div {
   outline-offset: -2px;
 }
 
-.grid tbody td:first-of-type .cell {
+.tdDate .cell {
   text-align: left;
+  color: var(--color-ink-soft);
+}
+
+.tdSoft .cell {
+  color: var(--color-ink-soft);
+}
+
+/* Cột Đóng: xanh khi đóng ≥ mở, cam khi đóng < mở — `trendOf` ở PasteImportSheet.tsx. */
+td[data-xu-huong='tang'] .cell {
+  color: var(--color-accent);
+}
+
+td[data-xu-huong='giam'] .cell {
+  color: var(--color-highlight);
 }
 
 /*
- * Dòng hỏng và ô hỏng.
+ * Dòng hỏng và ô hỏng — khai SAU dải sọc và màu cột Đóng, cùng độ ưu tiên nên thứ tự quyết.
  *
  * Ba dấu hiệu chồng lên nhau, không chỉ màu (NFR-USA-06): nền đổi, chữ đậm lên, và một dấu báo
  * VẼ RA nằm trước nội dung. Ô hỏng còn mang `aria-invalid`, nên trình đọc màn hình cũng nói ra.
  */
-.rowBad td,
-.rowBad th {
+.grid .rowBad > td,
+.grid .rowBad > th {
   background: var(--color-danger-soft);
 }
 
@@ -511,8 +522,8 @@ dialog.wide > div {
   position: relative;
 }
 
-.cellBad .cell {
-  padding-left: calc(var(--space-3) + 18px);
+.grid .cellBad .cell {
+  padding-left: calc(var(--space-1) + 16px);
   font-weight: var(--weight-bold);
   color: var(--color-danger);
 }
@@ -520,60 +531,9 @@ dialog.wide > div {
 .badMark {
   position: absolute;
   top: 50%;
-  left: var(--space-2);
+  left: var(--space-1);
   transform: translateY(-50%);
   color: var(--color-danger);
-}
-
-/*
- * ── Khổ PC: lưới gọn (14/10/2026) ──────────────────────────────────────────────────────────────
- *
- * Chủ dự án khoanh ô chọn, hàng tiêu đề, dòng đầu và cột số thứ tự: _"không gian thừa quá nhiều, text
- * chữ thì quá to chiếm không gian hiển thị số liệu, padding căn chỉnh lại cho đều và đẹp"_. Đo trước
- * khi sửa (1440px): dòng 44px với chữ mono 16px, hàng tiêu đề 45px chữ 14px đậm, ô chọn 36px chữ 14px
- * đậm, khung 440px chỉ hiện 9 dòng.
- *
- * Từ 1024px (chuột, không cần 44px để chạm, và iOS không phóng to): dòng 32px (do `ROW_H_PC` bên .tsx,
- * qua `--paste-row-h`), chữ ô 14px, tiêu đề cao bằng một dòng với chữ 13px (ô chọn phía trên cũng
- * vậy — khối của nó ở phần bảng chọn). Đệm ngang giữ `--space-3` ở cả tiêu đề lẫn ô, nên chữ tiêu đề
- * thẳng mép với số bên dưới. Khung cao đúng tiêu đề + 12 dòng, không cắt nửa dòng ở mép dưới.
- *
- * Bề ngang tính lại theo chữ 14px: cột ngày 8rem ('dd/mm/yyyy' 84px + 24px đệm + 18px dấu báo lỗi),
- * mức sàn cột số 7,5rem (khối lượng chín chữ số '450.907.795' 92px + 24px đệm). Sáu cột cần 768px.
- *
- * Dưới 1024px không đổi: 44px để chạm, chữ ô 16px vì iOS phóng to trang khi chữ trong ô nhỏ hơn.
- */
-@media (min-width: 1024px) {
-  /*
-   * Chiều cao ĐẦY của khung: tiêu đề 33px (32px + 1px kẻ dưới) + 12 dòng × 32px + 2px viền. Là
-   * `flex-basis`, nên cửa sổ thấp thì khung co lại thay vì đẩy thân sheet mọc thanh cuộn thứ hai. Số viết
-   * tay chứ không qua `--paste-row-h`: biến ấy đặt trên `<table>`, là CON của khung này, nên khung không
-   * đọc được. Đổi `ROW_H_PC` thì đổi cả đây.
-   */
-  .gridScroll {
-    flex-basis: 419px;
-  }
-
-  .grid {
-    min-width: calc(2.5rem + 8rem + (var(--paste-cols, 6) - 1) * 7.5rem);
-  }
-
-  .colDate {
-    width: 8rem;
-  }
-
-  .grid thead th,
-  .head {
-    height: 32px;
-  }
-
-  .head {
-    font-size: 13px;
-  }
-
-  .cell {
-    font-size: var(--text-sm);
-  }
 }
 
 /* ── Thanh trạng thái ────────────────────────────────────────────────────── */
@@ -604,11 +564,14 @@ dialog.wide > div {
   transform: none;
 }
 
-/* Câu xác nhận đẩy về cuối hàng, tách hẳn khỏi phần đếm dòng lỗi. */
-.statusOk {
-  margin-left: auto;
-  font-weight: var(--weight-medium);
-  color: var(--color-success);
+/*
+ * `.statusOk` — câu "250 phiên đọc được, từ … tới …" ở cuối thanh — BỎ 20/10/2026 theo lời chủ dự án.
+ * Không còn dòng lỗi thì thanh rỗng: bỏ luôn khoảng cách trên của nó, để lưới không chừa một dải trống.
+ * Thanh vẫn đứng đó (chứ không bị bỏ khỏi DOM) vì nó là vùng `aria-live`: dòng lỗi mới hiện ra phải
+ * rơi vào một vùng đã có sẵn thì trình đọc màn hình mới đọc.
+ */
+.status:empty {
+  margin-top: 0;
 }
 
 /* ── Cảnh báo về ý nghĩa dữ liệu ─────────────────────────────────────────── */

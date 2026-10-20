@@ -312,3 +312,58 @@
   background: var(--color-warning-soft);
   border: 1px solid var(--color-warning-line);
 }
+
+/*
+ * Khổ điện thoại: đầu thẻ và thanh chọn khoảng nhỏ hơn để biểu đồ lên cao (20/10/2026) — lời yêu cầu
+ * và số đo ở `DataTableScreen.module.css`. Ở 390px trước khi sửa: dòng mã + số phiên 14px, giá 26px,
+ * mức đổi 14px, thanh 1T/3T/6T/Cả chuỗi cao 44px (nút 40px, chữ 14px).
+ *
+ * - Huy hiệu mã 24 → 20px, chữ 11px; dòng số phiên 12px; giá 26 → 20px; mức đổi 12px.
+ * - Nút khoảng 40 → 28px, chữ 12px, khay còn 32px — cùng cỡ năm nút ở đầu màn. Lớp phủ 44px căng
+ *   giữa giữ vùng chạm (NFR-USA-01), cùng cách `.sm` của `Button`; nó thò 8px trên dưới, vừa đúng
+ *   khe 12px của thẻ nên không chạm dòng giá hay hình.
+ *
+ * Phải đứng cuối file: cùng độ ưu tiên với luật gốc, chỉ thứ tự quyết định. Từ 1024px không đổi gì.
+ */
+@media (max-width: 1023.98px) {
+  .code {
+    min-height: 20px;
+    font-size: 11px;
+  }
+
+  .meta {
+    font-size: var(--text-xs);
+  }
+
+  .price {
+    font-size: var(--text-lg);
+  }
+
+  .changeUp,
+  .changeDown {
+    font-size: var(--text-xs);
+  }
+
+  /* Khay bo 6px thay 10px, cùng năm nút đầu màn (chủ dự án: _"giảm bớt độ tròn"_); nút trong vẫn
+     `inherit` nên chỉ một chỗ khai. */
+  .ranges {
+    border-radius: var(--radius-sm);
+  }
+
+  .range {
+    position: relative;
+    min-height: 28px;
+    padding: 0 10px;
+    font-size: var(--text-xs);
+  }
+
+  .range::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    height: var(--tap-min);
+    transform: translateY(-50%);
+  }
+}

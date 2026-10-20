@@ -76,6 +76,41 @@
 }
 
 /*
+ * Khổ điện thoại: đầu màn nhỏ và thấp hơn để biểu đồ lên cao (20/10/2026). Chủ dự án khoanh tiêu đề,
+ * dòng phụ, hai hàng nút và đầu thẻ nến: _"cần giảm size text và giảm height của button bản mobile để
+ * có nhiều không gian hiển thị chart"_. Đo ở 390px trước khi sửa: tiêu đề 26px, dòng phụ 14px, năm nút
+ * 36px chữ 14px xếp hai hàng, biểu đồ bắt đầu ở 380px.
+ *
+ * - Tiêu đề 26 → 20px (cỡ tên công thức ở khổ này), dòng phụ 14 → 12px.
+ * - Năm nút 36 → 28px, chữ 12px, đệm ngang 10px — cỡ cặp Cơ bản/Nâng cao ở màn Công thức. Vùng chạm
+ *   vẫn 44px nhờ lớp phủ của `.sm` (`Button.module.css`); hai hàng cách 8px nên lớp phủ của hai hàng
+ *   chỉ chồng nhau trong khe, không phủ lên hộp của nút kia.
+ *
+ * `.actions > button` (một lớp + thẻ) thắng `.sm` của primitive bất kể thứ tự nạp file. Từ 1024px
+ * không đổi gì. Nửa còn lại (đầu thẻ nến, thanh 1T/3T/6T) ở `CandleChart.module.css`.
+ */
+@media (max-width: 1023.98px) {
+  .title {
+    font-size: var(--text-lg);
+  }
+
+  .subtitle {
+    font-size: var(--text-xs);
+  }
+
+  /*
+   * Bo `--radius-sm` (6px) thay cho 10px của `Button` (20/10/2026, chủ dự án: _"bo xung quanh đang quá
+   * tròn, giảm bớt độ tròn"_): 10px trên nút cao 28px đã gần nửa chiều cao, tức gần viên thuốc.
+   */
+  .actions > button {
+    min-height: 28px;
+    padding: 0 10px;
+    font-size: var(--text-xs);
+    border-radius: var(--radius-sm);
+  }
+}
+
+/*
  * Hai khối dưới biểu đồ: bảng bên trái, cột kiểm tra bên phải — bản vẽ 10/09/2026.
  *
  * Cột kiểm rộng CỐ ĐỊNH 320px chứ không theo phần trăm: nội dung của nó là chữ và số ngắn, nên
@@ -133,6 +168,17 @@
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--color-ink);
+}
+
+/*
+ * Dòng năm của chuỗi ("Năm 2025", "Từ năm 2025 tới 2026") cạnh tiêu đề bảng, thay cho phần năm của
+ * từng ô ngày (20/10/2026) — cùng chữ, cùng cỡ với dòng năm trên lưới popup. Chú thích cho cột Ngày,
+ * không phải điều khiển, nên nhỏ và mờ.
+ */
+.yearNote {
+  margin: 0;
+  font-size: var(--text-xs);
+  color: var(--color-muted);
 }
 
 /* ── Cột kiểm tra dữ liệu ─────────────────────────────────────────────────── */
@@ -290,6 +336,24 @@
 }
 
 /*
+ * ── Bảng số liệu theo bản vẽ 20/10/2026 ────────────────────────────────────────────────────────
+ *
+ * Chủ dự án: _"thay đổi tương tự với bảng số liệu của phần Chuỗi giá OHLCV"_, tức đúng khuôn lưới của
+ * popup "Bảng dữ liệu" (`PasteImportSheet.module.css`, bản vẽ cùng ngày). Số đo CHÉP từ đó, không đo
+ * lại: dòng 32px không kẻ, sọc xen kẽ, đầu bảng 36px sáng hơn thân, tên cột 12px đậm kèm dấu ˅, chữ
+ * ô 14px `tabular-nums`, ngày và khối lượng nhạt một bậc, cột Đóng tô theo giá mở. Hai màu nền là hai
+ * mức pha `--color-ink` vào `--color-surface`, nên bảng sáng tự có cùng thứ bậc.
+ *
+ * Đảo một quyết định cũ, có biết: từ 09/2026 mỗi ô là một hộp có viền (`--color-border-strong`), vì
+ * chủ dự án thấy ô trơn _"quá mờ nhạt … không biết là có thể nhập liệu được vào đó"_. Ô nay trơn như
+ * lưới popup; dấu "gõ được" còn lại là chữ mờ `_ _` ở ô trống và vòng focus khi chạm vào.
+ *
+ * Khác lưới popup ở hai chỗ, đều vì đây là một màn chứ không phải một popup: bảng KHÔNG có khung cao
+ * cố định (cả bảng nằm trong trang, nên đầu bảng không dính khi cuộn dọc), và có thêm cột nút xoá ở
+ * cuối. Cái giá đã biết: nút xoá cao 32px, dưới vùng chạm 44px — cùng cái giá ô nhập của lưới popup.
+ */
+
+/*
  * Bảng sáu cột không thể vừa 360px. Cho nó khung cuộn NGANG RIÊNG chứ không để cả trang
  * tràn ngang — đúng cách đã dùng cho bảng lịch trả nợ WF-14 ở đợt 7.
  */
@@ -308,150 +372,231 @@
  * cùng vẽ viền là hai đường kẻ lồng nhau cách nhau đúng 16px đệm.
  */
 
+/*
+ * `table-layout: fixed` với bề ngang từng cột do DataTableScreen.tsx tính (`widths`, `colWidth`), và
+ * `min-width` là tổng ấy: khung rộng hơn thì bảng giãn lấp khung, hẹp hơn thì khung cuộn ngang.
+ * `border-collapse: separate` — hai cột đầu dính khi cuộn ngang, mà với `collapse` thì viền của chúng
+ * bị vẽ lại tại chỗ cũ.
+ */
 .table {
   width: 100%;
-  border-collapse: collapse;
+  table-layout: fixed;
+  border-collapse: separate;
+  border-spacing: 0;
   font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
 }
 
-.table th {
-  padding: var(--space-2) var(--space-2);
+/* Cột số thứ tự và cột nút xoá: 2rem, như cột số thứ tự của lưới popup. */
+.colLine,
+.colRemove {
+  width: 2rem;
+}
 
-  font-size: var(--text-xs);
-  font-weight: var(--weight-medium);
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--color-muted);
-  text-align: left;
-  white-space: nowrap;
+.table thead th {
+  height: 36px;
+  padding: 0;
 
-  background: var(--color-sunken);
+  background: color-mix(in srgb, var(--color-surface) 92%, var(--color-ink));
   border-bottom: 1px solid var(--color-border);
 }
 
-/* Đệm 3px là rãnh giữa các ô nhập — xem chú thích ở .cell về việc mỗi ô là một hộp riêng. */
-.table td {
-  padding: 3px;
-  border-bottom: 1px solid var(--color-hairline);
+/*
+ * Cột số thứ tự và cột Ngày đứng yên khi cuộn ngang: cuộn sang cột Khối lượng mà không còn thấy ngày
+ * là không biết con số ấy của phiên nào. Cột Ngày đứng ngay sau cột số thứ tự rộng 2rem (`.colLine`)
+ * — hai con số ấy phải đi cùng nhau. Ô dính cần nền đặc, nên nền dòng đặt trên TỪNG Ô.
+ */
+.table thead th.lineHead,
+.table tbody th {
+  position: sticky;
+  left: 0;
+  z-index: 1;
 }
 
-.table tr:last-child td {
-  border-bottom: none;
-}
-
-/* Cột cờ báo lỗi và cột nút xoá — hẹp, không co giãn. Không phải ô nhập nên không cần rãnh. */
-.flagCol {
-  width: 28px;
-  text-align: center;
-}
-
-.table td.flagCol {
-  padding: 0;
+.table thead th.thDate,
+.table tbody td.tdDate {
+  position: sticky;
+  left: 2rem;
+  z-index: 1;
 }
 
 /*
- * Ô nhập phải TRÔNG như ô nhập.
+ * Tên cột là một NÚT sắp xếp — luật bấm ở `bamSapXep`, cùng lưới popup. Chữ và dấu ˅ trên MỘT hàng,
+ * dấu bên phải chữ; cột số dạt phải thẳng mép con số, cột Ngày dạt trái.
  *
- * Trước đợt này ô để `background: transparent; border: none` — chép cách của InlineNumber, vốn
- * cố ý giấu viền vì nó đứng lẫn trong dòng chữ và vẽ hộp sẽ biến câu văn thành hàng biểu mẫu.
- * Ở đây lý do ấy KHÔNG còn: 6 cột × tối đa 248 dòng đều là ô sửa được, xung quanh không có chữ
- * nào để lẫn vào, nên giấu viền chỉ khiến cả bảng đọc ra là bảng chỉ-đọc. Chủ dự án báo đúng
- * thế: "các ô quá mờ nhạt làm cho tôi cũng không biết là có thể nhập liệu được vào đó".
- *
- * Dùng đúng cặp mà globals.css đã đặt tên cho ô nhập: nền --color-surface, viền
- * --color-border-strong ("viền ô nhập và ranh giới điều khiển — cần ≥ 3:1"). Bo --radius-sm và
- * thụt vào 3px (đệm của td) để mỗi ô thành một hộp rời, thay vì một mảng viền liền khối.
+ * Tên lớp phải KHÁC `.head` của khối tiêu đề đầu màn (20/10/2026). Từng trùng tên: CSS Module băm cả
+ * hai thành một lớp, nên nút này thừa hưởng `flex-direction: column` của khối tiêu đề — dấu ˅ rơi
+ * xuống dưới chữ và chữ bị canh giữa cột. Chủ dự án chụp đúng cảnh ấy: _"title sắp xếp xấu. icon sort
+ * chuyển sang bên phải chứ không phải bên dưới"_. `flex-direction: row` khai thẳng để không phụ thuộc
+ * vào việc không ai đặt trùng tên nữa.
+ */
+.colHead {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 3px;
+
+  width: 100%;
+  height: 36px;
+  padding: 0 var(--space-2);
+
+  font-family: inherit;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-bold);
+  white-space: nowrap;
+  color: var(--color-ink-soft);
+
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.colHead:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: -2px;
+}
+
+@media (hover: hover) {
+  .colHead:hover {
+    color: var(--color-ink);
+  }
+}
+
+.colHeadText {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.colHeadOn,
+.colHeadOn:hover {
+  color: var(--color-accent);
+}
+
+.sortIcon {
+  flex: none;
+  color: var(--color-muted);
+}
+
+.colHeadOn .sortIcon {
+  color: var(--color-accent);
+}
+
+.sortIcon[data-chieu='tang'] {
+  transform: rotate(180deg);
+}
+
+/* Cột ngày là chữ nên canh trái, cho khỏi lẫn với rừng cột số bên phải. */
+.thDate .colHead {
+  justify-content: flex-start;
+}
+
+/* Cột số thứ tự: hẹp hết mức, chữ mờ — để dò lại "Dòng 41" của cột kiểm tra. */
+.lineHead,
+.lineNo {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: var(--weight-regular);
+  text-align: center;
+  color: var(--color-muted);
+}
+
+/*
+ * Dòng lỗi: số thứ tự đậm, màu đỏ — đúng `.lineNoBad` của lưới popup. Từng là một viên vàng bo tròn
+ * quanh con số; chủ dự án bỏ ngày 20/10/2026: _"số 1 không cần bo tròn bên ngoài như ảnh, chỉ cần để
+ * số 1 là được rồi"_. Dấu hiệu không-chỉ-màu (NFR-USA-06) nay là nét đậm cộng nền vàng của cả dòng, và
+ * câu "Dòng N" ở cột kiểm tra.
+ */
+.lineNoBad {
+  font-weight: var(--weight-bold);
+  color: var(--color-danger);
+}
+
+/*
+ * Dòng: không kẻ, nền đặt trên từng ô (hai cột đầu dính cần nền đặc), sọc xen kẽ theo VỊ TRÍ BÀY RA
+ * — `SeriesRowFields` nhận `stripe` từ vị trí trên màn, nên sọc vẫn đúng khi bảng đang sắp xếp.
+ * `--bang-dong-h` do DataTableScreen.tsx đặt lên `<table>` từ hằng `ROW_H`.
+ */
+.table tbody th,
+.table tbody td {
+  height: var(--bang-dong-h, 32px);
+  padding: 0;
+  background: var(--color-surface);
+}
+
+/* `.table` ở đầu: `.table tbody td` phía trên có một lớp và hai tên thẻ, thiếu nó thì luật này thua. */
+.table .rowStripe > th,
+.table .rowStripe > td {
+  background: color-mix(in srgb, var(--color-surface) 96%, var(--color-ink));
+}
+
+/*
+ * Dòng có vấn đề: nền vàng nhạt + số thứ tự đậm ở đầu dòng, không phải chỉ đổi màu chữ —
+ * NFR-USA-06. Câu giải thích nằm ở cột "Kiểm tra dữ liệu". Khai SAU dải sọc, cùng độ ưu tiên.
+ */
+.table .badRow > th,
+.table .badRow > td {
+  background: var(--color-warning-soft);
+}
+
+/*
+ * Ô nhập: không viền riêng — ô đã nằm trong ô bảng, thêm một khung nữa thành lưới đôi. Chiều cao đúng
+ * bằng dòng. Nền trong suốt để sọc và nền vàng của dòng lỗi hiện qua.
  */
 .cell {
+  display: block;
   width: 100%;
-  min-width: 74px;
-  /* Số căn phải để so sánh giữa các dòng dễ hơn; riêng ô ngày giữ căn trái, xem .dateCell. */
-  text-align: right;
-  /* Vùng chạm 44px — NFR-USA-01. Ô nhập trong bảng cũng là điều khiển bấm được. */
-  min-height: var(--tap-min);
+  height: var(--bang-dong-h, 32px);
   padding: 0 var(--space-2);
 
   font-family: inherit;
   font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
   color: var(--color-ink);
 
-  background: var(--color-surface);
-  border: 1px solid var(--color-border-strong);
-  /* `--radius-md` như mọi điều khiển khác — đợt rà soát phân cấp. */
-  border-radius: var(--radius-md);
-  /* Con trỏ chữ I: dấu hiệu "gõ được" thứ hai, cho người dùng chuột. */
-  cursor: text;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
 }
 
-/* Ô trống không được biến mất: giữ nền trắng + viền để vẫn đọc ra là ô chờ điền. */
+/* Ô trống không được biến mất: chữ mờ `_ _` vẫn đọc ra là ô chờ điền. */
 .cell::placeholder {
   color: var(--color-muted);
 }
 
-@media (hover: hover) {
-  .cell:hover {
-    border-color: var(--color-accent);
-  }
-}
-
 /*
  * `:focus` chứ không `:focus-visible`. Ô nhập chữ thì không có lối vào nào là "vô tình" — người
- * dùng chạm hay Tab vào đều là cố ý gõ — nên vòng focus phải hiện ở MỌI lối vào. Đây cũng đúng
- * cách primitive Input làm (`.control:focus-within`), còn `:focus-visible` thì Chrome không khớp
- * khi tiêu điểm do mã đặt, chẳng hạn lúc màn tự đưa con trỏ về ô vừa thêm.
+ * dùng chạm hay Tab vào đều là cố ý gõ — nên vòng focus phải hiện ở MỌI lối vào, kể cả lúc màn tự
+ * đưa con trỏ về ô vừa thêm (Chrome không khớp `:focus-visible` khi tiêu điểm do mã đặt).
  */
 .cell:focus {
-  outline: none;
-  border-color: var(--color-focus);
-  box-shadow: var(--focus-ring);
+  outline: 2px solid var(--color-focus);
+  outline-offset: -2px;
 }
 
-/*
- * Ngày rộng hơn các cột số: bộ mẫu ghi dạng ISO '2025-01-02' (10 ký tự), còn người dùng dán
- * từ Excel thì thường là '15/07'. Để 74px như cột số thì ngày ISO bị cắt cụt thành '2025-01-2'
- * — lỗi chỉ lộ ra khi mở màn ra nhìn, không test nào bắt được.
- */
-.dateCell {
-  min-width: 112px;
+.tdDate .cell {
   text-align: left;
+  color: var(--color-ink-soft);
 }
 
-/*
- * Dòng có vấn đề: nền vàng nhạt + cờ "!" ở đầu dòng, không phải chỉ đổi màu chữ —
- * NFR-USA-06. Câu giải thích nằm ngay dưới bảng để đọc được cả khi không phân biệt được màu.
- */
-.badRow {
-  background: var(--color-warning-soft);
+.tdSoft .cell {
+  color: var(--color-ink-soft);
 }
 
-/*
- * Ô nhập nay có nền trắng riêng, nên nếu không cho nó ăn màu vàng thì nền của cả dòng chỉ còn
- * hở ra ở rãnh 3px — coi như mất dấu hiệu. Giữ nguyên viền ô để dòng sai vẫn sửa được ngay.
- */
-.badRow .cell {
-  background: var(--color-warning-soft);
+/* Cột Đóng: xanh khi đóng ≥ mở, cam khi đóng < mở — `xuHuong` ở DataTableScreen.tsx. */
+td[data-xu-huong='tang'] .cell {
+  color: var(--color-accent);
 }
 
-.flag {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  width: 18px;
-  height: 18px;
-
-  font-size: var(--text-xs);
-  font-weight: var(--weight-bold);
-  color: var(--color-on-accent);
-
-  background: var(--color-warning);
-  border-radius: var(--radius-pill);
+td[data-xu-huong='giam'] .cell {
+  color: var(--color-highlight);
 }
 
 .removeButton {
-  /* Nhìn nhỏ nhưng vùng chạm phủ trọn ô cao 44px của hàng. */
+  display: block;
   width: 100%;
-  min-height: var(--tap-min);
+  height: var(--bang-dong-h, 32px);
 
   font-family: inherit;
   font-size: var(--text-md);
@@ -461,6 +606,11 @@
   background: transparent;
   border: none;
   cursor: pointer;
+}
+
+.removeButton:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: -2px;
 }
 
 @media (hover: hover) {

@@ -974,8 +974,84 @@ chứ không phải là Dán dữ liệu"_), the same name as the `/du-lieu/` sc
 it is the same price table, edited in place. Only `paste.title` changed; the `paste.*` keys and the
 `PasteImportSheet` name stay.
 
-**The grid of `PasteImportSheet` always holds the six columns of a price series, and its column picker offers
-exactly those six** (13/10/2026). The owner circled a select reading "Cột 6 · Không dùng": _"tạo ô không dùng là
+**The grid follows the owner's drawing of 20/10/2026, at every width, and has no column picker any more.** The
+owner sent a sample price table (_"đổi bảng dữ liệu thành kiểu mới này cho tôi. bỏ tính năng mở cột này đi.
+đồng thời nếu width không đủ để hiển thị số liệu thì có thể scroll ngang"_) and crossed out the "Cột 6/6"
+button with its panel. What the grid is now, and what is easy to break:
+
+- **Short column names that SORT** (`paste.short.*`: Ngày · Mở · Cao · Thấp · Đóng · KL, 12px bold), each
+  with a ˅ — the owner: _"dấu v đó là icon sắp xếp bảng"_. **The default is newest session first**
+  (`sapMacDinh`; the owner, second round: _"thời gian gần nhất thì cần xếp lên đầu"_), recomputed whenever the
+  grid is replaced (open, paste, file, Xoá hết), so the Ngày header carries `aria-sort` from the start. A
+  number column cycles largest first → reverse → back to that default; Ngày toggles newest ↔ oldest first (the
+  saved-calc table's Ngày lưu rule). A blank, unreadable or off-calendar cell (28/13) sorts last both ways.
+  **The sort only changes the order ON SCREEN**: the grid and what is imported keep the original order, and
+  the order is frozen at the click so editing a cell of the sorted column does not make its row jump. **The
+  row numbers count the SCREEN, 1 at the top** (`soTrenMan`; owner, third round: _"sao số thứ tự 1 mà lại là
+  ngày 12/09/2025 ? mà không phải là 15/09/2026"_ — they had counted the grid, so the newest row read 250):
+  the number column, the cell names ("Giá đóng cửa, Dòng 1" is the top row) and the bad-row list
+  ("… (dòng 3)") all use it, under every sort. A cell's `id` and `onCell` still use the grid index.
+  The "250 phiên đọc được, từ … tới …" line under the grid is gone (owner, same day); the count stays on
+  the Nạp button, the year span on the year line, and the status bar now only reports bad rows. A headerless block pasted at a caret
+  runs DOWN the screen (`latest.current.order`), not down the grid, or a column pasted into a newest-first view
+  would fill older sessions upwards. The button's accessible name is the FULL label ("Giá mở
+  cửa"; "Khối lượng (KL)" because "KL" is not inside it), so tests still find headers by full name. Extra
+  columns do not sort.
+- **A date cell shows only dd/mm while not being edited** (`ngayGon`), and the year sits once above the grid
+  (`paste.yearOne` "Năm 2026", `paste.yearRange` "Từ năm 2025 tới 2026", from the rows that parsed). The owner:
+  _"bên trên ghi năm rồi thì bên dưới trong bảng chỉ cần ghi ngày tháng là tự biết"_. The cell's VALUE keeps
+  the year: focusing it shows the full date, and import is unchanged. Tests reading a date cell get "15/07".
+- **Numbers stay as typed** (102.000, not the drawing's 102,0 in thousands) — the owner's call, "tạm thời".
+- **Look**: zebra rows instead of rules, no vertical dividers, a header lighter than the body (two
+  `color-mix` steps of `--color-ink` into `--color-surface`, so the light palette gets the same order), 32px
+  rows and 14px `tabular-nums` text everywhere (`ROW_H` is one number now; the `matchMedia` for 44/32px is
+  gone), the close price `--color-accent` when close ≥ open and `--color-highlight` when lower
+  (`data-xu-huong` on the cell; measured on the drawing, the anchor is the session's OPEN, not the previous
+  close). Cost, known: 14px input text makes iOS Safari zoom when a cell is tapped. The two toolbar buttons
+  ("Tải file CSV", "Xoá hết") are 30px with 12px text at every width (owner, same day: _"giảm height và size"_),
+  with a 44px `::after` tap area below 1024px.
+- **Horizontal scroll, two columns pinned.** Each `<col>` is `calc(Nch + 1rem)` from the longest text in that
+  column across the WHOLE grid (not the rendered window, or columns would jump while scrolling), and the
+  table's `min-width` is their sum: a narrower frame scrolls sideways, the page never does. The row-number
+  column (2rem) and the Ngày column (`left: 2rem`) are `position: sticky`; Ngày is always the first data
+  column because nothing can reorder columns now. Two traps, both measured: `table-layout: fixed` hands spare
+  width to EVERY column proportionally (the row-number column went 32 → 68px at 1440), so the component reads
+  the floor back in px and gives the spare to the data columns itself; and that floor must be re-read when
+  fonts load and on every table resize, because `ch` is the width of "0" in the font in use — read once on
+  open it came from the fallback font, 430px against a real 460px, and the table overflowed by 30px.
+  `.grid .rowStripe` needs the `.grid` prefix or `.grid tbody td` wins and the stripes vanish.
+  `paste-grid-css.test.ts` pins the sticky pair, the 423px frame and the stripe specificity.
+- **The cost of dropping the picker, told to the owner first**: when the reader guesses a column's role
+  wrong (three headerless number columns, a "KLGD" header), nothing on the grid can fix it any more; the
+  user corrects the file and pastes again.
+
+**The "BẢNG SỐ LIỆU" table of `/du-lieu/` follows the same drawing** (20/10/2026, owner: _"thay đổi tương
+tự với bảng số liệu của phần Chuỗi giá OHLCV"_). Short sortable headers (the same `paste.short.*` keys), a
+2rem row-number column counting the screen (it replaced the "!" flag column, so "Tới dòng N" in the check
+card now points at a number printed on the table; a bad row's number is bold and red like the popup's — it
+sat in a yellow pill for a few hours until the owner said _"số 1 không cần bo tròn bên ngoài"_), dd/mm cells
+with the year once beside the title, 32px zebra rows, the close colour, sticky number + Ngày columns and the
+measured spare-width split — all copied from the popup grid, and `bang-so-lieu-css.test.ts` compares the
+visible rules of the two CSS files declaration by declaration, so a change to one is a change to both.
+What is easy to break:
+
+- **The saved array never reorders**: the default view is still `rows` reversed, and any other sort is a
+  frozen list of indices. Because `onLeave` re-sorts `rows` by date (an older owner rule), it also flags
+  the frozen order (`cu`) and a layout effect recomputes it from the new array; without that the frozen
+  indices would point at swapped rows. So here, unlike the popup, a sorted view re-sorts when focus leaves
+  the row. "Thêm dòng" puts the new row on top in every sort; `dropRow` shifts the frozen indices.
+- **The sort button's class is `.colHead`, not `.head`**: `.head` in this file is the screen title block,
+  and sharing the name gave the button `flex-direction: column` (the ˅ fell under the label, which the
+  owner photographed). `column-head-css.test.ts` pins it.
+- **It reverses the boxed cells** the owner once asked for (_"quá mờ nhạt … không biết là có thể nhập
+  liệu được"_): cells are plain like the popup's; `_ _` in empty cells and the focus ring remain. The Ngày
+  cell carries `_ _` too since 20/10/2026 (owner: _"chỗ nhập ngày đang để trống không có _ _ ở dưới ẩn ý là
+  được nhập"_); a case in `DataTableScreen.test.tsx` that pinned the opposite was inverted.
+- The table lives in the page with no fixed-height frame, so the header does not stick vertically; the ×
+  delete column stays, 32px tall.
+
+**The grid of `PasteImportSheet` always holds the six columns of a price series, and (until 20/10/2026) its
+column picker offered exactly those six** (13/10/2026). The owner circled a select reading "Cột 6 · Không dùng": _"tạo ô không dùng là
 cái gì … tạo đủ dữ liệu của 6 cột là thôi không cần tạo gì nữa và cũng không thể tạo được thêm nữa. nếu khách nạp
 thừa thêm 1 cột dữ liệu chưa rõ tên thì cứ tạo thêm 1 cột thừa ra đó"_, and in the same message: _"sau khi nạp dữ
 liệu mẫu vào có một số cột sau khi nạp không thấy số liệu trên table"_. "Không dùng" had been two things at
@@ -990,11 +1066,9 @@ back a "drop this column" choice under another word.
   data has nothing for it; then every column that matched no role, at the end, under **its own name** from the
   pasted header row (`PasteTable.header` → `FittedTable.names`), or "Cột 7" when there is no header. An extra
   column with no data at all is not built. Extra columns are shown and never imported: a session has six fields.
-- **Picking a role SWAPS two columns** (`setColumnKind`), so all six roles are always in the grid and no
-  operation can leave a data column out of the import. An extra column keeps a select, showing its own name as
-  a disabled entry; giving it a role turns the column that held that role into the extra one, and if that one is
-  blank and nameless it is removed. That select is the only way to rescue a column whose header the reader does
-  not know ("KLGD").
+- **Picking a role used to SWAP two columns** (`setColumnKind`, removed with the picker on 20/10/2026): the
+  reader takes the FIRST column holding a role (`indexOf`), so two "Giá đóng cửa" columns would have left the
+  second one's numbers silently out of the import. If a role picker ever comes back, it must swap, not overwrite.
 - **A date column that is blank on EVERY row is read as "no date column"** (`parseCells()`), because the grid
   now always has a date column and a closes-only series (what FR-12 needs for Beta, Sharpe, VaR) must still
   import, with the "session order unknown" note. One dated row brings the old rule back: a row missing its date
@@ -1006,18 +1080,9 @@ back a "drop this column" choice under another word.
   already there, the old rows below it survive and are imported. **That is a known hazard, not decided yet.**
 - **Column widths are computed, not fixed.** The old `3rem + 11rem + 5 × 9.5rem` = 984px never fit the widest
   popup's 966px scroller, so every screen had a horizontal scrollbar and at a 1025px window the Volume column
-  was mostly hidden, with the scrollbar itself below the popup's edge. Number columns now share the frame
-  (`table-layout: fixed`, no width), with a floor from `--paste-cols` (set inline; 8.25rem a column below
-  1024px, measured on a nine-digit volume at 16px; 7.5rem from 1024px, at 14px). Six columns fit from a ~985px
-  window below 1024px and need 768px above it; an extra column widens the floor instead of squeezing the six.
-- **From 1024px the column picker ("Cột 6/6" panel) is ONE row** (14/10/2026, owner: _"thu gọn lại dễ sử
-  dụng hơn để tối ưu thành 1 dòng ngang màn web để tiết kiệm không gian"_). It was a `minmax(200px, 1fr)`
-  grid with "Cột N" to the LEFT of each select: four per row, six in two rows, 122px tall. Now, in a
-  `min-width: 1024px` block in `PasteImportSheet.module.css`, the label sits ABOVE its select (beside it,
-  it cost ~40px a cell — exactly what six cells lacked at a 1024px window), and the grid is
-  `auto-fit, minmax(7.5rem, 1fr)`, so a seventh (extra) column wraps instead of squeezing "Giá thấp nhất".
-  The labels and `htmlFor` are untouched, so tests still find each select by "Cột N". No `check:chrome`
-  assertion holds it.
+  was mostly hidden, with the scrollbar itself below the popup's edge. Since 20/10/2026 each column's width
+  comes from its own longest text (see the drawing paragraph above); `--paste-cols` is gone.
+- The column picker's one-row PC layout of 14/10/2026 went with the picker on 20/10/2026.
 - **From 1024px the whole sheet is compact, and the row height has ONE source** (14/10/2026, owner, circling
   the selects, the header row, the first row and the row-number column: _"không gian thừa quá nhiều, text chữ
   thì quá to chiếm không gian hiển thị số liệu, padding căn chỉnh lại cho đều và đẹp"_). Measured before at
@@ -1026,10 +1091,11 @@ back a "drop this column" choice under another word.
   buttons 32px, and the frame holds the header plus 12 rows (419px), so 13 rows show and the sheet body no
   longer scrolls at 1440×900. The subtitle "Gõ vào lưới, hoặc dán từ Excel bằng Ctrl + V" is gone at every
   width (tombstone `paste.subtitle`). **The row height is no longer a CSS number**: the virtual window needs
-  it to know which row is at the top, so `PasteImportSheet.tsx` picks `ROW_H` (44) or `ROW_H_PC` (32) with a
-  `matchMedia('(min-width: 1024px)')` listener and sets `--paste-row-h` on the `<table>`; the CSS only reads
-  that variable (an entry in `tokens.test.ts`'s `LOCAL_VARIABLES`). The one hand-written copy is the frame's
-  419px, because the frame is the table's parent and cannot read it. Measured in Chrome: scrolled by exactly
+  it to know which row is at the top, so `PasteImportSheet.tsx` owns `ROW_H` (32px at every width since
+  20/10/2026; it was 44px below 1024px through a `matchMedia` listener until then) and sets `--paste-row-h` on
+  the `<table>`; the CSS only reads that variable (an entry in `tokens.test.ts`'s `LOCAL_VARIABLES`). The one
+  hand-written copy is the frame's height from 1024px (423px since 20/10: a 36px header + 1px rule, 12 rows,
+  2px border), because the frame is the table's parent and cannot read it. Measured in Chrome: scrolled by exactly
   20 rows, the top row is row 21 at both heights, and the bottom row is the last one. **The row-number column
   had a real CSS bug**: `.grid tbody th` (later, more specific) reset `.lineNo`'s padding to 0, so the number
   sat against the date column's rule with a ~30px empty strip on its left — the strip the owner circled. The
@@ -1846,7 +1912,15 @@ outranks the primitive's `.table th, .table td` (the `table.variables` pattern);
 mang tính chất minh hoạ…": _"giảm size text … và giảm padding, áp dụng cho màn mobile"_): `.seriesShortNote` and
 its sibling `.presetMismatch` take 12px, 6/8px padding and line-height 1.4, the disclaimer notice's numbers; the
 box went 60 → 47.6px at 390. This is the one place a warning surface uses `--text-xs`: `warning-surface.test.ts`
-still forbids it in the base rules and pins this mobile exception separately.
+still forbids it in the base rules and pins this mobile exception separately. **The head of `/du-lieu/` is smaller
+below 1024px** (20/10/2026, owner: _"giảm size text và giảm height của button bản mobile để có nhiều không gian hiển
+thị chart"_): title 26 → 20px, subtitle 12px, the five action buttons 36 → 28px with 12px text (`.actions > button`,
+the `.sm` overlay keeps 44px), and in `CandleChart.module.css` the code badge 20px / 11px, session line 12px, price
+20px, change 12px, and the 1T/3T/6T buttons 40 → 28px with their own 44px `::after`. The chart's size follows its
+width (aspect ratio), so what moved is its top: 380 → 330px at 390. The same day the five buttons and the
+range tray went from `--radius-md` to `--radius-sm` there (_"bo xung quanh đang quá tròn"_: 10px on a 28px
+button is nearly a pill); the range buttons still `inherit` the tray's radius. `du-lieu-mobile-css.test.ts`
+pins it.
 
 A formula whose `calc` reads a market constant must also **declare the key** in
 `spec.usesConstants` — 14 of them do, across `derivatives.ts` (5), `fees.ts` (8) and `planning.ts`

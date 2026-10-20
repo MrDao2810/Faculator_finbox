@@ -4810,14 +4810,20 @@ window.__localeLog = [];
   await waitFor(
     `(JSON.parse(localStorage.getItem('ffb.series.v1') ?? '{}').rows ?? []).some((r) => r.date === '03/10/2026')`,
   );
+  /*
+   * Từ 20/10/2026 ô Ngày in gọn ngày/tháng khi không đang sửa, năm in một lần cạnh tiêu đề bảng
+   * (khuôn lưới "Bảng dữ liệu"). Lối viết đủ năm vẫn là thứ nằm trong kho và trên đầu biểu đồ.
+   */
   const ngayBang = await evaluate(`(() => ({
     o: [...document.querySelectorAll('input[aria-label$="· Ngày"]')].map((el) => el.value),
     kho: JSON.parse(localStorage.getItem('ffb.series.v1')).rows.map((r) => r.date),
     dauBieuDo: document.querySelector('figure')?.textContent ?? '',
+    nam: [...document.querySelectorAll('main section p')].some((p) => p.textContent === 'Năm 2026'),
   }))()`);
   check(
-    'PC 1440 · bảng dữ liệu: kho cất ngày ISO mở ra ngày/tháng/năm ở cột Ngày lẫn đầu biểu đồ, và được ghi lại theo lối ấy',
-    ngayBang.o.join('|') === '03/10/2026|02/10/2026' &&
+    'PC 1440 · bảng dữ liệu: kho cất ngày ISO mở ra ngày/tháng ở cột Ngày (năm in một lần trên bảng), ngày/tháng/năm ở đầu biểu đồ và trong kho',
+    ngayBang.o.join('|') === '03/10|02/10' &&
+      ngayBang.nam === true &&
       ngayBang.kho.join('|') === '02/10/2026|03/10/2026' &&
       ngayBang.dauBieuDo.includes('02/10/2026 → 03/10/2026') &&
       !ngayBang.dauBieuDo.includes('2026-10'),
@@ -4957,13 +4963,14 @@ window.__localeLog = [];
    *
    * Bốn chuỗi ngày viết kiểu ngày/tháng/năm từ 13/10/2026. `GIEO_CHUOI` vẫn gieo ISO như một kho cũ,
    * và bảng đưa mọi ngày đủ năm về một lối lúc mở màn rồi ghi lại theo lối ấy (xem phép đo "kho cất
-   * ngày ISO…" ở trên). Thứ phép này gác KHÔNG đổi: màn mới nhất trước, kho cũ nhất trước.
+   * ngày ISO…" ở trên). Thứ phép này gác KHÔNG đổi: màn mới nhất trước, kho cũ nhất trước. Từ
+   * 20/10/2026 ô trên màn in gọn ngày/tháng (năm in một lần cạnh tiêu đề bảng), kho vẫn đủ năm.
    */
   check(
     'PC 1440 · bảng bày ngày MỚI NHẤT trước, còn mảng đã lưu vẫn theo thời gian cũ → mới',
     pcChuoi.soDong === 80 &&
-      pcChuoi.ngayDau === '22/03/2025' &&
-      pcChuoi.ngayCuoi === '02/01/2025' &&
+      pcChuoi.ngayDau === '22/03' &&
+      pcChuoi.ngayCuoi === '02/01' &&
       pcChuoi.luuDau === '02/01/2025' &&
       pcChuoi.luuCuoi === '22/03/2025',
     `màn ${String(pcChuoi.ngayDau)} → ${String(pcChuoi.ngayCuoi)} · lưu ${String(pcChuoi.luuDau)} → ${String(pcChuoi.luuCuoi)}`,

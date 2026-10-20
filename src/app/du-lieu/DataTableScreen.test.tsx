@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -83,7 +83,11 @@ describe('DataTableScreen — bảng phải đọc ra là bảng nhập được
     expect((oDong as HTMLInputElement).disabled).toBe(false);
   });
 
-  it('ô số chưa điền hiện dấu gạch chờ, ô ngày thì không', async () => {
+  /*
+   * Ô Ngày từng KHÔNG có dấu gạch chờ (ca này ghim điều ngược lại). Chủ dự án 20/10/2026: _"chỗ nhập
+   * ngày đang để trống không có _ _ ở dưới ẩn ý là được nhập"_ — nên cả sáu ô cùng một dấu.
+   */
+  it('ô chưa điền hiện dấu gạch chờ, cả ô ngày lẫn ô số', async () => {
     napBang();
     moMan();
 
@@ -92,7 +96,7 @@ describe('DataTableScreen — bảng phải đọc ra là bảng nhập được
 
     // Trắng trơn thì đọc ra là ô khoá — đúng thứ chủ dự án báo là "quá mờ nhạt".
     expect(oMo.getAttribute('placeholder')).toBe('_ _');
-    expect(oNgay.getAttribute('placeholder')).toBeNull();
+    expect(oNgay.getAttribute('placeholder')).toBe('_ _');
   });
 
   /*
@@ -133,7 +137,11 @@ describe('DataTableScreen — bảng phải đọc ra là bảng nhập được
 
     await userEvent.tab();
 
-    expect((screen.getByLabelText('Dòng 1 · Ngày') as HTMLInputElement).value).toBe('07/09/2026');
+    // Rời ô thì in gọn ngày/tháng (năm in một lần trên bảng); chạm lại là thấy đủ ngày đã ghép dấu.
+    const sau = screen.getByLabelText('Dòng 1 · Ngày') as HTMLInputElement;
+    expect(sau.value).toBe('07/09');
+    fireEvent.focus(sau);
+    expect(sau.value).toBe('07/09/2026');
   });
 
   /* Chuỗi minh hoạ trang Beta ghi số thứ tự phiên vào cột này — chạm vào rồi rời ra không được đổi. */
@@ -169,7 +177,10 @@ describe('DataTableScreen — cột Ngày chỉ in ngày/tháng/năm', () => {
 
     const oNgay = (await screen.findByLabelText('Dòng 1 · Ngày')) as HTMLInputElement;
 
-    // Ngày 3 tháng 10 — không phải '2026-10-03', càng không phải '10/03/2026'.
+    // Ngày 3 tháng 10 — không phải '2026-10-03', càng không phải '10/03/2026'. Ô in gọn ngày/tháng,
+    // chạm vào là đủ năm.
+    expect(oNgay.value).toBe('03/10');
+    fireEvent.focus(oNgay);
     expect(oNgay.value).toBe('03/10/2026');
     await waitFor(() => {
       expect(ngayDaLuu()).toEqual(['03/10/2026']);
@@ -187,7 +198,8 @@ describe('DataTableScreen — cột Ngày chỉ in ngày/tháng/năm', () => {
 
     await userEvent.tab();
 
-    expect((screen.getByLabelText('Dòng 1 · Ngày') as HTMLInputElement).value).toBe('03/10/2026');
+    expect((screen.getByLabelText('Dòng 1 · Ngày') as HTMLInputElement).value).toBe('03/10');
+    expect(ngayDaLuu()).toEqual(['03/10/2026']);
   });
 
   it('ngày thiếu năm giữ nguyên — bảng không tự suy ra năm', async () => {
@@ -221,7 +233,8 @@ describe('DataTableScreen — cột Ngày chỉ in ngày/tháng/năm', () => {
      */
     const oNgay = (await screen.findByLabelText('Dòng 1 · Ngày')) as HTMLInputElement;
     expect(oNgay.value).toBe('');
-    expect((screen.getByLabelText('Dòng 2 · Ngày') as HTMLInputElement).value).toBe('03/10/2026');
+    expect((screen.getByLabelText('Dòng 2 · Ngày') as HTMLInputElement).value).toBe('03/10');
+    expect(ngayDaLuu()).toEqual(['02/10/2026', '03/10/2026', '']);
     await userEvent.type(oNgay, '2026-10-03');
     expect(oNgay.value).toBe('2026-10-03');
 
@@ -277,7 +290,10 @@ const BA_PHIEN: ReadonlyArray<SeriesRow> = [
   { date: '2025-01-03', open: 110, high: 118, low: 109, close: 115, volume: 1200 },
 ];
 
-/** Giá trị của các ô Ngày, theo đúng thứ tự chúng nằm trên màn. */
+/**
+ * Giá trị của các ô Ngày, theo đúng thứ tự chúng nằm trên màn. Ô không đang sửa in gọn ngày/tháng
+ * (20/10/2026), nên ngày đủ năm đọc ra là '03/01'; ngày đủ năm nằm ở `ngayDaLuu()`.
+ */
 function ngayTrenMan(): string[] {
   return screen.getAllByLabelText(/^Dòng \d+ · Ngày$/).map((el) => (el as HTMLInputElement).value);
 }
@@ -296,7 +312,7 @@ describe('DataTableScreen — ngày mới nhất lên đầu, nhưng chỉ ở p
     moMan();
     await screen.findByLabelText('Dòng 1 · Ngày');
 
-    expect(ngayTrenMan()).toEqual(['03/01/2025', '02/01/2025', '01/01/2025']);
+    expect(ngayTrenMan()).toEqual(['03/01', '02/01', '01/01']);
   });
 
   /* Vế đắt nhất: phần LƯU vẫn theo thời gian, vì cả nhóm công thức rủi ro đọc nó như chuỗi. */
@@ -313,7 +329,7 @@ describe('DataTableScreen — ngày mới nhất lên đầu, nhưng chỉ ở p
     moMan();
     await screen.findByLabelText('Dòng 1 · Ngày');
 
-    expect(ngayTrenMan()).toEqual(['03/01/2025', '02/01/2025', '01/01/2025']);
+    expect(ngayTrenMan()).toEqual(['03/01', '02/01', '01/01']);
   });
 
   it('số dòng đếm theo thứ tự NHÌN THẤY — dòng 1 là dòng trên cùng', async () => {
@@ -321,7 +337,7 @@ describe('DataTableScreen — ngày mới nhất lên đầu, nhưng chỉ ở p
     moMan();
 
     const dongMot = await screen.findByLabelText('Dòng 1 · Ngày');
-    expect((dongMot as HTMLInputElement).value).toBe('03/01/2025');
+    expect((dongMot as HTMLInputElement).value).toBe('03/01');
   });
 });
 
@@ -333,7 +349,7 @@ describe('DataTableScreen — dòng mới thêm nằm trên đầu, xếp lại 
 
     fireEvent.click(screen.getByRole('button', { name: /Thêm dòng/ }));
 
-    expect(ngayTrenMan()).toEqual(['', '03/01/2025', '02/01/2025', '01/01/2025']);
+    expect(ngayTrenMan()).toEqual(['', '03/01', '02/01', '01/01']);
   });
 
   it('đang gõ ngày thì dòng ĐỨNG YÊN, chưa bị xếp đi chỗ khác', async () => {
@@ -343,13 +359,15 @@ describe('DataTableScreen — dòng mới thêm nằm trên đầu, xếp lại 
 
     fireEvent.click(screen.getByRole('button', { name: /Thêm dòng/ }));
     // Ngày này thuộc GIỮA chuỗi, nên nếu xếp ngay thì dòng nhảy xuống dưới trong lúc đang gõ.
+    // Đang sửa thì ô in đúng chữ đang gõ, chưa gọn về ngày/tháng.
+    fireEvent.focus(screen.getByLabelText('Dòng 1 · Ngày'));
     fireEvent.change(screen.getByLabelText('Dòng 1 · Ngày'), {
       target: { value: '2025-01-02' },
     });
 
     expect(ngayTrenMan()[0]).toBe('2025-01-02');
     expect(ngayTrenMan()).toHaveLength(4);
-    expect(ngayTrenMan()[1]).toBe('03/01/2025');
+    expect(ngayTrenMan()[1]).toBe('03/01');
   });
 
   it('tiêu điểm rời khỏi dòng thì mới xếp lại theo ngày', async () => {
@@ -365,7 +383,7 @@ describe('DataTableScreen — dòng mới thêm nằm trên đầu, xếp lại 
     fireEvent.focusOut(oNgay, { relatedTarget: document.body });
 
     // Hai phiên cùng ngày 02/01 nằm cạnh nhau, và phiên mới nhất vẫn trên cùng.
-    expect(ngayTrenMan()).toEqual(['03/01/2025', '02/01/2025', '02/01/2025', '01/01/2025']);
+    expect(ngayTrenMan()).toEqual(['03/01', '02/01', '02/01', '01/01']);
     expect(ngayDaLuu()).toEqual(['01/01/2025', '02/01/2025', '02/01/2025', '03/01/2025']);
   });
 
@@ -536,5 +554,195 @@ describe('DataTableScreen — dán đè hay xoá bảng thì mã cũ không còn
 
     expect(document.body.textContent).toContain(MA_CU);
     expect(maTrongKho()).toBe(MA_CU);
+  });
+});
+
+/*
+ * ── Bảng theo khuôn lưới "Bảng dữ liệu" (20/10/2026) ────────────────────────────────────────────
+ *
+ * Chủ dự án, sau khi lưới của popup "Bảng dữ liệu" dựng lại theo bản vẽ: _"thay đổi tương tự với
+ * bảng số liệu của phần Chuỗi giá OHLCV"_. Các ca dưới gác phần hành vi của khuôn ấy — tên cột ngắn
+ * bấm để sắp xếp, số thứ tự đếm theo màn, dòng năm, màu cột Đóng — cộng hai vế riêng của màn này:
+ * mảng đã lưu không đổi thứ tự khi bảng xếp, và thứ tự đã chốt xếp lại khi tiêu điểm rời dòng.
+ */
+describe('DataTableScreen — bảng theo khuôn lưới "Bảng dữ liệu"', () => {
+  /* Bốn phiên trải hai năm: một phiên đóng < mở (31/12), một phiên thiếu giá mở, một thiếu khối lượng. */
+  const BON_PHIEN: ReadonlyArray<SeriesRow> = [
+    { date: '2025-12-30', open: 100, high: 106, low: 99, close: 105, volume: 1000 },
+    { date: '2025-12-31', open: 105, high: 112, low: 98, close: 99, volume: 3000 },
+    { date: '2026-01-02', open: 99, high: 118, low: 97, close: 115, volume: null },
+    { date: '2026-01-05', open: null, high: null, low: null, close: 101, volume: 2000 },
+  ];
+
+  const bang = () => within(screen.getByRole('region', { name: 'Bảng số liệu' }));
+  const soCotDau = () =>
+    bang()
+      .getAllByRole('rowheader')
+      .map((th) => th.textContent);
+  const cotTrenMan = (ten: string) =>
+    screen
+      .getAllByLabelText(new RegExp(`^Dòng \\d+ · ${ten}$`))
+      .map((el) => (el as HTMLInputElement).value);
+
+  async function moBonPhien(rows: ReadonlyArray<SeriesRow> = BON_PHIEN) {
+    napBang(rows);
+    moMan();
+    await screen.findByLabelText('Dòng 1 · Ngày');
+  }
+
+  it('đầu cột in tên ngắn, mỗi tên là một nút sắp xếp; mở ra là Ngày đang xếp mới nhất trước', async () => {
+    await moBonPhien();
+
+    const dau = bang().getAllByRole('columnheader');
+    expect(dau.slice(1, 7).map((th) => th.textContent)).toEqual([
+      'Ngày',
+      'Mở',
+      'Cao',
+      'Thấp',
+      'Đóng',
+      'KL',
+    ]);
+    // "KL" không nằm trong "Khối lượng", nên tên đọc được ghép cả hai.
+    expect(bang().getByRole('button', { name: 'Khối lượng (KL)' })).not.toBeNull();
+    expect(
+      bang().getByRole('button', { name: 'Ngày' }).closest('th')?.getAttribute('aria-sort'),
+    ).toBe('descending');
+    expect(ngayTrenMan()).toEqual(['05/01', '02/01', '31/12', '30/12']);
+  });
+
+  it('bấm Đóng: lớn nhất trước, bấm nữa nhỏ nhất trước, lần ba về ngày mới nhất trước', async () => {
+    await moBonPhien();
+    const nut = bang().getByRole('button', { name: 'Đóng' });
+
+    await userEvent.click(nut);
+    expect(cotTrenMan('Đóng')).toEqual(['115', '105', '101', '99']);
+    expect(nut.closest('th')?.getAttribute('aria-sort')).toBe('descending');
+    expect(
+      bang().getByRole('button', { name: 'Ngày' }).closest('th')?.hasAttribute('aria-sort'),
+    ).toBe(false);
+
+    await userEvent.click(nut);
+    expect(cotTrenMan('Đóng')).toEqual(['99', '101', '105', '115']);
+    expect(nut.closest('th')?.getAttribute('aria-sort')).toBe('ascending');
+
+    await userEvent.click(nut);
+    expect(ngayTrenMan()).toEqual(['05/01', '02/01', '31/12', '30/12']);
+    expect(nut.closest('th')?.hasAttribute('aria-sort')).toBe(false);
+  });
+
+  it('ô trống đứng cuối ở cả hai chiều, không chen vào như số 0', async () => {
+    await moBonPhien();
+    const nut = bang().getByRole('button', { name: 'Khối lượng (KL)' });
+
+    await userEvent.click(nut);
+    expect(cotTrenMan('Khối lượng')).toEqual(['3000', '2000', '1000', '']);
+    await userEvent.click(nut);
+    expect(cotTrenMan('Khối lượng')).toEqual(['1000', '2000', '3000', '']);
+  });
+
+  it('bấm Ngày chỉ đảo qua lại giữa cũ trước và mới trước', async () => {
+    await moBonPhien();
+    const nut = bang().getByRole('button', { name: 'Ngày' });
+
+    await userEvent.click(nut);
+    expect(ngayTrenMan()).toEqual(['30/12', '31/12', '02/01', '05/01']);
+    expect(nut.closest('th')?.getAttribute('aria-sort')).toBe('ascending');
+
+    await userEvent.click(nut);
+    expect(ngayTrenMan()).toEqual(['05/01', '02/01', '31/12', '30/12']);
+  });
+
+  /*
+   * Số thứ tự đếm theo MÀN, như lưới popup sau câu của chủ dự án: _"sao số thứ tự 1 mà lại là ngày
+   * 12/09/2025 ? mà không phải là 15/09/2026"_. Và xếp bảng không được đụng vào mảng đã lưu — Beta,
+   * độ biến động, VaR đọc nó như một chuỗi thời gian.
+   */
+  it('số thứ tự đếm 1, 2, 3 từ trên xuống ở mọi kiểu xếp; mảng đã lưu không đổi', async () => {
+    await moBonPhien();
+    const luuTruoc = ngayDaLuu();
+    expect(luuTruoc).toEqual(['30/12/2025', '31/12/2025', '02/01/2026', '05/01/2026']);
+    expect(soCotDau()).toEqual(['1', '2', '3', '4']);
+
+    await userEvent.click(bang().getByRole('button', { name: 'Đóng' }));
+
+    expect(soCotDau()).toEqual(['1', '2', '3', '4']);
+    expect((screen.getByLabelText('Dòng 1 · Đóng') as HTMLInputElement).value).toBe('115');
+    expect(ngayDaLuu()).toEqual(luuTruoc);
+  });
+
+  it('cột kiểm gọi đúng số dòng đang thấy khi bảng đang xếp', async () => {
+    // Phiên 31/12 hỏng: giá cao thấp hơn giá thấp.
+    await moBonPhien(
+      BON_PHIEN.map((row) => (row.date === '2025-12-31' ? { ...row, high: 90, low: 120 } : row)),
+    );
+    expect(screen.getByRole('button', { name: /Tới dòng 3/ })).not.toBeNull();
+
+    // Xếp theo Đóng giảm dần: 99 là giá nhỏ nhất, phiên hỏng xuống dòng 4.
+    await userEvent.click(bang().getByRole('button', { name: 'Đóng' }));
+
+    expect(screen.getByRole('button', { name: /Tới dòng 4/ })).not.toBeNull();
+    expect(screen.queryByRole('button', { name: /Tới dòng 3/ })).toBeNull();
+    expect(cotTrenMan('Đóng')[3]).toBe('99');
+  });
+
+  it('sửa ô của cột đang xếp thì dòng đứng yên, rời dòng thì mới xếp lại', async () => {
+    await moBonPhien();
+    await userEvent.click(bang().getByRole('button', { name: 'Đóng' }));
+
+    const o = screen.getByLabelText('Dòng 1 · Đóng');
+    fireEvent.change(o, { target: { value: '50' } });
+    expect(cotTrenMan('Đóng')).toEqual(['50', '105', '101', '99']);
+
+    fireEvent.focusOut(o, { relatedTarget: document.body });
+
+    expect(cotTrenMan('Đóng')).toEqual(['105', '101', '99', '50']);
+    expect(soCotDau()).toEqual(['1', '2', '3', '4']);
+  });
+
+  it('"Thêm dòng" khi đang xếp theo cột khác vẫn đặt dòng trống trên cùng', async () => {
+    await moBonPhien();
+    await userEvent.click(bang().getByRole('button', { name: 'Đóng' }));
+
+    fireEvent.click(screen.getByRole('button', { name: /Thêm dòng/ }));
+
+    expect(ngayTrenMan()[0]).toBe('');
+    expect(cotTrenMan('Đóng')).toEqual(['', '115', '105', '101', '99']);
+    expect(soCotDau()).toEqual(['1', '2', '3', '4', '5']);
+  });
+
+  it('bỏ một dòng khi đang xếp thì các dòng còn lại giữ chỗ', async () => {
+    await moBonPhien();
+    await userEvent.click(bang().getByRole('button', { name: 'Đóng' }));
+
+    await userEvent.click(screen.getByRole('button', { name: 'Xoá dòng 2' }));
+
+    expect(cotTrenMan('Đóng')).toEqual(['115', '101', '99']);
+    expect(ngayDaLuu()).toEqual(['31/12/2025', '02/01/2026', '05/01/2026']);
+  });
+
+  it('năm in một lần trên bảng: một năm, khoảng năm, hay không gì khi chuỗi không ghi năm', async () => {
+    await moBonPhien();
+    expect(bang().getByText('Từ năm 2025 tới 2026')).not.toBeNull();
+    cleanup();
+
+    await moBonPhien(BA_PHIEN);
+    expect(bang().getByText('Năm 2025')).not.toBeNull();
+    cleanup();
+
+    // Chuỗi minh hoạ trang Beta đánh số phiên '1', '2' — không có năm nào để in.
+    napBang();
+    moMan();
+    await screen.findByLabelText('Dòng 1 · Ngày');
+    expect(bang().queryByText(/^Năm |^Từ năm /)).toBeNull();
+  });
+
+  it('cột Đóng mang hướng của phiên so với giá MỞ; thiếu giá mở thì không tô', async () => {
+    await moBonPhien();
+
+    const huong = screen
+      .getAllByLabelText(/^Dòng \d+ · Đóng$/)
+      .map((el) => el.closest('td')?.getAttribute('data-xu-huong') ?? null);
+    // 05/01 thiếu giá mở · 02/01 đóng 115 ≥ mở 99 · 31/12 đóng 99 < mở 105 · 30/12 đóng 105 ≥ mở 100.
+    expect(huong).toEqual([null, 'tang', 'giam', 'tang']);
   });
 });

@@ -21,6 +21,10 @@ import styles from './not-found.module.css';
  * hữu ích hơn "Về danh sách công thức" — nhưng vẫn giữ cả hai cho người chỉ muốn thoát. Lối thứ hai
  * từng là "Về trang chủ"; từ khi trang chủ gộp vào màn Công thức (15/09/2026) nó dẫn thẳng tới đó.
  *
+ * Không còn dòng giải thích nào dưới tiêu đề, ở mọi bề ngang (20/10/2026, chủ dự án khoanh hai câu
+ * "Đường dẫn có thể nhập sai…" và "Thử tìm công thức theo tên…" rồi bảo xoá): tiêu đề cộng hai nút
+ * đã đủ nói chuyện gì xảy ra và đi đâu tiếp. Mộ chí của hai khoá ở `vi.ts`.
+ *
  * Là client component từ đợt 8 (luồng locale): chữ ở đây đi qua props string của `EmptyState`
  * nên không bọc lá `<T>` được, mà trang 404 cũng chẳng có gì đáng giữ ngoài gói máy khách.
  */
@@ -31,7 +35,7 @@ export default function NotFound() {
     <div className={styles.page}>
       <EmptyState
         title={t('notFound.title')}
-        lines={[t('notFound.reason'), t('notFound.suggest')]}
+        lines={[]}
         action={
           <span className={styles.actions}>
             <Link className={styles.primary} href={ROUTES.search}>

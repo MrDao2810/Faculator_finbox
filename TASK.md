@@ -4,6 +4,236 @@ Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 
 ---
 
+## Bảng số liệu của màn "Chuỗi giá OHLCV" theo khuôn lưới "Bảng dữ liệu" (20/10/2026)
+
+**Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án xem.**
+
+Chủ dự án, ngay sau ba lượt sửa lưới popup "Bảng dữ liệu": _"thay đổi tương tự với bảng số liệu của phần Chuỗi giá
+OHLCV"_. Thẻ "BẢNG SỐ LIỆU" ở `/du-lieu/` nay cùng khuôn với lưới ấy.
+
+- **Đã đổi:**
+  - Tên cột ngắn Ngày · Mở · Cao · Thấp · Đóng · KL, 12px đậm, mỗi tên là nút sắp xếp có dấu ˅. Dùng chung khoá
+    `paste.short.*` với lưới popup.
+  - Mặc định là phiên mới nhất lên đầu, như trước. Cột số: bấm lần một giảm dần, lần hai tăng dần, lần ba về mặc định.
+    Cột Ngày đảo qua lại giữa cũ trước và mới trước. Ô trống xếp cuối ở cả hai chiều.
+  - Cột số thứ tự (2rem) thay cột cờ "!". Số đếm theo màn: dòng 1 là dòng trên cùng ở mọi kiểu xếp. Nút "Tới dòng N"
+    của cột kiểm nay chỉ tới một con số có in trên bảng. Dòng lỗi: nền dòng vàng nhạt; con số lúc đầu nằm trong viên
+    vàng, nay chỉ đậm và đỏ như lưới popup (mục ngay dưới).
+  - Ô ngày in ngày/tháng khi không đang sửa; chạm vào là thấy đủ năm. Năm in một lần cạnh tiêu đề ("Năm 2025", "Từ năm
+    2025 tới 2026"), chỉ tính các dòng không lỗi.
+  - Dòng sọc 32px, không kẻ, đầu bảng 36px sáng hơn thân, chữ 14px số đều. Ngày và khối lượng nhạt một bậc. Cột Đóng
+    xanh khi đóng ≥ mở, cam khi đóng < mở.
+  - Bảng hẹp hơn khung thì khung cuộn ngang. Cột số thứ tự và cột Ngày đứng yên khi cuộn. Phần dư bề ngang chia cho các
+    cột số liệu, cách đo y như lưới popup.
+  - Mảng đã lưu KHÔNG đổi thứ tự khi bảng xếp: Beta, độ biến động, VaR vẫn đọc chuỗi cũ → mới.
+- **Khác lưới popup, có lý do:**
+  - Đang xếp theo một cột mà sửa ô thì dòng đứng yên; tiêu điểm rời dòng thì xếp lại. Màn này vốn xếp lại theo ngày lúc
+    rời dòng, và việc ấy đổi chỉ số trong mảng, nên thứ tự đã chốt phải tính lại cùng lúc.
+  - "Thêm dòng" đặt dòng trống trên cùng ở mọi kiểu xếp.
+  - Bảng nằm cả trong trang, không có khung cao cố định, nên đầu bảng không dính khi cuộn dọc.
+  - Còn cột nút xoá × ở cuối, cao 32px (dưới vùng chạm 44px, cùng cái giá với ô nhập của lưới popup).
+- **Đảo một quyết định cũ, đã biết:** ô từng là hộp có viền vì chủ dự án thấy ô trơn _"quá mờ nhạt … không biết là có
+  thể nhập liệu được"_. Nay ô trơn như lưới popup; dấu "gõ được" còn chữ mờ `_ _` ở ô trống và vòng focus.
+- **File:** `DataTableScreen.tsx`, `DataTableScreen.module.css` (chỉ khối bảng và `.yearNote`), `DataTableScreen.test.tsx`
+  (10 ca sửa theo ô ngày gọn, 11 ca mới), `bang-so-lieu-css.test.ts` (mới: cột dính, độ ưu tiên sọc, so từng luật nhìn
+  thấy với lưới popup), `radius.test.ts` (bỏ `.cell` khỏi danh sách, có mộ chí), `hairline.test.ts`, `tokens.test.ts`
+  (`--bang-dong-h`), `scripts/chrome-check.mjs` (hai phép đọc ô Ngày), `CLAUDE.md`.
+- **Đo** (Chrome qua dev server, 250 phiên, một dòng lỗi):
+  - 390: bảng 454px trong khung 324px, cuộn ngang; khi cuộn, cột số ở mép trái, cột Ngày dính ở 32px.
+  - 1024 và 1440: bảng vừa khít khung (543 = 543, 927 = 927), cột số thứ tự 32px.
+  - Ở cả ba khổ: trang không tràn ngang; đầu 37px, dòng 32px; dấu ˅ cùng hàng bên phải chữ; khối tiêu đề đầu màn vẫn là
+    cột dọc.
+- **Kiểm:** tsc, eslint, prettier sạch; vitest 176 file, 4.434 ca xanh. `check:chrome` chưa chạy (cần build `out/`).
+- **Phối hợp:** phiên c8 đổi tên lớp nút tên cột `.head` → `.colHead` giữa chừng (mục ngay dưới); phiên này giữ bản ấy.
+
+---
+
+## Bảng chuỗi giá /du-lieu/: số dòng lỗi không còn viên tròn, ô Ngày trống có "\_ \_" (20/10/2026)
+
+**Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án xem.**
+
+Chủ dự án khoanh số "1" trong viên vàng và dòng trống vừa thêm: _"số 1 không cần bo tròn bên ngoài như ảnh, chỉ cần để số
+1 là được rồi. thêm nữa chỗ nhập ngày đang để trống không có \_ \_ ở dưới ẩn ý là được nhập"_.
+
+- **Số dòng lỗi:**
+  - `.lineNoBad` bỏ nền vàng, bo tròn và đệm. Nay chỉ đậm và đỏ, đúng `.lineNoBad` của lưới popup.
+  - `bang-so-lieu-css.test.ts` thêm cặp `.lineNoBad` để hai bảng không lệch nhau nữa.
+  - Dấu hiệu không-chỉ-màu (NFR-USA-06) còn lại: nét đậm, nền vàng của cả dòng, câu "Dòng N" ở cột kiểm tra.
+- **Ô Ngày trống:** `placeholder="_ _"` như năm ô số.
+  - Ca "ô số chưa điền hiện dấu gạch chờ, ô ngày thì không" trong `DataTableScreen.test.tsx` đảo lại thành "cả ô ngày lẫn
+    ô số".
+  - Lưới popup đã có dấu chờ ở mọi ô trống (`– –`), không đổi.
+- **Đo** (Chrome, 390 và 1100px, bấm "+ Thêm dòng"):
+  - Số "1" nền trong suốt, bo 0px, nét 700, màu đỏ.
+  - Ô Ngày trống hiện `_ _` màu mờ.
+- **Test:** `src/app/du-lieu`, `src/ui/sheets`, tokens, radius, hairline, hover-media xanh (516 ca). `eslint`, `prettier`
+  sạch.
+- CLAUDE.md: sửa câu "a bad row's number sits in a yellow pill" trong đoạn của phiên e3, thêm câu về ô Ngày.
+
+---
+
+## Bảng chuỗi giá /du-lieu/: dấu sắp xếp nằm bên phải tên cột (20/10/2026)
+
+**Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án xem.**
+
+Chủ dự án chụp hàng tiêu đề cột "Ngày ˅ · Mở ˅ · Cao ˅ · Thấp ˄ · Đóng ˅" trên điện thoại: _"giao diện quá xấu, title sắp xếp
+xấu. icon sort chuyển sang bên phải chứ không phải bên dưới"_.
+
+- **Nguyên nhân:** lỗi CSS, không phải thiết kế.
+  - Nút tên cột (dựng lại hôm nay bởi phiên song song e3) mang lớp `.head`, trùng tên với khối tiêu đề đầu màn trong cùng
+    `DataTableScreen.module.css`.
+  - CSS Module băm hai luật cùng tên thành một lớp, nên nút thừa hưởng `flex-direction: column`. Dấu ˅ rơi xuống dưới chữ,
+    chữ canh giữa cột thay vì thẳng mép con số.
+- **Sửa:**
+  - Nút tên cột đổi sang `.colHead` / `.colHeadOn` / `.colHeadText`, khai thẳng `flex-direction: row`.
+  - `PasteImportSheet.module.css` `.head` (lưới popup, cùng khuôn) khai cùng dòng ấy, để hai luật vẫn giống hệt như
+    `bang-so-lieu-css.test.ts` (của phiên e3) đòi.
+- **Đo** (Chrome, 360, 390, 1100px, sáu cột):
+  - Chữ và dấu ˅ cùng hàng, dấu bên phải chữ.
+  - Cột số: mép phải dấu ˅ trùng mép phải con số bên dưới. Cột Ngày: chữ thẳng mép trái ngày.
+- **Test:**
+  - `column-head-css.test.ts` (mới, 3 ca): ghim hàng ngang, và `styles.head` chỉ còn dùng cho `<header>`.
+  - Test `src/app/du-lieu`, `src/ui/sheets`, radius, hairline, hover-media xanh (180 ca).
+  - `tokens.test.ts` từng đỏ một ca vì `--bang-dong-h` chưa khai. Phiên e3 đã khai biến ấy khi xong khối bảng; chạy lại
+    `tokens.test.ts` cùng `src/app/du-lieu` và `src/ui/sheets` xanh (497 ca).
+- **Phối hợp:** phiên e3 đang dựng lại bảng này. Đã nhắn chốt: phiên này chỉ đổi tên lớp nút tên cột, không đụng gì khác
+  của khối bảng.
+
+---
+
+## Trang 404: bỏ hai câu giải thích; hai nút nhỏ lại trên mobile (20/10/2026)
+
+**Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án xem.**
+
+Chủ dự án khoanh hai câu dưới tiêu đề "Không tìm thấy trang này" và cặp nút: _"xóa phần text giải thích khoanh đỏ
+đi áp dụng cho mobile và web. còn phần button khoanh đỏ thì giảm size xuống, giảm height cũng giảm xuống. áp dụng
+cho bản mobile"_.
+
+- **Bỏ hai câu ở mọi khổ.** Hai câu bị bỏ là "Đường dẫn có thể nhập sai, hoặc trang đã được dời chỗ." và "Thử tìm
+  công thức theo tên — nhập không dấu vẫn ra đúng.".
+  - `not-found.tsx` truyền `lines={[]}`.
+  - Hai khoá `notFound.reason`, `notFound.suggest` bị xoá ở `vi.ts` và `en.ts`; mộ chí nằm trong `vi.ts`.
+- **Dưới 1024px hai nút nhỏ một bậc.**
+  - Cao 44 → 36px, chữ 14 → 12px, lề ngang 20 → 16px.
+  - Vùng chạm vẫn 44px nhờ `::after`, theo lối `.sm`.
+  - Từ 1024px giữ nguyên.
+- **Đo trên Chrome.**
+  - Ở 390px, hai nút cao 36px, chữ 12px, vùng chạm 44px; hộp cao 229px, không cuộn ngang.
+  - Ở 1440px, hai nút vẫn 44px / 14px, và không còn thẻ `<p>` nào trong hộp.
+  - Ở 390px hai nút vẫn xếp hai hàng như trước, vì hộp chỉ còn 291px bề ngang mà hai nút cộng khe cần 294px.
+- **Test:** `src/app/not-found.test.tsx` (mới) có hai ca.
+  - Trang không còn dòng giải thích, hai lối ra vẫn đủ.
+  - CSS khối mobile: 36px, 12px, vùng chạm 44px, khối nằm cuối file.
+- **Việc còn lại:** chờ chủ dự án xem trên máy.
+
+---
+
+## Popup "Bảng dữ liệu" theo bản vẽ mới; bỏ nút "Cột 6/6"; tên cột là nút sắp xếp (20/10/2026)
+
+**Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án xem.**
+
+**Lượt ba (cùng ngày).**
+
+- **Bỏ câu "250 phiên đọc được, từ 12/09/2025 tới 15/09/2026"** dưới lưới. Chủ dự án: _"xóa đoạn text … đi"_.
+  - Ba khoá `paste.validRows`, `paste.rangeFrom`, `paste.rangeTo` đi theo, có mộ chí trong `vi.ts`.
+  - Số phiên vẫn còn trên nút "Nạp 250 dòng".
+  - Thanh dưới lưới giờ chỉ còn báo dòng lỗi; khi không có lỗi thì cao 0px.
+- **Số thứ tự đếm theo màn.** Chủ dự án: _"sao số thứ tự 1 mà lại là ngày 12/09/2025 ? mà không phải là
+  15/09/2026"_.
+  - Lượt hai đã xếp mới nhất lên đầu, nhưng số thứ tự vẫn đếm theo thứ tự gốc, nên dòng trên cùng mang số 250.
+  - Nay dòng trên cùng luôn là 1, với mọi kiểu sắp xếp.
+  - Câu báo dòng lỗi ("… (dòng 3)") và tên đọc được của ô dùng cùng số đó.
+- **Ngày không có trên lịch (28/13) xếp cuối như ô trống.** Trước đó nó thành khoá lớn nhất và nhảy lên đầu bảng.
+- **Đo trên Chrome ở 390px:** dòng 1 là 15/09, dòng 250 là 12/09; thanh dưới lưới rỗng.
+- **Test:** sửa 12 ca đọc ô theo số dòng; ca "thanh dưới lưới" đảo chiều, chặn câu đã bỏ quay lại.
+
+**Lượt hai (cùng ngày).** Chủ dự án khoanh hai nút của thanh công cụ, hàng tên cột và ba dòng đầu (12/09, 15/09,
+16/09 của năm 2025): _"giảm height và size trong button khoanh đỏ. các tiêu đề đang quá to … thời gian gần nhất
+thì cần xếp lên đầu thay vì để xuống cuối bảng"_.
+
+- "Tải file CSV" và "Xoá hết" cao 44 → 30px, chữ 14 → 12px, ở mọi khổ. Dưới 1024px phần chạm vẫn 44px.
+- Tên cột 13 → 12px, vẫn in đậm.
+- **Mặc định phiên mới nhất lên đầu**:
+  - Mở sheet, dán, tải file hay Xoá hết đều xếp lại theo Ngày giảm dần; cột Ngày mang dấu đang xếp.
+  - Bấm Ngày thì đảo cũ trước ↔ mới trước. Cột số: giảm, tăng, rồi về mặc định.
+  - Số dòng vẫn theo thứ tự gốc, nên dòng trên cùng của chuỗi 250 phiên ghi "250".
+- Dán một mẩu số không tiêu đề vào giữa bảng: số đi xuống theo thứ tự trên màn. Nếu rải theo lưới thì cột dán
+  vào sẽ chạy ngược lên, vì bảng giờ bày mới trước.
+- Đo trên Chrome ở 390, 430 và 1440px: dòng đầu là 15/09 (năm 2026), "Ngày" không bị cắt, nút 30px chữ
+  12px, trang không tràn ngang.
+- Test: sửa 2 ca sắp xếp, thêm 1 ca dán mẩu số và 1 ca CSS (cỡ nút, cỡ tên cột).
+
+**Lượt một:**
+
+Chủ dự án gửi một bảng giá mẫu: _"đổi bảng dữ liệu thành kiểu mới này cho tôi. bỏ tính năng mở cột này đi. đồng
+thời nếu width không đủ để hiển thị số liệu thì có thể scroll ngang như bảng sau"_. Khi được hỏi, chủ dự án chốt
+bốn điều:
+
+- Số giữ như nhập, chỉ đổi giao diện và cỡ chữ.
+- Ô ngày chỉ ghi ngày/tháng, năm ghi ở dòng trên.
+- Dấu ˅ là nút sắp xếp.
+- Áp ở cả điện thoại lẫn PC.
+
+**Đã đổi:**
+
+- Bỏ nút "Cột 6/6" và bảng chọn loại cột (`ColumnPicker`, `setColumnKind`, khoá `paste.columnsBtn` có mộ chí).
+- **Tên cột ngắn kèm dấu ˅, bấm để sắp xếp:**
+  - Bấm lần một xếp giảm dần, lần hai tăng dần, lần ba về thứ tự gốc.
+  - Ô trống đứng cuối ở cả hai chiều.
+  - Sắp xếp chỉ đổi thứ tự hiện trên màn. Số dòng và dữ liệu được nạp giữ nguyên thứ tự gốc.
+  - Đang xếp mà sửa một ô thì dòng đó đứng yên, không nhảy chỗ.
+- **Ngày:** ô ngày in "12/09"; bấm vào ô thì hiện đủ năm để sửa. Trên lưới có dòng "Năm 2026", hoặc "Từ năm 2025
+  tới 2026" khi chuỗi trải qua hai năm.
+- **Giao diện:**
+  - Dòng sọc xen kẽ, không kẻ dọc, đầu bảng sáng hơn thân bảng.
+  - Dòng 32px, chữ 14px ở mọi khổ màn.
+  - Cột Đóng tô xanh khi đóng ≥ mở, cam khi đóng < mở. Màu đo trên ảnh rồi quy về `--color-accent` và
+    `--color-highlight`.
+- **Cuộn ngang:** cột rộng theo số dài nhất của nó. Không đủ chỗ thì chỉ khung bảng cuộn, còn cột số dòng và cột
+  Ngày đứng yên.
+
+**Đo trên Chrome (chuỗi FPT 250 phiên):**
+
+- 390px: bảng 460px trong khung 346px, cuộn ngang được, trang không tràn. Khi cuộn, cột Ngày đứng yên ở mép
+  33px.
+- 700, 1024 và 1440px: bảng vừa khít khung. Cột số dòng giữ 32px.
+- 1440px: khung hiện đủ 12 dòng, không cắt nửa dòng.
+- Đã chụp và soát ở nền tối và nền sáng.
+
+**Hai lỗi tìm ra lúc đo, đã sửa:**
+
+- Dòng sọc không hiện, do luật nền mặc định của ô thắng về độ ưu tiên.
+- Bảng tràn khung 30px, do mức sàn bề ngang được đo trước khi phông chữ tải xong.
+
+**Cái giá đã biết:**
+
+- Máy đoán sai loại một cột của file thì không còn chỗ sửa trên lưới.
+- Chữ ô 14px nên iOS Safari phóng to trang khi chạm vào ô.
+
+**Test:**
+
+- `ExportSheet.test.tsx`: thêm 8 ca (sắp xếp, ngày gọn, dòng năm, màu cột Đóng, không còn nút Cột). Bỏ 3 ca đổi
+  loại cột, có ghi chú vì sao.
+- Mới: `paste-grid-css.test.ts`.
+- Cả bộ test qua: 172 file, 4.406 ca.
+
+---
+
+## Nút "Dán chuỗi giá từ Excel" đổi tên thành "Sử dụng chuỗi giá từ Excel" (20/10/2026)
+
+**Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án xem.**
+
+Chủ dự án khoanh nút ở khối Số liệu của các công thức cần chuỗi giá: _"đổi lại text của button khoanh đỏ thành 'Sử dụng
+chuỗi giá từ Excel'"_.
+
+- `detail.pasteSeries` trong `vi.ts`: "Sử dụng chuỗi giá từ Excel". Bản EN đổi theo nghĩa mới: "Use a price series from
+  Excel" (cũ "Paste a price series from Excel").
+- Test tìm nút qua `t('detail.pasteSeries')` nên không phải sửa ca nào.
+- Đo trên Chrome (`rsi-wilder`, `beta`): nút rộng 195px. Ở 390 và 1440 hai nút vẫn chung một hàng. Ở 360 và 320 hàng nút
+  xuống hai dòng, vì 195 + 8 + 153 = 356px vượt 328px của khối. Không tràn ngang.
+
+---
+
 ## "Đọc kết quả" của 111 ví dụ: mọi con số đúng và chính xác; dòng Kết quả bằng đúng số calc (20/10/2026)
 
 **Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án xem.**
@@ -128,6 +358,39 @@ nhiều"_.
   - Từ 1024px nút vốn ẩn.
 - **`src/app/cong-thuc/[id]/notation-card-css.test.ts`** (mới): ghim hai số trên và thứ tự khai.
 - `vitest` các test liên quan xanh. `eslint`, `prettier` sạch.
+
+---
+
+## Đầu màn Bảng dữ liệu nhỏ và thấp hơn ở khổ điện thoại (20/10/2026)
+
+**Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án xem.**
+
+Chủ dự án khoanh bảy chỗ trên `/du-lieu/`: tiêu đề "Chuỗi giá OHLCV", dòng phụ, hàng nút "+ Thêm dòng · Nạp mẫu · Dán
+Excel/CSV", hàng "Tải CSV · Xoá", dòng mã + số phiên, dòng giá, thanh 1T/3T/6T/Cả chuỗi — _"cần giảm size text và giảm
+height của button bản mobile để có nhiều không gian hiển thị chart"_.
+
+- **Đo trước** (Chrome, 390px, sau khi nạp mẫu FPT):
+  - Tiêu đề 26px, dòng phụ 14px.
+  - Năm nút cao 36px, chữ 14px, xếp hai hàng.
+  - Huy hiệu mã 24px, dòng số phiên 14px, giá 26px, mức đổi 14px.
+  - Thanh khoảng 44px (nút 40px, chữ 14px).
+  - Đỉnh biểu đồ ở 380px.
+- **Đổi** (chỉ dưới 1024px):
+  - `DataTableScreen.module.css`: tiêu đề 20px, dòng phụ 12px. Năm nút 28px, chữ 12px, đệm ngang 10px
+    (`.actions > button`). Lớp phủ của `.sm` vẫn giữ vùng chạm 44px.
+  - `CandleChart.module.css` (khối cuối file): huy hiệu mã 20px chữ 11px, dòng số phiên 12px, giá 20px, mức đổi 12px.
+    Nút khoảng 28px chữ 12px, khay 32px, kèm lớp phủ chạm 44px riêng.
+- **Đo sau** (320, 360, 390px):
+  - Đỉnh biểu đồ 380 → 330px. Kích cỡ hình không đổi, vì nó đi theo bề ngang.
+  - Lớp phủ chạm của nút khoảng không chạm dòng giá hay hình. Lớp phủ của hai hàng nút chỉ chồng nhau trong khe 8px.
+  - Không cuộn ngang. Khổ 1100px không đổi.
+- **Test:** `du-lieu-mobile-css.test.ts` (mới, 5 ca). Test màn dữ liệu, nến, token xanh. `eslint`, `prettier` sạch.
+- **Chưa đụng:** đệm 16px của thẻ biểu đồ (không khoanh). Giảm nó thì hình to ra theo bề ngang, nếu chủ dự án muốn.
+- **Lượt hai, cùng ngày** (_"bo xung quanh đang quá tròn, giảm bớt độ tròn"_, khoanh năm nút và khay 1T/3T/6T):
+  - Bo 10px (`--radius-md`) trên nút cao 28px gần bằng nửa chiều cao, nên trông gần như viên thuốc.
+  - Dưới 1024px: `.actions > button` và `.ranges` bo `--radius-sm` (6px). Nút trong khay vẫn `inherit`. PC giữ 10px.
+  - Chụp ở 390px: góc nút rõ, không còn hình viên thuốc.
+  - `du-lieu-mobile-css.test.ts` thêm một ca. `radius.test.ts` xanh, vì 6px là bậc có sẵn trên thang.
 
 ---
 

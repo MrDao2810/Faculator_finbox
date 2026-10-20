@@ -219,12 +219,15 @@ function usedNames(css: string): Set<string> {
  * 16px vì nhãn của nó chỉ 12px. Nó không phải một token bảng màu: không màn nào khác dùng tới, và
  * khai nó ở `:root` sẽ mời người ta đặt lại cỡ chữ của bộ vẽ từ xa.
  *
- * `--paste-cols` là số cột của lưới "Dán dữ liệu" (13/10/2026), do `PasteImportSheet.tsx` đặt trên
- * thẻ `<table>`: sáu, cộng số cột thừa của bộ dữ liệu vừa dán. CSS dùng nó tính mức sàn bề ngang
- * của bảng, để sáu cột vừa khung mà cột thừa thì đẩy bảng tràn ra chứ không bóp sáu cột kia.
- * `--paste-row-h` (14/10/2026) đi cùng nó: chiều cao một dòng của lưới ấy, 44px dưới 1024px và 32px
- * từ 1024px, theo `matchMedia`. JS đặt nó vì phần vẽ theo cửa sổ dùng ĐÚNG con số ấy để tính dòng nào
- * đang ở mép trên — khai ở CSS là có hai con số để lệch nhau.
+ * `--paste-row-h` (14/10/2026) là chiều cao một dòng của lưới "Bảng dữ liệu", do `PasteImportSheet.tsx`
+ * đặt trên thẻ `<table>` (32px ở mọi khổ từ 20/10/2026). JS đặt nó vì phần vẽ theo cửa sổ dùng ĐÚNG con
+ * số ấy để tính dòng nào đang ở mép trên — khai ở CSS là có hai con số để lệch nhau. `--paste-cols` (số
+ * cột, để tính mức sàn bề ngang) từng đi cùng nó; bỏ 20/10/2026, khi bề ngang từng cột chuyển sang tính
+ * theo chữ dài nhất của cột và đặt thẳng trên `<col>`.
+ *
+ * `--bang-dong-h` (20/10/2026) là bản sao của nó cho bảng số liệu màn `/du-lieu/`, do
+ * `DataTableScreen.tsx` đặt trên `<table>` từ hằng `ROW_H` của chính màn ấy — bảng theo khuôn lưới
+ * "Bảng dữ liệu", và `bang-so-lieu-css.test.ts` giữ hai hằng bằng nhau.
  *
  * `--o-moi-nhom` là số ô của MỘT nhóm ô lặp (13/10/2026), do `FormulaDetail.tsx` đặt trên lưới ô
  * nhập của công thức cho thêm bớt nhóm: hai với `gia-von-trung-binh-dca` (tiền và giá của một đợt
@@ -242,8 +245,8 @@ const LOCAL_VARIABLES = new Set([
   '--go',
   '--ky-tu',
   '--ct-co-chu',
-  '--paste-cols',
   '--paste-row-h',
+  '--bang-dong-h',
   '--o-moi-nhom',
 ]);
 

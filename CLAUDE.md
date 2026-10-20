@@ -1920,7 +1920,14 @@ the `.sm` overlay keeps 44px), and in `CandleChart.module.css` the code badge 20
 width (aspect ratio), so what moved is its top: 380 → 330px at 390. The same day the five buttons and the
 range tray went from `--radius-md` to `--radius-sm` there (_"bo xung quanh đang quá tròn"_: 10px on a 28px
 button is nearly a pill); the range buttons still `inherit` the tray's radius. `du-lieu-mobile-css.test.ts`
-pins it.
+pins it. **The range tray sits on the price row, flush right, at every width** (same day: the owner circled it and
+drew an arrow to the right of "60.800 −7,2% cả kỳ" for mobile, then _"áp dụng cho cả màn web nữa"_). `.priceRow`
+and `.ranges` share a `.priceLine` wrapper, a wrapping row declared in the base rules (the phone block must not
+redeclare it). `.priceRow` is `flex: 1 1 0`, so the row only needs room for the price figure itself: at 320–360px
+the change line drops under the price and the tray stays beside it (otherwise 139 + 175px did not fit in 294px). A
+price too long even for that (1.234.967 at 320px) sends the tray to its own line, still right-aligned
+(`margin-left: auto`). Below 1024px the tray's 44px overlay reaches 2px into the session line above, which is text.
+`candle-head-css.test.ts` pins it.
 
 A formula whose `calc` reads a market constant must also **declare the key** in
 `spec.usesConstants` — 14 of them do, across `derivatives.ts` (5), `fees.ts` (8) and `planning.ts`

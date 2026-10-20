@@ -4,6 +4,32 @@ Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 
 ---
 
+## Thẻ nến /du-lieu/: thanh 1T/3T/6T/Cả chuỗi lên cùng hàng với giá, mọi khổ màn (20/10/2026)
+
+**Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án xem.**
+
+Chủ dự án khoanh thanh chọn khoảng (đang nằm riêng một hàng dưới giá) và kẻ mũi tên sang phải dòng "60.800 −7,2% cả
+kỳ": _"có thể chuyển phần khoanh đỏ sang bên phải tôi chỉ không. áp dụng cho bản mobile"_. Lượt hai, cùng ngày: _"áp
+dụng cho cả màn web nữa. màn web đang bị xuống dòng"_.
+
+- **Sửa:**
+  - `CandleChart.tsx`: dòng giá và thanh chọn khoảng bọc chung một khối `.priceLine`.
+  - `CandleChart.module.css`: `.priceLine` là một hàng được xuống dòng, canh giữa theo trục dọc; thanh
+    `margin-left: auto`. Lượt một chỉ áp dưới 1024px; lượt hai chuyển cả ba luật về phần gốc nên áp mọi khổ, và khối
+    điện thoại không khai lại hàng giá nữa.
+  - Dòng giá `flex: 1 1 0`: khi chật (320–360px), "−2,2% cả kỳ" xuống dưới con số giá, thanh vẫn ở bên phải.
+- **Đo** (Chrome qua dev server, 63 phiên giá ~60.000):
+  - 320, 360, 390, 430, 768, 1024, 1280, 1440: thanh cùng hàng giá, cùng trục giữa, mép phải trùng mép trong của thẻ;
+    trang không tràn.
+  - Biểu đồ lên cao thêm một hàng (44px ở 390, 56px trên máy tính).
+  - Giá 1.234.967 ở 320px: không đủ chỗ, thanh xuống hàng riêng, vẫn dạt phải.
+  - Dưới 1024px lớp phủ chạm 44px của nút chạm vào dòng số phiên phía trên 2px; dòng ấy chỉ là chữ.
+- **Test:** `candle-head-css.test.ts` (mới, 3 ca). Năm ràng buộc của `du-lieu-mobile-css.test.ts` (phiên c8) giữ nguyên.
+  eslint, prettier sạch; test `src/ui/series`, `src/app/du-lieu`, tokens, hover-media xanh (394 ca).
+- **Phối hợp:** phiên c8 xác nhận không mở hai file CandleChart trong lúc sửa.
+
+---
+
 ## Bảng số liệu của màn "Chuỗi giá OHLCV" theo khuôn lưới "Bảng dữ liệu" (20/10/2026)
 
 **Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án xem.**

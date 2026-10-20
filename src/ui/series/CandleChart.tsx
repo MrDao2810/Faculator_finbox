@@ -209,43 +209,50 @@ export function CandleChart({ rows, code, range, onRangeChange }: CandleChartPro
           </span>
         </div>
 
-        <div className={styles.priceRow}>
-          <span className={styles.price}>
-            {model.last === null ? '—' : formatNumber(model.last, { maxDecimals: 2 })}
-          </span>
-          {model.changePct !== null && (
-            <span className={model.changePct >= 0 ? styles.changeUp : styles.changeDown}>
-              {doiChieu} {t('series.overPeriod')}
+        {/*
+          Dòng giá và thanh chọn khoảng chung một khối: thanh nằm cùng hàng với giá, dạt phải, ở mọi
+          khổ (20/10/2026, chủ dự án khoanh thanh và kẻ mũi tên sang phải dòng giá; trước đó nó đứng
+          riêng một hàng dưới giá) — luật ở `.priceLine` trong file CSS.
+        */}
+        <div className={styles.priceLine}>
+          <div className={styles.priceRow}>
+            <span className={styles.price}>
+              {model.last === null ? '—' : formatNumber(model.last, { maxDecimals: 2 })}
             </span>
-          )}
-        </div>
-      </div>
+            {model.changePct !== null && (
+              <span className={model.changePct >= 0 ? styles.changeUp : styles.changeDown}>
+                {doiChieu} {t('series.overPeriod')}
+              </span>
+            )}
+          </div>
 
-      {/* Thanh chọn khoảng. `role="group"` chứ không phải tablist: nó không đổi vùng nội dung nào,
-          nó chỉ thu hẹp đoạn đang vẽ — cùng vai với nhóm Đường/Cột của biểu đồ công thức. */}
-      <div className={styles.ranges} role="group" aria-label={t('series.rangeLabel')}>
-        {RANGES.map((item) => {
-          const sessions = CANDLE_RANGE_SESSIONS[item.value];
-          return (
-            <button
-              key={item.value}
-              type="button"
-              className={styles.range}
-              aria-pressed={range === item.value}
-              /* Nút ghi "1T" nhưng cắt theo SỐ PHIÊN — nói ra chỗ đó, đừng để người dùng tự đoán. */
-              title={
-                sessions === null
-                  ? t('series.rangeAllHint')
-                  : `${t('series.rangeHint')} ${String(sessions)}`
-              }
-              onClick={() => {
-                onRangeChange(item.value);
-              }}
-            >
-              {t(item.labelKey)}
-            </button>
-          );
-        })}
+          {/* Thanh chọn khoảng. `role="group"` chứ không phải tablist: nó không đổi vùng nội dung nào,
+              nó chỉ thu hẹp đoạn đang vẽ — cùng vai với nhóm Đường/Cột của biểu đồ công thức. */}
+          <div className={styles.ranges} role="group" aria-label={t('series.rangeLabel')}>
+            {RANGES.map((item) => {
+              const sessions = CANDLE_RANGE_SESSIONS[item.value];
+              return (
+                <button
+                  key={item.value}
+                  type="button"
+                  className={styles.range}
+                  aria-pressed={range === item.value}
+                  /* Nút ghi "1T" nhưng cắt theo SỐ PHIÊN — nói ra chỗ đó, đừng để người dùng tự đoán. */
+                  title={
+                    sessions === null
+                      ? t('series.rangeAllHint')
+                      : `${t('series.rangeHint')} ${String(sessions)}`
+                  }
+                  onClick={() => {
+                    onRangeChange(item.value);
+                  }}
+                >
+                  {t(item.labelKey)}
+                </button>
+              );
+            })}
+          </div>
+        </div>
       </div>
 
       {bars.length === 0 ? (

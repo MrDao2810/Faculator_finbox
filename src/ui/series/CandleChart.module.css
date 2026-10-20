@@ -63,8 +63,29 @@
   font-variant-numeric: tabular-nums;
 }
 
+/*
+ * Dòng giá + thanh chọn khoảng trên CÙNG MỘT HÀNG, thanh dạt mép phải, ở mọi khổ (20/10/2026). Chủ dự
+ * án khoanh thanh và kẻ mũi tên sang phải dòng giá: _"có thể chuyển phần khoanh đỏ sang bên phải …
+ * áp dụng cho bản mobile"_, rồi _"áp dụng cho cả màn web nữa. màn web đang bị xuống dòng"_ — trước đó
+ * từ 1024px thanh vẫn đứng riêng một hàng dưới giá. Hàng được phép xuống dòng: giá dài hay màn quá
+ * hẹp thì thanh rơi xuống dưới, vẫn dạt phải nhờ `margin-left: auto`, chứ không đẩy trang tràn ngang.
+ */
+.priceLine {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+/*
+ * Gốc 0 thì hàng chỉ đòi chỗ cho con số giá (bề ngang tối thiểu của nó), không cho cả "60.400 −2,2% cả
+ * kỳ": ở 360px hai khối ấy cộng khay là 322px trong 294px, và khay rơi xuống hàng dưới. Nay khi chật,
+ * mức đổi xuống dưới con số giá (hàng giá vốn tự xuống dòng) còn khay ở lại bên phải.
+ */
 .priceRow {
   display: flex;
+  flex: 1 1 0;
   flex-wrap: wrap;
   align-items: baseline;
   gap: var(--space-2);
@@ -100,7 +121,7 @@
  */
 .ranges {
   display: flex;
-  align-self: flex-start;
+  margin-left: auto;
   gap: 2px;
 
   padding: 2px;

@@ -6,6 +6,7 @@ import { findFormulaModule } from '../formulas/index';
 import { FORMULA_SUMMARIES } from '../formulas/summaries.generated';
 import { MARKET_CONFIG } from '../market';
 import { scheduleOrDefault } from '../market/resolve';
+import { laKhoangCafefQuaDai, laLinkDuLieuTho } from '../source-link';
 import { arithmeticOf, blanksOf, evaluateWorked, workedProblems } from './worked-line';
 import {
   QUIZ_CHOICE_KEYS,
@@ -308,6 +309,14 @@ describe('ngân hàng câu hỏi kiểm tra hiểu bài', () => {
     for (const item of QUIZ_ITEMS) {
       expect(item.source.url, item.id).toMatch(/^https:\/\/[^\s]+$/);
     }
+  });
+
+  /* Bấm link nguồn phải ra trang đọc được, không ra JSON (21/10/2026, xem `source-link.ts`). */
+  it('không câu nào dẫn nguồn tới một API trả dữ liệu thô, hay xin CafeF khoảng quá một năm', () => {
+    const hong = QUIZ_ITEMS.filter(
+      (item) => laLinkDuLieuTho(item.source.url) || laKhoangCafefQuaDai(item.source.url),
+    );
+    expect(hong.map((item) => `${item.id}: ${item.source.url}`)).toEqual([]);
   });
 
   it('câu có lựa chọn thì đủ bốn ô khác nhau, và đáp án nằm trong số đó', () => {

@@ -4,6 +4,193 @@ Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 
 ---
 
+## Tấm chọn mã trên điện thoại: nhãn "chưa có dữ liệu" xuống dưới tên (21/10/2026)
+
+**Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án xem trên điện thoại.**
+
+Chủ dự án khoanh một dòng quỹ ETF trong tấm "Chọn mã cổ phiếu": _"hiện tại màn mobile đang nhìn rất xấu và
+không ổn lắm"_. Đo ở 390px trước khi sửa: mã 8 ký tự 59px, nhãn "chưa có dữ liệu" 99px và nút "Chọn" 47px đứng
+cùng hàng, cột tên còn 58px; tên xuống 3–5 dòng, gãy giữa chữ ("DIAMON / D"), dòng cao 69–108px.
+
+- `src/ui/sheets/TickerPickerSheet.tsx`: mã, tên và hai nhãn bọc trong một `<span className={styles.text}>`;
+  nút "Chọn" đứng ngoài.
+- `src/ui/sheets/TickerPickerSheet.module.css`: `.text` là `display: contents` từ 1024px (dòng web y như cũ);
+  dưới 1024px là lưới `mã | tên`, canh theo dòng chữ đầu, nhãn ở hàng dưới cột tên, đệm dọc của nhãn 1 → 0.
+  `.item > .code` thành `.text > .code` vì mã đã vào trong khối.
+- `src/ui/sheets/ticker-picker-css.test.ts` (mới, 5 ca) ghim luật CSS; `TickerPickerSheet.test.tsx` thêm ca
+  "mã, tên và nhãn chung một khối; nút Chọn ở ngoài khối ấy".
+- `CLAUDE.md`: thêm một gạch đầu dòng sau mục tấm chọn mã của màn chi tiết.
+
+Đo trên Chrome sau khi sửa: ở 360, 390 và 430 các dòng ETF cao 53px, tên một dòng (dài nhất hai dòng ở
+360/390); dòng mã thường (GAS, PGC…) vẫn 40px một hàng; không tràn ngang. 1440: dòng một hàng, nhãn vẫn cạnh tên
+như cũ. Tấm chọn mã của Danh mục dùng cùng component nên nhãn "đã có" cũng xuống dưới tên.
+
+Lượt hai cùng ngày (chủ dự án khoanh nhãn vàng, vẽ mũi tên về dưới mã: _"phần text vàng không cần bo xung quanh,
+chỉ cần đoạn text vàng in nghiêng là được, rồi cho dịch sang trái 1 chút nữa"_): dưới 1024px nhãn bỏ khung, nền
+và đệm, chữ nghiêng, bắt đầu thẳng mép trái với mã (`grid-column: 1 / -1`). Nhãn "đã có" cùng khuôn nên đổi theo
+(chữ xám nghiêng). Đo ở 360/390: nhãn bắt đầu đúng x của mã, dòng ETF 51px, không tràn ngang. Từ 1024px hai nhãn
+vẫn là ô viền cạnh tên.
+
+**Chưa làm:** build + `check:chrome`.
+
+---
+
+## Link nguồn của Ví dụ thực tế và Bài tập: bỏ link API trả JSON, dẫn tới trang đọc được (21/10/2026)
+
+**Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án xem.**
+
+Chủ dự án bấm một link nguồn ở khối Ví dụ thực tế và nhận về một khối JSON của CafeF: _"kiểm tra lại toàn bộ các
+đường link API dẫn chứng … khi tôi đang click vào thì bị lỗi như ảnh hoặc tương tự"_.
+
+**Đo trước khi sửa.**
+
+- 100 link API trong `src/core/vi-du/items.ts`: 80 tới `PriceHistory.ashx` của CafeF, 20 tới `api-finfo` của
+  VNDirect. Thêm 12 link `PriceHistory.ashx` trong ngân hàng câu hỏi (`items/thuc-hanh.ts`).
+- Không trang đọc được nào mở thẳng ra đúng phiên.
+  - CafeF tự chuyển mọi URL sang chữ thường (301), nên tham số `startDate` của chính trang ấy hỏng.
+  - Yahoo có FPT.VN nhưng giá đã điều chỉnh theo đợt chia 11:10 tháng 9/2026: phiên 11/09 sẽ hiện khoảng 66.091
+    thay vì 72.700.
+  - Vietstock, Investing, VNDirect không nhận ngày trên URL; trang VN-Index của VNDirect báo lỗi 500.
+- Dữ liệu CafeF so với `market-series-2026.ts`:
+  - FPT và STB khớp mọi phiên ở giá mở, cao, thấp, đóng; chỉ thiếu 29 và 30/01/2026.
+  - VN-Index sai giá đóng cửa 12 phiên: 04/03/2026 lệch 51 điểm, 10 phiên tháng 7 bị làm tròn, 31/07/2026.
+
+**Chủ dự án chọn: trang lịch sử giá CafeF, ô ngày điền sẵn.**
+
+- Link mới có dạng `cafef.vn/du-lieu/lich-su-giao-dich-fpt-1.chn?start%44ate=11/09/2026&end%44ate=11/09/2026`.
+  - Viết chữ D thành `%44` để không còn chữ hoa cho CafeF hạ xuống; trình duyệt giải mã lại thành `startDate`.
+  - Mở ra thì ô Từ ngày/Đến ngày đã đúng phiên. Bảng có thể hiện tháng gần nhất trước; bấm "Xem" một lần là ra đúng
+    phiên.
+- 102 link được đổi (90 ở ví dụ, 12 ở câu hỏi).
+- 10 link VN-Index của VNDirect bị bỏ, vì CafeF ghi sai đúng các phiên chúng dẫn chứng.
+  - Bốn ví dụ còn lại không link nào, hàng Nguồn chỉ in tên nguồn: `var-lich-su`, `cvar-lich-su`, `ty-so-calmar`,
+    `ty-so-thang-thua`.
+  - Sáu ví dụ khác mất link VN-Index nhưng còn link khác.
+- Trang CafeF từ chối khoảng dài hơn một năm (bật hộp "Vui lòng chọn tối đa 1 năm…").
+  - Năm link "Giá FPT 250 phiên từ 12/09/2025 đến 15/09/2026" nay mở khoảng 15/09/2025–15/09/2026.
+  - Nhãn link giữ nguyên, vì nó nói dữ liệu ví dụ dùng. Người đọc thấy 247 trong 250 phiên: thiếu 12/09/2025, 29 và
+    30/01/2026.
+- Chữ của link giải mã `%xx` (`shortUrl`), nên hiện `startDate=11/09/2026`, không hiện `%44`.
+
+**Cổng mới.**
+
+- `src/core/source-link.ts`:
+  - `laLinkDuLieuTho()` bắt `.ashx`, `/Ajax/`, `api-finfo.`, `dchart-api.`.
+  - `laKhoangCafefQuaDai()` bắt khoảng ngày quá một năm.
+- Cả hai chạy trong `viDuProblems()` (mọi ví dụ) và `quiz.test.ts` (mọi câu hỏi).
+- `vi-du.test.ts`:
+  - Danh sách ví dụ không link, từ 0 lên 4, có lý do ghi kèm.
+  - Ca mới: một ví dụ không có hai link trùng nhau.
+- `short-url.test.ts`: ca giải mã.
+
+**Kiểm tra.**
+
+- Toàn bộ test xanh (180 file, 4476 ca); typecheck, lint, prettier sạch.
+- Thử trên Chrome thật cả 39 link khác nhau (FPT, STB, VN-Index, ACB, GAS, HPG, MWG, TCB, VIC, VNM): mở link, đọc ô
+  ngày, bấm "Xem", đọc bảng.
+  - 39/39 có ô ngày điền đúng và không bật hộp thoại.
+  - Sau "Xem", phiên đầu bảng là ngày cuối khoảng và không dòng nào nằm ngoài khoảng.
+  - Khoảng dài hơn 30 phiên thì sang trang để xem tiếp.
+
+**Việc còn lại.**
+
+- Chủ dự án bấm thử vài link: FPT, STB, VN-Index cuối năm, một câu hỏi.
+- Nếu tìm được trang đọc được khớp đúng chuỗi VN-Index thì đưa link của bốn ví dụ trở lại.
+
+---
+
+## Tấm "Nạp bộ số liệu mẫu": hết tràn, nổi giữa màn trên điện thoại, gọn lại; bỏ "Mẫu ưu tiên" (21/10/2026)
+
+**Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án xem.**
+
+Chủ dự án chụp tấm trên điện thoại (D/E): _"sửa lỗi khi bật nạp mẫu thì bị lỗi giao diện. bước đầu hãy giảm padding,
+giảm height các button, giảm size text. đưa bottom dialog thành dialog ở giữa. áp dụng cho mobile. và xóa đoạn text
+'Mẫu ưu tiên — bốn mã hợp nhất để chạy thử công thức này' này ở cả mobile lẫn web"_.
+
+- **Lỗi giao diện:** mỗi ô số liệu trên dòng mã là MỘT span `nowrap`. Từ khi nhãn mang ký hiệu ("Tổng nợ phải trả (D)
+  31.881 tỷ ₫"), ô dài hơn cột ở 390px, nên dòng chui dưới nút "Nạp" và thân tấm có thanh cuộn ngang.
+- **Sửa** (`src/ui/sheets/PresetSheet.tsx`, `PresetSheet.module.css`):
+  - Mọi khổ:
+    - Mỗi ô là khối `inline-block` không rộng quá cột: vừa dòng thì đứng nguyên, không vừa thì ngắt trong NHÃN.
+    - Con số và đơn vị (`.fieldValue`) không bao giờ tách nhau.
+    - Bỏ nhãn "Mẫu ưu tiên" (`preset.topPicks` xoá ở `vi.ts` và `en.ts`, có mộ chí). Câu `noTickerNote` giữ nguyên.
+  - Điện thoại (dưới 1024px):
+    - `placement="center"`: tấm nổi giữa màn.
+    - Đầu và thân đệm 12 × 16px, tiêu đề 14px.
+    - Dòng mã đệm 8px, khe 8px.
+    - Tên và kết quả 13px, dòng số liệu 11px.
+    - Nút "Nạp" và "Danh sách … mã khác →" 36 → 28px, chữ 12px; vùng chạm vẫn 44px.
+    - Bộ số giống tấm "Lưu vào danh mục". Bề ngang giữ `92vw` (358px ở 390), không thu về 320px, vì đây là danh sách.
+  - Từ 1024px: hình không đổi, chỉ mất câu "Mẫu ưu tiên".
+- **Đo** (Chrome qua dev server, `no-tren-von-chu`):
+  - 360 và 390px: tấm giữa màn (cách đỉnh và đáy bằng nhau); thân không cuộn ngang lẫn dọc; không chữ nào lố cột hay
+    chạm nút; nút 28px với vùng chạm 44px; trang không tràn.
+  - 1440px: rộng 720px như cũ, thân vừa khít.
+- **Test:** `preset-sheet-css.test.ts` (mới, 7 ca). `ExportSheet.test.tsx`: ca "gọi tên bốn dòng là mẫu ưu tiên" đảo
+  chiều thành "nhánh có xếp hạng không còn nhãn 'Mẫu ưu tiên' hay câu dẫn nào". `OriginTracker.test.tsx`: hai ca neo
+  chờ lần kiểm lại 250ms chạy xong (trước đó một lần chạy cả bộ báo một lỗi lẻ khi hẹn giờ chạy sau lúc gỡ jsdom).
+  Toàn bộ vitest 180 file / 4.472 ca xanh; tsc, eslint, prettier sạch.
+- **Lượt hai, cùng ngày: tấm chọn mã của màn chi tiết cũng nổi giữa, đầu gọn lại.** Chủ dự án chụp tấm "Chọn mã cổ
+  phiếu" mở từ "Danh sách 1.100 mã khác →", khoanh phần đầu tấm: _"sau khi click vào button này thì chuyển sang màn mới
+  là màn chọn mã thì cũng là dialog giữa. và cần giảm padding của phần khoanh đỏ màn mới. áp dụng cho bản mobile"_.
+  - `TickerPickerSheet.tsx`: thêm prop `compact`. `TickerPickerSheet.module.css` thêm khối điện thoại cho `compact`: đầu
+    và thân đệm 12 × 16px, tiêu đề 14px, đúng bộ số tấm Nạp mẫu.
+  - `FormulaDetail.tsx`: tấm chọn mã nhận `placement="center"` và `compact`. Nút "Đổi mã" mở cùng tấm nên cũng nổi giữa.
+  - Màn Danh mục KHÔNG truyền `compact`: ở đó tấm mở đè lên hộp thoại Thêm/Sửa mã, nên giữ đầu chung với các hộp thoại
+    của màn ấy.
+  - **Đo** (360, 390px): tấm giữa màn (cách đỉnh và đáy cùng 100px). Đầu 69 → 45px, bằng tấm Nạp mẫu, tiêu đề 14px. Ô
+    tìm thẳng mép với chữ ở đầu tấm. Không tràn ngang. Từ 1440px không đổi.
+  - **Test:** `preset-sheet-css.test.ts` thêm ca so ba luật đầu và thân của hai tấm từng khai báo, và kiểm màn chi tiết
+    truyền đủ hai prop. Toàn bộ vitest 180 file / 4.477 ca xanh; tsc, eslint, prettier sạch.
+- **Chưa làm:** chưa build và chạy `check:chrome`.
+
+---
+
+## "‹ Danh sách công thức" về đúng thẻ vừa bấm, kể cả sau khi lưu (21/10/2026)
+
+**Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án xem.**
+
+Chủ dự án: _"mỗi khi mà vừa vào một công thức - có thể vừa thao tác, hoặc lưu công thức đó rồi và sử dụng tĩnh năng
+quay lại là click vào button '< Danh sách công thức' thì sẽ quay lại màn danh sách công thức và đúng chỗ vừa click vào
+công thức trước đó. chỉ trừ trường hợp là search vừa click thì giữ nguyên logic cũ"_.
+
+- **Đo trước khi sửa** (Chrome qua dev server, bấm chuột thật):
+  - Bấm thẻ rồi quay lại ngay, kể cả sau 9 giây ở lại trang công thức: đã về đúng chỗ.
+  - Danh sách sắp "Vừa xem gần đây" (1440px): công thức vừa mở nhảy lên đầu. Máy về đúng `scrollY` cũ nên thẻ nằm ở
+    −569px, khuất khỏi màn.
+  - Lưu: nút Lưu tự sang Danh mục, rồi Back về công thức thì nút đọc "‹ Danh mục", không còn đường về danh sách.
+- **Sửa:**
+  - `src/application/origin-screen.ts`: bản ghi màn gốc mang thêm `anchor` (href của thẻ đã bấm và chỗ của nó trên màn).
+    Thêm `anchoredScrollY()` (chọn thẻ cùng href nằm gần chỗ cũ nhất: ô trên kệ hay thẻ trong danh sách) và khoá
+    `ORIGIN_HOLD_KEY`. Neo méo thì chỉ bỏ neo, giữ phần còn lại.
+  - `src/ui/layout/OriginTracker.tsx`:
+    - `pointerdown` / `keydown` trúng một thẻ `<a>` trong `<main>` thì ghi neo.
+    - Quay lại thì cuộn theo thẻ, kiểm lại một lần sau 250ms, và không kéo giật nếu người dùng đã tự cuộn. Không tìm
+      thấy thẻ thì dùng `scrollY` như cũ.
+    - Thêm `holdOriginThrough()`: màn bị giữ không được ghi lúc gắn và lúc cuộn; cú chạm đầu tiên trên màn ấy, hoặc
+      tới một màn gốc khác, sẽ gỡ cờ.
+  - `src/app/cong-thuc/[id]/FormulaDetail.tsx`: `saveCalc()` gọi `holdOriginThrough()` trước khi sang Danh mục.
+  - `src/application/index.ts`: xuất ba thứ mới.
+  - Trường hợp tìm kiếm giữ nguyên (`cancelScrollRestore()`: bỏ chữ tìm, về đầu trang).
+- **Đo sau khi sửa:**
+
+  | Đường đi                                                        | Kết quả                                   |
+  | --------------------------------------------------------------- | ----------------------------------------- |
+  | Bấm rồi quay lại (390px)                                        | thẻ ở 358px như lúc bấm                   |
+  | Thẻ trên kệ sau 9 giây ở lại                                    | 310px như lúc bấm                         |
+  | "Vừa xem gần đây"                                               | thẻ ở 440px như lúc bấm (cuộn 1200 → 191) |
+  | Lưu → Danh mục → Back → "‹ Danh sách công thức" (390 và 1440px) | về danh sách, thẻ đúng chỗ                |
+  | Đang tìm kiếm                                                   | bỏ chữ tìm, về đầu trang như cũ           |
+
+- **Test:**
+  - `origin-screen.test.ts`: 7 ca neo.
+  - `OriginTracker.test.tsx`: 5 ca neo và 4 ca giữ màn gốc.
+  - `SettingsScreen.test.tsx`: khoá mới vào danh sách kho phiên không cần nút xoá, kèm lý do.
+  - Toàn bộ vitest xanh. eslint, tsc, prettier sạch.
+- **Chưa làm:** chưa thêm ca nào vào `check:chrome`; chưa build và chạy `check:chrome`.
+
+---
+
 ## Bài tập, màn tổng kết: "Kết quả kiểm tra" và điểm lên hàng "BÀI TẬP", mọi khổ màn (20/10/2026)
 
 **Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án xem.**
@@ -27,6 +214,37 @@ hàng với BÀI TẬP". Giữa lúc làm thì nhắn thêm: _"bản web cũng n
 - **Test:** `QuizBody.test.tsx` thêm ca "nhãn kết quả và điểm nằm cùng hàng với nhãn khối, sau nhãn khối".
   `src/ui/quiz`, `tail-mobile-css`, tokens, hover-media xanh (426 ca); eslint, prettier sạch.
 - CLAUDE.md: thêm một câu vào đoạn "The header row carries everything that is not a question".
+
+---
+
+## Tấm "Lưu vào danh mục": hộp thoại nổi giữa ở điện thoại, gọn lại; bỏ câu báo kết quả lỗi (21/10/2026)
+
+**Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án xem.**
+
+Chủ dự án chụp tấm trên điện thoại (XIRR đang lỗi): _"thay đổi thiết kế của phần này bản mobile chuyển thành dialog
+xuất hiện ở giữa màn hình thanh vì bottom dialog, đồng thời giảm size text và giảm padding để gọn hơn"_, rồi giữa lượt:
+_"bỏ đoạn giải thích này đi 'Kết quả đang báo lỗi nên chưa lưu được…'"_.
+
+- **Sửa:**
+  - `SaveCalcSheet.tsx`: `placement="center"` + `className={styles.sheet}`. Kết quả lỗi thì `blocked` trả `null`: ô
+    tên và nút Lưu vẫn khoá, không còn câu nào.
+  - `SaveCalcSheet.module.css`: khối `screen and (max-width: 1023.98px)` mới, bộ chọn theo cấu trúc primitive (cách của
+    tấm "Bảng dữ liệu") — đầu 12/16px, tiêu đề 16 → 14px; thân 12/16px; khối tóm tắt 8/12px, kết quả 14 → 12px; ô tên
+    44 → 36px (chữ trong ô giữ 16px, sàn chống phóng của iOS); chân 8/16px, nút 36 → 32px, chữ 14 → 12px (vùng chạm
+    44px giữ).
+  - `vi.ts` / `en.ts`: bỏ `save.errNoResult`, mộ chí ở `vi.ts`.
+  - `BottomSheet.module.css`: chỉ sửa một chú thích đã thành sai ("ở điện thoại chỉ màn Danh mục mở tấm nổi giữa").
+- **Đo** (Chrome, `pe`): 360 và 390 — nổi giữa màn (390: từ 277 tới 504 trong khung cao 780), góc bo 16px cả bốn,
+  không vạch kéo; cao 292 → 227px; trang không tràn. 1440 không đổi số nào (560 × 307px, đầu 65, thân 171, chân 69,
+  tiêu đề 20px).
+- **Lượt hai, cùng ngày** — _"dialog vừa sửa cần thu hẹp width bản mobile vì đang quá rộng"_: `92vw` (358px ở 390, 707px
+  ở 768) → `min(320px, 100vw − 48px)` trên `dialog.sheet`. Đo: 272px ở 320 (tên công thức xuống hai dòng, khối tóm tắt
+  37 → 54px, không tràn), 312px ở 360, 320px ở 390 và 768, hở 24–35px mỗi bên; 1440 vẫn 560px. Ca số đo trong
+  `SaveCalcSheet.test.tsx` ghim thêm bề ngang.
+- **Test:** `SaveCalcSheet.test.tsx` — ca "kết quả đang lỗi" đảo (vẫn chặn, câu không quay lại); ca cỡ chữ cập nhật
+  kết quả 12px; hai ca mới (tấm nổi giữa mang lớp riêng; số đo dưới 1024px).
+- **Chưa đổi:** các tấm dán đáy khác ở điện thoại (Tải về, Nạp mẫu, chọn mã) — `check:chrome` còn ghim Tải về dán đáy
+  ở 360.
 
 ---
 

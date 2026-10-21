@@ -246,6 +246,11 @@ describe('bản kiểm kê kho — gác cả khi khối đang ẩn', () => {
           'sessionStorage — cờ sống đúng MỘT lượt điều hướng: nút quay lại đặt, màn đích đọc rồi xoá ngay. Một nút xoá cho nó là nút không bao giờ có gì để xoá',
       },
       {
+        key: 'ffb.origin.hold.v1',
+        viSao:
+          'sessionStorage — cờ "màn nút Lưu vừa đưa tới chưa phải màn gốc", chỉ mang một đường dẫn màn (/danh-muc/). Hết ở cú chạm đầu tiên trên màn ấy hoặc khi tới màn gốc khác, và tự hết khi đóng tab — một nút xoá cho nó là nút không bao giờ có gì đáng xoá',
+      },
+      {
         key: 'ffb.list.resultOpened.v1',
         viSao:
           'sessionStorage — dấu "vừa mở một kết quả tìm" của màn Công thức, sống đúng MỘT lần quay về: lần gắn kế tiếp của màn đọc rồi xoá ngay, khớp hay không. Chỉ mang chuỗi truy vấn vốn đã nằm trên URL, và tự hết khi đóng tab',

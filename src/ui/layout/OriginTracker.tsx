@@ -3,11 +3,13 @@
 import { usePathname } from 'next/navigation';
 import { useEffect } from 'react';
 
-import type { Origin } from '@/application';
+import type { Origin, OriginAnchor } from '@/application';
 import {
+  ORIGIN_HOLD_KEY,
   ORIGIN_KEY,
   ORIGIN_PREV_KEY,
   ORIGIN_RESTORE_KEY,
+  anchoredScrollY,
   matchOrigin,
   originPath,
   originToStore,
@@ -61,27 +63,40 @@ export function OriginTracker() {
      * đang nhớ bằng số 0 của trang vừa mở, và cú cuộn ngay sau đó không còn chỗ nào để tới.
      */
     restoreScroll();
-    remember();
+    ghiNho(null);
 
     let timer: ReturnType<typeof setTimeout> | undefined;
     function onScroll(): void {
       if (timer !== undefined) clearTimeout(timer);
-      timer = setTimeout(remember, SCROLL_SETTLE_MS);
+      timer = setTimeout(rememberQuiet, SCROLL_SETTLE_MS);
     }
 
     window.addEventListener('scroll', onScroll, { passive: true });
-    document.addEventListener('pointerdown', remember, { passive: true, capture: true });
-    document.addEventListener('keydown', remember, { passive: true, capture: true });
+    document.addEventListener('pointerdown', rememberInput, { passive: true, capture: true });
+    document.addEventListener('keydown', rememberInput, { passive: true, capture: true });
 
     return () => {
       if (timer !== undefined) clearTimeout(timer);
       window.removeEventListener('scroll', onScroll);
-      document.removeEventListener('pointerdown', remember, { capture: true });
-      document.removeEventListener('keydown', remember, { capture: true });
+      document.removeEventListener('pointerdown', rememberInput, { capture: true });
+      document.removeEventListener('keydown', rememberInput, { capture: true });
     };
   }, [pathname]);
 
   return null;
+}
+
+/**
+ * Giữ màn gốc hiện tại qua một lần chuyển sang `path` mà người dùng không tự chọn — gọi NGAY TRƯỚC khi
+ * điều hướng. Nút Lưu ở màn chi tiết là nơi gọi duy nhất; lý do ở docblock `ORIGIN_HOLD_KEY`.
+ */
+export function holdOriginThrough(path: string): void {
+  try {
+    // Bỏ neo `#…` (đích của nút Lưu là `/danh-muc/#phep-tinh-da-luu`) rồi chuẩn hoá như mọi đường dẫn gốc.
+    window.sessionStorage.setItem(ORIGIN_HOLD_KEY, originPath(path.split('#')[0] ?? ''));
+  } catch {
+    // Chặn sessionStorage thì nút quay lại về Danh mục như trước — mất phần mới, không hỏng phần cũ.
+  }
 }
 
 /** Cuộn ngừng bao lâu thì coi là đã dừng, tính bằng mili giây. */
@@ -98,6 +113,17 @@ const SCROLL_SETTLE_MS = 150;
  * trang vừa mở — nút quay lại về đúng màn mà đứng ở đỉnh trang.
  */
 export function rememberOrigin(): void {
+  ghiNho(null, true);
+}
+
+/**
+ * Phần việc thật của `rememberOrigin()`.
+ *
+ * - `neo`: thẻ vừa bấm, chỉ có ở `pointerdown` / `keydown` trúng một thẻ `<a>` trong `<main>`.
+ * - `doNguoiDung`: lần ghi này do người dùng chạm vào màn (bấm, gõ phím, đổi bộ lọc) chứ không do màn
+ *   tự gắn hay tự cuộn. Chỉ lần ghi kiểu ấy mới gỡ được cờ `ORIGIN_HOLD_KEY` trên chính màn bị giữ.
+ */
+function ghiNho(neo: OriginAnchor | null, doNguoiDung = false): void {
   try {
     /*
      * Hỏi "màn này có phải màn gốc không" TRƯỚC, đọc `scrollY` SAU (21/09/2026, đợt tối ưu).
@@ -111,7 +137,22 @@ export function rememberOrigin(): void {
     const url = `${window.location.pathname}${window.location.search}`;
     if (matchOrigin(url) === null) return;
 
-    const next = originToStore(window.location.pathname, window.location.search, window.scrollY);
+    /*
+     * Màn đang bị giữ (vừa được nút Lưu đưa tới): lần ghi lúc gắn và lúc cuộn bỏ qua, màn gốc cũ sống
+     * tiếp. Cú chạm đầu tiên của người dùng, hoặc một màn gốc KHÁC, gỡ cờ rồi ghi như thường.
+     */
+    const giu = window.sessionStorage.getItem(ORIGIN_HOLD_KEY);
+    if (giu !== null) {
+      if (giu === originPath(url) && !doNguoiDung) return;
+      window.sessionStorage.removeItem(ORIGIN_HOLD_KEY);
+    }
+
+    const next = originToStore(
+      window.location.pathname,
+      window.location.search,
+      window.scrollY,
+      neo,
+    );
     if (next === null) return;
 
     /*
@@ -147,9 +188,30 @@ export function cancelScrollRestore(): void {
   }
 }
 
-/** Tên hàm riêng để `addEventListener` và `removeEventListener` nhận cùng một tham chiếu. */
-function remember(): void {
-  rememberOrigin();
+/** Lần ghi lúc cuộn ngừng — màn tự sinh, không phải người dùng chạm vào (xem `ghiNho`). */
+function rememberQuiet(): void {
+  ghiNho(null);
+}
+
+/**
+ * Lần ghi ở `pointerdown` / `keydown`, kèm NEO khi cú bấm trúng một thẻ `<a>` trong nội dung màn.
+ *
+ * Chỉ thẻ trong `<main>`: thanh tab dưới và đầu trang cũng là `<a>`, nhưng chúng không phải "chỗ người
+ * dùng đang đứng trong danh sách". `keydown` đi cùng đường vì Enter trên một thẻ đang có tiêu điểm là
+ * cú bấm của người dùng bàn phím. Đọc `getBoundingClientRect()` chỉ khi màn là màn gốc — cùng lẽ tiết
+ * kiệm dàn trang như `scrollY` ở `ghiNho`.
+ */
+function rememberInput(event: Event): void {
+  let neo: OriginAnchor | null = null;
+  const dich = event.target;
+  if (dich instanceof Element && matchOrigin(window.location.pathname) !== null) {
+    const the = dich.closest('main a[href]');
+    const href = the?.getAttribute('href');
+    if (the !== null && the !== undefined && typeof href === 'string') {
+      neo = { href, top: the.getBoundingClientRect().top };
+    }
+  }
+  ghiNho(neo, true);
 }
 
 /**
@@ -169,7 +231,7 @@ function remember(): void {
  * màn nhưng đứng ở đỉnh trang — tức mất đúng thứ `Origin.scrollY` sinh ra để giữ.
  */
 function restoreScroll(): void {
-  let target: number | null = null;
+  let saved: Origin | undefined;
 
   try {
     const wanted = window.sessionStorage.getItem(ORIGIN_RESTORE_KEY);
@@ -179,23 +241,59 @@ function restoreScroll(): void {
     const here = `${window.location.pathname}${window.location.search}`;
     if (here !== wanted) return;
 
-    const saved = [
+    saved = [
       parseOrigin(window.sessionStorage.getItem(ORIGIN_KEY)),
       parseOrigin(window.sessionStorage.getItem(ORIGIN_PREV_KEY)),
     ].find((origin): origin is Origin => origin !== null && origin.url === wanted);
-    if (saved === undefined) return;
-
-    target = saved.scrollY;
   } catch {
     return;
   }
 
-  if (target === null || target <= 0) return;
-  const y = target;
+  if (saved === undefined) return;
+  /* Không neo mà cũng không cuộn thì đỉnh trang đã là chỗ cũ — khỏi chờ khung hình nào. */
+  if (saved.anchor === undefined && saved.scrollY <= 0) return;
+  const origin = saved;
 
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
+      const y = viTriCuon(origin);
+      if (y <= 0 && window.scrollY <= 0) return;
       window.scrollTo({ top: y, behavior: 'auto' });
+
+      /*
+       * Kiểm lại một lần sau khi trang lắng (21/10/2026). Hai khung hình là đủ cho danh sách dựng xong,
+       * nhưng thẻ ngoài khung nhìn mang `content-visibility: auto` nên chiều cao của chúng là ƯỚC LƯỢNG
+       * cho tới khi được vẽ; vẽ xong thì thẻ neo có thể trượt vài chục px. Chỉ chỉnh khi người dùng chưa
+       * tự cuộn (trang còn đứng đúng chỗ vừa đặt) — kéo giật lại một người đang cuộn là tệ hơn lệch.
+       */
+      if (origin.anchor === undefined) return;
+      const daDat = Math.round(window.scrollY);
+      setTimeout(() => {
+        if (Math.abs(Math.round(window.scrollY) - daDat) > 1) return;
+        const lai = viTriCuon(origin);
+        if (Math.abs(lai - daDat) > 1) window.scrollTo({ top: lai, behavior: 'auto' });
+      }, RESTORE_SETTLE_MS);
     });
   });
+}
+
+/** Chờ bao lâu rồi kiểm lại chỗ của thẻ neo, tính bằng mili giây. */
+const RESTORE_SETTLE_MS = 250;
+
+/**
+ * Vị trí cuộn cần tới: theo thẻ đã bấm khi còn tìm thấy nó, không thì theo `scrollY` đã nhớ như trước.
+ *
+ * Thẻ bị ẩn (ô kệ ngoài phần xem trước mang `hidden`, thẻ Nâng cao ở chế độ Cơ bản) không có hộp nào
+ * (`getClientRects()` rỗng) nên bị loại — cuộn tới một thẻ không nhìn thấy là cuộn tới hư không.
+ */
+function viTriCuon(origin: Origin): number {
+  const neo = origin.anchor;
+  if (neo === undefined) return origin.scrollY;
+
+  const docTops: number[] = [];
+  for (const the of document.querySelectorAll('main a[href]')) {
+    if (the.getAttribute('href') !== neo.href || the.getClientRects().length === 0) continue;
+    docTops.push(the.getBoundingClientRect().top + window.scrollY);
+  }
+  return anchoredScrollY(origin, docTops) ?? origin.scrollY;
 }

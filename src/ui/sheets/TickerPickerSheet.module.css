@@ -92,6 +92,14 @@
   border-radius: var(--radius-md);
 }
 
+/*
+ * Khối bọc mã, tên và nhãn. Từ 1024px nó không vẽ gì (`contents`), nên bốn thứ ấy vẫn là con trực
+ * tiếp của dòng flex như trước. Dưới 1024px nó thành lưới, xem khối điện thoại cuối file.
+ */
+.text {
+  display: contents;
+}
+
 /* Bề ngang tối thiểu cố định để cột mã thẳng hàng — mã 3 ký tự và mã 8 ký tự (E1VFVN30). */
 /* Huy hiệu mã nay là primitive `Badge` tone `code` — chung bề rộng với PresetSheet. */
 
@@ -248,9 +256,22 @@
  * chú thích không được để in đậm như kia"_). Mã là thứ người dùng tìm, tên chỉ là chú thích cho mã, nên
  * trên dòng chỉ còn mã đậm. Từ 1024px tên vẫn `--weight-medium`.
  *
+ * Nhãn "chưa có dữ liệu" / "đã có" nằm DƯỚI tên, không chen giữa tên và nút (21/10/2026). Chủ dự án
+ * khoanh một dòng quỹ ETF trên điện thoại: _"hiện tại màn mobile đang nhìn rất xấu và không ổn lắm"_. Đo
+ * ở 390 trước khi sửa: mã 8 ký tự ăn 59px, nhãn 99px, nút 47px, nên cột tên còn 58px; "ETF KIM GROWTH VN
+ * DIAMOND" xuống năm dòng và gãy giữa chữ ("DIAMON / D"), dòng cao 69–108px. `.text` thành lưới hai cột:
+ * mã | tên trên một hàng, canh theo dòng chữ đầu (`baseline`), nhãn ở hàng dưới; nút vẫn ở giữa chiều
+ * cao dòng. Dòng không có nhãn vẫn một hàng như trước.
+ *
+ * Nhãn ở khổ này là CHỮ NGHIÊNG trơn, không khung, không nền, và bắt đầu thẳng mép trái với mã (cùng
+ * ngày, chủ dự án khoanh nhãn vàng và vẽ mũi tên sang trái: _"phần text vàng không cần bo xung quanh,
+ * chỉ cần đoạn text vàng in nghiêng là được, rồi cho dịch sang trái 1 chút nữa"_). Nhãn "đã có" của tấm
+ * ở Danh mục cùng khuôn nên đổi theo. Màu giữ nguyên: vàng `--color-warning` cho "chưa có dữ liệu", xám
+ * `--color-ink-soft` cho "đã có". Từ 1024px hai nhãn vẫn là ô viền cạnh tên.
+ *
  * PHẢI đứng cuối file: `.item` và `.name` gốc cùng độ ưu tiên với hai luật ở đây, nên thứ tự file quyết
  * định. Bản đầu đặt khối này ngay sau ô tìm, tức TRƯỚC `.item` gốc, và đo trên Chrome thấy dòng vẫn cao
- * 57px. `.item > button` (0,1,1) thắng `.sm` của primitive (0,1,0) bất kể thứ tự bó CSS; `.item > .code`
+ * 57px. `.item > button` (0,1,1) thắng `.sm` của primitive (0,1,0) bất kể thứ tự bó CSS; `.text > .code`
  * (0,2,0) thắng `.code` của `Badge` cùng lẽ. `.itemMuted` ghép `item` nên dòng mờ đi cùng.
  */
 @media (max-width: 1023.98px) {
@@ -259,8 +280,27 @@
     padding: var(--space-1) var(--space-3);
   }
 
+  .text {
+    display: grid;
+    flex: 1;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 2px var(--space-2);
+    align-items: baseline;
+    justify-items: start;
+    min-width: 0;
+  }
+
+  .held,
+  .unusable {
+    grid-column: 1 / -1;
+    padding: 0;
+    font-style: italic;
+    background: none;
+    border: 0;
+  }
+
   .name,
-  .item > .code {
+  .text > .code {
     font-size: 13px;
   }
 
@@ -273,5 +313,37 @@
     padding: 0 var(--space-2);
     font-size: var(--text-xs);
     border-radius: var(--radius-sm);
+  }
+}
+
+/*
+ * ── Dưới 1024px, khi nơi gọi truyền `compact`: đầu và thân gọn (21/10/2026) ───────────────────
+ *
+ * Màn chi tiết công thức mở tấm này từ lối rẽ "Danh sách … mã khác →" của tấm Nạp mẫu, và cả hai nay
+ * nổi giữa màn trên điện thoại. Chủ dự án khoanh đầu tấm (vạch kéo, nút ‹, "Chọn mã cổ phiếu"): _"cần
+ * giảm padding của phần khoanh đỏ màn mới. áp dụng cho bản mobile"_. Đo ở 390 trước khi sửa (tấm dán
+ * đáy): đầu 69px — vạch kéo, đệm 20px trên, tiêu đề 16px.
+ *
+ * Bộ số của tấm Nạp mẫu (`PresetSheet.module.css`), vì hai tấm thay chỗ nhau qua lối rẽ và nút ‹:
+ * đầu và thân đệm 12 × 16px, tiêu đề 14px. Nút ‹ vẫn ăn lề âm 12px trên dưới (luật điện thoại của
+ * `.panelCenter .close`), nên chiếm 20px mà vùng chạm vẫn 44px. Đệm ngang của thân 20 → 16px theo
+ * cùng, để ô tìm thẳng mép với tiêu đề.
+ *
+ * Bộ chọn theo CẤU TRÚC của primitive, cùng cách tấm Lưu và tấm Nạp mẫu đang làm: `:first-child` /
+ * `:nth-child(2)` cho đủ độ ưu tiên thắng `.panelCenter .header/.body/.title` (hai lớp). Màn Danh mục
+ * không truyền `compact`, nên tấm ở đó giữ đầu chung với các hộp thoại khác của màn ấy. Từ 1024px không
+ * đổi gì. `screen and` vì dưới media in, bề ngang là bề ngang giấy.
+ */
+@media screen and (max-width: 1023.98px) {
+  dialog.compact > div > header:first-child {
+    padding: var(--space-3) var(--space-4);
+  }
+
+  dialog.compact > div > header:first-child h2 {
+    font-size: var(--text-sm);
+  }
+
+  dialog.compact > div > div:nth-child(2) {
+    padding: var(--space-3) var(--space-4);
   }
 }

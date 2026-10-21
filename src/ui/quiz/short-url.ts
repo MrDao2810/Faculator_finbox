@@ -15,9 +15,14 @@
  *
  * Không ném lỗi với chuỗi không phải URL: `quiz.test.ts` đã gác `source.url` phải là https, và
  * một chuỗi lạ hiện ra còn hơn một link trống.
+ *
+ * Chữ hiện ra đã GIẢI MÃ `%xx` (21/10/2026): link giá phiên của CafeF viết `start%44ate` để lách
+ * việc CafeF hạ URL xuống chữ thường (`src/core/source-link.ts`), và người đọc phải thấy
+ * `startDate=11/09/2026`, không thấy `%44`. `decodeURI` giữ nguyên các ký tự dành riêng (`/ ? & =`);
+ * chuỗi mã hoá hỏng thì in như cũ.
  */
 export function shortUrl(url: string, max = Number.POSITIVE_INFINITY): string {
-  const stripped = url
+  const stripped = giaiMa(url)
     .replace(/^https?:\/\//, '')
     .replace(/^www\./, '')
     .replace(/\/+$/, '');
@@ -28,4 +33,12 @@ export function shortUrl(url: string, max = Number.POSITIVE_INFINITY): string {
   if (host.length >= max - 1) return host;
 
   return `${stripped.slice(0, max - 1)}…`;
+}
+
+function giaiMa(url: string): string {
+  try {
+    return decodeURI(url);
+  } catch {
+    return url;
+  }
 }

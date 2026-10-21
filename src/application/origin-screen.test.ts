@@ -1,7 +1,14 @@
 import { describe, expect, it } from 'vitest';
 
 import type { Origin } from './origin-screen';
-import { backTarget, matchOrigin, originPath, originToStore, parseOrigin } from './origin-screen';
+import {
+  anchoredScrollY,
+  backTarget,
+  matchOrigin,
+  originPath,
+  originToStore,
+  parseOrigin,
+} from './origin-screen';
 
 /** Chuỗi đúng dạng `OriginTracker` ghi vào `sessionStorage`. */
 function ghi(url: string, scrollY = 0): string {
@@ -132,6 +139,65 @@ describe('originToStore() — có đáng ghi không', () => {
 
   it('scrollY không hữu hạn thì về 0 chứ không lọt NaN vào JSON', () => {
     expect(originToStore('/cong-thuc/', '', Number.NaN)?.scrollY).toBe(0);
+  });
+});
+
+/*
+ * Neo theo thẻ vừa bấm (21/10/2026). Chủ dự án: _"quay lại màn danh sách công thức và đúng chỗ vừa click
+ * vào công thức trước đó"_. Đo trên Chrome: danh sách sắp "Vừa xem gần đây" đưa công thức vừa mở lên đầu,
+ * nên `scrollY` cũ để thẻ ấy ở −569px.
+ */
+describe('neo theo thẻ vừa bấm', () => {
+  const NEO = { href: '/cong-thuc/pe/', top: 440 };
+
+  it('ghi và đọc lại được neo đi kèm bản ghi', () => {
+    const goc = originToStore('/cong-thuc/', '?sort=recent', 1200, NEO);
+    expect(goc).toEqual({ url: '/cong-thuc/?sort=recent', scrollY: 1200, anchor: NEO });
+    expect(parseOrigin(JSON.stringify(goc))).toEqual(goc);
+  });
+
+  it('không có neo thì bản ghi không mang khoá anchor', () => {
+    expect(originToStore('/cong-thuc/', '', 10)).not.toHaveProperty('anchor');
+    expect(parseOrigin(ghi('/cong-thuc/', 10))).not.toHaveProperty('anchor');
+  });
+
+  /* Neo hỏng thì chỉ mất NEO — con số cuộn vẫn dùng được, rơi về cách cũ còn hơn mất cả bản ghi. */
+  it('neo méo thì bỏ neo, giữ phần còn lại của bản ghi', () => {
+    for (const anchor of [
+      'chuoi',
+      { href: 'javascript:alert(1)', top: 0 },
+      { href: '//khac.vn/', top: 0 },
+      { href: '/cong-thuc/pe/', top: Number.NaN },
+      { href: '/cong-thuc/pe/', top: 'cao' },
+      { href: `/${'a'.repeat(400)}`, top: 0 },
+    ]) {
+      expect(
+        parseOrigin(JSON.stringify({ url: '/cong-thuc/', scrollY: 300, anchor })),
+        JSON.stringify(anchor),
+      ).toEqual({ url: '/cong-thuc/', scrollY: 300 });
+    }
+  });
+
+  it('cuộn sao cho thẻ đứng lại đúng chỗ cũ trên màn, dù nó đã dời trong trang', () => {
+    const goc: Origin = { url: '/cong-thuc/?sort=recent', scrollY: 1200, anchor: NEO };
+    // Thẻ từng ở 1200 + 440 = 1640 trong trang; giờ lên đầu danh sách, ở 631.
+    expect(anchoredScrollY(goc, [631])).toBe(191);
+  });
+
+  /* Một công thức có thể có hai thẻ: ô trên kệ và thẻ trong danh sách. Thẻ đã bấm là thẻ dời ít nhất. */
+  it('hai thẻ cùng href thì chọn thẻ gần chỗ cũ nhất', () => {
+    const goc: Origin = { url: '/cong-thuc/', scrollY: 1500, anchor: { ...NEO, top: 358 } };
+    expect(anchoredScrollY(goc, [320, 1858])).toBe(1500);
+    expect(anchoredScrollY(goc, [1858, 320])).toBe(1500);
+  });
+
+  it('không còn thẻ nào khớp thì trả null — nơi gọi rơi về scrollY cũ', () => {
+    expect(anchoredScrollY({ url: '/cong-thuc/', scrollY: 900, anchor: NEO }, [])).toBeNull();
+    expect(anchoredScrollY({ url: '/cong-thuc/', scrollY: 900 }, [100])).toBeNull();
+  });
+
+  it('thẻ nằm gần đỉnh trang thì kẹp về 0, không ra số âm', () => {
+    expect(anchoredScrollY({ url: '/cong-thuc/', scrollY: 900, anchor: NEO }, [200])).toBe(0);
   });
 });
 

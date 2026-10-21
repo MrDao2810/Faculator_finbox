@@ -33,7 +33,7 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
     },
     nguon: [
       {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=09/11/2026&EndDate=09/11/2026&PageIndex=1&PageSize=20',
+        url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-fpt-1.chn?start%44ate=11/09/2026&end%44ate=11/09/2026',
         nhan: {
           vi: 'Giá FPT phiên 11/09/2026',
           en: 'FPT price, 2026-09-11 session',
@@ -68,7 +68,7 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
     },
     nguon: [
       {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=09/11/2026&EndDate=09/11/2026&PageIndex=1&PageSize=20',
+        url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-fpt-1.chn?start%44ate=11/09/2026&end%44ate=11/09/2026',
         nhan: {
           vi: 'Giá FPT phiên 11/09/2026',
           en: 'FPT price, 2026-09-11 session',
@@ -586,7 +586,7 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
     },
     nguon: [
       {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=09/11/2026&EndDate=09/11/2026&PageIndex=1&PageSize=20',
+        url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-fpt-1.chn?start%44ate=11/09/2026&end%44ate=11/09/2026',
         nhan: {
           vi: 'Giá FPT phiên 11/09/2026',
           en: 'FPT price, 2026-09-11 session',
@@ -642,7 +642,7 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
     },
     nguon: [
       {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=09/11/2026&EndDate=09/11/2026&PageIndex=1&PageSize=20',
+        url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-fpt-1.chn?start%44ate=11/09/2026&end%44ate=11/09/2026',
         nhan: {
           vi: 'Giá FPT phiên 11/09/2026, nhân số cổ phiếu ra vốn hoá',
           en: 'FPT price, 2026-09-11 session, times shares gives market cap',
@@ -775,7 +775,7 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
         },
       },
       {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=09/11/2026&EndDate=09/11/2026&PageIndex=1&PageSize=20',
+        url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-fpt-1.chn?start%44ate=11/09/2026&end%44ate=11/09/2026',
         nhan: {
           vi: 'Giá FPT phiên 11/09/2026, tử số của P/E',
           en: 'FPT price, 2026-09-11 session, the numerator of P/E',
@@ -817,7 +817,7 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
     },
     nguon: [
       {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=09/11/2026&EndDate=09/11/2026&PageIndex=1&PageSize=20',
+        url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-fpt-1.chn?start%44ate=11/09/2026&end%44ate=11/09/2026',
         nhan: {
           vi: 'Giá FPT phiên 11/09/2026',
           en: 'FPT price, 2026-09-11 session',
@@ -950,7 +950,7 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
     },
     nguon: [
       {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=09/11/2026&EndDate=09/11/2026&PageIndex=1&PageSize=20',
+        url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-fpt-1.chn?start%44ate=11/09/2026&end%44ate=11/09/2026',
         nhan: {
           vi: 'Giá FPT phiên 11/09/2026',
           en: 'FPT price, 2026-09-11 session',
@@ -985,7 +985,7 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
     },
     nguon: [
       {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=09/11/2026&EndDate=09/11/2026&PageIndex=1&PageSize=20',
+        url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-fpt-1.chn?start%44ate=11/09/2026&end%44ate=11/09/2026',
         nhan: {
           vi: 'Giá FPT phiên 11/09/2026, mốc so sánh',
           en: 'FPT price, 2026-09-11 session, the comparison point',
@@ -1202,7 +1202,7 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
     },
     nguon: [
       {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=09/11/2026&EndDate=09/11/2026&PageIndex=1&PageSize=20',
+        url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-fpt-1.chn?start%44ate=11/09/2026&end%44ate=11/09/2026',
         nhan: {
           vi: 'Giá FPT phiên 11/09/2026, nhân số cổ phiếu ra vốn hoá',
           en: 'FPT price, 2026-09-11 session, times shares gives market cap',
@@ -1510,7 +1510,7 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
     },
     nguon: [
       {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=09/11/2026&EndDate=09/11/2026&PageIndex=1&PageSize=20',
+        url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-fpt-1.chn?start%44ate=11/09/2026&end%44ate=11/09/2026',
         nhan: {
           vi: 'Giá FPT phiên 11/09/2026',
           en: 'FPT price, 2026-09-11 session',
@@ -1559,7 +1559,7 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
         },
       },
       {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=07/24/2026&EndDate=07/24/2026&PageIndex=1&PageSize=20',
+        url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-fpt-1.chn?start%44ate=24/07/2026&end%44ate=24/07/2026',
         nhan: {
           vi: 'Giá FPT phiên 24/07/2026',
           en: 'FPT price, 2026-07-24 session',
@@ -1608,7 +1608,7 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
         },
       },
       {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=09/11/2026&EndDate=09/11/2026&PageIndex=1&PageSize=20',
+        url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-fpt-1.chn?start%44ate=11/09/2026&end%44ate=11/09/2026',
         nhan: {
           vi: 'Giá FPT phiên 11/09/2026',
           en: 'FPT price, 2026-09-11 session',
@@ -1657,7 +1657,7 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
         },
       },
       {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=09/11/2026&EndDate=09/11/2026&PageIndex=1&PageSize=20',
+        url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-fpt-1.chn?start%44ate=11/09/2026&end%44ate=11/09/2026',
         nhan: {
           vi: 'Giá FPT phiên 11/09/2026',
           en: 'FPT price, 2026-09-11 session',
@@ -1818,7 +1818,7 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
         },
       },
       {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=07/24/2026&EndDate=07/24/2026&PageIndex=1&PageSize=20',
+        url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-fpt-1.chn?start%44ate=24/07/2026&end%44ate=24/07/2026',
         nhan: {
           vi: 'Giá FPT phiên 24/07/2026',
           en: 'FPT price, 2026-07-24 session',
@@ -1909,14 +1909,14 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
         },
       },
       {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=07/24/2026&EndDate=07/24/2026&PageIndex=1&PageSize=20',
+        url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-fpt-1.chn?start%44ate=24/07/2026&end%44ate=24/07/2026',
         nhan: {
           vi: 'Giá FPT phiên 24/07/2026',
           en: 'FPT price, 2026-07-24 session',
         },
       },
       {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=09/11/2026&EndDate=09/11/2026&PageIndex=1&PageSize=20',
+        url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-fpt-1.chn?start%44ate=11/09/2026&end%44ate=11/09/2026',
         nhan: {
           vi: 'Giá FPT phiên 11/09/2026',
           en: 'FPT price, 2026-09-11 session',
@@ -1993,14 +1993,14 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
         },
       },
       {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=07/24/2026&EndDate=07/24/2026&PageIndex=1&PageSize=20',
+        url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-fpt-1.chn?start%44ate=24/07/2026&end%44ate=24/07/2026',
         nhan: {
           vi: 'Giá FPT phiên 24/07/2026',
           en: 'FPT price, 2026-07-24 session',
         },
       },
       {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=09/11/2026&EndDate=09/11/2026&PageIndex=1&PageSize=20',
+        url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-fpt-1.chn?start%44ate=11/09/2026&end%44ate=11/09/2026',
         nhan: {
           vi: 'Giá FPT phiên 11/09/2026',
           en: 'FPT price, 2026-09-11 session',
@@ -2049,14 +2049,14 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
     },
     nguon: [
       {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=07/24/2026&EndDate=07/24/2026&PageIndex=1&PageSize=20',
+        url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-fpt-1.chn?start%44ate=24/07/2026&end%44ate=24/07/2026',
         nhan: {
           vi: 'Giá FPT phiên 24/07/2026',
           en: 'FPT price, 2026-07-24 session',
         },
       },
       {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=09/11/2026&EndDate=09/11/2026&PageIndex=1&PageSize=20',
+        url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-fpt-1.chn?start%44ate=11/09/2026&end%44ate=11/09/2026',
         nhan: {
           vi: 'Giá FPT phiên 11/09/2026',
           en: 'FPT price, 2026-09-11 session',
@@ -2098,14 +2098,14 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
     },
     nguon: [
       {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=07/24/2026&EndDate=07/24/2026&PageIndex=1&PageSize=20',
+        url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-fpt-1.chn?start%44ate=24/07/2026&end%44ate=24/07/2026',
         nhan: {
           vi: 'Giá FPT phiên 24/07/2026',
           en: 'FPT price, 2026-07-24 session',
         },
       },
       {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=09/11/2026&EndDate=09/11/2026&PageIndex=1&PageSize=20',
+        url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-fpt-1.chn?start%44ate=11/09/2026&end%44ate=11/09/2026',
         nhan: {
           vi: 'Giá FPT phiên 11/09/2026',
           en: 'FPT price, 2026-09-11 session',
@@ -2196,7 +2196,7 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
         },
       },
       {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=09/11/2026&EndDate=09/11/2026&PageIndex=1&PageSize=20',
+        url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-fpt-1.chn?start%44ate=11/09/2026&end%44ate=11/09/2026',
         nhan: {
           vi: 'Giá FPT phiên 11/09/2026',
           en: 'FPT price, 2026-09-11 session',
@@ -2242,28 +2242,28 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
     },
     nguon: [
       {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=07/15/2026&EndDate=07/15/2026&PageIndex=1&PageSize=20',
+        url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-fpt-1.chn?start%44ate=15/07/2026&end%44ate=15/07/2026',
         nhan: {
           vi: 'Giá FPT phiên 15/07/2026',
           en: 'FPT price, 2026-07-15 session',
         },
       },
       {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=07/24/2026&EndDate=07/24/2026&PageIndex=1&PageSize=20',
+        url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-fpt-1.chn?start%44ate=24/07/2026&end%44ate=24/07/2026',
         nhan: {
           vi: 'Giá FPT phiên 24/07/2026',
           en: 'FPT price, 2026-07-24 session',
         },
       },
       {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=08/21/2026&EndDate=08/21/2026&PageIndex=1&PageSize=20',
+        url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-fpt-1.chn?start%44ate=21/08/2026&end%44ate=21/08/2026',
         nhan: {
           vi: 'Giá FPT phiên 21/08/2026',
           en: 'FPT price, 2026-08-21 session',
         },
       },
       {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=09/11/2026&EndDate=09/11/2026&PageIndex=1&PageSize=20',
+        url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-fpt-1.chn?start%44ate=11/09/2026&end%44ate=11/09/2026',
         nhan: {
           vi: 'Giá FPT phiên 11/09/2026',
           en: 'FPT price, 2026-09-11 session',
@@ -2302,13 +2302,6 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
         nhan: {
           vi: 'VN-Index chốt tháng 8/2026 tại 1.832,12 điểm, tăng 5,55%',
           en: 'VN-Index closes August 2026 at 1832.12 points, up 5.55%',
-        },
-      },
-      {
-        url: 'https://api-finfo.vndirect.com.vn/v4/vnmarket_prices?q=code:VNINDEX~date:2026-07-31',
-        nhan: {
-          vi: 'VN-Index phiên 31/07/2026: 1.735,78 điểm',
-          en: 'VN-Index on the 2026-07-31 session: 1735.78 points',
         },
       },
     ],
@@ -2424,14 +2417,14 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
     },
     nguon: [
       {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=VNINDEX&StartDate=09/30/2024&EndDate=09/30/2024&PageIndex=1&PageSize=20',
+        url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-vnindex-1.chn?start%44ate=30/09/2024&end%44ate=30/09/2024',
         nhan: {
           vi: 'VN-Index phiên 30/09/2024: 1.287,94 điểm',
           en: 'VN-Index on the 2024-09-30 session: 1287.94 points',
         },
       },
       {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=VNINDEX&StartDate=08/28/2026&EndDate=08/28/2026&PageIndex=1&PageSize=20',
+        url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-vnindex-1.chn?start%44ate=28/08/2026&end%44ate=28/08/2026',
         nhan: {
           vi: 'VN-Index phiên 28/08/2026: 1.832,12 điểm',
           en: 'VN-Index on the 2026-08-28 session: 1832.12 points',
@@ -2445,7 +2438,7 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
         },
       },
       {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=09/11/2026&EndDate=09/11/2026&PageIndex=1&PageSize=20',
+        url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-fpt-1.chn?start%44ate=11/09/2026&end%44ate=11/09/2026',
         nhan: {
           vi: 'Giá FPT phiên 11/09/2026',
           en: 'FPT price, 2026-09-11 session',
@@ -2480,28 +2473,28 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
     },
     nguon: [
       {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=VNINDEX&StartDate=12/29/2023&EndDate=12/29/2023&PageIndex=1&PageSize=20',
+        url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-vnindex-1.chn?start%44ate=29/12/2023&end%44ate=29/12/2023',
         nhan: {
           vi: 'VN-Index cuối năm 2023, phiên 29/12/2023',
           en: 'VN-Index at the end of 2023, 2023-12-29 session',
         },
       },
       {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=VNINDEX&StartDate=12/31/2024&EndDate=12/31/2024&PageIndex=1&PageSize=20',
+        url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-vnindex-1.chn?start%44ate=31/12/2024&end%44ate=31/12/2024',
         nhan: {
           vi: 'VN-Index cuối năm 2024, phiên 31/12/2024',
           en: 'VN-Index at the end of 2024, 2024-12-31 session',
         },
       },
       {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=VNINDEX&StartDate=12/31/2025&EndDate=12/31/2025&PageIndex=1&PageSize=20',
+        url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-vnindex-1.chn?start%44ate=31/12/2025&end%44ate=31/12/2025',
         nhan: {
           vi: 'VN-Index cuối năm 2025, phiên 31/12/2025',
           en: 'VN-Index at the end of 2025, 2025-12-31 session',
         },
       },
       {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=VNINDEX&StartDate=08/28/2026&EndDate=08/28/2026&PageIndex=1&PageSize=20',
+        url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-vnindex-1.chn?start%44ate=28/08/2026&end%44ate=28/08/2026',
         nhan: {
           vi: 'VN-Index cuối tháng 8/2026, phiên 28/08/2026',
           en: 'VN-Index at the end of August 2026, 2026-08-28 session',
@@ -2624,14 +2617,14 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
     },
     nguon: [
       {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=07/24/2026&EndDate=07/24/2026&PageIndex=1&PageSize=20',
+        url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-fpt-1.chn?start%44ate=24/07/2026&end%44ate=24/07/2026',
         nhan: {
           vi: 'Giá FPT phiên 24/07/2026',
           en: 'FPT price, 2026-07-24 session',
         },
       },
       {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=09/11/2026&EndDate=09/11/2026&PageIndex=1&PageSize=20',
+        url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-fpt-1.chn?start%44ate=11/09/2026&end%44ate=11/09/2026',
         nhan: {
           vi: 'Giá FPT phiên 11/09/2026',
           en: 'FPT price, 2026-09-11 session',
@@ -2666,28 +2659,28 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
     },
     nguon: [
       {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=07/24/2026&EndDate=07/24/2026&PageIndex=1&PageSize=20',
+        url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-fpt-1.chn?start%44ate=24/07/2026&end%44ate=24/07/2026',
         nhan: {
           vi: 'Giá FPT phiên 24/07/2026',
           en: 'FPT price, 2026-07-24 session',
         },
       },
       {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=09/11/2026&EndDate=09/11/2026&PageIndex=1&PageSize=20',
+        url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-fpt-1.chn?start%44ate=11/09/2026&end%44ate=11/09/2026',
         nhan: {
           vi: 'Giá FPT phiên 11/09/2026',
           en: 'FPT price, 2026-09-11 session',
         },
       },
       {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=VNINDEX&StartDate=07/24/2026&EndDate=07/24/2026&PageIndex=1&PageSize=20',
+        url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-vnindex-1.chn?start%44ate=24/07/2026&end%44ate=24/07/2026',
         nhan: {
           vi: 'VN-Index phiên 24/07/2026',
           en: 'VN-Index, 2026-07-24 session',
         },
       },
       {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=VNINDEX&StartDate=09/11/2026&EndDate=09/11/2026&PageIndex=1&PageSize=20',
+        url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-vnindex-1.chn?start%44ate=11/09/2026&end%44ate=11/09/2026',
         nhan: {
           vi: 'VN-Index phiên 11/09/2026',
           en: 'VN-Index, 2026-09-11 session',
@@ -2736,14 +2729,14 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
     },
     nguon: [
       {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=09/11/2026&EndDate=09/11/2026&PageIndex=1&PageSize=20',
+        url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-fpt-1.chn?start%44ate=11/09/2026&end%44ate=11/09/2026',
         nhan: {
           vi: 'Giá FPT phiên 11/09/2026',
           en: 'FPT price, 2026-09-11 session',
         },
       },
       {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=08/14/2026&EndDate=08/14/2026&PageIndex=1&PageSize=20',
+        url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-fpt-1.chn?start%44ate=14/08/2026&end%44ate=14/08/2026',
         nhan: {
           vi: 'Giá FPT phiên 14/08/2026',
           en: 'FPT price, 2026-08-14 session',
@@ -2785,21 +2778,21 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
     },
     nguon: [
       {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=06/24/2026&EndDate=07/21/2026&PageIndex=1&PageSize=20',
+        url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-fpt-1.chn?start%44ate=24/06/2026&end%44ate=21/07/2026',
         nhan: {
           vi: 'Giá FPT từ phiên 24/06 tới phiên 21/07/2026',
           en: 'FPT prices, 2026-06-24 to 2026-07-21 sessions',
         },
       },
       {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=07/22/2026&EndDate=08/18/2026&PageIndex=1&PageSize=20',
+        url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-fpt-1.chn?start%44ate=22/07/2026&end%44ate=18/08/2026',
         nhan: {
           vi: 'Giá FPT từ phiên 22/07 tới phiên 18/08/2026',
           en: 'FPT prices, 2026-07-22 to 2026-08-18 sessions',
         },
       },
       {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=08/19/2026&EndDate=09/15/2026&PageIndex=1&PageSize=20',
+        url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-fpt-1.chn?start%44ate=19/08/2026&end%44ate=15/09/2026',
         nhan: {
           vi: 'Giá FPT từ phiên 19/08 tới phiên 15/09/2026',
           en: 'FPT prices, 2026-08-19 to 2026-09-15 sessions',
@@ -2834,21 +2827,21 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
     },
     nguon: [
       {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=06/24/2026&EndDate=07/21/2026&PageIndex=1&PageSize=20',
+        url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-fpt-1.chn?start%44ate=24/06/2026&end%44ate=21/07/2026',
         nhan: {
           vi: 'Giá FPT từ phiên 24/06 tới phiên 21/07/2026',
           en: 'FPT prices, 2026-06-24 to 2026-07-21 sessions',
         },
       },
       {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=07/22/2026&EndDate=08/18/2026&PageIndex=1&PageSize=20',
+        url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-fpt-1.chn?start%44ate=22/07/2026&end%44ate=18/08/2026',
         nhan: {
           vi: 'Giá FPT từ phiên 22/07 tới phiên 18/08/2026',
           en: 'FPT prices, 2026-07-22 to 2026-08-18 sessions',
         },
       },
       {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=08/19/2026&EndDate=09/15/2026&PageIndex=1&PageSize=20',
+        url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-fpt-1.chn?start%44ate=19/08/2026&end%44ate=15/09/2026',
         nhan: {
           vi: 'Giá FPT từ phiên 19/08 tới phiên 15/09/2026',
           en: 'FPT prices, 2026-08-19 to 2026-09-15 sessions',
@@ -2888,15 +2881,7 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
       vi: '−(−0,020701 + 0,45 × (−0,018598 − (−0,020701))) × 100',
       en: '−(−0.020701 + 0.45 × (−0.018598 − (−0.020701))) × 100',
     },
-    nguon: [
-      {
-        url: 'https://api-finfo.vndirect.com.vn/v4/vnmarket_prices?sort=date&q=code:VNINDEX~date:gte:2026-06-04~date:lte:2026-09-15&size=100',
-        nhan: {
-          vi: 'Giá đóng cửa VN-Index 71 phiên, từ 04/06 tới 15/09/2026',
-          en: 'VN-Index closes for 71 sessions, 2026-06-04 to 2026-09-15',
-        },
-      },
-    ],
+    nguon: [],
   },
   'cvar-lich-su': {
     tinh: {
@@ -2944,15 +2929,7 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
       vi: '−(−0,026304 − 0,024583 − 0,035844 − 0,020701) ÷ 4 × 100',
       en: '−(−0.026304 − 0.024583 − 0.035844 − 0.020701) ÷ 4 × 100',
     },
-    nguon: [
-      {
-        url: 'https://api-finfo.vndirect.com.vn/v4/vnmarket_prices?sort=date&q=code:VNINDEX~date:gte:2026-06-04~date:lte:2026-09-15&size=100',
-        nhan: {
-          vi: 'Giá đóng cửa VN-Index 71 phiên, từ 04/06 tới 15/09/2026',
-          en: 'VN-Index closes for 71 sessions, 2026-06-04 to 2026-09-15',
-        },
-      },
-    ],
+    nguon: [],
   },
   'do-lech-chuan-loi-suat-phien': {
     tinh: {
@@ -2988,21 +2965,21 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
     },
     nguon: [
       {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=06/26/2026&EndDate=07/23/2026&PageIndex=1&PageSize=20',
+        url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-fpt-1.chn?start%44ate=26/06/2026&end%44ate=23/07/2026',
         nhan: {
           vi: 'Giá đóng cửa FPT từ 26/06 đến 23/07/2026',
           en: 'FPT closes, 2026-06-26 to 2026-07-23',
         },
       },
       {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=07/24/2026&EndDate=08/20/2026&PageIndex=1&PageSize=20',
+        url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-fpt-1.chn?start%44ate=24/07/2026&end%44ate=20/08/2026',
         nhan: {
           vi: 'Giá đóng cửa FPT từ 24/07 đến 20/08/2026',
           en: 'FPT closes, 2026-07-24 to 2026-08-20',
         },
       },
       {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=08/21/2026&EndDate=09/15/2026&PageIndex=1&PageSize=20',
+        url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-fpt-1.chn?start%44ate=21/08/2026&end%44ate=15/09/2026',
         nhan: {
           vi: 'Giá đóng cửa FPT từ 21/08 đến 15/09/2026',
           en: 'FPT closes, 2026-08-21 to 2026-09-15',
@@ -3037,21 +3014,21 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
     },
     nguon: [
       {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=06/26/2026&EndDate=07/23/2026&PageIndex=1&PageSize=20',
+        url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-fpt-1.chn?start%44ate=26/06/2026&end%44ate=23/07/2026',
         nhan: {
           vi: 'Giá đóng cửa FPT từ 26/06 đến 23/07/2026',
           en: 'FPT closes, 2026-06-26 to 2026-07-23',
         },
       },
       {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=07/24/2026&EndDate=08/20/2026&PageIndex=1&PageSize=20',
+        url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-fpt-1.chn?start%44ate=24/07/2026&end%44ate=20/08/2026',
         nhan: {
           vi: 'Giá đóng cửa FPT từ 24/07 đến 20/08/2026',
           en: 'FPT closes, 2026-07-24 to 2026-08-20',
         },
       },
       {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=08/21/2026&EndDate=09/15/2026&PageIndex=1&PageSize=20',
+        url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-fpt-1.chn?start%44ate=21/08/2026&end%44ate=15/09/2026',
         nhan: {
           vi: 'Giá đóng cửa FPT từ 21/08 đến 15/09/2026',
           en: 'FPT closes, 2026-08-21 to 2026-09-15',
@@ -3093,21 +3070,21 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
     },
     nguon: [
       {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=06/26/2026&EndDate=07/23/2026&PageIndex=1&PageSize=20',
+        url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-fpt-1.chn?start%44ate=26/06/2026&end%44ate=23/07/2026',
         nhan: {
           vi: 'Giá đóng cửa FPT từ 26/06 đến 23/07/2026',
           en: 'FPT closes, 2026-06-26 to 2026-07-23',
         },
       },
       {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=07/24/2026&EndDate=08/20/2026&PageIndex=1&PageSize=20',
+        url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-fpt-1.chn?start%44ate=24/07/2026&end%44ate=20/08/2026',
         nhan: {
           vi: 'Giá đóng cửa FPT từ 24/07 đến 20/08/2026',
           en: 'FPT closes, 2026-07-24 to 2026-08-20',
         },
       },
       {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=08/21/2026&EndDate=09/15/2026&PageIndex=1&PageSize=20',
+        url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-fpt-1.chn?start%44ate=21/08/2026&end%44ate=15/09/2026',
         nhan: {
           vi: 'Giá đóng cửa FPT từ 21/08 đến 15/09/2026',
           en: 'FPT closes, 2026-08-21 to 2026-09-15',
@@ -3142,7 +3119,7 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
     },
     nguon: [
       {
-        url: 'https://api-finfo.vndirect.com.vn/v4/stock_prices?sort=date&q=code:STB~date:gte:2026-05-08~date:lte:2026-09-15&size=100',
+        url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-stb-1.chn?start%44ate=08/05/2026&end%44ate=15/09/2026',
         nhan: {
           vi: 'Giá đóng cửa STB 90 phiên từ 08/05 đến 15/09/2026',
           en: 'STB closes, 90 sessions from 2026-05-08 to 2026-09-15',
@@ -3177,21 +3154,21 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
     },
     nguon: [
       {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=06/26/2026&EndDate=07/23/2026&PageIndex=1&PageSize=20',
+        url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-fpt-1.chn?start%44ate=26/06/2026&end%44ate=23/07/2026',
         nhan: {
           vi: 'Giá đóng cửa FPT từ 26/06 đến 23/07/2026',
           en: 'FPT closes, 2026-06-26 to 2026-07-23',
         },
       },
       {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=07/24/2026&EndDate=08/20/2026&PageIndex=1&PageSize=20',
+        url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-fpt-1.chn?start%44ate=24/07/2026&end%44ate=20/08/2026',
         nhan: {
           vi: 'Giá đóng cửa FPT từ 24/07 đến 20/08/2026, có đáy 62.200 ₫ phiên 27/07',
           en: 'FPT closes, 2026-07-24 to 2026-08-20, with the 62200 ₫ low on 2026-07-27',
         },
       },
       {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=08/21/2026&EndDate=09/15/2026&PageIndex=1&PageSize=20',
+        url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-fpt-1.chn?start%44ate=21/08/2026&end%44ate=15/09/2026',
         nhan: {
           vi: 'Giá đóng cửa FPT từ 21/08 đến 15/09/2026, có đỉnh 74.500 ₫ phiên 10/09',
           en: 'FPT closes, 2026-08-21 to 2026-09-15, with the 74500 ₫ high on 2026-09-10',
@@ -3229,21 +3206,21 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
     ],
     nguon: [
       {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=06/26/2026&EndDate=07/23/2026&PageIndex=1&PageSize=20',
+        url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-fpt-1.chn?start%44ate=26/06/2026&end%44ate=23/07/2026',
         nhan: {
           vi: 'Giá đóng cửa FPT từ 26/06 đến 23/07/2026, có chuỗi giảm 10/07 đến 15/07',
           en: 'FPT closes, 2026-06-26 to 2026-07-23, with the 2026-07-10 to 2026-07-15 run',
         },
       },
       {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=07/24/2026&EndDate=08/20/2026&PageIndex=1&PageSize=20',
+        url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-fpt-1.chn?start%44ate=24/07/2026&end%44ate=20/08/2026',
         nhan: {
           vi: 'Giá đóng cửa FPT từ 24/07 đến 20/08/2026, có chuỗi giảm 11/08 đến 14/08',
           en: 'FPT closes, 2026-07-24 to 2026-08-20, with the 2026-08-11 to 2026-08-14 run',
         },
       },
       {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=08/21/2026&EndDate=09/15/2026&PageIndex=1&PageSize=20',
+        url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-fpt-1.chn?start%44ate=21/08/2026&end%44ate=15/09/2026',
         nhan: {
           vi: 'Giá đóng cửa FPT từ 21/08 đến 15/09/2026',
           en: 'FPT closes, 2026-08-21 to 2026-09-15',
@@ -3292,17 +3269,10 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
     },
     nguon: [
       {
-        url: 'https://api-finfo.vndirect.com.vn/v4/stock_prices?sort=date&q=code:FPT~date:gte:2026-06-19~date:lte:2026-09-15&size=100',
+        url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-fpt-1.chn?start%44ate=19/06/2026&end%44ate=15/09/2026',
         nhan: {
           vi: 'Giá đóng cửa FPT 60 phiên từ 19/06 đến 15/09/2026',
           en: 'FPT closes, 60 sessions from 2026-06-19 to 2026-09-15',
-        },
-      },
-      {
-        url: 'https://api-finfo.vndirect.com.vn/v4/vnmarket_prices?sort=date&q=code:VNINDEX~date:gte:2026-06-19~date:lte:2026-09-15&size=100',
-        nhan: {
-          vi: 'Giá đóng cửa VN-Index 60 phiên từ 19/06 đến 15/09/2026',
-          en: 'VN-Index closes, 60 sessions from 2026-06-19 to 2026-09-15',
         },
       },
     ],
@@ -3347,13 +3317,6 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
       en: '(0.041803 − 0.017876) ÷ 1.3062 × √250',
     },
     nguon: [
-      {
-        url: 'https://api-finfo.vndirect.com.vn/v4/vnmarket_prices?sort=date&q=code:VNINDEX~date:gte:2025-09-12~date:lte:2026-09-15&size=300',
-        nhan: {
-          vi: 'Giá đóng cửa VN-Index 250 phiên từ 12/09/2025 đến 15/09/2026',
-          en: 'VN-Index closes, 250 sessions from 2025-09-12 to 2026-09-15',
-        },
-      },
       {
         url: 'https://thoibaotaichinhvietnam.vn/luc-cau-trai-phieu-chinh-phu-tap-trung-ky-han-5-10-nam-203812.html',
         nhan: {
@@ -3411,13 +3374,6 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
     },
     nguon: [
       {
-        url: 'https://api-finfo.vndirect.com.vn/v4/vnmarket_prices?sort=date&q=code:VNINDEX~date:gte:2025-09-12~date:lte:2026-09-15&size=300',
-        nhan: {
-          vi: 'Giá đóng cửa VN-Index 250 phiên từ 12/09/2025 đến 15/09/2026',
-          en: 'VN-Index closes, 250 sessions from 2025-09-12 to 2026-09-15',
-        },
-      },
-      {
         url: 'https://thoibaotaichinhvietnam.vn/luc-cau-trai-phieu-chinh-phu-tap-trung-ky-han-5-10-nam-203812.html',
         nhan: {
           vi: 'Lợi suất trái phiếu chính phủ kỳ hạn 10 năm 4,57%, bản tin ngày 14/09/2026',
@@ -3467,13 +3423,6 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
     },
     nguon: [
       {
-        url: 'https://api-finfo.vndirect.com.vn/v4/vnmarket_prices?sort=date&q=code:VNINDEX~date:gte:2025-09-12~date:lte:2026-09-15&size=300',
-        nhan: {
-          vi: 'Giá đóng cửa VN-Index 250 phiên từ 12/09/2025 đến 15/09/2026',
-          en: 'VN-Index closes, 250 sessions from 2025-09-12 to 2026-09-15',
-        },
-      },
-      {
         url: 'https://thoibaotaichinhvietnam.vn/luc-cau-trai-phieu-chinh-phu-tap-trung-ky-han-5-10-nam-203812.html',
         nhan: {
           vi: 'Lợi suất trái phiếu chính phủ kỳ hạn 10 năm 4,57%, bản tin ngày 14/09/2026',
@@ -3481,7 +3430,7 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
         },
       },
       {
-        url: 'https://api-finfo.vndirect.com.vn/v4/stock_prices?sort=date&q=code:FPT~date:gte:2026-06-24~date:lte:2026-09-11&size=100',
+        url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-fpt-1.chn?start%44ate=24/06/2026&end%44ate=11/09/2026',
         nhan: {
           vi: 'Giá đóng cửa FPT 55 phiên từ 24/06 đến 11/09/2026, dữ liệu để hồi quy beta 0,9043',
           en: 'FPT closes, 55 sessions from 2026-06-24 to 2026-09-11, the data behind the 0.9043 beta',
@@ -3530,13 +3479,6 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
     },
     nguon: [
       {
-        url: 'https://api-finfo.vndirect.com.vn/v4/vnmarket_prices?sort=date&q=code:VNINDEX~date:gte:2025-09-12~date:lte:2026-09-15&size=300',
-        nhan: {
-          vi: 'Chuỗi VN-Index 250 phiên từ 12/09/2025 đến 15/09/2026',
-          en: 'VN-Index series, 250 sessions from 2025-09-12 to 2026-09-15',
-        },
-      },
-      {
         url: 'https://vietnamnet.vn/lai-suat-ngan-hang-hom-nay-9-9-2026-lai-suat-ngan-hang-big4-len-den-8-nam-2553329.html',
         nhan: {
           vi: 'Lãi suất tiết kiệm 12 tháng nhóm Big4 ngày 09/09/2026',
@@ -3570,15 +3512,7 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
       vi: '0,086664 ÷ 0,16383',
       en: '0.086664 ÷ 0.16383',
     },
-    nguon: [
-      {
-        url: 'https://api-finfo.vndirect.com.vn/v4/vnmarket_prices?sort=date&q=code:VNINDEX~date:gte:2025-09-12~date:lte:2026-09-15&size=300',
-        nhan: {
-          vi: 'Chuỗi VN-Index 250 phiên từ 12/09/2025 đến 15/09/2026',
-          en: 'VN-Index series, 250 sessions from 2025-09-12 to 2026-09-15',
-        },
-      },
-    ],
+    nguon: [],
   },
   'ty-so-thang-thua': {
     tinh: {
@@ -3605,15 +3539,7 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
       vi: '0,95606 ÷ |−0,95696|',
       en: '0.95606 ÷ |−0.95696|',
     },
-    nguon: [
-      {
-        url: 'https://api-finfo.vndirect.com.vn/v4/vnmarket_prices?sort=date&q=code:VNINDEX~date:gte:2025-09-12~date:lte:2026-09-15&size=300',
-        nhan: {
-          vi: 'Chuỗi VN-Index 250 phiên từ 12/09/2025 đến 15/09/2026',
-          en: 'VN-Index series, 250 sessions from 2025-09-12 to 2026-09-15',
-        },
-      },
-    ],
+    nguon: [],
   },
   'sma-n-phien': {
     tinh: {
@@ -3642,7 +3568,7 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
     },
     nguon: [
       {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=08/14/2026&EndDate=09/15/2026&PageIndex=1&PageSize=20',
+        url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-fpt-1.chn?start%44ate=14/08/2026&end%44ate=15/09/2026',
         nhan: {
           vi: 'Giá FPT 20 phiên từ 14/08 đến 15/09/2026',
           en: 'FPT prices, 20 sessions from 2026-08-14 to 2026-09-15',
@@ -3691,7 +3617,7 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
     },
     nguon: [
       {
-        url: 'https://api-finfo.vndirect.com.vn/v4/stock_prices?sort=date&q=code:FPT~date:gte:2025-09-12~date:lte:2026-09-15&size=300',
+        url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-fpt-1.chn?start%44ate=15/09/2025&end%44ate=15/09/2026',
         nhan: {
           vi: 'Giá FPT 250 phiên từ 12/09/2025 đến 15/09/2026',
           en: 'FPT prices, 250 sessions from 2025-09-12 to 2026-09-15',
@@ -3726,7 +3652,7 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
     },
     nguon: [
       {
-        url: 'https://api-finfo.vndirect.com.vn/v4/stock_prices?sort=date&q=code:FPT~date:gte:2025-09-12~date:lte:2026-09-15&size=300',
+        url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-fpt-1.chn?start%44ate=15/09/2025&end%44ate=15/09/2026',
         nhan: {
           vi: 'Giá FPT 250 phiên từ 12/09/2025 đến 15/09/2026',
           en: 'FPT prices, 250 sessions from 2025-09-12 to 2026-09-15',
@@ -3761,7 +3687,7 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
     },
     nguon: [
       {
-        url: 'https://api-finfo.vndirect.com.vn/v4/stock_prices?sort=date&q=code:FPT~date:gte:2025-09-12~date:lte:2026-09-15&size=300',
+        url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-fpt-1.chn?start%44ate=15/09/2025&end%44ate=15/09/2026',
         nhan: {
           vi: 'Giá FPT 250 phiên từ 12/09/2025 đến 15/09/2026',
           en: 'FPT prices, 250 sessions from 2025-09-12 to 2026-09-15',
@@ -3796,7 +3722,7 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
     },
     nguon: [
       {
-        url: 'https://api-finfo.vndirect.com.vn/v4/stock_prices?sort=date&q=code:FPT~date:gte:2025-09-12~date:lte:2026-09-15&size=300',
+        url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-fpt-1.chn?start%44ate=15/09/2025&end%44ate=15/09/2026',
         nhan: {
           vi: 'Giá FPT 250 phiên từ 12/09/2025 đến 15/09/2026',
           en: 'FPT prices, 250 sessions from 2025-09-12 to 2026-09-15',
@@ -3838,7 +3764,7 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
     },
     nguon: [
       {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=08/25/2026&EndDate=09/15/2026&PageIndex=1&PageSize=20',
+        url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-fpt-1.chn?start%44ate=25/08/2026&end%44ate=15/09/2026',
         nhan: {
           vi: 'Giá FPT từ 25/08 đến 15/09/2026',
           en: 'FPT prices, 2026-08-25 to 2026-09-15',
@@ -3880,7 +3806,7 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
     },
     nguon: [
       {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=08/27/2026&EndDate=09/15/2026&PageIndex=1&PageSize=20',
+        url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-fpt-1.chn?start%44ate=27/08/2026&end%44ate=15/09/2026',
         nhan: {
           vi: 'Giá FPT từ 27/08 đến 15/09/2026',
           en: 'FPT prices, 2026-08-27 to 2026-09-15',
@@ -3922,7 +3848,7 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
     },
     nguon: [
       {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=08/14/2026&EndDate=09/15/2026&PageIndex=1&PageSize=20',
+        url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-fpt-1.chn?start%44ate=14/08/2026&end%44ate=15/09/2026',
         nhan: {
           vi: 'Giá FPT 20 phiên từ 14/08 đến 15/09/2026',
           en: 'FPT prices, 20 sessions from 2026-08-14 to 2026-09-15',
@@ -3957,7 +3883,7 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
     },
     nguon: [
       {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=08/14/2026&EndDate=09/15/2026&PageIndex=1&PageSize=20',
+        url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-fpt-1.chn?start%44ate=14/08/2026&end%44ate=15/09/2026',
         nhan: {
           vi: 'Giá FPT 20 phiên từ 14/08 đến 15/09/2026',
           en: 'FPT prices, 20 sessions from 2026-08-14 to 2026-09-15',
@@ -4006,7 +3932,7 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
     },
     nguon: [
       {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=08/14/2026&EndDate=09/15/2026&PageIndex=1&PageSize=20',
+        url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-fpt-1.chn?start%44ate=14/08/2026&end%44ate=15/09/2026',
         nhan: {
           vi: 'Giá FPT 20 phiên từ 14/08 đến 15/09/2026',
           en: 'FPT prices, 20 sessions from 2026-08-14 to 2026-09-15',
@@ -4055,7 +3981,7 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
     },
     nguon: [
       {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=08/14/2026&EndDate=09/15/2026&PageIndex=1&PageSize=20',
+        url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-fpt-1.chn?start%44ate=14/08/2026&end%44ate=15/09/2026',
         nhan: {
           vi: 'Giá FPT 20 phiên từ 14/08 đến 15/09/2026',
           en: 'FPT prices, 20 sessions from 2026-08-14 to 2026-09-15',
@@ -4104,7 +4030,7 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
     },
     nguon: [
       {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=08/14/2026&EndDate=09/15/2026&PageIndex=1&PageSize=20',
+        url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-fpt-1.chn?start%44ate=14/08/2026&end%44ate=15/09/2026',
         nhan: {
           vi: 'Giá FPT 20 phiên từ 14/08 đến 15/09/2026',
           en: 'FPT prices, 20 sessions from 2026-08-14 to 2026-09-15',
@@ -4167,7 +4093,7 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
     },
     nguon: [
       {
-        url: 'https://api-finfo.vndirect.com.vn/v4/stock_prices?sort=date&q=code:FPT~date:gte:2025-09-12~date:lte:2026-09-15&size=300',
+        url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-fpt-1.chn?start%44ate=15/09/2025&end%44ate=15/09/2026',
         nhan: {
           vi: 'Giá FPT 250 phiên từ 12/09/2025 đến 15/09/2026',
           en: 'FPT prices, 250 sessions from 2025-09-12 to 2026-09-15',
@@ -4209,7 +4135,7 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
     },
     nguon: [
       {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=08/14/2026&EndDate=09/15/2026&PageIndex=1&PageSize=20',
+        url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-fpt-1.chn?start%44ate=14/08/2026&end%44ate=15/09/2026',
         nhan: {
           vi: 'Giá FPT 20 phiên từ 14/08 đến 15/09/2026',
           en: 'FPT prices, 20 sessions from 2026-08-14 to 2026-09-15',
@@ -4258,7 +4184,7 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
     },
     nguon: [
       {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=08/24/2026&EndDate=09/15/2026&PageIndex=1&PageSize=20',
+        url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-fpt-1.chn?start%44ate=24/08/2026&end%44ate=15/09/2026',
         nhan: {
           vi: 'Giá FPT 14 phiên từ 24/08 đến 15/09/2026',
           en: 'FPT prices, 14 sessions from 2026-08-24 to 2026-09-15',
@@ -4300,7 +4226,7 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
     },
     nguon: [
       {
-        url: 'https://api-finfo.vndirect.com.vn/v4/stock_prices?sort=date&q=code:FPT~date:gte:2026-08-14~date:lte:2026-09-15&size=100',
+        url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-fpt-1.chn?start%44ate=14/08/2026&end%44ate=15/09/2026',
         nhan: {
           vi: 'Giá đóng cửa và khối lượng khớp lệnh FPT 20 phiên từ 14/08 đến 15/09/2026',
           en: 'FPT closes and matched volume, 20 sessions from 2026-08-14 to 2026-09-15',
@@ -4349,21 +4275,21 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
     },
     nguon: [
       {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=06/26/2026&EndDate=07/23/2026&PageIndex=1&PageSize=20',
+        url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-fpt-1.chn?start%44ate=26/06/2026&end%44ate=23/07/2026',
         nhan: {
           vi: 'Giá FPT từ phiên 26/06 đến phiên 23/07/2026',
           en: 'FPT prices from the 2026-06-26 session to the 2026-07-23 session',
         },
       },
       {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=07/24/2026&EndDate=08/20/2026&PageIndex=1&PageSize=20',
+        url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-fpt-1.chn?start%44ate=24/07/2026&end%44ate=20/08/2026',
         nhan: {
           vi: 'Giá FPT từ phiên 24/07 đến phiên 20/08/2026',
           en: 'FPT prices from the 2026-07-24 session to the 2026-08-20 session',
         },
       },
       {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=08/21/2026&EndDate=09/15/2026&PageIndex=1&PageSize=20',
+        url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-fpt-1.chn?start%44ate=21/08/2026&end%44ate=15/09/2026',
         nhan: {
           vi: 'Giá FPT từ phiên 21/08 đến phiên 15/09/2026',
           en: 'FPT prices from the 2026-08-21 session to the 2026-09-15 session',
@@ -4398,7 +4324,7 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
     },
     nguon: [
       {
-        url: 'https://api-finfo.vndirect.com.vn/v4/stock_prices?sort=date&q=code:FPT~date:gte:2026-08-13~date:lte:2026-09-15&size=100',
+        url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-fpt-1.chn?start%44ate=13/08/2026&end%44ate=15/09/2026',
         nhan: {
           vi: 'Khối lượng khớp lệnh FPT 21 phiên từ 13/08 đến 15/09/2026',
           en: 'FPT matched volume, 21 sessions from 2026-08-13 to 2026-09-15',
@@ -5161,21 +5087,21 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
     },
     nguon: [
       {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=07/15/2026&EndDate=07/15/2026&PageIndex=1&PageSize=20',
+        url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-fpt-1.chn?start%44ate=15/07/2026&end%44ate=15/07/2026',
         nhan: {
           vi: 'Giá FPT phiên 15/07/2026',
           en: 'FPT price, 2026-07-15 session',
         },
       },
       {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=07/24/2026&EndDate=07/24/2026&PageIndex=1&PageSize=20',
+        url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-fpt-1.chn?start%44ate=24/07/2026&end%44ate=24/07/2026',
         nhan: {
           vi: 'Giá FPT phiên 24/07/2026',
           en: 'FPT price, 2026-07-24 session',
         },
       },
       {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=08/21/2026&EndDate=08/21/2026&PageIndex=1&PageSize=20',
+        url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-fpt-1.chn?start%44ate=21/08/2026&end%44ate=21/08/2026',
         nhan: {
           vi: 'Giá FPT phiên 21/08/2026',
           en: 'FPT price, 2026-08-21 session',
@@ -5280,7 +5206,7 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
         },
       },
       {
-        url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=09/11/2026&EndDate=09/11/2026&PageIndex=1&PageSize=20',
+        url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-fpt-1.chn?start%44ate=11/09/2026&end%44ate=11/09/2026',
         nhan: {
           vi: 'Giá FPT phiên 11/09/2026',
           en: 'FPT price, 2026-09-11 session',

@@ -116,9 +116,15 @@ export function SaveCalcSheet({
   const trimmed = name.trim();
   const duplicate = existingNames.some((existing) => key(existing) === key(trimmed));
 
-  /** Lý do chặn, xét theo thứ tự nặng dần: kho đầy và kết quả lỗi chặn từ trước khi gõ tên. */
+  /**
+   * Lý do chặn, xét theo thứ tự nặng dần: kho đầy và kết quả lỗi chặn từ trước khi gõ tên.
+   *
+   * Kết quả lỗi thì vẫn chặn — ô tên và nút Lưu khoá — nhưng KHÔNG nói câu nào (21/10/2026). Câu
+   * `save.errNoResult` ("Kết quả đang báo lỗi nên chưa lưu được…") đã bỏ theo yêu cầu chủ dự án; khối
+   * tóm tắt ngay trên đã in `_ _` ở chỗ con số, và màn ngoài đang bày nguyên nhân. Bỏ câu, giữ hành vi.
+   */
   const blocked = ((): string | null => {
-    if (!hasResult) return t('save.errNoResult');
+    if (!hasResult) return null;
     if (full) return t('save.errFull');
     if (trimmed === '') return touched ? t('save.errEmpty') : null;
     if (duplicate) return t('save.errDuplicate');
@@ -147,6 +153,12 @@ export function SaveCalcSheet({
       // Không phụ đề, ô tên không dòng gợi ý — chủ dự án xoá cả hai câu 15/10/2026, xem `vi.ts`.
       // Chỉ một ô tên — ở khổ web tấm 720px là loãng, xem `BottomSheetProps.width`.
       width="narrow"
+      // Nổi giữa màn ở MỌI khổ, kể cả điện thoại (21/10/2026) — chủ dự án: _"bản mobile chuyển thành
+      // dialog xuất hiện ở giữa màn hình thay vì bottom dialog"_. Từ 1024px hình không đổi gì: dạng
+      // `center` và khối khổ web của primitive khai cùng số đo. Phần gọn lại ở điện thoại nằm ở
+      // `.sheet` trong CSS của tấm này.
+      placement="center"
+      className={styles.sheet}
       footer={
         saved ? (
           <Button variant="secondary" size="sm" onClick={onClose}>

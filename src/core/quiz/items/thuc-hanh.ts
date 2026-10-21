@@ -3112,7 +3112,7 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
       ],
     },
     source: {
-      url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=VNINDEX&StartDate=06/30/2026&EndDate=09/24/2026&PageIndex=1&PageSize=20',
+      url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-vnindex-1.chn?start%44ate=30/06/2026&end%44ate=24/09/2026',
       kind: 'trai-nghiem',
       vietnam: true,
     },
@@ -3203,7 +3203,7 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
       ],
     },
     source: {
-      url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=VIC&StartDate=07/21/2026&EndDate=08/17/2026&PageIndex=1&PageSize=20',
+      url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-vic-1.chn?start%44ate=21/07/2026&end%44ate=17/08/2026',
       kind: 'trai-nghiem',
       vietnam: true,
     },
@@ -3294,7 +3294,7 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
       ],
     },
     source: {
-      url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=GAS&StartDate=08/14/2026&EndDate=09/15/2026&PageIndex=1&PageSize=20',
+      url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-gas-1.chn?start%44ate=14/08/2026&end%44ate=15/09/2026',
       kind: 'trai-nghiem',
       vietnam: true,
     },
@@ -3377,7 +3377,7 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
       ],
     },
     source: {
-      url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=VNINDEX&StartDate=08/19/2026&EndDate=09/07/2026&PageIndex=1&PageSize=20',
+      url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-vnindex-1.chn?start%44ate=19/08/2026&end%44ate=07/09/2026',
       kind: 'trai-nghiem',
       vietnam: true,
     },
@@ -3451,7 +3451,7 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
       ],
     },
     source: {
-      url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=HPG&StartDate=09/09/2026&EndDate=09/24/2026&PageIndex=1&PageSize=20',
+      url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-hpg-1.chn?start%44ate=09/09/2026&end%44ate=24/09/2026',
       kind: 'trai-nghiem',
       vietnam: true,
     },
@@ -3523,7 +3523,7 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
       ],
     },
     source: {
-      url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=HPG&StartDate=07/13/2026&EndDate=08/07/2026&PageIndex=1&PageSize=20',
+      url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-hpg-1.chn?start%44ate=13/07/2026&end%44ate=07/08/2026',
       kind: 'trai-nghiem',
       vietnam: true,
     },
@@ -3744,7 +3744,7 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
       ],
     },
     source: {
-      url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=VNM&StartDate=08/24/2026&EndDate=09/04/2026&PageIndex=1&PageSize=20',
+      url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-vnm-1.chn?start%44ate=24/08/2026&end%44ate=04/09/2026',
       kind: 'trai-nghiem',
       vietnam: true,
     },
@@ -3932,7 +3932,7 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
       ],
     },
     source: {
-      url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=ACB&StartDate=09/16/2026&EndDate=09/24/2026&PageIndex=1&PageSize=20',
+      url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-acb-1.chn?start%44ate=16/09/2026&end%44ate=24/09/2026',
       kind: 'trai-nghiem',
       vietnam: true,
     },
@@ -4025,7 +4025,7 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
       ],
     },
     source: {
-      url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=TCB&StartDate=09/07/2026&EndDate=09/24/2026&PageIndex=1&PageSize=20',
+      url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-tcb-1.chn?start%44ate=07/09/2026&end%44ate=24/09/2026',
       kind: 'trai-nghiem',
       vietnam: true,
     },
@@ -4110,7 +4110,7 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
       ],
     },
     source: {
-      url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=08/26/2026&EndDate=09/25/2026&PageIndex=1&PageSize=20',
+      url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-fpt-1.chn?start%44ate=26/08/2026&end%44ate=25/09/2026',
       kind: 'trai-nghiem',
       vietnam: true,
     },
@@ -4499,7 +4499,7 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
       ],
     },
     source: {
-      url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=MWG&StartDate=09/16/2026&EndDate=09/24/2026&PageIndex=1&PageSize=20',
+      url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-mwg-1.chn?start%44ate=16/09/2026&end%44ate=24/09/2026',
       kind: 'trai-nghiem',
       vietnam: true,
     },
@@ -4670,7 +4670,7 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
       ],
     },
     source: {
-      url: 'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=09/23/2026&EndDate=09/24/2026&PageIndex=1&PageSize=20',
+      url: 'https://cafef.vn/du-lieu/lich-su-giao-dich-fpt-1.chn?start%44ate=23/09/2026&end%44ate=24/09/2026',
       kind: 'trai-nghiem',
       vietnam: true,
     },

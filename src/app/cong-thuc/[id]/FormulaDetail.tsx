@@ -133,6 +133,7 @@ import {
   VariableTable,
 } from '@/ui/result';
 import { FormulaChart, hasChart } from '@/ui/charts';
+import { holdOriginThrough } from '@/ui/layout/OriginTracker';
 import { DisclaimerBar, useBackTarget } from '@/ui/navigation';
 import { GuideHint } from '@/ui/guide';
 import { QuizPanel } from '@/ui/quiz';
@@ -2267,6 +2268,12 @@ export function FormulaDetail({
 
     // Đã nằm trên đĩa; giờ xin trình duyệt đừng dọn kho — xem `persistent-storage.ts`.
     requestPersistentStorage();
+    /*
+     * Danh mục mở ra vì NÚT LƯU đưa tới, không vì người dùng chọn rời công thức: nó không được thành màn
+     * gốc chỉ vì đã mở. Bấm Back về lại công thức thì nút "‹" vẫn là "Danh sách công thức" và về đúng thẻ
+     * đã bấm (21/10/2026, docblock `ORIGIN_HOLD_KEY`). Chạm vào Danh mục là nó thành màn gốc như thường.
+     */
+    holdOriginThrough(savedCalcsPath());
     router.push(savedCalcsPath());
     return true;
   }
@@ -3907,6 +3914,13 @@ export function FormulaDetail({
           onClose={closeTickerPicker}
           // Mũi tên ‹ bên trái khi đóng là LÙI về sheet mẫu; dấu × khi đóng là thoát hẳn.
           dismiss={pickerShowsBack ? 'back' : 'close'}
+          /*
+            Nổi giữa màn ở mọi khổ và đầu tấm gọn dưới 1024px (21/10/2026), cùng dáng tấm Nạp mẫu mà nó
+            thay chỗ qua lối rẽ "Danh sách … mã khác →" — chủ dự án: _"chuyển sang màn mới là màn chọn mã
+            thì cũng là dialog giữa"_. Lý do ở docblock hai prop trong `TickerPickerSheet`.
+          */
+          placement="center"
+          compact
           /*
             Bật đánh dấu "chưa có dữ liệu" — chỉ ở màn này, KHÔNG ở tab Danh mục.
             Ở đây người dùng chọn mã để NẠP SỐ LIỆU vào công thức, nên mã thiếu báo cáo là vô dụng

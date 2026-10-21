@@ -288,27 +288,27 @@ describe('PresetSheet — WF-10', () => {
   });
 
   /*
-   * ── Nhãn "Mẫu ưu tiên" chỉ đúng ở nhánh CÓ xếp hạng ────────────────────────────────────────
+   * ── Nhãn "Mẫu ưu tiên" đã BỎ ở mọi nhánh (21/10/2026) ───────────────────────────────────────
    *
-   * Chỉ ở đó `pickPresetsFor()` mới chạy thật công thức với từng mã rồi trải bốn mã trên biên độ
-   * kết quả. Nhánh kia bốn mã là bộ WF-10 theo thứ tự kho, và nhãn ấy đặt ngay trên câu "bốn mã
-   * dưới đây không đổi được ô nào của công thức này" là hai dòng cãi nhau trong một màn.
+   * Nó từng gọi tên bốn dòng ở nhánh CÓ xếp hạng. Chủ dự án chụp sheet trên điện thoại: _"xóa đoạn
+   * text 'Mẫu ưu tiên — bốn mã hợp nhất để chạy thử công thức này' này ở cả mobile lẫn web"_. Ca này
+   * ĐẢO chiều ca cũ thay vì xoá, để nhãn có quay lại thì là một quyết định chứ không phải một lần lỡ
+   * tay. Chữ viết thẳng ra vì khoá `preset.topPicks` đã xoá. Nhánh xếp hạng nay không có câu dẫn nào.
    */
-  it('gọi tên bốn dòng là mẫu ưu tiên — và chỉ khi chúng thật sự chọn theo công thức', () => {
+  it('nhánh có xếp hạng không còn nhãn "Mẫu ưu tiên" hay câu dẫn nào', () => {
     const pe = findFormulaModule('pe');
     const laiKep = findFormulaModule('lai-kep');
     if (pe === undefined || laiKep === undefined) throw new Error('Thiếu công thức để dựng ca.');
 
+    const picks = pickPresetsFor(pe, SAMPLE_DATA.list(), { asOf: '2026-09-07' });
+    // Đúng ca đang gác: có xếp hạng (mã điền được ô của công thức).
+    expect(picks.some((item) => item.filled.length > 0)).toBe(true);
+
     const coXepHang = render(
-      <PresetSheet
-        open
-        onClose={vi.fn()}
-        onLoad={vi.fn()}
-        picks={pickPresetsFor(pe, SAMPLE_DATA.list(), { asOf: '2026-09-07' })}
-        spec={pe.spec}
-      />,
+      <PresetSheet open onClose={vi.fn()} onLoad={vi.fn()} picks={picks} spec={pe.spec} />,
     );
-    expect(screen.getByText(/Mẫu ưu tiên/)).not.toBeNull();
+    expect(screen.queryByText(/Mẫu ưu tiên/)).toBeNull();
+    expect(screen.queryByText(/không đổi được ô nào của công thức này/)).toBeNull();
     coXepHang.unmount();
 
     render(

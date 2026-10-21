@@ -20,9 +20,23 @@ describe('rút gọn đường dẫn nguồn làm chữ của link', () => {
    */
   it('không truyền `max` thì không cắt, chỉ bỏ giao thức và `www.`', () => {
     const dai =
-      'https://cafef.vn/du-lieu/Ajax/PageNew/DataHistory/PriceHistory.ashx?Symbol=FPT&StartDate=07/15/2026';
+      'https://cafef.vn/chuyen-nguoc-doi-nhung-co-that-p-e-thap-khong-phai-la-diem-hap-dan-188260716134057667.chn';
     expect(shortUrl(dai)).toBe(dai.replace('https://', ''));
     expect(shortUrl(dai)).not.toContain('…');
+  });
+
+  /* Link giá phiên của CafeF viết `start%44ate` (xem `src/core/source-link.ts`); chữ hiện ra phải đọc được. */
+  it('giải mã %xx trong chữ hiện ra, giữ nguyên dấu / ? & =', () => {
+    expect(
+      shortUrl(
+        'https://cafef.vn/du-lieu/lich-su-giao-dich-fpt-1.chn?start%44ate=11/09/2026&end%44ate=11/09/2026',
+      ),
+    ).toBe('cafef.vn/du-lieu/lich-su-giao-dich-fpt-1.chn?startDate=11/09/2026&endDate=11/09/2026');
+    expect(shortUrl('https://vi.wikipedia.org/wiki/Ch%E1%BB%89_s%E1%BB%91')).toBe(
+      'vi.wikipedia.org/wiki/Chỉ_số',
+    );
+    expect(shortUrl('https://a.vn/x%2Fy?q=%26')).toBe('a.vn/x%2Fy?q=%26');
+    expect(shortUrl('https://a.vn/hong%E0%A4')).toBe('a.vn/hong%E0%A4');
   });
 
   it('đường dẫn dài cắt đúng `max` ký tự kể cả dấu ba chấm', () => {

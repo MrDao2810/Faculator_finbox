@@ -88,12 +88,45 @@ const MAX_URL_LENGTH = 300;
 /** Trần vị trí cuộn, chặn một con số vô lý biến nút quay lại thành cú nhảy xuống hư không. */
 const MAX_SCROLL_Y = 500_000;
 
+/**
+ * Cờ "màn sắp mở KHÔNG được thành màn gốc, tới khi người dùng chạm vào nó" — giữ một đường dẫn.
+ *
+ * Nút Lưu ở màn chi tiết tự chuyển sang Danh mục (`saveCalc()` trong `FormulaDetail`). Đó là sản phẩm
+ * đưa người dùng đi, không phải họ chọn rời công thức: thiếu cờ này thì lần ghi lúc gắn của
+ * `OriginTracker` biến Danh mục thành màn gốc, và bấm Back của trình duyệt về lại công thức thì nút
+ * "‹" đọc "Danh mục" thay cho "Danh sách công thức" — mất đường về đúng chỗ đã bấm ở danh sách. Chủ dự
+ * án yêu cầu 21/10/2026: _"vừa thao tác, hoặc lưu công thức đó rồi … click vào button '< Danh sách công
+ * thức' thì sẽ quay lại màn danh sách công thức và đúng chỗ vừa click"_.
+ *
+ * Cờ hết hiệu lực ở cú `pointerdown` / `keydown` đầu tiên trên màn ấy (người dùng đã dùng Danh mục thật,
+ * nên từ đó nó LÀ màn gốc), hoặc khi tới một màn gốc khác.
+ */
+export const ORIGIN_HOLD_KEY = 'ffb.origin.hold.v1';
+
+/**
+ * Thẻ người dùng vừa bấm để rời màn gốc, và nó đứng cách mép trên khung nhìn bao xa lúc ấy.
+ *
+ * Có mặt vì `scrollY` một mình không đủ (21/10/2026, chủ dự án: _"quay lại màn danh sách công thức và
+ * đúng chỗ vừa click vào công thức trước đó"_). Đo trên Chrome: danh sách sắp "Vừa xem gần đây" đưa
+ * công thức vừa mở lên ĐẦU, nên về đúng `scrollY` cũ mà thẻ ấy đã nằm −569px, khuất khỏi màn; kệ
+ * "Công thức dùng hằng ngày" cũng tự xếp lại theo lịch sử mở. Neo theo thẻ thì cuộn sao cho thẻ ấy đứng
+ * lại đúng chỗ cũ trên màn, dù nó đã dời đi đâu trong trang.
+ */
+export interface OriginAnchor {
+  /** `href` của thẻ `<a>` đã bấm, đúng như thuộc tính (ví dụ `/cong-thuc/pe/`). Chỉ dùng để SO. */
+  href: string;
+  /** `getBoundingClientRect().top` của thẻ lúc bấm, làm tròn. Âm được: thẻ cao, mép trên đã khuất. */
+  top: number;
+}
+
 /** Màn người dùng đang đứng, kèm chỗ đứng trên màn ấy. */
 export interface Origin {
   /** Đường dẫn nội bộ kèm truy vấn, ví dụ `/cong-thuc/?category=risk`. */
   url: string;
   /** `window.scrollY` lúc rời đi, làm tròn xuống số nguyên. */
   scrollY: number;
+  /** Thẻ vừa bấm để rời đi, nếu cú rời đi là một cú bấm vào thẻ `<a>` trong nội dung màn. */
+  anchor?: OriginAnchor;
 }
 
 /**
@@ -170,12 +203,29 @@ export function parseOrigin(raw: string | null): Origin | null {
   }
 
   if (typeof data !== 'object' || data === null) return null;
-  const { url, scrollY } = data as { url?: unknown; scrollY?: unknown };
+  const { url, scrollY, anchor } = data as { url?: unknown; scrollY?: unknown; anchor?: unknown };
 
   if (typeof url !== 'string' || matchOrigin(url) === null) return null;
   if (typeof scrollY !== 'number' || !Number.isFinite(scrollY)) return null;
 
-  return { url, scrollY: Math.min(MAX_SCROLL_Y, Math.max(0, Math.floor(scrollY))) };
+  const origin: Origin = { url, scrollY: Math.min(MAX_SCROLL_Y, Math.max(0, Math.floor(scrollY))) };
+  /* Neo hỏng thì chỉ bỏ NEO: con số cuộn vẫn dùng được, rơi về cách cũ còn hơn mất cả bản ghi. */
+  const neo = parseAnchor(anchor);
+  return neo === null ? origin : { ...origin, anchor: neo };
+}
+
+/**
+ * Neo đọc từ bản ghi, hoặc `null` khi thiếu hay méo. `href` chỉ được SO với thuộc tính của thẻ trên màn,
+ * không bao giờ đi vào một `href` hay một bộ chọn CSS, nên chỉ cần chặn chuỗi vô lý chứ không cần đối
+ * chiếu danh sách như `url`.
+ */
+function parseAnchor(raw: unknown): OriginAnchor | null {
+  if (typeof raw !== 'object' || raw === null) return null;
+  const { href, top } = raw as { href?: unknown; top?: unknown };
+  if (typeof href !== 'string' || !href.startsWith('/') || href.startsWith('//')) return null;
+  if (href.length > MAX_URL_LENGTH) return null;
+  if (typeof top !== 'number' || !Number.isFinite(top) || Math.abs(top) > MAX_SCROLL_Y) return null;
+  return { href, top: Math.round(top) };
 }
 
 /**
@@ -183,12 +233,45 @@ export function parseOrigin(raw: string | null): Origin | null {
  * Trả `null` nghĩa là màn hiện tại không đáng nhớ — nơi gọi đừng ghi gì cả, và nhất là đừng XOÁ
  * bản ghi cũ: đứng ở trang chi tiết mà xoá thì chính nút quay lại của trang ấy mất đích.
  */
-export function originToStore(pathname: string, search: string, scrollY: number): Origin | null {
+export function originToStore(
+  pathname: string,
+  search: string,
+  scrollY: number,
+  anchor: OriginAnchor | null = null,
+): Origin | null {
   // `search` gồm cả dấu '?' khi có tham số, và là chuỗi rỗng khi không.
   const url = `${pathname}${search}`;
   if (matchOrigin(url) === null) return null;
 
-  return { url, scrollY: Number.isFinite(scrollY) ? Math.max(0, Math.floor(scrollY)) : 0 };
+  const origin: Origin = {
+    url,
+    scrollY: Number.isFinite(scrollY) ? Math.max(0, Math.floor(scrollY)) : 0,
+  };
+  const neo = parseAnchor(anchor);
+  return neo === null ? origin : { ...origin, anchor: neo };
+}
+
+/**
+ * Vị trí cuộn đưa thẻ đã bấm về đúng chỗ cũ trên màn, hoặc `null` khi không còn thẻ nào khớp neo.
+ *
+ * `docTops` là mép trên (theo TRANG, đã cộng `scrollY`) của mọi thẻ đang hiện có cùng `href` với neo.
+ * Một công thức có thể có HAI thẻ — ô trên kệ "dùng hằng ngày" và thẻ trong danh sách — nên chọn thẻ
+ * nằm gần chỗ cũ nhất (`scrollY + top` lúc bấm): thẻ đã bấm là thẻ dời ít nhất, kể cả khi danh sách
+ * "Vừa xem gần đây" đưa nó lên đầu (kệ thì vẫn ở đầu trang, xa hơn).
+ */
+export function anchoredScrollY(origin: Origin, docTops: ReadonlyArray<number>): number | null {
+  const neo = origin.anchor;
+  if (neo === undefined) return null;
+
+  const cu = origin.scrollY + neo.top;
+  let gan: number | null = null;
+  for (const top of docTops) {
+    if (!Number.isFinite(top)) continue;
+    if (gan === null || Math.abs(top - cu) < Math.abs(gan - cu)) gan = top;
+  }
+  if (gan === null) return null;
+
+  return Math.min(MAX_SCROLL_Y, Math.max(0, Math.round(gan - neo.top)));
 }
 
 /** Những gì nút quay lại biết được về lượt duyệt hiện tại, gom lại để không lẫn hai tham số chuỗi. */

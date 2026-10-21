@@ -3,6 +3,7 @@ import type { CalcContext, FormulaModule } from '../calc/types';
 import { MARKET_CONFIG } from '../market';
 import { scheduleOrDefault } from '../market/resolve';
 import { evaluateWorked, expressionShape } from '../quiz/worked-line';
+import { laKhoangCafefQuaDai, laLinkDuLieuTho } from '../source-link';
 import type { ViDuGiai } from './types';
 
 /**
@@ -210,9 +211,14 @@ export function viDuProblems(formula: FormulaModule, giai: ViDuGiai): string[] {
   }
 
   // Link nguồn.
-  for (const n of giai.nguon)
+  for (const n of giai.nguon) {
     if (!/^https:\/\/[^\s]+$/.test(n.url))
       loi.push(`nguon: "${n.url}" phải là https, không khoảng trắng`);
+    if (laLinkDuLieuTho(n.url))
+      loi.push(`nguon: "${n.url}" là API trả dữ liệu thô, phải dẫn tới trang đọc được`);
+    if (laKhoangCafefQuaDai(n.url))
+      loi.push(`nguon: "${n.url}" xin khoảng quá một năm, trang CafeF từ chối`);
+  }
   if (giai.nguon.length > 1 && giai.nguon.some((n) => n.nhan === undefined))
     loi.push('nguon: có từ hai link thì mỗi link phải có nhan nói nó cho con số nào');
 

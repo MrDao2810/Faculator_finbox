@@ -89,6 +89,19 @@ describe('TickerPickerSheet — đánh dấu mã chưa có dữ liệu', () => {
   });
 
   /*
+   * Mã, tên và nhãn chung một khối, nút đứng ngoài (21/10/2026): dưới 1024px khối ấy là lưới đưa nhãn
+   * xuống dưới tên, để tên không bị ép còn 58px giữa nhãn và nút. Luật CSS ghim ở
+   * `ticker-picker-css.test.ts`; ca này ghim phần cấu trúc mà luật ấy dựa vào.
+   */
+  it('mã, tên và nhãn chung một khối; nút Chọn ở ngoài khối ấy', async () => {
+    await moSheet({ markUnusableAsOf: '2026-09-08' });
+
+    const khoi = within(dong('E1VFVN30')).getByText('chưa có dữ liệu').parentElement;
+    expect(khoi?.textContent).toBe('E1VFVN30Quỹ ETF VFMVN30chưa có dữ liệu');
+    expect(within(dong('E1VFVN30')).getByRole('button').parentElement).toBe(dong('E1VFVN30'));
+  });
+
+  /*
    * ĐẢO CHIỀU 06/10/2026. Ca này trước đây tên là "mã bị dán nhãn vẫn chọn được — nhãn là dự
    * đoán, không phải lệnh cấm", và nó khẳng định nút KHÔNG khoá.
    *

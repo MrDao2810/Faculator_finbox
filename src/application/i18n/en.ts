@@ -269,9 +269,8 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'loan.condensed.after': 'periods: the first 12, each year-end, and the last one.',
 
   'preset.title': 'Load a sample dataset',
-  /* Bảy khoá của sheet này đã bỏ cùng bản tiếng Việt — xem `vi.ts` để biết khoá nào và vì sao. */
+  /* Tám khoá của sheet này đã bỏ cùng bản tiếng Việt — xem `vi.ts` để biết khoá nào và vì sao. */
   'preset.load': 'Load',
-  'preset.topPicks': 'Top picks — the four tickers best suited to trying this formula',
   'preset.noTickerNote':
     'None of the four tickers below changes a field of this formula — it runs on your own ' +
     'numbers. Loading one here only carries it over to the formulas that do use a ticker.',
@@ -595,8 +594,7 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
     'A saved calculation already uses this name. Pick another so the two do not blur together.',
   'save.errFull':
     'You already have 30 saved calculations. Delete one in the portfolio before saving another.',
-  'save.errNoResult':
-    'The result is currently an error, so there is nothing to save. Fix the inputs until a result appears, then save.',
+  /* `save.errNoResult` đã bỏ cùng bản tiếng Việt (21/10/2026) — xem lý do ở `vi.ts`. */
   'save.failed': 'Could not save. Your browser may be blocking local storage, or it is full.',
 
   'switch.on': 'On',

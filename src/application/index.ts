@@ -643,11 +643,13 @@ export {
 /* Xin trình duyệt giữ kho lâu dài — gọi ngay sau một cú Lưu, xem docblock. */
 export { requestPersistentStorage } from './persistent-storage';
 
-export type { BackContext, Origin } from './origin-screen';
+export type { BackContext, Origin, OriginAnchor } from './origin-screen';
 export {
+  ORIGIN_HOLD_KEY,
   ORIGIN_KEY,
   ORIGIN_PREV_KEY,
   ORIGIN_RESTORE_KEY,
+  anchoredScrollY,
   backTarget,
   matchOrigin,
   originPath,

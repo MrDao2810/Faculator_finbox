@@ -80,14 +80,23 @@ export interface TickerPickerSheetProps {
    *
    * Màn Danh mục truyền `'center'` vì sheet này mở TỪ TRONG một hộp thoại nổi giữa màn: một tấm
    * dán đáy trượt lên đè lên một tấm đang nổi ở giữa thì hai lớp đọc ra như hai thứ không liên
-   * quan. Màn chi tiết công thức giữ mặc định — ở đó nó mở thẳng từ trang, và dán đáy là dáng
-   * đúng cho một danh sách dài cuộn bằng ngón tay.
+   * quan. Màn chi tiết công thức cũng truyền `'center'` từ 21/10/2026: tấm này mở ra từ lối rẽ
+   * "Danh sách … mã khác →" của tấm Nạp mẫu, mà tấm ấy nay nổi giữa màn cả trên điện thoại — chủ dự
+   * án: _"sau khi click vào button này thì chuyển sang màn mới là màn chọn mã thì cũng là dialog
+   * giữa"_. Trước đó màn chi tiết giữ dán đáy ("dáng đúng cho một danh sách dài cuộn bằng ngón tay").
    *
-   * Từ 13/10/2026 "mặc định" chỉ còn dán đáy ở khổ HẸP: từ 1024px primitive tự đưa mọi tấm lên
-   * giữa màn, nên ở khổ web sheet này trông y hệt nhau ở cả hai màn. `'center'` của Danh mục vẫn
-   * cần, vì form ở đó nổi giữa màn cả trên điện thoại.
+   * Từ 1024px primitive tự đưa mọi tấm lên giữa màn, nên prop này chỉ có tác dụng ở khổ hẹp.
    */
   placement?: 'bottom' | 'center';
+  /**
+   * Đầu và thân tấm gọn lại dưới 1024px — đệm 12 × 16px, tiêu đề 14px — cùng bộ số của tấm Nạp mẫu.
+   *
+   * Màn chi tiết công thức truyền (21/10/2026, chủ dự án khoanh đầu tấm: _"cần giảm padding của phần
+   * khoanh đỏ màn mới. áp dụng cho bản mobile"_): ở đó tấm này và tấm Nạp mẫu thay chỗ nhau qua lối rẽ
+   * và nút ‹, nên đầu tấm phải y hệt nhau. Màn Danh mục KHÔNG truyền: ở đó tấm mở đè lên hộp thoại
+   * Thêm/Sửa mã, và các hộp thoại của màn ấy cùng một cỡ đầu (luật điện thoại của `.panelCenter`).
+   */
+  compact?: boolean;
   /**
    * Ngày ISO của màn — bật phần đánh dấu "mã này chưa có dữ liệu cơ bản".
    *
@@ -117,6 +126,7 @@ export function TickerPickerSheet({
   heldCodes,
   dismiss = 'close',
   placement = 'bottom',
+  compact = false,
   markUnusableAsOf,
 }: TickerPickerSheetProps) {
   const t = useT();
@@ -328,6 +338,8 @@ export function TickerPickerSheet({
        */
       dismiss={dismiss}
       placement={placement}
+      // Đầu và thân gọn dưới 1024px — xem prop `compact` và khối cuối `TickerPickerSheet.module.css`.
+      className={compact ? styles.compact : undefined}
       /*
        * Ghim chiều cao tấm — xem `BottomSheetProps.size`.
        *
@@ -401,27 +413,33 @@ export function TickerPickerSheet({
                   className={khongDungDuoc(ticker.code) ? styles.itemMuted : styles.item}
                 >
                   {/*
-                    Mã đứng riêng, chữ đơn cách — cùng lý do như PresetSheet: mắt dò theo mã. Từ
-                    19/10/2026 là chữ trơn, không còn ô nền (xem `.code` ở `Badge.module.css`).
-                    `styles.code` chỉ để khổ điện thoại hạ cỡ chữ.
+                    Mã, tên và nhãn chung một khối `.text`. Từ 1024px khối này `display: contents`,
+                    dòng vẫn một hàng như cũ; dưới 1024px nó là lưới hai cột và nhãn xuống dưới tên
+                    — xem khối điện thoại cuối `TickerPickerSheet.module.css`.
                   */}
-                  <Badge tone="code" className={styles.code}>
-                    {ticker.code}
-                  </Badge>
-                  <span className={styles.name}>{ticker.name}</span>
+                  <span className={styles.text}>
+                    {/*
+                      Mã đứng riêng, chữ đơn cách — cùng lý do như PresetSheet: mắt dò theo mã. Từ
+                      19/10/2026 là chữ trơn, không còn ô nền (xem `.code` ở `Badge.module.css`).
+                      `styles.code` chỉ để khổ điện thoại hạ cỡ chữ.
+                    */}
+                    <Badge tone="code" className={styles.code}>
+                      {ticker.code}
+                    </Badge>
+                    <span className={styles.name}>{ticker.name}</span>
 
-                  {/*
+                    {/*
                     Mã đang giữ: nhãn này là LÝ DO nút bên cạnh xám, không còn là lời báo trước về
                     việc cộng dồn (10/10/2026 — xem docblock `heldCodes`). `id` để nút khoá trỏ
                     `aria-describedby` vào đây, cùng khuôn với nhãn "chưa có dữ liệu" ngay dưới.
                   */}
-                  {daGiu(ticker.code) && (
-                    <span className={styles.held} id={`ticker-da-co-${ticker.code}`}>
-                      {t('ticker.held')}
-                    </span>
-                  )}
+                    {daGiu(ticker.code) && (
+                      <span className={styles.held} id={`ticker-da-co-${ticker.code}`}>
+                        {t('ticker.held')}
+                      </span>
+                    )}
 
-                  {/*
+                    {/*
                     Mã không có báo cáo dùng được — nói TRƯỚC khi bấm, thay vì để họ chọn rồi mới
                     nhận câu "chưa có đủ số liệu cơ bản" ở màn. Từ 06/10/2026 nhãn này còn khoá
                     luôn nút bên cạnh; luật và lý do ở `khoaNutChon` phía trên.
@@ -430,11 +448,12 @@ export function TickerPickerSheet({
                     gì thì người dùng bàn phím và trình đọc màn hình chỉ nghe "Chọn, không dùng
                     được" mà không biết vì sao. Xem `lyDoKhoa` phía trên.
                   */}
-                  {khongDungDuoc(ticker.code) && (
-                    <span className={styles.unusable} id={`ticker-chua-co-${ticker.code}`}>
-                      {coverage?.stale === true ? t('ticker.noDataStale') : t('ticker.noData')}
-                    </span>
-                  )}
+                    {khongDungDuoc(ticker.code) && (
+                      <span className={styles.unusable} id={`ticker-chua-co-${ticker.code}`}>
+                        {coverage?.stale === true ? t('ticker.noDataStale') : t('ticker.noData')}
+                      </span>
+                    )}
+                  </span>
 
                   {/*
                     Nhãn nút KHÔNG đổi theo trạng thái nữa — luôn là "Chọn". Mã đang giữ thì nút

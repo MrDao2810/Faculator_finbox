@@ -743,6 +743,55 @@ Two rules about the form and the picker, unchanged by the redesign:
     20px because `.panelCenter .title` has two classes. The save sheet's own text went one step down in
     `SaveCalcSheet.module.css` (name 12px, result 14px, field label 12px, typed text 16px — the iOS
     no-zoom floor), through a `.nameField` class on its `Input`; the shared `Input` was not touched.
+  - **The save sheet is a centred dialog at EVERY width since 21/10/2026**, the one exception to
+    "below 1024px nothing changed" (owner: _"bản mobile chuyển thành dialog xuất hiện ở giữa màn hình
+    thay vì bottom dialog, đồng thời giảm size text và giảm padding để gọn hơn"_). It passes
+    `placement="center"`; from 1024px nothing moved, because the `center` rules and the web block
+    declare the same numbers (measured 560 × 307px both ways). Below 1024px its own CSS shrinks it
+    through structural selectors on the primitive (`dialog.sheet > div > header:first-child` …, the
+    paste sheet's trick, two classes' worth to beat `.panelCenter .x`): header 12/16px with a 14px
+    title, body 12/16px, summary 8/12px with the result at 12px, name box 36px, footer 8/16px with a
+    32px / 12px button (44px tap kept), and — a second round the same day, _"đang quá rộng"_ — at most
+    320px wide with 24px left each side (`92vw` was 358px at 390 and 707px at 768). At 390: a 292px
+    docked sheet became a 320 × 227px dialog. The
+    other docked sheets (Export, Preset, ticker picker) were NOT changed. The same day the
+    `save.errNoResult` sentence went (_"bỏ đoạn giải thích này đi"_): an error result still locks the
+    name field and the button, silently; tombstone in `vi.ts`.
+  - **The preset sheet ("Nạp bộ số liệu mẫu") is centred at every width too, since later the same
+    day** (owner, photo of a phone: _"sửa lỗi khi bật nạp mẫu thì bị lỗi giao diện … giảm padding, giảm
+    height các button, giảm size text. đưa bottom dialog thành dialog ở giữa. áp dụng cho mobile"_).
+    The "lỗi giao diện" was real: each figure on a ticker row was ONE `nowrap` span, and since labels
+    carry their symbol ("Tổng nợ phải trả (D) 31.881 tỷ ₫") a field was wider than the text column at
+    390px, so the line ran under the "Nạp" button and the sheet body scrolled sideways. Now a field is
+    an `inline-block` capped at `max-width: 100%` (whole when it fits, wrapped inside the LABEL when it
+    does not) and only `.fieldValue` (number + unit) is `nowrap`, at every width. Below 1024px the
+    sheet uses the save sheet's numbers through the same structural selectors (header and body 12/16px,
+    title 14px), rows 8px padding and gap, name and result 13px, the figure line 11px, the "Nạp" and
+    "Danh sách … mã khác →" buttons 28px / 12px (44px tap kept by `.sm::after`). It keeps the `92vw`
+    width (358px at 390), NOT the save sheet's 320px: it is a list with a badge, two text lines and a
+    button per row. `/du-lieu/`'s "Nạp mẫu" opens the same sheet, so it follows. In the same request
+    the `preset.topPicks` label ("Mẫu ưu tiên — bốn mã hợp nhất…") went at every width (tombstone in
+    `vi.ts`); `noTickerNote` stays. `preset-sheet-css.test.ts` pins it.
+  - **The detail screen's ticker picker followed the same day** (owner: _"sau khi click vào button này
+    thì chuyển sang màn mới là màn chọn mã thì cũng là dialog giữa. và cần giảm padding của phần khoanh
+    đỏ màn mới"_, the circled part being its header). `FormulaDetail` passes `placement="center"` and a new
+    `compact` prop, whose rules in `TickerPickerSheet.module.css` copy the preset sheet's header and body
+    (12/16px, 14px title): the two swap in place through "Danh sách … mã khác →" and the ‹ button. Header
+    69 → 45px at 390. "Đổi mã" opens the same sheet, so it is centred too. **The portfolio's picker does
+    NOT pass `compact`**: there it opens over the add/edit dialog, and that screen's dialogs share the
+    primitive's phone header (16/20px). `preset-sheet-css.test.ts` compares the three rules of the two
+    files declaration by declaration.
+  - **Below 1024px a picker row puts its "chưa có dữ liệu" / "đã có" label UNDER the name** (21/10/2026,
+    owner circling an ETF row: _"màn mobile đang nhìn rất xấu và không ổn lắm"_). Measured at 390 before:
+    an 8-character code (59px), the 99px label and the 47px button left the name 58px, so "ETF KIM GROWTH
+    VN DIAMOND" ran to five lines and broke mid-word, rows 69–108px. Code, name and labels now share a
+    `.text` span: `display: contents` from 1024px (the row is the same one-line flex row there), a grid
+    `auto | minmax(0, 1fr)` below it, code and name on one baseline, the label on the second row starting
+    flush with the CODE, as plain italic text with no box (owner, same day: _"phần text vàng không cần bo
+    xung quanh, chỉ cần đoạn text vàng in nghiêng là được, rồi cho dịch sang trái 1 chút nữa"_; "đã có"
+    follows, grey; from 1024px both stay bordered chips beside the name). ETF rows ~50px with the name on one
+    line at 390 and 430 (two at most at 360); rows without a label stay 40px. Both screens' pickers follow
+    (same component). `ticker-picker-css.test.ts` pins it.
 - **A ticker already in the portfolio cannot be added again** (10/10/2026). `TickerPickerSheet`
   locks the "Chọn" button of every code in `heldCodes` and the "đã có" label beside it is the
   button's `aria-describedby`; the second lock reason (no fundamentals, 06/10) stacks, so the
@@ -2719,11 +2768,28 @@ the quiz" would otherwise be a promise that drifts. Seven things are load-bearin
 - **Series formulas do not spell out 20–250 closes.** Their Thay số row describes the session window in
   words and the arithmetic line uses the aggregates `calc` itself computes (`extras`: RSI's average gain
   and loss, SMA's sum…), rounded to ≥4 significant figures so the 0.5% gate still holds.
-- **Links point at pages that hold the exact figure, and session prices are date-pinned.** Prices go to
-  CafeF's price-history endpoint with `StartDate`/`EndDate` (20 rows a page; `GiaDongCua` is the
-  unadjusted close the examples use, `GiaDieuChinh` the bonus-adjusted one) — never a "latest" page,
-  which scrolls the example's session away within weeks. An empty `nguon` is allowed when no reachable
-  page holds the figure: the row then prints only the source name. A made-up link is worse than none.
+- **Links point at READABLE pages that hold the exact figure; never at an API** (21/10/2026). Until then
+  session prices went to CafeF's `PriceHistory.ashx` endpoint and VNDirect's `api-finfo` (100 links,
+  plus 12 in the quiz bank), chosen because they pin the date; the owner clicked one, got a block of
+  JSON and reported it as broken. `laLinkDuLieuTho()` (`src/core/source-link.ts`) now fails `.ashx`,
+  `/Ajax/`, `api-finfo.` and `dchart-api.` links in `viDuProblems()` and in `quiz.test.ts`. Session
+  prices go to CafeF's readable history page with the date range pre-filled:
+  `cafef.vn/du-lieu/lich-su-giao-dich-fpt-1.chn?start%44ate=11/09/2026&end%44ate=11/09/2026`. The `%44`
+  is load-bearing: CafeF 301-redirects any URL with a capital letter to its lowercase form, and the
+  page's script reads only `startDate`; `%44` has no letter to lower and `URLSearchParams` decodes it
+  back to `D`. The page fetches its table BEFORE it reads those fields, so it may first show the last
+  month; one press of "Xem" shows the session (checked in Chrome on all 39 distinct links). No readable
+  page opens straight on a session: Yahoo has FPT.VN but split-adjusts its Close (11:10 in 09/2026, so
+  72.700 reads ~66.091), and Vietstock, Investing and VNDirect's pages take no date in the URL.
+  `shortUrl()` decodes `%xx` so the link text reads `startDate=…`. CafeF's table carries both
+  "Đóng cửa" (unadjusted, what the examples use) and "Điều chỉnh"; every FPT and STB session it shows
+  equals `market-series-2026.ts` on open, high, low and close. **The page refuses a range longer than
+  one year** (`mEnd.diff(mStart, 'years', true) > 1` → alert "Vui lòng chọn tối đa 1 năm…", table left
+  on the last month), so the five "250 phiên từ 12/09/2025" links open 15/09/2025–15/09/2026 and the
+  label still names the data the example uses; the page also lacks 29 and 30/01/2026, so a reader sees
+  247 of the 250 sessions. An empty `nguon` is allowed when
+  no reachable page holds the figure: the row then prints only the source name. A made-up link is
+  worse than none.
 - **No `deferred` class on the block**, for the quiz's reason: `contain: paint` clips the hover panel.
 - **Two formula pictures per page** (example + quiz), each its own `QuizFormulaPicture` with its own
   panel state; the `idPrefix` prop (`vi-du` / default `bai-tap`) keeps two open panels from sharing an
@@ -2774,9 +2840,12 @@ TASK.md 29/09/2026): the FPT 57-session dataset's VOLUME column matched no sourc
 `ty-le-khoi-luong` could not be reproduced from any page — fixed 14/10/2026, when the whole column was replaced
 by VNDirect's matched volume and `vwap` got its link back, emptying the "no link" pin); several
 inputs of `fcff`/`fcfe` don't match the named source; ~37 source names say Investing.com, which blocks
-every automated read, so their links go to CafeF/VNDirect pages that carry the same closes; CafeF's
-VN-Index history mangles 11 sessions (links use VNDirect's API) and its Q1–Q2/2026 statement tables
-are shifted one row (links avoid the misaligned lines or use stockanalysis).
+every automated read, so their links go to CafeF pages that carry the same closes; CafeF's
+VN-Index history has 12 wrong closes in 12/09/2025–15/09/2026 (04/03/2026 off by 51 points, ten July
+sessions rounded to whole points, 31/07/2026), so the ten VN-Index links that covered them (VNDirect's
+API, until 21/10/2026) were dropped with the owner's sign-off, leaving `var-lich-su`, `cvar-lich-su`,
+`ty-so-calmar` and `ty-so-thang-thua` with no link (pinned in `vi-du.test.ts`); its Q1–Q2/2026
+statement tables are shifted one row (links avoid the misaligned lines or use stockanalysis).
 
 **The "Đọc kết quả" row (`example.note`) reads THIS example's number against an anchor, in at most two
 sentences** (16/10/2026). The owner circled the row on `ddm-hai-giai-doan`: _"cách đọc kết quả đang sai và rất
@@ -3342,6 +3411,21 @@ English, the owner reviews it**. What that produced, and what is easy to break:
     every comparator that breaks ties by name: A–Z, Z–A, the default featured order, "Cơ bản trước", the two history
     sorts, and the order of search hits. The first render is still Vietnamese (`DEFAULT_PREFERENCES`), so the static
     HTML still matches. Seven English cases in `search.test.ts` pin it.
+- **The back button returns to the CARD the user clicked, not only to the old scroll offset** (21/10/2026, owner:
+  _"vừa thao tác, hoặc lưu công thức đó rồi … click vào button '< Danh sách công thức' thì sẽ quay lại màn danh sách
+  công thức và đúng chỗ vừa click vào công thức trước đó. chỉ trừ trường hợp là search vừa click thì giữ nguyên logic
+  cũ"_). Measured before: the plain round trip already worked, two did not. **(a)** With the list sorted "Vừa xem gần
+  đây", the formula just opened moves to the top, so the old `scrollY` left its card at −569px. `Origin` now carries an
+  optional `anchor` (`href` + the card's on-screen `top`), captured in `OriginTracker`'s `pointerdown`/`keydown` when
+  the target is inside a `main a[href]`; `restoreScroll()` scrolls so that card stands where it stood
+  (`anchoredScrollY()`: of several cards with that `href`, shelf tile and list card, the one closest to its old
+  document position), checks once more after 250 ms for `content-visibility` estimates (never pulls back a user who
+  has scrolled), and falls back to `scrollY` when no card matches. **(b)** "Lưu vào danh mục" pushes to Danh mục, and
+  its mount made Danh mục the origin, so Back to the formula showed "‹ Danh mục". `saveCalc()` now calls
+  `holdOriginThrough()` (`ORIGIN_HOLD_KEY`): a held screen's mount and scroll writes are skipped, the first
+  `pointerdown`/`keydown` on it (the user used Danh mục) or reaching another origin screen clears the hold. The search
+  case is unchanged: `cancelScrollRestore()` still drops `q` and lands at the top. `OriginTracker.test.tsx` and
+  `origin-screen.test.ts` pin both; no `check:chrome` assertion yet.
 - **Nothing under `src/ui/charts/` may call `useId()`.** That whole directory sits behind the
   `next/dynamic` boundary in `FormulaChart.tsx`, where React's generated ids differ between the
   static HTML and the client hydration pass — measured as 5 hydration warnings per chart page. Every

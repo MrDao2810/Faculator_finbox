@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 
 import type { FormulaSpec, Preset, PresetPick } from '@/application';
 import { useT, usePick, usePreferences } from '@/application/preferences-context';
@@ -213,16 +213,14 @@ export function PresetSheet({
   }
 
   /**
-   * Câu dẫn ở đầu sheet — nhiều nhất MỘT dòng, và hai ca thì không có dòng nào.
+   * Câu dẫn ở đầu sheet — nhiều nhất MỘT dòng, và ba ca không có dòng nào.
    *
-   * `topPicks` là nhãn chủ dự án đặt cho bốn dòng bên dưới, và nó chỉ đúng ở nhánh có xếp hạng:
-   * chỉ ở đó `pickPresetsFor()` mới chạy thật công thức với từng mã rồi trải bốn mã trên biên độ
-   * kết quả. Hai ca kia bốn mã là bộ `WF10_CODES` theo thứ tự kho — gọi chúng là "hợp nhất để chạy
-   * thử công thức này" ngay trên một câu vừa nói "bốn mã dưới đây không đổi được ô nào của công
-   * thức này" thì hai dòng cãi nhau ngay trong một màn.
+   * Nhánh có xếp hạng KHÔNG còn câu dẫn từ 21/10/2026. Nó từng in nhãn `preset.topPicks` ("Mẫu ưu
+   * tiên — bốn mã hợp nhất để chạy thử công thức này"); chủ dự án chụp sheet trên điện thoại và bảo
+   * xoá _"ở cả mobile lẫn web"_ — mộ chí ở `vi.ts`. Mỗi dòng đã in sẵn kết quả của chính nó.
    *
-   * Không có công thức nào (`spec === undefined`, màn bảng dữ liệu WF-05) thì không có gì để nói
-   * "hợp nhất cho" cả, nên sheet lùi về đúng hình dạng cũ — mã, tên, dòng nguồn.
+   * Không có công thức nào (`spec === undefined`, màn bảng dữ liệu WF-05) thì sheet lùi về đúng hình
+   * dạng cũ — mã, tên, dòng nguồn.
    *
    * Công thức ăn chuỗi giá cũng KHÔNG có câu dẫn từ 13/10/2026: câu `preset.seriesOnlyNote` đã bỏ
    * theo yêu cầu chủ dự án — mộ chí và cái giá của việc ấy ghi ở `vi.ts`. Đừng trả `noTickerNote`
@@ -231,7 +229,7 @@ export function PresetSheet({
    */
   function cauDan(): string | null {
     if (spec === undefined) return null;
-    if (ranked) return t('preset.topPicks');
+    if (ranked) return null;
     if (wantsSeries) return null;
     return t('preset.noTickerNote');
   }
@@ -283,7 +281,16 @@ export function PresetSheet({
       KHÔNG còn `subtitle` — chủ dự án chốt gỡ dòng "Kho mã mẫu — mã nào cũng có sẵn 248 phiên
       giá…". Bốn dòng bên dưới tự nói ra chúng là gì; câu ấy chỉ lặp lại tiêu đề bằng chữ dài hơn.
     */
-    <BottomSheet open={open} onClose={onClose} title={t('preset.title')}>
+    <BottomSheet
+      open={open}
+      onClose={onClose}
+      title={t('preset.title')}
+      // Nổi giữa màn ở MỌI khổ, kể cả điện thoại (21/10/2026) — chủ dự án: _"đưa bottom dialog thành
+      // dialog ở giữa. áp dụng cho mobile"_. Từ 1024px hình không đổi: dạng `center` và khối khổ web
+      // của primitive khai cùng số đo. Phần gọn lại ở điện thoại nằm ở `.sheet` trong CSS của tấm này.
+      placement="center"
+      className={styles.sheet}
+    >
       {/*
         ── Khối vàng "giá quá khứ tự dựng" đã BỎ, và đây là chỗ ghi lại cái giá của việc ấy ─────
 
@@ -301,12 +308,11 @@ export function PresetSheet({
       */}
 
       {/*
-        Câu dẫn nói vì sao đúng bốn mã NÀY — ba ca, xem `cauDan()`.
+        Câu dẫn — nay chỉ còn ở MỘT ca, xem `cauDan()`.
 
         Câu dài của nhánh `ranked` ("Bốn mã chọn theo kết quả của chính công thức này, xếp từ thấp
-        đến cao…") đã gỡ theo yêu cầu chủ dự án, và thay bằng nhãn ngắn `preset.topPicks`: ở ca ấy
-        mỗi dòng đã in sẵn kết quả của chính nó, nên thứ tự tự nói ra nghĩa — thứ còn thiếu chỉ là
-        một chữ gọi tên bốn dòng đó là gì.
+        đến cao…") đã gỡ theo yêu cầu chủ dự án ngày 09/09/2026 và thay bằng nhãn ngắn
+        `preset.topPicks`; nhãn ấy cũng gỡ ngày 21/10/2026. Mỗi dòng đã in sẵn kết quả của chính nó.
 
         `noTickerNote` KHÔNG gỡ theo, và đó là chủ ý: nó là câu trả lời cho đúng lỗi chủ dự án từng
         báo — "bấm Nạp xong không ô nào đổi".
@@ -352,13 +358,23 @@ export function PresetSheet({
                       const { label, unit } = labelOf(key);
                       return (
                         /*
-                          Mỗi ô là MỘT span `nowrap`: ghép thành một chuỗi dài thì đơn vị bị tách
-                          xuống dòng riêng ("EPS 19.436" rồi "₫"), đo được ở khổ 390px.
+                          Mỗi ô là MỘT khối liền (`.field`, inline-block): vừa dòng thì đứng nguyên
+                          một mảnh, không vừa thì cả ô xuống dòng sau dấu "·". Con số và đơn vị nằm
+                          trong `.fieldValue` không ngắt, nên "₫" không bao giờ rơi xuống dòng riêng
+                          ("EPS 19.436" rồi "₫", đo ở 390px — lý do của bản `nowrap` cũ).
+
+                          Bản cũ khoá CẢ Ô không ngắt, và ô dài hơn cột thì tràn: từ khi nhãn mang ký
+                          hiệu ("Tổng nợ phải trả (D) 31.881 tỷ ₫"), ở 390px dòng chui xuống dưới nút
+                          "Nạp" và thân tấm có thanh cuộn ngang (chủ dự án chụp 21/10/2026). Nay ô dài
+                          hơn cột được ngắt trong NHÃN, không bao giờ trong con số.
                         */
-                        <span key={key} className={styles.field}>
+                        <Fragment key={key}>
                           {index > 0 && ' · '}
-                          {label} {valueText(value, unit)}
-                        </span>
+                          <span className={styles.field}>
+                            {label}{' '}
+                            <span className={styles.fieldValue}>{valueText(value, unit)}</span>
+                          </span>
+                        </Fragment>
                       );
                     })}
                 {mixedDraft && preset.isDraft && (

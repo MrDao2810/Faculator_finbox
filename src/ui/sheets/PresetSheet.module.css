@@ -74,10 +74,18 @@
 }
 
 /*
- * Một ô số của mã. `nowrap` giữ con số dính với đơn vị — ở khổ 390px, để tự xuống dòng thì "₫"
- * rơi xuống dòng riêng và đọc ra như một dòng thừa.
+ * Một ô số của mã: khối liền, vừa dòng thì đứng nguyên một mảnh, không vừa thì cả ô xuống dòng.
+ * `max-width: 100%` là thứ chặn tràn: ô dài hơn cả cột (nhãn mang ký hiệu, "Tổng nợ phải trả (D)
+ * 31.881 tỷ ₫" ở 390px) thì ngắt trong NHÃN thay vì chui xuống dưới nút "Nạp" như bản `nowrap` cũ
+ * (chủ dự án chụp 21/10/2026, thân tấm có cả thanh cuộn ngang).
  */
 .field {
+  display: inline-block;
+  max-width: 100%;
+}
+
+/* Con số và đơn vị không bao giờ tách nhau — ở 390px "₫" từng rơi xuống dòng riêng. */
+.fieldValue {
   white-space: nowrap;
 }
 
@@ -127,3 +135,68 @@
  *
  * `.browse` ngay trên vẫn còn: nó là khung của chính cái nút, không phải của câu chú thích.
  */
+
+/*
+ * ── Dưới 1024px: hộp thoại nổi giữa, gọn lại (21/10/2026) ─────────────────────────────────────
+ *
+ * Chủ dự án chụp tấm này trên điện thoại: _"bước đầu hãy giảm padding, giảm height các button, giảm
+ * size text. đưa bottom dialog thành dialog ở giữa. áp dụng cho mobile"_. Tấm nay truyền
+ * `placement="center"` (xem `PresetSheet.tsx`); khối này thu nhỏ phần còn lại, cùng bộ số của tấm
+ * "Lưu vào danh mục" (`SaveCalcSheet.module.css`) — hai hộp thoại nổi giữa của cùng màn chi tiết.
+ *
+ * - Đầu tấm: đệm 12 × 16px, tiêu đề 16 → 14px. Nút X vẫn ăn lề âm 12px trên dưới (luật điện thoại
+ *   của `.panelCenter .close`), nên chiếm 20px mà vùng chạm vẫn 44px, vừa khít 12px đệm.
+ * - Thân: đệm 12 × 16px. Mỗi dòng mã đệm 12 → 8px, khe giữa huy hiệu, chữ và nút 12 → 8px.
+ * - Chữ: tên 14 → 13px, dòng số liệu 12 → 11px, kết quả 14 → 13px. Tên và kết quả vẫn đậm hơn và
+ *   to hơn dòng số liệu một bậc, đúng thứ bậc cũ.
+ * - Nút "Nạp" và nút sang kho lớn 36 → 28px, chữ 14 → 12px, đệm ngang 10px; vùng chạm 44px vẫn của
+ *   `.sm::after` (nhô 8px trên dưới, vừa khít 8px đệm của dòng). `.item > button` (0,1,1) thắng
+ *   `.sm` của primitive bất kể file nào nạp trước.
+ *
+ * Bề ngang giữ `92vw` của dạng nổi giữa (358px ở 390), KHÔNG thu về 320px như tấm Lưu: tấm này là
+ * DANH SÁCH, mỗi dòng có huy hiệu mã, hai dòng chữ và một nút; ở 320px cột chữ còn ~160px.
+ *
+ * Bộ chọn theo CẤU TRÚC của primitive, cùng cách và cùng lý do với tấm Lưu: `:first-child` /
+ * `:nth-child(2)` cho đủ độ ưu tiên thắng `.panelCenter .header/.body/.title` (hai lớp). Từ 1024px
+ * không đổi gì. `screen and` vì dưới media in, bề ngang là bề ngang giấy.
+ */
+@media screen and (max-width: 1023.98px) {
+  dialog.sheet > div > header:first-child {
+    padding: var(--space-3) var(--space-4);
+  }
+
+  dialog.sheet > div > header:first-child h2 {
+    font-size: var(--text-sm);
+  }
+
+  dialog.sheet > div > div:nth-child(2) {
+    padding: var(--space-3) var(--space-4);
+  }
+
+  .item {
+    gap: var(--space-2);
+    padding: var(--space-2);
+  }
+
+  .name,
+  .result {
+    font-size: 13px;
+  }
+
+  .meta,
+  .noResult {
+    font-size: 11px;
+  }
+
+  .item > button,
+  .browse > button {
+    min-height: 28px;
+    padding: 0 10px;
+    font-size: var(--text-xs);
+  }
+
+  .browse {
+    margin-top: var(--space-3);
+    padding-top: var(--space-3);
+  }
+}

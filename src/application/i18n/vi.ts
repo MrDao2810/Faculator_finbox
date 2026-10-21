@@ -678,19 +678,18 @@ export const vi = {
    * `noTickerNote` ngay dưới KHÔNG bị gỡ theo, lý do ghi tại `PresetSheet.tsx`. Câu
    * `seriesOnlyNote` ở lại thêm một tháng rồi cũng đi (13/10/2026) — mộ chí riêng ở dưới.
    *
-   * ⚠ `preset.topPicks` ngay dưới đứng đúng chỗ `rankedNote` từng đứng, nhưng KHÔNG phải nó quay
-   * lại: câu cũ tả CÁCH XẾP ("xếp từ thấp đến cao — nhìn một lượt là thấy biên độ"), nhãn mới chỉ
-   * gọi tên bốn dòng bên dưới là gì. Chủ dự án chốt 09/09/2026: bỏ câu dài, giữ một nhãn ngắn.
    */
   'preset.load': 'Nạp',
   /*
-   * Nhãn của bốn dòng khi chúng thật sự được chọn theo công thức đang xem.
+   * ── `preset.topPicks` đã BỎ ngày 21/10/2026, theo yêu cầu của chủ dự án ──────────────────────────
    *
-   * Chỉ đúng ở ca có xếp hạng (`pickPresetsFor()` chạy thật công thức với từng mã trong kho rồi
-   * trải bốn mã trên biên độ kết quả). Hai ca còn lại bốn mã là bộ `WF10_CODES` theo thứ tự kho,
-   * nên gọi chúng là "hợp nhất cho công thức này" là nói sai — `PresetSheet` gác nhánh ấy.
+   *   "Mẫu ưu tiên — bốn mã hợp nhất để chạy thử công thức này"
+   *
+   * Nhãn của bốn dòng ở ca có xếp hạng, thay cho câu dài `rankedNote` từ 09/09/2026. Chủ dự án chụp
+   * sheet trên điện thoại: _"xóa đoạn text 'Mẫu ưu tiên — …' này ở cả mobile lẫn web"_. Ca ấy nay mở
+   * ra là thấy thẳng bốn mã; mỗi dòng đã in kết quả của chính nó. Đừng dựng lại dưới tên khác khi
+   * chưa hỏi. `noTickerNote` ngay dưới KHÔNG đi theo — lý do ở `PresetSheet.tsx`.
    */
-  'preset.topPicks': 'Mẫu ưu tiên — bốn mã hợp nhất để chạy thử công thức này',
   /*
    * ── `preset.seriesOnlyNote` đã BỎ ngày 13/10/2026, theo yêu cầu của chủ dự án ────────────────
    *
@@ -1713,11 +1712,12 @@ export const vi = {
   'save.errDuplicate': 'Đã có một phép tính tên này. Đặt tên khác để hai mục không lẫn nhau.',
   'save.errFull': 'Đã lưu đủ 30 phép tính. Xoá bớt một mục trong danh mục trước khi lưu thêm.',
   /*
-   * Không cho lưu một kết quả đang lỗi. Cất một con số sai rồi bày nó ra tab Danh mục — nơi
-   * không có ô nhập nào để người dùng thấy nguyên nhân — đúng là thứ FR-06 sinh ra để chặn.
+   * `save.errNoResult` ("Kết quả đang báo lỗi nên chưa lưu được. Sửa số liệu cho tới khi có kết quả
+   * rồi lưu lại.") đã BỎ ngày 21/10/2026 — chủ dự án: _"bỏ đoạn giải thích này đi"_. Bỏ câu, giữ hành
+   * vi: kết quả lỗi thì ô tên và nút Lưu vẫn khoá, vì cất một con số sai rồi bày nó ra tab Danh mục —
+   * nơi không có ô nhập nào để thấy nguyên nhân — đúng là thứ FR-06 chặn. Khối tóm tắt của tấm đã in
+   * `_ _` ở chỗ con số. Ca "kết quả đang lỗi…" ở `SaveCalcSheet.test.tsx` ghim câu không quay lại.
    */
-  'save.errNoResult':
-    'Kết quả đang báo lỗi nên chưa lưu được. Sửa số liệu cho tới khi có kết quả rồi lưu lại.',
   'save.failed':
     'Chưa lưu được. Trình duyệt có thể đang chặn bộ nhớ cục bộ hoặc đã hết dung lượng.',
 

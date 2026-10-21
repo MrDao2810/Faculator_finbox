@@ -189,8 +189,10 @@
  * Hộp thoại nổi giữa (`.panelCenter .title`) cũng về 16px ở khổ này từ 19/10/2026 — trước đó nó cố ý
  * giữ 20px. Chủ dự án khoanh tiêu đề tấm "Công thức sử dụng được với mã này" trên điện thoại (một tấm
  * nổi giữa của màn Danh mục, xuống hai dòng ở 20px): _"giảm size text xuống khi ở màn mobile"_. Hạ cả
- * nhóm chứ không riêng tấm ấy: ở khổ điện thoại chỉ màn Danh mục mở tấm nổi giữa (hộp thoại Thêm/Sửa mã,
+ * nhóm chứ không riêng tấm ấy: ở khổ điện thoại màn Danh mục mở tấm nổi giữa (hộp thoại Thêm/Sửa mã,
  * tấm chọn mã, tấm chọn công thức), và chúng chồng lên nhau, nên lệch cỡ là thấy ngay. Từ 1024px vẫn 20px.
+ * Tấm "Lưu vào danh mục" của màn chi tiết cũng nổi giữa ở điện thoại từ 21/10/2026, và tự hạ tiêu đề
+ * của nó xuống 14px trong CSS riêng (`SaveCalcSheet.module.css`) — luật ở đây không đổi vì nó.
  * Luật hai lớp đứng SAU `.panelCenter .title` gốc nên thắng nhờ thứ tự file.
  *
  * `screen and` vì cùng lý do với khối khổ web cuối file: dưới media in, bề ngang là bề ngang GIẤY.

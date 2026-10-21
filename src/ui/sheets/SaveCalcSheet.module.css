@@ -53,7 +53,7 @@
   }
 
   .result {
-    font-size: var(--text-sm);
+    font-size: var(--text-xs);
   }
 
   .nameField label {
@@ -62,6 +62,72 @@
 
   .nameField input {
     font-size: var(--text-base);
+  }
+}
+
+/*
+ * ── Dưới 1024px: hộp thoại nổi giữa, gọn lại (21/10/2026) ─────────────────────────────────────
+ *
+ * Chủ dự án chụp tấm này trên điện thoại: _"bản mobile chuyển thành dialog xuất hiện ở giữa màn hình
+ * thay vì bottom dialog, đồng thời giảm size text và giảm padding để gọn hơn"_. Tấm nay truyền
+ * `placement="center"` (xem `SaveCalcSheet.tsx`); khối này thu nhỏ phần còn lại. Đo ở 390 trước khi
+ * sửa (tấm dán đáy): cao 292px — đầu 69px, tiêu đề 16px, khối tóm tắt đệm 12px, ô tên 44px, hàng nút
+ * 61px với nút 36px chữ 14px.
+ *
+ * - Đầu tấm: đệm 12 × 16px, tiêu đề 16 → 14px. Nút X vẫn ăn lề âm 12px trên dưới (luật điện thoại
+ *   của `.panelCenter .close`), nên chiếm đúng 20px mà vùng chạm vẫn 44px, vừa khít 12px đệm.
+ * - Thân: đệm 12 × 16px. Khối tóm tắt đệm 8 × 12px, cách ô tên 12px; kết quả 14 → 12px (tên công
+ *   thức đã 12px — đáy thang; kết quả vẫn đậm, chữ đơn cách, màu nhấn).
+ * - Ô tên 44 → 36px, đệm hai bên 10px — số của ô nhập ở khối Số liệu trên điện thoại. Chữ trong ô
+ *   GIỮ 16px: iOS phóng trang khi chạm vào ô dưới 16px (khối ngay trên).
+ * - Hàng nút: đệm 8 × 16px, nút 36 → 32px, chữ 14 → 12px; vùng chạm 44px vẫn của `.sm::after`.
+ *
+ * - Bề ngang (cùng ngày, lượt hai: _"dialog vừa sửa cần thu hẹp width bản mobile vì đang quá rộng"_):
+ *   `92vw` của dạng nổi giữa là 358px ở 390 — gần kín màn, chỉ hở 16px mỗi bên — và tới 707px ở 768.
+ *   Nay tối đa 320px, chừa ít nhất 24px mỗi bên: 320px ở 390, 312px ở 360, 272px ở 320. `dialog.sheet`
+ *   (một lớp và một thẻ) thắng `.sheetCenter` của primitive bất kể file nào nạp trước.
+ *
+ * Bộ chọn theo CẤU TRÚC của primitive (tiêu đề · thân · chân, xem `BottomSheet.tsx`), cùng cách tấm
+ * "Bảng dữ liệu" đang làm: primitive không nhận class cho từng phần, và `:first-child` /
+ * `:nth-child(2)` / `:last-child` cho đủ độ ưu tiên thắng `.panelCenter .header/.body/.footer/.title`
+ * (hai lớp). Không sửa primitive: hộp thoại nổi giữa của màn Danh mục không nằm trong lời giao.
+ * `screen and` vì cùng lý do với khối khổ web của primitive: dưới media in, bề ngang là bề ngang giấy.
+ */
+@media screen and (max-width: 1023.98px) {
+  dialog.sheet {
+    width: min(320px, 100vw - 2 * var(--space-6));
+    max-width: min(320px, 100vw - 2 * var(--space-6));
+  }
+
+  dialog.sheet > div > header:first-child {
+    padding: var(--space-3) var(--space-4);
+  }
+
+  dialog.sheet > div > header:first-child h2 {
+    font-size: var(--text-sm);
+  }
+
+  dialog.sheet > div > div:nth-child(2) {
+    padding: var(--space-3) var(--space-4);
+  }
+
+  dialog.sheet > div > footer:last-child {
+    padding: var(--space-2) var(--space-4);
+  }
+
+  dialog.sheet > div > footer:last-child > button {
+    min-height: 32px;
+    font-size: var(--text-xs);
+  }
+
+  .summary {
+    margin-bottom: var(--space-3);
+    padding: var(--space-2) var(--space-3);
+  }
+
+  .nameField div:has(> input) {
+    min-height: 36px;
+    padding: 0 10px;
   }
 }
 

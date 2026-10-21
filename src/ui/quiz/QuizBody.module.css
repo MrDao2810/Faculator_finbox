@@ -939,3 +939,38 @@
     transform: translateY(-50%);
   }
 }
+
+/*
+ * ── Từ 1024px: phần chấm điểm gọn như ở điện thoại (21/10/2026) ───────────────────────────────
+ *
+ * Chủ dự án chụp dòng "Sai · Kết quả: 100.000 ₫ · Thứ tự đúng: …" và hộp "Vì sao chưa đúng" của câu
+ * điền số `rut-truoc-han` trên màn máy tính: _"ở màn web dành cho màn hình lớn thì những phần như
+ * ảnh sau đang dư thừa quá nhiều padding"_. Đo ở 1024, 1280 và 1440 trước khi sửa: dòng kết luận
+ * mang lề mặc định 16px của `<p>`, cộng khe 12px của cột thành 28px trống trên và 28px dưới; hộp đệm
+ * 12 / 16px. Khối điện thoại ở trên đã hạ đúng hai thứ ấy từ 19/10 (lề 0, hộp 8 / 12px), nay máy tính
+ * theo cùng số: khoảng trên dưới dòng kết luận còn đúng khe 12px, hộp đệm 8 / 12px.
+ *
+ * Chỉ đệm — cỡ chữ máy tính giữ nguyên (dòng kết luận 16px, lời giải 13px), lời giao không nói tới chữ.
+ * Khai riêng một khối chứ không sửa luật gốc: khối điện thoại và ca kiểm của nó (`tail-mobile-css.test.ts`)
+ * giữ nguyên, và `quiz-desktop-css.test.ts` đọc khối này.
+ */
+@media (min-width: 1024px) {
+  /*
+   * Thẻ đệm 12px trên dưới, 16px hai bên thay cho 20px bốn phía (21/10/2026, chủ dự án khoanh thẻ
+   * nghỉ "BÀI TẬP … Bắt đầu kiểm tra »" trên máy tính: _"giảm padding của phần này xuống"_). 16px
+   * hai bên là đệm của các thẻ khác ở khổ này (khối Số liệu, thẻ Kết quả), nên "BÀI TẬP" thẳng mép
+   * với chữ của chúng. Nút ở hàng tiêu đề giữ cỡ `sm` 36px: lời giao chỉ nói tới đệm.
+   */
+  .block {
+    padding: var(--space-3) var(--space-4);
+  }
+
+  p.markRight,
+  p.markWrong {
+    margin: 0;
+  }
+
+  .explain {
+    padding: var(--space-2) var(--space-3);
+  }
+}

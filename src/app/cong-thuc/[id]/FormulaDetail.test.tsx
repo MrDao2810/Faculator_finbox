@@ -3333,13 +3333,17 @@ describe('WF-03 — hai kho mã phải nói cùng một câu chuyện', () => {
     expect(await screen.findByText('SHB')).not.toBeNull();
 
     /*
-      Nút thoát của sheet này mang nhãn "Quay lại" chứ không phải "Đóng", và đó là nửa còn lại
-      của bản vá: dấu × ở mép phải hứa "thoát ra màn hình", nên bấm xong lại thấy sheet mẫu hiện
-      lên là một bất ngờ. Mũi tên ‹ bên trái nói trước điều sắp xảy ra.
+      Nút thoát là dấu × "Đóng" ở mép phải từ 21/10/2026. Trước đó lối vào này có mũi tên ‹ "Quay
+      lại" bên trái, để báo trước rằng đóng là lùi; chủ dự án khoanh nó: _"chuyển icon back này
+      thành icon close và chuyển sang bên phải"_. Hành vi lùi về sheet mẫu thì giữ nguyên — đó là
+      lỗi chính chủ dự án đã báo ở đầu ca này.
     */
+    expect(
+      within(sheetChua(t('ticker.title'))).queryByRole('button', { name: 'Quay lại' }),
+    ).toBeNull();
     await userEvent.click(
       within(sheetChua(t('ticker.title'))).getByRole('button', {
-        name: 'Quay lại',
+        name: 'Đóng',
       }),
     );
 
@@ -3347,7 +3351,7 @@ describe('WF-03 — hai kho mã phải nói cùng một câu chuyện', () => {
     expect(sheetChua(t('ticker.title')).open).toBe(false);
   });
 
-  it('vào từ nút "Đổi mã" thì nút thoát vẫn là Đóng — ở đó đóng là thoát hẳn', async () => {
+  it('vào từ nút "Đổi mã" thì nút thoát cũng là Đóng — ở đó đóng là thoát hẳn', async () => {
     feed.listTickers.mockResolvedValue([{ code: 'SHB', name: 'Ngân hàng Sài Gòn - Hà Nội' }]);
     seedActiveTicker('pe');
 

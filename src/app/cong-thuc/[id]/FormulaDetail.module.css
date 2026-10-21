@@ -1744,7 +1744,13 @@ button.iconButton::after {
     row-gap: var(--space-4);
     align-items: start;
 
-    padding: var(--space-5);
+    /*
+     * Đệm trên chỉ `--space-2` (21/10/2026): hàng trên cùng của thẻ là hàng nút "?" của khối Số
+     * liệu, và chủ dự án khoanh đúng nút ấy — _"cần giảm padding tiếp rồi đưa icon hướng dẫn sử
+     * dụng này lên góc phải xát hơn với góc"_. Trước đó nút cách mép trên và mép phải 21px, ô nhập
+     * bắt đầu ở 53px. Mép phải xem `.merged .hintSoLieu` ngay dưới. Ba cạnh kia giữ `--space-5`.
+     */
+    padding: var(--space-2) var(--space-5) var(--space-5);
     background: var(--color-surface);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
@@ -1794,6 +1800,16 @@ button.iconButton::after {
   /* Vế còn lại của phép căn giữa ngay trên: hàng nút "?" cao đúng `--space-6`, không ít hơn. */
   .merged .blockHead {
     min-height: var(--space-6);
+  }
+
+  /*
+   * Nút "?" lấn sang đệm phải của thẻ, để nó cách mép phải đúng bằng cách mép trên (`--space-2`)
+   * — cùng lời chủ dự án ở `.merged`. Chỉ nút dời; hàng ô nhập vẫn dừng ở đệm `--space-5`. Vùng
+   * chạm 44px của nút (`::after`) nhô ra ngoài viền thẻ 1–2px ở hai cạnh ấy — vô hại, chỉ là chỗ
+   * con trỏ bắt được.
+   */
+  .merged .hintSoLieu {
+    margin-right: calc(var(--space-2) - var(--space-5));
   }
 
   /*
@@ -1903,11 +1919,19 @@ button.iconButton::after {
     gap: var(--space-3);
   }
 
+  /*
+   * `align-content: start` (21/10/2026): lưới kéo mọi ô trong hàng cao bằng ô cao nhất, và một ô số
+   * là lưới hai hàng tự động (nhãn · ô gõ) — để mặc định thì phần dư chia đều cho hai hàng, nhãn giãn
+   * ra và con số trôi xuống giữa ô. Chủ dự án khoanh đúng khoảng ấy trên `irr-nien-kim`: nhãn 35px,
+   * ô gõ 44px trong một ô 104px. Ô trượt nay cao bằng ô số nên phần lớn hàng không còn gì để giãn;
+   * hàng nào còn (nhãn ô trượt dài hai dòng) thì phần dư nằm dưới đáy ô, nhãn và con số vẫn liền nhau.
+   */
   .fields.tileGrid > .field,
   .fields.tileGrid > .fieldWide {
     grid-column: auto;
     grid-row: auto;
     grid-template-rows: none;
+    align-content: start;
   }
 
   /*

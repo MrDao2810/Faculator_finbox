@@ -61,10 +61,27 @@ describe('thanh trượt: con số cạnh nhãn luôn ở mép phải', () => {
     expect(luat(TRUOT.ngoai, '.valueBox')).toMatch(/margin-left:\s*auto/);
   });
 
-  it('ô nhỏ của khối gộp (từ 1280px) bỏ lề ấy — lề tự động ở cột flex tắt mất `stretch`', () => {
+  /*
+   * ĐẢO 21/10/2026. Ca này trước đây là "ô nhỏ của khối gộp (từ 1280px) bỏ lề ấy": ô nhỏ xếp dọc
+   * (nhãn, con số trải hết hàng, rãnh). Chủ dự án khoanh ô "Số kỳ nhận tiền (n)" của `irr-nien-kim`
+   * và vẽ mũi tên sang phải: _"chuyển số liệu + kỳ sang bên phải như tôi chỉ rồi sau đó có thể giảm
+   * height"_. Nay ô nhỏ giữ hàng `.head` gốc: không khai lại hướng, không đè lề tự động.
+   */
+  it('ô nhỏ của khối gộp (từ 1280px): con số ở cuối hàng nhãn, không xếp dọc', () => {
+    const dau = luat(TRUOT.trong, '.compact .head');
+    expect(dau).not.toMatch(/flex-direction/);
+    expect(dau).toMatch(/align-items:\s*flex-start/);
     const o = luat(TRUOT.trong, '.compact .valueBox');
-    expect(o).toMatch(/margin-left:\s*0/);
-    expect(o).toMatch(/align-self:\s*stretch/);
+    expect(o).not.toMatch(/margin-left/);
+    expect(o).not.toMatch(/align-self/);
+    expect(o).toMatch(/padding:\s*0/);
+  });
+
+  it('ô nhỏ: nhãn hẹp quá 6rem thì con số xuống hàng; rãnh bám đáy ô', () => {
+    expect(luat(TRUOT.trong, '.compact .label')).toMatch(/flex:\s*1 1 6rem/);
+    const ranh = luat(TRUOT.trong, '.compact .slider');
+    expect(ranh).toMatch(/min-height:\s*16px/);
+    expect(ranh).toMatch(/margin-top:\s*auto/);
   });
 });
 
@@ -76,11 +93,19 @@ describe('InlineNumber: chỗ giữ theo số ký tự thay cho 14ch', () => {
     expect(chiDoc).toMatch(/min-width:\s*calc\(var\(--ky-tu\) \* 1ch\)/);
   });
 
-  it('luật giữ chỗ khai TRƯỚC khối ô nhỏ 1280px — cùng độ đặc hiệu, ô nhỏ trải hết hàng phải thắng', () => {
-    const giuCho = SO_GON_THO.indexOf('.giuCho .input');
-    const khoiNho = SO_GON_THO.indexOf('@media (min-width: 1280px)');
-    expect(giuCho).toBeGreaterThan(0);
-    expect(khoiNho).toBeGreaterThan(giuCho);
-    expect(luat(SO_GON.trong, '.compact .input')).toMatch(/width:\s*auto/);
+  /*
+   * ĐẢO 21/10/2026. Ca này trước đây ghim khối `.compact` từ 1280px khai SAU luật giữ chỗ (ô nhỏ
+   * trải hết hàng phải thắng). Khối ấy bỏ cùng prop `compact` khi ô trượt nhỏ đưa con số lên cuối
+   * hàng nhãn, nên luật giữ chỗ nay áp ở mọi khổ.
+   */
+  it('không còn khối ô nhỏ 1280px nào đè luật giữ chỗ', () => {
+    expect(SO_GON.trong).toBe('');
+    expect(SO_GON_THO).not.toMatch(/\.compact/);
+    const truot = readFileSync(
+      fileURLToPath(new URL('./SliderInput.tsx', import.meta.url)),
+      'utf8',
+    );
+    const o = /<InlineNumber[\s\S]*?\/>/.exec(truot)?.[0] ?? '';
+    expect(o).not.toMatch(/compact/);
   });
 });

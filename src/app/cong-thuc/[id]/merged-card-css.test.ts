@@ -207,6 +207,25 @@ describe('Thẻ gộp — luật CSS mà mất đi thì màn sai mà test không
     ).toMatch(/min-height:\s*var\(--space-6\)/);
   });
 
+  /*
+   * Nút "?" sát góc trên-phải (21/10/2026). Chủ dự án khoanh nút trên `so-graham`: _"cần giảm padding
+   * tiếp rồi đưa icon hướng dẫn sử dụng này lên góc phải xát hơn với góc"_. Trước đó nút cách mép
+   * trên và mép phải 21px; đo sau khi sửa ở 1280 và 1440: 9px cả hai cạnh, ô nhập bắt đầu ở 41px
+   * thay vì 53px, thẻ thấp đi 12px, cụm kết quả vẫn đứng giữa hàng ô như trước.
+   */
+  it('nút "?" sát góc trên-phải: đệm trên của thẻ `--space-2`, nút lấn sang đệm phải', () => {
+    const the = luatTrongMedia(1280, '.merged');
+    expect(the?.than, 'đệm trên `--space-2`, ba cạnh kia giữ `--space-5`').toMatch(
+      /padding:\s*var\(--space-2\)\s+var\(--space-5\)\s+var\(--space-5\);/,
+    );
+
+    const nut = luatTrongMedia(1280, '.merged .hintSoLieu');
+    expect(
+      nut?.than,
+      'nút phải cách mép phải đúng bằng cách mép trên — lấn `--space-5` trừ `--space-2`',
+    ).toMatch(/margin-right:\s*calc\(var\(--space-2\)\s*-\s*var\(--space-5\)\)/);
+  });
+
   it('hàng nút thêm bớt của nhóm ô lặp cũng được chừa lại — con số đứng giữa LƯỚI Ô', () => {
     const luat = luatTrongMedia(1280, '.merged:has(.repeatActions) .result');
 

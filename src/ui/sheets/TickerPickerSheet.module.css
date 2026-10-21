@@ -324,8 +324,8 @@
  * giảm padding của phần khoanh đỏ màn mới. áp dụng cho bản mobile"_. Đo ở 390 trước khi sửa (tấm dán
  * đáy): đầu 69px — vạch kéo, đệm 20px trên, tiêu đề 16px.
  *
- * Bộ số của tấm Nạp mẫu (`PresetSheet.module.css`), vì hai tấm thay chỗ nhau qua lối rẽ và nút ‹:
- * đầu và thân đệm 12 × 16px, tiêu đề 14px. Nút ‹ vẫn ăn lề âm 12px trên dưới (luật điện thoại của
+ * Bộ số của tấm Nạp mẫu (`PresetSheet.module.css`), vì hai tấm thay chỗ nhau qua lối rẽ và nút đóng:
+ * đầu và thân đệm 12 × 16px, tiêu đề 14px. Nút đóng (mũi tên ‹ cho tới khi chủ dự án đổi thành dấu × bên phải, cùng ngày) vẫn ăn lề âm 12px trên dưới (luật điện thoại của
  * `.panelCenter .close`), nên chiếm 20px mà vùng chạm vẫn 44px. Đệm ngang của thân 20 → 16px theo
  * cùng, để ô tìm thẳng mép với tiêu đề.
  *

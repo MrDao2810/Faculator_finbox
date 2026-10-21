@@ -72,8 +72,8 @@ describe('TickerPickerSheet — đánh dấu mã chưa có dữ liệu', () => {
   it('không bật đánh dấu thì không dòng nào bị dán nhãn', async () => {
     await moSheet();
 
-    expect(screen.queryByText('chưa có dữ liệu')).toBeNull();
-    expect(screen.queryByText('có thể chưa có dữ liệu')).toBeNull();
+    expect(screen.queryByText('Chưa có dữ liệu')).toBeNull();
+    expect(screen.queryByText('Có thể chưa có dữ liệu')).toBeNull();
   });
 
   /*
@@ -83,9 +83,9 @@ describe('TickerPickerSheet — đánh dấu mã chưa có dữ liệu', () => {
   it('bật đánh dấu: mã ngoài bảng bị dán nhãn, mã trong bảng thì không', async () => {
     await moSheet({ markUnusableAsOf: '2026-09-08' });
 
-    expect(within(dong('E1VFVN30')).getByText('chưa có dữ liệu')).not.toBeNull();
-    expect(within(dong('FPT')).queryByText('chưa có dữ liệu')).toBeNull();
-    expect(within(dong('HPG')).queryByText('chưa có dữ liệu')).toBeNull();
+    expect(within(dong('E1VFVN30')).getByText('Chưa có dữ liệu')).not.toBeNull();
+    expect(within(dong('FPT')).queryByText('Chưa có dữ liệu')).toBeNull();
+    expect(within(dong('HPG')).queryByText('Chưa có dữ liệu')).toBeNull();
   });
 
   /*
@@ -96,8 +96,8 @@ describe('TickerPickerSheet — đánh dấu mã chưa có dữ liệu', () => {
   it('mã, tên và nhãn chung một khối; nút Chọn ở ngoài khối ấy', async () => {
     await moSheet({ markUnusableAsOf: '2026-09-08' });
 
-    const khoi = within(dong('E1VFVN30')).getByText('chưa có dữ liệu').parentElement;
-    expect(khoi?.textContent).toBe('E1VFVN30Quỹ ETF VFMVN30chưa có dữ liệu');
+    const khoi = within(dong('E1VFVN30')).getByText('Chưa có dữ liệu').parentElement;
+    expect(khoi?.textContent).toBe('E1VFVN30Quỹ ETF VFMVN30Chưa có dữ liệu');
     expect(within(dong('E1VFVN30')).getByRole('button').parentElement).toBe(dong('E1VFVN30'));
   });
 
@@ -130,8 +130,8 @@ describe('TickerPickerSheet — đánh dấu mã chưa có dữ liệu', () => {
   it('bảng đã cũ thì nói "có thể chưa có", không khẳng định', async () => {
     await moSheet({ markUnusableAsOf: '2027-06-01' });
 
-    expect(within(dong('E1VFVN30')).getByText('có thể chưa có dữ liệu')).not.toBeNull();
-    expect(screen.queryByText('chưa có dữ liệu')).toBeNull();
+    expect(within(dong('E1VFVN30')).getByText('Có thể chưa có dữ liệu')).not.toBeNull();
+    expect(screen.queryByText('Chưa có dữ liệu')).toBeNull();
   });
 
   /*
@@ -162,7 +162,7 @@ describe('TickerPickerSheet — mã đang giữ', () => {
   it('vắng `heldCodes` thì không dòng nào bị khoá hay dán nhãn', async () => {
     await moSheet();
 
-    expect(screen.queryByText('đã có')).toBeNull();
+    expect(screen.queryByText('Đã có')).toBeNull();
     for (const ma of ['FPT', 'HPG', 'E1VFVN30']) {
       expect(within(dong(ma)).getByRole('button').hasAttribute('disabled')).toBe(false);
     }
@@ -175,11 +175,11 @@ describe('TickerPickerSheet — mã đang giữ', () => {
     const nut = within(dong('FPT')).getByRole('button');
     expect(nut.hasAttribute('disabled')).toBe(true);
     expect(nut.getAttribute('aria-describedby')).toBe('ticker-da-co-FPT');
-    expect(within(dong('FPT')).getByText('đã có')).not.toBeNull();
+    expect(within(dong('FPT')).getByText('Đã có')).not.toBeNull();
 
     /* Mã chưa giữ không bị vạ lây. */
     expect(within(dong('HPG')).getByRole('button').hasAttribute('disabled')).toBe(false);
-    expect(within(dong('HPG')).queryByText('đã có')).toBeNull();
+    expect(within(dong('HPG')).queryByText('Đã có')).toBeNull();
   });
 
   /* Nhãn nút không đổi theo trạng thái nữa — `ticker.pickHeld` ("Cộng thêm") đã xoá. */

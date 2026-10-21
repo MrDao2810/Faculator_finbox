@@ -776,13 +776,19 @@ Two rules about the form and the picker, unchanged by the redesign:
     thì chuyển sang màn mới là màn chọn mã thì cũng là dialog giữa. và cần giảm padding của phần khoanh
     đỏ màn mới"_, the circled part being its header). `FormulaDetail` passes `placement="center"` and a new
     `compact` prop, whose rules in `TickerPickerSheet.module.css` copy the preset sheet's header and body
-    (12/16px, 14px title): the two swap in place through "Danh sách … mã khác →" and the ‹ button. Header
+    (12/16px, 14px title): the two swap in place through "Danh sách … mã khác →" and the close button. Header
     69 → 45px at 390. "Đổi mã" opens the same sheet, so it is centred too. **The portfolio's picker does
     NOT pass `compact`**: there it opens over the add/edit dialog, and that screen's dialogs share the
     primitive's phone header (16/20px). `preset-sheet-css.test.ts` compares the three rules of the two
-    files declaration by declaration.
+    files declaration by declaration. **Its close button is the × on the right on every route since the same
+    day** (owner, circling the ‹ that the preset route used to show: _"chuyển icon back này thành icon close
+    và chuyển sang bên phải"_). That reverses the old "the icon says where closing goes" rule for this one
+    route; the BEHAVIOUR stays — × from the preset route still reopens the preset sheet
+    (`closeTickerPicker()`), because dropping the user on the bare screen there was a bug the owner reported.
+    `TickerPickerSheet` lost its `dismiss` prop; `BottomSheet` keeps `dismiss="back"` with no caller.
   - **Below 1024px a picker row puts its "chưa có dữ liệu" / "đã có" label UNDER the name** (21/10/2026,
-    owner circling an ETF row: _"màn mobile đang nhìn rất xấu và không ổn lắm"_). Measured at 390 before:
+    owner circling an ETF row: _"màn mobile đang nhìn rất xấu và không ổn lắm"_; the labels read "Chưa có dữ liệu" / "Đã có", capitalised the
+    same day). Measured at 390 before:
     an 8-character code (59px), the 99px label and the 47px button left the name 58px, so "ETF KIM GROWTH
     VN DIAMOND" ran to five lines and broke mid-word, rows 69–108px. Code, name and labels now share a
     `.text` span: `display: contents` from 1024px (the row is the same one-line flex row there), a grid
@@ -1028,6 +1034,22 @@ owner sent a sample price table (_"đổi bảng dữ liệu thành kiểu mới
 đồng thời nếu width không đủ để hiển thị số liệu thì có thể scroll ngang"_) and crossed out the "Cột 6/6"
 button with its panel. What the grid is now, and what is easy to break:
 
+- **The SHORT names are a phone-only thing; from 1024px every header is the full name** (21/10/2026). All five
+  images of the request were phone screenshots, the text named no width, and the design shipped at every width,
+  reported as "ở cả điện thoại lẫn PC". The owner, angry: _"bảng và tiêu đề có thiết kế mới này chỉ ÁP DỤNG CHO
+  MOBILE … tại sao bạn lại áp dụng thiết kế cho web mobile cho web pc?"_, then, asked what PC should get: _"giao
+  diện thì giữ yên cho tôi, còn text thì thay đổi cho đúng nội dung … web pc thì không cần tiết kiệm chữ"_. So the
+  LOOK stays at every width (sort arrows, zebra, year line, sticky columns) and only TEXT differs — the headers,
+  and since a follow-up the same day the date cells (see the dd/mm bullet below): `useKhoMayTinh()` (`src/ui/layout/use-kho-may-tinh.ts`, a `matchMedia` listener read in
+  `useLayoutEffect`, `false` on the first render and in jsdom) picks `paste.col.*` ("Giá mở cửa") from 1024px and
+  `paste.short.*` below, in BOTH tables of this mould (`/du-lieu/` too — the owner: _"form chung cho mấy bảng"_).
+  The button's accessible name is the full name at every width, so tests find headers the same way on both. The
+  column widths follow the text actually shown, through `beNgangTenCot()` (`src/ui/sheets/ten-cot.ts`, shared):
+  ×1,2 per character for names up to 4 characters (bold capitals), ×0,9 for longer ones — measured 0,77–0,85 on
+  Chrome ("Giá thấp nhất" 76px against a 7,55px `ch`). Measured: no header cut, no page overflow at 390–1440; the
+  popup never scrolls sideways from 1024px; `/du-lieu/` stops scrolling from 1280px, and at 1024 its table (696px
+  with full dates) still scrolls inside its 543px frame beside the check card. **Lesson: a drawing that is a phone screenshot is a
+  phone design; scope it below 1024px or ask — never extend it to PC on your own.**
 - **Short column names that SORT** (`paste.short.*`: Ngày · Mở · Cao · Thấp · Đóng · KL, 12px bold), each
   with a ˅ — the owner: _"dấu v đó là icon sắp xếp bảng"_. **The default is newest session first**
   (`sapMacDinh`; the owner, second round: _"thời gian gần nhất thì cần xếp lên đầu"_), recomputed whenever the
@@ -1046,10 +1068,15 @@ button with its panel. What the grid is now, and what is easy to break:
   would fill older sessions upwards. The button's accessible name is the FULL label ("Giá mở
   cửa"; "Khối lượng (KL)" because "KL" is not inside it), so tests still find headers by full name. Extra
   columns do not sort.
-- **A date cell shows only dd/mm while not being edited** (`ngayGon`), and the year sits once above the grid
-  (`paste.yearOne` "Năm 2026", `paste.yearRange` "Từ năm 2025 tới 2026", from the rows that parsed). The owner:
-  _"bên trên ghi năm rồi thì bên dưới trong bảng chỉ cần ghi ngày tháng là tự biết"_. The cell's VALUE keeps
-  the year: focusing it shows the full date, and import is unchanged. Tests reading a date cell get "15/07".
+- **Below 1024px a date cell shows only dd/mm while not being edited** (`ngayIn`), and the year sits once above
+  the grid (`paste.yearOne` "Năm 2026", `paste.yearRange` "Từ năm 2025 tới 2026", from the rows that parsed). The
+  owner: _"bên trên ghi năm rồi thì bên dưới trong bảng chỉ cần ghi ngày tháng là tự biết"_. The cell's VALUE
+  keeps the year: focusing it shows the full date, and import is unchanged. Tests reading a date cell get "15/07"
+  (jsdom is the phone width). **From 1024px the cell prints the full dd/mm/yyyy** (21/10/2026, owner: _"dữ liệu
+  xuất hiện ở trong bảng ở web pc thì cần hiển thị đầy đủ, ví dụ như ngày: cần hiện rõ ngày tháng năm"_), in both
+  tables, through the same `useKhoMayTinh()`; an ISO cell prints in that form too, a year-less one as typed. The
+  year line above stays at every width (not asked; redundant on PC now). The date column width follows the text
+  shown, so it is wider on PC (124px at 1440 on `/du-lieu/`); measured, nothing is cut at 1024–1440.
 - **Numbers stay as typed** (102.000, not the drawing's 102,0 in thousands) — the owner's call, "tạm thời".
 - **Look**: zebra rows instead of rules, no vertical dividers, a header lighter than the body (two
   `color-mix` steps of `--color-ink` into `--color-surface`, so the light palette gets the same order), 32px
@@ -1075,11 +1102,13 @@ button with its panel. What the grid is now, and what is easy to break:
   user corrects the file and pastes again.
 
 **The "BẢNG SỐ LIỆU" table of `/du-lieu/` follows the same drawing** (20/10/2026, owner: _"thay đổi tương
-tự với bảng số liệu của phần Chuỗi giá OHLCV"_). Short sortable headers (the same `paste.short.*` keys), a
+tự với bảng số liệu của phần Chuỗi giá OHLCV"_). Short sortable headers (the same `paste.short.*` keys, below
+1024px only — from 1024px the full `paste.col.*` names, not this screen's own short cell labels `series.col*`;
+see the first bullet above), a
 2rem row-number column counting the screen (it replaced the "!" flag column, so "Tới dòng N" in the check
 card now points at a number printed on the table; a bad row's number is bold and red like the popup's — it
 sat in a yellow pill for a few hours until the owner said _"số 1 không cần bo tròn bên ngoài"_), dd/mm cells
-with the year once beside the title, 32px zebra rows, the close colour, sticky number + Ngày columns and the
+below 1024px (full dd/mm/yyyy from 1024px) with the year once beside the title, 32px zebra rows, the close colour, sticky number + Ngày columns and the
 measured spare-width split — all copied from the popup grid, and `bang-so-lieu-css.test.ts` compares the
 visible rules of the two CSS files declaration by declaration, so a change to one is a change to both.
 What is easy to break:
@@ -1632,6 +1661,14 @@ have none, and each records why in `whyNone`. Things that are easy to break:
   `.stepText` and `.panelLink` take `--text-xs` in a block at the end of `FormulaNotationCard.module.css`; `.panel`
   stays 14px because the step's KaTeX picture inherits it and was not circled. 12px is the size the legend row and the
   expression line already have at that width. The quiz and example pictures share these classes and follow.
+- **From 1024px the panel is as wide as its widest step picture, never scrolling sideways** (21/10/2026, owner, on
+  `fcff`'s `ΔNWC`: the picture `NWC = (TSNH − Tiền mặt) − (Nợ ngắn hạn − Vay ngắn hạn)` was cut off under a
+  scrollbar; _"chỉ áp dụng cho màn hình lớn máy tính"_). `.panel:not([data-title-only])` is `width: max-content` with
+  a 22rem floor and a `100vw − 16px` cap; the title, step text and "Xem công thức" link carry `contain: inline-size`
+  so TEXT never widens the panel (the link becomes `display: block` there, or an inline-block with no intrinsic width
+  collapses to 0). Swept all 112 panels at 1024 and 1440: only that one grew (352 → 392px), the other 111 stay 352px;
+  without containing the link, `bien-an-toan`'s `V` grew to 374px for its link alone. Below 1024px unchanged (the
+  `fcff` picture still scrolls on a phone). `notation-card-css.test.ts` pins it.
 
 **A `spec.variables` entry can change the result while never appearing in the picture at all** — the
 legend gates above only check that every _token already in `latex`_ has a row; nothing ever checked the
@@ -1775,6 +1812,15 @@ declarations. Swept over all 64 merged formulas at 1440 and 1280: 0px off on bot
 left side is taller than the tiles (the WF-15 error card), it grows the row and its top lines up with
 the top of the tiles.
 
+**The "?" of the Số liệu block sits 9px from the merged card's top-right corner** (21/10/2026, owner
+circling it on `so-graham` at desktop width: _"cần giảm padding tiếp rồi đưa icon hướng dẫn sử dụng này lên
+góc phải xát hơn với góc"_). It was 21px from both edges, the tiles started 53px down. Now `.merged` pads
+`--space-2` on top only (the other three sides keep `--space-5`) and `.merged .hintSoLieu` has
+`margin-right: calc(--space-2 − --space-5)`, so the button reaches into the right padding while the tiles
+still stop at it. The "?" row stays IN the flow, so the centring above is untouched: tiles at 41px, every
+card 12px shorter (`so-graham` 210 → 198px), the result group as centred as before. Its 44px tap overlay
+pokes 1–2px past the card border on those two sides. `merged-card-css.test.ts` pins both declarations.
+
 **The merged card's figures were shrunk twice on 14/10/2026** (owner, circling the DCA card: _"size text
 đang quá to và chiếm không gian, giảm xuống thêm 2px"_, then _"giảm tiếp 4px nữa"_): tile values 26 → 20px
 (`--text-lg`, in both `Input.module.css` `.compact .input` and `SliderInput.module.css` `.compact .valueBox`,
@@ -1782,6 +1828,25 @@ which sit side by side), the result figure 40 → 34px (`calc(var(--text-3xl) - 
 the scale has no 34 step) and its unit 18 → 12px (`--text-xs`). Labels (12px) and the compact `Select`
 (18px words, not figures) did not change, nor did anything below 1280px. Measured: a tile 79 → 71px, the
 DCA card 375 → 351px.
+
+**A slider tile puts its figure at the END OF THE LABEL ROW, and every tile in a row is 71px** (21/10/2026,
+owner circling `irr-nien-kim`'s two number tiles and its "Số kỳ nhận tiền (n)" slider, arrow from the label
+row to the right: _"các vùng khoanh đỏ đang thừa quá nhiều không gian, height đang quá cao … chuyển số
+liệu + kỳ sang bên phải như tôi chỉ rồi sau đó có thể giảm height … đối chiếu với những phần tương tự"_). Until
+then the compact slider stacked label · full-width figure · track (104px at 1440), and because the grid
+stretches a row to its tallest tile, the number tiles beside it grew to 104px with a 35px label row and a
+44px input. Now, all in `SliderInput.module.css`'s 1280 block: the compact slider keeps the base `.head` row
+(figure + unit pushed right by `.valueBox`'s `margin-left: auto`), top-aligned rather than baseline (baseline
+dropped its label 10px below the number tiles' labels), the figure box unpadded with a tight line height, a
+2px gap and a 16px track, so it is exactly the number tile's 71px. The label's flex basis is 6rem: a label
+left at least 96px beside the figure stays there (two lines at most, 80px tiles on `capm`,
+`ddm-hai-giai-doan`, `gia-ly-thuyet-vn30f`…), a narrower one sends the figure to the next row, still right
+(`tra-gop-*`'s 13-character loan figure, 93px; forbidding the wrap squeezed that label to four lines, 116px
+at 1280). The track has `margin-top: auto`, so in a stretched row every track sits on one line, and
+`.fields.tileGrid > .field` has `align-content: start`, so a stretched number tile keeps label and figure
+together with the spare space at its bottom. `InlineNumber` lost its `compact` prop and 1280 block (they
+only served the stacked figure). Swept all merged cards at 1280 and 1440, Advanced mode: number tiles 71px,
+sliders 71 / 80 / 93px, every label in a row at the same height. `slider-head-css.test.ts` pins it.
 
 **Below 1024px the head of the detail screen is one scale step smaller** (15/10/2026; the owner circled the name with its
 badge, the "Ý nghĩa" block and the "Công thức" title on `macd-duong-chinh`: _"giảm size text các phần tôi khoanh đỏ, áp
@@ -2252,7 +2317,9 @@ idle block. Four things there are load-bearing:
 The `»` is a sibling `<span aria-hidden>` rather than part of the string, because it is decoration,
 not part of the label — same shape as `GroupCard.tsx`. The button is `variant="ghost"`
 on purpose: a solid block of colour beside a small uppercase label outweighs the content it leads
-into. Idle, that row is the WHOLE block — 78px measured — because `quiz.lead` ("Không chấm điểm,
+into. Idle, that row is the WHOLE block — 78px measured then; 62px from 1024px since 21/10/2026, when
+the owner circled it on a PC (_"giảm padding của phần này xuống"_) and the card's padding went 20px →
+12 / 16px (`quiz-desktop-css.test.ts`), and 46px below 1024px — because `quiz.lead` ("Không chấm điểm,
 chỉ để bạn tự soát lại.") is gone: the owner deleted it that morning, had it restored that
 afternoon, then deleted it again on sight, so its tombstone is the second one on that key and it
 is final. **Nothing renders under the header any more, not even last time's score** (19/10/2026): the
@@ -2481,7 +2548,11 @@ same day (_"giảm padding xuống, size text giảm xuống … áp dụng cho 
 the verdict line (`p.markRight` / `p.markWrong`, the fill-in "Sai · Kết quả … · Thứ tự đúng …" and the multi-select
 "Đúng / Sai") is 14px with no `<p>` margin (28 → 12px either side), the "Vì sao chưa đúng" box pads 8/12px and its
 prose 12px, and `LoiGiai` — shared with the "Ví dụ thực tế" block, which is what "công thức có ví dụ" covers — is 12px
-text, 8px between rows, the drawn arithmetic 15px. CAGR at 390: answer box 398 → 336px, example block 759 → 662px. `.blankInput[data-ket-qua]` **must be declared after
+text, 8px between rows, the drawn arithmetic 15px. CAGR at 390: answer box 398 → 336px, example block 759 → 662px.
+From 1024px the same two PADDING numbers apply since 21/10/2026 (owner, on `rut-truoc-han`'s graded fill-in at
+desktop: _"đang dư thừa quá nhiều padding"_): verdict line with no `<p>` margin (28 → 12px either side) and the box at
+8/12px, in a `min-width: 1024px` block at the end of `QuizBody.module.css`; desktop text sizes unchanged (16px verdict,
+13px prose). Box 271 → 263px, the area 40px shorter; `quiz-desktop-css.test.ts` pins it. `.blankInput[data-ket-qua]` **must be declared after
 `.blankInput:disabled`** (a graded input is both), the same single-specificity ordering trap as
 `.panelCenter`. Grading is all-or-nothing, like `chon-nhieu`: three slots right out of four still
 produces the wrong number, so partial credit would tell the learner they were close when the result

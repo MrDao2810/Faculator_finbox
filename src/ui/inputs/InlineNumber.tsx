@@ -39,13 +39,11 @@ export interface InlineNumberProps {
   /** Dùng khi ô không có `<label>` riêng trỏ vào — ví dụ khi nhãn nằm ở cột bảng. */
   ariaLabel?: string;
   describedBy?: string;
-  /**
-   * Bản "ô nhỏ" của khối gộp — chỉ có hiệu lực từ 1280px, xem `InputProps.compact`.
-   *
-   * Con số thôi ghim 14ch canh phải mà co theo chữ và dạt trái: trong ô nhỏ rộng ~180px, một ô
-   * 14ch canh phải đẩy con số ra tận mép phải, cách nhãn của chính nó gần hết bề ngang ô.
+  /*
+   * Prop `compact` (ô nhỏ của khối gộp, từ 1280px: con số trải hết hàng, dạt trái) đã bỏ 21/10/2026.
+   * Nơi gọi duy nhất là `SliderInput`, và ô trượt nhỏ nay đưa con số lên cuối hàng nhãn như mọi khổ
+   * khác — tức đúng dáng gốc của ô này. Lý do ở khối `.compact` của `SliderInput.module.css`.
    */
-  compact?: boolean;
   /**
    * Giữ chỗ cho con số theo số ký tự, thay cho bề rộng ghim 14ch.
    *
@@ -101,7 +99,6 @@ export function InlineNumber({
   id,
   ariaLabel,
   describedBy,
-  compact = false,
   soKyTuGiuCho,
   className,
 }: InlineNumberProps) {
@@ -137,7 +134,6 @@ export function InlineNumber({
     styles.box,
     readOnly ? styles.locked : undefined,
     outOfRange ? styles.invalid : undefined,
-    compact ? styles.compact : undefined,
     soKyTuGiuCho !== undefined ? styles.giuCho : undefined,
     className,
   ]

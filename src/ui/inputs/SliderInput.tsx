@@ -196,7 +196,6 @@ export function SliderInput({
           editable={GO_SO_TRUC_TIEP}
           id={boxId}
           describedBy={marksId}
-          compact={compact}
           soKyTuGiuCho={soKyTuGiuCho(spec)}
           className={styles.valueBox}
         />

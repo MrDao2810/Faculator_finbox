@@ -767,10 +767,11 @@ export function FormulaDetail({
    * giá trị cũ (`true`) lúc `closeTickerPicker()` chạy và sheet mẫu bật lại ngay sau khi người
    * dùng vừa chọn xong mã.
    *
-   * Kèm theo là `pickerShowsBack` ngay dưới — cùng một sự thật, hai bản, vì cái ref không dựng
-   * lại màn còn nút thoát thì phải ĐỔI HÌNH theo lối vào (mũi tên ‹ bên trái khi lùi được về
-   * sheet mẫu, dấu × khi không). Chúng chỉ được đặt cùng một chỗ, trong `openTickerPicker()`,
-   * nên không có đường nào cho hai bản lệch nhau; bản ref là bản quyết định hành vi.
+   * Nút thoát KHÔNG đổi hình theo lối vào nữa (21/10/2026): trước đó vào từ sheet mẫu thì nút là
+   * mũi tên ‹ bên trái, có một bản state `pickerShowsBack` đi kèm để dựng nó. Chủ dự án khoanh mũi
+   * tên ấy: _"chuyển icon back này thành icon close và chuyển sang bên phải"_. Nay mọi lối vào đều là
+   * dấu × ở mép phải; còn HÀNH VI lùi về sheet mẫu thì giữ, vì chính chủ dự án đã báo việc thoát
+   * thẳng ra màn là lỗi.
    */
   const pickerFromPreset = useRef(false);
   /**
@@ -781,7 +782,6 @@ export function FormulaDetail({
    */
   const pickRunId = useRef(0);
   const pickAbort = useRef<AbortController | null>(null);
-  const [pickerShowsBack, setPickerShowsBack] = useState(false);
   const [savedCalcs, setSavedCalcs] = useState<ReadonlyArray<SavedCalc>>([]);
   const [saveStamp, setSaveStamp] = useState(0);
   /**
@@ -2364,7 +2364,6 @@ export function FormulaDetail({
    */
   function openTickerPicker(fromPreset = false): void {
     pickerFromPreset.current = fromPreset;
-    setPickerShowsBack(fromPreset);
     setPickerMounted(true);
     setPickerOpen(true);
   }
@@ -3912,8 +3911,6 @@ export function FormulaDetail({
         <TickerPickerPanel
           open={pickerOpen}
           onClose={closeTickerPicker}
-          // Mũi tên ‹ bên trái khi đóng là LÙI về sheet mẫu; dấu × khi đóng là thoát hẳn.
-          dismiss={pickerShowsBack ? 'back' : 'close'}
           /*
             Nổi giữa màn ở mọi khổ và đầu tấm gọn dưới 1024px (21/10/2026), cùng dáng tấm Nạp mẫu mà nó
             thay chỗ qua lối rẽ "Danh sách … mã khác →" — chủ dự án: _"chuyển sang màn mới là màn chọn mã

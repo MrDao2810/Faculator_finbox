@@ -165,16 +165,29 @@
  * chuyển ra thẻ gốc, nhãn nhỏ lại, con số to lên, con dấu nguồn lên góc. Hai khác biệt của thanh
  * trượt:
  *
- *   · Nhãn và con số thôi đứng chung một hàng. Trong ô nhỏ chỉ có ~200px bề ngang, mà hàng ấy đang
- *     gánh nhãn + con dấu + con số; xếp dọc thì con số mới to lên được như bản thiết kế.
+ *   · Nhãn và con số đứng CHUNG một hàng, con số + đơn vị dạt phải — đúng hàng `.head` gốc, nên
+ *     khối này không khai lại `.head` (21/10/2026). Từ 01/10 tới hôm ấy ô nhỏ xếp dọc (nhãn, rồi con
+ *     số trải hết hàng, rồi rãnh) để con số to lên như bản thiết kế; chủ dự án khoanh ô "Số kỳ nhận
+ *     tiền (n)" của `irr-nien-kim` cùng hai ô số bên cạnh và vẽ mũi tên từ cuối hàng nhãn sang phải:
+ *     _"các vùng khoanh đỏ đang thừa quá nhiều không gian, height đang quá cao … chuyển số liệu + kỳ
+ *     sang bên phải như tôi chỉ rồi sau đó có thể giảm height … đối chiếu với những phần tương tự để
+ *     thay đổi"_. Đo ở 1440 trước khi sửa: ô trượt 104px (đệm 12 · nhãn 18 · số 36 · khe 4 · rãnh 20
+ *     · đệm 12), và vì lưới kéo cả hàng bằng ô cao nhất, hai ô số bên cạnh cũng 104px với nhãn giãn
+ *     ra 35px và ô gõ 44px. Nhãn dài quá một hàng thì con số xuống hàng dưới, vẫn dính mép phải
+ *     (luật `margin-left: auto` của `.valueBox` gốc). Con số vẫn 20px đậm, bằng số của ô số cạnh nó.
  *   · Hai mốc min/max ẩn khỏi MẮT nhưng ở lại cho trình đọc màn hình: `aria-describedby` của thanh
  *     trượt trỏ vào chúng, nên `display: none` là cắt mất lời mô tả miền giá trị. Rãnh trượt tự nó
  *     đã nói vị trí tương đối, còn hai con số thì không đủ chỗ.
  */
 @media (min-width: 1280px) {
+  /*
+   * Khe 2px và rãnh 16px (ở dưới): ô trượt cao ĐÚNG bằng ô số đứng cạnh (71px ở 1440 — đệm 12 · nhãn
+   * 18 · con số 25 · đệm 12, cộng viền), để lưới không kéo giãn ô nào trong hàng. Phép tính bên này:
+   * hàng nhãn 27 (con số 25 + viền vòng tiêu điểm 2) · khe 2 · rãnh 16 = 45 = nhãn 18 + ô gõ 27 bên kia.
+   */
   .compact {
     position: relative;
-    gap: var(--space-1);
+    gap: 2px;
     padding: var(--space-3);
     background: var(--color-surface);
     border: 1px solid var(--color-border);
@@ -185,13 +198,24 @@
     background: var(--color-sunken);
   }
 
+  /*
+   * Canh ĐỈNH, không canh chân chữ (`baseline` của hàng gốc): canh chân chữ hạ nhãn 12px xuống ngang
+   * chân con số 20px, nên nhãn ô trượt thấp hơn nhãn ô số cạnh nó 10px.
+   */
   .compact .head {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0;
+    align-items: flex-start;
   }
 
+  /*
+   * Gốc co giãn 6rem: nhãn còn ≥ 96px cạnh con số (đủ cho nhãn dài nhất, 33 ký tự, gãy hai dòng) thì
+   * con số ở lại góc phải hàng đầu, đúng chỗ chủ dự án chỉ; hẹp hơn thì con số xuống hàng dưới, vẫn
+   * dạt phải. Đo cả hai cực trước khi chọn: gốc `auto` (bề rộng cả nhãn) đẩy con số xuống ở 5 công
+   * thức có nhãn dài (`capm`, `ddm-hai-giai-doan`, `gia-ly-thuyet-vn30f`, hai công thức trả góp), ô
+   * 103px; cấm xuống hàng thì ở 1280 con số tiền vay (13 ký tự) ép nhãn của `tra-gop-*` còn bốn
+   * dòng, ô 116px.
+   */
   .compact .label {
+    flex: 1 1 6rem;
     font-size: var(--text-xs);
     font-weight: var(--weight-regular);
     color: var(--color-muted);
@@ -203,21 +227,34 @@
   }
 
   /*
-   * Trải hết bề ngang ô thay vì ôm lấy con số: đơn vị bên trong phải ra được tới mép phải, đúng
-   * như ô nhập thường (xem `.compact .unit` ở `Input.module.css`). Hai kiểu ô đứng cạnh nhau
-   * trong cùng một thẻ, nên đơn vị của chúng phải thẳng một hàng dọc.
+   * Con số + đơn vị ôm lấy nhau ở cuối hàng nhãn (lề trái tự động là của `.valueBox` gốc).
+   *
+   * `padding: 0`: đệm ngang 4px của `InlineNumber` (chỗ thở cho vòng tiêu điểm) đẩy đơn vị vào trong
+   * 4px so với đơn vị của ô số, mà hai kiểu ô đứng chung một lưới — ô trượt ở hàng trên, ô số ở hàng
+   * dưới cùng cột thì hai đơn vị phải thẳng một đường dọc (cùng lý do bản cũ đã ghi ở
+   * `InlineNumber.module.css` khi ô nhỏ còn xếp dọc). Đệm dọc 2px bỏ theo để hàng nhãn không cao hơn
+   * con số.
+   *
+   * `line-height` chặt (`--leading-tight`): hàng nhãn nay cao bằng con số, mà 1,5 × 20px là 30px cho
+   * một dòng chữ số không có dấu tiếng Việt nào cần chỗ phía trên.
    */
   .compact .valueBox {
-    /* Lề tự động ở trục ngang của cột flex tắt `stretch` — bỏ nó, ô mới trải hết hàng. */
-    margin-left: 0;
-    align-self: stretch;
+    flex-shrink: 0;
+    padding: 0;
     /* Bằng số của ô nhập thường cạnh nó — 20px từ 14/10/2026, xem `.compact .input` ở `Input.module.css`. */
     font-size: var(--text-lg);
+    line-height: var(--leading-tight);
     color: var(--color-ink);
   }
 
+  /*
+   * Rãnh bám ĐÁY ô (`margin-top: auto` trong cột flex): ở hàng có một ô cao hơn (nhãn hai dòng, hay
+   * con số tiền vay xuống hàng ở `tra-gop-*`), lưới kéo các ô trượt khác cao theo, và rãnh của chúng
+   * phải thẳng một đường với rãnh của ô cao kia chứ không lơ lửng giữa ô.
+   */
   .compact .slider {
-    min-height: 20px;
+    min-height: 16px;
+    margin-top: auto;
   }
 
   .compact .slider::-webkit-slider-thumb {

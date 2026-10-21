@@ -32,9 +32,10 @@ import {
   guardFilteredDelete,
   resetFilteredDelete,
 } from '@/ui/inputs';
+import { useKhoMayTinh } from '@/ui/layout/use-kho-may-tinh';
 import { Button } from '@/ui/primitives';
 import { CandleChart } from '@/ui/series';
-import { PasteImportSheet, PresetSheet } from '@/ui/sheets';
+import { beNgangTenCot, PasteImportSheet, PresetSheet } from '@/ui/sheets';
 
 import styles from './DataTableScreen.module.css';
 
@@ -83,15 +84,27 @@ import styles from './DataTableScreen.module.css';
 
 /**
  * Sáu cột của bảng, đúng thứ tự wireframe. `label` là tên đọc được của ô ("Dòng 3 · Khối lượng");
- * `short` là tên in trên đầu cột, DÙNG CHUNG khoá với lưới của popup để hai bảng không thể lệch chữ.
+ * `short` và `full` là tên in trên đầu cột, DÙNG CHUNG khoá với lưới của popup (`paste.short.*`,
+ * `paste.col.*`) để hai bảng không thể lệch chữ.
+ *
+ * `short` ("Mở", "KL") CHỈ ở khổ điện thoại (21/10/2026): bản vẽ là ảnh chụp điện thoại, và chủ dự
+ * án — _"web pc thì không cần tiết kiệm chữ … ghi rõ lại tiêu đề 'Mở' 'Cao' 'Thấp',... là mở cái gì,
+ * cao cái gì, thấp cái gì"_ — nên từ 1024px đầu cột in `full` ("Giá mở cửa"). Không dùng `label` cho
+ * việc ấy: nhãn ô của màn này vốn ngắn ("Mở", "Đóng"). Cùng luật với lưới popup (`COLUMN_SHORT_KEYS`),
+ * cùng hook `useKhoMayTinh`.
  */
 const COLUMNS = [
-  { key: 'date', label: 'series.colDate', short: 'paste.short.date' },
-  { key: 'open', label: 'series.colOpen', short: 'paste.short.open' },
-  { key: 'high', label: 'series.colHigh', short: 'paste.short.high' },
-  { key: 'low', label: 'series.colLow', short: 'paste.short.low' },
-  { key: 'close', label: 'series.colClose', short: 'paste.short.close' },
-  { key: 'volume', label: 'series.colVolume', short: 'paste.short.volume' },
+  { key: 'date', label: 'series.colDate', short: 'paste.short.date', full: 'paste.col.date' },
+  { key: 'open', label: 'series.colOpen', short: 'paste.short.open', full: 'paste.col.open' },
+  { key: 'high', label: 'series.colHigh', short: 'paste.short.high', full: 'paste.col.high' },
+  { key: 'low', label: 'series.colLow', short: 'paste.short.low', full: 'paste.col.low' },
+  { key: 'close', label: 'series.colClose', short: 'paste.short.close', full: 'paste.col.close' },
+  {
+    key: 'volume',
+    label: 'series.colVolume',
+    short: 'paste.short.volume',
+    full: 'paste.col.volume',
+  },
 ] as const;
 
 type CotBang = (typeof COLUMNS)[number]['key'];
@@ -100,13 +113,17 @@ type CotBang = (typeof COLUMNS)[number]['key'];
 const ROW_H = 32;
 
 /**
- * Chữ in trong ô ngày khi ô KHÔNG đang được sửa: chỉ ngày/tháng — năm in một lần trên bảng
- * (`yearNote`). Ô không mang ngày đủ năm ('15/07', số thứ tự phiên '1') in đúng như đang có.
+ * Chữ in trong ô ngày khi ô KHÔNG đang được sửa — cùng luật với `ngayIn` của lưới popup. Điện thoại:
+ * chỉ ngày/tháng, năm in một lần trên bảng (`yearNote`). Từ 1024px (`duNam`, 21/10/2026): đủ
+ * ngày/tháng/năm — chủ dự án: _"dữ liệu xuất hiện ở trong bảng ở web pc thì cần hiển thị đầy đủ, ví dụ
+ * như ngày: cần hiện rõ ngày tháng năm"_. Ô không mang ngày đủ năm ('15/07', số thứ tự phiên '1') in
+ * đúng như đang có.
  */
-function ngayGon(text: string): string {
+function ngayIn(text: string, duNam: boolean): string {
   const ngay = parseSeriesDate(text);
   if (ngay === null || ngay.year === null) return text;
-  return `${String(ngay.day).padStart(2, '0')}/${String(ngay.month).padStart(2, '0')}`;
+  const ngayThang = `${String(ngay.day).padStart(2, '0')}/${String(ngay.month).padStart(2, '0')}`;
+  return duNam ? `${ngayThang}/${String(ngay.year)}` : ngayThang;
 }
 
 type ChieuSapXep = 'giam' | 'tang';
@@ -208,6 +225,8 @@ interface SeriesRowFieldsProps {
   displayNumber: number;
   /** Dòng sọc — tính theo vị trí BÀY RA, nên sọc vẫn xen kẽ khi bảng đang sắp xếp. */
   stripe: boolean;
+  /** Từ 1024px: ô ngày in đủ ngày/tháng/năm thay vì ngày/tháng — xem `ngayIn`. */
+  fullDate: boolean;
   /** Dòng có vấn đề hay không. Truyền boolean chứ KHÔNG truyền mảng issues: mảng được dựng
    *  lại sau mỗi lần gõ nên sẽ phá memo, và ở đây dòng chỉ cần biết có tô vàng hay không. */
   bad: boolean;
@@ -229,6 +248,7 @@ const SeriesRowFields = memo(function SeriesRowFields({
   index,
   displayNumber,
   stripe,
+  fullDate,
   bad,
   onChange,
   onRemove,
@@ -296,8 +316,9 @@ const SeriesRowFields = memo(function SeriesRowFields({
               Và nó không bao giờ đoán bừa — ghép không ra một ngày có thật thì trả nguyên xi, nên
               số thứ tự phiên ('1', '2' của chuỗi minh hoạ trang Beta) nằm im.
 
-              Không đang sửa thì ô chỉ in ngày/tháng (`ngayGon`, 20/10/2026); chạm vào là thấy lại đủ
-              năm. Chỉ là cách IN: giá trị của dòng vẫn đủ năm, nên lưu, kiểm và CSV không đổi.
+              Không đang sửa thì ô ở điện thoại chỉ in ngày/tháng (`ngayIn`, 20/10/2026), từ 1024px
+              in đủ năm (21/10/2026); chạm vào là thấy lại đúng chữ đã ghi. Chỉ là cách IN: giá trị
+              của dòng vẫn đủ năm, nên lưu, kiểm và CSV không đổi.
 
               Ô trống hiện `_ _` như năm ô số (chủ dự án, 20/10/2026: _"chỗ nhập ngày đang để trống
               không có _ _ ở dưới ẩn ý là được nhập"_) — trắng trơn thì đọc ra là ô khoá.
@@ -310,7 +331,7 @@ const SeriesRowFields = memo(function SeriesRowFields({
               autoComplete="off"
               placeholder="_ _"
               aria-label={`${t('series.rowLabel')} ${displayNumber} · ${t(column.label)}`}
-              value={suaNgay ? row.date : ngayGon(row.date)}
+              value={suaNgay ? row.date : ngayIn(row.date, fullDate)}
               onFocus={() => {
                 setSuaNgay(true);
               }}
@@ -397,6 +418,8 @@ export function DataTableScreen() {
   const [floorWidth, setFloorWidth] = useState(0);
   const khung = useRef<HTMLDivElement>(null);
   const bang = useRef<HTMLTableElement>(null);
+  /** Từ 1024px đầu cột in tên đầy đủ thay cho tên ngắn — xem `COLUMNS`. */
+  const mayTinh = useKhoMayTinh();
 
   /*
    * Đọc localStorage trong effect, KHÔNG đọc lúc khởi tạo state: bản build là HTML tĩnh nên
@@ -691,22 +714,27 @@ export function DataTableScreen() {
 
   /**
    * Bề ngang từng cột, tính bằng `ch` theo chữ DÀI NHẤT cột ấy đang in — cùng cách với lưới popup.
-   * Mức sàn là tên cột in đậm cộng dấu ˅; ô ngày tính theo chữ in gọn (ngày/tháng).
+   * Mức sàn là tên cột in đậm cộng dấu ˅; ô ngày tính theo chữ `ngayIn` in ra (ngày/tháng ở điện
+   * thoại, đủ năm từ 1024px).
    */
   const widths = useMemo(
     () =>
       COLUMNS.map((column) => {
-        const head = t(column.short);
-        let longest = Math.ceil(Math.min(head.length, 12) * 1.2) + 2;
+        const head = t(mayTinh ? column.full : column.short);
+        let longest = beNgangTenCot(head);
         for (const row of rows) {
           const value = column.key === 'date' ? null : row[column.key];
           const text =
-            column.key === 'date' ? ngayGon(row.date) : value === null ? '' : rawViNumber(value);
+            column.key === 'date'
+              ? ngayIn(row.date, mayTinh)
+              : value === null
+                ? ''
+                : rawViNumber(value);
           longest = Math.max(longest, text.length);
         }
         return Math.min(longest, 16);
       }),
-    [rows, t],
+    [rows, mayTinh, t],
   );
   const widthSum = widths.reduce((sum, width) => sum + width, 0);
   const coBang = rows.length > 0;
@@ -874,8 +902,10 @@ export function DataTableScreen() {
                         <span className="visually-hidden">{t('series.rowLabel')}</span>
                       </th>
                       {COLUMNS.map((column) => {
-                        const label = t(column.label);
+                        const full = t(column.full);
                         const short = t(column.short);
+                        // Tên ngắn chỉ ở điện thoại; từ 1024px in tên đầy đủ (xem `COLUMNS`).
+                        const hien = mayTinh ? full : short;
                         const chieu = sapXep.cot === column.key ? sapXep.chieu : null;
                         return (
                           <th
@@ -891,8 +921,9 @@ export function DataTableScreen() {
                             }
                           >
                             {/*
-                              Tên đọc được là tên của ô ("Khối lượng"); tên ngắn không nằm trong nó
-                              ("KL") thì ghép vào sau, để ai gọi nút bằng chữ đang thấy vẫn gọi trúng.
+                              Tên đọc được là tên ĐẦY ĐỦ ("Giá mở cửa"), như lưới popup: nó chứa
+                              chữ đang hiện ở cả hai khổ. Tên ngắn không nằm trong nó ("KL") thì ghép
+                              vào sau, để ai gọi nút bằng chữ đang thấy vẫn gọi trúng.
                             */}
                             <button
                               type="button"
@@ -902,16 +933,16 @@ export function DataTableScreen() {
                                   : `${styles.colHead} ${styles.colHeadOn}`
                               }
                               aria-label={
-                                label.toLowerCase().includes(short.toLowerCase())
-                                  ? label
-                                  : `${label} (${short})`
+                                full.toLowerCase().includes(short.toLowerCase())
+                                  ? full
+                                  : `${full} (${short})`
                               }
-                              title={label === short ? undefined : label}
+                              title={full === hien ? undefined : full}
                               onClick={() => {
                                 bamSapXep(column.key);
                               }}
                             >
-                              <span className={styles.colHeadText}>{short}</span>
+                              <span className={styles.colHeadText}>{hien}</span>
                               <SortIcon chieu={chieu} />
                             </button>
                           </th>
@@ -933,6 +964,7 @@ export function DataTableScreen() {
                           index={index}
                           displayNumber={position + 1}
                           stripe={position % 2 === 1}
+                          fullDate={mayTinh}
                           bad={issueByIndex.has(index)}
                           onChange={setCell}
                           onRemove={dropRow}

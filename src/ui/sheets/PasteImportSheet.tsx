@@ -31,9 +31,11 @@ import type {
   SeriesColumnKind,
 } from '@/application';
 import { useT } from '@/application/preferences-context';
+import { useKhoMayTinh } from '@/ui/layout/use-kho-may-tinh';
 import { BottomSheet, Button } from '@/ui/primitives';
 
 import styles from './PasteImportSheet.module.css';
+import { beNgangTenCot } from './ten-cot';
 
 /**
  * Nhãn HIỂN THỊ của từng vai trò cột, tra theo locale. Bản gốc tiếng Việt là `COLUMN_LABELS`
@@ -56,6 +58,11 @@ const COLUMN_LABEL_KEYS: Readonly<Record<SeriesColumnKind, MessageKey>> = {
  * Tên NGẮN in trên đầu cột: "Mở", "Cao", "KL"… (20/10/2026, bản vẽ của chủ dự án). Tên đầy đủ ở
  * `COLUMN_LABEL_KEYS` vẫn là tên đọc được của nút sắp xếp và của từng ô — "Mở" nghe một mình thì
  * trình đọc màn hình không nói được là mở cái gì.
+ *
+ * CHỈ ở khổ điện thoại (21/10/2026). Bản vẽ là ảnh chụp điện thoại, và chủ dự án: _"bản web mobile
+ * nhỏ thì có thể thu gọn tiêu đề lại được như ảnh chứ web pc thì không cần tiết kiệm chữ … ghi rõ
+ * lại tiêu đề 'Mở' 'Cao' 'Thấp',... là mở cái gì, cao cái gì, thấp cái gì"_. Từ 1024px đầu cột in
+ * tên đầy đủ (`useKhoMayTinh`); giao diện còn lại của lưới giữ nguyên ở mọi khổ.
  */
 const COLUMN_SHORT_KEYS: Readonly<Record<SeriesColumnKind, MessageKey>> = {
   date: 'paste.short.date',
@@ -192,16 +199,22 @@ function tachNgay(text: string): { ngay: number; thang: number; nam: number } | 
 }
 
 /**
- * Chữ in trong ô ngày khi ô KHÔNG đang được sửa: chỉ ngày/tháng (20/10/2026). Chủ dự án: _"bên trên
- * ghi năm rồi thì bên dưới trong bảng chỉ cần ghi ngày tháng là tự biết → tiết kiệm không gian bảng"_.
+ * Chữ in trong ô ngày khi ô KHÔNG đang được sửa.
+ *
+ * Điện thoại: chỉ ngày/tháng (20/10/2026). Chủ dự án: _"bên trên ghi năm rồi thì bên dưới trong bảng
+ * chỉ cần ghi ngày tháng là tự biết → tiết kiệm không gian bảng"_. Từ 1024px (`duNam`): đủ
+ * ngày/tháng/năm (21/10/2026) — chủ dự án: _"dữ liệu xuất hiện ở trong bảng ở web pc thì cần hiển thị
+ * đầy đủ, ví dụ như ngày: cần hiện rõ ngày tháng năm"_. Cả hai cùng một lối viết dd/mm, nên ngày dán
+ * kiểu ISO cũng in thành '08/09/2026' trên máy tính.
  *
  * Chỉ là cách IN: giá trị của ô vẫn đủ năm, nên bấm vào ô là thấy lại cả ngày để sửa, và thứ được nạp
  * không đổi. Ô không mang đủ năm ('15/07', chữ gõ dở) in đúng như đang gõ.
  */
-function ngayGon(text: string): string {
+function ngayIn(text: string, duNam: boolean): string {
   const ngay = tachNgay(text);
   if (ngay === null) return text;
-  return `${String(ngay.ngay).padStart(2, '0')}/${String(ngay.thang).padStart(2, '0')}`;
+  const ngayThang = `${String(ngay.ngay).padStart(2, '0')}/${String(ngay.thang).padStart(2, '0')}`;
+  return duNam ? `${ngayThang}/${String(ngay.nam)}` : ngayThang;
 }
 
 /**
@@ -383,6 +396,7 @@ const GridRow = memo(function GridRow({
   numeric,
   cellClasses,
   dateColumn,
+  fullDate,
   closeColumn,
   closeTrend,
   rowWord,
@@ -413,8 +427,10 @@ const GridRow = memo(function GridRow({
   numeric: ReadonlyArray<boolean>;
   /** Lớp của từng ô theo vai trò cột (ngày, khối lượng…), dựng một lần cho cả lưới. */
   cellClasses: ReadonlyArray<string | undefined>;
-  /** Cột Ngày — ô này in gọn ngày/tháng khi không đang sửa (`ngayGon`). `-1` nếu không có. */
+  /** Cột Ngày — ô này in theo `ngayIn` khi không đang sửa. `-1` nếu không có. */
   dateColumn: number;
+  /** Từ 1024px: ô ngày in đủ ngày/tháng/năm thay vì ngày/tháng — xem `ngayIn`. */
+  fullDate: boolean;
   closeColumn: number;
   /** Giá đóng cửa so với giá mở cửa của chính phiên này; `undefined` khi thiếu một trong hai. */
   closeTrend: ChieuSapXep | undefined;
@@ -444,7 +460,7 @@ const GridRow = memo(function GridRow({
       </th>
       {cells.map((value, column) => {
         const here = column === badColumn;
-        const shown = column === dateColumn && editing !== column ? ngayGon(value) : value;
+        const shown = column === dateColumn && editing !== column ? ngayIn(value, fullDate) : value;
         const tdClass = [cellClasses[column] ?? '', here ? styles.cellBad : '']
           .filter((name) => name !== '')
           .join(' ');
@@ -551,6 +567,8 @@ export function PasteImportSheet({
   const [frameWidth, setFrameWidth] = useState(0);
   const [floorWidth, setFloorWidth] = useState(0);
   const table = useRef<HTMLTableElement>(null);
+  /** Từ 1024px đầu cột in tên đầy đủ thay cho tên ngắn — xem `COLUMN_SHORT_KEYS`. */
+  const mayTinh = useKhoMayTinh();
 
   const scroller = useRef<HTMLDivElement>(null);
 
@@ -702,26 +720,25 @@ export function PasteImportSheet({
    *
    * Chủ dự án (20/10/2026): _"nếu width không đủ để hiển thị số liệu thì có thể scroll ngang"_. Khung
    * rộng hơn tổng này thì bảng giãn ra lấp khung; hẹp hơn thì khung cuộn ngang, trang không tràn. Cột
-   * ngày tính theo chữ in GỌN (ngày/tháng), vì đó là thứ đứng trong ô lúc không sửa. Mức sàn là tên
-   * cột cộng dấu ˅ (hai `ch`), để tên không bị cắt.
+   * ngày tính theo chữ `ngayIn` in ra (ngày/tháng ở điện thoại, đủ năm từ 1024px), vì đó là thứ đứng
+   * trong ô lúc không sửa. Mức sàn là tên cột cộng dấu ˅ (hai `ch`), để tên không bị cắt.
    */
   const widths = useMemo(
     () =>
       columns.map((kind, column) => {
-        const head = kind === 'ignore' ? (labels[column] ?? '') : t(COLUMN_SHORT_KEYS[kind]);
-        // Tên cột in đậm (12px): chữ hoa đậm như "Đ", "M" rộng hơn một `ch` (chữ "0" 14px thường), nên
-        // chừa thêm một phần năm, cộng hai `ch` cho dấu ˅. Đo ở 390px khi tên còn 13px: thiếu phần năm
-        // ấy thì "Ngày" bị cắt thành "Ng…".
-        let longest = Math.ceil(Math.min(head.length, 12) * 1.2) + 2;
+        const head =
+          kind === 'ignore' || mayTinh ? (labels[column] ?? '') : t(COLUMN_SHORT_KEYS[kind]);
+        // Tên cột in đậm 12px không rộng đúng một `ch` mỗi ký tự — xem `beNgangTenCot`.
+        let longest = beNgangTenCot(head);
         for (const row of grid) {
           const cell = row[column] ?? '';
-          const text = column === dateColumn ? ngayGon(cell) : cell.trim();
+          const text = column === dateColumn ? ngayIn(cell, mayTinh) : cell.trim();
           longest = Math.max(longest, text.length);
         }
         if (!hasInput) longest = Math.max(longest, (hints[column] ?? '').length);
         return Math.min(longest, 16);
       }),
-    [columns, labels, grid, dateColumn, hasInput, hints, t],
+    [columns, labels, grid, dateColumn, hasInput, hints, mayTinh, t],
   );
   const widthSum = widths.reduce((sum, width) => sum + width, 0);
 
@@ -1250,6 +1267,8 @@ export function PasteImportSheet({
                   );
                 }
                 const short = t(COLUMN_SHORT_KEYS[kind]);
+                // Chữ in trên đầu cột: tên ngắn ở điện thoại, tên đầy đủ từ 1024px (xem `COLUMN_SHORT_KEYS`).
+                const hien = mayTinh ? label : short;
                 const chieu = sapXep?.cot === index ? sapXep.chieu : null;
                 return (
                   <th
@@ -1273,12 +1292,12 @@ export function PasteImportSheet({
                           ? label
                           : `${label} (${short})`
                       }
-                      title={label === short ? undefined : label}
+                      title={label === hien ? undefined : label}
                       onClick={() => {
                         bamSapXep(index);
                       }}
                     >
-                      <span className={styles.headText}>{short}</span>
+                      <span className={styles.headText}>{hien}</span>
                       <SortIcon chieu={chieu} />
                     </button>
                   </th>
@@ -1314,6 +1333,7 @@ export function PasteImportSheet({
                   numeric={numeric}
                   cellClasses={cellClasses}
                   dateColumn={dateColumn}
+                  fullDate={mayTinh}
                   closeColumn={closeColumn}
                   closeTrend={trendOf(row)}
                   rowWord={rowWord}

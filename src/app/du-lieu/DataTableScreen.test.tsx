@@ -610,9 +610,47 @@ describe('DataTableScreen — bảng theo khuôn lưới "Bảng dữ liệu"', 
     expect(ngayTrenMan()).toEqual(['05/01', '02/01', '31/12', '30/12']);
   });
 
+  /*
+   * Tên ngắn CHỈ ở điện thoại (21/10/2026): bản vẽ là ảnh chụp điện thoại, và chủ dự án — _"web pc thì
+   * không cần tiết kiệm chữ … ghi rõ lại tiêu đề"_. Từ 1024px đầu cột in tên đầy đủ, cùng chữ lưới popup
+   * (`paste.col.*`) chứ không phải nhãn ô ngắn của màn này ("Mở", "Đóng").
+   */
+  it('từ 1024px đầu cột in tên đầy đủ, như lưới popup', async () => {
+    Object.defineProperty(window, 'matchMedia', {
+      configurable: true,
+      writable: true,
+      value: (query: string) => ({
+        matches: query === '(min-width: 1024px)',
+        media: query,
+        addEventListener: () => undefined,
+        removeEventListener: () => undefined,
+      }),
+    });
+    try {
+      await moBonPhien();
+
+      const dau = bang().getAllByRole('columnheader');
+      expect(dau.slice(1, 7).map((th) => th.textContent)).toEqual([
+        'Ngày',
+        'Giá mở cửa',
+        'Giá cao nhất',
+        'Giá thấp nhất',
+        'Giá đóng cửa',
+        'Khối lượng',
+      ]);
+      expect(bang().getByRole('button', { name: 'Khối lượng (KL)' }).textContent).toBe(
+        'Khối lượng',
+      );
+      // Chủ dự án (21/10/2026): _"web pc thì cần hiển thị đầy đủ … ngày: cần hiện rõ ngày tháng năm"_.
+      expect(cotTrenMan('Ngày')).toEqual(['05/01/2026', '02/01/2026', '31/12/2025', '30/12/2025']);
+    } finally {
+      Reflect.deleteProperty(window, 'matchMedia');
+    }
+  });
+
   it('bấm Đóng: lớn nhất trước, bấm nữa nhỏ nhất trước, lần ba về ngày mới nhất trước', async () => {
     await moBonPhien();
-    const nut = bang().getByRole('button', { name: 'Đóng' });
+    const nut = bang().getByRole('button', { name: 'Giá đóng cửa' });
 
     await userEvent.click(nut);
     expect(cotTrenMan('Đóng')).toEqual(['115', '105', '101', '99']);
@@ -663,7 +701,7 @@ describe('DataTableScreen — bảng theo khuôn lưới "Bảng dữ liệu"', 
     expect(luuTruoc).toEqual(['30/12/2025', '31/12/2025', '02/01/2026', '05/01/2026']);
     expect(soCotDau()).toEqual(['1', '2', '3', '4']);
 
-    await userEvent.click(bang().getByRole('button', { name: 'Đóng' }));
+    await userEvent.click(bang().getByRole('button', { name: 'Giá đóng cửa' }));
 
     expect(soCotDau()).toEqual(['1', '2', '3', '4']);
     expect((screen.getByLabelText('Dòng 1 · Đóng') as HTMLInputElement).value).toBe('115');
@@ -678,7 +716,7 @@ describe('DataTableScreen — bảng theo khuôn lưới "Bảng dữ liệu"', 
     expect(screen.getByRole('button', { name: /Tới dòng 3/ })).not.toBeNull();
 
     // Xếp theo Đóng giảm dần: 99 là giá nhỏ nhất, phiên hỏng xuống dòng 4.
-    await userEvent.click(bang().getByRole('button', { name: 'Đóng' }));
+    await userEvent.click(bang().getByRole('button', { name: 'Giá đóng cửa' }));
 
     expect(screen.getByRole('button', { name: /Tới dòng 4/ })).not.toBeNull();
     expect(screen.queryByRole('button', { name: /Tới dòng 3/ })).toBeNull();
@@ -687,7 +725,7 @@ describe('DataTableScreen — bảng theo khuôn lưới "Bảng dữ liệu"', 
 
   it('sửa ô của cột đang xếp thì dòng đứng yên, rời dòng thì mới xếp lại', async () => {
     await moBonPhien();
-    await userEvent.click(bang().getByRole('button', { name: 'Đóng' }));
+    await userEvent.click(bang().getByRole('button', { name: 'Giá đóng cửa' }));
 
     const o = screen.getByLabelText('Dòng 1 · Đóng');
     fireEvent.change(o, { target: { value: '50' } });
@@ -701,7 +739,7 @@ describe('DataTableScreen — bảng theo khuôn lưới "Bảng dữ liệu"', 
 
   it('"Thêm dòng" khi đang xếp theo cột khác vẫn đặt dòng trống trên cùng', async () => {
     await moBonPhien();
-    await userEvent.click(bang().getByRole('button', { name: 'Đóng' }));
+    await userEvent.click(bang().getByRole('button', { name: 'Giá đóng cửa' }));
 
     fireEvent.click(screen.getByRole('button', { name: /Thêm dòng/ }));
 
@@ -712,7 +750,7 @@ describe('DataTableScreen — bảng theo khuôn lưới "Bảng dữ liệu"', 
 
   it('bỏ một dòng khi đang xếp thì các dòng còn lại giữ chỗ', async () => {
     await moBonPhien();
-    await userEvent.click(bang().getByRole('button', { name: 'Đóng' }));
+    await userEvent.click(bang().getByRole('button', { name: 'Giá đóng cửa' }));
 
     await userEvent.click(screen.getByRole('button', { name: 'Xoá dòng 2' }));
 

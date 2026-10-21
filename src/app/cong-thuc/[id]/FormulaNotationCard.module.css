@@ -291,6 +291,44 @@
 }
 
 /*
+ * ── Từ 1024px: khung rộng theo hình rộng nhất của nó, không cuộn ngang (21/10/2026) ─────────────
+ *
+ * Chủ dự án mở khung của `ΔNWC` trên `fcff` ở màn máy tính: hình `NWC = (TSNH − Tiền mặt) − (Nợ ngắn
+ * hạn − Vay ngắn hạn)` bị cắt và hiện thanh cuộn — _"sửa lại sao cho hiển thị đầy đủ để không phải
+ * hiển thị thanh scroll, chỉ áp dụng cho màn hình lớn máy tính"_. Quét cả 112 khung của 111 trang ở
+ * 1440 (chế độ Nâng cao): đúng khung ấy cuộn, hình cần 366px mà khung 22rem chỉ chừa 326px.
+ *
+ * Nên khung co giãn theo HÌNH: `max-content`, sàn vẫn 22rem (khung nào đang vừa thì giữ nguyên bề
+ * ngang), trần là bề ngang màn trừ hai lề 8px — `place-panel.ts` đo bề ngang thật ở lượt dựng đầu,
+ * nên khung rộng hơn vẫn được kẹp trong màn. CHỮ thì không được kéo khung: dòng tiêu đề, dòng chữ
+ * của bước và link "Xem công thức: …" mang `contain: inline-size`, tức bề ngang nội tại coi như rỗng,
+ * nên chúng chỉ xuống dòng trong bề ngang mà hình đã đặt — không có thì một câu nghĩa dài cũng đẩy
+ * khung ra thành một dòng chạy ngang màn (đo: link "Mô hình Gordon (DDM một giai đoạn)" kéo khung `V`
+ * của `bien-an-toan` từ 352 lên 374px dù hình vừa). Link chuyển `inline-block` → `block` ở khổ này:
+ * khối cùng dòng mà bị chặn bề ngang nội tại thì co về 0 và vỡ từng chữ. Khung chỉ có tiêu đề
+ * (`data-title-only`) giữ luật riêng của nó ở trên.
+ *
+ * Dưới 1024px không đổi: khung đã gần kín bề ngang màn, không còn chỗ để rộng thêm.
+ */
+@media (min-width: 1024px) {
+  .panel:not([data-title-only]) {
+    width: max-content;
+    min-width: min(22rem, calc(100vw - 16px));
+    max-width: calc(100vw - 16px);
+  }
+
+  .panel:not([data-title-only]) .panelTitle,
+  .panel:not([data-title-only]) .stepText,
+  .panel:not([data-title-only]) .panelLink {
+    contain: inline-size;
+  }
+
+  .panel:not([data-title-only]) .panelLink {
+    display: block;
+  }
+}
+
+/*
  * ── Dưới 1024px: chữ của khung nổi 14 → 12px (19/10/2026) ─────────────────────────────────────
  *
  * Chủ dự án mở khung của `V` trên `bien-an-toan` ở điện thoại, khoanh dòng tiêu đề, dòng chữ của

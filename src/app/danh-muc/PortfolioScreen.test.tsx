@@ -1218,13 +1218,13 @@ describe('WF-06 — mã đang giữ thì không thêm lại được', () => {
     const sheet = await moSheetChonMa();
 
     const dongFpt = dongTrongSheet(sheet, 'FPT');
-    expect(dongFpt.textContent).toContain('đã có');
-    expect(dongTrongSheet(sheet, 'HPG').textContent).not.toContain('đã có');
+    expect(dongFpt.textContent).toContain('Đã có');
+    expect(dongTrongSheet(sheet, 'HPG').textContent).not.toContain('Đã có');
 
     const nut = within(dongFpt).getByRole('button');
     const idLyDo = nut.getAttribute('aria-describedby');
     expect(idLyDo).not.toBeNull();
-    expect(dongFpt.querySelector(`#${idLyDo ?? ''}`)?.textContent).toBe('đã có');
+    expect(dongFpt.querySelector(`#${idLyDo ?? ''}`)?.textContent).toBe('Đã có');
   });
 
   /*

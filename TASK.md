@@ -4,6 +4,101 @@ Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 
 ---
 
+## Thẻ "Bài tập" trên máy tính: đệm 20px → 12 / 16px (21/10/2026)
+
+**Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án xem.**
+
+Chủ dự án khoanh thẻ nghỉ "BÀI TẬP … Bắt đầu kiểm tra »" trên màn web: _"giảm padding của phần này xuống. hiện
+đang là web pc"_.
+
+- `src/ui/quiz/QuizBody.module.css`: trong khối `@media (min-width: 1024px)` sẵn có, `.block` đệm
+  `var(--space-3) var(--space-4)` thay cho `var(--space-5)` của luật gốc. 16px hai bên là đệm của các thẻ khác ở khổ
+  này. Nút "Bắt đầu kiểm tra" giữ 36px.
+- `src/ui/quiz/quiz-desktop-css.test.ts`: thêm ca đệm thẻ; ca thứ tự khối nay gác cả `.block`.
+- `CLAUDE.md`: câu "78px measured" ở mục hàng tiêu đề của Bài tập ghi thêm số mới.
+
+Đo trên Chrome: 1024 và 1440 thẻ nghỉ 78 → 62px; 390 vẫn 46px (khối điện thoại không đổi).
+
+**Chưa làm:** build + `check:chrome`.
+
+---
+
+## Thẻ gộp ở web: nút "?" của khối Số liệu sát góc trên-phải (21/10/2026)
+
+**Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án xem trên màn rộng.**
+
+Chủ dự án khoanh nút "?" trên thẻ gộp của `so-graham` (ảnh màn rộng), mũi tên chỉ lên góc: _"cần giảm padding
+tiếp rồi đưa icon hướng dẫn sử dụng này lên góc phải xát hơn với góc"_. Đo trước: nút cách mép trên và mép phải
+21px, hàng ô bắt đầu ở 53px.
+
+- `src/app/cong-thuc/[id]/FormulaDetail.module.css` (khối từ 1280px): `.merged` đệm trên `--space-2`, ba cạnh kia
+  giữ `--space-5`; luật mới `.merged .hintSoLieu` lấn sang đệm phải (`margin-right: calc(--space-2 − --space-5)`).
+- `src/app/cong-thuc/[id]/merged-card-css.test.ts`: ca mới ghim hai khai báo.
+- `CLAUDE.md`: đoạn sau mục căn giữa cụm "tên + con số" của thẻ gộp.
+
+Đo trên Chrome ở 1280 và 1440, Cơ bản lẫn Nâng cao (`so-graham`, `pe`, `capm`, `lai-kep` có dòng "1 biến nâng cao
+đang ẩn", `gia-von-trung-binh-dca`, `phi-giao-dich-mua`): nút cách góc 9px cả hai cạnh, không chạm ô nhập; hàng ô
+bắt đầu ở 41px; mọi thẻ thấp đi 12px (`so-graham` 210 → 198px); độ lệch tâm cụm kết quả so với hàng ô không đổi.
+Dưới 1280px không đụng.
+
+**Chưa làm:** build + `check:chrome`.
+
+---
+
+## Hai bảng giá ở máy tính: ô Ngày in đủ ngày/tháng/năm (21/10/2026)
+
+**Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án xem trên màn rộng.**
+
+Chủ dự án: _"bây giờ dữ liệu xuất hiện ở trong bảng ở web pc thì cần hiển thị đầy đủ, ví dụ như ngày: cần hiện rõ
+ngày tháng năm"_. Tiếp theo mục "tên cột gọn CHỈ ở điện thoại" bên dưới: ô ngày gọn dd/mm cũng là chuyện của điện
+thoại.
+
+- `src/ui/sheets/PasteImportSheet.tsx`: `ngayGon` → `ngayIn(text, duNam)`; từ 1024px (`useKhoMayTinh`) ô ngày lúc
+  không sửa in dd/mm/yyyy (ô ISO in cùng lối, ô thiếu năm in như đã gõ). `GridRow` nhận `fullDate`; bề ngang cột
+  ngày tính theo chữ đang in.
+- `src/app/du-lieu/DataTableScreen.tsx`: như trên cho bảng số liệu (`SeriesRowFields` nhận `fullDate`).
+- `src/ui/sheets/ExportSheet.test.tsx`: ca mới (từ 1024px in đủ năm, ISO in dd/mm/yyyy, ô thiếu năm giữ nguyên).
+- `src/app/du-lieu/DataTableScreen.test.tsx`: ca 1024px kiểm thêm cột Ngày.
+- `CLAUDE.md`: cập nhật ba chỗ tả ô ngày gọn.
+
+Đo trên Chrome (250 phiên): 1440 và 1280 cả hai bảng in "15/09/2026", không cắt, không cuộn ngang; 1024 popup vừa,
+`/du-lieu/` vẫn cuộn trong khung như trước (bảng 696px, trước 673px, khung 543px); 390 giữ "15/09". Trang không tràn.
+
+**Còn để ngỏ (chưa làm, chờ chủ dự án):** dòng "Năm 2026 / Từ năm 2025 tới 2026" trên bảng vẫn hiện ở PC dù ô đã
+đủ năm; ô số ở `/du-lieu/` in "16810" không dấu chấm, trong khi popup in "16.810".
+
+---
+
+## Thẻ gộp ở web: ô trượt đưa con số lên cuối hàng nhãn, mọi ô thấp còn 71px (21/10/2026)
+
+**Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án xem trên màn rộng.**
+
+Chủ dự án khoanh hai ô số và ô trượt "Số kỳ nhận tiền (n)" của `irr-nien-kim`, vẽ mũi tên từ cuối hàng nhãn sang
+phải: _"ở bản web màn rộng thì các vùng khoanh đỏ đang thừa quá nhiều không gian, height đang quá cao … chuyển số
+liệu + kỳ sang bên phải như tôi chỉ rồi sau đó có thể giảm height rồi. đối chiếu với những phần tương tự để thay
+đổi"_. Đo ở 1440 trước khi sửa: ô trượt 104px (nhãn · con số trải hết hàng · rãnh xếp dọc); lưới kéo cả hàng bằng ô
+cao nhất nên hai ô số cũng 104px, nhãn giãn 35px, ô gõ 44px.
+
+- `src/ui/inputs/SliderInput.module.css` (khối từ 1280px): bỏ `.compact .head` xếp dọc, giữ hàng gốc (con số + đơn
+  vị dạt phải), canh đỉnh; ô con số bỏ đệm, dòng chặt; khe 2px; rãnh 16px bám đáy ô; nhãn gốc co giãn 6rem (hẹp hơn
+  thì con số xuống hàng, vẫn dạt phải).
+- `src/ui/inputs/SliderInput.tsx`: thôi truyền `compact` cho `InlineNumber`.
+- `src/ui/inputs/InlineNumber.tsx`, `InlineNumber.module.css`: bỏ prop `compact` và khối 1280px (chỉ phục vụ dáng
+  xếp dọc cũ), để bia mộ.
+- `src/app/cong-thuc/[id]/FormulaDetail.module.css`: `.fields.tileGrid > .field` thêm `align-content: start` — hàng
+  nào còn bị kéo giãn thì phần dư nằm dưới đáy ô số, không chen giữa nhãn và con số.
+- `src/ui/inputs/slider-head-css.test.ts`: hai ca đảo chiều, một ca mới.
+- `CLAUDE.md`: thêm đoạn sau mục "The merged card's figures were shrunk twice".
+
+Quét mọi thẻ gộp ở 1280 và 1440 (chế độ Nâng cao): ô số 71px, ô trượt 71px (80px khi nhãn hai dòng: `capm`,
+`ddm-hai-giai-doan`, `gia-ly-thuyet-vn30f`, thêm `gia-tri-tuong-lai`, `gui-quay-vong`, `loi-suat-quy-nam-theo-ngay` ở
+1280; 93px ở `tra-gop-*` vì con số tiền vay xuống hàng), ô chọn 68px; nhãn mọi ô trong một hàng cùng độ cao; rãnh
+trong một hàng thẳng nhau. Dưới 1280px không đổi.
+
+**Chưa làm:** build + `check:chrome`.
+
+---
+
 ## Tấm chọn mã trên điện thoại: nhãn "chưa có dữ liệu" xuống dưới tên (21/10/2026)
 
 **Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án xem trên điện thoại.**
@@ -30,6 +125,21 @@ chỉ cần đoạn text vàng in nghiêng là được, rồi cho dịch sang t
 và đệm, chữ nghiêng, bắt đầu thẳng mép trái với mã (`grid-column: 1 / -1`). Nhãn "đã có" cùng khuôn nên đổi theo
 (chữ xám nghiêng). Đo ở 360/390: nhãn bắt đầu đúng x của mã, dòng ETF 51px, không tràn ngang. Từ 1024px hai nhãn
 vẫn là ô viền cạnh tên.
+
+Lượt ba (_"chữ 'Chưa' cần viết hoa chữ cái đầu chứ"_): `vi.ts` "Chưa có dữ liệu", "Có thể chưa có dữ liệu", "Đã có";
+`en.ts` "No fundamentals", "May lack fundamentals", "Already held". Test dò theo chữ ở `TickerPickerSheet.test.tsx` và
+`PortfolioScreen.test.tsx` đổi theo.
+
+Lượt bốn (chủ dự án khoanh mũi tên ‹ ở đầu tấm chọn mã, vẽ đường sang mép phải: _"chuyển icon back này thành icon
+close và chuyển sang bên phải như tôi chỉ"_): mọi lối vào giờ dùng dấu × ở mép phải.
+
+- `src/app/cong-thuc/[id]/FormulaDetail.tsx`: bỏ `dismiss={pickerShowsBack ? 'back' : 'close'}` và state
+  `pickerShowsBack`. **Hành vi giữ nguyên**: vào từ tấm Nạp mẫu thì bấm × vẫn lùi về tấm Nạp mẫu
+  (`closeTickerPicker()`), vì "thoát thẳng ra màn, mất tấm mẫu" là lỗi chủ dự án từng báo.
+- `src/ui/sheets/TickerPickerSheet.tsx`: bỏ prop `dismiss` (không còn nơi gọi), để lại bia mộ.
+- `FormulaDetail.test.tsx`: ca "thoát sheet chọn mã (vào từ sheet mẫu) thì LÙI về sheet Nạp mẫu" bấm "Đóng" thay
+  "Quay lại", và khẳng định không còn nút "Quay lại".
+- Ghi chú ‹ trong `TickerPickerSheet.module.css`, `preset-sheet-css.test.ts`, `CLAUDE.md` đổi thành "nút đóng".
 
 **Chưa làm:** build + `check:chrome`.
 
@@ -214,6 +324,79 @@ hàng với BÀI TẬP". Giữa lúc làm thì nhắn thêm: _"bản web cũng n
 - **Test:** `QuizBody.test.tsx` thêm ca "nhãn kết quả và điểm nằm cùng hàng với nhãn khối, sau nhãn khối".
   `src/ui/quiz`, `tail-mobile-css`, tokens, hover-media xanh (426 ca); eslint, prettier sạch.
 - CLAUDE.md: thêm một câu vào đoạn "The header row carries everything that is not a question".
+
+---
+
+## Hai bảng giá khuôn "Bảng dữ liệu": tên cột gọn CHỈ ở điện thoại, máy tính in tên đầy đủ (21/10/2026)
+
+**Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án xem.**
+
+Chủ dự án chụp popup "Bảng dữ liệu" trên PC, khoanh hàng tên cột "Ngày · Mở · Cao · Thấp · Đóng · KL": _"bảng và tiêu
+đề có thiết kế mới này chỉ ÁP DỤNG CHO MOBILE … tại sao bạn lại áp dụng thiết kế cho web mobile cho web pc?"_. Hỏi lại
+phạm vi, chủ dự án chốt: _"giao diện thì giữ yên cho tôi, còn text thì thay đổi cho đúng nội dung … web pc thì không cần
+tiết kiệm chữ"_, và bảng `/du-lieu/` cũng vậy (_"form chung cho mấy bảng"_).
+
+- **Lỗi của đợt 20/10:** năm ảnh của yêu cầu đều chụp điện thoại, lời giao không nói khổ, mà bản vẽ được áp mọi khổ (báo
+  cáo có ghi "ở cả điện thoại lẫn PC" — ghi ra không thay được việc hỏi).
+- **Sửa:**
+  - `src/ui/layout/use-kho-may-tinh.ts` (mới): `useKhoMayTinh()` — `matchMedia('(min-width: 1024px)')` đọc trong
+    `useLayoutEffect`, có nghe đổi khổ; `false` ở lượt đầu và trong jsdom.
+  - `src/ui/sheets/ten-cot.ts` (mới, xuất qua barrel): `beNgangTenCot()` — bề ngang đầu cột theo `ch`, ×1,2 cho tên ≤ 4
+    ký tự, ×0,9 cho tên dài (đo 0,77–0,85 trên Chrome). Hai bảng dùng chung thay cho công thức chép hai nơi.
+  - `PasteImportSheet.tsx`: đầu cột in `paste.col.*` từ 1024px, `paste.short.*` dưới đó; bề ngang cột theo chữ đang in;
+    `title` chỉ khi chữ in khác tên đầy đủ.
+  - `DataTableScreen.tsx`: thêm khoá `full` (`paste.col.*`) vào `COLUMNS` — nhãn ô `series.col*` của màn này vốn ngắn
+    ("Mở"); đầu cột theo khổ như popup; tên đọc được của nút sắp xếp đổi sang tên đầy đủ ("Giá đóng cửa", như popup).
+  - Giao diện còn lại không đổi ở khổ nào.
+- **Đo** (Chrome, 250 phiên ~16.000, KL triệu): 1440 / 1280 / 1024 — hai bảng in "Ngày · Giá mở cửa · Giá cao nhất · Giá
+  thấp nhất · Giá đóng cửa · Khối lượng", không tên nào bị cắt; popup không cuộn ngang; `/du-lieu/` không cuộn từ 1280,
+  ở 1024 bảng 673px cuộn trong khung 543px (cột "Kiểm tra dữ liệu" đứng cạnh). 390: tên gọn, bề ngang cột y như trước.
+  Trang không tràn ở khổ nào.
+- **Test:** `DataTableScreen.test.tsx` (tên nút "Đóng" → "Giá đóng cửa"; ca mới khổ máy tính), `ExportSheet.test.tsx`
+  (ca mới khổ máy tính của lưới popup). Toàn bộ vitest 182 file / 4.492 ca xanh; tsc, eslint, prettier sạch.
+
+---
+
+## Bài tập trên máy tính: dòng kết luận và hộp "Vì sao chưa đúng" bớt đệm (21/10/2026)
+
+**Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án xem.**
+
+Chủ dự án chụp dòng "Sai · Kết quả: 100.000 ₫ · Thứ tự đúng: 200.000.000 · 0,1 · 6" và hộp "Vì sao chưa đúng" của câu điền
+số `rut-truoc-han` ở màn máy tính: _"ở màn web dành cho màn hình lớn thì những phần như ảnh sau đang dư thừa quá nhiều
+padding"_.
+
+- **Đo trước** (Chrome, làm sai câu điền số thật, 1024 / 1280 / 1440 như nhau): dòng kết luận lề `<p>` 16px → cách khung
+  công thức 28px và cách hộp 28px; hộp đệm 12 / 16px, cao 271px.
+- **Sửa:** `QuizBody.module.css`, khối `@media (min-width: 1024px)` cuối file — `p.markRight, p.markWrong { margin: 0 }`,
+  `.explain { padding: 8px 12px }`, đúng hai số khối điện thoại đã dùng từ 19/10. Chỉ đệm; cỡ chữ máy tính giữ nguyên
+  (16px / 13px). Khối điện thoại không đụng.
+- **Đo sau:** khoảng trên dưới dòng kết luận 28 → 12px, hộp 8 / 12px, cao 263px — cả vùng ngắn 40px. 390 không đổi.
+- **Test:** `src/ui/quiz/quiz-desktop-css.test.ts` (mới, 3 ca); test Bài tập và `tail-mobile-css`, `loi-giai-css` xanh.
+  Toàn bộ vitest: 2 ca đỏ ở `src/ui/inputs/slider-head-css.test.ts`, do thay đổi CHƯA commit ở `SliderInput.*` /
+  `InlineNumber.*` của phiên khác — không thuộc đợt này.
+- **Không đổi:** khoảng 8px giữa các dòng của lời giải (`LoiGiai`, dùng chung với khối Ví dụ thực tế).
+
+---
+
+## Khung "cách tính" trên máy tính: rộng theo hình, không thanh cuộn ngang (21/10/2026)
+
+**Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án xem.**
+
+Chủ dự án mở khung `ΔNWC` của `fcff` trên màn máy tính: hình `NWC = (TSNH − Tiền mặt) − (Nợ ngắn hạn − Vay ngắn hạn)`
+bị cắt, hiện thanh cuộn — _"sửa lại sao cho hiển thị đầy đủ để không phải hiển thị thanh scroll, chỉ áp dụng cho màn
+hình lớn máy tính"_.
+
+- **Đo trước:** quét cả 112 khung của 111 trang ở 1440 (chế độ Nâng cao): đúng một khung cuộn — hình cần 366px, khung
+  22rem chỉ chừa 326px.
+- **Sửa:** `FormulaNotationCard.module.css`, khối `@media (min-width: 1024px)` mới — khung (trừ khung chỉ có tiêu đề)
+  `width: max-content`, sàn 22rem, trần `100vw − 16px`; dòng tiêu đề, dòng chữ của bước và link "Xem công thức" mang
+  `contain: inline-size` để chữ không kéo khung (link thành `display: block` ở khổ này). `place-panel.ts` đã đo bề
+  ngang thật nên khung rộng hơn vẫn kẹp trong màn.
+- **Đo sau:** 112 khung ở 1024 và 1440 — không khung nào cuộn; chỉ `fcff` ΔNWC rộng ra 352 → 392px, 111 khung còn lại
+  giữ 352px (lượt đầu chưa chặn link thì khung `V` của `bien-an-toan` rộng ra 374px chỉ vì dòng link). 390: không đổi
+  (khung 352px, hình `fcff` vẫn cuộn như cũ — ngoài phạm vi yêu cầu).
+- **Test:** `notation-card-css.test.ts` thêm 3 ca. Toàn bộ vitest 181 file / 4.486 ca xanh; eslint, prettier sạch.
+- Khung của hình trong lời giải Bài tập và Ví dụ dùng chung lớp nên cũng theo luật này ở máy tính.
 
 ---
 

@@ -911,6 +911,86 @@ describe('PasteImportSheet — WF-11', () => {
     expect(screen.getByRole('button', { name: 'Giá mở cửa' }).textContent).toBe('Mở');
   });
 
+  /*
+   * Tên ngắn CHỈ ở điện thoại (21/10/2026): bản vẽ là ảnh chụp điện thoại, và chủ dự án — _"web pc thì
+   * không cần tiết kiệm chữ … ghi rõ lại tiêu đề 'Mở' 'Cao' 'Thấp',... là mở cái gì"_. Từ 1024px đầu cột
+   * in tên đầy đủ; tên đọc được của nút không đổi, nên mọi ca tìm nút theo tên vẫn đúng ở cả hai khổ.
+   */
+  it('từ 1024px đầu cột in tên đầy đủ, tên đọc được của nút không đổi', () => {
+    Object.defineProperty(window, 'matchMedia', {
+      configurable: true,
+      writable: true,
+      value: (query: string) => ({
+        matches: query === '(min-width: 1024px)',
+        media: query,
+        addEventListener: () => undefined,
+        removeEventListener: () => undefined,
+      }),
+    });
+    try {
+      render(<PasteImportSheet open onClose={vi.fn()} onImport={vi.fn()} />);
+
+      const dau = screen.getAllByRole('columnheader').map((th) => th.textContent);
+      expect(dau).toEqual([
+        'Dòng',
+        'Ngày',
+        'Giá mở cửa',
+        'Giá cao nhất',
+        'Giá thấp nhất',
+        'Giá đóng cửa',
+        'Khối lượng',
+      ]);
+      expect(screen.getByRole('button', { name: 'Khối lượng (KL)' }).textContent).toBe(
+        'Khối lượng',
+      );
+      // Chữ trên màn đã là tên đầy đủ, nên không còn chú thích nổi lặp lại nó.
+      expect(screen.getByRole('button', { name: 'Giá mở cửa' }).getAttribute('title')).toBeNull();
+    } finally {
+      Reflect.deleteProperty(window, 'matchMedia');
+    }
+  });
+
+  /*
+   * Ô ngày cũng in đủ từ 1024px (21/10/2026) — chủ dự án: _"dữ liệu xuất hiện ở trong bảng ở web pc thì
+   * cần hiển thị đầy đủ, ví dụ như ngày: cần hiện rõ ngày tháng năm"_. Ngày dán kiểu ISO in cùng lối
+   * dd/mm/yyyy; ô chưa đủ năm in đúng như đã gõ.
+   */
+  it('từ 1024px ô ngày in đủ ngày/tháng/năm, kể cả ngày ghi kiểu ISO', async () => {
+    Object.defineProperty(window, 'matchMedia', {
+      configurable: true,
+      writable: true,
+      value: (query: string) => ({
+        matches: query === '(min-width: 1024px)',
+        media: query,
+        addEventListener: () => undefined,
+        removeEventListener: () => undefined,
+      }),
+    });
+    try {
+      const rows = [
+        ...BA_PHIEN,
+        { date: '2026-07-18', open: 25900, high: 26100, low: 25800, close: 26000, volume: 900000 },
+      ];
+      render(<PasteImportSheet open onClose={vi.fn()} onImport={vi.fn()} initialRows={rows} />);
+
+      expect(cotTrenMan('Ngày')).toEqual([
+        '18/07/2026',
+        '17/07/2026',
+        '16/07/2026',
+        '15/07/2026',
+        '',
+      ]);
+      const o = screen.getByLabelText('Ngày, Dòng 4') as HTMLInputElement;
+      await userEvent.click(o);
+      await userEvent.clear(o);
+      await userEvent.type(o, '19/07');
+      await userEvent.tab();
+      expect(o.value).toBe('19/07');
+    } finally {
+      Reflect.deleteProperty(window, 'matchMedia');
+    }
+  });
+
   it('bấm tên cột: giảm dần, rồi tăng dần, rồi về mặc định — phiên mới nhất lên đầu', async () => {
     render(<PasteImportSheet open onClose={vi.fn()} onImport={vi.fn()} initialRows={BA_PHIEN} />);
     // aria-sort nằm trên ô tiêu đề, ô ấy lấy tên theo chữ đang in nên tìm qua nút của nó.

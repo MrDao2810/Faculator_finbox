@@ -69,12 +69,12 @@ export interface TickerPickerSheetProps {
    * ở đó chọn mã là để NẠP SỐ LIỆU, không liên quan gì tới danh mục.
    */
   heldCodes?: ReadonlySet<string>;
-  /**
-   * `'back'` khi sheet này mở đè lên một sheet khác và đóng nó là QUAY LẠI sheet đó — màn chi
-   * tiết công thức dùng khi người dùng vào đây từ lối rẽ trong `PresetSheet`. Mặc định `'close'`
-   * cho lối vào bình thường (nút "Đổi mã", tab Danh mục), nơi đóng là thoát hẳn ra màn.
+  /*
+   * Prop `dismiss` (`'back'` dựng mũi tên ‹ bên trái) đã bỏ 21/10/2026. Lối vào duy nhất dùng nó là
+   * lối rẽ từ tấm Nạp mẫu, và chủ dự án khoanh mũi tên ấy: _"chuyển icon back này thành icon close
+   * và chuyển sang bên phải"_. Nút thoát nay luôn là dấu × của primitive; bấm nó từ lối rẽ ấy vẫn
+   * lùi về tấm Nạp mẫu — việc đó là của `closeTickerPicker()` ở màn chi tiết, không của tấm này.
    */
-  dismiss?: 'close' | 'back';
   /**
    * Chỗ tấm đứng trên màn — xem `BottomSheetProps.placement`.
    *
@@ -93,7 +93,7 @@ export interface TickerPickerSheetProps {
    *
    * Màn chi tiết công thức truyền (21/10/2026, chủ dự án khoanh đầu tấm: _"cần giảm padding của phần
    * khoanh đỏ màn mới. áp dụng cho bản mobile"_): ở đó tấm này và tấm Nạp mẫu thay chỗ nhau qua lối rẽ
-   * và nút ‹, nên đầu tấm phải y hệt nhau. Màn Danh mục KHÔNG truyền: ở đó tấm mở đè lên hộp thoại
+   * và nút đóng, nên đầu tấm phải y hệt nhau. Màn Danh mục KHÔNG truyền: ở đó tấm mở đè lên hộp thoại
    * Thêm/Sửa mã, và các hộp thoại của màn ấy cùng một cỡ đầu (luật điện thoại của `.panelCenter`).
    */
   compact?: boolean;
@@ -124,7 +124,6 @@ export function TickerPickerSheet({
   onClose,
   onPick,
   heldCodes,
-  dismiss = 'close',
   placement = 'bottom',
   compact = false,
   markUnusableAsOf,
@@ -336,7 +335,6 @@ export function TickerPickerSheet({
        * cấp mà người dùng không có việc gì phải biết để chọn được mã. Cùng lượt dọn với câu gợi ý
        * của ô chọn công thức ở màn Danh mục, và cùng một lý do: chữ nói lại điều màn đã nói.
        */
-      dismiss={dismiss}
       placement={placement}
       // Đầu và thân gọn dưới 1024px — xem prop `compact` và khối cuối `TickerPickerSheet.module.css`.
       className={compact ? styles.compact : undefined}

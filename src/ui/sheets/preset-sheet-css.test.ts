@@ -97,7 +97,7 @@ describe('dưới 1024px: hộp thoại nổi giữa, gọn lại', () => {
   });
 
   /*
-   * Tấm chọn mã của màn chi tiết thay chỗ tấm này qua lối rẽ "Danh sách … mã khác →" và nút ‹, nên đầu
+   * Tấm chọn mã của màn chi tiết thay chỗ tấm này qua lối rẽ "Danh sách … mã khác →" và nút đóng, nên đầu
    * và thân hai tấm phải y hệt nhau (21/10/2026, chủ dự án: _"chuyển sang màn mới là màn chọn mã thì cũng
    * là dialog giữa. và cần giảm padding của phần khoanh đỏ màn mới"_). So từng luật, không chép số.
    */

@@ -445,9 +445,9 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'ticker.searchLabel': 'Search by code or company name',
   'ticker.searchPlaceholder': 'FPT, Hoa Phat…',
   'ticker.pick': 'Pick',
-  'ticker.held': 'already held',
-  'ticker.noData': 'no fundamentals',
-  'ticker.noDataStale': 'may lack fundamentals',
+  'ticker.held': 'Already held',
+  'ticker.noData': 'No fundamentals',
+  'ticker.noDataStale': 'May lack fundamentals',
   /* `ticker.pickHeld` ('Add more') đã xoá cùng bản Việt (10/10/2026) — xem bia mộ ở `vi.ts`. */
   'ticker.loading': 'Loading the ticker list…',
   'ticker.noMatch': 'No ticker matches. Try a shorter code, e.g. “fpt”.',

@@ -19,6 +19,7 @@ export type { FormulaForTickerSheetProps } from './FormulaForTickerSheet';
 
 export { PasteImportSheet } from './PasteImportSheet';
 export type { PasteImportSheetProps } from './PasteImportSheet';
+export { beNgangTenCot } from './ten-cot';
 
 export { ExportSheet } from './ExportSheet';
 export type { ExportSheetProps } from './ExportSheet';

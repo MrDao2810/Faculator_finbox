@@ -1402,7 +1402,7 @@ export const vi = {
    * Vẫn chỉ hai chữ: dòng đã có mã, tên doanh nghiệp và nút chọn, ở khổ 360px. "đã có" đứng cạnh
    * một nút xám trong sheet mở ra từ form THÊM MÃ thì không còn chỗ nào mà hiểu lệch.
    */
-  'ticker.held': 'đã có',
+  'ticker.held': 'Đã có',
   /*
    * Nhãn cạnh mã chưa có báo cáo dùng được. Ngắn hết mức: nó đứng trong một dòng đã có mã, tên
    * doanh nghiệp và nút chọn, ở khổ 360px.
@@ -1412,9 +1412,13 @@ export const vi = {
    * dùng được thì người dùng bỏ qua nó, và đó là cái giá đắt hơn hẳn một cú bấm thừa.
    *
    * "dữ liệu" chứ không "số liệu" từ 29/09/2026, cùng lượt với `detail.tickerFailed`.
+   *
+   * Viết hoa chữ đầu từ 21/10/2026 (chủ dự án: _"chữ 'Chưa' cần viết hoa chữ cái đầu chứ"_): dưới
+   * 1024px nhãn nay đứng một dòng riêng dưới tên doanh nghiệp. `ticker.held` ("Đã có") cùng khuôn nên
+   * viết hoa theo, và bản tiếng Anh của cả ba cũng vậy.
    */
-  'ticker.noData': 'chưa có dữ liệu',
-  'ticker.noDataStale': 'có thể chưa có dữ liệu',
+  'ticker.noData': 'Chưa có dữ liệu',
+  'ticker.noDataStale': 'Có thể chưa có dữ liệu',
   /*
    * ⚠ `ticker.pickHeld` ("Cộng thêm") đã XOÁ 10/10/2026 — nhãn nút của mã đang giữ.
    *

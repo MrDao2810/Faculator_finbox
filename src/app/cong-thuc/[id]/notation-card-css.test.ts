@@ -52,3 +52,37 @@ describe('thẻ Công thức dưới 1024px — nút "Chú thích" không để 
     expect(goc).toBeLessThan(dienThoai);
   });
 });
+
+/*
+ * Khung "cách tính" từ 1024px rộng theo hình của nó, không cuộn ngang (21/10/2026). Chủ dự án mở khung
+ * `ΔNWC` của `fcff` trên máy tính và thấy thanh cuộn dưới hình. Quét 112 khung ở 1024 và 1440: chỉ khung
+ * ấy rộng ra (352 → 392px), 111 khung còn lại giữ 352px; ở 390 không đổi gì.
+ */
+describe('khung "cách tính" từ 1024px — hình hiện đủ, không thanh cuộn', () => {
+  const pc = /@media \(min-width: 1024px\)\s*\{([\s\S]*?)\n\}/g;
+  const khoiPc = [...CSS.matchAll(pc)].map((m) => m[1] ?? '').join('\n');
+
+  it('khung co giãn theo nội dung, sàn 22rem, trần là bề ngang màn', () => {
+    const khung = /\.panel:not\(\[data-title-only\]\)\s*\{([^}]*)\}/.exec(khoiPc)?.[1] ?? '';
+    expect(khung).toMatch(/(^|\s)width:\s*max-content;/);
+    expect(khung).toMatch(/min-width:\s*min\(22rem, calc\(100vw - 16px\)\);/);
+    expect(khung).toMatch(/max-width:\s*calc\(100vw - 16px\);/);
+  });
+
+  it('chữ không kéo khung rộng ra: tiêu đề, dòng chữ của bước và link mang `contain: inline-size`', () => {
+    for (const lop of ['.panelTitle', '.stepText', '.panelLink']) {
+      expect(khoiPc).toContain(`.panel:not([data-title-only]) ${lop}`);
+    }
+    expect(khoiPc).toMatch(/contain:\s*inline-size;/);
+    // Khối cùng dòng mà bị chặn bề ngang nội tại thì co về 0 — link phải là khối.
+    expect(khoiPc).toMatch(
+      /\.panel:not\(\[data-title-only\]\) \.panelLink\s*\{\s*display:\s*block;/,
+    );
+  });
+
+  it('bề ngang gốc 22rem vẫn nằm ngoài khối PC — điện thoại không đổi', () => {
+    const goc = /\n\.panel\s*\{([^}]*)\}/.exec(CSS)?.[1] ?? '';
+    expect(goc).toMatch(/width:\s*min\(22rem, calc\(100vw - 16px\)\);/);
+    expect(khoiDienThoai(CSS)).not.toContain('max-content');
+  });
+});

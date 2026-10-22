@@ -209,6 +209,18 @@ for (const [palette, tokens] of PALETTES) {
     });
 
     /*
+     * Thân nến tăng và nến giảm là mảng đồ hoạ nên chỉ cần 3:1 so với nền thẻ (WCAG 1.4.11), không phải
+     * 4,5:1 của chữ. Từ 22/10/2026 hai màu ở bảng sáng nhạt dịu hơn và tách khỏi `--color-danger`; cổng
+     * này giữ cho "nhạt" không trượt thành "mờ".
+     */
+    it('thân nến tăng và nến giảm nổi khỏi nền thẻ, ngưỡng 3:1', () => {
+      for (const token of ['--color-candle-up', '--color-candle-down']) {
+        const ratio = contrastRatio(color(token), color('--color-surface'));
+        expect(ratio, `${token}: ${ratio.toFixed(2)}:1`).toBeGreaterThanOrEqual(AA_NON_TEXT);
+      }
+    });
+
+    /*
      * Badge nhóm ở thẻ công thức và ô lưới nhóm: chữ tông trên nền tông cùng họ. Bảy tông, nhưng
      * bốn trong số đó (accent · success · danger · warning trên nền -soft của chúng) đã có ca
      * riêng ở trên rồi, nên ở đây chỉ còn ba cặp chưa ai chấm.

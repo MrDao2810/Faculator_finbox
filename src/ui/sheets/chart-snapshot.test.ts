@@ -75,6 +75,20 @@ describe('cloneChartSvg()', () => {
     expect(copy?.querySelector('[data-testid="chart-marker"]')).not.toBeNull();
   });
 
+  it('cột đang được dò (histogram) trở về lớp gốc, không mang lớp tô đậm vào file', () => {
+    document.body.innerHTML = trang('chart-pe').replace(
+      '<path class="line" d="M0 0" />',
+      '<rect class="bar barMarked" data-dang-do="" /><rect class="bar" />',
+    );
+
+    const copy = cloneChartSvg('pe');
+    const cot = [...(copy?.querySelectorAll('rect.bar') ?? [])];
+
+    expect(cot).toHaveLength(2);
+    expect(cot.map((node) => node.getAttribute('class'))).toEqual(['bar', 'bar']);
+    expect(copy?.querySelector('[data-dang-do]')).toBeNull();
+  });
+
   it('đổi tên mọi id và sửa theo mọi chỗ url(#…) trỏ tới', () => {
     document.body.innerHTML = trang('chart-pe');
 

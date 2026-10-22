@@ -370,6 +370,8 @@ export function khoiDangXem(
 ): { khoi: KhoiBieuDoBai; dang: 'duong' | 'cot'; chuaVe: boolean } | undefined {
   const dau = khoi[0];
   if (dau === undefined) return undefined;
+  /* Hình theo chuỗi giá chưa có chữ: im lặng chứ không in đoạn của hình khác (xem `HinhDangXem.hinhChuoi`). */
+  if (hinh?.hinhChuoi === true) return undefined;
 
   const khoa = hinh?.khoa ?? null;
   const dangHien =

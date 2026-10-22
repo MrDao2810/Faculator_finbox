@@ -258,7 +258,8 @@ button.iconButton::after {
 }
 
 /*
- * Hàng chân của khối chuỗi: "Đã nạp số phiên giá: 57" bên trái, "Mở bảng dữ liệu →" bên phải.
+ * Hàng chân của khối chuỗi: "Đã nạp số phiên giá: 57". Link "Mở bảng dữ liệu →" đã lên hàng nút từ 22/10/2026 (xem `.dataActions`);
+ * các đoạn dưới đây kể lại lịch sử của nó khi còn ở hàng này.
  *
  * Link từng nằm cuối `.actions` và nép phải bằng `margin-left: auto`. Cột Số liệu hẹp nên hàng
  * gãy, link rơi xuống một dòng RIÊNG lơ lửng giữa hàng nút và dòng số phiên, còn bên phải dòng số
@@ -277,11 +278,19 @@ button.iconButton::after {
   column-gap: var(--space-3);
 }
 
-/* Lề âm bằng đúng phần đệm của link: chữ "→" thẳng mép phải với thanh trượt và nhãn "60 phiên"
-   phía trên, mà vùng chạm 44px vẫn đủ — phần đệm tràn vào lề trong của thẻ, không ra ngoài. */
-.seriesFoot .dataLink {
-  margin-left: auto;
-  margin-right: calc(var(--space-2) * -1);
+/*
+ * Hàng ba nút của khối Số liệu — "Sử dụng dữ liệu mẫu", "Xem ví dụ minh hoạ", "Mở bảng dữ liệu →"
+ * (22/10/2026). Chủ dự án: giảm size text của hai nút để đưa link bên dưới lên cùng hàng và biến nó
+ * thành nút. Cả ba cao 32px, chữ 12px, đệm ngang 8px — bộ số của hàng nút khối Công thức ở khổ
+ * điện thoại (`.blockHeadActions .actions > button`), áp ở MỌI khổ vì ảnh chủ dự án gửi không nói
+ * rõ khổ nào. Hàng vẫn `flex-wrap`: ở 360px ba nút xuống hai dòng. `.dataActions > button` (0,2,1)
+ * thắng `.sm` của primitive (0,1,0) bất kể thứ tự file; lớp phủ chạm 44px của `.sm::after` giữ nguyên.
+ * `.dataLink` (link thứ ba, khai ở dưới) tự mang đúng ba con số này nên không cần luật ở đây.
+ */
+.dataActions > button {
+  min-height: 32px;
+  padding: 0 var(--space-2);
+  font-size: var(--text-xs);
 }
 
 /*
@@ -421,15 +430,41 @@ button.iconButton::after {
 /* Link sang bảng dữ liệu WF-05, nép phải ở hàng chân `.seriesFoot`, cạnh dòng số phiên đã nạp.
    Đủ 44px vùng chạm — NFR-USA-01. */
 .dataLink {
+  position: relative;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
 
-  min-height: var(--tap-min);
+  min-height: 32px;
   padding: 0 var(--space-2);
 
-  font-size: var(--text-sm);
+  font-size: var(--text-xs);
   font-weight: var(--weight-medium);
+  line-height: 1;
   color: var(--color-accent);
+  text-decoration: none;
+
+  /* Vẽ như `Button` `secondary` — xem `.dataActions` và docblock ở `FormulaDetail.tsx`. */
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+}
+
+/* Vùng chạm 44px như `.sm::after` của `Button` — NFR-USA-01. */
+.dataLink::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: var(--tap-min);
+  transform: translateY(-50%);
+}
+
+@media (hover: hover) {
+  .dataLink:hover {
+    background: var(--color-accent-soft);
+  }
 }
 
 /* ── Khối chung ──────────────────────────────────────────────────────────── */
@@ -879,21 +914,29 @@ button.iconButton::after {
 }
 
 /*
+ * CHỈ CÒN CHỮ (22/10/2026). Chủ dự án, trên ảnh ô "Số liệu chỉ mang tính chất minh hoạ, không nên áp dụng
+ * cho thực tế.": _"chỉ cần đoạn text màu vàng in nghiêng là được, không cần bo bên ngoài"_. Hai ghi chú vàng
+ * của khối Số liệu (`.seriesShortNote` và `.presetMismatch`, cùng khối, cùng vai) nay là một câu chữ
+ * `--color-warning` in nghiêng: không nền, không viền, không bo, không đệm. Chúng RỜI nhóm "mặt phẳng cảnh
+ * báo vàng" của `warning-surface.test.ts` — nhóm ấy giữ nền/viền/bo chung của các mặt còn lại (`InlineWarning`,
+ * `XirrBody.issues`, `PortfolioScreen.priceError`), mà hai chỗ này không còn là mặt phẳng nữa.
+ * Cái giá đã biết: câu không còn giành mắt bằng khung vàng, chỉ bằng màu chữ; lý do cũ ở docblock dưới
+ * ("nổi hơn `.pendingNote`") nay chỉ còn nằm ở màu và kiểu nghiêng.
+ *
  * "Mã này chỉ có một phiên giá". Nổi hơn `.pendingNote` có chủ đích: đây không phải một ghi
  * chú bên lề mà là LÝ DO công thức đang không tính ra gì, kèm lối đi tiếp — cùng dải màu với
  * cảnh báo số liệu bản thảo ở PresetSheet, để hai câu "số liệu chưa đủ tin" trông cùng một loại.
  */
 .seriesShortNote {
   margin: 0;
-  padding: var(--space-2) var(--space-3);
+  line-height: 1.4;
 
-  /* Cùng cỡ chữ và cùng bán kính với mọi mặt cảnh báo vàng — xem `InlineWarning.module.css`. */
-  font-size: var(--text-sm);
+  /* Chữ PC 13px (22/10/2026, chủ dự án: giảm cả size text). Điện thoại có luật riêng bên dưới. */
+  font-size: calc(var(--text-sm) - 1px);
   color: var(--color-warning);
 
-  background: var(--color-warning-soft);
-  border: 1px solid var(--color-warning-line);
-  border-radius: var(--radius-md);
+  /* Chỉ còn câu chữ vàng in nghiêng, không nền, không viền, không bo (22/10/2026) — xem docblock trên. */
+  font-style: italic;
 }
 
 /*
@@ -908,18 +951,16 @@ button.iconButton::after {
  */
 .presetMismatch {
   margin: 0;
-  padding: var(--space-2) var(--space-3);
+  line-height: 1.4;
 
-  font-size: var(--text-sm);
+  font-size: calc(var(--text-sm) - 1px);
   color: var(--color-warning);
 
-  background: var(--color-warning-soft);
-  border: 1px solid var(--color-warning-line);
-  border-radius: var(--radius-md);
+  font-style: italic;
 }
 
 /*
- * Khổ điện thoại: hai ghi chú vàng của khối Số liệu nhỏ và mỏng hơn (20/10/2026). Chủ dự án khoanh
+ * Khổ điện thoại: hai ghi chú vàng của khối Số liệu nhỏ hơn (20/10/2026; đệm 6/8px đi cùng cái khung ngày 22/10/2026). Chủ dự án khoanh
  * "Số liệu chỉ mang tính chất minh hoạ, không nên áp dụng cho thực tế." trên `beta`: _"giảm size text
  * khoanh đỏ … và giảm padding, áp dụng cho màn mobile"_. Đo ở 390px trước khi sửa: chữ 14px, hai
  * dòng, đệm 8/12px, ô cao 60px.
@@ -936,7 +977,6 @@ button.iconButton::after {
 @media (max-width: 1023.98px) {
   .seriesShortNote,
   .presetMismatch {
-    padding: 6px var(--space-2);
     font-size: var(--text-xs);
     line-height: 1.4;
   }

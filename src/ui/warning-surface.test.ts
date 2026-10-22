@@ -49,9 +49,11 @@ const SURFACES: ReadonlyArray<readonly [file: string, className: string]> = [
   ['ui/result/InlineWarning.module.css', 'warning'],
   ['ui/screens/XirrBody.module.css', 'issues'],
   ['app/danh-muc/PortfolioScreen.module.css', 'priceError'],
-  ['app/cong-thuc/[id]/FormulaDetail.module.css', 'seriesShortNote'],
-  /* "Công thức này không dùng số liệu của mã X" — thêm ở đợt sửa nút Nạp mẫu hứa suông. */
-  ['app/cong-thuc/[id]/FormulaDetail.module.css', 'presetMismatch'],
+  /*
+   * `seriesShortNote` và `presetMismatch` (FormulaDetail) RỜI nhóm ngày 22/10/2026: chủ dự án muốn chúng
+   * chỉ còn chữ vàng in nghiêng, không khung. Ca "Ghi chú vàng của khối Số liệu chỉ còn chữ" ở dưới neo lại
+   * thứ chúng giữ.
+   */
 ];
 
 const EXPECTED = {
@@ -103,7 +105,7 @@ describe('Mặt phẳng cảnh báo vàng', () => {
    * giải), không còn là cỡ "metadata" như lý lẽ ca trên — nên hai ghi chú vàng của khối Số liệu xuống
    * 12px, đệm 6/8px, đúng bộ số của ô miễn trừ. Luật gốc vẫn bị ca trên giữ ở 14px.
    */
-  it('dưới 1024px hai ghi chú vàng của khối Số liệu: chữ 12px, đệm 6/8px', () => {
+  it('dưới 1024px hai ghi chú vàng của khối Số liệu: chữ 12px', () => {
     const css = readFileSync(
       join(SRC_DIR, 'app/cong-thuc/[id]/FormulaDetail.module.css'),
       'utf8',
@@ -114,10 +116,32 @@ describe('Mặt phẳng cảnh báo vàng', () => {
       )?.[1] ?? '';
     expect(than, 'thiếu luật điện thoại của .seriesShortNote / .presetMismatch').not.toBe('');
     expect(than).toMatch(/font-size:\s*var\(--text-xs\);/);
-    expect(than).toMatch(/padding:\s*6px var\(--space-2\);/);
     // Phải đứng sau hai luật gốc — cùng độ ưu tiên, thứ tự quyết định.
     expect(css.indexOf('.presetMismatch {')).toBeLessThan(css.indexOf('.seriesShortNote,'));
   });
+});
+
+/*
+ * Hai ghi chú vàng của khối Số liệu chỉ còn CHỮ (22/10/2026, chủ dự án: "chỉ cần đoạn text màu vàng in
+ * nghiêng là được, không cần bo bên ngoài"). Neo đúng ba thứ: chữ vàng, in nghiêng, và KHÔNG khung — để ai
+ * thêm lại nền / viền / bo / đệm thì phải đọc lý do này trước.
+ */
+describe('Ghi chú vàng của khối Số liệu chỉ còn chữ', () => {
+  it.each(['seriesShortNote', 'presetMismatch'])(
+    '.%s: chữ vàng in nghiêng, không khung',
+    (name) => {
+      const body = ruleBody(
+        readFileSync(join(SRC_DIR, 'app/cong-thuc/[id]/FormulaDetail.module.css'), 'utf8'),
+        name,
+      );
+      expect(body, `không tìm thấy luật .${name}`).not.toBeNull();
+      if (body === null) return;
+
+      expect(body).toMatch(/color:\s*var\(--color-warning\);/);
+      expect(body).toMatch(/font-style:\s*italic;/);
+      expect(body).not.toMatch(/(^|[\s;])(background|border|border-radius|padding)\s*:/);
+    },
+  );
 });
 
 /*

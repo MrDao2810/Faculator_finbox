@@ -184,6 +184,11 @@ const SVG_TEXT_CLASSES = [
   'hoverLabel',
   'barValueLabel',
   'refLabel',
+  // Chữ trong vành khuyên (`DonutChart`, 21/10/2026): tổng giữa vòng và ba dòng chú giải mỗi múi.
+  'donutTotal',
+  'donutTotalLabel',
+  'donutLabel',
+  'donutValue',
 ] as const;
 
 /** Tên biến khai trong một khối luật, bất kể giá trị là mã màu, `rgba()` hay chuỗi đổ bóng. */

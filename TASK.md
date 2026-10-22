@@ -4,6 +4,172 @@ Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 
 ---
 
+## Ghi chú vàng của khối Số liệu chỉ còn chữ (22/10/2026)
+
+**Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án xem.**
+
+Chủ dự án, trên ảnh ô "Số liệu chỉ mang tính chất minh hoạ, không nên áp dụng cho thực tế.": _"điều chỉnh lại phần cảnh
+báo này, chỉ cần đoạn text màu vàng in nghiêng là được, không cần bo bên ngoài"_.
+
+- `FormulaDetail.module.css`: `.seriesShortNote` và `.presetMismatch` (cùng khối, cùng vai — nên đồng bộ cả hai) bỏ nền,
+  viền, bo góc, đệm; thêm `font-style: italic`, giữ màu `--color-warning` và cỡ chữ (13px PC, 12px dưới 1024px). Áp
+  ở MỌI khổ vì lời chủ dự án không giới hạn khổ.
+- `warning-surface.test.ts`: hai class rời nhóm "mặt phẳng cảnh báo vàng", có ca riêng (chữ vàng, nghiêng, không khung);
+  ca khổ điện thoại bỏ vế đệm 6/8px. `CLAUDE.md`: câu mô tả hai ghi chú cập nhật.
+- Kiểm: toàn bộ test, lint, tsc, prettier. Chưa xem bằng mắt trên Chrome.
+- Câu cảnh báo `presetMismatch` ("Công thức này không dùng số liệu của mã X") cũng mất khung theo; nếu chủ dự án chỉ
+  muốn ghi chú "Số liệu chỉ mang tính chất minh hoạ…" thì trả khung riêng cho nó.
+
+---
+
+## Bảng tối: popup `<select>` chữ trắng trên nền trắng (22/10/2026)
+
+**Trạng thái: CHƯA XONG — đã sửa gốc popup và vòng focus, chờ chủ dự án xem trên máy.** Chủ dự án chụp ô "Số lần
+nhập lãi / năm (n)" của `lai-kep` ở bảng tối: danh sách thả xuống nền trắng, chữ sáng gần như vô hình, mục đang
+chọn là mảng xanh nhạt; và bảo "sửa nhiều chỗ giao diện tối, điều chỉnh cho đẹp".
+
+- Nguyên nhân: popup `<select>` do trình duyệt vẽ, lấy nền từ `<option>`. `.compact .select` khai
+  `background-color: transparent` nên popup rơi về nền trắng, chữ vẫn thừa kế `--color-ink` sáng.
+- `src/app/globals.css`: luật toàn cục `select option, select optgroup` (nền `--color-surface`, chữ `--color-ink`;
+  option bị khoá `--color-muted`). Một chỗ, phủ mọi `<select>` (Select, Xem theo, Loại biểu đồ, Sắp xếp, Biểu phí).
+- `src/ui/primitives/Select.module.css`: ô nhỏ của khối gộp (từ 1280px) vẽ vòng focus ở THẺ
+  (`.compact:focus-within`, như ô số cùng hàng) thay vì outline ôm riêng dòng chữ.
+- Đã chạy: `tokens`, `contrast`, `hover-media`, `primitives` — 511 ca xanh. Chưa xem bằng mắt trên Chrome thật
+  (popup `<select>` không chụp được bằng headless).
+- Còn lại: chờ chủ dự án chỉ thêm "chỗ" nào khác còn xấu ở bảng tối.
+
+**Cùng ngày — ghi chú vàng "Số liệu chỉ mang tính chất minh hoạ…" ở PC:** chủ dự án khoanh: đệm thừa rất nhiều.
+`FormulaDetail.module.css`: `.seriesShortNote` và `.presetMismatch` luật gốc (PC) đệm 8/12px → 4/12px, thêm
+`line-height: 1.4` (trước đó thừa hưởng dòng cao của thân trang). Cỡ chữ 14 → 13px (`calc(var(--text-sm) - 1px)`, vì ca `warning-surface` cấm
+`--text-xs` ở luật gốc; chủ dự án bổ sung "giảm cả size text"); khổ điện thoại có luật riêng ở dưới, không đổi. Đã chạy `warning-surface` và
+`app/cong-thuc/[id]`: 348 ca xanh. Chưa đo bằng mắt trên Chrome thật.
+
+**Cùng ngày — nút "Sử dụng chuỗi giá từ Excel":** chủ dự án bảo đổi thành "Sử dụng dữ liệu mẫu". Chỉ đổi nhãn
+`detail.pasteSeries` (`vi.ts`; `en.ts` thành "Use sample data"); hành vi nút (mở bảng dữ liệu) không đổi. Test dùng
+`t('detail.pasteSeries')` nên không phải sửa; 420 ca i18n + màn công thức xanh.
+
+**Cùng ngày — hàng nút khối Số liệu thành một hàng ba nút:** chủ dự án: giảm cỡ chữ hai nút để đưa "Mở bảng dữ liệu →"
+lên cùng hàng, biến nó thành nút, rồi "bỏ icon -> đi". `FormulaDetail.tsx`: `<Link>` chuyển từ `.seriesFoot` vào cuối
+`.actions` (thêm lớp `.dataActions`), vẫn là `<Link>` (điều hướng thật, test tìm theo vai link); `.seriesFoot` chỉ còn dòng
+số phiên và chỉ dựng khi có số. `FormulaDetail.module.css`: `.dataActions > button` và `.dataLink` cùng cao 32px, chữ 12px,
+đệm ngang 8px, lớp phủ chạm 44px; `.dataLink` vẽ như nút `secondary` (nền surface, viền border-strong, hover
+accent-soft trong `@media (hover: hover)`). `detail.openDataTable` bỏ "→" (vi + en). Áp ở MỌI khổ — ảnh không rõ khổ.
+Đã chụp ở 1440 trên dev: ba nút một hàng. Chưa đo được 390px thật (headless không thu cửa sổ xuống 390); ước tính
+ba nút rộng ~383px > ~358px cột nội dung nên ở điện thoại nút thứ ba có thể xuống dòng. 502 ca + lint + tsc xanh.
+
+---
+
+## Biểu đồ nhiều dạng vẽ: ô chọn "Loại biểu đồ" thay hai nút Đường / Cột (21/10/2026)
+
+**Trạng thái: CHƯA XONG — cả ba đợt A, B, C đã làm xong, chờ chủ dự án xem.** Chủ dự án (giữa đợt B): _"cứ xong
+1 đợt và test ok thì tự động tiếp tục đợt tiếp"_.
+
+Chủ dự án: _"biểu đồ tôi đang muốn hướng đến nhiều dạng vẽ khác nhau ấy. chứ hiện tại đang chỉ là 2 dạng nên quá
+eo hẹp"_, rồi _"nếu có thể thêm được kiểu biểu đồ mới thì bắt đầu áp dụng cho toàn bộ công thức"_. Hỏi bốn câu, chủ
+dự án chọn: làm cả bốn nhóm dạng (Điểm + Lãi/lỗ, Bậc thang, Vành khuyên cho bóc tách, hình theo chuỗi giá);
+**hướng dẫn sử dụng cho dạng mới chưa cần**; nút chọn dạng là một ô chọn; Beta tính với VN-Index bịa để việc riêng.
+
+**Đợt A (xong):**
+
+- `src/core/chart/dang-ve.ts` (mới): `dangVeCuaHinh(model, spec)` là luật DUY NHẤT hình nào mời dạng nào;
+  `vanhKhuyen()` chia phần trăm theo lối dư lớn nhất (cộng đúng 100,0 %). `path.ts`: `stepPath()`.
+- `src/ui/charts/ChartKindSelect.tsx` (mới) thay `ChartKindToggle.tsx` + `.module.css` (đã xoá). Ô chọn mang chính
+  lớp `.picker` của ô "Xem theo" nên cao, bo góc, cỡ nhãn tự khớp.
+- `LineChart.tsx`: ba dạng Điểm, Bậc thang, Lãi/lỗ (hai `clipPath` theo mốc 0). `DonutChart.tsx` (mới): vành
+  khuyên, chú giải nằm trong `<svg>` để file xuất mang theo, mỗi múi ba dòng (tên · giá trị · "chiếm …").
+- `ChartBody.tsx`, `ChartFullscreen.tsx`: đọc dạng từ Domain. `chart.module.css`: lớp màu các dạng mới; dưới 1024px
+  sàn ô "Xem theo" 7,5rem để hai ô chọn chung một hàng. `globals.css`: `--color-success` / `--color-danger` vào bản
+  chép bảng sáng của vùng in. i18n: 6 khoá mới (vi + en).
+- Test: `dang-ve.test.ts` (mới, 19 ca, ghim số đếm toàn Registry); `charts.test.tsx`, `FormulaDetail.test.tsx`,
+  `chart-controls-css.test.ts`, `radius.test.ts`, `tokens.test.ts` sửa theo ô chọn. `chrome-check.mjs`: ba chỗ đổi
+  từ nút sang ô chọn, hai assertion mới (Vành khuyên 1440, Lãi/lỗ + hàng ô chọn 360).
+- `CLAUDE.md`: đoạn mới ở mục "Chart kinds".
+
+Đo toàn Registry, chưa nạp chuỗi: 222 hình — Đường/Cột/Điểm 211, Bậc thang 23, Lãi/lỗ 27, Vành khuyên 5.
+Có 250 phiên FPT: Bậc thang 102, Lãi/lỗ 46. Dạng đầu của mọi hình là dạng cũ, mở màn ra không hình nào đổi.
+
+Kiểm: `npm run check` xanh (4525 ca). Build trên bản sao (dev của chủ dự án giữ :3000): `verify:static` 51/51;
+`check:chrome` 201/209 — 8 cái trượt y hệt khi chạy trên `HEAD` (nhãn trục chạm mép trên vì dấu tiếng Việt, nhãn
+"Tăng VLĐ ròng" của fcff, nút form Danh mục, hai ca ngày của bảng dữ liệu), không cái nào do đợt này. `size`: trang
+chi tiết 460,5 → 462,6 kB (cổng 180 kB vốn đã đỏ); ~1,8 kB nén là chunk biểu đồ nạp trễ mà Next tải trước với
+`fetchPriority="low"`, phần còn lại là từ điển.
+
+**Đợt B (xong): dạng Nến.**
+
+- `registry/types.ts`: `FormulaSpec.priceLevel` — kết quả là một mức giá của chính mã. Khai ở 5 công thức (SMA, EMA,
+  hai dải Bollinger, VWAP). Không suy từ `resultUnit`/`chartType`: MACD, động lượng, giao cắt MA, ATR cũng ₫ và cũng
+  mang nhãn `'candlestick'` nhưng là một hiệu / biên độ quanh 0.
+- `chart/history.ts`: `sessionCandles()` — nến của mọi phiên, hoặc `null` khi một phiên thiếu giá mở/cao/thấp hay
+  bốn giá không khớp (chuỗi Finbox chỉ có giá đóng → không có Nến). `CLOSE_PRICE_KEY` thay chuỗi trần.
+- `chart/types.ts`: `ChartCandle`, `LineChart.candles`. `chart/build.ts`: `ChartArgs.candleRange` nới trục ôm giá
+  cao/thấp chỉ khi đang vẽ Nến (nếp `zeroBaseline`); `primaryLabel` = tên gọn cho legend; thêm một câu mô tả cho
+  trình đọc màn hình. `dang-ve.ts`: `'candle'` ngay sau `'line'` khi mô hình có `candles`.
+- `LineChart.tsx`: bốn `<path>` (bấc/thân × tăng/giảm), bỏ dải tô dưới đường và đường giá đóng cửa của SMA (thân nến
+  đã mang giá ấy; mô hình và bảng số vẫn giữ), legend luôn hiện với "Phiên tăng" / "Phiên giảm". `ChartBody.tsx` xin
+  `candleRange`. `chart.module.css`: 4 lớp màu nến (cặp màu của `CandleChart`); `globals.css`: `--color-candle-up`
+  vào bản chép vùng in. i18n: `chart.kindCandle` (Nến / Candles).
+- Test: `dang-ve.test.ts` +10 ca (danh sách 5 công thức, chuỗi chỉ giá đóng, một phiên hỏng, trục quét, MACD/ATR,
+  trục chỉ nới khi vẽ Nến, legend + câu mô tả, SMA giữ chuỗi giá trong mô hình); `charts.test.tsx` +4 ca.
+  `chrome-check.mjs`: 1 assertion mới (ema 1440: 250 nến nằm trong khung, đường EMA vẫn vẽ, chú giải).
+- `CLAUDE.md`: gạch đầu dòng "Nến" ở mục "Chart kinds".
+
+Kiểm: test toàn bộ 183 file, 4539 ca qua; lint, typecheck, format sạch. Build trên bản sao (dev :3000 không chạy
+nhưng vẫn build ngoài repo để khỏi đè `.next`): `verify:static` 51/51; `check:chrome` 202/210 — assertion mới đạt,
+8 ca trượt vẫn là 8 ca có sẵn; `size` trang chi tiết 462,6 → 463,6 kB. Ảnh: `scratchpad/anh/ema-1440-nen.png`,
+`sma-1440-nen.png`, `bb-390-nen.png`.
+
+**Đợt C (xong): hai mục theo chuỗi giá trong ô "Xem theo".**
+
+- `registry/types.ts`: `FormulaSpec.seriesView` (`kind`, `lookbackKey`, `min`, `fullWindow`, `mark`, `resultIsLoss`). Khai ở
+  15 công thức: 11 "Phân phối lợi suất" (VaR, CVaR, 4 độ lệch chuẩn/CV, Sharpe, Sortino, Treynor, tỷ số thông tin,
+  thắng/thua) và 4 "Đường sụt giảm" (hai `sut-giam-*`, chuỗi giảm dài nhất, Calmar). `min` viết bằng chính hằng số mà
+  `calc` của file ấy đòi (`MIN_VAR_BARS`, `MIN_SESSIONS_STDDEV`…).
+- `chart/series-view.ts` (mới): `seriesWindow()` cắt đúng cửa sổ `calc` dùng; `buildDistributionModel()` (histogram,
+  vạch 0 luôn là mép khoảng, vạch dọc bình quân và, với VaR/CVaR, −kết quả); `buildDrawdownModel()` (một `LineChart`,
+  dấu ở phiên sâu nhất / hiện tại / cuối chuỗi giảm dài nhất). `types.ts`: `HistogramChart` là loại mô hình thứ tư.
+- `ui/charts/HistogramChart.tsx` (mới); `ChartBody` / `ChartFullscreen` thêm nhánh. Khung "?" và nút "?" của khối
+  Biểu đồ im với hai mục này (`HinhDangXem.hinhChuoi`) — chủ dự án: hướng dẫn cho dạng mới chưa cần.
+- Test: `series-view.test.ts` (mới, 36 ca: cổng nhiễu cửa sổ từng công thức, cổng "hình có cửa sổ khi và chỉ khi calc
+  tính được" ở mọi độ dài chuỗi, bin/vạch/trục, chuỗi giảm), `dang-ve.test.ts` (ghim số đo đã nạp chuỗi: 335 hình,
+  Bậc thang 102, Lãi/lỗ 46, Nến 5; quét FR-06 11 histogram), `charts.test.tsx` +4 ca, `GuideBody.test.tsx`
+  +1. `chrome-check.mjs`: 2 assertion mới (ema Nến 1440; var-lich-su Phân phối 1440).
+
+Vòng review đối kháng (5 góc nhìn; vòng phản bác dở dang vì hết hạn mức phiên nên tôi tự thẩm từng mục trên mã).
+Đã sửa:
+
+- **Cao:** 5 công thức `windowCloses()` (4 độ lệch chuẩn/CV + chuỗi giảm dài nhất) đòi ĐỦ số phiên của ô, còn
+  `seriesWindow()` chỉ đòi `min` — chuỗi 45 phiên, ô 60: `calc` báo thiếu phiên mà hình vẫn vẽ. Thêm cờ
+  `seriesView.fullWindow`; cổng mới so `calc` với `seriesWindow` ở nhiều độ dài chuỗi (đỏ khi bỏ bản sửa).
+- **Trung:** `zeroBaseline` kéo trục giá SMA/EMA/Bollinger/VWAP về 0 khi `kind` còn Cột sau khi đổi sang trục thời
+  gian (lỗi có từ trước): nay Domain chỉ nới khi hình không có đường kèm. Nhãn dò của histogram đè lên nhãn VaR
+  (sàn hạ thêm 12 đơn vị khi có hai vạch). Khung "?" đang mở bị bỏ lại trống khi hình chuyển sang mục theo chuỗi giá
+  (tự đóng). Bản xuất PDF/PNG mang theo lớp tô đậm của cột đang ghim trên màn chạm (`chart-snapshot` trả về lớp gốc).
+- **Thấp:** chuỗi giảm dài nhất không đánh dấu phiên nào khi cửa sổ toàn phiên tăng; regex `s` trong test; số "Bậc
+  thang 98" đo lại là 102 (CLAUDE.md, TASK.md); barrel bỏ 6 tên không ai dùng.
+- Không sửa, có chủ ý: nến 250 phiên trên khung điện thoại dày như `CandleChart` của /du-lieu/ vẫn ship;
+  legend nến nằm ngoài `<svg>` (từ trước với biểu đồ nhiều chuỗi, file xuất vẫn có tiêu đề công thức và tên trục);
+  chỉ số khoảng đang dò sống qua lần dựng lại mô hình (cùng mẫu `LineChart`/`WaterfallChart`, nhãn luôn khớp cột
+  đang đậm); ngày + số lợi suất của cửa sổ histogram chỉ nằm trong câu mô tả ẩn; dấu "hiện tại" của Calmar / chuỗi
+  giảm in mức sụt giảm % chứ không phải kết quả (tên trục Y nói rõ).
+
+Kiểm lần cuối: test toàn bộ 184 file, 4586 ca qua; eslint, tsc, prettier sạch. Build trên bản sao: `verify:static`
+51/51; `check:chrome` 203/211 — hai assertion mới đạt, 8 ca trượt vẫn là 8 ca có sẵn; `size`: trang chi tiết 463,6 → ~467 kB ở lần đo trước khi sửa review (cổng 180 kB vốn đã đỏ; ba renderer mới nằm trong chunk biểu đồ nạp trễ), lần cuối chỉ đo `/danh-muc/` 201,4 kB. Ảnh: `scratchpad/anh/var-1440-phanphoi.png`,
+`var-390-phanphoi.png`, `sharpe-1440-phanphoi.png`, `mdd-1440-sutgiam.png`, `streak-390-sutgiam.png`.
+
+**Đổi tên và màu sau khi xem (22/10/2026):** dạng "Vùng âm/dương" đổi tên "Lãi/lỗ" / "Gain/loss" theo chủ dự án. Hai thân nến
+(đo trên ảnh chủ dự án gửi: #006837 / #dd0010) bị chê đậm và gắt, đỏ chói hơn xanh; chủ dự án chọn "nhạt dịu hơn" cho
+CẢ nến ở biểu đồ công thức lẫn `CandleChart` ở /du-lieu/. Bảng sáng: `--color-candle-up` #146b3a → #3d9b69, token mới
+`--color-candle-down` #d8606a (trước đó nến giảm dùng `--color-danger` #b3202f, vẫn giữ cho chữ), cùng độ sáng tương
+dối ~0,25, 3,4:1 / 3,7:1 trên nền thẻ; bảng tối không đổi (đã nhạt). `contrast.test.ts` +1 ca (3:1). Chưa build lại bản
+sao và chưa xem bằng mắt trên Chrome.
+
+**Còn lại:**
+
+- Việc riêng (chủ dự án để sau): `ctx.marketSeries` mặc định là VN-Index bịa (`VN_INDEX_BARS`), nên Beta với chuỗi
+  dán vào đang hồi quy theo số bịa.
+
+---
+
 ## Thẻ "Bài tập" trên máy tính: đệm 20px → 12 / 16px (21/10/2026)
 
 **Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án xem.**

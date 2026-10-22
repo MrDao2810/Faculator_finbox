@@ -53,13 +53,25 @@ const BOC_TACH: KhoiBieuDoBai = {
   canChuoi: false,
 };
 
-function hinh(khoa: string | null, dang: HinhDangXem['dang'] = 'duong', daVe = true): HinhDangXem {
-  return { khoa, dang, daVe };
+function hinh(
+  khoa: string | null,
+  dang: HinhDangXem['dang'] = 'duong',
+  daVe = true,
+  hinhChuoi = false,
+): HinhDangXem {
+  return { khoa, dang, daVe, hinhChuoi };
 }
 
 afterEach(cleanup);
 
 describe('khoiDangXem — khung "?" chọn khối của hình đang hiện', () => {
+  it('hình theo chuỗi giá (chưa có chữ) thì im lặng — không rơi về khối đầu', () => {
+    expect(
+      khoiDangXem([GIA, THOI_GIAN], hinh('__distribution', 'cot', true, true)),
+    ).toBeUndefined();
+    expect(khoiDangXem([GIA, THOI_GIAN], hinh('__drawdown', 'duong', true, true))).toBeUndefined();
+  });
+
   it('tra đúng khối theo khoá của mục đang chọn ở ô chọn trục', () => {
     const xem = khoiDangXem([GIA, THOI_GIAN, BOC_TACH], hinh('__time'));
 

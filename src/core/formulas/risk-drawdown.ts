@@ -372,6 +372,13 @@ export const SUT_GIAM_SAU_NHAT: FormulaModule = {
     level: 'basic',
     tags: ['sut giam', 'max drawdown', 'mdd', 'rui ro', 'dinh day'],
     resultUnit: '%',
+    /* Hình "Đường sụt giảm": cùng cửa sổ `windowOf()`, dấu ở phiên sụt sâu nhất (21/10/2026). */
+    seriesView: {
+      kind: 'drawdown',
+      lookbackKey: 'lookback',
+      min: MIN_DRAWDOWN_BARS,
+      mark: 'deepest',
+    },
     variables: [withSymbol(drawdownLookback(), 'N')],
     explanation: {
       meaning: {
@@ -523,6 +530,8 @@ export const SUT_GIAM_HIEN_TAI: FormulaModule = {
     level: 'basic',
     tags: ['sut giam hien tai', 'current drawdown', 'duoi dinh', 'underwater', 've dinh'],
     resultUnit: '%',
+    /* Hình "Đường sụt giảm": cùng cửa sổ `windowOf()`, dấu ở phiên cuối (21/10/2026). */
+    seriesView: { kind: 'drawdown', lookbackKey: 'lookback', min: MIN_DRAWDOWN_BARS, mark: 'last' },
     variables: [drawdownLookback()],
     explanation: {
       meaning: {
@@ -688,6 +697,13 @@ export const VAR_LICH_SU: FormulaModule = {
     level: 'advanced',
     tags: ['var', 'value at risk', 'gia tri chiu rui ro', 'phan vi', 'mo phong lich su'],
     resultUnit: '%',
+    /* Hình "Phân phối lợi suất": cùng cửa sổ `lossTailOf()`, vạch tại −VaR (21/10/2026). */
+    seriesView: {
+      kind: 'distribution',
+      lookbackKey: 'lookback',
+      min: MIN_VAR_BARS,
+      resultIsLoss: true,
+    },
     variables: [withSymbol(confidenceVar(), 'α'), withSymbol(varLookback(), 'N')],
     explanation: {
       meaning: {
@@ -868,6 +884,13 @@ export const CVAR_LICH_SU: FormulaModule = {
     level: 'advanced',
     tags: ['cvar', 'expected shortfall', 'ton that ky vong', 'duoi phan phoi', 'es'],
     resultUnit: '%',
+    /* Hình "Phân phối lợi suất": cùng cửa sổ `lossTailOf()`, vạch tại −CVaR (21/10/2026). */
+    seriesView: {
+      kind: 'distribution',
+      lookbackKey: 'lookback',
+      min: MIN_VAR_BARS,
+      resultIsLoss: true,
+    },
     variables: [withSymbol(confidenceVar(), 'α'), withSymbol(varLookback(), 'N')],
     explanation: {
       meaning: {

@@ -95,20 +95,15 @@ describe('Bo góc', () => {
    * `<Badge>`, nên bản chép ấy KHÔNG còn và dòng thứ ba đi theo. Đây là bảng thu hẹp vì hết việc,
    * không phải vì ai đó bỏ bớt: `.level` nay chỉ còn `vertical-align` + `white-space`.
    *
-   * Dòng `kindGroup` là khung của nhóm nút Đường/Cột (10/09/2026). Chỉ ghim KHUNG ở đây: nút bên
-   * trong không khai số mà lấy `inherit`, và ca kiểm riêng bên dưới giữ đúng điều đó — ghim cả hai
-   * bằng `5px` là mời hai chỗ khai cùng một con số.
-   *
-   * Dòng `picker select` là ô chọn trục đứng cạnh nhóm nút ấy, cùng ngày — hai điều khiển một hàng
-   * phải bo cùng số. Đây là bộ chọn ghép (lớp + thẻ), không phải tên lớp: `ruleBodyFor` nhận nguyên
-   * chuỗi bộ chọn nên vẫn tìm đúng luật. Nó KHÔNG lấy `inherit` được như nút trong khay — ô chọn và
-   * nhóm nút là hai anh em, không phải cha con — nên đây là chỗ khai thứ hai của số 5 trong hàng,
-   * và ca kiểm này là thứ giữ hai chỗ ấy không trôi khỏi nhau.
+   * Dòng `picker select` là ô chọn trục, bo 5px từ 10/09/2026 để bằng nhóm nút Đường / Cột từng
+   * đứng cạnh nó. Đây là bộ chọn ghép (lớp + thẻ), không phải tên lớp: `ruleBodyFor` nhận nguyên
+   * chuỗi bộ chọn nên vẫn tìm đúng luật. Nhóm nút ấy (dòng `kindGroup` cũ) thành ô chọn "Loại biểu
+   * đồ" ngày 21/10/2026 và mang chính lớp `.picker`, nên hai ô một hàng bo bằng nhau theo cấu tạo —
+   * không còn chỗ khai thứ hai của số 5 để ghim.
    */
   const BO_5PX: ReadonlyArray<readonly [file: string, selector: string]> = [
     ['ui/primitives/Badge.module.css', 'basic'],
     ['ui/primitives/Badge.module.css', 'advanced'],
-    ['ui/charts/ChartKindToggle.module.css', 'kindGroup'],
     ['ui/charts/chart.module.css', 'picker select'],
   ];
 
@@ -177,21 +172,6 @@ describe('Bo góc', () => {
       expect(body ?? '', `${file} .${className}`).toMatch(/border-radius:\s*inherit\s*;/);
     },
   );
-
-  it('nút Đường/Cột lấy bo góc từ khung bằng inherit — một chỗ khai, không thể lệch', () => {
-    /*
-     * Chủ dự án chốt "bên ngoài và bên trong cần đồng bộ". Cách giữ đồng bộ bền nhất không phải hai
-     * dòng `5px` giống nhau mà là MỘT dòng và một `inherit` — cùng lối `.tab` của `TabBar.module.css`.
-     * Ca này bắt đúng lúc ai đó "sửa cho rõ" bằng cách ghi thẳng số vào nút.
-     */
-    const body = ruleBodyFor(
-      readFileSync(join(SRC_DIR, 'ui/charts/ChartKindToggle.module.css'), 'utf8'),
-      'kindOption',
-    );
-
-    expect(body, 'không tìm thấy luật .kindOption').not.toBeNull();
-    expect(body ?? '').toMatch(/border-radius:\s*inherit\s*;/);
-  });
 
   it('mọi điều khiển nhập liệu bo cùng một bậc', () => {
     const controls: ReadonlyArray<readonly [file: string, className: string]> = [

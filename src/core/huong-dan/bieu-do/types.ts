@@ -280,4 +280,10 @@ export interface HinhDangXem {
   dang: 'duong' | 'cot';
   /** `false` khi khối Biểu đồ đang hiện cảnh báo thay cho hình. */
   daVe: boolean;
+  /**
+   * Hình đang hiện là một trong hai mục THEO CHUỖI GIÁ ("Phân phối lợi suất", "Đường sụt giảm",
+   * 21/10/2026). Hai mục ấy chưa có chữ — chủ dự án chốt "hướng dẫn sử dụng thì chưa cần" — nên
+   * khung "?" phải IM, không rơi về chữ của một hình khác; nút "?" của khối cũng ẩn khi cờ này bật.
+   */
+  hinhChuoi: boolean;
 }

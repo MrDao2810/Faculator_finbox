@@ -2,9 +2,11 @@
 
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 
-import type { DrawableChart } from '@/application';
+import type { DangVe, DrawableChart } from '@/application';
 import { useT, usePick } from '@/application/preferences-context';
 
+import { DonutChart } from './DonutChart';
+import { HistogramChart } from './HistogramChart';
 import { LineChart } from './LineChart';
 import { WaterfallChart } from './WaterfallChart';
 import styles from './chart.module.css';
@@ -70,7 +72,7 @@ export interface ChartFullscreenProps {
    * `ChartBody` giữ state và truyền cho cả hai bản: bản trên trang đang là cột mà bản phóng to ra
    * đường thì người dùng bấm phóng to xong thấy một hình khác hẳn hình họ vừa xem.
    */
-  variant?: 'line' | 'bar';
+  variant?: DangVe;
 }
 
 /**
@@ -268,14 +270,20 @@ export function ChartFullscreen({
             cho biểu đồ nằm trong dòng chảy trang, không cho một lớp phủ toàn màn.
           */}
           {model.kind === 'waterfall' ? (
-            <WaterfallChart model={model} idBase={idBase} fill size="wide" />
+            variant === 'donut' ? (
+              <DonutChart model={model} idBase={idBase} size="wide" />
+            ) : (
+              <WaterfallChart model={model} idBase={idBase} fill size="wide" />
+            )
+          ) : model.kind === 'histogram' ? (
+            <HistogramChart model={model} idBase={idBase} fill size="wide" />
           ) : (
             <LineChart
               model={model}
               idBase={idBase}
               fill
               size="wide"
-              variant={variant}
+              variant={variant === 'waterfall' || variant === 'donut' ? 'line' : variant}
               onApplyPoint={onApplyPoint}
             />
           )}

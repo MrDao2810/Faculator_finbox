@@ -44,9 +44,16 @@ import {
   canDrawHistory,
   closePriceSeries,
   historyPoints,
+  sessionCandles,
   sessionTicks,
 } from './history';
 import { decimalsOf, extentOf, niceAxis } from './scale';
+import {
+  buildDistributionModel,
+  buildDrawdownModel,
+  seriesViewOption,
+  seriesWindow,
+} from './series-view';
 import type { NiceAxis } from './scale';
 import { usableOverlays } from './series';
 import { pickSweepVariable, sweepCandidates, sweepPoints } from './sweep';
@@ -96,6 +103,15 @@ export interface ChartArgs {
    * và đường vẽ vẫn do một nguồn sinh ra.
    */
   zeroBaseline?: boolean;
+  /**
+   * Nới trục giá trị ôm GIÁ CAO NHẤT và THẤP NHẤT của mọi phiên. Bật khi màn đang vẽ NẾN.
+   *
+   * Cùng lẽ với `zeroBaseline`: bấc nến vẽ tới giá cao và giá thấp của phiên, mà miền dựng theo
+   * đường kết quả (và đường giá đóng cửa) thì hẹp hơn — bấc chạy ra ngoài vùng vẽ. Nới ở đây, lúc
+   * dựng mô hình, để nhãn vạch và hình do một nguồn sinh ra. Chỉ có tác dụng khi mô hình thật sự
+   * mang `candles`; xin ở một hình không có nến là vô hại.
+   */
+  candleRange?: boolean;
   /**
    * Chuỗi PHỤ do NƠI GỌI truyền vào — mối nối còn để ngỏ, hiện chưa ai dùng.
    *
@@ -626,6 +642,7 @@ function warmUpLength(points: ReadonlyArray<ChartPoint>): number {
 export function buildChartModel(args: ChartArgs): ChartModel {
   const { formula, inputs, ctx, output, level, sweepKey, span, seriesLabel, overlays } = args;
   const zeroBaseline = args.zeroBaseline === true;
+  const candleRange = args.candleRange === true;
   const { spec } = formula;
   const name = shortLabel(spec.name);
 
@@ -639,9 +656,17 @@ export function buildChartModel(args: ChartArgs): ChartModel {
    */
   const historyReady = canDrawHistory(formula, ctx);
   const breakdownReady = canDrawBreakdown(spec, inputs, output);
+  /*
+   * Hình theo chuỗi giá (phân phối lợi suất / đường sụt giảm, 21/10/2026) — cũng là MỘT MỤC của ô
+   * chọn, đứng ngay sau "Thời gian", chỉ có khi chuỗi đã nạp đủ phiên cho cửa sổ `calc` dùng.
+   */
+  const seriesView = spec.seriesView;
+  const cuaSoChuoi = seriesView === undefined ? null : seriesWindow(seriesView, inputs, ctx);
+  const seriesViewReady = seriesView !== undefined && cuaSoChuoi !== null;
   const options: SweepOption[] = [
     ...(breakdownReady ? [{ key: BREAKDOWN_KEY, label: BREAKDOWN_LABEL }] : []),
     ...(historyReady ? [{ key: HISTORY_KEY, label: HISTORY_LABEL }] : []),
+    ...(seriesViewReady ? [seriesViewOption(seriesView)] : []),
     ...candidates.map((variable) => ({ key: variable.key, label: shortLabel(variable.label) })),
   ];
 
@@ -665,6 +690,12 @@ export function buildChartModel(args: ChartArgs): ChartModel {
     (sweepKey === BREAKDOWN_KEY || (sweepKey === undefined && breakdownFirst))
   ) {
     return buildBreakdownModel(spec, inputs, output, name, options);
+  }
+
+  if (seriesViewReady && sweepKey === seriesViewOption(seriesView).key) {
+    return seriesView.kind === 'distribution'
+      ? buildDistributionModel(seriesView, cuaSoChuoi, output, name, options, seriesLabel)
+      : buildDrawdownModel(seriesView, cuaSoChuoi, name, options, seriesLabel);
   }
 
   /*
@@ -751,6 +782,15 @@ export function buildChartModel(args: ChartArgs): ChartModel {
   const extra = requested.length === 0 ? [] : usableOverlays(requested, points);
 
   /*
+   * Nến của từng phiên — chỉ trên trục thời gian của công thức có kết quả là một mức giá, và chỉ
+   * khi số phiên khớp đúng số điểm (cùng `sessionsOf(ctx)` nên luôn khớp; phép so là lưới an toàn
+   * cho bất biến "phần tử thứ i là phiên x = i" mà renderer dựa vào).
+   */
+  const candlesRaw = onTime && spec.priceLevel === true ? sessionCandles(ctx) : null;
+  const candles = candlesRaw !== null && candlesRaw.length === points.length ? candlesRaw : null;
+  const drawCandles = candleRange && candles !== null;
+
+  /*
    * Miền trục TRÁI ôm mọi chuỗi đọc trục trái, không riêng chuỗi chính.
    *
    * Renderer chiếu toạ độ bằng thang tuyến tính và KHÔNG cắt hình ngoài khung, nên một chuỗi phụ
@@ -762,10 +802,18 @@ export function buildChartModel(args: ChartArgs): ChartModel {
   const leftOverlayYs = extra
     .filter((series) => series.axis !== 'right')
     .flatMap((series) => series.points.map((point) => point.y));
-  const yFull =
+  const yLines =
     leftOverlayYs.length === 0
       ? yExtent
       : (extentOf([...points.map((point) => point.y), ...leftOverlayYs]) ?? yExtent);
+  /*
+   * Dạng Nến: ôm thêm giá cao và giá thấp của mọi phiên — xem `ChartArgs.candleRange`. Không bật
+   * thì `yFull` LÀ `yLines`, cùng một giá trị, nên dạng Đường giữ đúng miền cũ.
+   */
+  const yFull =
+    !drawCandles || candles === null
+      ? yLines
+      : (extentOf([yLines[0], yLines[1], ...candles.flatMap((c) => [c.low, c.high])]) ?? yLines);
 
   /*
    * Nới miền để chứa 0 khi màn đang vẽ cột — xem `ChartArgs.zeroBaseline` về lý do.
@@ -773,9 +821,13 @@ export function buildChartModel(args: ChartArgs): ChartModel {
    * Nới cả hai đầu chứ không riêng đầu dưới: chuỗi toàn số ÂM (lỗ, dòng tiền ra) cần mốc 0 ở đầu
    * TRÊN thì cột mới có chỗ treo xuống.
    */
-  const yBase: readonly [number, number] = zeroBaseline
-    ? [Math.min(0, yFull[0]), Math.max(0, yFull[1])]
-    : yFull;
+  /*
+   * Hình có đường kèm (SMA + giá đóng cửa…) không mời Cột (`dangVeCuaHinh()`), nên màn vẽ đường và
+   * không có cột nào cần chỗ đứng: cờ vẫn tới đây vì `kind` sống qua mọi lần đổi trục, và nới tới 0 ở
+   * đó chỉ ép đường vào một phần ba khung. Gác ở Domain, như `drawCandles` với `candleRange`.
+   */
+  const yBase: readonly [number, number] =
+    zeroBaseline && extra.length === 0 ? [Math.min(0, yFull[0]), Math.max(0, yFull[1])] : yFull;
 
   const { axis: y, scale: yScale } = buildAxis(yBase[0], yBase[1], name, spec.resultUnit);
 
@@ -822,10 +874,17 @@ export function buildChartModel(args: ChartArgs): ChartModel {
    * chuỗi trở lên, nên gắn nhãn lúc chuỗi phụ bị loại là gắn một trường không ai đọc mà vẫn làm
    * lệch bất biến "mô hình một chuỗi y hệt trước".
    */
+  /*
+   * Hình dựng cho dạng Nến luôn có legend (đường kết quả cạnh hai mẫu nến), nên nó cần tên gọn của
+   * đường cả khi không có chuỗi phụ: tên công thức đã cắt phần sau gạch dài — 'VWAP', 'Dải Bollinger
+   * trên'. Công thức có đường giá kèm thì giữ nhãn có số phiên của nó ('SMA 20 phiên').
+   */
   const primaryLabel =
     companion !== null && extra.includes(companion) && spec.priceOverlay !== undefined
       ? overlayPrimaryLabel(spec.priceOverlay, inputs)
-      : undefined;
+      : drawCandles
+        ? name
+        : undefined;
 
   /*
    * Trục Y phải — chỉ dựng khi thật sự có chuỗi xin nó.
@@ -903,6 +962,15 @@ export function buildChartModel(args: ChartArgs): ChartModel {
       : [{ label: series.label, lo: ext[0], hi: ext[1], unit: series.unit ?? spec.resultUnit }];
   });
 
+  /*
+   * Dạng Nến cũng phải NÓI RA BẰNG CHỮ — cùng lẽ với câu về chuỗi phụ ngay trên: `<svg>` mang
+   * `aria-hidden`, nên với trình đọc màn hình một lớp nến không được nói ra là không tồn tại.
+   */
+  const candleSpan =
+    drawCandles && candles !== null
+      ? extentOf(candles.flatMap((candle) => [candle.low, candle.high]))
+      : null;
+
   const sentencesVi = [
     first === undefined || last === undefined
       ? ''
@@ -918,6 +986,9 @@ export function buildChartModel(args: ChartArgs): ChartModel {
               `${range.label.vi} ${formatValueWithUnit(range.lo, range.unit)} tới ${formatValueWithUnit(range.hi, range.unit)}`,
           )
           .join(' · ')}.`,
+    candleSpan === null
+      ? ''
+      : `Vẽ kèm nến của từng phiên, giá thấp nhất ${formatValueWithUnit(candleSpan[0], '₫')}, cao nhất ${formatValueWithUnit(candleSpan[1], '₫')}.`,
     marked === undefined
       ? ''
       : onTime
@@ -958,6 +1029,9 @@ export function buildChartModel(args: ChartArgs): ChartModel {
               `${range.label.en} ${formatValueWithUnit(range.lo, unitLabel(range.unit).en)} to ${formatValueWithUnit(range.hi, unitLabel(range.unit).en)}`,
           )
           .join(' · ')}.`,
+    candleSpan === null
+      ? ''
+      : `Also drawn: a candle for each session, lowest price ${formatValueWithUnit(candleSpan[0], '₫')}, highest ${formatValueWithUnit(candleSpan[1], '₫')}.`,
     marked === undefined
       ? ''
       : onTime
@@ -998,6 +1072,7 @@ export function buildChartModel(args: ChartArgs): ChartModel {
     ...(extra.length === 0 ? {} : { overlays: extra }),
     ...(primaryLabel === undefined ? {} : { primaryLabel }),
     ...(yRight === undefined ? {} : { yRight }),
+    ...(candles === null ? {} : { candles }),
     table,
     sweepKey: activeKey,
     options,

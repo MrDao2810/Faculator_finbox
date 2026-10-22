@@ -2494,12 +2494,13 @@ window.__localeLog = [];
         .find((h) => /Giải thích/.test(h.textContent ?? ''))
         ?.closest('section') ?? null;
     const oChonTruc = document.querySelector('figure [class*="controls"] select');
-    const nhomLoiVe = document.querySelector('figure [class*="controls"] [role="group"]');
+    /* Ô "Loại biểu đồ" — ô chọn thứ hai của hàng, thay nhóm nút Đường/Cột từ 21/10/2026. */
+    const oChonLoai = document.querySelectorAll('figure [class*="controls"] select')[1] ?? null;
     return {
       /* Bo góc hai điều khiển đứng cạnh nhau trên thẻ biểu đồ — phải bằng nhau. */
       boDieuKhien: {
         chon: oChonTruc === null ? null : getComputedStyle(oChonTruc).borderTopLeftRadius,
-        nhom: nhomLoiVe === null ? null : getComputedStyle(nhomLoiVe).borderTopLeftRadius,
+        loai: oChonLoai === null ? null : getComputedStyle(oChonLoai).borderTopLeftRadius,
       },
       tran: document.documentElement.scrollWidth > document.documentElement.clientWidth + 1,
       main: r(document.querySelector('main')),
@@ -2580,17 +2581,6 @@ window.__localeLog = [];
           doc: Math.round((giuaDoc(cum.getBoundingClientRect()) - giuaDoc(luoi.getBoundingClientRect())) * 10) / 10,
           ngang: dong.map((e) => Math.round((giuaNgang(e.getBoundingClientRect()) - giuaNgang(k)) * 10) / 10),
         };
-      })(),
-      /* Nhóm Đường/Cột: bo góc đã tính ra của khung và của nút đầu — phải cùng một số. */
-      boDuongCot: (() => {
-        const khung = document.querySelector('figure [class*="kindGroup"]');
-        const nut = khung?.querySelector('button') ?? null;
-        return khung === null || nut === null
-          ? null
-          : {
-              khung: getComputedStyle(khung).borderTopLeftRadius,
-              nut: getComputedStyle(nut).borderTopLeftRadius,
-            };
       })(),
     };
   })()`;
@@ -2716,16 +2706,15 @@ window.__localeLog = [];
   );
 
   /*
-   * Ô chọn trục và nhóm nút Đường/Cột đứng cạnh nhau nên bo cùng một số — chủ dự án: "điều chỉnh bo
-   * bên trái bằng với bo bên phải" (10/09/2026). Đọc giá trị đã tính chứ không so CSS: hai con số
-   * nằm ở hai file, và `radius.test.ts` chỉ ghim từng file một.
+   * Ô chọn trục và ô "Loại biểu đồ" đứng cạnh nhau nên bo cùng một số, 5px — chủ dự án: "điều chỉnh bo
+   * bên trái bằng với bo bên phải" (10/09/2026, khi bên phải còn là nhóm nút Đường/Cột), rồi "đồng bộ
+   * đều bằng 5". Từ 21/10/2026 hai ô cùng lớp `.picker`; đọc giá trị đã tính để chắc lớp ấy thật sự
+   * tới được cả hai ô.
    */
   check(
-    'PC 1440 · ô chọn trục và nhóm Đường/Cột bo cùng một số',
-    pcPe.boDieuKhien.chon !== null &&
-      pcPe.boDieuKhien.nhom !== null &&
-      pcPe.boDieuKhien.chon === pcPe.boDieuKhien.nhom,
-    `ô chọn ${String(pcPe.boDieuKhien.chon)} · nhóm nút ${String(pcPe.boDieuKhien.nhom)}`,
+    'PC 1440 · ô chọn trục và ô Loại biểu đồ cùng bo 5px',
+    pcPe.boDieuKhien.chon === '5px' && pcPe.boDieuKhien.loai === '5px',
+    `ô chọn trục ${String(pcPe.boDieuKhien.chon)} · ô Loại biểu đồ ${String(pcPe.boDieuKhien.loai)}`,
   );
 
   /*
@@ -2745,16 +2734,6 @@ window.__localeLog = [];
       pcPe.nhanKetQua.top < pcPe.soKetQua.bottom &&
       pcPe.soKetQua.top < pcPe.nhanKetQua.bottom,
     `thẻ ${String(pcPe.theKetQua?.left)}–${String(pcPe.theKetQua?.right)} · nhãn trái=${String(pcPe.nhanKetQua?.left)} · số phải=${String(pcPe.soKetQua?.right)} · nhãn top=${String(pcPe.nhanKetQua?.top)} · số top=${String(pcPe.soKetQua?.top)}`,
-  );
-
-  /*
-   * Nhóm Đường/Cột bo 5px cả khung lẫn nút — chủ dự án 10/09/2026: "đồng bộ đều bằng 5". Đọc giá trị
-   * đã tính ra vì nút khai `inherit`, tức con số thật chỉ có ở trình duyệt.
-   */
-  check(
-    'PC 1440 · nhóm Đường/Cột bo 5px cả khung lẫn nút',
-    pcPe.boDuongCot !== null && pcPe.boDuongCot.khung === '5px' && pcPe.boDuongCot.nut === '5px',
-    `khung ${String(pcPe.boDuongCot?.khung)} · nút ${String(pcPe.boDuongCot?.nut)}`,
   );
 
   /*
@@ -2986,11 +2965,11 @@ window.__localeLog = [];
     const duong = doc();
 
     dong();
-    const nutCot = [...document.querySelectorAll('button')].find(
-      (b) => b.textContent.trim() === 'Cột',
-    );
-    if (!nutCot) return { duong, cot: null };
-    nutCot.click();
+    // Ô "Loại biểu đồ" là ô chọn thứ hai của hàng điều khiển (thay nhóm nút Đường/Cột, 21/10/2026).
+    const oLoai = document.querySelectorAll('figure [class*="controls"] select')[1];
+    if (!oLoai) return { duong, cot: null };
+    oLoai.value = 'bar';
+    oLoai.dispatchEvent(new Event('change', { bubbles: true }));
     await cho(300);
     nut().click();
     await cho(400);
@@ -3011,6 +2990,186 @@ window.__localeLog = [];
       khungBieuDo.cot.dang.join('|') === 'Dạng Cột' &&
       khungBieuDo.cot.phaiCuon === false,
     JSON.stringify(khungBieuDo),
+  );
+
+  /*
+   * Ô "Loại biểu đồ" (21/10/2026): những dạng chỉ trình duyệt thật đo được. Vành khuyên đọc chữ
+   * bằng getBBox, mà jsdom không có phép đo ấy; vùng âm/dương cắt bằng clipPath, jsdom không vẽ.
+   * Ở 360px còn một điều nữa: hai ô chọn phải chung một hàng (sàn 7,5rem của ô "Xem theo"), kể cả
+   * khi ô "Loại biểu đồ" đang mang chữ của dạng Lãi/lỗ (tên cũ "Vùng âm/dương" là chữ dài nhất, nay ngắn hơn nên ca này chỉ còn là mức chắc chắn).
+   * Không dùng dấu backtick trong chú thích này: cả khối đang nằm trong một template literal.
+   */
+  const DOI_DANG = `(async () => {
+    const cho = (ms) => new Promise((r) => setTimeout(r, ms));
+    const chon = (thu, giaTri) => {
+      const s = document.querySelectorAll('figure [class*="controls"] select')[thu];
+      if (!s || ![...s.options].some((o) => o.value === giaTri)) return false;
+      s.value = giaTri;
+      s.dispatchEvent(new Event('change', { bubbles: true }));
+      return true;
+    };
+    return { chon, cho };
+  })`;
+
+  await open('/cong-thuc/wacc/');
+  await waitFor("document.querySelector('figure svg')");
+  const vanhKhuyenPc = await evaluate(`(async () => {
+    const { chon, cho } = await ${DOI_DANG}();
+    if (!chon(0, '__breakdown')) return { loi: 'không có mục Bóc tách' };
+    await cho(300);
+    if (!chon(1, 'donut')) return { loi: 'không có dạng Vành khuyên' };
+    await cho(300);
+    const svg = document.querySelector('figure svg[data-donut]');
+    if (!svg) return { loi: 'không thấy hình vành khuyên' };
+    const v = svg.viewBox.baseVal;
+    const tran = [...svg.querySelectorAll('text')]
+      .map((t) => t.getBBox())
+      .filter((r) => r.x < -0.5 || r.x + r.width > v.width + 0.5 || r.y < -0.5 || r.y + r.height > v.height + 0.5);
+    return {
+      mui: svg.querySelectorAll('path').length,
+      tran: tran.length,
+      cao: Math.round(svg.getBoundingClientRect().height),
+      chu: svg.textContent,
+    };
+  })()`);
+  check(
+    'PC 1440 · wacc: Vành khuyên vẽ hai múi, chú giải ghi "chiếm …", không chữ nào tràn khung',
+    vanhKhuyenPc?.mui === 2 &&
+      vanhKhuyenPc.tran === 0 &&
+      /chiếm \d+,\d %/.test(vanhKhuyenPc.chu ?? ''),
+    JSON.stringify(vanhKhuyenPc),
+  );
+
+  await send('Emulation.setDeviceMetricsOverride', {
+    width: 360,
+    height: 780,
+    deviceScaleFactor: 2,
+    mobile: true,
+  });
+  await open('/cong-thuc/roi/');
+  await waitFor("document.querySelector('figure svg')");
+  const amDuong360 = await evaluate(`(async () => {
+    const { chon, cho } = await ${DOI_DANG}();
+    if (!chon(1, 'signArea')) return { loi: 'không có dạng Lãi/lỗ' };
+    await cho(300);
+    const o = [...document.querySelectorAll('figure [class*="controls"] select')].map((s) =>
+      Math.round(s.getBoundingClientRect().top),
+    );
+    const vung = document.querySelector('figure [data-sign-area]');
+    return {
+      hangO: o,
+      cat: vung === null ? [] : [...vung.querySelectorAll('path')].map((p) => p.getAttribute('clip-path')),
+      coDuong: document.querySelector('figure path[data-points]') !== null,
+      tran: document.documentElement.scrollWidth > document.documentElement.clientWidth + 1,
+    };
+  })()`);
+  check(
+    '360 · roi: Lãi/lỗ cắt hai nửa theo mốc 0, đường vẫn vẽ, hai ô chọn chung một hàng, không cuộn ngang',
+    amDuong360?.cat?.length === 2 &&
+      amDuong360.coDuong === true &&
+      amDuong360.hangO?.length === 2 &&
+      amDuong360.hangO[0] === amDuong360.hangO[1] &&
+      amDuong360.tran === false,
+    JSON.stringify(amDuong360),
+  );
+  await send('Emulation.setDeviceMetricsOverride', {
+    width: 1440,
+    height: 900,
+    deviceScaleFactor: 1,
+    mobile: false,
+  });
+
+  /*
+   * Dạng Nến (21/10/2026): nạp ví dụ minh hoạ của EMA (250 phiên FPT đủ bốn giá), chọn Nến, rồi đo
+   * bằng getBBox — jsdom không có phép đo ấy — rằng cả lớp nến nằm trong khung hình, bấc chạm đúng
+   * giá cao và thấp mà không tràn qua mép trên hay mép dưới vùng vẽ.
+   */
+  await open('/cong-thuc/ema-n-phien/');
+  await waitFor(
+    "[...document.querySelectorAll('button')].some((b) => /Xem ví dụ minh hoạ/.test(b.textContent ?? ''))",
+  );
+  const nenPc = await evaluate(`(async () => {
+    const { chon, cho } = await ${DOI_DANG}();
+    const nut = [...document.querySelectorAll('button')].find((b) => /Xem ví dụ minh hoạ/.test(b.textContent ?? ''));
+    if (!nut) return { loi: 'không thấy nút Xem ví dụ minh hoạ' };
+    /* Bấm lại mỗi giây: cú bấm trước khi hydrate xong thì không có trình xử lý nào nhận. */
+    for (let i = 0; i < 40 && !document.querySelector('figure path[data-points]'); i += 1) {
+      if (i % 10 === 0) nut.click();
+      await cho(100);
+    }
+    if (!chon(1, 'candle')) return { loi: 'không có dạng Nến', dang: [...(document.querySelectorAll('figure [class*="controls"] select')[1]?.options ?? [])].map((o) => o.value) };
+    await cho(300);
+    const svg = document.querySelector('figure svg[data-chart-svg]');
+    const g = svg?.querySelector('[data-candles]');
+    if (!svg || !g) return { loi: 'không thấy lớp nến' };
+    const v = svg.viewBox.baseVal;
+    const b = g.getBBox();
+    return {
+      phien: g.getAttribute('data-candles'),
+      trong: b.x >= -0.5 && b.y >= -0.5 && b.x + b.width <= v.width + 0.5 && b.y + b.height <= v.height + 0.5,
+      coDuong: svg.querySelector('path[data-points]') !== null,
+      chuGiai: [...document.querySelectorAll('figure [data-legend-candle]')].map((li) => li.textContent),
+      tran: document.documentElement.scrollWidth > document.documentElement.clientWidth + 1,
+    };
+  })()`);
+  check(
+    'PC 1440 · ema: Nến vẽ đủ 250 phiên trong khung, đường EMA vẫn vẽ, chú giải Phiên tăng / Phiên giảm',
+    nenPc?.phien === '250' &&
+      nenPc.trong === true &&
+      nenPc.coDuong === true &&
+      nenPc.chuGiai?.join('|') === 'Phiên tăng|Phiên giảm' &&
+      nenPc.tran === false,
+    JSON.stringify(nenPc),
+  );
+
+  /*
+   * Mục "Phân phối lợi suất" (21/10/2026): nạp ví dụ minh hoạ của VaR, chọn mục, rồi đo bằng getBBox
+   * rằng cột và hai nhãn vạch (bình quân, VaR) nằm trong khung; và nút "?" của khối Biểu đồ phải
+   * BIẾN MẤT, vì hai mục theo chuỗi giá chưa có chữ hướng dẫn.
+   */
+  await open('/cong-thuc/var-lich-su/');
+  await waitFor(
+    "[...document.querySelectorAll('button')].some((b) => /Xem ví dụ minh hoạ/.test(b.textContent ?? ''))",
+  );
+  const phanPhoiPc = await evaluate(`(async () => {
+    const { chon, cho } = await ${DOI_DANG}();
+    const nut = [...document.querySelectorAll('button')].find((b) => /Xem ví dụ minh hoạ/.test(b.textContent ?? ''));
+    if (!nut) return { loi: 'không thấy nút Xem ví dụ minh hoạ' };
+    for (let i = 0; i < 40 && !document.querySelector('figure path[data-points]'); i += 1) {
+      if (i % 10 === 0) nut.click();
+      await cho(100);
+    }
+    const hintTruoc = [...document.querySelectorAll('a[href$="#doc-bieu-do"]')].length;
+    if (!chon(0, '__distribution')) return { loi: 'không có mục Phân phối lợi suất' };
+    await cho(300);
+    const svg = document.querySelector('figure svg[data-histogram]');
+    if (!svg) return { loi: 'không thấy histogram' };
+    const v = svg.viewBox.baseVal;
+    const trong = (r) => r.x >= -0.5 && r.y >= -0.5 && r.x + r.width <= v.width + 0.5 && r.y + r.height <= v.height + 0.5;
+    const cot = [...svg.querySelectorAll('rect[data-bin-count]')];
+    const vach = [...svg.querySelectorAll('[data-marker-value] text')];
+    return {
+      cot: cot.length,
+      cotTrong: cot.every((c) => trong(c.getBBox())),
+      vach: vach.map((t) => t.textContent),
+      vachTrong: vach.every((t) => trong(t.getBBox())),
+      hintTruoc,
+      hintSau: [...document.querySelectorAll('a[href$="#doc-bieu-do"]')].length,
+      coOLoai: document.querySelectorAll('figure [class*="controls"] select').length,
+      tran: document.documentElement.scrollWidth > document.documentElement.clientWidth + 1,
+    };
+  })()`);
+  check(
+    'PC 1440 · var-lich-su: Phân phối lợi suất vẽ cột trong khung, hai vạch có nhãn, nút "?" của khối ẩn, không ô Loại biểu đồ',
+    (phanPhoiPc?.cot ?? 0) > 5 &&
+      phanPhoiPc.cotTrong === true &&
+      phanPhoiPc.vach?.length === 2 &&
+      phanPhoiPc.vachTrong === true &&
+      phanPhoiPc.hintTruoc === 1 &&
+      phanPhoiPc.hintSau === 0 &&
+      phanPhoiPc.coOLoai === 1 &&
+      phanPhoiPc.tran === false,
+    JSON.stringify(phanPhoiPc),
   );
 
   /*

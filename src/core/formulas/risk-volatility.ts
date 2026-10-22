@@ -194,6 +194,13 @@ export const DO_LECH_CHUAN_LOI_SUAT_PHIEN: FormulaModule = {
     level: 'advanced',
     tags: ['do lech chuan', 'bien dong', 'volatility', 'standard deviation', 'rui ro'],
     resultUnit: '%/phiên',
+    /* Hình "Phân phối lợi suất": cùng cửa sổ `windowCloses()` (21/10/2026). */
+    seriesView: {
+      kind: 'distribution',
+      lookbackKey: 'sessions',
+      min: MIN_SESSIONS_STDDEV,
+      fullWindow: true,
+    },
     variables: [stdDevWindowVar()],
     explanation: {
       meaning: {
@@ -330,6 +337,13 @@ export const DO_BIEN_DONG_NAM_HOA: FormulaModule = {
     level: 'advanced',
     tags: ['bien dong nam', 'annualized volatility', 'sigma', 'do lech chuan nam', 'rui ro'],
     resultUnit: '%/năm',
+    /* Hình "Phân phối lợi suất": cùng cửa sổ `windowCloses()` (21/10/2026). */
+    seriesView: {
+      kind: 'distribution',
+      lookbackKey: 'sessions',
+      min: MIN_SESSIONS_STDDEV,
+      fullWindow: true,
+    },
     variables: [
       stdDevWindowVar(),
       numberVar(
@@ -516,6 +530,13 @@ export const DO_LECH_CHUAN_BAN_PHAN: FormulaModule = {
     level: 'advanced',
     tags: ['downside deviation', 'do lech chuan ban phan', 'rui ro giam', 'sortino', 'nguong'],
     resultUnit: '%/phiên',
+    /* Hình "Phân phối lợi suất": cùng cửa sổ `windowCloses()` (21/10/2026). */
+    seriesView: {
+      kind: 'distribution',
+      lookbackKey: 'sessions',
+      min: MIN_SESSIONS_STDDEV,
+      fullWindow: true,
+    },
     variables: [
       stdDevWindowVar(),
       numberVar(
@@ -675,6 +696,13 @@ export const HE_SO_BIEN_THIEN: FormulaModule = {
     level: 'advanced',
     tags: ['he so bien thien', 'coefficient of variation', 'cv', 'rui ro tren loi suat'],
     resultUnit: 'lần',
+    /* Hình "Phân phối lợi suất": cùng cửa sổ `windowCloses()` (21/10/2026). */
+    seriesView: {
+      kind: 'distribution',
+      lookbackKey: 'sessions',
+      min: MIN_SESSIONS_STDDEV,
+      fullWindow: true,
+    },
     variables: [stdDevWindowVar()],
     explanation: {
       meaning: {
@@ -994,6 +1022,14 @@ export const CHUOI_PHIEN_GIAM_DAI_NHAT: FormulaModule = {
     level: 'basic',
     tags: ['chuoi giam', 'losing streak', 'phien giam lien tiep', 'ky luat', 'tam ly'],
     resultUnit: 'phiên',
+    /* Hình "Đường sụt giảm": cùng cửa sổ `windowCloses()`, dấu ở phiên kết thúc chuỗi giảm dài nhất (21/10/2026). */
+    seriesView: {
+      kind: 'drawdown',
+      lookbackKey: 'sessions',
+      min: MIN_SESSIONS_COUNT,
+      fullWindow: true,
+      mark: 'streakEnd',
+    },
     variables: [
       countWindowVar({
         vi: 'Lấy bao nhiêu phiên gần nhất để đếm chuỗi giảm. Tối thiểu 10 phiên.',

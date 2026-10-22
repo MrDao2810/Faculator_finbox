@@ -1019,7 +1019,8 @@ describe('Biểu đồ độ nhạy — đổi trục X', () => {
   it('chỉ một biến quét được thì không bày ô chọn ra làm gì', () => {
     // Lãi kép ở chế độ Cơ bản chỉ hở vài ô; ca này chốt nguyên tắc, không chốt công thức nào.
     const { container } = draw('pe');
-    const selects = container.querySelectorAll('select');
+    // Chỉ đếm ô "Xem theo": ô "Loại biểu đồ" đứng cạnh nó là chuyện khác, có ca riêng.
+    const selects = container.querySelectorAll('select[id$="-sweep"]');
 
     expect(selects.length).toBeLessThanOrEqual(1);
   });
@@ -2458,35 +2459,211 @@ describe.skip('Nút Back của hệ thống — đóng lớp phủ, không rời
 });
 
 /*
- * Lối vẽ CỘT — nhóm nút "Loại biểu đồ" (Đường / Cột).
+ * Ô chọn "Loại biểu đồ" — dạng vẽ của hình đang xem (thay hai nút Đường / Cột từ 21/10/2026).
  *
- * Điều đáng gác ở đây KHÔNG phải chuyện vẽ ra được hình cột, mà là ba lời hứa quanh nó, cả ba đều
- * hỏng lặng lẽ nếu không có test:
+ * Điều đáng gác ở đây KHÔNG phải chuyện vẽ ra được từng dạng, mà là những lời hứa quanh chúng, hỏng
+ * lặng lẽ nếu không có test:
  *
  *   1. Cột phải đứng trên mốc 0. Trục không chứa 0 mà vẽ cột là phóng đại chênh lệch — đúng bất
  *      biến biểu đồ thác nước đã giữ từ trước ("cột cần chỗ để đứng").
- *   2. Đổi lối vẽ KHÔNG được đổi dữ liệu. Bảng số phải nói y nguyên những con số cũ.
- *   3. Nút chỉ hiện ở chỗ nó có nghĩa — không hiện trên thác nước (vốn đã là cột, ý nghĩa khác).
+ *   2. Đổi dạng vẽ KHÔNG được đổi dữ liệu. Bảng số phải nói y nguyên những con số cũ.
+ *   3. Mỗi dạng chỉ có mặt ở hình hợp với nó — luật ở `dangVeCuaHinh()`, ca toàn Registry ở
+ *      `core/chart/dang-ve.test.ts`; ở đây chỉ kiểm ô chọn in đúng danh sách ấy.
  */
-describe('Loại biểu đồ — đổi giữa Đường và Cột', () => {
-  /** Bấm sang lối cột trên biểu đồ đang hiện. */
-  async function bamCot() {
-    await userEvent.click(screen.getByRole('button', { name: 'Cột' }));
+describe('Loại biểu đồ — ô chọn dạng vẽ', () => {
+  /** Chọn một dạng ở ô "Loại biểu đồ" của hình trên trang. */
+  async function chonDang(ten: string) {
+    await userEvent.selectOptions(screen.getByLabelText('Loại biểu đồ'), ten);
+  }
+
+  /** Chữ của các lựa chọn trong ô "Loại biểu đồ". */
+  function cacDang(): string[] {
+    const oChon = screen.getByLabelText('Loại biểu đồ');
+    return [...oChon.querySelectorAll('option')].map((option) => option.textContent ?? '');
+  }
+
+  /** Đổi mục ở ô "Xem theo". */
+  async function xemTheo(khoa: string) {
+    await userEvent.selectOptions(screen.getByLabelText('Xem theo'), khoa);
   }
 
   it('mặc định là Đường: có đường vẽ, chưa có cột nào', () => {
     const { container } = draw('lai-kep');
 
     expect(container.querySelector('path[data-points]')).not.toBeNull();
-    expect(screen.getByRole('button', { name: 'Đường' }).getAttribute('aria-pressed')).toBe('true');
+    expect((screen.getByLabelText('Loại biểu đồ') as HTMLSelectElement).value).toBe('line');
   });
 
-  it('bấm Cột thì đường biến mất và cột hiện ra — không vẽ chồng cả hai', async () => {
+  it('trục liên tục (P/E theo giá): Đường, Cột, Điểm — không Bậc thang', () => {
+    draw('pe');
+    expect(cacDang()).toEqual(['Đường', 'Cột', 'Điểm']);
+  });
+
+  it('Điểm: một chấm mỗi mức tính được, không còn đường nối, không dải tô', async () => {
+    const { container } = draw('lai-kep');
+    await chonDang('Điểm');
+
+    expect(container.querySelector('path[data-points]')).toBeNull();
+    expect(container.querySelectorAll('circle[class*="dot"]').length).toBeGreaterThan(5);
+    expect(container.querySelector('path[class*="area"]')).toBeNull();
+  });
+
+  it('Bậc thang chỉ có ở trục đếm kỳ, và vẽ bằng nét ngang rồi nét dọc', async () => {
+    const { container } = draw('lai-kep', {}, 'advanced');
+    expect(cacDang()).not.toContain('Bậc thang');
+
+    await xemTheo('years');
+    expect(cacDang()).toContain('Bậc thang');
+    await chonDang('Bậc thang');
+
+    const d = container.querySelector('path[data-points]')?.getAttribute('d') ?? '';
+    expect(d).toMatch(/^M[\d.]+,[\d.]+ H[\d.]+ V[\d.]+/);
+    expect(d).not.toContain('L');
+  });
+
+  it('Lãi/lỗ: hai mảng tô cắt theo mốc 0, vạch 0 kẻ giữa, đường vẫn vẽ', async () => {
+    const { container } = draw('roi', {}, 'advanced');
+    expect(cacDang()).toContain('Lãi/lỗ');
+    await chonDang('Lãi/lỗ');
+
+    const vung = container.querySelector('[data-sign-area]');
+    expect(vung).not.toBeNull();
+    const nuaTo = [...(vung?.querySelectorAll('path') ?? [])].map((path) =>
+      path.getAttribute('clip-path'),
+    );
+    expect(nuaTo).toEqual(['url(#chart-roi-duong)', 'url(#chart-roi-am)']);
+    expect(container.querySelector('clipPath#chart-roi-duong')).not.toBeNull();
+    expect(container.querySelector('clipPath#chart-roi-am')).not.toBeNull();
+    expect(container.querySelector('path[data-points]')).not.toBeNull();
+  });
+
+  /*
+   * Dạng NẾN (21/10/2026): nến của từng phiên dưới đường kết quả, chỉ trên trục thời gian của năm
+   * công thức có kết quả là một mức giá, khi mọi phiên đủ bốn giá.
+   */
+  it('Nến trên đường thời gian của EMA: nến dưới đường, có legend tăng/giảm, bảng số giữ nguyên', async () => {
+    const { container } = drawLoaded('ema-n-phien');
+    expect(cacDang()).toContain('Nến');
+    expect(cacDang()[1]).toBe('Nến');
+    const bang = screen.getByRole('table').textContent;
+    expect(container.querySelector('[data-candles]')).toBeNull();
+
+    await chonDang('Nến');
+
+    expect(container.querySelector('[data-candles]')?.getAttribute('data-candles')).toBe(
+      String(FPT_BARS.length),
+    );
+    expect(container.querySelector('path[data-points]')).not.toBeNull();
+    expect(container.querySelector('path[fill^="url(#chart-ema-n-phien-area"]')).toBeNull();
+    expect(container.querySelector('[data-legend-candle="tang"]')?.textContent).toBe('Phiên tăng');
+    expect(container.querySelector('[data-legend-candle="giam"]')?.textContent).toBe('Phiên giảm');
+    expect(screen.getByRole('table').textContent).toBe(bang);
+  });
+
+  it('SMA ở dạng Nến bỏ đường giá đóng cửa — thân nến đã mang giá ấy; về Đường thì đường trở lại', async () => {
+    const { container } = drawLoaded('sma-n-phien');
+    const duongGia = () => container.querySelector('path[data-series="gia-dong-cua"]');
+    expect(duongGia()).not.toBeNull();
+
+    await chonDang('Nến');
+    expect(duongGia()).toBeNull();
+    expect(container.querySelector('[data-candles]')).not.toBeNull();
+    const legend = container.querySelector('ul[class*="legend"]')?.textContent ?? '';
+    expect(legend).toMatch(/^SMA \d+ phiên/);
+    expect(legend).not.toContain('Giá đóng cửa');
+    // Bảng số vẫn còn cột giá đóng cửa: dạng vẽ không đổi số.
+    expect(screen.getByRole('table').textContent).toContain('Giá đóng cửa');
+
+    await chonDang('Đường');
+    expect(duongGia()).not.toBeNull();
+    expect(container.querySelector('[data-candles]')).toBeNull();
+  });
+
+  /*
+   * Hai mục theo chuỗi giá (đợt C, 21/10/2026): "Phân phối lợi suất" là histogram, chỉ một dạng nên
+   * không có ô "Loại biểu đồ"; "Đường sụt giảm" là một đường thường. Cả hai chỉ có khi đã nạp chuỗi.
+   */
+  it('Phân phối lợi suất: histogram với cột mỗi khoảng, vạch bình quân, không ô Loại biểu đồ', async () => {
+    const { container } = drawLoaded('var-lich-su');
+    const muc = [...screen.getByLabelText('Xem theo').querySelectorAll('option')].map(
+      (option) => option.textContent,
+    );
+    expect(muc).toContain('Phân phối lợi suất');
+
+    await xemTheo('__distribution');
+
+    const svg = container.querySelector('svg[data-histogram]');
+    expect(svg).not.toBeNull();
+    expect(svg?.getAttribute('data-chart-svg')).toBe('chart-var-lich-su');
+    expect(svg?.querySelectorAll('rect[data-bin-count]').length).toBeGreaterThan(5);
+    expect(svg?.textContent).toContain('Bình quân');
+    expect(svg?.textContent).toContain('VaR');
+    expect(screen.queryByLabelText('Loại biểu đồ')).toBeNull();
+    expect(screen.getByRole('table').textContent).toContain('Khoảng lợi suất');
+  });
+
+  it('Đường sụt giảm: một đường thường có dấu "giá trị hiện tại", mời Bậc thang', async () => {
+    const { container } = drawLoaded('sut-giam-sau-nhat');
+    await xemTheo('__drawdown');
+
+    expect(container.querySelector('path[data-points]')).not.toBeNull();
+    expect(container.querySelector('[data-testid="chart-marker"]')).not.toBeNull();
+    expect(cacDang()).toEqual(['Đường', 'Cột', 'Điểm', 'Bậc thang']);
+  });
+
+  it('chưa nạp chuỗi thì không có hai mục ấy — khối chỉ còn cảnh báo thiếu chuỗi', () => {
+    const { container } = draw('var-lich-su');
+    expect(container.textContent).not.toContain('Phân phối lợi suất');
+    expect(container.textContent).not.toContain('Đường sụt giảm');
+    expect(container.querySelector('svg[data-histogram]')).toBeNull();
+  });
+
+  it('công thức ra ₫ mà không phải một mức giá (MACD) thì không có Nến', () => {
+    drawLoaded('macd-duong-chinh');
+    expect(cacDang()).not.toContain('Nến');
+  });
+
+  it('chọn Nến rồi sang một trục quét thì về Đường; quay lại trục thời gian thì Nến trở lại', async () => {
+    const { container } = drawLoaded('ema-n-phien');
+    await chonDang('Nến');
+
+    await xemTheo('period');
+    expect(cacDang()).not.toContain('Nến');
+    expect(container.querySelector('[data-candles]')).toBeNull();
+    expect(container.querySelector('path[data-points]')).not.toBeNull();
+
+    await xemTheo('__time');
+    expect(container.querySelector('[data-candles]')).not.toBeNull();
+  });
+
+  it('kết quả không đổi dấu thì không có Lãi/lỗ', () => {
+    draw('pe');
+    expect(cacDang()).not.toContain('Lãi/lỗ');
+  });
+
+  it('Vành khuyên ở hình bóc tách mọi phần đều cộng: hai múi, phần trăm, bảng số giữ nguyên', async () => {
+    const { container } = draw('wacc');
+    await xemTheo('__breakdown');
+    expect(cacDang()).toEqual(['Thanh ngang', 'Vành khuyên']);
+    const bangThanh = screen.getByRole('table').textContent;
+
+    await chonDang('Vành khuyên');
+
+    const vanh = container.querySelector('svg[data-donut]');
+    expect(vanh).not.toBeNull();
+    expect(vanh?.getAttribute('data-chart-svg')).toBe('chart-wacc');
+    expect(vanh?.getAttribute('aria-hidden')).toBe('true');
+    expect(vanh?.querySelectorAll('path[class*="donutSlice"]')).toHaveLength(2);
+    expect(vanh?.textContent).toMatch(/\d,\d %/);
+    expect(screen.getByRole('table').textContent).toBe(bangThanh);
+  });
+
+  it('chọn Cột thì đường biến mất và cột hiện ra — không vẽ chồng cả hai', async () => {
     const { container } = draw('lai-kep');
     const soDiem = container.querySelectorAll('path[data-points]').length;
     expect(soDiem).toBe(1);
 
-    await bamCot();
+    await chonDang('Cột');
 
     expect(container.querySelector('path[data-points]')).toBeNull();
     expect(container.querySelectorAll('rect[class*="bar"]').length).toBeGreaterThan(5);
@@ -2497,45 +2674,64 @@ describe('Loại biểu đồ — đổi giữa Đường và Cột', () => {
    *
    * `lai-kep` ở số mặc định cho miền Y khoảng 11–33 triệu, tức KHÔNG chứa 0. Vẽ cột trên miền ấy
    * thì cột thấp nhất cao 0 pixel còn cột cao nhất chiếm trọn khung — mắt đọc ra một chênh lệch
-   * không có thật. Ca này ghim rằng bấm Cột là trục tự nới xuống 0.
+   * không có thật. Ca này ghim rằng chọn Cột là trục tự nới xuống 0.
    */
-  it('bấm Cột thì trục giá trị nới xuống chứa mốc 0', async () => {
+  it('chọn Cột thì trục giá trị nới xuống chứa mốc 0', async () => {
     draw('lai-kep');
 
     const truocKhiBam = nhanTrucY();
     expect(truocKhiBam.includes('0')).toBe(false);
 
-    await bamCot();
+    await chonDang('Cột');
 
     expect(nhanTrucY().includes('0')).toBe(true);
   });
 
-  /* Lời hứa 2: đổi cách VẼ, không đổi số. */
-  it('đổi lối vẽ không đụng tới bảng số', async () => {
+  /* Lời hứa 2: đổi cách VẼ, không đổi số — ở mọi dạng. */
+  it('đổi dạng vẽ không đụng tới bảng số', async () => {
     draw('lai-kep');
     const truoc = screen.getByRole('table').textContent;
 
-    await bamCot();
-
-    expect(screen.getByRole('table').textContent).toBe(truoc);
+    for (const dang of ['Cột', 'Điểm', 'Đường']) {
+      await chonDang(dang);
+      expect(screen.getByRole('table').textContent, dang).toBe(truoc);
+    }
   });
 
-  /* Lời hứa 3: thác nước vốn đã là cột, hỏi thêm "muốn cột không" là câu vô nghĩa. */
-  it('thác nước KHÔNG có nhóm nút Loại biểu đồ', () => {
+  /*
+   * Lời hứa 3 ở hình bóc tách: EV trừ tiền mặt, nên không có Vành khuyên — một phần TRỪ không có chỗ
+   * trên vòng tròn. Chỉ còn một dạng thì không bày ô chọn ra.
+   */
+  it('thác nước có phần trừ: không có ô Loại biểu đồ', () => {
     draw('ev');
 
-    expect(screen.queryByRole('button', { name: 'Cột' })).toBeNull();
+    expect(screen.queryByLabelText('Loại biểu đồ')).toBeNull();
   });
 
-  it.skip('lối vẽ giữ nguyên khi mở màn phóng to — không lặng lẽ về Đường', async () => {
+  it('dạng đã chọn giữ nguyên qua lần đổi trục, và quay lại khi trục cũ trở lại', async () => {
+    const { container } = draw('wacc');
+    await xemTheo('__breakdown');
+    await chonDang('Vành khuyên');
+    expect(container.querySelector('svg[data-donut]')).not.toBeNull();
+
+    const trucKhac = [...screen.getByLabelText('Xem theo').querySelectorAll('option')]
+      .map((option) => option.getAttribute('value') ?? '')
+      .find((khoa) => khoa !== '__breakdown');
+    await xemTheo(trucKhac ?? '');
+    expect(container.querySelector('svg[data-donut]')).toBeNull();
+    expect(container.querySelector('path[data-points]')).not.toBeNull();
+
+    await xemTheo('__breakdown');
+    expect(container.querySelector('svg[data-donut]')).not.toBeNull();
+  });
+
+  it.skip('dạng vẽ giữ nguyên khi mở màn phóng to — không lặng lẽ về Đường', async () => {
     draw('lai-kep');
-    await bamCot();
+    await chonDang('Cột');
     await userEvent.click(screen.getByRole('button', { name: /Phóng to/ }));
 
     const lopPhu = screen.getByRole('dialog');
-    expect(within(lopPhu).getByRole('button', { name: 'Cột' }).getAttribute('aria-pressed')).toBe(
-      'true',
-    );
+    expect((within(lopPhu).getByLabelText('Loại biểu đồ') as HTMLSelectElement).value).toBe('bar');
     expect(lopPhu.querySelector('rect[class*="bar"]')).not.toBeNull();
   });
 });
@@ -2581,25 +2777,48 @@ describe('báo hình đang hiện lên màn chi tiết', () => {
     const { bao } = drawBao('pe');
 
     expect(bao).toHaveBeenCalledTimes(1);
-    expect(loiBaoCuoi(bao)).toEqual({ khoa: 'price', dang: 'duong', daVe: true });
+    expect(loiBaoCuoi(bao)).toEqual({ khoa: 'price', dang: 'duong', daVe: true, hinhChuoi: false });
   });
 
-  it('bấm Cột rồi đổi mục ở ô chọn: mỗi lần đổi báo đúng hình mới', async () => {
+  it('chọn Cột rồi đổi mục ở ô chọn: mỗi lần đổi báo đúng hình mới', async () => {
     const { bao } = drawBao('pe');
 
-    await userEvent.click(screen.getByRole('button', { name: 'Cột' }));
-    expect(loiBaoCuoi(bao)).toEqual({ khoa: 'price', dang: 'cot', daVe: true });
+    await userEvent.selectOptions(screen.getByLabelText('Loại biểu đồ'), 'Cột');
+    expect(loiBaoCuoi(bao)).toEqual({ khoa: 'price', dang: 'cot', daVe: true, hinhChuoi: false });
 
     await userEvent.selectOptions(screen.getByLabelText('Xem theo'), 'eps');
     // Lối vẽ là sở thích đọc của người dùng, không đặt lại khi đổi trục — lời báo cũng phải thế.
-    expect(loiBaoCuoi(bao)).toEqual({ khoa: 'eps', dang: 'cot', daVe: true });
+    expect(loiBaoCuoi(bao)).toEqual({ khoa: 'eps', dang: 'cot', daVe: true, hinhChuoi: false });
     expect(bao).toHaveBeenCalledTimes(3);
+  });
+
+  it('hình theo chuỗi giá báo cờ hinhChuoi để khung "?" im và nút "?" ẩn', async () => {
+    const { bao } = drawBao('var-lich-su', WITH_BARS);
+    expect(loiBaoCuoi(bao)).toEqual({
+      khoa: '__time',
+      dang: 'duong',
+      daVe: true,
+      hinhChuoi: false,
+    });
+
+    await userEvent.selectOptions(screen.getByLabelText('Xem theo'), '__distribution');
+    expect(loiBaoCuoi(bao)).toEqual({
+      khoa: '__distribution',
+      dang: 'cot',
+      daVe: true,
+      hinhChuoi: true,
+    });
   });
 
   it('hình bóc tách báo khoá của mục Bóc tách', () => {
     const { bao } = drawBao('ev');
 
-    expect(loiBaoCuoi(bao)).toEqual({ khoa: '__breakdown', dang: 'duong', daVe: true });
+    expect(loiBaoCuoi(bao)).toEqual({
+      khoa: '__breakdown',
+      dang: 'duong',
+      daVe: true,
+      hinhChuoi: false,
+    });
   });
 
   /*
@@ -2607,16 +2826,38 @@ describe('báo hình đang hiện lên màn chi tiết', () => {
    * kèm đường giá đóng cửa nên không có lối cột. Người dùng để nút ở Cột rồi quay về hình ấy thì màn
    * vẽ đường — khung cũng phải nói về đường.
    */
-  it('hình có đường vẽ kèm thì dạng báo lên luôn là Đường, kể cả khi nút đang để Cột', async () => {
+  it('hình có đường vẽ kèm thì dạng báo lên luôn là Đường, kể cả khi ô chọn đang để Cột', async () => {
     const { bao } = drawBao('sma-n-phien', WITH_BARS);
-    expect(loiBaoCuoi(bao)).toEqual({ khoa: '__time', dang: 'duong', daVe: true });
+    expect(loiBaoCuoi(bao)).toEqual({
+      khoa: '__time',
+      dang: 'duong',
+      daVe: true,
+      hinhChuoi: false,
+    });
 
     await userEvent.selectOptions(screen.getByLabelText('Xem theo'), 'period');
-    await userEvent.click(screen.getByRole('button', { name: 'Cột' }));
-    expect(loiBaoCuoi(bao)).toEqual({ khoa: 'period', dang: 'cot', daVe: true });
+    await userEvent.selectOptions(screen.getByLabelText('Loại biểu đồ'), 'Cột');
+    expect(loiBaoCuoi(bao)).toEqual({ khoa: 'period', dang: 'cot', daVe: true, hinhChuoi: false });
 
     await userEvent.selectOptions(screen.getByLabelText('Xem theo'), '__time');
-    expect(loiBaoCuoi(bao)).toEqual({ khoa: '__time', dang: 'duong', daVe: true });
+    expect(loiBaoCuoi(bao)).toEqual({
+      khoa: '__time',
+      dang: 'duong',
+      daVe: true,
+      hinhChuoi: false,
+    });
+  });
+
+  /*
+   * Năm dạng thêm ngày 21/10/2026 chưa có đoạn "Đọc biểu đồ" riêng (chủ dự án: hướng dẫn "chưa
+   * cần"). Điểm vẽ đúng bộ điểm và trục của dạng Đường, nên khung "?" phải được báo Đường — báo Cột
+   * là in đoạn nói về những cột không có trên hình.
+   */
+  it('dạng Điểm báo lên là Đường — cùng bộ điểm, cùng trục', async () => {
+    const { bao } = drawBao('pe');
+
+    await userEvent.selectOptions(screen.getByLabelText('Loại biểu đồ'), 'Điểm');
+    expect(loiBaoCuoi(bao)).toEqual({ khoa: 'price', dang: 'duong', daVe: true, hinhChuoi: false });
   });
 
   /*
@@ -2627,7 +2868,7 @@ describe('báo hình đang hiện lên màn chi tiết', () => {
   it('chưa vẽ được và chưa ai chọn mục nào thì báo khoá null', () => {
     const { bao } = drawBao('sma-n-phien');
 
-    expect(loiBaoCuoi(bao)).toEqual({ khoa: null, dang: 'duong', daVe: false });
+    expect(loiBaoCuoi(bao)).toEqual({ khoa: null, dang: 'duong', daVe: false, hinhChuoi: false });
   });
 
   /* Lời báo đi theo HÌNH, không đi theo phím gõ: màn chi tiết dựng lại mỗi lần nhận lời báo. */

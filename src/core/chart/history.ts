@@ -23,7 +23,7 @@ import type { CalcContext, CalcInputs, FormulaModule } from '../calc/types';
 import { NO_VALUE, formatCalcOutput, formatValueWithUnit } from '../format';
 import { displaySeriesDate, parseSeriesDate } from '../price-series';
 import type { SeriesRow } from '../price-series';
-import type { ChartPoint, ChartSeries } from './types';
+import type { ChartCandle, ChartPoint, ChartSeries } from './types';
 
 /**
  * Khoá của mục "theo thời gian" trong ô chọn trục X.
@@ -46,6 +46,12 @@ export const HISTORY_LABEL = { vi: 'Thời gian', en: 'Over time' };
  * lúc dựng bài thì chưa có phiên nào để gọi `closePriceSeries()` lấy nhãn ra.
  */
 export const CLOSE_PRICE_LABEL = { vi: 'Giá đóng cửa', en: 'Closing price' };
+
+/**
+ * Khoá của đường giá vẽ kèm. Dạng Nến bỏ đúng đường này ra khỏi hình: thân nến đã mang giá đóng
+ * cửa của từng phiên, vẽ thêm một đường nối chúng là vẽ giá hai lần chồng lên nhau.
+ */
+export const CLOSE_PRICE_KEY = 'gia-dong-cua';
 
 /**
  * Chân *giá hiện tại* — thay theo từng phiên.
@@ -247,7 +253,7 @@ export function closePriceSeries(ctx: CalcContext): ChartSeries | null {
   if (bars === null) return null;
 
   return {
-    key: 'gia-dong-cua',
+    key: CLOSE_PRICE_KEY,
     label: CLOSE_PRICE_LABEL,
     points: bars.map((bar, index) => {
       const close = bar.close;
@@ -264,6 +270,38 @@ export function closePriceSeries(ctx: CalcContext): ChartSeries | null {
     width: 1.25,
     axis: 'left',
   };
+}
+
+/** Một giá dùng được: số hữu hạn và dương, cùng phép thử `close > 0` của `closePriceSeries()`. */
+function giaDung(value: number | null): value is number {
+  return value !== null && Number.isFinite(value) && value > 0;
+}
+
+/**
+ * Nến của từng phiên cho dạng Nến, cùng lưới x với `historyPoints()` — hoặc `null` khi chuỗi
+ * không vẽ nến được.
+ *
+ * Tất cả hoặc không: một phiên thiếu giá mở, cao hay thấp, hoặc bốn giá không khớp nhau (giá cao
+ * dưới giá đóng, giá thấp trên giá mở…) là cả chuỗi không có nến. Ba lý do:
+ *
+ * - Chuỗi của Finbox (`?ma=`) chỉ có giá đóng cửa, và chuỗi dán chỉ có cột đóng cửa (đủ cho Beta,
+ *   Sharpe, VaR — FR-12) cũng thế. Ở đó "nến" là một vạch ngang mỗi phiên, gọi nó là nến là sai tên.
+ * - Một phiên lỗi giữa chuỗi mà vẫn vẽ phần còn lại thì hình có một lỗ không ai nói ra, đúng loại im
+ *   lặng FR-06 chặn. Bảng chuỗi giá (`/du-lieu/`) đã có cột kiểm chỉ ra dòng hỏng để sửa.
+ * - Luật đơn giản thì ô chọn dễ đoán: dạng Nến có mặt khi và chỉ khi bảng đủ bốn giá ở mọi dòng.
+ */
+export function sessionCandles(ctx: CalcContext): ReadonlyArray<ChartCandle> | null {
+  const bars = sessionsOf(ctx);
+  if (bars === null) return null;
+
+  const candles: ChartCandle[] = [];
+  for (const bar of bars) {
+    const { open, high, low, close } = bar;
+    if (!giaDung(open) || !giaDung(high) || !giaDung(low) || !giaDung(close)) return null;
+    if (low > Math.min(open, close) || high < Math.max(open, close)) return null;
+    candles.push({ open, high, low, close, up: close >= open });
+  }
+  return candles;
 }
 
 /**

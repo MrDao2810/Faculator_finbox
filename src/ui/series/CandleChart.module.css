@@ -4,7 +4,7 @@
  * Mọi màu đi qua token: `tokens.test.ts` quét toàn bộ CSS Module và đỏ khi thấy mã màu viết thẳng,
  * và đó cũng là thứ giữ cho bảng tối không phải sửa file này một dòng nào.
  *
- * Xanh giảm dùng thẳng `--color-danger` — đúng cặp mà thẻ lãi–lỗ của màn Danh mục đã dùng, để hai
+ * Nến GIẢM dùng `--color-candle-down` (từ 22/10/2026, trước đó là `--color-danger` như thẻ lãi–lỗ của màn Danh mục; chữ lãi–lỗ vẫn dùng danger), để hai
  * chỗ cùng nói "giảm" thì cùng một màu. Nến TĂNG lại đi qua `--color-candle-up` riêng: chủ dự án
  * xin nến tăng nhạt hơn ở bảng tối (ảnh tham chiếu 10/09/2026), mà `--color-success` còn là CHỮ ở
  * khắp sản phẩm nên không đổi thẳng được — lý do đầy đủ nằm ở khai báo token trong `globals.css`.
@@ -210,8 +210,9 @@
  * có bấc một màu và thân một màu.
  *
  * Nến TĂNG dùng `--color-candle-up`, KHÔNG dùng `--color-success` — hai token bằng nhau ở bảng
- * sáng, chỉ tách ở bảng tối (lý do đầy đủ tại khai báo token trong `globals.css`). Nến GIẢM vẫn
- * dùng thẳng `--color-danger`: chủ dự án chỉ xin sửa màu tăng, đỏ hiện đã đủ nhạt.
+ * sáng, chỉ tách ở bảng tối (lý do đầy đủ tại khai báo token trong `globals.css`). Nến GIẢM dùng
+ * `--color-candle-down`: từ 22/10/2026 cả hai màu nến nhạt dịu hơn ở bảng sáng, và đỏ không còn là
+ * `--color-danger` (chữ đỏ khắp nơi nên không đổi chung được).
  */
 .up .wick,
 .up .body {
@@ -221,8 +222,8 @@
 
 .down .wick,
 .down .body {
-  stroke: var(--color-danger);
-  fill: var(--color-danger);
+  stroke: var(--color-candle-down);
+  fill: var(--color-candle-down);
 }
 
 .wick {
@@ -243,7 +244,7 @@
  *
  * Đo trên Chrome thật trước khi sửa: `--color-sunken` bảng tối là #0a0f1a, gần trùng hệt nền
  * trang #111827 — cột khối lượng gần như vô hình. Chủ dự án xin "cột bên dưới cũng tương tự" khi
- * gửi ảnh nến nhạt tham chiếu, nên đây là cùng cặp `--color-candle-up`/`--color-danger` của nến,
+ * gửi ảnh nến nhạt tham chiếu, nên đây là cùng cặp `--color-candle-up`/`--color-candle-down` của nến,
  * chỉ hạ độ đậm bằng `fill-opacity` để nó vẫn đọc ra là NỀN chứ không tranh mắt với thân nến phía
  * trên. Bảng SÁNG không đổi: `--color-sunken` sáng vẫn đủ tương phản với nền, không có gì phải vá.
  */
@@ -253,7 +254,7 @@
 }
 
 [data-theme='dark'] .volume.down {
-  fill: var(--color-danger);
+  fill: var(--color-candle-down);
   fill-opacity: 0.4;
 }
 
@@ -315,7 +316,7 @@
 }
 
 .dotDown {
-  background: var(--color-danger);
+  background: var(--color-candle-down);
 }
 
 .dotVolume {

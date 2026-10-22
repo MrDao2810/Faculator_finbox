@@ -752,6 +752,14 @@ export function FormulaDetail({
    */
   const [hinhBieuDo, setHinhBieuDo] = useState<HinhDangXem | null>(null);
 
+  /*
+   * Khung "?" của khối Biểu đồ đang mở mà hình chuyển sang mục theo chuỗi giá (bàn phím đổi ô "Xem theo"
+   * khi khung còn mở): nút "?" bị gỡ và khung chỉ còn tiêu đề trơ — đóng nó cùng lúc.
+   */
+  useEffect(() => {
+    if (hinhBieuDo?.hinhChuoi === true) setGoiY((cu) => (cu?.muc === 'doc-bieu-do' ? null : cu));
+  }, [hinhBieuDo?.hinhChuoi]);
+
   const [pickerMounted, setPickerMounted] = useState(false);
   const [pickerOpen, setPickerOpen] = useState(false);
   /**
@@ -3351,7 +3359,7 @@ export function FormulaDetail({
               )}
 
               {wantsSeries && (
-                <div className={styles.actions}>
+                <div className={`${styles.actions} ${styles.dataActions}`}>
                   <Button
                     variant="secondary"
                     size="sm"
@@ -3372,26 +3380,6 @@ export function FormulaDetail({
                       {exampleLoaded ? t('detail.exampleLoaded') : t('detail.loadExample')}
                     </Button>
                   )}
-                </div>
-              )}
-
-              {/*
-          Hàng chân của khối chuỗi: số phiên đã nạp bên trái, lối sang bảng dữ liệu bên phải.
-
-          Link từng đứng cuối hàng nút ở trên. Cột Số liệu hẹp nên hàng ấy gãy, và link rơi xuống
-          một dòng riêng lơ lửng giữa hai nút và dòng số phiên — chủ dự án chụp màn, khoanh chỗ
-          trống bên phải dòng "Đã nạp số phiên giá" và bảo chuyển xuống đó (29/09/2026). Hai thứ
-          ấy cùng nói về CHUỖI đang nạp — có bao nhiêu phiên, và xem/sửa nó ở đâu — nên đứng chung
-          một hàng là đúng nghĩa, còn hàng nút giữ đúng vai "đưa dữ liệu vào".
-        */}
-              {wantsSeries && (
-                <div className={styles.seriesFoot}>
-                  {/* Chỉ công thức ăn chuỗi mới cần biết đã nạp bao nhiêu phiên; P/E thì đó là nhiễu. */}
-                  {seriesCount !== null && (
-                    <p className={styles.pendingNote}>
-                      {t('detail.seriesLoaded')} {seriesCount}
-                    </p>
-                  )}
 
                   {/*
               Nút "Áp dụng vào bảng dữ liệu" đã BỎ — việc của nó nay chạy tự động trong `onClick`
@@ -3400,6 +3388,13 @@ export function FormulaDetail({
             */}
 
                   {/*
+              Từ 22/10/2026 link này đứng CUỐI hàng nút, vẽ như một nút `secondary` cỡ nhỏ (chủ dự án:
+              "giảm size text của cả 2 button … để đưa button text bên dưới lên cùng hàng … chuyển
+              thành button thay vì button text"). Vẫn là `<Link>` chứ không phải `<button>`: nó ĐI
+              SANG màn khác bằng điều hướng thật (mở trong tab mới được, trình đọc màn hình đọc là
+              link), và các ca kiểm tìm nó theo vai link. Trước đó nó ở hàng chân `.seriesFoot`
+              cạnh dòng số phiên (29/09/2026) — nay hàng chân chỉ còn dòng số phiên.
+
               Lối vào bảng WF-05. Dán tại chỗ chỉ đọc được chuỗi vào công thức đang mở; muốn
               sửa từng phiên, xem dòng nào sai, hay giữ chuỗi lại thì phải sang bảng. Trước đợt
               này màn đó không có link nào trỏ tới từ bất kỳ đâu trong giao diện.
@@ -3428,6 +3423,15 @@ export function FormulaDetail({
                   >
                     {t('detail.openDataTable')}
                   </Link>
+                </div>
+              )}
+
+              {/* Chỉ công thức ăn chuỗi mới cần biết đã nạp bao nhiêu phiên; P/E thì đó là nhiễu. */}
+              {wantsSeries && seriesCount !== null && (
+                <div className={styles.seriesFoot}>
+                  <p className={styles.pendingNote}>
+                    {t('detail.seriesLoaded')} {seriesCount}
+                  </p>
                 </div>
               )}
 
@@ -3644,17 +3648,24 @@ export function FormulaDetail({
             */}
             <div className={styles.blockHead}>
               <h2 className={styles.blockTitle}>{t('detail.chart')}</h2>
-              <GuideHint
-                className={styles.hintCanhTieuDe}
-                href={`${guidePath(spec.id)}#doc-bieu-do`}
-                nhan={t('guide.hint.chart')}
-                {...(bai === undefined
-                  ? {}
-                  : {
-                      onMo: (event: ReactMouseEvent<HTMLAnchorElement>) =>
-                        moGoiY('doc-bieu-do', event),
-                    })}
-              />
+              {/*
+                Nút "?" ẩn khi hình đang hiện là một mục theo chuỗi giá ("Phân phối lợi suất",
+                "Đường sụt giảm", 21/10/2026): hai mục ấy chưa có chữ, và một khung mở ra trống
+                không nói gì tệ hơn không có nút. Xem `HinhDangXem.hinhChuoi`.
+              */}
+              {hinhBieuDo?.hinhChuoi === true ? null : (
+                <GuideHint
+                  className={styles.hintCanhTieuDe}
+                  href={`${guidePath(spec.id)}#doc-bieu-do`}
+                  nhan={t('guide.hint.chart')}
+                  {...(bai === undefined
+                    ? {}
+                    : {
+                        onMo: (event: ReactMouseEvent<HTMLAnchorElement>) =>
+                          moGoiY('doc-bieu-do', event),
+                      })}
+                />
+              )}
             </div>
             <FormulaChart
               formula={formula}

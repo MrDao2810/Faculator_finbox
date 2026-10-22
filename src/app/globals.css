@@ -380,7 +380,14 @@
    * mới thay vì đổi thẳng `--color-success` vì token kia còn là CHỮ ở khắp nơi (lãi/lỗ Danh mục,
    * FeeTaxBody, sheet dán dữ liệu…) — đổi nó thì bảng tối lệch màu ở những chỗ không ai xin sửa.
    */
-  --color-candle-up: #146b3a;
+  --color-candle-up: #3d9b69;
+  /*
+   * Nến GIẢM, tách khỏi `--color-danger` (#b3202f) cùng lẽ với nến tăng: danh sách đỏ kia còn là CHỮ ở
+   * khắp nơi và phải đạt 4,5:1, còn thân nến là mảng đồ hoạ chỉ cần 3:1. Chủ dự án (22/10/2026) thấy
+   * hai thân nến #146b3a / #b3202f quá đậm và gắt, đỏ chói hơn xanh: nay cả hai nhạt dịu và cùng độ
+   * sáng tương đối (~0,25 / ~0,24), đo bằng công thức WCAG. 3,4:1 / 3,7:1 trên nền trắng.
+   */
+  --color-candle-down: #d8606a;
   --color-warning: #7a5f14; /* chữ cảnh báo */
   --color-warning-line: #d8b64a; /* viền vàng của ô nhận giá trị tự động */
   /* Vàng đủ đậm để dải miễn trừ (FR-24) không hoà vào nền trang. */
@@ -745,6 +752,7 @@
    * làm chữ.
    */
   --color-candle-up: #a6e6c4; /* 12,45 / 10,92 */
+  --color-candle-down: #f4a0a6; /* bằng --color-danger của bảng tối: đỏ ở đó đã nhạt, cân với xanh trên */
   --color-warning: #e5c168; /* 10,27 / 9,00 */
   --color-warning-line: #6b5a24; /* khớp dải ~2:1 của bảng sáng */
   --color-warning-soft: #3a2f10; /* cặp: 7,63:1 */
@@ -914,6 +922,24 @@ a {
   outline-offset: 2px;
 }
 
+/*
+ * Popup của `<select>` ở bảng tối (22/10/2026). Popup do trình duyệt vẽ và LẤY nền từ chính `<option>`:
+ * ô nào khai `background: transparent` (khối gộp, `.compact .select`) thì danh sách rơi về nền trắng
+ * mặc định, trong khi chữ vẫn thừa kế `--color-ink` sáng — chữ trắng trên nền trắng, mục đang chọn
+ * là mảng xanh nhạt chữ tối. Khai nền và chữ ngay trên `<option>` thì mọi `<select>` của sản phẩm
+ * (Select, Xem theo, Loại biểu đồ, Sắp xếp, Biểu phí) đúng bảng đang bật mà không ô nào phải nhớ.
+ * Mục đang trỏ/chọn để trình duyệt tự tô bằng màu nhấn hệ thống đã đi theo `color-scheme`.
+ */
+select option,
+select optgroup {
+  color: var(--color-ink);
+  background-color: var(--color-surface);
+}
+
+select option:disabled {
+  color: var(--color-muted);
+}
+
 /* Chữ chỉ dành cho trình đọc màn hình. */
 .visually-hidden {
   position: absolute;
@@ -983,6 +1009,10 @@ a {
   --color-warning: #7a5f14;
   --color-tint-teal: #0f6b6b;
   --color-tint-violet: #6b3fbf;
+  --color-success: #146b3a;
+  --color-danger: #b3202f;
+  --color-candle-up: #3d9b69;
+  --color-candle-down: #d8606a;
 }
 
 @page {

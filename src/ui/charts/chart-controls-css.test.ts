@@ -4,13 +4,13 @@ import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 
 /**
- * Hàng điều khiển biểu đồ ở khổ điện thoại — ô chọn trục và nhóm Đường / Cột.
+ * Hàng điều khiển biểu đồ ở khổ điện thoại — ô chọn trục và ô chọn dạng vẽ.
  *
  * 19/10/2026, chủ dự án khoanh hàng này trên điện thoại: _"giảm size text đi, ô select giảm height
- * xuống để tiết kiệm không gian"_. Hai điều khiển nằm ở HAI file CSS (`chart.module.css` và
- * `ChartKindToggle.module.css`), mà chủ dự án đã chốt từ trước rằng hai cột của hàng phải cao bằng
- * nhau. Đổi số ở một file mà quên file kia thì hai nhãn lệch nhau, và test React không chạy CSS
- * Module nên không ca nào thấy. Ca dưới đọc thẳng hai file.
+ * xuống để tiết kiệm không gian"_. Chủ dự án đã chốt từ trước rằng hai cột của hàng phải cao bằng
+ * nhau. Tới 21/10/2026 cột thứ hai là nhóm nút Đường / Cột ở một file CSS riêng, nên ca này đọc hai
+ * file và so số. Nay cột ấy là ô chọn "Loại biểu đồ" (`ChartKindSelect`) mang CHÍNH lớp `.picker`,
+ * nên hai ô cao bằng nhau theo cấu tạo; ca dưới ghim cấu tạo ấy thay cho phép so số.
  */
 
 /** Đọc file CSS cạnh test này, bỏ chú thích — lời văn chú thích cũng nhắc tới chính các con số. */
@@ -50,7 +50,6 @@ function luat(css: string, boChon: string): string | undefined {
 
 const DUOI_1024 = 'max-width: 1023.98px';
 const BIEU_DO = khoiMedia(docCss('chart.module.css'), DUOI_1024);
-const NUT_LOAI = khoiMedia(docCss('ChartKindToggle.module.css'), DUOI_1024);
 
 /** Số px trong `thuocTinh: …Npx…` của một luật, hoặc `undefined`. */
 function soPx(than: string | undefined, mau: RegExp): number | undefined {
@@ -62,17 +61,29 @@ describe('hàng điều khiển biểu đồ dưới 1024px', () => {
   it('nhãn và chữ trong ô chọn nhỏ đi một bậc', () => {
     expect(luat(BIEU_DO, '.picker label')).toMatch(/font-size:\s*var\(--text-xs\);/);
     expect(luat(BIEU_DO, '.picker select')).toMatch(/font-size:\s*var\(--text-sm\);/);
-    expect(luat(NUT_LOAI, '.kindLabel')).toMatch(/font-size:\s*var\(--text-xs\);/);
   });
 
-  it('ô chọn và nhóm Đường / Cột cao BẰNG NHAU, nút = hàng trừ đệm 4px và viền 2px', () => {
+  it('ô chọn cao 36px dưới 1024px', () => {
     const oChon = soPx(luat(BIEU_DO, '.picker select'), /min-height:\s*(\d+)px;/);
-    const hang = soPx(luat(NUT_LOAI, '.kind'), /minmax\((\d+)px,\s*auto\)/);
-    const nut = soPx(luat(NUT_LOAI, '.kindOption'), /min-height:\s*(\d+)px;/);
-
     expect(oChon, 'thiếu min-height của .picker select dưới 1024px').toBe(36);
-    expect(hang, 'hàng thứ hai của .kind phải cao bằng ô chọn').toBe(oChon);
-    expect(nut, 'nút = hàng − 2px đệm × 2 − 1px viền × 2').toBe((hang ?? 0) - 6);
+  });
+
+  it('ô "Loại biểu đồ" mang chính lớp .picker của ô "Xem theo" — hai ô cao bằng nhau theo cấu tạo', () => {
+    const nguon = readFileSync(
+      fileURLToPath(new URL('./ChartKindSelect.tsx', import.meta.url)),
+      'utf8',
+    );
+    expect(nguon).toContain('className={`${String(styles.picker)} ${String(styles.kindPicker)}`}');
+  });
+
+  it('.controls .kindPicker đứng SAU .controls .picker — cùng độ ưu tiên, thứ tự file quyết định', () => {
+    const css = docCss('chart.module.css');
+    const chung = css.indexOf('.controls .picker {');
+    const rieng = css.indexOf('.controls .kindPicker {');
+
+    expect(chung).toBeGreaterThan(-1);
+    expect(rieng).toBeGreaterThan(chung);
+    expect(luat(css, '.controls .kindPicker')).toMatch(/flex:\s*0 1 auto;/);
   });
 });
 

@@ -584,6 +584,60 @@ export interface FormulaSpec extends FormulaSummary {
    * cùng nếp `referenceLines`.
    */
   priceOverlay?: PriceOverlaySpec;
+  /**
+   * Kết quả là một MỨC GIÁ của chính mã đang nạp, đi cùng thang với giá phiên (21/10/2026).
+   *
+   * Khai thì đường theo thời gian mời thêm dạng "Nến": nến của từng phiên vẽ dưới đường kết quả,
+   * cùng một trục giá. Chỉ năm công thức khai — SMA, EMA, hai dải Bollinger và VWAP — và đây là
+   * KHAI BÁO chứ không suy ra từ `resultUnit` hay `chartType`: MACD, động lượng, giao cắt hai đường
+   * MA và ATR cũng tính bằng ₫ và cũng mang nhãn `'candlestick'`, nhưng là một HIỆU hay một BIÊN ĐỘ
+   * giá, nằm quanh 0 hoặc vài nghìn đồng, nên đặt chúng lên trục của nến 70.000 ₫ là vẽ một đường
+   * dẹt sát đáy. `dang-ve.test.ts` ghim danh sách.
+   */
+  priceLevel?: true;
+  /**
+   * Hình THEO CHUỖI GIÁ của công thức — một mục thêm vào ô "Xem theo", chỉ hiện khi đã nạp chuỗi
+   * (21/10/2026). Xem `SeriesViewSpec`.
+   */
+  seriesView?: SeriesViewSpec;
+}
+
+/**
+ * Hình theo chuỗi giá: "Phân phối lợi suất" (histogram lợi suất phiên) hoặc "Đường sụt giảm" (mức
+ * sụt so với đỉnh qua từng phiên). Mục này nằm trong ô "Xem theo", cạnh "Thời gian", và chỉ có khi
+ * chuỗi đã nạp đủ phiên.
+ *
+ * Cửa sổ phiên khai Ở ĐÂY phải là ĐÚNG cửa sổ `calc` dùng — một hình vẽ 250 phiên dưới một con số
+ * tính trên 60 phiên là hình nói về dữ liệu khác với con số. Vì thế `min` khai bằng CHÍNH hằng số
+ * mà `calc` của file ấy đòi (`MIN_VAR_BARS`, `MIN_SESSIONS_STDDEV`…), không chép số; và
+ * `series-view.test.ts` gác bằng phép thử nhiễu: đổi một phiên ngay TRƯỚC cửa sổ thì kết quả phải
+ * đứng yên, đổi phiên ĐẦU cửa sổ thì kết quả phải đổi.
+ */
+export interface SeriesViewSpec {
+  kind: 'distribution' | 'drawdown';
+  /**
+   * Ô nhập số phiên CUỐI đưa vào tính (`lookback`, `sessions`). Vắng mặt nghĩa là cả chuỗi — các tỷ
+   * số Sharpe, Sortino, Calmar… đọc mọi phiên đã nạp.
+   */
+  lookbackKey?: string;
+  /** Số phiên tối thiểu, đồng thời là sàn của ô `lookbackKey` — đúng cách `windowOf()` kẹp. */
+  min: number;
+  /**
+   * `calc` đòi ĐỦ số phiên của ô `lookbackKey` (`windowCloses()` của risk-volatility.ts gọi
+   * `requireCloses(ctx, max(min, ô))`), không kẹp ngắn lại như `windowOf()`. Có cờ này thì chuỗi ngắn
+   * hơn ô là `calc` báo thiếu phiên, nên hình cũng không mời mục — không vẽ một cửa sổ `calc` từ chối.
+   */
+  fullWindow?: true;
+  /**
+   * Chỉ dạng sụt giảm: điểm mang dấu "giá trị hiện tại". `last` là phiên cuối (sụt giảm hiện tại),
+   * `deepest` là phiên sụt sâu nhất, `streakEnd` là phiên kết thúc chuỗi giảm dài nhất.
+   */
+  mark?: 'last' | 'deepest' | 'streakEnd';
+  /**
+   * Chỉ dạng phân phối: kết quả là một mức LỖ trên trục lợi suất (VaR, CVaR in 1,86 % cho một phiên
+   * lỗ 1,86 %), nên hình kẻ vạch tại −kết quả.
+   */
+  resultIsLoss?: true;
 }
 
 /**

@@ -4,16 +4,19 @@ import { useMemo, useRef, useState } from 'react';
 import type { PointerEvent as ReactPointerEvent } from 'react';
 
 import {
+  CLOSE_PRICE_KEY,
   areaPath,
+  fixed,
   gapsOf,
   linePath,
   linearScale,
   nearestPointByX,
   pointerToViewBox,
   seriesOf,
+  stepPath,
 } from '@/application';
-import type { ChartPoint, LineChart as LineChartModel, SeriesTone } from '@/application';
-import { usePick } from '@/application/preferences-context';
+import type { ChartPoint, DangVe, LineChart as LineChartModel, SeriesTone } from '@/application';
+import { usePick, useT } from '@/application/preferences-context';
 import { useLabelText } from '@/ui/i18n/units';
 
 import styles from './chart.module.css';
@@ -250,6 +253,14 @@ const BAR_FILL = 0.7;
 const BAR_MAX_WIDTH = 28;
 
 /**
+ * Phần bề rộng một phiên mà thân NẾN chiếm — cùng 0,68 của biểu đồ nến ở màn bảng chuỗi giá, để hai
+ * chỗ vẽ nến trông như một. Sàn 0,6 đơn vị: 250 phiên trên khổ 320 chỉ còn ~1,1 đơn vị một phiên,
+ * và thân mảnh hơn thế thì bấc che hết.
+ */
+const CANDLE_FILL = 0.68;
+const CANDLE_MIN_WIDTH = 0.6;
+
+/**
  * Lớp CSS của một tông chuỗi.
  *
  * Lớp tông chỉ đặt `color`; nét, dải chuyển màu và mẫu trong legend đều đọc `currentColor` — nhờ
@@ -272,6 +283,17 @@ const TONE_CLASS: Readonly<Record<SeriesTone, string>> = {
  */
 function labelYFor(y: number): number {
   return y - 4 < PLOT.y0 + 9 ? y + 11 : y - 4;
+}
+
+/** Các dạng vẽ của `LineChart` — hai dạng của hình bóc tách vẽ ở `WaterfallChart` / `DonutChart`. */
+export type LineVariant = Exclude<DangVe, 'waterfall' | 'donut'>;
+
+/**
+ * Bán kính chấm của dạng Điểm, theo mật độ: chuỗi thưa (41 mức quét) chấm to dễ thấy, chuỗi dày
+ * (248 phiên) chấm nhỏ để các chấm không dính thành một vệt.
+ */
+function banKinhCham(soDiem: number): number {
+  return soDiem <= 60 ? 2.6 : 1.6;
 }
 
 export interface LineChartProps {
@@ -307,14 +329,15 @@ export interface LineChartProps {
    */
   size?: ChartSize;
   /**
-   * Lối vẽ chuỗi CHÍNH — đường liền (mặc định) hay cột đứng.
+   * Dạng vẽ chuỗi CHÍNH — đường liền (mặc định), cột đứng, chấm, bậc thang, hay vùng âm/dương.
    *
    * Chỉ đổi cách vẽ, không đổi dữ liệu: cùng `model.points`, cùng trục, cùng vạch dò, cùng lối
    * bấm-áp-dụng. Người gọi (`ChartBody`) chịu trách nhiệm hai điều kiện mà component này không tự
    * kiểm được: chỉ mời lối cột khi biểu đồ có ĐÚNG MỘT chuỗi (chồng cột với đường phụ thì không
-   * đọc được), và dựng model với `zeroBaseline` để cột có mốc 0 mà đứng.
+   * đọc được), và dựng model với `zeroBaseline` để cột có mốc 0 mà đứng. Bốn dạng còn lại theo
+   * luật của `dangVeCuaHinh()`; component không tự hỏi lại.
    */
-  variant?: 'line' | 'bar';
+  variant?: LineVariant;
 }
 
 export function LineChart({
@@ -326,6 +349,7 @@ export function LineChart({
   variant = 'line',
 }: LineChartProps) {
   const pick = usePick();
+  const t = useT();
   const labelText = useLabelText();
 
   /*
@@ -375,6 +399,9 @@ export function LineChart({
     marked,
     refs,
     bars,
+    dots,
+    sign,
+    candles,
     xLabels,
     yLabels,
     yRightLabels,
@@ -401,6 +428,18 @@ export function LineChart({
      */
     const drawn = seriesOf(model).map((series, index) => {
       const toY = series.axis === 'right' && scaleYRight !== null ? scaleYRight : scaleY;
+      /*
+       * Bốn dạng Nến, Điểm, Bậc thang và Lãi/lỗ bỏ dải chuyển màu dưới chuỗi CHÍNH: dải tô
+       * dưới đường phủ mờ lên nến; chấm rời mà có dải tô nối liền dưới chúng là nói giữa hai chấm có
+       * dữ liệu; bậc thang tô theo đường gấp khúc thì sai hình; còn vùng âm/dương có mảng tô riêng.
+       * Chuỗi phụ giữ nguyên.
+       */
+      const boDaiTo =
+        index === 0 &&
+        (variant === 'candle' ||
+          variant === 'dots' ||
+          variant === 'step' ||
+          variant === 'signArea');
       return {
         key: series.key,
         label: series.label,
@@ -410,17 +449,30 @@ export function LineChart({
         /* Bất biến của `seriesOf()`: phần tử đầu LÀ chuỗi chính. */
         primary: index === 0,
         onRight: series.axis === 'right' && scaleYRight !== null,
-        d: linePath(series.points, scaleX, toY),
-        area: series.area === true ? areaPath(series.points, scaleX, toY, box.y1) : '',
+        d:
+          index === 0 && variant === 'step'
+            ? stepPath(series.points, scaleX, toY)
+            : linePath(series.points, scaleX, toY),
+        area: series.area === true && !boDaiTo ? areaPath(series.points, scaleX, toY, box.y1) : '',
       };
     });
+    /*
+     * Dạng Nến bỏ đường giá đóng cửa vẽ kèm (SMA): thân nến đã mang giá đóng cửa của từng phiên, nối
+     * chúng thêm một đường là vẽ giá hai lần chồng lên nhau. Bỏ ở ĐÂY nên legend và dải chuyển màu
+     * cũng không còn nó. Mô hình vẫn mang chuỗi ấy — bảng số còn cột Giá đóng cửa, và ô chọn đọc
+     * cùng một mô hình ở mọi dạng nên danh sách dạng không đổi khi chọn Nến.
+     */
+    const ve =
+      variant === 'candle' && model.candles !== undefined
+        ? drawn.filter((series) => series.key !== CLOSE_PRICE_KEY)
+        : drawn;
 
     return {
       plot: box,
       sx: scaleX,
       sy: scaleY,
       syRight: scaleYRight,
-      lines: drawn,
+      lines: ve,
       /*
        * Thứ tự VẼ, khác thứ tự đọc: chuỗi chính vẽ SAU CÙNG nên nó nằm trên mọi chuỗi phụ.
        *
@@ -436,7 +488,7 @@ export function LineChart({
        *
        * Biểu đồ MỘT chuỗi: cả hai mảng có đúng một phần tử giống nhau, nên DOM không đổi.
        */
-      drawOrder: [...drawn.slice(1), ...drawn.slice(0, 1)],
+      drawOrder: [...ve.slice(1), ...ve.slice(0, 1)],
       /* Gạch chéo và dấu "giá trị hiện tại" bám CHUỖI CHÍNH, không bám chuỗi phụ nào. */
       gaps: gapsOf(model.points, scaleX),
       marked: model.points.find((point) => point.marked === true),
@@ -489,6 +541,73 @@ export function LineChart({
                   },
                 ];
               });
+            })(),
+      /*
+       * Chấm của dạng ĐIỂM — mảng rỗng ở mọi dạng khác. Điểm không tính được bị loại hẳn, đúng như
+       * cột: một chấm ở đó là nói nó có giá trị.
+       */
+      dots:
+        variant !== 'dots'
+          ? []
+          : model.points.flatMap((point, index) =>
+              /*
+               * Khoá theo vị trí, không theo nhãn: hai mức quét kề nhau có thể in ra cùng một nhãn
+               * sau khi làm tròn ("1,2 tỷ ₫"), và hai khoá trùng là React nhập nhầm hai chấm.
+               */
+              point.y === null
+                ? []
+                : [{ key: String(index), cx: scaleX(point.x), cy: scaleY(point.y) }],
+            ),
+      /*
+       * Mảng tô của dạng VÙNG ÂM/DƯƠNG: một vùng giữa đường và mốc 0, vẽ hai lần qua hai vùng cắt
+       * (trên mốc 0 và dưới mốc 0) để mỗi nửa mang màu của nó. `null` ở mọi dạng khác.
+       *
+       * Mốc 0 luôn nằm trong miền ở dạng này — hình chỉ mời nó khi kết quả có cả số dương lẫn số âm
+       * (`coDoiDau()`), tức miền trải qua 0. Vẫn kẹp vào vùng vẽ để phòng thân, cùng lối chân cột.
+       */
+      sign:
+        variant !== 'signArea'
+          ? null
+          : (() => {
+              const zeroY = Math.min(Math.max(scaleY(0), box.y0), box.y1);
+              return { zeroY, d: areaPath(model.points, scaleX, scaleY, zeroY) };
+            })(),
+      /*
+       * Nến của dạng NẾN — `null` ở mọi dạng khác. Bốn đường `<path>` (bấc và thân, tăng và giảm)
+       * chứ không phải ba thẻ cho mỗi phiên: 250 phiên là 750 nút SVG mà file xuất PDF/PNG phải chép
+       * lại, trong khi màu chỉ có hai.
+       *
+       * Phần tử thứ i là phiên x = i (bất biến của `LineChart.candles`), nên toạ độ ngang đi qua
+       * đúng thang x của đường kết quả và cây nến đứng thẳng dưới điểm của chính phiên nó. Thân phiên
+       * đứng giá (mở = đóng) nới lên 1 đơn vị, không thì cây nến biến mất hẳn — cùng luật với biểu đồ
+       * nến ở màn bảng chuỗi giá.
+       */
+      candles:
+        variant !== 'candle' || model.candles === undefined
+          ? null
+          : (() => {
+              const nen = model.candles;
+              const buoc = nen.length > 1 ? (box.x1 - box.x0) / (nen.length - 1) : box.x1 - box.x0;
+              const rong = Math.max(CANDLE_MIN_WIDTH, Math.min(BAR_MAX_WIDTH, buoc * CANDLE_FILL));
+              const d = { bacTang: '', thanTang: '', bacGiam: '', thanGiam: '' };
+              nen.forEach((cay, index) => {
+                const x = scaleX(index);
+                const yMo = scaleY(cay.open);
+                const yDong = scaleY(cay.close);
+                const dinh = Math.min(yMo, yDong);
+                const cao = Math.max(1, Math.abs(yDong - yMo));
+                const bac = `M${fixed(x)},${fixed(scaleY(cay.high))}V${fixed(scaleY(cay.low))}`;
+                const than = `M${fixed(x - rong / 2)},${fixed(dinh)}h${fixed(rong)}v${fixed(cao)}h${fixed(-rong)}Z`;
+                if (cay.up) {
+                  d.bacTang += bac;
+                  d.thanTang += than;
+                } else {
+                  d.bacGiam += bac;
+                  d.thanGiam += than;
+                }
+              });
+              /* Bấc mảnh hơn thân khi phiên dày, nếu không bấc rộng 1 đơn vị nuốt thân 0,75 đơn vị. */
+              return { ...d, soPhien: nen.length, netBac: Math.min(1, Math.max(0.4, rong / 2)) };
             })(),
       /* Số nhãn theo khổ khung — xem `LABEL_BUDGET` về lý do 3 chứ không phải 2. */
       xLabels: thin(model.x.ticks, budget.x),
@@ -616,8 +735,13 @@ export function LineChart({
    * Mỗi mục có MẪU NÉT thật (cùng lớp tông, cùng nét đứt, cùng độ dày) chứ không phải một ô màu:
    * màu không được là dấu hiệu duy nhất (NFR-USA-06), và mẫu nét nói luôn cả kiểu nét lẫn độ dày.
    */
+  /*
+   * Dạng Nến luôn có legend, kể cả khi chỉ một đường: hình có hai lớp (nến và đường kết quả), và
+   * người mới không tự biết đường xanh đậm kia là EMA hay là giá. Hai mẫu nến tăng và giảm đứng sau
+   * mục của đường — màu không phải dấu hiệu duy nhất (NFR-USA-06): mẫu là một cây nến có bấc.
+   */
   const legend =
-    lines.length < 2 ? null : (
+    lines.length < 2 && candles === null ? null : (
       <ul className={styles.legend}>
         {lines.map((series) => (
           <li
@@ -651,6 +775,41 @@ export function LineChart({
             )}
           </li>
         ))}
+        {candles !== null &&
+          (
+            [
+              {
+                key: 'tang',
+                bac: styles.candleWickUp,
+                than: styles.candleBodyUp,
+                nhan: 'series.legendUp',
+              },
+              {
+                key: 'giam',
+                bac: styles.candleWickDown,
+                than: styles.candleBodyDown,
+                nhan: 'series.legendDown',
+              },
+            ] as const
+          ).map((mau) => (
+            <li
+              key={`leg-nen-${mau.key}`}
+              className={styles.legendItem}
+              data-legend-candle={mau.key}
+            >
+              <svg
+                className={styles.legendSwatch}
+                width="10"
+                height="12"
+                viewBox="0 0 10 12"
+                aria-hidden="true"
+              >
+                <path className={mau.bac} d="M5,0V12" />
+                <path className={mau.than} d="M2,3h6v6h-6Z" />
+              </svg>
+              <span className={styles.legendLabel}>{t(mau.nhan)}</span>
+            </li>
+          ))}
       </ul>
     );
 
@@ -710,6 +869,31 @@ export function LineChart({
             `id` ghép thêm `key` của chuỗi vì `idBase` đã phân biệt bản trên trang với bản phóng to,
             còn `key` phân biệt các chuỗi trong cùng một bản.
           */}
+            {/*
+            Hai vùng cắt của dạng Lãi/lỗ: nửa trên và nửa dưới mốc 0. `id` suy từ `idBase`
+            như mọi `id` khác ở đây; bản xuất file đổi tên chúng cùng mọi `url(#…)` trỏ tới.
+          */}
+            {sign !== null && (
+              <>
+                <clipPath id={`${idBase}-duong`}>
+                  <rect
+                    x={plot.x0}
+                    y={plot.y0}
+                    width={plot.x1 - plot.x0}
+                    height={Math.max(0, sign.zeroY - plot.y0)}
+                  />
+                </clipPath>
+                <clipPath id={`${idBase}-am`}>
+                  <rect
+                    x={plot.x0}
+                    y={sign.zeroY}
+                    width={plot.x1 - plot.x0}
+                    height={Math.max(0, plot.y1 - sign.zeroY)}
+                  />
+                </clipPath>
+              </>
+            )}
+
             {lines.slice(1).map((series) =>
               series.area === '' ? null : (
                 <linearGradient
@@ -801,6 +985,28 @@ export function LineChart({
             nhánh này nên chúng chạy y nguyên ở cả hai lối — đó là cả lý do lối cột chỉ là một cách
             vẽ khác, không phải một biểu đồ khác.
           */}
+          {/*
+            Dạng NẾN: nến vẽ TRƯỚC đường kết quả, như đường giá đóng cửa vẽ trước SMA — nến là bối
+            cảnh, đường mới là đầu ra của công thức. `data-candles` mang số phiên để test và
+            `check:chrome` đếm được mà không phải bóc chuỗi `d`.
+          */}
+          {candles !== null && (
+            <g data-candles={candles.soPhien}>
+              <path
+                className={styles.candleWickUp}
+                d={candles.bacTang}
+                strokeWidth={candles.netBac}
+              />
+              <path
+                className={styles.candleWickDown}
+                d={candles.bacGiam}
+                strokeWidth={candles.netBac}
+              />
+              <path className={styles.candleBodyUp} d={candles.thanTang} />
+              <path className={styles.candleBodyDown} d={candles.thanGiam} />
+            </g>
+          )}
+
           {bars.map((bar) => (
             <rect
               key={`bar-${bar.key}`}
@@ -811,6 +1017,32 @@ export function LineChart({
               y={bar.y}
               width={bar.w}
               height={bar.h}
+            />
+          ))}
+
+          {/* Dạng Lãi/lỗ: nửa trên mốc 0 một màu, nửa dưới một màu, rồi vạch 0 lên trên. */}
+          {sign !== null && sign.d !== '' && (
+            <g data-sign-area="">
+              <path className={styles.signPositive} d={sign.d} clipPath={`url(#${idBase}-duong)`} />
+              <path className={styles.signNegative} d={sign.d} clipPath={`url(#${idBase}-am)`} />
+              <line
+                className={styles.zeroRule}
+                x1={plot.x0}
+                y1={sign.zeroY}
+                x2={plot.x1}
+                y2={sign.zeroY}
+              />
+            </g>
+          )}
+
+          {/* Dạng Điểm: một chấm ở mỗi mức đã tính, không nối. */}
+          {dots.map((dot) => (
+            <circle
+              key={`dot-${dot.key}`}
+              className={styles.dot}
+              cx={dot.cx}
+              cy={dot.cy}
+              r={banKinhCham(model.points.length)}
             />
           ))}
 
@@ -826,7 +1058,9 @@ export function LineChart({
           )}
 
           {drawOrder.map((series) =>
-            variant === 'bar' || series.d === '' ? null : series.primary ? (
+            series.d === '' ||
+            (series.primary &&
+              (variant === 'bar' || variant === 'dots')) ? null : series.primary ? (
               <path
                 key={`line-${series.key}`}
                 className={styles.line}

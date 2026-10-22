@@ -552,7 +552,7 @@ describe('WF-03 — chín khối đúng thứ tự wireframe', () => {
    * Ca này đi đúng ba bước ấy trên màn thật: mở ra (dạng Đường) → bấm Cột → đổi mục ở ô chọn. Mỗi
    * bước khung phải đổi theo, và không bước nào còn sót chữ của hình khác.
    */
-  it('khung "?" của biểu đồ chỉ in hình đang hiện, và đổi theo nút Cột lẫn ô chọn trục', async () => {
+  it('khung "?" của biểu đồ chỉ in hình đang hiện, và đổi theo ô Loại biểu đồ lẫn ô chọn trục', async () => {
     const user = userEvent.setup();
     render(<Man spec={specOf('pe')} bai={baiHuongDanFor('pe', AS_OF)} />);
     await screen.findByRole('figure');
@@ -578,8 +578,8 @@ describe('WF-03 — chín khối đúng thứ tự wireframe', () => {
     // Hình đang vẽ ngay trên màn thì không có dòng "Chỉ vẽ sau khi…".
     expect(khung.textContent).not.toContain('Chỉ vẽ sau khi');
 
-    // Bấm nút Cột: cú bấm ra ngoài đóng khung, mở lại là chữ của dạng Cột.
-    await user.click(screen.getByRole('button', { name: 'Cột' }));
+    // Chọn Cột ở ô "Loại biểu đồ": cú chạm ra ngoài đóng khung, mở lại là chữ của dạng Cột.
+    await user.selectOptions(screen.getByLabelText('Loại biểu đồ'), 'Cột');
     expect(screen.queryByRole('dialog')).toBeNull();
     khung = await moKhung();
     expect(
@@ -589,7 +589,7 @@ describe('WF-03 — chín khối đúng thứ tự wireframe', () => {
     expect(within(khung).queryByText('Dạng Đường')).toBeNull();
     expect(khung.textContent).toContain('Mỗi cột là P/E ở một mức giá');
 
-    // Đổi mục ở ô chọn: khung sang hình của ô EPS, vẫn ở dạng Cột vì nút Cột còn đang bấm.
+    // Đổi mục ở ô chọn: khung sang hình của ô EPS, vẫn ở dạng Cột vì ô Loại biểu đồ còn để Cột.
     await user.selectOptions(screen.getByLabelText('Xem theo'), 'eps');
     khung = await moKhung();
     expect(within(khung).getByRole('heading', { name: 'P/E theo EPS' })).not.toBeNull();

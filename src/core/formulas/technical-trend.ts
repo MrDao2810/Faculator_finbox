@@ -311,6 +311,8 @@ export const SMA_N_PHIEN: FormulaModule = {
       },
     ],
     chartType: 'candlestick',
+    /* Kết quả là một mức giá của chính mã: đường theo thời gian mời thêm dạng Nến. */
+    priceLevel: true,
     level: 'basic',
     tags: ['sma', 'trung binh dong', 'moving average', 'ma20', 'ma50', 'duong xu huong'],
     resultUnit: '₫',
@@ -472,6 +474,8 @@ export const EMA_N_PHIEN: FormulaModule = {
       },
     ],
     chartType: 'candlestick',
+    /* Kết quả là một mức giá của chính mã: đường theo thời gian mời thêm dạng Nến. */
+    priceLevel: true,
     level: 'basic',
     tags: ['ema', 'trung binh luy thua', 'exponential moving average', 'ema12', 'ema26'],
     resultUnit: '₫',

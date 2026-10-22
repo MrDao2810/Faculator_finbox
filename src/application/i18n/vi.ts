@@ -523,7 +523,7 @@ export const vi = {
    * KHÔNG phải dựng lại khối này: hình đã nói tên và trị số rồi, thứ còn thiếu là "tính ra sao" —
    * mà đó đúng là việc của khung "cách tính" khi rê chuột vào ký hiệu (`src/core/how-to/`).
    */
-  'detail.pasteSeries': 'Sử dụng chuỗi giá từ Excel',
+  'detail.pasteSeries': 'Sử dụng dữ liệu mẫu',
   'detail.loadExample': 'Xem ví dụ minh hoạ',
   'detail.exampleLoaded': 'Đã xem ví dụ minh hoạ ✓',
   /* `detail.exampleSeriesLabel` đã BỎ — câu biểu đồ giờ dùng `dataset.name` ('FPT', 'VN-Index')
@@ -565,7 +565,7 @@ export const vi = {
    * số dựng) nó nói rộng hơn sự thật một chút. Đổi lại nó đọc được ngay từ lần đầu.
    */
   'detail.draftMarketSeries': 'Số liệu chỉ mang tính chất minh hoạ, không nên áp dụng cho thực tế.',
-  'detail.openDataTable': 'Mở bảng dữ liệu →',
+  'detail.openDataTable': 'Mở bảng dữ liệu',
   'detail.chart': 'Biểu đồ',
   /*
    * Nhãn ô chọn biến cho trục X của đường quét độ nhạy (FR-08) — mỗi mục là một ô nhập (hình cho
@@ -593,6 +593,20 @@ export const vi = {
   'chart.kindLabel': 'Loại biểu đồ',
   'chart.kindLine': 'Đường',
   'chart.kindBar': 'Cột',
+  /*
+   * Năm dạng vẽ thêm ngày 21/10/2026, khi hai nút Đường / Cột thành ô chọn (`ChartKindSelect`). Mỗi
+   * dạng chỉ hiện ở hình hợp với nó — luật ở `dangVeCuaHinh()`. 'Thanh ngang' là dạng sẵn có của hình
+   * bóc tách, nay có tên vì nó đứng cạnh 'Vành khuyên' trong cùng ô chọn. 'Nến' thêm cùng ngày, ở
+   * đợt sau: chỉ trên đường theo thời gian của năm công thức có kết quả là một mức giá.
+   */
+  'chart.kindCandle': 'Nến',
+  'chart.kindDots': 'Điểm',
+  'chart.kindStep': 'Bậc thang',
+  'chart.kindSignArea': 'Lãi/lỗ',
+  'chart.kindWaterfall': 'Thanh ngang',
+  'chart.kindDonut': 'Vành khuyên',
+  /* Dòng thứ ba của mỗi múi vành khuyên: phần của múi ấy trong tổng, viết rõ để không lẫn với giá trị. */
+  'chart.donutShare': 'chiếm {p}',
   /*
    * Bảng số liệu tương đương, gói trong <details>. HIỆN chứ không giấu bằng .visually-hidden:
    * người sáng mắt cũng cần con số chính xác, mắt đọc biểu đồ chỉ ra được xu hướng.

@@ -1763,6 +1763,8 @@ describe('buildChartModel()', () => {
         expect(donVi.size, `${formula.spec.id}: ${[...donVi].join(' · ')}`).toBe(1);
         continue;
       }
+      // Histogram chỉ hiện khi đã nạp chuỗi, nên không tới được đây với số mặc định; thu hẹp kiểu cho TS.
+      if (model.kind === 'histogram') continue;
 
       // Điểm không tính được mang `_ _` chứ không mang số, nên nó không nói gì về đơn vị.
       const truc = [
@@ -1828,7 +1830,7 @@ describe('buildChartModel()', () => {
         // Chân cột phải có chỗ đứng: miền trục LUÔN chứa số 0.
         expect(model.y.domain[0], `${id}: miền phải chứa 0`).toBeLessThanOrEqual(0);
         expect(model.y.domain[1], `${id}: miền phải chứa 0`).toBeGreaterThanOrEqual(0);
-      } else {
+      } else if (model.kind === 'line') {
         for (const point of model.points) {
           expect(Number.isFinite(point.x), `${id}: x`).toBe(true);
           expect(point.y === null || Number.isFinite(point.y), `${id}: y`).toBe(true);

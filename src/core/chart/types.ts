@@ -162,6 +162,23 @@ export interface ChartSeries {
 /** Khoá của chuỗi chính trong danh sách `seriesOf()` trả về. */
 export const PRIMARY_SERIES_KEY = '__primary';
 
+/**
+ * Bốn giá của MỘT phiên, cho dạng Nến của đường theo thời gian (21/10/2026).
+ *
+ * Đủ cả bốn giá hoặc không có cây nến nào: `sessionCandles()` chỉ dựng khi MỌI phiên có giá mở,
+ * cao, thấp, đóng dương và khớp nhau. Không có "nến thiếu giá mở thì so với phiên trước" như màn
+ * bảng chuỗi giá: ở đó cái hình LÀ bảng đang gõ, còn ở đây nến chỉ là bối cảnh cho đường kết quả,
+ * và một cây nến dựng từ giá đoán là bối cảnh sai.
+ */
+export interface ChartCandle {
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+  /** Phiên tăng (đóng ≥ mở) hay giảm — chọn màu. */
+  up: boolean;
+}
+
 /** Đường quét độ nhạy — FR-08. */
 export interface LineChart {
   kind: 'line';
@@ -192,6 +209,10 @@ export interface LineChart {
    *
    * **Vắng mặt hẳn** khi không dùng — `seriesOf()` rơi về `y.title`, đúng hành xử trước khi có
    * trường này. Cùng nếp `overlays` ngay dưới.
+   *
+   * Từ 21/10/2026 có thêm một chỗ dùng: hình dựng cho dạng NẾN (`ChartArgs.candleRange`) luôn có
+   * legend — đường kết quả cạnh hai mẫu nến tăng và giảm — nên nó mang tên gọn của công thức cả khi
+   * không có chuỗi phụ nào.
    */
   primaryLabel?: Bilingual;
   /**
@@ -212,6 +233,18 @@ export interface LineChart {
    * nguyên: lề phải chỉ nới ra cho nhãn trục khi trường này có mặt.
    */
   yRight?: ChartAxis;
+  /**
+   * Nến của từng phiên, cùng lưới x với `points` (phần tử thứ i là phiên x = i) — có thì ô "Loại
+   * biểu đồ" mời dạng Nến (21/10/2026).
+   *
+   * Chỉ có trên trục THỜI GIAN của công thức khai `spec.priceLevel`, và chỉ khi mọi phiên đủ bốn
+   * giá — xem `sessionCandles()`. Vắng mặt hẳn ở mọi hình khác, cùng nếp `overlays`.
+   *
+   * Có mặt cả khi màn đang vẽ Đường: ô chọn phải biết dạng Nến có hay không trước khi người dùng
+   * chọn. Trục giá trị chỉ nới ra ôm giá cao nhất và thấp nhất khi màn THẬT SỰ vẽ nến
+   * (`ChartArgs.candleRange`), nên dạng Đường giữ đúng trục cũ.
+   */
+  candles?: ReadonlyArray<ChartCandle>;
   table: ChartTable;
   /** Biến đang nằm trên trục X. */
   sweepKey: string;
@@ -307,14 +340,56 @@ export interface WaterfallChart {
   note?: Bilingual;
 }
 
+/** Một khoảng lợi suất của histogram, `[from, to)` theo %, khoảng cuối đóng cả hai đầu. */
+export interface HistogramBin {
+  from: number;
+  to: number;
+  /** Số phiên có lợi suất rơi vào khoảng này. */
+  count: number;
+  /** Khoảng viết sẵn, ví dụ 'từ −3 % tới −2 %', cả hai ngôn ngữ. */
+  label: Bilingual;
+  /** Số phiên viết sẵn kèm đơn vị, ví dụ '12 phiên'. */
+  countLabel: string;
+}
+
+/** Một vạch dọc đánh dấu trên trục lợi suất của histogram: bình quân, ngưỡng VaR… */
+export interface HistogramMarker {
+  value: number;
+  label: Bilingual;
+  /** Giá trị viết sẵn kèm đơn vị, ví dụ '−1,86 %'. */
+  valueLabel: string;
+}
+
+/**
+ * Histogram lợi suất phiên — mục "Phân phối lợi suất" của ô "Xem theo" (21/10/2026, loại thứ tư).
+ *
+ * Trục X là lợi suất một phiên theo %, chia thành các khoảng đều; trục Y là số phiên. Chỉ có một
+ * dạng vẽ (cột), nên ô "Loại biểu đồ" không hiện với nó. Cửa sổ phiên là đúng cửa sổ `calc` của
+ * công thức dùng — xem `SeriesViewSpec` ở `registry/types.ts`.
+ */
+export interface HistogramChart {
+  kind: 'histogram';
+  title: Bilingual;
+  /** Như `LineChart.summary`: chỉ cho trình đọc màn hình. */
+  summary: Bilingual;
+  x: ChartAxis;
+  y: ChartAxis;
+  bins: ReadonlyArray<HistogramBin>;
+  markers: ReadonlyArray<HistogramMarker>;
+  table: ChartTable;
+  options: ReadonlyArray<SweepOption>;
+  sweepKey: string;
+  note?: Bilingual;
+}
+
 /**
  * Mô hình VẼ ĐƯỢC — mọi nhánh trừ `unavailable`.
  *
  * `ChartFrame` và màn phóng to nhận kiểu này: chúng chỉ đụng `title`, `summary`, `table`, `note`
- * — bốn thứ mọi loại biểu đồ đều có. Nhờ vậy thêm loại thứ tư sau này không phải sửa hai file ấy,
- * chỉ phải thêm một nhánh ở `ChartBody`.
+ * — bốn thứ mọi loại biểu đồ đều có. Nhờ vậy loại thứ tư (`histogram`, 21/10/2026) không phải sửa
+ * `ChartFrame`, chỉ thêm một nhánh ở `ChartBody` và màn phóng to.
  */
-export type DrawableChart = LineChart | WaterfallChart;
+export type DrawableChart = LineChart | WaterfallChart | HistogramChart;
 
 export type ChartModel = DrawableChart | UnavailableChart;
 

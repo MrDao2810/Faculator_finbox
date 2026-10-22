@@ -5,6 +5,7 @@ import type { CalcContext, FormulaModule } from '../../calc/types';
 import { BREAKDOWN_KEY } from '../../chart/breakdown';
 import { buildChartModel } from '../../chart/build';
 import { HISTORY_KEY } from '../../chart/history';
+import { laHinhChuoiGia } from '../../chart/series-view';
 import type { ChartModel } from '../../chart/types';
 import { FORMULA_MODULES } from '../../formulas';
 import { MARKET_CONFIG } from '../../market';
@@ -415,6 +416,11 @@ describe.skipIf(CHI.length > 0)('mục của bài khớp ô chọn "Xem kết qu
           const model = ve(formula, ctx, level);
           const dangHien = 'sweepKey' in model ? [model.sweepKey] : [];
           for (const khoa of [...(model.options ?? []).map((option) => option.key), ...dangHien]) {
+            /*
+             * Hai mục theo chuỗi giá (21/10/2026) chưa có chữ — chủ dự án chốt "hướng dẫn sử dụng
+             * thì chưa cần" — và khung "?" im với chúng (`HinhDangXem.hinhChuoi`), nên không đòi khối.
+             */
+            if (laHinhChuoiGia(khoa)) continue;
             if (khoa !== undefined && !khoaCo.has(khoa)) {
               thieu.push(`${formula.spec.id}: mục "${khoa}" không có khối chữ`);
             }

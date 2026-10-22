@@ -212,7 +212,7 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'detail.constantSince': 'in effect since',
   'detail.constantsCollapse': 'Collapse',
   'detail.constantsExpand': 'Expand',
-  'detail.pasteSeries': 'Use a price series from Excel',
+  'detail.pasteSeries': 'Use sample data',
   'detail.loadExample': 'View illustrative example',
   'detail.exampleLoaded': 'Illustrative example loaded ✓',
   /* `detail.exampleSeriesNote` đã bỏ cùng bản tiếng Việt — câu ấy nói sai về số liệu thật đứng
@@ -227,13 +227,20 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
     'the four sample tickers.',
   /* Rút gọn theo bản tiếng Việt (23/09/2026) — lý do đầy đủ ghi ở `vi.ts`. */
   'detail.draftMarketSeries': 'These figures are illustrative only, not for real-world use.',
-  'detail.openDataTable': 'Open the data table →',
+  'detail.openDataTable': 'Open the data table',
   'detail.chart': 'Chart',
   'chart.sweepLabel': 'See how the result changes with',
   /* Đi theo bản tiếng Việt: 'Shape' là bản dịch của 'Kiểu hình' cũ, đã bỏ — xem `vi.ts`. */
   'chart.kindLabel': 'Chart type',
   'chart.kindLine': 'Line',
   'chart.kindBar': 'Bars',
+  'chart.kindCandle': 'Candles',
+  'chart.kindDots': 'Dots',
+  'chart.kindStep': 'Steps',
+  'chart.kindSignArea': 'Gain/loss',
+  'chart.kindWaterfall': 'Horizontal bars',
+  'chart.kindDonut': 'Donut',
+  'chart.donutShare': '{p} of the total',
   'chart.showData': 'View the numbers',
   'chart.tableCaption': 'Data',
   /* `chart.applyHintTimeAxis` và `chart.applyHintReady` đã bỏ cùng bản tiếng Việt — xem `vi.ts`. */

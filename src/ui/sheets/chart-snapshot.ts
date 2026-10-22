@@ -54,6 +54,15 @@ export function cloneChartSvg(
     for (const node of copy.querySelectorAll(selector)) node.remove();
   }
 
+  /*
+   * Cột đang được dò (histogram, lúc ngón tay còn ghim trên màn chạm) mang thêm một lớp tô đậm: đó
+   * là trạng thái tương tác, không phải kết quả — trả nó về lớp gốc, lớp đầu tiên.
+   */
+  for (const node of copy.querySelectorAll('[data-dang-do]')) {
+    node.setAttribute('class', (node.getAttribute('class') ?? '').split(' ')[0] ?? '');
+    node.removeAttribute('data-dang-do');
+  }
+
   renameIds(copy);
 
   /*

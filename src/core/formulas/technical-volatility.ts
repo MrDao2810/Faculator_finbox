@@ -358,6 +358,8 @@ export const DAI_BOLLINGER_TREN: FormulaModule = {
       },
     ],
     chartType: 'candlestick',
+    /* Kết quả là một mức giá của chính mã: đường theo thời gian mời thêm dạng Nến. */
+    priceLevel: true,
     level: 'basic',
     tags: ['bollinger', 'dai tren', 'upper band', 'bien dong', 'ky thuat'],
     resultUnit: '₫',
@@ -507,6 +509,8 @@ export const DAI_BOLLINGER_DUOI: FormulaModule = {
       },
     ],
     chartType: 'candlestick',
+    /* Kết quả là một mức giá của chính mã: đường theo thời gian mời thêm dạng Nến. */
+    priceLevel: true,
     level: 'basic',
     tags: ['bollinger', 'dai duoi', 'lower band', 'bien dong', 'ky thuat'],
     resultUnit: '₫',
@@ -1433,6 +1437,8 @@ export const VWAP: FormulaModule = {
       },
     ],
     chartType: 'candlestick',
+    /* Kết quả là một mức giá của chính mã: đường theo thời gian mời thêm dạng Nến. */
+    priceLevel: true,
     level: 'basic',
     tags: ['vwap', 'gia binh quan', 'khoi luong', 'volume weighted', 'ky thuat'],
     resultUnit: '₫',

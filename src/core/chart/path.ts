@@ -64,6 +64,42 @@ export function linePath(
 }
 
 /**
+ * Chuỗi `d` của dạng BẬC THANG: mỗi mức giữ nguyên theo chiều ngang tới mức kế tiếp rồi mới nhảy.
+ *
+ * Cùng luật ngắt với `linePath`: điểm không tính được cắt bậc, không bắc cầu qua. Mức cuối của mỗi
+ * đoạn dừng đúng tại điểm của nó, không kéo dài ra: kéo dài là vẽ một mức cho chỗ không ai tính.
+ *
+ * @returns chuỗi rỗng khi không có điểm nào vẽ được — nơi gọi bỏ hẳn thẻ `<path>`.
+ */
+export function stepPath(
+  points: ReadonlyArray<ChartPoint>,
+  sx: (value: number) => number,
+  sy: (value: number) => number,
+): string {
+  const parts: string[] = [];
+  let open = false;
+
+  for (const point of points) {
+    if (!drawable(point)) {
+      open = false;
+      continue;
+    }
+
+    const x = sx(point.x);
+    const y = sy(point.y);
+    if (!Number.isFinite(x) || !Number.isFinite(y)) {
+      open = false;
+      continue;
+    }
+
+    parts.push(open ? `H${fixed(x)} V${fixed(y)}` : `M${fixed(x)},${fixed(y)}`);
+    open = true;
+  }
+
+  return parts.join(' ');
+}
+
+/**
  * Chuỗi `d` của VÙNG dưới đường, để tô dải chuyển màu (bản thiết kế đợt 12).
  *
  * Cùng luật ngắt quãng với `linePath`, nhưng mỗi dải liền mạch phải là một đoạn con ĐÓNG KÍN

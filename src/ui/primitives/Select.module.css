@@ -110,6 +110,21 @@
     background-color: transparent;
   }
 
+  /*
+   * Vòng focus vẽ ở THẺ, như `.control:focus-within` của ô số đứng cạnh (22/10/2026). Trước đây
+   * outline mặc định ôm riêng dòng chữ của `<select>` bên trong thẻ — một khung xanh dày cắt ngang
+   * thẻ, lệch hẳn so với ô số cùng hàng. `.compact .select:focus-visible` (0,3,0) thắng luật
+   * `:where()` toàn cục.
+   */
+  .compact:focus-within {
+    border-color: var(--color-focus);
+    box-shadow: var(--focus-ring);
+  }
+
+  .compact .select:focus-visible {
+    outline: none;
+  }
+
   .compact .sourceMark {
     position: absolute;
     top: var(--space-2);

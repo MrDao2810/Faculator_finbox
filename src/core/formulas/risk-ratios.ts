@@ -565,6 +565,8 @@ export const TY_SO_SHARPE: FormulaModule = {
     level: 'advanced',
     tags: ['sharpe', 'ty so sharpe', 'rui ro dieu chinh', 'risk adjusted', 'do bien dong'],
     resultUnit: 'lần',
+    /* Hình "Phân phối lợi suất": cả chuỗi, như `requireCloses()` ở `calc` (21/10/2026). */
+    seriesView: { kind: 'distribution', min: MIN_SESSIONS },
     variables: [RISK_FREE_VAR, withSymbol(SESSIONS_VAR, 'm')],
     explanation: {
       meaning: {
@@ -766,6 +768,8 @@ export const TY_SO_SORTINO: FormulaModule = {
     level: 'advanced',
     tags: ['sortino', 'ty so sortino', 'downside risk', 'rui ro giam gia', 'do lech phan giam'],
     resultUnit: 'lần',
+    /* Hình "Phân phối lợi suất": cả chuỗi, như `requireCloses()` ở `calc` (21/10/2026). */
+    seriesView: { kind: 'distribution', min: MIN_SESSIONS },
     variables: [RISK_FREE_VAR, withSymbol(SESSIONS_VAR, 'm')],
     explanation: {
       meaning: {
@@ -944,6 +948,8 @@ export const TY_SO_TREYNOR: FormulaModule = {
     level: 'advanced',
     tags: ['treynor', 'ty so treynor', 'beta', 'rui ro he thong', 'risk adjusted'],
     resultUnit: '%/năm',
+    /* Hình "Phân phối lợi suất": cả chuỗi, như `requireCloses()` ở `calc` (21/10/2026). */
+    seriesView: { kind: 'distribution', min: MIN_SESSIONS },
     variables: [
       RISK_FREE_VAR,
       withSymbol(SESSIONS_VAR, 'm'),
@@ -1157,6 +1163,8 @@ export const TY_SO_THONG_TIN: FormulaModule = {
     level: 'advanced',
     tags: ['information ratio', 'ty so thong tin', 'vuot chuan', 'benchmark', 'sai so theo doi'],
     resultUnit: 'lần',
+    /* Hình "Phân phối lợi suất": cả chuỗi, như `requireCloses()` ở `calc` (21/10/2026). */
+    seriesView: { kind: 'distribution', min: MIN_SESSIONS },
     variables: [
       numberVar(
         'benchmarkReturn',
@@ -1321,6 +1329,8 @@ export const TY_SO_CALMAR: FormulaModule = {
     level: 'advanced',
     tags: ['calmar', 'ty so calmar', 'max drawdown', 'sut giam sau nhat', 'mdd'],
     resultUnit: 'lần',
+    /* Hình "Đường sụt giảm": cả chuỗi, như `maxDrawdown(closes)` ở `calc`, dấu ở phiên sụt sâu nhất (21/10/2026). */
+    seriesView: { kind: 'drawdown', min: MIN_SESSIONS, mark: 'deepest' },
     variables: [SESSIONS_VAR],
     explanation: {
       meaning: {
@@ -1491,6 +1501,8 @@ export const TY_SO_THANG_THUA: FormulaModule = {
     level: 'basic',
     tags: ['thang thua', 'win loss', 'payoff ratio', 'phien tang phien giam', 'bien do'],
     resultUnit: 'lần',
+    /* Hình "Phân phối lợi suất": cả chuỗi, như `requireCloses()` ở `calc` (21/10/2026). */
+    seriesView: { kind: 'distribution', min: MIN_SESSIONS },
     variables: [
       sliderVar(
         'threshold',

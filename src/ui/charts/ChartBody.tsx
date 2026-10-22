@@ -2,11 +2,12 @@
 
 import { useEffect, useMemo, useState } from 'react';
 
-import { buildChartModel } from '@/application';
+import { buildChartModel, dangVeCuaHinh, dangVeHieuLuc, laHinhChuoiGia } from '@/application';
 import type {
   CalcContext,
   CalcInputs,
   CalcOutput,
+  DangVe,
   FormulaModule,
   HinhDangXem,
   Level,
@@ -16,8 +17,9 @@ import { InlineWarning } from '@/ui/result';
 
 import { ChartFrame } from './ChartFrame';
 import { ChartFullscreen } from './ChartFullscreen';
-import { ChartKindToggle } from './ChartKindToggle';
-import type { ChartKind } from './ChartKindToggle';
+import { ChartKindSelect } from './ChartKindSelect';
+import { DonutChart } from './DonutChart';
+import { HistogramChart } from './HistogramChart';
 import { LineChart } from './LineChart';
 import { SweepPicker } from './SweepPicker';
 import { WaterfallChart } from './WaterfallChart';
@@ -126,16 +128,17 @@ export function ChartBody({
   const [zoomed, setZoomed] = useState(false);
 
   /*
-   * Lối vẽ chuỗi chính. Mặc định ĐƯỜNG, và giữ nguyên như thế qua mọi lần đổi trục.
+   * Dạng vẽ người dùng chọn ở ô "Loại biểu đồ". Mặc định ĐƯỜNG, và giữ nguyên như thế qua mọi lần đổi trục.
    *
    * Không đặt lại về `'line'` khi người dùng đổi trục: lối vẽ là sở thích ĐỌC của họ, không phải
    * thuộc tính của trục đang xem. Bắt chọn lại cột sau mỗi lần đổi trục là bắt nói lại một ý đã nói.
    *
-   * Cột chỉ vẽ được khi model chấp nhận — xem `coCotDuoc` bên dưới. State vẫn giữ `'bar'` cả khi
-   * điều kiện tạm mất (người dùng đổi sang trục thời gian có đường giá chồng lên chẳng hạn), nên
-   * đổi về trục cũ là cột quay lại đúng như họ để.
+   * Mỗi dạng chỉ vẽ được khi hình mời nó — xem `dangVeCuaHinh()` bên Domain. State vẫn giữ dạng đã
+   * chọn cả khi điều kiện tạm mất (đổi sang trục thời gian có đường giá chồng lên thì không còn Cột),
+   * nên đổi về trục cũ là dạng ấy quay lại đúng như họ để. Hình bóc tách cũng vậy: chọn Vành khuyên,
+   * sang một trục quét (về Đường), quay lại bóc tách là Vành khuyên trở lại.
    */
-  const [kind, setKind] = useState<ChartKind>('line');
+  const [kind, setKind] = useState<DangVe>('line');
 
   /*
    * Một lượt dựng đường quét là khoảng 42 lần gọi `runFormula`, cỡ vài chục micro giây; đường theo
@@ -160,37 +163,35 @@ export function ChartBody({
          * cùng lúc với miền, nên nới miền một mình bên kia là nhãn nói một đằng, hình vẽ một nẻo.
          * Lý do vì sao cột bắt buộc phải có mốc 0 nằm ở `ChartArgs.zeroBaseline`.
          *
-         * Xin cả khi model hoá ra không vẽ cột được (nhiều chuỗi chẳng hạn) là vô hại: lúc ấy
-         * `coCotDuoc` false, hình vẫn vẽ đường, chỉ là trục rộng thêm tới 0. Nhưng nó KHÔNG xảy ra
-         * — `kind` chỉ lên `'bar'` qua nút bấm, mà nút chỉ hiện khi điều kiện đã đủ.
+         * Xin cả khi model hoá ra không vẽ cột được (nhiều chuỗi chẳng hạn) là vô hại: `kind` sống
+         * qua mọi lần đổi trục nên cờ vẫn tới Domain, nhưng `buildChartModel` chỉ nới tới 0 khi
+         * hình không có đường kèm — đúng điều kiện ô chọn mời Cột.
          */
         ...(kind === 'bar' ? { zeroBaseline: true } : {}),
+        /*
+         * Xin trục ôm giá cao và giá thấp của mọi phiên khi người dùng đang xem NẾN — cùng lẽ với
+         * mốc 0 của Cột ngay trên, chi tiết ở `ChartArgs.candleRange`. Hình không có nến thì Domain
+         * bỏ qua cờ này, nên đổi sang một trục quét mà `kind` còn là Nến vẫn ra đúng trục cũ.
+         */
+        ...(kind === 'candle' ? { candleRange: true } : {}),
       }),
     [formula, inputs, ctx, output, level, sweepKey, seriesLabel, kind],
   );
 
   /*
-   * Có mời người dùng đổi sang lối CỘT hay không.
-   *
-   * Hai điều kiện, cả hai đều là "vẽ ra sẽ đọc sai" chứ không phải "vẽ ra sẽ xấu":
-   *
-   *   - Thác nước VỐN ĐÃ là cột, với ý nghĩa khác hẳn (mỗi cột một THÀNH PHẦN của phép bóc tách,
-   *     không phải một mức của cùng một biến). Bày thêm nút "Cột" ở đó là hỏi một câu vô nghĩa.
-   *   - Nhiều chuỗi thì cột của chuỗi chính che mất đường phụ, mà đường phụ là bối cảnh người ta
-   *     cần để đọc chuỗi chính (giá đóng cửa dưới đường SMA chẳng hạn). Vẽ được, nhưng đọc thành
-   *     một hình khác với hình nó đang nói.
-   *
-   * Nút VẮNG MẶT chứ không phải bị làm mờ: một nút không bao giờ bấm được ở màn này thì bày ra chỉ
-   * để người dùng thử rồi thất vọng.
+   * Những dạng hình đang mời, theo luật của `dangVeCuaHinh()` bên Domain (Cột chỉ khi một chuỗi,
+   * Bậc thang chỉ ở trục rời rạc, Lãi/lỗ chỉ khi kết quả đổi dấu, Vành khuyên chỉ khi mọi
+   * phần bóc tách đều cộng vào). Dạng không hợp thì VẮNG MẶT khỏi ô chọn chứ không bị làm mờ: một
+   * lựa chọn không bao giờ chọn được ở hình này thì bày ra chỉ để người dùng thử rồi thất vọng.
    *
    * Tính ở ĐÂY, trước nhánh `unavailable`, vì effect báo hình ngay dưới cần nó và hook thì không
    * được đứng sau một lệnh `return` sớm.
    */
-  const coCotDuoc =
-    model.kind === 'line' && (model.overlays === undefined || model.overlays.length === 0);
+  const dangMoi = model.kind === 'unavailable' ? [] : dangVeCuaHinh(model, formula.spec);
 
-  /* Lối vẽ THẬT SỰ đang dùng — `kind` là ý muốn, còn đây là ý muốn đã lọc qua điều kiện. */
-  const variant: ChartKind = coCotDuoc ? kind : 'line';
+  /* Dạng THẬT SỰ đang vẽ — `kind` là ý muốn, còn đây là ý muốn đã lọc qua điều kiện. */
+  const variant: DangVe =
+    model.kind === 'unavailable' ? 'line' : dangVeHieuLuc(model, kind, formula.spec);
 
   /*
    * Báo hình đang hiện lên màn chi tiết — xem `ChartBodyProps.onViewChange`.
@@ -207,10 +208,18 @@ export function ChartBody({
    */
   const daVe = model.kind !== 'unavailable';
   const khoaDangHien = model.kind === 'unavailable' ? sweepKey : model.sweepKey;
+  /*
+   * Các dạng thêm ngày 21/10/2026 chưa có đoạn "Đọc biểu đồ" riêng — chủ dự án chốt hướng dẫn cho
+   * chúng "chưa cần". Nến, Điểm, Bậc thang và Lãi/lỗ vẽ đúng bộ điểm và trục của dạng Đường
+   * (Nến chỉ thêm nến của phiên dưới đường ấy) nên khung "?" in đoạn Đường; Vành khuyên dùng chung
+   * đoạn bóc tách, vốn không tách theo dạng.
+   */
   const dangDangVe = variant === 'bar' ? 'cot' : 'duong';
+  /* Hai mục theo chuỗi giá chưa có chữ hướng dẫn — khung "?" phải im (`HinhDangXem.hinhChuoi`). */
+  const hinhChuoi = daVe && laHinhChuoiGia(khoaDangHien);
   useEffect(() => {
-    onViewChange?.({ khoa: khoaDangHien, dang: dangDangVe, daVe });
-  }, [onViewChange, khoaDangHien, dangDangVe, daVe]);
+    onViewChange?.({ khoa: khoaDangHien, dang: dangDangVe, daVe, hinhChuoi });
+  }, [onViewChange, khoaDangHien, dangDangVe, daVe, hinhChuoi]);
 
   if (model.kind === 'unavailable') {
     /*
@@ -304,7 +313,7 @@ export function ChartBody({
    * Dùng chung một element là ô chọn trong màn phóng to mất nhãn.
    */
   /*
-   * MỘT ô chọn trục và MỘT nhóm nút lối vẽ, dựng hai lần ở hai chỗ — cùng lý do đã ghi ngay dưới:
+   * MỘT ô chọn trục và MỘT ô chọn dạng vẽ, dựng hai lần ở hai chỗ — cùng lý do đã ghi ngay dưới:
    * `id` phải khác nhau nên đây là hàm dựng, không phải element giữ sẵn.
    */
   const pickerVoi = (base: string) => (
@@ -315,9 +324,12 @@ export function ChartBody({
         value={model.sweepKey}
         onChange={setSweepKey}
       />
-      {coCotDuoc && <ChartKindToggle idBase={base} value={kind} onChange={setKind} />}
+      <ChartKindSelect idBase={base} options={dangMoi} value={variant} onChange={setKind} />
     </>
   );
+
+  /* Dạng của `LineChart` — hai dạng của hình bóc tách không bao giờ tới được nhánh đó. */
+  const dangDuong = variant === 'waterfall' || variant === 'donut' ? 'line' : variant;
 
   return (
     <>
@@ -347,12 +359,18 @@ export function ChartBody({
           `ChartFrame` và màn phóng to nhận `DrawableChart` nên không phải sửa.
         */}
         {model.kind === 'waterfall' ? (
-          <WaterfallChart model={model} idBase={idBase} />
+          variant === 'donut' ? (
+            <DonutChart model={model} idBase={idBase} />
+          ) : (
+            <WaterfallChart model={model} idBase={idBase} />
+          )
+        ) : model.kind === 'histogram' ? (
+          <HistogramChart model={model} idBase={idBase} />
         ) : (
           <LineChart
             model={model}
             idBase={idBase}
-            variant={variant}
+            variant={dangDuong}
             onApplyPoint={canApplyPoint ? onApplyPoint : undefined}
           />
         )}

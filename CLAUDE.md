@@ -1455,6 +1455,77 @@ it ("EV/EBITDA theo Giá trị doanh nghiệp (EV)"). The time entry went "Theo 
 paragraph that named the row (`lai-kep`'s principal axis) was rewritten. English unchanged ("See how the
 result changes with", "Over time").
 
+**The Đường / Cột buttons became a "Loại biểu đồ" SELECT with up to five forms, each offered only where
+it fits** (21/10/2026). The owner: _"biểu đồ tôi đang muốn hướng đến nhiều dạng vẽ khác nhau … hiện tại
+đang chỉ là 2 dạng nên quá eo hẹp"_, then _"áp dụng cho toàn bộ công thức"_; asked, they chose all four
+groups below, a select over icon buttons, **no guide text for the new forms yet** ("hướng dẫn sử dụng thì
+chưa cần"), and Beta's fabricated VN-Index left for a separate job. `dangVeCuaHinh(model, spec)` in
+`src/core/chart/dang-ve.ts` is the ONE rule, and `ChartKindSelect` only prints its list (a form that would
+read wrong is absent, not greyed out; one form left means no select at all):
+
+- **Đường, Cột** as before (Cột only for a single series). **Điểm**: one dot per computed level, no line,
+  no area band; every line chart.
+- **Bậc thang** (`stepPath()`): only on a DISCRETE axis — the time axis; an input whose unit counts periods
+  (`năm`, `tháng`, `kỳ`, `phiên`, `ngày`) swept on its FULL step grid; or a result that rounds itself into
+  steps (`so-hop-dong-toi-da`, `co-vi-the-phai-sinh`, `so-ky-dca`). The first build asked "are the x values
+  integers" and offered steps on P/E against a 46.000–138.000 ₫ price axis; never go back to that test.
+- **Candle colours** (22/10/2026): both candle bodies were softened at the owner's request ("nhạt dịu hơn", they found
+  #006837 / #dd0010 harsh, the red louder than the green), in the chart AND in `CandleChart` on /du-lieu/. Light palette:
+  `--color-candle-up` #3d9b69, `--color-candle-down` #d8606a (new; the down candle no longer reads `--color-danger`,
+  which stays the red of TEXT and must keep 4.5:1). Dark palette unchanged. `contrast.test.ts` holds 3:1 on the card.
+- **Lãi/lỗ**: green above 0, red below (`--color-success` / `--color-danger`, now also in the
+  `.print-region` token copy), a 0 rule between them; single series only, and only when the computed
+  points have both signs. Named "Lãi/lỗ" / "Gain/loss" at the owner's choice (22/10/2026; first "Vùng
+  âm/dương", then "Trên/dưới 0" and "Xanh đỏ theo dấu" were offered); it paints the SIGN of the result, not
+  whether the line rises, and it also serves MACD, ratios and returns, where "lãi/lỗ" is the owner's reading
+  of positive/negative. Do not call it "tăng/giảm": that word is the candle's (close above/below open).
+- **Vành khuyên** (`DonutChart.tsx`, the breakdown model drawn as a donut): only when every non-total stage
+  is positive and there are at most 4 (the tone count) — 5 formulas today (`ddm-hai-giai-doan`, `wacc`,
+  the two `tra-gop-*`, `thue-tncn-dau-tu`); a SUBTRACTED stage (EV's cash, FCFF's CapEx) has no place on a
+  circle. Shares use largest-remainder rounding so they print exactly 100,0 %; each slice's legend is three
+  lines, value and "chiếm 73,2 %" apart (on WACC both are percentages). The legend is INSIDE the `<svg>`
+  so PDF/PNG exports carry it; a `visually-hidden` line gives screen readers the shares.
+- **Nến** (second round, same day): the session candles drawn UNDER the result line, on the time axis of the
+  five formulas declaring `spec.priceLevel` (`sma-n-phien`, `ema-n-phien`, both `dai-bollinger-*`, `vwap`),
+  and only when EVERY session has a positive open, high, low and close that agree (`sessionCandles()` in
+  `history.ts`; one bad row or a closes-only Finbox series means no Nến). It is a declaration, not a rule on
+  `resultUnit` or `chartType`: MACD, momentum, the MA crossover and ATR are also ₫ and also tagged
+  `'candlestick'`, but they are a difference or a range near 0, flat against a 70.000 ₫ candle axis. The model
+  carries `LineChart.candles` whenever available (the select must know before the user picks); the value axis
+  widens to the highs and lows only when Nến is drawn (`ChartArgs.candleRange`, the `zeroBaseline` pattern),
+  so Đường keeps its old axis. In Nến the close-price overlay of SMA is not drawn (`CLOSE_PRICE_KEY`; the
+  candle bodies carry those closes) but stays in the model and the data table, so the form list does not
+  change when Nến is picked; the area band under the result goes; a legend always shows (result line ·
+  "Phiên tăng" · "Phiên giảm", `primaryLabel` = the formula's short name); colours are `CandleChart`'s
+  (`--color-candle-up`, now in the `.print-region` copy, and `--color-danger`); candles are four `<path>`s,
+  not three nodes per session, because exports copy the SVG; the screen-reader summary gains a sentence.
+- **"Phân phối lợi suất" and "Đường sụt giảm"** (third round, same day) are not forms but two ENTRIES of the
+  "Xem theo" select, right after "Thời gian", for the 15 formulas declaring `spec.seriesView`
+  (`src/core/chart/series-view.ts`): 11 read a return distribution (VaR, CVaR, the four deviation/CV
+  formulas, Sharpe, Sortino, Treynor, information ratio, win/loss) and get a `HistogramChart` — the
+  fourth `ChartModel` kind, returns per session binned on a nice step with 0 always an edge, a dashed
+  marker at the window's mean and, for VaR/CVaR, at −result (`resultIsLoss`); one form only, so no
+  "Loại biểu đồ" select. 4 read the drawdown curve (both `sut-giam-*`, `chuoi-phien-giam-dai-nhat`,
+  `ty-so-calmar`) and get an ordinary `LineChart` with `sweepKey = DRAWDOWN_KEY` (positive %, the
+  formula's own sign; the marked point is the last session, the deepest one or the end of the longest
+  losing streak, per `mark`). **The chart draws exactly the window `calc` reads**: `seriesView.min` is
+  written with the formula file's own constant (`MIN_VAR_BARS`, `MIN_SESSIONS_STDDEV`…), `lookbackKey`
+  names the sessions field, and `series-view.test.ts` holds it with a perturbation test — tripling a close
+  just BEFORE the window leaves the result unchanged, tripling the first close INSIDE it changes it (the
+  streak count, which a price change need not move, is checked by counting negative returns instead). The
+  entries exist only once the series clears `min`. **They have no guide text** (owner: "hướng dẫn sử
+  dụng thì chưa cần"): `ChartBody` reports `HinhDangXem.hinhChuoi`, on which `khoiDangXem()` returns
+  nothing instead of falling back to the first block, the chart block's "?" is not rendered, and
+  `bieu-do.test.ts` skips the two keys when it demands a paragraph per picker entry.
+
+Measured over the Registry (`dang-ve.test.ts` pins it): with no series, 222 drawable charts — Đường/Cột/Điểm
+211, Bậc thang 23, Lãi/lỗ 27, Vành khuyên 5; with FPT's 250 sessions, Bậc thang 102 and
+Lãi/lỗ 46, Nến 5. The first form of every chart is the old default, so nothing changes until the user picks. The "?" popover
+is told `dang: 'duong'` for Nến, Điểm, Bậc thang and Lãi/lỗ (same points, same axes) and keeps the one
+breakdown paragraph for the donut. Below 1024px the "Xem theo" select's flex floor is 7.5rem so the two
+selects share one row whenever "Xem theo" keeps ≥120px (else a 153px "Vùng âm/dương" (renamed "Lãi/lỗ" 22/10/2026) dropped the second select
+to its own row on some charts and not others); a truncated axis name stays readable in the chart title.
+
 Other domain conventions already established: input controls are generated entirely from
 `VariableSpec` rather than hard-coded (FR-05); user input is bounded with `clampToSpec()`, which
 never throws and never returns NaN; tax/fee constants belong in `MarketConstant` records carrying
@@ -2028,8 +2099,13 @@ outranks the primitive's `.table th, .table td` (the `table.variables` pattern);
 **The two yellow notes of the Số liệu block are 12px below 1024px** (20/10/2026, owner circling `beta`'s "Số liệu chỉ
 mang tính chất minh hoạ…": _"giảm size text … và giảm padding, áp dụng cho màn mobile"_): `.seriesShortNote` and
 its sibling `.presetMismatch` take 12px, 6/8px padding and line-height 1.4, the disclaimer notice's numbers; the
-box went 60 → 47.6px at 390. This is the one place a warning surface uses `--text-xs`: `warning-surface.test.ts`
-still forbids it in the base rules and pins this mobile exception separately. **The head of `/du-lieu/` is smaller
+box went 60 → 47.6px at 390. **Since 22/10/2026 they are no box at all, at every width** (owner, on the same
+note: _"chỉ cần đoạn text màu vàng in nghiêng là được, không cần bo bên ngoài"_): `--color-warning` italic text,
+no background, border, radius or padding (13px on PC, 12px below 1024px). Both left the "yellow warning surface"
+group of `warning-surface.test.ts` (which keeps the shared fill/border/radius of the other three surfaces) and have
+their own case there; the 6/8px padding above went with the frame. Do not put the frame back without asking. This
+was the one place a warning surface used `--text-xs`: the test still forbids it in the group's base rules and pins
+this mobile exception separately. **The head of `/du-lieu/` is smaller
 below 1024px** (20/10/2026, owner: _"giảm size text và giảm height của button bản mobile để có nhiều không gian hiển
 thị chart"_): title 26 → 20px, subtitle 12px, the five action buttons 36 → 28px with 12px text (`.actions > button`,
 the `.sm` overlay keeps 44px), and in `CandleChart.module.css` the code badge 20px / 11px, session line 12px, price

@@ -12,6 +12,7 @@
 export type {
   BreakdownBar,
   ChartAxis,
+  ChartCandle,
   ChartKind,
   ChartModel,
   ChartPoint,
@@ -19,6 +20,9 @@ export type {
   ChartTable,
   ChartTick,
   DrawableChart,
+  HistogramBin,
+  HistogramChart,
+  HistogramMarker,
   LineChart,
   SeriesTone,
   SweepOption,
@@ -40,7 +44,11 @@ export type { ReferenceLine } from '../registry/types';
 export type { NiceAxis } from './scale';
 export { decimalsOf, extentOf, linearScale, niceAxis, niceStep } from './scale';
 
-export { areaPath, fixed, gapsOf, linePath } from './path';
+export { areaPath, fixed, gapsOf, linePath, stepPath } from './path';
+
+/* Các dạng vẽ một hình đang mời — nguồn duy nhất của ô chọn "Loại biểu đồ". */
+export type { DangVe, PhanVanhKhuyen, VanhKhuyen } from './dang-ve';
+export { coDoiDau, dangVeCuaHinh, dangVeHieuLuc, laTrucRoiRac, vanhKhuyen } from './dang-ve';
 
 export type { ViewBoxRect } from './pointer';
 export { nearestPointByX, pointerToViewBox } from './pointer';
@@ -60,6 +68,21 @@ export { CHART_TABLE_ROWS, condensePoints } from './table';
 
 export type { ChartArgs } from './build';
 export { buildChartModel } from './build';
+
+/* Đường giá vẽ kèm mang khoá này — dạng Nến bỏ đúng đường ấy ra khỏi hình. */
+export { CLOSE_PRICE_KEY } from './history';
+
+/* Hai mục theo chuỗi giá của ô "Xem theo" (21/10/2026): khoá, nhãn, và phép hỏi "khoá này có phải một trong hai". */
+export {
+  DISTRIBUTION_KEY,
+  DISTRIBUTION_LABEL,
+  DRAWDOWN_KEY,
+  DRAWDOWN_LABEL,
+  drawdownSeries,
+  laHinhChuoiGia,
+  seriesWindow,
+} from './series-view';
+export type { CuaSoPhien } from './series-view';
 
 /*
  * Chặng bóc tách công thức TỰ TÍNH RA — khối Số liệu đọc để bày chúng ra, xem docblock ở

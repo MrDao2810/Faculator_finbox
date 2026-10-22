@@ -203,6 +203,113 @@
 }
 
 /*
+ * ── Ba dạng vẽ thêm ngày 21/10/2026 (ô chọn "Loại biểu đồ") ─────────────────────────────────────
+ *
+ * Cả ba nằm DƯỚI lớp bắt sự kiện như cột, nên không cần `pointer-events: none`. Luật hình nào mời
+ * dạng nào ở `dangVeCuaHinh()` bên Domain.
+ */
+
+/* Dạng ĐIỂM — cùng màu nét của đường chính, không viền: chấm là dữ liệu, không phải dấu chọn. */
+.dot {
+  fill: var(--color-accent-vivid);
+  stroke: none;
+}
+
+/*
+ * Dạng VÙNG ÂM/DƯƠNG — nửa trên mốc 0 tô xanh, nửa dưới tô đỏ, cùng cặp màu lãi / lỗ của màn Danh
+ * mục và của nến tăng / giảm. Màu không phải dấu hiệu duy nhất (NFR-USA-06): vạch 0 kẻ ngay giữa hai
+ * mảng, nên trên hay dưới mốc 0 đọc được cả khi không phân biệt được hai màu.
+ *
+ * Độ đục 0,3: mảng đặc đậm hơn thì đường kết quả vẽ đè lên nó chìm mất.
+ */
+.signPositive {
+  fill: var(--color-success);
+  fill-opacity: 0.3;
+  stroke: none;
+}
+
+.signNegative {
+  fill: var(--color-danger);
+  fill-opacity: 0.3;
+  stroke: none;
+}
+
+.zeroRule {
+  stroke: var(--color-muted);
+  stroke-width: 1;
+}
+
+/*
+ * Dạng NẾN — cùng cặp màu với biểu đồ nến ở màn bảng chuỗi giá (`CandleChart.module.css`): tăng
+ * `--color-candle-up`, giảm `--color-candle-down`, để hai chỗ vẽ nến của sản phẩm nói "tăng" bằng
+ * cùng một màu. Bốn lớp riêng cho bấc và thân chứ không một lớp tông cộng một lớp hình: hai lớp
+ * cùng độ ưu tiên thì thứ tự khai trong file mới quyết định `fill`, đúng cái bẫy `.panelCenter`.
+ * Độ dày bấc đặt bằng thuộc tính trên `<path>` vì nó đổi theo số phiên.
+ */
+.candleWickUp {
+  fill: none;
+  stroke: var(--color-candle-up);
+}
+
+.candleWickDown {
+  fill: none;
+  stroke: var(--color-candle-down);
+}
+
+.candleBodyUp {
+  fill: var(--color-candle-up);
+  stroke: none;
+}
+
+.candleBodyDown {
+  fill: var(--color-candle-down);
+  stroke: none;
+}
+
+/*
+ * ── Vành khuyên (`DonutChart`) ───────────────────────────────────────────────────────────────────
+ *
+ * Màu múi đi qua lớp tông (`.tonePrimary` …) như chuỗi phụ, nên không có màu nào viết vào thuộc
+ * tính SVG. Viền màu nền giữa hai múi để hai múi kề nhau không dính thành một khối.
+ */
+.donutSlice {
+  fill: var(--series-ink);
+  stroke: var(--color-surface);
+  stroke-width: 2;
+}
+
+.donutSwatch {
+  fill: var(--series-ink);
+}
+
+/*
+ * Giá trị tổng ở giữa vòng — đậm như nhãn trên thanh bóc tách. Cỡ chữ KHÔNG đặt ở đây: `DonutChart`
+ * đặt nó bằng thuộc tính `font-size` (tối đa 15 đơn vị, co lại cho vừa lỗ giữa vòng), mà CSS thì
+ * thắng thuộc tính trình bày của SVG.
+ */
+.donutTotal {
+  font-weight: var(--weight-bold);
+  fill: var(--color-ink);
+}
+
+.donutTotalLabel {
+  font-size: 10px;
+  fill: var(--color-ink-soft);
+}
+
+.donutLabel {
+  font-size: 10px;
+  fill: var(--color-ink-soft);
+}
+
+/* Giá trị và phần trăm của một múi — đậm hơn tên múi, như số so với nhãn ở mọi bảng của sản phẩm. */
+.donutValue {
+  font-size: 11px;
+  font-weight: var(--weight-bold);
+  fill: var(--color-ink);
+}
+
+/*
  * Vùng tô dưới đường — bản thiết kế đợt 12.
  *
  * Màu đi qua `className` của hai thẻ `<stop>` chứ không viết vào thuộc tính `stopColor`: đó là
@@ -700,7 +807,7 @@
   background: var(--color-accent-soft);
 }
 
-/* ── Hàng điều khiển: ô chọn trục X + nhóm nút lối vẽ ───────────────────── */
+/* ── Hàng điều khiển: ô chọn trục X + ô chọn dạng vẽ ─────────────────────── */
 
 /*
  * Nút phóng to KHÔNG còn ở hàng này (nó lên `.captionRow` từ đợt 12), nên hàng này nay chỉ có hai
@@ -711,8 +818,10 @@
  * nhãn trái dài, khổ hẹp thì nó xuống hai dòng, và lúc ấy chỉ căn đáy mới giữ được hai ô thẳng
  * hàng — thứ mắt lấy làm mốc, chứ không phải dòng nhãn.
  *
- * Chiều cao hai cột bằng nhau là việc của `ChartKindToggle.module.css` (`.kind` dành sẵn một hàng
- * `--tap-min` cho nhóm nút). Không có nó thì hai cái nhãn lệch nhau đúng 8px.
+ * Từ 21/10/2026 hai cột là HAI ô chọn cùng khuôn (`.picker`): "Xem theo" và "Loại biểu đồ"
+ * (`ChartKindSelect`, thay nhóm nút Đường / Cột). Cùng một lớp nên chúng cao bằng nhau, cùng bo góc và
+ * cùng cỡ nhãn ở mọi khổ mà không file nào phải chép số của file nào — việc mà nhóm nút cũ phải giữ
+ * bằng một phép tính chép tay ở file riêng của nó.
  */
 .controls {
   display: flex;
@@ -742,12 +851,10 @@
   min-height: var(--control-h-compact);
 
   /*
-   * 5px — bằng khung nhóm nút Đường / Cột đứng ngay bên phải nó (`.kindGroup` ở
-   * `ChartKindToggle.module.css`, chủ dự án chốt 10/09/2026). Cùng ngày, nhìn hai điều khiển cạnh
-   * nhau ở 1440: _"điều chỉnh bo bên trái bằng với bo bên phải"_. Primitive `Select` vẫn giữ
-   * `--radius-md` cho mọi chỗ khác — chỉ ô chọn trục, ở cả trên trang lẫn màn phóng to (cùng lý do
-   * luật này không ràng vào `.controls`, xem docblock trên), mới theo số của cụm nút bên cạnh.
-   * `radius.test.ts` ghim con số này cùng với `.kindGroup`.
+   * 5px — con số chủ dự án chốt 10/09/2026 cho nhóm nút Đường / Cột từng đứng bên phải ô này: _"điều
+   * chỉnh bo bên trái bằng với bo bên phải"_. Nhóm nút ấy thành ô chọn ngày 21/10/2026 và mang chính
+   * lớp `.picker` này, nên hai ô cạnh nhau bo bằng nhau theo cấu tạo. Primitive `Select` vẫn giữ
+   * `--radius-md` cho mọi chỗ khác. `radius.test.ts` ghim con số này.
    */
   border-radius: 5px;
 }
@@ -765,14 +872,23 @@
 }
 
 /*
+ * Ô chọn "Loại biểu đồ" (`ChartKindSelect`, 21/10/2026) ôm theo lựa chọn dài nhất thay vì giãn như ô
+ * "Xem theo": nó chỉ mang vài chữ ngắn, và phần bề ngang còn lại thuộc về tên biến dài bên cạnh.
+ * Đứng SAU `.controls .picker` (cùng độ ưu tiên) nên thắng theo thứ tự file.
+ */
+.controls .kindPicker {
+  flex: 0 1 auto;
+}
+
+/*
  * ── Khổ điện thoại: hàng điều khiển nhỏ chữ và thấp hơn (19/10/2026) ─────────────────────────────
  *
  * Chủ dự án khoanh nhãn "Xem kết quả đổi theo", ô chọn trục và cụm "Loại biểu đồ" trên điện thoại:
  * _"giảm size text đi, ô select giảm height xuống để tiết kiệm không gian"_.
  *
  * - Nhãn 14 → 12px (`--text-xs`), chữ trong ô 16 → 14px (`--text-sm`), ô cao 40 → 36px.
- * - Nhóm Đường / Cột hạ theo ở `ChartKindToggle.module.css`, cùng mốc và cùng 36px: hai cột của hàng
- *   phải CAO BẰNG NHAU, chủ dự án đã chốt (docblock đầu file đó). Đổi một con số là đổi cả hai chỗ.
+ * - Ô "Loại biểu đồ" theo cùng luật này vì nó mang chính lớp `.picker`: hai cột của hàng phải CAO
+ *   BẰNG NHAU, chủ dự án đã chốt.
  * - 36px viết thẳng, không đổi `--control-h-compact`: token ấy còn là chiều cao dòng của `GroupCard`
  *   và nút của `CandleChart`.
  * - Cái giá, đã biết: chữ trong `<select>` dưới 16px thì Safari iOS phóng to trang khi chạm vào ô,
@@ -791,6 +907,21 @@
     min-height: 36px;
     font-size: var(--text-sm);
   }
+
+  /*
+   * Hai ô chọn chung MỘT hàng (21/10/2026). Với sàn 12rem của ô "Xem theo", ô "Loại biểu đồ" rớt
+   * xuống hàng riêng ở 360px mỗi khi nó mang một dạng tên dài (tên cũ "Vùng âm/dương" rộng 153px, nay là "Lãi/lỗ"), nên hình
+   * này một hàng, hình kia hai hàng, và khối cao thêm ~65px. Sàn 7,5rem giữ hai ô chung hàng tới khi
+   * ô "Xem theo" còn ít nhất 120px; hẹp hơn nữa (320px) thì vẫn xuống dòng. Tên trục bị cắt "…"
+   * trong ô vẫn đọc đủ ở tiêu đề biểu đồ ngay trên. Ô "Loại biểu đồ" giữ bề ngang tự nhiên.
+   */
+  .controls .picker {
+    flex-basis: 7.5rem;
+  }
+
+  .controls .kindPicker {
+    flex-basis: auto;
+  }
 }
 
 /*
@@ -808,8 +939,8 @@
  * Nhãn ẩn theo đúng công thức `.visually-hidden` của globals.css (chép vì CSS Module không với tới
  * lớp toàn cục), vẫn ở DOM và vẫn là `<label for>` của ô chọn — trình đọc màn hình không mất gì.
  * Ô chọn thôi giãn (`flex: 0 1 auto`) và ôm theo lựa chọn dài nhất, trần 16rem để tên biến dài
- * ("Giá trị nội tại từ FCFF (DCF)") không nuốt mất tiêu đề. Nhãn "Loại biểu đồ" ẩn ở
- * `ChartKindToggle.module.css`, cùng mốc 1280.
+ * ("Giá trị nội tại từ FCFF (DCF)") không nuốt mất tiêu đề. Nhãn "Loại biểu đồ" ẩn cùng luật này,
+ * vì ô ấy cũng mang lớp `.picker`.
  *
  * Chỉ `.controls` (trên trang), không đụng `.fullFoot` của màn phóng to: ở đó hàng điều khiển vẫn
  * là hàng riêng dưới hình.

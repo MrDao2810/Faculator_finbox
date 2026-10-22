@@ -1480,11 +1480,37 @@ read wrong is absent, not greyed out; one form left means no select at all):
   whether the line rises, and it also serves MACD, ratios and returns, where "lãi/lỗ" is the owner's reading
   of positive/negative. Do not call it "tăng/giảm": that word is the candle's (close above/below open).
 - **Vành khuyên** (`DonutChart.tsx`, the breakdown model drawn as a donut): only when every non-total stage
-  is positive and there are at most 4 (the tone count) — 5 formulas today (`ddm-hai-giai-doan`, `wacc`,
+  is ≥ 0 with at least one positive (a 0 stage since 22/10/2026: no slice, legend "chiếm 0,0 %"; a lone 100 %
+  slice is drawn as two half-arcs, since an SVG arc whose ends meet draws nothing) and there are at most 4
+  (the tone count) — 5 breakdowns today (`ddm-hai-giai-doan`, `wacc`,
   the two `tra-gop-*`, `thue-tncn-dau-tu`); a SUBTRACTED stage (EV's cash, FCFF's CapEx) has no place on a
-  circle. Shares use largest-remainder rounding so they print exactly 100,0 %; each slice's legend is three
-  lines, value and "chiếm 73,2 %" apart (on WACC both are percentages). The legend is INSIDE the `<svg>`
-  so PDF/PNG exports carry it; a `visually-hidden` line gives screen readers the shares.
+  circle. Shares use largest-remainder rounding so they print exactly 100,0 %; value and "chiếm 73,2 %" never
+  share a line (on WACC both are percentages). The legend is INSIDE the `<svg>` so PDF/PNG exports carry it;
+  a `visually-hidden` line gives screen readers the shares. **Two layouts, by `useChartSize()`** (22/10/2026,
+  owner on the D/E composition, three rounds): below 768px (`compact`) text one step smaller (`.donutGon`,
+  9/10/13), the legend exactly as wide as its text and flush with the right edge, the ring taking the rest
+  (R 64–96, was a fixed 72); from 768px (`wide`) the ring is R 116 and fills the frame's height, 140 units
+  from the left edge; the legend is a FIXED 230-unit column from 32 units after the ring to the right edge
+  (`KHO.wide.chuGiai`, never sized to its text): per slice a line with swatch and name at the left and
+  "chiếm …" at the column's right edge, then the value bold at 13, a hairline (`.donutRule`,
+  `--color-border`) across the column between slices. It took five rounds: a one-line table spread to the
+  edge with the ring still at R 104 and 10–11 text (_"không gian hiển thị thừa thừa 1 đống ra, không gian
+  hiển thị của biểu đồ tròn thì có 1 mẩu"_), then R 136 with 12/16 text (_"lớn quá … không cần quá to"_), then
+  R 116 against the left edge with the legend spread from the ring to the right edge (_"đưa biểu đồ tròn dịch
+  sang bên phải … phần chú thích co lại và dịch tiếp sang bên phải"_), then a column exactly as wide as its
+  text, three lines per slice, which left a sliver for a short name (_"giàn trải chú thích ra, thừa nhiều
+  không gian mà. máy móc thế"_). A column sized to its text is the mistake: the owner pointed at a REGION.
+  Text widths come from `textWidth()` × 1,08 (regular) / × 1,1 (bold), measured in Chrome: without
+  it "Thuế chuyển nhượng" lost 3 units at the right edge on a phone. Swept the 6 donuts at 360, 390, 800 and
+  1440, both palettes: nothing outside the viewBox, no two legend texts overlapping. **Hovering (mouse) or
+  tapping a slice or its legend row opens a popup** with that slice's name, value and share, and dims the
+  other slices (`.donutSliceMo`) — owner, same day. Mouse: shown while the pointer is on it. Touch/click:
+  stays until the same slice is tapped again, a tap outside the frame, or Esc. The popup is HTML OUTSIDE the
+  `<svg>` (so PDF/PNG exports never carry it) and `aria-hidden` (the hidden line and the data table already
+  give the numbers). It is placed by MEASURING after the interaction (`useLayoutEffect`): anchored on the
+  ring's outer edge at the slice's mid-angle and pushed outward along that angle, clamped inside the frame;
+  when the outward side has no room (a left slice on a phone) it moves above/below the hole's text instead
+  of covering the total. The value uses the word form, like every hover trace on a chart.
 - **Nến** (second round, same day): the session candles drawn UNDER the result line, on the time axis of the
   five formulas declaring `spec.priceLevel` (`sma-n-phien`, `ema-n-phien`, both `dai-bollinger-*`, `vwap`),
   and only when EVERY session has a positive open, high, low and close that agree (`sessionCandles()` in
@@ -1517,10 +1543,27 @@ read wrong is absent, not greyed out; one form left means no select at all):
   dụng thì chưa cần"): `ChartBody` reports `HinhDangXem.hinhChuoi`, on which `khoiDangXem()` returns
   nothing instead of falling back to the first block, the chart block's "?" is not rendered, and
   `bieu-do.test.ts` skips the two keys when it demands a paragraph per picker entry.
+- **"Cơ cấu …" — a pie of a WHOLE the formula's inputs make up** (22/10/2026, pilot of two). The owner asked
+  which formulas could draw a pie to help users picture them (their picture was "chỉ mang tính chất minh họa",
+  a look, not a set of categories), then said to start. `spec.composition` (`CompositionSpec`: `title`,
+  `total`, `unit`, 2–4 `parts` keyed to an input or an `extras` key) adds an ENTRY to "Xem theo"
+  (`COMPOSITION_KEY`, `src/core/chart/composition.ts`) that opens as Vành khuyên, "Thanh ngang" second. It
+  is NOT `breakdown`, on purpose: breakdown stages must sum to the formula's RESULT (`chart.test.ts`), while
+  here the total is the sum of the parts and may be another quantity — D/E is a ratio, its pie is total
+  capital split into debt and equity. Pilots: `no-tren-von-chu` (Cơ cấu nguồn vốn, the two fields, filled
+  by a live ticker) and `lai-kep` (Cơ cấu số tiền cuối kỳ: principal + `extras.interest`, which `calc` now
+  returns as A − P). The entry exists only when every part is a finite number ≥ 0 and the total > 0 (negative
+  equity: no entry), it is never the opening chart, and it has no guide text (`hinhChuoi` is reported for it,
+  `bieu-do.test.ts` skips the key). `composition.test.ts` pins the two ids — a third is a decision — and gates
+  every declaration: an input part's unit must equal `composition.unit`, an extras part must exist and carry a
+  label. Candidates the owner was shown and has not approved yet: ROA/ROE (same pie as D/E), payout ratio
+  (dividends + retained), net margin, gross margin, quick ratio, basic EPS, the deposit and loan formulas
+  (principal + interest, whole term), early withdrawal, net profit's fee/tax split (6 parts: needs tones),
+  DCA rounds (up to 12), effective leverage, risk sizing, WACC's capital mix.
 
-Measured over the Registry (`dang-ve.test.ts` pins it): with no series, 222 drawable charts — Đường/Cột/Điểm
-211, Bậc thang 23, Lãi/lỗ 27, Vành khuyên 5; with FPT's 250 sessions, Bậc thang 102 and
-Lãi/lỗ 46, Nến 5. The first form of every chart is the old default, so nothing changes until the user picks. The "?" popover
+Measured over the Registry (`dang-ve.test.ts` pins it): with no series, 224 drawable charts — Đường/Cột/Điểm
+211, Bậc thang 23, Lãi/lỗ 27, Vành khuyên 7 (5 breakdowns + 2 compositions); with FPT's 250 sessions, Bậc thang 102 and
+Lãi/lỗ 46, Nến 5. The first form of every chart is the old default (a composition opens as Vành khuyên), so nothing changes until the user picks. The "?" popover
 is told `dang: 'duong'` for Nến, Điểm, Bậc thang and Lãi/lỗ (same points, same axes) and keeps the one
 breakdown paragraph for the donut. Below 1024px the "Xem theo" select's flex floor is 7.5rem so the two
 selects share one row whenever "Xem theo" keeps ≥120px (else a 153px "Vùng âm/dương" (renamed "Lãi/lỗ" 22/10/2026) dropped the second select

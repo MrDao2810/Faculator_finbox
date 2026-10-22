@@ -4,6 +4,85 @@ Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 
 ---
 
+## Hình tròn "Cơ cấu …" — làm thử ở D/E và Lãi kép (22/10/2026)
+
+**Trạng thái: CHƯA XONG — đã làm thử hai công thức, chờ chủ dự án duyệt hình rồi mới áp cho danh sách.**
+
+Chủ dự án hỏi công thức nào vẽ được hình tròn (từ số của chính công thức hoặc từ mã vừa thêm) để người dùng dễ hình
+dung — ảnh mẫu "chỉ mang tính chất minh họa" — rồi bảo "nếu được thì bắt đầu áp dụng vẽ".
+
+- `registry/types.ts`: khai báo mới `FormulaSpec.composition` (`CompositionSpec`: tên hình, tên tổng, đơn vị, 2–4
+  phần tra từ ô nhập hoặc `extras`). Tách khỏi `breakdown` vì tổng ở đây là tổng các phần, không phải kết quả.
+- `core/chart/composition.ts` (mới): `COMPOSITION_KEY`, `compositionBars()` — mục chỉ có khi mọi phần ≥ 0, tổng > 0.
+- `core/chart/build.ts`: thêm mục "Cơ cấu …" vào ô "Xem theo" (không bao giờ là hình mở ra), `buildCompositionModel()`
+  dựng mô hình thác nước mang khoá cơ cấu.
+- `core/chart/dang-ve.ts`: hình cơ cấu mở bằng Vành khuyên, Thanh ngang thứ hai; vành khuyên nhận phần bằng 0.
+- `ui/charts/DonutChart.tsx`: vẽ trọn vòng khi một phần chiếm 100 % (cung SVG đầu trùng cuối không vẽ gì); phần 0 %
+  không có múi nhưng vẫn có dòng chú giải. `ChartBody.tsx`: khung "?" im với mục cơ cấu (chưa có chữ hướng dẫn).
+- `formulas/fundamentals.ts` (`no-tren-von-chu`: Cơ cấu nguồn vốn = Tổng nợ phải trả + Vốn chủ sở hữu, có số ngay khi
+  thêm mã) và `formulas/personal.ts` (`lai-kep`: Cơ cấu số tiền cuối kỳ = Tiền gốc + Tiền lãi; `calc` trả thêm
+  `extras.interest`).
+- Test: `composition.test.ts` (mới, ghim hai id và gác mọi khai báo), `dang-ve.test.ts` (số đếm 222 → 224, Vành khuyên
+  5 → 7), `charts.test.tsx` (+2 ca), `bieu-do.test.ts` bỏ qua khoá cơ cấu. Toàn bộ 4.599 ca xanh, lint, tsc, prettier.
+- Đã xem bằng Chrome trên server dev ở 1440 và 390: vẽ đúng, không cuộn ngang.
+- Còn lại / chờ quyết: (1) hình tròn nên là hình MỞ RA của công thức hay giữ là một mục trong "Xem theo";
+  (2) áp cho các công thức còn lại trong danh sách đã trình (xem đoạn "Cơ cấu …" ở `CLAUDE.md`).
+
+**Vòng 2 — bố cục vành khuyên theo khổ (cùng ngày).** Chủ dự án chụp hình cơ cấu D/E ở bảng tối: điện thoại _"giảm
+size text xuống, padding phải cũng cần giảm xuống"_; PC _"thừa quá nhiều không gian bên phải, đưa text chú thích giàn
+trải"_. Lượt đầu ở PC trải chú giải thành bảng một dòng tới mép phải, vòng vẫn R 104 — chủ dự án: _"không gian hiển
+thị thừa thừa 1 đống ra, không gian hiển thị của biểu đồ tròn thì có 1 mẩu? sửa lại thiết kế"_.
+
+- `ui/charts/DonutChart.tsx`: hai hàm bố cục. Điện thoại (dưới 768px): chữ 9/10/13, chú giải rộng đúng bằng chữ và
+  sát mép phải, vòng R 64–96 (trước cố định 72). PC (từ 768px): vòng R 136 cao kín khung; mỗi múi hai dòng — ô màu,
+  tên, "chiếm …" ở mép phải; giá trị đậm cỡ 16 bên dưới — vạch mảnh giữa các múi. Ước bề ngang chữ nhân 1,08 / 1,1
+  theo số đo Chrome. Áp cho cả 5 vành khuyên bóc tách cũ (cùng component).
+- `ui/charts/chart.module.css`: cỡ chữ gốc thành cỡ PC (12/16), `.donutGon` cho điện thoại, `.donutRule`.
+- `charts.test.tsx`: +2 ca (bố cục PC, bố cục điện thoại). Toàn bộ 4.601 ca, lint, tsc, prettier xanh.
+- Đo bằng Chrome trên server dev: 6 vành khuyên × 360/390/800/1440, hai bảng màu — không chữ nào tràn khung,
+  không chữ nào đè nhau, trang không cuộn ngang. Tên tổng "Số tiền cuối kỳ (A)" nay vừa lỗ giữa ở điện thoại.
+
+**Vòng 3 — nhỏ lại và thêm popup (cùng ngày).** Chủ dự án: _"giảm size của biểu đồ tròn xuống. lớn quá, size text
+chú thích cũng vậy … đồng thời thêm tính năng khi hover chuột hoặc bấm vào phần nào thì phần đó hiển thị popup hiển
+thị số liệu phần đó"_.
+
+- PC: vòng R 136 → 116, chữ chú giải 12 → 11, giá trị 16 → 13, số giữa vòng tối đa 22 → 18. Điện thoại giữ nguyên
+  (vừa giảm chữ ở vòng 2).
+- Popup: rê chuột vào múi (hoặc dòng chú giải) thì hiện tên · giá trị · "chiếm …", các múi khác mờ đi; chạm/bấm thì
+  giữ, đóng khi chạm lại, chạm ra ngoài hoặc Esc. Popup là HTML ngoài `<svg>` nên không vào file xuất; đặt ở mép ngoài
+  vòng, bung ra theo hướng của múi, không che số giữa vòng.
+- `charts.test.tsx` +3 ca (rê chuột, chạm, dòng chú giải). Toàn bộ 4.604 ca, lint, tsc, prettier xanh. Thử bằng chuột
+  và chạm thật trên Chrome (1440 bảng tối, 390 cảm ứng): popup đúng số, nằm trong thẻ, đóng đúng lúc.
+
+**Vòng 4 — vòng vào giữa, chú giải thành cột hẹp sát mép phải (cùng ngày).** Chủ dự án khoanh ảnh PC: _"đưa biểu đồ
+tròn dịch sang bên phải như tôi chỉ. còn phần chú thích co lại và dịch tiếp sang bên phải như tôi khoanh"_.
+
+- `ui/charts/DonutChart.tsx` (`boCucPC`, chỉ khổ từ 768px): chú giải rộng đúng bằng chữ của nó, sát mép phải, mỗi múi
+  ba dòng như điện thoại (ô màu + tên · giá trị đậm · "chiếm …"), tên dài quá 170 đơn vị thì xuống dòng; vòng R 116
+  giữ nguyên cỡ, đứng giữa khoảng bên trái cột (hở mép trái = hở tới chú giải). Bỏ `GIUA_COT`, `MUI_PC` thêm nhịp
+  dòng "chiếm …". Điện thoại không đổi.
+- `charts.test.tsx`: ca PC viết lại (ba dòng chung một mép, cột sát mép phải, vòng cách đều hai bên). Toàn bộ 4.604
+  ca, lint, tsc, prettier xanh.
+- Đo bằng Chrome trên server dev, 6 vành khuyên × 1440/1024/800 bảng tối: không chữ tràn khung hay đè nhau, không
+  cuộn ngang; vòng hở hai bên bằng nhau (128–157 đơn vị); mép phải chữ cách khung 8–24 đơn vị (ước bề ngang có hệ số
+  an toàn, chữ thật ngắn hơn ước). Popup rê chuột / chạm vẫn nằm trong thẻ, không che chú giải.
+
+**Vòng 5 — chú giải lấp cả vùng bên phải (cùng ngày).** Chủ dự án khoanh vùng từ sát vòng tới mép phải trên hình
+Lãi kép: _"giàn trải chú thích ra, thừa nhiều không gian mà. máy móc thế"_ — cột rộng đúng bằng chữ của vòng 4 chỉ
+còn một mẩu khi tên ngắn ("Tiền lãi").
+
+- `ui/charts/DonutChart.tsx` (`boCucPC`): chú giải là cột CỐ ĐỊNH 230 đơn vị (`KHO.wide.chuGiai`), bắt đầu 32 đơn vị
+  sau vòng, hết ở mép phải; mỗi múi hai dòng — ô màu và tên đầu trái, "chiếm …" ở mép phải cột; giá trị đậm bên
+  dưới — vạch mảnh suốt bề ngang cột; nhịp dọc thoáng hơn (22/22/14). Vòng R 116, hở mép trái 140, mọi công thức
+  cùng một hình học. Tên dài quá phần cột còn lại sau "chiếm …" thì xuống dòng.
+- `charts.test.tsx`: ca PC viết lại ("chiếm …" ở mép phải cùng dòng tên, giá trị dưới, cột bắt đầu sát vòng và rộng
+  hơn 200 đơn vị, vạch kẻ suốt cột). Test, tsc, eslint, prettier xanh.
+- Đo trên Chrome, 6 vành khuyên × 1440/1024/800 bảng tối: cột 404–634 ở mọi hình, không tràn, không đè, không cuộn
+  ngang. Popup rê chuột của múi bên phải nay đè lên một phần dòng chú giải của chính múi ấy (cùng số liệu); chưa
+  sửa.
+
+---
+
 ## Ghi chú vàng của khối Số liệu chỉ còn chữ (22/10/2026)
 
 **Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án xem.**

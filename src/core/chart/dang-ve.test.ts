@@ -9,6 +9,7 @@ import { scheduleOrDefault } from '../market/resolve';
 import { defaultInputs } from '../registry/build';
 import type { FormulaSpec } from '../registry/types';
 import { buildChartModel } from './build';
+import { COMPOSITION_KEY } from './composition';
 import { coDoiDau, dangVeCuaHinh, dangVeHieuLuc, laTrucRoiRac, vanhKhuyen } from './dang-ve';
 import type { DangVe } from './dang-ve';
 import { CLOSE_PRICE_KEY, HISTORY_KEY, historyPlan, sessionCandles } from './history';
@@ -273,23 +274,30 @@ describe('cả Registry', () => {
   const coChuoi = quetRegistry(CTX_FPT);
 
   it('chưa nạp chuỗi giá: số hình mời từng dạng', () => {
-    expect(macDinh.hinhs).toHaveLength(222);
+    expect(macDinh.hinhs).toHaveLength(224);
     expect(macDinh.dem).toEqual({
       line: 211,
       bar: 211,
       dots: 211,
       step: 23,
       signArea: 27,
-      waterfall: 11,
-      donut: 5,
+      waterfall: 13,
+      donut: 7,
     });
   });
 
   it('dạng đầu tiên luôn là dạng như trước ngày có ô chọn — mở màn ra không hình nào đổi', () => {
     for (const { id, spec, hinh } of [...macDinh.hinhs, ...coChuoi.hinhs]) {
-      expect(dangVeCuaHinh(hinh, spec)[0], id).toBe(
-        hinh.kind === 'waterfall' ? 'waterfall' : hinh.kind === 'histogram' ? 'bar' : 'line',
-      );
+      /* Riêng mục "Cơ cấu …" (22/10/2026) sinh ra để vẽ vành khuyên, nên mở bằng vành khuyên. */
+      const dauTien =
+        hinh.sweepKey === COMPOSITION_KEY
+          ? 'donut'
+          : hinh.kind === 'waterfall'
+            ? 'waterfall'
+            : hinh.kind === 'histogram'
+              ? 'bar'
+              : 'line';
+      expect(dangVeCuaHinh(hinh, spec)[0], id).toBe(dauTien);
     }
   });
 
@@ -302,15 +310,15 @@ describe('cả Registry', () => {
   });
 
   it('đã nạp chuỗi 250 phiên: số hình mời từng dạng', () => {
-    expect(coChuoi.hinhs).toHaveLength(335);
+    expect(coChuoi.hinhs).toHaveLength(337);
     expect(coChuoi.dem).toEqual({
       line: 313,
       bar: 323,
       dots: 313,
       step: 102,
       signArea: 46,
-      waterfall: 11,
-      donut: 5,
+      waterfall: 13,
+      donut: 7,
       candle: 5,
     });
   });
@@ -328,12 +336,14 @@ describe('cả Registry', () => {
     }
   });
 
-  it('Vành khuyên đúng ở năm hình bóc tách mà mọi phần đều cộng vào', () => {
+  it('Vành khuyên đúng ở năm hình bóc tách mà mọi phần đều cộng vào, và ở hai hình cơ cấu', () => {
     expect(macDinh.theoDang.get('donut')).toEqual([
+      'no-tren-von-chu:__composition',
       'ddm-hai-giai-doan:__breakdown',
       'wacc:__breakdown',
       'tra-gop-nien-kim:__breakdown',
       'tra-gop-goc-deu:__breakdown',
+      'lai-kep:__composition',
       'thue-tncn-dau-tu:__breakdown',
     ]);
   });

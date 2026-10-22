@@ -18,6 +18,7 @@ import { formatNumber } from '../format';
 import type { FormulaSpec } from '../registry/types';
 import type { Bilingual } from '../types';
 
+import { COMPOSITION_KEY } from './composition';
 import { HISTORY_KEY } from './history';
 import { DRAWDOWN_KEY } from './series-view';
 import type { ChartPoint, DrawableChart, LineChart, SeriesTone, WaterfallChart } from './types';
@@ -112,13 +113,20 @@ export function laTrucRoiRac(model: LineChart, spec: FormulaSpec): boolean {
   return ys.length > 4 && soMuc >= 2 && soMuc <= ys.length / 2;
 }
 
-/** Các phần (không kể cột tổng) của hình bóc tách vẽ được thành vành khuyên, hoặc `null`. */
+/**
+ * Các phần (không kể cột tổng) của hình bóc tách vẽ được thành vành khuyên, hoặc `null`.
+ *
+ * Một phần BẰNG 0 vẫn được (22/10/2026, cùng đợt hình cơ cấu): doanh nghiệp không nợ đồng nào là
+ * 100 % vốn chủ, gửi với lãi suất 0 là 100 % tiền gốc — múi rỗng, chú giải ghi "chiếm 0,0 %". Phần
+ * ÂM thì không, và phải có ít nhất một phần dương để có gì mà chia.
+ */
 function phanCong(model: WaterfallChart) {
   const parts = model.bars.filter((bar) => bar.isTotal !== true);
   const hopLe =
     parts.length >= 2 &&
     parts.length <= VANH_KHUYEN_TOI_DA &&
-    parts.every((bar) => Number.isFinite(bar.delta) && bar.delta > 0);
+    parts.every((bar) => Number.isFinite(bar.delta) && bar.delta >= 0) &&
+    parts.some((bar) => bar.delta > 0);
   return hopLe ? parts : null;
 }
 
@@ -138,7 +146,12 @@ export function dangVeCuaHinh(model: DrawableChart, spec: FormulaSpec): Readonly
   /* Histogram chỉ có một dạng — cột — nên ô "Loại biểu đồ" không hiện với nó. */
   if (model.kind === 'histogram') return ['bar'];
   if (model.kind === 'waterfall') {
-    return phanCong(model) === null ? ['waterfall'] : ['waterfall', 'donut'];
+    if (phanCong(model) === null) return ['waterfall'];
+    /*
+     * Hình CƠ CẤU (mục "Cơ cấu …" của ô "Xem theo", 22/10/2026) sinh ra để vẽ vành khuyên, nên mở
+     * bằng vành khuyên; thanh ngang là dạng thứ hai. Hình bóc tách giữ thanh ngang đứng đầu như cũ.
+     */
+    return model.sweepKey === COMPOSITION_KEY ? ['donut', 'waterfall'] : ['waterfall', 'donut'];
   }
 
   const motChuoi = model.overlays === undefined || model.overlays.length === 0;

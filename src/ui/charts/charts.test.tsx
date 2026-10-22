@@ -11,6 +11,7 @@ import {
   FORMULAS,
   MARKET_CONFIG,
   SAMPLE_DATA,
+  buildChartModel,
   defaultInputs,
   findFormulaModule,
   runFormula,
@@ -27,6 +28,7 @@ import type {
 } from '@/application';
 
 import { ChartBody } from './ChartBody';
+import { DonutChart } from './DonutChart';
 import { hasChart } from './FormulaChart';
 import { CHART_GEOMETRY, LineChart } from './LineChart';
 import { textWidth } from './ticks';
@@ -2656,6 +2658,227 @@ describe('Loại biểu đồ — ô chọn dạng vẽ', () => {
     expect(vanh?.querySelectorAll('path[class*="donutSlice"]')).toHaveLength(2);
     expect(vanh?.textContent).toMatch(/\d,\d %/);
     expect(screen.getByRole('table').textContent).toBe(bangThanh);
+  });
+
+  /*
+   * Hình CƠ CẤU (22/10/2026): mục "Cơ cấu …" của ô "Xem theo" mở thẳng bằng vành khuyên, thanh ngang
+   * là dạng thứ hai, và khung "?" im với nó (chưa có chữ hướng dẫn).
+   */
+  it('mục Cơ cấu nguồn vốn của D/E mở bằng vành khuyên, hai múi là nợ và vốn chủ', async () => {
+    const bao = vi.fn();
+    const { container } = render(
+      <ChartBody
+        formula={moduleOf('no-tren-von-chu')}
+        inputs={defaultInputs(moduleOf('no-tren-von-chu').spec)}
+        ctx={CTX}
+        output={runFormula(
+          moduleOf('no-tren-von-chu'),
+          defaultInputs(moduleOf('no-tren-von-chu').spec),
+          CTX,
+        )}
+        level="basic"
+        onViewChange={bao}
+      />,
+    );
+    expect(container.querySelector('svg[data-donut]')).toBeNull();
+
+    await xemTheo('__composition');
+
+    const vanh = container.querySelector('svg[data-donut]');
+    expect(vanh).not.toBeNull();
+    expect(vanh?.querySelectorAll('path[class*="donutSlice"]')).toHaveLength(2);
+    expect(vanh?.textContent).toContain('Tổng nguồn vốn');
+    expect(vanh?.textContent).toContain('Tổng nợ phải trả (D)');
+    expect(vanh?.textContent).toContain('Vốn chủ sở hữu (E)');
+    expect(cacDang()).toEqual(['Vành khuyên', 'Thanh ngang']);
+    // Khung "?" im với mục này: nó chưa có đoạn hướng dẫn (`HinhDangXem.hinhChuoi`).
+    expect(bao.mock.calls.at(-1)?.[0]).toMatchObject({ khoa: '__composition', hinhChuoi: true });
+
+    await chonDang('Thanh ngang');
+    expect(container.querySelector('svg[data-donut]')).toBeNull();
+  });
+
+  it('một phần chiếm trọn 100 % thì vẽ cả vòng; phần 0 % không có múi nhưng vẫn có chú giải', async () => {
+    const { container } = draw('no-tren-von-chu', { totalLiabilities: 0 });
+    await xemTheo('__composition');
+
+    const vanh = container.querySelector('svg[data-donut]');
+    const mui = vanh?.querySelectorAll('path[class*="donutSlice"]') ?? [];
+    expect(mui).toHaveLength(1);
+    // Một cung có điểm đầu trùng điểm cuối không vẽ gì: vòng trọn đi hai nửa ở mỗi vành.
+    expect(mui[0]?.getAttribute('d')?.match(/A/g)).toHaveLength(4);
+    expect(vanh?.textContent).toContain('chiếm 0,0 %');
+    expect(vanh?.textContent).toContain('chiếm 100,0 %');
+  });
+
+  /*
+   * Hai kiểu chú giải theo khổ (22/10/2026, chủ dự án chụp hình cơ cấu của D/E ở cả hai khổ). Ca dưới
+   * dựng thẳng `DonutChart` với `size` ép sẵn, vì jsdom không có `matchMedia` nên `useChartSize()`
+   * luôn ra `compact`.
+   */
+  function vanhCoCau(size: 'compact' | 'wide') {
+    const formula = moduleOf('no-tren-von-chu');
+    const inputs = defaultInputs(formula.spec);
+    const model = buildChartModel({
+      formula,
+      inputs,
+      ctx: CTX,
+      output: runFormula(formula, inputs, CTX),
+      level: 'basic',
+      sweepKey: '__composition',
+    });
+    if (model.kind !== 'waterfall') throw new Error('phải là hình cơ cấu');
+    const { container } = render(<DonutChart model={model} idBase="t" size={size} />);
+    const svg = container.querySelector('svg[data-donut]');
+    if (svg === null) throw new Error('không vẽ');
+    const W = Number(svg.getAttribute('viewBox')?.split(' ')[2]);
+    return { svg, W };
+  }
+
+  /*
+   * PC: lượt đầu trải chú giải thành bảng một dòng mà vòng vẫn bé; chủ dự án: "không gian hiển thị
+   * thừa thừa 1 đống ra, không gian hiển thị của biểu đồ tròn thì có 1 mẩu". Rồi vòng cao kín khung mà
+   * dạt mép trái, chú giải trải tới mép phải; chủ dự án khoanh ảnh: "đưa biểu đồ tròn dịch sang bên
+   * phải … phần chú thích co lại và dịch tiếp sang bên phải". Cột rộng đúng bằng chữ thì với tên ngắn
+   * chỉ còn một mẩu; chủ dự án: "giàn trải chú thích ra, thừa nhiều không gian mà. máy móc thế". Nay
+   * chú giải là cột cố định lấp từ sát vòng tới mép phải, "chiếm …" ở mép phải cột.
+   */
+  it('PC: chú giải lấp từ sát vòng tới mép phải — tên một đầu, "chiếm …" ở mép phải, giá trị đậm bên dưới', () => {
+    const { svg, W } = vanhCoCau('wide');
+    const H = Number(svg.getAttribute('viewBox')?.split(' ')[3]);
+
+    // Vòng cao kín khung, trừ lề trên dưới — không còn là "một mẩu".
+    const mui = svg.querySelector('path[class*="donutSlice"]')?.getAttribute('d') ?? '';
+    const R = Number(/A([\d.]+),/.exec(mui)?.[1]);
+    expect(2 * R).toBeGreaterThanOrEqual(H - 24);
+
+    const ten = [...svg.querySelectorAll('text[class*="donutLabel"]')].filter(
+      (el) => !el.textContent?.startsWith('chiếm'),
+    );
+    const giaTri = [...svg.querySelectorAll('text[class*="donutValue"]')];
+    const phan = [...svg.querySelectorAll('text[class*="donutLabel"]')].filter((el) =>
+      el.textContent?.startsWith('chiếm'),
+    );
+    expect(giaTri.map((el) => el.textContent)).toEqual(['22,5 nghìn tỷ ₫', '36,5 nghìn tỷ ₫']);
+    expect(phan).toHaveLength(2);
+
+    for (const [i, el] of phan.entries()) {
+      // "chiếm …" căn mép phải khung, trên cùng dòng với tên của múi ấy.
+      expect(el.getAttribute('text-anchor')).toBe('end');
+      expect(W - Number(el.getAttribute('x'))).toBeLessThanOrEqual(8);
+      expect(el.getAttribute('y')).toBe(ten[i]?.getAttribute('y'));
+      // Giá trị nằm dòng dưới, thẳng mép trái với tên.
+      expect(giaTri[i]?.getAttribute('x')).toBe(ten[i]?.getAttribute('x'));
+      expect(Number(giaTri[i]?.getAttribute('y'))).toBeGreaterThan(
+        Number(ten[i]?.getAttribute('y')),
+      );
+    }
+
+    // Cột bắt đầu ngay sau vòng và rộng hơn hẳn chữ của nó — không co về một mẩu sát mép phải.
+    const oMau = Number(svg.querySelector('rect[class*="donutSwatch"]')?.getAttribute('x'));
+    const cx = Number(/M([\d.]+),/.exec(mui)?.[1]);
+    expect(oMau - (cx + R)).toBeLessThanOrEqual(40);
+    expect(W - oMau).toBeGreaterThan(200);
+    // Vòng không dạt sát mép trái.
+    expect(cx - R).toBeGreaterThan(60);
+
+    // Hai múi, một vạch kẻ giữa chúng, suốt bề ngang cột chú giải.
+    const vach = svg.querySelectorAll('line[class*="donutRule"]');
+    expect(vach).toHaveLength(1);
+    expect(Number(vach[0]?.getAttribute('x1'))).toBe(oMau);
+    expect(W - Number(vach[0]?.getAttribute('x2'))).toBeLessThanOrEqual(8);
+    expect(svg.getAttribute('class')).not.toContain('donutGon');
+  });
+
+  it('điện thoại: chữ nhỏ một bậc, chú giải sát mép phải và vòng to hơn bản cũ', () => {
+    const { svg, W } = vanhCoCau('compact');
+
+    expect(svg.getAttribute('class')).toContain('donutGon');
+    expect(svg.querySelectorAll('line[class*="donutRule"]')).toHaveLength(0);
+
+    // Ba dòng một múi, căn trái theo cùng một mép: tên, giá trị, "chiếm …".
+    const chuGiai = [
+      ...svg.querySelectorAll('text[class*="donutLabel"], text[class*="donutValue"]'),
+    ];
+    const xs = new Set(chuGiai.map((el) => el.getAttribute('x')));
+    expect(xs.size).toBe(1);
+    const x = Number([...xs][0]);
+    // Chữ dài nhất ("Tổng nợ phải trả (D)", cỡ 9) kết thúc trong 12 đơn vị cuối của khung.
+    const cuoi = x + textWidth('Tổng nợ phải trả (D)', 9) * 1.08;
+    expect(cuoi).toBeLessThanOrEqual(W);
+    expect(W - cuoi).toBeLessThanOrEqual(12);
+
+    // Vòng lớn hơn bán kính 72 cố định của bản trước.
+    const mui = svg.querySelector('path[class*="donutSlice"]')?.getAttribute('d') ?? '';
+    const R = Number(/A([\d.]+),/.exec(mui)?.[1]);
+    expect(R).toBeGreaterThan(72);
+  });
+
+  /*
+   * Popup số liệu của một múi (22/10/2026, chủ dự án: "khi hover chuột hoặc bấm vào phần nào thì phần
+   * đó hiển thị popup hiển thị số liệu phần đó").
+   */
+  const popup = () => document.querySelector('[data-donut-popup]');
+  const muiThu = (svg: Element, i: number) => {
+    const el = svg.querySelector(`path[data-mui="${String(i)}"]`);
+    if (el === null) throw new Error(`không có múi ${String(i)}`);
+    return el;
+  };
+
+  it('rê chuột vào một múi: popup số liệu của múi ấy, các múi khác mờ đi; rời ra là đóng', () => {
+    const { svg } = vanhCoCau('wide');
+    expect(popup()).toBeNull();
+
+    fireEvent.pointerEnter(muiThu(svg, 1), { pointerType: 'mouse' });
+    expect(popup()?.textContent).toContain('Vốn chủ sở hữu (E)');
+    expect(popup()?.textContent).toContain('36,5 nghìn tỷ ₫');
+    expect(popup()?.textContent).toContain('chiếm 61,8 %');
+    expect(muiThu(svg, 0).getAttribute('class')).toContain('donutSliceMo');
+    expect(muiThu(svg, 1).getAttribute('class')).not.toContain('donutSliceMo');
+    // Popup nằm ngoài `<svg>`: bản xuất PDF / PNG chép đúng thẻ ấy, nên popup không lọt vào file.
+    expect(svg.contains(popup())).toBe(false);
+
+    fireEvent.pointerLeave(muiThu(svg, 1), { pointerType: 'mouse' });
+    expect(popup()).toBeNull();
+    expect(muiThu(svg, 0).getAttribute('class')).not.toContain('donutSliceMo');
+  });
+
+  it('chạm (bấm) vào một múi: popup ở lại; chạm lại, chạm ra ngoài hay Esc thì đóng', () => {
+    const { svg } = vanhCoCau('compact');
+
+    // Ngón tay không có "rê": sự kiện vào/ra của chạm không mở và không đóng gì.
+    fireEvent.pointerEnter(muiThu(svg, 0), { pointerType: 'touch' });
+    expect(popup()).toBeNull();
+
+    fireEvent.click(muiThu(svg, 0));
+    expect(popup()?.textContent).toContain('Tổng nợ phải trả (D)');
+    fireEvent.pointerLeave(muiThu(svg, 0), { pointerType: 'touch' });
+    expect(popup()).not.toBeNull();
+
+    // Chạm lại đúng múi ấy thì đóng.
+    fireEvent.click(muiThu(svg, 0));
+    expect(popup()).toBeNull();
+
+    // Chạm ra ngoài khung thì đóng.
+    fireEvent.click(muiThu(svg, 1));
+    expect(popup()?.textContent).toContain('Vốn chủ sở hữu (E)');
+    fireEvent.pointerDown(document.body);
+    expect(popup()).toBeNull();
+
+    // Esc cũng đóng.
+    fireEvent.click(muiThu(svg, 1));
+    fireEvent.keyDown(document, { key: 'Escape' });
+    expect(popup()).toBeNull();
+  });
+
+  it('bấm vào dòng chú giải cũng mở popup của múi ấy', () => {
+    const { svg } = vanhCoCau('wide');
+    const dong = [...svg.querySelectorAll('g[class*="donutMuc"]')];
+    expect(dong).toHaveLength(2);
+
+    fireEvent.click(dong[0] as Element);
+    expect(popup()?.textContent).toContain('Tổng nợ phải trả (D)');
+    expect(muiThu(svg, 1).getAttribute('class')).toContain('donutSliceMo');
   });
 
   it('chọn Cột thì đường biến mất và cột hiện ra — không vẽ chồng cả hai', async () => {

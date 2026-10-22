@@ -2,7 +2,13 @@
 
 import { useEffect, useMemo, useState } from 'react';
 
-import { buildChartModel, dangVeCuaHinh, dangVeHieuLuc, laHinhChuoiGia } from '@/application';
+import {
+  COMPOSITION_KEY,
+  buildChartModel,
+  dangVeCuaHinh,
+  dangVeHieuLuc,
+  laHinhChuoiGia,
+} from '@/application';
 import type {
   CalcContext,
   CalcInputs,
@@ -215,8 +221,11 @@ export function ChartBody({
    * đoạn bóc tách, vốn không tách theo dạng.
    */
   const dangDangVe = variant === 'bar' ? 'cot' : 'duong';
-  /* Hai mục theo chuỗi giá chưa có chữ hướng dẫn — khung "?" phải im (`HinhDangXem.hinhChuoi`). */
-  const hinhChuoi = daVe && laHinhChuoiGia(khoaDangHien);
+  /*
+   * Các mục chưa có chữ hướng dẫn — hai mục theo chuỗi giá và mục "Cơ cấu …" (hình tròn, 22/10/2026)
+   * — khung "?" phải im (`HinhDangXem.hinhChuoi`) thay vì in đoạn của hình khác.
+   */
+  const hinhChuoi = daVe && (laHinhChuoiGia(khoaDangHien) || khoaDangHien === COMPOSITION_KEY);
   useEffect(() => {
     onViewChange?.({ khoa: khoaDangHien, dang: dangDangVe, daVe, hinhChuoi });
   }, [onViewChange, khoaDangHien, dangDangVe, daVe, hinhChuoi]);

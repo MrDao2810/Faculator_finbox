@@ -38,6 +38,7 @@ import {
   breakdownExtent,
   canDrawBreakdown,
 } from './breakdown';
+import { COMPOSITION_KEY, compositionBars, compositionOption } from './composition';
 import {
   HISTORY_KEY,
   HISTORY_LABEL,
@@ -58,8 +59,9 @@ import type { NiceAxis } from './scale';
 import { usableOverlays } from './series';
 import { pickSweepVariable, sweepCandidates, sweepPoints } from './sweep';
 import { condensePoints } from './table';
-import type { FormulaSpec, PriceOverlaySpec } from '../registry/types';
+import type { CompositionSpec, FormulaSpec, PriceOverlaySpec } from '../registry/types';
 import type {
+  BreakdownBar,
   ChartAxis,
   ChartModel,
   ChartPoint,
@@ -525,6 +527,52 @@ function buildBreakdownModel(
 }
 
 /**
+ * Mô hình của hình CƠ CẤU (vành khuyên) — cùng kiểu thác nước để dạng "Thanh ngang" và bảng số dùng
+ * lại nguyên, nhưng mang `sweepKey = COMPOSITION_KEY`, nhờ đó `dangVeCuaHinh()` biết mở bằng vành
+ * khuyên. Các phần đã tra và kiểm ở `compositionBars()`: không âm, tổng dương.
+ *
+ * Trục giá trị chạy từ 0 tới tổng (mọi phần cộng vào), mang tên của TỔNG, không tên công thức: trục
+ * của D/E đo nguồn vốn bằng tỷ ₫, gắn chữ 'D/E' vào đó là đặt tên một tỷ số cho một số tiền.
+ */
+function buildCompositionModel(
+  view: CompositionSpec,
+  rawBars: ReadonlyArray<BreakdownBar>,
+  options: ReadonlyArray<SweepOption>,
+): ChartModel {
+  const total = rawBars[rawBars.length - 1];
+  const { axis: y, scale } = buildAxis(0, total?.cumulative ?? 1, view.total, view.unit);
+
+  /* Nhãn vẽ trên hình nói cùng thang với trục, như thác nước; bảng số vẫn in số đầy đủ. */
+  const bars = rawBars.map((bar) => {
+    const short = labelAtAxisScale(bar.delta, scale);
+    return short === undefined ? bar : { ...bar, shortValueLabel: short };
+  });
+  const parts = bars.filter((bar) => bar.isTotal !== true);
+
+  const listVi = parts.map((bar) => `${bar.label.vi} ${bar.valueLabel}`).join(', ');
+  const listEn = parts.map((bar) => `${bar.label.en} ${labelInEnglish(bar.valueLabel)}`).join(', ');
+  const totalVi = total === undefined ? '' : ` ${total.valueLabel}`;
+  const totalEn = total === undefined ? '' : ` ${labelInEnglish(total.valueLabel)}`;
+
+  return {
+    kind: 'waterfall',
+    title: view.title,
+    summary: {
+      vi: `${view.total.vi}${totalVi} gồm ${String(parts.length)} phần: ${listVi}.`,
+      en: `${view.total.en}${totalEn} is made of ${String(parts.length)} parts: ${listEn}.`,
+    },
+    y,
+    bars,
+    table: {
+      columns: [{ vi: 'Thành phần', en: 'Component' }, y.title],
+      rows: bars.map((bar) => [bar.label, bar.valueLabel] as const),
+    },
+    options,
+    sweepKey: COMPOSITION_KEY,
+  };
+}
+
+/**
  * Trục đã chia vạch, KÈM bậc hiển thị đã chọn.
  *
  * Trả cả hai trong một hàm vì bậc còn dùng ở chỗ thứ hai: nhãn giá trị vẽ trên hình phải nói cùng
@@ -663,10 +711,18 @@ export function buildChartModel(args: ChartArgs): ChartModel {
   const seriesView = spec.seriesView;
   const cuaSoChuoi = seriesView === undefined ? null : seriesWindow(seriesView, inputs, ctx);
   const seriesViewReady = seriesView !== undefined && cuaSoChuoi !== null;
+  /*
+   * Hình cơ cấu (vành khuyên, 22/10/2026) — MỘT MỤC của ô chọn, chỉ có khi mọi phần ra số không âm.
+   * Không bao giờ là hình mặc định: hình màn mở ra của công thức giữ nguyên như trước.
+   */
+  const coCau = spec.composition;
+  const phanCoCau = coCau === undefined ? null : compositionBars(spec, inputs, output);
+  const compositionReady = coCau !== undefined && phanCoCau !== null;
   const options: SweepOption[] = [
     ...(breakdownReady ? [{ key: BREAKDOWN_KEY, label: BREAKDOWN_LABEL }] : []),
     ...(historyReady ? [{ key: HISTORY_KEY, label: HISTORY_LABEL }] : []),
     ...(seriesViewReady ? [seriesViewOption(seriesView)] : []),
+    ...(compositionReady ? [compositionOption(coCau)] : []),
     ...candidates.map((variable) => ({ key: variable.key, label: shortLabel(variable.label) })),
   ];
 
@@ -690,6 +746,10 @@ export function buildChartModel(args: ChartArgs): ChartModel {
     (sweepKey === BREAKDOWN_KEY || (sweepKey === undefined && breakdownFirst))
   ) {
     return buildBreakdownModel(spec, inputs, output, name, options);
+  }
+
+  if (compositionReady && sweepKey === COMPOSITION_KEY) {
+    return buildCompositionModel(coCau, phanCoCau, options);
   }
 
   if (seriesViewReady && sweepKey === seriesViewOption(seriesView).key) {

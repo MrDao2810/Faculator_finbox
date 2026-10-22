@@ -600,6 +600,44 @@ export interface FormulaSpec extends FormulaSummary {
    * (21/10/2026). Xem `SeriesViewSpec`.
    */
   seriesView?: SeriesViewSpec;
+  /**
+   * Hình TRÒN chia một tổng thành các phần — một mục thêm vào ô "Xem theo" (22/10/2026). Xem
+   * `CompositionSpec`.
+   */
+  composition?: CompositionSpec;
+}
+
+/**
+ * Một phần của hình cơ cấu: tra ô nhập trước, rồi tới `extras` của kết quả — cùng lối tra với
+ * `BreakdownStage`, vì có phần không ô nào mang sẵn (tiền lãi của lãi kép).
+ */
+export interface CompositionPart {
+  key: string;
+  /** Tên phần trên chú giải. Thiếu thì lấy nhãn của ô nhập mang khoá ấy. */
+  label?: Bilingual;
+}
+
+/**
+ * Hình CƠ CẤU: một tổng chia thành các phần, vẽ thành vành khuyên (22/10/2026).
+ *
+ * Chủ dự án hỏi công thức nào vẽ được hình tròn để người dùng dễ hình dung, rồi bảo làm. Khác
+ * `breakdown` ở một chỗ, và chỗ ấy là lý do có khai báo riêng: các phần của bóc tách phải cộng đúng
+ * KẾT QUẢ của công thức (`chart.test.ts` gác), còn tổng ở đây có thể là một đại lượng KHÁC. D/E là
+ * một tỷ số, nhưng thứ đáng nhìn là tổng nguồn vốn chia ra nợ và vốn chủ — hai số chính là hai ô của
+ * công thức. Tổng LUÔN là tổng các phần, nên hình không thể nói sai về phép cộng của chính nó.
+ *
+ * Mục chỉ có mặt khi mọi phần tra ra số, không phần nào âm và tổng dương: một phần âm (vốn chủ âm)
+ * không có chỗ nào trên vòng tròn. `composition.test.ts` gác cả Registry.
+ */
+export interface CompositionSpec {
+  /** Tên hình, cũng là chữ của mục trong ô "Xem theo": 'Cơ cấu nguồn vốn'. */
+  title: Bilingual;
+  /** Tên của tổng, in giữa vòng và ở dòng cuối bảng số: 'Tổng nguồn vốn'. */
+  total: Bilingual;
+  /** Đơn vị của các phần — khác `resultUnit` khi kết quả là một tỷ số (D/E tính bằng lần). */
+  unit: string;
+  /** Hai tới bốn phần, theo chiều kim đồng hồ từ 12 giờ. Bốn là số tông màu đã kiểm tương phản. */
+  parts: ReadonlyArray<CompositionPart>;
 }
 
 /**

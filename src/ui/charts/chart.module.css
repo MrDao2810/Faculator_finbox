@@ -284,8 +284,11 @@
 
 /*
  * Giá trị tổng ở giữa vòng — đậm như nhãn trên thanh bóc tách. Cỡ chữ KHÔNG đặt ở đây: `DonutChart`
- * đặt nó bằng thuộc tính `font-size` (tối đa 15 đơn vị, co lại cho vừa lỗ giữa vòng), mà CSS thì
- * thắng thuộc tính trình bày của SVG.
+ * đặt nó bằng thuộc tính `font-size` (tối đa 18 đơn vị ở PC, 13 ở điện thoại, co lại cho vừa lỗ giữa
+ * vòng), mà CSS thì thắng thuộc tính trình bày của SVG.
+ *
+ * Ba cỡ dưới đây là cỡ PC (`wide`, 22/10/2026: chữ chú giải 11 và giá trị 13, sau khi cỡ 12/16 bị chê
+ * "lớn quá"). Điện thoại ghi đè bằng `.donutGon` ngay sau. Đổi số thì đổi cả `FONT` trong `DonutChart.tsx`.
  */
 .donutTotal {
   font-weight: var(--weight-bold);
@@ -293,20 +296,99 @@
 }
 
 .donutTotalLabel {
-  font-size: 10px;
+  font-size: 11px;
   fill: var(--color-ink-soft);
 }
 
 .donutLabel {
-  font-size: 10px;
+  font-size: 11px;
   fill: var(--color-ink-soft);
 }
 
-/* Giá trị và phần trăm của một múi — đậm hơn tên múi, như số so với nhãn ở mọi bảng của sản phẩm. */
+/* Giá trị của một múi — đậm và to hơn tên múi, như số so với nhãn ở mọi bảng của sản phẩm. */
 .donutValue {
-  font-size: 11px;
+  font-size: 13px;
   font-weight: var(--weight-bold);
   fill: var(--color-ink);
+}
+
+/*
+ * Vành khuyên ở khổ điện thoại (`compact`, dưới 768px): chữ nhỏ một bậc (22/10/2026, chủ dự án:
+ * "giảm size text xuống … để tiết kiệm không gian hiển thị chart"). Hai lớp nên thắng hai luật trên.
+ * Đổi các số này thì đổi cả `FONT.compact` trong `DonutChart.tsx` — nó dùng chúng để ước bề ngang chữ.
+ */
+.donutGon .donutLabel,
+.donutGon .donutTotalLabel {
+  font-size: 9px;
+}
+
+.donutGon .donutValue {
+  font-size: 10px;
+}
+
+/* Vạch mảnh giữa các hàng của bảng chú giải PC — cùng màu lưới biểu đồ, có sẵn ở bản in. */
+.donutRule {
+  stroke: var(--color-border);
+  stroke-width: 1;
+}
+
+/*
+ * ── Popup số liệu của một múi (22/10/2026) ──────────────────────────────────────────────────────
+ *
+ * Chủ dự án: "khi hover chuột hoặc bấm vào phần nào thì phần đó hiển thị popup hiển thị số liệu phần
+ * đó". Rê chuột hoặc chạm vào một múi (hay dòng chú giải của nó): múi ấy giữ màu, các múi khác mờ đi,
+ * và popup đứng ngay trên giữa múi. `DonutChart` đặt `left` / `top` bằng px sau khi đo.
+ *
+ * `.plot` đã là khối chứa (`contain: layout`); `position: relative` nói thẳng điều ấy cho người đọc.
+ */
+.donutKhung {
+  position: relative;
+}
+
+.donutSlice,
+.donutMuc {
+  cursor: pointer;
+}
+
+.donutSliceMo {
+  opacity: 0.35;
+}
+
+.donutPopup {
+  position: absolute;
+  z-index: 3;
+  display: grid;
+  gap: 2px;
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-sm);
+  color: var(--color-ink-soft);
+  font-size: var(--text-xs);
+  line-height: var(--leading-tight);
+  white-space: nowrap;
+  /* Popup không bao giờ chắn con trỏ: rời múi phải là đóng, không phải "đang ở trên popup". */
+  pointer-events: none;
+}
+
+.donutPopupTen {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.donutPopupO {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  background: var(--series-ink);
+}
+
+.donutPopupGiaTri {
+  color: var(--color-ink);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
 }
 
 /*

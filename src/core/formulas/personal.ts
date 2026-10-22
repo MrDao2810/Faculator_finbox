@@ -744,6 +744,19 @@ export const LAI_KEP: FormulaModule = {
     level: 'basic',
     isFeatured: true,
     tags: ['lai kep', 'compound', 'tich luy'],
+    /*
+     * Hình tròn của kết quả: số tiền cuối kỳ chia ra gốc và lãi (22/10/2026). Tiền lãi không ô nào
+     * mang sẵn nên `calc` trả nó trong `extras.interest`, tính bằng đúng phép trừ A − P.
+     */
+    composition: {
+      title: { vi: 'Cơ cấu số tiền cuối kỳ', en: 'Final amount breakdown' },
+      total: { vi: 'Số tiền cuối kỳ (A)', en: 'Final amount (A)' },
+      unit: '₫',
+      parts: [
+        { key: 'principal', label: { vi: 'Tiền gốc (P)', en: 'Principal (P)' } },
+        { key: 'interest', label: { vi: 'Tiền lãi', en: 'Interest' } },
+      ],
+    },
     resultUnit: '₫',
     variables: [
       numberVar(
@@ -877,7 +890,8 @@ export const LAI_KEP: FormulaModule = {
       };
     }
     const growth = Math.pow(1 + v('rate') / 100 / perYear, perYear * v('years'));
-    return ok(v('principal') * growth, '₫');
+    const amount = v('principal') * growth;
+    return ok(amount, '₫', { extras: { interest: amount - v('principal') } });
   },
 };
 

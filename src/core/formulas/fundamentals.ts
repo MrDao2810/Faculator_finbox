@@ -967,6 +967,17 @@ export const NO_TREN_VON_CHU: FormulaModule = {
     chartType: 'sensitivity',
     level: 'basic',
     tags: ['de', 'd e', 'no tren von chu', 'don bay', 'debt to equity', 'chi so dn'],
+    /*
+     * Hình tròn của hai ô: tổng nguồn vốn chia ra nợ và vốn chủ (22/10/2026). D/E là tỷ số giữa hai
+     * múi này, nên vòng tròn cho thấy luôn điều con số muốn nói — D/E trên 1 là múi nợ quá nửa vòng.
+     * Nợ phải trả cộng vốn chủ đúng bằng tổng nguồn vốn của bảng cân đối kế toán.
+     */
+    composition: {
+      title: { vi: 'Cơ cấu nguồn vốn', en: 'Capital structure' },
+      total: { vi: 'Tổng nguồn vốn', en: 'Total liabilities and equity' },
+      unit: 'tỷ ₫',
+      parts: [{ key: 'totalLiabilities' }, { key: 'equity' }],
+    },
     resultUnit: 'lần',
     variables: [
       /*

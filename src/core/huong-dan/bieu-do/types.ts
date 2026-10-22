@@ -284,6 +284,9 @@ export interface HinhDangXem {
    * Hình đang hiện là một trong hai mục THEO CHUỖI GIÁ ("Phân phối lợi suất", "Đường sụt giảm",
    * 21/10/2026). Hai mục ấy chưa có chữ — chủ dự án chốt "hướng dẫn sử dụng thì chưa cần" — nên
    * khung "?" phải IM, không rơi về chữ của một hình khác; nút "?" của khối cũng ẩn khi cờ này bật.
+   *
+   * Từ 22/10/2026 cờ này còn bật cho mục "Cơ cấu …" (hình tròn), cùng lẽ chưa có chữ. Tên giữ
+   * nguyên; nghĩa thật là "hình đang hiện chưa có đoạn hướng dẫn".
    */
   hinhChuoi: boolean;
 }

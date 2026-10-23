@@ -1379,9 +1379,11 @@ content. The "lấy số ở đâu" sentence of `lots` was in the same state unt
 
 ## Chart kinds
 
-`ChartModel` is a three-way union: `line` (sensitivity sweep or time axis), `waterfall`
-(breakdown), and `unavailable`. `ChartFrame` and `ChartFullscreen` take `DrawableChart` — the
-union minus `unavailable` — so a fourth kind only needs a branch in `ChartBody`.
+`ChartModel` was a three-way union: `line` (sensitivity sweep or time axis), `waterfall`
+(breakdown), and `unavailable`; it now also has `histogram` (21/10/2026), `columns` and `gauge`
+(23/10/2026, see the last two bullets of the chart-forms list below). `ChartFrame` and `ChartFullscreen`
+take `DrawableChart` — the union minus `unavailable` — so a new kind only needs a branch in `ChartBody`
+and `ChartFullscreen` (the compiler lists every other place that switches on `kind`).
 
 **The chart's description sentence (`model.summary`) is not shown on screen** (14/10/2026). It sat under the
 chart's name, two or three small lines; the owner quoted the one on `ev-ebitda` — _"Quét Giá trị doanh nghiệp
@@ -1413,7 +1415,11 @@ into `1,2 nghìn ₫`" for money and counts only; `pe` now reads `92 nghìn ₫ 
 **`điểm` is deliberately left out**: at the thousand scale VN30's `1.024` and `1.030,4` both become `1,0x nghìn điểm`,
 erasing the gap the futures P&L is computed from; add it to `DON_VI_DOI_CHU` if the owner asks. `%` and `lần` can pass
 1.000 (`2.129,58 %`) and stay digits, since `nghìn %` is not a unit. The data table and the screen-reader summary still
-print full digits on purpose. The registry-wide gate in `chart.test.ts` ("mọi số tiền và số lượng từ 1.000 trở lên trên
+print full digits on purpose, **so the data table's column headers carry the BASE unit, not the axis's scale** (23/10/2026):
+`buildAxis()` returns a `tableTitle` beside `axis.title`, and every `table.columns` reads it. Until then the table borrowed
+`axis.title`, and the owner photographed `von-hoa-thi-truong`'s column "(nghìn tỷ ₫)" over cells "7.826,94 tỷ ₫": _"note
+một đằng nhưng số liệu hiện một nẻo"_ (`pe`'s X column had the same defect, "(nghìn ₫)" over "46.000 ₫"). A gate in
+`chart.test.ts` ("tên cột của bảng số mang đúng đơn vị in trong ô") sweeps every picker entry. The registry-wide gate in `chart.test.ts` ("mọi số tiền và số lượng từ 1.000 trở lên trên
 hình đều viết bằng chữ") turned red on `pe`'s `46.000 ₫` when step 0 was switched off.
 
 A formula gets a waterfall by declaring `spec.breakdown` (ordered stages, each with a `sign` and
@@ -1543,7 +1549,7 @@ read wrong is absent, not greyed out; one form left means no select at all):
   dụng thì chưa cần"): `ChartBody` reports `HinhDangXem.hinhChuoi`, on which `khoiDangXem()` returns
   nothing instead of falling back to the first block, the chart block's "?" is not rendered, and
   `bieu-do.test.ts` skips the two keys when it demands a paragraph per picker entry.
-- **"Cơ cấu …" — a pie of a WHOLE the formula's inputs make up** (22/10/2026, pilot of two). The owner asked
+- **"Cơ cấu …" — a pie of a WHOLE the formula's inputs make up** (22/10/2026, a pilot of two, then 22). The owner asked
   which formulas could draw a pie to help users picture them (their picture was "chỉ mang tính chất minh họa",
   a look, not a set of categories), then said to start. `spec.composition` (`CompositionSpec`: `title`,
   `total`, `unit`, 2–4 `parts` keyed to an input or an `extras` key) adds an ENTRY to "Xem theo"
@@ -1554,16 +1560,89 @@ read wrong is absent, not greyed out; one form left means no select at all):
   by a live ticker) and `lai-kep` (Cơ cấu số tiền cuối kỳ: principal + `extras.interest`, which `calc` now
   returns as A − P). The entry exists only when every part is a finite number ≥ 0 and the total > 0 (negative
   equity: no entry), it is never the opening chart, and it has no guide text (`hinhChuoi` is reported for it,
-  `bieu-do.test.ts` skips the key). `composition.test.ts` pins the two ids — a third is a decision — and gates
-  every declaration: an input part's unit must equal `composition.unit`, an extras part must exist and carry a
-  label. Candidates the owner was shown and has not approved yet: ROA/ROE (same pie as D/E), payout ratio
-  (dividends + retained), net margin, gross margin, quick ratio, basic EPS, the deposit and loan formulas
-  (principal + interest, whole term), early withdrawal, net profit's fee/tax split (6 parts: needs tones),
-  DCA rounds (up to 12), effective leverage, risk sizing, WACC's capital mix.
+  `bieu-do.test.ts` skips the key). **22 formulas since the second round, same day** (owner: _"tiếp tục áp
+  dụng để vẽ kiểu biểu đồ mới tiếp theo"_): the whole library was swept, one design agent and one adversarial
+  agent per group, and 20 passed — net margin and gross margin (net revenue), quick ratio (current assets),
+  payout ratio (EPS = dividend + retained), CAPM (rf + β × ERP, the reviewer's own addition), WACC (E + D,
+  beside its existing contribution donut), PV and FV (PV + return earned), deposit interest (principal +
+  interest), goal savings (deposits + interest), both instalment loans (principal + total interest over the
+  WHOLE term, beside the first-period breakdown), periods to goal (contributions + return, total = the balance,
+  which tops the goal because n rounds up), net profit after fees (net + costs = gross profit), HPR (price
+  gain and dividend), total return with reinvestment (price part + the EXTRA from reinvesting), break-even revenue
+  (variable cost + fixed cost), total leverage (variable cost, fixed cost, interest, profit before tax — four
+  parts), derivatives position size (loss at stop + room left) and effective leverage (equity + exposure above
+  it). Rejected, with the reason in `TASK.md`: ROE/ROA/EPS/BVPS (no whole among their inputs; adding a field
+  `calc` does not read is a dead control), ROI, CAGR, early withdrawal and `lich-tra-no` (repeat an existing
+  chart or two fields), margin of safety (absent on the chained default and on most live tickers), real return
+  (the "inflation part" is not π), risk sizing (the shares do not move with r), DCA rounds (more than four),
+  and the slivers (fees, carry cost, futures P&L). Every `extras` part is computed by the operations the result
+  uses, `output.value` unchanged; four carry a `Math.max`/`Math.min` against floating-point dust that would
+  otherwise make a part −1e−7 and the entry vanish. `composition.test.ts` pins the 22 ids — a 23rd is a
+  decision — and gates every declaration: an input part's unit must equal `composition.unit`, an extras part
+  must exist and carry a label, and (`TONG_PHAI_BANG`) the total must equal the quantity its name says,
+  computed independently: revenue, EPS, FV, the goal, `lich-tra-no`'s own schedule for the loans. **The hole
+  takes the total's name on up to two lines** (`tenGiuaVong`): one line hid it on 13 of 40 measurements;
+  two totals were shortened ("Giá trị danh nghĩa", "Số tiền chấp nhận mất") because even two lines did not fit
+  a phone's hole.
+- **"Cột theo kỳ" — `ChartModel` kind `columns`, picker entry `COLUMNS_KEY`** (23/10/2026). Asked what new chart
+  to draw next, the owner chose all four of: repayment by year, balance by year, purchase rounds, and a 0–100
+  gauge (the last is the next bullet). The first three are one kind: one column per period, several series
+  STACKED (every value ≥ 0) or one series that may go below 0, optional horizontal lines. The numbers come from
+  `FormulaModule.columns` (`ColumnView` in `calc/types.ts`): it sits on the MODULE beside `calc`, not on
+  `spec`, because it is a function — `build(v, ctx, output)` — that uses the formula's own helpers.
+  `columnData()` (`chart/columns.ts`) checks it (≥ 2 periods, finite, no negative when stacked, not all 0)
+  and the entry is absent otherwise; it is never the opening chart and has no guide text (`hinhChuoi`). Nine
+  formulas: **"Trả nợ từng năm"** (`tra-gop-nien-kim`, `tra-gop-goc-deu`, `lich-tra-no`; principal + interest
+  per year, grouped from `buildAmortisation()` itself, so the years sum to the loan and to `lich-tra-no`'s total
+  interest); **"Số dư từng năm"** (`lai-kep`, `gia-tri-tuong-lai`, `tiet-kiem-muc-tieu`, `so-ky-dca`; money put
+  in + accumulated interest at each year end, `nhomSoDuTheoNam()` in `formulas/shared.ts`, the last column equal
+  to the formula's own result; a NEGATIVE interest part is not clamped, so a negative rate removes the entry
+  instead of drawing a balance that never fell; `so-ky-dca` adds a "Mục tiêu" line); **"Từng đợt mua"**
+  (`gia-von-trung-binh-dca`: price per round, a solid line at the average cost and a dashed one at the simple
+  average of prices, amount and shares as `extraColumns` in the table and the hover box) and **"Lợi suất từng
+  kỳ"** (`loi-suat-trung-binh-hinh-hoc`: signed columns, geometric vs arithmetic mean lines). `ColumnChart.tsx`
+  keeps its legend INSIDE the `<svg>` (exports), lays it out BEFORE the plot (three items wrap to two rows at
+  390px and used to cover the axis title), thins period labels so the last one never sits beside its
+  neighbour ("19 20"), thins value labels counting from 0 (the old `thin()` dropped the 0 of a chart with
+  negative columns), puts the higher line's label above it and the lower one's below (the two labels used to
+  meet between the lines), and writes every hover figure in the chart's word form, extra columns included
+  (each picks its own scale; "10.000.000 ₫" beside "50 nghìn ₫" was the first build). `resolveRepeat()` now
+  spreads the module (`{ ...formula, spec }`); it used to rebuild `{ spec, calc }` and silently dropped
+  `columns`. **A second round the same day added five** (owner: _"tiếp tục"_): **"Cổ tức từng năm"**
+  (`ddm-hai-giai-doan`: each first-stage year's dividend, its value today below and the part lost to discounting
+  above; the lower parts sum to `extras.pvStage1`, the terminal value has no column), **"Tiền lãi sau từng vòng"**
+  (`gui-quay-vong`: interest only, one column per short round, a dashed line at the one long deposit's interest
+  AT MATURITY; the last column minus the line is the result. The first build stacked the 100 million ₫ principal
+  under a few million of interest and the result shrank to a few pixels, so do not put the principal back),
+  **"Tổng lợi suất từng năm"** (`tong-loi-suat-tai-dau-tu`, the composition's two parts per year), **"Số dư từng
+  năm"** on `gia-tri-hien-tai` (FV's mirror: PV below, the last column equals the FV typed) and **"Khối lượng từng
+  phiên"** (`ty-le-khoi-luong`, the only one that needs a series: exactly the n + 1 sessions `calc` reads, through
+  the same `requireVolumeBars()`, which now keeps each session's date; a dashed line at the average of the n
+  baseline sessions, so the last column divided by the line is the result; ticks are dd/mm, the hover the full
+  date). Rejected that round, with the reason: `irr-nien-kim` (up to 360 generic "kỳ" that cannot be grouped
+  into years), `thoi-gian-nhan-doi` (693 columns at 0,1 %), `cagr` (a smooth path that never happened, and two
+  fields re-told), `lai-suat-hieu-dung` (no principal, up to 365 periods), `lai-tien-gui` (one payment at
+  maturity), `sma-n-phien` (price columns from 0 hide the ±5 % the average is about), `atr-dao-dong-thuc`
+  (Wilder's smoothing is not the average of the columns shown), and the gauge has no fourth candidate (only RSI,
+  Stochastic and %B carry `referenceLines`). Period labels are now thinned by WIDTH, not count: a label needs
+  the widest tick × 1,1 plus 6 units, so "11/09" and "15/09" no longer touch under 21 columns at 390px; and a
+  tick label is clamped inside the plot, or a dd/mm under the first column sat on the value axis's "0".
+  `columns.test.ts` pins the 14 ids and checks each against an independent computation.
+- **"Thang đo" — kind `gauge`, entry `GAUGE_KEY`, declared by `spec.gauge`** (23/10/2026): a half ring split
+  into the zones the formula already marks — RSI 30/70, Stochastic %K 20/80, %B at its two bands on a −25…125%
+  scale — with a needle at the result. `gauge.test.ts` requires the zone boundaries to equal
+  `spec.referenceLines`, so the line chart and the gauge name the same two marks. It exists only when the result
+  is a number (a loaded series); a value off the scale puts the needle at the end while the figure under it
+  stays the real one. The zone in which the result sits is full colour, the others fade; zone tones are teal /
+  grey / violet, never green and red, because the gauge says WHERE the number sits, not buy or sell. Below 768px
+  the zone legend is centred rows under the ring; from 768px it is a column on the right (name, then range, the
+  active zone bold), because a ring alone in the middle of a wide frame left the two empty bands the owner
+  rejected on the donut. One form only (`DangVe` gained `'gauge'`, "Thang đo"), so no "Loại biểu đồ" select.
 
-Measured over the Registry (`dang-ve.test.ts` pins it): with no series, 224 drawable charts — Đường/Cột/Điểm
-211, Bậc thang 23, Lãi/lỗ 27, Vành khuyên 7 (5 breakdowns + 2 compositions); with FPT's 250 sessions, Bậc thang 102 and
-Lãi/lỗ 46, Nến 5. The first form of every chart is the old default (a composition opens as Vành khuyên), so nothing changes until the user picks. The "?" popover
+Measured over the Registry (`dang-ve.test.ts` pins it): with no series, 257 drawable charts — Đường/Cột/Điểm
+211 (Cột 224 with the 13 column charts that need no series), Bậc thang 23, Lãi/lỗ 27, Vành khuyên 27 (5
+breakdowns and 22 compositions); with FPT's 250 sessions 374 charts (Cột 337), Bậc thang 102 and Lãi/lỗ 46, Nến 5,
+Thang đo 3. The first form of every chart is the old default (a composition opens as Vành khuyên), so nothing changes until the user picks. The "?" popover
 is told `dang: 'duong'` for Nến, Điểm, Bậc thang and Lãi/lỗ (same points, same axes) and keeps the one
 breakdown paragraph for the donut. Below 1024px the "Xem theo" select's flex floor is 7.5rem so the two
 selects share one row whenever "Xem theo" keeps ≥120px (else a 153px "Vùng âm/dương" (renamed "Lãi/lỗ" 22/10/2026) dropped the second select
@@ -3390,6 +3469,12 @@ English, the owner reviews it**. What that produced, and what is easy to break:
   screen's `BackLink` (a 44px tap target) makes that one header 52px while every other screen's is 48px, and the bar
   jumps on every navigation; `bar-height-css.test.ts` pins the pair. Everything that needs the two heights reads the
   tokens (sticky search, sticky end buttons, Danh mục's fixed "Thêm mới"), so nothing else changed.
+- **The Share button never changes; its confirmation is a toast** (23/10/2026, owner: _"button cần giữ nguyên"_). The
+  button used to swap its label to "Đã sao chép link" (a tick icon below 1024px, 19/10) for 4 s; now it stays "Chia sẻ" and
+  a small `role="status"` strip (`.thongBao`, portalled into `document.body`) shows "Đã sao chép link" at the bottom of
+  the screen for `THONG_BAO_MS` (5 s) — above the bottom tab bar AND the 53px sticky "Lưu vào danh mục · Thoát" band below
+  1024px. The phone's own share sheet (`navigator.share`) gets no strip: the sheet is the confirmation. Do not put the label
+  change back.
 - **Every `:hover` style sits inside `@media (hover: hover)`** (16/10/2026). On a touch screen the element just
   tapped stays `:hover` until the next tap elsewhere, so an unconditional hover colour sticks: the owner tapped "Xem
   ví dụ thực tế ↓" on a phone, scrolled back up and found the button still light blue (`.secondary:hover`). 61 of the
@@ -3616,6 +3701,16 @@ English, the owner reviews it**. What that produced, and what is easy to break:
   `pointerdown`/`keydown` on it (the user used Danh mục) or reaching another origin screen clears the hold. The search
   case is unchanged: `cancelScrollRestore()` still drops `q` and lands at the top. `OriginTracker.test.tsx` and
   `origin-screen.test.ts` pin both; no `check:chrome` assertion yet.
+- **A formula card carries its OWN formula's icon; the category icons stay on category surfaces** (23/10/2026). The owner
+  commissioned a 111-icon set and chose: _"áp dụng những icon đó cho công thức. còn các icon cũ là của phần danh mục thì
+  cứ để cho danh mục trước"_. `FormulaCard` (shelf tile and list row) draws `FormulaIcon` from `src/ui/browse/formula-icons.ts`
+  and falls back to `CategoryIcon` only for an id with no drawing; `HotCategories` and `GroupCard` keep `CategoryIcon`.
+  The set is hand-written SVG bodies (24 grid, 1,75 stroke, `currentColor`; a `.22` tint marks the quantity the formula
+  computes) injected with `dangerouslySetInnerHTML`, so `formula-icons.test.ts` requires exactly the Registry's ids, no
+  two identical drawings, only `g/path/circle/rect` and drawing attributes. Each drawing's meaning is a COMMENT above
+  its entry, so the minifier drops it; do not turn it into exported data (it would ship in `/cong-thuc/`'s JS, which
+  already carries the set: 6,6 kB gzip). The owner's `generate.py` and sprite were not brought in. A new formula needs
+  a drawing, or its card silently shows the category icon.
 - **Nothing under `src/ui/charts/` may call `useId()`.** That whole directory sits behind the
   `next/dynamic` boundary in `FormulaChart.tsx`, where React's generated ids differ between the
   static HTML and the client hydration pass — measured as 5 hydration warnings per chart page. Every

@@ -7,6 +7,7 @@ import Link from 'next/link';
  * mất phần MathML dựng sẵn (xem chú thích chỗ đọc `?ma=` bằng `window.location.search`).
  */
 import { useRouter } from 'next/navigation';
+import { createPortal } from 'react-dom';
 import {
   useCallback,
   useDeferredValue,
@@ -422,31 +423,8 @@ function dungBangChiaSeCuaMay(): boolean {
   );
 }
 
-/**
- * Dấu tích thay mắt xích trong 4 giây sau khi sao chép — CHỈ dưới 1024px (19/10/2026).
- *
- * Ở đó nút Chia sẻ chỉ còn icon, nên chữ "Đã sao chép link" bị ẩn cùng nhãn và cú chạm trông như
- * không làm gì. Hiện lại chữ thì nút nở ngang và đẩy hàng tiêu đề xuống dòng; đổi icon thì nút
- * đứng yên. Từ 1024px chữ vẫn hiện nên vẫn là mắt xích như cũ.
- */
-function CheckIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      width="16"
-      height="16"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2.4"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <path d="M5 12.5l4.5 4.5L19 7.5" />
-    </svg>
-  );
-}
+/** Thông báo ở đáy màn hình ("Đã sao chép link") và câu ghi chú chuỗi giá tự tắt sau chừng này mili giây. */
+const THONG_BAO_MS = 5000;
 
 /**
  * Màn WF-03 Chi tiết công thức — gói WBS 3.2.1.
@@ -521,14 +499,16 @@ export function FormulaDetail({
   }
 
   /**
-   * Vừa chia sẻ xong theo lối nào — chỉ để đổi chữ/icon trên nút và bật câu ghi chú.
+   * Vừa chia sẻ xong theo lối nào — để bật thông báo nhỏ ở đáy màn hình và câu ghi chú.
    *
-   * `'copied'`: link đã vào bộ nhớ tạm, nút ghi "Đã sao chép link" (dưới 1024px: dấu tích).
-   * `'shared'`: bảng chia sẻ của điện thoại đã gửi xong. Nút giữ nguyên — chính bảng ấy đã là dấu
+   * `'copied'`: link đã vào bộ nhớ tạm, một thông báo "Đã sao chép link" hiện ở đáy màn hình
+   * (`THONG_BAO_MS`). NÚT KHÔNG ĐỔI: nó từng đổi chữ thành "Đã sao chép link" (dưới 1024px: đổi icon
+   * thành dấu tích), và chủ dự án (23/10/2026) bác lối ấy — nút giữ nguyên "Chia sẻ", lời báo là
+   * thông báo riêng.
+   * `'shared'`: bảng chia sẻ của điện thoại đã gửi xong. Không có thông báo — chính bảng ấy đã là dấu
    * hiệu, và chữ "Đã sao chép link" thì sai — chỉ câu ghi chú về chuỗi giá bật lên.
    *
-   * Tự tắt sau vài giây chứ không để mãi: nút ghi "Đã sao chép link" hoài thì lần bấm sau người
-   * dùng không biết cú bấm ấy có ăn hay không. Hẹn giờ dọn trong effect ngay dưới.
+   * Tự tắt sau vài giây chứ không để mãi. Hẹn giờ dọn trong effect ngay dưới.
    */
   const [shareDone, setShareDone] = useState<'copied' | 'shared' | null>(null);
   const copied = shareDone === 'copied';
@@ -536,7 +516,7 @@ export function FormulaDetail({
     if (shareDone === null) return;
     const timer = window.setTimeout(() => {
       setShareDone(null);
-    }, 4000);
+    }, THONG_BAO_MS);
     return () => {
       window.clearTimeout(timer);
     };
@@ -2736,17 +2716,8 @@ export function FormulaDetail({
             </Button>
 
             <Button variant="secondary" size="sm" className={styles.iconButton} onClick={shareLink}>
-              {copied ? (
-                <>
-                  <LinkIcon className={styles.wideOnly} />
-                  <CheckIcon className={styles.narrowOnly} />
-                </>
-              ) : (
-                <LinkIcon />
-              )}
-              <span className={styles.iconLabel}>
-                {copied ? t('detail.shareCopied') : t('detail.shareLink')}
-              </span>
+              <LinkIcon />
+              <span className={styles.iconLabel}>{t('detail.shareLink')}</span>
             </Button>
           </span>
         </div>
@@ -2761,6 +2732,25 @@ export function FormulaDetail({
             {t('detail.shareNoSeries')}
           </p>
         )}
+        {/*
+          Thông báo "Đã sao chép link" — một dải nhỏ ở đáy màn hình, tự tắt sau `THONG_BAO_MS`
+          (23/10/2026). Chủ dự án: *"thay đổi logic sau khi bấm vào button này thì có đoạn thông báo
+          nhỏ ở dưới footer của màn hình thông báo xuất hiện tầm 5 giây … thay vì thay đổi button …
+          button cần giữ nguyên"*.
+
+          Đưa ra `document.body` bằng portal: `position: fixed` chỉ neo theo màn khi không có tổ tiên
+          nào mang `transform` / `contain` (các khối `deferred` của màn này có). Nó chỉ dựng SAU một cú
+          bấm nên không bao giờ có mặt trong HTML tĩnh — portal an toàn với hydrate. `role="status"`
+          để trình đọc màn hình đọc to; không bắt được con trỏ (`pointer-events: none`) nên không che
+          nút nào bên dưới.
+        */}
+        {copied &&
+          createPortal(
+            <div className={styles.thongBao} role="status">
+              {t('detail.shareCopied')}
+            </div>,
+            document.body,
+          )}
         {/*
           ── Dòng mô tả một câu đã BỎ HẲN ────────────────────────────────────────────────────────
 

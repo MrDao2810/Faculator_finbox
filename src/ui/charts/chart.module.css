@@ -392,6 +392,134 @@
 }
 
 /*
+ * ── Hình cột theo kỳ (`ColumnChart`, 23/10/2026) ───────────────────────────────────────────────
+ *
+ * Màu khúc đi qua lớp tông như múi vành khuyên — không màu nào viết vào thuộc tính SVG. Viền màu
+ * nền mảnh giữa hai khúc chồng, để khúc gốc và khúc lãi không dính thành một khối. Rê vào một cột
+ * thì các cột khác mờ đi (`.columnDim`), như múi vành khuyên.
+ */
+.columnSeg {
+  fill: var(--series-ink);
+  stroke: var(--color-surface);
+  stroke-width: 0.5;
+}
+
+.columnDim {
+  opacity: 0.4;
+}
+
+.columnSwatch {
+  fill: var(--series-ink);
+}
+
+.columnLegendText {
+  fill: var(--color-ink-soft);
+  font-size: 10px;
+}
+
+/*
+ * Vạch ngang: vạch đầu liền màu nhấn (giá vốn trung bình, lợi suất bình quân — con số ở khối Kết
+ * quả), vạch sau đứt và màu chữ phụ. Hai dấu hiệu, không chỉ dựa vào màu (NFR-USA-06).
+ */
+.columnLine {
+  stroke: var(--color-highlight);
+  stroke-width: 1.5;
+}
+
+.columnLineDash {
+  stroke: var(--color-ink-soft);
+  stroke-width: 1.5;
+  stroke-dasharray: 5 3;
+}
+
+.columnLineLabel,
+.columnLineLabelDash {
+  font-size: 10px;
+  font-weight: var(--weight-bold);
+  /* Quầng nền sau chữ — nhãn nằm ngay trên cột. */
+  stroke: var(--color-surface);
+  stroke-width: 3px;
+  paint-order: stroke fill;
+  stroke-linejoin: round;
+}
+
+.columnLineLabel {
+  fill: var(--color-highlight);
+}
+
+.columnLineLabelDash {
+  fill: var(--color-ink-soft);
+}
+
+/* Ô dò của một cột: nền thẻ, viền mảnh, chữ như popup vành khuyên. */
+.columnTipBox {
+  fill: var(--color-surface);
+  stroke: var(--color-border-strong);
+  stroke-width: 1;
+}
+
+.columnTipTitle {
+  fill: var(--color-ink);
+  font-size: 11px;
+  font-weight: var(--weight-bold);
+}
+
+.columnTipText {
+  fill: var(--color-ink-soft);
+  font-size: 10px;
+}
+
+/*
+ * ── Thang đo (`GaugeChart`, 23/10/2026) ────────────────────────────────────────────────────────
+ *
+ * Màu vùng qua lớp tông như khúc cột. Vùng chứa kết quả giữ nguyên, các vùng khác mờ đi — cùng cách
+ * vành khuyên làm mờ các múi không được chọn. Kim và chốt kim màu chữ, để đọc được trên mọi vùng.
+ */
+.gaugeZone {
+  fill: var(--series-ink);
+  stroke: var(--color-surface);
+  stroke-width: 2;
+}
+
+.gaugeZoneMo {
+  opacity: 0.35;
+}
+
+.gaugeNeedle {
+  stroke: var(--color-ink);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+}
+
+.gaugePivot {
+  fill: var(--color-ink);
+}
+
+/* Cỡ chữ đặt bằng thuộc tính `font-size` theo khổ (`GaugeChart`), như số giữa vành khuyên. */
+.gaugeValue {
+  fill: var(--color-ink);
+  font-weight: var(--weight-bold);
+}
+
+.gaugeZoneName {
+  fill: var(--color-ink-soft);
+}
+
+/* Cột chú giải của khổ PC: tên vùng, vùng chứa kết quả in đậm; dòng khoảng nhạt hơn. */
+.gaugeLegendName {
+  fill: var(--color-ink-soft);
+}
+
+.gaugeLegendActive {
+  fill: var(--color-ink);
+  font-weight: var(--weight-bold);
+}
+
+.gaugeLegendRange {
+  fill: var(--color-muted);
+}
+
+/*
  * Vùng tô dưới đường — bản thiết kế đợt 12.
  *
  * Màu đi qua `className` của hai thẻ `<stop>` chứ không viết vào thuộc tính `stopColor`: đó là

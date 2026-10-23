@@ -579,6 +579,22 @@ export const TONG_LOI_SUAT_TAI_DAU_TU: FormulaModule = {
     chartType: 'sensitivity',
     level: 'basic',
     tags: ['tong loi suat', 'tai dau tu co tuc', 'total return', 'reinvest', 'co tuc'],
+    /* Hình tròn của tổng lợi suất: phần do giá tăng và phần thêm nhờ cổ tức tái đầu tư (22/10/2026). */
+    composition: {
+      title: { vi: 'Cơ cấu tổng lợi suất', en: 'Total return breakdown' },
+      total: { vi: 'Tổng lợi suất (TR)', en: 'Total return (TR)' },
+      unit: '%',
+      parts: [
+        { key: 'fromPriceGrowth', label: { vi: 'Phần do giá tăng', en: 'From price growth' } },
+        {
+          key: 'fromReinvestedDividends',
+          label: {
+            vi: 'Phần thêm nhờ cổ tức tái đầu tư',
+            en: 'Extra from reinvested dividends',
+          },
+        },
+      ],
+    },
     resultUnit: '%',
     variables: [
       numberVar(
@@ -703,7 +719,55 @@ export const TONG_LOI_SUAT_TAI_DAU_TU: FormulaModule = {
     }
 
     const perYear = (1 + g / 100) * (1 + v('dividendYield') / 100);
-    return ok((Math.pow(perYear, years) - 1) * 100, '%');
+    const total = (Math.pow(perYear, years) - 1) * 100;
+    /*
+     * Hai múi của hình "Cơ cấu tổng lợi suất": phần giá tự nó tăng (bỏ cổ tức đi thì còn), rồi phần
+     * THÊM nhờ tái đầu tư. Tách một phép nhân thành phép cộng thì kết quả phụ thuộc thứ tự tách; tách
+     * giá trước khớp câu ví dụ ("riêng phần giá tăng cho …"). Lợi suất cổ tức 0 thì `perYear` bằng
+     * đúng 1 + g/100, nên phần thêm ra đúng 0 chứ không âm li ti.
+     */
+    const fromPriceGrowth = (Math.pow(1 + g / 100, years) - 1) * 100;
+    return ok(total, '%', {
+      extras: { fromPriceGrowth, fromReinvestedDividends: total - fromPriceGrowth },
+    });
+  },
+  /*
+   * Tổng lợi suất sau từng năm nắm giữ (23/10/2026): cùng hai khúc với hình cơ cấu, tách đúng thứ tự
+   * `calc` tách (phần do giá tăng, rồi phần THÊM nhờ cổ tức tái đầu tư), cột cuối bằng kết quả. Giá
+   * giảm bình quân thì phần do giá âm và mục vắng: cột chồng chỉ đọc được khi mọi khúc cộng vào.
+   */
+  columns: {
+    title: { vi: 'Tổng lợi suất từng năm', en: 'Total return by year' },
+    category: { vi: 'Năm', en: 'Year' },
+    value: { vi: 'Tổng lợi suất', en: 'Total return' },
+    unit: '%',
+    series: [
+      {
+        key: 'fromPriceGrowth',
+        label: { vi: 'Phần do giá tăng', en: 'From price growth' },
+        tone: 'primary',
+      },
+      {
+        key: 'fromReinvestedDividends',
+        label: { vi: 'Phần thêm nhờ cổ tức tái đầu tư', en: 'Extra from reinvested dividends' },
+        tone: 'teal',
+      },
+    ],
+    build: (v, _ctx, output) => {
+      if (output.value === null) return null;
+      const g = v('priceGrowth') / 100;
+      const perYear = (1 + g) * (1 + v('dividendYield') / 100);
+      const groups = Array.from({ length: Math.round(v('years')) }, (_, k) => {
+        const total = (Math.pow(perYear, k + 1) - 1) * 100;
+        const fromPrice = (Math.pow(1 + g, k + 1) - 1) * 100;
+        return {
+          label: { vi: `Năm ${String(k + 1)}`, en: `Year ${String(k + 1)}` },
+          tick: String(k + 1),
+          values: [fromPrice, total - fromPrice],
+        };
+      });
+      return { groups };
+    },
   },
 };
 
@@ -954,6 +1018,36 @@ export const LOI_SUAT_TRUNG_BINH_HINH_HOC: FormulaModule = {
 
     const product = rates.reduce((acc, r) => acc * (1 + r / 100), 1);
     return ok((Math.pow(product, 1 / n) - 1) * 100, '%');
+  },
+  /*
+   * Lợi suất từng kỳ (23/10/2026): mỗi kỳ một cột, kỳ lỗ đi xuống dưới mốc 0; vạch liền ở lợi suất
+   * trung bình hình học (kết quả), vạch đứt ở trung bình cộng. Hai vạch lệch nhau là điều công thức
+   * muốn nói: kỳ lỗ kéo vốn xuống nhiều hơn kỳ lãi cùng cỡ kéo lên, nên bình quân thật nằm dưới.
+   */
+  columns: {
+    title: { vi: 'Lợi suất từng kỳ', en: 'Return by period' },
+    category: { vi: 'Kỳ', en: 'Period' },
+    value: { vi: 'Lợi suất', en: 'Return' },
+    unit: '%',
+    series: [{ key: 'return', label: { vi: 'Lợi suất kỳ', en: 'Period return' }, tone: 'primary' }],
+    build: (v, _ctx, output) => {
+      const geometric = output.value;
+      if (geometric === null) return null;
+      const n = clampRepeatCount(v('periods'), GEO_PERIODS_MIN, GEO_PERIODS_MAX);
+      const groups = Array.from({ length: n }, (_, index) => ({
+        label: { vi: `Kỳ ${index + 1}`, en: `Period ${index + 1}` },
+        tick: String(index + 1),
+        values: [v(`r${index + 1}`)],
+      }));
+      const mean = groups.reduce((sum, group) => sum + (group.values[0] ?? 0), 0) / n;
+      return {
+        groups,
+        lines: [
+          { value: geometric, label: { vi: 'Trung bình hình học', en: 'Geometric mean' } },
+          { value: mean, label: { vi: 'Trung bình cộng', en: 'Arithmetic mean' }, dash: true },
+        ],
+      };
+    },
   },
 };
 

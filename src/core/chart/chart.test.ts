@@ -952,6 +952,51 @@ describe('buildChartModel()', () => {
       expect('referenceLines' in model).toBe(false);
     });
 
+    /*
+     * Tên cột của bảng số nói CÙNG đơn vị với ô bên dưới nó (23/10/2026). Chủ dự án chụp bảng số của
+     * `von-hoa-thi-truong` theo thời gian: cột ghi "(nghìn tỷ ₫)" — bậc của trục — mà ô ghi
+     * "7.826,94 tỷ ₫": _"note một đằng nhưng số liệu hiện một nẻo"_. Quét mọi công thức, mọi mục của
+     * ô "Xem theo" (cả thời gian, bóc tách, cơ cấu): ô nào là "số + đơn vị" thì tên cột phải kết thúc
+     * bằng đúng đơn vị ấy trong ngoặc. Chỉ hai cột đầu — cột chuỗi phụ mang tên chuỗi, không đơn vị.
+     */
+    it('tên cột của bảng số mang đúng đơn vị in trong ô, không phải bậc của trục', () => {
+      const SO_KEM_DON_VI = /^[−-]?[\d.,]+ (.+)$/;
+      let daSo = 0;
+
+      for (const formula of FORMULA_MODULES) {
+        const inputs = defaultInputs(formula.spec);
+        const base = { formula, inputs, ctx: CTX_RSI, level: 'advanced' as const };
+        const output = runFormula(formula, inputs, CTX_RSI);
+        const dau = buildChartModel({ ...base, output });
+        const keys = dau.kind === 'unavailable' ? [] : dau.options.map((o) => o.key);
+
+        for (const key of keys) {
+          const model = buildChartModel({ ...base, output, sweepKey: key });
+          if (model.kind === 'unavailable') continue;
+
+          model.table.columns.slice(0, 2).forEach((column, cot) => {
+            for (const row of model.table.rows) {
+              const o = row?.[cot];
+              const chuoi = typeof o === 'string' ? o : o?.vi;
+              const donVi = chuoi === undefined ? undefined : SO_KEM_DON_VI.exec(chuoi)?.[1];
+              /*
+               * Chỉ xét cột có NGOẶC đơn vị kết thúc bằng đơn vị của ô ("(nghìn tỷ ₫)" với ô "tỷ ₫"):
+               * cột như "Số phiên" của biểu đồ phân phối đã mang đơn vị trong chính tên, không ngoặc.
+               */
+              if (donVi === undefined || !column.vi.endsWith(`${donVi})`)) continue;
+              daSo += 1;
+              expect(column.vi, `${formula.spec.id} · ${key} · ô "${chuoi ?? ''}"`).toMatch(
+                new RegExp(`\\(${donVi.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\)$`),
+              );
+            }
+          });
+        }
+      }
+
+      // Lưới an toàn: ca này phải thật sự so được ô nào đó, không xanh vì không gặp ô nào.
+      expect(daSo).toBeGreaterThan(1000);
+    });
+
     /* Nhãn rỗng đọc ra là một đường kẻ không ai giải thích — bắt ngay lúc khai, không đợi lên màn. */
     it('mọi mốc đã khai đều có nhãn ở cả hai ngôn ngữ', () => {
       for (const formula of FORMULA_MODULES) {
@@ -1478,7 +1523,8 @@ describe('buildChartModel()', () => {
   it('mọi nhãn vạch của cả 111 công thức đều vừa ngân sách của trục mình', () => {
     for (const formula of FORMULA_MODULES) {
       const model = modelOf(formula.spec.id, 'advanced');
-      if (model.kind === 'unavailable') continue;
+      // Thang đo (23/10/2026) không có trục vạch — và chỉ có khi đã nạp chuỗi.
+      if (model.kind === 'unavailable' || model.kind === 'gauge') continue;
 
       for (const tick of model.y.ticks) {
         expect(
@@ -1763,8 +1809,16 @@ describe('buildChartModel()', () => {
         expect(donVi.size, `${formula.spec.id}: ${[...donVi].join(' · ')}`).toBe(1);
         continue;
       }
-      // Histogram chỉ hiện khi đã nạp chuỗi, nên không tới được đây với số mặc định; thu hẹp kiểu cho TS.
-      if (model.kind === 'histogram') continue;
+      // Histogram và thang đo chỉ hiện khi đã nạp chuỗi, nên không tới được đây; thu hẹp kiểu cho TS.
+      if (model.kind === 'histogram' || model.kind === 'gauge') continue;
+      // Hình cột theo kỳ (23/10/2026): mọi số vẽ trên hình nói cùng một đơn vị, như thác nước.
+      if (model.kind === 'columns') {
+        const donVi = new Set(
+          model.groups.flatMap((g) => (g.shortValueLabels ?? g.valueLabels).map(donViCua)),
+        );
+        expect(donVi.size, `${formula.spec.id}: ${[...donVi].join(' · ')}`).toBe(1);
+        continue;
+      }
 
       // Điểm không tính được mang `_ _` chứ không mang số, nên nó không nói gì về đơn vị.
       const truc = [
@@ -1808,8 +1862,11 @@ describe('buildChartModel()', () => {
         continue;
       }
 
-      // Thác nước không có trục X kiểu số — trục ngang của nó là các CHẶNG, không phải đại lượng.
-      for (const axis of model.kind === 'waterfall' ? [model.y] : [model.x, model.y]) {
+      // Thang đo không có trục; thác nước không có trục X kiểu số — trục ngang là các CHẶNG.
+      if (model.kind === 'gauge') continue;
+      for (const axis of model.kind === 'waterfall' || model.kind === 'columns'
+        ? [model.y]
+        : [model.x, model.y]) {
         expect(Number.isFinite(axis.domain[0]), `${id}: miền`).toBe(true);
         expect(Number.isFinite(axis.domain[1]), `${id}: miền`).toBe(true);
         expect(axis.domain[0], `${id}: miền`).toBeLessThan(axis.domain[1]);

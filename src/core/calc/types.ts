@@ -11,10 +11,11 @@
  */
 
 import type { Cashflow } from '../cashflow-series';
+import type { SeriesTone } from '../chart/types';
 import type { FeeSchedule } from '../market/types';
 import type { SeriesRow } from '../price-series';
 import type { FormulaSpec } from '../registry/types';
-import type { CalcOutput } from '../types';
+import type { Bilingual, CalcOutput } from '../types';
 
 /** Giá trị người dùng nhập, theo key của `VariableSpec`. Ô để trống thì KHÔNG có key. */
 export type CalcInputs = Readonly<Record<string, number>>;
@@ -81,8 +82,53 @@ export type CalcValues = (key: string) => number;
  */
 export type CalcFn = (v: CalcValues, ctx: CalcContext) => CalcOutput;
 
+/** Số của hình cột theo kỳ — `ColumnView.build` trả về. */
+export interface ColumnData {
+  /**
+   * Một nhóm mỗi kỳ, theo thứ tự trục ngang. `values` có đúng một số mỗi chuỗi của `ColumnView`;
+   * `extras` một số mỗi cột của `ColumnView.extraColumns`.
+   */
+  groups: ReadonlyArray<{
+    label: Bilingual;
+    tick: string;
+    values: ReadonlyArray<number>;
+    extras?: ReadonlyArray<number>;
+  }>;
+  /** Vạch ngang tại các mức đáng so: giá vốn trung bình, lợi suất bình quân… */
+  lines?: ReadonlyArray<{ value: number; label: Bilingual; dash?: boolean }>;
+}
+
+/**
+ * Hình CỘT THEO KỲ của một công thức (23/10/2026) — một mục thêm của ô "Xem theo".
+ *
+ * Nằm trên MODULE, cạnh `calc`, chứ không trên `spec` như `composition`: nó cần một HÀM sinh số
+ * (lịch trả nợ từng năm, số dư từng năm), và hàm ấy dùng đúng các phép tính của chính công thức — đặt
+ * cạnh `calc` thì hai thứ đọc chung một bộ trợ thủ trong cùng file, và ca kiểm đối chiếu được chúng.
+ */
+export interface ColumnView {
+  /** Tên mục trong ô "Xem theo", cũng là tiêu đề hình: 'Trả nợ từng năm'. */
+  title: Bilingual;
+  /** Tên trục ngang: 'Năm'. */
+  category: Bilingual;
+  /** Tên đại lượng trên trục đứng (không kèm đơn vị): 'Số tiền trả trong năm'. */
+  value: Bilingual;
+  /** Đơn vị của mọi số trên trục đứng, cùng quy ước `resultUnit`. */
+  unit: string;
+  /** Các chuỗi; từ hai chuỗi trở lên thì chồng lên nhau và mọi giá trị phải không âm. */
+  series: ReadonlyArray<{ key: string; label: Bilingual; tone: SeriesTone }>;
+  /** Cột chỉ có ở bảng số (số cổ phiếu mua được của từng đợt…), mỗi cột một đơn vị riêng. */
+  extraColumns?: ReadonlyArray<{ label: Bilingual; unit: string }>;
+  /**
+   * Sinh số từ đúng bộ số đang nhập và kết quả đang hiện. `null` khi không vẽ được — khi ấy mục
+   * vắng khỏi ô chọn, như hình cơ cấu. Không được trả NaN / Infinity (FR-06): bộ dựng kiểm lại.
+   */
+  build: (v: CalcValues, ctx: CalcContext, output: CalcOutput) => ColumnData | null;
+}
+
 /** Một công thức hoàn chỉnh: mô tả + cách tính. Đây là đơn vị mà nhánh 5 thêm vào từng cái. */
 export interface FormulaModule {
   spec: FormulaSpec;
   calc: CalcFn;
+  /** Hình cột theo kỳ, nếu công thức có — xem `ColumnView`. */
+  columns?: ColumnView;
 }

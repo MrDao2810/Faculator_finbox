@@ -240,7 +240,9 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'chart.kindSignArea': 'Gain/loss',
   'chart.kindWaterfall': 'Horizontal bars',
   'chart.kindDonut': 'Donut',
+  'chart.kindGauge': 'Gauge',
   'chart.donutShare': '{p} of the total',
+  'chart.columnsTotal': 'Total',
   'chart.showData': 'View the numbers',
   'chart.tableCaption': 'Data',
   /* `chart.applyHintTimeAxis` và `chart.applyHintReady` đã bỏ cùng bản tiếng Việt — xem `vi.ts`. */

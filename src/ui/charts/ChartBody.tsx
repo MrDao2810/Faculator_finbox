@@ -3,7 +3,9 @@
 import { useEffect, useMemo, useState } from 'react';
 
 import {
+  COLUMNS_KEY,
   COMPOSITION_KEY,
+  GAUGE_KEY,
   buildChartModel,
   dangVeCuaHinh,
   dangVeHieuLuc,
@@ -22,6 +24,8 @@ import { useT } from '@/application/preferences-context';
 import { InlineWarning } from '@/ui/result';
 
 import { ChartFrame } from './ChartFrame';
+import { ColumnChart } from './ColumnChart';
+import { GaugeChart } from './GaugeChart';
 import { ChartFullscreen } from './ChartFullscreen';
 import { ChartKindSelect } from './ChartKindSelect';
 import { DonutChart } from './DonutChart';
@@ -222,10 +226,16 @@ export function ChartBody({
    */
   const dangDangVe = variant === 'bar' ? 'cot' : 'duong';
   /*
-   * Các mục chưa có chữ hướng dẫn — hai mục theo chuỗi giá và mục "Cơ cấu …" (hình tròn, 22/10/2026)
-   * — khung "?" phải im (`HinhDangXem.hinhChuoi`) thay vì in đoạn của hình khác.
+   * Các mục chưa có chữ hướng dẫn — hai mục theo chuỗi giá, mục "Cơ cấu …" (hình tròn, 22/10/2026)
+   * và mục cột theo kỳ (23/10/2026) — khung "?" phải im (`HinhDangXem.hinhChuoi`) thay vì in đoạn
+   * của hình khác.
    */
-  const hinhChuoi = daVe && (laHinhChuoiGia(khoaDangHien) || khoaDangHien === COMPOSITION_KEY);
+  const hinhChuoi =
+    daVe &&
+    (laHinhChuoiGia(khoaDangHien) ||
+      khoaDangHien === COMPOSITION_KEY ||
+      khoaDangHien === COLUMNS_KEY ||
+      khoaDangHien === GAUGE_KEY);
   useEffect(() => {
     onViewChange?.({ khoa: khoaDangHien, dang: dangDangVe, daVe, hinhChuoi });
   }, [onViewChange, khoaDangHien, dangDangVe, daVe, hinhChuoi]);
@@ -375,6 +385,10 @@ export function ChartBody({
           )
         ) : model.kind === 'histogram' ? (
           <HistogramChart model={model} idBase={idBase} />
+        ) : model.kind === 'columns' ? (
+          <ColumnChart model={model} idBase={idBase} />
+        ) : model.kind === 'gauge' ? (
+          <GaugeChart model={model} idBase={idBase} />
         ) : (
           <LineChart
             model={model}

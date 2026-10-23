@@ -382,14 +382,128 @@ export interface HistogramChart {
   note?: Bilingual;
 }
 
+/** Một chuỗi của hình cột theo kỳ: phần gốc, phần lãi, giá mua… */
+export interface ColumnSeries {
+  key: string;
+  label: Bilingual;
+  tone: SeriesTone;
+}
+
+/** Một nhóm cột — một năm, một đợt mua, một kỳ. */
+export interface ColumnGroup {
+  /** Tên đầy đủ, cho bảng số và vạch dò: 'Năm 3', 'Đợt 2'. */
+  label: Bilingual;
+  /** Chữ ngắn dưới trục ngang: '3'. */
+  tick: string;
+  /** Một giá trị mỗi chuỗi, cùng thứ tự `ColumnChart.series`. */
+  values: ReadonlyArray<number>;
+  /** Giá trị đã viết sẵn kèm đơn vị, đầy đủ — cho bảng số. */
+  valueLabels: ReadonlyArray<string>;
+  /** Giá trị ở bậc của trục giá trị — cho vạch dò; vắng khi trục không chia bậc. */
+  shortValueLabels?: ReadonlyArray<string>;
+  /** Tổng nhóm khi các chuỗi CHỒNG lên nhau, đầy đủ và ở bậc của trục. Vắng khi một chuỗi. */
+  totalLabel?: string;
+  shortTotalLabel?: string;
+  /** Số của các cột phụ (`ColumnChart.extraColumns`), đầy đủ kèm đơn vị — cho bảng số. */
+  extraLabels?: ReadonlyArray<string>;
+  /**
+   * Cùng số ấy viết theo luật CHỮ của hình — từ 1.000 trở lên là 'nghìn', 'triệu'… (xem `pickScale()`)
+   * — cho ô dò, để ô dò không đặt '50 nghìn ₫' cạnh '10.000.000 ₫'. Mỗi cột phụ chọn bậc riêng.
+   */
+  shortExtraLabels?: ReadonlyArray<string>;
+}
+
+/** Một vạch ngang trên hình cột: giá vốn trung bình, lợi suất bình quân… */
+export interface ColumnLine {
+  value: number;
+  label: Bilingual;
+  /** Đầy đủ kèm đơn vị, và ở bậc của trục (vắng khi trục không chia bậc). */
+  valueLabel: string;
+  shortValueLabel?: string;
+  /** Nét đứt — vạch thứ hai trên cùng hình, để hai vạch không lẫn khi ảnh chuyển xám. */
+  dash?: boolean;
+}
+
+/**
+ * Hình CỘT THEO KỲ — mục thứ năm của ô "Xem theo" (23/10/2026, chủ dự án chọn bốn kiểu hình mới).
+ *
+ * Trục ngang là các kỳ RỜI RẠC đã đặt tên (năm 1, năm 2…; đợt 1, đợt 2…), trục đứng là một số tiền
+ * hay một tỷ lệ. Nhiều chuỗi thì CHỒNG lên nhau (gốc + lãi trong năm): chiều cao cả cột là tổng, mỗi
+ * khúc là một phần — nên mọi giá trị phải không âm. Một chuỗi thì giá trị âm được, cột đi xuống từ 0
+ * (lợi suất từng kỳ). Trục giá trị luôn chứa 0, cùng bất biến với mọi hình cột khác.
+ *
+ * Khác thác nước ở chỗ các cột là CÙNG MỘT đại lượng qua các kỳ, không phải các phần của một tổng;
+ * khác histogram ở chỗ trục ngang là kỳ đã đặt tên, không phải khoảng giá trị.
+ */
+export interface ColumnChart {
+  kind: 'columns';
+  title: Bilingual;
+  /** Như `LineChart.summary`: chỉ cho trình đọc màn hình, không hiện trên màn. */
+  summary: Bilingual;
+  /** Tên trục ngang: 'Năm', 'Đợt mua'. */
+  xTitle: Bilingual;
+  /** Trục giá trị. Miền luôn chứa 0. */
+  y: ChartAxis;
+  series: ReadonlyArray<ColumnSeries>;
+  groups: ReadonlyArray<ColumnGroup>;
+  /** Các chuỗi chồng lên nhau (từ hai chuỗi trở lên). */
+  stacked: boolean;
+  /** Vạch ngang, chỉ những vạch nằm trong miền trục. Vắng mặt hẳn khi không có. */
+  lines?: ReadonlyArray<ColumnLine>;
+  /** Tên các cột phụ (không kèm đơn vị) — số của chúng ở `ColumnGroup.extraLabels`. Vắng khi không có. */
+  extraColumns?: ReadonlyArray<Bilingual>;
+  table: ChartTable;
+  options: ReadonlyArray<SweepOption>;
+  sweepKey: string;
+  note?: Bilingual;
+}
+
+/** Một vùng của thang đo: từ `from` tới `to`, theo đơn vị của kết quả. */
+export interface GaugeZone {
+  from: number;
+  to: number;
+  label: Bilingual;
+  tone: SeriesTone;
+  /** Khoảng viết sẵn kèm đơn vị, không chữ để hai ngôn ngữ dùng chung: '< 30 điểm', '30 – 70 điểm'. */
+  rangeLabel: string;
+  /** Mốc cuối vùng, viết sẵn không đơn vị ('30') — nhãn tại ranh giới trên vòng cung. */
+  toLabel: string;
+}
+
+/**
+ * THANG ĐO — nửa vòng cung chia vùng, kim chỉ kết quả (23/10/2026). Mục "Thang đo" của ô "Xem theo"
+ * cho các chỉ báo khai `spec.gauge` (RSI, Stochastic %K, %B), chỉ khi kết quả đã tính được.
+ */
+export interface GaugeChart {
+  kind: 'gauge';
+  title: Bilingual;
+  /** Như `LineChart.summary`: chỉ cho trình đọc màn hình. */
+  summary: Bilingual;
+  min: number;
+  max: number;
+  /** Hai đầu thang viết sẵn ('0', '100'). */
+  minLabel: string;
+  maxLabel: string;
+  /** Kết quả THẬT, chưa kẹp — kim kẹp vào thang, chữ thì không. */
+  value: number;
+  valueLabel: string;
+  zones: ReadonlyArray<GaugeZone>;
+  /** Vùng chứa kết quả (đã kẹp vào thang). */
+  activeZone: number;
+  table: ChartTable;
+  options: ReadonlyArray<SweepOption>;
+  sweepKey: string;
+  note?: Bilingual;
+}
+
 /**
  * Mô hình VẼ ĐƯỢC — mọi nhánh trừ `unavailable`.
  *
  * `ChartFrame` và màn phóng to nhận kiểu này: chúng chỉ đụng `title`, `summary`, `table`, `note`
- * — bốn thứ mọi loại biểu đồ đều có. Nhờ vậy loại thứ tư (`histogram`, 21/10/2026) không phải sửa
- * `ChartFrame`, chỉ thêm một nhánh ở `ChartBody` và màn phóng to.
+ * — bốn thứ mọi loại biểu đồ đều có. Nhờ vậy loại thứ tư (`histogram`, 21/10/2026) và thứ năm
+ * (`columns`, 23/10/2026) không phải sửa `ChartFrame`, chỉ thêm một nhánh ở `ChartBody` và màn phóng to.
  */
-export type DrawableChart = LineChart | WaterfallChart | HistogramChart;
+export type DrawableChart = LineChart | WaterfallChart | HistogramChart | ColumnChart | GaugeChart;
 
 export type ChartModel = DrawableChart | UnavailableChart;
 

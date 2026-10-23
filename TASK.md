@@ -4,6 +4,182 @@ Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 
 ---
 
+## Thẻ công thức mang icon riêng của từng công thức (23/10/2026)
+
+**Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án xem.**
+
+Chủ dự án gửi lại bộ 111 icon đã đặt vẽ (5 file: `FormulaIcon.tsx`, `formula-icons.ts`, sprite, `generate.py`,
+`Y-NGHIA-ICON.md`), rồi: _"áp dụng những icon đó cho công thức. còn các icon cũ là của phần danh mục thì cứ để cho danh
+mục trước"_.
+
+- `src/ui/browse/formula-icons.ts` (mới): 111 hình, khoá là id công thức. Chỉ lấy phần hình từ file gửi; bảng nhóm
+  (`FORMULA_ICON_GROUPS`, tên nhóm khác tên trên màn) và kiểu `FormulaIconId` bỏ, vì Registry đã giữ hai thứ ấy. Câu
+  "hình vẽ gì" của từng hình nằm thành COMMENT trên mỗi mục, nên trình nén bỏ đi, không vào gói trình duyệt (đã kiểm:
+  bản nén không còn chữ nào của các câu ấy). Quy ước vẽ chép vào docblock.
+- `src/ui/browse/FormulaIcon.tsx` (mới): `<svg>` 24 × 24, nét 1,75, `currentColor`, nhúng thân hình bằng
+  `dangerouslySetInnerHTML` với đối tượng `{ __html }` dựng một lần mỗi id. Không hook, không `'use client'` (kệ được
+  server dựng). Mang `data-formula-icon={id}` để test và `check:chrome` tìm.
+- `FormulaCard.tsx`: ô kệ "Công thức dùng hằng ngày" và thẻ trong danh sách dùng icon công thức; id chưa có hình thì lùi
+  về icon nhóm, ô icon không bao giờ trống. Icon nhóm (`CategoryIcon`) GIỮ NGUYÊN ở dải chọn nhóm (`HotCategories`) và
+  thẻ nhóm của màn tìm (`GroupCard`). Cỡ không đổi: 24px từ 1024px, 20px dưới đó (CSS sẵn có).
+- Không đưa vào repo: sprite (không ai dùng), `generate.py` (ghi sai tên "Falculator", không sinh ra file `.ts`), file
+  ý nghĩa `.md` (nội dung đã thành comment).
+- Test: `formula-icons.test.ts` (mới, 114 ca — đủ 111 công thức, không id thừa, không hai công thức trùng hình, mỗi chuỗi
+  SVG chỉ có `g/path/circle/rect`, chỉ thuộc tính vẽ, màu chỉ `currentColor`/`none`, thẻ mở đều đóng);
+  `FormulaCard.test.tsx` (hai ca "icon nhóm" đổi thành "icon của chính công thức", thêm ca hai công thức cùng nhóm ra
+  hai hình khác nhau và ca lùi về icon nhóm).
+- Đo: phần dữ liệu hình nén còn 31,9 kB, gzip 6,6 kB, vào JS của `/cong-thuc/` (danh sách dựng ở máy khách). Chưa chạy
+  `npm run size` (cần build, dev đang giữ :3000).
+- Kiểm: toàn bộ test (189 file, 4829 ca), tsc, eslint, prettier. Xem bằng Chrome headless trên dev ở 390 và 1440, cả
+  hai bảng màu: 119 thẻ đang hiện (8 ô kệ + 111 thẻ danh sách) đều mang icon riêng, 111 hình khác nhau, 20px / 24px,
+  màu theo tông thẻ (#1b447e sáng, #8ab4f8 tối), không cuộn ngang.
+
+---
+
+## Nút Chia sẻ giữ nguyên, lời báo là thông báo ở đáy màn hình (23/10/2026)
+
+**Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án xem.**
+
+Chủ dự án, trên ảnh nút "Đã sao chép link": _"thay đổi logic sau khi bấm vào button này thì có đoạn thông báo nhỏ ở dưới
+footer của màn hình thông báo xuất hiện tầm 5 giây ghi là đã sao chép thay vì thay đổi button … button cần giữ nguyên"_.
+
+- `FormulaDetail.tsx`: nút luôn là mắt xích + "Chia sẻ"; bỏ `CheckIcon` và hai lớp `.wideOnly` / `.narrowOnly` (dấu
+  tích dưới 1024px ngày 19/10 — lối đó bị bác). Khi sao chép xong hiện một dải `role="status"` "Đã sao chép link" đưa
+  ra `document.body` bằng portal (chỉ dựng sau cú bấm, không vào HTML tĩnh), tự tắt sau `THONG_BAO_MS` = 5000 (trước
+  là 4000). Lối `navigator.share` của điện thoại (`'shared'`) không có dải — chính bảng chia sẻ đã là dấu hiệu — chỉ
+  còn câu ghi chú chuỗi giá như cũ.
+- `FormulaDetail.module.css`: `.thongBao` — `position: fixed` giữa ngang, nền `--color-ink` chữ `--color-surface`
+  (đảo cặp, hợp cả hai bảng màu), không bắt cú chạm; PC cách đáy 24px, dưới 1024px đứng trên thanh điều hướng dưới
+  VÀ trên dải "Lưu vào danh mục · Thoát" dính đáy (53px, chép từ `.endActions`).
+- Test: `FormulaDetail.test.tsx` (các ca chia sẻ tìm dải thay vì tìm nút đổi tên; ca mới dùng giờ giả: nút giữ nguyên, dải
+  còn ở 4,5 giây và tắt ở 5,5 giây), `share-toast-css.test.ts` (mới, 3 ca).
+- Kiểm: toàn bộ test, tsc, eslint. Chưa xem bằng mắt trên Chrome — cần xem vị trí dải trên điện thoại (không đè dải nút
+  dính đáy) và trên PC.
+
+---
+
+## Hình cột theo kỳ — đợt 2: thêm năm công thức (23/10/2026)
+
+**Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án xem.** Chủ dự án: _"tiếp tục"_, sau bản báo cáo bốn kiểu hình mới
+(bước kế đã nêu: tìm thêm công thức hợp hình cột theo kỳ; chữ hướng dẫn thì chủ dự án đã nói "chưa cần"). Rà mọi công
+thức có kỳ trong `calc`; năm công thức qua, đều là MỤC THÊM của "Xem theo", không phải hình mở ra.
+
+- `valuation-dcf.ts` — `ddm-hai-giai-doan` **"Cổ tức từng năm"**: mỗi năm giai đoạn đầu một cột cao bằng cổ tức dự kiến,
+  khúc dưới là giá trị hôm nay, khúc trên là phần mất do chiết khấu; cộng khúc dưới ra đúng `pvStage1`. Giá trị cuối
+  kỳ không có cột (đã có ở hình bóc tách). `gia-tri-hien-tai` **"Số dư từng năm"**: hình anh em của FV, khúc dưới là PV,
+  cột cuối bằng số tiền tương lai đã nhập.
+- `planning.ts` — `gui-quay-vong` **"Tiền lãi sau từng vòng"**: mỗi vòng kỳ ngắn một cột tiền lãi, vạch đứt là tiền lãi
+  của phương án gửi một lần LÚC ĐÁO HẠN; cột cuối trừ vạch = kết quả. Bản đầu chồng tiền gốc 100 triệu ₫ bên dưới và
+  chỗ chênh (chính là kết quả) chỉ còn vài điểm ảnh, nên đổi sang chỉ vẽ phần lãi.
+- `performance.ts` — `tong-loi-suat-tai-dau-tu` **"Tổng lợi suất từng năm"**: hai khúc như hình cơ cấu (phần do giá,
+  phần thêm nhờ cổ tức tái đầu tư), cột cuối = kết quả; giá giảm bình quân thì mục vắng.
+- `technical-volatility.ts` — `ty-le-khoi-luong` **"Khối lượng từng phiên"**: đúng n + 1 phiên `calc` đọc (cùng
+  `requireVolumeBars()`, nay giữ cả ngày của phiên), vạch đứt ở khối lượng trung bình n phiên làm mốc; cột cuối ÷ vạch
+  = kết quả. Nhãn trục dd/mm, ô dò ghi ngày đủ. Chỉ có khi đã nạp chuỗi.
+- `ui/charts/ColumnChart.tsx`: (1) nhãn kỳ thưa theo BỀ NGANG nhãn chứ không theo số kỳ — "11/09" và "15/09" chạm
+  nhau dưới 21 cột ở 390px; (2) nhãn kỳ kẹp trong vùng vẽ — "13/08" dưới cột đầu đè lên số 0 của trục dọc.
+- Bị bác, có lý do (ghi trong `CLAUDE.md`): IRR niên kim (tới 360 kỳ không gộp được thành năm), thời gian nhân đôi
+  (693 cột ở 0,1 %), CAGR (đường trơn chưa từng xảy ra), lãi suất hiệu dụng, lãi tiền gửi, SMA (cột giá từ 0 giấu mất
+  chênh lệch), ATR (đường Wilder không phải trung bình các cột). Thang đo không có ứng viên thứ tư.
+- Test: `columns.test.ts` ghim 14 id, +5 ca đối chiếu độc lập (DDM tính lại từng năm, gửi quay vòng tính lại lãi từng
+  vòng và lãi kỳ dài, tổng lợi suất từng năm, PV × (1 + r)^k, khối lượng đúng 21 phiên cuối của chuỗi FPT); ca chung
+  chạy công thức cần chuỗi trên chuỗi FPT. `dang-ve.test.ts` 253 → 257 / 369 → 374, Cột 220 → 224 / 332 → 337.
+- Đo bằng Chrome trên server dev: cả 14 hình cột × 1440 / 390 / 360 (bảng sáng; ba hình mới thêm bảng tối) — không chữ
+  tràn khung, không đè, trang không cuộn ngang.
+
+---
+
+## Bảng số của biểu đồ: tên cột nói bậc trục, ô nói đơn vị gốc (23/10/2026)
+
+**Trạng thái: CHƯA XONG — đã sửa, chờ chủ dự án xem.** Chủ dự án chụp bảng "Xem số liệu" của `von-hoa-thi-truong` theo thời
+gian: cột ghi "Vốn hoá thị trường (nghìn tỷ ₫)" mà ô ghi "7.826,94 tỷ ₫" — _"note một đằng nhưng số liệu hiện một nẻo"_.
+
+- Nguyên nhân: `table.columns` mượn nguyên `axis.title`, tức tên trục kèm đơn vị ĐÃ ĐỔI BẬC (vạch trục viết 7,5 · 8),
+  trong khi ô bảng cố ý in số đầy đủ. Cùng lỗi ở trục X khi quét theo một ô tiền: `pe` cột "(nghìn ₫)" trên ô "46.000 ₫".
+- `src/core/chart/build.ts`: `buildAxis()` trả thêm `tableTitle` (tên + đơn vị gốc, qua hàm mới `withUnit()`); bảng của
+  biểu đồ đường (cả X lẫn Y), thác nước và cơ cấu đọc nó. Tiêu đề trục trên hình KHÔNG đổi.
+- `chart.test.ts`: ca mới quét mọi công thức × mọi mục "Xem theo" (Nâng cao, có chuỗi giá): cột nào có ngoặc kết thúc
+  bằng đơn vị của ô thì ngoặc đó phải đúng đơn vị ấy. Đỏ trên code cũ (`pe · price`), xanh trên code mới.
+- `charts.test.tsx`: hai ca ghim "(nghìn ₫)" ở tên cột được ĐẢO thành "(₫)". `CLAUDE.md`: một câu ở mục chữ trên biểu đồ.
+- Kiểm: 1890 ca (chart, charts, huong-dan, sheets, guide, application, cong-thuc) + tsc + eslint xanh.
+
+---
+
+## Bốn kiểu hình mới: trả nợ từng năm, số dư từng năm, từng đợt mua, thang đo (23/10/2026)
+
+**Trạng thái: CHƯA XONG — đã làm cả bốn, chờ chủ dự án xem.**
+
+Chủ dự án: _"tiếp tục thực hiện biểu đồ mới"_. Hình tròn đã phủ hết công thức hợp, nên tôi hỏi kiểu hình nào tiếp;
+chủ dự án chọn cả bốn, làm theo thứ tự chọn. Cả bốn là MỤC THÊM của ô "Xem theo", không bao giờ là hình mở ra, chưa
+có chữ hướng dẫn (khung "?" im, như hình cơ cấu).
+
+- Đợt 1 — **Trả nợ từng năm** (`tra-gop-nien-kim`, `tra-gop-goc-deu`, `lich-tra-no`): mỗi năm một cột, gốc dưới lãi
+  trên, gộp từ chính `buildAmortisation()`. Niên kim: cột cao bằng nhau, phần lãi teo dần; gốc đều: cột thấp dần.
+- Đợt 2 — **Số dư từng năm** (`lai-kep`, `gia-tri-tuong-lai`, `tiet-kiem-muc-tieu`, `so-ky-dca`): tiền bỏ vào + lãi
+  tích luỹ cuối mỗi năm, cột cuối bằng đúng kết quả; `so-ky-dca` có vạch "Mục tiêu". Lãi âm không bị kẹp về 0 —
+  mục vắng thay vì vẽ số dư sai.
+- Đợt 3 — **Từng đợt mua** (`gia-von-trung-binh-dca`, cột giá mua, vạch giá vốn trung bình và vạch đứt trung bình
+  cộng giá; tiền mua và số cổ phiếu ở bảng số và ô dò) và **Lợi suất từng kỳ** (`loi-suat-trung-binh-hinh-hoc`, cột
+  âm dưới mốc 0, vạch trung bình hình học và trung bình cộng). Đi theo nhóm lặp: thêm đợt là thêm cột.
+- Đợt 4 — **Thang đo** (`rsi-wilder` 30/70, `stochastic-k` 20/80, `phan-tram-b-bollinger` hai dải trên thang
+  −25…125 %): nửa vòng cung chia vùng đúng các mốc `referenceLines`, kim chỉ kết quả, chỉ có khi đã nạp chuỗi giá.
+  PC: chú giải thành cột bên phải (tránh hai mảng trống); điện thoại: hàng dưới vòng cung.
+- Domain: kiểu `ColumnChart` và `GaugeChart` (`chart/types.ts`), `chart/columns.ts`, `chart/gauge.ts`, dựng ở
+  `build.ts`; `FormulaModule.columns` (`ColumnView`, hàm sinh số cạnh `calc`); `FormulaSpec.gauge`; dạng vẽ `gauge`.
+  `resolveRepeat()` giữ mọi thành phần module (trước đây làm rơi `columns`).
+- Giao diện: `ColumnChart.tsx`, `GaugeChart.tsx`, nhánh ở `ChartBody` / `ChartFullscreen`, CSS trong
+  `chart.module.css`, khoá i18n `chart.columnsTotal`, `chart.kindGauge`.
+- Lỗi tìm ra khi đo và đã sửa: nhãn kỳ "19 20" dính nhau; trục giá trị mất nhãn 0 khi có cột âm; hai nhãn vạch
+  ngang đè nhau khi hai vạch gần nhau; chú giải xuống hàng đè tên trục ở 390px; ô dò trộn "50 nghìn ₫" với
+  "10.000.000 ₫"; số và tên vùng của thang đo chạm nhau ở khổ hẹp.
+- Test: `columns.test.ts` (ghim 9 id, đối chiếu từng hình với phép tính độc lập), `gauge.test.ts` (ghim 3 id, ranh giới
+  = mốc tham chiếu), `charts.test.tsx` +9 ca, `dang-ve.test.ts` số đếm (253 / 369, Cột +9, Thang đo 3),
+  `bieu-do.test.ts` bỏ qua hai khoá mới. `npm run check` xanh (4.698 ca), `gen:summaries` không lệch.
+- Đo bằng Chrome trên server dev, 1440 / 390 / 360, hai bảng màu: 12 hình, không chữ tràn hay đè, trang không cuộn
+  ngang; rê chuột (1440) và chạm (390) hiện đúng số.
+
+---
+
+## Hình tròn "Cơ cấu …" — đợt 2: áp cho 20 công thức nữa (22/10/2026)
+
+**Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án xem.**
+
+Chủ dự án, sau khi duyệt bố cục vành khuyên: _"bây giờ tiếp tục áp dụng để vẽ kiểu biểu đồ mới tiếp theo"_. Hình vẫn là
+một mục của "Xem theo" như hai công thức làm thử (câu hỏi "có mở ngay khi vào công thức không" chưa được trả lời, nên
+giữ nguyên).
+
+- Cách chọn: workflow 10 agent — 5 nhóm công thức, mỗi nhóm một agent đọc `calc` đề xuất, một agent phản biện tìm
+  cách bác (49 công thức). 20 qua, 1 do phản biện tự thêm (CAPM), 2 bị phản biện bác (biên an toàn, lợi suất thực).
+- Đã làm (`spec.composition` + phần `extras` trong `calc`, `output.value` không đổi):
+  `fundamentals.ts` biên ròng, biên gộp (doanh thu thuần), thanh toán nhanh (tài sản ngắn hạn), chi trả cổ tức (EPS);
+  `valuation-dcf.ts` CAPM (rf + β × ERP), WACC (E + D), PV và FV (PV + phần sinh lợi);
+  `personal.ts` lãi tiền gửi (gốc + lãi), tiết kiệm mục tiêu (tiền gửi + lãi), hai công thức trả góp (gốc + tổng lãi
+  CẢ KỲ HẠN); `planning.ts` số kỳ DCA (tiền góp + lợi nhuận, tổng là số dư); `fees.ts` lợi nhuận ròng (ròng + tổng
+  chi phí = lãi gộp); `returns.ts` HPR (chênh giá + cổ tức); `performance.ts` tổng lợi suất tái đầu tư (phần do giá +
+  phần thêm nhờ cổ tức); `corporate.ts` điểm hoà vốn (biến phí + định phí), đòn bẩy tổng hợp (4 phần);
+  `derivatives.ts` cỡ vị thế phái sinh (khoản mất + phần dư), đòn bẩy hiệu dụng (vốn thực + phần vượt).
+- Bốn chỗ chặn hạt bụi dấu phẩy động (`Math.max`/`Math.min`): trả góp niên kim lãi 0, tiết kiệm 1 tháng, số kỳ DCA
+  1 tháng, cỡ vị thế chia vừa khít — thiếu thì một phần ra −1e−7 và mục biến mất sai.
+- `ui/charts/DonutChart.tsx`: tên tổng giữa vòng xuống tối đa hai dòng (`tenGiuaVong`) — một dòng thì 13/40 lần đo
+  mất tên, giữa vòng chỉ còn con số. Hai tên tổng rút gọn vì hai dòng vẫn không vừa lỗ điện thoại.
+- Test: `composition.test.ts` ghim 22 id, thêm `TONG_PHAI_BANG` (tổng của vòng phải bằng đúng đại lượng tên tổng gọi
+  ra, tính độc lập — với hai công thức trả góp là bảng trả nợ thật của `lich-tra-no`), ở số mặc định và số ví dụ, và
+  các ca biên; `dang-ve.test.ts` 224 → 244 hình, 337 → 357, Vành khuyên và Thanh ngang +20; `charts.test.tsx` một ca
+  chọn "trục khác" sửa để không vớ mục cơ cấu, +2 ca tên tổng hai dòng. `npm run check` xanh (4.655 ca), lint, tsc,
+  prettier, `gen:summaries` không lệch.
+- Đo bằng Chrome trên server dev, 22 hình cơ cấu + 5 bóc tách × 1440 / 390 / 360, bảng tối: không chữ tràn khung, không
+  đè, không dòng giữa vòng nào lọt ra ngoài lỗ, tên tổng hiện ở mọi hình, trang không cuộn ngang.
+- Bị bác (lý do đầy đủ trong kết quả workflow): ROE, ROA, EPS cơ bản, BVPS, thanh toán hiện hành, vòng quay tài sản (không
+  có tổng thật giữa các ô; thêm ô `calc` không đọc là ô chết); EV, NCAV, DDM hai giai đoạn, thuế TNCN, rút trước hạn,
+  lịch trả nợ (lặp bóc tách đã có); biên an toàn (vắng ngay ở màn Nâng cao mặc định và ở phần lớn mã thật vì biên âm);
+  lợi suất thực (múi "bù trượt giá" không bằng π, sai nghĩa); cỡ lệnh theo % rủi ro (tỷ lệ múi không đổi theo r);
+  DCA giá vốn (hơn 4 đợt); ROI, CAGR, IRR niên kim (chỉ kể lại hai ô, hoặc cổ vũ phép cộng thô); vốn hoá, Gordon, DCF
+  FCFF, gửi quay vòng, tỷ suất cổ tức (không có phép cộng, hoặc phần âm thường xuyên); ROI ròng, giá hoà vốn, số hợp
+  đồng tối đa, giá lý thuyết VN30F, lãi/lỗ Long/Short (một múi gần như vô hình hoặc đổi dấu).
+- Còn chờ quyết: hình tròn có nên là hình MỞ RA của công thức không.
+
+---
+
 ## Hình tròn "Cơ cấu …" — làm thử ở D/E và Lãi kép (22/10/2026)
 
 **Trạng thái: CHƯA XONG — đã làm thử hai công thức, chờ chủ dự án duyệt hình rồi mới áp cho danh sách.**
@@ -135,6 +311,13 @@ số phiên và chỉ dựng khi có số. `FormulaDetail.module.css`: `.dataAct
 accent-soft trong `@media (hover: hover)`). `detail.openDataTable` bỏ "→" (vi + en). Áp ở MỌI khổ — ảnh không rõ khổ.
 Đã chụp ở 1440 trên dev: ba nút một hàng. Chưa đo được 390px thật (headless không thu cửa sổ xuống 390); ước tính
 ba nút rộng ~383px > ~358px cột nội dung nên ở điện thoại nút thứ ba có thể xuống dòng. 502 ca + lint + tsc xanh.
+
+**Cùng ngày — ô chọn trong lưới Số liệu ở điện thoại:** chủ dự án khoanh "Số lần nhập lãi / năm (n)" của `lai-kep`: đệm lớn,
+chữ quá to so với mobile. Dưới 1024px `.fields select` (`FormulaDetail.module.css` + bản sao `ChainBody.module.css`):
+36 → 32px, chữ 16 → 14px (bằng ô "Xem theo" / "Loại biểu đồ"), đệm 12/36 → 10/28px, mũi tên 16 → 14px cách mép 8px.
+Giá đã biết: Safari iOS phóng trang khi chạm ô chọn chữ dưới 16px (như hai ô chọn biểu đồ). Ca mới trong
+`inputs-mobile-css.test.ts` (cả hai file). Đo bằng Chrome qua CDP ở 390px, bảng tối, Nâng cao: cao 32px, chữ 14px,
+cùng hàng nhãn, không tràn ngang. 782 ca xanh.
 
 ---
 

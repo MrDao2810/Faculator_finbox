@@ -605,8 +605,11 @@ export const vi = {
   'chart.kindSignArea': 'Lãi/lỗ',
   'chart.kindWaterfall': 'Thanh ngang',
   'chart.kindDonut': 'Vành khuyên',
+  'chart.kindGauge': 'Thang đo',
   /* Dòng thứ ba của mỗi múi vành khuyên: phần của múi ấy trong tổng, viết rõ để không lẫn với giá trị. */
   'chart.donutShare': 'chiếm {p}',
+  /* Dòng tổng trong ô dò của hình cột chồng (gốc + lãi của một năm…), 23/10/2026. */
+  'chart.columnsTotal': 'Cộng',
   /*
    * Bảng số liệu tương đương, gói trong <details>. HIỆN chứ không giấu bằng .visually-hidden:
    * người sáng mắt cũng cần con số chính xác, mắt đọc biểu đồ chỉ ra được xu hướng.

@@ -4492,7 +4492,7 @@ describe('Chia sẻ — dưới 1024px mở bảng chia sẻ của điện tho�
     expect(duLieu?.title).toBe(specOf(PE).name.vi);
     expect(duLieu?.url).toContain('so=');
     expect(ghi).not.toHaveBeenCalled();
-    expect(screen.queryByRole('button', { name: t('detail.shareCopied') })).toBeNull();
+    expect(screen.queryByText(t('detail.shareCopied'))).toBeNull();
     expect(nutChiaSe()).not.toBeNull();
   });
 
@@ -4520,7 +4520,8 @@ describe('Chia sẻ — dưới 1024px mở bảng chia sẻ của điện tho�
 
     await user.click(nutChiaSe());
 
-    await screen.findByRole('button', { name: t('detail.shareCopied') });
+    await screen.findByText(t('detail.shareCopied'));
+    expect(nutChiaSe()).not.toBeNull();
     expect(await navigator.clipboard.readText()).toContain('so=');
   });
 
@@ -4531,7 +4532,7 @@ describe('Chia sẻ — dưới 1024px mở bảng chia sẻ của điện tho�
 
     await user.click(nutChiaSe());
 
-    await screen.findByRole('button', { name: t('detail.shareCopied') });
+    await screen.findByText(t('detail.shareCopied'));
   });
 
   it('từ 1024px vẫn sao chép, kể cả khi trình duyệt có navigator.share', async () => {
@@ -4542,8 +4543,42 @@ describe('Chia sẻ — dưới 1024px mở bảng chia sẻ của điện tho�
 
     await user.click(nutChiaSe());
 
-    await screen.findByRole('button', { name: t('detail.shareCopied') });
+    await screen.findByText(t('detail.shareCopied'));
     expect(share).not.toHaveBeenCalled();
+  });
+
+  /*
+   * Chủ dự án (23/10/2026): bấm Chia sẻ thì lời báo là một dải nhỏ ở đáy màn hình tầm 5 giây, KHÔNG
+   * đổi nút. Ba điều cần giữ: nút giữ nguyên tên "Chia sẻ" suốt thời gian đó; dải là `role="status"` để
+   * trình đọc màn hình đọc to; và nó tự tắt đúng sau 5 giây, không sớm hơn.
+   */
+  it('sao chép xong: nút giữ nguyên, có dải thông báo, dải tự tắt sau 5 giây', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    try {
+      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+      render(<Man spec={specOf(PE)} />);
+      datKho(1440);
+
+      await user.click(nutChiaSe());
+
+      const thongBao = await screen.findByText(t('detail.shareCopied'));
+      expect(thongBao.getAttribute('role')).toBe('status');
+      expect(nutChiaSe().textContent).toBe(t('detail.shareLink'));
+      expect(screen.queryByRole('button', { name: t('detail.shareCopied') })).toBeNull();
+
+      act(() => {
+        vi.advanceTimersByTime(4500);
+      });
+      expect(screen.queryByText(t('detail.shareCopied'))).not.toBeNull();
+
+      act(() => {
+        vi.advanceTimersByTime(1000);
+      });
+      expect(screen.queryByText(t('detail.shareCopied'))).toBeNull();
+      expect(nutChiaSe()).not.toBeNull();
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it('gửi xong qua bảng thì công thức chuỗi giá vẫn nói chuỗi giá không đi theo link', async () => {

@@ -84,12 +84,42 @@ describe('biến thể row — danh sách WF-02 và WF-09', () => {
   });
 
   /*
-   * Hợp đồng thêm ở đợt 13: hàng nay CÓ icon nhóm, đúng bản thiết kế mobile. Đếm hẳn hai SVG
+   * Hợp đồng thêm ở đợt 13: hàng nay CÓ icon ở đầu, đúng bản thiết kế mobile. Đếm hẳn hai SVG
    * thay vì "có ít nhất một" — đó là cách duy nhất để ca này bắt được ngày ai đó gỡ icon đi mà
-   * mũi tên vẫn còn, hoặc ngược lại.
+   * mũi tên vẫn còn, hoặc ngược lại. Từ 23/10/2026 icon ấy là hình riêng của công thức.
    */
-  it('có icon nhóm ở đầu hàng, đứng cạnh mũi tên chứ không thay nó', () => {
+  it('có icon của chính công thức ở đầu hàng, đứng cạnh mũi tên chứ không thay nó', () => {
     const { container } = render(<FormulaCard formula={PE} />);
+    expect(container.querySelectorAll('svg')).toHaveLength(2);
+    expect(container.querySelector('[data-formula-icon]')?.getAttribute('data-formula-icon')).toBe(
+      'pe',
+    );
+  });
+
+  /*
+   * Chủ dự án chọn (23/10/2026): thẻ công thức mang hình riêng, icon nhóm ở lại cho phần nhóm.
+   * Hai công thức CÙNG nhóm phải ra hai hình khác nhau, nếu không là thẻ vẫn đang vẽ icon nhóm.
+   */
+  it('hai công thức cùng nhóm mang hai hình khác nhau', () => {
+    const pb: FormulaSpec = { ...PE, id: 'pb' };
+    const hinh = (formula: FormulaSpec) =>
+      render(<FormulaCard formula={formula} />).container.querySelector('[data-formula-icon]')
+        ?.innerHTML;
+
+    const cuaPe = hinh(PE);
+    cleanup();
+    const cuaPb = hinh(pb);
+
+    expect(cuaPe).toBeTruthy();
+    expect(cuaPb).toBeTruthy();
+    expect(cuaPe).not.toBe(cuaPb);
+  });
+
+  it('công thức chưa có hình riêng thì lùi về icon nhóm, ô icon không bị bỏ trống', () => {
+    const chuaVe: FormulaSpec = { ...PE, id: 'cong-thuc-chua-ve' };
+    const { container } = render(<FormulaCard formula={chuaVe} />);
+
+    expect(container.querySelector('[data-formula-icon]')).toBeNull();
     expect(container.querySelectorAll('svg')).toHaveLength(2);
   });
 
@@ -119,11 +149,12 @@ describe('biến thể tile — lưới trang chủ WF-01', () => {
    * đúng với bản thiết kế cũ, sai với bản mới. Phần còn giữ nguyên là hai thứ vốn bị bỏ đi vì
    * chiếm chỗ của phần chữ ở khổ ô 164px: badge cấp độ và mũi tên của biến thể hàng.
    */
-  it('có icon nhóm, nhưng vẫn không có badge cấp độ lẫn mũi tên', () => {
+  it('có icon của chính công thức, nhưng vẫn không có badge cấp độ lẫn mũi tên', () => {
     const { container } = render(<FormulaCard formula={PE} variant="tile" />);
 
     expect(screen.queryByText('Cơ bản')).toBeNull();
     expect(container.querySelectorAll('svg')).toHaveLength(1);
+    expect(container.querySelector('svg')?.getAttribute('data-formula-icon')).toBe('pe');
     // Nét của mũi tên chevron ở biến thể hàng — nó không được lọt sang đây.
     expect(container.innerHTML).not.toContain('m9 6 6 6-6 6');
   });

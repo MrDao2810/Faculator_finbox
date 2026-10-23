@@ -41,7 +41,8 @@
 }
 
 /*
- * Icon nhóm — cùng hình, cùng màu, cùng khổ 24px với `.tileIcon`.
+ * Icon công thức (hình riêng của từng công thức từ 23/10/2026, trước đó là icon nhóm) — cùng
+ * hình, cùng màu, cùng khổ 24px với `.tileIcon`.
  *
  * KHÔNG ô nền: chủ dự án chốt theo bản thiết kế — quanh icon không có mảng xanh nào, chỉ còn
  * nét hình. Khung 32px vẫn giữ vì nó là ô hàng-1/cột-1 của lưới thẻ, thứ giữ icon thẳng hàng
@@ -280,7 +281,7 @@
 }
 
 /*
- * Icon nhóm — chỉ còn nét, không còn ô nền, đúng bản thiết kế Figma "FINBOX VERSION 2". Màu vẫn
+ * Icon công thức — chỉ còn nét, không còn ô nền, đúng bản thiết kế Figma "FINBOX VERSION 2". Màu vẫn
  * lấy từ khe tông mà lớp `.tone*` rót vào thẻ, nên nó không tự biết mình thuộc nhóm nào.
  *
  * `float: left` chứ KHÔNG phải một ô flex đứng cạnh tên, và đây là điểm khác bản trước.
@@ -407,7 +408,7 @@
  *
  * Icon theo tên, 24 → 20px. Ở ô: hộp float cao đúng một dòng tên (14 × 1,25 = 17,5px), hình tràn
  * 1,25px mỗi phía, dưới mức 2px mà chú thích `.tileIcon` đã đo là chưa chạm chữ dòng hai. Ở hàng:
- * khung 32 → 28px, cùng tỉ lệ khung/hình như cũ. `CategoryIcon` khai 24px bằng thuộc tính; CSS
+ * khung 32 → 28px, cùng tỉ lệ khung/hình như cũ. `FormulaIcon` khai 24px bằng thuộc tính; CSS
  * `width`/`height` trên `<svg>` thắng thuộc tính trình bày ấy.
  */
 @media (max-width: 1023.98px) {

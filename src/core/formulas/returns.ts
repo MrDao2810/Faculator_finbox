@@ -182,6 +182,25 @@ export const HPR: FormulaModule = {
     chartType: 'sensitivity',
     level: 'basic',
     tags: ['hpr', 'loi suat', 'ky nam giu', 'co tuc'],
+    /*
+     * Hình tròn của tử số: tiền lời mỗi cổ phiếu đến từ chênh giá bao nhiêu, từ cổ tức bao nhiêu
+     * (22/10/2026). Giá giảm thì múi chênh giá âm, mục vắng — kể cả khi cổ tức kéo HPR lên dương.
+     */
+    composition: {
+      title: { vi: 'Cơ cấu tiền lời mỗi cổ phiếu', en: 'Gain per share breakdown' },
+      total: { vi: 'Tổng lời mỗi cổ phiếu', en: 'Total gain per share' },
+      unit: '₫/CP',
+      parts: [
+        {
+          key: 'priceGain',
+          label: {
+            vi: 'Lời từ chênh giá (Pcuoi − Pdau)',
+            en: 'Gain from the price change (Pcuoi − Pdau)',
+          },
+        },
+        { key: 'dividend' },
+      ],
+    },
     resultUnit: '%',
     variables: [
       numberVar(
@@ -294,7 +313,9 @@ export const HPR: FormulaModule = {
         ),
       };
     }
-    return ok(((v('endPrice') - start + v('dividend')) / start) * 100, '%');
+    /* Múi thứ nhất của hình "Cơ cấu tiền lời mỗi cổ phiếu"; thứ tự phép tính giữ như cũ. */
+    const priceGain = v('endPrice') - start;
+    return ok(((priceGain + v('dividend')) / start) * 100, '%', { extras: { priceGain } });
   },
 };
 

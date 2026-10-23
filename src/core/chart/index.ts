@@ -19,7 +19,13 @@ export type {
   ChartSeries,
   ChartTable,
   ChartTick,
+  ColumnChart,
+  ColumnGroup,
+  ColumnLine,
+  ColumnSeries,
   DrawableChart,
+  GaugeChart,
+  GaugeZone,
   HistogramBin,
   HistogramChart,
   HistogramMarker,
@@ -86,6 +92,12 @@ export type { CuaSoPhien } from './series-view';
 
 /* Mục "Cơ cấu …" của ô "Xem theo" — hình tròn chia một tổng (22/10/2026). */
 export { COMPOSITION_KEY, compositionBars } from './composition';
+
+/* Mục cột theo kỳ của ô "Xem theo" — trả nợ từng năm, số dư từng năm, từng đợt mua (23/10/2026). */
+export { COLUMNS_KEY, columnData } from './columns';
+
+/* Mục "Thang đo" — RSI, Stochastic %K, %B trên nửa vòng cung chia vùng (23/10/2026). */
+export { GAUGE_KEY } from './gauge';
 
 /*
  * Chặng bóc tách công thức TỰ TÍNH RA — khối Số liệu đọc để bày chúng ra, xem docblock ở

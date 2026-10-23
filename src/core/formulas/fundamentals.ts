@@ -715,6 +715,27 @@ export const BIEN_LOI_NHUAN_RONG: FormulaModule = {
     chartType: 'sensitivity',
     level: 'basic',
     tags: ['ros', 'bien loi nhuan rong', 'net margin', 'profit margin', 'chi so dn'],
+    /*
+     * Hình tròn của doanh thu thuần: phần thành lãi ròng và phần còn lại (22/10/2026). Múi lãi ròng
+     * chiếm đúng ROS phần trăm vòng. Phần còn lại là một SỐ DƯ, không phải tổng chi phí trên báo cáo:
+     * nó gồm cả lãi của cổ đông không kiểm soát và đã bị trừ bớt bởi thu nhập tài chính, thu nhập
+     * khác — nên nhãn gọi nó đúng là "phần doanh thu không thành lãi ròng".
+     */
+    composition: {
+      title: { vi: 'Cơ cấu doanh thu thuần', en: 'Net revenue breakdown' },
+      total: { vi: 'Doanh thu thuần', en: 'Net revenue' },
+      unit: 'tỷ ₫',
+      parts: [
+        { key: 'netIncome' },
+        {
+          key: 'revenueLessNetIncome',
+          label: {
+            vi: 'Phần doanh thu không thành lãi ròng',
+            en: 'Revenue not kept as net profit',
+          },
+        },
+      ],
+    },
     resultUnit: '%',
     variables: [withSymbol(netIncome, 'LNST'), revenue],
     explanation: {
@@ -782,7 +803,9 @@ export const BIEN_LOI_NHUAN_RONG: FormulaModule = {
         ),
       );
     }
-    return ok((v('netIncome') / rev) * 100, '%');
+    const ni = v('netIncome');
+    /* Múi thứ hai của hình "Cơ cấu doanh thu thuần". */
+    return ok((ni / rev) * 100, '%', { extras: { revenueLessNetIncome: rev - ni } });
   },
 };
 
@@ -833,6 +856,19 @@ export const BIEN_LOI_NHUAN_GOP: FormulaModule = {
     chartType: 'sensitivity',
     level: 'basic',
     tags: ['bien loi nhuan gop', 'gross margin', 'gia von', 'chi so dn'],
+    /*
+     * Hình tròn của doanh thu thuần: lợi nhuận gộp và giá vốn (22/10/2026). Doanh thu thuần = giá vốn
+     * hàng bán + lợi nhuận gộp là một đẳng thức kế toán, và múi lợi nhuận gộp chiếm đúng biên gộp.
+     */
+    composition: {
+      title: { vi: 'Cơ cấu doanh thu thuần', en: 'Net revenue breakdown' },
+      total: { vi: 'Doanh thu thuần', en: 'Net revenue' },
+      unit: 'tỷ ₫',
+      parts: [
+        { key: 'grossProfit', label: { vi: 'Lợi nhuận gộp', en: 'Gross profit' } },
+        { key: 'cogs' },
+      ],
+    },
     resultUnit: '%',
     variables: [
       revenue,
@@ -907,7 +943,9 @@ export const BIEN_LOI_NHUAN_GOP: FormulaModule = {
         ),
       );
     }
-    return ok(((rev - v('cogs')) / rev) * 100, '%');
+    /* Tử số của công thức, cũng là múi thứ nhất của hình "Cơ cấu doanh thu thuần". */
+    const grossProfit = rev - v('cogs');
+    return ok((grossProfit / rev) * 100, '%', { extras: { grossProfit } });
   },
 };
 
@@ -1271,6 +1309,23 @@ export const THANH_TOAN_NHANH: FormulaModule = {
     chartType: 'sensitivity',
     level: 'basic',
     tags: ['thanh toan nhanh', 'quick ratio', 'acid test', 'thanh khoan', 'chi so dn'],
+    /*
+     * Hình tròn của tài sản ngắn hạn: phần trừ tồn kho (tử số của hệ số nhanh) và hàng tồn kho
+     * (22/10/2026). Nhìn vòng là thấy hệ số nhanh bỏ đi bao nhiêu so với hệ số hiện hành. Nhãn không
+     * gọi phần thứ nhất là "tài sản ngắn hạn khác": đó là tên một dòng cụ thể trên bảng cân đối.
+     */
+    composition: {
+      title: { vi: 'Cơ cấu tài sản ngắn hạn', en: 'Current assets breakdown' },
+      total: { vi: 'Tài sản ngắn hạn', en: 'Current assets' },
+      unit: 'tỷ ₫',
+      parts: [
+        {
+          key: 'quickAssets',
+          label: { vi: 'Tài sản ngắn hạn trừ tồn kho', en: 'Current assets less inventory' },
+        },
+        { key: 'inventory' },
+      ],
+    },
     resultUnit: 'lần',
     variables: [
       numberVar('currentAssets', { vi: 'Tài sản ngắn hạn', en: 'Current assets' }, 'tỷ ₫', 42_000, {
@@ -1378,7 +1433,9 @@ export const THANH_TOAN_NHANH: FormulaModule = {
         ),
       );
     }
-    return ok((assets - inventory) / liabilities, 'lần');
+    /* Tử số của hệ số nhanh, cũng là múi thứ nhất của hình "Cơ cấu tài sản ngắn hạn". */
+    const quickAssets = assets - inventory;
+    return ok(quickAssets / liabilities, 'lần', { extras: { quickAssets } });
   },
 };
 
@@ -1542,6 +1599,22 @@ export const TY_LE_CHI_TRA_CO_TUC: FormulaModule = {
     chartType: 'sensitivity',
     level: 'basic',
     tags: ['chi tra co tuc', 'payout ratio', 'co tuc', 'dps', 'chi so dn'],
+    /*
+     * Hình tròn của EPS: phần trả cổ tức và phần giữ lại (22/10/2026), đúng câu Ý nghĩa của trang. Múi
+     * cổ tức chiếm đúng hệ số chi trả. Tên tổng không lấy nhãn ô `eps`: nhãn ấy có gạch ngang dài.
+     */
+    composition: {
+      title: { vi: 'Cơ cấu lợi nhuận mỗi cổ phiếu', en: 'Earnings per share breakdown' },
+      total: { vi: 'Lợi nhuận mỗi cổ phiếu (EPS)', en: 'Earnings per share (EPS)' },
+      unit: '₫',
+      parts: [
+        { key: 'dividendPerShare' },
+        {
+          key: 'retainedPerShare',
+          label: { vi: 'Lợi nhuận giữ lại / CP', en: 'Retained earnings / share' },
+        },
+      ],
+    },
     resultUnit: '%',
     variables: [
       numberVar(
@@ -1663,7 +1736,9 @@ export const TY_LE_CHI_TRA_CO_TUC: FormulaModule = {
         ),
       );
     }
-    return ok((v('dividendPerShare') / eps) * 100, '%');
+    const dps = v('dividendPerShare');
+    /* Phần lãi mỗi cổ phiếu không đem ra trả: múi thứ hai của hình "Cơ cấu lợi nhuận mỗi cổ phiếu". */
+    return ok((dps / eps) * 100, '%', { extras: { retainedPerShare: eps - dps } });
   },
 };
 

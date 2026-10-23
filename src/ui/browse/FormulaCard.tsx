@@ -17,15 +17,29 @@ import { Badge } from '../primitives/Badge';
 import { CategoryIcon, toneClass } from './CategoryIcon';
 import { DescriptionHit } from './DescriptionHit';
 import styles from './FormulaCard.module.css';
+import { FormulaIcon, hasFormulaIcon } from './FormulaIcon';
+
+/**
+ * Icon đầu thẻ: hình RIÊNG của công thức (bộ 111 hình, 23/10/2026), thay icon nhóm từng đứng ở
+ * đây. Công thức chưa có hình thì lùi về icon nhóm, để thẻ không bao giờ mất ô icon và dòng tên
+ * không xô lệch. Icon nhóm vẫn ở những chỗ nói về một nhóm (dải chọn nhóm, thư mục nhóm).
+ */
+function CardIcon({ formula }: { formula: FormulaSummary }) {
+  return hasFormulaIcon(formula.id) ? (
+    <FormulaIcon id={formula.id} size={24} />
+  ) : (
+    <CategoryIcon id={formula.categoryId} size={24} />
+  );
+}
 
 export interface FormulaCardProps {
   formula: FormulaSummary;
   /** Ẩn nhãn nhóm khi cả danh sách vốn đã thuộc một nhóm. */
   showCategory?: boolean;
   /**
-   * `row` — một hàng ngang có icon nhóm, badge cấp độ, badge nhóm và mũi tên; dùng ở danh sách
-   * WF-02 và WF-09. Ở khổ hàng thì cả bốn đều có chỗ, khác hẳn khổ ô 164px của trang chủ.
-   * `tile` — ô vuông trong lưới hai cột của trang chủ WF-01: icon nhóm, tên, mô tả và badge
+   * `row` — một hàng ngang có icon công thức, badge cấp độ, badge nhóm và mũi tên; dùng ở danh
+   * sách WF-02 và WF-09. Ở khổ hàng thì cả bốn đều có chỗ, khác hẳn khổ ô 164px của trang chủ.
+   * `tile` — ô vuông trong lưới hai cột của trang chủ WF-01: icon công thức, tên, mô tả và badge
    * nhóm. Vẫn bỏ badge cấp độ và mũi tên, vì ở khổ ô 164px chúng chiếm chỗ của phần chữ mà
    * không nói thêm được gì.
    */
@@ -120,8 +134,8 @@ function FormulaCardBase({
         */}
         <span className={styles.tileName}>
           <span className={styles.tileIcon} aria-hidden="true">
-            {/* To hơn khổ mặc định 18px hai bậc — xem chú thích `.tileIcon` về mức trần 24px. */}
-            <CategoryIcon id={formula.categoryId} size={24} />
+            {/* 24px là mức trần — xem chú thích `.tileIcon`. */}
+            <CardIcon formula={formula} />
           </span>
           <Pick value={formula.name} />
         </span>
@@ -148,13 +162,13 @@ function FormulaCardBase({
       onClick={handleClick}
     >
       {/*
-        Icon nhóm nằm TRONG `.body`, không đứng ngoài như một ô flex riêng — xem chú thích
+        Icon nằm TRONG `.body`, không đứng ngoài như một ô flex riêng — xem chú thích
         `.body`. Nó chỉ chiếm ô hàng-1/cột-1 của lưới, nên mô tả và nhãn nhóm bên dưới chạy
         thẳng ra mép trái thẻ thay vì để trống một cột suốt chiều cao còn lại.
       */}
       <div className={styles.body}>
         <span className={styles.rowIcon} aria-hidden="true">
-          <CategoryIcon id={formula.categoryId} size={24} />
+          <CardIcon formula={formula} />
         </span>
 
         {/*

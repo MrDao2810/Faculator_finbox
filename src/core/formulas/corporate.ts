@@ -70,6 +70,26 @@ export const DIEM_HOA_VON: FormulaModule = {
     chartType: 'sensitivity',
     level: 'advanced',
     tags: ['diem hoa von', 'hoa von', 'break even', 'bep', 'dinh phi', 'bien phi', 'so du dam phi'],
+    /*
+     * Hình tròn của doanh thu hoà vốn: tổng biến phí và định phí (22/10/2026). Q × P = Q × VC + Q ×
+     * (P − VC) = Q × VC + FC, nên múi định phí bằng đúng tỷ lệ số dư đảm phí. Doanh thu hoà vốn có
+     * trong hình nhưng khối Kết quả không in, nên con số giữa vòng là thông tin mới.
+     */
+    composition: {
+      title: { vi: 'Cơ cấu doanh thu hoà vốn', en: 'Break-even revenue breakdown' },
+      total: { vi: 'Doanh thu hoà vốn (DThv)', en: 'Break-even revenue (DThv)' },
+      unit: '₫',
+      parts: [
+        {
+          key: 'breakEvenVariableCost',
+          label: {
+            vi: 'Tổng biến phí tại điểm hoà vốn',
+            en: 'Total variable cost at break-even',
+          },
+        },
+        { key: 'fixedCost' },
+      ],
+    },
     resultUnit: 'sản phẩm',
     variables: [
       /*
@@ -233,6 +253,8 @@ export const DIEM_HOA_VON: FormulaModule = {
       extras: {
         breakEvenRevenue: quantity * unitPrice,
         unitMargin: margin,
+        /* Múi thứ nhất của hình "Cơ cấu doanh thu hoà vốn"; múi kia là định phí. */
+        breakEvenVariableCost: quantity * variableCost,
       },
     });
   },
@@ -313,6 +335,28 @@ export const DON_BAY_TONG_HOP: FormulaModule = {
       'leverage',
       'eps',
     ],
+    /*
+     * Hình tròn của doanh thu: biến phí, định phí, lãi vay và phần còn lại là lợi nhuận trước thuế
+     * (22/10/2026). Ba múi sau cộng lại là tử số DT − BP của hình, múi cuối là mẫu số EBIT − I, nên
+     * vòng cho thấy vì sao múi lợi nhuận càng mỏng thì đòn bẩy càng lớn. EBIT ≤ lãi vay thì mục vắng.
+     */
+    composition: {
+      title: { vi: 'Cơ cấu doanh thu', en: 'Revenue breakdown' },
+      total: { vi: 'Doanh thu (DT)', en: 'Revenue (DT)' },
+      unit: '₫',
+      parts: [
+        { key: 'variableCost' },
+        { key: 'fixedCost' },
+        { key: 'interest' },
+        {
+          key: 'profitBeforeTax',
+          label: {
+            vi: 'Lợi nhuận trước thuế (EBIT − I)',
+            en: 'Profit before tax (EBIT − I)',
+          },
+        },
+      ],
+    },
     resultUnit: 'lần',
     variables: [
       numberVar('revenue', { vi: 'Doanh thu (DT)', en: 'Revenue (DT)' }, '₫', 2_000_000_000, {
@@ -503,6 +547,8 @@ export const DON_BAY_TONG_HOP: FormulaModule = {
         dfl: ebit / (ebit - interest),
         ebit,
         contributionMargin,
+        /* Múi cuối của hình "Cơ cấu doanh thu". */
+        profitBeforeTax: ebit - interest,
       },
     });
   },

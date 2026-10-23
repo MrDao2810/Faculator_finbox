@@ -5,7 +5,9 @@ import type { CalcContext, FormulaModule } from '../../calc/types';
 import { BREAKDOWN_KEY } from '../../chart/breakdown';
 import { buildChartModel } from '../../chart/build';
 import { HISTORY_KEY } from '../../chart/history';
+import { COLUMNS_KEY } from '../../chart/columns';
 import { COMPOSITION_KEY } from '../../chart/composition';
+import { GAUGE_KEY } from '../../chart/gauge';
 import { laHinhChuoiGia } from '../../chart/series-view';
 import type { ChartModel } from '../../chart/types';
 import { FORMULA_MODULES } from '../../formulas';
@@ -418,11 +420,17 @@ describe.skipIf(CHI.length > 0)('mục của bài khớp ô chọn "Xem kết qu
           const dangHien = 'sweepKey' in model ? [model.sweepKey] : [];
           for (const khoa of [...(model.options ?? []).map((option) => option.key), ...dangHien]) {
             /*
-             * Hai mục theo chuỗi giá (21/10/2026) và mục "Cơ cấu …" (hình tròn, 22/10/2026) chưa có
-             * chữ — chủ dự án chốt "hướng dẫn sử dụng thì chưa cần" — và khung "?" im với chúng
+             * Hai mục theo chuỗi giá (21/10/2026), mục "Cơ cấu …" (hình tròn, 22/10/2026), mục cột
+             * theo kỳ và mục thang đo (23/10/2026) chưa có chữ — chủ dự án chốt "hướng dẫn sử dụng thì chưa cần" — và khung "?" im với chúng
              * (`HinhDangXem.hinhChuoi`), nên không đòi khối.
              */
-            if (laHinhChuoiGia(khoa) || khoa === COMPOSITION_KEY) continue;
+            if (
+              laHinhChuoiGia(khoa) ||
+              khoa === COMPOSITION_KEY ||
+              khoa === COLUMNS_KEY ||
+              khoa === GAUGE_KEY
+            )
+              continue;
             if (khoa !== undefined && !khoaCo.has(khoa)) {
               thieu.push(`${formula.spec.id}: mục "${khoa}" không có khối chữ`);
             }
@@ -600,6 +608,8 @@ describe.skipIf(CHI.length > 0)('trục của nhóm do người dùng thêm', ()
         expect(muc4, formula.spec.id).toContain(repeatKey(mau.key, n));
       }
       for (const khoa of muc4) {
+        /* Mục cột theo kỳ ("Từng đợt mua", 23/10/2026) chưa có chữ — khung "?" im với nó. */
+        if (khoa === COLUMNS_KEY) continue;
         expect(khoaCo.has(khoa) || mauCo.has(khoa), `${formula.spec.id}: mục "${khoa}"`).toBe(true);
       }
     }

@@ -220,3 +220,50 @@ export function withSymbol(variable: VariableSpec, symbol: string): VariableSpec
 export function labelWithSymbol(label: Bilingual, symbol: string): Bilingual {
   return { vi: `${label.vi} (${symbol})`, en: `${label.en} (${symbol})` };
 }
+
+/*
+ * ── Số dư từng năm — hình cột của nhóm tích luỹ (23/10/2026) ────────────────────────────────
+ */
+
+/**
+ * Các mốc tháng cuối mỗi năm của một kỳ `thang` tháng: 12, 24, … và thêm đúng tháng cuối khi kỳ không
+ * tròn năm (66 tháng thì mốc cuối là tháng 66, vẫn gọi "Năm 6"). Kỳ dưới một tháng thì không có mốc.
+ */
+export function mocCuoiNam(thang: number): number[] {
+  const n = Math.floor(thang);
+  if (!(n >= 1)) return [];
+  const moc: number[] = [];
+  for (let t = 12; t <= n; t += 12) moc.push(t);
+  if (n % 12 !== 0) moc.push(n);
+  return moc;
+}
+
+/**
+ * Nhóm cột của hình "Số dư từng năm": mỗi mốc một cột, khúc dưới là tiền tự bỏ vào tới lúc ấy, khúc
+ * trên là phần lãi tích luỹ (số dư trừ tiền bỏ vào).
+ *
+ * Phần lãi KHÔNG bị kẹp về 0: một lợi suất âm làm số dư thấp hơn tiền bỏ vào, và kẹp đi là vẽ một cột
+ * cao bằng tiền gốc cho một số dư đã hụt — một con số sai trông như đúng (FR-06). Để nguyên số âm thì
+ * `columnData()` từ chối hình cột chồng và mục vắng khỏi ô chọn. Chỉ hạt bụi dấu phẩy động (lãi suất
+ * 0 mà phép luỹ thừa lệch một phần tỷ) mới về 0.
+ */
+export function nhomSoDuTheoNam(
+  moc: ReadonlyArray<{ boVao: number; soDu: number }>,
+): Array<{ label: Bilingual; tick: string; values: number[] }> {
+  return moc.map((muc, index) => {
+    const lai = muc.soDu - muc.boVao;
+    const bui = Math.abs(lai) <= 1e-9 * Math.max(1, Math.abs(muc.soDu));
+    return {
+      label: { vi: `Năm ${String(index + 1)}`, en: `Year ${String(index + 1)}` },
+      tick: String(index + 1),
+      values: [muc.boVao, bui ? 0 : lai],
+    };
+  });
+}
+
+/** Tên trục ngang và trục đứng chung của mọi hình "Số dư từng năm". */
+export const SO_DU_TUNG_NAM = {
+  title: { vi: 'Số dư từng năm', en: 'Balance by year' },
+  category: { vi: 'Năm', en: 'Year' },
+  value: { vi: 'Số dư', en: 'Balance' },
+} as const;

@@ -19,7 +19,7 @@
  * `core/types.ts` và mục "Giới hạn đã biết" của kế hoạch.
  */
 
-import type { CalcContext, CalcInputs, FormulaModule } from '../calc/types';
+import type { CalcContext, CalcInputs, ColumnData, ColumnView, FormulaModule } from '../calc/types';
 import {
   COMPACT_PREFIXES,
   NO_VALUE,
@@ -38,7 +38,9 @@ import {
   breakdownExtent,
   canDrawBreakdown,
 } from './breakdown';
+import { COLUMNS_KEY, columnData, columnsOption } from './columns';
 import { COMPOSITION_KEY, compositionBars, compositionOption } from './composition';
+import { GAUGE_KEY, GAUGE_LABEL, buildGaugeModel, gaugeReady } from './gauge';
 import {
   HISTORY_KEY,
   HISTORY_LABEL,
@@ -68,6 +70,8 @@ import type {
   ChartSeries,
   ChartTable,
   ChartTick,
+  ColumnGroup,
+  ColumnLine,
   SweepOption,
 } from './types';
 
@@ -459,12 +463,11 @@ function buildBreakdownModel(
    * việc cho một số tiền. Công thức không khai `breakdownTotal` thì giữ nguyên nếp cũ của mọi
    * biểu đồ khác, nên thay đổi này chỉ chạm đúng những cái vừa khai.
    */
-  const { axis: y, scale } = buildAxis(
-    extent[0],
-    extent[1],
-    spec.breakdownTotal ?? name,
-    spec.resultUnit,
-  );
+  const {
+    axis: y,
+    scale,
+    tableTitle,
+  } = buildAxis(extent[0], extent[1], spec.breakdownTotal ?? name, spec.resultUnit);
 
   /*
    * Nhãn giá trị VẼ TRÊN CỘT nói cùng thang với trục ngay dưới nó.
@@ -518,7 +521,8 @@ function buildBreakdownModel(
     y,
     bars,
     table: {
-      columns: [{ vi: 'Thành phần', en: 'Component' }, y.title],
+      // Tên cột theo đơn vị GỐC, khớp ô in số đầy đủ — xem `withUnit()`.
+      columns: [{ vi: 'Thành phần', en: 'Component' }, tableTitle],
       rows: bars.map((bar) => [bar.label, bar.valueLabel] as const),
     },
     options,
@@ -540,7 +544,11 @@ function buildCompositionModel(
   options: ReadonlyArray<SweepOption>,
 ): ChartModel {
   const total = rawBars[rawBars.length - 1];
-  const { axis: y, scale } = buildAxis(0, total?.cumulative ?? 1, view.total, view.unit);
+  const {
+    axis: y,
+    scale,
+    tableTitle,
+  } = buildAxis(0, total?.cumulative ?? 1, view.total, view.unit);
 
   /* Nhãn vẽ trên hình nói cùng thang với trục, như thác nước; bảng số vẫn in số đầy đủ. */
   const bars = rawBars.map((bar) => {
@@ -564,11 +572,157 @@ function buildCompositionModel(
     y,
     bars,
     table: {
-      columns: [{ vi: 'Thành phần', en: 'Component' }, y.title],
+      columns: [{ vi: 'Thành phần', en: 'Component' }, tableTitle],
       rows: bars.map((bar) => [bar.label, bar.valueLabel] as const),
     },
     options,
     sweepKey: COMPOSITION_KEY,
+  };
+}
+
+/** Tên cột tổng của bảng số khi các chuỗi chồng lên nhau. */
+const TONG_COT: Bilingual = { vi: 'Cộng', en: 'Total' };
+
+/**
+ * Mô hình của hình CỘT THEO KỲ (23/10/2026) — dựng từ số đã kiểm ở `columnData()`.
+ *
+ * Trục giá trị chứa 0 (cột cần chỗ đứng) và ôm cả đỉnh cột chồng lẫn mọi vạch ngang. Nhãn vẽ trên
+ * hình nói cùng bậc với trục, bảng số in số đầy đủ — cùng luật thác nước.
+ */
+function buildColumnsModel(
+  view: ColumnView,
+  data: ColumnData,
+  options: ReadonlyArray<SweepOption>,
+): ChartModel {
+  const chong = view.series.length >= 2;
+  const tongNhom = (values: ReadonlyArray<number>): number =>
+    values.reduce((sum, value) => sum + value, 0);
+  const muc = data.groups.flatMap((group) =>
+    chong ? [tongNhom(group.values)] : [...group.values],
+  );
+  const vach = data.lines ?? [];
+  const ys = [0, ...muc, ...vach.map((line) => line.value)];
+  const { axis: y, scale } = buildAxis(Math.min(...ys), Math.max(...ys), view.value, view.unit);
+
+  const viet = (value: number): string => formatValueWithUnit(value, view.unit);
+  const vietPhu = (value: number, index: number): string =>
+    formatValueWithUnit(value, view.extraColumns?.[index]?.unit ?? '');
+  /*
+   * Bậc chữ của từng cột phụ, chọn theo số lớn nhất của chính cột ấy — cùng `pickScale()` với trục —
+   * để ô dò viết '10 triệu ₫' cạnh '50 nghìn ₫' chứ không '10.000.000 ₫' (luật chữ của hình, 15/10/2026).
+   */
+  const bacPhu = (view.extraColumns ?? []).map((column, index) => {
+    const lon = Math.max(0, ...data.groups.map((group) => Math.abs(group.extras?.[index] ?? 0)));
+    return buildAxis(0, lon > 0 ? lon : 1, column.label, column.unit).scale;
+  });
+  const vietPhuNgan = (value: number, index: number): string => {
+    const bac = bacPhu[index];
+    return (bac === undefined ? undefined : labelAtAxisScale(value, bac)) ?? vietPhu(value, index);
+  };
+
+  const groups: ColumnGroup[] = data.groups.map((group) => {
+    const ngan = group.values.map((value) => labelAtAxisScale(value, scale));
+    const tong = tongNhom(group.values);
+    const tongNgan = labelAtAxisScale(tong, scale);
+    return {
+      label: group.label,
+      tick: group.tick,
+      values: group.values,
+      valueLabels: group.values.map(viet),
+      /* Trục chia bậc thì mọi số đều có bản ngắn, không chia thì không số nào có — xem `ChartPoint`. */
+      ...(ngan.every((label) => label !== undefined) ? { shortValueLabels: ngan } : {}),
+      ...(chong
+        ? {
+            totalLabel: viet(tong),
+            ...(tongNgan === undefined ? {} : { shortTotalLabel: tongNgan }),
+          }
+        : {}),
+      ...(group.extras === undefined
+        ? {}
+        : {
+            extraLabels: group.extras.map(vietPhu),
+            shortExtraLabels: group.extras.map(vietPhuNgan),
+          }),
+    };
+  });
+
+  const lines: ColumnLine[] = vach.map((line) => {
+    const ngan = labelAtAxisScale(line.value, scale);
+    return {
+      value: line.value,
+      label: line.label,
+      valueLabel: viet(line.value),
+      ...(ngan === undefined ? {} : { shortValueLabel: ngan }),
+      ...(line.dash === true ? { dash: true } : {}),
+    };
+  });
+
+  /* Một nhóm kể bằng chữ: các chuỗi và (nếu chồng) tổng của cả cột. */
+  const keNhom = (group: ColumnGroup, lang: 'vi' | 'en'): string => {
+    const doc = (text: string): string => (lang === 'vi' ? text : labelInEnglish(text));
+    const phan = view.series
+      .map((series, index) => `${series.label[lang]} ${doc(group.valueLabels[index] ?? '')}`)
+      .join(', ');
+    const tong =
+      group.totalLabel === undefined
+        ? ''
+        : `, ${lang === 'vi' ? 'cộng' : 'total'} ${doc(group.totalLabel)}`;
+    return `${group.label[lang]}: ${phan}${tong}.`;
+  };
+  const dau = groups[0];
+  const cuoi = groups[groups.length - 1];
+  const keVach = (lang: 'vi' | 'en'): string =>
+    lines
+      .map(
+        (line) =>
+          `${line.label[lang]} ${lang === 'vi' ? line.valueLabel : labelInEnglish(line.valueLabel)}.`,
+      )
+      .join(' ');
+  const cau = (lang: 'vi' | 'en'): string =>
+    [
+      `${view.title[lang]}, ${String(groups.length)} ${view.category[lang].toLowerCase()}.`,
+      dau === undefined ? '' : keNhom(dau, lang),
+      cuoi === undefined || cuoi === dau ? '' : keNhom(cuoi, lang),
+      keVach(lang),
+    ]
+      .filter((sentence) => sentence !== '')
+      .join(' ');
+
+  const donVi = unitLabel(view.unit);
+  return {
+    kind: 'columns',
+    title: view.title,
+    summary: { vi: cau('vi'), en: cau('en') },
+    xTitle: view.category,
+    y,
+    series: view.series,
+    groups,
+    stacked: chong,
+    ...(lines.length === 0 ? {} : { lines }),
+    ...(view.extraColumns === undefined
+      ? {}
+      : { extraColumns: view.extraColumns.map((column) => column.label) }),
+    table: {
+      columns: [
+        view.category,
+        ...view.series.map((series) => withUnit(series.label, donVi)),
+        ...(chong ? [withUnit(TONG_COT, donVi)] : []),
+        ...(view.extraColumns ?? []).map((column) =>
+          withUnit(column.label, unitLabel(column.unit)),
+        ),
+      ],
+      rows: groups.map(
+        (group) =>
+          [
+            group.label,
+            ...group.valueLabels,
+            ...(group.totalLabel === undefined ? [] : [group.totalLabel]),
+            ...(group.extraLabels ?? []),
+          ] as const,
+      ),
+    },
+    options,
+    sweepKey: COLUMNS_KEY,
   };
 }
 
@@ -585,20 +739,33 @@ function buildAxis(
   name: Bilingual,
   unit: string,
   maxChars = MAX_TICK_CHARS_Y,
-): { axis: ChartAxis; scale: AxisScale } {
+): { axis: ChartAxis; scale: AxisScale; tableTitle: Bilingual } {
   const nice = niceAxis(lo, hi);
   const scale = pickScale(nice, unit, maxChars);
 
   return {
     axis: {
-      title: {
-        vi: scale.unit.vi === '' ? name.vi : `${name.vi} (${scale.unit.vi})`,
-        en: scale.unit.en === '' ? name.en : `${name.en} (${scale.unit.en})`,
-      },
+      title: withUnit(name, scale.unit),
       domain: nice.domain,
       ticks: scale.ticks,
     },
     scale: { factor: scale.factor, unit: scale.unit },
+    tableTitle: withUnit(name, unitLabel(unit)),
+  };
+}
+
+/**
+ * Tên kèm đơn vị trong ngoặc — `'Vốn hoá thị trường (tỷ ₫)'`; đơn vị rỗng thì chỉ tên.
+ *
+ * Dùng cho HAI chỗ khác thang (23/10/2026): tiêu đề trục mang đơn vị ĐÃ ĐỔI BẬC (`'nghìn tỷ ₫'`, vì
+ * vạch trục viết 7,5 · 8), còn tên cột của bảng số mang đơn vị GỐC (`'tỷ ₫'`), vì ô của bảng in số
+ * đầy đủ `7.826,94 tỷ ₫`. Chủ dự án chụp bảng số của `von-hoa-thi-truong`, cột ghi "(nghìn tỷ ₫)" mà
+ * ô ghi "tỷ ₫": _"note một đằng nhưng số liệu hiện một nẻo"_ — bảng từng mượn nguyên `axis.title`.
+ */
+function withUnit(name: Bilingual, unit: Bilingual): Bilingual {
+  return {
+    vi: unit.vi === '' ? name.vi : `${name.vi} (${unit.vi})`,
+    en: unit.en === '' ? name.en : `${name.en} (${unit.en})`,
   };
 }
 
@@ -718,11 +885,21 @@ export function buildChartModel(args: ChartArgs): ChartModel {
   const coCau = spec.composition;
   const phanCoCau = coCau === undefined ? null : compositionBars(spec, inputs, output);
   const compositionReady = coCau !== undefined && phanCoCau !== null;
+  /*
+   * Hình cột theo kỳ (23/10/2026) — MỘT MỤC của ô chọn, đứng sau hình cơ cấu, chỉ có khi công thức
+   * khai `FormulaModule.columns` và số sinh ra qua được `columnData()`. Không bao giờ là hình mặc định.
+   */
+  const soCot = columnData(formula, inputs, ctx, output);
+  const mucCot = soCot === null ? null : columnsOption(formula);
+  const thangDoReady = gaugeReady(spec, output);
   const options: SweepOption[] = [
     ...(breakdownReady ? [{ key: BREAKDOWN_KEY, label: BREAKDOWN_LABEL }] : []),
     ...(historyReady ? [{ key: HISTORY_KEY, label: HISTORY_LABEL }] : []),
     ...(seriesViewReady ? [seriesViewOption(seriesView)] : []),
     ...(compositionReady ? [compositionOption(coCau)] : []),
+    ...(mucCot === null ? [] : [mucCot]),
+    /* Thang đo (23/10/2026) — chỉ khi công thức khai `gauge` và kết quả đã tính được. */
+    ...(thangDoReady ? [{ key: GAUGE_KEY, label: GAUGE_LABEL }] : []),
     ...candidates.map((variable) => ({ key: variable.key, label: shortLabel(variable.label) })),
   ];
 
@@ -752,6 +929,14 @@ export function buildChartModel(args: ChartArgs): ChartModel {
     return buildCompositionModel(coCau, phanCoCau, options);
   }
 
+  if (soCot !== null && formula.columns !== undefined && sweepKey === COLUMNS_KEY) {
+    return buildColumnsModel(formula.columns, soCot, options);
+  }
+
+  if (thangDoReady && sweepKey === GAUGE_KEY) {
+    return buildGaugeModel(spec, output, name, options);
+  }
+
   if (seriesViewReady && sweepKey === seriesViewOption(seriesView).key) {
     return seriesView.kind === 'distribution'
       ? buildDistributionModel(seriesView, cuaSoChuoi, output, name, options, seriesLabel)
@@ -776,6 +961,8 @@ export function buildChartModel(args: ChartArgs): ChartModel {
    * đại lượng, nên không có gì để chia bậc.
    */
   let xScale: AxisScale | null = null;
+  /* Tên cột trục X của bảng số — đơn vị gốc, không phải bậc của trục; xem `withUnit()`. */
+  let xTableTitle: Bilingual;
 
   if (onTime) {
     points = historyPoints(formula, inputs, ctx);
@@ -784,6 +971,7 @@ export function buildChartModel(args: ChartArgs): ChartModel {
       domain: [0, Math.max(1, points.length - 1)],
       ticks: sessionTicks(ctx.bars ?? []),
     };
+    xTableTitle = x.title;
     activeKey = HISTORY_KEY;
     axisName = TIME_AXIS_NAME;
   } else {
@@ -811,6 +999,7 @@ export function buildChartModel(args: ChartArgs): ChartModel {
     const built = buildAxis(xExtent[0], xExtent[1], axisName, chosen.unit, MAX_TICK_CHARS_X);
     x = built.axis;
     xScale = built.scale;
+    xTableTitle = built.tableTitle;
     activeKey = chosen.key;
   }
 
@@ -889,7 +1078,11 @@ export function buildChartModel(args: ChartArgs): ChartModel {
   const yBase: readonly [number, number] =
     zeroBaseline && extra.length === 0 ? [Math.min(0, yFull[0]), Math.max(0, yFull[1])] : yFull;
 
-  const { axis: y, scale: yScale } = buildAxis(yBase[0], yBase[1], name, spec.resultUnit);
+  const {
+    axis: y,
+    scale: yScale,
+    tableTitle: yTableTitle,
+  } = buildAxis(yBase[0], yBase[1], name, spec.resultUnit);
 
   /*
    * Nhãn RÚT GỌN của từng điểm, cho chữ vẽ trên hình: vạch dò khi rê chuột và dấu "giá trị hiện tại".
@@ -977,7 +1170,8 @@ export function buildChartModel(args: ChartArgs): ChartModel {
    * cùng một biểu thức.
    */
   const table: ChartTable = {
-    columns: [x.title, y.title, ...extra.map((series) => series.label)],
+    // Tên cột theo đơn vị GỐC: ô in số đầy đủ (`7.826,94 tỷ ₫`), trục in số đã đổi bậc.
+    columns: [xTableTitle, yTableTitle, ...extra.map((series) => series.label)],
     rows: condensePoints(points).map((point) => {
       if (point === null) return null;
       const label = { vi: point.label, en: point.label };

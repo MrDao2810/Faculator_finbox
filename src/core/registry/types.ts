@@ -605,6 +605,28 @@ export interface FormulaSpec extends FormulaSummary {
    * `CompositionSpec`.
    */
   composition?: CompositionSpec;
+  /**
+   * THANG ĐO nửa vòng cung với các vùng đặt tên — một mục thêm vào ô "Xem theo" (23/10/2026). Xem
+   * `GaugeSpec`.
+   */
+  gauge?: GaugeSpec;
+}
+
+/**
+ * Thang đo của một chỉ báo có thang cố định và các mốc đọc quen dùng (23/10/2026, kiểu hình mới thứ
+ * tư chủ dự án chọn): RSI 0–100 với 30/70, Stochastic 0–100 với 20/80, %B với hai dải 0% và 100%.
+ *
+ * Kim chỉ ĐÚNG con số ở khối Kết quả, nằm trong vùng nào thì vùng ấy đậm lên. Ranh giới giữa các vùng
+ * phải là đúng các `referenceLines` công thức đã khai — hình đường và thang đo nói cùng hai mốc;
+ * `gauge.test.ts` gác điều đó. Số nằm ngoài thang (%B trên dải trên quá xa) thì kim nằm ở đầu thang
+ * còn chữ giữa vòng vẫn in đúng số thật.
+ */
+export interface GaugeSpec {
+  /** Hai đầu thang, theo đơn vị của kết quả (`resultUnit`). */
+  min: number;
+  max: number;
+  /** Các vùng nối tiếp từ `min`: mỗi vùng hết ở `to`, vùng cuối hết ở đúng `max`. Hai tới ba vùng. */
+  zones: ReadonlyArray<{ to: number; label: Bilingual }>;
 }
 
 /**

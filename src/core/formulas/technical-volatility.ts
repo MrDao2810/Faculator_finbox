@@ -24,7 +24,7 @@
 
 import { fail, ok } from '../calc-output';
 import type { CalcContext, FormulaModule } from '../calc/types';
-import type { SeriesRow } from '../price-series';
+import { displaySeriesDate, parseSeriesDate, type SeriesRow } from '../price-series';
 import type { FormulaSource } from '../registry/types';
 import type { Bilingual, CalcOutput, CalcWarning, VariableSpec } from '../types';
 import { divideByZero, meaningless, missingSeries } from '../warnings';
@@ -86,8 +86,9 @@ interface OhlcBar {
   close: number;
 }
 
-/** Một phiên có đủ đóng cửa – khối lượng. */
+/** Một phiên có đủ đóng cửa – khối lượng. Giữ cả ngày, để hình "Khối lượng từng phiên" ghi được tên phiên. */
 interface VolumeBar {
+  date: string;
   close: number;
   volume: number;
 }
@@ -136,7 +137,7 @@ function requireVolumeBars(ctx: CalcContext, min: number): VolumeBar[] | CalcWar
   for (const bar of bars) {
     const { close, volume } = bar;
     if (!isUsableNumber(close) || !isUsableNumber(volume) || volume < 0) continue;
-    usable.push({ close, volume });
+    usable.push({ date: bar.date, close, volume });
   }
 
   return usable.length >= min ? usable : missingSeries(min, usable.length, WHAT_VOLUME);
@@ -1057,6 +1058,20 @@ export const PHAN_TRAM_B_BOLLINGER: FormulaModule = {
       { value: 0, label: { vi: 'Dải dưới', en: 'Lower band' } },
       { value: 100, label: { vi: 'Dải trên', en: 'Upper band' } },
     ],
+    /*
+     * Thang đo (23/10/2026): hai ranh giới là hai dải thật, 0% và 100%. Thang kéo ra −25 … 125% vì %B
+     * ra ngoài dải là chuyện thường (`howToRead`: "số thật chứ không phải lỗi"); xa hơn nữa thì kim
+     * nằm ở đầu thang, chữ dưới kim vẫn in đúng số.
+     */
+    gauge: {
+      min: -25,
+      max: 125,
+      zones: [
+        { to: 0, label: { vi: 'Dưới dải dưới', en: 'Below the lower band' } },
+        { to: 100, label: { vi: 'Trong dải', en: 'Inside the band' } },
+        { to: 125, label: { vi: 'Trên dải trên', en: 'Above the upper band' } },
+      ],
+    },
     variables: [BOLLINGER_PERIOD, BOLLINGER_K],
     explanation: {
       meaning: {
@@ -1252,6 +1267,16 @@ export const STOCHASTIC_K: FormulaModule = {
       { value: 20, label: { vi: 'Sát đáy', en: 'Near the low' } },
       { value: 80, label: { vi: 'Sát đỉnh', en: 'Near the high' } },
     ],
+    /* Thang đo 0–100 chia đúng hai mốc trên (23/10/2026). */
+    gauge: {
+      min: 0,
+      max: 100,
+      zones: [
+        { to: 20, label: { vi: 'Sát đáy', en: 'Near the low' } },
+        { to: 80, label: { vi: 'Ở giữa', en: 'In between' } },
+        { to: 100, label: { vi: 'Sát đỉnh', en: 'Near the high' } },
+      ],
+    },
     variables: [
       sliderVar(
         'period',
@@ -2004,7 +2029,63 @@ export const TY_LE_KHOI_LUONG: FormulaModule = {
       extras: { khoiLuongTrungBinh: average, khoiLuong: last.volume },
     });
   },
+  /*
+   * Khối lượng từng phiên (23/10/2026): đúng n + 1 phiên `calc` đọc, mỗi phiên một cột; vạch đứt ở
+   * khối lượng trung bình của n phiên làm mốc. Cột cuối là phiên đem so, nên kết quả là cột cuối
+   * chia cho vạch. Lọc phiên bằng chính `requireVolumeBars()`, để hình và con số đọc cùng một cửa sổ.
+   */
+  columns: {
+    title: { vi: 'Khối lượng từng phiên', en: 'Volume by session' },
+    category: { vi: 'Phiên', en: 'Session' },
+    value: { vi: 'Khối lượng', en: 'Volume' },
+    unit: 'CP',
+    series: [{ key: 'volume', label: { vi: 'Khối lượng', en: 'Volume' }, tone: 'primary' }],
+    build: (v, ctx, output) => {
+      const average = output.extras?.khoiLuongTrungBinh;
+      if (output.value === null || average === undefined) return null;
+      const period = periodOf(v('period'));
+      const bars = requireVolumeBars(ctx, period + 1);
+      if (!Array.isArray(bars)) return null;
+      const groups = bars.slice(-(period + 1)).map((bar, index) => ({
+        ...tenPhien(bar.date, index + 1),
+        values: [bar.volume],
+      }));
+      return {
+        groups,
+        lines: [
+          {
+            value: average,
+            label: {
+              vi: `Trung bình ${String(period)} phiên trước`,
+              en: `Average of the previous ${String(period)} sessions`,
+            },
+            dash: true,
+          },
+        ],
+      };
+    },
+  },
 };
+
+/**
+ * Tên một phiên trên hình cột: ngày đủ ở ô dò và bảng số, chỉ ngày/tháng ở vạch trục (năm đã có ở
+ * bảng). Ô ngày trống thì gọi theo thứ tự phiên trong cửa sổ; ô không đọc ra ngày thì in nguyên xi.
+ */
+function tenPhien(raw: string, thuTu: number): { label: Bilingual; tick: string } {
+  const date = parseSeriesDate(raw);
+  if (date === null) {
+    const text = raw.trim();
+    return text === ''
+      ? {
+          label: { vi: `Phiên ${String(thuTu)}`, en: `Session ${String(thuTu)}` },
+          tick: String(thuTu),
+        }
+      : { label: { vi: text, en: text }, tick: text };
+  }
+  const full = displaySeriesDate(raw);
+  const tick = `${String(date.day).padStart(2, '0')}/${String(date.month).padStart(2, '0')}`;
+  return { label: { vi: full, en: full }, tick };
+}
 
 /** Chín công thức biến động & khối lượng của nhóm 'technical'. */
 export const TECHNICAL_VOLATILITY_FORMULAS: ReadonlyArray<FormulaModule> = [

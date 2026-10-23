@@ -35,7 +35,14 @@ import { fail, ok } from '../calc-output';
 import type { FormulaModule } from '../calc/types';
 import type { FormulaSource } from '../registry/types';
 import { divideByZero, meaningless } from '../warnings';
-import { SOURCE_CFA, SOURCE_CORPORATE_FINANCE, numberVar, sliderVar } from './shared';
+import {
+  SOURCE_CFA,
+  SOURCE_CORPORATE_FINANCE,
+  SO_DU_TUNG_NAM,
+  nhomSoDuTheoNam,
+  numberVar,
+  sliderVar,
+} from './shared';
 
 /*
  * ── Nguồn dùng riêng cho nhóm này (FR-04) ──────────────────────────────────────────────
@@ -655,6 +662,44 @@ export const DDM_HAI_GIAI_DOAN: FormulaModule = {
      */
     return ok(pvStage1 + pvTerminal, '₫', { extras: { pvStage1, pvTerminal } });
   },
+  /*
+   * Cổ tức từng năm của giai đoạn đầu (23/10/2026): mỗi năm một cột cao bằng cổ tức dự kiến năm ấy,
+   * D0 × (1 + g1)^t; khúc dưới là giá trị hôm nay của nó (chia (1 + r)^t), khúc trên là phần mất đi do
+   * chiết khấu. Cộng các khúc dưới ra đúng phần giai đoạn đầu của kết quả. Giá trị cuối kỳ không có cột:
+   * nó là một khoản ở năm n thay cho mọi năm sau, và đã có ở hình bóc tách.
+   */
+  columns: {
+    title: { vi: 'Cổ tức từng năm', en: 'Dividend by year' },
+    category: { vi: 'Năm', en: 'Year' },
+    value: { vi: 'Cổ tức', en: 'Dividend' },
+    unit: '₫',
+    series: [
+      { key: 'presentValue', label: { vi: 'Giá trị hôm nay', en: 'Value today' }, tone: 'primary' },
+      {
+        key: 'discount',
+        label: { vi: 'Phần mất do chiết khấu', en: 'Lost to discounting' },
+        tone: 'muted',
+      },
+    ],
+    build: (v, _ctx, output) => {
+      if (output.value === null) return null;
+      const i = v('requiredReturn') / 100;
+      const g1 = v('growthStage1') / 100;
+      const n = Math.round(v('years'));
+      let dividend = v('dividend');
+      const groups = [];
+      for (let t = 1; t <= n; t += 1) {
+        dividend *= 1 + g1;
+        const presentValue = dividend / Math.pow(1 + i, t);
+        groups.push({
+          label: { vi: `Năm ${String(t)}`, en: `Year ${String(t)}` },
+          tick: String(t),
+          values: [presentValue, dividend - presentValue],
+        });
+      }
+      return { groups };
+    },
+  },
 };
 
 /*
@@ -707,6 +752,23 @@ export const CAPM: FormulaModule = {
     chartType: 'sensitivity',
     level: 'advanced',
     tags: ['capm', 'chi phi von chu', 'beta', 'phan bu rui ro', 'cost of equity'],
+    /*
+     * Hình tròn của chi phí vốn chủ: phần lãi suất phi rủi ro và phần bù cho rủi ro của mã (22/10/2026).
+     * CAPM là một phép cộng, hai múi là hai số hạng của nó: bao nhiêu phần mức sinh lợi đòi hỏi chỉ
+     * là lãi suất kiểu trái phiếu, bao nhiêu là tiền công cho rủi ro. Beta âm thì múi bù âm, mục vắng.
+     */
+    composition: {
+      title: { vi: 'Cơ cấu chi phí vốn chủ', en: 'Cost of equity breakdown' },
+      total: { vi: 'Chi phí vốn chủ (re)', en: 'Cost of equity (re)' },
+      unit: '%',
+      parts: [
+        { key: 'riskFree' },
+        {
+          key: 'riskPremium',
+          label: { vi: 'Phần bù rủi ro của mã (β × ERP)', en: 'Stock risk premium (β × ERP)' },
+        },
+      ],
+    },
     resultUnit: '%',
     variables: [
       sliderVar(
@@ -803,7 +865,9 @@ export const CAPM: FormulaModule = {
     source: [SOURCE_DAMODARAN_COC, SOURCE_CFA],
   },
   calc: (v) => {
-    const costOfEquity = v('riskFree') + v('beta') * v('erp');
+    /* Số hạng thứ hai, cũng là múi thứ hai của hình "Cơ cấu chi phí vốn chủ". */
+    const riskPremium = v('beta') * v('erp');
+    const costOfEquity = v('riskFree') + riskPremium;
 
     if (costOfEquity < 0) {
       return fail(
@@ -821,7 +885,7 @@ export const CAPM: FormulaModule = {
       );
     }
 
-    return ok(costOfEquity, '%');
+    return ok(costOfEquity, '%', { extras: { riskPremium } });
   },
 };
 
@@ -901,6 +965,17 @@ export const WACC: FormulaModule = {
     ],
     level: 'advanced',
     tags: ['wacc', 'chi phi von binh quan', 'co cau von', 'la chan thue', 'cost of capital'],
+    /*
+     * Hình tròn của nguồn vốn: vốn chủ và nợ vay (22/10/2026), tức đúng hai tỷ trọng E/(E+D) và
+     * D/(E+D) của công thức. Khác bóc tách sẵn có: bóc tách chia KẾT QUẢ WACC thành hai phần đóng góp
+     * (điểm %), hình này chia VỐN (tỷ ₫).
+     */
+    composition: {
+      title: { vi: 'Cơ cấu nguồn vốn', en: 'Capital structure' },
+      total: { vi: 'Tổng nguồn vốn (E+D)', en: 'Total capital (E+D)' },
+      unit: 'tỷ ₫',
+      parts: [{ key: 'equity' }, { key: 'debt' }],
+    },
     resultUnit: '%',
     variables: [
       numberVar('equity', { vi: 'Vốn chủ sở hữu (E)', en: 'Equity (E)' }, 'tỷ ₫', 600, {
@@ -1957,6 +2032,19 @@ export const GIA_TRI_HIEN_TAI: FormulaModule = {
     chartType: 'sensitivity',
     level: 'basic',
     tags: ['pv', 'gia tri hien tai', 'chiet khau', 'present value'],
+    /*
+     * Hình tròn của số tiền tương lai: giá trị hiện tại và phần sinh lợi phải có để từ PV lớn lên FV
+     * (22/10/2026). Hai phần đều do `calc` trả, vì PV là kết quả chứ không phải một ô nhập.
+     */
+    composition: {
+      title: { vi: 'Cơ cấu số tiền tương lai', en: 'Future amount breakdown' },
+      total: { vi: 'Số tiền trong tương lai (FV)', en: 'Future amount (FV)' },
+      unit: '₫',
+      parts: [
+        { key: 'presentValue', label: { vi: 'Giá trị hiện tại (PV)', en: 'Present value (PV)' } },
+        { key: 'returnEarned', label: { vi: 'Phần sinh lợi', en: 'Return earned' } },
+      ],
+    },
     resultUnit: '₫',
     variables: [
       numberVar(
@@ -2083,7 +2171,39 @@ export const GIA_TRI_HIEN_TAI: FormulaModule = {
       );
     }
 
-    return ok(v('futureValue') / Math.pow(base, Math.round(v('years'))), '₫');
+    const futureValue = v('futureValue');
+    const presentValue = futureValue / Math.pow(base, Math.round(v('years')));
+    /* Hai múi của hình "Cơ cấu số tiền tương lai". */
+    return ok(presentValue, '₫', {
+      extras: { presentValue, returnEarned: futureValue - presentValue },
+    });
+  },
+  /*
+   * Số tiền hôm nay lớn lên từng năm (23/10/2026), hình anh em của `gia-tri-tuong-lai`: khúc dưới là
+   * giá trị hiện tại (kết quả), khúc trên là phần sinh lợi tích luỹ; cột cuối bằng số tiền tương lai
+   * đã nhập. Tỷ lệ âm thì phần ấy âm và mục vắng — xem `nhomSoDuTheoNam()`.
+   */
+  columns: {
+    ...SO_DU_TUNG_NAM,
+    unit: '₫',
+    series: [
+      {
+        key: 'presentValue',
+        label: { vi: 'Giá trị hiện tại (PV)', en: 'Present value (PV)' },
+        tone: 'primary',
+      },
+      { key: 'returnEarned', label: { vi: 'Phần sinh lợi', en: 'Return earned' }, tone: 'teal' },
+    ],
+    build: (v, _ctx, output) => {
+      const presentValue = output.value;
+      if (presentValue === null) return null;
+      const base = 1 + v('rate') / 100;
+      const moc = Array.from({ length: Math.round(v('years')) }, (_, k) => ({
+        boVao: presentValue,
+        soDu: presentValue * Math.pow(base, k + 1),
+      }));
+      return { groups: nhomSoDuTheoNam(moc) };
+    },
   },
 };
 
@@ -2141,6 +2261,19 @@ export const GIA_TRI_TUONG_LAI: FormulaModule = {
     chartType: 'sensitivity',
     level: 'basic',
     tags: ['fv', 'gia tri tuong lai', 'lai gop', 'future value'],
+    /*
+     * Hình tròn của giá trị tương lai: số tiền hiện tại và phần sinh lợi (22/10/2026), cùng nếp hình
+     * của Lãi kép. Tỷ suất âm thì phần sinh lợi âm, mục vắng.
+     */
+    composition: {
+      title: { vi: 'Cơ cấu giá trị tương lai', en: 'Future value breakdown' },
+      total: { vi: 'Giá trị tương lai (FV)', en: 'Future value (FV)' },
+      unit: '₫',
+      parts: [
+        { key: 'presentValue' },
+        { key: 'returnEarned', label: { vi: 'Phần sinh lợi', en: 'Return earned' } },
+      ],
+    },
     resultUnit: '₫',
     variables: [
       numberVar(
@@ -2253,7 +2386,36 @@ export const GIA_TRI_TUONG_LAI: FormulaModule = {
       );
     }
 
-    return ok(v('presentValue') * Math.pow(base, Math.round(v('years'))), '₫');
+    const presentValue = v('presentValue');
+    const futureValue = presentValue * Math.pow(base, Math.round(v('years')));
+    /* Múi thứ hai của hình "Cơ cấu giá trị tương lai". */
+    return ok(futureValue, '₫', { extras: { returnEarned: futureValue - presentValue } });
+  },
+  /*
+   * Giá trị cuối từng năm (23/10/2026): khúc dưới là số tiền hiện tại, khúc trên là phần sinh lợi
+   * tích luỹ. Tỷ suất âm thì phần ấy âm và mục vắng — xem `nhomSoDuTheoNam()`.
+   */
+  columns: {
+    ...SO_DU_TUNG_NAM,
+    unit: '₫',
+    series: [
+      {
+        key: 'presentValue',
+        label: { vi: 'Số tiền hiện tại (PV)', en: 'Present amount (PV)' },
+        tone: 'primary',
+      },
+      { key: 'returnEarned', label: { vi: 'Phần sinh lợi', en: 'Return earned' }, tone: 'teal' },
+    ],
+    build: (v) => {
+      const base = 1 + v('rate') / 100;
+      if (!(base > 0)) return null;
+      const presentValue = v('presentValue');
+      const moc = Array.from({ length: Math.round(v('years')) }, (_, k) => ({
+        boVao: presentValue,
+        soDu: presentValue * Math.pow(base, k + 1),
+      }));
+      return { groups: nhomSoDuTheoNam(moc) };
+    },
   },
 };
 

@@ -5,6 +5,8 @@ import { useEffect, useRef, useState, type ReactNode } from 'react';
 import type { DangVe, DrawableChart } from '@/application';
 import { useT, usePick } from '@/application/preferences-context';
 
+import { ColumnChart } from './ColumnChart';
+import { GaugeChart } from './GaugeChart';
 import { DonutChart } from './DonutChart';
 import { HistogramChart } from './HistogramChart';
 import { LineChart } from './LineChart';
@@ -277,6 +279,10 @@ export function ChartFullscreen({
             )
           ) : model.kind === 'histogram' ? (
             <HistogramChart model={model} idBase={idBase} fill size="wide" />
+          ) : model.kind === 'columns' ? (
+            <ColumnChart model={model} idBase={idBase} fill size="wide" />
+          ) : model.kind === 'gauge' ? (
+            <GaugeChart model={model} idBase={idBase} size="wide" />
           ) : (
             <LineChart
               model={model}

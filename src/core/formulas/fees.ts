@@ -890,6 +890,20 @@ export const LOI_NHUAN_RONG: FormulaModule = {
     level: 'basic',
     isFeatured: true,
     tags: ['loi nhuan rong', 'lai rong', 'phi va thue'],
+    /*
+     * Hình tròn của lãi gộp: phần về tay và phần phí, thuế ăn mất (22/10/2026). Lãi gộp = lợi nhuận
+     * ròng + tổng chi phí, đúng phép trừ của `calc`; "lãi gộp" cũng là chữ thân WF-08 đang in. Lỗ, hoặc
+     * lãi chưa đủ bù phí, thì múi ròng âm và mục vắng.
+     */
+    composition: {
+      title: { vi: 'Cơ cấu lãi gộp', en: 'Gross profit breakdown' },
+      total: { vi: 'Lãi gộp', en: 'Gross profit' },
+      unit: '₫',
+      parts: [
+        { key: 'netProfit', label: { vi: 'Lợi nhuận ròng (Lrong)', en: 'Net profit (Lrong)' } },
+        { key: 'totalCost', label: { vi: 'Tổng chi phí', en: 'Total cost' } },
+      ],
+    },
     resultUnit: '₫',
     variables: [
       withSymbol(quantity, 'Q'),
@@ -954,11 +968,14 @@ export const LOI_NHUAN_RONG: FormulaModule = {
       });
 
     const gross = v('quantity') * (v('sellPrice') - v('buyPrice'));
-    return ok(gross - costs.total, '₫', {
+    const net = gross - costs.total;
+    return ok(net, '₫', {
       extras: {
         grossProfit: gross,
         totalCost: costs.total,
         costBasis: costs.costBasis,
+        /* Kết quả, trả thêm vì hình "Cơ cấu lãi gộp" chỉ đọc ô nhập và `extras`. */
+        netProfit: net,
       },
     });
   },

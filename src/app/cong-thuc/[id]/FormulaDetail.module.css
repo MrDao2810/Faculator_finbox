@@ -97,11 +97,6 @@ button.iconButton::after {
   transform: translateY(-50%);
 }
 
-/* Dấu tích "đã sao chép" chỉ dùng dưới 1024px — xem `CheckIcon` trong `FormulaDetail.tsx`. */
-.narrowOnly {
-  display: none;
-}
-
 /*
  * Dưới 1024px cặp nút Tải về / Chia sẻ chỉ còn icon (19/10/2026). Chủ dự án khoanh hai nút trên
  * điện thoại: _"bản mobile thì chuyển thành icon bỏ text đi"_.
@@ -143,13 +138,51 @@ button.iconButton::after {
     white-space: nowrap;
     border: 0;
   }
+}
 
-  .wideOnly {
-    display: none;
-  }
+/*
+ * Thông báo "Đã sao chép link" (23/10/2026) — dải nhỏ ở ĐÁY màn hình, tự tắt sau 5 giây, thay cho
+ * việc đổi chữ / icon của nút Chia sẻ (chủ dự án: "button cần giữ nguyên").
+ *
+ * - `position: fixed`, giữa ngang, `pointer-events: none`: không chiếm chỗ trong luồng, không che
+ *   nút nào bên dưới và không bắt cú chạm.
+ * - Nền là màu CHỮ (`--color-ink`), chữ là màu NỀN THẺ (`--color-surface`): đảo cặp đã đạt tương phản
+ *   của sản phẩm, nên bảng sáng ra dải tối và bảng tối ra dải sáng — luôn nổi khỏi nền trang mà không
+ *   cần token mới.
+ * - `z-index: 12`: trên thanh điều hướng (10), dưới khung "?" (40). Nó chỉ tồn tại 5 giây và không
+ *   tương tác nên không cần cao hơn.
+ * - PC: cách đáy 24px. Dưới 1024px đáy là thanh điều hướng dưới (`--tabbar-height` + 1px viền + vùng
+ *   an toàn) và, trên nó, dải "Lưu vào danh mục · Thoát" dính đáy cao 53px (xem `.endActions`; con số
+ *   53 chép từ đó, không có token) — dải thông báo đứng NGAY TRÊN dải ấy chứ không che hai nút.
+ */
+.thongBao {
+  position: fixed;
+  inset-inline: var(--gutter);
+  bottom: var(--space-6);
+  z-index: 12;
 
-  .narrowOnly {
-    display: block;
+  width: fit-content;
+  max-width: calc(100vw - var(--gutter) * 2);
+  margin-inline: auto;
+  padding: var(--space-2) var(--space-4);
+
+  font-size: var(--text-sm);
+  line-height: 1.4;
+  text-align: center;
+  color: var(--color-surface);
+
+  background: var(--color-ink);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-modal);
+  pointer-events: none;
+}
+
+@media (max-width: 1023.98px) {
+  .thongBao {
+    bottom: calc(
+      var(--tabbar-height) + 1px + env(safe-area-inset-bottom, 0px) + 53px + var(--space-2)
+    );
+    font-size: var(--text-xs);
   }
 }
 
@@ -1292,7 +1325,8 @@ button.iconButton::after {
    *     viền 1px mỗi phía); vùng chạm của nút vẫn 44px nhờ `::after`, chép từ `.sm` của
    *     `Button.module.css`.
    *   - Số gõ trong ô 18 → 16px, KHÔNG thấp hơn: iOS phóng cả trang khi chạm vào ô nhập chữ dưới
-   *     16px. Đơn vị 14 → 12px. Ô chọn giữ chữ 16px cùng lý do.
+   *     16px. Đơn vị 14 → 12px. Ô chọn giữ chữ 16px cùng lý do — tới 22/10/2026, khi chủ dự án
+   *     đòi nó nhỏ nữa (xem `.fields select` bên dưới).
    *   - Khoảng giữa hai hàng ô 12 → 8px.
    *
    * Viết bằng bộ chọn cấu trúc vì lớp của ô nằm ở module khác (`Input.module.css`,
@@ -1321,8 +1355,20 @@ button.iconButton::after {
     font-size: var(--text-xs);
   }
 
+  /*
+   * Ô chọn gọn thêm một bậc (22/10/2026). Chủ dự án khoanh ô "Số lần nhập lãi / năm (n)" của
+   * `lai-kep` trên điện thoại: _"phần này đang có padding lớn và size text quá lớn so với màn web
+   * mobile"_. 36 → 32px, chữ 16 → 14px (cỡ của ô "Xem theo" / "Loại biểu đồ" ngay dưới), đệm trái
+   * 12 → 10px như khung ô số, đệm phải 36 → 28px và mũi tên 16 → 14px cách mép 8px. Cái giá đã biết,
+   * cùng như hai ô chọn của biểu đồ: Safari iOS phóng trang khi chạm vào ô chọn chữ dưới 16px.
+   * (0,1,1) thắng `.select` của primitive (0,1,0). `ChainBody.module.css` mang bản sao.
+   */
   .fields select {
-    min-height: 36px;
+    min-height: 32px;
+    padding: 0 28px 0 10px;
+    font-size: var(--text-sm);
+    background-position: right 8px center;
+    background-size: 14px;
   }
 
   .fields [role='group'] > button {

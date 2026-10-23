@@ -101,13 +101,24 @@ const FONT = {
 } as const;
 
 /**
- * Chân chữ ở giữa vòng, tính từ tâm: tên của tổng (phía trên), con số tổng khi có tên ở trên nó, và
- * con số tổng khi tên không vừa lỗ nên đứng một mình.
+ * Chân chữ ở giữa vòng, tính từ tâm: tên của tổng (phía trên), con số tổng khi có tên ở trên nó, con
+ * số tổng khi tên không vừa lỗ nên đứng một mình, và nhịp giữa hai dòng khi tên phải xuống dòng.
+ *
+ * Tên được xuống tối đa HAI dòng (22/10/2026): đợt 22 hình cơ cấu có nhiều tên tổng dài — "Tổng tiền
+ * phải trả cả kỳ hạn", "Số tiền nhận khi đáo hạn" — mà một dòng không vừa lỗ, và giữa vòng chỉ còn con
+ * số trơ trọi không biết là tổng của cái gì (đo: 13 trên 40 lần đo ở 1440 và 390). Hai dòng thì cả khối
+ * chữ dịch lên nửa nhịp để vẫn đứng giữa lỗ.
  */
 const GIUA_VONG = {
-  compact: { ten: -6, tong: 11, tongMotMinh: 5 },
-  wide: { ten: -8, tong: 14, tongMotMinh: 6 },
+  compact: { ten: -6, tong: 11, tongMotMinh: 5, dong: 11 },
+  wide: { ten: -8, tong: 14, tongMotMinh: 6, dong: 13 },
 } as const;
+
+/**
+ * Bề ngang dùng được cho tên hai dòng, so với `lot`: dòng trên lệch khỏi tâm xa hơn nên dây cung của lỗ
+ * ở đó ngắn hơn (đo trên lỗ nhỏ nhất của điện thoại, bán kính 39: còn khoảng 0,88).
+ */
+const LOT_HAI_DONG = 0.88;
 
 /**
  * Hệ số an toàn trên ước lượng `textWidth()` (0,49 em một ký tự) khi xếp chú giải. Đo trên Chrome
@@ -179,6 +190,18 @@ function haiDong(text: string, rong: number, size: number): [string, string?] {
     if (rongThuong(head, size) <= rong) return [head, words.slice(cut).join(' ')];
   }
   return [text];
+}
+
+/**
+ * Tên của tổng ở giữa vòng: một dòng nếu vừa `lot`, hai dòng nếu ngắt được thành hai dòng cùng vừa phần
+ * hẹp hơn của lỗ, và rỗng nếu vẫn không vừa — khi ấy con số đứng một mình, tên vẫn có ở bảng số.
+ */
+function tenGiuaVong(text: string, lot: number, size: number): readonly string[] {
+  if (rongThuong(text, size) <= lot) return [text];
+  const hep = lot * LOT_HAI_DONG;
+  const [dau, sau] = haiDong(text, hep, size);
+  if (sau === undefined || rongThuong(dau, size) > hep || rongThuong(sau, size) > hep) return [];
+  return [dau, sau];
 }
 
 export interface DonutChartProps {
@@ -493,8 +516,16 @@ export function DonutChart({ model, idBase, size: sizeProp }: DonutChartProps) {
   const totalValue = labelText(vanh.totalValueLabel);
   const totalLabel = pick(vanh.totalLabel);
   const lot = 2 * r * 0.86;
-  const coTen = rongThuong(totalLabel, fo.label) <= lot;
-  const coTong = Math.min(fo.total, (fo.total * lot) / Math.max(1, rongDam(totalValue, fo.total)));
+  const giua = GIUA_VONG[size];
+  const dongTen = tenGiuaVong(totalLabel, lot, fo.label);
+  const coTen = dongTen.length > 0;
+  /* Hai dòng tên: cả khối dịch lên nửa nhịp, nên con số tổng xuống nửa nhịp so với khi một dòng. */
+  const lech = dongTen.length === 2 ? giua.dong / 2 : 0;
+  const lotTong = lech > 0 ? lot * 0.94 : lot;
+  const coTong = Math.min(
+    fo.total,
+    (fo.total * lotTong) / Math.max(1, rongDam(totalValue, fo.total)),
+  );
 
   return (
     <div ref={khungRef} className={`${String(styles.plot)} ${String(styles.donutKhung)}`}>
@@ -534,16 +565,21 @@ export function DonutChart({ model, idBase, size: sizeProp }: DonutChartProps) {
           <text
             className={styles.donutTotalLabel}
             x={f(cx)}
-            y={f(cy + GIUA_VONG[size].ten)}
+            y={f(cy + giua.ten - lech)}
             textAnchor="middle"
           >
-            {totalLabel}
+            {dongTen[0]}
+            {dongTen[1] !== undefined && (
+              <tspan x={f(cx)} dy={f(giua.dong)}>
+                {dongTen[1]}
+              </tspan>
+            )}
           </text>
         )}
         <text
           className={styles.donutTotal}
           x={f(cx)}
-          y={f(cy + (coTen ? GIUA_VONG[size].tong : GIUA_VONG[size].tongMotMinh))}
+          y={f(cy + (coTen ? giua.tong + lech : giua.tongMotMinh))}
           textAnchor="middle"
           fontSize={f(coTong)}
         >

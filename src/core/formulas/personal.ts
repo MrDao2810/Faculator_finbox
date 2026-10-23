@@ -13,9 +13,17 @@
  */
 
 import { ok } from '../calc-output';
-import type { CalcValues, FormulaModule } from '../calc/types';
+import type { CalcValues, ColumnData, ColumnView, FormulaModule } from '../calc/types';
 import { divideByZero } from '../warnings';
-import { SOURCE_CORPORATE_FINANCE, numberVar, sliderVar, withSymbol } from './shared';
+import {
+  SOURCE_CORPORATE_FINANCE,
+  SO_DU_TUNG_NAM,
+  mocCuoiNam,
+  nhomSoDuTheoNam,
+  numberVar,
+  sliderVar,
+  withSymbol,
+} from './shared';
 
 /*
  * ── Biến dùng chung ────────────────────────────────────────────────────────────────────
@@ -151,6 +159,19 @@ export const TRA_GOP_NIEN_KIM: FormulaModule = {
     level: 'basic',
     isFeatured: true,
     tags: ['tra gop', 'emi', 'nien kim', 'vay mua nha'],
+    /*
+     * Hình tròn của tổng tiền phải trả CẢ KỲ HẠN: gốc vay và tổng lãi (22/10/2026). Khác bóc tách sẵn
+     * có, vốn chia khoản trả KỲ ĐẦU — nên tên tổng nói rõ "cả kỳ hạn", kẻo đọc nhầm thành khoản tháng.
+     */
+    composition: {
+      title: { vi: 'Cơ cấu tổng tiền phải trả', en: 'Total repayment breakdown' },
+      total: { vi: 'Tổng tiền phải trả cả kỳ hạn', en: 'Total repaid over the term' },
+      unit: '₫',
+      parts: [
+        { key: 'amount' },
+        { key: 'totalInterest', label: { vi: 'Tổng tiền lãi', en: 'Total interest' } },
+      ],
+    },
     resultUnit: '₫/tháng',
     variables: [withSymbol(loanAmount, 'P'), loanRate, loanYears],
     explanation: {
@@ -223,10 +244,18 @@ export const TRA_GOP_NIEN_KIM: FormulaModule = {
      * khoản trả là gốc — nên hai số này cộng lại đúng bằng `payment`, không phải xấp xỉ.
      */
     const firstInterest = amount * monthlyRate(v('rate'));
+    /*
+     * Tổng lãi cả kỳ hạn = n × EMI − P, đúng dạng đóng mà `lich-tra-no` thay số, cùng phép làm tròn n
+     * với `annuityPayment()`. `Math.max`: ở lãi suất 0, (P ÷ n) × n lệch P một hạt bụi âm, và một
+     * phần âm làm mục "Cơ cấu tổng tiền phải trả" biến mất. Về toán phần này luôn ≥ 0.
+     */
+    const n = Math.round(v('years') * 12);
+    const totalInterest = Math.max(0, payment * n - amount);
     return ok(payment, '₫/tháng', {
-      extras: { firstPrincipal: payment - firstInterest, firstInterest },
+      extras: { firstPrincipal: payment - firstInterest, firstInterest, totalInterest },
     });
   },
+  columns: traNoTungNam('annuity'),
 };
 
 /**
@@ -309,6 +338,16 @@ export const TRA_GOP_GOC_DEU: FormulaModule = {
     breakdownTotal: { vi: 'Trả kỳ đầu', en: 'First-period payment' },
     level: 'basic',
     tags: ['goc deu', 'tra gop', 'du no giam dan'],
+    /* Cùng hình với trả góp niên kim, để hai công thức đọc như một cặp (22/10/2026). */
+    composition: {
+      title: { vi: 'Cơ cấu tổng tiền phải trả', en: 'Total repayment breakdown' },
+      total: { vi: 'Tổng tiền phải trả cả kỳ hạn', en: 'Total repaid over the term' },
+      unit: '₫',
+      parts: [
+        { key: 'amount' },
+        { key: 'totalInterest', label: { vi: 'Tổng tiền lãi', en: 'Total interest' } },
+      ],
+    },
     resultUnit: '₫',
     variables: [withSymbol(loanAmount, 'P'), loanRate, loanYears],
     explanation: {
@@ -371,8 +410,16 @@ export const TRA_GOP_GOC_DEU: FormulaModule = {
     const amount = v('amount');
     const firstPrincipal = amount / n;
     const firstInterest = amount * monthlyRate(v('rate'));
-    return ok(firstPrincipal + firstInterest, '₫', { extras: { firstPrincipal, firstInterest } });
+    /*
+     * Tổng lãi cả kỳ hạn: lãi giảm đều từ P·i xuống P·i ÷ n, cộng lại ra P × i × (n + 1) ÷ 2 — dạng
+     * đóng `lich-tra-no` dùng. Múi thứ hai của hình "Cơ cấu tổng tiền phải trả".
+     */
+    const totalInterest = (firstInterest * (n + 1)) / 2;
+    return ok(firstPrincipal + firstInterest, '₫', {
+      extras: { firstPrincipal, firstInterest, totalInterest },
+    });
   },
+  columns: traNoTungNam('equalPrincipal'),
 };
 
 /*
@@ -562,6 +609,8 @@ export const LICH_TRA_NO: FormulaModule = {
       extras: { totalPaid, periods: schedule.length, firstPayment: schedule[0]?.payment ?? 0 },
     });
   },
+  /* Phương thức lấy từ ô Phương thức trả, như `calc`. */
+  columns: traNoTungNam('theoO'),
 };
 
 /*
@@ -626,6 +675,53 @@ export function buildAmortisation(
   }
 
   return rows;
+}
+
+/**
+ * Lịch trả nợ GỘP THEO NĂM — số của hình "Trả nợ từng năm" (23/10/2026, chủ dự án chọn kiểu hình này
+ * đầu tiên trong bốn kiểu mới). Mỗi năm một cột: khúc dưới là gốc, khúc trên là lãi trả trong 12 kỳ
+ * của năm ấy; năm cuối có thể ít kỳ hơn khi kỳ hạn không tròn năm.
+ *
+ * Gộp từ ĐÚNG `buildAmortisation()` — bảng mà khối Lịch trả nợ in ra — nên cộng các năm lại ra đúng
+ * số tiền vay và đúng tổng lãi `lich-tra-no` báo; ca kiểm ở `columns.test.ts` đối chiếu cả hai. Hình
+ * nói điều con số không nói: niên kim thì cột cao bằng nhau mà phần lãi teo dần, gốc đều thì cột thấp
+ * dần vì lãi giảm.
+ *
+ * `'theoO'`: phương thức đọc từ ô Phương thức trả (`lich-tra-no`), như `calc` của nó.
+ */
+function traNoTungNam(method: LoanMethod | 'theoO'): ColumnView {
+  return {
+    title: { vi: 'Trả nợ từng năm', en: 'Repayment by year' },
+    category: { vi: 'Năm', en: 'Year' },
+    value: { vi: 'Số tiền trả trong năm', en: 'Paid in the year' },
+    unit: '₫',
+    series: [
+      { key: 'principal', label: { vi: 'Tiền gốc', en: 'Principal' }, tone: 'primary' },
+      { key: 'interest', label: { vi: 'Tiền lãi', en: 'Interest' }, tone: 'teal' },
+    ],
+    build: (v): ColumnData | null => {
+      const phuongThuc = method === 'theoO' ? methodOf(v('method')) : method;
+      const rows = buildAmortisation(v('amount'), v('rate'), v('years'), phuongThuc);
+      if (rows === null) return null;
+
+      const nam: Array<{ goc: number; lai: number }> = [];
+      for (const row of rows) {
+        const k = Math.floor((row.period - 1) / 12);
+        const muc = nam[k] ?? { goc: 0, lai: 0 };
+        muc.goc += row.principal;
+        muc.lai += row.interest;
+        nam[k] = muc;
+      }
+      return {
+        groups: nam.map((muc, index) => ({
+          label: { vi: `Năm ${String(index + 1)}`, en: `Year ${String(index + 1)}` },
+          tick: String(index + 1),
+          /* Kẹp về 0: kỳ cuối bù chênh lệch vào gốc, có thể để lại một hạt bụi âm. */
+          values: [Math.max(0, muc.goc), Math.max(0, muc.lai)],
+        })),
+      };
+    },
+  };
 }
 
 /**
@@ -893,6 +989,32 @@ export const LAI_KEP: FormulaModule = {
     const amount = v('principal') * growth;
     return ok(amount, '₫', { extras: { interest: amount - v('principal') } });
   },
+  /*
+   * Số dư cuối từng năm (23/10/2026): khúc dưới là tiền gốc, khúc trên là lãi tích luỹ tới năm ấy.
+   * Luỹ thừa viết đúng thứ tự phép tính của `calc`, nên cột năm cuối bằng đúng số tiền cuối kỳ (A).
+   */
+  columns: {
+    ...SO_DU_TUNG_NAM,
+    unit: '₫',
+    series: [
+      { key: 'principal', label: { vi: 'Tiền gốc (P)', en: 'Principal (P)' }, tone: 'primary' },
+      {
+        key: 'interest',
+        label: { vi: 'Tiền lãi tích luỹ', en: 'Accumulated interest' },
+        tone: 'teal',
+      },
+    ],
+    build: (v) => {
+      const perYear = v('perYear');
+      if (!(perYear > 0)) return null;
+      const principal = v('principal');
+      const moc = Array.from({ length: Math.round(v('years')) }, (_, k) => ({
+        boVao: principal,
+        soDu: principal * Math.pow(1 + v('rate') / 100 / perYear, perYear * (k + 1)),
+      }));
+      return { groups: nhomSoDuTheoNam(moc) };
+    },
+  },
 };
 
 /*
@@ -943,6 +1065,19 @@ export const LAI_TIEN_GUI: FormulaModule = {
     chartType: 'sensitivity',
     level: 'basic',
     tags: ['lai tien gui', 'tiet kiem', 'ky han', 'lai don'],
+    /*
+     * Hình tròn của số tiền nhận khi đáo hạn: tiền gửi và tiền lãi (22/10/2026). Kết quả chỉ là tiền
+     * lãi, chưa cộng gốc, đúng câu Cách đọc kết quả; vòng tròn cho thấy lãi ấy chiếm bao nhiêu.
+     */
+    composition: {
+      title: { vi: 'Cơ cấu số tiền nhận khi đáo hạn', en: 'Amount at maturity breakdown' },
+      total: { vi: 'Số tiền nhận khi đáo hạn', en: 'Amount received at maturity' },
+      unit: '₫',
+      parts: [
+        { key: 'principal' },
+        { key: 'interest', label: { vi: 'Tiền lãi (I)', en: 'Interest (I)' } },
+      ],
+    },
     resultUnit: '₫',
     variables: [
       numberVar(
@@ -1031,7 +1166,11 @@ export const LAI_TIEN_GUI: FormulaModule = {
     ],
     source: [SOURCE_CORPORATE_FINANCE],
   },
-  calc: (v) => ok(((v('principal') * (v('rate') / 100)) / 12) * v('months'), '₫'),
+  calc: (v) => {
+    const interest = ((v('principal') * (v('rate') / 100)) / 12) * v('months');
+    /* Kết quả, trả thêm trong `extras` vì hình "Cơ cấu …" chỉ đọc ô nhập và `extras`. */
+    return ok(interest, '₫', { extras: { interest } });
+  },
 };
 
 /*
@@ -1091,6 +1230,19 @@ export const TIET_KIEM_MUC_TIEU: FormulaModule = {
     chartType: 'sensitivity',
     level: 'basic',
     tags: ['tiet kiem muc tieu', 'goal savings', 'gui dinh ky'],
+    /*
+     * Hình tròn của số tiền mục tiêu: tổng tiền tự gửi vào và phần lãi tích luỹ góp thêm (22/10/2026).
+     * Gửi đều PMT trong n tháng thì FV = PMT × n + phần lãi, và phần lãi ≥ 0 vì (1+i)^n − 1 ≥ n·i.
+     */
+    composition: {
+      title: { vi: 'Cơ cấu số tiền mục tiêu', en: 'Target amount breakdown' },
+      total: { vi: 'Số tiền mục tiêu (FV)', en: 'Target amount (FV)' },
+      unit: '₫',
+      parts: [
+        { key: 'totalDeposits', label: { vi: 'Tổng tiền gửi', en: 'Total deposited' } },
+        { key: 'interestEarned', label: { vi: 'Tiền lãi tích luỹ', en: 'Interest earned' } },
+      ],
+    },
     resultUnit: '₫/tháng',
     variables: [
       numberVar(
@@ -1199,10 +1351,48 @@ export const TIET_KIEM_MUC_TIEU: FormulaModule = {
       };
     }
 
+    const target = v('target');
     const i = monthlyRate(v('rate'));
-    if (i === 0) return ok(v('target') / n, '₫/tháng');
+    if (i === 0) {
+      return ok(target / n, '₫/tháng', { extras: { totalDeposits: target, interestEarned: 0 } });
+    }
 
-    return ok((v('target') * i) / (Math.pow(1 + i, n) - 1), '₫/tháng');
+    const payment = (target * i) / (Math.pow(1 + i, n) - 1);
+    /*
+     * `Math.min`: ở n = 1, (1 + i) − 1 lệch i một hạt bụi dấu phẩy động nên PMT × n nhỉnh hơn mục
+     * tiêu (đo: 1.000.000.000,0000213 ở 6 %/năm). Phần lãi khi ấy ra −2e−5, và một phần âm làm mục
+     * "Cơ cấu số tiền mục tiêu" biến mất. Về toán PMT × n ≤ FV.
+     */
+    const totalDeposits = Math.min(payment * n, target);
+    return ok(payment, '₫/tháng', {
+      extras: { totalDeposits, interestEarned: target - totalDeposits },
+    });
+  },
+  /*
+   * Số dư cuối từng năm khi gửi đều khoản hằng tháng mà `calc` vừa tính (23/10/2026): khúc dưới là
+   * tiền đã gửi tới lúc ấy, khúc trên là lãi tích luỹ. Cột cuối nằm ở đúng tháng cuối và bằng mục tiêu.
+   */
+  columns: {
+    ...SO_DU_TUNG_NAM,
+    unit: '₫',
+    series: [
+      { key: 'deposits', label: { vi: 'Tiền đã gửi', en: 'Deposited so far' }, tone: 'primary' },
+      {
+        key: 'interest',
+        label: { vi: 'Tiền lãi tích luỹ', en: 'Accumulated interest' },
+        tone: 'teal',
+      },
+    ],
+    build: (v, _ctx, output) => {
+      const payment = output.value;
+      if (payment === null) return null;
+      const i = monthlyRate(v('rate'));
+      const moc = mocCuoiNam(Math.round(v('months'))).map((t) => ({
+        boVao: payment * t,
+        soDu: i === 0 ? payment * t : (payment * (Math.pow(1 + i, t) - 1)) / i,
+      }));
+      return { groups: nhomSoDuTheoNam(moc) };
+    },
   },
 };
 

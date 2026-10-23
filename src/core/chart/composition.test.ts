@@ -41,8 +41,36 @@ function veCoCau(formula: FormulaModule, inputs: CalcInputs, sweepKey?: string):
 const CO_CAU = FORMULA_MODULES.filter((formula) => formula.spec.composition !== undefined);
 
 describe('cả Registry', () => {
-  it('đúng hai công thức làm thử khai hình cơ cấu — thêm công thức thứ ba là một quyết định', () => {
-    expect(CO_CAU.map((formula) => formula.spec.id).sort()).toEqual(['lai-kep', 'no-tren-von-chu']);
+  /*
+   * Hai công thức làm thử, rồi 20 công thức của đợt hai (22/10/2026, chủ dự án: "tiếp tục áp dụng").
+   * Đợt hai qua một vòng rà cả thư viện có phản biện; các công thức bị bác và lý do nằm ở `TASK.md`.
+   * Thêm công thức nữa là một quyết định, nên danh sách ghim cứng.
+   */
+  it('đúng 22 công thức khai hình cơ cấu', () => {
+    expect(CO_CAU.map((formula) => formula.spec.id).sort()).toEqual([
+      'bien-loi-nhuan-gop',
+      'bien-loi-nhuan-rong',
+      'capm',
+      'co-vi-the-phai-sinh',
+      'diem-hoa-von',
+      'don-bay-hieu-dung',
+      'don-bay-tong-hop',
+      'gia-tri-hien-tai',
+      'gia-tri-tuong-lai',
+      'hpr',
+      'lai-kep',
+      'lai-tien-gui',
+      'loi-nhuan-rong',
+      'no-tren-von-chu',
+      'so-ky-dca',
+      'thanh-toan-nhanh',
+      'tiet-kiem-muc-tieu',
+      'tong-loi-suat-tai-dau-tu',
+      'tra-gop-goc-deu',
+      'tra-gop-nien-kim',
+      'ty-le-chi-tra-co-tuc',
+      'wacc',
+    ]);
   });
 
   it.each(CO_CAU.map((formula) => [formula.spec.id, formula] as const))(
@@ -174,5 +202,144 @@ describe('lai-kep — cơ cấu số tiền cuối kỳ', () => {
     const inputs = { ...defaultInputs(formula.spec), principal: 0 };
     const output = runFormula(formula, inputs, CTX);
     expect(compositionBars(formula.spec, inputs, output)).toBeNull();
+  });
+});
+
+/*
+ * Tổng của vòng phải ĐÚNG là đại lượng mà tên tổng gọi ra (22/10/2026, đợt 22 công thức). Gác chung chỉ
+ * biết tổng là tổng các phần; ở đây mỗi công thức nói tổng ấy phải bằng gì, tính từ ô nhập hay từ
+ * `calc` — nên một phần tính sai trong `extras` (thiếu một khoản, sai dấu) làm tổng lệch và ca đỏ.
+ */
+function so(vao: CalcInputs, key: string): number {
+  const value = vao[key];
+  if (value === undefined) throw new Error(`thiếu ô ${key}`);
+  return value;
+}
+
+function phu(output: ReturnType<typeof runFormula>, key: string): number {
+  const value = output.extras?.[key];
+  if (value === undefined) throw new Error(`calc không trả extras.${key}`);
+  return value;
+}
+
+function giaTri(output: ReturnType<typeof runFormula>): number {
+  if (output.value === null) throw new Error('calc không ra số');
+  return output.value;
+}
+
+/** Tổng lãi cả kỳ theo đúng bảng trả nợ từng kỳ của `lich-tra-no` (1 niên kim, 2 gốc đều). */
+function tongLaiTheoLich(vao: CalcInputs, method: number): number {
+  const lich = congThuc('lich-tra-no');
+  return giaTri(
+    runFormula(
+      lich,
+      { amount: so(vao, 'amount'), rate: so(vao, 'rate'), years: so(vao, 'years'), method },
+      CTX,
+    ),
+  );
+}
+
+const TONG_PHAI_BANG: Readonly<
+  Record<string, (vao: CalcInputs, output: ReturnType<typeof runFormula>) => number>
+> = {
+  'bien-loi-nhuan-gop': (vao) => so(vao, 'revenue'),
+  'bien-loi-nhuan-rong': (vao) => so(vao, 'revenue'),
+  capm: (_vao, output) => giaTri(output),
+  'co-vi-the-phai-sinh': (_vao, output) => phu(output, 'riskAmount'),
+  'diem-hoa-von': (_vao, output) => phu(output, 'breakEvenRevenue'),
+  'don-bay-hieu-dung': (_vao, output) => phu(output, 'notionalValue'),
+  'don-bay-tong-hop': (vao) => so(vao, 'revenue'),
+  'gia-tri-hien-tai': (vao) => so(vao, 'futureValue'),
+  'gia-tri-tuong-lai': (_vao, output) => giaTri(output),
+  hpr: (vao) => so(vao, 'endPrice') - so(vao, 'startPrice') + so(vao, 'dividend'),
+  'lai-kep': (_vao, output) => giaTri(output),
+  'lai-tien-gui': (vao, output) => so(vao, 'principal') + giaTri(output),
+  'loi-nhuan-rong': (_vao, output) => phu(output, 'grossProfit'),
+  'no-tren-von-chu': (vao) => so(vao, 'totalLiabilities') + so(vao, 'equity'),
+  'so-ky-dca': (vao, output) => {
+    // Số dư cuối tháng n của khoản góp đều — tính lại độc lập, không đọc `extras`.
+    const i = so(vao, 'rate') / 100 / 12;
+    const n = giaTri(output);
+    const c = so(vao, 'contribution');
+    return i === 0 ? c * n : (c * (Math.pow(1 + i, n) - 1)) / i;
+  },
+  'thanh-toan-nhanh': (vao) => so(vao, 'currentAssets'),
+  'tiet-kiem-muc-tieu': (vao) => so(vao, 'target'),
+  'tong-loi-suat-tai-dau-tu': (_vao, output) => giaTri(output),
+  'tra-gop-goc-deu': (vao) => so(vao, 'amount') + tongLaiTheoLich(vao, 2),
+  'tra-gop-nien-kim': (vao) => so(vao, 'amount') + tongLaiTheoLich(vao, 1),
+  'ty-le-chi-tra-co-tuc': (vao) => so(vao, 'eps'),
+  wacc: (vao) => so(vao, 'equity') + so(vao, 'debt'),
+};
+
+describe('tổng của vòng đúng là đại lượng tên tổng gọi ra', () => {
+  it('mọi công thức có hình cơ cấu đều có dòng trong bảng — công thức mới phải tự khai tổng của nó', () => {
+    expect(Object.keys(TONG_PHAI_BANG).sort()).toEqual(
+      CO_CAU.map((formula) => formula.spec.id).sort(),
+    );
+  });
+
+  it.each(CO_CAU.map((formula) => [formula.spec.id, formula] as const))(
+    '%s: ở số mặc định và ở số của ví dụ',
+    (id, formula) => {
+      const tongPhaiBang = TONG_PHAI_BANG[id];
+      if (tongPhaiBang === undefined) throw new Error(`thiếu dòng ${id}`);
+      const macDinh = defaultInputs(formula.spec);
+      for (const vao of [macDinh, { ...macDinh, ...formula.spec.example.inputs }]) {
+        const output = runFormula(formula, vao, CTX);
+        const bars = compositionBars(formula.spec, vao, output);
+        // Số của ví dụ có thể làm mục vắng đúng luật (một phần âm); số mặc định thì không.
+        if (vao === macDinh) expect(bars, id).not.toBeNull();
+        if (bars === null) continue;
+        const tong = bars.at(-1)?.delta ?? Number.NaN;
+        const ky = tongPhaiBang(vao, output);
+        expect(Math.abs(tong - ky) / Math.max(1, Math.abs(ky)), id).toBeLessThan(1e-9);
+      }
+    },
+  );
+});
+
+/* Các ca biên mà vòng phản biện chỉ ra: hạt bụi dấu phẩy động không được làm mục biến mất sai. */
+describe('ca biên của đợt 22 công thức', () => {
+  function cacMui(id: string, sua: Readonly<Record<string, number>>) {
+    const formula = congThuc(id);
+    const vao = { ...defaultInputs(formula.spec), ...sua };
+    return compositionBars(formula.spec, vao, runFormula(formula, vao, CTX));
+  }
+
+  it('trả góp niên kim lãi suất 0: vẫn vẽ, múi lãi đúng 0 (không âm li ti)', () => {
+    const bars = cacMui('tra-gop-nien-kim', { rate: 0, amount: 830_000_000, years: 7 });
+    expect(bars?.[1]?.delta).toBe(0);
+  });
+
+  it('tiết kiệm mục tiêu một tháng: vẫn vẽ, cả vòng là tiền gửi', () => {
+    const bars = cacMui('tiet-kiem-muc-tieu', { months: 1 });
+    expect(bars?.[1]?.delta).toBe(0);
+  });
+
+  it('số kỳ DCA khi một tháng đã đủ: vẫn vẽ, lợi nhuận tích luỹ đúng 0', () => {
+    const bars = cacMui('so-ky-dca', { target: 5_000_000, contribution: 10_000_000 });
+    expect(bars?.[1]?.delta).toBe(0);
+  });
+
+  it('cỡ vị thế phái sinh chia vừa khít (ra đúng 6 hợp đồng): vẫn vẽ, phần dư đúng 0', () => {
+    const bars = cacMui('co-vi-the-phai-sinh', {
+      capital: 450_000_000,
+      riskPercent: 1.8,
+      stopPoints: 13.5,
+    });
+    // Tuỳ chiều sai số mà phần dư ra 0 hay một hạt bụi DƯƠNG (đo: 9,3e−10 ₫, in 0,0 %); không bao giờ âm.
+    expect(bars).not.toBeNull();
+    expect(bars?.[0]?.delta).toBeCloseTo(8_100_000, 2);
+    expect(bars?.[1]?.delta).toBeGreaterThanOrEqual(0);
+    expect(bars?.[1]?.delta).toBeCloseTo(0, 6);
+  });
+
+  it('một phần âm thì mục vắng: lỗ, giá giảm, beta âm, vốn lớn hơn giá trị danh nghĩa', () => {
+    expect(cacMui('bien-loi-nhuan-rong', { netIncome: -500 })).toBeNull();
+    expect(cacMui('hpr', { endPrice: 70_000 })).toBeNull();
+    expect(cacMui('capm', { beta: -0.2 })).toBeNull();
+    expect(cacMui('don-bay-hieu-dung', { equity: 500_000_000 })).toBeNull();
+    expect(cacMui('loi-nhuan-rong', { sellPrice: 92_100 })).toBeNull();
   });
 });

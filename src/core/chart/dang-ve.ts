@@ -36,6 +36,7 @@ import type { ChartPoint, DrawableChart, LineChart, SeriesTone, WaterfallChart }
  * - `waterfall` — các thanh bóc tách nằm ngang (dạng mặc định của hình bóc tách).
  *   (Histogram "Phân phối lợi suất" dùng lại `bar` và chỉ có dạng ấy.)
  * - `donut` — vành khuyên: mỗi phần chiếm bao nhiêu trong tổng. Chỉ khi mọi phần đều cộng vào.
+ * - `gauge` — thang đo nửa vòng cung (23/10/2026), dạng duy nhất của mục "Thang đo".
  */
 export type DangVe =
   | 'line'
@@ -45,7 +46,8 @@ export type DangVe =
   | 'step'
   | 'signArea'
   | 'waterfall'
-  | 'donut';
+  | 'donut'
+  | 'gauge';
 
 /** Vành khuyên có tối đa bấy nhiêu phần — đúng số tông màu đã có kiểm tương phản ở hai bảng màu. */
 const VANH_KHUYEN_TOI_DA = 4;
@@ -143,8 +145,12 @@ function phanCong(model: WaterfallChart) {
  *   tư của FCFF) không có chỗ nào trên một vòng tròn, vẽ nó thành một múi là nói nó cộng vào.
  */
 export function dangVeCuaHinh(model: DrawableChart, spec: FormulaSpec): ReadonlyArray<DangVe> {
-  /* Histogram chỉ có một dạng — cột — nên ô "Loại biểu đồ" không hiện với nó. */
-  if (model.kind === 'histogram') return ['bar'];
+  /*
+   * Histogram và hình cột theo kỳ (23/10/2026) chỉ có một dạng — cột — nên ô "Loại biểu đồ" không
+   * hiện với chúng.
+   */
+  if (model.kind === 'histogram' || model.kind === 'columns') return ['bar'];
+  if (model.kind === 'gauge') return ['gauge'];
   if (model.kind === 'waterfall') {
     if (phanCong(model) === null) return ['waterfall'];
     /*

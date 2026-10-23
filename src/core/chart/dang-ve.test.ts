@@ -274,15 +274,15 @@ describe('cả Registry', () => {
   const coChuoi = quetRegistry(CTX_FPT);
 
   it('chưa nạp chuỗi giá: số hình mời từng dạng', () => {
-    expect(macDinh.hinhs).toHaveLength(224);
+    expect(macDinh.hinhs).toHaveLength(257);
     expect(macDinh.dem).toEqual({
       line: 211,
-      bar: 211,
+      bar: 224,
       dots: 211,
       step: 23,
       signArea: 27,
-      waterfall: 13,
-      donut: 7,
+      waterfall: 33,
+      donut: 27,
     });
   });
 
@@ -294,9 +294,11 @@ describe('cả Registry', () => {
           ? 'donut'
           : hinh.kind === 'waterfall'
             ? 'waterfall'
-            : hinh.kind === 'histogram'
+            : hinh.kind === 'histogram' || hinh.kind === 'columns'
               ? 'bar'
-              : 'line';
+              : hinh.kind === 'gauge'
+                ? 'gauge'
+                : 'line';
       expect(dangVeCuaHinh(hinh, spec)[0], id).toBe(dauTien);
     }
   });
@@ -310,16 +312,17 @@ describe('cả Registry', () => {
   });
 
   it('đã nạp chuỗi 250 phiên: số hình mời từng dạng', () => {
-    expect(coChuoi.hinhs).toHaveLength(337);
+    expect(coChuoi.hinhs).toHaveLength(374);
     expect(coChuoi.dem).toEqual({
       line: 313,
-      bar: 323,
+      bar: 337,
       dots: 313,
       step: 102,
       signArea: 46,
-      waterfall: 13,
-      donut: 7,
+      waterfall: 33,
+      donut: 27,
       candle: 5,
+      gauge: 3,
     });
   });
 
@@ -336,15 +339,35 @@ describe('cả Registry', () => {
     }
   });
 
-  it('Vành khuyên đúng ở năm hình bóc tách mà mọi phần đều cộng vào, và ở hai hình cơ cấu', () => {
+  it('Vành khuyên đúng ở năm hình bóc tách mà mọi phần đều cộng vào, và ở 22 hình cơ cấu', () => {
     expect(macDinh.theoDang.get('donut')).toEqual([
+      'bien-loi-nhuan-rong:__composition',
+      'bien-loi-nhuan-gop:__composition',
       'no-tren-von-chu:__composition',
+      'thanh-toan-nhanh:__composition',
+      'ty-le-chi-tra-co-tuc:__composition',
       'ddm-hai-giai-doan:__breakdown',
+      'capm:__composition',
       'wacc:__breakdown',
+      'wacc:__composition',
+      'gia-tri-hien-tai:__composition',
+      'gia-tri-tuong-lai:__composition',
+      'loi-nhuan-rong:__composition',
+      'hpr:__composition',
+      'tong-loi-suat-tai-dau-tu:__composition',
+      'co-vi-the-phai-sinh:__composition',
+      'don-bay-hieu-dung:__composition',
       'tra-gop-nien-kim:__breakdown',
+      'tra-gop-nien-kim:__composition',
       'tra-gop-goc-deu:__breakdown',
+      'tra-gop-goc-deu:__composition',
       'lai-kep:__composition',
+      'lai-tien-gui:__composition',
+      'tiet-kiem-muc-tieu:__composition',
+      'so-ky-dca:__composition',
       'thue-tncn-dau-tu:__breakdown',
+      'diem-hoa-von:__composition',
+      'don-bay-tong-hop:__composition',
     ]);
   });
 

@@ -172,6 +172,11 @@ const LUAT_O_CHON: ReadonlyArray<readonly [boChon: string, khaiBao: RegExp]> = [
   [O_CHON, /padding-bottom:\s*var\(--space-2\);/],
   [`${O_CHON} > label`, /flex:\s*1000 1 auto;/],
   [`${O_CHON} > select`, /flex:\s*1 1 auto;\s*width:\s*auto;/],
+  // 22/10/2026, chủ dự án: "padding lớn và size text quá lớn" — 32px, chữ 14px, đệm 10/28px.
+  [
+    '.fields select',
+    /min-height:\s*32px;\s*padding:\s*0 28px 0 10px;\s*font-size:\s*var\(--text-sm\);\s*background-position:\s*right 8px center;\s*background-size:\s*14px;/,
+  ],
   [NHOM_NUT, /flex-direction:\s*row;\s*flex-wrap:\s*wrap;/],
   [`${NHOM_NUT} > div:first-child`, /flex:\s*1000 1 auto;/],
   [`${NHOM_NUT} > [role='group']`, /flex:\s*1 1 auto;/],

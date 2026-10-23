@@ -28,6 +28,8 @@ import type {
 } from '@/application';
 
 import { ChartBody } from './ChartBody';
+import { ColumnChart } from './ColumnChart';
+import { GaugeChart } from './GaugeChart';
 import { DonutChart } from './DonutChart';
 import { hasChart } from './FormulaChart';
 import { CHART_GEOMETRY, LineChart } from './LineChart';
@@ -751,13 +753,17 @@ describe('Biểu đồ độ nhạy — cách người dùng đọc được nó
     expect(screen.getByRole('table').textContent).toContain(text);
   });
 
-  it('tiêu đề cột bảng chính là tên hai trục, kèm đơn vị', () => {
+  /*
+   * Tên cột mang đơn vị GỐC của ô, không mang bậc của trục (23/10/2026). Trục X của `pe` ghi
+   * "(nghìn ₫)" vì vạch viết 46 · 92; ô của bảng in đủ "46.000 ₫", nên cột ghi "(₫)". Trước ngày này
+   * cột mượn nguyên tên trục, và chủ dự án bắt đúng chỗ lệch ấy ở `von-hoa-thi-truong`: _"note một
+   * đằng nhưng số liệu hiện một nẻo"_. Ca cũ ghim "(nghìn ₫)" đã được ĐẢO.
+   */
+  it('tiêu đề cột bảng là tên hai trục kèm đơn vị của ô, không kèm bậc của trục', () => {
     draw('pe');
 
-    // `nghìn ₫` từ 15/10/2026: tiền từ 1.000 trở lên viết bằng chữ — `DON_VI_DOI_CHU` ở `build.ts`.
-    expect(
-      screen.getByRole('columnheader', { name: 'Giá thị trường (P) (nghìn ₫)' }),
-    ).not.toBeNull();
+    expect(screen.getByRole('columnheader', { name: 'Giá thị trường (P) (₫)' })).not.toBeNull();
+    expect(screen.queryByRole('columnheader', { name: 'Giá thị trường (P) (nghìn ₫)' })).toBeNull();
     expect(screen.getByRole('columnheader', { name: 'P/E (lần)' })).not.toBeNull();
   });
 
@@ -1015,7 +1021,8 @@ describe('Biểu đồ độ nhạy — đổi trục X', () => {
     await userEvent.selectOptions(screen.getByLabelText('Xem theo'), 'eps');
 
     expect(screen.getByText('P/E theo EPS')).not.toBeNull();
-    expect(screen.getByRole('columnheader', { name: 'EPS (nghìn ₫)' })).not.toBeNull();
+    // Đơn vị của ô (₫), không phải bậc của trục (nghìn ₫) — xem ca "tiêu đề cột bảng" ở trên.
+    expect(screen.getByRole('columnheader', { name: 'EPS (₫)' })).not.toBeNull();
   });
 
   it('chỉ một biến quét được thì không bày ô chọn ra làm gì', () => {
@@ -2790,6 +2797,40 @@ describe('Loại biểu đồ — ô chọn dạng vẽ', () => {
     expect(svg.getAttribute('class')).not.toContain('donutGon');
   });
 
+  /*
+   * Tên tổng dài không vừa một dòng của lỗ (đợt 22 hình cơ cấu, 22/10/2026) thì xuống hai dòng, chứ
+   * không biến mất để lại con số trơ trọi giữa vòng.
+   */
+  it.each(['wide', 'compact'] as const)(
+    '%s: tên tổng dài xuống hai dòng ở giữa vòng, không mất',
+    (size) => {
+      const formula = moduleOf('tra-gop-nien-kim');
+      const inputs = defaultInputs(formula.spec);
+      const model = buildChartModel({
+        formula,
+        inputs,
+        ctx: CTX,
+        output: runFormula(formula, inputs, CTX),
+        level: 'basic',
+        sweepKey: '__composition',
+      });
+      if (model.kind !== 'waterfall') throw new Error('phải là hình cơ cấu');
+      const { container } = render(<DonutChart model={model} idBase="t" size={size} />);
+
+      const ten = container.querySelector('text[class*="donutTotalLabel"]');
+      // Hai dòng: dòng đầu là chữ của `<text>`, dòng sau là `<tspan>`; ghép lại đúng cả tên.
+      expect(ten?.querySelectorAll('tspan')).toHaveLength(1);
+      const dau = ten?.firstChild?.textContent ?? '';
+      const sau = ten?.querySelector('tspan')?.textContent ?? '';
+      expect(`${dau} ${sau}`).toBe('Tổng tiền phải trả cả kỳ hạn');
+      // Con số tổng nằm dưới dòng tên thứ hai.
+      const dong2 =
+        Number(ten?.getAttribute('y')) + Number(ten?.querySelector('tspan')?.getAttribute('dy'));
+      const tong = container.querySelector('text[class*="donutTotal"]:not([class*="Label"])');
+      expect(Number(tong?.getAttribute('y'))).toBeGreaterThan(dong2);
+    },
+  );
+
   it('điện thoại: chữ nhỏ một bậc, chú giải sát mép phải và vòng to hơn bản cũ', () => {
     const { svg, W } = vanhCoCau('compact');
 
@@ -2937,9 +2978,10 @@ describe('Loại biểu đồ — ô chọn dạng vẽ', () => {
     await chonDang('Vành khuyên');
     expect(container.querySelector('svg[data-donut]')).not.toBeNull();
 
+    // Một trục là ô nhập — không phải mục "Cơ cấu nguồn vốn" (22/10/2026), cũng mở bằng vành khuyên.
     const trucKhac = [...screen.getByLabelText('Xem theo').querySelectorAll('option')]
       .map((option) => option.getAttribute('value') ?? '')
-      .find((khoa) => khoa !== '__breakdown');
+      .find((khoa) => !khoa.startsWith('__'));
     await xemTheo(trucKhac ?? '');
     expect(container.querySelector('svg[data-donut]')).toBeNull();
     expect(container.querySelector('path[data-points]')).not.toBeNull();
@@ -3111,5 +3153,216 @@ describe('báo hình đang hiện lên màn chi tiết', () => {
     );
 
     expect(bao).toHaveBeenCalledTimes(1);
+  });
+});
+
+/*
+ * Hình CỘT THEO KỲ (23/10/2026) — mục "Trả nợ từng năm" của ba công thức vay, đợt đầu trong bốn kiểu
+ * hình mới chủ dự án chọn. Ca dưới dựng thẳng `ColumnChart` với `size` ép sẵn (jsdom không có
+ * `matchMedia`), rồi đi qua `ChartBody` để kiểm mục trong ô "Xem theo".
+ */
+describe('Hình cột theo kỳ — Trả nợ từng năm', () => {
+  function hinhCot(id = 'tra-gop-nien-kim') {
+    const formula = moduleOf(id);
+    const inputs = defaultInputs(formula.spec);
+    const model = buildChartModel({
+      formula,
+      inputs,
+      ctx: CTX,
+      output: runFormula(formula, inputs, CTX),
+      level: 'basic',
+      sweepKey: '__columns',
+    });
+    if (model.kind !== 'columns') throw new Error('phải là hình cột');
+    return model;
+  }
+
+  it('mỗi năm một cột, hai khúc chồng: gốc nằm dưới, lãi đặt ngay trên gốc', () => {
+    const { container } = render(<ColumnChart model={hinhCot()} idBase="t" size="wide" />);
+    const svg = container.querySelector('svg[data-columns]');
+    if (svg === null) throw new Error('không vẽ');
+
+    const nhom = [...svg.querySelectorAll('[data-nhom]')];
+    expect(nhom).toHaveLength(20);
+    for (const cot of nhom) {
+      const goc = cot.querySelector('rect[data-chuoi="principal"]');
+      const lai = cot.querySelector('rect[data-chuoi="interest"]');
+      const dinhLai = Number(lai?.getAttribute('y')) + Number(lai?.getAttribute('height'));
+      expect(dinhLai).toBeCloseTo(Number(goc?.getAttribute('y')), 6);
+    }
+    // Chú giải nằm TRONG <svg>, để file xuất PDF / PNG còn biết màu nào là gốc, màu nào là lãi.
+    expect([...svg.querySelectorAll('[data-chu-giai] text')].map((el) => el.textContent)).toEqual([
+      'Tiền gốc',
+      'Tiền lãi',
+    ]);
+  });
+
+  it('ô "Xem theo" có mục Trả nợ từng năm; chọn thì vẽ hình cột, không có ô Loại biểu đồ', async () => {
+    const { container } = draw('tra-gop-nien-kim');
+    const muc = [...screen.getByLabelText('Xem theo').querySelectorAll('option')].map(
+      (option) => option.textContent,
+    );
+    expect(muc).toContain('Trả nợ từng năm');
+
+    await userEvent.selectOptions(screen.getByLabelText('Xem theo'), '__columns');
+    expect(container.querySelector('svg[data-columns]')).not.toBeNull();
+    expect(screen.queryByLabelText('Loại biểu đồ')).toBeNull();
+    // Bảng số: một dòng mỗi năm, cột cuối là tổng của năm.
+    expect(screen.getByText('Xem số liệu (20)').textContent).toBe('Xem số liệu (20)');
+  });
+
+  it('rê chuột vào một cột: hiện tên năm và từng số, các cột khác mờ đi; rời ra thì tắt', () => {
+    vi.spyOn(SVGSVGElement.prototype, 'getBoundingClientRect').mockReturnValue({
+      left: 0,
+      top: 0,
+      width: 640,
+      height: 400,
+      right: 640,
+      bottom: 400,
+      x: 0,
+      y: 0,
+      toJSON() {
+        return this;
+      },
+    } as DOMRect);
+    const { container } = render(<ColumnChart model={hinhCot()} idBase="t" size="wide" />);
+    const cot3 = container.querySelector('[data-nhom="2"] rect');
+    const x = Number(cot3?.getAttribute('x')) + Number(cot3?.getAttribute('width')) / 2;
+    const vung = screen.getByTestId('t-hover-capture');
+
+    fireEvent.pointerMove(vung, { clientX: x, clientY: 200, pointerType: 'mouse' });
+    const o = screen.getByTestId('t-hover');
+    expect(o.textContent).toContain('Năm 3');
+    expect(o.textContent).toContain('Tiền gốc:');
+    expect(o.textContent).toContain('Tiền lãi:');
+    expect(o.textContent).toContain('Cộng: 89,5 triệu ₫');
+    expect(container.querySelector('[data-nhom="2"]')?.getAttribute('class') ?? '').not.toContain(
+      'columnDim',
+    );
+    expect(container.querySelector('[data-nhom="0"]')?.getAttribute('class')).toContain(
+      'columnDim',
+    );
+
+    fireEvent.pointerLeave(vung, { pointerType: 'mouse' });
+    expect(screen.queryByTestId('t-hover')).toBeNull();
+  });
+
+  it('lợi suất từng kỳ: cột âm đi xuống dưới mốc 0, và trục đứng luôn ghi nhãn 0', () => {
+    const { container } = render(
+      <ColumnChart model={hinhCot('loi-suat-trung-binh-hinh-hoc')} idBase="t" size="compact" />,
+    );
+    const nhanY = [...container.querySelectorAll('svg[data-columns] text[class*="tick"]')]
+      .filter((el) => el.getAttribute('text-anchor') === 'end')
+      .map((el) => el.textContent);
+    expect(nhanY).toContain('0');
+    const ky2 = container.querySelector('[data-nhom="1"] rect');
+    expect(Number(ky2?.getAttribute('data-gia-tri'))).toBeLessThan(0);
+    // Hai vạch ngang: liền ở trung bình hình học, đứt ở trung bình cộng.
+    expect(container.querySelectorAll('[data-vach-value]')).toHaveLength(2);
+  });
+
+  it('từng đợt mua DCA: ô dò viết mọi số tiền theo một luật chữ, không trộn 10.000.000 ₫', () => {
+    vi.spyOn(SVGSVGElement.prototype, 'getBoundingClientRect').mockReturnValue({
+      left: 0,
+      top: 0,
+      width: 640,
+      height: 400,
+      right: 640,
+      bottom: 400,
+      x: 0,
+      y: 0,
+      toJSON() {
+        return this;
+      },
+    } as DOMRect);
+    const { container } = render(
+      <ColumnChart model={hinhCot('gia-von-trung-binh-dca')} idBase="t" size="wide" />,
+    );
+    const cot1 = container.querySelector('[data-nhom="0"] rect');
+    const x = Number(cot1?.getAttribute('x')) + Number(cot1?.getAttribute('width')) / 2;
+    fireEvent.pointerMove(screen.getByTestId('t-hover-capture'), {
+      clientX: x,
+      clientY: 200,
+      pointerType: 'mouse',
+    });
+    const o = screen.getByTestId('t-hover').textContent ?? '';
+    expect(o).toContain('Giá mua: 50 nghìn ₫');
+    expect(o).toContain('Tiền mua: 10 triệu ₫');
+    expect(o).toContain('Số cổ phiếu mua được: 200 CP');
+    expect(o).not.toMatch(/d.d{3}.d{3}/);
+  });
+
+  it('nhãn kỳ dưới trục giữ kỳ đầu, kỳ cuối, và không có hai nhãn liền nhau ở khổ hẹp', () => {
+    const { container } = render(<ColumnChart model={hinhCot()} idBase="t" size="compact" />);
+    const nhan = [...container.querySelectorAll('svg[data-columns] text[class*="tick"]')]
+      .filter((el) => el.getAttribute('text-anchor') === 'middle')
+      .map((el) => Number(el.textContent));
+    expect(nhan[0]).toBe(1);
+    expect(nhan.at(-1)).toBe(20);
+    for (let index = 1; index < nhan.length; index += 1) {
+      expect((nhan[index] ?? 0) - (nhan[index - 1] ?? 0)).toBeGreaterThan(1);
+    }
+  });
+});
+
+/*
+ * THANG ĐO (23/10/2026) — mục "Thang đo" của RSI, Stochastic %K và %B, kiểu hình mới thứ tư chủ dự án
+ * chọn. Chỉ có khi đã nạp chuỗi giá.
+ */
+describe('Thang đo — RSI, Stochastic %K, %B', () => {
+  function thangDo(id: string) {
+    const formula = moduleOf(id);
+    const inputs = defaultInputs(formula.spec);
+    const model = buildChartModel({
+      formula,
+      inputs,
+      ctx: WITH_BARS,
+      output: runFormula(formula, inputs, WITH_BARS),
+      level: 'basic',
+      sweepKey: '__gauge',
+    });
+    if (model.kind !== 'gauge') throw new Error('phải là thang đo');
+    return model;
+  }
+
+  it('ba vùng, vùng chứa kết quả đậm, các vùng khác mờ; kim chỉ đúng kết quả', () => {
+    const model = thangDo('rsi-wilder');
+    const { container } = render(<GaugeChart model={model} idBase="t" size="wide" />);
+    const vung = [...container.querySelectorAll('svg[data-gauge] path[data-vung]')];
+    expect(vung).toHaveLength(3);
+    for (const [index, path] of vung.entries()) {
+      const mo = (path.getAttribute('class') ?? '').includes('gaugeZoneMo');
+      expect(mo).toBe(index !== model.activeZone);
+    }
+    expect(Number(container.querySelector('[data-kim]')?.getAttribute('data-kim'))).toBe(
+      model.value,
+    );
+    expect(container.querySelector('[class*="gaugeValue"]')?.textContent).toBe(model.valueLabel);
+  });
+
+  it('PC: chú giải là cột bên phải, mỗi vùng tên rồi khoảng; điện thoại: hàng dưới vòng cung', () => {
+    const model = thangDo('stochastic-k');
+    const { container, unmount } = render(<GaugeChart model={model} idBase="t" size="wide" />);
+    const ten = [...container.querySelectorAll('[data-chu-giai] text')].map((el) => el.textContent);
+    expect(ten).toEqual(['Sát đáy', '< 20 %', 'Ở giữa', '20 – 80 %', 'Sát đỉnh', '> 80 %']);
+    unmount();
+
+    const { container: dt } = render(<GaugeChart model={model} idBase="t" size="compact" />);
+    expect([...dt.querySelectorAll('[data-chu-giai] text')].map((el) => el.textContent)).toEqual([
+      'Sát đáy < 20 %',
+      'Ở giữa 20 – 80 %',
+      'Sát đỉnh > 80 %',
+    ]);
+  });
+
+  it('chưa nạp chuỗi thì ô "Xem theo" không có mục Thang đo; nạp rồi thì có, và chọn được', async () => {
+    draw('rsi-wilder');
+    expect(screen.queryByRole('option', { name: 'Thang đo' })).toBeNull();
+    cleanup();
+
+    const { container } = drawLoaded('rsi-wilder');
+    await userEvent.selectOptions(screen.getByLabelText('Xem theo'), '__gauge');
+    expect(container.querySelector('svg[data-gauge]')).not.toBeNull();
+    expect(screen.queryByLabelText('Loại biểu đồ')).toBeNull();
   });
 });

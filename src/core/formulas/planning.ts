@@ -23,7 +23,10 @@ import { divideByZero, meaningless } from '../warnings';
 import {
   SOURCE_CORPORATE_FINANCE,
   SOURCE_PIT_LAW,
+  SO_DU_TUNG_NAM,
   missingConstant,
+  mocCuoiNam,
+  nhomSoDuTheoNam,
   numberVar,
   rateOf,
   sliderVar,
@@ -606,6 +609,60 @@ export const GUI_QUAY_VONG: FormulaModule = {
       extras: { finalShort, finalLong, cycles },
     });
   },
+  /*
+   * Tiền lãi sau từng vòng gửi kỳ ngắn (23/10/2026): mỗi vòng một cột, cao bằng lãi đã nhập gốc tới
+   * hết vòng ấy; vạch đứt là tiền lãi nếu gửi một lần kỳ dài, LÚC ĐÁO HẠN (giữa chừng thì rút trước hạn,
+   * lãi khác hẳn, nên vạch không có nghĩa ở các vòng trước). Cột cuối trừ vạch ra đúng kết quả.
+   *
+   * Chỉ vẽ phần LÃI, không chồng tiền gốc bên dưới: bản đầu chồng gốc 100 triệu ₫ dưới vài triệu
+   * tiền lãi, và chỗ chênh giữa hai cách gửi (chính là kết quả) chỉ còn vài điểm ảnh (đo 23/10/2026).
+   */
+  columns: {
+    title: { vi: 'Tiền lãi sau từng vòng', en: 'Interest after each round' },
+    category: { vi: 'Hết tháng', en: 'End of month' },
+    value: { vi: 'Tiền lãi', en: 'Interest' },
+    unit: '₫',
+    series: [
+      {
+        key: 'rolling',
+        label: { vi: 'Gửi quay vòng kỳ ngắn', en: 'Rolling short deposits' },
+        tone: 'primary',
+      },
+    ],
+    build: (v, _ctx, output) => {
+      const finalLong = output.extras?.finalLong;
+      const cycles = output.extras?.cycles;
+      if (output.value === null || finalLong === undefined || cycles === undefined) return null;
+      const principal = v('principal');
+      const shortMonths = Math.round(v('shortMonths'));
+      const perRound = 1 + ((v('shortRate') / 100) * shortMonths) / 12;
+      const groups = Array.from({ length: Math.round(cycles) }, (_, k) => {
+        const month = (k + 1) * shortMonths;
+        return {
+          label: {
+            vi: `Vòng ${String(k + 1)}, hết tháng ${String(month)}`,
+            en: `Round ${String(k + 1)}, end of month ${String(month)}`,
+          },
+          tick: String(month),
+          values: [principal * Math.pow(perRound, k + 1) - principal],
+        };
+      });
+      const totalMonths = Math.round(v('totalMonths'));
+      return {
+        groups,
+        lines: [
+          {
+            value: finalLong - principal,
+            label: {
+              vi: `Gửi một lần ${String(totalMonths)} tháng`,
+              en: `One ${String(totalMonths)}-month deposit`,
+            },
+            dash: true,
+          },
+        ],
+      };
+    },
+  },
 };
 
 /*
@@ -1056,6 +1113,53 @@ export const GIA_VON_TRUNG_BINH_DCA: FormulaModule = {
       extras: { totalInvested, totalShares },
     });
   },
+  /*
+   * Từng đợt mua (23/10/2026): mỗi đợt có tiền một cột cao bằng giá mua; vạch liền ở giá vốn trung
+   * bình (kết quả), vạch đứt ở trung bình cộng các giá mua. Hai vạch lệch nhau là điều DCA muốn nói:
+   * đợt giá thấp mua được nhiều cổ phiếu hơn, nên giá vốn nằm dưới trung bình cộng giá. Tiền mua và
+   * số cổ phiếu từng đợt đi vào bảng số và ô dò. Đợt bỏ trống (tiền mua 0) không có cột, như `calc`.
+   */
+  columns: {
+    title: { vi: 'Từng đợt mua', en: 'Purchase rounds' },
+    category: { vi: 'Đợt mua', en: 'Round' },
+    value: { vi: 'Giá mua', en: 'Purchase price' },
+    unit: '₫',
+    series: [{ key: 'price', label: { vi: 'Giá mua', en: 'Purchase price' }, tone: 'primary' }],
+    extraColumns: [
+      { label: { vi: 'Tiền mua', en: 'Amount invested' }, unit: '₫' },
+      { label: { vi: 'Số cổ phiếu mua được', en: 'Shares bought' }, unit: 'CP' },
+    ],
+    build: (v, _ctx, output) => {
+      const average = output.value;
+      if (average === null) return null;
+      const lots = clampRepeatCount(v('lots'), DCA_LOTS_MIN, DCA_LOTS_MAX);
+      const groups = [];
+      for (let lot = 1; lot <= lots; lot += 1) {
+        const amount = v(`amount${lot}`);
+        const price = v(`price${lot}`);
+        if (amount === 0 || !(price > 0)) continue;
+        groups.push({
+          label: { vi: `Đợt ${lot}`, en: `Round ${lot}` },
+          tick: String(lot),
+          values: [price],
+          extras: [amount, amount / price],
+        });
+      }
+      const meanPrice =
+        groups.reduce((sum, group) => sum + (group.values[0] ?? 0), 0) / Math.max(1, groups.length);
+      return {
+        groups,
+        lines: [
+          { value: average, label: { vi: 'Giá vốn trung bình', en: 'Average cost' } },
+          {
+            value: meanPrice,
+            label: { vi: 'Trung bình cộng giá mua', en: 'Simple average of prices' },
+            dash: true,
+          },
+        ],
+      };
+    },
+  },
 };
 
 /*
@@ -1120,6 +1224,23 @@ export const SO_KY_DCA: FormulaModule = {
     chartType: 'sensitivity',
     level: 'basic',
     tags: ['dca', 'so ky', 'muc tieu', 'gop deu', 'dau tu dinh ky', 'periods to goal'],
+    /*
+     * Hình tròn của số dư lúc chạm đích: tổng tiền tự góp và lợi nhuận tích luỹ (22/10/2026). Tổng là
+     * SỐ DƯ, không phải mục tiêu: số tháng làm tròn lên nên tháng cuối số dư nhỉnh hơn mục tiêu (câu
+     * Cách đọc kết quả đã nói), còn lấy mục tiêu làm tổng thì phải bịa phần lãi cho khớp.
+     */
+    composition: {
+      title: { vi: 'Cơ cấu số dư khi đạt mục tiêu', en: 'Balance at the goal breakdown' },
+      total: { vi: 'Số dư khi đạt mục tiêu', en: 'Balance when the goal is reached' },
+      unit: '₫',
+      parts: [
+        { key: 'totalContributed', label: { vi: 'Tổng tiền góp', en: 'Total contributed' } },
+        {
+          key: 'accumulatedReturn',
+          label: { vi: 'Lợi nhuận tích luỹ', en: 'Accumulated return' },
+        },
+      ],
+    },
     resultUnit: 'tháng',
     variables: [
       numberVar(
@@ -1246,12 +1367,63 @@ export const SO_KY_DCA: FormulaModule = {
     if (target <= 0) return ok(0, 'tháng');
 
     const i = v('rate') / 100 / 12;
-    if (i === 0) return ok(lamTronLen(target / contribution), 'tháng');
+    if (i === 0) {
+      const n = lamTronLen(target / contribution);
+      return ok(n, 'tháng', {
+        extras: { totalContributed: contribution * n, accumulatedReturn: 0 },
+      });
+    }
 
     const exact = Math.log(1 + (target * i) / contribution) / Math.log(1 + i);
-    return ok(lamTronLen(exact), 'tháng', {
-      extras: { withoutReturn: lamTronLen(target / contribution) },
+    const n = lamTronLen(exact);
+    const totalContributed = contribution * n;
+    /*
+     * Số dư cuối tháng n theo đúng công thức giá trị tương lai mà phương trình trên giải ngược — hai
+     * múi của hình "Cơ cấu số dư khi đạt mục tiêu". `Math.max`: ở n = 1, ((1 + i) − 1) ÷ i lệch 1 một
+     * hạt bụi (đo: −1,02e−7 ₫), và một phần âm làm mục cơ cấu biến mất.
+     */
+    const balance = (contribution * (Math.pow(1 + i, n) - 1)) / i;
+    return ok(n, 'tháng', {
+      extras: {
+        withoutReturn: lamTronLen(target / contribution),
+        totalContributed,
+        accumulatedReturn: Math.max(0, balance - totalContributed),
+      },
     });
+  },
+  /*
+   * Số dư cuối từng năm tới tháng chạm đích (23/10/2026): khúc dưới là tiền đã góp, khúc trên là lợi
+   * nhuận tích luỹ; vạch ngang ở mục tiêu, nên thấy được cột nào vượt qua nó.
+   */
+  columns: {
+    ...SO_DU_TUNG_NAM,
+    unit: '₫',
+    series: [
+      {
+        key: 'contributed',
+        label: { vi: 'Tiền đã góp', en: 'Contributed so far' },
+        tone: 'primary',
+      },
+      {
+        key: 'return',
+        label: { vi: 'Lợi nhuận tích luỹ', en: 'Accumulated return' },
+        tone: 'teal',
+      },
+    ],
+    build: (v, _ctx, output) => {
+      const n = output.value;
+      if (n === null || !(n >= 1)) return null;
+      const contribution = v('contribution');
+      const i = v('rate') / 100 / 12;
+      const moc = mocCuoiNam(n).map((t) => ({
+        boVao: contribution * t,
+        soDu: i === 0 ? contribution * t : (contribution * (Math.pow(1 + i, t) - 1)) / i,
+      }));
+      return {
+        groups: nhomSoDuTheoNam(moc),
+        lines: [{ value: v('target'), label: { vi: 'Mục tiêu', en: 'Goal' } }],
+      };
+    },
   },
 };
 

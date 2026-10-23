@@ -1074,6 +1074,27 @@ export const CO_VI_THE_PHAI_SINH: FormulaModule = {
     level: 'basic',
     isFeatured: true,
     tags: ['co vi the', 'position size', 'quan tri rui ro', 'cat lo', 'vn30f', 'phai sinh'],
+    /*
+     * Hình tròn của số tiền chấp nhận mất (V × r, tử số của hình): phần N hợp đồng thật sự mất nếu
+     * chạm cắt lỗ, và phần còn dư do làm tròn xuống (22/10/2026). Khối Kết quả chỉ in N, nên khoản
+     * mất thật — câu công thức trả lời — chưa hiện ở đâu khác.
+     */
+    composition: {
+      title: { vi: 'Cơ cấu số tiền chấp nhận mất', en: 'Risk budget breakdown' },
+      /* Không kèm "(V × r)": dài hơn thì không vừa hai dòng trong lỗ vòng điện thoại. */
+      total: { vi: 'Số tiền chấp nhận mất', en: 'Amount you accept losing' },
+      unit: '₫',
+      parts: [
+        {
+          key: 'lossAtStop',
+          label: { vi: 'Khoản mất nếu chạm cắt lỗ', en: 'Loss if the stop is hit' },
+        },
+        {
+          key: 'unusedRisk',
+          label: { vi: 'Phần còn dư trong mức rủi ro', en: 'Room left in the risk budget' },
+        },
+      ],
+    },
     resultUnit: 'HĐ',
     variables: [
       numberVar(
@@ -1224,8 +1245,20 @@ export const CO_VI_THE_PHAI_SINH: FormulaModule = {
 
     const riskAmount = v('capital') * (v('riskPercent') / 100);
     const riskPerContract = stopPoints * multiplier.value;
-    return ok(lamTronXuong(riskAmount / riskPerContract), 'HĐ', {
-      extras: { riskAmount, riskPerContract },
+    const contractsAllowed = lamTronXuong(riskAmount / riskPerContract);
+    const lossAtStop = contractsAllowed * riskPerContract;
+    return ok(contractsAllowed, 'HĐ', {
+      extras: {
+        riskAmount,
+        riskPerContract,
+        /*
+         * Hai múi của hình "Cơ cấu số tiền chấp nhận mất". `Math.max`: `lamTronXuong` nới 1e−9 về số
+         * nguyên gần nhất (450.000.000 × 1,8 % ÷ 1.350.000 ra 6), nên `lossAtStop` có thể vượt
+         * `riskAmount` một phần tỷ đồng, và một phần âm làm mục cơ cấu biến mất.
+         */
+        lossAtStop,
+        unusedRisk: Math.max(0, riskAmount - lossAtStop),
+      },
     });
   },
 };
@@ -1283,6 +1316,24 @@ export const DON_BAY_HIEU_DUNG: FormulaModule = {
     chartType: 'sensitivity',
     level: 'basic',
     tags: ['don bay', 'leverage', 'vn30f', 'gia tri danh nghia', 'notional', 'phai sinh'],
+    /*
+     * Hình tròn của giá trị danh nghĩa: vốn thực có và phần vượt vốn ấy (22/10/2026). Múi vốn thực
+     * chiếm đúng 1 ÷ L, cũng là mức giá đi ngược bao nhiêu phần trăm thì mất hết vốn. Hai múi chỉ là
+     * một phép trừ: phần vượt KHÔNG phải một khoản vay, và nhãn nói đúng như vậy.
+     */
+    composition: {
+      title: { vi: 'Cơ cấu giá trị danh nghĩa', en: 'Notional value breakdown' },
+      /* Tên ngắn, không kèm "của vị thế (F × m × N)": dài hơn thì không vừa hai dòng trong lỗ. */
+      total: { vi: 'Giá trị danh nghĩa', en: 'Notional value' },
+      unit: '₫',
+      parts: [
+        { key: 'equity' },
+        {
+          key: 'exposureAboveEquity',
+          label: { vi: 'Phần vượt vốn thực có', en: 'Exposure above equity' },
+        },
+      ],
+    },
     resultUnit: 'lần',
     variables: [
       withSymbol(futuresPoints, 'F'),
@@ -1406,7 +1457,10 @@ export const DON_BAY_HIEU_DUNG: FormulaModule = {
     }
 
     const notional = v('futuresPoints') * multiplier.value * n;
-    return ok(notional / equity, 'lần', { extras: { notionalValue: notional } });
+    /* Múi thứ hai của hình "Cơ cấu giá trị danh nghĩa"; âm khi L < 1, và mục vắng. */
+    return ok(notional / equity, 'lần', {
+      extras: { notionalValue: notional, exposureAboveEquity: notional - equity },
+    });
   },
 };
 

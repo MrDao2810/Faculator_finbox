@@ -99,7 +99,8 @@ export function resolveRepeat(formula: FormulaModule, inputs: CalcInputs): Formu
 
   let found = MODULE_THEO_SPEC.get(spec);
   if (found === undefined) {
-    found = { spec, calc: formula.calc };
+    /* Giữ mọi thành phần khác của module (hình cột theo kỳ…), chỉ thay spec. */
+    found = { ...formula, spec };
     MODULE_THEO_SPEC.set(spec, found);
   }
   return found;

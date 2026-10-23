@@ -31,6 +31,7 @@ const NHAN: Readonly<Record<DangVe, MessageKey>> = {
   signArea: 'chart.kindSignArea',
   waterfall: 'chart.kindWaterfall',
   donut: 'chart.kindDonut',
+  gauge: 'chart.kindGauge',
 };
 
 export interface ChartKindSelectProps {

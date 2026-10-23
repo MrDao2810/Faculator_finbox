@@ -976,6 +976,16 @@ export const RSI_WILDER: FormulaModule = {
       { value: 30, label: { vi: 'Quá bán', en: 'Oversold' } },
       { value: 70, label: { vi: 'Quá mua', en: 'Overbought' } },
     ],
+    /* Thang đo 0–100 chia đúng hai mốc trên (23/10/2026) — `gauge.test.ts` giữ hai thứ trùng nhau. */
+    gauge: {
+      min: 0,
+      max: 100,
+      zones: [
+        { to: 30, label: { vi: 'Quá bán', en: 'Oversold' } },
+        { to: 70, label: { vi: 'Trung tính', en: 'Neutral' } },
+        { to: 100, label: { vi: 'Quá mua', en: 'Overbought' } },
+      ],
+    },
     variables: [
       sliderVar('period', labelWithSymbol(NHAN_SO_PHIEN, 'n'), 'phiên', 14, 2, 100, 1, {
         description: {

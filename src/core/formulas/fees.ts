@@ -899,8 +899,9 @@ export const LOI_NHUAN_RONG: FormulaModule = {
       title: { vi: 'Cơ cấu lãi gộp', en: 'Gross profit breakdown' },
       total: { vi: 'Lãi gộp', en: 'Gross profit' },
       unit: '₫',
+      /* "Lợi nhuận ròng (Lrong)" → "Lãi ròng (Lrong)" 26/10/2026: quá 19 ký tự, bị cắt trên thanh ngang. */
       parts: [
-        { key: 'netProfit', label: { vi: 'Lợi nhuận ròng (Lrong)', en: 'Net profit (Lrong)' } },
+        { key: 'netProfit', label: { vi: 'Lãi ròng (Lrong)', en: 'Net profit (Lrong)' } },
         { key: 'totalCost', label: { vi: 'Tổng chi phí', en: 'Total cost' } },
       ],
     },

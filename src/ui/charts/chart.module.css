@@ -1013,10 +1013,11 @@
  * Chủ dự án khoanh nhãn "Xem kết quả đổi theo", ô chọn trục và cụm "Loại biểu đồ" trên điện thoại:
  * _"giảm size text đi, ô select giảm height xuống để tiết kiệm không gian"_.
  *
- * - Nhãn 14 → 12px (`--text-xs`), chữ trong ô 16 → 14px (`--text-sm`), ô cao 40 → 36px.
+ * - Nhãn 14 → 12px (`--text-xs`), chữ trong ô 16 → 14px (`--text-sm`), ô cao 40 → 36px (30px từ
+ *   26/10/2026, xem luật `.picker select` bên dưới).
  * - Ô "Loại biểu đồ" theo cùng luật này vì nó mang chính lớp `.picker`: hai cột của hàng phải CAO
  *   BẰNG NHAU, chủ dự án đã chốt.
- * - 36px viết thẳng, không đổi `--control-h-compact`: token ấy còn là chiều cao dòng của `GroupCard`
+ * - Chiều cao viết thẳng, không đổi `--control-h-compact`: token ấy còn là chiều cao dòng của `GroupCard`
  *   và nút của `CandleChart`.
  * - Cái giá, đã biết: chữ trong `<select>` dưới 16px thì Safari iOS phóng to trang khi chạm vào ô,
  *   cùng chuyện ô Sắp xếp của màn Công thức (14px ở mọi khổ) đang chịu. Ô thấp hơn `--tap-min`
@@ -1030,15 +1031,28 @@
     font-size: var(--text-xs);
   }
 
+  /*
+   * Ô thấp hơn và đệm hẹp hơn (26/10/2026). Chủ dự án khoanh hàng "Xem theo · Cơ cấu số tiền chấp … ·
+   * Vành khuyên" trên điện thoại: _"điều chỉnh giảm height phần này màn web mobile, giảm padding nữa
+   * để có nhiều không gian hiển thị text hơn"_.
+   *
+   * - Ô 36 → 30px.
+   * - Đệm trái 12 → 8px, đệm phải 36 → 24px, mũi tên 16 → 14px cách mép phải 10 → 6px — còn 4px giữa
+   *   chữ và mũi tên (ở `.controls .picker select` dưới đây). Mỗi ô thêm 16px cho chữ.
+   * - Nhãn cách ô 12 → 8px (`gap` của `.controls .picker`).
+   * - Chữ trong ô 14 → 13px, lượt sau cùng ngày (_"giảm size text xuống thêm 0,5 hoặc 1 px nữa"_). 13px
+   *   viết thẳng: thang chữ không có bậc giữa `--text-xs` 12 và `--text-sm` 14, và 12px thì bằng nhãn
+   *   "Xem theo" ngay cạnh. Vẫn dưới tên biểu đồ 15px ở trên (`.caption`, khối điện thoại cuối file).
+   */
   .picker select {
-    min-height: 36px;
-    font-size: var(--text-sm);
+    min-height: 30px;
+    font-size: 13px;
   }
 
   /*
    * Nhãn và ô chọn chung MỘT hàng (23/10/2026). Chủ dự án khoanh ô "Xem theo" trải hết bề ngang dưới
    * nhãn của nó trên điện thoại: _"đang chiếm nhiều không gian, đưa lên cùng hàng nằm bên phải của
-   * đoạn text bên trên sao cho hợp lý nhất để tiết kiệm không gian"_. Nay cả hàng là một dòng 36px:
+   * đoạn text bên trên sao cho hợp lý nhất để tiết kiệm không gian"_. Nay cả hàng là một dòng (36px, nay 30px):
    * nhãn bên trái nhận phần thừa, ô chọn ôm theo lựa chọn dài nhất và dạt về mép phải — cùng luật ô
    * CHỌN của khối Số liệu (19/10/2026). Trước đó nhãn đứng trên, ô chọn dưới: ~56px.
    *
@@ -1047,9 +1061,9 @@
    *   dòng ăn mất ~80px của tên trục ở 390px. Ô ấy đứng MỘT MÌNH (công thức chỉ có một biến quét được)
    *   thì giữ nhãn, cùng dáng nhãn trái, ô phải.
    * - Chỗ thiếu thì ô "Xem theo" co lại và cắt "…" (tên trục đọc đủ ở tiêu đề hình ngay trên), nhưng
-   *   không dưới 7,5rem; thiếu nữa thì nhãn xuống dòng ngay trong cột của nó ("See how the result
+   *   không dưới 7rem (7,5rem tới 26/10/2026); thiếu nữa thì nhãn xuống dòng ngay trong cột của nó ("See how the result
    *   changes with" của bản tiếng Anh dài gấp ba "Xem theo": hai, ba dòng ở 360–390px).
-   * - Sàn 10rem của ô "Xem theo" (một nhãn ngắn nhất xuống dòng, khe 12px, ô 7,5rem) quyết định lúc
+   * - Sàn 10rem của ô "Xem theo" (một nhãn ngắn nhất xuống dòng, khe 8px, ô 7rem) quyết định lúc
    *   ô "Loại biểu đồ" rớt xuống hàng riêng: chỉ khi cả sàn ấy cũng không vừa. Rớt thì nó dạt phải,
    *   thẳng mép với ô trên.
    * - `flex-direction: row` là bắt buộc: gốc của primitive `Select` là flex CỘT. Sàn 7,5rem của đợt
@@ -1063,13 +1077,13 @@
     flex: 1 1 10rem;
     flex-direction: row;
     align-items: center;
-    gap: var(--space-3);
+    gap: var(--space-2);
     min-width: 0;
     max-width: none;
   }
 
   /*
-   * Ô chọn mọc từ 7,5rem tới đúng lựa chọn dài nhất (`max-width: max-content`, thay `width: 100%` của
+   * Ô chọn mọc từ 7rem tới đúng lựa chọn dài nhất (`max-width: max-content`, thay `width: 100%` của
    * primitive); phần thừa còn lại về lề tự động sau nhãn, nên ô dạt phải. Nhãn không mọc, chỉ co —
    * và chỉ co khi ô đã ở sàn, vì ô không co dưới sàn. Bản đầu cho nhãn mọc và ô co theo tỉ lệ: một
    * tên trục dài (FCFF, 306px) làm nhãn hụt một phần nhỏ pixel, đủ để "Xem theo" gãy hai dòng ở
@@ -1082,14 +1096,22 @@
   }
 
   .controls .picker select {
-    flex: 1 1 7.5rem;
+    flex: 1 1 7rem;
     width: auto;
     max-width: max-content;
     min-width: 0;
+    padding: 0 24px 0 var(--space-2);
+    background-position: right 6px center;
+    background-size: 14px;
   }
 
+  /*
+   * Sàn 7,5 → 7rem (26/10/2026, cùng lượt hạ đệm ở trên). Đo trên Chrome ở 360px với "Cơ cấu số tiền
+   * chấp nhận mất" + "Vành khuyên": sàn 7,5rem ép nhãn "Xem theo" hụt 3px, gãy hai dòng và hàng cao
+   * 36px thay vì 30px. Sàn 7rem với đệm mới vẫn chừa ~77px cho chữ — hơn 69px của sàn cũ với đệm cũ.
+   */
   .controls .picker:not(.kindPicker) select {
-    min-width: 7.5rem;
+    min-width: 7rem;
   }
 
   /*
@@ -1351,9 +1373,9 @@
    * làm cho toàn bộ các công thức khác"_. Mọi biểu đồ của 103 công thức (đường, cột, bóc tách) in tên qua
    * đúng lớp này ở `ChartFrame`, nên một luật là đủ.
    *
-   * 15px chứ không 14px (`--text-sm`): ô chọn trục ngay dưới in chữ 14px ở khổ này (khối "hàng điều
-   * khiển" phía trên), và tên của một khối không được nhỏ bằng nội dung dưới nó. Ngoài thang, cùng cỡ
-   * câu hỏi của Bài tập (`.prompt`, 0,9375rem).
+   * 15px chứ không 14px (`--text-sm`): ô chọn trục ngay dưới in chữ 14px ở khổ này hồi ấy (13px từ
+   * 26/10/2026, khối "hàng điều khiển" phía trên), và tên của một khối không được nhỏ bằng nội dung
+   * dưới nó. Ngoài thang, cùng cỡ câu hỏi của Bài tập (`.prompt`, 0,9375rem).
    */
   .captionTitle {
     font-size: 0.9375rem;

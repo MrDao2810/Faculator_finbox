@@ -131,17 +131,17 @@ export const RUT_TRUOC_HAN: FormulaModule = {
       {
         key: 'interestAtContractRate',
         sign: 1,
-        shortLabel: {
-          vi: 'Lãi theo lãi suất hợp đồng',
-          en: 'Interest at the contract rate',
-        },
+        /* Ba nhãn rút ngắn 26/10/2026: dài hơn 19 ký tự là bị cắt trên hình thanh ngang. */
+        shortLabel: { vi: 'Lãi theo hợp đồng', en: 'Contract interest' },
       },
       {
         key: 'lostInterest',
         sign: -1,
-        shortLabel: { vi: 'Lãi mất do rút sớm', en: 'Interest lost by withdrawing early' },
+        shortLabel: { vi: 'Lãi mất do rút sớm', en: 'Interest lost' },
       },
     ],
+    /* Cột tổng: tên công thức "Lãi thực nhận khi rút trước hạn" (31 ký tự) bị cắt trên thanh ngang. */
+    breakdownTotal: { vi: 'Lãi thực nhận', en: 'Interest received' },
     level: 'basic',
     tags: ['rut truoc han', 'lai khong ky han', 'tiet kiem', 'early withdrawal'],
     resultUnit: '₫',
@@ -1231,7 +1231,8 @@ export const SO_KY_DCA: FormulaModule = {
      */
     composition: {
       title: { vi: 'Cơ cấu số dư khi đạt mục tiêu', en: 'Balance at the goal breakdown' },
-      total: { vi: 'Số dư khi đạt mục tiêu', en: 'Balance when the goal is reached' },
+      /* Rút ngắn 26/10/2026: dài hơn 19 ký tự thì bị cắt trên hình thanh ngang. */
+      total: { vi: 'Số dư đạt mục tiêu', en: 'Balance at goal' },
       unit: '₫',
       parts: [
         { key: 'totalContributed', label: { vi: 'Tổng tiền góp', en: 'Total contributed' } },

@@ -1081,18 +1081,17 @@ export const CO_VI_THE_PHAI_SINH: FormulaModule = {
      */
     composition: {
       title: { vi: 'Cơ cấu số tiền chấp nhận mất', en: 'Risk budget breakdown' },
-      /* Không kèm "(V × r)": dài hơn thì không vừa hai dòng trong lỗ vòng điện thoại. */
-      total: { vi: 'Số tiền chấp nhận mất', en: 'Amount you accept losing' },
+      /*
+       * Không kèm "(V × r)": dài hơn thì không vừa hai dòng trong lỗ vòng điện thoại. Ba nhãn rút
+       * ngắn 26/10/2026 (chủ dự án: _"tại sao phần này nội dung chú thích lại dài vậy. rút gọn ngắn
+       * đi"_): "Khoản mất nếu chạm cắt lỗ", "Phần còn dư trong mức rủi ro" và "Số tiền chấp nhận mất"
+       * bị cắt đầu chữ trên hình thanh ngang — xem `NHAN_THANH_TOI_DA` ở `composition.test.ts`.
+       */
+      total: { vi: 'Tiền chấp nhận mất', en: 'Risk budget' },
       unit: '₫',
       parts: [
-        {
-          key: 'lossAtStop',
-          label: { vi: 'Khoản mất nếu chạm cắt lỗ', en: 'Loss if the stop is hit' },
-        },
-        {
-          key: 'unusedRisk',
-          label: { vi: 'Phần còn dư trong mức rủi ro', en: 'Room left in the risk budget' },
-        },
+        { key: 'lossAtStop', label: { vi: 'Lỗ khi chạm cắt lỗ', en: 'Loss at the stop' } },
+        { key: 'unusedRisk', label: { vi: 'Rủi ro còn dư', en: 'Unused risk' } },
       ],
     },
     resultUnit: 'HĐ',
@@ -1326,12 +1325,14 @@ export const DON_BAY_HIEU_DUNG: FormulaModule = {
       /* Tên ngắn, không kèm "của vị thế (F × m × N)": dài hơn thì không vừa hai dòng trong lỗ. */
       total: { vi: 'Giá trị danh nghĩa', en: 'Notional value' },
       unit: '₫',
+      /*
+       * Nhãn riêng cho múi vốn chứ không mượn nhãn ô nhập "Vốn thực có trong tài khoản (E)" (31 ký tự),
+       * và nhãn múi vượt rút ngắn — cả hai bị cắt trên hình thanh ngang (26/10/2026, xem
+       * `NHAN_THANH_TOI_DA` ở `composition.test.ts`).
+       */
       parts: [
-        { key: 'equity' },
-        {
-          key: 'exposureAboveEquity',
-          label: { vi: 'Phần vượt vốn thực có', en: 'Exposure above equity' },
-        },
+        { key: 'equity', label: { vi: 'Vốn thực có (E)', en: 'Equity (E)' } },
+        { key: 'exposureAboveEquity', label: { vi: 'Phần vượt vốn', en: 'Above equity' } },
       ],
     },
     resultUnit: 'lần',

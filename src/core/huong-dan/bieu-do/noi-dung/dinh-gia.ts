@@ -247,7 +247,7 @@ export const BIEU_DO_DINH_GIA: Readonly<Record<string, BieuDoRieng>> = {
     },
     bocTach: d(
       'Hình này chỉ có một dạng: các thanh nằm ngang, đọc từ trên xuống. TSNH mỗi CP là thanh tô màu, phần tài sản ngắn hạn chia cho mỗi cổ phiếu; Trừ nợ mỗi CP là thanh viền nét đứt, toàn bộ nợ phải trả chia cho mỗi cổ phiếu; thanh sẫm cuối cùng là NCAV và bằng đúng con số ở khối Kết quả. Thanh trừ dài gần bằng thanh cộng thì tài sản ngắn hạn chỉ vừa đủ trả nợ, và phần còn lại cho cổ đông rất mỏng.',
-      'This chart has a single form: horizontal bars, read from top to bottom. Current assets/share is the filled bar, current assets spread over each share; Less liabilities/share is the bar with a dashed outline, all liabilities spread over each share; the dark bar at the end is NCAV and matches the figure in the Result block exactly. When the minus bar is nearly as long as the plus bar, current assets barely cover the debts and little is left for shareholders.',
+      'This chart has a single form: horizontal bars, read from top to bottom. Current assets is the filled bar, current assets spread over each share; Less liabilities is the bar with a dashed outline, all liabilities spread over each share; the dark bar at the end is NCAV and matches the figure in the Result block exactly. When the minus bar is nearly as long as the plus bar, current assets barely cover the debts and little is left for shareholders.',
     ),
   },
 
@@ -400,8 +400,8 @@ export const BIEU_DO_DINH_GIA: Readonly<Record<string, BieuDoRieng>> = {
       },
     },
     bocTach: d(
-      'Hình này chỉ có một dạng: các thanh nằm ngang, đọc từ trên xuống. Cổ tức giai đoạn đầu và Giá trị cuối kỳ là hai thanh tô màu cộng lại với nhau; thanh sẫm cuối cùng là Giá trị cổ phiếu và bằng đúng con số ở khối Kết quả. Thanh thứ hai thường dài hơn hẳn thanh đầu: phần lớn giá trị nằm ở quãng sau những năm tăng trưởng nhanh, tức ở giả định xa nhất và khó kiểm chứng nhất.',
-      'This chart has a single form: horizontal bars, read from top to bottom. First-stage dividends and Terminal value are two filled bars that add together; the dark bar at the end is Share value and matches the figure in the Result block exactly. The second bar is usually far longer than the first: most of the value lies beyond the fast-growth years, in the most distant and least checkable assumption.',
+      'Hình này chỉ có một dạng: các thanh nằm ngang, đọc từ trên xuống. Cổ tức giai đoạn 1 và Giá trị cuối kỳ là hai thanh tô màu cộng lại với nhau; thanh sẫm cuối cùng là Giá trị cổ phiếu và bằng đúng con số ở khối Kết quả. Thanh thứ hai thường dài hơn hẳn thanh đầu: phần lớn giá trị nằm ở quãng sau những năm tăng trưởng nhanh, tức ở giả định xa nhất và khó kiểm chứng nhất.',
+      'This chart has a single form: horizontal bars, read from top to bottom. Stage-1 dividends and Terminal value are two filled bars that add together; the dark bar at the end is Share value and matches the figure in the Result block exactly. The second bar is usually far longer than the first: most of the value lies beyond the fast-growth years, in the most distant and least checkable assumption.',
     ),
   },
 

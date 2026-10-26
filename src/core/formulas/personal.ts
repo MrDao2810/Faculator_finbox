@@ -147,15 +147,15 @@ export const TRA_GOP_NIEN_KIM: FormulaModule = {
       {
         key: 'firstPrincipal',
         sign: 1,
-        shortLabel: { vi: 'Gốc kỳ đầu', en: 'First-period principal' },
+        shortLabel: { vi: 'Gốc kỳ đầu', en: 'Period-1 principal' },
       },
       {
         key: 'firstInterest',
         sign: 1,
-        shortLabel: { vi: 'Lãi kỳ đầu', en: 'First-period interest' },
+        shortLabel: { vi: 'Lãi kỳ đầu', en: 'Period-1 interest' },
       },
     ],
-    breakdownTotal: { vi: 'Trả kỳ đầu', en: 'First-period payment' },
+    breakdownTotal: { vi: 'Trả kỳ đầu', en: 'Period-1 payment' },
     level: 'basic',
     isFeatured: true,
     tags: ['tra gop', 'emi', 'nien kim', 'vay mua nha'],
@@ -165,7 +165,8 @@ export const TRA_GOP_NIEN_KIM: FormulaModule = {
      */
     composition: {
       title: { vi: 'Cơ cấu tổng tiền phải trả', en: 'Total repayment breakdown' },
-      total: { vi: 'Tổng tiền phải trả cả kỳ hạn', en: 'Total repaid over the term' },
+      /* Rút ngắn 26/10/2026, cùng tên cột tổng của `lich-tra-no`: dài hơn thì bị cắt trên thanh ngang. */
+      total: { vi: 'Tổng phải trả', en: 'Total repaid' },
       unit: '₫',
       parts: [
         { key: 'amount' },
@@ -327,21 +328,22 @@ export const TRA_GOP_GOC_DEU: FormulaModule = {
       {
         key: 'firstPrincipal',
         sign: 1,
-        shortLabel: { vi: 'Gốc mỗi kỳ', en: 'Principal per period' },
+        shortLabel: { vi: 'Gốc mỗi kỳ', en: 'Fixed principal' },
       },
       {
         key: 'firstInterest',
         sign: 1,
-        shortLabel: { vi: 'Lãi kỳ đầu', en: 'First-period interest' },
+        shortLabel: { vi: 'Lãi kỳ đầu', en: 'Period-1 interest' },
       },
     ],
-    breakdownTotal: { vi: 'Trả kỳ đầu', en: 'First-period payment' },
+    breakdownTotal: { vi: 'Trả kỳ đầu', en: 'Period-1 payment' },
     level: 'basic',
     tags: ['goc deu', 'tra gop', 'du no giam dan'],
     /* Cùng hình với trả góp niên kim, để hai công thức đọc như một cặp (22/10/2026). */
     composition: {
       title: { vi: 'Cơ cấu tổng tiền phải trả', en: 'Total repayment breakdown' },
-      total: { vi: 'Tổng tiền phải trả cả kỳ hạn', en: 'Total repaid over the term' },
+      /* Rút ngắn 26/10/2026, cùng tên cột tổng của `lich-tra-no`: dài hơn thì bị cắt trên thanh ngang. */
+      total: { vi: 'Tổng phải trả', en: 'Total repaid' },
       unit: '₫',
       parts: [
         { key: 'amount' },
@@ -1071,7 +1073,8 @@ export const LAI_TIEN_GUI: FormulaModule = {
      */
     composition: {
       title: { vi: 'Cơ cấu số tiền nhận khi đáo hạn', en: 'Amount at maturity breakdown' },
-      total: { vi: 'Số tiền nhận khi đáo hạn', en: 'Amount received at maturity' },
+      /* Rút ngắn 26/10/2026: dài hơn 19 ký tự thì bị cắt trên hình thanh ngang. */
+      total: { vi: 'Nhận khi đáo hạn', en: 'Paid at maturity' },
       unit: '₫',
       parts: [
         { key: 'principal' },
@@ -1236,7 +1239,8 @@ export const TIET_KIEM_MUC_TIEU: FormulaModule = {
      */
     composition: {
       title: { vi: 'Cơ cấu số tiền mục tiêu', en: 'Target amount breakdown' },
-      total: { vi: 'Số tiền mục tiêu (FV)', en: 'Target amount (FV)' },
+      /* Rút ngắn 26/10/2026: dài hơn 19 ký tự thì bị cắt trên hình thanh ngang. */
+      total: { vi: 'Tiền mục tiêu (FV)', en: 'Target amount (FV)' },
       unit: '₫',
       parts: [
         { key: 'totalDeposits', label: { vi: 'Tổng tiền gửi', en: 'Total deposited' } },

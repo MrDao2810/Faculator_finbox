@@ -2948,7 +2948,7 @@ describe('Loại biểu đồ — ô chọn dạng vẽ', () => {
     expect(vanh).not.toBeNull();
     expect(vanh?.querySelectorAll('path[class*="donutSlice"]')).toHaveLength(2);
     expect(vanh?.textContent).toContain('Tổng nguồn vốn');
-    expect(vanh?.textContent).toContain('Tổng nợ phải trả (D)');
+    expect(vanh?.textContent).toContain('Nợ phải trả (D)');
     expect(vanh?.textContent).toContain('Vốn chủ sở hữu (E)');
     expect(cacDang()).toEqual(['Vành khuyên', 'Thanh ngang']);
     // Khung "?" im với mục này: nó chưa có đoạn hướng dẫn (`HinhDangXem.hinhChuoi`).
@@ -3068,7 +3068,20 @@ describe('Loại biểu đồ — ô chọn dạng vẽ', () => {
         sweepKey: '__composition',
       });
       if (model.kind !== 'waterfall') throw new Error('phải là hình cơ cấu');
-      const { container } = render(<DonutChart model={model} idBase="t" size={size} />);
+      /*
+       * Tên tổng dài DỰNG TAY: từ 26/10/2026 mọi nhãn hình cơ cấu ≤ 19 ký tự (nhãn dài bị cắt trên hình
+       * thanh ngang, xem `NHAN_THANH_TOI_DA` ở `composition.test.ts`), nên Registry không còn tên tổng
+       * nào đủ dài để thử. Đây là tên cũ của chính hình này, "Tổng tiền phải trả cả kỳ hạn".
+       */
+      const dai = {
+        ...model,
+        bars: model.bars.map((bar) =>
+          bar.isTotal === true
+            ? { ...bar, label: { vi: 'Tổng tiền phải trả cả kỳ hạn', en: 'Total repaid' } }
+            : bar,
+        ),
+      };
+      const { container } = render(<DonutChart model={dai} idBase="t" size={size} />);
 
       const ten = container.querySelector('text[class*="donutTotalLabel"]');
       // Hai dòng: dòng đầu là chữ của `<text>`, dòng sau là `<tspan>`; ghép lại đúng cả tên.
@@ -3097,8 +3110,19 @@ describe('Loại biểu đồ — ô chọn dạng vẽ', () => {
     const xs = new Set(chuGiai.map((el) => el.getAttribute('x')));
     expect(xs.size).toBe(1);
     const x = Number([...xs][0]);
-    // Chữ dài nhất ("Tổng nợ phải trả (D)", cỡ 9) kết thúc trong 12 đơn vị cuối của khung.
-    const cuoi = x + textWidth('Tổng nợ phải trả (D)', 9) * 1.08;
+    /*
+     * Chữ rộng nhất của chú giải kết thúc trong 12 đơn vị cuối của khung. Tìm nó theo đúng phép ước của
+     * `DonutChart` (tên và "chiếm …" thường cỡ 9 × 1,08, giá trị đậm cỡ 10 × 1,1) chứ không viết cứng một
+     * nhãn: nhãn "Tổng nợ phải trả (D)" từng viết ở đây thành "Nợ phải trả (D)" ngày 26/10/2026.
+     */
+    const rongNhat = Math.max(
+      ...chuGiai.map((el) =>
+        (el.getAttribute('class') ?? '').includes('donutValue')
+          ? textWidth(el.textContent ?? '', 10) * 1.1
+          : textWidth(el.textContent ?? '', 9) * 1.08,
+      ),
+    );
+    const cuoi = x + rongNhat;
     expect(cuoi).toBeLessThanOrEqual(W);
     expect(W - cuoi).toBeLessThanOrEqual(12);
 
@@ -3147,7 +3171,7 @@ describe('Loại biểu đồ — ô chọn dạng vẽ', () => {
     expect(popup()).toBeNull();
 
     fireEvent.click(muiThu(svg, 0));
-    expect(popup()?.textContent).toContain('Tổng nợ phải trả (D)');
+    expect(popup()?.textContent).toContain('Nợ phải trả (D)');
     fireEvent.pointerLeave(muiThu(svg, 0), { pointerType: 'touch' });
     expect(popup()).not.toBeNull();
 
@@ -3173,7 +3197,7 @@ describe('Loại biểu đồ — ô chọn dạng vẽ', () => {
     expect(dong).toHaveLength(2);
 
     fireEvent.click(dong[0] as Element);
-    expect(popup()?.textContent).toContain('Tổng nợ phải trả (D)');
+    expect(popup()?.textContent).toContain('Nợ phải trả (D)');
     expect(muiThu(svg, 1).getAttribute('class')).toContain('donutSliceMo');
   });
 

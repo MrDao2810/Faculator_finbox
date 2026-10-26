@@ -188,17 +188,15 @@ export const HPR: FormulaModule = {
      */
     composition: {
       title: { vi: 'Cơ cấu tiền lời mỗi cổ phiếu', en: 'Gain per share breakdown' },
-      total: { vi: 'Tổng lời mỗi cổ phiếu', en: 'Total gain per share' },
+      /*
+       * Nhãn ngắn 26/10/2026: dài hơn 19 ký tự là bị cắt trên hình thanh ngang. Múi cổ tức có nhãn
+       * riêng thay cho nhãn ô nhập "Cổ tức nhận trong kỳ (D)".
+       */
+      total: { vi: 'Tổng lời mỗi CP', en: 'Total gain/share' },
       unit: '₫/CP',
       parts: [
-        {
-          key: 'priceGain',
-          label: {
-            vi: 'Lời từ chênh giá (Pcuoi − Pdau)',
-            en: 'Gain from the price change (Pcuoi − Pdau)',
-          },
-        },
-        { key: 'dividend' },
+        { key: 'priceGain', label: { vi: 'Lời từ chênh giá', en: 'Price gain' } },
+        { key: 'dividend', label: { vi: 'Cổ tức (D)', en: 'Dividend (D)' } },
       ],
     },
     resultUnit: '%',

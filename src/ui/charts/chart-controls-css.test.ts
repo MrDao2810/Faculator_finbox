@@ -58,14 +58,27 @@ function soPx(than: string | undefined, mau: RegExp): number | undefined {
 }
 
 describe('hàng điều khiển biểu đồ dưới 1024px', () => {
-  it('nhãn và chữ trong ô chọn nhỏ đi một bậc', () => {
+  /* Chữ trong ô 14 → 13px ngày 26/10/2026 (_"giảm size text xuống thêm 0,5 hoặc 1 px nữa"_). */
+  it('nhãn 12px, chữ trong ô chọn 13px — vẫn trên nhãn một nấc', () => {
     expect(luat(BIEU_DO, '.picker label')).toMatch(/font-size:\s*var\(--text-xs\);/);
-    expect(luat(BIEU_DO, '.picker select')).toMatch(/font-size:\s*var\(--text-sm\);/);
+    expect(luat(BIEU_DO, '.picker select')).toMatch(/font-size:\s*13px;/);
   });
 
-  it('ô chọn cao 36px dưới 1024px', () => {
+  /*
+   * 36 → 30px và đệm hẹp lại (26/10/2026, chủ dự án khoanh hàng "Xem theo · Cơ cấu số tiền chấp … ·
+   * Vành khuyên": _"giảm height … giảm padding nữa để có nhiều không gian hiển thị text hơn"_).
+   */
+  it('ô chọn cao 30px dưới 1024px', () => {
     const oChon = soPx(luat(BIEU_DO, '.picker select'), /min-height:\s*(\d+)px;/);
-    expect(oChon, 'thiếu min-height của .picker select dưới 1024px').toBe(36);
+    expect(oChon, 'thiếu min-height của .picker select dưới 1024px').toBe(30);
+  });
+
+  it('đệm trong ô chọn hẹp lại: trái 8px, phải 24px, mũi tên 14px cách mép 6px', () => {
+    const chon = luat(BIEU_DO, '.controls .picker select');
+    expect(chon).toMatch(/padding:\s*0 24px 0 var\(--space-2\);/);
+    expect(chon).toMatch(/background-position:\s*right 6px center;/);
+    expect(chon).toMatch(/background-size:\s*14px;/);
+    expect(luat(BIEU_DO, '.controls .picker')).toMatch(/gap:\s*var\(--space-2\);/);
   });
 
   it('ô "Loại biểu đồ" mang chính lớp .picker của ô "Xem theo" — hai ô cao bằng nhau theo cấu tạo', () => {
@@ -105,9 +118,10 @@ describe('hàng điều khiển biểu đồ dưới 1024px: nhãn trái, ô ch�
     expect(chon).toMatch(/max-width:\s*max-content;/);
   });
 
-  it('ô chọn trục không co dưới 7,5rem — chỗ thiếu thì nhãn co trước', () => {
+  /* Sàn 7,5 → 7rem cùng lượt hạ đệm 26/10/2026: ở 360px sàn cũ ép nhãn "Xem theo" gãy hai dòng. */
+  it('ô chọn trục không co dưới 7rem — chỗ thiếu thì nhãn co trước', () => {
     expect(luat(BIEU_DO, '.controls .picker:not(.kindPicker) select')).toMatch(
-      /min-width:\s*7\.5rem;/,
+      /min-width:\s*7rem;/,
     );
   });
 
@@ -147,12 +161,13 @@ describe('biểu đồ dưới 1024px: vùng vẽ rộng hơn, đáy thẻ gọn
 /*
  * Tên biểu đồ ở khổ điện thoại (20/10/2026, chủ dự án: _"giảm size text phần trong ảnh xuống áp dụng bản
  * mobile. cần làm cho toàn bộ các công thức khác"_). 16 → 15px, không xuống 14px: tên của một khối
- * không được nhỏ bằng nội dung dưới nó, mà ô chọn trục ngay dưới in chữ 14px ở khổ này.
+ * không được nhỏ bằng nội dung dưới nó, mà ô chọn trục ngay dưới in chữ 14px ở khổ này (13px từ
+ * 26/10/2026).
  */
 describe('tên biểu đồ dưới 1024px', () => {
   it('15px — nhỏ đi mà vẫn lớn hơn chữ trong ô chọn trục ngay dưới', () => {
     const ten = luat(BIEU_DO, '.captionTitle');
     expect(ten).toMatch(/font-size:\s*0\.9375rem;/);
-    expect(luat(BIEU_DO, '.picker select')).toMatch(/font-size:\s*var\(--text-sm\);/);
+    expect(luat(BIEU_DO, '.picker select')).toMatch(/font-size:\s*13px;/);
   });
 });

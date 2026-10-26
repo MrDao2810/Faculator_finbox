@@ -7,6 +7,7 @@ import { MARKET_CONFIG } from '../market';
 import { scheduleOrDefault } from '../market/resolve';
 import { defaultInputs } from '../registry/build';
 import { buildChartModel } from './build';
+import { breakdownBars } from './breakdown';
 import { COMPOSITION_KEY, compositionBars } from './composition';
 import { dangVeCuaHinh, vanhKhuyen } from './dang-ve';
 import type { ChartModel } from './types';
@@ -126,6 +127,49 @@ describe('cả Registry', () => {
   );
 });
 
+/**
+ * Trần độ dài nhãn của hình THANH NGANG — cơ cấu (dạng "Thanh ngang") và bóc tách (26/10/2026).
+ *
+ * Chủ dự án chụp hình thanh ngang của `co-vi-the-phai-sinh` với "…n mất nếu chạm cắt lỗ" và "…òn dư
+ * trong mức rủi ro": _"sao cả ở màn web mobile lẫn màn web pc đều bị cắt nội dung. và tại sao phần
+ * này nội dung chú thích lại dài vậy. rút gọn ngắn đi"_.
+ *
+ * Vì sao cắt: `WaterfallChart` co cột nhãn bên trái theo `textWidth()` (0,49 em mỗi ký tự) nhưng chặn
+ * ở 96 đơn vị (`MAX_PAD_LEFT`, giữ chỗ cho thanh); trừ khe 6 và mép 2 còn 88 đơn vị chữ, tức 19 ký tự
+ * ở cỡ 9 của khổ rộng (88 ÷ 4,41 ≈ 19,95). Nhãn dài hơn tràn qua mép trái hình và mất ĐẦU chữ, ở cả
+ * hai khổ: khổ hẹp chữ cỡ 8 nhưng khung cũng chỉ 320 đơn vị. Đo trên Chrome (Segoe UI) hôm ấy: 30
+ * nhãn ở 19 công thức tràn, tiếng Việt hoặc tiếng Anh; cả 30 đã rút ngắn.
+ *
+ * Đếm ký tự chứ không đo: `textWidth()` cũng đếm ký tự, và nó chính là thứ quyết định bề ngang cột.
+ * Cùng trần cho nhãn tiếng Anh — khung không biết đang in thứ tiếng nào.
+ */
+const NHAN_THANH_TOI_DA = 19;
+
+describe('nhãn hình thanh ngang không quá 19 ký tự — dài hơn là bị cắt đầu chữ', () => {
+  const coThanh = FORMULA_MODULES.filter(
+    (formula) =>
+      formula.spec.composition !== undefined || (formula.spec.breakdown ?? []).length > 0,
+  );
+
+  it.each(coThanh.map((formula) => [formula.spec.id, formula] as const))('%s', (_id, formula) => {
+    const inputs = defaultInputs(formula.spec);
+    const output = runFormula(formula, inputs, CTX);
+    const cot = [
+      ...(compositionBars(formula.spec, inputs, output) ?? []),
+      ...breakdownBars(formula.spec, inputs, output),
+    ];
+    // Mọi hình này đều vẽ được ở số mặc định, nên danh sách cột không rỗng — ca kiểm không mù.
+    expect(cot.length).toBeGreaterThan(0);
+
+    const qua = cot.flatMap((bar) =>
+      [bar.label.vi, bar.label.en ?? '']
+        .filter((nhan) => [...nhan].length > NHAN_THANH_TOI_DA)
+        .map((nhan) => `"${nhan}" (${String([...nhan].length)} ký tự)`),
+    );
+    expect(qua).toEqual([]);
+  });
+});
+
 describe('no-tren-von-chu — cơ cấu nguồn vốn', () => {
   const formula = congThuc('no-tren-von-chu');
 
@@ -135,12 +179,12 @@ describe('no-tren-von-chu — cơ cấu nguồn vốn', () => {
     if (hinh.kind !== 'waterfall') throw new Error('phải là hình cơ cấu');
 
     expect(hinh.bars.map((bar) => [bar.label.vi, bar.delta])).toEqual([
-      ['Tổng nợ phải trả (D)', 22_500],
+      ['Nợ phải trả (D)', 22_500],
       ['Vốn chủ sở hữu (E)', 36_456],
       ['Tổng nguồn vốn', 58_956],
     ]);
     expect(hinh.table.rows.at(-1)).toEqual([
-      { vi: 'Tổng nguồn vốn', en: 'Total liabilities and equity' },
+      { vi: 'Tổng nguồn vốn', en: 'Total capital' },
       '58.956 tỷ ₫',
     ]);
 

@@ -58,10 +58,31 @@ describe('phần chấm điểm của Bài tập từ 1024px', () => {
     expect(the).toMatch(/padding:\s*var\(--space-3\) var\(--space-4\);/);
   });
 
+  /*
+   * 26/10/2026, chủ dự án khoanh bảng số liệu của câu điền số trên máy tính: nhãn ở mép trái, số ở
+   * mép phải — _"số liệu và text giải thích bên trái cần gần nhau"_.
+   */
+  it('bảng số liệu của đề: hai cột co theo chữ, giá trị đứng ngay sau nhãn', () => {
+    const bang = /(?:^|[{}])\s*\.facts\s*\{([^}]*)\}/m.exec(PC)?.[1] ?? '';
+    expect(bang).toMatch(/display:\s*grid;/);
+    expect(bang).toMatch(/grid-template-columns:\s*auto auto;/);
+    expect(bang).toMatch(/width:\s*fit-content;/);
+    expect(bang).toMatch(/max-width:\s*100%;/);
+    const hang = /(?:^|[{}])\s*\.fact\s*\{([^}]*)\}/m.exec(PC)?.[1] ?? '';
+    expect(hang).toMatch(/grid-template-columns:\s*subgrid;/);
+    expect(hang).not.toMatch(/space-between/);
+  });
+
   /* Cùng độ đặc hiệu với luật gốc `.explain` / `.block` — khối máy tính phải đứng sau chúng. */
   it('khối máy tính đứng sau luật gốc của hộp và của thẻ', () => {
     const khoi = CSS.lastIndexOf('@media (min-width: 1024px)');
     expect(CSS.indexOf('.explain {')).toBeLessThan(khoi);
     expect(CSS.indexOf('.block {')).toBeLessThan(khoi);
+  });
+
+  it('khối máy tính của bảng số liệu đứng sau luật gốc `.facts` / `.fact`', () => {
+    const khoi = CSS.indexOf('.facts {', CSS.indexOf('.facts {') + 1);
+    expect(CSS.indexOf('.facts {')).toBeLessThan(khoi);
+    expect(CSS.indexOf('.fact {')).toBeLessThan(khoi);
   });
 });

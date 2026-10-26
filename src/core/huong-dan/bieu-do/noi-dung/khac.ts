@@ -263,7 +263,7 @@ export const BIEU_DO_KHAC: Readonly<Record<string, BieuDoRieng>> = {
     },
     bocTach: d(
       'Hình này chỉ có một dạng: các thanh nằm ngang, đọc từ trên xuống. Gốc kỳ đầu và Lãi kỳ đầu là hai thanh tô màu cộng lại với nhau; thanh sẫm cuối cùng là Trả kỳ đầu và bằng đúng con số ở khối Kết quả. Ở kỳ đầu thanh lãi thường dài hơn thanh gốc: khoản trả tháng nào cũng như nhau, nhưng những tháng đầu phần lớn số tiền ấy đi trả lãi, về sau mới chuyển dần sang trả gốc.',
-      'This chart has a single form: horizontal bars, read from top to bottom. First-period principal and First-period interest are two filled bars that add together; the dark bar at the end is First-period payment and matches the figure in the Result block exactly. In the first period the interest bar is usually longer than the principal bar: the payment is the same every month, but early on most of it goes to interest and only later shifts toward principal.',
+      'This chart has a single form: horizontal bars, read from top to bottom. Period-1 principal and Period-1 interest are two filled bars that add together; the dark bar at the end is Period-1 payment and matches the figure in the Result block exactly. In the first period the interest bar is usually longer than the principal bar: the payment is the same every month, but early on most of it goes to interest and only later shifts toward principal.',
     ),
   },
 
@@ -302,7 +302,7 @@ export const BIEU_DO_KHAC: Readonly<Record<string, BieuDoRieng>> = {
     },
     bocTach: d(
       'Hình này chỉ có một dạng: các thanh nằm ngang, đọc từ trên xuống. Gốc mỗi kỳ và Lãi kỳ đầu là hai thanh tô màu cộng lại với nhau; thanh sẫm cuối cùng là Trả kỳ đầu và bằng đúng con số ở khối Kết quả. Thanh gốc giữ nguyên chiều dài ở mọi kỳ, còn thanh lãi chỉ đúng cho kỳ đầu: từ kỳ thứ hai nó ngắn dần vì lãi tính trên dư nợ đã giảm.',
-      'This chart has a single form: horizontal bars, read from top to bottom. Principal per period and First-period interest are two filled bars that add together; the dark bar at the end is First-period payment and matches the figure in the Result block exactly. The principal bar keeps its length in every period, while the interest bar holds for the first one only: from the second period on it shortens because interest is charged on a shrinking balance.',
+      'This chart has a single form: horizontal bars, read from top to bottom. Fixed principal and Period-1 interest are two filled bars that add together; the dark bar at the end is Period-1 payment and matches the figure in the Result block exactly. The principal bar keeps its length in every period, while the interest bar holds for the first one only: from the second period on it shortens because interest is charged on a shrinking balance.',
     ),
   },
 
@@ -505,8 +505,8 @@ export const BIEU_DO_KHAC: Readonly<Record<string, BieuDoRieng>> = {
       },
     },
     bocTach: d(
-      'Hình này chỉ có một dạng: các thanh nằm ngang, đọc từ trên xuống. Lãi theo lãi suất hợp đồng là thanh tô màu, số lãi lẽ ra có cho quãng đã gửi nếu giữ tới hạn; Lãi mất do rút sớm là thanh viền nét đứt, phần bị cắt vì chỉ được trả theo lãi suất không kỳ hạn; thanh sẫm cuối cùng là Lãi thực nhận khi rút trước hạn và bằng đúng con số ở khối Kết quả. Thanh trừ dài gần bằng thanh đầu là rút sớm gần như mất trắng tiền lãi.',
-      'This chart has a single form: horizontal bars, read from top to bottom. Interest at the contract rate is the filled bar, what the time already deposited would have earned if held to maturity; Interest lost by withdrawing early is the bar with a dashed outline, the part cut because only the demand rate is paid; the dark bar at the end is Early withdrawal interest and matches the figure in the Result block exactly. A minus bar nearly as long as the first one means withdrawing early forfeits almost all the interest.',
+      'Hình này chỉ có một dạng: các thanh nằm ngang, đọc từ trên xuống. Lãi theo hợp đồng là thanh tô màu, số lãi lẽ ra có cho quãng đã gửi nếu giữ tới hạn; Lãi mất do rút sớm là thanh viền nét đứt, phần bị cắt vì chỉ được trả theo lãi suất không kỳ hạn; thanh sẫm cuối cùng là Lãi thực nhận và bằng đúng con số ở khối Kết quả. Thanh trừ dài gần bằng thanh đầu là rút sớm gần như mất trắng tiền lãi.',
+      'This chart has a single form: horizontal bars, read from top to bottom. Contract interest is the filled bar, what the time already deposited would have earned if held to maturity; Interest lost is the bar with a dashed outline, the part cut because only the demand rate is paid; the dark bar at the end is Interest received and matches the figure in the Result block exactly. A minus bar nearly as long as the first one means withdrawing early forfeits almost all the interest.',
     ),
   },
 

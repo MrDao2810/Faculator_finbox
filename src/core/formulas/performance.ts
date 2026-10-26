@@ -586,12 +586,10 @@ export const TONG_LOI_SUAT_TAI_DAU_TU: FormulaModule = {
       unit: '%',
       parts: [
         { key: 'fromPriceGrowth', label: { vi: 'Phần do giá tăng', en: 'From price growth' } },
+        /* Rút ngắn 26/10/2026 ("Phần thêm nhờ cổ tức tái đầu tư"): bị cắt trên hình thanh ngang. */
         {
           key: 'fromReinvestedDividends',
-          label: {
-            vi: 'Phần thêm nhờ cổ tức tái đầu tư',
-            en: 'Extra from reinvested dividends',
-          },
+          label: { vi: 'Phần nhờ tái đầu tư', en: 'From reinvesting' },
         },
       ],
     },

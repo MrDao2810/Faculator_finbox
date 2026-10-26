@@ -99,8 +99,24 @@ const MIN_PAD_LEFT = 32;
  *
  * Lề nuốt vùng vẽ nên phải có điểm dừng, và giữ nguyên mốc cũ nghĩa là nhãn dài quá mức bị cắt y
  * như trước chứ không bóp vùng vẽ thêm — cùng lập luận với `MAX_PAD_LEFT` của `LineChart`.
+ *
+ * Nên nhãn phải vừa trần, không phải trần chiều nhãn: từ 26/10/2026 mọi nhãn hình thanh ngang tối đa
+ * 19 ký tự, ca kiểm `NHAN_THANH_TOI_DA` ở `composition.test.ts` giữ điều ấy.
  */
 const MAX_PAD_LEFT = 96;
+
+/**
+ * Hệ số an toàn cho ước lượng bề ngang nhãn chặng — 1,08, đúng hằng `AN_TOAN.thuong` mà `DonutChart`
+ * đã đo cho chữ thường cùng phông (26/10/2026).
+ *
+ * `textWidth()` đếm 0,49 em mỗi ký tự, mà có nhãn thật rộng hơn thế: đo trên Chrome (Segoe UI),
+ * "Thuế chuyển nhượng" của `thue-tncn-dau-tu` ước 79,4 đơn vị, thật 84,3. Lề trái co ĐÚNG theo ước
+ * lượng, nên chữ ấy tràn qua mép trái hình 2 đơn vị ở cả hai khổ dù chỉ 18 ký tự — cùng lỗi cắt đầu
+ * chữ chủ dự án chụp trên `co-vi-the-phai-sinh`. Với hệ số này, đo lại cả 105 nhãn của 30 hình
+ * thanh ngang ở cả hai cỡ chữ và hai thứ tiếng: không nhãn nào tràn. Nhãn dài thì còn trần
+ * `MAX_PAD_LEFT` — xem `NHAN_THANH_TOI_DA` ở `composition.test.ts`.
+ */
+const AN_TOAN_NHAN = 1.08;
 
 /**
  * Lề trái CO THEO NHÃN CHẶNG, đúng cách `plotOf()` của `LineChart` làm với nhãn trục Y.
@@ -114,7 +130,7 @@ const MAX_PAD_LEFT = 96;
  * `pick()` nên lề co theo đúng ngôn ngữ đang hiện, cùng lượt render với chính chữ ấy.
  */
 function padLeftFor(labels: ReadonlyArray<string>, fontSize: number): number {
-  const rongNhat = Math.max(0, ...labels.map((text) => textWidth(text, fontSize)));
+  const rongNhat = Math.max(0, ...labels.map((text) => textWidth(text, fontSize) * AN_TOAN_NHAN));
   const vuaDu = Math.ceil(rongNhat) + LABEL_GAP + LABEL_EDGE;
   return Math.min(MAX_PAD_LEFT, Math.max(MIN_PAD_LEFT, vuaDu));
 }

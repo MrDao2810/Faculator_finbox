@@ -725,15 +725,14 @@ export const BIEN_LOI_NHUAN_RONG: FormulaModule = {
       title: { vi: 'Cơ cấu doanh thu thuần', en: 'Net revenue breakdown' },
       total: { vi: 'Doanh thu thuần', en: 'Net revenue' },
       unit: 'tỷ ₫',
+      /*
+       * Nhãn ngắn 26/10/2026: nhãn ô nhập "Lợi nhuận sau thuế (LNST)" và "Phần doanh thu không thành
+       * lãi ròng" quá 19 ký tự, bị cắt trên hình thanh ngang. Doanh thu thuần trừ lãi ròng là mọi chi
+       * phí (giá vốn, bán hàng, quản lý, tài chính) cùng thuế, nên phần ấy gọi đúng tên của nó.
+       */
       parts: [
-        { key: 'netIncome' },
-        {
-          key: 'revenueLessNetIncome',
-          label: {
-            vi: 'Phần doanh thu không thành lãi ròng',
-            en: 'Revenue not kept as net profit',
-          },
-        },
+        { key: 'netIncome', label: { vi: 'Lãi ròng (LNST)', en: 'Net income (LNST)' } },
+        { key: 'revenueLessNetIncome', label: { vi: 'Chi phí và thuế', en: 'Costs and taxes' } },
       ],
     },
     resultUnit: '%',
@@ -1012,9 +1011,13 @@ export const NO_TREN_VON_CHU: FormulaModule = {
      */
     composition: {
       title: { vi: 'Cơ cấu nguồn vốn', en: 'Capital structure' },
-      total: { vi: 'Tổng nguồn vốn', en: 'Total liabilities and equity' },
+      /* Nhãn ngắn 26/10/2026: quá 19 ký tự là bị cắt trên hình thanh ngang. */
+      total: { vi: 'Tổng nguồn vốn', en: 'Total capital' },
       unit: 'tỷ ₫',
-      parts: [{ key: 'totalLiabilities' }, { key: 'equity' }],
+      parts: [
+        { key: 'totalLiabilities', label: { vi: 'Nợ phải trả (D)', en: 'Liabilities (D)' } },
+        { key: 'equity' },
+      ],
     },
     resultUnit: 'lần',
     variables: [
@@ -1318,11 +1321,9 @@ export const THANH_TOAN_NHANH: FormulaModule = {
       title: { vi: 'Cơ cấu tài sản ngắn hạn', en: 'Current assets breakdown' },
       total: { vi: 'Tài sản ngắn hạn', en: 'Current assets' },
       unit: 'tỷ ₫',
+      /* Nhãn ngắn 26/10/2026: quá 19 ký tự là bị cắt trên hình thanh ngang. */
       parts: [
-        {
-          key: 'quickAssets',
-          label: { vi: 'Tài sản ngắn hạn trừ tồn kho', en: 'Current assets less inventory' },
-        },
+        { key: 'quickAssets', label: { vi: 'Tài sản trừ tồn kho', en: 'Quick assets' } },
         { key: 'inventory' },
       ],
     },
@@ -1605,14 +1606,12 @@ export const TY_LE_CHI_TRA_CO_TUC: FormulaModule = {
      */
     composition: {
       title: { vi: 'Cơ cấu lợi nhuận mỗi cổ phiếu', en: 'Earnings per share breakdown' },
-      total: { vi: 'Lợi nhuận mỗi cổ phiếu (EPS)', en: 'Earnings per share (EPS)' },
+      /* Nhãn ngắn 26/10/2026: quá 19 ký tự là bị cắt trên hình thanh ngang. */
+      total: { vi: 'Lợi nhuận/CP (EPS)', en: 'Earnings (EPS)' },
       unit: '₫',
       parts: [
-        { key: 'dividendPerShare' },
-        {
-          key: 'retainedPerShare',
-          label: { vi: 'Lợi nhuận giữ lại / CP', en: 'Retained earnings / share' },
-        },
+        { key: 'dividendPerShare', label: { vi: 'Cổ tức/CP (DPS)', en: 'Dividend (DPS)' } },
+        { key: 'retainedPerShare', label: { vi: 'Lợi nhuận giữ lại', en: 'Retained earnings' } },
       ],
     },
     resultUnit: '%',

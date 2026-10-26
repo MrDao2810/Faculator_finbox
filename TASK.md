@@ -4,6 +4,54 @@ Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 
 ---
 
+## Nhãn hình thanh ngang bị cắt đầu chữ — rút ngắn và chữa ở gốc (26/10/2026)
+
+**Trạng thái: CHƯA XONG — đã sửa, chờ chủ dự án xem.** Chủ dự án chụp dạng "Thanh ngang" của mục "Cơ cấu số tiền
+chấp nhận mất" (`co-vi-the-phai-sinh`), nhãn còn "…n mất nếu chạm cắt lỗ", "…òn dư trong mức rủi ro": _"sao cả ở màn
+web mobile lẫn màn web pc đều bị cắt nội dung. và tại sao phần này nội dung chú thích lại dài vậy. rút gọn ngắn đi"_.
+
+- **Vì sao cắt:** `WaterfallChart` co cột nhãn bên trái theo ước lượng `textWidth()` nhưng chặn ở 96 đơn vị
+  (`MAX_PAD_LEFT`) — 88 đơn vị chữ, khoảng 19 ký tự. Nhãn dài hơn tràn qua mép trái hình, mất chữ ĐẦU, ở cả hai khổ.
+  Đo trên Chrome: 30 nhãn ở 19 công thức tràn (tiếng Việt hoặc tiếng Anh). Nguyên nhân phụ: cột co theo ước lượng
+  mà "Thuế chuyển nhượng" (18 ký tự) thật rộng hơn ước lượng, nên cũng mất 2 đơn vị.
+- **Rút ngắn mọi nhãn vượt 19 ký tự** (`corporate`, `derivatives`, `fees`, `fundamentals`, `performance`,
+  `personal`, `planning`, `returns`, `valuation-dcf`, `valuation-multiples`). Ví dụ công thức trong ảnh: "Khoản mất nếu
+  chạm cắt lỗ" → "Lỗ khi chạm cắt lỗ", "Phần còn dư trong mức rủi ro" → "Rủi ro còn dư", "Số tiền chấp nhận mất" →
+  "Tiền chấp nhận mất" (en "Loss at the stop", "Unused risk", "Risk budget"). Phần nào đang mượn nhãn ô nhập dài thì
+  được nhãn riêng, nhãn ô nhập không đổi. `rut-truoc-han` có `breakdownTotal` ("Lãi thực nhận") thay cho tên công thức.
+- **Đoạn "Đọc biểu đồ"** của ba hình bóc tách trích nguyên nhãn nên sửa theo (`dinh-gia.ts`: DDM hai giai đoạn, NCAV;
+  `khac.ts`: hai công thức trả góp, rút trước hạn).
+- **Chữa ở gốc:** `padLeftFor()` nhân ước lượng với `AN_TOAN_NHAN` = 1,08 (hằng đã đo của `DonutChart`).
+- **Ca kiểm:** `composition.test.ts` thêm `NHAN_THANH_TOI_DA` = 19, chạy trên mọi hình cơ cấu và bóc tách (30 công
+  thức), hai thứ tiếng; sửa ca `no-tren-von-chu`. `chart.test.ts` (nhãn DDM), `charts.test.tsx` (ba ca vành khuyên tìm
+  "Nợ phải trả (D)"; ca chú giải điện thoại tự tìm chữ rộng nhất; ca tên tổng hai dòng tự dựng tên dài).
+- Đo lại: 105 nhãn ở hai cỡ chữ, hai thứ tiếng — không nhãn nào tràn. Trên trang thật (`co-vi-the-phai-sinh` vi/en,
+  `thue-tncn-dau-tu`, `don-bay-tong-hop`) ở 390 và 1087px: mọi nhãn bắt đầu cách mép trái ≥ 3 đơn vị. Vitest toàn bộ
+  xanh (một ca `huong-dan.test.ts` quá giờ 5 giây khi chạy cả bộ, chạy riêng xanh). `gen:summaries` không lệch.
+- Cần chủ dự án đọc lại các nhãn mới — đây là chữ nội dung; danh sách đầy đủ trong diff.
+
+---
+
+## Hàng "Xem theo · Loại biểu đồ" thấp và gọn hơn ở điện thoại (26/10/2026)
+
+**Trạng thái: CHƯA XONG — đã sửa, chờ chủ dự án xem.** Chủ dự án khoanh hàng "Xem theo · Cơ cấu số tiền chấp … ·
+Vành khuyên" trên điện thoại: _"điều chỉnh giảm height phần này màn web mobile, giảm padding nữa để có nhiều không
+gian hiển thị text hơn"_. Chỉ dưới 1024px; từ 1024px không đổi.
+
+- `src/ui/charts/chart.module.css` (khối `max-width: 1023.98px`): hai ô chọn 36 → 30px; đệm trái 12 → 8px, phải
+  36 → 24px; mũi tên 16 → 14px, cách mép 10 → 6px; nhãn cách ô 12 → 8px; chữ trong ô giữ 14px. Sàn và gốc co giãn của
+  ô "Xem theo" 7,5 → 7rem: đo ở 360px, sàn cũ ép nhãn "Xem theo" hụt 3px, gãy hai dòng, hàng cao 36px.
+- Lượt hai cùng ngày (_"giảm size text xuống thêm 0,5 hoặc 1 px nữa"_): chữ trong hai ô 14 → 13px, viết thẳng (thang
+  chữ không có bậc 13; 12px thì bằng nhãn "Xem theo"). Tên biểu đồ 15px vẫn lớn hơn. Đo ở 390px: chỗ cho chữ 119px,
+  tên "Cơ cấu số tiền chấp nhận mất" cần 171px (184px ở 14px); hàng vẫn một dòng 30px ở 360–768.
+- `src/ui/charts/chart-controls-css.test.ts`: ca 36px → 30px, ca mới cho đệm/mũi tên/khe, ca sàn 7rem, hai ca cỡ chữ
+  ô chọn 14 → 13px.
+- Đo trên Chrome (dev :3000), `co-vi-the-phai-sinh`, mục "Cơ cấu số tiền chấp nhận mất" + "Vành khuyên": chỗ cho chữ
+  trong ô "Xem theo" 78 → 113px ở 390px; hàng một dòng 30px ở 360, 390, 768; ở 320 ô "Loại biểu đồ" vẫn rớt xuống hàng
+  riêng như trước; không tràn ngang.
+
+---
+
 ## Các biểu đồ còn lại: mọi kiểu hình công thức khai đều có hình vẽ (26/10/2026)
 
 **Trạng thái: CHƯA XONG — đã làm cả ba đợt, chờ chủ dự án xem.** Chủ dự án: _"tiếp tục phương án làm các biểu đồ còn
@@ -71,6 +119,12 @@ dòng "ký hiệu: nghĩa" — đúng khung mà hình trong lời giải Bài t�
   dòng tiền" (EN "At least 2 cash flows are needed"). Câu viết thẳng trong `calc` (`returns.ts`), không qua
   `incompleteInput()` vì "ít nhất 2 dòng tiền" không phải nhãn ô; mã vẫn `INCOMPLETE_INPUT`. Ca kiểm trong
   `FormulaDetail.test.tsx` nay ghim đúng câu mới và cấm "Còn thiếu". Dòng `_ _ %/năm` giữ nguyên.
+- Cùng ngày, bảng số liệu của đề bài (`.facts` trong `src/ui/quiz/QuizBody.module.css`) từ 1024px: chủ dự án khoanh
+  "Giá trị nội tại ước tính … 50.000 ₫" của `bien-an-toan` trên PC, nhãn mép trái, số mép phải — _"không gian bị thừa
+  quá nhiều … số liệu và text giải thích bên trái cần gần nhau"_. Nay lưới hai cột `auto auto`, mỗi dòng `subgrid`,
+  hộp `fit-content` (trần 100%): số đứng ngay sau nhãn dài nhất, khe 16px. Dưới 1024px giữ `space-between`. Đo trên
+  Chrome (dev :3000): 1440 và 1024 hộp 223px, số cách nhãn 16px, hai số thẳng cột; 390 không đổi; không tràn ngang.
+  Ca kiểm: 2 ca mới trong `quiz-desktop-css.test.ts`.
 
 ---
 

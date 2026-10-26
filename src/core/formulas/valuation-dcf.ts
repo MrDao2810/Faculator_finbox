@@ -397,7 +397,8 @@ export const DDM_HAI_GIAI_DOAN: FormulaModule = {
       {
         key: 'pvStage1',
         sign: 1,
-        shortLabel: { vi: 'Cổ tức giai đoạn đầu', en: 'First-stage dividends' },
+        /* Rút ngắn 26/10/2026 ("Cổ tức giai đoạn đầu"): quá 19 ký tự, bị cắt trên thanh ngang. */
+        shortLabel: { vi: 'Cổ tức giai đoạn 1', en: 'Stage-1 dividends' },
       },
       { key: 'pvTerminal', sign: 1, shortLabel: { vi: 'Giá trị cuối kỳ', en: 'Terminal value' } },
     ],
@@ -759,14 +760,15 @@ export const CAPM: FormulaModule = {
      */
     composition: {
       title: { vi: 'Cơ cấu chi phí vốn chủ', en: 'Cost of equity breakdown' },
-      total: { vi: 'Chi phí vốn chủ (re)', en: 'Cost of equity (re)' },
+      /*
+       * Nhãn ngắn 26/10/2026: dài hơn 19 ký tự là bị cắt trên hình thanh ngang. Múi phi rủi ro có
+       * nhãn riêng thay cho nhãn ô nhập "Lãi suất phi rủi ro (rf)".
+       */
+      total: { vi: 'Chi phí VCSH (re)', en: 'Cost of equity (re)' },
       unit: '%',
       parts: [
-        { key: 'riskFree' },
-        {
-          key: 'riskPremium',
-          label: { vi: 'Phần bù rủi ro của mã (β × ERP)', en: 'Stock risk premium (β × ERP)' },
-        },
+        { key: 'riskFree', label: { vi: 'Lãi phi rủi ro (rf)', en: 'Risk-free rate (rf)' } },
+        { key: 'riskPremium', label: { vi: 'Phần bù (β × ERP)', en: 'Premium (β × ERP)' } },
       ],
     },
     resultUnit: '%',
@@ -972,7 +974,8 @@ export const WACC: FormulaModule = {
      */
     composition: {
       title: { vi: 'Cơ cấu nguồn vốn', en: 'Capital structure' },
-      total: { vi: 'Tổng nguồn vốn (E+D)', en: 'Total capital (E+D)' },
+      /* Rút ngắn 26/10/2026 ("Tổng nguồn vốn (E+D)"): quá 19 ký tự, bị cắt trên thanh ngang. */
+      total: { vi: 'Tổng vốn (E+D)', en: 'Total capital (E+D)' },
       unit: 'tỷ ₫',
       parts: [{ key: 'equity' }, { key: 'debt' }],
     },
@@ -2038,10 +2041,11 @@ export const GIA_TRI_HIEN_TAI: FormulaModule = {
      */
     composition: {
       title: { vi: 'Cơ cấu số tiền tương lai', en: 'Future amount breakdown' },
-      total: { vi: 'Số tiền trong tương lai (FV)', en: 'Future amount (FV)' },
+      /* Nhãn ngắn 26/10/2026: dài hơn 19 ký tự là bị cắt trên hình thanh ngang. */
+      total: { vi: 'Số tiền tương lai', en: 'Future amount (FV)' },
       unit: '₫',
       parts: [
-        { key: 'presentValue', label: { vi: 'Giá trị hiện tại (PV)', en: 'Present value (PV)' } },
+        { key: 'presentValue', label: { vi: 'Giá trị hiện tại', en: 'Present value (PV)' } },
         { key: 'returnEarned', label: { vi: 'Phần sinh lợi', en: 'Return earned' } },
       ],
     },
@@ -2267,10 +2271,14 @@ export const GIA_TRI_TUONG_LAI: FormulaModule = {
      */
     composition: {
       title: { vi: 'Cơ cấu giá trị tương lai', en: 'Future value breakdown' },
-      total: { vi: 'Giá trị tương lai (FV)', en: 'Future value (FV)' },
+      /*
+       * Nhãn ngắn 26/10/2026: dài hơn 19 ký tự là bị cắt trên hình thanh ngang. Múi đầu có nhãn riêng
+       * thay cho nhãn ô nhập "Số tiền hiện tại (PV)".
+       */
+      total: { vi: 'Giá trị tương lai', en: 'Future value (FV)' },
       unit: '₫',
       parts: [
-        { key: 'presentValue' },
+        { key: 'presentValue', label: { vi: 'Số tiền hiện tại', en: 'Present amount (PV)' } },
         { key: 'returnEarned', label: { vi: 'Phần sinh lợi', en: 'Return earned' } },
       ],
     },

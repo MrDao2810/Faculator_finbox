@@ -1607,7 +1607,20 @@ at all):
   computed independently: revenue, EPS, FV, the goal, `lich-tra-no`'s own schedule for the loans. **The hole
   takes the total's name on up to two lines** (`tenGiuaVong`): one line hid it on 13 of 40 measurements;
   two totals were shortened ("Giá trị danh nghĩa", "Số tiền chấp nhận mất") because even two lines did not fit
-  a phone's hole.
+  a phone's hole. **Every horizontal-bar label is at most 19 characters, vi and en** (26/10/2026, owner, on
+  `co-vi-the-phai-sinh`'s "Thanh ngang" with "…n mất nếu chạm cắt lỗ": _"sao cả ở màn web mobile lẫn màn web pc
+  đều bị cắt nội dung. và tại sao phần này nội dung chú thích lại dài vậy. rút gọn ngắn đi"_). `WaterfallChart`
+  sizes its left label column from `textWidth()` but caps it at 96 units (`MAX_PAD_LEFT`), i.e. 88 units of text,
+  19 characters at the wide size's 9-unit font; a longer label ran past the SVG's left edge and lost its FIRST
+  letters, at both widths. Measured in Chrome: 30 labels in 19 formulas overflowed (composition parts and totals,
+  three breakdowns' stages, English and Vietnamese); all were shortened, and a part that borrowed a long input
+  label got its own (`label`) instead of a renamed field. The three breakdowns' "Đọc biểu đồ" paragraphs quote
+  their bar labels and were rewritten with them. `NHAN_THANH_TOI_DA` in `composition.test.ts` gates every
+  composition and breakdown bar. A second cause sat under the cap: the column is sized by the ESTIMATE, and
+  "Thuế chuyển nhượng" (18 characters) is 84,3 units real against 79,4 estimated, so it lost 2 units too;
+  `padLeftFor()` now multiplies by `AN_TOAN_NHAN` = 1,08, `DonutChart`'s measured constant. Re-measured: no label
+  of the 105 overflows, and on the page every label starts ≥ 3 units from the edge at 390 and 1087px. The donut's
+  two-line-total test now builds its long total by hand, since no registry total is that long any more.
 - **"Cột theo kỳ" — `ChartModel` kind `columns`, picker entry `COLUMNS_KEY`** (23/10/2026). Asked what new chart
   to draw next, the owner chose all four of: repayment by year, balance by year, purchase rounds, and a 0–100
   gauge (the last is the next bullet). The first three are one kind: one column per period, several series
@@ -1695,17 +1708,24 @@ Measured over the Registry (`dang-ve.test.ts` pins it): with no series, 257 draw
 breakdowns and 22 compositions); with FPT's 250 sessions and the real VN-Index 384 charts (Đường 321, Cột 340, Điểm
 316), Bậc thang 104 and Lãi/lỗ 46, Nến 5, Thang đo 3. The first form of every chart is the old default (a composition opens as Vành khuyên), so nothing changes until the user picks. The "?" popover
 is told `dang: 'duong'` for Nến, Điểm, Bậc thang and Lãi/lỗ (same points, same axes) and keeps the one
-breakdown paragraph for the donut. **Below 1024px the control row is ONE 36px line, label left, selects right**
+breakdown paragraph for the donut. **Below 1024px the control row is ONE 30px line, label left, selects right**
 (23/10/2026, owner circling the full-width "Xem theo" select under its label on a phone: _"đưa lên cùng hàng nằm bên
 phải của đoạn text bên trên … để tiết kiệm không gian"_; was label above, select below, ~56px). Each `.picker` is a
-flex ROW (the `Select` root is a column); the select grows from 7.5rem to its widest option (`max-width:
+flex ROW (the `Select` root is a column); the select grows from 7rem to its widest option (`max-width:
 max-content`) and the spare space goes to `margin-right: auto` after the label, so it sits at the right edge — the
 Số liệu choice-control rule. With both selects, "Loại biểu đồ" stands right after "Xem theo" and its label is
-visually hidden (as from 1280px); alone, it keeps its label. The axis select never shrinks under 7.5rem; the label
+visually hidden (as from 1280px); alone, it keeps its label. The axis select never shrinks under 7rem; the label
 shrinks first, which wraps "Xem theo" only at 320px and the English sentence label to two lines; the axis picker's
 10rem basis (15rem in English, `:lang(en)`) decides when "Loại biểu đồ" drops to its own row, right-aligned. Do not
 let the label GROW: a grown label shrunk by a fraction of a pixel wrapped "Xem theo" at 390px. A truncated axis name
-stays readable in the chart title. `chart-controls-css.test.ts` pins it.
+stays readable in the chart title. `chart-controls-css.test.ts` pins it. **Lower and tighter since 26/10/2026**
+(owner, same row on a phone: _"giảm height phần này màn web mobile, giảm padding nữa để có nhiều không gian hiển thị
+text hơn"_): both selects 36 → 30px, padding 12/36 → 8/24px, chevron 16 → 14px at 6px from the edge, label-to-select
+gap 12 → 8px; the axis select floor and basis 7.5 → 7rem, because at 360px the old floor squeezed "Xem theo" by 3px
+onto two lines. A follow-up the same day (_"giảm size text xuống thêm 0,5 hoặc 1 px nữa"_) took the text in both
+selects 14 → 13px, written as a literal (no 13px step on the scale; 12px would equal the "Xem theo" label). Measured on
+`co-vi-the-phai-sinh`'s "Cơ cấu số tiền chấp nhận mất": text room 78 → 119px at 390 against a 171px name (was 184px
+at 14px), one 30px row at 360–768; at 320 "Loại biểu đồ" still drops to its own row, as before.
 
 **The two chart selects never change on their own** (23/10/2026, two owner messages the same day). What the user
 picked in "Xem theo" or "Loại biểu đồ" is what the block shows, or explains; the engine never draws a different entry

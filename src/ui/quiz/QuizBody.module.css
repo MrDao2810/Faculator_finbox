@@ -221,6 +221,39 @@ dialog.dialog > div {
   color: var(--color-ink);
 }
 
+/*
+ * Từ 1024px: bảng hai cột co theo chữ, giá trị đứng NGAY sau cột nhãn (26/10/2026). Chủ dự án khoanh
+ * bảng số liệu của câu điền số trên `bien-an-toan` ở máy tính — "Giá trị nội tại ước tính" ở mép trái,
+ * "50.000 ₫" ở mép phải, một khoảng trống cả nghìn pixel giữa hai thứ: _"không gian bị thừa quá
+ * nhiều … số liệu và text giải thích bên trái cần gần nhau"_. `space-between` trên cả bề ngang popup
+ * là thủ phạm; dưới 1024px khung hẹp nên khoảng ấy vốn ngắn, giữ nguyên.
+ *
+ * Lưới hai cột `auto` trên `.facts`, mỗi `.fact` một hàng `subgrid` — nên mọi giá trị trong bảng thẳng
+ * một cột sau nhãn DÀI NHẤT, không mỗi dòng một chỗ. `subgrid` chứ không `display: contents` vì cùng
+ * lý do `LoiGiai`: `contents` làm rơi thẻ `<div>` gom cặp `dt`/`dd` khỏi cây trợ năng ở vài trình duyệt.
+ * Hộp co theo chữ (`fit-content`), trần là bề ngang khung: nhãn dài nhất kho câu hỏi 96 ký tự, giá
+ * trị dài nhất 81 — chạm trần thì cột `auto` tự xuống dòng, không tràn ngang.
+ */
+@media (min-width: 1024px) {
+  /*
+   * Khe giữa nhãn và số là `gap: var(--space-4)` (16px) của `.fact` ở luật gốc, không khai ở đây:
+   * một `subgrid` mang `gap` riêng thì khe ấy ghi đè khe cột của lưới cha (đo trên Chrome, 26/10).
+   */
+  .facts {
+    display: grid;
+    grid-template-columns: auto auto;
+    width: fit-content;
+    max-width: 100%;
+  }
+
+  .fact {
+    display: grid;
+    grid-column: 1 / -1;
+    grid-template-columns: subgrid;
+    justify-content: start;
+  }
+}
+
 /* ── Câu hỏi và bốn lựa chọn ───────────────────────────────────────────────── */
 
 .choices {

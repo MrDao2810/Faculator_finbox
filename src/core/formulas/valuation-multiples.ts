@@ -1294,12 +1294,13 @@ export const NCAV: FormulaModule = {
       {
         key: 'assetsPerShare',
         sign: 1,
-        shortLabel: { vi: 'TSNH mỗi CP', en: 'Current assets/share' },
+        /* Nhãn tiếng Anh rút ngắn 26/10/2026: quá 19 ký tự, bị cắt trên thanh ngang. */
+        shortLabel: { vi: 'TSNH mỗi CP', en: 'Current assets' },
       },
       {
         key: 'liabilitiesPerShare',
         sign: -1,
-        shortLabel: { vi: 'Trừ nợ mỗi CP', en: 'Less liabilities/share' },
+        shortLabel: { vi: 'Trừ nợ mỗi CP', en: 'Less liabilities' },
       },
     ],
     breakdownTotal: { vi: 'NCAV', en: 'NCAV' },

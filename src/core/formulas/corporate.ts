@@ -77,16 +77,11 @@ export const DIEM_HOA_VON: FormulaModule = {
      */
     composition: {
       title: { vi: 'Cơ cấu doanh thu hoà vốn', en: 'Break-even revenue breakdown' },
-      total: { vi: 'Doanh thu hoà vốn (DThv)', en: 'Break-even revenue (DThv)' },
+      /* Nhãn rút ngắn 26/10/2026: dài hơn 19 ký tự là bị cắt trên hình thanh ngang. */
+      total: { vi: 'Doanh thu hoà vốn', en: 'Break-even revenue' },
       unit: '₫',
       parts: [
-        {
-          key: 'breakEvenVariableCost',
-          label: {
-            vi: 'Tổng biến phí tại điểm hoà vốn',
-            en: 'Total variable cost at break-even',
-          },
-        },
+        { key: 'breakEvenVariableCost', label: { vi: 'Tổng biến phí', en: 'Variable cost' } },
         { key: 'fixedCost' },
       ],
     },
@@ -344,17 +339,15 @@ export const DON_BAY_TONG_HOP: FormulaModule = {
       title: { vi: 'Cơ cấu doanh thu', en: 'Revenue breakdown' },
       total: { vi: 'Doanh thu (DT)', en: 'Revenue (DT)' },
       unit: '₫',
+      /*
+       * Nhãn riêng ngắn thay cho nhãn ô nhập ở ba múi đầu, và nhãn múi cuối rút ngắn (26/10/2026): dài
+       * hơn 19 ký tự là bị cắt trên hình thanh ngang.
+       */
       parts: [
-        { key: 'variableCost' },
-        { key: 'fixedCost' },
-        { key: 'interest' },
-        {
-          key: 'profitBeforeTax',
-          label: {
-            vi: 'Lợi nhuận trước thuế (EBIT − I)',
-            en: 'Profit before tax (EBIT − I)',
-          },
-        },
+        { key: 'variableCost', label: { vi: 'Tổng biến phí (BP)', en: 'Variable cost (BP)' } },
+        { key: 'fixedCost', label: { vi: 'Định phí hoạt động', en: 'Fixed cost' } },
+        { key: 'interest', label: { vi: 'Lãi vay (I)', en: 'Interest (I)' } },
+        { key: 'profitBeforeTax', label: { vi: 'Lãi trước thuế', en: 'Pre-tax profit' } },
       ],
     },
     resultUnit: 'lần',

@@ -9,10 +9,22 @@
  *
  * Nay tất cả bo `--radius-md`, cùng bậc với thẻ và điều khiển.
  */
+/*
+ * LƯỚI chứ không còn flex hai ô "icon | khối chữ" (23/10/2026). Chủ dự án khoanh câu "Cần ít nhất 60
+ * phiên giá…" và dòng "↳ Nạp bộ số liệu mẫu…" dưới tiêu đề của biểu đồ, kẻ mũi tên sang trái:
+ * _"chuyển phần khoanh đỏ sang bên trái như tôi chỉ"_. Với flex, icon chiếm hẳn một CỘT suốt
+ * chiều cao thẻ, nên hai dòng ấy thụt vào đúng bề ngang icon + khe (22px). Nay icon và nhãn chung
+ * hàng đầu, câu và dòng gợi ý bắt đầu từ mép trái thẻ, thẳng với icon.
+ *
+ * `.body` là `display: contents` để ba dòng chữ vào thẳng lưới của thẻ mà DOM không đổi (cùng lối
+ * `.stepText` của `ChainBody`). Nó là một `div` không vai trò, nên không mất gì trên cây trợ năng.
+ */
 .warning {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--space-2);
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  column-gap: var(--space-2);
+  row-gap: 2px;
 
   padding: var(--space-2) var(--space-3);
 
@@ -22,15 +34,16 @@
 }
 
 .icon {
-  flex-shrink: 0;
-  margin-top: 2px;
   color: var(--color-warning);
 }
 
 .body {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
+  display: contents;
+}
+
+.message,
+.fix {
+  grid-column: 1 / -1;
   min-width: 0;
 }
 

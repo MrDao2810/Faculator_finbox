@@ -88,6 +88,38 @@ describe('hàng điều khiển biểu đồ dưới 1024px', () => {
 });
 
 /*
+ * Nhãn và ô chọn chung một hàng dưới 1024px (23/10/2026, chủ dự án khoanh ô "Xem theo" trải hết bề
+ * ngang dưới nhãn: _"đưa lên cùng hàng nằm bên phải của đoạn text bên trên … để tiết kiệm không
+ * gian"_). jsdom không dàn trang, nên ca này ghim các khai báo; số đo trên Chrome nằm ở TASK.md.
+ */
+describe('hàng điều khiển biểu đồ dưới 1024px: nhãn trái, ô chọn phải, một hàng', () => {
+  it('mỗi ô chọn là một hàng flex: nhãn bên trái, ô dạt phải theo bề ngang nội dung', () => {
+    const o = luat(BIEU_DO, '.controls .picker');
+    expect(o).toMatch(/flex-direction:\s*row;/);
+    expect(o).toMatch(/align-items:\s*center;/);
+    expect(o).toMatch(/flex:\s*1 1 10rem;/);
+
+    expect(luat(BIEU_DO, '.controls .picker label')).toMatch(/margin-right:\s*auto;/);
+    const chon = luat(BIEU_DO, '.controls .picker select');
+    expect(chon).toMatch(/width:\s*auto;/);
+    expect(chon).toMatch(/max-width:\s*max-content;/);
+  });
+
+  it('ô chọn trục không co dưới 7,5rem — chỗ thiếu thì nhãn co trước', () => {
+    expect(luat(BIEU_DO, '.controls .picker:not(.kindPicker) select')).toMatch(
+      /min-width:\s*7\.5rem;/,
+    );
+  });
+
+  it('ô "Loại biểu đồ" đứng sau ô "Xem theo" thì giấu nhãn khỏi mắt, vẫn còn cho trình đọc màn hình', () => {
+    const nhan = luat(BIEU_DO, '.controls .picker + .kindPicker label');
+    expect(nhan).toMatch(/position:\s*absolute;/);
+    expect(nhan).toMatch(/clip:\s*rect\(0 0 0 0\);/);
+    expect(luat(BIEU_DO, '.controls .picker + .kindPicker')).toMatch(/margin-left:\s*auto;/);
+  });
+});
+
+/*
  * Khoảng trống quanh biểu đồ ở khổ điện thoại (19/10/2026, chủ dự án: _"giảm padding xung quanh … để
  * hiển thị nhiều không gian chart hơn"_). Lề TRONG SVG có ca riêng ở `charts.test.tsx`; ở đây là phần
  * CSS, thứ test React không chạy: khung vẽ tràn vào đệm thẻ, và hàng "Xem số liệu" thấp đi mà vùng chạm

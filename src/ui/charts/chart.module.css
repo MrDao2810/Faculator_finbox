@@ -893,12 +893,11 @@
  */
 
 /*
- * Ô chọn trục giữ lại khi không vẽ được — đường ra duy nhất của trạng thái ấy, nên nó phải nằm
- * ngay dưới câu cảnh báo chứ không lẫn vào đâu khác.
+ * `.axisEscape` (khung riêng cho ô chọn trục dưới câu cảnh báo) đã gỡ ngày 23/10/2026. Hình MẶC ĐỊNH
+ * không vẽ được thì không có ô chọn. Mục người dùng ĐÃ TỰ CHỌN hết vẽ được, mà còn mục khác vẽ được,
+ * thì ô chọn ở lại, nhưng trong thẻ `ThongBaoHinh` (`ChartBody.tsx`): cùng `.chart`, `.captionRow` và
+ * `.controls` của một hình, nên không cần lớp riêng. Lý do ở docblock `UnavailableChart`.
  */
-.axisEscape {
-  margin-top: var(--space-3);
-}
 
 .data {
   font-size: var(--text-xs);
@@ -1119,18 +1118,85 @@
   }
 
   /*
-   * Hai ô chọn chung MỘT hàng (21/10/2026). Với sàn 12rem của ô "Xem theo", ô "Loại biểu đồ" rớt
-   * xuống hàng riêng ở 360px mỗi khi nó mang một dạng tên dài (tên cũ "Vùng âm/dương" rộng 153px, nay là "Lãi/lỗ"), nên hình
-   * này một hàng, hình kia hai hàng, và khối cao thêm ~65px. Sàn 7,5rem giữ hai ô chung hàng tới khi
-   * ô "Xem theo" còn ít nhất 120px; hẹp hơn nữa (320px) thì vẫn xuống dòng. Tên trục bị cắt "…"
-   * trong ô vẫn đọc đủ ở tiêu đề biểu đồ ngay trên. Ô "Loại biểu đồ" giữ bề ngang tự nhiên.
+   * Nhãn và ô chọn chung MỘT hàng (23/10/2026). Chủ dự án khoanh ô "Xem theo" trải hết bề ngang dưới
+   * nhãn của nó trên điện thoại: _"đang chiếm nhiều không gian, đưa lên cùng hàng nằm bên phải của
+   * đoạn text bên trên sao cho hợp lý nhất để tiết kiệm không gian"_. Nay cả hàng là một dòng 36px:
+   * nhãn bên trái nhận phần thừa, ô chọn ôm theo lựa chọn dài nhất và dạt về mép phải — cùng luật ô
+   * CHỌN của khối Số liệu (19/10/2026). Trước đó nhãn đứng trên, ô chọn dưới: ~56px.
+   *
+   * - Có cả ô "Loại biểu đồ" thì nó đứng ngay sau ô "Xem theo", cùng hàng, và nhãn của nó chỉ còn cho
+   *   trình đọc màn hình (công thức `.visually-hidden`, như khổ PC từ 1280px): nhãn thứ hai trên cùng
+   *   dòng ăn mất ~80px của tên trục ở 390px. Ô ấy đứng MỘT MÌNH (công thức chỉ có một biến quét được)
+   *   thì giữ nhãn, cùng dáng nhãn trái, ô phải.
+   * - Chỗ thiếu thì ô "Xem theo" co lại và cắt "…" (tên trục đọc đủ ở tiêu đề hình ngay trên), nhưng
+   *   không dưới 7,5rem; thiếu nữa thì nhãn xuống dòng ngay trong cột của nó ("See how the result
+   *   changes with" của bản tiếng Anh dài gấp ba "Xem theo": hai, ba dòng ở 360–390px).
+   * - Sàn 10rem của ô "Xem theo" (một nhãn ngắn nhất xuống dòng, khe 12px, ô 7,5rem) quyết định lúc
+   *   ô "Loại biểu đồ" rớt xuống hàng riêng: chỉ khi cả sàn ấy cũng không vừa. Rớt thì nó dạt phải,
+   *   thẳng mép với ô trên.
+   * - `flex-direction: row` là bắt buộc: gốc của primitive `Select` là flex CỘT. Sàn 7,5rem của đợt
+   *   21/10 thành sàn của riêng ô chọn trục.
    */
-  .controls .picker {
-    flex-basis: 7.5rem;
+  .controls {
+    align-items: center;
   }
 
-  .controls .kindPicker {
-    flex-basis: auto;
+  .controls .picker {
+    flex: 1 1 10rem;
+    flex-direction: row;
+    align-items: center;
+    gap: var(--space-3);
+    min-width: 0;
+    max-width: none;
+  }
+
+  /*
+   * Ô chọn mọc từ 7,5rem tới đúng lựa chọn dài nhất (`max-width: max-content`, thay `width: 100%` của
+   * primitive); phần thừa còn lại về lề tự động sau nhãn, nên ô dạt phải. Nhãn không mọc, chỉ co —
+   * và chỉ co khi ô đã ở sàn, vì ô không co dưới sàn. Bản đầu cho nhãn mọc và ô co theo tỉ lệ: một
+   * tên trục dài (FCFF, 306px) làm nhãn hụt một phần nhỏ pixel, đủ để "Xem theo" gãy hai dòng ở
+   * 390px (đo 23/10/2026).
+   */
+  .controls .picker label {
+    flex: 0 1 auto;
+    min-width: 0;
+    margin-right: auto;
+  }
+
+  .controls .picker select {
+    flex: 1 1 7.5rem;
+    width: auto;
+    max-width: max-content;
+    min-width: 0;
+  }
+
+  .controls .picker:not(.kindPicker) select {
+    min-width: 7.5rem;
+  }
+
+  /*
+   * Nhãn tiếng Anh là cả một câu: với sàn 10rem nó gãy tới sáu dòng ở 320px (cao 108px). Sàn 15rem
+   * cho ô "Chart type" rớt dòng sớm hơn, nhãn còn hai dòng. Đo ở 320, 360 và 390px.
+   */
+  .controls .picker:not(.kindPicker):lang(en) {
+    flex-basis: 15rem;
+  }
+
+  .controls .picker + .kindPicker {
+    flex: 0 0 auto;
+    margin-left: auto;
+  }
+
+  .controls .picker + .kindPicker label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
   }
 }
 

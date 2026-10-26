@@ -1467,7 +1467,9 @@ it fits** (21/10/2026). The owner: _"biểu đồ tôi đang muốn hướng đ�
 groups below, a select over icon buttons, **no guide text for the new forms yet** ("hướng dẫn sử dụng thì
 chưa cần"), and Beta's fabricated VN-Index left for a separate job. `dangVeCuaHinh(model, spec)` in
 `src/core/chart/dang-ve.ts` is the ONE rule, and `ChartKindSelect` only prints its list (a form that would
-read wrong is absent, not greyed out; one form left means no select at all):
+read wrong is never drawn: it is absent, not greyed out, except as the kept selection while the data stops fitting
+it on the same entry, see "The two chart selects never change on their own" below; one form left means no select
+at all):
 
 - **Đường, Cột** as before (Cột only for a single series). **Điểm**: one dot per computed level, no line,
   no area band; every line chart.
@@ -1644,9 +1646,64 @@ Measured over the Registry (`dang-ve.test.ts` pins it): with no series, 257 draw
 breakdowns and 22 compositions); with FPT's 250 sessions 374 charts (Cột 337), Bậc thang 102 and Lãi/lỗ 46, Nến 5,
 Thang đo 3. The first form of every chart is the old default (a composition opens as Vành khuyên), so nothing changes until the user picks. The "?" popover
 is told `dang: 'duong'` for Nến, Điểm, Bậc thang and Lãi/lỗ (same points, same axes) and keeps the one
-breakdown paragraph for the donut. Below 1024px the "Xem theo" select's flex floor is 7.5rem so the two
-selects share one row whenever "Xem theo" keeps ≥120px (else a 153px "Vùng âm/dương" (renamed "Lãi/lỗ" 22/10/2026) dropped the second select
-to its own row on some charts and not others); a truncated axis name stays readable in the chart title.
+breakdown paragraph for the donut. **Below 1024px the control row is ONE 36px line, label left, selects right**
+(23/10/2026, owner circling the full-width "Xem theo" select under its label on a phone: _"đưa lên cùng hàng nằm bên
+phải của đoạn text bên trên … để tiết kiệm không gian"_; was label above, select below, ~56px). Each `.picker` is a
+flex ROW (the `Select` root is a column); the select grows from 7.5rem to its widest option (`max-width:
+max-content`) and the spare space goes to `margin-right: auto` after the label, so it sits at the right edge — the
+Số liệu choice-control rule. With both selects, "Loại biểu đồ" stands right after "Xem theo" and its label is
+visually hidden (as from 1280px); alone, it keeps its label. The axis select never shrinks under 7.5rem; the label
+shrinks first, which wraps "Xem theo" only at 320px and the English sentence label to two lines; the axis picker's
+10rem basis (15rem in English, `:lang(en)`) decides when "Loại biểu đồ" drops to its own row, right-aligned. Do not
+let the label GROW: a grown label shrunk by a fraction of a pixel wrapped "Xem theo" at 390px. A truncated axis name
+stays readable in the chart title. `chart-controls-css.test.ts` pins it.
+
+**The two chart selects never change on their own** (23/10/2026, two owner messages the same day). What the user
+picked in "Xem theo" or "Loại biểu đồ" is what the block shows, or explains; the engine never draws a different entry
+or form in its place. Before, an entry whose data stopped fitting (gauge after dragging Chu kỳ past the loaded sessions,
+a composition with a negative part, columns with one period, Thời gian with too few sessions) dropped out of `options`
+and `buildChartModel()` fell through to the default axis; the owner, on `phan-tram-b-bollinger`'s Thang đo turning into
+"Chu kỳ dải Bollinger · Đường": _"nếu đã không thể vẽ được biểu đồ thì hiển thị rằng dữ liệu không khớp … thay vì vẽ
+sang dạng biểu đồ khác để đối phó chứ, select là để phân biệt dạng biểu đồ"_. The rules:
+
+- `buildChartModel()` is now a wrapper: `dungMoHinh()` builds the requested entry (a special key that exists but is
+  not ready returns `unavailable` with that key, the result's own warning or a chart-specific one), and the wrapper
+  sets `options` to the entries that draw NOW (`sweepHasPoint`, `historyHasPoint`, the readiness gates; nearest level
+  first, so a drawable axis costs one `runFormula`) plus the requested one.
+- **The DEFAULT chart failing gives the warning alone, no select.** The owner's first message that day, on the same
+  formula with a 10-session ticker: _"khi nào biểu đồ có đủ thông số để hiển thị thì phần select mới hiển thị"_.
+  Measured: at Chu kỳ 20 the Chu kỳ axis draws exactly one level (N = 10) of 21, so "another entry draws" is not a
+  reason to show a select there. `.axisEscape` (the select kept under the warning since the dead-end fix) is gone.
+  The default of the five `waterfall` formulas is the breakdown by `chartType`, not by readiness (`khoaXin`): `ev`
+  with Vốn hoá 0 used to turn into the slope-1 line "EV theo Vốn hoá thị trường"; it now shows the warning.
+- **An entry the USER CHOSE failing** keeps the select (`UnavailableChart.options` + `sweepKey`, the chosen entry
+  included) when another entry still draws, and the warning starts "Chưa vẽ được “Thang đo” với số liệu hiện tại."
+  "Chose" means an entry OTHER than the default (`khoaMacDinh()`): picking Chu kỳ then back to Thời gian leaves a
+  `sweepKey` in state on a screen that looks untouched, and counting it would bring back the select the owner had
+  removed. `ChartBody` renders the notice as `ThongBaoHinh`: the chart card with its title row (from 1280px the
+  card is a two-column grid and the select's label is hidden, so without a title the select floated alone), its
+  `.controls` row, the warning in place of the plot. Dropping the select here would strand the user on a broken
+  entry while the result still computes (a negative composition part), the "phải rời màn rồi vào lại" dead end fixed
+  earlier. Reasons are cause-specific: a columns entry says which check failed (`kiemCot()`: fewer than two periods,
+  a negative stacked part, every period 0, other); Thời gian blames the series unless the result's own error is
+  `MISSING_SERIES`.
+- Switching between the notice card and the chart card remounts the selects, so `ChartBody` records which select
+  was just used and gives it focus back after the commit if nothing else holds it.
+- **"Loại biểu đồ" follows the same rule.** `ChartBody` remembers the entry on which the chosen form was last drawn
+  (`dangDaVe`); if the form stops being offered while the user is still on that entry (data changed), the select keeps
+  it and `lyDoKhongVeDang()` replaces the plot ("Chưa vẽ được dạng “Lãi/lỗ” …"). Switching "Xem theo" to an entry
+  without that form still draws the entry's first form, as before. `TEN_DANG_VE` duplicates the `chart.kind*` labels;
+  `i18n.test.ts` anchors them. Bậc thang is lost when a period axis grows past 40 steps (`sweepDomain()` stops
+  snapping to the step grid); its notice says the axis range is too wide and suggests lowering the axis figure, not
+  that the data is wrong. Snapping long period axes to the grid would cure it but moves 248 guide axes' "một nửa …
+  gấp rưỡi" ranges; not done.
+- Unknown keys (an advanced variable after switching to Basic) still fall back to the default: that entry no longer
+  exists at this level.
+
+`giu-lua-chon.test.ts` sweeps every chart (two levels, no series / 10 / 250 sessions): picking any listed entry yields
+that entry or its notice, every listed entry draws, the default (and a re-picked default) never brings a select, and a
+chosen non-default entry that fails keeps its name in the select and the warning. `charts.test.tsx` replays the
+owner's gauge drag, a Lãi/lỗ loss, the re-picked default, `ev` at Vốn hoá 0 and the focus hand-back.
 
 Other domain conventions already established: input controls are generated entirely from
 `VariableSpec` rather than hard-coded (FR-05); user input is bounded with `clampToSpec()`, which
@@ -3380,9 +3437,10 @@ in this round; without them, picking "Khối lượng" would show either nothing
   setter itself, never a closure; the effect depends on three primitives, so it fires when the chart
   changes, not on every keystroke. `dang` is the EFFECTIVE form, not the button's wish: SMA's time chart has
   an overlay and no bars, so with the button left on Cột the screen draws a line and the popover must too.
-- **While nothing is drawn and the user has picked nothing, `khoa` is `null`.** An `unavailable` model still
-  carries a `sweepKey` — the first input the engine tried — but for the 35 formulas waiting on a series the
-  chart that will appear is the time chart, not that input's. `khoiDangXem()` in `GuideBody.tsx` falls back
+- **While nothing is drawn and the user has picked nothing, `khoa` is `null`.** For the 35 formulas waiting on
+  a series the chart that will appear is the time chart, not the first input the engine tried. (An
+  `unavailable` model used to carry that input's `sweepKey`; since 23/10/2026 it carries one only for an entry
+  the user chose, and then the select keeps showing it.) `khoiDangXem()` in `GuideBody.tsx` falls back
   to the first block (`moRa`) for `null`, for "not reported yet" and for a key with no text.
 - **One condition line is left: `guide.chart.when.seriesOnly`**, printed only when the chart being described
   needs a series AND is not on screen. `guide.chart.switchAxis`, `switchKind`, `when.advanced`, `when.series`

@@ -206,8 +206,40 @@ describe('Trả nợ từng năm — gộp từ đúng bảng trả nợ', () =>
     const inputs = { ...defaultInputs(formula.spec), years: 1 };
     const output = runFormula(formula, inputs, CTX);
     expect(columnData(formula, inputs, CTX, output)).toBeNull();
+    const model = ve(formula, inputs);
+    if (model.kind === 'unavailable') throw new Error('phải vẽ được');
+    expect(model.options.map((option) => option.key)).not.toContain(COLUMNS_KEY);
+  });
+
+  /*
+   * Đang XEM mục cột mà số liệu đổi làm nó hết vẽ được: không rơi sang trục mặc định (23/10/2026).
+   * Chủ dự án: _"select là để phân biệt dạng biểu đồ"_ — ô chọn giữ mục, câu báo nêu tên mục.
+   */
+  it('đang xem mục cột mà vay còn một năm: mục ở lại trong ô chọn, câu báo nêu tên mục', () => {
+    const formula = congThuc('tra-gop-nien-kim');
+    const inputs = { ...defaultInputs(formula.spec), years: 1 };
     const model = ve(formula, inputs, COLUMNS_KEY);
-    expect('sweepKey' in model ? model.sweepKey : undefined).not.toBe(COLUMNS_KEY);
+    if (model.kind !== 'unavailable')
+      throw new Error('không được vẽ hình khác thay cho mục đã chọn');
+
+    expect(model.sweepKey).toBe(COLUMNS_KEY);
+    expect(model.options?.map((option) => option.key)).toContain(COLUMNS_KEY);
+    expect(model.warning.message.vi).toContain('Chưa vẽ được “Trả nợ từng năm”');
+    expect(model.warning.message.vi).toContain('Chưa đủ hai kỳ ra số');
+  });
+
+  /*
+   * Câu báo theo ĐÚNG nguyên nhân (vòng soát 23/10/2026): mọi kỳ bằng 0 không phải "có kỳ âm", và
+   * hình lợi suất từng kỳ còn cho phép cột âm.
+   */
+  it('đang xem Lợi suất từng kỳ mà mọi kỳ bằng 0: câu báo nói mọi kỳ bằng 0, không nói kỳ âm', () => {
+    const formula = congThuc('loi-suat-trung-binh-hinh-hoc');
+    const inputs = { ...defaultInputs(formula.spec), periods: 3, r1: 0, r2: 0, r3: 0 };
+    const model = ve(formula, inputs, COLUMNS_KEY);
+    if (model.kind !== 'unavailable') throw new Error('mọi kỳ bằng 0 thì không có cột nào để vẽ');
+
+    expect(model.warning.message.vi).toContain('Mọi kỳ đều bằng 0');
+    expect(model.warning.message.vi).not.toContain('số âm');
   });
 });
 

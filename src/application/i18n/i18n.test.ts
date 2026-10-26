@@ -7,6 +7,7 @@ import { describe, expect, it } from 'vitest';
 import { DISCLAIMER_VI } from '@/core/disclaimer';
 import { findFormulaModule } from '@/core/formulas';
 import { UNIT_SCALES } from '@/core/format';
+import { TEN_DANG_VE } from '@/core/chart';
 import { COLUMN_LABELS } from '@/core/paste-import';
 
 import { MAX_HOLDINGS } from '../portfolio-store';
@@ -142,6 +143,27 @@ describe('từ điển tiếng Anh (gói 3.6.3, phần giao diện)', () => {
     const kinds = ['date', 'open', 'high', 'low', 'close', 'volume'] as const;
     for (const kind of kinds) {
       expect(vi[`paste.col.${kind}`]).toBe(COLUMN_LABELS[kind]);
+    }
+  });
+
+  it('tên dạng vẽ TEN_DANG_VE khớp từng chữ với nhãn ô "Loại biểu đồ" (chart.kind*), hai ngôn ngữ', () => {
+    // Domain viết câu "Chưa vẽ được dạng “…”" mà không đọc được i18n (CON-02), nên giữ một bản tên
+    // riêng; ca này là dây neo, cùng nếp COLUMN_LABELS ở trên.
+    const khoa = {
+      line: 'chart.kindLine',
+      candle: 'chart.kindCandle',
+      bar: 'chart.kindBar',
+      dots: 'chart.kindDots',
+      step: 'chart.kindStep',
+      signArea: 'chart.kindSignArea',
+      waterfall: 'chart.kindWaterfall',
+      donut: 'chart.kindDonut',
+      gauge: 'chart.kindGauge',
+    } as const;
+    for (const [dang, key] of Object.entries(khoa)) {
+      const ten = TEN_DANG_VE[dang as keyof typeof khoa];
+      expect(vi[key], dang).toBe(ten.vi);
+      expect(en[key], dang).toBe(ten.en);
     }
   });
 

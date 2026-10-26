@@ -361,11 +361,41 @@ describe('buildChartModel — trục thời gian nối vào ô chọn đã có',
     expect(built.title.vi).toBe('P/E theo EPS');
   });
 
-  it('xin đường thời gian khi dữ liệu đã mất thì rơi về đường quét, không vẽ khung rỗng', () => {
+  /*
+   * ĐẢO ngày 23/10/2026: trước đây ca này đòi rơi về đường quét theo Giá. Chủ dự án không muốn hình
+   * tự đổi sang dạng khác thay cho mục đã chọn (_"select là để phân biệt dạng biểu đồ"_), nên mục
+   * Thời gian ở lại trong ô chọn và câu báo nói thiếu chuỗi; các trục quét vẫn ở đó để tự đổi sang.
+   */
+  it('xin đường thời gian khi dữ liệu đã mất thì báo chưa vẽ được, ô chọn giữ mục và còn đường quét', () => {
     const built = model('pe', BASE, HISTORY_KEY);
-    if (built.kind !== 'line') throw new Error('phải rơi về đường quét');
+    if (built.kind !== 'unavailable') throw new Error('không được vẽ hình khác thay cho Thời gian');
 
-    expect(built.sweepKey).toBe('price');
+    expect(built.sweepKey).toBe(HISTORY_KEY);
+    expect(built.options?.map((option) => option.key)).toEqual([HISTORY_KEY, 'price', 'eps']);
+    expect(built.warning.code).toBe('MISSING_SERIES');
+    expect(built.warning.message.vi).toContain('Chưa vẽ được “Thời gian”');
+  });
+
+  /*
+   * Cái chặn đường thời gian là CHUỖI. Một lỗi khác của kết quả (EPS bằng 0) không được đứng tên lý
+   * do: sửa EPS xong hình vẫn chưa vẽ được (vòng soát 23/10/2026).
+   */
+  it('chưa có chuỗi mà EPS bằng 0: câu báo của "Thời gian" nói thiếu chuỗi, không nói EPS', () => {
+    const formula = moduleOf('pe');
+    const inputs = { ...defaultInputs(formula.spec), eps: 0 };
+    const built = buildChartModel({
+      formula,
+      inputs,
+      ctx: BASE,
+      output: runFormula(formula, inputs, BASE),
+      level: 'basic',
+      sweepKey: HISTORY_KEY,
+    });
+    if (built.kind !== 'unavailable') throw new Error('không được vẽ hình khác thay cho Thời gian');
+
+    expect(built.warning.code).toBe('MISSING_SERIES');
+    expect(built.warning.message.vi).toContain('Chưa có chuỗi giá đủ phiên');
+    expect(built.warning.message.vi).not.toContain('EPS');
   });
 
   it('trục X là cột "Ngày" trong bảng số, giá trị là ngày thật', () => {

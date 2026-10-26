@@ -58,7 +58,6 @@ export function buildGaugeModel(
           en: 'No figure to place on the gauge yet.',
         },
       },
-      options,
       sweepKey: GAUGE_KEY,
     };
   }

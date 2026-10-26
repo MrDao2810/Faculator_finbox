@@ -334,6 +334,7 @@ export {
   laHinhChuoiGia,
   linePath,
   linearScale,
+  lyDoKhongVeDang,
   nearestPointByX,
   pointerToViewBox,
   seriesOf,

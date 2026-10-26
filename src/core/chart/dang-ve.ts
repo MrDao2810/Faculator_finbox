@@ -4,8 +4,10 @@
  * Trước ngày này mỗi hình đường chỉ có hai nút Đường / Cột, và hình bóc tách không có nút nào. Chủ
  * dự án: _"biểu đồ tôi đang muốn hướng đến nhiều dạng vẽ khác nhau … hiện tại đang chỉ là 2 dạng
  * nên quá eo hẹp"_, rồi chốt bốn nhóm dạng mới và một luật: **mỗi dạng chỉ hiện ở hình hợp với
- * nó**. Hàm dưới là luật ấy. Ô chọn "Loại biểu đồ" (`ChartKindSelect`) chỉ liệt kê đúng những gì nó
- * trả về, nên một dạng vẽ ra sẽ đọc sai thì không bao giờ có mặt để bấm.
+ * nó**. Hàm dưới là luật ấy. Ô chọn "Loại biểu đồ" (`ChartKindSelect`) liệt kê những gì nó trả về,
+ * nên một dạng vẽ ra sẽ đọc sai thì không bao giờ được VẼ. Ngoại lệ duy nhất (23/10/2026): người dùng
+ * vẫn đứng ở mục cũ mà số liệu đổi làm dạng đã chọn hết hợp, thì `ChartBody` giữ dạng ấy trong ô và in
+ * `lyDoKhongVeDang()` thay cho hình — ô chọn không tự đổi lựa chọn thay người dùng.
  *
  * Mọi dạng ở đây vẽ CÙNG một bộ điểm của mô hình, không đổi dữ liệu, không đổi trục; khác nhau ở
  * cách chiếu lên hình. Vì thế chúng là một ô chọn cạnh ô "Xem theo", không phải mục của ô ấy.
@@ -16,7 +18,7 @@
 
 import { formatNumber } from '../format';
 import type { FormulaSpec } from '../registry/types';
-import type { Bilingual } from '../types';
+import type { Bilingual, CalcWarning } from '../types';
 
 import { COMPOSITION_KEY } from './composition';
 import { HISTORY_KEY } from './history';
@@ -171,10 +173,96 @@ export function dangVeCuaHinh(model: DrawableChart, spec: FormulaSpec): Readonly
   ];
 }
 
-/** Dạng THẬT SỰ vẽ: dạng người dùng chọn nếu hình còn mời nó, không thì dạng mặc định. */
+/**
+ * Dạng THẬT SỰ vẽ: dạng người dùng chọn nếu hình còn mời nó, không thì dạng mặc định.
+ *
+ * Rơi về dạng mặc định chỉ đúng khi người dùng vừa ĐỔI SANG một mục khác của ô "Xem theo" mà mục ấy
+ * không có dạng họ đang để (Cột trên trục thời gian có đường giá chồng lên). Còn khi vẫn đứng ở mục
+ * cũ mà SỐ LIỆU đổi làm dạng ấy hết vẽ được, `ChartBody` không gọi tới đây: nó giữ dạng đã chọn và
+ * in `lyDoKhongVeDang()` thay cho hình (23/10/2026).
+ */
 export function dangVeHieuLuc(model: DrawableChart, chon: DangVe, spec: FormulaSpec): DangVe {
   const dang = dangVeCuaHinh(model, spec);
   return dang.includes(chon) ? chon : (dang[0] ?? 'line');
+}
+
+/**
+ * Tên từng dạng, đúng chữ ô "Loại biểu đồ" in (`chart.kind*` trong từ điển). Hai bản cùng tồn tại có
+ * chủ đích: câu báo dưới đây do Domain viết mà Domain không đọc được i18n (CON-02). Ca neo ở
+ * `i18n.test.ts` đỏ khi một bên đổi mà bên kia không.
+ */
+export const TEN_DANG_VE: Readonly<Record<DangVe, Bilingual>> = {
+  line: { vi: 'Đường', en: 'Line' },
+  candle: { vi: 'Nến', en: 'Candles' },
+  bar: { vi: 'Cột', en: 'Bars' },
+  dots: { vi: 'Điểm', en: 'Dots' },
+  step: { vi: 'Bậc thang', en: 'Steps' },
+  signArea: { vi: 'Lãi/lỗ', en: 'Gain/loss' },
+  waterfall: { vi: 'Thanh ngang', en: 'Horizontal bars' },
+  donut: { vi: 'Vành khuyên', en: 'Donut' },
+  gauge: { vi: 'Thang đo', en: 'Gauge' },
+};
+
+/** Vì sao từng dạng hết vẽ được khi số liệu đổi. Dạng luôn vẽ được thì không có dòng nào. */
+const VI_SAO_KHONG_VE: Readonly<Partial<Record<DangVe, Bilingual>>> = {
+  donut: {
+    vi: 'Có phần mang số âm, hoặc mọi phần đều bằng 0, nên không chia được thành vành khuyên.',
+    en: 'A part is negative, or every part is 0, so it cannot be split into a donut.',
+  },
+  candle: {
+    vi: 'Có phiên thiếu giá mở cửa, cao nhất hoặc thấp nhất, hoặc bốn giá không khớp nhau, nên không vẽ được nến.',
+    en: 'A session lacks its open, high or low price, or its four prices disagree, so no candles can be drawn.',
+  },
+  /*
+   * Bậc thang mất khi dải trên trục rộng quá 40 bước (`sweepDomain()` thôi bám lưới bước, các mức rơi
+   * vào giữa hai số nguyên) hay kết quả thôi tự đi thành bậc. Câu nói đúng điều ấy và chỉ đúng lối ra:
+   * thu hẹp con số trên trục, chứ không bảo số liệu "sai".
+   */
+  step: {
+    vi: 'Dải trên trục đang rộng tới mức các mức vẽ không còn cách nhau đúng một bước, nên bậc thang sẽ vẽ ra những đoạn bằng phẳng không có thật.',
+    en: 'The axis range is now so wide that the levels drawn are no longer one step apart, so steps would draw flat stretches that do not exist.',
+  },
+  signArea: {
+    vi: 'Kết quả không còn đổi dấu trong dải đang vẽ, nên không có phần lãi và phần lỗ để tô hai màu.',
+    en: 'The result no longer changes sign across the range drawn, so there is no gain part and loss part to color.',
+  },
+  bar: {
+    vi: 'Hình đang có nhiều đường, cột của đường chính sẽ che mất các đường còn lại.',
+    en: 'The chart has several lines, and bars for the main one would hide the others.',
+  },
+};
+
+/**
+ * Câu báo khi dạng người dùng đã chọn hết vẽ được vì SỐ LIỆU đổi, ở chính mục họ đang xem.
+ *
+ * Chủ dự án (23/10/2026), sau khi kéo thanh trượt và thấy hình tự đổi sang dạng khác: _"nếu đã không
+ * thể vẽ được biểu đồ thì hiển thị rằng dữ liệu không khớp hoặc chưa chính xác để có thể áp dụng vào
+ * biểu đồ thay vì vẽ sang dạng biểu đồ khác để đối phó chứ, select là để phân biệt dạng biểu
+ * đồ"_. Nên câu nêu TÊN dạng đang chọn, lý do, và lối ra.
+ */
+export function lyDoKhongVeDang(chon: DangVe): CalcWarning {
+  const ten = TEN_DANG_VE[chon];
+  const viSao = VI_SAO_KHONG_VE[chon] ?? {
+    vi: 'Số liệu hiện tại không hợp với dạng này.',
+    en: 'The current figures do not fit this form.',
+  };
+  return {
+    code: 'MEANINGLESS',
+    message: {
+      vi: `Chưa vẽ được dạng “${ten.vi}” với số liệu hiện tại. ${viSao.vi}`,
+      en: `The “${ten.en}” form cannot be drawn with the current figures. ${viSao.en}`,
+    },
+    fix:
+      chon === 'step'
+        ? {
+            vi: 'Chọn dạng khác ở ô Loại biểu đồ, hoặc giảm con số trên trục để dải hẹp lại.',
+            en: 'Pick another form under Chart type, or lower the figure on the axis to narrow the range.',
+          }
+        : {
+            vi: 'Chọn dạng khác ở ô Loại biểu đồ, hoặc đổi số liệu.',
+            en: 'Pick another form under Chart type, or change the figures.',
+          },
+  };
 }
 
 /** Một múi của vành khuyên. */

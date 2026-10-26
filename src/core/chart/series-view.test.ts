@@ -113,7 +113,7 @@ describe('mục trong ô chọn', () => {
         formula.spec.seriesView?.kind === 'distribution' ? DISTRIBUTION_KEY : DRAWDOWN_KEY;
 
       const chuaNap = dung(formula, CTX);
-      const mucChuaNap = (chuaNap.kind === 'unavailable' ? chuaNap.options : chuaNap.options) ?? [];
+      const mucChuaNap = chuaNap.kind === 'unavailable' ? [] : chuaNap.options;
       expect(
         mucChuaNap.map((option) => option.key),
         formula.spec.id,
@@ -133,8 +133,12 @@ describe('mục trong ô chọn', () => {
 
     const thieu = dung(varLichSu, ctxVoi(FPT_BARS.slice(-(min - 1))));
     const du = dung(varLichSu, ctxVoi(FPT_BARS.slice(-min)));
-    expect((thieu.options ?? []).map((option) => option.key)).not.toContain(DISTRIBUTION_KEY);
-    expect((du.options ?? []).map((option) => option.key)).toContain(DISTRIBUTION_KEY);
+    expect(
+      (thieu.kind === 'unavailable' ? [] : thieu.options).map((option) => option.key),
+    ).not.toContain(DISTRIBUTION_KEY);
+    expect((du.kind === 'unavailable' ? [] : du.options).map((option) => option.key)).toContain(
+      DISTRIBUTION_KEY,
+    );
   });
 
   /*
@@ -164,7 +168,7 @@ describe('mục trong ô chọn', () => {
     for (const id of ['do-lech-chuan-loi-suat-phien', 'chuoi-phien-giam-dai-nhat']) {
       const hinh = dung(tim(id), ctxVoi(FPT_BARS.slice(-45)));
       expect(
-        (hinh.options ?? []).map((option) => option.key),
+        (hinh.kind === 'unavailable' ? [] : hinh.options).map((option) => option.key),
         id,
       ).not.toContain(id === 'chuoi-phien-giam-dai-nhat' ? DRAWDOWN_KEY : DISTRIBUTION_KEY);
     }
@@ -173,7 +177,7 @@ describe('mục trong ô chọn', () => {
   it('công thức không khai thì không có mục nào, kể cả khi đã nạp chuỗi', () => {
     for (const id of ['pe', 'sma-n-phien', 'beta', 'bien-do-dao-dong-lon-nhat']) {
       const hinh = dung(tim(id), CTX_FPT);
-      const keys = (hinh.options ?? []).map((option) => option.key);
+      const keys = (hinh.kind === 'unavailable' ? [] : hinh.options).map((option) => option.key);
       expect(
         keys.some((khoa) => laHinhChuoiGia(khoa)),
         id,

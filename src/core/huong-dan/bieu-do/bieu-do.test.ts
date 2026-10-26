@@ -418,7 +418,10 @@ describe.skipIf(CHI.length > 0)('mục của bài khớp ô chọn "Xem kết qu
         for (const level of ['basic', 'advanced'] as const) {
           const model = ve(formula, ctx, level);
           const dangHien = 'sweepKey' in model ? [model.sweepKey] : [];
-          for (const khoa of [...(model.options ?? []).map((option) => option.key), ...dangHien]) {
+          for (const khoa of [
+            ...(model.kind === 'unavailable' ? [] : model.options).map((option) => option.key),
+            ...dangHien,
+          ]) {
             /*
              * Hai mục theo chuỗi giá (21/10/2026), mục "Cơ cấu …" (hình tròn, 22/10/2026), mục cột
              * theo kỳ và mục thang đo (23/10/2026) chưa có chữ — chủ dự án chốt "hướng dẫn sử dụng thì chưa cần" — và khung "?" im với chúng
@@ -601,7 +604,7 @@ describe.skipIf(CHI.length > 0)('trục của nhóm do người dùng thêm', ()
         output: runFormula(moRong, inputs, CTX),
         level: 'advanced',
       });
-      const muc4 = (model.options ?? []).map((option) => option.key);
+      const muc4 = (model.kind === 'unavailable' ? [] : model.options).map((option) => option.key);
 
       // Ô chọn phải thật sự bày mục của nhóm vừa thêm, không thì ca này qua mà không thử gì.
       for (const mau of formula.spec.repeat?.fields ?? []) {

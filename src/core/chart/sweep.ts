@@ -156,22 +156,10 @@ export function sweepCandidates(spec: FormulaSpec, level: Level): ReadonlyArray<
 }
 
 /**
- * Chuỗi điểm khi quét một biến, các biến còn lại giữ nguyên giá trị người dùng đang nhập.
- *
- * `y` lấy thẳng `out.value`, tức `number | null`. **Không có `?? 0` ở bất kỳ đâu trong file này** —
- * đó đúng là thứ FR-06 cấm, và cũng là lý do `ChartPoint.y` khai nullable ngay từ kiểu.
+ * Các mức của một đường quét, theo thứ tự tăng dần — một nguồn cho cả `sweepPoints()` lẫn
+ * `sweepHasPoint()`, để câu "trục này vẽ được" hỏi đúng những mức hình sẽ vẽ.
  */
-export function sweepPoints(
-  formula: FormulaModule,
-  inputs: CalcInputs,
-  ctx: CalcContext,
-  key: string,
-  span = SWEEP_SPAN,
-): ReadonlyArray<ChartPoint> {
-  const variable = formula.spec.variables.find((item) => item.key === key);
-  if (variable === undefined) return [];
-
-  const current = inputs[key] ?? variable.defaultValue;
+function sweepXs(variable: VariableSpec, current: number, span: number): number[] {
   const domain = sweepDomain(variable, current, span);
   if (domain === null) return [];
 
@@ -191,6 +179,51 @@ export function sweepPoints(
     xs.push(current);
     xs.sort((a, b) => a - b);
   }
+  return xs;
+}
+
+/**
+ * Trục theo ô `key` có ít nhất MỘT mức tính ra số không — tức `sweepPoints()` có vẽ được gì không.
+ *
+ * Dùng để ô "Xem theo" chỉ bày những mục bấm vào là có hình (23/10/2026). Thử từ mức gần con số
+ * đang nhập nhất ra hai phía và dừng ở mức đầu tiên ra số: khi kết quả đang tính được thì mức ấy ra
+ * số ngay, nên một trục vẽ được tốn đúng một lần gọi `runFormula`, không phải 41.
+ */
+export function sweepHasPoint(
+  formula: FormulaModule,
+  inputs: CalcInputs,
+  ctx: CalcContext,
+  key: string,
+  span = SWEEP_SPAN,
+): boolean {
+  const variable = formula.spec.variables.find((item) => item.key === key);
+  if (variable === undefined) return false;
+
+  const current = inputs[key] ?? variable.defaultValue;
+  const xs = sweepXs(variable, current, span).sort(
+    (a, b) => Math.abs(a - current) - Math.abs(b - current),
+  );
+  return xs.some((x) => runFormula(formula, { ...inputs, [key]: x }, ctx).value !== null);
+}
+
+/**
+ * Chuỗi điểm khi quét một biến, các biến còn lại giữ nguyên giá trị người dùng đang nhập.
+ *
+ * `y` lấy thẳng `out.value`, tức `number | null`. **Không có `?? 0` ở bất kỳ đâu trong file này** —
+ * đó đúng là thứ FR-06 cấm, và cũng là lý do `ChartPoint.y` khai nullable ngay từ kiểu.
+ */
+export function sweepPoints(
+  formula: FormulaModule,
+  inputs: CalcInputs,
+  ctx: CalcContext,
+  key: string,
+  span = SWEEP_SPAN,
+): ReadonlyArray<ChartPoint> {
+  const variable = formula.spec.variables.find((item) => item.key === key);
+  if (variable === undefined) return [];
+
+  const current = inputs[key] ?? variable.defaultValue;
+  const xs = sweepXs(variable, current, span);
 
   return xs.map((x) => {
     const out = runFormula(formula, { ...inputs, [key]: x }, ctx);

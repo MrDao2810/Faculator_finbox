@@ -161,63 +161,98 @@ export function historyPoints(
   const bars = sessionsOf(ctx);
   if (plan === null || bars === null) return [];
 
+  return bars.map((_, index) => diemPhien(formula, inputs, ctx, plan, bars, index));
+}
+
+/**
+ * Đường thời gian có ít nhất MỘT phiên tính ra số không — tức `historyPoints()` có vẽ được gì không.
+ *
+ * Dùng để ô "Xem theo" chỉ bày "Thời gian" khi bấm vào là có hình (23/10/2026). Thử từ phiên gần
+ * nhất lùi về: phiên cuối là cả chuỗi, nên khi kết quả đang tính được thì một lần gọi là đủ.
+ */
+export function historyHasPoint(
+  formula: FormulaModule,
+  inputs: CalcInputs,
+  ctx: CalcContext,
+): boolean {
+  const plan = historyPlan(formula, ctx.asOf);
+  const bars = sessionsOf(ctx);
+  if (plan === null || bars === null) return false;
+
+  for (let index = bars.length - 1; index >= 0; index -= 1) {
+    if (diemPhien(formula, inputs, ctx, plan, bars, index).y !== null) return true;
+  }
+  return false;
+}
+
+/** Điểm của phiên thứ `index` — một nguồn cho `historyPoints()` lẫn `historyHasPoint()`. */
+function diemPhien(
+  formula: FormulaModule,
+  inputs: CalcInputs,
+  ctx: CalcContext,
+  plan: HistoryPlan,
+  bars: ReadonlyArray<SeriesRow>,
+  index: number,
+): ChartPoint {
   const last = bars.length - 1;
+  const bar = bars[index];
+  if (bar === undefined) {
+    return { x: index, y: null, label: '', valueLabel: '' };
+  }
 
-  return bars.map((bar, index) => {
-    const close = bar.close;
+  const close = bar.close;
 
-    const sessionInputs =
-      close === null || !Number.isFinite(close) || plan.priceKeys.length === 0
-        ? inputs
-        : { ...inputs, ...Object.fromEntries(plan.priceKeys.map((key) => [key, close])) };
+  const sessionInputs =
+    close === null || !Number.isFinite(close) || plan.priceKeys.length === 0
+      ? inputs
+      : { ...inputs, ...Object.fromEntries(plan.priceKeys.map((key) => [key, close])) };
 
-    /*
-     * Cắt CẢ `bars` lẫn `series`, và cắt từ cùng một chỗ.
-     *
-     * Nếu chỉ cắt một trong hai thì công thức đọc `ctx.bars` sẽ thấy 12 phiên còn công thức đọc
-     * `ctx.series` thấy 248 — hai chỉ báo trên cùng biểu đồ nói hai mốc thời gian khác nhau.
-     *
-     * Và cắt cả `marketSeries` (13/10/2026). `beta` hồi quy lợi suất cổ phiếu theo lợi suất
-     * VN-Index và ghép hai chuỗi theo phiên CUỐI (`slice(-n)` ở cả hai). Để nguyên chuỗi chỉ số thì
-     * mọi điểm trừ điểm cuối ghép cổ phiếu của quãng cũ với chỉ số của quãng gần nhất: một cổ phiếu
-     * dựng có beta đúng 1,5 ở mọi cửa sổ vẽ ra đường chạy từ −0,37 tới 1,5. Bỏ ở đuôi chuỗi chỉ số
-     * ĐÚNG số phiên vừa bỏ ở đuôi chuỗi cổ phiếu, chứ không ép hai chuỗi về cùng độ dài: chúng
-     * được phép dài khác nhau, miễn kết thúc ở cùng một phiên.
-     */
-    const boDuoi = last - index;
-    const sessionCtx = plan.truncateSeries
-      ? {
-          ...ctx,
-          bars: bars.slice(0, index + 1),
-          series: bars
-            .slice(0, index + 1)
-            .map((row) => row.close)
-            .filter((value): value is number => typeof value === 'number' && value > 0),
-          ...(ctx.marketSeries === undefined
-            ? {}
-            : {
-                marketSeries: ctx.marketSeries.slice(
-                  0,
-                  Math.max(0, ctx.marketSeries.length - boDuoi),
-                ),
-              }),
-        }
-      : ctx;
+  /*
+   * Cắt CẢ `bars` lẫn `series`, và cắt từ cùng một chỗ.
+   *
+   * Nếu chỉ cắt một trong hai thì công thức đọc `ctx.bars` sẽ thấy 12 phiên còn công thức đọc
+   * `ctx.series` thấy 248 — hai chỉ báo trên cùng biểu đồ nói hai mốc thời gian khác nhau.
+   *
+   * Và cắt cả `marketSeries` (13/10/2026). `beta` hồi quy lợi suất cổ phiếu theo lợi suất
+   * VN-Index và ghép hai chuỗi theo phiên CUỐI (`slice(-n)` ở cả hai). Để nguyên chuỗi chỉ số thì
+   * mọi điểm trừ điểm cuối ghép cổ phiếu của quãng cũ với chỉ số của quãng gần nhất: một cổ phiếu
+   * dựng có beta đúng 1,5 ở mọi cửa sổ vẽ ra đường chạy từ −0,37 tới 1,5. Bỏ ở đuôi chuỗi chỉ số
+   * ĐÚNG số phiên vừa bỏ ở đuôi chuỗi cổ phiếu, chứ không ép hai chuỗi về cùng độ dài: chúng
+   * được phép dài khác nhau, miễn kết thúc ở cùng một phiên.
+   */
+  const boDuoi = last - index;
+  const sessionCtx = plan.truncateSeries
+    ? {
+        ...ctx,
+        bars: bars.slice(0, index + 1),
+        series: bars
+          .slice(0, index + 1)
+          .map((row) => row.close)
+          .filter((value): value is number => typeof value === 'number' && value > 0),
+        ...(ctx.marketSeries === undefined
+          ? {}
+          : {
+              marketSeries: ctx.marketSeries.slice(
+                0,
+                Math.max(0, ctx.marketSeries.length - boDuoi),
+              ),
+            }),
+      }
+    : ctx;
 
-    const out = runFormula(formula, sessionInputs, sessionCtx);
+  const out = runFormula(formula, sessionInputs, sessionCtx);
 
-    const point: ChartPoint = {
-      x: index,
-      y: out.value,
-      label: formatSessionDate(bar.date),
-      valueLabel: formatCalcOutput(out),
-    };
-    // Phiên gần nhất LÀ "giá trị hiện tại" của đường thời gian — cùng vai với điểm đang nhập của
-    // đường quét, nên dùng lại đúng cờ ấy và dấu trên hình không phải biết mình đang ở chế độ nào.
-    if (index === last) point.marked = true;
-    if (out.warning !== undefined) point.reason = out.warning.code;
-    return point;
-  });
+  const point: ChartPoint = {
+    x: index,
+    y: out.value,
+    label: formatSessionDate(bar.date),
+    valueLabel: formatCalcOutput(out),
+  };
+  // Phiên gần nhất LÀ "giá trị hiện tại" của đường thời gian — cùng vai với điểm đang nhập của
+  // đường quét, nên dùng lại đúng cờ ấy và dấu trên hình không phải biết mình đang ở chế độ nào.
+  if (index === last) point.marked = true;
+  if (out.warning !== undefined) point.reason = out.warning.code;
+  return point;
 }
 
 /**

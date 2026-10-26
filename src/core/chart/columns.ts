@@ -37,17 +37,40 @@ export function columnData(
   ctx: CalcContext,
   output: CalcOutput,
 ): ColumnData | null {
+  const ket = kiemCot(formula, inputs, ctx, output);
+  return 'data' in ket ? ket.data : null;
+}
+
+/**
+ * Vì sao số của hình cột không qua được `columnData()` — để câu báo khi người dùng ĐANG CHỌN mục cột
+ * nói đúng nguyên nhân (23/10/2026). Một câu chung "có kỳ âm hoặc chưa đủ hai kỳ" nói sai ở ca mọi kỳ
+ * bằng 0 (lợi suất từng kỳ đều 0 %, giá trị hiện tại 0 ₫), mà câu sai trông như đúng là thứ FR-06 chặn.
+ *
+ * - `it-ky`: ít hơn hai kỳ ra số (kể cả `build` trả `null` hay ném);
+ * - `am`: hình nhiều chuỗi chồng lên nhau mà có phần âm;
+ * - `toan-khong`: mọi số đều bằng 0;
+ * - `khac`: số không hữu hạn, hay thiếu / thừa số so với số chuỗi.
+ */
+export type LoiCot = 'it-ky' | 'am' | 'toan-khong' | 'khac';
+
+/** Kiểm số của hình cột: trả số đã kiểm, hoặc lý do không dùng được. Một nguồn cho cả hai câu hỏi. */
+export function kiemCot(
+  formula: FormulaModule,
+  inputs: CalcInputs,
+  ctx: CalcContext,
+  output: CalcOutput,
+): { data: ColumnData } | { loi: LoiCot } {
   const view = formula.columns;
-  if (view === undefined) return null;
+  if (view === undefined) return { loi: 'khac' };
 
   const v = (key: string): number => inputs[key] ?? Number.NaN;
   let data: ColumnData | null;
   try {
     data = view.build(v, ctx, output);
   } catch {
-    return null;
+    return { loi: 'it-ky' };
   }
-  if (data === null || data.groups.length < 2) return null;
+  if (data === null || data.groups.length < 2) return { loi: 'it-ky' };
 
   const soChuoi = view.series.length;
   const soCotPhu = view.extraColumns?.length ?? 0;
@@ -55,16 +78,16 @@ export function columnData(
   let coKhacKhong = false;
 
   for (const group of data.groups) {
-    if (group.values.length !== soChuoi) return null;
-    if ((group.extras?.length ?? 0) !== soCotPhu) return null;
+    if (group.values.length !== soChuoi) return { loi: 'khac' };
+    if ((group.extras?.length ?? 0) !== soCotPhu) return { loi: 'khac' };
     for (const value of group.values) {
-      if (!Number.isFinite(value)) return null;
-      if (chong && value < 0) return null;
+      if (!Number.isFinite(value)) return { loi: 'khac' };
+      if (chong && value < 0) return { loi: 'am' };
       if (value !== 0) coKhacKhong = true;
     }
-    if (group.extras?.some((value) => !Number.isFinite(value)) === true) return null;
+    if (group.extras?.some((value) => !Number.isFinite(value)) === true) return { loi: 'khac' };
   }
-  if (data.lines?.some((line) => !Number.isFinite(line.value)) === true) return null;
+  if (data.lines?.some((line) => !Number.isFinite(line.value)) === true) return { loi: 'khac' };
 
-  return coKhacKhong ? data : null;
+  return coKhacKhong ? { data } : { loi: 'toan-khong' };
 }

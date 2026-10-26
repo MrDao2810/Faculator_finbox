@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { type ReactNode, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 
 import {
   COLUMNS_KEY,
@@ -10,17 +10,20 @@ import {
   dangVeCuaHinh,
   dangVeHieuLuc,
   laHinhChuoiGia,
+  lyDoKhongVeDang,
 } from '@/application';
 import type {
+  Bilingual,
   CalcContext,
   CalcInputs,
   CalcOutput,
+  CalcWarning,
   DangVe,
   FormulaModule,
   HinhDangXem,
   Level,
 } from '@/application';
-import { useT } from '@/application/preferences-context';
+import { usePick, useT } from '@/application/preferences-context';
 import { InlineWarning } from '@/ui/result';
 
 import { ChartFrame } from './ChartFrame';
@@ -109,6 +112,49 @@ export interface ChartBodyProps {
  * nhánh `true` thành mã chết dưới mắt lint.
  */
 const PHONG_TO_BAT: boolean = false;
+
+/** Thứ tự in của các dạng — cùng thứ tự `dangVeCuaHinh()` liệt kê, để dạng giữ lại đứng đúng chỗ. */
+const THU_TU_DANG: ReadonlyArray<DangVe> = [
+  'line',
+  'candle',
+  'bar',
+  'dots',
+  'step',
+  'signArea',
+  'waterfall',
+  'donut',
+  'gauge',
+];
+
+/**
+ * Khối biểu đồ khi hình người dùng đã chọn — một mục của "Xem theo" hay một dạng của "Loại biểu đồ" —
+ * chưa vẽ được với số liệu hiện tại mà ô chọn vẫn còn việc để làm (23/10/2026): cùng thẻ, cùng hàng
+ * tiêu đề và hàng điều khiển của một hình, câu lý do đứng thay cho hình. `<div>` chứ không `<figure>`:
+ * không có hình nào để đặt tên, và mọi ca kiểm "không vẽ được" dò đúng sự vắng mặt của `figure`.
+ *
+ * Hàng tiêu đề KHÔNG phải trang trí: từ 1280px thẻ là lưới hai cột, tiêu đề cột trái, ô chọn cột phải
+ * với nhãn ẩn khỏi mắt. Thiếu tiêu đề thì ô chọn đứng trơ ở góc phải một hàng trống, không nhãn.
+ */
+function ThongBaoHinh({
+  title,
+  warning,
+  picker,
+}: {
+  title: Bilingual;
+  warning: CalcWarning;
+  picker: ReactNode;
+}) {
+  const pick = usePick();
+  return (
+    <div className={styles.chart}>
+      <div className={styles.captionRow}>
+        <strong className={styles.captionTitle}>{pick(title)}</strong>
+      </div>
+      <div className={styles.controls}>{picker}</div>
+      <InlineWarning warning={warning} />
+    </div>
+  );
+}
 
 export function ChartBody({
   formula,
@@ -199,25 +245,57 @@ export function ChartBody({
    */
   const dangMoi = model.kind === 'unavailable' ? [] : dangVeCuaHinh(model, formula.spec);
 
+  /*
+   * Mục của ô "Xem theo" mà dạng đang chọn VỪA ĐƯỢC VẼ trên đó lần gần nhất (23/10/2026).
+   *
+   * Phân biệt hai lý do khiến dạng đã chọn không còn trong danh sách mời:
+   * - người dùng ĐỔI MỤC sang một hình không có dạng ấy (Cột trên trục thời gian có đường giá chồng
+   *   lên): hình ấy vẽ dạng mặc định của nó, như trước — lựa chọn dạng vẫn giữ trong state cho lúc họ
+   *   quay lại;
+   * - vẫn đứng ở mục cũ mà SỐ LIỆU đổi (kéo thanh trượt làm một phần cơ cấu âm, nạp chuỗi thiếu giá
+   *   cao / thấp): KHÔNG lặng lẽ đổi sang dạng khác. Giữ dạng đã chọn trong ô và in lý do thay cho
+   *   hình. Chủ dự án: _"thay vì vẽ sang dạng biểu đồ khác để đối phó chứ, select là để phân biệt
+   *   dạng biểu đồ"_.
+   */
+  const [dangDaVe, setDangDaVe] = useState<{ khoa: string; dang: DangVe } | null>(null);
+  const khoaHinh = model.kind === 'unavailable' ? null : model.sweepKey;
+  const matDang =
+    model.kind !== 'unavailable' &&
+    !dangMoi.includes(kind) &&
+    dangDaVe !== null &&
+    dangDaVe.khoa === khoaHinh &&
+    dangDaVe.dang === kind;
+
   /* Dạng THẬT SỰ đang vẽ — `kind` là ý muốn, còn đây là ý muốn đã lọc qua điều kiện. */
   const variant: DangVe =
-    model.kind === 'unavailable' ? 'line' : dangVeHieuLuc(model, kind, formula.spec);
+    model.kind === 'unavailable' || matDang ? kind : dangVeHieuLuc(model, kind, formula.spec);
+
+  useEffect(() => {
+    if (khoaHinh === null || matDang || variant !== kind) return;
+    setDangDaVe((cu) =>
+      cu?.khoa === khoaHinh && cu.dang === kind ? cu : { khoa: khoaHinh, dang: kind },
+    );
+  }, [khoaHinh, matDang, variant, kind]);
 
   /*
    * Báo hình đang hiện lên màn chi tiết — xem `ChartBodyProps.onViewChange`.
    *
    * Khoá báo lên là `model.sweepKey`, tức mục mà ô chọn đang chỉ vào, kể cả khi chưa ai chọn gì và
-   * trục do Domain tự quyết. Riêng lúc khối đang hiện cảnh báo thay cho hình thì chỉ báo lựa chọn
-   * người dùng ĐÃ TỰ bấm (`sweepKey` của state, có thể là `null`): mô hình `unavailable` vẫn mang
-   * một `sweepKey` — ô nhập mà bộ dựng thử đầu tiên — nhưng với 35 công thức đang chờ chuỗi giá thì
-   * hình sẽ hiện ra khi nạp xong là hình theo thời gian, không phải hình của ô ấy. Báo `null` để
-   * khung "?" nói về hình màn sẽ mở ra.
+   * trục do Domain tự quyết. Lúc khối hiện cảnh báo trơn (không ô chọn) thì chỉ báo lựa chọn người
+   * dùng ĐÃ TỰ bấm (`sweepKey` của state, có thể là `null`): với 35 công thức đang chờ chuỗi giá, hình
+   * sẽ hiện ra khi nạp xong là hình theo thời gian, nên báo `null` để khung "?" nói về hình màn sẽ mở
+   * ra. (Mô hình ấy từng mang `sweepKey` của ô nhập bộ dựng thử đầu tiên; từ 23/10/2026 không còn.)
    *
    * Phụ thuộc là ba giá trị nguyên thuỷ, nên effect chỉ chạy khi hình thật sự đổi — không chạy theo
    * từng phím gõ ở khối Số liệu.
    */
-  const daVe = model.kind !== 'unavailable';
-  const khoaDangHien = model.kind === 'unavailable' ? sweepKey : model.sweepKey;
+  const daVe = model.kind !== 'unavailable' && !matDang;
+  /*
+   * Mô hình `unavailable` mang `sweepKey` chỉ khi ô chọn còn ở lại (mục NGƯỜI DÙNG ĐÃ CHỌN, khác mục
+   * mặc định, chưa vẽ được, mà còn mục khác vẽ được) — lúc ấy đó đúng là mục ô chọn đang chỉ. Không
+   * mang thì báo lựa chọn người dùng đã tự bấm, có thể là `null`, như trên.
+   */
+  const khoaDangHien = model.kind === 'unavailable' ? (model.sweepKey ?? sweepKey) : model.sweepKey;
   /*
    * Các dạng thêm ngày 21/10/2026 chưa có đoạn "Đọc biểu đồ" riêng — chủ dự án chốt hướng dẫn cho
    * chúng "chưa cần". Nến, Điểm, Bậc thang và Lãi/lỗ vẽ đúng bộ điểm và trục của dạng Đường
@@ -228,17 +306,45 @@ export function ChartBody({
   /*
    * Các mục chưa có chữ hướng dẫn — hai mục theo chuỗi giá, mục "Cơ cấu …" (hình tròn, 22/10/2026)
    * và mục cột theo kỳ (23/10/2026) — khung "?" phải im (`HinhDangXem.hinhChuoi`) thay vì in đoạn
-   * của hình khác.
+   * của hình khác. Hỏi theo MỤC, kể cả khi mục ấy đang báo "chưa vẽ được": từ 23/10/2026 ô chọn giữ
+   * nguyên Thang đo chẳng hạn, và khung "?" không được rơi về đoạn của hình mở ra.
    */
   const hinhChuoi =
-    daVe &&
-    (laHinhChuoiGia(khoaDangHien) ||
-      khoaDangHien === COMPOSITION_KEY ||
-      khoaDangHien === COLUMNS_KEY ||
-      khoaDangHien === GAUGE_KEY);
+    laHinhChuoiGia(khoaDangHien) ||
+    khoaDangHien === COMPOSITION_KEY ||
+    khoaDangHien === COLUMNS_KEY ||
+    khoaDangHien === GAUGE_KEY;
   useEffect(() => {
     onViewChange?.({ khoa: khoaDangHien, dang: dangDangVe, daVe, hinhChuoi });
   }, [onViewChange, khoaDangHien, dangDangVe, daVe, hinhChuoi]);
+
+  /* Gốc `id` của hai ô chọn — cùng một chuỗi ở thẻ hình lẫn thẻ thông báo. */
+  const goc = `chart-${formula.spec.id}`;
+
+  /*
+   * Giữ tiêu điểm bàn phím khi đổi giữa thẻ hình và thẻ thông báo (23/10/2026).
+   *
+   * Hai thẻ là hai cây DOM khác nhau (`<figure>` và `<div>`), nên chọn một mục ở ô chọn làm hình hiện
+   * lại hay mất đi là dựng lại chính ô chọn ấy: tiêu điểm rơi về `<body>`, và trên Chrome Windows phím
+   * ↑/↓ đầu tiên trên một ô chọn đóng đã đổi lựa chọn — người dùng bàn phím mất chỗ sau một phím. Hai
+   * hàm chọn ghi lại `id` của ô vừa bấm; sau lượt vẽ, ô ấy được trả tiêu điểm nếu không ai giữ nó.
+   */
+  const oVuaChon = useRef<string | null>(null);
+  const chonTruc = (khoa: string) => {
+    oVuaChon.current = `${goc}-sweep`;
+    setSweepKey(khoa);
+  };
+  const chonDang = (dang: DangVe) => {
+    oVuaChon.current = `${goc}-kind`;
+    setKind(dang);
+  };
+  useLayoutEffect(() => {
+    const id = oVuaChon.current;
+    if (id === null) return;
+    oVuaChon.current = null;
+    const dangGiu = document.activeElement;
+    if (dangGiu === null || dangGiu === document.body) document.getElementById(id)?.focus();
+  });
 
   if (model.kind === 'unavailable') {
     /*
@@ -246,26 +352,48 @@ export function ChartBody({
      * Không thêm nút "Nạp mẫu" / "Dán chuỗi giá" ở đây: hai nút ấy đã nằm ngay khối Số liệu phía
      * trên cho cả 34 công thức ăn chuỗi (đợt trước), và bày lần hai là hai lối vào cho một việc.
      *
-     * NHƯNG vẫn giữ ô chọn trục khi còn trục khác để chọn: ô ấy nằm trong khung biểu đồ, nên bỏ
-     * hình đi mà bỏ luôn ô chọn là bịt đường ra — người dùng phải rời màn rồi vào lại mới đổi được
-     * trục. Ca thật: chuỗi 61 phiên với SMA 75 phiên thì trục thời gian không còn điểm nào, trong
-     * khi trục "Số phiên" vẫn vẽ tốt phần N ≤ 61.
+     * Ô chọn chỉ ở lại khi Domain gửi kèm `options` — tức mục NGƯỜI DÙNG ĐÃ CHỌN (khác mục mặc
+     * định) chưa vẽ được mà mục khác thì được. Hình mặc định hỏng, hay không mục nào vẽ được, thì chỉ
+     * còn câu cảnh báo (chủ dự án, 23/10/2026: _"khi nào biểu đồ có đủ thông số để hiển thị thì phần
+     * select mới hiển thị"_). Lý do đầy đủ ở docblock `UnavailableChart`.
      */
-    const escapeOptions = model.options ?? [];
-    if (escapeOptions.length <= 1) return <InlineWarning warning={model.warning} />;
-
+    const mucCon = model.options ?? [];
+    if (mucCon.length < 2 || model.sweepKey === undefined) {
+      return <InlineWarning warning={model.warning} />;
+    }
     return (
-      <>
-        <InlineWarning warning={model.warning} />
-        <div className={styles.axisEscape}>
-          <SweepPicker
-            idBase={`chart-${formula.spec.id}`}
-            options={escapeOptions}
-            value={model.sweepKey ?? escapeOptions[0]?.key ?? ''}
-            onChange={setSweepKey}
-          />
-        </div>
-      </>
+      <ThongBaoHinh
+        title={model.title}
+        warning={model.warning}
+        picker={
+          <SweepPicker idBase={goc} options={mucCon} value={model.sweepKey} onChange={chonTruc} />
+        }
+      />
+    );
+  }
+
+  /*
+   * Dạng đã chọn hết vẽ được vì số liệu đổi, ngay ở mục đang xem — xem `matDang` ở trên. Ô "Loại
+   * biểu đồ" giữ đúng dạng ấy (thêm vào danh sách mời đúng chỗ của nó), hình nhường chỗ cho lý do.
+   */
+  if (matDang) {
+    const giuDang = THU_TU_DANG.filter((dang) => dangMoi.includes(dang) || dang === kind);
+    return (
+      <ThongBaoHinh
+        title={model.title}
+        warning={lyDoKhongVeDang(kind)}
+        picker={
+          <>
+            <SweepPicker
+              idBase={goc}
+              options={model.options}
+              value={model.sweepKey}
+              onChange={chonTruc}
+            />
+            <ChartKindSelect idBase={goc} options={giuDang} value={kind} onChange={chonDang} />
+          </>
+        }
+      />
     );
   }
 
@@ -341,9 +469,9 @@ export function ChartBody({
         idBase={base}
         options={model.options}
         value={model.sweepKey}
-        onChange={setSweepKey}
+        onChange={chonTruc}
       />
-      <ChartKindSelect idBase={base} options={dangMoi} value={variant} onChange={setKind} />
+      <ChartKindSelect idBase={base} options={dangMoi} value={variant} onChange={chonDang} />
     </>
   );
 

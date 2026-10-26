@@ -29,7 +29,7 @@ import {
   unitLabel,
   withScalePrefix,
 } from '../format';
-import type { Bilingual, CalcOutput, Level } from '../types';
+import type { Bilingual, CalcOutput, CalcWarning, Level, VariableSpec } from '../types';
 import { WARNING_LABELS, meaningless } from '../warnings';
 import {
   BREAKDOWN_KEY,
@@ -38,7 +38,8 @@ import {
   breakdownExtent,
   canDrawBreakdown,
 } from './breakdown';
-import { COLUMNS_KEY, columnData, columnsOption } from './columns';
+import { COLUMNS_KEY, columnsOption, kiemCot } from './columns';
+import type { LoiCot } from './columns';
 import { COMPOSITION_KEY, compositionBars, compositionOption } from './composition';
 import { GAUGE_KEY, GAUGE_LABEL, buildGaugeModel, gaugeReady } from './gauge';
 import {
@@ -46,6 +47,8 @@ import {
   HISTORY_LABEL,
   canDrawHistory,
   closePriceSeries,
+  historyHasPoint,
+  historyPlan,
   historyPoints,
   sessionCandles,
   sessionTicks,
@@ -59,7 +62,7 @@ import {
 } from './series-view';
 import type { NiceAxis } from './scale';
 import { usableOverlays } from './series';
-import { pickSweepVariable, sweepCandidates, sweepPoints } from './sweep';
+import { pickSweepVariable, sweepCandidates, sweepHasPoint, sweepPoints } from './sweep';
 import { condensePoints } from './table';
 import type { CompositionSpec, FormulaSpec, PriceOverlaySpec } from '../registry/types';
 import type {
@@ -83,8 +86,13 @@ export interface ChartArgs {
   output: CalcOutput;
   level: Level;
   /**
-   * Trục X người dùng chọn: khoá một biến, hoặc `HISTORY_KEY` cho đường theo thời gian.
-   * Không hợp lệ — kể cả xin đường thời gian khi chưa nạp dữ liệu — thì rơi về lựa chọn mặc định.
+   * Mục người dùng chọn ở ô "Xem theo": khoá một biến, `HISTORY_KEY` cho đường theo thời gian, hoặc
+   * khoá một mục đặc biệt (bóc tách, cơ cấu, cột theo kỳ, thang đo, phân phối / sụt giảm).
+   *
+   * Mục CÓ ở công thức và cấp độ này mà số liệu hiện tại chưa vẽ được (kể cả xin đường thời gian khi
+   * chưa nạp chuỗi) KHÔNG rơi về mục khác: trả `unavailable` mang đúng khoá ấy và lý do (23/10/2026).
+   * Chỉ khoá KHÔNG có ở đây (biến nâng cao khi đang ở Cơ bản, `HISTORY_KEY` ở công thức không có đường
+   * thời gian) mới rơi về mục mặc định.
    */
   sweepKey?: string;
   span?: number;
@@ -452,7 +460,6 @@ function buildBreakdownModel(
       kind: 'unavailable',
       title: name,
       warning: output.warning ?? NOTHING_TO_DRAW,
-      options,
       sweepKey: BREAKDOWN_KEY,
     };
   }
@@ -799,6 +806,64 @@ const NO_SWEEP_VARIABLE = meaningless(
   },
 );
 
+/** Mục "Cơ cấu …" đang chọn mà một phần ra số âm, hay tổng không dương: không chia được hình tròn. */
+const KHONG_CHIA_CO_CAU = meaningless(
+  {
+    vi: 'Có phần mang số âm, hoặc tổng không lớn hơn 0, nên không chia được thành hình tròn.',
+    en: 'A part is negative, or the total is not above 0, so it cannot be split into a ring.',
+  },
+  {
+    vi: 'Đổi số liệu để mọi phần không âm, hoặc chọn hình khác ở ô Xem theo.',
+    en: 'Change the figures so no part is negative, or pick another chart in the selector.',
+  },
+);
+
+/**
+ * Mục cột theo kỳ đang chọn mà các kỳ không còn qua được `columnData()` — một câu cho MỖI nguyên nhân
+ * (`kiemCot()`), vì một câu chung nói sai ở ca mọi kỳ bằng 0.
+ */
+const KHONG_DUNG_COT: Readonly<Record<LoiCot, Bilingual>> = {
+  'it-ky': {
+    vi: 'Chưa đủ hai kỳ ra số nên chưa có gì để so giữa các cột.',
+    en: 'Fewer than two periods give a figure, so there is nothing to compare across columns.',
+  },
+  am: {
+    vi: 'Có kỳ mang phần số âm, mà các phần của một cột chỉ chồng lên nhau được khi đều cộng vào.',
+    en: 'A period has a negative part, and the parts of a column can only be stacked when they all add up.',
+  },
+  'toan-khong': {
+    vi: 'Mọi kỳ đều bằng 0 nên không có cột nào để vẽ.',
+    en: 'Every period is 0, so there are no columns to draw.',
+  },
+  khac: {
+    vi: 'Số liệu hiện tại không dựng được thành cột.',
+    en: 'The current figures cannot be drawn as columns.',
+  },
+};
+
+function khongDungCot(loi: LoiCot): CalcWarning {
+  return meaningless(KHONG_DUNG_COT[loi], {
+    vi: 'Đổi số liệu, hoặc chọn hình khác ở ô Xem theo.',
+    en: 'Change the figures, or pick another chart in the selector.',
+  });
+}
+
+/**
+ * Mục theo phiên (thời gian, phân phối, sụt giảm) đang chọn mà chưa nạp chuỗi, hay chuỗi ngắn quá
+ * mức tối thiểu để vẽ (`MIN_SESSIONS`).
+ */
+const CHUA_CO_CHUOI: CalcWarning = {
+  code: 'MISSING_SERIES',
+  message: {
+    vi: 'Chưa có chuỗi giá đủ phiên nên chưa vẽ được theo từng phiên.',
+    en: 'There is no price series with enough sessions yet, so nothing can be drawn session by session.',
+  },
+  fix: {
+    vi: 'Nạp bộ số liệu mẫu hoặc dán chuỗi giá từ Excel.',
+    en: 'Load a sample dataset or paste a price series from Excel.',
+  },
+};
+
 /** Quét xong mà không mức nào ra số — thường vì còn một ô khác đang để trống. */
 const NOTHING_TO_DRAW = meaningless(
   {
@@ -855,43 +920,220 @@ function warmUpLength(points: ReadonlyArray<ChartPoint>): number {
  * số thật → hình vẫn vẽ, người dùng bấm lại điểm khác ngay tại chỗ.
  */
 export function buildChartModel(args: ChartArgs): ChartModel {
+  const s = sanSang(args);
+  const model = dungMoHinh(args, s);
+  const muc = mucOChon(args, s);
+  const khoa = model.sweepKey;
+
+  /*
+   * Ô "Xem theo" chỉ bày những mục BẤM VÀO LÀ CÓ HÌNH, cộng đúng mục đang chọn (23/10/2026). Mục
+   * đang chọn luôn ở lại, kể cả khi không vẽ được: ô chọn là để người dùng phân biệt dạng biểu đồ,
+   * không bao giờ tự đổi sang một mục khác thay họ.
+   */
+  const loc = muc
+    .filter((item) => item.option.key === khoa || item.veDuoc())
+    .map((item) => item.option);
+
+  if (model.kind !== 'unavailable') return { ...model, options: loc };
+
+  /*
+   * Hai yêu cầu của chủ dự án cùng ngày 23/10/2026, mỗi cái một trạng thái:
+   *
+   * - Hình MẶC ĐỊNH (người dùng chưa chọn gì) không vẽ được: chỉ câu cảnh báo, đúng câu khối Kết quả
+   *   đang nói, không ô chọn. _"khi nào biểu đồ có đủ thông số để hiển thị thì phần select mới hiển
+   *   thị"_ — chụp trên %B với mã Finbox 10 phiên. Đo trên Chrome: ở Chu kỳ 20 trục Chu kỳ vẽ được
+   *   đúng MỘT mức (N = 10) trong 21, nên "còn mục khác vẽ được" không phải lý do để bày ô chọn ở đây.
+   * - Hình người dùng ĐÃ TỰ CHỌN hết vẽ được vì số liệu đổi (đang xem Thang đo, kéo Chu kỳ quá số
+   *   phiên): ô chọn giữ nguyên lựa chọn ấy, câu cảnh báo nêu tên nó, và các mục còn vẽ được vẫn ở
+   *   đó để tự đổi. _"select là để phân biệt dạng biểu đồ"_. Bỏ ô chọn ở đây là kẹt người dùng ở một
+   *   mục hỏng (một phần cơ cấu âm trong khi kết quả vẫn tính được), đúng ngõ cụt đã vá trước đây.
+   */
+  /*
+   * "Đã tự chọn" nghĩa là chọn một mục KHÁC mục mặc định. Bấm lại đúng mục mặc định (sang Chu kỳ rồi
+   * về Thời gian) để lại `sweepKey` trong state mà màn trông y hệt lúc chưa bấm gì; tính nó là "đã
+   * chọn" thì cùng một màn lúc có ô chọn lúc không, tuỳ một cú bấm người dùng không còn thấy — và bày
+   * lại đúng ô chọn chủ dự án bảo bỏ ở lượt trước. Mục mặc định chỉ dựng thêm khi hình đã hỏng.
+   */
+  const macDinh = args.sweepKey === undefined ? khoa : khoaMacDinh(args, s);
+  const nguoiChon = args.sweepKey !== undefined && args.sweepKey === khoa && khoa !== macDinh;
+  const conHinhKhac = khoa !== undefined && loc.some((option) => option.key !== khoa);
+  if (!nguoiChon || !conHinhKhac) {
+    return { kind: 'unavailable', title: model.title, warning: model.warning };
+  }
+
+  const nhan = muc.find((item) => item.option.key === khoa)?.option.label;
+  return {
+    kind: 'unavailable',
+    title: model.title,
+    warning: nhan === undefined ? model.warning : chuaVeDuoc(nhan, model.warning),
+    options: loc,
+    sweepKey: khoa,
+  };
+}
+
+/** Mục màn sẽ mở ra nếu người dùng chưa chọn gì, với đúng số liệu này. */
+function khoaMacDinh(args: ChartArgs, s: SanSang): string | undefined {
+  const chuaChon: ChartArgs = { ...args };
+  delete chuaChon.sweepKey;
+  return dungMoHinh(chuaChon, s).sweepKey;
+}
+
+/** Câu báo của một mục ô "Xem theo" chưa vẽ được: tên mục, rồi đúng lý do, giữ dòng gợi ý sửa. */
+function chuaVeDuoc(nhan: Bilingual, lyDo: CalcWarning): CalcWarning {
+  return {
+    code: lyDo.code,
+    message: {
+      vi: `Chưa vẽ được “${nhan.vi}” với số liệu hiện tại. ${lyDo.message.vi}`,
+      en: `“${nhan.en}” cannot be drawn with the current figures. ${lyDo.message.en}`,
+    },
+    ...(lyDo.fix === undefined ? {} : { fix: lyDo.fix }),
+  };
+}
+
+/** Một mục của ô "Xem theo", kèm câu hỏi "bấm vào có hình không" — hỏi khi cần, không hỏi trước. */
+interface MucOChon {
+  option: SweepOption;
+  veDuoc: () => boolean;
+}
+
+/** Những điều kiện "mục nào đang có số để vẽ" — tính MỘT lần, dùng chung cho hai hàm dưới. */
+interface SanSang {
+  candidates: ReadonlyArray<VariableSpec>;
+  historyReady: boolean;
+  breakdownReady: boolean;
+  cuaSoChuoi: ReturnType<typeof seriesWindow>;
+  phanCoCau: ReturnType<typeof compositionBars>;
+  soCot: ColumnData | null;
+  /** Vì sao `soCot` là `null` — để câu báo của mục cột nói đúng nguyên nhân. */
+  loiCot: LoiCot | null;
+  thangDoReady: boolean;
+}
+
+function sanSang(args: ChartArgs): SanSang {
+  const { formula, inputs, ctx, output, level } = args;
+  const { spec } = formula;
+  return {
+    candidates: sweepCandidates(spec, level),
+    /*
+     * Đường thời gian là MỘT MỤC trong cùng ô chọn trục X, không phải một loại biểu đồ riêng.
+     *
+     * Nhờ đặt thế, `ChartBody` và `SweepPicker` không phải sửa một dòng nào: chúng vẫn chỉ giữ một
+     * chuỗi `sweepKey` rồi bắn lên. Chỗ duy nhất biết có hai lối sinh điểm là hàm này.
+     */
+    historyReady: canDrawHistory(formula, ctx),
+    breakdownReady: canDrawBreakdown(spec, inputs, output),
+    /*
+     * Hình theo chuỗi giá (phân phối lợi suất / đường sụt giảm, 21/10/2026) — cũng là MỘT MỤC của ô
+     * chọn, đứng ngay sau "Thời gian", chỉ có khi chuỗi đã nạp đủ phiên cho cửa sổ `calc` dùng.
+     */
+    cuaSoChuoi: spec.seriesView === undefined ? null : seriesWindow(spec.seriesView, inputs, ctx),
+    /*
+     * Hình cơ cấu (vành khuyên, 22/10/2026) — MỘT MỤC của ô chọn, chỉ có khi mọi phần ra số không
+     * âm. Không bao giờ là hình mặc định: hình màn mở ra của công thức giữ nguyên như trước.
+     */
+    phanCoCau: spec.composition === undefined ? null : compositionBars(spec, inputs, output),
+    /*
+     * Hình cột theo kỳ (23/10/2026) — MỘT MỤC của ô chọn, đứng sau hình cơ cấu, chỉ có khi công thức
+     * khai `FormulaModule.columns` và số sinh ra qua được `columnData()`. Không bao giờ là hình mặc
+     * định.
+     */
+    ...(() => {
+      const cot = kiemCot(formula, inputs, ctx, output);
+      return 'data' in cot ? { soCot: cot.data, loiCot: null } : { soCot: null, loiCot: cot.loi };
+    })(),
+    thangDoReady: gaugeReady(spec, output),
+  };
+}
+
+/** Công thức có mục bóc tách trong ô chọn — có hay không, chưa hỏi số liệu. */
+function coBocTach(spec: FormulaSpec): boolean {
+  return (
+    (spec.chartType === 'waterfall' || spec.chartType === 'stackedBar') &&
+    spec.breakdown !== undefined &&
+    spec.breakdown.length > 0
+  );
+}
+
+/**
+ * MỌI mục ô "Xem theo" có thể có của công thức này ở cấp độ đang xem, theo thứ tự in — kể cả mục
+ * số liệu hiện tại chưa vẽ được. `veDuoc` trả lời "bấm vào có hình không".
+ *
+ * Trước 23/10/2026 danh sách chỉ có mục đang sẵn số liệu, nên một mục người dùng ĐANG CHỌN mà hết
+ * vẽ được (kéo Chu kỳ dải Bollinger quá số phiên trong lúc xem Thang đo) biến khỏi danh sách và hình
+ * rơi về trục mặc định. Chủ dự án: _"select là để phân biệt dạng biểu đồ chứ không như hiện tại
+ * đang sai logic hiển thị biểu đồ"_.
+ */
+function mucOChon(args: ChartArgs, s: SanSang): ReadonlyArray<MucOChon> {
+  const { formula, inputs, ctx, output, span } = args;
+  const { spec } = formula;
+  const seriesView = spec.seriesView;
+  const coCau = spec.composition;
+  const mucCot = columnsOption(formula);
+
+  return [
+    ...(coBocTach(spec)
+      ? [
+          {
+            option: { key: BREAKDOWN_KEY, label: BREAKDOWN_LABEL },
+            veDuoc: () => {
+              if (!s.breakdownReady) return false;
+              const bars = breakdownBars(spec, inputs, output);
+              return bars.length > 0 && breakdownExtent(bars) !== null;
+            },
+          },
+        ]
+      : []),
+    ...(historyPlan(formula, ctx.asOf) !== null
+      ? [
+          {
+            option: { key: HISTORY_KEY, label: HISTORY_LABEL },
+            veDuoc: () => s.historyReady && historyHasPoint(formula, inputs, ctx),
+          },
+        ]
+      : []),
+    ...(seriesView === undefined
+      ? []
+      : [{ option: seriesViewOption(seriesView), veDuoc: () => s.cuaSoChuoi !== null }]),
+    ...(coCau === undefined
+      ? []
+      : [{ option: compositionOption(coCau), veDuoc: () => s.phanCoCau !== null }]),
+    ...(mucCot === null ? [] : [{ option: mucCot, veDuoc: () => s.soCot !== null }]),
+    ...(spec.gauge === undefined
+      ? []
+      : [{ option: { key: GAUGE_KEY, label: GAUGE_LABEL }, veDuoc: () => s.thangDoReady }]),
+    ...s.candidates.map((variable) => ({
+      option: { key: variable.key, label: shortLabel(variable.label) },
+      veDuoc: () => sweepHasPoint(formula, inputs, ctx, variable.key, span),
+    })),
+  ];
+}
+
+/**
+ * Hình của MỘT mục — mục người dùng chọn, hoặc mục mặc định khi họ chưa chọn. `buildChartModel()`
+ * ở trên lo phần ô chọn: lọc danh sách mục và quyết có giữ ô chọn khi hình này không vẽ được.
+ */
+function dungMoHinh(args: ChartArgs, s: SanSang): ChartModel {
   const { formula, inputs, ctx, output, level, sweepKey, span, seriesLabel, overlays } = args;
   const zeroBaseline = args.zeroBaseline === true;
   const candleRange = args.candleRange === true;
   const { spec } = formula;
   const name = shortLabel(spec.name);
 
-  const candidates = sweepCandidates(spec, level);
-
-  /*
-   * Đường thời gian là MỘT MỤC trong cùng ô chọn trục X, không phải một loại biểu đồ riêng.
-   *
-   * Nhờ đặt thế, `ChartBody` và `SweepPicker` không phải sửa một dòng nào: chúng vẫn chỉ giữ một
-   * chuỗi `sweepKey` rồi bắn lên. Chỗ duy nhất biết có hai lối sinh điểm là hàm này.
-   */
-  const historyReady = canDrawHistory(formula, ctx);
-  const breakdownReady = canDrawBreakdown(spec, inputs, output);
-  /*
-   * Hình theo chuỗi giá (phân phối lợi suất / đường sụt giảm, 21/10/2026) — cũng là MỘT MỤC của ô
-   * chọn, đứng ngay sau "Thời gian", chỉ có khi chuỗi đã nạp đủ phiên cho cửa sổ `calc` dùng.
-   */
+  const {
+    candidates,
+    historyReady,
+    breakdownReady,
+    cuaSoChuoi,
+    phanCoCau,
+    soCot,
+    loiCot,
+    thangDoReady,
+  } = s;
   const seriesView = spec.seriesView;
-  const cuaSoChuoi = seriesView === undefined ? null : seriesWindow(seriesView, inputs, ctx);
   const seriesViewReady = seriesView !== undefined && cuaSoChuoi !== null;
-  /*
-   * Hình cơ cấu (vành khuyên, 22/10/2026) — MỘT MỤC của ô chọn, chỉ có khi mọi phần ra số không âm.
-   * Không bao giờ là hình mặc định: hình màn mở ra của công thức giữ nguyên như trước.
-   */
   const coCau = spec.composition;
-  const phanCoCau = coCau === undefined ? null : compositionBars(spec, inputs, output);
   const compositionReady = coCau !== undefined && phanCoCau !== null;
-  /*
-   * Hình cột theo kỳ (23/10/2026) — MỘT MỤC của ô chọn, đứng sau hình cơ cấu, chỉ có khi công thức
-   * khai `FormulaModule.columns` và số sinh ra qua được `columnData()`. Không bao giờ là hình mặc định.
-   */
-  const soCot = columnData(formula, inputs, ctx, output);
   const mucCot = soCot === null ? null : columnsOption(formula);
-  const thangDoReady = gaugeReady(spec, output);
   const options: SweepOption[] = [
     ...(breakdownReady ? [{ key: BREAKDOWN_KEY, label: BREAKDOWN_LABEL }] : []),
     ...(historyReady ? [{ key: HISTORY_KEY, label: HISTORY_LABEL }] : []),
@@ -917,11 +1159,17 @@ export function buildChartModel(args: ChartArgs): ChartModel {
    * lấy một hình tốt thay bằng một hình tốt khác — không được lợi gì mà mất cái đang có. Nên ở
    * nhóm này bóc tách đứng sẵn trong ô chọn, người dùng bấm một lần là thấy.
    */
-  const breakdownFirst = breakdownReady && spec.chartType === 'waterfall';
-  if (
-    breakdownReady &&
-    (sweepKey === BREAKDOWN_KEY || (sweepKey === undefined && breakdownFirst))
-  ) {
+  /*
+   * Hình mặc định của năm công thức `waterfall` là bóc tách, quyết bằng `chartType` chứ KHÔNG bằng
+   * việc số liệu đang sẵn (23/10/2026). Bản trước hỏi `breakdownReady` ngay ở đây, nên `ev` mở ra ở
+   * Bóc tách, gõ Vốn hoá bằng 0 là hình tự thành "EV theo Vốn hoá thị trường" — đúng đường thẳng
+   * hệ số góc 1 mà chính docblock trên nói nhóm này tồn tại để tránh, và đúng kiểu "vẽ sang dạng biểu
+   * đồ khác" chủ dự án bác. Nay `khoaXin` là khoá của bóc tách cả khi chưa ai chọn gì, và nhánh "chưa
+   * vẽ được" ở dưới báo nó như mọi mục khác.
+   */
+  const khoaXin =
+    sweepKey ?? (spec.chartType === 'waterfall' && coBocTach(spec) ? BREAKDOWN_KEY : undefined);
+  if (breakdownReady && khoaXin === BREAKDOWN_KEY) {
     return buildBreakdownModel(spec, inputs, output, name, options);
   }
 
@@ -941,6 +1189,47 @@ export function buildChartModel(args: ChartArgs): ChartModel {
     return seriesView.kind === 'distribution'
       ? buildDistributionModel(seriesView, cuaSoChuoi, output, name, options, seriesLabel)
       : buildDrawdownModel(seriesView, cuaSoChuoi, name, options, seriesLabel);
+  }
+
+  /*
+   * Mục người dùng ĐÃ CHỌN mà số liệu hiện tại chưa vẽ được: báo đúng mục ấy (23/10/2026).
+   *
+   * Trước ngày này mọi nhánh trên chỉ chạy khi mục SẴN số liệu, nên mục đã chọn mà hết số (kéo Chu kỳ
+   * dải Bollinger quá số phiên đang có trong lúc xem Thang đo, hay gõ lãi suất âm khi đang xem Cơ
+   * cấu) rơi tuột xuống trục mặc định ở dưới và hình tự đổi sang một dạng khác. Chủ dự án: _"nếu đã
+   * không thể vẽ được biểu đồ thì hiển thị rằng dữ liệu không khớp hoặc chưa chính xác để có thể áp
+   * dụng vào biểu đồ thay vì vẽ sang dạng biểu đồ khác để đối phó chứ"_.
+   *
+   * Tới được đây với một khoá đặc biệt nghĩa là nhánh của nó ở trên đã không chạy, tức chưa sẵn số.
+   * Lý do lấy từ chính kết quả khi kết quả lỗi; kết quả vẫn ra số mà hình không dựng được (một phần
+   * cơ cấu âm, một kỳ cột âm, chưa nạp chuỗi) thì có câu riêng.
+   */
+  const lyDoChuaVe = ((): CalcWarning | null => {
+    if (khoaXin === undefined) return null;
+    if (khoaXin === BREAKDOWN_KEY && coBocTach(spec)) return output.warning ?? NOTHING_TO_DRAW;
+    if (khoaXin === COMPOSITION_KEY && coCau !== undefined) {
+      return output.warning ?? KHONG_CHIA_CO_CAU;
+    }
+    if (khoaXin === COLUMNS_KEY && formula.columns !== undefined) {
+      return output.warning ?? khongDungCot(loiCot ?? 'khac');
+    }
+    if (khoaXin === GAUGE_KEY && spec.gauge !== undefined) return output.warning ?? NOTHING_TO_DRAW;
+    /* Cửa sổ của hình theo chuỗi có khi và chỉ khi `calc` tính được, nên lỗi của kết quả là lý do thật. */
+    if (seriesView !== undefined && khoaXin === seriesViewOption(seriesView).key) {
+      return output.warning ?? CHUA_CO_CHUOI;
+    }
+    /*
+     * Đường thời gian thì khác: cái chặn nó là CHUỖI (chưa nạp, hay dưới `MIN_SESSIONS`), không phải
+     * kết quả. Lấy lỗi của kết quả chỉ khi chính lỗi ấy là thiếu chuỗi; không thì một câu "EPS bằng 0"
+     * sẽ đứng trên mục Thời gian, sửa EPS xong hình vẫn chưa vẽ được.
+     */
+    if (khoaXin === HISTORY_KEY && !historyReady && historyPlan(formula, ctx.asOf) !== null) {
+      return output.warning?.code === 'MISSING_SERIES' ? output.warning : CHUA_CO_CHUOI;
+    }
+    return null;
+  })();
+  if (lyDoChuaVe !== null) {
+    return { kind: 'unavailable', title: name, warning: lyDoChuaVe, sweepKey: khoaXin };
   }
 
   /*
@@ -980,7 +1269,7 @@ export function buildChartModel(args: ChartArgs): ChartModel {
       pickSweepVariable(formula, ctx, level);
 
     if (chosen === null) {
-      return { kind: 'unavailable', title: name, warning: NO_SWEEP_VARIABLE, options };
+      return { kind: 'unavailable', title: name, warning: NO_SWEEP_VARIABLE };
     }
 
     points = sweepPoints(formula, inputs, ctx, chosen.key, span);
@@ -990,7 +1279,6 @@ export function buildChartModel(args: ChartArgs): ChartModel {
         kind: 'unavailable',
         title: name,
         warning: output.warning ?? NOTHING_TO_DRAW,
-        options,
         sweepKey: chosen.key,
       };
     }
@@ -1009,7 +1297,6 @@ export function buildChartModel(args: ChartArgs): ChartModel {
       kind: 'unavailable',
       title: name,
       warning: output.warning ?? NOTHING_TO_DRAW,
-      options,
       sweepKey: activeKey,
     };
   }

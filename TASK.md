@@ -4,6 +4,131 @@ Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 
 ---
 
+## Hai ô chọn của biểu đồ không bao giờ tự đổi: hình đang chọn không vẽ được thì báo, không vẽ hình khác (23/10/2026)
+
+**Trạng thái: CHƯA XONG — đã sửa, chờ chủ dự án xem.** Chủ dự án đang xem Thang đo của `phan-tram-b-bollinger` với 10
+phiên, kéo Chu kỳ lên 12 và hình tự thành "Chu kỳ dải Bollinger · Đường": _"nếu đã không thể vẽ được biểu đồ thì hiển
+thị rằng dữ liệu không khớp hoặc chưa chính xác để có thể áp dụng vào biểu đồ thay vì vẽ sang dạng biểu đồ khác để đối
+phó chứ, select là để phân biệt dạng biểu đồ chứ không như hiện tại đang sai logic hiển thị biểu đồ"_. Mọi khổ.
+
+- **Nguyên nhân:** mục chỉ có trong `options` khi đang sẵn số; mục đã chọn hết số thì `buildChartModel()` rơi xuống
+  trục mặc định. Cùng lớp lỗi ở Cơ cấu (một phần âm), Cột theo kỳ (một kỳ), Thời gian / Phân phối / Sụt giảm (thiếu
+  phiên), và ở ô "Loại biểu đồ" (Lãi/lỗ, Vành khuyên, Nến, Bậc thang tự thành dạng mặc định khi số liệu đổi).
+- **Luật mới, khớp cả hai tin nhắn trong ngày:**
+  - Hình MẶC ĐỊNH (chưa chọn gì) không vẽ được: chỉ câu cảnh báo, không ô chọn (giữ đúng lượt trước). Đo trên Chrome: ở
+    Chu kỳ 20 với 10 phiên, trục Chu kỳ vẽ được đúng một mức trong 21, nên đó không phải lý do để bày ô chọn.
+  - Hình người dùng ĐÃ TỰ CHỌN hết vẽ được: ô chọn giữ nguyên lựa chọn, câu báo "Chưa vẽ được “Thang đo” với số liệu
+    hiện tại. Cần ít nhất 12 phiên giá, hiện mới có 10.", và các mục còn vẽ được vẫn ở đó để đổi. Không mục nào khác vẽ
+    được thì chỉ câu cảnh báo.
+  - Ô "Xem theo" chỉ bày mục bấm vào là có hình, cộng mục đang chọn.
+  - "Loại biểu đồ": vẫn đứng ở mục cũ mà số liệu làm dạng đã chọn hết vẽ được thì giữ dạng ấy và báo lý do ("Chưa vẽ
+    được dạng “Lãi/lỗ” …"); đổi sang mục khác không có dạng ấy thì vẽ dạng đầu của mục đó như trước.
+- `src/core/chart/build.ts`: `buildChartModel()` thành lớp bọc (`sanSang`, `mucOChon`, `dungMoHinh`); mục đặc biệt đã
+  chọn mà chưa sẵn số trả `unavailable` có khoá ấy; ba câu báo mới (`KHONG_CHIA_CO_CAU`, `KHONG_DUNG_COT`,
+  `CHUA_CO_CHUOI`). `sweep.ts`: `sweepXs()` dùng chung, `sweepHasPoint()`. `history.ts`: `diemPhien()` dùng chung,
+  `historyHasPoint()`. `dang-ve.ts`: `TEN_DANG_VE`, `lyDoKhongVeDang()`. `types.ts`: `UnavailableChart` có lại
+  `options` + `sweepKey`, chỉ ở ca người dùng đã chọn. `gauge.ts`, `index.ts`, `application/index.ts` theo.
+- `src/ui/charts/ChartBody.tsx`: `ThongBaoHinh` (thẻ biểu đồ + hàng ô chọn + câu báo thay cho hình), `dangDaVe` /
+  `matDang` cho ô "Loại biểu đồ"; khung "?" im với mục chưa có chữ kể cả khi mục ấy đang báo.
+- Test: `giu-lua-chon.test.ts` (mới, quét 103 biểu đồ × 2 cấp × chưa nạp / 10 / 250 phiên; đỏ trên bản cũ, xanh bản mới);
+  `charts.test.tsx` +5 ca (đúng cảnh Thang đo, Lãi/lỗ, Thời gian đã chọn, %B chu kỳ 26, 61/75 phiên ở hình mặc định);
+  `columns.test.ts`, `history.test.ts` đảo hai ca "rơi về trục khác"; `i18n.test.ts` neo `TEN_DANG_VE`.
+- Chrome trên dev (chuỗi 10 phiên dán tay, không khoá ô; 390 và 1440): mặc định chỉ câu cảnh báo; Chu kỳ 8 vẽ được;
+  chọn Thang đo; kéo lên 12 thì ô vẫn "Thang đo", danh sách còn [Thang đo, Chu kỳ dải Bollinger], câu báo nêu tên; kéo
+  về 9 thì Thang đo vẽ lại.
+- **Vòng soát đối kháng** (3 góc nhìn × người kiểm phản bác từng phát hiện, 25 agent): 15 xác nhận, 7 bị bác. Đã sửa hết:
+  - `ev` mở ở Bóc tách, Vốn hoá 0 vẫn tự thành đường quét: hình mặc định của 5 công thức `waterfall` nay quyết bằng
+    `chartType` (`khoaXin`), hỏng thì chỉ câu cảnh báo.
+  - Bấm lại đúng mục mặc định (Chu kỳ → Thời gian) rồi làm hỏng thì ô chọn hiện lại, đúng ô lượt trước bảo bỏ: "đã chọn"
+    nay nghĩa là mục KHÁC mục mặc định (`khoaMacDinh()`).
+  - Câu báo sai nguyên nhân: mục cột nói theo từng lỗi (`kiemCot()`: thiếu kỳ / phần âm khi chồng / mọi kỳ bằng 0 /
+    khác); Thời gian đổ cho chuỗi trừ khi lỗi của kết quả chính là thiếu chuỗi; "chưa có chuỗi" thành "chưa có chuỗi
+    giá đủ phiên"; Bậc thang nói dải trên trục rộng quá và gợi ý giảm con số trên trục.
+  - Thẻ thông báo có hàng tiêu đề (từ 1280px ô chọn từng đứng trơ ở góc phải, nhãn ẩn); đổi qua lại thẻ thông báo /
+    thẻ hình trả tiêu điểm về đúng ô vừa bấm.
+  - 7 chú thích và đoạn tài liệu còn nói theo luật cũ (`ChartArgs.sweepKey`, mộ chí `.axisEscape`, `dang-ve.ts`,
+    `chart/index.ts`, `ChartBody`, hai chỗ trong CLAUDE.md, JSDoc của `NOTHING_TO_DRAW`).
+  - Chưa làm, đã ghi ở CLAUDE.md: cho trục số kỳ dài bám lưới bước để Bậc thang không mất quá 40 bước (đổi dải của
+    248 trục trong hướng dẫn).
+  - Test thêm: `charts.test.tsx` 3 ca (bấm lại mặc định, `ev` Vốn hoá 0, trả tiêu điểm), `giu-lua-chon.test.ts` 1 ca,
+    `history.test.ts` 1 ca, `columns.test.ts` 1 ca. Đo lại Chrome: thẻ có tiêu đề "%B" ở 390 và 1440.
+
+---
+
+## Biểu đồ không vẽ được thì không có ô chọn (23/10/2026)
+
+**Trạng thái: CHƯA XONG — đã sửa, chờ chủ dự án xem. Lượt sau cùng ngày (mục ngay trên) chỉnh lại: hình mặc định hỏng
+thì vẫn không ô chọn như ở đây; hình người dùng đã tự chọn hỏng thì ô chọn ở lại. `options` / `sweepKey` của
+`UnavailableChart` quay lại cho đúng ca ấy.** Chủ dự án chụp `phan-tram-b-bollinger` với mã Finbox 10 phiên
+(Chu kỳ 26): khối Biểu đồ chỉ có câu cảnh báo "Cần ít nhất 26 phiên giá…" mà vẫn bày ô "Xem theo · Thời gian" — _"sửa
+logic ở những phần mà tự dưng hiển thị select một cách vô tội vạ mà không có mục đích như này … khi nào biểu đồ có đủ
+thông số để hiển thị thì phần select mới hiển thị"_. Áp mọi khổ (luật hiển thị, không phải bố cục).
+
+- **Đảo một quyết định cũ, nói rõ ở đây:** ô chọn dưới câu cảnh báo có từ đợt vá ngõ cụt "bấm biểu đồ xong mất luôn
+  biểu đồ" (chủ dự án duyệt hướng "đừng để biểu đồ biến mất"), để nhảy sang trục còn vẽ được (61 phiên với SMA 75 thì
+  trục "Số phiên" vẫn vẽ phần N ≤ 61). Gỡ mà không thành ngõ cụt, vì hình không vẽ được nghĩa là chính `calc` đang lỗi
+  (con số đang nhập luôn nằm trong dải quét, phiên cuối của trục thời gian là cả chuỗi), nên lối ra là ô Số liệu mà
+  câu cảnh báo chỉ tới; sửa xong thì hình và ô chọn cùng quay lại. Đường ghi ngược số từ cú bấm vào vùng gạch chéo vẫn
+  bị chặn như đợt cũ.
+- `src/ui/charts/ChartBody.tsx`: nhánh `unavailable` chỉ trả `InlineWarning`; bỏ import CSS không còn dùng.
+- `src/core/chart/types.ts`: `UnavailableChart` bỏ `options` và `sweepKey` (không còn ai đọc), docblock ghi lý do để
+  không ai thêm lại; `build.ts` (4 chỗ trả `unavailable`) và `gauge.ts` thôi gán hai trường ấy.
+- `src/ui/charts/chart.module.css`: gỡ `.axisEscape` (để mộ chí) và phần lượt 2 đã gắn nó vào các luật dưới 1024px.
+- Test: `charts.test.tsx` ĐẢO ca "chuỗi hụt so với N: vẫn giữ ô chọn trục" thành "chỉ còn câu cảnh báo, không bày ô
+  chọn trục", thêm ca "hạ N về mức đủ phiên thì hình và ô chọn quay lại"; `chart-controls-css.test.ts` bỏ ca
+  `.axisEscape` của lượt 2; `series-view.test.ts`, `bieu-do.test.ts` đọc `options` qua phép thu hẹp kiểu.
+- Rà các ô chọn khác của sản phẩm: ô biểu phí in chữ khi chỉ có một biểu, "Xem theo" và "Loại biểu đồ" tự ẩn khi chỉ có
+  một mục, các ô còn lại luôn có từ hai lựa chọn. Không chỗ nào khác bày ô chọn vô ích.
+- Còn lại, chưa đụng: người dùng đã tự chọn trục khác rồi tăng N quá độ dài chuỗi thì "Thời gian" vẫn nằm trong danh
+  sách; chọn nó thì ra câu cảnh báo.
+- Kiểm: tsc, eslint, prettier sạch; toàn bộ vitest xanh (190 file, 4.836 ca). Chrome trên dev, `?ma=FPT` (`phan-tram-b-bollinger`, `sma-n-phien`,
+  `rsi-wilder`; 360 / 390 / 1440; sáng và tối): chỉ còn câu cảnh báo, không ô chọn, không hình; bấm "Xem ví dụ minh
+  hoạ" (250 phiên) thì hình và hai ô chọn cùng hiện.
+
+---
+
+## Hàng "Xem theo" trên điện thoại: nhãn trái, ô chọn phải, một hàng (23/10/2026)
+
+**Trạng thái: CHƯA XONG — đã sửa, chờ chủ dự án xem.** Chủ dự án khoanh ô "Xem theo" trải hết bề ngang dưới nhãn
+trên mobile web: _"đang chiếm nhiều không gian, đưa lên cùng hàng nằm bên phải của đoạn text bên trên sao cho hợp lý
+nhất để tiết kiệm không gian"_. Chỉ dưới 1024px (ảnh điện thoại); từ 1024px không đổi.
+
+- `ui/charts/chart.module.css` (khối `max-width: 1023.98px`): mỗi ô chọn thành một hàng, nhãn bên trái, ô chọn ôm
+  theo lựa chọn dài nhất và dạt mép phải (cùng luật ô chọn ở khối Số liệu). Có cả ô "Loại biểu đồ" thì nó đứng
+  ngay sau, cùng hàng, nhãn của nó chỉ còn cho trình đọc màn hình (như PC từ 1280px); ô ấy đứng một mình thì giữ
+  nhãn. Ô chọn trục không co dưới 7,5rem; thiếu chỗ thì nhãn co trước. Bản tiếng Anh ("See how the result changes
+  with") có sàn 15rem để ô "Chart type" rớt dòng sớm thay vì nhãn gãy sáu dòng.
+- Hai lỗi gặp khi đo và đã sửa trong lượt: nhãn được phép mọc rồi bị co một phần nhỏ pixel làm "Xem theo" gãy hai
+  dòng ở 390px; nhãn tiếng Anh gãy sáu dòng ở 320px (cao 108px).
+- `chart-controls-css.test.ts`: +3 ca ghim bố cục. `CLAUDE.md`: thay câu "sàn 7,5rem" cũ.
+- Đo bằng Chrome trên server dev (pe, gia-tri-noi-tai-fcff, lai-suat-hieu-dung, ty-le-khoi-luong, bien-do-dao-dong-
+  lon-nhat; 320 / 360 / 390 / 768; sáng, tối, tiếng Anh): tiếng Việt hàng cao 36px ở mọi khổ (trước ~56px), "Xem
+  theo" một dòng từ 360px, chỉ gãy hai dòng ở 320px; tiếng Anh 36px ở 390px, 80px (hai hàng) ở 320–360px; không
+  khổ nào cuộn ngang. Tên trục dài bị cắt "…" trong ô (FCFF ở 390px), vẫn đọc đủ ở tiêu đề hình ngay trên.
+- **Lượt 2:** chủ dự án chụp ô "Xem theo · Thời gian" vẫn nằm dưới nhãn. Đó là trạng thái hình KHÔNG vẽ được (mã
+  Finbox 10 phiên trên SMA 20), nơi ô chọn trục đứng một mình dưới câu cảnh báo (`.axisEscape`). Tôi cho nó theo cùng
+  luật một hàng. Lượt 3 bên dưới gỡ hẳn ô ấy, nên phần sửa này cũng gỡ theo.
+
+---
+
+## Thẻ cảnh báo vàng gọn: câu cảnh báo thẳng mép trái, không thụt sau icon (23/10/2026)
+
+**Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án xem.**
+
+Chủ dự án khoanh câu "Cần ít nhất 60 phiên giá, hiện mới có 10." và dòng "↳ Nạp bộ số liệu mẫu…" của thẻ "Thiếu dữ liệu
+chuỗi" dưới tiêu đề Biểu đồ, kẻ mũi tên sang trái: _"chuyển phần khoanh đỏ sang bên trái như tôi chỉ"_.
+
+- `src/ui/result/InlineWarning.module.css`: thẻ từ flex hai ô (icon | khối chữ — icon chiếm cả một cột nên hai dòng dưới
+  thụt 22px) thành lưới `auto minmax(0, 1fr)`; `.body` là `display: contents`; câu và dòng gợi ý `grid-column: 1 / -1`.
+  Icon và nhãn chung hàng đầu, căn giữa theo chiều dọc (bỏ `margin-top: 2px` của icon). DOM không đổi.
+- Áp cho MỌI chỗ dùng `InlineWarning`, vì là một component: biểu đồ, thẻ bước của khối chuỗi, ô nhận số tự động, bảng
+  phí, khối cảnh báo của trang hướng dẫn. Ảnh chủ dự án gửi chụp ở khổ 1x (không phải ảnh điện thoại), nên áp mọi khổ.
+- Test: `inline-warning-css.test.ts` (mới, 3 ca).
+- Kiểm: test của `src/ui` liên quan (28 file), prettier, eslint. Đo trên dev, `beta`, bảng tối, ở 390 và 1440: icon cách
+  mép trái thẻ 13px, câu và dòng gợi ý cũng 13px, nhãn 35px; thẻ cao 79px.
+
+---
+
 ## Thẻ công thức mang icon riêng của từng công thức (23/10/2026)
 
 **Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án xem.**

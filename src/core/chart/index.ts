@@ -52,9 +52,20 @@ export { decimalsOf, extentOf, linearScale, niceAxis, niceStep } from './scale';
 
 export { areaPath, fixed, gapsOf, linePath, stepPath } from './path';
 
-/* Các dạng vẽ một hình đang mời — nguồn duy nhất của ô chọn "Loại biểu đồ". */
+/*
+ * Các dạng vẽ một hình đang mời — nguồn của ô chọn "Loại biểu đồ". `ChartBody` chỉ giữ thêm dạng đang
+ * chọn khi nó vừa mất vì số liệu đổi ở chính mục đang xem (`lyDoKhongVeDang`).
+ */
 export type { DangVe, PhanVanhKhuyen, VanhKhuyen } from './dang-ve';
-export { coDoiDau, dangVeCuaHinh, dangVeHieuLuc, laTrucRoiRac, vanhKhuyen } from './dang-ve';
+export {
+  TEN_DANG_VE,
+  coDoiDau,
+  dangVeCuaHinh,
+  dangVeHieuLuc,
+  laTrucRoiRac,
+  lyDoKhongVeDang,
+  vanhKhuyen,
+} from './dang-ve';
 
 export type { ViewBoxRect } from './pointer';
 export { nearestPointByX, pointerToViewBox } from './pointer';

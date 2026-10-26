@@ -273,23 +273,26 @@ export interface LineChart {
  *
  * Mang thẳng `CalcWarning` để giao diện dùng lại `InlineWarning`, nhờ đó biểu đồ nói ĐÚNG câu mà
  * khối kết quả đang nói, kèm đúng câu chỉ đường (NFR-USA-04).
+ *
+ * **Hai trạng thái, hai cách hiện** (23/10/2026, hai lượt cùng ngày của chủ dự án):
+ *
+ * - Hình MẶC ĐỊNH (người dùng chưa chọn mục nào) không vẽ được — mã Finbox 10 phiên trên
+ *   `phan-tram-b-bollinger`: không có `options`, giao diện chỉ in câu cảnh báo. _"khi nào biểu đồ
+ *   có đủ thông số để hiển thị thì phần select mới hiển thị"_.
+ * - Mục người dùng ĐÃ TỰ CHỌN hết vẽ được vì số liệu đổi, mà còn mục khác vẽ được (đang xem Thang
+ *   đo rồi kéo Chu kỳ quá số phiên đang có): có `options` (những mục vẽ được, cộng mục đang chọn) và
+ *   `sweepKey` (mục đang chọn), và câu cảnh báo nêu tên mục ấy. Ô chọn giữ nguyên lựa chọn, không tự
+ *   nhảy sang mục khác: _"select là để phân biệt dạng biểu đồ"_. Còn ô chọn là để họ tự đổi sang mục
+ *   vẽ được; bỏ nó đi là bắt họ rời màn rồi vào lại, đúng ngõ cụt đã vá ở đợt "bấm biểu đồ xong mất
+ *   luôn biểu đồ".
  */
 export interface UnavailableChart {
   kind: 'unavailable';
   title: Bilingual;
   warning: CalcWarning;
-  /**
-   * Các trục KHÁC vẫn chọn được, để giao diện giữ lại ô chọn trục thay vì bỏ trống cả khối.
-   *
-   * Vì sao trạng thái "không vẽ được" vẫn phải mang danh sách này: ô chọn trục nằm TRONG khung
-   * biểu đồ, nên bỏ hình đi là bỏ luôn chỗ bấm duy nhất để đổi sang một trục vẫn vẽ được — người
-   * dùng kẹt lại, phải rời màn rồi vào lại. Ca thật: chuỗi 61 phiên với SMA 75 phiên thì trục thời
-   * gian không còn điểm nào, nhưng trục "Số phiên" vẫn vẽ tốt phần N ≤ 61.
-   *
-   * Bỏ trống khi chỗ dựng chưa kịp biết có những trục nào (các lối thoát sớm của `buildChartModel`).
-   */
+  /** Những mục vẽ được, cộng mục đang chọn. Vắng mặt khi không mục nào vẽ được. */
   options?: ReadonlyArray<SweepOption>;
-  /** Mục đang chọn trong ô ấy — để ô chọn hiện đúng trục người dùng đang đứng. */
+  /** Mục đang chọn — đúng mục chưa vẽ được. Có mặt cùng lúc với `options`. */
   sweepKey?: string;
 }
 

@@ -862,42 +862,172 @@ describe('Biểu đồ độ nhạy — FR-06 ở tầng vẽ', () => {
   });
 
   /*
-   * ĐƯỜNG RA khi không vẽ được — chuỗi ĐÃ nạp nhưng hụt so với N đang chọn.
+   * ── Hình đang chọn mà số liệu chưa vẽ được (23/10/2026, hai lượt của chủ dự án cùng ngày) ──────
    *
-   * 61 phiên với SMA 75 phiên: trục thời gian (trục mặc định sau khi nạp) không còn điểm nào, nên
-   * khối biểu đồ rơi về câu cảnh báo. Nhưng trục "Số phiên" vẫn vẽ tốt phần N ≤ 61, nên ô chọn trục
-   * PHẢI còn lại — nó nằm trong khung biểu đồ, mất nó là mất đường đổi trục duy nhất và người dùng
-   * phải rời màn rồi vào lại. Chủ dự án báo đúng kiểu bế tắc này.
+   * Luật: ô chọn không bao giờ tự đổi lựa chọn của người dùng; hình đang chọn chưa vẽ được thì câu
+   * báo nêu tên hình thay cho hình. Ô chọn còn ở lại khi CÒN mục khác vẽ được (để không kẹt), và
+   * biến mất khi không mục nào vẽ được (_"khi nào biểu đồ có đủ thông số để hiển thị thì phần select
+   * mới hiển thị"_). Lượt đầu bỏ hẳn ô chọn dưới câu cảnh báo; lượt sau (Thang đo tự thành Đường khi
+   * kéo Chu kỳ) cho thấy bỏ hẳn là kẹt người dùng ở một mục hỏng, nên ô chọn quay lại đúng ca có việc.
    */
-  it('chuỗi hụt so với N: vẫn giữ ô chọn trục để đổi sang trục còn vẽ được', () => {
-    const formula = moduleOf('sma-n-phien');
-    const shortBars = FPT_BARS.slice(0, 61);
-    const ctx: CalcContext = {
+
+  /** Chuỗi `n` phiên FPT đầu tiên, đúng dạng `ctx` màn chi tiết dựng. */
+  function ctxNgan(n: number): CalcContext {
+    const bars = FPT_BARS.slice(0, n);
+    return {
       ...CTX,
-      bars: shortBars,
-      series: shortBars
+      bars,
+      series: bars
         .map((bar) => bar.close)
         .filter((close): close is number => typeof close === 'number' && close > 0),
     };
-    const inputs = { ...defaultInputs(formula.spec), period: 75 };
+  }
 
-    render(
+  /** Dựng khối biểu đồ; `doiSo` dựng lại với bộ số khác, như kéo một thanh trượt ở khối Số liệu. */
+  function veVoi(id: string, inputs: CalcInputs, ctx: CalcContext = CTX) {
+    const formula = moduleOf(id);
+    const khoi = (so: CalcInputs) => (
       <ChartBody
         formula={formula}
-        inputs={inputs}
+        inputs={so}
         ctx={ctx}
-        output={runFormula(formula, inputs, ctx)}
+        output={runFormula(formula, so, ctx)}
         level="basic"
         seriesLabel="FPT"
-      />,
+      />
     );
+    const man = render(khoi(inputs));
+    return {
+      doiSo: (so: CalcInputs) => {
+        man.rerender(khoi(so));
+      },
+    };
+  }
 
-    // Vẫn nói đúng câu khối Kết quả đang nói…
-    expect(screen.getByRole('status').textContent ?? '').toContain('phiên');
-    // …nhưng KHÔNG bịt đường ra: ô chọn trục còn đó, và có mục "Số phiên" để nhảy sang.
-    const picker = screen.getByRole('combobox');
-    expect(picker).not.toBeNull();
-    expect(picker.textContent ?? '').toContain('Số phiên');
+  it('không mục nào vẽ được (mã 10 phiên, %B chu kỳ 26): chỉ còn câu cảnh báo, không ô chọn', () => {
+    const formula = moduleOf('phan-tram-b-bollinger');
+    veVoi('phan-tram-b-bollinger', { ...defaultInputs(formula.spec), period: 26 }, ctxNgan(10));
+
+    expect(screen.getByRole('status').textContent ?? '').toContain('Cần ít nhất 26 phiên');
+    expect(screen.queryByRole('figure')).toBeNull();
+    expect(screen.queryByRole('combobox')).toBeNull();
+  });
+
+  /*
+   * 61 phiên với SMA 75: trục thời gian — hình MẶC ĐỊNH sau khi nạp, chưa ai chọn gì — không còn
+   * điểm nào. Trục "Số phiên" vẫn vẽ phần N ≤ 61, nhưng hình mặc định hỏng thì không bày ô chọn: đúng
+   * điều chủ dự án chốt khi chụp %B với mã 10 phiên. Lối ra là ô Số phiên ở khối Số liệu.
+   */
+  it('chuỗi hụt so với N ở hình mặc định: chỉ câu cảnh báo, không ô chọn', () => {
+    const formula = moduleOf('sma-n-phien');
+    veVoi('sma-n-phien', { ...defaultInputs(formula.spec), period: 75 }, ctxNgan(61));
+
+    expect(screen.queryByRole('figure')).toBeNull();
+    expect(screen.queryByRole('combobox')).toBeNull();
+    expect(screen.getByRole('status').textContent ?? '').toContain('Cần ít nhất 75 phiên');
+  });
+
+  /*
+   * Cùng chuỗi ấy, nhưng người dùng đã bấm sang Số phiên rồi về lại Thời gian — chính mục mặc định —
+   * trước khi tăng N. Màn trông y hệt lúc chưa bấm gì, nên phải ra y hệt: chỉ câu cảnh báo. Vòng soát
+   * 23/10/2026 bắt được bản đầu bày lại ô chọn ở đây, đúng ô chủ dự án đã bảo bỏ.
+   */
+  it('bấm lại đúng mục mặc định rồi tăng N quá chuỗi: như chưa chọn — chỉ câu cảnh báo', async () => {
+    const formula = moduleOf('sma-n-phien');
+    const goc = defaultInputs(formula.spec);
+    const { doiSo } = veVoi('sma-n-phien', { ...goc, period: 20 }, ctxNgan(61));
+
+    await userEvent.selectOptions(screen.getByLabelText('Xem theo'), 'period');
+    await userEvent.selectOptions(screen.getByLabelText('Xem theo'), '__time');
+    doiSo({ ...goc, period: 75 });
+
+    expect(screen.queryByRole('figure')).toBeNull();
+    expect(screen.queryByRole('combobox')).toBeNull();
+    expect(screen.getByRole('status').textContent ?? '').toContain('Cần ít nhất 75 phiên');
+  });
+
+  /*
+   * Hình mặc định của `ev` là bóc tách. Vốn hoá 0 làm kết quả lỗi; bản trước rơi sang đường "EV theo
+   * Vốn hoá thị trường" (một đường thẳng hệ số góc 1) với ô chọn ẩn đi. Nay: câu cảnh báo, không hình.
+   */
+  it('ev mở ở Bóc tách, Vốn hoá về 0: chỉ câu cảnh báo, không tự thành đường quét', () => {
+    const formula = moduleOf('ev');
+    veVoi('ev', { ...defaultInputs(formula.spec), marketCap: 0 });
+
+    expect(screen.queryByRole('figure')).toBeNull();
+    expect(screen.queryByRole('combobox')).toBeNull();
+    expect(screen.getByRole('status')).not.toBeNull();
+  });
+
+  /*
+   * Đổi qua lại giữa thẻ thông báo và thẻ hình là dựng lại ô chọn. Tiêu điểm phải về lại đúng ô vừa
+   * bấm, không rơi về `<body>` (người dùng bàn phím mất chỗ sau một phím).
+   */
+  it('chọn ở thẻ thông báo làm hình hiện lại: tiêu điểm về đúng ô vừa bấm', async () => {
+    const formula = moduleOf('roi');
+    const goc = defaultInputs(formula.spec);
+    const { doiSo } = veVoi('roi', goc);
+
+    await userEvent.selectOptions(screen.getByLabelText('Loại biểu đồ'), 'Lãi/lỗ');
+    doiSo({ ...goc, cost: 10_000_000 });
+    expect(screen.queryByRole('figure')).toBeNull();
+
+    await userEvent.selectOptions(screen.getByLabelText('Loại biểu đồ'), 'Đường');
+    expect(screen.getByRole('figure')).not.toBeNull();
+    expect(document.activeElement?.id).toBe('chart-roi-kind');
+  });
+
+  it('chuỗi hụt so với N: hạ N về mức đủ phiên thì hình và ô chọn trục quay lại', () => {
+    const formula = moduleOf('sma-n-phien');
+    veVoi('sma-n-phien', { ...defaultInputs(formula.spec), period: 20 }, ctxNgan(61));
+
+    expect(screen.getByRole('figure')).not.toBeNull();
+    expect(screen.getByLabelText('Xem theo')).not.toBeNull();
+  });
+
+  /*
+   * Đúng ảnh chủ dự án chụp: đang xem Thang đo của %B, kéo Chu kỳ quá số phiên đang có, và hình tự
+   * thành "Chu kỳ dải Bollinger · Đường". _"nếu đã không thể vẽ được biểu đồ thì hiển thị rằng dữ
+   * liệu không khớp … thay vì vẽ sang dạng biểu đồ khác để đối phó chứ"_.
+   */
+  it('đang xem Thang đo mà kéo Chu kỳ quá số phiên: ô giữ Thang đo, báo lý do, không vẽ Đường', async () => {
+    const formula = moduleOf('phan-tram-b-bollinger');
+    const goc = defaultInputs(formula.spec);
+    const { doiSo } = veVoi('phan-tram-b-bollinger', { ...goc, period: 12 }, ctxNgan(15));
+
+    await userEvent.selectOptions(screen.getByLabelText('Xem theo'), 'Thang đo');
+    expect(screen.getByRole('figure')).not.toBeNull();
+
+    doiSo({ ...goc, period: 20 });
+    expect(screen.queryByRole('figure')).toBeNull();
+    expect(screen.getByLabelText<HTMLSelectElement>('Xem theo').value).toBe('__gauge');
+    expect(screen.queryByLabelText('Loại biểu đồ')).toBeNull();
+    expect(screen.getByRole('status').textContent ?? '').toContain('Chưa vẽ được “Thang đo”');
+
+    // Kéo về mức đủ phiên: Thang đo quay lại, ô chọn vẫn đứng ở đó.
+    doiSo({ ...goc, period: 12 });
+    expect(screen.getByRole('figure')).not.toBeNull();
+    expect(screen.getByLabelText<HTMLSelectElement>('Xem theo').value).toBe('__gauge');
+  });
+
+  /* Cùng luật ở ô "Loại biểu đồ": dạng đã chọn không tự thành Đường khi số liệu đổi. */
+  it('đang xem Lãi/lỗ mà kết quả thôi đổi dấu: ô giữ Lãi/lỗ, báo lý do thay cho hình', async () => {
+    const formula = moduleOf('roi');
+    const goc = defaultInputs(formula.spec);
+    const { doiSo } = veVoi('roi', goc);
+
+    await userEvent.selectOptions(screen.getByLabelText('Loại biểu đồ'), 'Lãi/lỗ');
+    expect(screen.getByRole('figure')).not.toBeNull();
+
+    // Vốn 10 triệu, giá trị hiện tại 125 triệu: mọi mức của trục đều lãi, không còn phần lỗ để tô.
+    doiSo({ ...goc, cost: 10_000_000 });
+    expect(screen.queryByRole('figure')).toBeNull();
+    expect(screen.getByLabelText<HTMLSelectElement>('Loại biểu đồ').value).toBe('signArea');
+    expect(screen.getByRole('status').textContent ?? '').toContain('Chưa vẽ được dạng “Lãi/lỗ”');
+
+    doiSo(goc);
+    expect(screen.getByRole('figure')).not.toBeNull();
+    expect(screen.getByLabelText<HTMLSelectElement>('Loại biểu đồ').value).toBe('signArea');
   });
 });
 
@@ -3126,9 +3256,10 @@ describe('báo hình đang hiện lên màn chi tiết', () => {
   });
 
   /*
-   * Chưa nạp chuỗi giá thì mô hình là `unavailable` nhưng vẫn mang một `sweepKey` — ô nhập bộ dựng
-   * thử đầu tiên. Báo ô ấy lên là khung nói về "SMA theo Số phiên" trong khi hình sẽ hiện ra khi nạp
-   * xong là hình theo thời gian. Nên báo `null`: khung tự rơi về hình màn sẽ mở ra.
+   * Chưa nạp chuỗi giá thì mô hình là `unavailable`. Nó từng mang một `sweepKey` — ô nhập bộ dựng
+   * thử đầu tiên — và báo ô ấy lên là khung nói về "SMA theo Số phiên" trong khi hình sẽ hiện ra khi
+   * nạp xong là hình theo thời gian. Nên báo `null`: khung tự rơi về hình màn sẽ mở ra. (Từ
+   * 23/10/2026 mô hình ấy không còn `sweepKey`; ca này giữ lời hứa ở phía giao diện.)
    */
   it('chưa vẽ được và chưa ai chọn mục nào thì báo khoá null', () => {
     const { bao } = drawBao('sma-n-phien');

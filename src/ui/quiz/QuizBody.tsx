@@ -1,11 +1,11 @@
 'use client';
 
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 
 import type { QuizChoiceKey, QuizItem, QuizText } from '@/application';
 import { usePreferences, useT } from '@/application/preferences-context';
-import { Button } from '@/ui/primitives';
+import { BottomSheet, Button } from '@/ui/primitives';
 
 import { laDungCua, traLoiDuoc as traLoiDuocCua } from './cham';
 import styles from './QuizBody.module.css';
@@ -35,6 +35,23 @@ import type { QuizKyHieu } from './QuizQuestion';
  * 5. **Câu đã làm KHÔNG biến mất.** Từ 24/09/2026 mỗi câu vừa trả lời co lại thành một dòng gọn
  *    nằm ngay trên câu mới, bấm vào thì mở lại nguyên câu cũ kèm lời giải. Trước đó người dùng
  *    bấm "Câu tiếp" là mất hẳn câu vừa đọc, muốn xem lại phải đi hết bài rồi mới thấy ở tổng kết.
+ *
+ * ── Bài làm trong POPUP riêng (26/10/2026) ────────────────────────────────────────────────────
+ *
+ * Chủ dự án: _"điều chỉnh phần bài tập của công thức thành dạng popup riêng"_, rồi chọn ba điều khi
+ * được hỏi: hộp thoại nổi giữa màn ở MỌI khổ (như tấm Lưu và tấm Nạp mẫu); đóng popup giữa chừng
+ * (nút X, Esc, bấm ra ngoài) là THOÁT, đúng hành vi nút "Thoát" cũ — xoá tiến trình dở, không ghi gì
+ * xuống máy; và giữ thẻ "BÀI TẬP … Bắt đầu kiểm tra »" ở chỗ cũ trên trang làm lối vào.
+ *
+ * Nên thẻ trên trang nay chỉ còn đúng hàng ấy, ở mọi trạng thái. Câu hỏi, dải câu đã làm và màn
+ * tổng kết sống trong popup; vị trí "Câu 2 / 5", thanh tiến độ và điểm lên hàng tiêu đề của popup,
+ * cạnh chữ "Bài tập". Nút "Thoát" bỏ: nút X của popup làm đúng việc ấy, hai lối ra cho cùng một việc
+ * là thừa (`quiz.exit` xoá, mộ chí ở `vi.ts`).
+ *
+ * Popup chỉ GẮN sau lần bấm bắt đầu đầu tiên, rồi giữ lại (chỉ đóng/mở): `BottomSheet` gọi `useId()`,
+ * mà khối này nằm sau ranh giới `next/dynamic` — dựng nó vào HTML tĩnh là lệch id lúc hydrate (bất
+ * biến "không `useId()`" ở dưới). Giữ lại sau lần đầu chứ không tháo khi đóng, vì `dialog.close()`
+ * mới là thứ trả tiêu điểm về nút "Bắt đầu kiểm tra"; tháo hẳn thì tiêu điểm rơi về `<body>`.
  *
  * Bàn phím: lựa chọn là radio hoặc checkbox THẬT trong một `<fieldset>`, nên mũi tên lên/xuống và
  * phím cách chạy sẵn theo hành vi trình duyệt. Ô điền số mở bàn phím số trên điện thoại. Kết quả
@@ -69,6 +86,20 @@ export interface QuizBodyProps {
 }
 
 type Phase = 'idle' | 'asking' | 'summary';
+
+/**
+ * Khung cuộn gần nhất của `el` bên trong popup — thân của `BottomSheet`. Tìm theo `overflow` chứ
+ * không theo tên lớp: lớp ấy thuộc module CSS của primitive, và tên của nó bị băm lúc build.
+ * Không tìm ra (jsdom không áp CSS) thì trả `null` và không cuộn gì.
+ */
+function khungCuon(el: HTMLElement | null): HTMLElement | null {
+  for (let cha = el?.parentElement ?? null; cha !== null; cha = cha.parentElement) {
+    if (cha.tagName === 'DIALOG') return null;
+    const { overflowY } = getComputedStyle(cha);
+    if (overflowY === 'auto' || overflowY === 'scroll') return cha;
+  }
+  return null;
+}
 
 /** Một câu đã trả lời xong, giữ lại đủ để dựng lại y hệt lúc người dùng vừa làm. */
 interface DaLam {
@@ -137,6 +168,12 @@ export function QuizBody({
   const [daLam, setDaLam] = useState<ReadonlyArray<DaLam>>([]);
   /** Mã câu trong dải lịch sử đang được mở ra xem lại; `null` là tất cả đang co lại. */
   const [dangMo, setDangMo] = useState<string | null>(null);
+  /** Popup đã từng mở chưa — xem đoạn "Bài làm trong POPUP riêng" ở docblock đầu file. */
+  const [daGanPopup, setDaGanPopup] = useState(false);
+  /** Thẻ câu đang hỏi, để kéo nó vào tầm nhìn của thân popup khi sang câu sau. */
+  const cardRef = useRef<HTMLDivElement>(null);
+  /** Phần nội dung trong thân popup — mốc để tìm khung cuộn của thân. */
+  const noiDungRef = useRef<HTMLDivElement>(null);
 
   const chu = useCallback(
     (value: QuizText) => (locale === 'en' && value.en !== undefined ? value.en : value.vi),
@@ -166,12 +203,14 @@ export function QuizBody({
     (list: ReadonlyArray<QuizItem>) => {
       batDauLai(list);
       setPhase('asking');
+      setDaGanPopup(true);
     },
     [batDauLai],
   );
 
   /**
-   * Thoát giữa bài — WF-19 · S2.
+   * Thoát giữa bài — WF-19 · S2. Từ 26/10/2026 đây là việc của nút X (và Esc, và bấm ra ngoài) của
+   * popup, cũng là lối đóng popup ở màn tổng kết.
    *
    * Về hẳn trạng thái nghỉ và xoá tiến trình dở, kể cả những câu đã trả lời đúng. KHÔNG ghi gì
    * xuống kho: một bài làm nửa chừng không nói lên người ta nắm tới đâu, và `recordQuizResult`
@@ -258,6 +297,30 @@ export function QuizBody({
     [queue, wrongIds],
   );
 
+  /*
+   * Giữ chỗ đọc trong thân popup. Thân là một khung cuộn riêng, nên trang không còn tự giữ chỗ cho
+   * mình như hồi bài làm nằm trên trang:
+   *
+   * - Sang câu sau: câu vừa xong co thành một dòng, nội dung ngắn lại, và nếu người đọc đã cuộn
+   *   xuống đọc lời giải thì đầu câu mới nằm khuất phía trên. Lúc ấy (và chỉ lúc ấy) kéo đầu câu mới
+   *   về mép trên. Đầu câu còn nhìn thấy thì để yên — kéo nữa là giấu dải câu đã làm ngay trên nó.
+   * - Bắt đầu một lượt và màn tổng kết: về đầu thân.
+   *
+   * `useLayoutEffect` để việc cuộn xong trước khi trình duyệt vẽ — không có khung hình nào lọt ra ở
+   * chỗ cũ.
+   */
+  useLayoutEffect(() => {
+    const khung = khungCuon(noiDungRef.current);
+    if (khung === null) return;
+    const the = cardRef.current;
+    if (phase === 'asking' && index > 0 && the !== null) {
+      const lech = the.getBoundingClientRect().top - khung.getBoundingClientRect().top;
+      if (lech < 0) khung.scrollTop += lech;
+      return;
+    }
+    khung.scrollTop = 0;
+  }, [phase, index, queue]);
+
   // ── Công thức chưa có câu nào — WF-19B · S9 ──────────────────────────────────────────────
   if (items.length === 0) {
     return (
@@ -269,108 +332,95 @@ export function QuizBody({
     );
   }
 
+  /*
+   * Phần đứng cùng hàng với tiêu đề "Bài tập" của POPUP (26/10/2026). Trước đó nó nằm trên hàng
+   * "BÀI TẬP" của thẻ trên trang, cùng nút Thoát.
+   *
+   * Cụm tiến độ dựng ở hàng tiêu đề chứ không ở đầu thẻ câu hỏi: một dòng riêng chỉ để đếm câu là
+   * dòng thứ hai nói cùng chuyện với nhãn nằm ngay trên nó. Dựng ở MỌI bài, kể cả bài hai câu
+   * (29/09/2026) — bản cũ giấu nó dưới ba câu, và chủ dự án chụp thanh tiến độ chỉ ra những bài đang
+   * thiếu nó. Nhãn và cụm tiến độ đứng sát nhau bên trái, không dạt hai mép: chúng thuộc về nhau.
+   *
+   * Màn tổng kết: nhãn "Kết quả kiểm tra" và điểm đứng cùng hàng ấy, dạt phải (`.scoreLine`) — quyết
+   * định 20/10/2026, chủ dự án khoanh hai dòng ấy ở điện thoại, vẽ mũi tên sang phải: _"giảm size text
+   * xuống và chuyển đến vị trí tôi chỉ"_, rồi _"bản web cũng nên điều chỉnh lại như này cho gọn"_.
+   * Trước đó chúng là hai dòng riêng đầu thẻ tổng kết, điểm 32px.
+   */
+  const canhTieuDe: ReactNode =
+    phase === 'asking' ? (
+      <>
+        <span className={styles.step}>
+          {t('quiz.step')
+            .replace('{n}', String(index + 1))
+            .replace('{total}', String(total))}
+        </span>
+        <span className={styles.bars} aria-hidden="true">
+          {queue.map((entry, i) => (
+            <span
+              key={entry.id}
+              className={[
+                styles.bar,
+                i < index ? styles.barDone : '',
+                i === index ? styles.barNow : '',
+              ]
+                .filter(Boolean)
+                .join(' ')}
+            />
+          ))}
+        </span>
+      </>
+    ) : phase === 'summary' ? (
+      <div className={styles.scoreLine}>
+        <p className={styles.label}>{t('quiz.result')}</p>
+        <p className={styles.score}>
+          {rightCount} / {total}
+        </p>
+      </div>
+    ) : null;
+
   return (
     <section
       className={`${styles.block} ${className ?? ''}`.trim()}
       aria-labelledby={`${groupId}-title`}
     >
       {/*
-        Hàng tiêu đề mang NHÃN KHỐI; lúc đang làm bài nó mang thêm vị trí trong bài, thanh tiến
-        độ và nút Thoát — chủ dự án 24/09/2026, có ảnh chụp kèm.
+        Thẻ trên trang là ĐÚNG MỘT HÀNG ở mọi trạng thái — chủ dự án 24/09/2026, có ảnh chụp kèm:
 
-        Nghỉ:      BÀI TẬP                                      Bắt đầu kiểm tra »
-        Đang làm:  BÀI TẬP  Câu 2 / 5  ▬▬ ▭ ▭ ▭ ▭                            Thoát
+          BÀI TẬP                                      Bắt đầu kiểm tra »
+
+        Từ 26/10/2026 bài làm mở trong popup riêng, nên hàng này không còn đổi hình khi đang làm bài
+        (vị trí "Câu 2 / 5", thanh tiến độ và nút Thoát trước đây thay chỗ nút vào bài ngay tại đây).
 
         Số câu cạnh nhãn ("BÀI TẬP · 4 câu") bỏ ngày 29/09/2026: chủ dự án chụp hàng nghỉ và bảo
-        "không cần hiển thị số câu ở ngoài". Số câu vẫn hiện, nhưng chỉ khi đã vào bài ("Câu 2 / 5"),
-        đúng lúc nó nói người học còn bao xa.
+        "không cần hiển thị số câu ở ngoài". Số câu vẫn hiện, nhưng chỉ khi đã vào bài ("Câu 2 / 5"
+        trên hàng tiêu đề của popup), đúng lúc nó nói người học còn bao xa.
 
-        Chủ dự án chốt hình này sau bốn vòng trong cùng một ngày. Trạng thái nghỉ nay là ĐÚNG
-        một hàng — câu mời "Không chấm điểm, chỉ để bạn tự soát lại." bị bỏ, cho dựng lại, rồi bỏ
-        hẳn ngay sau khi nhìn thấy nó đứng dưới hàng tiêu đề. Đo được: khối nghỉ 78px. Lối vào là
-        nút CHỮ (`ghost`), không phải nút đặc: một khối màu cạnh một nhãn nhỏ viết hoa sẽ nặng
-        hơn chính nội dung nó dẫn vào.
+        Câu mời "Không chấm điểm, chỉ để bạn tự soát lại." bị bỏ, cho dựng lại, rồi bỏ hẳn ngay sau
+        khi nhìn thấy nó đứng dưới hàng tiêu đề. Lối vào là nút CHỮ (`ghost`), không phải nút đặc: một
+        khối màu cạnh một nhãn nhỏ viết hoa sẽ nặng hơn chính nội dung nó dẫn vào.
 
-        Dưới hàng này KHÔNG còn dòng nào ở trạng thái nghỉ, kể cả dòng điểm lần trước (bỏ 19/10/2026,
-        xem chú thích ngay dưới hàng).
-
-        Hàng này KHÔNG dùng `space-between`. Nhãn và cụm tiến độ thuộc về nhau nên đứng sát nhau
-        bên trái; chỉ nút bên phải tự đẩy mình ra mép bằng `.headAction`. Có `space-between` thì
-        cụm tiến độ bị ném ra tận mép phải của một khung 1600px, cách nhãn gần cả bề ngang trang.
+        Hàng này KHÔNG dùng `space-between`; nút bên phải tự đẩy mình ra mép bằng `.headAction`.
       */}
       <div className={styles.head}>
         <h2 className={styles.label} id={`${groupId}-title`}>
           {t('quiz.title')}
         </h2>
-        {phase === 'idle' && (
-          <>
-            <Button
-              variant="ghost"
-              size="sm"
-              className={styles.headAction}
-              onClick={() => start(items)}
-            >
-              {t('quiz.start')}
-              {/*
-                Mũi tên dựng ở ĐÂY chứ không nhét vào chuỗi i18n: nó là trang trí, không phải chữ
-                của nhãn. Cùng khuôn `GroupCard.tsx`. `aria-hidden` vì bộ đọc màn hình đọc "»" ra
-                thành tên ký tự, không thêm nghĩa gì cho nhãn nút.
-              */}
-              <span className={styles.startIcon} aria-hidden="true">
-                »
-              </span>
-            </Button>
-          </>
-        )}
-        {/*
-          Cụm tiến độ dựng ở ĐÂY chứ không ở đầu thẻ câu hỏi như trước: một dòng riêng chỉ để đếm
-          câu là dòng thứ hai nói cùng chuyện với nhãn khối nằm ngay trên nó.
-
-          Dựng ở MỌI bài, kể cả bài hai câu (29/09/2026) — bản cũ giấu nó dưới ba câu, và chủ dự án
-          chụp thanh tiến độ chỉ ra những bài đang thiếu nó. Nút Thoát (WF-19 · S2) thì vẫn như cũ:
-          thiếu nó thì vào làm bài là không còn lối ra nào ngoài việc đi hết bài.
-        */}
-        {phase === 'asking' && (
-          <>
-            <span className={styles.step}>
-              {t('quiz.step')
-                .replace('{n}', String(index + 1))
-                .replace('{total}', String(total))}
-            </span>
-            <span className={styles.bars} aria-hidden="true">
-              {queue.map((entry, i) => (
-                <span
-                  key={entry.id}
-                  className={[
-                    styles.bar,
-                    i < index ? styles.barDone : '',
-                    i === index ? styles.barNow : '',
-                  ]
-                    .filter(Boolean)
-                    .join(' ')}
-                />
-              ))}
-            </span>
-            <Button variant="ghost" size="sm" className={styles.headAction} onClick={exit}>
-              {t('quiz.exit')}
-            </Button>
-          </>
-        )}
-        {/*
-          Màn tổng kết: nhãn "Kết quả kiểm tra" và điểm đứng ở ĐÂY, dạt phải, đúng ô của nút bên phải ở
-          hai trạng thái kia (20/10/2026). Chủ dự án khoanh hai dòng ấy ở điện thoại, vẽ mũi tên sang
-          phải: _"giảm size text xuống và chuyển đến vị trí tôi chỉ"_, chọn cùng hàng với "BÀI TẬP",
-          rồi _"bản web cũng nên điều chỉnh lại như này cho gọn"_. Trước đó chúng là hai dòng riêng đầu
-          thẻ tổng kết, điểm 32px.
-        */}
-        {phase === 'summary' && (
-          <div className={styles.scoreLine}>
-            <p className={styles.label}>{t('quiz.result')}</p>
-            <p className={styles.score}>
-              {rightCount} / {total}
-            </p>
-          </div>
-        )}
+        <Button
+          variant="ghost"
+          size="sm"
+          className={styles.headAction}
+          onClick={() => start(items)}
+        >
+          {t('quiz.start')}
+          {/*
+            Mũi tên dựng ở ĐÂY chứ không nhét vào chuỗi i18n: nó là trang trí, không phải chữ
+            của nhãn. Cùng khuôn `GroupCard.tsx`. `aria-hidden` vì bộ đọc màn hình đọc "»" ra
+            thành tên ký tự, không thêm nghĩa gì cho nhãn nút.
+          */}
+          <span className={styles.startIcon} aria-hidden="true">
+            »
+          </span>
+        </Button>
       </div>
 
       {/*
@@ -388,9 +438,23 @@ export function QuizBody({
         giữ hành vi: điểm vẫn ghi vào máy khi làm xong (`onFinish`), chỉ không còn chỗ nào đọc ra.
       */}
 
-      {phase === 'asking' && item !== undefined && (
-        <>
-          {/*
+      {/*
+        Popup bài làm — xem đoạn "Bài làm trong POPUP riêng" ở docblock đầu file. Nổi giữa màn ở mọi
+        khổ (`placement="center"`), đóng là thoát bài (`exit`).
+      */}
+      {daGanPopup && (
+        <BottomSheet
+          open={phase !== 'idle'}
+          onClose={exit}
+          title={t('quiz.title')}
+          titleAside={canhTieuDe}
+          placement="center"
+          className={styles.dialog}
+        >
+          <div ref={noiDungRef} className={styles.dialogBody}>
+            {phase === 'asking' && item !== undefined && (
+              <>
+                {/*
             Dải câu đã làm — quyết định 5 ở docblock đầu file.
             Mỗi câu co thành MỘT dòng bấm được: dấu kết quả, số thứ tự, đề bài cắt ngắn. Bấm thì
             câu cũ mở ra nguyên vẹn ngay tại chỗ, không nhảy trang và không mất câu đang làm.
@@ -402,86 +466,86 @@ export function QuizBody({
             rồi mở lại là thấy ngay đáp án và giải thích — chủ dự án: "chỉ khi người dùng chọn đáp án
             và click vào button Kiểm tra thì mới có giải thích tại sao và có hiển thị câu đúng sai".
           */}
-          {daLam.length > 0 && (
-            <ul className={styles.history}>
-              {daLam.map((xong, i) => {
-                const mo = dangMo === xong.item.id;
-                return (
-                  <li key={xong.item.id} className={styles.historyRow}>
-                    <button
-                      type="button"
-                      className={styles.historyHead}
-                      aria-expanded={mo}
-                      onClick={() => setDangMo(mo ? null : xong.item.id)}
-                    >
-                      <span
-                        className={
-                          xong.boQua
-                            ? styles.markSkipped
-                            : xong.laDung
-                              ? styles.markRight
-                              : styles.markWrong
-                        }
-                        aria-hidden="true"
-                      >
-                        {xong.boQua ? '?' : xong.laDung ? '✓' : '✕'}
-                      </span>
-                      <span className={styles.historyStep}>{i + 1}</span>
-                      <span className={styles.historyPrompt}>{chu(xong.item.prompt)}</span>
-                      <span className={styles.historyChevron} aria-hidden="true">
-                        {mo ? '▴' : '▾'}
-                      </span>
-                    </button>
-                    {mo && (
-                      <div className={styles.historyBody}>
-                        <QuizQuestion
-                          item={xong.item}
-                          hinhCongThuc={hinhCongThuc}
-                          kyHieu={kyHieu}
-                          namePrefix={`${groupId}-ls`}
-                          picked={xong.picked}
-                          typed={xong.typed}
-                          answered={!xong.boQua}
-                          readOnly
-                        />
-                      </div>
-                    )}
-                  </li>
-                );
-              })}
-            </ul>
-          )}
+                {daLam.length > 0 && (
+                  <ul className={styles.history}>
+                    {daLam.map((xong, i) => {
+                      const mo = dangMo === xong.item.id;
+                      return (
+                        <li key={xong.item.id} className={styles.historyRow}>
+                          <button
+                            type="button"
+                            className={styles.historyHead}
+                            aria-expanded={mo}
+                            onClick={() => setDangMo(mo ? null : xong.item.id)}
+                          >
+                            <span
+                              className={
+                                xong.boQua
+                                  ? styles.markSkipped
+                                  : xong.laDung
+                                    ? styles.markRight
+                                    : styles.markWrong
+                              }
+                              aria-hidden="true"
+                            >
+                              {xong.boQua ? '?' : xong.laDung ? '✓' : '✕'}
+                            </span>
+                            <span className={styles.historyStep}>{i + 1}</span>
+                            <span className={styles.historyPrompt}>{chu(xong.item.prompt)}</span>
+                            <span className={styles.historyChevron} aria-hidden="true">
+                              {mo ? '▴' : '▾'}
+                            </span>
+                          </button>
+                          {mo && (
+                            <div className={styles.historyBody}>
+                              <QuizQuestion
+                                item={xong.item}
+                                hinhCongThuc={hinhCongThuc}
+                                kyHieu={kyHieu}
+                                namePrefix={`${groupId}-ls`}
+                                picked={xong.picked}
+                                typed={xong.typed}
+                                answered={!xong.boQua}
+                                readOnly
+                              />
+                            </div>
+                          )}
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
 
-          <div className={styles.card}>
-            <QuizQuestion
-              item={item}
-              hinhCongThuc={hinhCongThuc}
-              kyHieu={kyHieu}
-              namePrefix={groupId}
-              picked={picked}
-              typed={typed}
-              answered={answered}
-              onPick={(key) =>
-                setPicked((list) =>
-                  item.format === 'trac-nghiem'
-                    ? [key]
-                    : list.includes(key)
-                      ? list.filter((k) => k !== key)
-                      : [...list, key],
-                )
-              }
-              onType={(thuTu, value) =>
-                setTyped((list) => {
-                  /* Mảng CÓ THỂ thưa: ô số 3 gõ trước ô số 1 thì hai ô đầu vẫn chưa tồn tại. */
-                  const moi = [...list];
-                  while (moi.length <= thuTu) moi.push('');
-                  moi[thuTu] = value;
-                  return moi;
-                })
-              }
-            />
+                <div ref={cardRef} className={styles.card}>
+                  <QuizQuestion
+                    item={item}
+                    hinhCongThuc={hinhCongThuc}
+                    kyHieu={kyHieu}
+                    namePrefix={groupId}
+                    picked={picked}
+                    typed={typed}
+                    answered={answered}
+                    onPick={(key) =>
+                      setPicked((list) =>
+                        item.format === 'trac-nghiem'
+                          ? [key]
+                          : list.includes(key)
+                            ? list.filter((k) => k !== key)
+                            : [...list, key],
+                      )
+                    }
+                    onType={(thuTu, value) =>
+                      setTyped((list) => {
+                        /* Mảng CÓ THỂ thưa: ô số 3 gõ trước ô số 1 thì hai ô đầu vẫn chưa tồn tại. */
+                        const moi = [...list];
+                        while (moi.length <= thuTu) moi.push('');
+                        moi[thuTu] = value;
+                        return moi;
+                      })
+                    }
+                  />
 
-            {/*
+                  {/*
               Hai nút đứng CẠNH NHAU, không đẩy nút phụ sang mép phải — chủ dự án 24/09/2026:
               "sửa lại 2 button Kiểm tra và Bỏ qua câu này cho gần nhau thay vì cách nhau quá xa
               như kia". Đảo lại quyết định sáng cùng ngày (đẩy "Bỏ qua" sang phải cho thẳng mép
@@ -496,70 +560,70 @@ export function QuizBody({
               chụp đúng chỗ ấy: _"bo tròn xung quanh bị nhỏ hơn button bên cạnh"_. Vai phụ của nó do
               `ghost` lo (không nền, chữ dịu), không cần thêm cỡ nhỏ.
             */}
-            <div className={styles.actions}>
-              {!answered ? (
-                <>
-                  <Button onClick={check} disabled={!traLoiDuoc}>
-                    {t('quiz.check')}
-                  </Button>
-                  <Button variant="ghost" onClick={skip}>
-                    {t('quiz.skip')}
-                  </Button>
-                </>
-              ) : (
-                <Button onClick={next}>
-                  {index + 1 < total ? t('quiz.next') : t('quiz.seeResult')}
-                </Button>
-              )}
-            </div>
-          </div>
-        </>
-      )}
+                  <div className={styles.actions}>
+                    {!answered ? (
+                      <>
+                        <Button onClick={check} disabled={!traLoiDuoc}>
+                          {t('quiz.check')}
+                        </Button>
+                        <Button variant="ghost" onClick={skip}>
+                          {t('quiz.skip')}
+                        </Button>
+                      </>
+                    ) : (
+                      <Button onClick={next}>
+                        {index + 1 < total ? t('quiz.next') : t('quiz.seeResult')}
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </>
+            )}
 
-      {phase === 'summary' && (
-        <div className={styles.card}>
-          <ul className={styles.review}>
-            {queue.map((entry) => {
-              const boQua = skippedIds.includes(entry.id);
-              const sai = wrongIds.includes(entry.id);
-              return (
-                <li className={styles.reviewRow} key={entry.id}>
-                  <span
-                    className={
-                      boQua ? styles.markSkipped : sai ? styles.markWrong : styles.markRight
-                    }
-                  >
-                    {boQua ? '?' : sai ? '✕' : '✓'}
-                  </span>
-                  <span>{chu(entry.prompt)}</span>
-                </li>
-              );
-            })}
-          </ul>
-          {/*
+            {phase === 'summary' && (
+              <div className={styles.card}>
+                <ul className={styles.review}>
+                  {queue.map((entry) => {
+                    const boQua = skippedIds.includes(entry.id);
+                    const sai = wrongIds.includes(entry.id);
+                    return (
+                      <li className={styles.reviewRow} key={entry.id}>
+                        <span
+                          className={
+                            boQua ? styles.markSkipped : sai ? styles.markWrong : styles.markRight
+                          }
+                        >
+                          {boQua ? '?' : sai ? '✕' : '✓'}
+                        </span>
+                        <span>{chu(entry.prompt)}</span>
+                      </li>
+                    );
+                  })}
+                </ul>
+                {/*
             KHÔNG còn dòng giải nghĩa dấu `?` ("Dấu ? là câu bạn bỏ qua — chưa trả lời, nên tính là
             chưa nắm.") — chủ dự án bỏ ngày 29/09/2026 vì thừa. Dấu `?` vẫn đứng riêng, khác `✕`.
           */}
-          <div className={styles.actions}>
-            {wrongItems.length > 0 && (
-              <Button
-                onClick={() => {
-                  start(wrongItems);
-                }}
-              >
-                {t('quiz.reviewWrong')}
-              </Button>
-            )}
-            <Button
-              variant="secondary"
-              onClick={() => {
-                start(items);
-              }}
-            >
-              {t('quiz.retry')}
-            </Button>
-          </div>
-          {/*
+                <div className={styles.actions}>
+                  {wrongItems.length > 0 && (
+                    <Button
+                      onClick={() => {
+                        start(wrongItems);
+                      }}
+                    >
+                      {t('quiz.reviewWrong')}
+                    </Button>
+                  )}
+                  <Button
+                    variant="secondary"
+                    onClick={() => {
+                      start(items);
+                    }}
+                  >
+                    {t('quiz.retry')}
+                  </Button>
+                </div>
+                {/*
             KHÔNG còn dòng "Kết quả lưu trên máy bạn, không gửi đi đâu…" — chủ dự án bỏ ngày
             24/09/2026. Đây là câu thứ ba cùng loại bị gỡ khỏi sản phẩm, sau `portfolio.localOnly`
             (dải "CỤC BỘ") và `settings.data.note` ngày 09/09/2026: cùng một quyết định, bỏ LỜI
@@ -571,7 +635,10 @@ export function QuizBody({
             vào câu nào người dùng đọc được — y như COM-03 ở màn Danh mục. Đừng dựng lại câu này
             mà không hỏi: nó đã bị gỡ có chủ đích, không phải xoá nhầm.
           */}
-        </div>
+              </div>
+            )}
+          </div>
+        </BottomSheet>
       )}
     </section>
   );

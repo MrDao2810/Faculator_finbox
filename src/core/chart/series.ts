@@ -42,7 +42,8 @@ export function seriesOf(model: LineChart): ReadonlyArray<ChartSeries> {
     label: model.primaryLabel ?? model.y.title,
     points: model.points,
     tone: 'primary',
-    area: true,
+    /* Hình các đường thành phần (26/10/2026) tắt dải tô của chuỗi chính — xem `LineChart.primaryArea`. */
+    area: model.primaryArea !== false,
     axis: 'left',
   };
 

@@ -4,6 +4,193 @@ Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 
 ---
 
+## Các biểu đồ còn lại: mọi kiểu hình công thức khai đều có hình vẽ (26/10/2026)
+
+**Trạng thái: CHƯA XONG — đã làm cả ba đợt, chờ chủ dự án xem.** Chủ dự án: _"tiếp tục phương án làm các biểu đồ còn
+lại"_. Đọc là: những công thức vẫn khai một `chartType` mà màn chưa từng vẽ — 8 công thức. Ba đợt, đều là MỤC THÊM của
+"Xem theo", chỉ có khi đã nạp chuỗi giá, không bao giờ là hình mở ra, chưa có chữ hướng dẫn (khung "?" im).
+
+- Đợt 1 — **Phân phối lợi suất log** cho `do-bien-dong-lich-su` (khai `histogram`): `SeriesViewSpec.logReturns`;
+  `logReturns()` mới ở `series-utils.ts`, `calc` của công thức gọi chính nó (trước viết vòng lặp tại chỗ), nên hình chia
+  đúng dãy calc lấy độ lệch chuẩn. Khung "cách tính" của σ đổi hai mẩu trích bằng chứng theo mã mới.
+- Đợt 2 — **Phân tán lợi suất** cho `beta` (khai `scatter`, kiểu mô hình thứ bảy `ScatterChart`, `ScatterChart.tsx`):
+  mỗi phiên một chấm (VN-Index ngang, cổ phiếu dọc), đường hồi quy dốc ĐÚNG bằng kết quả, qua điểm bình quân; hai vạch 0
+  chia bốn góc; chú giải trong `<svg>`; rê/chạm vào chấm hiện ngày và hai lợi suất. `seriesWindow()` cắt cả chuỗi
+  VN-Index, nên thiếu chuỗi chỉ số là không có mục — đúng lúc calc báo thiếu. VN-Index đứng yên: chấm vẫn vẽ, không đường.
+- Đợt 3 — **Các đường thành phần** cho sáu công thức khai `candlestick` mà không phải một mức giá (`spec.componentLines`):
+  "Hai đường trung bình" (giao cắt MA), "Hai đường EMA" (MACD), "MACD và đường tín hiệu", "Giá nay và giá n phiên trước"
+  (động lượng), "Đỉnh và đáy n phiên" (biên độ dao động), "Dao động thực và ATR" (`calc` của ATR trả thêm `tr`). Số mỗi
+  đường lấy từ `extras` của calc chạy trên chuỗi cắt tới từng phiên (`ketQuaPhien()` tách từ `diemPhien()` của
+  `history.ts`). `LineChart` có hai cờ mới: `primaryArea: false` (bỏ dải tô dưới đường chính) và `hoverAllSeries` (ô dò
+  in ngày rồi mỗi đường một dòng "tên: số", thêm chấm trên mỗi đường). Một dạng (Đường), không ô Loại biểu đồ.
+- Test: `series-view.test.ts` (17 công thức; ca lợi suất log tính lại độc lập; 4 ca phân tán, độ dốc bình phương nhỏ
+  nhất tính lại = Beta), `thanh-phan.test.ts` mới (12 ca, mọi đường ở mọi phiên tính lại từ định nghĩa: SMA, EMA, đường
+  tín hiệu, động lượng, đỉnh/đáy trượt, TR), `charts.test.tsx` +2 ca (hình phân tán; ô dò nhiều dòng nằm trong khung).
+  `giu-lua-chon.test.ts` và `dang-ve.test.ts` nay mang chuỗi VN-Index thật như màn luôn mang; số đếm có chuỗi 375 → 384
+  (Đường 321, Cột 340, Điểm 316, Bậc thang 104). `how-to/technical-volatility.ts`: mẩu trích bằng chứng.
+- Kiểm: test toàn bộ 192 file xanh (4.880 ca), eslint, tsc, prettier sạch, `gen:summaries` không lệch.
+- Đo bằng Chrome trên server dev (:3000), bấm "Xem ví dụ minh hoạ" rồi chọn mục mới, 1440 và 390px, thêm bảng tối cho
+  phân tán và ATR: 8 hình đều vẽ, không chữ nào tràn khung, không chữ đè nhau do đợt này, trang không cuộn ngang; ô dò
+  hiện đúng số. Ảnh: `scratchpad/anh20/`, `anh21/`, `anh22/`.
+- Lỗi CÓ SẴN, đo thấy ở cả đường thời gian của SMA/EMA, không sửa trong đợt này: nhãn số thấp nhất của trục đứng chạm
+  nhãn ngày đầu ("60" và "09/2025"); ở 390px tên trục đứng có dấu tiếng Việt chạm mép trên khung.
+- Tài liệu: CLAUDE.md, mục "Chart kinds" (kiểu mô hình thứ bảy, ba gạch đầu dòng mới, số đếm toàn Registry).
+- Phiên khác đang sửa cùng cây thư mục (khung cách tính, Quiz, BottomSheet, ChartFrame, i18n…): tôi không đụng các file ấy.
+
+---
+
+## Ký hiệu nào trong hình công thức cũng mở khung giải thích (26/10/2026)
+
+**Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án xem.** Chủ dự án: _"điều chỉnh lại phần popup giải thích các ký hiệu
+của công thức: hiện tại đang chỉ chú thích những ký hiệu khó hiểu, tôi muốn ký hiệu nào cũng cần giải thích."_ Trước
+đó thẻ Công thức chỉ gắn điểm chạm cho 112 ký hiệu có bước tính (61 công thức); 50 công thức rê vào đâu cũng không có
+khung. Nay mọi ký hiệu trong hình mở khung: có bước tính thì như cũ, không có (số nhập thẳng như `P`) thì khung chỉ có
+dòng "ký hiệu: nghĩa" — đúng khung mà hình trong lời giải Bài tập đã dùng từ 25/09/2026.
+
+- `src/app/cong-thuc/[id]/notation-view.ts`: `latexHtml` gắn dấu mọi dòng bảng tìm được chỗ (560/568); dòng có bước
+  tính mà không có chỗ vẫn ném lỗi. Bỏ tuỳ chọn `allSymbols` và bản hình thứ hai `latexHtmlAllSymbols`.
+- `notation-types.ts`: bỏ `latexHtmlAllSymbols`. `page.tsx`: gọi `buildNotationView(formula)`. `quiz-view.ts`: bỏ cờ
+  `needsFormulaPicture` (chỉ để quyết định dựng bản thứ hai).
+- `FormulaNotationCard.tsx`: mọi ký hiệu là điểm chạm; ký hiệu không bước tính dựng khung chỉ-có-tiêu-đề. Dòng ấy ở
+  BẢNG giữ là chữ thường (khung chỉ chép lại dòng đang đứng đó và che các dòng dưới), nên bàn phím không mở loại khung
+  này — nghĩa đã đọc được ở bảng.
+- `QuizFormulaPicture.tsx`, `FormulaDetail.tsx`: hai hình lời giải đọc `notation.latexHtml`, dựng nút không chờ cờ.
+- CSS: chỉ sửa chú thích của `.panel[data-title-only]`.
+- Ca kiểm: `notation.test.ts` (đảo ca "dấu chỉ trỏ tới dòng có khung", đếm 560/568 trên `latexHtml`);
+  `FormulaNotationCard.test.tsx` (ca `P` của `bien-an-toan` mở khung chỉ-có-nghĩa; quét cả 111 hình, bấm từng ký hiệu,
+  khung phải có đúng nghĩa và đúng loại); `QuizFormulaPicture.test.tsx` bỏ tuỳ chọn cũ; `chrome-check.mjs` chọn ký hiệu
+  CÓ nút ở bảng cho ca tô sáng ba chỗ, thêm một ca rê vào ký hiệu không bước tính trên Sharpe.
+- Kiểm: `tsc`, eslint, prettier sạch ở phần này; vitest toàn bộ 4865 xanh, 1 đỏ `how-to.test.ts`
+  (`do-bien-dong-lich-su`) — đã đỏ từ việc biểu đồ phân tán đang sửa dở, không thuộc đợt này. CHƯA chạy `build`,
+  `verify:static`, `check:chrome`.
+- Còn lại: 8 dòng nằm lọt trong tên dài hơn (`D` trong `D/E`…) không có điểm chạm riêng; dòng chữ dưới hình vẫn chỉ có
+  cụm chạm cho 112 ký hiệu có bước tính (cụm chữ nằm trong dữ liệu how-to).
+- Cùng ngày, chủ dự án sửa nghĩa của `365` trên XIRR (`src/core/formulas/returns.ts`): "số ngày một năm, để quy số
+  ngày ra năm" → "số ngày một năm"; bản tiếng Anh theo ("days in a year").
+- Cùng ngày, thẻ lỗi của XIRR khi bảng dòng tiền chưa đủ hai dòng: "Còn thiếu: ít nhất 2 dòng tiền." → "Cần tối thiểu 2
+  dòng tiền" (EN "At least 2 cash flows are needed"). Câu viết thẳng trong `calc` (`returns.ts`), không qua
+  `incompleteInput()` vì "ít nhất 2 dòng tiền" không phải nhãn ô; mã vẫn `INCOMPLETE_INPUT`. Ca kiểm trong
+  `FormulaDetail.test.tsx` nay ghim đúng câu mới và cấm "Còn thiếu". Dòng `_ _ %/năm` giữ nguyên.
+
+---
+
+## Bài tập của công thức chuyển thành popup riêng (26/10/2026)
+
+**Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án xem.** Chủ dự án: _"điều chỉnh phần bài tập của công thức thành
+dạng popup riêng"_. Khi được hỏi, chọn cả ba khuyến nghị: popup nổi giữa màn ở MỌI khổ; đóng giữa chừng (X, Esc,
+bấm ra ngoài) = Thoát (xoá tiến trình dở, không ghi gì); giữ thẻ "BÀI TẬP … Bắt đầu kiểm tra »" trên trang làm lối vào.
+
+- `src/ui/quiz/QuizBody.tsx`: thẻ trên trang chỉ còn hàng tiêu đề ở mọi trạng thái; câu hỏi, dải câu đã làm và màn
+  tổng kết vào `BottomSheet placement="center"`. "Câu 2 / 5" + thanh tiến độ, hoặc "KẾT QUẢ KIỂM TRA 2 / 5", lên hàng
+  tiêu đề popup. Nút "Thoát" bỏ — nút X của popup làm việc ấy. Popup chỉ gắn sau lần bấm đầu (tránh `useId()` vào HTML
+  tĩnh) rồi giữ lại để `close()` trả tiêu điểm về nút vào bài. Sang câu sau mà đầu câu mới khuất phía trên thì cuộn
+  thân popup về đó.
+- `src/ui/quiz/QuizBody.module.css`: `dialog.dialog` rộng 960px từ 1024 (92vw dưới đó), cao tới 88dvh; `.dialogBody`;
+  `.bars` thành `flex: 1 1 0` trần 14rem (gốc 14rem làm thanh rớt dòng ở 390px). Bỏ bậc hai cột `'1280'`.
+- `src/ui/quiz/QuizQuestion.tsx`: `khoHaiCot()` còn `'1024' | '0'` — đo trên Chrome, nửa popup 354–363px chữ, đáp án
+  60–62 ký tự vỡ hai dòng ở 1280/1440.
+- `src/ui/primitives/BottomSheet.tsx` + `.module.css`: prop mới `titleAside` (nội dung cùng hàng tiêu đề), lớp
+  `.titleRow`.
+- `src/app/cong-thuc/[id]/use-panel-placement.ts`: `clipToDialog()` kẹp khung "cách tính" trong thân popup, thêm
+  `maxWidth` khi thân hẹp hơn khung. `HowToPanel.tsx` nhận `maxWidth`. `use-how-to-panel.ts`: Esc trong `<dialog>` chỉ
+  đóng khung, không đóng popup.
+- `src/application/i18n/vi.ts`, `en.ts`: bỏ `quiz.exit` (mộ chí ở `vi.ts`).
+- Ca kiểm: `QuizBody.test.tsx` (vá `showModal`, ca Thoát → nút Đóng, ca điểm trên hàng tiêu đề popup, 4 ca mới cho
+  popup, ca hai cột: đáp án 62 ký tự nay một cột); `use-panel-placement.test.ts` (2 ca `clipToDialog`).
+- Đo trên Chrome (dev :3000) ở 360, 390, 1024, 1280, 1440: popup 331/359/942/960px, không tràn ngang ở thân hay trang;
+  tiêu đề popup một hàng (53px điện thoại, 65px máy tính); khung "cách tính" nằm trong thân (360px: chặn 313px); Esc khi
+  đang mở khung chỉ đóng khung; Esc ở tổng kết đóng popup, tiêu điểm về "Bắt đầu kiểm tra", khoá cuộn nền gỡ.
+- Kiểm: vitest toàn bộ còn 1 ca đỏ `how-to.test.ts` (`do-bien-dong-lich-su`) do `technical-volatility.ts` đang được
+  sửa dở ở việc khác (biểu đồ phân tán), không thuộc đợt này; `tsc` cũng chỉ còn lỗi ở nhóm file biểu đồ ấy.
+- Còn lại / để chủ dự án quyết: popup cao theo nội dung nên dịch lên xuống khi mở lời giải (có thể ghim chiều cao hoặc
+  neo mép trên); không có ca `check:chrome` nào gác popup.
+
+---
+
+## Con trỏ bàn tay trên hình thanh và cột (26/10/2026)
+
+**Trạng thái: CHƯA XONG — đã sửa, chờ chủ dự án xem.** Chủ dự án chụp "Thanh ngang" của cơ cấu số tiền chấp nhận mất:
+_"khi hover chuột vào vùng khoanh đỏ như ảnh thì chuột lại thành dấu cộng + thay vì bàn tay. sửa lại"_. Vùng bắt chuột
+của thanh ngang dùng chung lớp `.hoverCapture` với đường, mang `cursor: crosshair` ("dò đọc" trên đường liền).
+
+- `src/ui/charts/chart.module.css`: lớp mới `.hoverCapturePhan { cursor: pointer }`, đứng sau `.hoverCapture`.
+- `WaterfallChart.tsx`, `ColumnChart.tsx`, `HistogramChart.tsx`: vùng bắt mang thêm lớp ấy. Đồng bộ cả ba vì cùng
+  khuôn: hình gồm phần rời, trỏ vào một phần là phần ấy sáng lên và hiện số, như múi vành khuyên (đã là bàn tay).
+  `LineChart` và `ScatterChart` giữ chữ thập: ở đó con trỏ trượt dọc đường liền; `LineChart` vẫn đổi sang bàn tay khi
+  bấm áp được giá trị (`.hoverCaptureReady`), như trước.
+- `src/ui/charts/charts.test.tsx`: ca mới — `ev` (thanh ngang) mang lớp bàn tay, ba file nguồn có lớp ấy, `pe` (đường)
+  không có, luật CSS là `cursor: pointer` và đứng sau `.hoverCapture`.
+
+Kiểm: `src/ui/charts` + `src/ui/sheets` 297 ca xanh, bốn bộ quét CSS xanh, typecheck và lint sạch. Chưa xem trên Chrome.
+
+---
+
+## Popup vành khuyên không đè lên con trỏ và múi đang trỏ (26/10/2026)
+
+**Trạng thái: CHƯA XONG — đã sửa, chờ chủ dự án xem.** Chủ dự án chụp "Cơ cấu số tiền chấp nhận mất": rê vào múi 10 %
+ở góc trên trái thì popup đè lên chính múi ấy và lên con trỏ — _"khi phần biểu hiện thông số đang quá nhỏ mà hover chuột
+vào thì phần popup bật lên bị đè lên chuột gây lỗi như ảnh. sửa lỗi"_. Nguyên nhân: popup chỉ có một chỗ (mép ngoài vòng,
+bung ra theo hướng cung); múi sát mép trên khung thì phía ngoài hết chỗ, cú kẹp vào khung đẩy popup ngược lên múi.
+
+- `src/ui/charts/donut-popup.ts` (mới): hàm thuần `datPopup()` chấm điểm phạt nhiều chỗ — mép ngoài cung (đứng đầu,
+  múi vốn đặt đẹp thì không đổi), bốn phía của múi, bốn góc quanh con trỏ, trên/dưới khối chữ giữa vòng — và lấy chỗ
+  phạt ít nhất. Che con trỏ 1000, che múi đang trỏ hay dòng chú giải đang trỏ 300, che chữ giữa vòng 30, 0,1/px bị kẹp.
+  `mauCuaMui()` lấy điểm mẫu của múi (ba bán kính, bước ≤ 4°).
+- `src/ui/charts/DonutChart.tsx`: ghi chỗ con trỏ khi vào, bấm và rê (ref, không vẽ lại); rê mà con trỏ lọt xuống dưới
+  popup thì đặt lại chỗ, không đặt lại mỗi lần nhích. Bỏ luật cũ "kẹp quá 1/4 bề ngang thì dời lên/xuống chữ giữa vòng"
+  (nay là hai chỗ ứng viên).
+- `src/ui/charts/donut-popup.test.ts` (mới, 7 ca): dựng lại hình trong ảnh — chỗ cũ đè lên múi, chỗ mới không che con
+  trỏ và không che điểm nào của múi; rê khắp múi 90 % không lần nào che con trỏ; phía ngoài còn chỗ thì đứng đúng chỗ
+  cũ; trỏ chú giải thì không che dòng ấy; luôn nằm trọn trong khung.
+- `CLAUDE.md`: mục vành khuyên mô tả cách đặt mới.
+
+Kiểm: `src/ui/charts` 168 ca xanh, typecheck và lint sạch. **Chưa đo trên Chrome thật** (jsdom không có bố cục, hàm đặt
+chỗ được kiểm bằng hình học dựng lại), chưa có ca `check:chrome`.
+
+---
+
+## Popup vành khuyên chỉ còn tên và giá trị (26/10/2026)
+
+**Trạng thái: CHƯA XONG — đã sửa, chờ chủ dự án xem.** Chủ dự án khoanh popup khi rê vào múi "Lợi nhuận ròng (Lrong)":
+_"cần hiển thị những thông tin sau: 'Lợi nhuận ròng (Lrong) 4,62 triệu đ' thôi. còn lại bỏ chiếm bao nhiêu % đi, bỏ cả
+ký hiệu màu nữa. vì bên ngoài có chú thích rồi"_.
+
+- `src/ui/charts/DonutChart.tsx`: popup bỏ ô màu và dòng "chiếm …", còn tên (dòng trên) và giá trị đậm (dòng dưới).
+  Chú giải cạnh vòng và đoạn ẩn cho trình đọc màn hình không đổi.
+- `src/ui/charts/chart.module.css`: gỡ `.donutPopupTen`, `.donutPopupO`.
+- `src/ui/charts/charts.test.tsx`: ca rê chuột vào múi ghim popup đúng hai phần tử, chữ là tên + giá trị.
+- `CLAUDE.md`: mục vành khuyên ghi popup chỉ còn tên và giá trị.
+
+Kiểm: `src/ui/charts` 161 ca xanh, typecheck và lint sạch.
+
+---
+
+## Bỏ dòng "Xem số liệu" ở mọi biểu đồ (26/10/2026)
+
+**Trạng thái: CHƯA XONG — đã sửa, chờ chủ dự án xem.** Lượt đầu chủ dự án chụp "Xem số liệu (4)" dưới Thang đo của
+`%B`: _"bỏ phần giải thích số liệu như trong ảnh đi"_, và chỉ Thang đo được bỏ. Lượt sau chụp "Xem số liệu (3)":
+_"ý là toàn bộ phần biểu đồ của công thức đang có cái này như ảnh. xóa bỏ toàn bộ, không cần chức năng xem này nữa"_.
+
+- `src/ui/charts/ChartFrame.tsx`: gỡ `<details>` (dòng "Xem số liệu (N)" + vùng cuộn + bảng) ở mọi biểu đồ, bỏ luôn
+  ngoại lệ Thang đo của lượt đầu. Bảng vẫn dựng cho trình đọc màn hình, trong một `<div class="visually-hidden">`
+  (`<svg>` mang `aria-hidden`, nên bảng và câu mô tả là toàn bộ biểu đồ với người không nhìn được hình — cùng cách
+  câu mô tả đã làm ngày 14/10). Bọc `<div>` vì đặt lớp ẩn thẳng lên `<table>` thì bảng rộng 385px vẫn kéo trang 360px
+  cuộn ngang. Không còn `tabIndex`/`role="group"` (điểm Tab vô hình), không còn tô dòng hiện tại.
+- `src/ui/charts/chart.module.css`: gỡ `.data`, `.summary`, `.tableScroll` (+ thanh cuộn), `.table`, `.gapRow`,
+  `.currentRow` và ba luật dưới 1024px của dòng ấy.
+- `src/application/i18n/vi.ts`, `en.ts`: gỡ `chart.showData`, để mộ chí ở `vi.ts`.
+- Test: `charts.test.tsx` đảo ca "bảng số nằm trong vùng cuộn riêng" thành "không còn dòng Xem số liệu; bảng trong
+  khung ẩn, không có điểm Tab", ca "Trả nợ từng năm" đếm 20 dòng bảng thay vì đọc "Xem số liệu (20)", bỏ ca riêng của
+  Thang đo (ca chung đã phủ); `chart-controls-css.test.ts` đảo ca "Xem số liệu thấp 28px" thành ghim các lớp ấy không
+  quay lại.
+- Chú thích cũ nói "bảng số dưới `<details>`" ở `DonutChart.tsx`, `LineChart.tsx`, `WaterfallChart.tsx`, `build.ts`,
+  `types.ts` đã sửa cho khớp. `CLAUDE.md` ghi quyết định ở mục "Chart kinds".
+
+Kiểm: cả bộ vitest 4879 ca xanh, typecheck và lint sạch. Chưa đo bằng `check:chrome`; đáy thẻ biểu đồ giờ là hình (hoặc
+dòng ghi chú) với đệm 12px (8px dưới 1024px), thấp đi chừng 52px ở PC và 36px ở điện thoại.
+
+---
+
 ## Hai ô chọn của biểu đồ không bao giờ tự đổi: hình đang chọn không vẽ được thì báo, không vẽ hình khác (23/10/2026)
 
 **Trạng thái: CHƯA XONG — đã sửa, chờ chủ dự án xem.** Chủ dự án đang xem Thang đo của `phan-tram-b-bollinger` với 10

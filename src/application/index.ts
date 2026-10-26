@@ -311,6 +311,7 @@ export type {
   NiceAxis,
   PhanVanhKhuyen,
   ReferenceLine,
+  ScatterChart,
   SeriesTone,
   SweepOption,
   ViewBoxRect,

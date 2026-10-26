@@ -96,15 +96,12 @@ export default async function FormulaDetailPage({ params }: { params: Promise<{ 
    * Bộ câu hỏi kiểm tra hiểu bài cũng cắt ở đây, cùng một lý do: cả ngân hàng là 206 câu, mà
    * trang này chỉ cần phần của chính nó — 49 công thức có đúng một câu, một công thức không có
    * câu nào. Xem `quiz-view.ts`.
-   *
-   * Cắt câu hỏi TRƯỚC, vì nó quyết định thẻ Công thức có phải dựng thêm bản hình gắn dấu mọi ký
-   * hiệu cho khối lời giải hay không — xem `NotationView.latexHtmlAllSymbols`.
    */
   const quiz = quizViewFor(formula);
   /*
    * Lời giải có cấu trúc của khối Ví dụ thực tế (29/09/2026) — cùng khuôn: chữ của cả 111 ví dụ chỉ
    * đọc ở đây, trang này mang đúng phần của mình. Khối Ví dụ in HÌNH công thức ở dòng "Công thức áp
-   * dụng" như lời giải bài tập, nên nó cũng cần bản hình gắn dấu mọi ký hiệu.
+   * dụng" như lời giải bài tập — chính hình của thẻ Công thức, `notation.latexHtml`.
    */
   const viDu = viDuGiaiFor(formula.id);
   /*
@@ -142,9 +139,7 @@ export default async function FormulaDetailPage({ params }: { params: Promise<{ 
       <FormulaDetail
         spec={formula}
         asOf={AS_OF}
-        notation={buildNotationView(formula, undefined, {
-          allSymbols: quiz.needsFormulaPicture || viDu !== undefined,
-        })}
+        notation={buildNotationView(formula)}
         quiz={quiz}
         {...(viDu === undefined ? {} : { viDu })}
         {...(viDuCay === undefined ? {} : { viDuCay })}

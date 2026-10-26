@@ -30,8 +30,8 @@ export interface ChartPoint {
    * `label` viết ở BẬC HIỂN THỊ CỦA TRỤC X — `'1,79 tỷ ₫'` thay cho `'1.789.700.000 ₫'`.
    *
    * Chỉ dành cho chữ VẼ TRÊN HÌNH (vạch dò, dấu "giá trị hiện tại"), nơi bề ngang tính bằng đơn vị
-   * viewBox và một nhãn 15 ký tự tràn ra ngoài khung. Bảng số dưới `<details>` và câu mô tả vẫn đọc
-   * `label`/`valueLabel` đầy đủ — đó là chỗ tra con số chính xác, và nó đã có vùng cuộn ngang riêng.
+   * viewBox và một nhãn 15 ký tự tràn ra ngoài khung. Bảng số ẩn và câu mô tả (cho trình đọc màn hình) vẫn đọc
+   * `label`/`valueLabel` đầy đủ.
    *
    * **Có hay không là chuyện của cả TRỤC, không của từng điểm**: trục chia bậc thì mọi điểm đều có,
    * trục không chia thì không điểm nào có. Luật cũ hỏi "bản rút gọn có ngắn hơn không" theo từng
@@ -226,6 +226,17 @@ export interface LineChart {
    */
   overlays?: ReadonlyArray<ChartSeries>;
   /**
+   * `false` thì chuỗi chính KHÔNG có dải tô dưới đường (26/10/2026) — hình các đường thành phần, nơi
+   * không đường nào là "kết quả" để được tô nổi hơn đường kia. Vắng mặt nghĩa là có dải, như trước.
+   */
+  primaryArea?: false;
+  /**
+   * Ô dò in số của MỌI chuỗi ở mức đang dò, mỗi chuỗi một dòng (26/10/2026) — cho hình các đường
+   * thành phần, nơi thứ cần đọc là khoảng cách giữa các đường. Vắng mặt thì ô dò in riêng chuỗi
+   * chính, như trước.
+   */
+  hoverAllSeries?: true;
+  /**
    * Trục Y thứ hai, bên phải — dùng khi chuỗi phụ có thang giá trị lệch hẳn chuỗi chính (SMA tính
    * bằng nghìn đồng đứng cạnh RSI 0–100).
    *
@@ -385,6 +396,55 @@ export interface HistogramChart {
   note?: Bilingual;
 }
 
+/** Một phiên của hình phân tán: lợi suất của thị trường (x) và của cổ phiếu (y), theo %. */
+export interface ScatterPoint {
+  x: number;
+  y: number;
+  /** Nhãn phiên: ngày thật khi chuỗi có ngày, không thì 'Phiên 12'. */
+  label: string;
+  /** Hai lợi suất viết sẵn kèm dấu và đơn vị, ví dụ '+1,25 %'. */
+  xLabel: string;
+  yLabel: string;
+}
+
+/**
+ * Đường hồi quy kẻ qua đám chấm: `y = intercept + slope × x`, cùng thang % với hai trục.
+ *
+ * `slope` CHÍNH LÀ kết quả của công thức (Beta), không tính lại ở đây: đường trên hình và con số ở
+ * khối Kết quả là một số.
+ */
+export interface ScatterFit {
+  slope: number;
+  intercept: number;
+  /** Tên đường trong chú giải, ví dụ 'Đường hồi quy, độ dốc β = 0,81'. */
+  label: Bilingual;
+}
+
+/**
+ * Hình phân tán lợi suất — mục "Phân tán lợi suất" của ô "Xem theo" (26/10/2026, loại thứ bảy).
+ *
+ * Mỗi phiên của cửa sổ `calc` dùng là một chấm: lợi suất VN-Index theo trục ngang, lợi suất cổ
+ * phiếu theo trục đứng. Đường hồi quy dốc đúng bằng Beta. Hai trục luôn chứa 0 để hai vạch 0 chia
+ * bốn góc (cùng tăng, cùng giảm, ngược chiều). Một dạng vẽ (Điểm), nên không có ô "Loại biểu đồ".
+ */
+export interface ScatterChart {
+  kind: 'scatter';
+  title: Bilingual;
+  /** Như `LineChart.summary`: chỉ cho trình đọc màn hình. */
+  summary: Bilingual;
+  x: ChartAxis;
+  y: ChartAxis;
+  points: ReadonlyArray<ScatterPoint>;
+  /** Vắng khi kết quả không tính được (VN-Index đứng yên cả cửa sổ): không có độ dốc thì không kẻ. */
+  fit?: ScatterFit;
+  /** Tên chấm trong chú giải: 'Từng phiên'. */
+  pointLabel: Bilingual;
+  table: ChartTable;
+  options: ReadonlyArray<SweepOption>;
+  sweepKey: string;
+  note?: Bilingual;
+}
+
 /** Một chuỗi của hình cột theo kỳ: phần gốc, phần lãi, giá mua… */
 export interface ColumnSeries {
   key: string;
@@ -505,8 +565,15 @@ export interface GaugeChart {
  * `ChartFrame` và màn phóng to nhận kiểu này: chúng chỉ đụng `title`, `summary`, `table`, `note`
  * — bốn thứ mọi loại biểu đồ đều có. Nhờ vậy loại thứ tư (`histogram`, 21/10/2026) và thứ năm
  * (`columns`, 23/10/2026) không phải sửa `ChartFrame`, chỉ thêm một nhánh ở `ChartBody` và màn phóng to.
+ * Hình phân tán (`scatter`, 26/10/2026) cũng thế.
  */
-export type DrawableChart = LineChart | WaterfallChart | HistogramChart | ColumnChart | GaugeChart;
+export type DrawableChart =
+  | LineChart
+  | WaterfallChart
+  | HistogramChart
+  | ColumnChart
+  | GaugeChart
+  | ScatterChart;
 
 export type ChartModel = DrawableChart | UnavailableChart;
 

@@ -273,7 +273,7 @@ export function HistogramChart({
           bỏ hai thứ ấy khỏi bản chép khi xuất PDF/PNG, và nó nhận diện bằng hậu tố ấy.
         */}
         <rect
-          className={styles.hoverCapture}
+          className={`${String(styles.hoverCapture)} ${String(styles.hoverCapturePhan)}`}
           data-testid={`${idBase}-hover-capture`}
           x={plot.x0}
           y={plot.y0}

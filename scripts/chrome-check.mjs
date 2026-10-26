@@ -751,8 +751,14 @@ window.__localeLog = [];
   }
 
   await open('/cong-thuc/ty-so-sharpe/');
+  /*
+   * Lấy ký hiệu CÓ bước tính (có nút ở bảng), không lấy dấu đầu tiên trong hình: từ 26/10/2026 mọi
+   * ký hiệu trong hình đều mang dấu, mà ký hiệu không có bước tính thì không có cụm chữ và nút để
+   * sáng lên ở hai chỗ kia.
+   */
   const diemCham = await evaluate(`(() => {
-  const el = document.querySelector('math [data-sym]');
+  const sym = document.querySelector('dl button[data-sym]')?.getAttribute('data-sym');
+  const el = sym == null ? null : document.querySelector('math [data-sym="' + sym + '"]');
   if (!el) return null;
   el.scrollIntoView({ block: 'center' });
   const b = el.getBoundingClientRect();
@@ -792,6 +798,39 @@ window.__localeLog = [];
   await new Promise((r) => setTimeout(r, 500));
   const khiRoi = await evaluate(DOC_KHUNG);
   check('PC 1440 · rời chuột thì khung tắt', khiRoi.panel === null);
+
+  /*
+   * Ký hiệu KHÔNG có bước tính cũng mở khung (26/10/2026, chủ dự án: _"ký hiệu nào cũng cần giải
+   * thích"_) — khung chỉ có dòng nghĩa, co theo chữ, vẫn nằm trọn trong màn. Trên Sharpe đó là `S`,
+   * `√m` và `m`: lấy dấu đầu tiên trong hình mà bảng không có nút cho nó.
+   */
+  const diemTron = await evaluate(`(() => {
+  const coNut = new Set([...document.querySelectorAll('dl button[data-sym]')].map((b) => b.getAttribute('data-sym')));
+  const el = [...document.querySelectorAll('math [data-sym]')].find((e) => !coNut.has(e.getAttribute('data-sym')));
+  if (!el) return null;
+  el.scrollIntoView({ block: 'center' });
+  const b = el.getBoundingClientRect();
+  return { x: Math.round(b.left + b.width / 2), y: Math.round(b.top + b.height / 2) };
+})()`);
+  if (diemTron !== null) await reChuot(diemTron.x, diemTron.y);
+  await new Promise((r) => setTimeout(r, 400));
+  const khiMoTron = await evaluate(DOC_KHUNG);
+  const chiNghia = await evaluate(
+    `document.querySelector('[role="group"][id^="cach-tinh-"]')?.hasAttribute('data-title-only') ?? null`,
+  );
+  check(
+    'PC 1440 · rê vào ký hiệu không có bước tính thì khung chỉ-có-nghĩa mở, nằm trọn trong màn',
+    diemTron !== null &&
+      chiNghia === true &&
+      khiMoTron.panel !== null &&
+      khiMoTron.panel.left >= 0 &&
+      khiMoTron.panel.right <= khiMoTron.vw &&
+      khiMoTron.panel.top >= 0 &&
+      khiMoTron.panel.bottom <= khiMoTron.vh,
+    JSON.stringify({ diemTron, chiNghia, panel: khiMoTron.panel }),
+  );
+  await reChuot(5, 5);
+  await new Promise((r) => setTimeout(r, 500));
   /*
    * Nút ẩn bảng ký hiệu chỉ dành cho khổ điện thoại (17/09/2026): ở PC bảng đứng cạnh hình, không đẩy
    * gì xuống, nên nút phải biến mất và bảng phải hiện.

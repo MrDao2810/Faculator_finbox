@@ -9,7 +9,7 @@ import { useLabelText } from '@/ui/i18n/units';
 import styles from './chart.module.css';
 
 /**
- * Khung ngoài của biểu đồ: tên hình, hình vẽ, ghi chú, bảng số.
+ * Khung ngoài của biểu đồ: tên hình, hình vẽ, ghi chú, và bảng số cho trình đọc màn hình.
  *
  * Đây là chỗ khả năng tiếp cận được lo trọn (NFR-USA-06), và cách lo hơi khác thói thường nên
  * đáng ghi lại:
@@ -18,8 +18,8 @@ import styles from './chart.module.css';
  * hình, hai tới ba dòng chữ nhỏ: "Quét Giá trị doanh nghiệp (EV) từ 5.750 tỷ ₫ tới 17.250 tỷ ₫ qua
  * 41 mức. EV/EBITDA chạy trong khoảng 3,97 lần tới 11,9 lần. Ở giá trị hiện tại 11.500 tỷ ₫, kết
  * quả là 7,93 lần. Mọi mức đều tính được." Chủ dự án chép đúng câu ấy và bảo xoá *"để tối ưu không
- * gian"*: mọi con số trong câu đã nằm trên hình (hai đầu trục, dấu giá trị hiện tại) và trong bảng
- * số bên dưới. Đo trên `ev-ebitda`: thẻ biểu đồ thấp đi 42px ở 1440 và 76px ở 390.
+ * gian"*: mọi con số trong câu đã nằm trên hình (hai đầu trục, dấu giá trị hiện tại). Đo trên
+ * `ev-ebitda`: thẻ biểu đồ thấp đi 42px ở 1440 và 76px ở 390.
  *
  * Câu ấy vẫn ở trong `<figcaption>` dưới lớp `visually-hidden`, và đó là phần KHÔNG được gỡ theo:
  * `<svg>` mang `aria-hidden` (xem docblock `LineChart`), nên với trình đọc màn hình thì câu này và
@@ -27,13 +27,19 @@ import styles from './chart.module.css';
  * dữ liệu" đều chỉ được NÓI ra ở đây. Ẩn khỏi mắt thì không tốn một pixel nào; gỡ khỏi DOM là lấy
  * biểu đồ khỏi tay người không nhìn được hình. Đừng dựng lại bản hiện trên màn mà không hỏi.
  *
- * **Bảng số HIỆN, không `.visually-hidden`.** Cách phổ biến là giấu một bảng chỉ cho trình đọc màn
- * hình. Ở đây không giấu, vì người sáng mắt cũng cần con số chính xác — mắt đọc một biểu đồ chỉ ra
- * được xu hướng, không ra được "15,21". Gói trong `<details>` nên nó không choán màn, và đúng nếp
- * dự án: nói rõ thay vì giấu.
+ * **Bảng số cũng KHÔNG còn hiện trên màn, từ 26/10/2026, ở mọi biểu đồ.** Nó từng là dòng
+ * "Xem số liệu (N)" mở ra một bảng dưới hình (`<details>`). Chủ dự án bỏ trước ở Thang đo (_"bỏ phần
+ * giải thích số liệu như trong ảnh đi"_), rồi cả sản phẩm: _"toàn bộ phần biểu đồ của công thức đang
+ * có cái này … xóa bỏ toàn bộ, không cần chức năng xem này nữa"_. Bảng đi cùng đường với câu mô tả:
+ * ẩn khỏi mắt, còn trong DOM cho trình đọc màn hình, vì cùng lý do — với người không nhìn được hình,
+ * bảng là nơi duy nhất đọc được từng điểm. Bọc trong một `<div>` ẩn chứ không đặt `visually-hidden`
+ * thẳng lên `<table>`: bảng không co dưới bề rộng nội dung của nó, nên một bảng `position: absolute`
+ * rộng 385px vẫn kéo trang cuộn ngang ở khổ 360; cái `<div>` 1px với `overflow: hidden` thì cắt được.
+ * Không còn vùng cuộn, `tabIndex` hay `role="group"`: một điểm Tab vô hình là cái bẫy cho người dùng
+ * bàn phím. Đừng dựng lại dòng "Xem số liệu" mà không hỏi.
  *
- * Hệ quả tốt cho việc kiểm: bảng này là hợp đồng CÔNG KHAI với người dùng, nên test bám vào nó
- * thay vì bám vào chuỗi `d` — chỉnh một pixel padding không làm đỏ ca kiểm nào.
+ * Hệ quả cho việc kiểm vẫn giữ: test bám vào bảng này (testing-library vẫn thấy phần tử ẩn bằng
+ * `visually-hidden`) thay vì bám vào chuỗi `d` — chỉnh một pixel padding không làm đỏ ca kiểm nào.
  */
 
 export interface ChartFrameProps {
@@ -58,16 +64,10 @@ export function ChartFrame({ model, idBase, picker, action, children }: ChartFra
   const labelText = useLabelText();
   const captionId = `${idBase}-caption`;
 
-  const rows = model.table.rows.length;
-  const current = currentLabel(model);
-  const currentText = current === undefined ? undefined : labelText(current);
-
   return (
     /*
      * KHÔNG đặt `role="group"` ở đây. `<figure>` đã có role riêng và `<figcaption>` qua
-     * `aria-labelledby` đã là tên của nó — ghi đè thành `group` vừa mất ngữ nghĩa hình minh hoạ,
-     * vừa đụng với `<details>` bên dưới (thẻ đó cũng map sang role `group`), khiến cả trình đọc
-     * màn hình lẫn bộ kiểm không phân biệt được hai vùng.
+     * `aria-labelledby` đã là tên của nó — ghi đè thành `group` là mất ngữ nghĩa hình minh hoạ.
      */
     <figure className={styles.chart} aria-labelledby={captionId}>
       {/*
@@ -98,88 +98,56 @@ export function ChartFrame({ model, idBase, picker, action, children }: ChartFra
         </p>
       )}
 
-      <details className={styles.data}>
-        <summary className={styles.summary}>
-          {t('chart.showData')} ({rows})
-        </summary>
-
-        {/*
-          Vùng cuộn ngang riêng, cùng nếp với primitive `Table` — bảng nhiều chữ không được kéo cả
-          trang cuộn ngang (NFR-USA-02). `tabIndex` để lăn được bằng bàn phím; `role="group"` +
-          `aria-label` để trình đọc màn hình biết vừa bước vào vùng cuộn của bảng nào.
-        */}
-        <div
-          className={styles.tableScroll}
-          tabIndex={0}
-          role="group"
-          aria-label={`${t('chart.tableCaption')} — ${pick(model.title)}`}
-        >
-          <table className={styles.table}>
-            {/*
-              Tên bảng phải KHÁC tiêu đề hình, không phải bản sao của nó: hai phần tử mang y nguyên
-              một chuỗi thì trình đọc màn hình đọc lại hai lần, và người dùng không biết mình đang ở
-              hình hay ở bảng.
-            */}
-            <caption className="visually-hidden">
-              {t('chart.tableCaption')} — {pick(model.title)}
-            </caption>
-            {/*
-              Cột dựng theo MẢNG chứ không viết cứng hai cột: từ đợt nhiều-chuỗi, mỗi chuỗi phụ
-              thêm một cột. Biểu đồ một chuỗi vẫn ra đúng hai cột như trước — `columns` của nó vẫn
-              đúng hai phần tử, không phải "hai cột được suy ra".
-            */}
-            <thead>
-              <tr>
-                {model.table.columns.map((column, index) => (
-                  <th key={`col-${String(index)}`} scope="col">
-                    {pick(column)}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {model.table.rows.map((row, index) => {
-                if (row === null) {
-                  // Dòng ngắt "…" — cùng nếp SCHEDULE_GAP của lịch trả nợ 240 kỳ.
-                  return (
-                    <tr key={`gap-${String(index)}`} className={styles.gapRow}>
-                      <td colSpan={model.table.columns.length}>…</td>
-                    </tr>
-                  );
-                }
-                const [head, ...values] = row;
-                // Ô của bảng là chuỗi Domain dựng với đơn vị tiếng Việt — đổi đơn vị theo locale ở
-                // đây, và so dòng "hiện tại" trên CÙNG một bản đã đổi để dòng tô đậm không mất ở EN.
-                const label = labelText(pick(head));
+      {/* Bảng số chỉ cho trình đọc màn hình — lý do và vì sao bọc `<div>` ở docblock đầu file. */}
+      <div className="visually-hidden">
+        <table>
+          {/*
+            Tên bảng phải KHÁC tiêu đề hình, không phải bản sao của nó: hai phần tử mang y nguyên
+            một chuỗi thì trình đọc màn hình đọc lại hai lần, và người dùng không biết mình đang ở
+            hình hay ở bảng.
+          */}
+          <caption>
+            {t('chart.tableCaption')} — {pick(model.title)}
+          </caption>
+          {/*
+            Cột dựng theo MẢNG chứ không viết cứng hai cột: từ đợt nhiều-chuỗi, mỗi chuỗi phụ
+            thêm một cột. Biểu đồ một chuỗi vẫn ra đúng hai cột như trước — `columns` của nó vẫn
+            đúng hai phần tử, không phải "hai cột được suy ra".
+          */}
+          <thead>
+            <tr>
+              {model.table.columns.map((column, index) => (
+                <th key={`col-${String(index)}`} scope="col">
+                  {pick(column)}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {model.table.rows.map((row, index) => {
+              if (row === null) {
+                // Dòng ngắt "…" — cùng nếp SCHEDULE_GAP của lịch trả nợ 240 kỳ.
                 return (
-                  <tr
-                    key={`${label}-${String(index)}`}
-                    className={label === currentText ? styles.currentRow : undefined}
-                  >
-                    <td>{label}</td>
-                    {values.map((value, cell) => (
-                      <td key={`cell-${String(cell)}`}>{labelText(value)}</td>
-                    ))}
+                  <tr key={`gap-${String(index)}`}>
+                    <td colSpan={model.table.columns.length}>…</td>
                   </tr>
                 );
-              })}
-            </tbody>
-          </table>
-        </div>
-      </details>
+              }
+              const [head, ...values] = row;
+              // Ô của bảng là chuỗi Domain dựng với đơn vị tiếng Việt — đổi đơn vị theo locale ở đây.
+              const label = labelText(pick(head));
+              return (
+                <tr key={`${label}-${String(index)}`}>
+                  <td>{label}</td>
+                  {values.map((value, cell) => (
+                    <td key={`cell-${String(cell)}`}>{labelText(value)}</td>
+                  ))}
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
     </figure>
   );
-}
-
-/**
- * Nhãn x của điểm "giá trị hiện tại", để tô đậm đúng dòng đó trong bảng.
- *
- * So bằng NHÃN chứ không bằng số: bảng đã rút gọn thành chuỗi ở Domain, và nhãn là thứ duy nhất
- * còn lại để nối một dòng bảng với một điểm trên hình. Nhãn sinh từ cùng một `formatValueWithUnit`
- * nên hai bên không thể lệch cách viết.
- */
-function currentLabel(model: DrawableChart): string | undefined {
-  // Thác nước không có "điểm hiện tại" — mọi cột đều là số hiện tại, không cột nào được tô riêng.
-  if (model.kind !== 'line') return undefined;
-  return model.points.find((point) => point.marked === true)?.label;
 }

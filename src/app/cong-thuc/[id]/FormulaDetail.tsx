@@ -279,8 +279,7 @@ export interface FormulaDetailProps {
    * của mình. Xem `quiz-view.ts`.
    *
    * Hình công thức mà khối lời giải cần KHÔNG đi qua prop này: màn dựng nó từ `notation` rồi
-   * chuyền thẳng xuống `QuizPanel`. Cờ `needsFormulaPicture` là thứ `page.tsx` đọc để quyết định
-   * có dựng bản hình ấy hay không; màn này không đọc nó.
+   * chuyền thẳng xuống `QuizPanel`.
    *
    * Kiểu viết TẠI CHỖ chứ không nhập kiểu `QuizView` từ module cắt câu hỏi: cửa gác
    * `build-only-imports.test.ts` chỉ cho `page.tsx` nhập module ấy, vì nó kéo theo cả ngân hàng câu
@@ -289,7 +288,6 @@ export interface FormulaDetailProps {
    */
   quiz?: {
     items: ReadonlyArray<QuizItem>;
-    needsFormulaPicture?: boolean;
   };
   /**
    * Lời giải có cấu trúc của khối Ví dụ thực tế (29/09/2026) — đọc lúc build ở `page.tsx` qua
@@ -877,8 +875,9 @@ export function FormulaDetail({
    * "cách tính" y như thẻ Công thức. Dựng ở ĐÂY vì cả cơ chế khung sống cạnh thẻ, trong thư mục
    * này, còn `src/ui/quiz` không với tới được; khối Bài tập chỉ nhận nút đã dựng và đặt vào ô.
    *
-   * Chỉ dựng khi `page.tsx` đã làm sẵn bản hình gắn dấu mọi ký hiệu, tức trang có câu cần nó.
-   * `useMemo` giữ nguyên nút qua mỗi lần gõ ở khối Số liệu.
+   * Dựng nút luôn, không chờ cờ nào (26/10/2026): hình là chính `notation.latexHtml` của thẻ, đã gắn
+   * dấu mọi ký hiệu, và dựng một phần tử React chưa mount thì không tốn gì — chỉ lời giải nào cần
+   * hình mới đặt nó vào ô. `useMemo` giữ nguyên nút qua mỗi lần gõ ở khối Số liệu.
    */
   /*
    * Bảng ký hiệu cho dòng "Thay số" của lời giải: ký hiệu đúng bản MathML thẻ Công thức in
@@ -896,10 +895,7 @@ export function FormulaDetail({
   );
 
   const quizPicture = useMemo(
-    () =>
-      notation.latexHtmlAllSymbols === undefined ? undefined : (
-        <QuizFormulaPicture spec={spec} notation={notation} />
-      ),
+    () => <QuizFormulaPicture spec={spec} notation={notation} />,
     [spec, notation],
   );
   /*
@@ -908,10 +904,7 @@ export function FormulaDetail({
    * nhau để hai khung mở cùng lúc không mang trùng `id`.
    */
   const viDuPicture = useMemo(
-    () =>
-      notation.latexHtmlAllSymbols === undefined ? undefined : (
-        <QuizFormulaPicture spec={spec} notation={notation} idPrefix="vi-du" />
-      ),
+    () => <QuizFormulaPicture spec={spec} notation={notation} idPrefix="vi-du" />,
     [spec, notation],
   );
 
@@ -3725,8 +3718,11 @@ export function FormulaDetail({
         `contain: paint` kể cả khi khối đang hiện, tức CẮT mọi thứ tràn ra ngoài hộp — và khung
         "cách tính" bật ra từ hình công thức trong lời giải canh theo mép MÀN, nên ở khổ hẹp nó lấn
         ra ngoài mép trái khối và bị cắt mất nửa ký hiệu (chủ dự án chụp khung của `MOS` còn trơ
-        chữ "S"). Hoãn dựng hình ở đây cũng chẳng được gì: lúc nghỉ khối chỉ là một hàng tiêu đề,
-        lúc làm bài thì nó đang nằm trên màn.
+        chữ "S"). Hoãn dựng hình ở đây cũng chẳng được gì: khối trên trang chỉ là một hàng tiêu đề.
+
+        Từ 26/10/2026 bài làm mở trong POPUP riêng (chủ dự án: _"điều chỉnh phần bài tập của công
+        thức thành dạng popup riêng"_): trên trang chỉ còn hàng "BÀI TẬP … Bắt đầu kiểm tra »", câu
+        hỏi, tiến độ và tổng kết nằm trong một hộp thoại nổi giữa màn — xem docblock `QuizBody`.
       */}
       {/*
         Khung hướng dẫn bật ra NGAY TẠI nút "?" vừa bấm (03/10/2026).

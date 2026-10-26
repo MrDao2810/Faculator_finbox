@@ -633,6 +633,31 @@ export const MACD_DUONG_CHINH: FormulaModule = {
     level: 'advanced',
     tags: ['macd', 'ema12 ema26', 'phan ky hoi tu', 'dong luong', 'xu huong'],
     resultUnit: '₫',
+    /*
+     * Hình "Hai đường EMA" (26/10/2026): EMA nhanh và EMA chậm theo từng phiên, kèm giá đóng cửa —
+     * MACD là khoảng cách giữa hai đường ấy, đọc thẳng trên hình. Số lấy từ `extras` của calc.
+     */
+    componentLines: {
+      label: { vi: 'Hai đường EMA', en: 'Both EMAs' },
+      axis: { vi: 'Giá', en: 'Price' },
+      unit: '₫',
+      lines: [
+        {
+          key: 'emaFast',
+          label: { vi: 'EMA {n} phiên', en: '{n}-period EMA' },
+          periodKey: 'fastPeriod',
+          tone: 'primary',
+        },
+        {
+          key: 'emaSlow',
+          label: { vi: 'EMA {n} phiên', en: '{n}-period EMA' },
+          periodKey: 'slowPeriod',
+          tone: 'violet',
+          dash: true,
+        },
+      ],
+      closePrice: true,
+    },
     variables: [
       sliderVar('fastPeriod', NHAN_CHU_KY_EMA_NHANH, 'phiên', 12, 2, 100, 1, {
         description: {
@@ -778,6 +803,24 @@ export const MACD_DUONG_TIN_HIEU: FormulaModule = {
     level: 'advanced',
     tags: ['macd signal', 'duong tin hieu', 'ema9', 'giao cat macd', 'histogram'],
     resultUnit: '₫',
+    /*
+     * Hình "MACD và đường tín hiệu" (26/10/2026): đường MACD và đường tín hiệu (chính kết quả) theo
+     * từng phiên — hai đường cắt nhau là chỗ người đọc chỉ báo này nhìn vào.
+     */
+    componentLines: {
+      label: { vi: 'MACD và đường tín hiệu', en: 'MACD and signal line' },
+      axis: { vi: 'MACD', en: 'MACD' },
+      unit: '₫',
+      lines: [
+        { key: 'macd', label: { vi: 'Đường MACD', en: 'MACD line' }, tone: 'primary' },
+        {
+          label: { vi: 'Đường tín hiệu {n} phiên', en: '{n}-period signal line' },
+          periodKey: 'signalPeriod',
+          tone: 'violet',
+          dash: true,
+        },
+      ],
+    },
     variables: [
       sliderVar('fastPeriod', NHAN_CHU_KY_EMA_NHANH, 'phiên', 12, 2, 100, 1, {
         description: {
@@ -1327,6 +1370,26 @@ export const DONG_LUONG_MOMENTUM: FormulaModule = {
     level: 'basic',
     tags: ['momentum', 'dong luong', 'chenh lech gia', 'da tang', 'da giam'],
     resultUnit: '₫',
+    /*
+     * Hình "Giá nay và giá n phiên trước" (26/10/2026): giá đóng cửa từng phiên và giá n phiên trước
+     * nó — động lượng là khoảng cách giữa hai đường ở mỗi phiên.
+     */
+    componentLines: {
+      label: { vi: 'Giá nay và giá {n} phiên trước', en: 'Price now and {n} sessions earlier' },
+      periodKey: 'period',
+      axis: { vi: 'Giá', en: 'Price' },
+      unit: '₫',
+      lines: [
+        { key: 'giaNay', label: { vi: 'Giá đóng cửa', en: 'Closing price' }, tone: 'primary' },
+        {
+          key: 'giaTruoc',
+          label: { vi: 'Giá {n} phiên trước', en: 'Price {n} sessions earlier' },
+          periodKey: 'period',
+          tone: 'violet',
+          dash: true,
+        },
+      ],
+    },
     variables: [
       sliderVar('period', labelWithSymbol(NHAN_SO_PHIEN_NHIN_LAI, 'n'), 'phiên', 10, 1, 250, 1, {
         description: {
@@ -1626,6 +1689,31 @@ export const GIAO_CAT_HAI_DUONG_MA: FormulaModule = {
     level: 'basic',
     tags: ['giao cat ma', 'golden cross', 'death cross', 'ma50 ma200', 'cat len cat xuong'],
     resultUnit: '₫',
+    /*
+     * Hình "Hai đường trung bình" (26/10/2026): SMA ngắn và SMA dài theo từng phiên, kèm giá đóng cửa
+     * — chỗ hai đường cắt nhau là chỗ kết quả đổi dấu.
+     */
+    componentLines: {
+      label: { vi: 'Hai đường trung bình', en: 'Both moving averages' },
+      axis: { vi: 'Giá', en: 'Price' },
+      unit: '₫',
+      lines: [
+        {
+          key: 'smaShort',
+          label: { vi: 'SMA {n} phiên', en: '{n}-period SMA' },
+          periodKey: 'shortPeriod',
+          tone: 'primary',
+        },
+        {
+          key: 'smaLong',
+          label: { vi: 'SMA {n} phiên', en: '{n}-period SMA' },
+          periodKey: 'longPeriod',
+          tone: 'violet',
+          dash: true,
+        },
+      ],
+      closePrice: true,
+    },
     variables: [
       sliderVar('shortPeriod', NHAN_CHU_KY_NGAN, 'phiên', 10, 2, 100, 1, {
         description: {

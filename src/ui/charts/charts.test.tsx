@@ -718,7 +718,7 @@ describe('Biểu đồ độ nhạy — cách người dùng đọc được nó
    * <title>/<desc> dài vào SVG được NVDA, JAWS và VoiceOver xử rất khác nhau, mà người dùng vẫn
    * không lần qua 42 điểm bằng tai được.
    */
-  it('SVG ẩn khỏi trình đọc màn hình, nhưng bảng số thì HIỆN', () => {
+  it('SVG ẩn khỏi trình đọc màn hình, còn bảng số thì ở lại cho trình đọc màn hình', () => {
     const { container } = draw('pe');
 
     expect(container.querySelector('svg')?.getAttribute('aria-hidden')).toBe('true');
@@ -726,21 +726,21 @@ describe('Biểu đồ độ nhạy — cách người dùng đọc được nó
   });
 
   /*
-   * Ô bảng để `white-space: nowrap` nên bảng rộng theo tên cột, không theo cột chứa nó. Đo trên
-   * bản build ở khổ 360px, `gia-tri-noi-tai-fcff` có tiêu đề "Giá trị nội tại từ FCFF (DCF) (₫)"
-   * làm bảng rộng 385px trong cột 344px và kéo cả TRANG cuộn ngang — hỏng NFR-USA-02. Vùng cuộn
-   * phải là của riêng bảng, và phải lăn được bằng bàn phím.
+   * Dòng "Xem số liệu (N)" và bảng mở ra dưới nó đã gỡ khỏi màn ngày 26/10/2026, ở mọi biểu đồ (chủ dự
+   * án: _"xóa bỏ toàn bộ, không cần chức năng xem này nữa"_). Ca này ĐẢO ca cũ "bảng số nằm trong vùng
+   * cuộn riêng, lăn được bằng bàn phím": bảng giờ ẩn khỏi mắt, nên một vùng cuộn có `tabIndex` sẽ là
+   * một điểm Tab vô hình. Bảng nằm trong `<div>` ẩn chứ không tự mang lớp ẩn — lý do (bảng rộng 385px
+   * kéo trang cuộn ngang ở khổ 360) ở docblock `ChartFrame.tsx`.
    */
-  it('bảng số nằm trong vùng cuộn riêng, lăn được bằng bàn phím', () => {
-    draw('pe');
+  it('không còn dòng "Xem số liệu"; bảng số nằm trong khung ẩn, không có điểm Tab', () => {
+    const { container } = draw('pe');
+
+    expect(screen.queryByText(/Xem số liệu/)).toBeNull();
+    expect(container.querySelector('figure details')).toBeNull();
 
     const bang = screen.getByRole('table');
-    const vung = bang.parentElement;
-
-    expect(vung?.getAttribute('role')).toBe('group');
-    expect(vung?.getAttribute('tabindex')).toBe('0');
-    expect(vung?.getAttribute('aria-label')).toBeTruthy();
-    expect(String(vung?.className)).toMatch(/tableScroll/);
+    expect(bang.parentElement?.className).toBe('visually-hidden');
+    expect(container.querySelector('figure [tabindex]')).toBeNull();
   });
 
   it('bảng số mang đúng con số khối Kết quả đang hiện — hai chỗ không được nói hai số', () => {
@@ -1738,6 +1738,51 @@ describe('Dò điểm (crosshair)', () => {
       expect(trai + rong, o).toBeLessThanOrEqual(CHART_GEOMETRY.W);
     }
   });
+
+  /*
+   * Hình các đường thành phần (26/10/2026): ô dò in ngày rồi MỖI đường một dòng "tên: số" — thứ cần
+   * đọc là khoảng cách giữa hai SMA, mà một số trần của riêng đường chính không nói được. Mọi dòng
+   * cùng một phía, cùng mép canh, và không dòng nào chạy ra ngoài khung.
+   */
+  it('các đường thành phần: ô dò in một dòng cho mỗi đường, đều nằm trong khung', async () => {
+    gioKhungKhopViewBox();
+    const { container } = drawLoaded('giao-cat-hai-duong-ma');
+    await userEvent.selectOptions(screen.getByLabelText('Xem theo'), '__components');
+
+    fireEvent.pointerMove(screen.getByTestId('chart-giao-cat-hai-duong-ma-hover-capture'), {
+      pointerType: 'mouse',
+      clientX: CHART_GEOMETRY.PLOT.x1 - 2,
+      clientY: giuaVungVe.y,
+    });
+
+    const overlay = screen.getByTestId('chart-giao-cat-hai-duong-ma-hover');
+    const dong = [...overlay.querySelectorAll('text[data-dong-do]')].map((t) => t.textContent);
+    expect(dong).toHaveLength(3);
+    expect(dong[0]).toMatch(/^SMA \d+ phiên: .*nghìn ₫$/);
+    expect(dong[1]).toMatch(/^SMA \d+ phiên: .*nghìn ₫$/);
+    expect(dong[2]).toMatch(/^Giá đóng cửa: .*nghìn ₫$/);
+    // Ba chấm: đường chính (vạch dò sẵn có) và hai chuỗi phụ.
+    expect(overlay.querySelectorAll('circle')).toHaveLength(3);
+
+    const neo = new Set(
+      [...overlay.querySelectorAll('text')].map((t) => t.getAttribute('text-anchor')),
+    );
+    expect(neo.size).toBe(1);
+    for (const nhan of overlay.querySelectorAll('text')) {
+      const chu = nhan.textContent ?? '';
+      const rong = textWidth(chu, 11);
+      const trai =
+        nhan.getAttribute('text-anchor') === 'end'
+          ? Number(nhan.getAttribute('x')) - rong
+          : Number(nhan.getAttribute('x'));
+      expect(trai, chu).toBeGreaterThanOrEqual(0);
+      expect(trai + rong, chu).toBeLessThanOrEqual(CHART_GEOMETRY.W);
+    }
+    // Không dải tô dưới đường chính ở hình này.
+    expect(
+      container.querySelector('path[fill^="url(#chart-giao-cat-hai-duong-ma-area"]'),
+    ).toBeNull();
+  });
 });
 
 /*
@@ -2079,6 +2124,37 @@ describe('Ghi giá trị điểm vào ô Số liệu (onApplyPoint)', () => {
     expect(screen.getByTestId('chart-pe-hover-capture').getAttribute('class')).not.toContain(
       'hoverCaptureReady',
     );
+  });
+
+  /*
+   * Hình gồm những phần rời (thanh ngang, cột theo kỳ, cột phân phối) mang bàn tay như múi vành khuyên,
+   * không mang chữ thập "dò đọc" của đường (26/10/2026, chủ dự án chụp "Thanh ngang": _"chuột lại thành
+   * dấu cộng + thay vì bàn tay"_). jsdom không tính `cursor`, nên ca này đọc lớp trên vùng bắt và luật
+   * trong CSS: luật bàn tay phải đứng SAU `.hoverCapture`, vì hai luật cùng độ ưu tiên.
+   */
+  it('thanh ngang, cột theo kỳ, cột phân phối: con trỏ là bàn tay; đường vẫn là chữ thập', () => {
+    const { container } = draw('ev');
+    const vungBat = container.querySelector('rect[data-testid$="-hover-capture"]');
+    expect(vungBat?.getAttribute('class')).toContain('hoverCapturePhan');
+    cleanup();
+
+    const thuMuc = join(process.cwd(), 'src', 'ui', 'charts');
+    for (const ten of ['ColumnChart.tsx', 'HistogramChart.tsx', 'WaterfallChart.tsx']) {
+      expect(readFileSync(join(thuMuc, ten), 'utf8'), ten).toContain('styles.hoverCapturePhan');
+    }
+
+    draw('pe');
+    expect(screen.getByTestId('chart-pe-hover-capture').getAttribute('class')).not.toContain(
+      'hoverCapturePhan',
+    );
+
+    const css = readFileSync(join(thuMuc, 'chart.module.css'), 'utf8').replace(
+      /\/\*[\s\S]*?\*\//g,
+      '',
+    );
+    const luatTay = /\.hoverCapturePhan\s*\{([^}]*)\}/.exec(css);
+    expect(luatTay?.[1]).toMatch(/cursor:\s*pointer;/);
+    expect(css.indexOf('.hoverCapture {')).toBeLessThan(css.indexOf('.hoverCapturePhan {'));
   });
 
   it('rê chuột lúc bấm được: hiện vạch dò kèm GIÁ TRỊ X sắp áp dụng', () => {
@@ -2750,6 +2826,53 @@ describe('Loại biểu đồ — ô chọn dạng vẽ', () => {
     expect(cacDang()).toEqual(['Đường', 'Cột', 'Điểm', 'Bậc thang']);
   });
 
+  /*
+   * Hình phân tán của Beta (26/10/2026): ngữ cảnh dựng đúng như màn chi tiết — chuỗi cổ phiếu cộng chuỗi
+   * VN-Index luôn có mặt (`SAMPLE_DATA.vnIndex()`).
+   */
+  it('Beta: "Phân tán lợi suất" vẽ một chấm mỗi phiên, đường hồi quy dốc đúng Beta, không ô Loại biểu đồ', async () => {
+    const formula = moduleOf('beta');
+    const inputs = defaultInputs(formula.spec);
+    const ctx: CalcContext = {
+      ...WITH_BARS,
+      marketSeries: SAMPLE_DATA.vnIndex()
+        .map((bar) => bar.close)
+        .filter((close): close is number => typeof close === 'number' && close > 0),
+    };
+    const output = runFormula(formula, inputs, ctx);
+    const { container } = render(
+      <ChartBody
+        formula={formula}
+        inputs={inputs}
+        ctx={ctx}
+        output={output}
+        level="advanced"
+        seriesLabel="FPT"
+      />,
+    );
+    const muc = [...screen.getByLabelText('Xem theo').querySelectorAll('option')].map(
+      (option) => option.textContent,
+    );
+    expect(muc).toContain('Phân tán lợi suất');
+
+    await xemTheo('__scatter');
+
+    const svg = container.querySelector('svg[data-scatter]');
+    expect(svg?.getAttribute('data-chart-svg')).toBe('chart-beta');
+    // n phiên cho n − 1 cặp lợi suất, mỗi cặp một chấm; cộng một chấm mẫu trong chú giải.
+    expect(svg?.querySelectorAll('circle[class*="scatterDot"]').length).toBe(
+      inputs['sessions'] ?? 0,
+    );
+    const duong = svg?.querySelector('line[data-duong-hoi-quy]');
+    expect(Number(duong?.getAttribute('data-duong-hoi-quy'))).toBe(output.value);
+    expect(svg?.querySelectorAll('line[data-vach-khong]').length).toBe(2);
+    expect(svg?.textContent).toContain('Từng phiên');
+    expect(svg?.textContent).toContain('Đường hồi quy, độ dốc β =');
+    expect(svg?.textContent).toContain('Lợi suất FPT một phiên (%)');
+    expect(screen.queryByLabelText('Loại biểu đồ')).toBeNull();
+    expect(screen.getByRole('table').textContent).toContain('Lợi suất VN-Index một phiên (%)');
+  });
+
   it('chưa nạp chuỗi thì không có hai mục ấy — khối chỉ còn cảnh báo thiếu chuỗi', () => {
     const { container } = draw('var-lich-su');
     expect(container.textContent).not.toContain('Phân phối lợi suất');
@@ -3003,7 +3126,9 @@ describe('Loại biểu đồ — ô chọn dạng vẽ', () => {
     fireEvent.pointerEnter(muiThu(svg, 1), { pointerType: 'mouse' });
     expect(popup()?.textContent).toContain('Vốn chủ sở hữu (E)');
     expect(popup()?.textContent).toContain('36,5 nghìn tỷ ₫');
-    expect(popup()?.textContent).toContain('chiếm 61,8 %');
+    // Chỉ tên và giá trị (26/10/2026): "chiếm …" và ô màu đã có ở chú giải cạnh vòng.
+    expect(popup()?.textContent).toBe('Vốn chủ sở hữu (E)36,5 nghìn tỷ ₫');
+    expect(popup()?.children).toHaveLength(2);
     expect(muiThu(svg, 0).getAttribute('class')).toContain('donutSliceMo');
     expect(muiThu(svg, 1).getAttribute('class')).not.toContain('donutSliceMo');
     // Popup nằm ngoài `<svg>`: bản xuất PDF / PNG chép đúng thẻ ấy, nên popup không lọt vào file.
@@ -3338,8 +3463,8 @@ describe('Hình cột theo kỳ — Trả nợ từng năm', () => {
     await userEvent.selectOptions(screen.getByLabelText('Xem theo'), '__columns');
     expect(container.querySelector('svg[data-columns]')).not.toBeNull();
     expect(screen.queryByLabelText('Loại biểu đồ')).toBeNull();
-    // Bảng số: một dòng mỗi năm, cột cuối là tổng của năm.
-    expect(screen.getByText('Xem số liệu (20)').textContent).toBe('Xem số liệu (20)');
+    // Bảng số (cho trình đọc màn hình): một dòng mỗi năm.
+    expect(screen.getByRole('table').querySelectorAll('tbody tr')).toHaveLength(20);
   });
 
   it('rê chuột vào một cột: hiện tên năm và từng số, các cột khác mờ đi; rời ra thì tắt', () => {

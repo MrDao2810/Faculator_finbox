@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it } from 'vitest';
 
-import { viewportBounds } from './use-panel-placement';
+import { clipToDialog, viewportBounds } from './use-panel-placement';
 
 /**
  * `viewportBounds()` — vùng được phép đặt khung nổi, và là chỗ lỗi tràn mép phải từng nằm.
@@ -50,5 +50,69 @@ describe('viewportBounds()', () => {
     gia(360, 360);
     expect(viewportBounds().left).toBe(8);
     expect(viewportBounds().right).toBe(352);
+  });
+});
+
+/**
+ * `clipToDialog()` — khung "cách tính" trong popup Bài tập (26/10/2026).
+ *
+ * Thân popup tự cuộn và tấm bo góc cắt mọi thứ tràn ra, nên khung canh theo mép MÀN sẽ thò ra ngoài
+ * thân popup, bị cắt và đẻ thanh cuộn ngang. Đo trên Chrome ở 360px trước khi sửa: khung 352px trong
+ * thân rộng 329px. jsdom không bố cục, nên hộp của từng tầng vá tay.
+ */
+describe('clipToDialog()', () => {
+  const MAN = { top: 64, left: 8, right: 352, bottom: 772 };
+
+  /** Đặt hộp viền và vùng trong (trừ viền và thanh cuộn) cho một phần tử — jsdom trả toàn 0. */
+  function hop(
+    el: HTMLElement,
+    rect: { left: number; top: number; width: number; height: number },
+    inner: { clientLeft?: number; clientTop?: number; clientWidth: number; clientHeight: number },
+  ): void {
+    el.getBoundingClientRect = () =>
+      ({
+        ...rect,
+        x: rect.left,
+        y: rect.top,
+        right: rect.left + rect.width,
+        bottom: rect.top + rect.height,
+        toJSON: () => ({}),
+      }) as DOMRect;
+    for (const [ten, so] of Object.entries({ clientLeft: 0, clientTop: 0, ...inner })) {
+      Object.defineProperty(el, ten, { value: so, configurable: true });
+    }
+  }
+
+  it('ngoài popup thì giữ nguyên vùng của màn — thẻ Công thức trên trang không đổi gì', () => {
+    document.body.innerHTML = '<div style="overflow: hidden"><div id="the"></div></div>';
+    const the = document.getElementById('the') as HTMLElement;
+    expect(clipToDialog(the, MAN)).toEqual(MAN);
+  });
+
+  it('trong popup thì thu vào phần nhìn thấy của thân cuộn, trừ thanh cuộn dọc', () => {
+    document.body.innerHTML =
+      '<dialog open><div id="tam" style="overflow: hidden"><div id="than" style="overflow-y: auto"><div id="the"></div></div></div></dialog>';
+    const tam = document.getElementById('tam') as HTMLElement;
+    const than = document.getElementById('than') as HTMLElement;
+    const the = document.getElementById('the') as HTMLElement;
+    // Tấm 331px có viền 1px; thân bên trong có thanh cuộn dọc 15px ở mép phải.
+    hop(
+      tam,
+      { left: 14, top: 100, width: 331, height: 600 },
+      { clientLeft: 1, clientTop: 1, clientWidth: 329, clientHeight: 598 },
+    );
+    hop(
+      than,
+      { left: 15, top: 160, width: 329, height: 539 },
+      { clientWidth: 314, clientHeight: 539 },
+    );
+
+    expect(clipToDialog(the, MAN)).toEqual({
+      top: 160 + 8,
+      left: 15 + 8,
+      // 15 + 314 − 8: mép phải dừng TRƯỚC thanh cuộn, không phải ở mép hộp viền (344 − 8).
+      right: 321,
+      bottom: 160 + 539 - 8,
+    });
   });
 });

@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { runFormula } from '../calc/run';
 import type { CalcContext, CalcInputs, FormulaModule } from '../calc/types';
 import { FORMULA_MODULES } from '../formulas';
-import { FPT_BARS } from '../formulas/market-series-2026';
+import { FPT_BARS, VNINDEX_PHIEN } from '../formulas/market-series-2026';
 import { MARKET_CONFIG } from '../market';
 import { scheduleOrDefault } from '../market/resolve';
 import { defaultInputs } from '../registry/build';
@@ -36,6 +36,8 @@ function ctxVoi(soPhien: number): CalcContext {
     series: bars
       .map((bar) => bar.close)
       .filter((close): close is number => typeof close === 'number' && close > 0),
+    /* Màn chi tiết luôn kèm một chuỗi VN-Index; chỉ Beta đọc nó (hình phân tán, 26/10/2026). */
+    marketSeries: VNINDEX_PHIEN,
   };
 }
 

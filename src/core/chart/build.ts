@@ -43,10 +43,13 @@ import type { LoiCot } from './columns';
 import { COMPOSITION_KEY, compositionBars, compositionOption } from './composition';
 import { GAUGE_KEY, GAUGE_LABEL, buildGaugeModel, gaugeReady } from './gauge';
 import {
+  COMPONENTS_KEY,
   HISTORY_KEY,
   HISTORY_LABEL,
   canDrawHistory,
   closePriceSeries,
+  componentPoints,
+  componentsHavePoint,
   historyHasPoint,
   historyPlan,
   historyPoints,
@@ -57,6 +60,7 @@ import { decimalsOf, extentOf, niceAxis } from './scale';
 import {
   buildDistributionModel,
   buildDrawdownModel,
+  buildScatterModel,
   seriesViewOption,
   seriesWindow,
 } from './series-view';
@@ -64,7 +68,12 @@ import type { NiceAxis } from './scale';
 import { usableOverlays } from './series';
 import { pickSweepVariable, sweepCandidates, sweepHasPoint, sweepPoints } from './sweep';
 import { condensePoints } from './table';
-import type { CompositionSpec, FormulaSpec, PriceOverlaySpec } from '../registry/types';
+import type {
+  ComponentLinesSpec,
+  CompositionSpec,
+  FormulaSpec,
+  PriceOverlaySpec,
+} from '../registry/types';
 import type {
   BreakdownBar,
   ChartAxis,
@@ -481,7 +490,7 @@ function buildBreakdownModel(
    *
    * Trước đợt này hai chỗ nói hai kiểu: trục `lich-tra-no` ghi '(tỷ ₫)' còn nhãn cột ghi
    * `1.789.700.000 ₫` — vừa dài quá bề ngang cột, vừa bắt người đọc tự quy đổi giữa hai thang trên
-   * cùng một hình. Bảng số dưới `<details>` KHÔNG đi qua đây: nó vẫn đọc `valueLabel` đầy đủ, vì đó
+   * cùng một hình. Bảng số ẩn của `ChartFrame` KHÔNG đi qua đây: nó vẫn đọc `valueLabel` đầy đủ, vì đó
    * là chỗ tra con số chính xác.
    */
   const bars = rawBars.map((bar) => {
@@ -730,6 +739,157 @@ function buildColumnsModel(
     },
     options,
     sweepKey: COLUMNS_KEY,
+  };
+}
+
+/**
+ * Thay `{n}` trong một nhãn bằng số đang nhập ở ô `periodKey` — 'SMA {n} phiên' thành 'SMA 10 phiên'.
+ * Ô trống hay chưa hợp lệ thì giữ chữ 'n': không bao giờ ghép 'NaN phiên' vào nhãn (FR-06 áp cho cả
+ * chữ), cùng lẽ với `overlayPrimaryLabel()`.
+ */
+function dienSoPhien(
+  label: Bilingual,
+  periodKey: string | undefined,
+  inputs: CalcInputs,
+): Bilingual {
+  const raw = periodKey === undefined ? undefined : inputs[periodKey];
+  const n = raw === undefined || !Number.isFinite(raw) || raw < 1 ? 'n' : String(Math.round(raw));
+  return { vi: label.vi.replaceAll('{n}', n), en: label.en.replaceAll('{n}', n) };
+}
+
+/** Mục "các đường thành phần" trong ô "Xem theo" — nhãn theo số phiên đang nhập. */
+function componentsOption(view: ComponentLinesSpec, inputs: CalcInputs): SweepOption {
+  return { key: COMPONENTS_KEY, label: dienSoPhien(view.label, view.periodKey, inputs) };
+}
+
+/** Chữ đầu viết thường khi ghép sau gạch dài — trừ chữ viết tắt ('MACD và…' giữ nguyên). */
+function giuaCau(text: string): string {
+  const [dau, sau] = [...text];
+  if (dau === undefined || sau === undefined || sau !== sau.toLowerCase()) return text;
+  return dau.toLowerCase() + text.slice(dau.length);
+}
+
+/**
+ * Hình CÁC ĐƯỜNG THÀNH PHẦN (26/10/2026) — một `LineChart` trên trục thời gian, mỗi đường một đại
+ * lượng mà `calc` tính ra ở từng phiên (hai SMA của giao cắt, hai EMA của MACD, giá nay và giá n phiên
+ * trước…). Đường đầu là chuỗi chính, các đường sau và (khi khai) giá đóng cửa là chuỗi phụ; mọi đường
+ * cùng một trục, cùng một đơn vị.
+ *
+ * Không dải tô dưới đường chính (`primaryArea: false`): ở hình này không đường nào là "kết quả",
+ * mảng tô dưới một trong hai đường sẽ nói nó quan trọng hơn đường kia. Ô dò in số của MỌI đường ở
+ * phiên đang dò (`hoverAllSeries`), vì thứ cần đọc là khoảng cách giữa chúng. Không có dấu "giá trị
+ * hiện tại": phiên cuối của mọi đường đã là kết quả, một dấu đặt lên một đường là chọn hộ người đọc.
+ */
+function buildComponentsModel(
+  formula: FormulaModule,
+  inputs: CalcInputs,
+  ctx: CalcContext,
+  view: ComponentLinesSpec,
+  name: Bilingual,
+  options: ReadonlyArray<SweepOption>,
+): ChartModel {
+  const duong = componentPoints(formula, inputs, ctx, view);
+  const chinh = duong?.[0];
+  if (duong === null || chinh === undefined) {
+    return { kind: 'unavailable', title: name, warning: CHUA_CO_CHUOI, sweepKey: COMPONENTS_KEY };
+  }
+
+  const gia = view.closePrice === true ? closePriceSeries(ctx) : null;
+  const ext = extentOf([...duong.flat(), ...(gia?.points ?? [])].map((point) => point.y));
+  if (ext === null) {
+    return { kind: 'unavailable', title: name, warning: NOTHING_TO_DRAW, sweepKey: COMPONENTS_KEY };
+  }
+  const { axis: y, scale } = buildAxis(ext[0], ext[1], view.axis, view.unit);
+
+  /* Bản ngắn ở bậc trục cho chữ vẽ trên hình (ô dò) — cùng luật chữ với mọi đường của biểu đồ. */
+  const nganTheoTruc = (points: ReadonlyArray<ChartPoint>): ReadonlyArray<ChartPoint> =>
+    points.map((point) => {
+      const ngan = point.y === null ? undefined : labelAtAxisScale(point.y, scale);
+      return ngan === undefined ? point : { ...point, shortValueLabel: ngan };
+    });
+
+  const ten = view.lines.map((line) => dienSoPhien(line.label, line.periodKey, inputs));
+  const points = nganTheoTruc(chinh);
+  const overlays: ChartSeries[] = [
+    ...duong.slice(1).flatMap((pts, index): ChartSeries[] => {
+      const line = view.lines[index + 1];
+      const label = ten[index + 1];
+      if (line === undefined || label === undefined) return [];
+      return [
+        {
+          key: `thanh-phan-${String(index + 1)}`,
+          label,
+          points: nganTheoTruc(pts),
+          unit: view.unit,
+          tone: line.tone,
+          ...(line.dash === true ? { dash: true } : {}),
+          ...(line.thin === true ? { width: 1.25 } : {}),
+        },
+      ];
+    }),
+    ...(gia === null ? [] : [{ ...gia, points: nganTheoTruc(gia.points) }]),
+  ];
+  const tenChinh = ten[0] ?? view.axis;
+
+  const x: ChartAxis = {
+    title: { vi: 'Ngày', en: 'Date' },
+    domain: [0, Math.max(1, points.length - 1)],
+    ticks: sessionTicks(ctx.bars ?? []),
+  };
+
+  const donVi = unitLabel(view.unit);
+  const table: ChartTable = {
+    columns: [
+      x.title,
+      withUnit(tenChinh, donVi),
+      ...overlays.map((series) => withUnit(series.label, donVi)),
+    ],
+    rows: condensePoints(points).map((point) => {
+      if (point === null) return null;
+      const index = points.indexOf(point);
+      return [
+        { vi: point.label, en: point.label },
+        point.valueLabel,
+        ...overlays.map((series) => series.points[index]?.valueLabel ?? NO_VALUE),
+      ] as const;
+    }),
+  };
+
+  const muc = dienSoPhien(view.label, view.periodKey, inputs);
+  const title: Bilingual = {
+    vi: `${name.vi} — ${giuaCau(muc.vi)}`,
+    en: `${name.en} — ${giuaCau(muc.en)}`,
+  };
+  const dau = points[0];
+  const cuoi = points.length - 1;
+  const cau = (lang: 'vi' | 'en'): string => {
+    const doc = (text: string): string => (lang === 'vi' ? text : labelInEnglish(text));
+    const cuoiCung = [
+      { label: tenChinh, point: points[cuoi] },
+      ...overlays.map((series) => ({ label: series.label, point: series.points[cuoi] })),
+    ]
+      .map(({ label, point }) => `${label[lang]} ${doc(point?.valueLabel ?? NO_VALUE)}`)
+      .join(', ');
+    const phienCuoi = points[cuoi]?.label ?? '';
+    return lang === 'vi'
+      ? `${title.vi}: ${String(points.length)} phiên, từ ${dau?.label ?? ''} tới ${phienCuoi}. Phiên gần nhất: ${cuoiCung}.`
+      : `${title.en}: ${String(points.length)} sessions, from ${dau?.label ?? ''} to ${phienCuoi}. Latest session: ${cuoiCung}.`;
+  };
+
+  return {
+    kind: 'line',
+    title,
+    summary: { vi: cau('vi'), en: cau('en') },
+    x,
+    y,
+    points,
+    primaryLabel: tenChinh,
+    primaryArea: false,
+    hoverAllSeries: true,
+    ...(overlays.length === 0 ? {} : { overlays }),
+    table,
+    sweepKey: COMPONENTS_KEY,
+    options,
   };
 }
 
@@ -1007,6 +1167,8 @@ interface SanSang {
   /** Vì sao `soCot` là `null` — để câu báo của mục cột nói đúng nguyên nhân. */
   loiCot: LoiCot | null;
   thangDoReady: boolean;
+  /** Mục "các đường thành phần" (26/10/2026) có ít nhất một phiên mọi đường ra số. */
+  thanhPhanReady: boolean;
 }
 
 function sanSang(args: ChartArgs): SanSang {
@@ -1042,6 +1204,14 @@ function sanSang(args: ChartArgs): SanSang {
       return 'data' in cot ? { soCot: cot.data, loiCot: null } : { soCot: null, loiCot: cot.loi };
     })(),
     thangDoReady: gaugeReady(spec, output),
+    /*
+     * Các đường thành phần (26/10/2026) — MỘT MỤC của ô chọn, đứng ngay sau các hình theo chuỗi giá,
+     * chỉ có khi chuỗi đã nạp và có phiên mọi đường đều ra số. Hỏi từ phiên cuối lùi về, nên khi kết
+     * quả đang tính được thì chỉ một lần chạy công thức.
+     */
+    thanhPhanReady:
+      spec.componentLines !== undefined &&
+      componentsHavePoint(formula, inputs, ctx, spec.componentLines),
   };
 }
 
@@ -1094,6 +1264,14 @@ function mucOChon(args: ChartArgs, s: SanSang): ReadonlyArray<MucOChon> {
     ...(seriesView === undefined
       ? []
       : [{ option: seriesViewOption(seriesView), veDuoc: () => s.cuaSoChuoi !== null }]),
+    ...(spec.componentLines === undefined
+      ? []
+      : [
+          {
+            option: componentsOption(spec.componentLines, inputs),
+            veDuoc: () => s.thanhPhanReady,
+          },
+        ]),
     ...(coCau === undefined
       ? []
       : [{ option: compositionOption(coCau), veDuoc: () => s.phanCoCau !== null }]),
@@ -1128,6 +1306,7 @@ function dungMoHinh(args: ChartArgs, s: SanSang): ChartModel {
     soCot,
     loiCot,
     thangDoReady,
+    thanhPhanReady,
   } = s;
   const seriesView = spec.seriesView;
   const seriesViewReady = seriesView !== undefined && cuaSoChuoi !== null;
@@ -1138,6 +1317,9 @@ function dungMoHinh(args: ChartArgs, s: SanSang): ChartModel {
     ...(breakdownReady ? [{ key: BREAKDOWN_KEY, label: BREAKDOWN_LABEL }] : []),
     ...(historyReady ? [{ key: HISTORY_KEY, label: HISTORY_LABEL }] : []),
     ...(seriesViewReady ? [seriesViewOption(seriesView)] : []),
+    ...(thanhPhanReady && spec.componentLines !== undefined
+      ? [componentsOption(spec.componentLines, inputs)]
+      : []),
     ...(compositionReady ? [compositionOption(coCau)] : []),
     ...(mucCot === null ? [] : [mucCot]),
     /* Thang đo (23/10/2026) — chỉ khi công thức khai `gauge` và kết quả đã tính được. */
@@ -1186,9 +1368,16 @@ function dungMoHinh(args: ChartArgs, s: SanSang): ChartModel {
   }
 
   if (seriesViewReady && sweepKey === seriesViewOption(seriesView).key) {
+    if (seriesView.kind === 'scatter') {
+      return buildScatterModel(cuaSoChuoi, output, name, options, seriesLabel);
+    }
     return seriesView.kind === 'distribution'
       ? buildDistributionModel(seriesView, cuaSoChuoi, output, name, options, seriesLabel)
       : buildDrawdownModel(seriesView, cuaSoChuoi, name, options, seriesLabel);
+  }
+
+  if (thanhPhanReady && spec.componentLines !== undefined && sweepKey === COMPONENTS_KEY) {
+    return buildComponentsModel(formula, inputs, ctx, spec.componentLines, name, options);
   }
 
   /*
@@ -1216,6 +1405,10 @@ function dungMoHinh(args: ChartArgs, s: SanSang): ChartModel {
     if (khoaXin === GAUGE_KEY && spec.gauge !== undefined) return output.warning ?? NOTHING_TO_DRAW;
     /* Cửa sổ của hình theo chuỗi có khi và chỉ khi `calc` tính được, nên lỗi của kết quả là lý do thật. */
     if (seriesView !== undefined && khoaXin === seriesViewOption(seriesView).key) {
+      return output.warning ?? CHUA_CO_CHUOI;
+    }
+    /* Các đường thành phần đọc chính calc ở từng phiên: lỗi của kết quả là lý do thật, như trên. */
+    if (khoaXin === COMPONENTS_KEY && spec.componentLines !== undefined) {
       return output.warning ?? CHUA_CO_CHUOI;
     }
     /*

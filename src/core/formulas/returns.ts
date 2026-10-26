@@ -12,7 +12,7 @@ import { fail, ok } from '../calc-output';
 import type { FormulaModule } from '../calc/types';
 import type { Cashflow } from '../cashflow-series';
 import type { CalcWarning } from '../types';
-import { divideByZero, incompleteInput, meaningless } from '../warnings';
+import { divideByZero, meaningless } from '../warnings';
 import { SOURCE_CFA, numberVar, sliderVar } from './shared';
 
 /*
@@ -859,8 +859,8 @@ export const XIRR: FormulaModule = {
       {
         latex: '365',
         meaning: {
-          vi: 'số ngày một năm, để quy số ngày ra năm',
-          en: 'days in a year, turning days into years',
+          vi: 'số ngày một năm',
+          en: 'days in a year',
         },
       },
     ],
@@ -963,12 +963,16 @@ export const XIRR: FormulaModule = {
      * `INCOMPLETE_INPUT`, không phải `MISSING_SERIES`: XIRR không đọc `ctx.series`/`ctx.bars`
      * nên không được rơi vào nhóm "cần chuỗi giá" mà `needsPriceSeries()` dò bằng chính mã cảnh
      * báo này — dò trúng sẽ bật nhầm nút "Dán chuỗi giá" (dành cho `ctx.series`) trên trang.
+     *
+     * Câu viết thẳng, không qua `incompleteInput()` (26/10/2026). Hàm ấy dựng "Còn thiếu: <nhãn ô>.",
+     * và "ít nhất 2 dòng tiền" không phải nhãn ô nào: thẻ lỗi in ra "Còn thiếu: ít nhất 2 dòng
+     * tiền.", chủ dự án chụp lại và bảo _"chỉ cần text 'Cần tối thiểu 2 dòng tiền'"_.
      */
     if (flows.length < 2) {
-      return fail(
-        unit,
-        incompleteInput([{ vi: 'ít nhất 2 dòng tiền', en: 'at least 2 cash flows' }]),
-      );
+      return fail(unit, {
+        code: 'INCOMPLETE_INPUT',
+        message: { vi: 'Cần tối thiểu 2 dòng tiền', en: 'At least 2 cash flows are needed' },
+      });
     }
 
     const rate = xirr(flows, { guess: XIRR_DIEM_XUAT_PHAT });

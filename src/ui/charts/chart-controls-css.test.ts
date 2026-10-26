@@ -122,8 +122,10 @@ describe('hàng điều khiển biểu đồ dưới 1024px: nhãn trái, ô ch�
 /*
  * Khoảng trống quanh biểu đồ ở khổ điện thoại (19/10/2026, chủ dự án: _"giảm padding xung quanh … để
  * hiển thị nhiều không gian chart hơn"_). Lề TRONG SVG có ca riêng ở `charts.test.tsx`; ở đây là phần
- * CSS, thứ test React không chạy: khung vẽ tràn vào đệm thẻ, và hàng "Xem số liệu" thấp đi mà vùng chạm
- * vẫn đủ 44px (NFR-USA-01). Lớp phủ chạm mất đi thì hàng 28px là một đích bấm quá nhỏ, không ai thấy.
+ * CSS, thứ test React không chạy: khung vẽ tràn vào đệm thẻ.
+ *
+ * Ca "Xem số liệu thấp 28px mà lớp phủ vẫn giữ vùng chạm 44px" đã ĐẢO ngày 26/10/2026: chủ dự án gỡ cả
+ * dòng ấy ở mọi biểu đồ (docblock `ChartFrame.tsx`), nên ca giờ ghim rằng các lớp của nó không quay lại.
  */
 describe('biểu đồ dưới 1024px: vùng vẽ rộng hơn, đáy thẻ gọn hơn', () => {
   it('khung vẽ tràn vào đệm thẻ 8px mỗi bên, căn giữa', () => {
@@ -133,14 +135,12 @@ describe('biểu đồ dưới 1024px: vùng vẽ rộng hơn, đáy thẻ gọn
     expect(luat(BIEU_DO, '.chart')).toMatch(/padding-bottom:\s*var\(--space-2\);/);
   });
 
-  it('"Xem số liệu" thấp 28px mà lớp phủ vẫn giữ vùng chạm 44px', () => {
-    const hang = luat(BIEU_DO, '.summary');
-    expect(soPx(hang, /min-height:\s*(\d+)px;/)).toBe(28);
-    expect(hang).toMatch(/position:\s*relative;/);
-
-    const phu = luat(BIEU_DO, '.summary::after');
-    expect(phu).toMatch(/height:\s*var\(--tap-min\);/);
-    expect(phu).toMatch(/position:\s*absolute;/);
+  it('không còn luật nào cho dòng "Xem số liệu" và bảng mở ra dưới nó', () => {
+    const toanBo = docCss('chart.module.css');
+    for (const lop of ['.data', '.summary', '.tableScroll', '.table', '.gapRow', '.currentRow']) {
+      const thoat = lop.replace(/\./g, '\\.');
+      expect(toanBo, lop).not.toMatch(new RegExp(`${thoat}(?![\\w-])`));
+    }
   });
 });
 

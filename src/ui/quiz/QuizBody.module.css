@@ -32,8 +32,8 @@
 /*
  * Hàng tiêu đề — chủ dự án 24/09/2026.
  *
- * Nghỉ:      BÀI TẬP                                     Bắt đầu kiểm tra »
- * Đang làm:  BÀI TẬP  Câu 2 / 5  ▬▬ ▭ ▭ ▭ ▭                            Thoát
+ * Thẻ trên trang:      BÀI TẬP                                     Bắt đầu kiểm tra »
+ * Popup (26/10/2026):  Bài tập  Câu 2 / 5  ▬▬ ▭ ▭ ▭ ▭                                  ×
  *
  * KHÔNG `space-between`. Trên khung 1600px nó ném cụm tiến độ ra tận mép phải, cách nhãn gần cả
  * bề ngang trang, và người đọc không còn ghép được hai thứ ấy làm một. Nhãn nói khối là gì, cụm
@@ -43,8 +43,9 @@
  * Hàng nghỉ từng có số câu cạnh nhãn ("4 câu", lớp `.count`); bỏ ngày 29/09/2026 theo chủ dự án:
  * "không cần hiển thị số câu ở ngoài".
  *
- * `min-height` bằng chiều cao nút: hàng luôn có đúng MỘT nút bên phải — "Bắt đầu kiểm tra" lúc
- * nghỉ, "Thoát" lúc đang làm — nên hàng không nảy khi đổi trạng thái.
+ * `min-height` bằng chiều cao nút "Bắt đầu kiểm tra". Từ 26/10/2026 bài làm mở trong popup riêng,
+ * nên hàng này không còn đổi trạng thái: vị trí trong bài, thanh tiến độ và điểm nằm trên hàng tiêu
+ * đề của popup (`.step`, `.bars`, `.scoreLine` dưới đây), nút "Thoát" thành nút X của popup.
  */
 .head {
   display: flex;
@@ -114,13 +115,16 @@
  * khung 1600px: đo được 1.100px cho năm vạch, và ở bề ngang ấy nó thôi đọc ra là thanh tiến độ mà
  * thành một đường kẻ ngang chia đôi trang. 14rem là bề ngang trong ảnh chủ dự án gửi kèm.
  *
- * `flex-shrink` vẫn mở: ở khổ điện thoại hàng này còn phải chứa nhãn khối, vị trí câu và nút
- * Thoát, nên thanh phải co được. Chỗ trống dôi ra nằm GIỮA thanh và nút Thoát, đúng chỗ nó nên
- * nằm — nút Thoát bám mép phải là việc của `.exit`.
+ * Từ 26/10/2026 thanh nằm trên hàng tiêu đề của popup, hàng ấy TỰ XUỐNG DÒNG khi chật. Gốc
+ * `14rem` thì ở 390px thanh rớt hẳn xuống dòng thứ hai (đo: "Bài tập" 53px + "Câu 1 / 5" 51px +
+ * 224px không vừa 259px), nên gốc là 0 và thanh lớn lên tới trần 14rem: rộng rãi thì đúng 14rem
+ * như trước, chật thì co lại ngay trên hàng. Sàn 3rem để năm vạch vẫn đọc ra là năm vạch.
  */
 .bars {
   display: flex;
-  flex: 0 1 14rem;
+  flex: 1 1 0;
+  min-width: 3rem;
+  max-width: 14rem;
   gap: var(--space-1);
 }
 
@@ -140,16 +144,47 @@
 }
 
 /*
- * Nút bên phải hàng tiêu đề: "Bắt đầu kiểm tra »" lúc nghỉ, "Thoát" lúc đang làm (WF-19 · S2).
+ * Nút "Bắt đầu kiểm tra »" bên phải hàng tiêu đề của thẻ. Nút "Thoát" từng dùng chung lớp này, đứng
+ * đúng chỗ ấy lúc đang làm bài; nó đi cùng việc chuyển bài làm vào popup (26/10/2026) — nút X của
+ * popup làm việc của nó.
  *
- * MỘT lớp cho cả hai chứ không phải hai lớp giống hệt nhau: chúng chiếm cùng một chỗ, và chính
- * việc chúng chiếm cùng một chỗ là thứ giữ cho hàng không nảy lúc đổi trạng thái.
- *
- * `margin-left: auto` chứ không dựa vào thanh tiến độ đẩy hộ: lúc nghỉ và ở bài 1–2 câu thì
- * không có thanh nào cả, nút sẽ dính luôn vào số đếm nếu thiếu.
+ * `margin-left: auto` để nút tự dạt mép phải; hàng không dùng `space-between` (docblock `.head`).
  */
 .headAction {
   margin-left: auto;
+}
+
+/*
+ * ── Popup bài làm (26/10/2026) ──────────────────────────────────────────────────────────────────
+ *
+ * Chủ dự án: _"điều chỉnh phần bài tập của công thức thành dạng popup riêng"_, chọn hộp thoại nổi
+ * giữa màn ở mọi khổ. Vỏ là `BottomSheet placement="center"`; ở đây chỉ nới cỡ của nó.
+ *
+ * - Rộng 960px từ khổ máy tính, thay cho 720px của các hộp thoại khác: đây là chỗ đọc một công thức
+ *   có ô điền số và lời giải năm dòng, không phải một form vài ô. 960 cũng là bề ngang để lưới hai
+ *   cột của câu trắc nghiệm (`data-hai-cot='1024'`, đáp án dài nhất ≤ 55 ký tự) vẫn đủ một dòng mỗi ô
+ *   — xem bảng đo ở `khoHaiCot()`. Ở khổ hẹp giữ `92vw` của primitive.
+ * - Cao tới 88dvh thay cho trần 600px: câu đã chấm kèm lời giải thường dài hơn 600px, và một khung
+ *   cuộn thấp trong một màn còn thừa chỗ là bắt người dùng cuộn hai tầng.
+ *
+ * `dialog.dialog` (một lớp + một thẻ) thắng `.sheetCenter` và khối khổ web `.sheet` của primitive
+ * bất kể thứ tự nạp; `dialog.dialog > div` thắng `.panelCenter` / `.panel` cũng vậy.
+ */
+dialog.dialog {
+  width: min(960px, 92vw);
+  max-width: min(960px, 92vw);
+  max-height: 88dvh;
+}
+
+dialog.dialog > div {
+  max-height: 88dvh;
+}
+
+/* Nội dung thân popup: dải câu đã làm, thẻ câu đang hỏi, hoặc thẻ tổng kết — một cột, khe 12px. */
+.dialogBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
 }
 
 /*
@@ -221,22 +256,16 @@
 }
 
 /*
- * HAI bậc, không một. `data-hai-cot` mang tên khổ màn NHỎ NHẤT mà bốn đáp án còn nằm gọn một
- * dòng trong nửa bề ngang thẻ — `khoHaiCot()` ở `QuizQuestion.tsx` giữ bảng đo.
+ * `data-hai-cot` mang tên khổ màn NHỎ NHẤT mà bốn đáp án còn nằm gọn một dòng trong nửa bề ngang
+ * — `khoHaiCot()` ở `QuizQuestion.tsx` giữ bảng đo.
  *
- * Câu `'1024'` phải hai cột ở MỌI khổ từ 1024 trở lên, nên nó có mặt trong cả hai bộ chọn. Gộp
- * hai bậc làm một là mất đúng khoảng giữa: đáp án 60 ký tự rơi thẳng về một cột ngay cả khi màn
- * còn thừa gần một nửa chỗ.
+ * MỘT bậc từ 26/10/2026. Hồi bài làm trải hết khung trang có thêm bậc `'1280'` (đáp án tới 78 ký tự
+ * hai cột từ khổ 1280). Trong popup 960px, nửa bề ngang chỉ còn ~363px chữ ở mọi khổ từ 1280, tức
+ * khoảng 57 ký tự: đo trên Chrome, đáp án 60 và 62 ký tự của `bien-an-toan` vỡ hai dòng. Nên những
+ * câu ấy về một cột.
  */
 @media (min-width: 1024px) {
   .choiceGrid[data-hai-cot='1024'] {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (min-width: 1280px) {
-  .choiceGrid[data-hai-cot='1024'],
-  .choiceGrid[data-hai-cot='1280'] {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
@@ -801,7 +830,7 @@
    * chữ, cộng đệm ngang 12px của chính nút ở mép phải. Nên lượt hai:
    *
    *   - Đệm thẻ 8px trên dưới, 12px hai bên.
-   *   - Nút ở hàng tiêu đề ("Bắt đầu kiểm tra", "Thoát") cao 28px, và hàng theo nó (`min-height`
+   *   - Nút ở hàng tiêu đề ("Bắt đầu kiểm tra"; "Thoát" từng đứng cùng ô) cao 28px, và hàng theo nó (`min-height`
    *     của `.head` là chiều cao nút, xem docblock ở trên). Vùng chạm vẫn 44px nhờ `::after` của
    *     `.sm`, thò 8px mỗi phía — vừa đúng đệm thẻ, không ra ngoài khung.
    *   - Đệm ngang của nút 12 → 8px, lề phải âm 4px.
@@ -826,8 +855,8 @@
   /*
    * Nét chữ THƯỜNG (20/10/2026, chủ dự án: _"chuyển đổi text 'Bắt đầu kiểm tra' bản mobile không cần in
    * đậm"_). Nút mang `--weight-medium` của primitive, mà Segoe UI không có nét 500 nên Chrome trên
-   * Windows vẽ bằng nét 600 — đọc ra đậm. "Thoát" đứng đúng ô ấy lúc đang làm bài nên theo cùng, kẻo
-   * hàng tiêu đề đổi nét chữ giữa hai trạng thái.
+   * Windows vẽ bằng nét 600 — đọc ra đậm. ("Thoát" từng đứng đúng ô ấy lúc đang làm bài và theo cùng;
+   * nó đã thành nút X của popup Bài tập, 26/10/2026.)
    *
    * Ngay sau đó: _"giảm 1 size text đó luôn"_ — 14 → 12px (`--text-xs`), một bậc thang chữ, bằng cỡ
    * nhãn "BÀI TẬP" cùng hàng. Mũi tên "»" tính theo `em` nên nhỏ theo.

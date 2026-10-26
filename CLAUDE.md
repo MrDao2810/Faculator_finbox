@@ -1381,7 +1381,7 @@ content. The "lấy số ở đâu" sentence of `lots` was in the same state unt
 
 `ChartModel` was a three-way union: `line` (sensitivity sweep or time axis), `waterfall`
 (breakdown), and `unavailable`; it now also has `histogram` (21/10/2026), `columns` and `gauge`
-(23/10/2026, see the last two bullets of the chart-forms list below). `ChartFrame` and `ChartFullscreen`
+(23/10/2026) and `scatter` (26/10/2026), see the chart-forms list below. `ChartFrame` and `ChartFullscreen`
 take `DrawableChart` — the union minus `unavailable` — so a new kind only needs a branch in `ChartBody`
 and `ChartFullscreen` (the compiler lists every other place that switches on `kind`).
 
@@ -1399,6 +1399,17 @@ the "?" popover is the only on-screen text about the chart. A source scan in `ch
 `pick(model.summary)` to sit on a `visually-hidden` element and forbids the two old CSS classes, because the
 fullscreen overlay is switched off (`PHONG_TO_BAT`) and no rendering test can reach it. `model.note` (the
 `role="note"` line under the plot) is a different thing and was not touched.
+
+**The "Xem số liệu (N)" row and the data table it opened are not shown on screen either, on any chart**
+(26/10/2026). The owner first had it removed under the gauge (_"bỏ phần giải thích số liệu như trong ảnh đi"_),
+then everywhere: _"toàn bộ phần biểu đồ của công thức đang có cái này … xóa bỏ toàn bộ, không cần chức năng xem
+này nữa"_. Same split as the summary: the `<details>` is gone, the TABLE stays in the DOM for screen readers inside
+a `<div class="visually-hidden">` at the end of `ChartFrame`. The wrapper is load-bearing: a table does not shrink
+below its content, so `visually-hidden` on the `<table>` itself left an absolute box up to 385px wide that widens a
+360px page; the 1px `overflow: hidden` div clips it. No scroll region, `tabIndex` or `role="group"` any more (an
+invisible Tab stop), no current-row highlight. `chart.showData` is gone (tombstone in `vi.ts`), as are `.data`,
+`.summary`, `.tableScroll`, `.table`, `.gapRow`, `.currentRow` in `chart.module.css` (`chart-controls-css.test.ts`
+pins their absence). Tests still read the table through `getByRole('table')`. Do not rebuild the row without asking.
 
 **On a chart, money and counts from 1.000 up are ALWAYS written in words** (15/10/2026, two rounds). The owner
 photographed `gia-hoa-von`'s hover trace on the Giá mua axis, `60.277,25 ₫ · 60,5 nghìn ₫`: _"bên trái là số mà bên
@@ -1511,14 +1522,23 @@ at all):
   Text widths come from `textWidth()` × 1,08 (regular) / × 1,1 (bold), measured in Chrome: without
   it "Thuế chuyển nhượng" lost 3 units at the right edge on a phone. Swept the 6 donuts at 360, 390, 800 and
   1440, both palettes: nothing outside the viewBox, no two legend texts overlapping. **Hovering (mouse) or
-  tapping a slice or its legend row opens a popup** with that slice's name, value and share, and dims the
-  other slices (`.donutSliceMo`) — owner, same day. Mouse: shown while the pointer is on it. Touch/click:
+  tapping a slice or its legend row opens a popup** with that slice's name and value, and dims the
+  other slices (`.donutSliceMo`) — owner, same day. Name and value ONLY since 26/10/2026 (owner: _"bỏ chiếm bao
+  nhiêu % đi, bỏ cả ký hiệu màu nữa. vì bên ngoài có chú thích rồi"_): the swatch and the "chiếm …" line live in
+  the legend beside the ring. Mouse: shown while the pointer is on it. Touch/click:
   stays until the same slice is tapped again, a tap outside the frame, or Esc. The popup is HTML OUTSIDE the
   `<svg>` (so PDF/PNG exports never carry it) and `aria-hidden` (the hidden line and the data table already
-  give the numbers). It is placed by MEASURING after the interaction (`useLayoutEffect`): anchored on the
-  ring's outer edge at the slice's mid-angle and pushed outward along that angle, clamped inside the frame;
-  when the outward side has no room (a left slice on a phone) it moves above/below the hole's text instead
-  of covering the total. The value uses the word form, like every hover trace on a chart.
+  give the numbers). It is placed by MEASURING after the interaction (`useLayoutEffect`), through the pure
+  `datPopup()` in `donut-popup.ts` (26/10/2026, owner, on a 10 % slice at the top of "Cơ cấu số tiền chấp nhận
+  mất": _"popup bật lên bị đè lên chuột gây lỗi"_ — the outward spot had no room above the ring, and the clamp
+  pushed the popup back onto the slice and the cursor). It scores candidate spots and takes the cheapest: the
+  ring's outer edge at the slice's mid-angle pushed outward (first, so a slice that placed well before does
+  not move), the four sides of the slice, four corners around the pointer, above/below the hole's text.
+  Penalties: covering the pointer 1000, covering the hovered slice (share of its sample points) or the hovered
+  legend row 300, the hole's text 30, 0.1 per px of clamp. The pointer is recorded on enter, click and move; a
+  move re-places the popup only when the cursor slides under it (the popup is `pointer-events: none`), never on
+  every pixel. `donut-popup.test.ts` rebuilds the reported geometry. Not checked in `check:chrome`. The value
+  uses the word form, like every hover trace on a chart.
 - **Nến** (second round, same day): the session candles drawn UNDER the result line, on the time axis of the
   five formulas declaring `spec.priceLevel` (`sma-n-phien`, `ema-n-phien`, both `dai-bollinger-*`, `vwap`),
   and only when EVERY session has a positive open, high, low and close that agree (`sessionCandles()` in
@@ -1534,9 +1554,11 @@ at all):
   (`--color-candle-up`, now in the `.print-region` copy, and `--color-danger`); candles are four `<path>`s,
   not three nodes per session, because exports copy the SVG; the screen-reader summary gains a sentence.
 - **"Phân phối lợi suất" and "Đường sụt giảm"** (third round, same day) are not forms but two ENTRIES of the
-  "Xem theo" select, right after "Thời gian", for the 15 formulas declaring `spec.seriesView`
-  (`src/core/chart/series-view.ts`): 11 read a return distribution (VaR, CVaR, the four deviation/CV
-  formulas, Sharpe, Sortino, Treynor, information ratio, win/loss) and get a `HistogramChart` — the
+  "Xem theo" select, right after "Thời gian", for the formulas declaring `spec.seriesView` (17 since
+  26/10/2026, Beta's scatter included, see below) (`src/core/chart/series-view.ts`): 12 read a return
+  distribution (VaR, CVaR, the four deviation/CV formulas, Sharpe, Sortino, Treynor, information ratio,
+  win/loss, and since 26/10/2026 `do-bien-dong-lich-su`, the one that bins LOG returns through
+  `seriesView.logReturns` and the shared `logReturns()` its `calc` now calls) and get a `HistogramChart` — the
   fourth `ChartModel` kind, returns per session binned on a nice step with 0 always an edge, a dashed
   marker at the window's mean and, for VaR/CVaR, at −result (`resultIsLoss`); one form only, so no
   "Loại biểu đồ" select. 4 read the drawdown curve (both `sut-giam-*`, `chuoi-phien-giam-dai-nhat`,
@@ -1640,11 +1662,38 @@ at all):
   the zone legend is centred rows under the ring; from 768px it is a column on the right (name, then range, the
   active zone bold), because a ring alone in the middle of a wide frame left the two empty bands the owner
   rejected on the donut. One form only (`DangVe` gained `'gauge'`, "Thang đo"), so no "Loại biểu đồ" select.
+- **Every declared `chartType` now has a drawing** (26/10/2026, owner: _"tiếp tục phương án làm các biểu đồ còn
+  lại"_). Eight formulas still declared a kind the screen never drew: `beta` (`scatter`), `do-bien-dong-lich-su`
+  (`histogram`, it went into the distribution entry above) and six tagged `candlestick` that are not a price level.
+  All three new things are ENTRIES of "Xem theo" that exist only with a loaded series, never the opening chart, with
+  no guide text (`laHinhChuoiGia()` covers their keys, so `hinhChuoi` silences the "?").
+- **"Phân tán lợi suất" — kind `scatter`, entry `SCATTER_KEY`, `seriesView.kind: 'scatter'`, Beta only**: one dot
+  per session of exactly the window `calc` regresses (the same `sessions` field, floored at `MIN_SESSIONS`, and
+  enough VN-Index sessions too: `seriesWindow()` also cuts `ctx.marketSeries`, so no market series means no entry,
+  as `calc` says MISSING_SERIES). The regression line's slope IS `output.value`, not recomputed, and it runs through
+  the mean point; a failed result (flat VN-Index) draws the dots with no line. Both axes contain 0, so the two zero
+  rules split the four quadrants. Legend inside the `<svg>`; hovering snaps to the nearest dot within 16 units and
+  shows date, VN-Index return, stock return. One form (`'dots'`), no "Loại biểu đồ". `series-view.test.ts` recomputes
+  every pair and the least-squares slope independently; `giu-lua-chon.test.ts` and `dang-ve.test.ts` now carry the
+  real VN-Index in their context, as the screen always does, which is why their counts moved.
+- **"Các đường thành phần" — entry `COMPONENTS_KEY`, `spec.componentLines`** (six formulas): the quantities whose
+  GAP is the result, drawn per session on one axis as an ordinary `LineChart` — SMA short/long + close
+  (`giao-cat-hai-duong-ma`), EMA fast/slow + close (`macd-duong-chinh`), MACD and its signal (`macd-duong-tin-hieu`),
+  close and the close n sessions earlier (`dong-luong-momentum`), the rolling highest/lowest close + close
+  (`bien-do-dao-dong-lon-nhat`), true range under ATR (`atr-dao-dong-thuc`, whose `calc` now also returns `tr`). Each
+  line is an `extras` key (or the result itself when `key` is absent) read from `calc` run on the series cut at each
+  session — `ketQuaPhien()` in `history.ts`, the same cut the time chart uses, so the two never disagree. Labels fill
+  `{n}` from the period field. The model sets `primaryArea: false` (no band under one of two peers) and
+  `hoverAllSeries` (the hover shows the date, then one "name: value" line per series, plus a dot on each), and marks
+  no "current value". One form (`'line'`): Điểm/Bậc thang only change the primary line. `thanh-phan.test.ts`
+  recomputes every line at every session from the definition (SMA, EMA seeded with the mean of the first n, MACD's
+  signal, momentum, rolling max/min, TR). Known and NOT from this round: on every time axis the lowest value label
+  touches the first date label, and at 390px the axis title's Vietnamese accents touch the frame's top edge.
 
 Measured over the Registry (`dang-ve.test.ts` pins it): with no series, 257 drawable charts — Đường/Cột/Điểm
 211 (Cột 224 with the 13 column charts that need no series), Bậc thang 23, Lãi/lỗ 27, Vành khuyên 27 (5
-breakdowns and 22 compositions); with FPT's 250 sessions 374 charts (Cột 337), Bậc thang 102 and Lãi/lỗ 46, Nến 5,
-Thang đo 3. The first form of every chart is the old default (a composition opens as Vành khuyên), so nothing changes until the user picks. The "?" popover
+breakdowns and 22 compositions); with FPT's 250 sessions and the real VN-Index 384 charts (Đường 321, Cột 340, Điểm
+316), Bậc thang 104 and Lãi/lỗ 46, Nến 5, Thang đo 3. The first form of every chart is the old default (a composition opens as Vành khuyên), so nothing changes until the user picks. The "?" popover
 is told `dang: 'duong'` for Nến, Điểm, Bậc thang and Lãi/lỗ (same points, same axes) and keeps the one
 breakdown paragraph for the donut. **Below 1024px the control row is ONE 36px line, label left, selects right**
 (23/10/2026, owner circling the full-width "Xem theo" select under its label on a phone: _"đưa lên cùng hàng nằm bên
@@ -1866,7 +1915,21 @@ or tapping a symbol in the KaTeX picture, its phrase in the expression line, or 
 floating panel with 1–3 steps (a small KaTeX picture plus an expression-style line) and, when the
 library has one, a link to that quantity's own formula. The same symbol lights up in all three places.
 The owner scoped it to **quantities that must be computed**. 112 panels across 61 formulas; 50 formulas
-have none, and each records why in `whyNone`. Things that are easy to break:
+have none, and each records why in `whyNone`.
+
+**Since 26/10/2026 EVERY symbol in the picture opens a panel**, not just those 112 (owner: _"hiện tại
+đang chỉ chú thích những ký hiệu khó hiểu, tôi muốn ký hiệu nào cũng cần giải thích"_). A symbol with no
+steps (a raw input like `P`) opens the title-only panel the quiz picture has opened since 25/09/2026 —
+its "ký hiệu: nghĩa" legend row, `data-title-only`, `aria-label` = the bare meaning. `buildNotationView()`
+marks every legend row it can place (560 of 568; the 8 misses sit inside a longer name, `D` in `D/E`,
+so hovering there opens the longer name's panel), so `latexHtml` is now the ONE picture: the second
+marking `latexHtmlAllSymbols` and the `needsFormulaPicture` flag that decided when to build it are gone,
+and the quiz and example pictures read `latexHtml`. Two things were deliberately left as they were:
+**the legend row of a step-less symbol stays plain text, not a button** (its panel would repeat the row
+it pops out of and cover the rows below), so a keyboard user does not open those panels, and loses
+nothing; and **the expression line has phrases only for the 112** (`phrases` live in the how-to data,
+and a step-less symbol has none). A case in `FormulaNotationCard.test.tsx` clicks every marked symbol
+of all 111 pictures. Things that are easy to break:
 
 - **The content lives in `src/core/how-to/`, NOT in `FormulaSpec`**, and only `page.tsx` reads it (via
   the build-only sub-path `@/application/how-to`, never the barrel). `FormulaDetail` imports the whole
@@ -2407,6 +2470,39 @@ that computes from plain inputs — see the two notes below. The wireframes and 
 in `docs/wf19/` — the repo's first `docs/` directory and its first binary outside `public/`, both
 deliberate and explained in that folder's README.
 
+**The quiz runs in its OWN POPUP since 26/10/2026** (owner: _"điều chỉnh phần bài tập của công thức
+thành dạng popup riêng"_). Asked, the owner chose three things: a dialog centred at EVERY width
+(`BottomSheet placement="center"`, like the save and preset sheets); closing it mid-quiz (X, Esc, a tap
+outside) IS the old "Thoát" — progress dropped, nothing written; and the "BÀI TẬP … Bắt đầu kiểm tra »"
+card stays on the page as the entry. So the card on the page is that one row in every phase; questions,
+the answered-questions strip and the summary live in the dialog, and "Câu 2 / 5" + the bars, or the
+summary's "KẾT QUẢ KIỂM TRA 2 / 5", sit on the dialog's title row through the new `titleAside` prop of
+`BottomSheet`. `quiz.exit` is gone (tombstone in `vi.ts`); tests close with `{ name: t('sheet.close') }`.
+Five things are easy to break:
+
+- **The dialog mounts only after the first start, then stays mounted** (`daGanPopup`). `BottomSheet`
+  calls `useId()`, which mismatches on hydrate behind the `next/dynamic` boundary, so it must never be in
+  the static HTML; it stays mounted after that because `dialog.close()` is what returns focus to the start
+  button. Content renders only while `phase !== 'idle'`.
+- **960px wide from 1024px (`92vw` below), up to 88dvh tall** (`dialog.dialog` in `QuizBody.module.css`,
+  one class plus an element so it beats `.sheetCenter` / `.panelCenter` in any load order). Its height
+  follows the content, so the centred dialog moves when an explanation opens; not changed.
+- **The two-column answer grid lost its `'1280'` tier.** Measured in Chrome: half the dialog is 354px of
+  text at 1024 and 363px from ~1044px, enough for the 55-character tier and not for 78 (`bien-an-toan`'s
+  60- and 62-character answers broke onto two lines at 1280 and 1440). `khoHaiCot()` returns `'1024' | '0'`.
+- **The how-to panel is clamped to the dialog's scrolling body** (`clipToDialog()` in
+  `use-panel-placement.ts`, only inside a `<dialog>`, edges from `clientWidth` so the body's scrollbar is
+  excluded), and gets a `maxWidth` when the body is narrower than its 22rem (313px at 360). Without it the
+  panel ran past the body, was clipped and gave the body a sideways scrollbar.
+- **Esc with a how-to panel open closes the PANEL only**: `use-how-to-panel.ts` cancels the keydown inside a
+  `<dialog>`, or the same key closes the dialog and wipes the quiz. Measured in Chrome at 360–1440.
+
+Moving to the next question scrolls the dialog body so the new question's top is visible, only when it was
+hidden above (`khungCuon()` finds the scroller by `overflow`, since the primitive's class name is hashed).
+The header-row notes below describe the card before this change; `.scoreLine`, `.step` and `.bars` now live
+on the dialog's title row, and `.bars` is `flex: 1 1 0` capped at 14rem (its 14rem basis dropped it to a
+second line at 390px).
+
 **Every question must come from a real source, and the bank is uneven because the material is.**
 `QuizItem` requires `source.url`; `quiz.test.ts` re-checks it. The floor across the library is now
 **2 questions**: 24 formulas have two, 27 have three, 23 have four, 32 have five and 5 have six.
@@ -2903,15 +2999,13 @@ commentary. Eight things are load-bearing:
   not a copy of it: `useHowToPanel`, `HowToPanel`, the `.card` class (hand cursor, highlight,
   floating panel) and `usePanelPlacement`, which was extracted from `FormulaNotationCard` for the
   purpose. Do not rebuild the fixed legend or a text-only popover.
-- **Every symbol opens a panel here, not just the 112 with steps.** The card can leave most
-  symbols inert because its legend sits beside the picture; this row has no legend. A symbol with
-  no steps (a raw input like `P`) opens a title-only panel — exactly its "ký hiệu: nghĩa" legend
-  row — and its `aria-label` is the bare meaning, since calling it "Cách tính" would be false.
-  That needs a picture with EVERY symbol marked, which is `NotationView.latexHtmlAllSymbols`, a
-  second marking of the same MathML (560 of 568 rows found; the 8 misses are the names
-  `mathml-marks.ts` already lists). It is a separate string rather than extra marks on
-  `latexHtml` because the card gives every `[data-sym]` a hand cursor, and it is built only when
-  `quiz-view.ts`'s `needsFormulaPicture` says the page has a question that prints the picture.
+- **Every symbol opens a panel here, not just the 112 with steps.** A symbol with no steps (a raw
+  input like `P`) opens a title-only panel — exactly its "ký hiệu: nghĩa" legend row — and its
+  `aria-label` is the bare meaning, since calling it "Cách tính" would be false. Until 26/10/2026
+  this needed a second marking of the picture (`latexHtmlAllSymbols`, built only when
+  `needsFormulaPicture` said so), because the card then left step-less symbols inert; since the card
+  opens a panel for every symbol too, both read the one `notation.latexHtml` (560 of 568 rows found;
+  the 8 misses are the names `mathml-marks.ts` already lists).
 - **The picture node is built in `src/app` and handed to `src/ui` as a `ReactNode`**
   (`hinhCongThuc`). The whole panel mechanism lives in `src/app/cong-thuc/[id]/`, which
   `src/ui/quiz` must not import, so `FormulaDetail` builds `<QuizFormulaPicture>` once
@@ -3119,8 +3213,7 @@ the quiz" would otherwise be a promise that drifts. Seven things are load-bearin
 - **No `deferred` class on the block**, for the quiz's reason: `contain: paint` clips the hover panel.
 - **Two formula pictures per page** (example + quiz), each its own `QuizFormulaPicture` with its own
   panel state; the `idPrefix` prop (`vi-du` / default `bai-tap`) keeps two open panels from sharing an
-  `id`. `page.tsx` now builds `latexHtmlAllSymbols` whenever the example has a solution, not only when a
-  quiz question needs it.
+  `id`. Both read `notation.latexHtml`, which marks every symbol since 26/10/2026.
 
 **The "Áp vào công thức" row is DRAWN, not printed** (29/09/2026), in the quiz and the example alike.
 Printed as text, a radical was just "√(76,18 ÷ (54 − 1))" with no bar over it and a power was

@@ -23,6 +23,8 @@ import type { CalcContext, CalcInputs, FormulaModule } from '../calc/types';
 import { NO_VALUE, formatCalcOutput, formatValueWithUnit } from '../format';
 import { displaySeriesDate, parseSeriesDate } from '../price-series';
 import type { SeriesRow } from '../price-series';
+import type { ComponentLinesSpec, ComponentLineSpec } from '../registry/types';
+import type { CalcOutput } from '../types';
 import type { ChartCandle, ChartPoint, ChartSeries } from './types';
 
 /**
@@ -200,6 +202,36 @@ function diemPhien(
     return { x: index, y: null, label: '', valueLabel: '' };
   }
 
+  const out = ketQuaPhien(formula, inputs, ctx, plan, bars, index, bar);
+
+  const point: ChartPoint = {
+    x: index,
+    y: out.value,
+    label: formatSessionDate(bar.date),
+    valueLabel: formatCalcOutput(out),
+  };
+  // Phiên gần nhất LÀ "giá trị hiện tại" của đường thời gian — cùng vai với điểm đang nhập của
+  // đường quét, nên dùng lại đúng cờ ấy và dấu trên hình không phải biết mình đang ở chế độ nào.
+  if (index === last) point.marked = true;
+  if (out.warning !== undefined) point.reason = out.warning.code;
+  return point;
+}
+
+/**
+ * Kết quả ĐẦY ĐỦ của công thức ở phiên thứ `index` — kể cả `extras` — một nguồn cho điểm của đường
+ * thời gian (`diemPhien()`) và cho các đường thành phần (`componentPoints()`, 26/10/2026), để hai
+ * hình không bao giờ cắt chuỗi theo hai cách.
+ */
+function ketQuaPhien(
+  formula: FormulaModule,
+  inputs: CalcInputs,
+  ctx: CalcContext,
+  plan: HistoryPlan,
+  bars: ReadonlyArray<SeriesRow>,
+  index: number,
+  bar: SeriesRow,
+): CalcOutput {
+  const last = bars.length - 1;
   const close = bar.close;
 
   const sessionInputs =
@@ -240,19 +272,73 @@ function diemPhien(
       }
     : ctx;
 
-  const out = runFormula(formula, sessionInputs, sessionCtx);
+  return runFormula(formula, sessionInputs, sessionCtx);
+}
 
-  const point: ChartPoint = {
-    x: index,
-    y: out.value,
-    label: formatSessionDate(bar.date),
-    valueLabel: formatCalcOutput(out),
-  };
-  // Phiên gần nhất LÀ "giá trị hiện tại" của đường thời gian — cùng vai với điểm đang nhập của
-  // đường quét, nên dùng lại đúng cờ ấy và dấu trên hình không phải biết mình đang ở chế độ nào.
-  if (index === last) point.marked = true;
-  if (out.warning !== undefined) point.reason = out.warning.code;
-  return point;
+/*
+ * ── Các đường thành phần (26/10/2026) ─────────────────────────────────────────────────────────
+ */
+
+/** Khoá của mục "các đường thành phần" trong ô "Xem theo" — cùng nếp hai gạch dưới của `HISTORY_KEY`. */
+export const COMPONENTS_KEY = '__components';
+
+/** Số của một đường thành phần trong một kết quả: một khoá `extras`, hoặc chính kết quả. */
+function giaTriDuong(line: ComponentLineSpec, out: CalcOutput): number | null {
+  const value = line.key === undefined ? out.value : out.extras?.[line.key];
+  return value !== undefined && value !== null && Number.isFinite(value) ? value : null;
+}
+
+/**
+ * Có ít nhất MỘT phiên mà mọi đường đều ra số không — điều kiện để mục có mặt trong ô chọn. Thử từ
+ * phiên gần nhất lùi về, như `historyHasPoint()`: phiên cuối là cả chuỗi, nên khi kết quả đang tính
+ * được thì một lần gọi là đủ.
+ */
+export function componentsHavePoint(
+  formula: FormulaModule,
+  inputs: CalcInputs,
+  ctx: CalcContext,
+  view: ComponentLinesSpec,
+): boolean {
+  const plan = historyPlan(formula, ctx.asOf);
+  const bars = sessionsOf(ctx);
+  if (plan === null || bars === null) return false;
+
+  for (let index = bars.length - 1; index >= 0; index -= 1) {
+    const bar = bars[index];
+    if (bar === undefined) continue;
+    const out = ketQuaPhien(formula, inputs, ctx, plan, bars, index, bar);
+    if (view.lines.every((line) => giaTriDuong(line, out) !== null)) return true;
+  }
+  return false;
+}
+
+/**
+ * Điểm của từng đường thành phần, mỗi đường một dãy cùng lưới x với `historyPoints()` (x = chỉ số
+ * phiên) — `null` khi chưa nạp chuỗi. Phiên mà `calc` chưa tính được (chưa đủ phiên cho SMA dài)
+ * thành `y: null`, đường đứt ở đó, không nội suy (FR-06).
+ */
+export function componentPoints(
+  formula: FormulaModule,
+  inputs: CalcInputs,
+  ctx: CalcContext,
+  view: ComponentLinesSpec,
+): ReadonlyArray<ReadonlyArray<ChartPoint>> | null {
+  const plan = historyPlan(formula, ctx.asOf);
+  const bars = sessionsOf(ctx);
+  if (plan === null || bars === null) return null;
+
+  const outs = bars.map((bar, index) => ketQuaPhien(formula, inputs, ctx, plan, bars, index, bar));
+  return view.lines.map((line) =>
+    outs.map((out, index) => {
+      const y = giaTriDuong(line, out);
+      return {
+        x: index,
+        y,
+        label: formatSessionDate(bars[index]?.date ?? ''),
+        valueLabel: y === null ? NO_VALUE : formatValueWithUnit(y, view.unit),
+      };
+    }),
+  );
 }
 
 /**

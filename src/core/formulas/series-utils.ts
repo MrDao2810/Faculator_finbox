@@ -97,6 +97,25 @@ export function simpleReturns(closes: ReadonlyArray<number>): number[] {
 }
 
 /** Trung bình cộng. Mảng rỗng trả NaN — `ok()` sẽ đổi thành fail, không lọt ra màn. */
+/**
+ * Lợi suất LOG từng phiên, `ln(Pₜ / Pₜ₋₁)` — cặp nào có một giá không dương thì bỏ qua.
+ *
+ * Một nguồn cho hai chỗ (26/10/2026): `calc` của `do-bien-dong-lich-su` (trước đó viết tại chỗ) và
+ * hình "Phân phối lợi suất" của chính công thức ấy, để hình chia khoảng đúng dãy số `calc` lấy độ
+ * lệch chuẩn.
+ */
+export function logReturns(closes: ReadonlyArray<number>): number[] {
+  const returns: number[] = [];
+  for (let i = 1; i < closes.length; i += 1) {
+    const previous = closes[i - 1];
+    const current = closes[i];
+    if (previous !== undefined && current !== undefined && previous > 0 && current > 0) {
+      returns.push(Math.log(current / previous));
+    }
+  }
+  return returns;
+}
+
 export function mean(values: ReadonlyArray<number>): number {
   if (values.length === 0) return Number.NaN;
   return values.reduce((sum, value) => sum + value, 0) / values.length;

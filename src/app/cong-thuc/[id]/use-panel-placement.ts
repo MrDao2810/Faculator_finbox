@@ -52,6 +52,42 @@ export function viewportBounds(): Bounds {
   return { top, left: EDGE, right: document.documentElement.clientWidth - EDGE, bottom };
 }
 
+/**
+ * Thu `bounds` vào phần NHÌN THẤY của các khung cắt bao quanh `card`, khi `card` nằm trong một
+ * `<dialog>` — popup Bài tập, từ 26/10/2026.
+ *
+ * Trên trang, khung "cách tính" chỉ cần nằm trong màn. Trong popup thì không đủ: thân popup tự cuộn
+ * (`overflow-y: auto`, kéo theo `overflow-x` cũng thành `auto`) và tấm bo góc cắt mọi thứ tràn ra
+ * (`overflow: hidden`), nên một khung canh theo mép màn sẽ thò ra ngoài mép thân popup, bị cắt mất
+ * phần thò và còn đẻ thêm thanh cuộn ngang cho thân. Kẹp theo từng tổ tiên có `overflow` khác
+ * `visible`, lên tới chính `<dialog>`.
+ *
+ * Chỉ áp trong `<dialog>`: trên trang không có tổ tiên nào cắt khung (khối Bài tập và Ví dụ đã bỏ
+ * `deferred` đúng vì lý do ấy), và giữ nguyên đường cũ là không đụng tới thẻ Công thức.
+ *
+ * Mép đo bằng `clientLeft/clientWidth` chứ không phải `getBoundingClientRect()` trơn — cùng lý do với
+ * `viewportBounds()`: hộp viền tính cả thanh cuộn dọc của thân popup.
+ */
+export function clipToDialog(card: Element, bounds: Bounds): Bounds {
+  if (card.closest('dialog') === null) return bounds;
+
+  let { top, left, right, bottom } = bounds;
+  for (let el = card.parentElement; el !== null; el = el.parentElement) {
+    const style = getComputedStyle(el);
+    if (style.overflowX !== 'visible' || style.overflowY !== 'visible') {
+      const rect = el.getBoundingClientRect();
+      const innerLeft = rect.left + el.clientLeft;
+      const innerTop = rect.top + el.clientTop;
+      top = Math.max(top, innerTop + EDGE);
+      left = Math.max(left, innerLeft + EDGE);
+      right = Math.min(right, innerLeft + el.clientWidth - EDGE);
+      bottom = Math.min(bottom, innerTop + el.clientHeight - EDGE);
+    }
+    if (el.tagName === 'DIALOG') break;
+  }
+  return { top, left, right, bottom };
+}
+
 /** Khối của điểm chạm; cụm chữ xuống dòng thì lấy đúng DÒNG đang có con trỏ. */
 export function anchorBox(anchor: Element, point: { x: number; y: number } | null) {
   const rects = [...anchor.getClientRects()];
@@ -69,6 +105,11 @@ export interface PanelPlacement {
   top: number;
   left: number;
   maxHeight: number | null;
+  /**
+   * Trần bề ngang, chỉ có khi khung rộng hơn chỗ được phép — trong popup ở khổ điện thoại, nơi thân
+   * popup hẹp hơn 22rem của khung (xem `clipToDialog`).
+   */
+  maxWidth?: number;
 }
 
 /**
@@ -111,15 +152,25 @@ export function usePanelPlacement(
       if (card === null || panel === null || anchor === null || !anchor.isConnected) return;
 
       const cardRect = card.getBoundingClientRect();
+      const bounds = clipToDialog(card, viewportBounds());
+      /*
+       * Khung rộng hơn chỗ được phép thì chặn bề ngang TRƯỚC khi đo chiều cao: chữ xuống dòng thêm
+       * thì khung cao lên, và phép đặt trên/dưới phải tính theo chiều cao ấy. Gán thẳng vào DOM ở
+       * đây, rồi `HowToPanel` gán lại đúng số ấy qua `style` ở lượt dựng sau.
+       */
+      const room = Math.floor(bounds.right - bounds.left);
+      const maxWidth = room > 0 && panel.offsetWidth > room ? room : undefined;
+      if (maxWidth !== undefined) panel.style.maxWidth = `${String(maxWidth)}px`;
       const place = placePanel(
         anchorBox(anchor, pointRef.current),
         { width: panel.offsetWidth, height: panel.scrollHeight },
-        viewportBounds(),
+        bounds,
       );
       setPlacement({
         top: place.top - cardRect.top,
         left: place.left - cardRect.left,
         maxHeight: place.maxHeight,
+        ...(maxWidth === undefined ? {} : { maxWidth }),
       });
     };
 

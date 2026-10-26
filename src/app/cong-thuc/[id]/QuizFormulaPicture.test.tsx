@@ -40,7 +40,7 @@ function pointer(type: 'pointerover' | 'pointerout', target: Element, pointerTyp
 
 function dungHinh(id: string) {
   const spec = specOf(id);
-  const notation = buildNotationView(spec, undefined, { allSymbols: true });
+  const notation = buildNotationView(spec);
   const view = render(<QuizFormulaPicture spec={spec} notation={notation} />);
   const goc = view.container.firstElementChild as HTMLElement;
   const symbols = spec.symbols ?? [];

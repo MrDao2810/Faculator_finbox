@@ -46,6 +46,14 @@ function formulaScroller(card: HTMLDivElement): Element | null {
  * nút nghĩa ở bảng. Chỉ nút ở bảng là điểm dừng của phím Tab — người dùng bàn phím mở khung từ
  * bảng ký hiệu; hình và dòng chữ là lối tắt cho chuột và ngón tay.
  *
+ * MỌI ký hiệu trong hình là điểm chạm, không chỉ ký hiệu có bước tính (26/10/2026). Chủ dự án:
+ * _"hiện tại đang chỉ chú thích những ký hiệu khó hiểu, tôi muốn ký hiệu nào cũng cần giải thích"_.
+ * Ký hiệu không có bước tính (số nhập thẳng như thị giá `P`) mở khung chỉ có dòng "ký hiệu: nghĩa",
+ * đúng khung hình trong lời giải Bài tập đã mở từ 25/09/2026. Ở BẢNG thì dòng ấy giữ là chữ thường,
+ * không thành nút: khung của nó chép lại đúng dòng đang đứng đó, bật ra cạnh chính nó chỉ che các
+ * dòng bên dưới. Hệ quả: bàn phím không mở khung chỉ-có-nghĩa, nhưng cũng không mất gì — nghĩa ấy
+ * đọc được ngay ở bảng.
+ *
  * Tô sáng thuần CSS: thẻ mang `data-active="k"` khi khung của `k` đang mở, và 12 selector tĩnh
  * trong `FormulaNotationCard.module.css` tô mọi `[data-sym='k']`. Không ghi gì vào DOM của MathML.
  *
@@ -73,14 +81,16 @@ export const FormulaNotationCard = memo(function FormulaNotationCard({
   const pick = usePick();
   const { locale } = usePreferences();
 
+  const symbols = useMemo(() => spec.symbols ?? [], [spec.symbols]);
   const howToBySym = useMemo(
     () => new Map(notation.howTo.map((howTo) => [howTo.sym, howTo])),
     [notation.howTo],
   );
-  const hasHowTo = useCallback((sym: number) => howToBySym.has(sym), [howToBySym]);
+  /* Mọi dòng bảng đều mở khung — xem "Điểm chạm" ở docblock. */
+  const isSymbol = useCallback((sym: number) => sym >= 0 && sym < symbols.length, [symbols.length]);
 
   const { state, cardRef, panelRef, anchorRef, pointRef, close, handlers } = useHowToPanel(
-    hasHowTo,
+    isSymbol,
     locale,
   );
 
@@ -99,7 +109,6 @@ export const FormulaNotationCard = memo(function FormulaNotationCard({
     formulaScroller,
   );
 
-  const symbols = spec.symbols ?? [];
   const segments =
     locale === 'en' && (spec.expression?.en ?? '').trim() !== ''
       ? notation.expression.en
@@ -109,9 +118,13 @@ export const FormulaNotationCard = memo(function FormulaNotationCard({
   const legendId = `ky-hieu-${spec.id}`;
 
   const panelFor = (sym: number) => {
-    const howTo = howToBySym.get(sym);
     const symbol = symbols[sym];
-    if (howTo === undefined || symbol === undefined) return null;
+    if (symbol === undefined) return null;
+    /*
+     * Ký hiệu không có bước tính: khung chỉ có tiêu đề. `kind` ở đây không ai đọc — `HowToPanel`
+     * dựng theo `steps` và `formula` — nhưng kiểu bắt buộc phải có một giá trị.
+     */
+    const howTo = howToBySym.get(sym) ?? { sym, kind: 'defined' as const, steps: [] };
     return (
       <HowToPanel
         id={panelId(sym)}
@@ -187,7 +200,8 @@ export const FormulaNotationCard = memo(function FormulaNotationCard({
 
         Dòng có khung cách tính: nghĩa bọc trong một `<button>` trông như chữ thường (gạch chấm), và
         khung mở ra ngay trong `<dd>` ấy — thứ tự DOM đặt khung ngay sau nút, nên Tab đi thẳng vào
-        liên kết trong khung.
+        liên kết trong khung. Dòng không có bước tính giữ chữ thường; khung chỉ-có-nghĩa của nó (mở
+        từ hình) cũng dựng trong `<dd>` của nó.
       */}
       {symbols.length > 0 && (
         <div className={styles.legend}>
@@ -201,7 +215,7 @@ export const FormulaNotationCard = memo(function FormulaNotationCard({
             {symbols.map((symbol, index) => {
               const howTo = howToBySym.get(index);
               const meaning = pick(symbol.meaning);
-              const open = howTo !== undefined && state?.sym === index;
+              const open = state?.sym === index;
               return (
                 <Fragment key={symbol.latex}>
                   <dt

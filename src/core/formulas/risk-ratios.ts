@@ -352,6 +352,11 @@ export const BETA: FormulaModule = {
     level: 'advanced',
     tags: ['beta', 'he so beta', 'rui ro he thong', 'capm', 'systematic risk', 'hoi quy'],
     resultUnit: 'lần',
+    /*
+     * Hình "Phân tán lợi suất" (26/10/2026): mỗi phiên một chấm, đúng cửa sổ calc hồi quy — số
+     * phiên cuối của ô (kẹp lên MIN_SESSIONS), đủ ở CẢ chuỗi cổ phiếu lẫn chuỗi VN-Index.
+     */
+    seriesView: { kind: 'scatter', lookbackKey: 'sessions', min: MIN_SESSIONS, fullWindow: true },
     variables: [
       sliderVar(
         'sessions',

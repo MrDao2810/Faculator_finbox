@@ -42,32 +42,33 @@ function viewOf(spec: FormulaSpec): NotationView | Error {
 }
 
 /*
- * Bản hình gắn dấu MỌI ký hiệu — cho dòng Công thức trong khối lời giải của Bài tập (25/09/2026).
- * Đo trên cả thư viện: 560 trên 568 dòng bảng tìm được chỗ (546 trên 554 trước khi 13 cụm chữ như
- * "Tài sản ngắn hạn" có dòng riêng, 16/10/2026; 559 trên 567 trước dòng `100` của thời gian nhân đôi,
- * cùng ngày); 8 dòng còn lại chỉ nằm lọt trong một tên dài hơn
- * (`D` trong `D/E`…), đúng tám dòng docblock `mathml-marks.ts` đã kể.
+ * Hình gắn dấu MỌI ký hiệu, không chỉ ký hiệu có khung cách tính — từ 25/09/2026 ở dòng Công thức
+ * của lời giải Bài tập, từ 26/10/2026 ở cả thẻ Công thức (chủ dự án: _"ký hiệu nào cũng cần giải
+ * thích"_), nên chỉ còn một bản hình. Đo trên cả thư viện: 560 trên 568 dòng bảng tìm được chỗ (546
+ * trên 554 trước khi 13 cụm chữ như "Tài sản ngắn hạn" có dòng riêng, 16/10/2026; 559 trên 567 trước
+ * dòng `100` của thời gian nhân đôi, cùng ngày); 8 dòng còn lại chỉ nằm lọt trong một tên dài hơn
+ * (`D` trong `D/E`…), đúng tám dòng docblock `mathml-marks.ts` đã kể — rê vào đó là mở khung của
+ * tên dài hơn.
  */
-describe('buildNotationView() — bản hình gắn dấu mọi ký hiệu', () => {
-  it('chỉ dựng khi được hỏi: trang không có câu cần nó thì không mang thêm byte', () => {
-    const spec = canKiem[0];
-    if (spec === undefined) throw new Error('không có công thức nào để kiểm');
-    expect(buildNotationView(spec).latexHtmlAllSymbols).toBeUndefined();
-  });
-
-  it('cả 111 công thức dựng được, gỡ dấu ra đúng từng byte hình gốc, và phủ 560 trên 568 dòng', () => {
+describe('buildNotationView() — hình gắn dấu mọi ký hiệu', () => {
+  it('phủ 560 trên 568 dòng bảng, và dấu nào cũng trỏ tới một dòng có thật', () => {
     let tong = 0;
     let coCho = 0;
-    const lech: string[] = [];
+    const sai: string[] = [];
     for (const spec of canKiem) {
-      const html =
-        buildNotationView(spec, undefined, { allSymbols: true }).latexHtmlAllSymbols ?? '';
-      if (unmarkSymbols(html) !== latexToMathml(spec.latex)) lech.push(spec.id);
-      const dau = new Set([...html.matchAll(/data-sym="(\d+)"/g)].map((m) => m[1]));
-      tong += (spec.symbols ?? []).length;
+      const view = viewOf(spec);
+      if (view instanceof Error) continue;
+      const soDong = (spec.symbols ?? []).length;
+      const dau = new Set(
+        [...view.latexHtml.matchAll(/data-sym="(\d+)"/g)].map((m) => Number(m[1])),
+      );
+      for (const sym of dau) {
+        if (!(sym >= 0 && sym < soDong)) sai.push(`${spec.id}: dấu ${String(sym)} ngoài bảng`);
+      }
+      tong += soDong;
       coCho += dau.size;
     }
-    expect(lech).toEqual([]);
+    expect(sai, sai.join('\n')).toEqual([]);
     if (canKiem.length === FORMULAS.length) {
       expect(tong).toBe(568);
       expect(coCho).toBe(560);
@@ -94,19 +95,15 @@ describe('buildNotationView() — thẻ Công thức dựng lúc build', () => {
     expect(lech.map((s) => s.id)).toEqual([]);
   });
 
-  it('mỗi khung có ít nhất một điểm chạm trong hình, và dấu chỉ trỏ tới dòng có khung', () => {
+  it('mỗi khung cách tính có ít nhất một điểm chạm trong hình', () => {
     const sai: string[] = [];
     for (const spec of canKiem) {
       const view = viewOf(spec);
       if (view instanceof Error) continue;
-      const coKhung = new Set(view.howTo.map((h) => h.sym));
-      for (const sym of coKhung) {
+      for (const { sym } of view.howTo) {
         if (!view.latexHtml.includes(`data-sym="${String(sym)}"`)) {
           sai.push(`${spec.id}: dòng ${String(sym)} không có chỗ trong hình`);
         }
-      }
-      for (const m of view.latexHtml.matchAll(/data-sym="(\d+)"/g)) {
-        if (!coKhung.has(Number(m[1]))) sai.push(`${spec.id}: dấu ${m[1] ?? ''} không có khung`);
       }
     }
     expect(sai, sai.join('\n')).toEqual([]);

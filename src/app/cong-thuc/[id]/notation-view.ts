@@ -23,7 +23,6 @@ import type { NotationHowToView, NotationView } from './notation-types';
 export function buildNotationView(
   spec: FormulaSpec,
   howTo: FormulaHowTo | undefined = howToFor(spec.id),
-  options: { allSymbols?: boolean } = {},
 ): NotationView {
   const symbols = spec.symbols ?? [];
   const entries = howTo?.entries ?? [];
@@ -42,7 +41,21 @@ export function buildNotationView(
     index,
     renderings: [latexToMathml(symbol.latex), latexToInlineMathml(symbol.latex)],
   }));
-  const marked = markSymbols(latexToMathml(spec.latex), legend, targets);
+  /*
+   * Gắn dấu MỌI dòng bảng, không chỉ dòng có bước tính (26/10/2026). Chủ dự án: _"hiện tại đang chỉ
+   * chú thích những ký hiệu khó hiểu, tôi muốn ký hiệu nào cũng cần giải thích"_. Ký hiệu không có
+   * bước tính mở khung chỉ có dòng "ký hiệu: nghĩa" — đúng khung hình trong lời giải Bài tập đã mở
+   * từ 25/09/2026, nên hai hình nay cùng một bản gắn dấu.
+   *
+   * Dòng không tìm được chỗ (`D` chỉ nằm trong tên `D/E`…, 8 trên 568 dòng của cả thư viện) thì
+   * lặng lẽ không có điểm chạm — rê vào đó là rê vào tên dài hơn, và khung của tên ấy mở. Dòng CÓ
+   * bước tính mà không tìm được chỗ thì vẫn là lỗi dữ liệu và phải ném, ngay dưới đây.
+   */
+  const marked = markSymbols(
+    latexToMathml(spec.latex),
+    legend,
+    new Set(legend.map((row) => row.index)),
+  );
 
   for (const index of targets) {
     if ((marked.hits.get(index) ?? 0) === 0) {
@@ -95,19 +108,8 @@ export function buildNotationView(
     };
   });
 
-  /*
-   * Mọi dòng bảng làm đích. Dòng không tìm được chỗ (`D` chỉ nằm trong tên `D/E`…, 8 trên 567 dòng
-   * của cả thư viện) thì lặng lẽ không có điểm chạm — khác `targets` ở trên, nơi một khung không
-   * tìm được chỗ là lỗi dữ liệu và phải ném.
-   */
-  const allSymbols =
-    options.allSymbols === true
-      ? markSymbols(latexToMathml(spec.latex), legend, new Set(legend.map((row) => row.index))).html
-      : undefined;
-
   return {
     latexHtml: marked.html,
-    ...(allSymbols === undefined ? {} : { latexHtmlAllSymbols: allSymbols }),
     symbolsHtml: symbols.map((symbol) => latexToInlineMathml(symbol.latex)),
     expression: { vi: expressionOf('vi'), en: expressionOf('en') },
     howTo: howToViews,

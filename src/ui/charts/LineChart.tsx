@@ -43,7 +43,7 @@ import type { ChartSize } from './use-chart-size';
  *    "lần đầu" nào mà phép đo chạy trước khi hai bên so khớp.
  * 3. **Bảng số vẫn là lối đọc CHÍNH — lớp dò điểm không thay nó.** Quyết định gốc "không tooltip"
  *    (42 vùng chạm 44px trên khổ 320 là bất khả thi) vẫn đúng CHO TRÌNH ĐỌC MÀN HÌNH: SVG vẫn
- *    `aria-hidden`, bảng số dưới `<details>` của `ChartFrame` vẫn là nguồn duy nhất họ đọc được —
+ *    `aria-hidden`, bảng số ẩn của `ChartFrame` vẫn là nguồn duy nhất họ đọc được —
  *    điều đó không đổi. Điều đổi: thêm một lớp tương tác cho người có chuột/ngón tay — rê chuột
  *    hoặc chạm-kéo hiện vạch dò SNAP vào đúng điểm dữ liệu gần nhất trong `model.points` (không
  *    nội suy, xem `nearestPointByX`), vẽ bằng `.hover*`, tách hẳn khỏi `.marker*` (dành riêng cho
@@ -145,6 +145,9 @@ const PAD_COMPACT = { right: 6, leftMin: 14, chuThat: 1.1, tho: 3 } as const;
  * kẻo nhãn dài lại tràn ra ngoài khung đúng như cũ.
  */
 const FLOAT_LABEL_SIZE = 11;
+
+/** Nhịp dòng của ô dò nhiều dòng (hình các đường thành phần) — chữ 11px cộng 2 đơn vị hở. */
+const HOVER_LINE_H = 13;
 
 /**
  * Vùng vẽ của khổ `compact` — mốc tĩnh cho `labelYFor()` và cho `CHART_GEOMETRY` mà test đọc.
@@ -700,14 +703,33 @@ export function LineChart({
    * Luật chọn bên giữ nguyên — trái của vạch khi vạch ở nửa phải VÙNG VẼ — nên nhãn nào vốn đã vừa
    * thì không nhúc nhích; `floatingLabel()` chỉ can thiệp đúng lúc chuỗi sắp chạy qua mép khung.
    */
+  /*
+   * Ô dò nhiều dòng (hình các đường thành phần, 26/10/2026): dòng đầu là ngày, rồi mỗi đường một dòng
+   * "tên: số" ở cùng phiên — thứ cần đọc là khoảng cách giữa các đường, mà một số trần của riêng
+   * đường chính không nói được. Mọi chuỗi cùng lưới x với chuỗi chính, nên chỉ số của điểm đang dò
+   * trỏ đúng phiên ở mọi chuỗi.
+   */
+  const hoverIndex = hover === null ? -1 : model.points.indexOf(hover);
+  const moiChuoi = hover !== null && model.hoverAllSeries === true ? seriesOf(model) : [];
+  const dongDo = moiChuoi.map((series) => {
+    const point = series.points[hoverIndex];
+    return `${pick(series.label)}: ${labelText(point?.shortValueLabel ?? point?.valueLabel ?? '')}`;
+  });
   const hoverText =
     hover === null
       ? ''
-      : `${labelText(hover.shortLabel ?? hover.label)} · ${labelText(hover.shortValueLabel ?? hover.valueLabel)}`;
+      : dongDo.length > 0
+        ? labelText(hover.shortLabel ?? hover.label)
+        : `${labelText(hover.shortLabel ?? hover.label)} · ${labelText(hover.shortValueLabel ?? hover.valueLabel)}`;
+  /* Đặt theo dòng DÀI NHẤT: mọi dòng cùng một phía của vạch dò, cùng một mép canh. */
+  const dongDaiNhat = [hoverText, ...dongDo].reduce(
+    (dai, dong) => (dong.length > dai.length ? dong : dai),
+    '',
+  );
   const hoverPlace =
     hoverX === null
       ? null
-      : floatingLabel(hoverX, hoverOnRight ? 'end' : 'start', hoverText, FLOAT_LABEL_SIZE, W);
+      : floatingLabel(hoverX, hoverOnRight ? 'end' : 'start', dongDaiNhat, FLOAT_LABEL_SIZE, W);
 
   const markedText =
     marked === undefined ? '' : labelText(marked.shortValueLabel ?? marked.valueLabel);
@@ -1221,6 +1243,31 @@ export function LineChart({
               >
                 {hoverText}
               </text>
+              {/* Chấm và dòng số của từng chuỗi — chỉ ở hình các đường thành phần. */}
+              {moiChuoi.slice(1).map((series) => {
+                const point = series.points[hoverIndex];
+                return point === undefined || point.y === null || series.axis === 'right' ? null : (
+                  <circle
+                    key={`do-cham-${series.key}`}
+                    className={styles.hoverDot}
+                    cx={hoverX}
+                    cy={sy(point.y)}
+                    r="3"
+                  />
+                );
+              })}
+              {dongDo.map((dong, index) => (
+                <text
+                  key={`do-dong-${String(index)}`}
+                  className={styles.hoverLabel}
+                  data-dong-do={index}
+                  x={hoverPlace.x}
+                  y={plot.y0 + 22 + HOVER_LINE_H * (index + 1)}
+                  textAnchor={hoverPlace.anchor}
+                >
+                  {dong}
+                </text>
+              ))}
             </g>
           )}
 

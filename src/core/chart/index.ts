@@ -30,6 +30,9 @@ export type {
   HistogramChart,
   HistogramMarker,
   LineChart,
+  ScatterChart,
+  ScatterFit,
+  ScatterPoint,
   SeriesTone,
   SweepOption,
   WaterfallChart,
@@ -89,7 +92,7 @@ export { buildChartModel } from './build';
 /* Đường giá vẽ kèm mang khoá này — dạng Nến bỏ đúng đường ấy ra khỏi hình. */
 export { CLOSE_PRICE_KEY } from './history';
 
-/* Hai mục theo chuỗi giá của ô "Xem theo" (21/10/2026): khoá, nhãn, và phép hỏi "khoá này có phải một trong hai". */
+/* Các mục theo chuỗi giá của ô "Xem theo" (21/10/2026; phân tán 26/10/2026): khoá, nhãn, và phép hỏi "khoá này có phải một trong số ấy". */
 export {
   DISTRIBUTION_KEY,
   DISTRIBUTION_LABEL,
@@ -97,6 +100,8 @@ export {
   DRAWDOWN_LABEL,
   drawdownSeries,
   laHinhChuoiGia,
+  SCATTER_KEY,
+  SCATTER_LABEL,
   seriesWindow,
 } from './series-view';
 export type { CuaSoPhien } from './series-view';

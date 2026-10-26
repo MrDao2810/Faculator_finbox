@@ -275,8 +275,8 @@
 }
 
 /*
- * Khung không có bước tính nào (ký hiệu nhập thẳng, chỉ mở ở hình trong lời giải của Bài tập): một
- * dòng "ký hiệu: nghĩa". Bề ngang cố định 22rem của khung thường thì dành cho hình KaTeX của các
+ * Khung không có bước tính nào (ký hiệu nhập thẳng — mở ở hình trong lời giải của Bài tập từ
+ * 25/09/2026, và ở hình của thẻ Công thức từ 26/10/2026): một dòng "ký hiệu: nghĩa". Bề ngang cố định 22rem của khung thường thì dành cho hình KaTeX của các
  * bước; ở đây nó để lại hai phần ba khung trống trơn bên phải, nên khung co theo chữ. Chữ dài hơn
  * 22rem vẫn xuống dòng như cũ. `place-panel.ts` đo bề ngang THẬT của khung ở lượt dựng đầu, nên
  * khung hẹp vẫn được căn giữa đúng theo ký hiệu.

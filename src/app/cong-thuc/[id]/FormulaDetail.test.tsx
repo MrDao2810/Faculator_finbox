@@ -2109,7 +2109,12 @@ describe('WF-03 — không công thức nào lọt giá trị vô nghĩa ra màn
        * của chủ dự án (xem `incompleteInput()`), nên ở mã ấy câu phải NÊU TÊN thứ còn thiếu.
        */
       if (spec.id === 'xirr') {
-        expect(text, `${spec.id}: không nói thiếu gì`).toMatch(/Còn thiếu: \S/);
+        /*
+         * Câu riêng của XIRR, không theo khuôn "Còn thiếu: …" (26/10/2026): "ít nhất 2 dòng tiền"
+         * không phải nhãn ô nào, và chủ dự án muốn đúng câu này.
+         */
+        expect(text, `${spec.id}: không nói thiếu gì`).toContain('Cần tối thiểu 2 dòng tiền');
+        expect(text).not.toContain('Còn thiếu');
       } else {
         expect(text, `${spec.id}: thiếu câu chỉ cách khắc phục`).toContain(t('result.fixPrefix'));
       }

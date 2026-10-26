@@ -439,7 +439,7 @@ export function ColumnChart({ model, idBase, fill = false, size: sizeProp }: Col
         ))}
 
         <rect
-          className={styles.hoverCapture}
+          className={`${String(styles.hoverCapture)} ${String(styles.hoverCapturePhan)}`}
           data-testid={`${idBase}-hover-capture`}
           x={plot.x0}
           y={plot.y0}

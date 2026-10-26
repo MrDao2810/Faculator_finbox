@@ -62,20 +62,23 @@ const CHOICE_KEYS: ReadonlyArray<QuizChoiceKey> = ['a', 'b', 'c', 'd'];
  * tự thì một cột vẫn đọc hơn, vì hai cột lúc ấy là hai khối chữ dày đặc đứng cạnh nhau.
  */
 const HAI_COT_HEP = 55;
-const HAI_COT_RONG = 78;
+/*
+ * Không còn `HAI_COT_RONG = 78` (bậc '1280') từ 26/10/2026, khi bài làm chuyển vào popup 960px. Đo
+ * trên Chrome: trong popup, nửa bề ngang chữ là 354px ở khổ 1024 (popup 92vw = 942px) và 363px từ
+ * khoảng 1044px trở lên — vẫn đủ 55 ký tự của bậc trên, nhưng hết chỗ cho bậc 78: đáp án 60 và 62
+ * ký tự của `bien-an-toan` vỡ hai dòng ở 1280 và 1440. Bảng trên là số đo hồi khối còn trải hết
+ * khung trang, giữ lại vì nó là gốc của ngưỡng 55.
+ */
 
 /**
  * Khổ màn NHỎ NHẤT mà bốn đáp án này còn xếp hai cột được, trả về dạng chuỗi để CSS bắt bằng bộ
- * chọn thuộc tính: '1024', '1280', hoặc '0' nếu không khổ nào đủ.
+ * chọn thuộc tính: '1024', hoặc '0' nếu không khổ nào đủ.
  *
  * Đo theo đáp án DÀI NHẤT: lưới chia hai cột bằng nhau, nên chính nó quyết định có vỡ dòng hay
  * không.
  */
-function khoHaiCot(dais: ReadonlyArray<number>): '1024' | '1280' | '0' {
-  const dai = Math.max(...dais);
-  if (dai <= HAI_COT_HEP) return '1024';
-  if (dai <= HAI_COT_RONG) return '1280';
-  return '0';
+function khoHaiCot(dais: ReadonlyArray<number>): '1024' | '0' {
+  return Math.max(...dais) <= HAI_COT_HEP ? '1024' : '0';
 }
 
 /** Nhãn A/B/C/D in trước mỗi lựa chọn — cố định, không theo locale. */

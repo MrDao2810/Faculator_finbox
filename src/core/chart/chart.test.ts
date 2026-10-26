@@ -1809,8 +1809,10 @@ describe('buildChartModel()', () => {
         expect(donVi.size, `${formula.spec.id}: ${[...donVi].join(' · ')}`).toBe(1);
         continue;
       }
-      // Histogram và thang đo chỉ hiện khi đã nạp chuỗi, nên không tới được đây; thu hẹp kiểu cho TS.
-      if (model.kind === 'histogram' || model.kind === 'gauge') continue;
+      // Histogram, thang đo và hình phân tán chỉ hiện khi đã nạp chuỗi, nên không tới được đây;
+      // thu hẹp kiểu cho TS.
+      if (model.kind === 'histogram' || model.kind === 'gauge' || model.kind === 'scatter')
+        continue;
       // Hình cột theo kỳ (23/10/2026): mọi số vẽ trên hình nói cùng một đơn vị, như thác nước.
       if (model.kind === 'columns') {
         const donVi = new Set(

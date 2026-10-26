@@ -207,6 +207,47 @@ export interface ReferenceLine {
 }
 
 /**
+ * Một đường thành phần: số của nó ở MỖI phiên là một khoá `extras` mà `calc` trả về khi chạy trên
+ * chuỗi cắt tới phiên ấy — hoặc chính kết quả, khi `key` vắng mặt.
+ */
+export interface ComponentLineSpec {
+  /** Khoá trong `CalcOutput.extras`; vắng thì đường là chính kết quả (`CalcOutput.value`). */
+  key?: string;
+  /** Tên đường trong chú giải; `{n}` thay bằng số đang nhập ở ô `periodKey`. */
+  label: Bilingual;
+  periodKey?: string;
+  /** Tông màu — cùng bốn tông của chuỗi phụ (`SeriesTone`). Đường đầu luôn mang tông chính. */
+  tone: 'primary' | 'teal' | 'violet' | 'muted';
+  /** Nét đứt — dấu hiệu thứ hai bên cạnh màu (NFR-USA-06). */
+  dash?: true;
+  /** Nét mảnh — cho đường làm bối cảnh (dao động thực từng phiên dưới ATR). */
+  thin?: true;
+}
+
+/**
+ * Hình CÁC ĐƯỜNG THÀNH PHẦN (26/10/2026): những đại lượng mà kết quả là khoảng cách giữa chúng, vẽ
+ * theo từng phiên trên một trục — hai đường SMA của giao cắt, hai đường EMA của MACD, giá nay và
+ * giá n phiên trước của động lượng… Kết quả ở phiên cuối đọc thẳng được trên hình.
+ *
+ * Số của mọi đường đến từ chính `calc` (cùng lối cắt tiền tố của đường theo thời gian), không tính
+ * lại ở tầng biểu đồ. `thanh-phan.test.ts` ghim danh sách công thức và đối chiếu từng đường với một
+ * phép tính độc lập.
+ */
+export interface ComponentLinesSpec {
+  /** Tên mục trong ô "Xem theo"; `{n}` thay bằng số ở ô `periodKey`. */
+  label: Bilingual;
+  periodKey?: string;
+  /** Tên trục đứng, không kèm đơn vị — `buildAxis()` ghép đơn vị đã đổi bậc. */
+  axis: Bilingual;
+  /** Đơn vị chung của mọi đường: cùng một trục, nên cùng một đơn vị. */
+  unit: string;
+  /** Ít nhất hai đường; đường đầu là chuỗi CHÍNH của hình. */
+  lines: ReadonlyArray<ComponentLineSpec>;
+  /** Vẽ kèm giá đóng cửa, nét mảnh — khi các đường là một mức giá của chính mã. */
+  closePrice?: true;
+}
+
+/**
  * Vẽ kèm đường GIÁ ĐÓNG CỬA làm chuỗi phụ trên trục thời gian.
  *
  * Sinh ra cho các chỉ báo mà ý nghĩa nằm ở TƯƠNG QUAN với giá: "Cách đọc kết quả" của SMA nói về
@@ -610,6 +651,11 @@ export interface FormulaSpec extends FormulaSummary {
    * `GaugeSpec`.
    */
   gauge?: GaugeSpec;
+  /**
+   * CÁC ĐƯỜNG THÀNH PHẦN theo từng phiên — một mục thêm vào ô "Xem theo", chỉ hiện khi đã nạp chuỗi
+   * (26/10/2026). Xem `ComponentLinesSpec`.
+   */
+  componentLines?: ComponentLinesSpec;
 }
 
 /**
@@ -674,7 +720,11 @@ export interface CompositionSpec {
  * đứng yên, đổi phiên ĐẦU cửa sổ thì kết quả phải đổi.
  */
 export interface SeriesViewSpec {
-  kind: 'distribution' | 'drawdown';
+  /**
+   * `scatter` (26/10/2026): mỗi phiên một chấm, lợi suất VN-Index theo lợi suất cổ phiếu — cho Beta,
+   * công thức duy nhất đọc cả `ctx.marketSeries`. Cửa sổ phải đủ ở CẢ hai chuỗi.
+   */
+  kind: 'distribution' | 'drawdown' | 'scatter';
   /**
    * Ô nhập số phiên CUỐI đưa vào tính (`lookback`, `sessions`). Vắng mặt nghĩa là cả chuỗi — các tỷ
    * số Sharpe, Sortino, Calmar… đọc mọi phiên đã nạp.
@@ -698,6 +748,11 @@ export interface SeriesViewSpec {
    * lỗ 1,86 %), nên hình kẻ vạch tại −kết quả.
    */
   resultIsLoss?: true;
+  /**
+   * Chỉ dạng phân phối: chia khoảng lợi suất LOG `ln(Pₜ / Pₜ₋₁)` thay vì lợi suất đơn — cho công thức
+   * mà `calc` lấy độ lệch chuẩn của chính dãy ấy (`do-bien-dong-lich-su`, 26/10/2026).
+   */
+  logReturns?: true;
 }
 
 /**

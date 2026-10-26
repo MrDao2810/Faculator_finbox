@@ -29,7 +29,14 @@ import type { FormulaSource } from '../registry/types';
 import type { Bilingual, CalcOutput, CalcWarning, VariableSpec } from '../types';
 import { divideByZero, meaningless, missingSeries } from '../warnings';
 import { FPT_2026, FPT_BARS, FPT_PHIEN } from './market-series-2026';
-import { mean, populationStdDev, requireBars, requireCloses, sampleStdDev } from './series-utils';
+import {
+  logReturns,
+  mean,
+  populationStdDev,
+  requireBars,
+  requireCloses,
+  sampleStdDev,
+} from './series-utils';
 import { SOURCE_CFA, sliderVar, withSymbol } from './shared';
 
 /*
@@ -852,6 +859,28 @@ export const ATR_DAO_DONG_THUC: FormulaModule = {
     level: 'basic',
     tags: ['atr', 'dao dong thuc', 'true range', 'wilder', 'bien do', 'cat lo'],
     resultUnit: '₫',
+    /*
+     * Hình "Dao động thực và ATR" (26/10/2026): ATR (chính kết quả) theo từng phiên, trên nền dao động
+     * thực của từng phiên mà nó làm mượt — nét mảnh, vì là bối cảnh.
+     */
+    componentLines: {
+      label: { vi: 'Dao động thực và ATR', en: 'True range and ATR' },
+      axis: { vi: 'Biên độ giá', en: 'Price range' },
+      unit: '₫',
+      lines: [
+        {
+          label: { vi: 'ATR {n} phiên', en: '{n}-period ATR' },
+          periodKey: 'period',
+          tone: 'primary',
+        },
+        {
+          key: 'tr',
+          label: { vi: 'Dao động thực từng phiên', en: 'True range per session' },
+          tone: 'muted',
+          thin: true,
+        },
+      ],
+    },
     variables: [
       sliderVar('period', { vi: 'Chu kỳ ATR (n)', en: 'ATR period (n)' }, 'phiên', 14, 5, 50, 1, {
         description: {
@@ -977,7 +1006,11 @@ export const ATR_DAO_DONG_THUC: FormulaModule = {
      */
     const cuoi = bars[bars.length - 1];
     const truoc = bars[bars.length - 2];
-    const extras: Record<string, number> = {};
+    /*
+     * Dao động thực của chính phiên cuối, luôn có (26/10/2026): hình "Dao động thực và ATR" vẽ nó ở
+     * từng phiên bên dưới đường ATR, lấy từ đúng mảng mà ATR làm mượt.
+     */
+    const extras: Record<string, number> = { tr: trueRanges[trueRanges.length - 1] ?? Number.NaN };
     if (Number.isFinite(atrTruoc) && cuoi !== undefined && truoc !== undefined) {
       extras['atrTruoc'] = atrTruoc;
       extras['h'] = cuoi.high;
@@ -1595,6 +1628,9 @@ export const VWAP: FormulaModule = {
  * ── 8. Độ biến động lịch sử năm hoá ────────────────────────────────────────────────────
  */
 
+/** Ít nhất ba phiên giá, tức hai lợi suất: độ lệch chuẩn MẪU cần chừng ấy. */
+const MAU_LOG_TOI_THIEU = 3;
+
 export const DO_BIEN_DONG_LICH_SU: FormulaModule = {
   spec: {
     id: 'do-bien-dong-lich-su',
@@ -1687,6 +1723,18 @@ export const DO_BIEN_DONG_LICH_SU: FormulaModule = {
     level: 'advanced',
     tags: ['do bien dong', 'volatility', 'nam hoa', 'loi suat log', 'rui ro', 'ky thuat'],
     resultUnit: '%/năm',
+    /*
+     * Hình "Phân phối lợi suất" (26/10/2026): chia khoảng đúng dãy LỢI SUẤT LOG mà calc lấy độ lệch
+     * chuẩn, trên đúng `sample` phiên cuối (`requireCloses()` đòi đủ ô, nên `fullWindow`). Sàn là
+     * sàn của calc; ô nhập vốn kẹp từ 10 phiên nên sàn ấy không bao giờ là thứ cắt cửa sổ.
+     */
+    seriesView: {
+      kind: 'distribution',
+      lookbackKey: 'sample',
+      min: MAU_LOG_TOI_THIEU,
+      fullWindow: true,
+      logReturns: true,
+    },
     variables: [
       sliderVar(
         'sample',
@@ -1788,8 +1836,8 @@ export const DO_BIEN_DONG_LICH_SU: FormulaModule = {
   calc: (v, ctx) => {
     const unit = '%/năm';
     const sample = periodOf(v('sample'));
-    if (sample < 3) {
-      return periodTooShort(unit, 3, {
+    if (sample < MAU_LOG_TOI_THIEU) {
+      return periodTooShort(unit, MAU_LOG_TOI_THIEU, {
         vi: 'Độ lệch chuẩn mẫu cần ít nhất hai lợi suất',
         en: 'The sample standard deviation needs at least two returns',
       });
@@ -1816,19 +1864,11 @@ export const DO_BIEN_DONG_LICH_SU: FormulaModule = {
     if (!Array.isArray(closes)) return fail(unit, closes);
 
     // Lợi suất log chứ không phải lợi suất đơn: nó cộng dồn được qua các phiên, nên nhân với
-    // căn bậc hai của số phiên mới đúng nghĩa quy năm. `series-utils` chưa có nên viết tại chỗ.
-    const window = closes.slice(-sample);
-    const logReturns: number[] = [];
-    for (let i = 1; i < window.length; i += 1) {
-      const previous = window[i - 1];
-      const current = window[i];
-      if (previous !== undefined && current !== undefined && previous > 0 && current > 0) {
-        logReturns.push(Math.log(current / previous));
-      }
-    }
+    // căn bậc hai của số phiên mới đúng nghĩa quy năm. Cùng hàm với hình "Phân phối lợi suất".
+    const loiSuatLog = logReturns(closes.slice(-sample));
 
-    return ok(sampleStdDev(logReturns) * Math.sqrt(days) * 100, unit, {
-      extras: { sigmaLog: sampleStdDev(logReturns) },
+    return ok(sampleStdDev(loiSuatLog) * Math.sqrt(days) * 100, unit, {
+      extras: { sigmaLog: sampleStdDev(loiSuatLog) },
     });
   },
 };

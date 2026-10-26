@@ -868,6 +868,30 @@ export const BIEN_DO_DAO_DONG_LON_NHAT: FormulaModule = {
     level: 'basic',
     tags: ['bien do dao dong', 'dinh day', 'price range', 'cao nhat thap nhat', 'vung gia'],
     resultUnit: '%',
+    /*
+     * Hình "Đỉnh và đáy trong kỳ" (26/10/2026): ở mỗi phiên, giá đóng cửa cao nhất và thấp nhất của n
+     * phiên tính tới phiên ấy, kèm giá đóng cửa — biên độ là khoảng cách giữa hai đường, chia cho đáy.
+     */
+    componentLines: {
+      label: { vi: 'Đỉnh và đáy {n} phiên', en: 'Peak and trough over {n} sessions' },
+      periodKey: 'sessions',
+      axis: { vi: 'Giá', en: 'Price' },
+      unit: '₫',
+      lines: [
+        {
+          key: 'pMax',
+          label: { vi: 'Giá đóng cửa cao nhất', en: 'Highest close' },
+          tone: 'primary',
+        },
+        {
+          key: 'pMin',
+          label: { vi: 'Giá đóng cửa thấp nhất', en: 'Lowest close' },
+          tone: 'violet',
+          dash: true,
+        },
+      ],
+      closePrice: true,
+    },
     variables: [
       countWindowVar({
         vi: 'Lấy bao nhiêu phiên gần nhất để tìm đỉnh và đáy. Tối thiểu 10 phiên.',

@@ -12,6 +12,15 @@ export interface BottomSheetProps {
   title: string;
   /** Dòng phụ dưới tiêu đề, ví dụ ghi rõ nguồn dữ liệu. */
   subtitle?: string;
+  /**
+   * Nội dung đứng CÙNG HÀNG với tiêu đề, ngay sau nó — thêm 26/10/2026 cho popup Bài tập, nơi hàng
+   * tiêu đề mang "Câu 2 / 5" cùng thanh tiến độ, hoặc điểm ở màn tổng kết.
+   *
+   * Đứng trong cùng khối với tiêu đề chứ không thành một mục riêng của hàng đầu tấm: nút đóng vẫn
+   * là thứ duy nhất bám mép phải, và thứ gì muốn dạt phải trong hàng này thì tự đẩy bằng
+   * `margin-left: auto`. Hàng tự xuống dòng khi chật.
+   */
+  titleAside?: ReactNode;
   children: ReactNode;
   /** Hàng nút dưới cùng, dính đáy khi nội dung dài. */
   footer?: ReactNode;
@@ -86,6 +95,7 @@ export function BottomSheet({
   onClose,
   title,
   subtitle,
+  titleAside,
   children,
   footer,
   className,
@@ -97,6 +107,12 @@ export function BottomSheet({
   const ref = useRef<HTMLDialogElement>(null);
   const titleId = useId();
   const centered = placement === 'center';
+
+  const heading = (
+    <h2 className={styles.title} id={titleId}>
+      {title}
+    </h2>
+  );
 
   useEffect(() => {
     const dialog = ref.current;
@@ -162,9 +178,14 @@ export function BottomSheet({
           {dismiss === 'back' && <DismissButton kind="back" onClick={onClose} />}
 
           <div className={styles.titles}>
-            <h2 className={styles.title} id={titleId}>
-              {title}
-            </h2>
+            {titleAside === undefined ? (
+              heading
+            ) : (
+              <div className={styles.titleRow}>
+                {heading}
+                {titleAside}
+              </div>
+            )}
             {subtitle !== undefined && <p className={styles.subtitle}>{subtitle}</p>}
           </div>
 

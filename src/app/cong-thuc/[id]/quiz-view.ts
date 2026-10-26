@@ -22,19 +22,13 @@ import type { QuizItem } from '@/application/quiz';
  */
 export interface QuizView {
   items: ReadonlyArray<QuizItem>;
-  /**
-   * Có câu nào mà dòng Công thức của lời giải in HÌNH công thức của trang không — tức có `giai` mà
-   * không ghi đè `congThuc`. `page.tsx` chỉ dựng bản hình gắn dấu mọi ký hiệu khi cờ này bật.
+  /*
+   * Cờ `needsFormulaPicture` (25/09 – 26/10/2026) đã bỏ: nó báo `page.tsx` dựng thêm một bản hình gắn
+   * dấu mọi ký hiệu cho lời giải. Từ khi chính hình của thẻ Công thức gắn dấu mọi ký hiệu
+   * (`NotationView.latexHtml`), lời giải dùng thẳng hình ấy, không còn bản thứ hai để dựng.
    */
-  needsFormulaPicture: boolean;
 }
 
 export function quizViewFor(spec: FormulaSpec): QuizView {
-  const items = quizFor(spec.id);
-  return {
-    items,
-    needsFormulaPicture: items.some(
-      (item) => item.giai !== undefined && item.giai.congThuc === undefined,
-    ),
-  };
+  return { items: quizFor(spec.id) };
 }

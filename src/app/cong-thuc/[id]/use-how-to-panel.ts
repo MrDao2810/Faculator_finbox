@@ -172,6 +172,12 @@ export function useHowToPanel(hasHowTo: (sym: number) => boolean, resetKey: unkn
     };
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key !== 'Escape') return;
+      /*
+       * Trong popup (Bài tập, 26/10/2026) Esc chỉ đóng KHUNG, không đóng cả popup. Thiếu dòng này thì
+       * cùng một phím `<dialog>` cũng nhận làm lệnh đóng — mà đóng popup Bài tập là thoát bài, xoá
+       * tiến trình đang làm. Huỷ mặc định của `keydown` là thứ chặn `<dialog>` xử lý phím ấy.
+       */
+      if ((cardRef.current?.closest('dialog') ?? null) !== null) event.preventDefault();
       const sym = stateRef.current?.sym;
       const focusInCard = cardRef.current?.contains(document.activeElement) === true;
       close();

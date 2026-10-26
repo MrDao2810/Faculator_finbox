@@ -9,6 +9,8 @@ import { usePick, useT } from '@/application/preferences-context';
 import { useLabelText } from '@/ui/i18n/units';
 
 import styles from './chart.module.css';
+import { cheConTro, datPopup, mauCuaMui } from './donut-popup';
+import type { Diem, Hop } from './donut-popup';
 import { textWidth } from './ticks';
 import { useChartSize } from './use-chart-size';
 import type { ChartSize } from './use-chart-size';
@@ -17,7 +19,7 @@ import type { ChartSize } from './use-chart-size';
  * Hình bóc tách dạng VÀNH KHUYÊN — mỗi phần chiếm bao nhiêu trong tổng (21/10/2026).
  *
  * Là một DẠNG VẼ khác của cùng mô hình thác nước, không phải một biểu đồ khác: cùng các phần, cùng
- * giá trị, cùng bảng số dưới `<details>` của `ChartFrame`. Thanh ngang nói "phần này lớn bao nhiêu";
+ * giá trị, cùng bảng số ẩn (cho trình đọc màn hình) của `ChartFrame`. Thanh ngang nói "phần này lớn bao nhiêu";
  * vành khuyên nói "phần này chiếm mấy phần của tổng" — câu mà người định giá DDM hai giai đoạn hỏi
  * đầu tiên (giá trị cuối kỳ chiếm bao nhiêu của giá cổ phiếu). Chỉ mời khi mọi phần đều cộng vào
  * tổng, xem `dangVeCuaHinh()`.
@@ -389,19 +391,29 @@ export function DonutChart({ model, idBase, size: sizeProp }: DonutChartProps) {
   const popupRef = useRef<HTMLDivElement>(null);
   /*
    * Điểm neo của popup trên từng múi, đơn vị viewBox, kèm hướng của cung (`dx`, `dy`: cos và sin của góc
-   * giữa cung), tâm dọc và bán kính lỗ của vòng — ghi lúc vẽ, đọc lúc đặt popup.
+   * giữa cung) và hai góc đầu cuối của cung; `vongRef` là tâm và hai bán kính của vòng — ghi lúc vẽ, đọc
+   * lúc đặt popup.
    */
   const neoRef = useRef<
-    ReadonlyArray<{ x: number; y: number; dx: number; dy: number; cy: number; r: number }>
+    ReadonlyArray<{ x: number; y: number; dx: number; dy: number; a0: number; a1: number }>
   >([]);
+  const vongRef = useRef({ cx: 0, cy: 0, R: 0, r: 0 });
+  /*
+   * Chỗ con trỏ hay ngón tay vừa đặt, và hộp của dòng chú giải đang trỏ (nếu trỏ vào chú giải), đơn vị px
+   * theo khung. Ref chứ không state: con trỏ rê trên múi không được vẽ lại cả hình mỗi lần nhích.
+   */
+  const troRef = useRef<{ diem: Diem | null; dong: Hop | null }>({ diem: null, dong: null });
+  /* Tăng khi con trỏ rê lọt vào dưới popup đang mở — lượt đặt lại chỗ cho popup. */
+  const [luotDat, setLuotDat] = useState(0);
   const [viTri, setViTri] = useState<{ left: number; top: number } | null>(null);
 
   /*
-   * Đặt popup ở mép ngoài của múi, bung ra phía ngoài vòng theo hướng của cung (múi ở trên thì popup ở
-   * trên, múi bên phải thì popup bên phải…), kẹp trong khung. Phải ĐO (bề ngang khung, cỡ popup): hình co
-   * giãn theo bề ngang cột nên một đơn vị viewBox không có số px cố định. Đo trong layout effect, trước
-   * khi trình duyệt vẽ, nên popup không nháy ở góc trái trên — và nó chỉ có sau một thao tác của người
-   * dùng, nên không đụng tới HTML tĩnh hay lượt hydrate.
+   * Đặt popup: chỗ ưu tiên vẫn là mép ngoài của múi, bung ra ngoài theo hướng của cung; nhưng nếu chỗ
+   * ấy (sau khi kẹp vào khung) che con trỏ hay che chính múi đang trỏ thì dời sang chỗ khác. Luật chọn
+   * chỗ ở `datPopup()` (`donut-popup.ts`), kèm ảnh lỗi chủ dự án chụp ngày 26/10/2026. Phải ĐO (bề ngang
+   * khung, cỡ popup): hình co giãn theo bề ngang cột nên một đơn vị viewBox không có số px cố định. Đo
+   * trong layout effect, trước khi trình duyệt vẽ, nên popup không nháy ở góc trái trên — và nó chỉ có
+   * sau một thao tác của người dùng, nên không đụng tới HTML tĩnh hay lượt hydrate.
    */
   const chiSo = chon?.i ?? null;
   useLayoutEffect(() => {
@@ -422,29 +434,24 @@ export function DonutChart({ model, idBase, size: sizeProp }: DonutChartProps) {
     const oKhung = khung.getBoundingClientRect();
     const oHinh = svg.getBoundingClientRect();
     const tiLe = oHinh.width / W;
-    const x = oHinh.left - oKhung.left + neo.x * tiLe;
-    const y = oHinh.top - oKhung.top + neo.y * tiLe;
-    const rong = popup.offsetWidth;
-    const cao = popup.offsetHeight;
-    /* Bung theo hướng của cung: hướng (0, −1) là ngay trên neo, (1, 0) là ngay bên phải neo. */
-    const left = x - (rong / 2) * (1 - neo.dx);
-    let top = y - (cao / 2) * (1 - neo.dy);
-    const leftKep = Math.min(Math.max(left, 0), Math.max(0, oKhung.width - rong));
-    /*
-     * Phía ngoài không đủ chỗ (múi bên trái, vòng sát mép trái thẻ ở điện thoại): popup bị kẹp ngược
-     * vào trong và trùm lên chữ giữa vòng. Khi bị kẹp quá một phần tư bề ngang của nó, dời popup lên
-     * trên hoặc xuống dưới phần chữ ấy, theo phía của cung.
-     */
-    if (Math.abs(leftKep - left) > rong / 4) {
-      const tamY = oHinh.top - oKhung.top + neo.cy * tiLe;
-      const tranh = neo.r * tiLe * 0.55;
-      top = neo.dy >= 0 ? tamY + tranh : tamY - tranh - cao;
-    }
-    setViTri({
-      left: leftKep,
-      top: Math.min(Math.max(top, 0), Math.max(0, oKhung.height - cao)),
-    });
-  }, [chiSo, W]);
+    const lechX = oHinh.left - oKhung.left;
+    const lechY = oHinh.top - oKhung.top;
+    const px = (d: Diem): Diem => ({ x: lechX + d.x * tiLe, y: lechY + d.y * tiLe });
+    const { cx, cy, R, r } = vongRef.current;
+    /* Khối chữ giữa vòng: rộng bằng lòng chữ (`lot`), cao chừng hai dòng tên và dòng tổng. */
+    const goc = px({ x: cx - 0.86 * r, y: cy - 0.55 * r });
+    setViTri(
+      datPopup({
+        khung: { w: oKhung.width, h: oKhung.height },
+        popup: { w: popup.offsetWidth, h: popup.offsetHeight },
+        neo: { ...px(neo), dx: neo.dx, dy: neo.dy },
+        mauMui: mauCuaMui(cx, cy, R, r, neo.a0, neo.a1).map(px),
+        chuGiua: { ...goc, w: 1.72 * r * tiLe, h: 1.1 * r * tiLe },
+        dongChuGiai: troRef.current.dong,
+        tro: troRef.current.diem,
+      }),
+    );
+  }, [chiSo, W, luotDat]);
 
   /* Popup đang giữ bằng bấm/chạm: chạm ra ngoài khung hoặc Esc thì đóng. */
   const giuBangCham = chon?.nguon === 'cham';
@@ -467,24 +474,62 @@ export function DonutChart({ model, idBase, size: sizeProp }: DonutChartProps) {
 
   if (vanh === null) return null;
 
-  /* Chuột vào một múi (hoặc dòng chú giải của nó) thì hiện; chạm thì để `bam` lo. */
-  const vao = (i: number) => (event: ReactPointerEvent) => {
-    if (event.pointerType !== 'mouse') return;
-    setChon({ i, nguon: 'chuot', model });
+  /* Ghi chỗ con trỏ, và hộp của dòng chú giải nếu đang trỏ vào chú giải, để `datPopup()` tránh. */
+  const ghiTro = (event: ReactPointerEvent | ReactMouseEvent, laChuGiai: boolean) => {
+    const khung = khungRef.current;
+    if (khung === null) return;
+    const o = khung.getBoundingClientRect();
+    const hop = laChuGiai ? event.currentTarget.getBoundingClientRect() : null;
+    troRef.current = {
+      diem: { x: event.clientX - o.left, y: event.clientY - o.top },
+      dong:
+        hop === null
+          ? null
+          : { x: hop.left - o.left, y: hop.top - o.top, w: hop.width, h: hop.height },
+    };
   };
+
+  /* Chuột vào một múi (hoặc dòng chú giải của nó) thì hiện; chạm thì để `bam` lo. */
+  const vao =
+    (i: number, laChuGiai = false) =>
+    (event: ReactPointerEvent) => {
+      if (event.pointerType !== 'mouse') return;
+      ghiTro(event, laChuGiai);
+      setChon({ i, nguon: 'chuot', model });
+    };
+
+  /*
+   * Chuột rê trên múi (hay dòng chú giải) đang mở popup. Chỉ đặt lại chỗ khi con trỏ lọt vào dưới popup —
+   * popup mang `pointer-events: none` nên nó không chặn được con trỏ. Không đặt lại mỗi lần nhích: popup
+   * nhảy theo từng pixel của chuột thì không đọc được.
+   */
+  const di =
+    (i: number, laChuGiai = false) =>
+    (event: ReactPointerEvent) => {
+      if (event.pointerType !== 'mouse' || chon?.i !== i) return;
+      ghiTro(event, laChuGiai);
+      const popup = popupRef.current;
+      const diem = troRef.current.diem;
+      if (viTri === null || popup === null || diem === null) return;
+      const hop = { x: viTri.left, y: viTri.top, w: popup.offsetWidth, h: popup.offsetHeight };
+      if (cheConTro(hop, diem)) setLuotDat((n) => n + 1);
+    };
   const roi = (event: ReactPointerEvent) => {
     if (event.pointerType !== 'mouse') return;
     setChon((cu) => (cu?.nguon === 'chuot' ? null : cu));
   };
-  const bam = (i: number) => (event: ReactMouseEvent) => {
-    /* Không để cú bấm lan lên `<svg>`, nơi bấm vào chỗ trống là đóng popup. */
-    event.stopPropagation();
-    setChon((cu) =>
-      cu !== null && cu.model === model && cu.i === i && cu.nguon === 'cham'
-        ? null
-        : { i, nguon: 'cham', model },
-    );
-  };
+  const bam =
+    (i: number, laChuGiai = false) =>
+    (event: ReactMouseEvent) => {
+      /* Không để cú bấm lan lên `<svg>`, nơi bấm vào chỗ trống là đóng popup. */
+      event.stopPropagation();
+      ghiTro(event, laChuGiai);
+      setChon((cu) =>
+        cu !== null && cu.model === model && cu.i === i && cu.nguon === 'cham'
+          ? null
+          : { i, nguon: 'cham', model },
+      );
+    };
 
   const chu: ChuMui[] = vanh.parts.map((part) => ({
     part,
@@ -507,10 +552,11 @@ export function DonutChart({ model, idBase, size: sizeProp }: DonutChartProps) {
      */
     const giua = (a0 + a1) / 2;
     const huong = { dx: Math.cos(giua), dy: Math.sin(giua) };
-    const neo = { x: cx + (R + 4) * huong.dx, y: cy + (R + 4) * huong.dy, ...huong, cy, r };
+    const neo = { x: cx + (R + 4) * huong.dx, y: cy + (R + 4) * huong.dy, ...huong, a0, a1 };
     return { part, i, neo, d: cungVanh(cx, cy, R, r, a0, a1) };
   });
   neoRef.current = mui.map((mot) => mot.neo);
+  vongRef.current = { cx, cy, R, r };
   const dangChon = chon === null ? undefined : chu[chon.i];
 
   const totalValue = labelText(vanh.totalValueLabel);
@@ -556,6 +602,7 @@ export function DonutChart({ model, idBase, size: sizeProp }: DonutChartProps) {
               d={d}
               data-mui={i}
               onPointerEnter={vao(i)}
+              onPointerMove={di(i)}
               onPointerLeave={roi}
               onClick={bam(i)}
             />
@@ -601,9 +648,10 @@ export function DonutChart({ model, idBase, size: sizeProp }: DonutChartProps) {
           <g
             key={`ghi-${part.label.vi}`}
             className={`${TONE_CLASS[part.tone]} ${String(styles.donutMuc)}`}
-            onPointerEnter={vao(i)}
+            onPointerEnter={vao(i, true)}
+            onPointerMove={di(i, true)}
             onPointerLeave={roi}
-            onClick={bam(i)}
+            onClick={bam(i, true)}
           >
             <rect
               className={styles.donutSwatch}
@@ -644,6 +692,10 @@ export function DonutChart({ model, idBase, size: sizeProp }: DonutChartProps) {
         Popup số liệu của múi đang chọn. Nằm NGOÀI `<svg>`: đường xuất PDF / PNG chép đúng thẻ `<svg>`,
         nên một popup đang mở không bao giờ lọt vào file. `aria-hidden` vì trình đọc màn hình đã có đủ
         ba con số ở đoạn ẩn ngay dưới và ở bảng số — popup chỉ là lối của con trỏ và ngón tay.
+
+        Chỉ tên và giá trị (26/10/2026, chủ dự án: _"cần hiển thị những thông tin sau: 'Lợi nhuận ròng
+        (Lrong) 4,62 triệu đ' thôi. còn lại bỏ chiếm bao nhiêu % đi, bỏ cả ký hiệu màu nữa. vì bên ngoài
+        có chú thích rồi"_). Ô màu và dòng "chiếm …" đã có ở chú giải cạnh vòng, ngay trong tầm mắt.
       */}
       {dangChon !== undefined && (
         <div
@@ -653,12 +705,8 @@ export function DonutChart({ model, idBase, size: sizeProp }: DonutChartProps) {
           aria-hidden="true"
           style={viTri === null ? { visibility: 'hidden' } : { left: viTri.left, top: viTri.top }}
         >
-          <span className={`${String(styles.donutPopupTen)} ${TONE_CLASS[dangChon.part.tone]}`}>
-            <span className={styles.donutPopupO} />
-            {dangChon.ten}
-          </span>
+          <span>{dangChon.ten}</span>
           <strong className={styles.donutPopupGiaTri}>{dangChon.giaTri}</strong>
-          <span>{dangChon.phan}</span>
         </div>
       )}
       <p className="visually-hidden">

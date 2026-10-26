@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { runFormula } from '../calc/run';
 import type { CalcContext } from '../calc/types';
 import { FORMULA_MODULES } from '../formulas';
-import { FPT_BARS } from '../formulas/market-series-2026';
+import { FPT_BARS, VNINDEX_PHIEN } from '../formulas/market-series-2026';
 import { simpleReturns } from '../formulas/series-utils';
 import { MARKET_CONFIG } from '../market';
 import { scheduleOrDefault } from '../market/resolve';
@@ -17,6 +17,8 @@ import {
   DRAWDOWN_KEY,
   drawdownSeries,
   laHinhChuoiGia,
+  SCATTER_KEY,
+  seriesViewOption,
   seriesWindow,
 } from './series-view';
 
@@ -31,11 +33,16 @@ import {
 
 const CTX: CalcContext = { asOf: '2026-09-15', schedule: scheduleOrDefault(MARKET_CONFIG) };
 
+/*
+ * Chuỗi VN-Index thật đi kèm mọi ngữ cảnh (26/10/2026): Beta — công thức duy nhất đọc nó — có hình phân
+ * tán cần cả hai chuỗi; mọi công thức khác không đọc nên không đổi gì.
+ */
 function ctxVoi(bars: typeof FPT_BARS): CalcContext {
   return {
     ...CTX,
     bars,
     series: bars.map((bar) => bar.close ?? 0).filter((close) => close > 0),
+    marketSeries: VNINDEX_PHIEN,
   };
 }
 
@@ -63,7 +70,7 @@ function dung(formula: FormulaModule, ctx: CalcContext, sweepKey?: string) {
 const DA_KHAI = FORMULA_MODULES.filter((formula) => formula.spec.seriesView !== undefined);
 
 describe('khai báo', () => {
-  it('đúng 15 công thức: 11 phân phối lợi suất, 4 đường sụt giảm', () => {
+  it('đúng 17 công thức: 12 phân phối lợi suất, 4 đường sụt giảm, 1 phân tán', () => {
     const theoDang = (kind: string) =>
       DA_KHAI.filter((formula) => formula.spec.seriesView?.kind === kind).map(
         (formula) => formula.spec.id,
@@ -81,6 +88,7 @@ describe('khai báo', () => {
       'ty-so-treynor',
       'ty-so-thong-tin',
       'ty-so-thang-thua',
+      'do-bien-dong-lich-su',
     ]);
     expect(theoDang('drawdown')).toEqual([
       'sut-giam-sau-nhat',
@@ -88,9 +96,10 @@ describe('khai báo', () => {
       'chuoi-phien-giam-dai-nhat',
       'ty-so-calmar',
     ]);
+    expect(theoDang('scatter')).toEqual(['beta']);
   });
 
-  it('ô nhập cửa sổ phải là một ô thật của công thức, và cả 15 đều vẽ được theo thời gian', () => {
+  it('ô nhập cửa sổ phải là một ô thật của công thức, và cả 17 đều vẽ được theo thời gian', () => {
     for (const formula of DA_KHAI) {
       const view = formula.spec.seriesView;
       if (view?.lookbackKey !== undefined) {
@@ -109,8 +118,9 @@ describe('khai báo', () => {
 describe('mục trong ô chọn', () => {
   it('chưa nạp chuỗi thì không có; nạp rồi thì đứng ngay sau "Thời gian"', () => {
     for (const formula of DA_KHAI) {
-      const khoa =
-        formula.spec.seriesView?.kind === 'distribution' ? DISTRIBUTION_KEY : DRAWDOWN_KEY;
+      const view = formula.spec.seriesView;
+      if (view === undefined) throw new Error(formula.spec.id);
+      const khoa = seriesViewOption(view).key;
 
       const chuaNap = dung(formula, CTX);
       const mucChuaNap = chuaNap.kind === 'unavailable' ? [] : chuaNap.options;
@@ -175,7 +185,7 @@ describe('mục trong ô chọn', () => {
   });
 
   it('công thức không khai thì không có mục nào, kể cả khi đã nạp chuỗi', () => {
-    for (const id of ['pe', 'sma-n-phien', 'beta', 'bien-do-dao-dong-lon-nhat']) {
+    for (const id of ['pe', 'sma-n-phien', 'rsi-wilder']) {
       const hinh = dung(tim(id), CTX_FPT);
       const keys = (hinh.kind === 'unavailable' ? [] : hinh.options).map((option) => option.key);
       expect(
@@ -299,6 +309,40 @@ describe('phân phối lợi suất', () => {
     expect(hinh.title.vi).toBe(`${tenGon} — phân phối lợi suất phiên`);
   });
 
+  /*
+   * Độ biến động lịch sử (26/10/2026) là công thức duy nhất tính trên lợi suất LOG. Dãy dưới đây tính
+   * lại từ định nghĩa, không qua `logReturns()`: hình phải chia đúng dãy ấy, và độ lệch chuẩn mẫu của
+   * chính dãy ấy × √252 × 100 phải ra đúng con số khối Kết quả in.
+   */
+  it('độ biến động lịch sử: chia lợi suất LOG của đúng cửa sổ calc đọc', () => {
+    const formula = tim('do-bien-dong-lich-su');
+    const inputs = defaultInputs(formula.spec);
+    const out = runFormula(formula, inputs, CTX_FPT);
+    const hinh = dung(formula, CTX_FPT, DISTRIBUTION_KEY);
+    if (hinh.kind !== 'histogram' || out.value === null) throw new Error('hv');
+
+    const n = inputs['sample'] ?? 0;
+    const gia = FPT_BARS.slice(-n).map((bar) => bar.close ?? 0);
+    const log = gia.slice(1).map((p, i) => Math.log(p / (gia[i] ?? p)) * 100);
+    expect(log).toHaveLength(n - 1);
+
+    const tb = log.reduce((sum, r) => sum + r, 0) / log.length;
+    const sd = Math.sqrt(log.reduce((sum, r) => sum + (r - tb) ** 2, 0) / (log.length - 1));
+    expect(sd * Math.sqrt(inputs['tradingDays'] ?? 0)).toBeCloseTo(out.value, 6);
+
+    // Mỗi lợi suất log rơi vào đúng khoảng của nó; tổng số phiên đúng n − 1.
+    expect(hinh.bins.reduce((sum, bin) => sum + bin.count, 0)).toBe(log.length);
+    hinh.bins.forEach((bin, index) => {
+      const cuoi = index === hinh.bins.length - 1;
+      const trong = log.filter((r) => r >= bin.from - 1e-9 && (cuoi ? r <= bin.to : r < bin.to));
+      expect(trong.length, bin.label.vi).toBe(bin.count);
+    });
+    expect(hinh.markers[0]?.value).toBeCloseTo(tb, 9);
+    expect(hinh.x.title.vi).toBe('Lợi suất log một phiên (%)');
+    expect(hinh.title.vi).toBe('Độ biến động lịch sử năm hoá — phân phối lợi suất log phiên');
+    expect(hinh.table.columns[0]?.vi).toBe('Khoảng lợi suất log');
+  });
+
   it('Sharpe không phải mức lỗ nên chỉ có vạch bình quân; kết quả lỗi thì không có vạch kết quả', () => {
     const sharpe = dung(tim('ty-so-sharpe'), CTX_FPT, DISTRIBUTION_KEY);
     if (sharpe.kind !== 'histogram') throw new Error('sharpe');
@@ -315,6 +359,93 @@ describe('phân phối lợi suất', () => {
     const varTang = dung(tim('var-lich-su'), ctxVoi(tangDeu), DISTRIBUTION_KEY);
     if (varTang.kind !== 'histogram') throw new Error('var');
     expect(varTang.markers.map((marker) => marker.label.vi)).toEqual(['Bình quân']);
+  });
+});
+
+/*
+ * Hình phân tán của Beta (26/10/2026). Lợi suất ở đây tính lại từ định nghĩa trên hai chuỗi thật,
+ * không qua `simpleReturns()`; độ dốc bình phương nhỏ nhất của chính đám chấm phải ra đúng Beta.
+ */
+describe('phân tán lợi suất', () => {
+  const beta = () => tim('beta');
+  const loiSuat = (gia: ReadonlyArray<number>) =>
+    gia.slice(1).map((p, i) => (p / (gia[i] ?? p) - 1) * 100);
+
+  it('mỗi phiên của cửa sổ calc một chấm, đúng hai lợi suất; độ dốc của đám chấm là Beta', () => {
+    const formula = beta();
+    const inputs = defaultInputs(formula.spec);
+    const out = runFormula(formula, inputs, CTX_FPT);
+    const hinh = dung(formula, CTX_FPT, SCATTER_KEY);
+    if (hinh.kind !== 'scatter' || out.value === null) throw new Error(hinh.kind);
+
+    const n = inputs['sessions'] ?? 0;
+    const rm = loiSuat(VNINDEX_PHIEN.slice(-n));
+    const ri = loiSuat(FPT_BARS.slice(-n).map((bar) => bar.close ?? 0));
+    expect(hinh.points).toHaveLength(n - 1);
+    hinh.points.forEach((point, k) => {
+      expect(point.x, `phiên ${String(k)}`).toBeCloseTo(rm[k] ?? Number.NaN, 9);
+      expect(point.y, `phiên ${String(k)}`).toBeCloseTo(ri[k] ?? Number.NaN, 9);
+    });
+    // Nhãn là phiên SAU của mỗi cặp: lợi suất cuối chốt ở phiên cuối của chuỗi.
+    expect(hinh.points[hinh.points.length - 1]?.label).toBe('15/09/2026');
+
+    const tbX = rm.reduce((sum, r) => sum + r, 0) / rm.length;
+    const tbY = ri.reduce((sum, r) => sum + r, 0) / ri.length;
+    let cov = 0;
+    let varX = 0;
+    rm.forEach((r, k) => {
+      cov += (r - tbX) * ((ri[k] ?? 0) - tbY);
+      varX += (r - tbX) ** 2;
+    });
+    expect(cov / varX).toBeCloseTo(out.value, 9);
+    expect(hinh.fit?.slope).toBe(out.value);
+    // Đường đi qua điểm bình quân của đám chấm.
+    expect((hinh.fit?.intercept ?? 0) + out.value * tbX).toBeCloseTo(tbY, 9);
+    expect(hinh.fit?.label.vi).toBe('Đường hồi quy, độ dốc β = 0,81');
+  });
+
+  it('hai trục luôn chứa 0; một dạng vẽ (Điểm) nên không có ô Loại biểu đồ', () => {
+    const formula = beta();
+    const hinh = dung(formula, CTX_FPT, SCATTER_KEY);
+    if (hinh.kind !== 'scatter') throw new Error(hinh.kind);
+    for (const truc of [hinh.x, hinh.y]) {
+      expect(truc.domain[0]).toBeLessThanOrEqual(0);
+      expect(truc.domain[1]).toBeGreaterThanOrEqual(0);
+    }
+    expect(dangVeCuaHinh(hinh, formula.spec)).toEqual(['dots']);
+    expect(hinh.x.title.vi).toBe('Lợi suất VN-Index một phiên (%)');
+    expect(hinh.title.vi).toBe('Beta — phân tán lợi suất phiên');
+    expect(hinh.table.columns.map((cot) => cot.vi)).toEqual([
+      'Phiên',
+      'Lợi suất VN-Index một phiên (%)',
+      'Lợi suất cổ phiếu một phiên (%)',
+    ]);
+    expect(JSON.stringify(hinh)).not.toMatch(/NaN|Infinity|undefined/);
+  });
+
+  it('thiếu chuỗi VN-Index, hay chuỗi ấy ngắn hơn cửa sổ, thì không có mục — đúng lúc calc báo thiếu', () => {
+    const formula = beta();
+    const khongThiTruong: CalcContext = { ...CTX_FPT, marketSeries: undefined };
+    const ngan: CalcContext = { ...CTX_FPT, marketSeries: VNINDEX_PHIEN.slice(-59) };
+    for (const ctx of [khongThiTruong, ngan]) {
+      expect(runFormula(formula, defaultInputs(formula.spec), ctx).warning?.code).toBe(
+        'MISSING_SERIES',
+      );
+      const hinh = dung(formula, ctx);
+      const keys = hinh.options?.map((option) => option.key) ?? [];
+      expect(keys).not.toContain(SCATTER_KEY);
+    }
+  });
+
+  it('VN-Index đứng yên cả cửa sổ: calc từ chối, đám chấm vẫn vẽ mà không có đường hồi quy', () => {
+    const formula = beta();
+    const ctx: CalcContext = { ...CTX_FPT, marketSeries: VNINDEX_PHIEN.map(() => 1200) };
+    expect(runFormula(formula, defaultInputs(formula.spec), ctx).value).toBeNull();
+    const hinh = dung(formula, ctx, SCATTER_KEY);
+    if (hinh.kind !== 'scatter') throw new Error(hinh.kind);
+    expect(hinh.points.length).toBeGreaterThan(0);
+    expect(hinh.fit).toBeUndefined();
+    expect(hinh.summary.vi).not.toContain('Đường hồi quy');
   });
 });
 

@@ -7,6 +7,7 @@ import { useT, usePick } from '@/application/preferences-context';
 
 import { ColumnChart } from './ColumnChart';
 import { GaugeChart } from './GaugeChart';
+import { ScatterChart } from './ScatterChart';
 import { DonutChart } from './DonutChart';
 import { HistogramChart } from './HistogramChart';
 import { LineChart } from './LineChart';
@@ -283,6 +284,8 @@ export function ChartFullscreen({
             <ColumnChart model={model} idBase={idBase} fill size="wide" />
           ) : model.kind === 'gauge' ? (
             <GaugeChart model={model} idBase={idBase} size="wide" />
+          ) : model.kind === 'scatter' ? (
+            <ScatterChart model={model} idBase={idBase} fill size="wide" />
           ) : (
             <LineChart
               model={model}

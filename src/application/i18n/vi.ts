@@ -611,10 +611,10 @@ export const vi = {
   /* Dòng tổng trong ô dò của hình cột chồng (gốc + lãi của một năm…), 23/10/2026. */
   'chart.columnsTotal': 'Cộng',
   /*
-   * Bảng số liệu tương đương, gói trong <details>. HIỆN chứ không giấu bằng .visually-hidden:
-   * người sáng mắt cũng cần con số chính xác, mắt đọc biểu đồ chỉ ra được xu hướng.
+   * `chart.showData` ("Xem số liệu") đã GỠ ngày 26/10/2026. Nó là dòng "Xem số liệu (N)" mở bảng số
+   * dưới mọi biểu đồ; chủ dự án: _"xóa bỏ toàn bộ, không cần chức năng xem này nữa"_. Bảng vẫn còn
+   * trong DOM cho trình đọc màn hình, ẩn khỏi mắt (docblock `ChartFrame.tsx`). Đừng dựng lại mà không hỏi.
    */
-  'chart.showData': 'Xem số liệu',
   /* Caption ẩn của bảng số liệu — cố ý KHÁC tiêu đề hình, ghép "<caption> — <tên hình>". */
   'chart.tableCaption': 'Số liệu',
   /*
@@ -2047,7 +2047,11 @@ export const vi = {
    * đang thiếu thanh tiến độ. Nay mọi bài dựng cùng một hình; đừng dựng lại nhánh "ít câu".
    */
   'quiz.check': 'Kiểm tra',
-  'quiz.exit': 'Thoát',
+  /*
+   * Mộ chí: `quiz.exit` ('Thoát') bỏ ngày 26/10/2026, khi bài làm chuyển vào popup riêng (chủ dự án:
+   * _"điều chỉnh phần bài tập của công thức thành dạng popup riêng"_). Nút X của popup làm đúng việc
+   * của nó — xoá tiến trình dở, không ghi gì xuống máy — nên giữ cả hai là hai lối ra cho một việc.
+   */
   'quiz.skip': 'Bỏ qua câu này',
   /*
    * Mộ chí: `quiz.skippedNote` ('Dấu ? là câu bạn bỏ qua — chưa trả lời, nên tính là chưa nắm.')

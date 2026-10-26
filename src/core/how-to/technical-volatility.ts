@@ -290,10 +290,11 @@ export const HOW_TO_TECHNICAL_VOLATILITY: Readonly<Record<string, FormulaHowTo>>
             },
           },
         ],
+        /* Từ 26/10/2026 calc lấy lợi suất log qua `logReturns()` của series-utils (cùng hàm với hình phân phối). */
         calcEvidence: [
           'closes.slice(-sample)',
-          'Math.log(current / previous)',
-          'sampleStdDev(logReturns)',
+          'logReturns(closes.slice(-sample))',
+          'sampleStdDev(loiSuatLog)',
         ],
       },
     ],

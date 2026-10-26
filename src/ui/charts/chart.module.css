@@ -372,18 +372,10 @@
   pointer-events: none;
 }
 
-.donutPopupTen {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-}
-
-.donutPopupO {
-  width: 10px;
-  height: 10px;
-  border-radius: 2px;
-  background: var(--series-ink);
-}
+/*
+ * `.donutPopupTen` (hàng ô màu + tên) và `.donutPopupO` (ô màu) đã gỡ ngày 26/10/2026: popup chỉ còn
+ * tên và giá trị, ô màu và "chiếm …" đã có ở chú giải cạnh vòng. Lý do ở chỗ dựng popup, `DonutChart.tsx`.
+ */
 
 .donutPopupGiaTri {
   color: var(--color-ink);
@@ -415,6 +407,30 @@
 .columnLegendText {
   fill: var(--color-ink-soft);
   font-size: 10px;
+}
+
+/*
+ * ── Hình phân tán lợi suất (`ScatterChart`, 26/10/2026) ────────────────────────────────────────
+ *
+ * Chấm hơi trong để chỗ nhiều phiên chồng nhau đậm lên; chấm đang dò đặc và có viền màu nền. Đường
+ * hồi quy màu của "con số ở khối Kết quả" (`--color-highlight`, như vạch VaR của histogram): độ dốc
+ * của nó chính là Beta.
+ */
+.scatterDot {
+  fill: var(--color-accent-vivid);
+  fill-opacity: 0.5;
+}
+
+.scatterDotMarked {
+  fill-opacity: 1;
+  stroke: var(--color-surface);
+  stroke-width: 1.5;
+}
+
+.scatterFit {
+  stroke: var(--color-highlight);
+  stroke-width: 2;
+  stroke-linecap: round;
 }
 
 /*
@@ -776,6 +792,18 @@
   cursor: pointer;
 }
 
+/*
+ * Hình gồm những phần RỜI — thanh ngang (`WaterfallChart`), cột theo kỳ (`ColumnChart`), cột phân phối
+ * (`HistogramChart`): trỏ vào một phần là phần ấy sáng lên và hiện số, như múi vành khuyên. Nên con
+ * trỏ là bàn tay như ở múi, không phải chữ thập "dò đọc" của đường và của đám điểm, nơi con trỏ trượt
+ * dọc một đường liền (26/10/2026, chủ dự án chụp "Thanh ngang" của cơ cấu số tiền chấp nhận mất: _"khi
+ * hover chuột vào vùng khoanh đỏ như ảnh thì chuột lại thành dấu cộng + thay vì bàn tay. sửa lại"_).
+ * Cùng độ ưu tiên với `.hoverCapture`, thắng nhờ đứng sau trong cùng file — như `.hoverCaptureReady`.
+ */
+.hoverCapturePhan {
+  cursor: pointer;
+}
+
 /* Nhóm vẽ vạch dò — không tự bắt sự kiện, để lọt xuống `.hoverCapture` bên dưới nó. */
 .hoverOverlay {
   pointer-events: none;
@@ -899,122 +927,12 @@
  * `.controls` của một hình, nên không cần lớp riêng. Lý do ở docblock `UnavailableChart`.
  */
 
-.data {
-  font-size: var(--text-xs);
-}
-
-.summary {
-  padding: var(--space-1) 0;
-  color: var(--color-accent);
-  cursor: pointer;
-  /* Vùng bấm cao đủ ngón tay (NFR-USA-01). */
-  min-height: var(--tap-min);
-  display: flex;
-  align-items: center;
-}
-
-.summary:focus-visible {
-  outline: var(--focus-width) solid var(--color-focus);
-  outline-offset: 2px;
-  border-radius: var(--radius-sm);
-}
-
 /*
- * Vùng cuộn riêng cho bảng số liệu — NFR-USA-02.
- *
- * Ô bảng để `white-space: nowrap` (số không được ngắt dòng), nên `width: 100%` không giữ nổi bảng
- * trong cột: bề rộng nội tại thắng. Đo trên bản build, `gia-tri-noi-tai-fcff` có tiêu đề cột
- * "Giá trị nội tại từ FCFF (DCF) (₫)" làm bảng rộng 385px trong cột 344px và kéo cả trang cuộn
- * ngang ở khổ 360px.
- *
- * `contain: layout inline-size` đi kèm `overflow-x` chứ không phải trang trí: một mình
- * `overflow-x: auto` giữ được khung nhưng vẫn để bề rộng nội tại của bảng rò ra định lại khung
- * nhìn của Chrome di động. Bài học đó đã trả giá một lần ở primitive `Table` — đọc chú thích
- * `.scroller` trong `primitives/Table.module.css` trước khi đụng vào hai dòng dưới đây.
- *
- * Không dùng thẳng primitive `Table` vì nó vẽ viền, nền và bo góc cho cả khung — hợp với bảng
- * đứng riêng ở WF-05/WF-14, nhưng ở đây bảng nằm trong một `<details>` vốn đã có khung của nó.
+ * `.data`, `.summary`, `.tableScroll`, `.table`, `.gapRow`, `.currentRow` — dòng "Xem số liệu (N)" và
+ * bảng mở ra dưới nó — đã gỡ ngày 26/10/2026 theo yêu cầu chủ dự án, ở mọi biểu đồ. Bảng vẫn còn
+ * trong DOM cho trình đọc màn hình, dưới lớp toàn cục `visually-hidden`; lý do ở docblock
+ * `ChartFrame.tsx`.
  */
-.tableScroll {
-  width: 100%;
-  max-width: 100%;
-  min-width: 0;
-  contain: layout inline-size;
-
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-
-  /*
-   * Thanh cuộn mảnh, không nút mũi tên — cùng lý do với `.formula` của `FormulaDetail.module.css`.
-   * Không thêm dải mờ ở mép như `.scroller` của `primitives/Table`: khung này cố ý không tự có
-   * nền (dòng cha `<details>` lo, xem docblock trên), nên không có màu nền chắc chắn để làm
-   * "màu phủ" cho kỹ thuật đó.
-   */
-  scrollbar-width: thin;
-  scrollbar-color: var(--color-border-strong) transparent;
-}
-
-.tableScroll::-webkit-scrollbar {
-  height: 6px;
-}
-
-.tableScroll::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.tableScroll::-webkit-scrollbar-thumb {
-  background: var(--color-border-strong);
-  border-radius: var(--radius-pill);
-}
-
-.tableScroll::-webkit-scrollbar-button {
-  display: none;
-  width: 0;
-  height: 0;
-}
-
-/* Vùng cuộn phải nhận được tiêu điểm để lăn được bằng bàn phím. */
-.tableScroll:focus-visible {
-  outline: var(--focus-width) solid var(--color-focus);
-  outline-offset: 2px;
-  border-radius: var(--radius-sm);
-}
-
-.table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: var(--text-xs);
-}
-
-.table th,
-.table td {
-  padding: var(--space-1) var(--space-2);
-  text-align: right;
-  border-bottom: 1px solid var(--color-hairline);
-  white-space: nowrap;
-}
-
-.table th {
-  color: var(--color-muted);
-  font-weight: var(--weight-medium);
-}
-
-.table td {
-  color: var(--color-ink);
-  font-variant-numeric: tabular-nums;
-}
-
-/* Dòng ngắt "…" — cùng nếp SCHEDULE_GAP của lịch trả nợ. */
-.gapRow td {
-  text-align: center;
-  color: var(--color-muted);
-}
-
-/* Dòng "giá trị hiện tại" trong bảng, để nó khớp với cái dấu trên biểu đồ. */
-.currentRow td {
-  font-weight: var(--weight-bold);
-  background: var(--color-accent-soft);
-}
 
 /* ── Hàng điều khiển: ô chọn trục X + ô chọn dạng vẽ ─────────────────────── */
 
@@ -1410,12 +1328,11 @@
  *   cột thì tràn đều hai bên). Tiêu đề, hàng chọn trục và "Xem số liệu" vẫn đứng ở lề 12px như mọi thẻ.
  *   Trần 460px / 940px của `.plot` vẫn giữ, nên chữ SVG không phóng quá cỡ đọc. Lề TRONG SVG gọn đi ở
  *   `PAD_COMPACT` (`LineChart.tsx`); khổ `wide` (768–1023px) chỉ được phần tràn này.
- * - "Xem số liệu" thấp còn 28px; lớp phủ `::after` giữ vùng chạm 44px (NFR-USA-01), thò 8px lên khe
- *   trên và 8px xuống đệm đáy. Bảng mở ra lùi xuống 8px để lớp phủ ấy không đè lên hàng tiêu đề bảng.
+ * - "Xem số liệu" thấp còn 28px (cả dòng ấy gỡ ngày 26/10/2026, xem docblock `ChartFrame.tsx`).
  * - Đệm đáy thẻ 12 → 8px.
  *
  * `.chart > .plot` chứ không `.plot`: màn phóng to dựng `.plot` ngoài thẻ `.chart` và tự lo bề ngang
- * (`.plotFill`). Khối này đứng cuối file để thắng `.summary` và `.plot` gốc cùng hạng ưu tiên.
+ * (`.plotFill`). Khối này đứng cuối file để thắng `.plot` gốc cùng hạng ưu tiên.
  */
 @media (max-width: 1023.98px) {
   .chart {
@@ -1426,26 +1343,6 @@
     align-self: center;
     width: calc(100% + 2 * var(--space-2));
     margin-inline: 0;
-  }
-
-  .summary {
-    position: relative;
-    min-height: 28px;
-    padding: 0;
-  }
-
-  .summary::after {
-    content: '';
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 50%;
-    height: var(--tap-min);
-    transform: translateY(-50%);
-  }
-
-  .data[open] > .tableScroll {
-    margin-top: var(--space-2);
   }
 
   /*

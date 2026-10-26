@@ -9,13 +9,26 @@
  */
 
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 
 import { t } from '@/application';
 import type { QuizItem, QuizTolerance } from '@/application';
 import { PreferencesProvider } from '@/application/preferences-context';
 
 import { QuizBody } from './QuizBody';
+
+/**
+ * jsdom chưa cài đặt <dialog>.showModal() — cùng bản vá của `SaveCalcSheet.test.tsx`. Bài làm mở
+ * trong popup riêng từ 26/10/2026, nên thiếu bản vá này là mọi ca bấm "Bắt đầu kiểm tra" đều ném.
+ */
+beforeAll(() => {
+  HTMLDialogElement.prototype.showModal = function showModal(this: HTMLDialogElement) {
+    this.open = true;
+  };
+  HTMLDialogElement.prototype.close = function close(this: HTMLDialogElement) {
+    this.open = false;
+  };
+});
 
 afterEach(() => {
   cleanup();
@@ -177,11 +190,13 @@ describe('tổng kết', () => {
   });
 
   /*
-   * Nhãn "Kết quả kiểm tra" và điểm đứng TRÊN HÀNG "BÀI TẬP", ở mọi khổ (20/10/2026). Chủ dự án khoanh hai
+   * Nhãn "Kết quả kiểm tra" và điểm đứng CÙNG HÀNG với tiêu đề, ở mọi khổ (20/10/2026). Chủ dự án khoanh hai
    * dòng ấy ở điện thoại và vẽ mũi tên sang phải, chọn cùng hàng với nhãn khối, rồi: _"bản web cũng nên
    * điều chỉnh lại như này cho gọn"_. Trước đó chúng là hai dòng riêng đầu thẻ tổng kết, điểm 32px.
+   *
+   * Từ 26/10/2026 hàng ấy là hàng tiêu đề của POPUP bài làm, không phải hàng "BÀI TẬP" trên trang.
    */
-  it('nhãn kết quả và điểm nằm cùng hàng với nhãn khối, sau nhãn khối', () => {
+  it('nhãn kết quả và điểm nằm cùng hàng với tiêu đề popup, sau tiêu đề', () => {
     render(<QuizBody formulaId="pe" items={[cau('Q001'), cau('Q002')]} />);
     fireEvent.click(screen.getByRole('button'));
     fireEvent.click(screen.getByRole('radio', { name: /Lựa chọn B/ }));
@@ -189,12 +204,13 @@ describe('tổng kết', () => {
     fireEvent.click(screen.getByRole('button', { name: t('quiz.next') }));
     fireEvent.click(screen.getByRole('button', { name: t('quiz.skip') }));
 
-    const hang = screen.getByRole('heading', { name: t('quiz.title') }).parentElement;
-    const nhan = screen.getByText(t('quiz.result'));
-    const diem = screen.getByText('1 / 2');
+    const popup = within(screen.getByRole('dialog'));
+    const hang = popup.getByRole('heading', { name: t('quiz.title') }).parentElement;
+    const nhan = popup.getByText(t('quiz.result'));
+    const diem = popup.getByText('1 / 2');
     expect(hang?.contains(nhan)).toBe(true);
     expect(hang?.contains(diem)).toBe(true);
-    // Thứ tự đọc: nhãn khối, nhãn kết quả, điểm.
+    // Thứ tự đọc: tiêu đề, nhãn kết quả, điểm.
     expect(hang?.textContent).toBe(`${t('quiz.title')}${t('quiz.result')}1 / 2`);
   });
 
@@ -792,10 +808,16 @@ describe('khối lời giải có cấu trúc — QuizGiai', () => {
   });
 });
 
+/*
+ * Lối ra giữa bài là nút X (Đóng) của popup từ 26/10/2026 — nút "Thoát" trên hàng tiêu đề bỏ, vì hai
+ * lối ra cho cùng một việc là thừa. Hành vi KHÔNG đổi: đóng là thoát, xoá tiến trình dở, không ghi gì.
+ */
 describe('lối ra giữa bài — WF-19 · S2', () => {
-  it('nút Thoát có cả ở bài ngắn, nơi không dựng thanh tiến độ', () => {
+  it('popup có nút Đóng ở cả bài một câu', () => {
     batDau([cau('Q001')]);
-    expect(screen.getByRole('button', { name: t('quiz.exit') })).toBeTruthy();
+    expect(
+      within(screen.getByRole('dialog')).getByRole('button', { name: t('sheet.close') }),
+    ).toBeTruthy();
   });
 
   it('thoát thì về trạng thái nghỉ và xoá tiến trình dở, không ghi gì xuống kho', () => {
@@ -805,10 +827,11 @@ describe('lối ra giữa bài — WF-19 · S2', () => {
     // Trả lời đúng câu 1 rồi thoát giữa chừng.
     fireEvent.click(screen.getByRole('radio', { name: /Lựa chọn B/ }));
     fireEvent.click(screen.getByRole('button', { name: t('quiz.check') }));
-    fireEvent.click(screen.getByRole('button', { name: t('quiz.exit') }));
+    fireEvent.click(screen.getByRole('button', { name: t('sheet.close') }));
 
     expect(onFinish).not.toHaveBeenCalled();
-    // Về màn nghỉ: nút bắt đầu quay lại, câu hỏi biến mất.
+    // Về màn nghỉ: popup đóng, câu hỏi biến mất, nút bắt đầu vẫn ở trên trang.
+    expect(screen.queryByRole('dialog')).toBeNull();
     expect(screen.getByRole('button', { name: t('quiz.start') })).toBeTruthy();
     expect(screen.queryByRole('radio')).toBeNull();
 
@@ -837,11 +860,68 @@ describe('lối ra giữa bài — WF-19 · S2', () => {
     fireEvent.click(screen.getByRole('button', { name: t('quiz.seeResult') }));
 
     fireEvent.click(screen.getByRole('button', { name: t('quiz.reviewWrong') }));
-    fireEvent.click(screen.getByRole('button', { name: t('quiz.exit') }));
+    fireEvent.click(screen.getByRole('button', { name: t('sheet.close') }));
 
     // `queue` đã về cả bộ câu: nút mang nhãn bài dài, và bài chạy lại từ 1 / 3.
     fireEvent.click(screen.getByRole('button', { name: t('quiz.start') }));
     expect(screen.getByText(viTri(1, 3))).toBeTruthy();
+  });
+});
+
+/*
+ * Bài làm mở trong POPUP riêng (26/10/2026). Chủ dự án: _"điều chỉnh phần bài tập của công thức thành
+ * dạng popup riêng"_ — hộp thoại nổi giữa màn ở mọi khổ, đóng là thoát, thẻ "BÀI TẬP" trên trang giữ
+ * làm lối vào.
+ */
+describe('bài làm trong popup riêng — 26/10/2026', () => {
+  /*
+   * `BottomSheet` gọi `useId()`, mà khối này nằm sau ranh giới `next/dynamic`: popup có mặt trong
+   * HTML tĩnh là lệch id lúc hydrate. Nên nó chỉ gắn sau lần bấm bắt đầu đầu tiên.
+   */
+  it('chưa bấm bắt đầu thì chưa có popup nào trong cây', () => {
+    const { container } = render(<QuizBody formulaId="pe" items={BA_CAU} />);
+    expect(container.querySelector('dialog')).toBeNull();
+  });
+
+  it('bấm bắt đầu thì câu hỏi mở trong popup, thẻ trên trang vẫn chỉ một hàng', () => {
+    const { container } = render(<QuizBody formulaId="pe" items={BA_CAU} />);
+    fireEvent.click(screen.getByRole('button'));
+
+    const popup = screen.getByRole('dialog');
+    expect(within(popup).getByText('Đề bài Q001')).toBeTruthy();
+    expect(within(popup).getByRole('button', { name: t('quiz.check') })).toBeTruthy();
+
+    // Hàng trên trang không đổi hình: vẫn nhãn và nút vào bài, không vị trí câu, không câu hỏi.
+    const hangTrang = container.querySelector('#quiz-pe-title')?.parentElement;
+    expect(hangTrang?.textContent).toBe(`${t('quiz.title')}${t('quiz.start')}»`);
+    const ngoaiPopup = [...(container.querySelector('section')?.children ?? [])].filter(
+      (con) => !con.contains(popup),
+    );
+    expect(ngoaiPopup.some((con) => (con.textContent ?? '').includes('Đề bài'))).toBe(false);
+  });
+
+  it('vị trí câu và thanh tiến độ nằm cùng hàng với tiêu đề popup', () => {
+    batDau(BA_CAU);
+    const popup = within(screen.getByRole('dialog'));
+    const hang = popup.getByRole('heading', { name: t('quiz.title') }).parentElement;
+    expect(hang?.textContent).toBe(`${t('quiz.title')}${viTri(1, 3)}`);
+
+    fireEvent.click(popup.getByRole('button', { name: t('quiz.skip') }));
+    expect(hang?.textContent).toBe(`${t('quiz.title')}${viTri(2, 3)}`);
+  });
+
+  it('đóng popup ở màn tổng kết thì về thẻ nghỉ, kết quả đã ghi giữ nguyên', () => {
+    const onFinish = vi.fn();
+    batDau([cau('Q001')], onFinish);
+    fireEvent.click(screen.getByRole('radio', { name: /Lựa chọn B/ }));
+    fireEvent.click(screen.getByRole('button', { name: t('quiz.check') }));
+    fireEvent.click(screen.getByRole('button', { name: t('quiz.seeResult') }));
+    expect(onFinish).toHaveBeenCalledTimes(1);
+
+    fireEvent.click(screen.getByRole('button', { name: t('sheet.close') }));
+    expect(screen.queryByRole('dialog')).toBeNull();
+    expect(screen.getByRole('button', { name: t('quiz.start') })).toBeTruthy();
+    expect(onFinish).toHaveBeenCalledTimes(1);
   });
 });
 
@@ -1056,7 +1136,7 @@ describe('dải câu đã làm — 24/09/2026', () => {
   it('thoát giữa bài thì dải xoá theo', () => {
     batDau(BA_CAU);
     xongMotCau();
-    fireEvent.click(screen.getByRole('button', { name: t('quiz.exit') }));
+    fireEvent.click(screen.getByRole('button', { name: t('sheet.close') }));
     fireEvent.click(screen.getByRole('button', { name: t('quiz.start') }));
 
     expect(screen.queryByRole('button', { name: /Đề bài Q001/ })).toBeNull();
@@ -1130,9 +1210,10 @@ describe('sắp xếp lại hàng nút và lưới đáp án — 24/09/2026', ()
    * Hai cột ở khổ PC quyết định bằng ĐỘ DÀI ĐÁP ÁN, đo lúc dựng. Đo bằng JS lúc chạy thì lượt
    * dựng đầu tiên trên trình duyệt sẽ khác HTML tĩnh — xem `khoHaiCot()` ở `QuizQuestion`.
    *
-   * Thuộc tính mang TÊN KHỔ MÀN nhỏ nhất còn xếp hai cột được, nên ca này phải chạm cả BA bậc.
-   * Bỏ sót bậc giữa chính là chỗ hỏng chủ dự án báo ngày 24/09/2026: mọi đáp án dài hơn 48 ký
-   * tự đều rơi thẳng về một cột, kể cả khi màn còn thừa gần một nửa chỗ.
+   * Thuộc tính mang TÊN KHỔ MÀN nhỏ nhất còn xếp hai cột được. Ca này từng chạm BA bậc (thêm bậc
+   * giữa '1280' sau khi chủ dự án báo, 24/09/2026, mọi đáp án dài hơn 48 ký tự rơi về một cột dù màn
+   * còn thừa gần nửa chỗ). Từ 26/10/2026 bài làm ở trong popup 960px, chỗ không còn bậc giữa: ca giữ
+   * đáp án 62 ký tự để chốt rằng nó nay MỘT cột, không lặng lẽ quay về hai cột rồi vỡ dòng.
    */
   const doiDapAnA = (loi: string): QuizItem => {
     const goc = cau('Q201');
@@ -1150,11 +1231,15 @@ describe('sắp xếp lại hàng nút và lưới đáp án — 24/09/2026', ()
 
     cleanup();
 
-    /* 62 ký tự: quá 55 nên khổ 1024 không đủ, nhưng dưới 78 nên từ 1280 là hai cột. */
+    /*
+     * 62 ký tự: quá 55 nên MỘT cột ở mọi khổ. Hồi bài làm trải hết khung trang nó hai cột từ 1280
+     * (bậc '1280', ≤ 78 ký tự); bậc ấy bỏ 26/10/2026 khi bài làm vào popup 960px, nơi nửa bề ngang
+     * chỉ chứa chừng 57 ký tự — xem `khoHaiCot()`.
+     */
     const vua = doiDapAnA('Giảm sai lầm loại 1 nhưng tăng sai lầm loại 2, tức bỏ lỡ cơ hội');
     const giua = render(<QuizBody formulaId="pe" items={[vua]} />);
     fireEvent.click(screen.getByRole('button'));
-    expect(khoCua(giua.container)).toBe('1280');
+    expect(khoCua(giua.container)).toBe('0');
 
     cleanup();
 

@@ -21,7 +21,7 @@ import type { FormulaSpec } from '../registry/types';
 import type { Bilingual, CalcWarning } from '../types';
 
 import { COMPOSITION_KEY } from './composition';
-import { HISTORY_KEY } from './history';
+import { COMPONENTS_KEY, HISTORY_KEY } from './history';
 import { DRAWDOWN_KEY } from './series-view';
 import type { ChartPoint, DrawableChart, LineChart, SeriesTone, WaterfallChart } from './types';
 
@@ -153,6 +153,8 @@ export function dangVeCuaHinh(model: DrawableChart, spec: FormulaSpec): Readonly
    */
   if (model.kind === 'histogram' || model.kind === 'columns') return ['bar'];
   if (model.kind === 'gauge') return ['gauge'];
+  /* Hình phân tán (26/10/2026): mỗi phiên một chấm — chính dạng Điểm, và chỉ dạng ấy. */
+  if (model.kind === 'scatter') return ['dots'];
   if (model.kind === 'waterfall') {
     if (phanCong(model) === null) return ['waterfall'];
     /*
@@ -161,6 +163,13 @@ export function dangVeCuaHinh(model: DrawableChart, spec: FormulaSpec): Readonly
      */
     return model.sweepKey === COMPOSITION_KEY ? ['donut', 'waterfall'] : ['waterfall', 'donut'];
   }
+
+  /*
+   * Các đường thành phần (26/10/2026): mỗi đường một đại lượng ngang hàng nhau. Điểm, Bậc thang chỉ đổi
+   * đường CHÍNH và để các đường kia là đường — một hình nửa chấm nửa đường so hai thứ ngang hàng là
+   * nói chúng khác loại; Cột và Lãi/lỗ cần một chuỗi. Nên chỉ một dạng, không có ô Loại biểu đồ.
+   */
+  if (model.sweepKey === COMPONENTS_KEY) return ['line'];
 
   const motChuoi = model.overlays === undefined || model.overlays.length === 0;
   return [

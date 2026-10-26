@@ -2,8 +2,9 @@
  * Tầng DOMAIN — hai hình THEO CHUỖI GIÁ của ô "Xem theo" (21/10/2026, đợt C của việc thêm dạng vẽ).
  *
  *   - **Phân phối lợi suất** (`HistogramChart`): lợi suất từng phiên chia khoảng, đếm số phiên mỗi
- *     khoảng. Cho 11 công thức đọc PHÂN PHỐI ấy ra một con số: VaR, CVaR, các độ lệch chuẩn, hệ số
- *     biến thiên, Sharpe, Sortino, Treynor, tỷ số thông tin, thắng/thua.
+ *     khoảng. Cho 12 công thức đọc PHÂN PHỐI ấy ra một con số: VaR, CVaR, các độ lệch chuẩn, hệ số
+ *     biến thiên, Sharpe, Sortino, Treynor, tỷ số thông tin, thắng/thua, và (26/10/2026) độ biến
+ *     động lịch sử — công thức duy nhất chia LỢI SUẤT LOG (`SeriesViewSpec.logReturns`).
  *   - **Đường sụt giảm** (`LineChart` với `sweepKey = DRAWDOWN_KEY`): mức sụt so với đỉnh đã qua, ở
  *     từng phiên. Cho 4 công thức đọc đường ấy: sụt giảm sâu nhất, sụt giảm hiện tại, chuỗi phiên
  *     giảm dài nhất, Calmar.
@@ -19,10 +20,16 @@
 import type { CalcContext, CalcInputs } from '../calc/types';
 import type { Bilingual, CalcOutput } from '../types';
 import { formatNumber, formatValueWithUnit } from '../format';
-import { simpleReturns, usableCloses } from '../formulas/series-utils';
+import {
+  logReturns,
+  mean,
+  simpleReturns,
+  usableCloses,
+  usableMarketCloses,
+} from '../formulas/series-utils';
 import type { SeriesViewSpec } from '../registry/types';
 
-import { formatSessionDate } from './history';
+import { COMPONENTS_KEY, formatSessionDate } from './history';
 import { decimalsOf, extentOf, niceAxis, niceStep } from './scale';
 import { condensePoints } from './table';
 import type {
@@ -33,26 +40,40 @@ import type {
   HistogramChart,
   HistogramMarker,
   LineChart,
+  ScatterChart,
+  ScatterFit,
+  ScatterPoint,
   SweepOption,
 } from './types';
 
-/** Khoá hai mục trong ô "Xem theo" — hai gạch dưới đầu, cùng nếp `HISTORY_KEY`. */
+/** Khoá các mục trong ô "Xem theo" — hai gạch dưới đầu, cùng nếp `HISTORY_KEY`. */
 export const DISTRIBUTION_KEY = '__distribution';
 export const DRAWDOWN_KEY = '__drawdown';
+export const SCATTER_KEY = '__scatter';
 
 export const DISTRIBUTION_LABEL: Bilingual = {
   vi: 'Phân phối lợi suất',
   en: 'Return distribution',
 };
 export const DRAWDOWN_LABEL: Bilingual = { vi: 'Đường sụt giảm', en: 'Drawdown curve' };
+export const SCATTER_LABEL: Bilingual = { vi: 'Phân tán lợi suất', en: 'Return scatter' };
 
-/** Khoá có phải một trong hai mục theo chuỗi giá không. */
+/**
+ * Khoá có phải một trong các mục CHỈ CÓ khi đã nạp chuỗi giá không — ba hình của file này, và (từ
+ * 26/10/2026) các đường thành phần của `history.ts`. Khung "?" im với cả bốn: chưa có chữ hướng dẫn.
+ */
 export function laHinhChuoiGia(khoa: string | null | undefined): boolean {
-  return khoa === DISTRIBUTION_KEY || khoa === DRAWDOWN_KEY;
+  return (
+    khoa === DISTRIBUTION_KEY ||
+    khoa === DRAWDOWN_KEY ||
+    khoa === SCATTER_KEY ||
+    khoa === COMPONENTS_KEY
+  );
 }
 
 /** Khoá và nhãn của mục mà công thức khai. */
 export function seriesViewOption(view: SeriesViewSpec): SweepOption {
+  if (view.kind === 'scatter') return { key: SCATTER_KEY, label: SCATTER_LABEL };
   return view.kind === 'distribution'
     ? { key: DISTRIBUTION_KEY, label: DISTRIBUTION_LABEL }
     : { key: DRAWDOWN_KEY, label: DRAWDOWN_LABEL };
@@ -63,6 +84,11 @@ export interface CuaSoPhien {
   closes: ReadonlyArray<number>;
   /** Ngày của từng phiên, hoặc `null` khi chuỗi không đi kèm ngày (dán một cột, ca kiểm). */
   dates: ReadonlyArray<string> | null;
+  /**
+   * Chỉ hình phân tán: giá VN-Index của CÙNG số phiên cuối, ghép với `closes` theo vị trí từ cuối —
+   * đúng cách `beta` ghép hai chuỗi (`slice(-n)` ở cả hai).
+   */
+  marketCloses?: ReadonlyArray<number>;
 }
 
 /**
@@ -98,6 +124,17 @@ export function seriesWindow(
   const window = closes.slice(-size);
 
   /*
+   * Hình phân tán cần thêm VN-Index đủ CÙNG số phiên — `beta` đòi đủ ở cả hai chuỗi
+   * (`requireMarketCloses()`), nên thiếu ở chuỗi chỉ số là không có cửa sổ, như `calc` báo thiếu.
+   */
+  let marketCloses: ReadonlyArray<number> | undefined;
+  if (view.kind === 'scatter') {
+    const thiTruong = usableMarketCloses(ctx);
+    if (thiTruong.length < size) return null;
+    marketCloses = thiTruong.slice(-size);
+  }
+
+  /*
    * Ngày chỉ ghép được khi chuỗi phiên có cùng số dòng dùng được với chuỗi giá: `usableCloses()` đọc
    * `ctx.series` trước `ctx.bars`, và hai thứ ấy có thể lệch nhau ở những ca dựng tay. Lệch thì
    * không đoán — nhãn phiên đánh số.
@@ -107,7 +144,9 @@ export function seriesWindow(
   );
   const dates = bars.length === closes.length ? bars.slice(-size).map((bar) => bar.date) : null;
 
-  return { closes: window, dates };
+  return marketCloses === undefined
+    ? { closes: window, dates }
+    : { closes: window, dates, marketCloses };
 }
 
 /** Nhãn một phiên trong cửa sổ: ngày thật khi có, không thì số thứ tự. */
@@ -216,14 +255,20 @@ export function buildDistributionModel(
   options: ReadonlyArray<SweepOption>,
   seriesLabel?: string,
 ): HistogramChart {
-  const loiSuat = simpleReturns(cuaSo.closes).map((r) => r * 100);
+  /* Lợi suất log khi công thức tính trên dãy ấy (độ biến động lịch sử): hình chia đúng dãy `calc` đọc. */
+  const log = view.logReturns === true;
+  const loiSuat = (log ? logReturns(cuaSo.closes) : simpleReturns(cuaSo.closes)).map(
+    (r) => r * 100,
+  );
   const bins = chiaKhoang(loiSuat);
   const dau = bins[0];
   const cuoi = bins[bins.length - 1];
   const maxCount = Math.max(1, ...bins.map((bin) => bin.count));
 
   const x: ChartAxis = {
-    title: { vi: 'Lợi suất một phiên (%)', en: 'Return per session (%)' },
+    title: log
+      ? { vi: 'Lợi suất log một phiên (%)', en: 'Log return per session (%)' }
+      : { vi: 'Lợi suất một phiên (%)', en: 'Return per session (%)' },
     domain: dau === undefined || cuoi === undefined ? [0, 1] : [dau.from, cuoi.to],
     /* Vạch ở mép khoảng, thưa còn tối đa bảy vạch để nhãn không chồng nhau ở khổ 320. */
     ticks: (() => {
@@ -259,7 +304,9 @@ export function buildDistributionModel(
 
   const table: ChartTable = {
     columns: [
-      { vi: 'Khoảng lợi suất', en: 'Return range' },
+      log
+        ? { vi: 'Khoảng lợi suất log', en: 'Log return range' }
+        : { vi: 'Khoảng lợi suất', en: 'Return range' },
       { vi: 'Số phiên', en: 'Sessions' },
     ],
     rows: bins.map((bin) => [bin.label, bin.countLabel] as const),
@@ -276,15 +323,17 @@ export function buildDistributionModel(
   const ten = seriesLabel === undefined ? '' : ` của ${seriesLabel}`;
   const tenEn = seriesLabel === undefined ? '' : ` for ${seriesLabel}`;
 
+  const loaiVi = log ? 'lợi suất log' : 'lợi suất';
+  const loaiEn = log ? 'log returns' : 'returns';
   const summaryVi = [
-    `Phân phối ${String(loiSuat.length)} lợi suất phiên${ten}, ${tuToi}, chia ${String(bins.length)} khoảng.`,
+    `Phân phối ${String(loiSuat.length)} ${loaiVi} phiên${ten}, ${tuToi}, chia ${String(bins.length)} khoảng.`,
     dongNhat === undefined
       ? ''
       : `Đông nhất là khoảng ${dongNhat.label.vi} với ${dongNhat.countLabel}.`,
     ...markers.map((marker) => `${marker.label.vi}: ${marker.valueLabel}.`),
   ];
   const summaryEn = [
-    `Distribution of ${String(loiSuat.length)} session returns${tenEn}, ${tuToi}, in ${String(bins.length)} ranges.`,
+    `Distribution of ${String(loiSuat.length)} session ${loaiEn}${tenEn}, ${tuToi}, in ${String(bins.length)} ranges.`,
     dongNhat === undefined
       ? ''
       : `The fullest range is ${dongNhat.label.en} with ${dongNhat.countLabel.replace('phiên', 'sessions')}.`,
@@ -294,8 +343,8 @@ export function buildDistributionModel(
   return {
     kind: 'histogram',
     title: {
-      vi: `${name.vi} — phân phối lợi suất phiên`,
-      en: `${name.en} — distribution of session returns`,
+      vi: `${name.vi} — phân phối ${loaiVi} phiên`,
+      en: `${name.en} — distribution of session ${loaiEn}`,
     },
     summary: {
       vi: summaryVi.filter((s) => s !== '').join(' '),
@@ -446,5 +495,125 @@ export function buildDrawdownModel(
     table,
     sweepKey: DRAWDOWN_KEY,
     options,
+  };
+}
+
+/*
+ * ── Phân tán lợi suất ──────────────────────────────────────────────────────────────────────────
+ */
+
+/** Lợi suất theo % kèm dấu: '+1,25 %', '−0,4 %', '0 %'. */
+function phanTram(value: number): string {
+  return formatValueWithUnit(value, '%', { signed: true });
+}
+
+/**
+ * Dựng hình phân tán lợi suất của Beta (26/10/2026): mỗi phiên của cửa sổ `calc` một chấm, lợi suất
+ * VN-Index theo trục ngang, lợi suất cổ phiếu theo trục đứng.
+ *
+ * Đường hồi quy dốc ĐÚNG bằng kết quả (`output.value`) và đi qua điểm bình quân của đám chấm — đó
+ * là định nghĩa của đường bình phương nhỏ nhất, và là thứ Beta đo: VN-Index nhích 1 % thì cổ phiếu
+ * nhích trung bình β %. Kết quả không tính được thì không có đường (FR-06), đám chấm vẫn vẽ.
+ */
+export function buildScatterModel(
+  cuaSo: CuaSoPhien,
+  output: CalcOutput,
+  name: Bilingual,
+  options: ReadonlyArray<SweepOption>,
+  seriesLabel?: string,
+): ScatterChart {
+  const rm = simpleReturns(cuaSo.marketCloses ?? []).map((r) => r * 100);
+  const ri = simpleReturns(cuaSo.closes).map((r) => r * 100);
+  const n = Math.min(rm.length, ri.length);
+
+  /* Lợi suất thứ k nối phiên k với phiên k + 1 — nhãn là phiên SAU, ngày lợi suất ấy chốt. */
+  const points: ScatterPoint[] = [];
+  for (let k = 0; k < n; k += 1) {
+    const x = rm[k] ?? 0;
+    const y = ri[k] ?? 0;
+    points.push({ x, y, label: nhanPhien(cuaSo, k + 1), xLabel: phanTram(x), yLabel: phanTram(y) });
+  }
+
+  const xs = points.map((point) => point.x);
+  const ys = points.map((point) => point.y);
+  const coPhieu = seriesLabel ?? 'cổ phiếu';
+  const coPhieuEn = seriesLabel ?? 'the stock';
+
+  const x = trucDon(Math.min(0, ...xs), Math.max(0, ...xs), {
+    vi: 'Lợi suất VN-Index một phiên (%)',
+    en: 'VN-Index return per session (%)',
+  });
+  const y = trucDon(Math.min(0, ...ys), Math.max(0, ...ys), {
+    vi: `Lợi suất ${coPhieu} một phiên (%)`,
+    en: `${seriesLabel ?? 'Stock'} return per session (%)`,
+  });
+
+  const beta = output.value;
+  const fit: ScatterFit | undefined =
+    beta === null || !Number.isFinite(beta) || n === 0
+      ? undefined
+      : {
+          slope: beta,
+          intercept: mean(ys) - beta * mean(xs),
+          label: {
+            vi: `Đường hồi quy, độ dốc β = ${formatNumber(beta)}`,
+            en: `Regression line, slope β = ${formatNumber(beta)}`,
+          },
+        };
+
+  /* Bảng số rút gọn như mọi bảng của biểu đồ: phiên đầu, phiên cuối và các phiên rải đều ở giữa. */
+  const rutGon = condensePoints(
+    points.map((point, index) => ({ x: index, y: point.y, label: point.label, valueLabel: '' })),
+  );
+  const table: ChartTable = {
+    columns: [{ vi: 'Phiên', en: 'Session' }, x.title, y.title],
+    rows: rutGon.map((dong) => {
+      if (dong === null) return null;
+      const point = points[dong.x];
+      return point === undefined
+        ? null
+        : ([{ vi: point.label, en: point.label }, point.xLabel, point.yLabel] as const);
+    }),
+  };
+
+  const cungChieu = points.filter((point) => point.x * point.y > 0).length;
+  const tuToi =
+    cuaSo.closes.length === 0
+      ? ''
+      : `${nhanPhien(cuaSo, 0)} → ${nhanPhien(cuaSo, cuaSo.closes.length - 1)}`;
+  const doc = fit === undefined ? '' : formatNumber(Math.abs(fit.slope));
+  const summaryVi = [
+    `Phân tán ${String(n)} cặp lợi suất phiên của ${coPhieu} theo VN-Index, ${tuToi}.`,
+    `${String(cungChieu)} trong ${String(n)} phiên hai bên đi cùng chiều.`,
+    fit === undefined
+      ? ''
+      : `Đường hồi quy dốc ${formatNumber(fit.slope)}: trung bình VN-Index đi 1 % thì ${coPhieu} đi ${doc} % ${fit.slope < 0 ? 'ngược chiều' : 'cùng chiều'}.`,
+  ];
+  const summaryEn = [
+    `Scatter of ${String(n)} session return pairs for ${coPhieuEn} against the VN-Index, ${tuToi}.`,
+    `In ${String(cungChieu)} of ${String(n)} sessions the two moved the same way.`,
+    fit === undefined
+      ? ''
+      : `The regression line has slope ${formatNumber(fit.slope)}: on average, when the VN-Index moves 1 %, ${coPhieuEn} moves ${doc} % ${fit.slope < 0 ? 'the opposite way' : 'the same way'}.`,
+  ];
+
+  return {
+    kind: 'scatter',
+    title: {
+      vi: `${name.vi} — phân tán lợi suất phiên`,
+      en: `${name.en} — scatter of session returns`,
+    },
+    summary: {
+      vi: summaryVi.filter((s) => s !== '').join(' '),
+      en: summaryEn.filter((s) => s !== '').join(' '),
+    },
+    x,
+    y,
+    points,
+    ...(fit === undefined ? {} : { fit }),
+    pointLabel: { vi: 'Từng phiên', en: 'Each session' },
+    table,
+    options,
+    sweepKey: SCATTER_KEY,
   };
 }

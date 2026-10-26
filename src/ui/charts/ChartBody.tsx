@@ -29,6 +29,7 @@ import { InlineWarning } from '@/ui/result';
 import { ChartFrame } from './ChartFrame';
 import { ColumnChart } from './ColumnChart';
 import { GaugeChart } from './GaugeChart';
+import { ScatterChart } from './ScatterChart';
 import { ChartFullscreen } from './ChartFullscreen';
 import { ChartKindSelect } from './ChartKindSelect';
 import { DonutChart } from './DonutChart';
@@ -517,6 +518,8 @@ export function ChartBody({
           <ColumnChart model={model} idBase={idBase} />
         ) : model.kind === 'gauge' ? (
           <GaugeChart model={model} idBase={idBase} />
+        ) : model.kind === 'scatter' ? (
+          <ScatterChart model={model} idBase={idBase} />
         ) : (
           <LineChart
             model={model}

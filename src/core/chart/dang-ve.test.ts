@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { runFormula } from '../calc/run';
 import type { CalcContext } from '../calc/types';
 import { FORMULA_MODULES } from '../formulas';
-import { FPT_BARS } from '../formulas/market-series-2026';
+import { FPT_BARS, VNINDEX_PHIEN } from '../formulas/market-series-2026';
 import { MARKET_CONFIG } from '../market';
 import { scheduleOrDefault } from '../market/resolve';
 import { defaultInputs } from '../registry/build';
@@ -25,10 +25,15 @@ import type { ChartPoint, DrawableChart, LineChart, WaterfallChart } from './typ
  */
 
 const CTX: CalcContext = { asOf: '2026-09-15', schedule: scheduleOrDefault(MARKET_CONFIG) };
+/*
+ * Kèm chuỗi VN-Index thật (26/10/2026), như màn chi tiết luôn kèm một chuỗi chỉ số: chỉ Beta đọc nó, và
+ * thiếu nó thì hình theo thời gian lẫn hình phân tán của Beta không bao giờ vào được phép đếm.
+ */
 const CTX_FPT: CalcContext = {
   ...CTX,
   bars: FPT_BARS,
   series: FPT_BARS.map((bar) => bar.close ?? 0),
+  marketSeries: VNINDEX_PHIEN,
 };
 
 /** Một điểm dựng tay. */
@@ -298,26 +303,28 @@ describe('cả Registry', () => {
               ? 'bar'
               : hinh.kind === 'gauge'
                 ? 'gauge'
-                : 'line';
+                : hinh.kind === 'scatter'
+                  ? 'dots'
+                  : 'line';
       expect(dangVeCuaHinh(hinh, spec)[0], id).toBe(dauTien);
     }
   });
 
-  it('histogram "Phân phối lợi suất" chỉ có một dạng, nên không có ô chọn — 11 hình khi đã nạp chuỗi', () => {
+  it('histogram "Phân phối lợi suất" chỉ có một dạng, nên không có ô chọn — 12 hình khi đã nạp chuỗi', () => {
     const histogram = coChuoi.hinhs.filter(({ hinh }) => hinh.kind === 'histogram');
-    expect(histogram).toHaveLength(11);
+    expect(histogram).toHaveLength(12);
     for (const { id, spec, hinh } of histogram) {
       expect(dangVeCuaHinh(hinh, spec), id).toEqual(['bar']);
     }
   });
 
   it('đã nạp chuỗi 250 phiên: số hình mời từng dạng', () => {
-    expect(coChuoi.hinhs).toHaveLength(374);
+    expect(coChuoi.hinhs).toHaveLength(384);
     expect(coChuoi.dem).toEqual({
-      line: 313,
-      bar: 337,
-      dots: 313,
-      step: 102,
+      line: 321,
+      bar: 340,
+      dots: 316,
+      step: 104,
       signArea: 46,
       waterfall: 33,
       donut: 27,
@@ -326,7 +333,7 @@ describe('cả Registry', () => {
     });
   });
 
-  it('11 histogram: không con số nào là NaN / Infinity / undefined trong mô hình (FR-06)', () => {
+  it('12 histogram: không con số nào là NaN / Infinity / undefined trong mô hình (FR-06)', () => {
     const histogram = coChuoi.hinhs.filter(({ hinh }) => hinh.kind === 'histogram');
     for (const { id, hinh } of histogram) {
       if (hinh.kind !== 'histogram') continue;

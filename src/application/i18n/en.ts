@@ -243,7 +243,7 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'chart.kindGauge': 'Gauge',
   'chart.donutShare': '{p} of the total',
   'chart.columnsTotal': 'Total',
-  'chart.showData': 'View the numbers',
+  /* `chart.showData` đã gỡ cùng bản tiếng Việt — xem `vi.ts`. */
   'chart.tableCaption': 'Data',
   /* `chart.applyHintTimeAxis` và `chart.applyHintReady` đã bỏ cùng bản tiếng Việt — xem `vi.ts`. */
   'chart.zoom': 'Expand',
@@ -765,7 +765,6 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'quiz.start': 'Start the check',
   /* Mộ chí: `quiz.startFew` và `quiz.few.body` bỏ 29/09/2026 — lý do ghi ở `vi.ts`. */
   'quiz.check': 'Check',
-  'quiz.exit': 'Exit',
   'quiz.skip': 'Skip this question',
   /* Mộ chí: `quiz.skippedNote` bỏ 29/09/2026 — lý do ghi ở `vi.ts`. */
   'quiz.next': 'Next question',

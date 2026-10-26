@@ -224,6 +224,33 @@ describe('FormulaNotationCard — mở và đóng khung', () => {
     expect(card.getAttribute('data-active')).toBe(String(sym));
   });
 
+  /*
+   * 26/10/2026, chủ dự án: _"hiện tại đang chỉ chú thích những ký hiệu khó hiểu, tôi muốn ký hiệu nào
+   * cũng cần giải thích"_. `bien-an-toan` có đủ hai loại: `V` có bước tính, `P` là số nhập thẳng.
+   */
+  it('ký hiệu nhập thẳng trong hình cũng mở khung — chỉ dòng nghĩa, không bước, không liên kết', () => {
+    const { card, spec } = dungThe('bien-an-toan');
+    const p = (spec.symbols ?? []).findIndex((s) => s.latex === 'P');
+    const trongHinh = card.querySelector(`math [data-sym="${String(p)}"]`) as Element;
+    expect(trongHinh).not.toBeNull();
+
+    fireEvent.click(trongHinh);
+    const khung = card.querySelector('[role="group"]') as HTMLElement;
+    expect(khung).not.toBeNull();
+    expect(card.getAttribute('data-active')).toBe(String(p));
+    expect(khung.textContent).toContain(spec.symbols?.[p]?.meaning.vi ?? '∅');
+    expect(khung.querySelector('ol')).toBeNull();
+    expect(khung.querySelector('a')).toBeNull();
+    expect(khung.hasAttribute('data-title-only')).toBe(true);
+    expect(khung.getAttribute('aria-label')).toBe(spec.symbols?.[p]?.meaning.vi);
+
+    // Ở bảng, dòng ấy vẫn là chữ thường: khung của nó chép lại đúng dòng đang đứng đó.
+    expect(card.querySelector(`dl button[data-sym="${String(p)}"]`)).toBeNull();
+
+    fireEvent.click(trongHinh);
+    expect(card.querySelector('[role="group"]')).toBeNull();
+  });
+
   it('chạm ra ngoài thì khung đang ghim đóng', () => {
     const { card } = dungThe('ty-so-sharpe');
     fireEvent.click(card.querySelector('button[data-sym]') as Element);
@@ -257,6 +284,45 @@ describe('FormulaNotationCard — cả 111 công thức', () => {
       const soNut = container.querySelectorAll('dl button[data-sym]').length;
       const soKhung = HOW_TO[spec.id]?.entries.length ?? 0;
       if (soNut !== soKhung) sai.push(`${spec.id}: ${String(soNut)} nút, ${String(soKhung)} khung`);
+      unmount();
+    }
+    expect(sai, sai.join('\n')).toEqual([]);
+  });
+
+  /*
+   * Ký hiệu nào trong hình cũng mở khung mang đúng nghĩa của dòng ấy (26/10/2026). Ký hiệu có bước
+   * tính thì khung có bước; ký hiệu còn lại thì khung chỉ có dòng nghĩa. 8 dòng của cả thư viện không
+   * có chỗ riêng trong hình (nằm lọt trong tên dài hơn) — `notation.test.ts` đếm chúng.
+   */
+  it('bấm vào bất kỳ ký hiệu nào trong hình cũng mở khung mang đúng nghĩa của nó', () => {
+    const sai: string[] = [];
+    for (const spec of FORMULAS) {
+      const notation = buildNotationView(spec);
+      const coBuoc = new Set(notation.howTo.map((h) => h.sym));
+      const { container, unmount } = render(
+        <FormulaNotationCard spec={spec} notation={notation} />,
+      );
+      const card = container.firstElementChild as HTMLElement;
+      const dau = new Set(
+        [...card.querySelectorAll('math [data-sym]')].map((el) => el.getAttribute('data-sym')),
+      );
+      for (const k of dau) {
+        const sym = Number(k);
+        const cho = card.querySelector(`math [data-sym="${String(k)}"]`) as Element;
+        fireEvent.click(cho);
+        const khung = card.querySelector('[role="group"]');
+        const nghia = spec.symbols?.[sym]?.meaning.vi ?? '∅';
+        if (khung === null) {
+          sai.push(`${spec.id}: dòng ${String(sym)} không mở khung`);
+          continue;
+        }
+        if (!(khung.textContent ?? '').includes(nghia))
+          sai.push(`${spec.id}: dòng ${String(sym)} sai nghĩa`);
+        if (khung.hasAttribute('data-title-only') === coBuoc.has(sym)) {
+          sai.push(`${spec.id}: dòng ${String(sym)} sai loại khung`);
+        }
+        fireEvent.click(cho);
+      }
       unmount();
     }
     expect(sai, sai.join('\n')).toEqual([]);

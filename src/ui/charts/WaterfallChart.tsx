@@ -33,7 +33,7 @@ import type { ChartSize } from './use-chart-size';
  * ── Hover từng cột ──────────────────────────────────────────────────────────────────────────
  *
  * Trỏ/chạm vào một HÀNG thì viền cột của hàng đó đậm lên và hiện `valueLabel` ngay trên hình —
- * vốn trước giờ chỉ có trong bảng số dưới `<details>`, phải mở ra mới tra được.
+ * vốn trước giờ chỉ có trong bảng số dưới `<details>` (dòng "Xem số liệu", gỡ ngày 26/10/2026).
  *
  * Vẫn không snap liên tục như `LineChart` (cột rời rạc, không có "điểm giữa hai cột"), nhưng
  * **cách BẮT sự kiện thì đã đổi sang y hệt `LineChart`**: một `<rect>` trong suốt phủ cả vùng
@@ -406,7 +406,7 @@ export function WaterfallChart({
           nhận một hình chữ nhật không có `fill` từ CSS Module và hoá thành mảng đen phủ kín hình.
         */}
         <rect
-          className={styles.hoverCapture}
+          className={`${String(styles.hoverCapture)} ${String(styles.hoverCapturePhan)}`}
           data-testid={`${idBase}-hover-capture`}
           x={0}
           y={PAD.top}

@@ -17,7 +17,7 @@ export interface HowToPanelProps {
   symbolHtml: string;
   meaning: string;
   /** Toạ độ trong thẻ. `null` ở lượt dựng đầu: khung ẩn đi để đo kích thước trước khi đặt. */
-  placement: { top: number; left: number; maxHeight: number | null } | null;
+  placement: { top: number; left: number; maxHeight: number | null; maxWidth?: number } | null;
   panelRef: RefObject<HTMLDivElement | null>;
 }
 
@@ -28,9 +28,9 @@ export interface HowToPanelProps {
  * một hình KaTeX dựng sẵn lúc build và dòng chữ đọc hình ấy thành lời — cùng khuôn "hình + dòng chữ"
  * của chính thẻ Công thức, nên người dùng đọc khung như đọc một thẻ nhỏ.
  *
- * Khung KHÔNG có bước nào cũng hợp lệ (25/09/2026): hình công thức trong khối lời giải của Bài tập
- * mở khung cho MỌI ký hiệu, kể cả số liệu nhập thẳng như thị giá `P`. Khung ấy chỉ có dòng tiêu đề
- * — ký hiệu và nghĩa — tức đúng dòng bảng ký hiệu mà thẻ Công thức in cố định bên cạnh hình. Nhãn
+ * Khung KHÔNG có bước nào cũng hợp lệ: hình công thức mở khung cho MỌI ký hiệu, kể cả số liệu nhập
+ * thẳng như thị giá `P` — trong khối lời giải của Bài tập từ 25/09/2026, trên thẻ Công thức từ
+ * 26/10/2026. Khung ấy chỉ có dòng tiêu đề — ký hiệu và nghĩa — tức đúng dòng bảng ký hiệu. Nhãn
  * trợ năng khi ấy là nghĩa trơn: gọi nó là "Cách tính" là nói sai, vì chẳng có gì để tính.
  *
  * Các object `__html` dựng một lần bằng `useMemo`: React 19 so `dangerouslySetInnerHTML` theo DANH
@@ -58,6 +58,7 @@ export function HowToPanel({
           top: placement.top,
           left: placement.left,
           ...(placement.maxHeight === null ? {} : { maxHeight: placement.maxHeight }),
+          ...(placement.maxWidth === undefined ? {} : { maxWidth: placement.maxWidth }),
         };
 
   return (

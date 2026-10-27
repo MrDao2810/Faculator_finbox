@@ -8,7 +8,6 @@ import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import {
-  FORMULAS,
   FORMULA_USAGE_KEY,
   LEGACY_HOME_RECENT_SEARCHES_KEY,
   MARKET_CONFIG,
@@ -42,16 +41,19 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-describe('WF-13 — bốn khối đúng thứ tự wireframe', () => {
+describe('WF-13 — ba khối đúng thứ tự wireframe', () => {
   /*
-   * VẪN đủ bốn, kể cả khi bản kiểm kê chín kho đang ẩn (`HIEN_KHOI_DU_LIEU`, 14/09/2026): khối 3
+   * VẪN đủ ba, kể cả khi bản kiểm kê chín kho đang ẩn (`HIEN_KHOI_DU_LIEU`, 14/09/2026): khối 3
    * lúc ấy rút xuống còn tiêu đề và một nút xoá sạch chứ không biến mất. Danh sách này vì thế
    * không đọc theo cờ — nó là thứ bắt được lỗi "ẩn nhầm cả khối", đúng lỗi làm mất quyền xoá dữ
    * liệu của LDR-04.
+   *
+   * Khối thứ tư "Về sản phẩm" bỏ ngày 27/10/2026 (chủ dự án khoanh cả khối: _"bỏ các phần tôi khoanh
+   * đỏ đi"_) — danh sách so BẰNG, nên khối ấy quay lại là ca này đỏ.
    */
-  const KHOI = ['Chế độ hiển thị', 'Đơn vị & biểu thị', 'Dữ liệu của bạn', 'Về sản phẩm'];
+  const KHOI = ['Chế độ hiển thị', 'Đơn vị & biểu thị', 'Dữ liệu của bạn'];
 
-  it('dựng đủ bốn khối, đúng thứ tự', () => {
+  it('dựng đủ ba khối, đúng thứ tự', () => {
     open();
 
     const titles = screen.getAllByRole('heading', { level: 2 }).map((h) => h.textContent);
@@ -125,8 +127,53 @@ describe('đơn vị & biểu phí — cài đặt ghi được và nhớ đư�
     expect(screen.queryByRole('combobox')).toBeNull();
     expect(screen.getByText('Biểu phí giao dịch')).not.toBeNull();
     expect(screen.getByText(MARKET_CONFIG.schedules[0]?.name.vi ?? '')).not.toBeNull();
-    // Dòng phụ ghi nguồn (CON-10) đi cùng, không rơi mất theo cái khung.
-    expect(screen.getByText(/Nguồn: Market Config/)).not.toBeNull();
+  });
+
+  /*
+   * ĐẢO ca cũ (27/10/2026). Ca cũ đòi dòng phụ ghi nguồn "Dùng cho màn lợi nhuận ròng… Nguồn:
+   * Market Config." đi cùng hàng biểu phí; chủ dự án khoanh đúng dòng ấy ở màn này: _"bỏ các phần
+   * tôi khoanh đỏ đi"_. Màn lợi nhuận ròng (WF-08) vẫn giữ dòng nguồn của nó — `screens.test.tsx`
+   * gác bên ấy. Ở đây gác cả câu mặc định `fee.scheduleNote`, vì `hint` trống mà không phải `null`
+   * thì component rơi về đúng câu ấy.
+   */
+  it('hàng biểu phí không có dòng phụ nào, kể cả dòng nguồn mặc định của WF-08', () => {
+    const { container } = render(
+      <PreferencesProvider>
+        <SettingsScreen />
+      </PreferencesProvider>,
+    );
+
+    expect(container.textContent).not.toMatch(/Market Config/);
+    expect(container.textContent).not.toMatch(/Dùng cho màn lợi nhuận ròng/);
+  });
+
+  /* Dòng phụ dưới "Cơ bản/Nâng cao" bỏ cùng lượt 27/10/2026 — ca đảo chiều, xem ca ngay trên. */
+  it('hàng Cơ bản/Nâng cao không có dòng phụ', () => {
+    open();
+    expect(screen.getByText('Cơ bản/Nâng cao')).not.toBeNull();
+    expect(screen.queryByText(/Nâng cao mở thêm/)).toBeNull();
+  });
+
+  /*
+   * Nhãn hai hàng đầu viết bằng gạch chéo, và bộ đơn vị có bốn bậc theo đúng thứ tự (27/10/2026,
+   * chủ dự án: _"Cơ bản/Nâng cao. Sáng/Tối. Tỷ rồi tới triệu rồi tới ngàn rồi tới đ"_).
+   */
+  it('nhãn Cơ bản/Nâng cao, Sáng/Tối; bộ đơn vị tỷ · triệu · nghìn · ₫', () => {
+    open();
+
+    expect(screen.getByText('Sáng/Tối')).not.toBeNull();
+    expect(screen.queryByText(/hay Nâng cao|hay Tối/)).toBeNull();
+    const nut = screen.getByRole('group', { name: 'Đơn vị hiển thị' }).querySelectorAll('button');
+    expect([...nut].map((b) => b.textContent)).toEqual(['tỷ ₫', 'triệu ₫', 'nghìn ₫', '₫']);
+  });
+
+  it('bấm nghìn ₫ thì ghi bậc thousand xuống localStorage', async () => {
+    open();
+
+    await userEvent.click(screen.getByRole('button', { name: 'nghìn ₫' }));
+
+    const stored = readPreferences(window.localStorage.getItem(PREFERENCES_STORAGE_KEY));
+    expect(stored.unitScale).toBe('thousand');
   });
 
   /*
@@ -566,12 +613,19 @@ describe.skipIf(!HIEN_KHOI_DU_LIEU)('hoàn tác sau khi xoá một kho', () => {
   });
 });
 
-describe('về sản phẩm', () => {
-  it('nói đúng số công thức đang dùng được, không phải số dự kiến của SRS', () => {
+describe('màn Cài đặt — những thứ cố ý không có', () => {
+  /*
+   * ĐẢO ca cũ (27/10/2026). Ca cũ đòi khối "Về sản phẩm" nói đúng số công thức đang dùng được; chủ
+   * dự án khoanh bỏ cả khối. Ba dòng của nó (số công thức, số biểu phí đã nạp, chạy ngoại tuyến) quay
+   * lại là một quyết định, không phải sơ suất.
+   */
+  it('không còn khối "Về sản phẩm" và ba dòng số liệu của nó', () => {
     open();
 
-    const about = screen.getByText('Công thức đang dùng được').nextElementSibling;
-    expect(about?.textContent).toBe(String(FORMULAS.length));
+    expect(screen.queryByText('Về sản phẩm')).toBeNull();
+    expect(screen.queryByText('Công thức đang dùng được')).toBeNull();
+    expect(screen.queryByText('Biểu phí đã nạp')).toBeNull();
+    expect(screen.queryByText('Chạy ngoại tuyến')).toBeNull();
   });
 
   /*

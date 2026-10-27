@@ -2307,8 +2307,24 @@ cảnh báo 'Không có ý nghĩa' đi"_): the cause sentence below already says
 card as `data-ma-loi` (not shown), which is what tests read now; `InlineWarning` (chart, chain steps, linked inputs,
 fee table) still prints its label. Below 1024px the card also follows the result card's box (_"giảm size text …
 giảm cả padding"_): padding 8/12px, gap 4px, unit 14px, cause 14px, "↳" line 12px.
-1024–1279 keeps the 16px padding and the 32–40px clamp. "Padding 2 bên ngoài" was read as the card's inner
+1024–1279 keeps the 32–40px clamp. "Padding 2 bên ngoài" was read as the card's inner
 left/right padding; the page gutter around it is unchanged, so it still lines up with the other blocks.
+**Since 27/10/2026 the error card pads 6/12px with a 2px gap at EVERY width**, and the cause line is
+`--leading-tight` (owner, circling XIRR's card on PC: _"giảm padding, height … áp dụng màn web pc và web mobile"_):
+99 → 69px at 1440, 116 → 86px at 1100, 75,5 → 66px at 390. The size and line-height of `_ _` did not change;
+`result-card.test.ts` still pins them to the result card's figure. It is one component, so every formula's error
+card follows. **The error card is ONE row since later the same day**: `_ _ unit` left, the cause (message, ↳ line and
+action, one `.cause` block) at the right edge (owner, arrow on XIRR's card: _"chuyển vùng đỏ lòm khoanh đỏ sang bên
+phải … để không gian tối giản hơn"_). A wrapping flex row, baseline-aligned; the auto margin is on `.head`
+(`margin-right: auto`), NOT on `.cause`, so a cause too wide for the row drops below starting at the LEFT edge, as
+before, instead of hanging indented under `_ _`. XIRR's card 69 → 47px at 1440, 66 → 46,5px at 390; a long cause in
+the merged card's narrow column still drops. `error-state-css.test.ts` pins it. **XIRR's cash-flow rows are ~36,5px at every width** the same day (32px inputs and × button, 2px cell
+padding; were 68,5px on PC, 44,5px on a phone). The × keeps NO `::after` tap overlay: rows under 44px would let it
+reach the next row, and × deletes in one tap. The calendar button's overlay is clamped to the row
+(`table.cashflow td button::after`), or the last row's overlay grew a 4px vertical scrollbar on the table. **From
+1280px the table's top edge is level with the "Giải thích cho người mới" block's first item** (owner circled the
+13,5px step): the right head row is exactly the left title's line box, `calc(var(--text-md) * var(--leading-tight))`,
+and "+ Thêm dòng" drops to 28px there. `xirr-mobile-css.test.ts` pins all of it, the left title's size included.
 **Below 1024px the card's label is styled as a block title** (20/10/2026, owner circling "SỐ LIỆU", "KẾT QUẢ",
 "BIỂU ĐỒ" on `tra-gop-nien-kim`: _"cần điều chỉnh lại cho giống nhau về kích thước lẫn in đậm, áp dụng bản
 mobile"_). All three were 12px, but the label was weight 500 with 0.08em spacing against the titles' 700 and
@@ -2358,6 +2374,11 @@ amount box 74px. Below 1024px: cell padding 4px, inputs 36px, header 8px, date b
 its content (`width: 1%`), × column 32px with the button the full 44px row height, the rest to the amount box.
 Rows 44.5px, no overflow at 320/360/390. `XirrBody` passes `styles.cashflow` to `Table`, so `table.cashflow th/td`
 outranks the primitive's `.table th, .table td` (the `table.variables` pattern); `xirr-mobile-css.test.ts` pins it.
+**The table has no "!" flag column since 27/10/2026, at any width** (owner, circling the flag on an empty row: _"bỏ
+icon chấm than khoanh đỏ như trong ảnh đi"_). A bad row is marked by its yellow background (`.badRow`), by the empty
+cell itself, and, for any issue a cell cannot show, by the "Dòng N: …" line under the table, whose own "!"
+(`.issueFlag`) was not circled and stays. The × column's class is now `.removeCol` (was `.flagCol`, shared with the
+flag column); the freed 26px goes to the amount box on a phone. A case in `screens.test.tsx` was inverted.
 **The two yellow notes of the Số liệu block are 12px below 1024px** (20/10/2026, owner circling `beta`'s "Số liệu chỉ
 mang tính chất minh hoạ…": _"giảm size text … và giảm padding, áp dụng cho màn mobile"_): `.seriesShortNote` and
 its sibling `.presetMismatch` take 12px, 6/8px padding and line-height 1.4, the disclaimer notice's numbers; the
@@ -2878,10 +2899,17 @@ variable of this formula_ and _drawing a different formula_.
 with "… là bao nhiêu?" after the slots moved, so the screen asked for a number while the formula
 asked for a placement — the owner caught it immediately: _"tại sao câu hỏi vẫn hỏi Beta là bao nhiêu
 khi bây giờ thay đổi cách điền công thức rồi."_ Each prompt now keeps its sourced scenario and its
-convention clause (that is the part the question actually tests) and ends by naming the placement,
-usually with the trap spelled out — "chú ý EMA phiên trước xuất hiện hai lần", "chú ý ô nào cộng
-vào, ô nào trừ ra". No test can see this mismatch, so a new fill-in question needs the prompt read
-against its own `worked` line by hand.
+convention clause (that is the part the question actually tests) and ends by naming the placement
+("Điền ba con số vào đúng ô trống của công thức …"). No test can see this mismatch, so a new
+fill-in question needs the prompt read against its own `worked` line by hand.
+
+**A prompt does NOT spell the trap out** (27/10/2026). Until then 123 fill-in prompts ended with a
+"chú ý …" hint ("— chú ý ô nào cộng vào, ô nào trừ ra", "chú ý EMA phiên trước xuất hiện hai lần",
+"Chú ý mẫu số là …"); the owner: _"xóa các phần giải thích như sau đi '— chú ý ô nào cộng vào, ô nào
+trừ ra.' không cần thiết trong phần bài tập"_. All 123 were cut in both languages (the English side
+read "— mind which …", ", noting that …", ". Note that …", ". Watch …"); the scenario, the convention
+clause and the placement sentence stay. The trap is now the learner's to find, and the `giai` rows
+explain it after checking. Do not write a new "chú ý …" / "note that …" tail.
 
 **Every slot must be a figure the `facts` table states LITERALLY**, because the learner copies it.
 Four questions failed that and were fixed rather than excused: `profit-factor` wanted `0,4` while
@@ -3876,7 +3904,18 @@ English, the owner reviews it**. What that produced, and what is easy to break:
   commissioned a 111-icon set and chose: _"áp dụng những icon đó cho công thức. còn các icon cũ là của phần danh mục thì
   cứ để cho danh mục trước"_. `FormulaCard` (shelf tile and list row) draws `FormulaIcon` from `src/ui/browse/formula-icons.ts`
   and falls back to `CategoryIcon` only for an id with no drawing; `HotCategories` and `GroupCard` keep `CategoryIcon`.
-  The set is hand-written SVG bodies (24 grid, 1,75 stroke, `currentColor`; a `.22` tint marks the quantity the formula
+  **Since 27/10/2026 the card's category line opens with the category icon too** (owner, circling the spot before "Lợi
+  nhuận & cổ tức": _"điều chỉnh lại toàn bộ sao cho icon của danh mục thì ở chỗ khoanh đỏ như ảnh"_), in both variants:
+  `CategoryMark` in `FormulaCard.tsx`. A second and third note the same day set its look: _"tăng size … lên 1 chút
+  nữa, nhưng giảm padding xung quanh"_, then _"đổi màu … thành màu xanh dương như màu chủ đạo"_. So it is `1.25em` of the
+  label (16,25px on PC, 15 / 13,75px below 1024px), 4px from the text, in `--category-ink` (the brand blue, the same as
+  the icon at the card's head) while the label text stays `--color-ink-soft`, and the line is `calc(1em + 5px)` tall
+  (18 / 17 / 16px, was 1,5em). **That height is a floor, measured**: `.categoryText` clips with `overflow: hidden` at
+  its own line box, and Segoe UI's content area is 17px at 13px and 16px at 11px; at 1,35em the shelf tiles' 11px
+  labels came up 1,15px short and would lose the top of stacked accents ("ế", "ố"). The ellipsis lives on
+  `.categoryText`, since the label is a two-item flex row. Measured in Chrome on all 127 category lines at 1440, 390
+  and 360, both palettes: icon before the text, centres 0px apart, icon colour equal to the head icon's, no text cut,
+  no clipped accent, no sideways scroll. The set is hand-written SVG bodies (24 grid, 1,75 stroke, `currentColor`; a `.22` tint marks the quantity the formula
   computes) injected with `dangerouslySetInnerHTML`, so `formula-icons.test.ts` requires exactly the Registry's ids, no
   two identical drawings, only `g/path/circle/rect` and drawing attributes. Each drawing's meaning is a COMMENT above
   its entry, so the minifier drops it; do not turn it into exported data (it would ship in `/cong-thuc/`'s JS, which

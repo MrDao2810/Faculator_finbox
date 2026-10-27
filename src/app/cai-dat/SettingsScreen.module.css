@@ -18,8 +18,9 @@
 }
 
 /*
- * Khổ PC: hai cột — trái "Chế độ hiển thị" + "Đơn vị & biểu thị", phải "Dữ liệu trên máy" +
- * "Về sản phẩm" (bản vẽ WF-13). Bậc 1280 — bảng "BẬC MÀN" ở `globals.css`.
+ * Khổ PC: hai cột — trái "Chế độ hiển thị" + "Đơn vị & biểu thị", phải "Dữ liệu của bạn" (bản vẽ
+ * WF-13 có thêm "Về sản phẩm" dưới nó; khối ấy bỏ 27/10/2026). Bậc 1280 — bảng "BẬC MÀN" ở
+ * `globals.css`.
  *
  * Đo trước khi sửa, ở 1440: bốn khối xếp dọc, mỗi khối rộng 1297px, và khối "Chế độ hiển thị" chỉ
  * có hai dòng nên nhãn dính mép trái còn nút dính mép phải, cách nhau hơn 1000px trống.
@@ -72,8 +73,8 @@
 
 /*
  * Một dòng cài đặt: chữ bên trái, điều khiển bên phải.
- * `wrap` để ở 360px điều khiển tự xuống dòng thay vì bóp chữ — nhóm nút ba bậc đơn vị cộng
- * nhãn dài là không đủ chỗ trên một hàng.
+ * `wrap` để ở 360px điều khiển tự xuống dòng thay vì bóp chữ — nhóm nút bốn bậc đơn vị (từ
+ * 27/10/2026, thêm 'nghìn ₫') cộng nhãn dài có thể không đủ chỗ trên một hàng.
  */
 .row {
   display: flex;
@@ -115,7 +116,7 @@
  *
  * Chủ dự án khoanh hai cụm nút ở màn Cài đặt trên điện thoại: _"các chức năng kia cần thu nhỏ lại
  * hơn 1 chút và chuyển sang bên phải, còn text thì bên trái. và đồng thời căn chỉnh lại sao cho
- * đều"_. Với luật `wrap` ở trên, cụm nút của hàng "Cơ bản hay Nâng cao" (nhãn cộng một dòng phụ
+ * đều"_. Với luật `wrap` ở trên, cụm nút của hàng "Cơ bản hay Nâng cao" (nay "Cơ bản/Nâng cao"; nhãn cộng một dòng phụ
  * dài) và hàng "Đơn vị tiền trong bảng" (ba nút) rơi xuống dòng riêng và dạt về mép TRÁI, trong khi
  * cụm Sáng/Tối giữa chúng vẫn đứng bên phải — ba hàng ba kiểu.
  *
@@ -291,25 +292,26 @@
   color: var(--color-ink);
 }
 
-/* ── Về sản phẩm ─────────────────────────────────────────────────────────── */
+/* `.about` (khối "Về sản phẩm") đã gỡ cùng khối ấy ngày 27/10/2026 — xem `SettingsScreen.tsx`. */
 
-.about {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: var(--space-2) var(--space-3);
-  margin: 0;
-}
+/*
+ * ── Dưới 360px: cụm đơn vị bốn nút xuống dòng riêng (27/10/2026) ───────────────────────────────
+ *
+ * Cùng ngày chủ dự án thêm nút "nghìn ₫" (_"Tỷ rồi tới triệu rồi tới ngàn rồi tới đ"_), cụm này
+ * rộng ~180px. Đo ở 320px với lưới hai cột của khối 559.98px ở trên: nhãn "Đơn vị tiền trong bảng"
+ * còn ~66px và vỡ thành bốn dòng, mỗi dòng một chữ. Ở 360px nó hai dòng, ngang hai hàng còn lại,
+ * nên luật này chỉ áp dưới 360px: nhãn một hàng, cụm nút hàng dưới, vẫn sát mép phải.
+ *
+ * Phải đứng CUỐI file: `.rowUnits > :last-child` và `.row > :last-child` cùng độ ưu tiên, thứ tự
+ * file quyết định.
+ */
+@media (max-width: 359.98px) {
+  .rowUnits {
+    grid-template-columns: minmax(0, 1fr);
+  }
 
-.about dt {
-  font-size: var(--text-sm);
-  color: var(--color-ink-soft);
-}
-
-.about dd {
-  margin: 0;
-  font-family: var(--font-mono);
-  font-size: var(--text-sm);
-  font-weight: var(--weight-bold);
-  color: var(--color-ink);
-  text-align: right;
+  .rowUnits > :last-child {
+    grid-column: 1;
+    grid-row: 2;
+  }
 }

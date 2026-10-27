@@ -29,7 +29,8 @@
   color: var(--color-ink);
 }
 
-.flagCol {
+/* Cột nút × xoá dòng. Tên cũ `.flagCol` là của cột cờ "!" đầu dòng, đã bỏ 27/10/2026 (xem `.badRow`). */
+.removeCol {
   width: 28px;
   text-align: center;
 }
@@ -42,8 +43,8 @@
   width: 100%;
   min-width: 74px;
   text-align: right;
-  /* Vùng chạm 44px — NFR-USA-01. Ô nhập trong bảng cũng là điều khiển bấm được. */
-  min-height: var(--tap-min);
+  /* 32px ở mọi khổ — xem "Dòng gọn" dưới `.removeButton`. Từng là `--tap-min` (44px). */
+  min-height: 32px;
   padding: 0 var(--space-2);
 
   font-family: inherit;
@@ -70,30 +71,19 @@
   text-align: left;
 }
 
-/* Dòng có vấn đề: nền vàng nhạt + cờ "!" — không chỉ đổi màu chữ (NFR-USA-06). */
+/*
+ * Dòng có vấn đề: nền vàng nhạt. Cờ "!" ở cột riêng đầu dòng bỏ ngày 27/10/2026 (chủ dự án: _"bỏ icon
+ * chấm than khoanh đỏ như trong ảnh đi"_), cùng cột của nó. Màu không phải tín hiệu DUY NHẤT
+ * (NFR-USA-06): lỗi ô trống thì chính ô trống cho thấy, mọi lỗi khác có câu "Dòng N: …" trong
+ * `.issues` dưới bảng.
+ */
 .badRow {
   background: var(--color-warning-soft);
 }
 
-.flag {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  width: 18px;
-  height: 18px;
-
-  font-size: var(--text-xs);
-  font-weight: var(--weight-bold);
-  color: var(--color-on-accent);
-
-  background: var(--color-warning);
-  border-radius: var(--radius-pill);
-}
-
 .removeButton {
   width: 100%;
-  min-height: var(--tap-min);
+  min-height: 32px;
 
   font-family: inherit;
   font-size: var(--text-md);
@@ -108,6 +98,58 @@
 @media (hover: hover) {
   .removeButton:hover {
     color: var(--color-danger);
+  }
+}
+
+/*
+ * ── Dòng gọn ở MỌI khổ (27/10/2026) ───────────────────────────────────────────────────────────
+ *
+ * Chủ dự án khoanh một dòng của bảng này trên máy tính: _"giảm padding, height các phần khoanh đỏ áp
+ * dụng màn web pc và web mobile"_. Đo trước khi sửa: dòng 68,5px ở PC (đệm ô 12px + ô nhập 44px),
+ * 44,5px ở điện thoại (nút × cao 44px giữ cả dòng). Nay ô nhập và nút × cùng 32px, đệm ô 2px trên
+ * dưới: dòng ~36,5px ở cả hai khổ — gần hàng 32px của lưới Bảng dữ liệu, cùng cỡ chữ 14px.
+ *
+ * Cái giá, biết trước: nút × trên điện thoại chỉ còn vùng chạm 32 × 36px, dưới mức 44px của
+ * NFR-USA-01. KHÔNG bù bằng lớp phủ `::after` như các nút nhỏ khác: dòng thấp hơn 44px thì lớp phủ
+ * thò sang dòng bên cạnh, và một cú chạm sát mép xoá nhầm dòng kia — xoá một chạm, không hoàn tác.
+ * Đệm ngang của ô giữ nguyên (12px ở PC, 4px dưới 1024px), nên chữ vẫn thẳng cột với hàng tiêu đề.
+ */
+table.cashflow td {
+  padding-top: 2px;
+  padding-bottom: 2px;
+}
+
+/*
+ * Lớp phủ chạm của nút lịch (`.calendarButton::after` ở `DateInput.module.css`, nới 8px mỗi phía cho
+ * đủ 44px) thò 4px ra ngoài dòng 36px, và ở dòng CUỐI nó tràn khỏi khung cuộn của bảng: khung mọc
+ * thanh cuộn dọc cho đúng 4px ấy (đo: nội dung 120px trong khung 116px). Trong bảng này chỉ nới 2px
+ * theo chiều dọc — vừa khít ô nhập 32px — còn chiều ngang vẫn 8px. Nút × không có `::after`, nên
+ * bộ chọn này chỉ chạm nút lịch.
+ */
+table.cashflow td button::after {
+  inset: -2px -8px;
+}
+
+/*
+ * ── Từ 1280px: khung bảng thẳng hàng với khối "Giải thích cho người mới" bên trái (27/10/2026) ──
+ *
+ * Chủ dự án khoanh hai mép trên: _"chỗ tôi khoanh đỏ đang chưa thẳng hàng, sửa lại cho bảng dòng
+ * tiền bên phải bằng với bảng bên trái"_. Hai cột cùng khuôn "hàng tiêu đề + khe 8px + khung", nhưng
+ * tiêu đề bên trái là một dòng chữ 18px (22,5px) còn hàng bên phải bị nút "+ Thêm dòng" 36px kéo
+ * cao: khung bảng ở 64px, ô "Khi nào dùng" ở 50,5px, lệch 13,5px ở 1280–1920.
+ *
+ * Nên hàng tiêu đề bên phải cao ĐÚNG bằng dòng tiêu đề bên trái — cùng cỡ chữ `--text-md`, cùng
+ * `--leading-tight` của `ExplanationAccordion.module.css` (`xirr-mobile-css.test.ts` so hai file) —
+ * và nút hạ còn 28px, thò 2,75px mỗi phía, không chạm khung bảng. Vùng chạm 44px của nút (`.sm::after`)
+ * giữ nguyên. Dưới 1280px hai khối xếp chồng, không có gì để thẳng hàng.
+ */
+@media (min-width: 1280px) {
+  .blockHead {
+    height: calc(var(--text-md) * var(--leading-tight));
+  }
+
+  .blockHead > button {
+    min-height: 28px;
   }
 }
 
@@ -163,29 +205,28 @@
  *
  * - Đệm ô 12 → 4px, ô nhập 44 → 36px (cỡ ô số của khối Số liệu ở khổ này): dòng 44px.
  * - Hàng tiêu đề đệm 8px; mép chữ "NGÀY" và "SỐ TIỀN" = 4px đệm ô + 4px đệm ô nhập, thẳng cột chữ dưới.
- * - Ô ngày 104 → 88px (vẫn đủ "dd/mm/yyyy" ở 14px với 4px đệm mỗi bên), cột cờ 26px, cột × 32px:
- *   phần còn lại dồn cho ô Số tiền.
+ * - Ô ngày 104 → 88px (vẫn đủ "dd/mm/yyyy" ở 14px với 4px đệm mỗi bên), cột × 32px: phần còn lại
+ *   dồn cho ô Số tiền. (Cột cờ "!" 26px đầu dòng bỏ ngày 27/10/2026 — xem `.badRow`; 26px ấy cũng về
+ *   ô Số tiền.)
  * - Nút × bỏ đệm ô và cao bằng cả dòng (44px, `--tap-min` sẵn có), nên vùng chạm không phải bù.
+ *
+ * Từ 27/10/2026 ô nhập và nút × còn 32px, đệm dọc 2px, dòng ~36,5px — xem "Dòng gọn" ở trên.
  *
  * Bộ chọn `table.cashflow …` (hai lớp + thẻ) để vượt `.table th, .table td` của primitive `Table`,
  * cùng lối `table.variables` ở `VariableTable.module.css`. Từ 1024px không đổi gì.
  */
 @media (max-width: 1023.98px) {
+  /* Đệm dọc 2px của "Dòng gọn" (27/10/2026) — luật này đứng sau nên phải nói lại, không thì 4px. */
   table.cashflow th,
   table.cashflow td {
-    padding: var(--space-1);
+    padding: 2px var(--space-1);
   }
 
   table.cashflow thead th {
     padding: var(--space-2);
   }
 
-  table.cashflow .flagCol:first-child {
-    width: 26px;
-    padding: 0 0 0 var(--space-2);
-  }
-
-  table.cashflow .flagCol:last-child {
+  table.cashflow .removeCol {
     width: 32px;
     padding: 0;
   }
@@ -197,8 +238,8 @@
     min-width: 0;
   }
 
+  /* Cao 32px ở luật gốc từ 27/10/2026 (từng là 36px riêng khổ này). */
   .cell {
-    min-height: 36px;
     padding: 0 var(--space-1);
   }
 

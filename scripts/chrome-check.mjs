@@ -3780,13 +3780,14 @@ window.__localeLog = [];
    * lại: nếu ai gỡ hai bọc `.col` để về lưới phẳng, khối thứ ba vẫn bên phải nhưng khối 2 sẽ bị
    * đẩy xuống đáy — thứ mà phép so mép trên này không thấy, nên đo thêm số khối cho chắc.
    *
-   * Vẫn ĐÚNG BỐN khối kể cả khi bản kiểm kê chín kho đang ẩn sau cờ `HIEN_KHOI_DU_LIEU`
-   * (14/09/2026): khối 3 lúc ấy rút xuống còn tiêu đề và một nút xoá sạch, nhưng nó KHÔNG biến
-   * mất — nếu mất thì cột phải chỉ còn một khối và phép so mép trên dưới đây đo sang thứ khác.
+   * ĐÚNG BA khối từ 27/10/2026, khi chủ dự án bỏ khối thứ tư "Về sản phẩm" (cuối cột phải). Khối
+   * Dữ liệu vẫn là khối thứ ba và là đỉnh cột phải, kể cả khi bản kiểm kê chín kho đang ẩn sau cờ
+   * `HIEN_KHOI_DU_LIEU` (14/09/2026): khối ấy lúc đó rút xuống còn tiêu đề và một nút xoá sạch, nhưng
+   * KHÔNG biến mất — nếu mất thì cột phải trống và phép so mép trên dưới đây đo sang thứ khác.
    */
   check(
     'PC 1440 · Cài đặt xếp hai cột — khối Chế độ và khối Dữ liệu cùng mép trên',
-    pcCaiDat.so === 4 &&
+    pcCaiDat.so === 3 &&
       pcCaiDat.dau !== null &&
       pcCaiDat.thuBa !== null &&
       Math.abs(pcCaiDat.dau.top - pcCaiDat.thuBa.top) <= 1 &&

@@ -2,12 +2,33 @@
  * Khối lỗi đứng đúng chỗ của kết quả — WF-15.
  * Viền đứt để phân biệt ngay với khối kết quả bình thường, kể cả khi không thấy màu.
  */
+/*
+ * Đệm 6 / 12px, khe 2px ở MỌI khổ (27/10/2026). Chủ dự án khoanh thẻ lỗi của XIRR trên máy tính:
+ * _"giảm padding, height các phần khoanh đỏ áp dụng màn web pc và web mobile"_. Đo trước: 99px ở
+ * 1440, 116px ở 1100 (đệm 16px, khe 8px), 75,5px ở điện thoại (đệm 8 / 12px, khe 4px). Cỡ và
+ * line-height của `_ _` KHÔNG đổi — `result-card.test.ts` ghim chúng bằng con số của thẻ Kết quả.
+ */
+/*
+ * ── Một hàng: `_ _ đơn vị` bên trái, câu nguyên nhân dạt mép phải (27/10/2026) ─────────────────
+ *
+ * Chủ dự án khoanh câu "Cần tối thiểu 2 dòng tiền" dưới `_ _ %/năm` của XIRR và kẻ mũi tên sang mép
+ * phải thẻ: _"chuyển vùng đỏ lòm khoanh đỏ sang bên phải mà tôi chỉ để không gian tối giản hơn"_.
+ * Thẻ thành một hàng flex XUỐNG DÒNG ĐƯỢC:
+ * `.cause` (câu nguyên nhân + dòng ↳) đứng cạnh `.head` khi bề ngang còn chứa trọn nó trên một dòng,
+ * và `margin-right: auto` của `.head` nuốt hết chỗ dư nên nó chạm mép phải. Không đủ chỗ thì flex tự đưa
+ * nó xuống hàng dưới, bắt đầu từ mép TRÁI như trước đây — chứ không bao giờ ép câu thành hai dòng hẹp
+ * cạnh `_ _`. Lề tự động đặt ở `.head`, không ở `.cause`: đặt ở `.cause` thì một câu xuống hàng mà ngắn
+ * hơn thẻ vẫn bị đẩy sang phải, thành một khối thụt lề lơ lửng dưới `_ _` (đo trên P/E lỗ, 1440px).
+ * Hai bên thẳng chân chữ dòng đầu (`baseline`), như `_ _` với đơn vị trong `.head`.
+ */
 .block {
   display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: var(--space-4);
+  row-gap: 2px;
 
-  padding: var(--space-4);
+  padding: 6px var(--space-3);
 
   background: var(--color-danger-soft);
   border: 1px dashed var(--color-danger);
@@ -19,6 +40,15 @@
   align-items: baseline;
   flex-wrap: wrap;
   gap: var(--space-2);
+  margin-right: auto;
+}
+
+/* Câu nguyên nhân + dòng ↳: một khối — xem chú thích trên `.block`. Chữ bên trong căn trái: câu dài
+   xuống dòng mà căn phải thì khó đọc. */
+.cause {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
 /*
@@ -63,6 +93,8 @@
 .message {
   margin: 0;
   font-size: var(--text-base);
+  /* Dòng chặt (27/10/2026) — cùng đợt hạ đệm thẻ ở trên; câu dài xuống dòng vẫn đọc được ở 1,25. */
+  line-height: var(--leading-tight);
   color: var(--color-ink);
 }
 
@@ -99,7 +131,7 @@
  *
  *   - Đệm thẻ 16 → 8px trên dưới, 12px hai bên — đúng đệm của thẻ Kết quả ở khổ này
  *     (`ResultBlock.module.css`), để hai trạng thái của cùng một chỗ đứng cùng khuôn. Khe giữa ba
- *     dòng 8 → 4px.
+ *     dòng 8 → 4px. (Từ 27/10/2026 còn 6px và 2px, ở mọi khổ — xem trên `.block`.)
  *   - Đơn vị 18 → 14px, cũng là cỡ đơn vị của thẻ Kết quả ở khổ này.
  *   - Câu nguyên nhân 16 → 14px, dòng "↳ Kiểm tra lại" 14 → 12px: vẫn một bậc dưới câu nguyên nhân.
  */
@@ -108,10 +140,7 @@
     font-size: var(--text-xl);
   }
 
-  .block {
-    gap: var(--space-1);
-    padding: var(--space-2) var(--space-3);
-  }
+  /* Đệm và khe của thẻ nay ở luật gốc, chung mọi khổ (27/10/2026) — xem trên `.block`. */
 
   .unit {
     font-size: var(--text-sm);

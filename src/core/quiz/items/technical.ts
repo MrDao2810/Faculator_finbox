@@ -774,8 +774,8 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'quy-dinh',
     prompt: {
-      vi: 'Một cổ phiếu đang đóng cửa ở 27.200 ₫. Với chu kỳ và hệ số nhân đang dùng, dải trên Bollinger là 27.600 ₫ và dải dưới là 24.400 ₫. Công thức %B theo quy ước Fidelity (thang phần trăm 0 đến 100) đã dựng sẵn — điền giá đóng cửa và hai dải vào đúng ô trống, chú ý dải dưới xuất hiện hai lần.',
-      en: "A stock closes at 27,200 VND. With the period and multiplier in use, the Bollinger upper band is 27,600 VND and the lower band is 24,400 VND. The %B formula follows Fidelity's convention (a 0-to-100 percent scale) and is laid out below — put the close and the two bands into the right slots, noting the lower band appears twice.",
+      vi: 'Một cổ phiếu đang đóng cửa ở 27.200 ₫. Với chu kỳ và hệ số nhân đang dùng, dải trên Bollinger là 27.600 ₫ và dải dưới là 24.400 ₫. Công thức %B theo quy ước Fidelity (thang phần trăm 0 đến 100) đã dựng sẵn — điền giá đóng cửa và hai dải vào đúng ô trống.',
+      en: "A stock closes at 27,200 VND. With the period and multiplier in use, the Bollinger upper band is 27,600 VND and the lower band is 24,400 VND. The %B formula follows Fidelity's convention (a 0-to-100 percent scale) and is laid out below — put the close and the two bands into the right slots.",
     },
     facts: [
       {
@@ -978,8 +978,8 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'quy-dinh',
     prompt: {
-      vi: 'Đường tín hiệu MACD là EMA của chính chuỗi MACD, không phải trung bình cộng đơn giản của vài phiên gần nhất. Hệ số làm mượt chuẩn là K = 2/(N+1). Điền MACD hôm nay, đường tín hiệu phiên trước và chu kỳ N vào đúng ô trống — chú ý đường tín hiệu phiên trước xuất hiện hai lần.',
-      en: "The MACD signal line is an EMA of the MACD series itself, not a plain average of a few recent values. The standard smoothing factor is K = 2/(N+1). Put today's MACD, yesterday's signal line and the period N into the right slots — note yesterday's signal line appears twice.",
+      vi: 'Đường tín hiệu MACD là EMA của chính chuỗi MACD, không phải trung bình cộng đơn giản của vài phiên gần nhất. Hệ số làm mượt chuẩn là K = 2/(N+1). Điền MACD hôm nay, đường tín hiệu phiên trước và chu kỳ N vào đúng ô trống.',
+      en: "The MACD signal line is an EMA of the MACD series itself, not a plain average of a few recent values. The standard smoothing factor is K = 2/(N+1). Put today's MACD, yesterday's signal line and the period N into the right slots.",
     },
     facts: [
       {
@@ -1299,8 +1299,8 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'quy-dinh',
     prompt: {
-      vi: 'EMA 10 phiên tính đúng theo ba bước StockCharts mô tả, với hệ số nhân (multiplier) = 2 ÷ (n + 1) và công thức EMA = (Giá đóng cửa − EMA phiên trước) × hệ số nhân + EMA phiên trước. Điền giá đóng cửa, EMA phiên trước và chu kỳ vào đúng ô trống — chú ý EMA phiên trước xuất hiện hai lần.',
-      en: "A 10-period EMA follows StockCharts' own three-step method, with multiplier = 2 ÷ (n + 1) and EMA = (Close − Previous EMA) × multiplier + Previous EMA. Put the close, the previous EMA and the period into the right slots — note the previous EMA appears twice.",
+      vi: 'EMA 10 phiên tính đúng theo ba bước StockCharts mô tả, với hệ số nhân (multiplier) = 2 ÷ (n + 1) và công thức EMA = (Giá đóng cửa − EMA phiên trước) × hệ số nhân + EMA phiên trước. Điền giá đóng cửa, EMA phiên trước và chu kỳ vào đúng ô trống.',
+      en: "A 10-period EMA follows StockCharts' own three-step method, with multiplier = 2 ÷ (n + 1) and EMA = (Close − Previous EMA) × multiplier + Previous EMA. Put the close, the previous EMA and the period into the right slots.",
     },
     facts: [
       {
@@ -1722,8 +1722,8 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'quy-dinh',
     prompt: {
-      vi: 'ATR(14) tính theo công thức làm mịn Wilder mà StockCharts mô tả, không phải trung bình cộng đơn giản của 14 giá trị TR. Điền ATR phiên trước, True Range hôm nay và chu kỳ vào đúng ô trống — chú ý chu kỳ xuất hiện hai lần.',
-      en: "ATR(14) follows Wilder's smoothing formula as StockCharts describes it, not a simple average of the last 14 TR values. Put yesterday's ATR, today's True Range and the period into the right slots — note the period appears twice.",
+      vi: 'ATR(14) tính theo công thức làm mịn Wilder mà StockCharts mô tả, không phải trung bình cộng đơn giản của 14 giá trị TR. Điền ATR phiên trước, True Range hôm nay và chu kỳ vào đúng ô trống.',
+      en: "ATR(14) follows Wilder's smoothing formula as StockCharts describes it, not a simple average of the last 14 TR values. Put yesterday's ATR, today's True Range and the period into the right slots.",
     },
     facts: [
       {

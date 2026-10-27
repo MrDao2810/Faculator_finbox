@@ -54,11 +54,16 @@ export function XirrBody({ output, rows, onRowsChange, thaySo }: XirrBodyProps) 
   /*
    * Danh sách lỗi dưới bảng chỉ in lý do mà ô không tự cho thấy. "Thiếu ngày" / "Thiếu số tiền"
    * không in nữa (chủ dự án, 15/10/2026 — "đoạn text dư thừa"): bảng mở ra với hai dòng trống nên
-   * hai câu ấy hiện ngay cho từng dòng, nhắc lại đúng điều ô trống đã nói. Dòng thiếu vẫn mang cờ
-   * "!" và vẫn bị loại khỏi phép tính, vì mã lỗi của nó còn nguyên trong `checkCashflowSeries`.
+   * hai câu ấy hiện ngay cho từng dòng, nhắc lại đúng điều ô trống đã nói. Dòng thiếu vẫn mang nền
+   * vàng và vẫn bị loại khỏi phép tính, vì mã lỗi của nó còn nguyên trong `checkCashflowSeries`.
    *
    * Dòng đếm "N / M dòng tiền dùng được" dưới bảng cũng bỏ cùng ngày, theo yêu cầu riêng của chủ dự
-   * án ("không cần chú thích"): cờ "!" trên từng dòng đã chỉ ra dòng nào chưa dùng được.
+   * án ("không cần chú thích"): nền vàng trên từng dòng đã chỉ ra dòng nào chưa dùng được.
+   *
+   * Cờ "!" đầu dòng — và cả cột riêng của nó — bỏ ngày 27/10/2026, chủ dự án khoanh nó trên một dòng
+   * trống: _"bỏ icon chấm than khoanh đỏ như trong ảnh đi"_. Dòng lỗi nay nói bằng nền vàng, bằng
+   * chính ô trống, và bằng câu "Dòng N: …" dưới bảng cho mọi lỗi ô không tự cho thấy. Dấu "!" của câu
+   * ấy (`.issueFlag`) không nằm trong ảnh nên giữ.
    */
   const issueLines = check.rows.flatMap((row) => {
     const shown = row.issues.filter((issue) => !SELF_EVIDENT.has(issue.code));
@@ -91,16 +96,13 @@ export function XirrBody({ output, rows, onRowsChange, thaySo }: XirrBodyProps) 
         <Table caption={t('xirr.tableTitle')} hideCaption className={styles.cashflow}>
           <thead>
             <tr>
-              <th className={styles.flagCol}>
-                <span className="visually-hidden">{t('xirr.rowLabel')}</span>
-              </th>
               <th scope="col" className={styles.dateCol}>
                 {t('xirr.colDate')}
               </th>
               <th scope="col" className="numeric">
                 {t('xirr.colAmount')}
               </th>
-              <th className={styles.flagCol}>
+              <th className={styles.removeCol}>
                 <span className="visually-hidden">{t('xirr.removeRow')}</span>
               </th>
             </tr>
@@ -110,13 +112,6 @@ export function XirrBody({ output, rows, onRowsChange, thaySo }: XirrBodyProps) 
               const bad = issueByIndex.has(index);
               return (
                 <tr key={index} className={bad ? styles.badRow : undefined}>
-                  <td className={styles.flagCol}>
-                    {bad && (
-                      <span className={styles.flag} aria-hidden="true">
-                        !
-                      </span>
-                    )}
-                  </td>
                   <td>
                     {/* Ô chữ in ngày/tháng/năm, không phải `type="date"`: ô của trình duyệt in theo
                         ngôn ngữ của trình duyệt (tháng/ngày/năm trên Chrome tiếng Anh), lệch với
@@ -142,7 +137,7 @@ export function XirrBody({ output, rows, onRowsChange, thaySo }: XirrBodyProps) 
                       }}
                     />
                   </td>
-                  <td className={styles.flagCol}>
+                  <td className={styles.removeCol}>
                     <button
                       type="button"
                       className={styles.removeButton}

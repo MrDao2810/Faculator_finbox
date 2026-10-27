@@ -229,11 +229,12 @@ export const vi = {
   'input.sliderStep': 'step',
   'input.unitLabel': 'Đơn vị hiển thị',
   /*
-   * Nhãn ba bậc đơn vị tiền. Bản gốc là `UNIT_SCALES[].label` ở Domain (CON-05) — một ca kiểm
-   * trong i18n.test.ts giữ hai bên khớp từng chữ. Xem `src/ui/i18n/keys.ts`.
+   * Nhãn bốn bậc đơn vị tiền ('nghìn' thêm 27/10/2026). Bản gốc là `UNIT_SCALES[].label` ở Domain
+   * (CON-05) — một ca kiểm trong i18n.test.ts giữ hai bên khớp từng chữ. Xem `src/ui/i18n/keys.ts`.
    */
   'unit.scale.billion': 'tỷ ₫',
   'unit.scale.million': 'triệu ₫',
+  'unit.scale.thousand': 'nghìn ₫',
   'unit.scale.dong': '₫',
   'input.revert': 'Nhận tự động',
   /*
@@ -1014,8 +1015,8 @@ export const vi = {
    * CLAUDE.md gọi tên nó ở mục "The one network call". Cùng đợt, `settings.data.note` cũng xoá.
    *
    * Cam kết bản thân KHÔNG đổi: chỉ mã cổ phiếu vào request, và ca kiểm ở `src/data/finbox/` vẫn
-   * gác điều đó. Thứ mất đi là lời nói ra trên màn. Muốn trả lại thì rẻ nhất là một dòng ở khối
-   * "Về sản phẩm" của màn Cài đặt.
+   * gác điều đó. Thứ mất đi là lời nói ra trên màn. Chỗ rẻ nhất để trả lại từng là một dòng ở khối
+   * "Về sản phẩm" của màn Cài đặt, nhưng khối ấy cũng đã bỏ (27/10/2026).
    */
   'portfolio.formCode': 'Mã cổ phiếu',
   // "Số cổ phiếu" trần bị đọc nhầm thành số CP LƯU HÀNH — cụm mà Domain dùng cho
@@ -1766,15 +1767,19 @@ export const vi = {
 
   // Màn cài đặt — WF-13, gói 3.6.1
   'settings.mode.title': 'Chế độ hiển thị',
-  'settings.mode.label': 'Cơ bản hay Nâng cao',
   /*
-   * Câu này TỪNG SAI: nó hứa chế độ Cơ bản "mở sẵn phần giải thích", trong khi
-   * `ExplanationAccordion` đã chuyển sang luôn mở ở CẢ HAI chế độ (`defaultOpen = true`, chủ
-   * dự án chốt). Viết lại theo đúng những gì chế độ thật sự đổi, tính cả ba màn vừa nối dây.
+   * "Cơ bản/Nâng cao" và "Sáng/Tối" có gạch chéo, không còn chữ "hay" (27/10/2026, chủ dự án:
+   * _"Cơ bản/Nâng cao. Sáng/Tối."_). Gạch chéo ở đây là chữ thường của một nhãn, không đứng cạnh
+   * công thức nào, nên không vướng luật "không dùng / trong bảng ký hiệu".
    */
-  'settings.mode.hint':
-    'Nâng cao mở thêm công thức phức tạp, toàn bộ biến nâng cao, chuỗi định giá, và ô Beta / XIRR ở màn Danh mục.',
-  'settings.theme.label': 'Sáng hay Tối',
+  'settings.mode.label': 'Cơ bản/Nâng cao',
+  /*
+   * `settings.mode.hint` ("Nâng cao mở thêm công thức phức tạp, toàn bộ biến nâng cao, chuỗi định
+   * giá, và ô Beta / XIRR ở màn Danh mục.") đã XOÁ — chủ dự án khoanh nó ngày 27/10/2026: _"bỏ các
+   * phần tôi khoanh đỏ đi"_, cùng lượt với `settings.units.scheduleHint` và cả khối "Về sản phẩm".
+   * Hàng Cơ bản/Nâng cao nay chỉ còn nhãn và cụm nút. Điều câu ấy nói vẫn đúng trong mã (FR-09).
+   */
+  'settings.theme.label': 'Sáng/Tối',
   'settings.units.title': 'Đơn vị & biểu thị',
   'settings.units.scale': 'Đơn vị tiền trong bảng',
   /*
@@ -1784,8 +1789,12 @@ export const vi = {
    * đang tối. Vế ấy nay chỉ còn trong mã (`draw-card.ts`), người dùng không được báo trước.
    */
   'settings.units.schedule': 'Biểu phí giao dịch',
-  'settings.units.scheduleHint':
-    'Dùng cho màn lợi nhuận ròng sau phí & thuế. Nguồn: Market Config.',
+  /*
+   * `settings.units.scheduleHint` ("Dùng cho màn lợi nhuận ròng sau phí & thuế. Nguồn: Market
+   * Config.") đã XOÁ cùng lượt 27/10/2026 (xem `settings.mode.hint` ngay trên). Màn Cài đặt truyền
+   * `hint={null}` cho `FeeScheduleField`, nên hàng biểu phí ở đây không có dòng phụ nào; dòng nguồn
+   * `fee.scheduleNote` của màn lợi nhuận ròng (CON-10) KHÔNG đổi.
+   */
   /* `settings.data.note` đã xoá cùng đợt với dải "CỤC BỘ" — xem docblock ở `portfolio.formCode`. */
   /*
    * "Dữ liệu của bạn" chứ không còn "Dữ liệu trên máy" — chủ dự án chọn 14/09/2026, khi khối này
@@ -1796,7 +1805,7 @@ export const vi = {
    * nút xoá sạch.
    */
   'settings.data.title': 'Dữ liệu của bạn',
-  'settings.about.title': 'Về sản phẩm',
+  /* `settings.about.title` ("Về sản phẩm") đã XOÁ cùng khối của nó — xem mộ chí `about.*` dưới. */
 
   /*
    * ── Mỗi kho một CÂU nói trong đó có gì, không phải khoá kho và độ dài chuỗi ─────────────────
@@ -1866,17 +1875,19 @@ export const vi = {
   'data.clearConfirm':
     'Xoá toàn bộ dữ liệu đã lưu trên máy? Tuỳ chọn, lịch sử tìm, chuỗi giá và danh mục sẽ mất hết. Thao tác này không hoàn tác được.',
 
-  'about.formulas': 'Công thức đang dùng được',
-  'about.schedule': 'Biểu phí đã nạp',
-  'about.offline': 'Chạy ngoại tuyến',
-  'about.offlineValue': 'có',
+  /*
+   * `about.formulas` ("Công thức đang dùng được"), `about.schedule` ("Biểu phí đã nạp"),
+   * `about.offline` ("Chạy ngoại tuyến") và `about.offlineValue` ("có") đã XOÁ cùng khối "Về sản
+   * phẩm" của màn Cài đặt — chủ dự án khoanh cả khối ngày 27/10/2026: _"bỏ các phần tôi khoanh đỏ
+   * đi"_. Màn Cài đặt nay ba khối. Dựng lại khối là một quyết định, không phải sơ suất.
+   */
 
   /*
    * ── Màn "Về chúng tôi" (/ve-chung-toi/) ──────────────────────────────────────────────────────
    *
-   * Tiền tố `aboutUs.` chứ KHÔNG phải `about.`: bốn khoá ngay trên đã thuộc về khối "Về sản phẩm"
-   * của màn Cài đặt — ba dòng số liệu, không phải văn giới thiệu. Trộn hai màn vào một namespace
-   * là mời người sửa sau đổi nhầm chỗ.
+   * Tiền tố `aboutUs.` chứ KHÔNG phải `about.`: bốn khoá `about.*` từng thuộc về khối "Về sản phẩm"
+   * của màn Cài đặt — ba dòng số liệu, không phải văn giới thiệu (khối ấy đã bỏ 27/10/2026, xem mộ
+   * chí ngay trên). Trộn hai màn vào một namespace là mời người sửa sau đổi nhầm chỗ.
    *
    * Đây là màn DUY NHẤT của sản phẩm viết bằng giọng quảng bá. Hai luật tự đặt cho nó:
    *

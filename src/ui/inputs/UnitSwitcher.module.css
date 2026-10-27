@@ -12,6 +12,12 @@
 .option {
   /* Vùng chạm tối thiểu 44px — NFR-USA-01. */
   min-height: var(--tap-min);
+  /*
+   * Rộng ít nhất bằng nút "tỷ ₫" (48px). Từ khi có bốn nút (27/10/2026), nút "₫" chỉ còn một ký tự,
+   * rộng 33px trong khi cao 44px, nên viên chọn của nó thành hình bầu dục ĐỨNG giữa ba viên nằm
+   * ngang. Chủ dự án: _"bo khi chọn vào đ thì rất xấu, sửa lại cho thẩm mỹ hơn"_.
+   */
+  min-width: 48px;
   padding: 0 var(--space-3);
 
   font-family: inherit;
@@ -54,6 +60,8 @@
   .compact > .option {
     position: relative;
     min-height: 28px;
+    /* Cùng luật `min-width` ở `.option`: bằng nút "tỷ ₫" của bản gọn (36px), "₫" không còn 24 × 28px. */
+    min-width: 36px;
     padding: 0 var(--space-2);
     font-size: var(--text-xs);
   }

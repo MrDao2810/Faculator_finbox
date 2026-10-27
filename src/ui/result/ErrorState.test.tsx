@@ -111,6 +111,23 @@ describe('bất biến FR-06 ở lớp hiển thị', () => {
     render(<ErrorState warning={WF15.DIVIDE_BY_ZERO} unit="lần" />);
     expect(screen.getByText('lần')).not.toBeNull();
   });
+
+  /*
+   * Câu nguyên nhân và dòng ↳ chung MỘT khối, đứng cạnh `_ _` (27/10/2026, thẻ thành một hàng — xem
+   * `error-state-css.test.ts`). Tách ra hai con của thẻ thì dòng ↳ bị bỏ lại ở mép trái hàng dưới,
+   * xa câu nó sửa đang nằm bên phải.
+   */
+  it('câu nguyên nhân và dòng ↳ chung một khối, anh em với khối `_ _`', () => {
+    const warning = WF15.DIVIDE_BY_ZERO;
+    render(<ErrorState warning={warning} unit="lần" />);
+    const the = screen.getByRole('alert');
+    const cau = screen.getByText(warning.message.vi);
+    const sua = screen.getByText(warning.fix?.vi ?? '', { exact: false });
+
+    expect(sua.parentElement).toBe(cau.parentElement);
+    expect(cau.parentElement?.parentElement).toBe(the);
+    expect(screen.getByText(NO_VALUE).parentElement?.parentElement).toBe(the);
+  });
 });
 
 describe('ResultBlock giao việc báo lỗi cho ErrorState', () => {

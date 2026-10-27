@@ -29,3 +29,26 @@
   font-size: var(--text-xs);
   color: var(--color-muted);
 }
+
+/*
+ * `inline` (màn Cài đặt, 27/10/2026): nhãn bên trái, tên biểu phí sát mép PHẢI trên cùng hàng —
+ * chủ dự án khoanh "Mặc định HOSE 2026" và vẽ mũi tên sang phải, lên ngang dòng nhãn, như ba hàng
+ * điều khiển phía trên nó. Không đủ chỗ (320px) thì tên xuống dòng riêng, vẫn sát phải
+ * (`margin-left: auto` trên một dòng flex mới). Dòng phụ, nếu có, chiếm trọn một dòng dưới cùng.
+ * Màn lợi nhuận ròng không truyền `inline`, nên giữ ba dòng xếp dọc như cũ.
+ */
+.inline {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: var(--space-3);
+}
+
+.inline > .value {
+  margin-left: auto;
+  text-align: right;
+}
+
+.inline > .hint {
+  flex-basis: 100%;
+}

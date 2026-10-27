@@ -125,6 +125,7 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'input.unitLabel': 'Display unit',
   'unit.scale.billion': 'billion ₫',
   'unit.scale.million': 'million ₫',
+  'unit.scale.thousand': 'thousand ₫',
   'unit.scale.dong': '₫',
   /* Không phải "Undo": nút trả ô về giá trị tự điền từ công thức trên, không phải lùi một thao tác. */
   'input.revert': 'Reset',
@@ -614,17 +615,15 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'shelf.collapse': 'Show less',
 
   'settings.mode.title': 'Display mode',
-  'settings.mode.label': 'Basic or Advanced',
-  'settings.mode.hint':
-    'Advanced mode adds the complex formulas, every advanced variable, the valuation chain, and the Beta / XIRR tiles in Portfolio.',
-  'settings.theme.label': 'Light or Dark',
+  'settings.mode.label': 'Basic/Advanced',
+  /* `settings.mode.hint` đã xoá cùng lúc với bản Việt (27/10/2026). */
+  'settings.theme.label': 'Light/Dark',
   'settings.units.title': 'Units & display',
   'settings.units.scale': 'Currency unit in tables',
   /* `settings.theme.hint` và `settings.units.scaleHint` đã xoá cùng lúc với bản Việt. */
   'settings.units.schedule': 'Trading fee schedule',
-  'settings.units.scheduleHint': 'Used by the net-profit-after-fees screen. Source: Market Config.',
+  /* `settings.units.scheduleHint` và `settings.about.title` đã xoá cùng lúc với bản Việt (27/10/2026). */
   'settings.data.title': 'Your data',
-  'settings.about.title': 'About',
 
   'data.prefs': 'Display preferences',
   'data.prefs.note':
@@ -674,11 +673,7 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'data.clearConfirm':
     'Delete all data saved on this device? Preferences, search history, price series and the portfolio will all be gone. This cannot be undone.',
 
-  'about.formulas': 'Formulas ready to use',
-  /* Con số ghép vào là SỐ biểu phí đã nạp, không phải biểu phí đang áp — xem SettingsScreen. */
-  'about.schedule': 'Fee schedules loaded',
-  'about.offline': 'Works offline',
-  'about.offlineValue': 'yes',
+  /* Bốn khoá `about.*` (khối "Về sản phẩm" của màn Cài đặt) đã xoá cùng lúc với bản Việt (27/10/2026). */
 
   /* Màn "Về chúng tôi" — lý do chọn tiền tố `aboutUs.` và hai luật viết nằm ở bản tiếng Việt. */
   'aboutUs.eyebrow': 'About Faculator Finbox',

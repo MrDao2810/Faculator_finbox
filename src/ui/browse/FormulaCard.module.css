@@ -230,8 +230,49 @@
   font-weight: var(--weight-medium);
   color: var(--color-ink-soft);
 
+  /* Icon nhóm đứng trước chữ (27/10/2026) — xem `.categoryMark`. */
+  align-items: center;
+  gap: 4px;
+  line-height: calc(1em + 5px);
+
   overflow: hidden;
   white-space: nowrap;
+}
+
+/*
+ * Icon nhóm trước tên nhóm, ở cả hai biến thể (`.category`, `.tileCategory`). Cỡ theo `em` của
+ * nhãn: 13px → 16,25px trên PC, 12/11px → 15/13,75px dưới 1024px; CSS `width`/`height` thắng thuộc
+ * tính `size` của `<svg>`. Không co: tên nhóm dài thì CHỮ bị cắt "…", icon thì không.
+ *
+ * Lượt hai cùng ngày, chủ dự án: _"tăng size của icon danh mục đó lên 1 chút nữa, nhưng giảm padding
+ * xung quanh đi để có thêm không gian cho nội dung"_. Icon 1,1 → 1,25em; khe với chữ 6 → 4px; dòng
+ * nhóm cao 1,5em → `1em + 5px` (13px: 19,5 → 18px · 12px: 18 → 17px · 11px: 16,5 → 16px), tức chỉ
+ * còn ~1px trống trên và dưới icon. Đây là SÀN, đo trên Chrome: `.categoryText` cắt `overflow: hidden`
+ * ở chính hộp dòng, mà vùng chữ của Segoe UI là 17px ở 13px và 16px ở 11px — dòng thấp hơn là mất
+ * đỉnh dấu chồng ("ế", "ố", "ầ"). Bản đầu lượt này dùng 1,35em và ô kệ 11px hụt đúng chỗ ấy.
+ *
+ * Màu xanh chủ đạo (`--category-ink`, tức `--color-accent`), cùng màu icon đầu thẻ — chủ dự án chọn
+ * ngay lượt ấy: _"đổi màu cho icon đó thành màu xanh dương như màu chủ đạo của dự án đi"_. Chữ nhóm
+ * bên cạnh vẫn `--color-ink-soft`. Khe tông do lớp `toneClass()` rót vào thẻ (xem `CategoryIcon.tsx`).
+ */
+.categoryMark {
+  display: inline-flex;
+  flex-shrink: 0;
+  color: var(--category-ink);
+}
+
+.categoryMark svg {
+  width: 1.25em;
+  height: 1.25em;
+}
+
+/*
+ * Dấu "…" phải nằm trên chính hộp chữ: `text-overflow` chỉ cắt dòng chữ của một khối, mà nhãn nay
+ * là flex hai ô (icon · chữ).
+ */
+.categoryText {
+  min-width: 0;
+  overflow: hidden;
   text-overflow: ellipsis;
 }
 
@@ -385,9 +426,14 @@
   font-weight: var(--weight-medium);
   color: var(--color-ink-soft);
 
+  /* Icon nhóm đứng trước chữ, cùng khuôn `.category` — xem `.categoryMark`. */
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  line-height: calc(1em + 5px);
+
   overflow: hidden;
   white-space: nowrap;
-  text-overflow: ellipsis;
 }
 
 /*

@@ -553,8 +553,8 @@ export const BIEU_DO_DINH_GIA: Readonly<Record<string, BieuDoRieng>> = {
       },
     },
     bocTach: d(
-      'Hình này chỉ có một dạng: các thanh nằm ngang, đọc từ trên xuống. EBIT sau thuế và Khấu hao là hai thanh tô màu, tiền đi vào; Chi đầu tư và Tăng VLĐ ròng là hai thanh viền nét đứt, tiền doanh nghiệp phải bỏ lại để tiếp tục hoạt động; thanh sẫm cuối cùng là FCFF và bằng đúng con số ở khối Kết quả. Nếu vốn lưu động giảm, thanh Tăng VLĐ ròng đổi sang tô màu vì tiền quay về. Hai thanh trừ dài gần bằng hai thanh cộng là doanh nghiệp làm ra tiền nhưng phải tái đầu tư gần hết.',
-      'This chart has a single form: horizontal bars, read from top to bottom. After-tax EBIT and Depreciation are the two filled bars, cash coming in; CapEx and Increase in net WC are the two bars with a dashed outline, cash the company must leave behind to keep operating; the dark bar at the end is FCFF and matches the figure in the Result block exactly. If working capital falls, the Increase in net WC bar turns filled. When the two minus bars nearly match the two plus bars, the company makes cash but has to reinvest almost all of it.',
+      'Các thanh nằm ngang, đọc từ trên xuống. EBIT sau thuế và Khấu hao là hai thanh được tô màu, tiền đi vào; Chi đầu tư và Tăng VLĐ ròng là hai thanh viền nét đứt, tiền doanh nghiệp phải bỏ lại để tiếp tục hoạt động; thanh sẫm cuối cùng là FCFF và bằng đúng con số ở khối Kết quả. Nếu vốn lưu động giảm, thanh Tăng VLĐ ròng đổi sang tô màu vì tiền quay về. Hai thanh trừ dài gần bằng hai thanh cộng là doanh nghiệp làm ra tiền nhưng phải tái đầu tư gần hết.',
+      'Horizontal bars, read from top to bottom. After-tax EBIT and Depreciation are the two filled bars, cash coming in; CapEx and Increase in net WC are the two bars with a dashed outline, cash the company must leave behind to keep operating; the dark bar at the end is FCFF and matches the figure in the Result block exactly. If working capital falls, the Increase in net WC bar turns filled. When the two minus bars nearly match the two plus bars, the company makes cash but has to reinvest almost all of it.',
     ),
   },
 

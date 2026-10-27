@@ -299,13 +299,15 @@ describe('draftViNumber()', () => {
 });
 
 describe('đổi đơn vị tiền (CON-05)', () => {
-  it('có đủ ba bậc đúng thứ tự nút của WF-16', () => {
-    expect(UNIT_SCALES.map((s) => s.label)).toEqual(['tỷ ₫', 'triệu ₫', '₫']);
+  /* Bốn bậc từ 27/10/2026, chủ dự án: _"Tỷ rồi tới triệu rồi tới ngàn rồi tới đ"_. */
+  it('có đủ bốn bậc đúng thứ tự nút của WF-16', () => {
+    expect(UNIT_SCALES.map((s) => s.label)).toEqual(['tỷ ₫', 'triệu ₫', 'nghìn ₫', '₫']);
   });
 
   it('quy về bậc đã chọn', () => {
     expect(scaleToUnit(92_000_000_000, 'billion')).toBe(92);
     expect(scaleToUnit(92_000_000, 'million')).toBe(92);
+    expect(scaleToUnit(92_000, 'thousand')).toBe(92);
     expect(scaleToUnit(92_000, 'dong')).toBe(92_000);
   });
 

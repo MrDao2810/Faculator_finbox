@@ -143,9 +143,19 @@ describe('XirrBody — dải lỗi từng dòng', () => {
     expect(screen.queryByText(/Thiếu số tiền/)).toBeNull();
     expect(screen.queryByText(/Số âm là tiền chi ra/)).toBeNull();
     expect(container.querySelector('ul')).toBeNull();
-    // Dòng trống vẫn mang cờ "!" — mã lỗi còn nguyên, chỉ câu là không in.
-    const co = [...container.querySelectorAll('tbody span')].filter((s) => s.textContent === '!');
-    expect(co).toHaveLength(2);
+    /*
+     * Dòng trống vẫn được đánh dấu bằng nền vàng (lớp `badRow`) — mã lỗi còn nguyên, chỉ câu là không
+     * in. Còn cờ "!" đầu dòng và cột của nó thì bỏ ngày 27/10/2026 (chủ dự án: _"bỏ icon chấm than
+     * khoanh đỏ như trong ảnh đi"_): ca ĐẢO NGƯỢC, cờ quay lại là một quyết định.
+     */
+    const dong = [...container.querySelectorAll('tbody tr')];
+    expect(dong).toHaveLength(2);
+    for (const tr of dong) {
+      expect(tr.className).not.toBe('');
+      expect(tr.querySelectorAll('td')).toHaveLength(3);
+    }
+    expect(container.querySelector('tbody')?.textContent).not.toContain('!');
+    expect(container.querySelectorAll('thead th')).toHaveLength(3);
     expect(screen.queryByText(/dòng tiền dùng được/)).toBeNull();
     expect(container.textContent).not.toMatch(/\d+ \/ \d+/);
   });

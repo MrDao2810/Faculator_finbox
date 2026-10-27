@@ -31,7 +31,8 @@ const COLUMN_COUNT = 4;
  * Ở bậc tỷ ₫ mà chỉ để 2 số lẻ thì kỳ đầu của khoản vay 800 triệu ra "0,01" — mất hết thông
  * tin. Bậc càng lớn thì càng cần nhiều số lẻ.
  */
-const DECIMALS: Readonly<Record<string, number>> = { dong: 0, million: 2, billion: 4 };
+/* Bậc 'thousand' (27/10/2026): một chữ số lẻ, tức tới 100 ₫ — mịn hơn bậc triệu, như thứ tự các bậc. */
+const DECIMALS: Readonly<Record<string, number>> = { dong: 0, thousand: 1, million: 2, billion: 4 };
 
 /**
  * Khối kết quả riêng của màn WF-14 Vay nợ — gói WBS 3.2.4.

@@ -22,11 +22,11 @@ export interface UnitSwitcherProps {
 /**
  * Bộ chuyển đơn vị tiền — gói WBS 2.3.3.
  *
- * WF-16: `tỷ ₫ | triệu ₫ | ₫` theo quy ước Việt Nam (CON-05). Đây là bộ chuyển cách HIỂN THỊ,
- * không đổi giá trị thật: công thức luôn nhận số đơn vị đồng, việc quy đổi do `scaleToUnit()`
- * và `scaleToDong()` ở tầng Domain lo.
+ * WF-16: `tỷ ₫ | triệu ₫ | nghìn ₫ | ₫` theo quy ước Việt Nam (CON-05; nút 'nghìn ₫' thêm
+ * 27/10/2026). Đây là bộ chuyển cách HIỂN THỊ, không đổi giá trị thật: công thức luôn nhận số đơn
+ * vị đồng, việc quy đổi do `scaleToUnit()` và `scaleToDong()` ở tầng Domain lo.
  *
- * Ba bậc là cố định của quy ước tiền tệ nên đọc từ `UNIT_SCALES` chứ không từ VariableSpec —
+ * Các bậc là cố định của quy ước tiền tệ nên đọc từ `UNIT_SCALES` chứ không từ VariableSpec —
  * khác với các điều khiển còn lại của 2.3.
  */
 export function UnitSwitcher({ value, onChange, className, compact = false }: UnitSwitcherProps) {

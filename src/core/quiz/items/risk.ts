@@ -977,8 +977,8 @@ export const RUI_RO: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'quy-dinh',
     prompt: {
-      vi: 'Một danh mục có lợi suất 22%/năm, lãi suất phi rủi ro 1%/năm và beta so với thị trường bằng 2,5. Công thức tỷ số Treynor đã dựng sẵn dưới đây, chia thêm cho 100 để đưa hai lợi suất từ thang phần trăm về dạng tỷ lệ. Điền ba con số vào đúng ô trống — chú ý ô nào là lợi suất danh mục, ô nào là lãi suất phi rủi ro.',
-      en: "A portfolio returns 22%/year, the risk-free rate is 1%/year, and the portfolio's beta versus the market is 2.5. The Treynor ratio formula is laid out below, with the extra division by 100 that turns the two percentage returns into plain ratios. Put the three figures into the right slots — mind which slot takes the portfolio return and which takes the risk-free rate.",
+      vi: 'Một danh mục có lợi suất 22%/năm, lãi suất phi rủi ro 1%/năm và beta so với thị trường bằng 2,5. Công thức tỷ số Treynor đã dựng sẵn dưới đây, chia thêm cho 100 để đưa hai lợi suất từ thang phần trăm về dạng tỷ lệ. Điền ba con số vào đúng ô trống.',
+      en: "A portfolio returns 22%/year, the risk-free rate is 1%/year, and the portfolio's beta versus the market is 2.5. The Treynor ratio formula is laid out below, with the extra division by 100 that turns the two percentage returns into plain ratios. Put the three figures into the right slots.",
     },
     facts: [
       {
@@ -2508,8 +2508,8 @@ export const RUI_RO: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'quy-dinh',
     prompt: {
-      vi: 'Cổ phiếu XYZ có 12 phiên gần nhất với giá ĐÓNG CỬA cao nhất là 24.500 ₫ và giá đóng cửa thấp nhất là 21.800 ₫. Riêng một phiên trong số đó, giá từng chạm 25.200 ₫ trong lúc khớp lệnh nhưng cuối phiên lùi về đóng cửa ở 23.900 ₫. Biên độ dao động lớn nhất trong kỳ A chỉ tính theo giá ĐÓNG CỬA, như các chỉ số kiểu "52 tuần cao/thấp". Điền đúng hai mức giá ấy vào các ô trống — chú ý giá thấp nhất xuất hiện hai lần.',
-      en: 'Stock XYZ\'s most recent 12 sessions have a highest CLOSING price of 24,500 VND and a lowest closing price of 21,800 VND. In one of those sessions the price touched 25,200 VND intraday but closed back down at 23,900 VND. The peak-to-trough price range A counts CLOSING prices only, as "52-week high/low" indicators do. Put the right two prices into the slots — note the lowest price appears twice.',
+      vi: 'Cổ phiếu XYZ có 12 phiên gần nhất với giá ĐÓNG CỬA cao nhất là 24.500 ₫ và giá đóng cửa thấp nhất là 21.800 ₫. Riêng một phiên trong số đó, giá từng chạm 25.200 ₫ trong lúc khớp lệnh nhưng cuối phiên lùi về đóng cửa ở 23.900 ₫. Biên độ dao động lớn nhất trong kỳ A chỉ tính theo giá ĐÓNG CỬA, như các chỉ số kiểu "52 tuần cao/thấp". Điền đúng hai mức giá ấy vào các ô trống.',
+      en: 'Stock XYZ\'s most recent 12 sessions have a highest CLOSING price of 24,500 VND and a lowest closing price of 21,800 VND. In one of those sessions the price touched 25,200 VND intraday but closed back down at 23,900 VND. The peak-to-trough price range A counts CLOSING prices only, as "52-week high/low" indicators do. Put the right two prices into the slots.',
     },
     facts: [
       {

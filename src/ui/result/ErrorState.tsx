@@ -39,6 +39,10 @@ export function ErrorState({ warning, unit, action, className }: ErrorStateProps
    *
    * Mã vẫn nằm trên thẻ ở `data-ma-loi`, không hiện ra mắt: ca kiểm cần biết thẻ đang báo mã nào
    * (chờ chuỗi giá hay lỗi thật), và trước đây chúng đọc nó qua chữ của nhãn.
+   *
+   * Câu nguyên nhân, dòng ↳ và nút lối ra chung một khối `.cause`, đứng CÙNG HÀNG với `_ _` và dạt mép
+   * phải khi đủ chỗ (27/10/2026, chủ dự án chỉ mũi tên trên thẻ của XIRR). Gói chung để dòng ↳ đi theo
+   * câu nó sửa, không bị bỏ lại ở mép trái hàng dưới. Bố cục ở `ErrorState.module.css`.
    */
   return (
     <div className={classes} role="alert" data-ma-loi={warning.code}>
@@ -47,16 +51,18 @@ export function ErrorState({ warning, unit, action, className }: ErrorStateProps
         {unit !== undefined && unit.trim() !== '' && <span className={styles.unit}>{unit}</span>}
       </div>
 
-      <p className={styles.message}>{pick(warning.message)}</p>
+      <div className={styles.cause}>
+        <p className={styles.message}>{pick(warning.message)}</p>
 
-      {warning.fix !== undefined && (
-        <p className={styles.fix}>
-          <span aria-hidden="true">{t('result.fixPrefix')} </span>
-          {pick(warning.fix)}
-        </p>
-      )}
+        {warning.fix !== undefined && (
+          <p className={styles.fix}>
+            <span aria-hidden="true">{t('result.fixPrefix')} </span>
+            {pick(warning.fix)}
+          </p>
+        )}
 
-      {action}
+        {action}
+      </div>
     </div>
   );
 }

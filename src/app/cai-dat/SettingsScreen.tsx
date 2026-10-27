@@ -3,11 +3,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import {
-  FORMULA_SUMMARIES,
   FORMULA_USAGE_KEY,
   INPUT_DRAFT_KEY,
   LEGACY_HOME_RECENT_SEARCHES_KEY,
-  MARKET_CONFIG,
   PENDING_KEY,
   PORTFOLIO_SORT_KEY,
   PORTFOLIO_KEY,
@@ -154,10 +152,11 @@ export const STORAGE_ITEMS: ReadonlyArray<{
 const LEGACY_STORAGE_KEYS: ReadonlyArray<string> = [LEGACY_HOME_RECENT_SEARCHES_KEY];
 
 /**
- * Icon của bốn khối và của nút xoá — bản thiết kế đợt 12.
+ * Icon của ba khối và của nút xoá — bản thiết kế đợt 12. (Khối thứ tư "Về sản phẩm" bỏ 27/10/2026,
+ * kèm icon dấu hỏi của nó.)
  *
- * BA ràng buộc phải giữ, nếu không `SettingsScreen.test.tsx` đỏ (ca đó so `textContent` của bốn
- * thẻ `<h2>` với đúng bốn chuỗi):
+ * BA ràng buộc phải giữ, nếu không `SettingsScreen.test.tsx` đỏ (ca đó so `textContent` của các
+ * thẻ `<h2>` với đúng danh sách chuỗi):
  *   1. Icon phải là SVG thuần — không ký tự, không emoji, chúng đi thẳng vào `textContent`.
  *   2. Tuyệt đối không `<title>`/`<desc>` bên trong, vì chúng cũng vào `textContent`.
  *   3. Viết icon và chuỗi trên hai dòng JSX riêng, để JSX cắt hết nút text khoảng trắng.
@@ -187,9 +186,6 @@ const SECTION_ICONS = {
   units: 'M3 8h18v8H3V8ZM7 8v3M11 8v5M15 8v3M19 8v5',
   /* Ổ khoá — dữ liệu nằm trên máy. */
   data: 'M7 11V8a5 5 0 0 1 10 0v3M5 11h14v9H5v-9Z',
-  /* Dấu hỏi trong vòng tròn — về sản phẩm. */
-  about:
-    'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18ZM9.5 9.5a2.5 2.5 0 1 1 3.2 2.4c-.5.2-.7.6-.7 1.1v.5M12 16.8v.2',
   /* Thùng rác — nút xoá từng kho. */
   remove: 'M4 7h16M9 7V5h6v2M6 7l1 13h10l1-13M10 11v6M14 11v6',
 } as const;
@@ -232,8 +228,10 @@ function coDuLieu(key: string): boolean {
 /**
  * Màn WF-13 Cài đặt — gói WBS 3.6.1.
  *
- * Bốn khối đúng thứ tự wireframe: chế độ hiển thị · đơn vị & biểu phí · dữ liệu cục bộ ·
- * về sản phẩm. Trước đợt này màn là một khung tạm chỉ liệt kê tên biểu phí.
+ * Ba khối theo thứ tự wireframe: chế độ hiển thị · đơn vị & biểu phí · dữ liệu cục bộ. Wireframe
+ * có khối thứ tư "Về sản phẩm" (số công thức, số biểu phí, chạy ngoại tuyến); chủ dự án khoanh bỏ
+ * cả khối ngày 27/10/2026, cùng dòng phụ dưới "Cơ bản hay Nâng cao" và dưới biểu phí: _"bỏ các
+ * phần tôi khoanh đỏ đi"_.
  *
  * Mọi thứ đọc `localStorage` đều đọc trong `useEffect`, và lần render đầu phải giống hệt HTML
  * dựng lúc build — bản build là HTML tĩnh nên đọc sớm là lệch hydration (bài học đợt 2).
@@ -376,7 +374,7 @@ export function SettingsScreen() {
         đáy màn, cách khối "Chế độ hiển thị" ngay trên nó một khoảng trống bằng nửa trang.
 
         Ở khổ hẹp `.col` chỉ là flex cột cùng nhịp `--space-5` với `.screen`, nên điện thoại giữ
-        nguyên thứ tự 1 → 2 → 3 → 4 và không đổi một pixel nào.
+        nguyên thứ tự 1 → 2 → 3 và không đổi một pixel nào.
       */}
       <div className={styles.col}>
         {/* ── 1. Chế độ hiển thị — FR-09 ───────────────────────────────────── */}
@@ -387,9 +385,9 @@ export function SettingsScreen() {
           </h2>
 
           <div className={styles.row}>
+            {/* Dòng phụ `settings.mode.hint` đã bỏ (27/10/2026) — mộ chí ở `vi.ts`. */}
             <span className={styles.rowText}>
               <span className={styles.rowLabel}>{t('settings.mode.label')}</span>
-              <span className={styles.rowHint}>{t('settings.mode.hint')}</span>
             </span>
             {/* Dùng lại đúng nút của thanh trên, không dựng bản thứ hai — một nguồn sự thật. */}
             <ModeToggle compact />
@@ -426,8 +424,12 @@ export function SettingsScreen() {
             {t('settings.units.title')}
           </h2>
 
-          {/* Dòng phụ đã bỏ (chủ dự án chốt): đơn vị này chỉ đổi cách BÀY con số trong bảng. */}
-          <div className={styles.row}>
+          {/*
+            Dòng phụ đã bỏ (chủ dự án chốt): đơn vị này chỉ đổi cách BÀY con số trong bảng.
+            `rowUnits`: từ 27/10/2026 cụm này có BỐN nút ("nghìn ₫" thêm vào), nên dưới 360px nó
+            xuống dòng riêng — xem luật cuối `SettingsScreen.module.css`.
+          */}
+          <div className={`${styles.row} ${styles.rowUnits}`}>
             <span className={styles.rowText}>
               <span className={styles.rowLabel}>{t('settings.units.scale')}</span>
             </span>
@@ -435,15 +437,14 @@ export function SettingsScreen() {
           </div>
 
           {/*
-          Cùng một component với hàng biểu phí của màn lãi ròng (WF-08), chỉ khác nhãn và dòng phụ.
-          Nó tự quyết in chữ hay dựng ô chọn theo số biểu phí — xem docblock ở `FeeScheduleField`:
-          trước 13/10/2026 chỗ này là một `<select>` chép tay có đúng một lựa chọn.
+          Cùng một component với hàng biểu phí của màn lãi ròng (WF-08), chỉ khác nhãn và KHÔNG có
+          dòng phụ: `hint={null}` từ 27/10/2026, khi chủ dự án bỏ câu "Dùng cho màn lợi nhuận ròng…
+          Nguồn: Market Config.". Nó tự quyết in chữ hay dựng ô chọn theo số biểu phí — xem docblock
+          ở `FeeScheduleField`: trước 13/10/2026 chỗ này là một `<select>` chép tay có đúng một lựa chọn.
         */}
           <div className={styles.stack}>
-            <FeeScheduleField
-              label={t('settings.units.schedule')}
-              hint={t('settings.units.scheduleHint')}
-            />
+            {/* `inline`: tên biểu phí sát mép phải, cùng hàng với nhãn (27/10/2026). */}
+            <FeeScheduleField label={t('settings.units.schedule')} hint={null} inline />
           </div>
         </section>
       </div>
@@ -557,7 +558,8 @@ export function SettingsScreen() {
 
           Nhờ nó, khối 3 LUÔN có mặt: quyền xoá dữ liệu của LDR-04 · NFR-SEC-01 không đứt quãng
           trong lúc bản đầy đủ ngủ, và bố cục hai cột của màn không đổi (phép kiểm
-          `chrome-check.mjs` vẫn đếm đúng bốn khối).
+          `chrome-check.mjs` đếm đúng ba khối, và đo khối này là đỉnh cột phải). Từ 27/10/2026 nó là
+          khối DUY NHẤT của cột phải: "Về sản phẩm" bên dưới đã bỏ.
 
           `variant="danger"` chứ không `secondary`: nút này xoá SẠCH mọi kho trong một cú bấm, và
           nay nó đứng một mình chứ không còn chín nút xoá từng dòng ở trên để đặt nó vào ngữ cảnh.
@@ -575,30 +577,12 @@ export function SettingsScreen() {
           </section>
         )}
 
-        {/* ── 4. Về sản phẩm ───────────────────────────────────────────────── */}
-        <section className={styles.block}>
-          <h2 className={styles.blockTitle}>
-            <SectionIcon d={SECTION_ICONS.about} />
-            {t('settings.about.title')}
-          </h2>
-
-          <dl className={styles.about}>
-            <dt>{t('about.formulas')}</dt>
-            <dd>{FORMULA_SUMMARIES.length}</dd>
-
-            <dt>{t('about.schedule')}</dt>
-            <dd>{MARKET_CONFIG.schedules.length}</dd>
-
-            <dt>{t('about.offline')}</dt>
-            <dd>{t('about.offlineValue')}</dd>
-          </dl>
-
-          {/*
-          KHÔNG lặp lại câu miễn trừ ở đây. `AppShell` đã đặt nó ở chân mọi trang, và đây không
-          phải màn bày ra con số tiền nào nên UI-04 không đòi bản thứ hai trong tầm mắt — khác
-          màn chi tiết công thức, nơi cố ý giữ cả hai.
+        {/*
+          Khối 4 "Về sản phẩm" (số công thức đang dùng được, số biểu phí đã nạp, chạy ngoại tuyến)
+          đã BỎ ngày 27/10/2026 — chủ dự án khoanh cả khối: _"bỏ các phần tôi khoanh đỏ đi"_. Mộ chí
+          bốn khoá `about.*` ở `vi.ts`. Màn vẫn KHÔNG lặp câu miễn trừ: `AppShell` đặt nó ở chân mọi
+          trang, và màn này không bày con số tiền nào nên UI-04 không đòi bản thứ hai.
         */}
-        </section>
       </div>
     </div>
   );

@@ -3,14 +3,20 @@
 import { cleanup, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { ReactElement } from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import type { FormulaSpec } from '@/application';
 
-import { toneClass } from './CategoryIcon';
+import { CategoryIcon, toneClass } from './CategoryIcon';
 import { FormulaCard } from './FormulaCard';
 
 afterEach(cleanup);
+
+/** Đúng SVG mà `CategoryIcon` vẽ cho một nhóm, cỡ 14 như dòng nhóm của thẻ dùng. */
+function iconNhom(id: string): string {
+  return renderToStaticMarkup(<CategoryIcon id={id} size={14} />);
+}
 
 /**
  * Thẻ công thức — gói WBS 2.2.3, thêm biến thể ô ở đợt 8.
@@ -90,7 +96,8 @@ describe('biến thể row — danh sách WF-02 và WF-09', () => {
    */
   it('có icon của chính công thức ở đầu hàng, đứng cạnh mũi tên chứ không thay nó', () => {
     const { container } = render(<FormulaCard formula={PE} />);
-    expect(container.querySelectorAll('svg')).toHaveLength(2);
+    // Ba hình: icon công thức · icon nhóm trước tên nhóm (27/10/2026) · mũi tên.
+    expect(container.querySelectorAll('svg')).toHaveLength(3);
     expect(container.querySelector('[data-formula-icon]')?.getAttribute('data-formula-icon')).toBe(
       'pe',
     );
@@ -120,12 +127,26 @@ describe('biến thể row — danh sách WF-02 và WF-09', () => {
     const { container } = render(<FormulaCard formula={chuaVe} />);
 
     expect(container.querySelector('[data-formula-icon]')).toBeNull();
-    expect(container.querySelectorAll('svg')).toHaveLength(2);
+    expect(container.querySelectorAll('svg')).toHaveLength(3);
   });
 
   it('hiện tên nhóm đầy đủ', () => {
     render(<FormulaCard formula={PE} />);
     expect(screen.getByText('Chỉ số doanh nghiệp')).not.toBeNull();
+  });
+
+  /*
+   * Chủ dự án khoanh chỗ trước tên nhóm ở đáy thẻ (27/10/2026): icon NHÓM đứng đó. Đối chiếu với
+   * chính `CategoryIcon` của nhóm, để icon công thức lạc xuống đây cũng đỏ.
+   */
+  it('dòng nhóm mở đầu bằng icon của nhóm, ẩn khỏi trình đọc màn hình', () => {
+    render(<FormulaCard formula={PE} />);
+    const dong = screen.getByText('Chỉ số doanh nghiệp').parentElement;
+    const icon = dong?.querySelector('svg');
+
+    expect(dong?.firstElementChild?.getAttribute('aria-hidden')).toBe('true');
+    expect(icon?.outerHTML).toBe(iconNhom('fundamentals'));
+    expect(icon?.hasAttribute('data-formula-icon')).toBe(false);
   });
 
   /*
@@ -153,7 +174,8 @@ describe('biến thể tile — lưới trang chủ WF-01', () => {
     const { container } = render(<FormulaCard formula={PE} variant="tile" />);
 
     expect(screen.queryByText('Cơ bản')).toBeNull();
-    expect(container.querySelectorAll('svg')).toHaveLength(1);
+    // Hai hình: icon công thức đầu ô · icon nhóm trước tên nhóm (27/10/2026).
+    expect(container.querySelectorAll('svg')).toHaveLength(2);
     expect(container.querySelector('svg')?.getAttribute('data-formula-icon')).toBe('pe');
     // Nét của mũi tên chevron ở biến thể hàng — nó không được lọt sang đây.
     expect(container.innerHTML).not.toContain('m9 6 6 6-6 6');
@@ -173,9 +195,16 @@ describe('biến thể tile — lưới trang chủ WF-01', () => {
     expect(screen.getByRole('link').getAttribute('href')).toContain('/cong-thuc/pe');
   });
 
-  it('showCategory=false thì bỏ hẳn dòng nhóm', () => {
-    render(<FormulaCard formula={PE} variant="tile" showCategory={false} />);
+  it('dòng nhóm rút gọn cũng mở đầu bằng icon của nhóm', () => {
+    render(<FormulaCard formula={PE} variant="tile" />);
+    const icon = screen.getByText('Chỉ số DN').parentElement?.querySelector('svg');
+    expect(icon?.outerHTML).toBe(iconNhom('fundamentals'));
+  });
+
+  it('showCategory=false thì bỏ hẳn dòng nhóm, kèm icon nhóm', () => {
+    const { container } = render(<FormulaCard formula={PE} variant="tile" showCategory={false} />);
     expect(screen.queryByText('Chỉ số DN')).toBeNull();
+    expect(container.querySelectorAll('svg')).toHaveLength(1);
   });
 });
 

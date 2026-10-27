@@ -728,8 +728,8 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'quy-dinh',
     prompt: {
-      vi: 'Doanh nghiệp XYZ sở hữu 80% công ty con ABC, nên báo cáo tài chính hợp nhất của XYZ đã gộp 100% doanh thu, EBIT và EBITDA của ABC. Enterprise Value phải cộng thêm lợi ích cổ đông thiểu số thì hai vế của tỷ số mới khớp nhau. Điền năm con số trong bảng vào đúng ô trống của công thức EV/EBITDA — chú ý ô nào cộng vào, ô nào trừ ra.',
-      en: "Company XYZ owns 80% of subsidiary ABC, so XYZ's consolidated financial statements already include 100% of ABC's revenue, EBIT and EBITDA. Enterprise Value must add minority interest for both sides of the ratio to match. Put the five figures from the table into the right slots of the EV/EBITDA formula — mind which ones are added and which is subtracted.",
+      vi: 'Doanh nghiệp XYZ sở hữu 80% công ty con ABC, nên báo cáo tài chính hợp nhất của XYZ đã gộp 100% doanh thu, EBIT và EBITDA của ABC. Enterprise Value phải cộng thêm lợi ích cổ đông thiểu số thì hai vế của tỷ số mới khớp nhau. Điền năm con số trong bảng vào đúng ô trống của công thức EV/EBITDA.',
+      en: "Company XYZ owns 80% of subsidiary ABC, so XYZ's consolidated financial statements already include 100% of ABC's revenue, EBIT and EBITDA. Enterprise Value must add minority interest for both sides of the ratio to match. Put the five figures from the table into the right slots of the EV/EBITDA formula.",
     },
     facts: [
       {
@@ -1642,8 +1642,8 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'quy-dinh',
     prompt: {
-      vi: 'Một doanh nghiệp có tài sản ngắn hạn 6.000 tỷ ₫, nợ ngắn hạn 2.200 tỷ ₫, nợ dài hạn 900 tỷ ₫ và 250.000.000 cổ phiếu lưu hành. Công thức NCAV gốc của Graham trừ TOÀN BỘ nợ phải trả, không chỉ nợ ngắn hạn. Điền bốn con số vào đúng ô trống — chú ý ô nào trừ ra, ô nào là số cổ phiếu ở mẫu số.',
-      en: "A company has current assets of 6,000 billion ₫, current liabilities of 2,200 billion ₫, long-term liabilities of 900 billion ₫, and 250,000,000 shares outstanding. Graham's original NCAV formula subtracts ALL liabilities, not just current ones. Put the four figures into the right slots — mind which ones are subtracted and which is the share count in the denominator.",
+      vi: 'Một doanh nghiệp có tài sản ngắn hạn 6.000 tỷ ₫, nợ ngắn hạn 2.200 tỷ ₫, nợ dài hạn 900 tỷ ₫ và 250.000.000 cổ phiếu lưu hành. Công thức NCAV gốc của Graham trừ TOÀN BỘ nợ phải trả, không chỉ nợ ngắn hạn. Điền bốn con số vào đúng ô trống.',
+      en: "A company has current assets of 6,000 billion ₫, current liabilities of 2,200 billion ₫, long-term liabilities of 900 billion ₫, and 250,000,000 shares outstanding. Graham's original NCAV formula subtracts ALL liabilities, not just current ones. Put the four figures into the right slots.",
     },
     facts: [
       {
@@ -1823,8 +1823,8 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'quy-dinh',
     prompt: {
-      vi: 'Corporate Finance Institute cho ví dụ: cổ phiếu ABC Corp đang giao dịch ở giá 8 USD/cổ phiếu, còn lợi nhuận trên mỗi cổ phiếu (EPS) 12 tháng gần nhất (LTM) là 0,35 USD/cổ phiếu. Điền hai con số ấy vào đúng ô trống của công thức tỷ suất lợi nhuận trên giá (E/P) — chú ý ô nào là EPS, ô nào là giá.',
-      en: "The Corporate Finance Institute gives an example: ABC Corp.'s stock trades at $8 per share, and its last-twelve-months (LTM) earnings per share (EPS) is $0.35 per share. Put those two figures into the right slots of the earnings yield (E/P) formula — mind which slot takes the EPS and which takes the price.",
+      vi: 'Corporate Finance Institute cho ví dụ: cổ phiếu ABC Corp đang giao dịch ở giá 8 USD/cổ phiếu, còn lợi nhuận trên mỗi cổ phiếu (EPS) 12 tháng gần nhất (LTM) là 0,35 USD/cổ phiếu. Điền hai con số ấy vào đúng ô trống của công thức tỷ suất lợi nhuận trên giá (E/P).',
+      en: "The Corporate Finance Institute gives an example: ABC Corp.'s stock trades at $8 per share, and its last-twelve-months (LTM) earnings per share (EPS) is $0.35 per share. Put those two figures into the right slots of the earnings yield (E/P) formula.",
     },
     facts: [
       {

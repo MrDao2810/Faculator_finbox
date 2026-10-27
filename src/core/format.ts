@@ -346,10 +346,17 @@ export function draftViNumber(value: number, maxDecimals: number = INPUT_MAX_DEC
  * ── Đổi đơn vị tiền — UnitSwitcher của gói 2.3.3 ───────────────────────────────────────
  */
 
-/** Bậc đơn vị tiền theo quy ước Việt Nam (CON-05). Thứ tự đúng thứ tự nút trên WF-16. */
+/**
+ * Bậc đơn vị tiền theo quy ước Việt Nam (CON-05). Thứ tự đúng thứ tự nút trên WF-16.
+ *
+ * Bốn bậc từ 27/10/2026: chủ dự án thêm 'nghìn' vào giữa triệu và ₫ (_"Tỷ rồi tới triệu rồi tới
+ * ngàn rồi tới đ"_). Nhãn viết "nghìn" như mọi chữ rút gọn trên biểu đồ (`COMPACT_PREFIXES`), để một
+ * bậc không mang hai tên trên cùng sản phẩm.
+ */
 export const UNIT_SCALES = [
   { id: 'billion', label: 'tỷ ₫', factor: 1_000_000_000 },
   { id: 'million', label: 'triệu ₫', factor: 1_000_000 },
+  { id: 'thousand', label: 'nghìn ₫', factor: 1_000 },
   { id: 'dong', label: '₫', factor: 1 },
 ] as const;
 
@@ -387,13 +394,13 @@ export function scaleToDong(value: number, id: UnitScaleId): number {
  *
  * KHÁC `UNIT_SCALES` ngay trên, và khác có chủ đích — đừng gộp hai bảng làm một:
  *
- *   - `UNIT_SCALES` là **ba nút WF-16 người dùng tự bấm**, áp cho ô nhập liệu và bảng lịch trả nợ.
+ *   - `UNIT_SCALES` là **bốn nút WF-16 người dùng tự bấm**, áp cho ô nhập liệu và bảng lịch trả nợ.
  *     Nó khoá cứng vào tiền (nhãn đã gồm sẵn `₫`), là một `Preferences` được lưu lại, và có một dây
  *     neo i18n bám vào từng nhãn (`i18n.test.ts`). Mọc thêm một nấc ở đó là mọc thêm một nút trên
- *     wireframe.
+ *     wireframe — đúng điều đã xảy ra ngày 27/10/2026 với nấc 'nghìn'.
  *   - Bảng dưới đây là một phép **rút gọn hiển thị**, không ai bấm: nó ghép TIỀN TỐ vào bất kỳ đơn
- *     vị nào (`'triệu' + 'sản phẩm'`, `'nghìn' + 'tỷ ₫'`), nên nhãn không dính vào tiền; và nó có
- *     thêm nấc 'nghìn' mà WF-16 không có.
+ *     vị nào (`'triệu' + 'sản phẩm'`, `'nghìn' + 'tỷ ₫'`), nên nhãn không dính vào tiền. Hai bảng nay
+ *     cùng có nấc 'nghìn' và cùng viết chữ ấy, nhưng vẫn là hai việc khác nhau.
  *
  * Bậc cuối `factor: 1` là "không chia" — có mặt trong bảng để nơi chọn bậc chỉ có một vòng lặp, thay
  * vì một vòng lặp cộng một nhánh mặc định.

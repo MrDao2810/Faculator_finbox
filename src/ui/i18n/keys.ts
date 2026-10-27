@@ -1,7 +1,7 @@
 import type { MessageKey, UnitScaleId } from '@/application';
 
 /**
- * Khoá i18n cho nhãn ba bậc đơn vị tiền (gói WBS 3.6.3 — luồng locale).
+ * Khoá i18n cho nhãn bốn bậc đơn vị tiền (gói WBS 3.6.3 — luồng locale; bậc 'nghìn' thêm 27/10/2026).
  *
  * Bản gốc là `UNIT_SCALES[].label` ở tầng Domain (`src/core/format.ts`, quy ước CON-05), mà
  * Domain không được đọc i18n (CON-02) — nên nhãn HIỂN THỊ phải tra lại theo locale ở tầng UI.
@@ -20,5 +20,6 @@ import type { MessageKey, UnitScaleId } from '@/application';
 export const UNIT_SCALE_KEYS: Readonly<Record<UnitScaleId, MessageKey>> = {
   billion: 'unit.scale.billion',
   million: 'unit.scale.million',
+  thousand: 'unit.scale.thousand',
   dong: 'unit.scale.dong',
 };

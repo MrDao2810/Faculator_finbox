@@ -10,8 +10,17 @@ import styles from './FeeScheduleField.module.css';
 export interface FeeScheduleFieldProps {
   /** Nhãn của hàng. Mặc định là nhãn của WF-08; màn Cài đặt truyền nhãn dài hơn của nó. */
   label?: string;
-  /** Dòng phụ dưới giá trị. Mặc định là dòng ghi nguồn của WF-08 (CON-10). */
-  hint?: string;
+  /**
+   * Dòng phụ dưới giá trị. Mặc định là dòng ghi nguồn của WF-08 (CON-10). `null` là KHÔNG có dòng
+   * phụ: màn Cài đặt truyền thế từ 27/10/2026, khi chủ dự án bỏ câu "Dùng cho màn lợi nhuận ròng…
+   * Nguồn: Market Config." ở đó. Màn WF-08 không truyền gì nên vẫn giữ dòng nguồn.
+   */
+  hint?: string | null;
+  /**
+   * Nhãn và tên biểu phí trên CÙNG một hàng, tên sát mép phải (màn Cài đặt, 27/10/2026). Chỉ có
+   * nghĩa khi có đúng một biểu phí — nhánh ô chọn vẫn là `Select` với nhãn ở trên.
+   */
+  inline?: boolean;
   /**
    * Danh sách biểu phí. Màn thật không truyền — mặc định là `MARKET_CONFIG.schedules`.
    *
@@ -43,6 +52,7 @@ export interface FeeScheduleFieldProps {
 export function FeeScheduleField({
   label,
   hint,
+  inline = false,
   schedules = MARKET_CONFIG.schedules,
 }: FeeScheduleFieldProps = {}) {
   const { feeScheduleId, setFeeScheduleId } = usePreferences();
@@ -50,16 +60,16 @@ export function FeeScheduleField({
   const pick = usePick();
 
   const nhan = label ?? t('fee.schedule');
-  const dongPhu = hint ?? t('fee.scheduleNote');
+  const dongPhu = hint === null ? undefined : (hint ?? t('fee.scheduleNote'));
 
   const duyNhat = schedules.length === 1 ? schedules[0] : undefined;
 
   if (duyNhat !== undefined) {
     return (
-      <div className={styles.field}>
+      <div className={inline ? `${styles.field} ${styles.inline}` : styles.field}>
         <span className={styles.label}>{nhan}</span>
         <span className={styles.value}>{pick(duyNhat.name)}</span>
-        <span className={styles.hint}>{dongPhu}</span>
+        {dongPhu !== undefined && <span className={styles.hint}>{dongPhu}</span>}
       </div>
     );
   }

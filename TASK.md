@@ -4,6 +4,150 @@ Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 
 ---
 
+## Thẻ lỗi một hàng: câu nguyên nhân dạt mép phải (27/10/2026)
+
+**Trạng thái: CHƯA XONG — đã sửa, chờ chủ dự án xem.** Chủ dự án khoanh câu "Cần tối thiểu 2 dòng tiền" dưới
+`_ _ %/năm` của XIRR (ảnh PC) và kẻ mũi tên sang mép phải: _"chuyển vùng đỏ lòm khoanh đỏ sang bên phải mà tôi chỉ để
+không gian tối giản hơn"_.
+
+- `ErrorState.tsx`: câu nguyên nhân, dòng ↳ và nút lối ra gói chung một `<div class="cause">`, anh em với khối `_ _`.
+- `ErrorState.module.css`: `.block` thành hàng flex xuống dòng được, thẳng chân chữ; `.head` có `margin-right: auto`
+  nên câu chạm mép phải khi cùng hàng. Câu dài không vừa thì tự xuống hàng dưới, bắt đầu từ mép TRÁI như cũ (lượt đầu
+  đặt lề ở `.cause` thì câu xuống hàng bị đẩy lệch phải thành khối thụt lề — đo trên P/E lỗ ở 1440, đã sửa).
+- Áp ở mọi khổ và mọi công thức (một component). Đo trên Chrome (dev): thẻ XIRR 69 → 47px ở 1280–1920, 86 → 64px ở 1100,
+  66 → 46,5px ở 390 / 360, câu cùng hàng và chạm mép phải ở cả sáu khổ. P/E lỗ (có dòng ↳): cùng hàng ở 1100 và 1920;
+  ở thẻ gộp 1280 / 1440 và điện thoại thì xuống hàng, mép trái, như trước. Không trang nào tràn ngang.
+- Test: `src/ui/result/error-state-css.test.ts` (mới, đọc CSS) và một ca cấu trúc ở `ErrorState.test.tsx`. Các bộ
+  ErrorState, result-card, warning-surface, contrast, tokens, hover-media, xirr-mobile-css, screens, FormulaDetail
+  xanh; prettier, eslint sạch. Chưa chạy `check:chrome` và build.
+
+---
+
+## Màn Cài đặt: viên chọn "₫" và tên biểu phí sát phải (27/10/2026)
+
+**Trạng thái: CHƯA XONG — đã sửa, chờ chủ dự án xem.** Chủ dự án khoanh viên chọn của nút "₫" và tên biểu phí, vẽ mũi
+tên sang phải: _"bo khi chọn vào đ thì rất xấu, sửa lại cho thẩm mỹ hơn, đồng thời đoạn text được khoanh đỏ bên dưới
+cần chuyển sang bên phải như tôi chỉ, áp dụng cho màn web mobile và web pc"_.
+
+- **Viên chọn "₫"** (`UnitSwitcher.module.css`): đo trước, nút "₫" rộng 33px cao 44px (PC), 24 × 28px (bản gọn) — viên
+  chọn thành hình bầu dục đứng. Nay mỗi nút rộng ít nhất bằng nút "tỷ ₫": `min-width` 48px (PC) / 36px (bản gọn dưới
+  560px). Cụm rộng thêm 15 / 12px.
+- **Tên biểu phí** (`FeeScheduleField`, prop mới `inline`, chỉ màn Cài đặt bật): nhãn trái, "Mặc định HOSE 2026" sát
+  mép phải CÙNG HÀNG — đọc theo đầu mũi tên móc lên ngang dòng nhãn, cũng là khuôn của ba hàng điều khiển phía trên.
+  Không đủ chỗ (320px) thì tên xuống dòng riêng, vẫn sát phải. Màn lợi nhuận ròng không đổi.
+- Test mới `src/app/cai-dat/settings-row-css.test.ts` (đọc thẳng CSS): hai `min-width`, luật `.inline`, và màn lợi nhuận
+  ròng không bật `inline`.
+- Đo trên Chrome (server dev) với bậc "₫" đang chọn, ở 1440 tối, 390 / 375 / 360 sáng, 320 tối: nút "₫" 48 × 44 /
+  36 × 28px, không nút nào đè nhau, chữ không tràn; tên biểu phí cách mép phải khối 17px như cụm nút, cùng hàng với
+  nhãn từ 360px, xuống dòng ở 320px; nhãn "Đơn vị tiền trong bảng" vẫn hai dòng ở 360–390 và cụm vẫn cùng hàng, dưới
+  360px cụm xuống dòng như lượt trước. Vitest toàn bộ xanh, tsc, eslint, prettier sạch.
+
+---
+
+## Màn Cài đặt: nhãn có gạch chéo, thêm bậc đơn vị "nghìn ₫" (27/10/2026)
+
+**Trạng thái: CHƯA XONG — đã sửa, chờ chủ dự án xem.** Chủ dự án khoanh hai nhãn và cụm đơn vị: _"Cơ bản/Nâng cao.
+Sáng/Tối. Tỷ rồi tới triệu rồi tới ngàn rồi tới đ"_.
+
+- Nhãn: `settings.mode.label` "Cơ bản hay Nâng cao" → "Cơ bản/Nâng cao", `settings.theme.label` "Sáng hay Tối" →
+  "Sáng/Tối" (en "Basic/Advanced", "Light/Dark").
+- Bậc đơn vị thứ tư: `UNIT_SCALES` (`src/core/format.ts`) thêm `{ id: 'thousand', label: 'nghìn ₫', factor: 1000 }`
+  giữa triệu và ₫; khoá `unit.scale.thousand` (vi "nghìn ₫", en "thousand ₫"), `UNIT_SCALE_KEYS` thêm dòng. Viết
+  "nghìn", không "ngàn": mọi chữ rút gọn trên biểu đồ đã viết "nghìn ₫" (`COMPACT_PREFIXES`), một bậc không nên mang
+  hai tên. Đổi sang "ngàn" là sửa hai chuỗi (`UNIT_SCALES` và `vi.ts`), ca neo i18n giữ chúng khớp nhau.
+- Bảng lịch trả nợ (`LoanScheduleBody`, nơi duy nhất đọc bậc này) ở bậc nghìn in tối đa một chữ số lẻ (100 ₫). Đo trên
+  Chrome: "ĐVT: nghìn ₫", dòng đầu `lich-tra-no` mặc định 1.123,7 | 6.333,3 | 798.876,3.
+- Dưới 360px cụm bốn nút xuống dòng riêng, sát phải (`.rowUnits`, luật cuối `SettingsScreen.module.css`): đo ở 320px,
+  để cạnh nhãn thì "Đơn vị tiền trong bảng" vỡ bốn dòng mỗi dòng một chữ. Ở 360px trở lên vẫn cùng hàng (nhãn hai dòng
+  ở 360 và 390).
+- Test: `format.test.ts` bốn bậc và phép quy đổi bậc nghìn; `SettingsScreen.test.tsx` thêm ca nhãn gạch chéo + thứ tự
+  bốn nút, ca bấm "nghìn ₫" ghi `unitScale: 'thousand'`.
+- Đo trên Chrome (server dev) ở 1440 tối, 390 và 360 sáng, 320 tối: ba hàng điều khiển sát phải, không tràn khối, trang
+  không cuộn ngang. Vitest toàn bộ xanh, tsc, eslint, prettier sạch.
+- Còn lại ở 320px: "Cơ bản/Nâng cao" xuống dòng thành "Cơ bản/Nâng · cao", vì cụm gạch chéo là một từ không ngắt được.
+
+---
+
+## Màn Cài đặt: bỏ hai dòng phụ và khối "Về sản phẩm" (27/10/2026)
+
+**Trạng thái: CHƯA XONG — đã sửa, chờ chủ dự án xem.** Chủ dự án khoanh ba chỗ ở màn Cài đặt: _"bỏ các phần tôi
+khoanh đỏ đi"_.
+
+- **Dòng phụ dưới "Cơ bản hay Nâng cao"** ("Nâng cao mở thêm công thức phức tạp…"): bỏ khỏi `SettingsScreen.tsx`; khoá
+  `settings.mode.hint` xoá ở `vi.ts`/`en.ts`, mộ chí ở `vi.ts`.
+- **Dòng phụ dưới biểu phí** ("Dùng cho màn lợi nhuận ròng sau phí & thuế. Nguồn: Market Config."): khoá
+  `settings.units.scheduleHint` xoá. `FeeScheduleField` nhận thêm `hint={null}` = không dòng phụ (không truyền gì thì
+  nó rơi về câu nguồn mặc định của WF-08). Màn lợi nhuận ròng KHÔNG đổi, vẫn in dòng "Market Config" (CON-10).
+- **Khối "Về sản phẩm"** (số công thức, số biểu phí, chạy ngoại tuyến): bỏ cả khối, icon dấu hỏi, CSS `.about`, hai
+  import `FORMULA_SUMMARIES`/`MARKET_CONFIG`; năm khoá `settings.about.title`, `about.*` xoá, mộ chí ở `vi.ts`. Màn
+  còn ba khối; trên PC cột phải chỉ còn khối "Dữ liệu của bạn".
+- Test: `SettingsScreen.test.tsx` — danh sách khối còn ba; đảo ca "Nguồn: Market Config" và ca "về sản phẩm" thành ca
+  khẳng định chúng KHÔNG có; thêm ca không có dòng phụ dưới Cơ bản/Nâng cao. `scripts/chrome-check.mjs`: phép kiểm hai
+  cột của Cài đặt đếm 3 khối thay vì 4 (khối Dữ liệu vẫn là khối thứ ba, đỉnh cột phải).
+- Đo trên Chrome (server dev) ở 1440 tối và 390 sáng: ba khối, không còn chữ nào của ba phần đã bỏ, khối Dữ liệu cùng
+  mép trên với khối Chế độ ở PC, không cuộn ngang; màn `loi-nhuan-rong` vẫn có dòng "Market Config". Vitest toàn bộ
+  xanh, tsc, eslint, prettier sạch. Chưa chạy `check:chrome` (cần build, server dev đang giữ :3000).
+
+---
+
+## Sửa đoạn "Đọc biểu đồ" của hình bóc tách FCFF (27/10/2026)
+
+**Trạng thái: CHƯA XONG — đã sửa, chờ chủ dự án xem.** Chủ dự án gửi nguyên văn câu mới cho đoạn bóc tách của `fcff`.
+
+- `src/core/huong-dan/bieu-do/noi-dung/dinh-gia.ts`: bỏ câu mở "Hình này chỉ có một dạng: các …" → "Các thanh nằm
+  ngang, …", và "hai thanh tô màu" → "hai thanh được tô màu", đúng nguyên văn. Bản tiếng Anh bỏ cùng câu mở ("This
+  chart has a single form:") để hai thứ tiếng khớp nhau; phần còn lại không đổi.
+- Test `src/core/huong-dan` và `i18n.test.ts` xanh (luật đoạn văn, nhãn thanh, không trùng đoạn).
+- Chưa đụng: 10 đoạn bóc tách khác vẫn mở bằng "Hình này chỉ có một dạng:". Năm trong số đó (`ddm-hai-giai-doan`,
+  `wacc`, `tra-gop-nien-kim`, `tra-gop-goc-deu`, `thue-tncn-dau-tu`) nay SAI câu ấy: hình của chúng có thêm dạng
+  Vành khuyên từ 21/10/2026, và ô "?" in đúng đoạn này cả khi đang xem vành khuyên. Chờ chủ dự án quyết có sửa theo
+  không.
+
+---
+
+## Bỏ cờ "!" đầu dòng của bảng dòng tiền XIRR (27/10/2026)
+
+**Trạng thái: CHƯA XONG — đã sửa, chờ chủ dự án xem.** Chủ dự án khoanh dấu "!" trên một dòng trống của bảng dòng
+tiền (`xirr`): _"bỏ icon chấm than khoanh đỏ như trong ảnh đi"_.
+
+- `src/ui/screens/XirrBody.tsx`: bỏ dấu "!" VÀ cả cột riêng của nó (ô tiêu đề ẩn "Dòng" và ô đầu mỗi dòng). Giữ cột
+  trống thì còn một dải 26–28px vô dụng ở mép trái. Dòng lỗi vẫn nền vàng; câu "Dòng N: …" dưới bảng giữ dấu "!" của
+  nó vì không nằm trong ảnh.
+- `XirrBody.module.css`: bỏ `.flag`; `.flagCol` (dùng chung cho cột cờ và cột ×) đổi tên `.removeCol`; bỏ luật cột
+  cờ ở khổ điện thoại, 26px ấy về ô Số tiền.
+- Test: `screens.test.tsx` đảo ca "dòng trống vẫn mang cờ !" thành "dòng trống nền vàng, 3 ô, không có !";
+  `xirr-mobile-css.test.ts` đọc `.removeCol`.
+- Đo trên Chrome (server dev) ở 1440 tối/sáng, 390 tối, 360 và 320 sáng: 3 cột, không dấu "!", dòng trống nền vàng,
+  bảng không tràn khung, nút × cao 44px; dưới 1024px chữ "NGÀY" thẳng mép chữ trong ô ngày (8px). Vitest toàn bộ xanh,
+  tsc, eslint, prettier sạch.
+- Có từ trước, chưa sửa: từ 1024px chữ "NGÀY" cách mép bảng 12px mà chữ trong ô ngày cách 20px (lệch 8px; trước đây
+  cũng lệch đúng vậy, chỉ là nằm sau cột cờ).
+
+---
+
+## Icon nhóm đứng trước tên nhóm ở đáy thẻ công thức (27/10/2026)
+
+**Trạng thái: CHƯA XONG — đã sửa, chờ chủ dự án xem.** Chủ dự án khoanh chỗ trước chữ "Lợi nhuận & cổ tức" ở đáy
+thẻ: _"điều chỉnh lại toàn bộ sao cho icon của danh mục thì ở chỗ khoanh đỏ như ảnh"_.
+
+- `src/ui/browse/FormulaCard.tsx`: thêm `CategoryMark` (icon nhóm, `aria-hidden`) trước tên nhóm ở cả hai biến thể:
+  thẻ hàng (danh sách `/cong-thuc/`, Tìm kiếm) và ô kệ "Công thức dùng hằng ngày". Chữ nhóm bọc trong `.categoryText`.
+- `FormulaCard.module.css`: `.category` và `.tileCategory` thành hàng flex (căn giữa). Dấu "…" chuyển sang
+  `.categoryText`. Hai lượt chỉnh sau đó, cùng ngày: _"tăng size của icon danh mục đó lên 1 chút nữa, nhưng giảm
+  padding xung quanh đi"_ và _"đổi màu cho icon đó thành màu xanh dương như màu chủ đạo của dự án đi"_:
+  - icon `1.1em` → `1.25em` (PC 14,3 → 16,25px; dưới 1024px 13,75–15px), không co;
+  - khe icon–chữ 6 → 4px;
+  - dòng nhóm cao 1,5em → `1em + 5px` (18 / 17 / 16px), icon gần như chạm trên dưới. Thử 1,35em trước thì ô kệ
+    11px hụt vùng chữ 1,15px (mất đỉnh dấu "ế", "ố" vì `overflow: hidden`), nên dừng ở mức sàn đo được;
+  - màu `--category-ink` (xanh chủ đạo, đúng màu icon đầu thẻ); chữ nhóm vẫn xám.
+- `FormulaCard.test.tsx`: số SVG của thẻ +1; hai ca mới đối chiếu icon ở dòng nhóm với đúng `CategoryIcon` của nhóm
+  (hàng và ô); `showCategory=false` thì mất cả icon nhóm.
+- Đo trên Chrome (server dev): 127 dòng nhóm (111 thẻ + 16 ô kệ) ở 1440 tối/sáng, 390 sáng, 360 tối — đủ icon, đứng
+  trước chữ, tâm lệch 0px, màu icon bằng đúng màu icon đầu thẻ ở cả hai bảng màu, không chữ nào bị cắt ngang, không
+  dòng nào hụt vùng chữ, trang không cuộn ngang. Vitest toàn bộ xanh, tsc, eslint, prettier sạch.
+
+---
+
 ## Nhãn hình thanh ngang bị cắt đầu chữ — rút ngắn và chữa ở gốc (26/10/2026)
 
 **Trạng thái: CHƯA XONG — đã sửa, chờ chủ dự án xem.** Chủ dự án chụp dạng "Thanh ngang" của mục "Cơ cấu số tiền
@@ -84,6 +228,42 @@ lại"_. Đọc là: những công thức vẫn khai một `chartType` mà màn 
   nhãn ngày đầu ("60" và "09/2025"); ở 390px tên trục đứng có dấu tiếng Việt chạm mép trên khung.
 - Tài liệu: CLAUDE.md, mục "Chart kinds" (kiểu mô hình thứ bảy, ba gạch đầu dòng mới, số đếm toàn Registry).
 - Phiên khác đang sửa cùng cây thư mục (khung cách tính, Quiz, BottomSheet, ChartFrame, i18n…): tôi không đụng các file ấy.
+
+---
+
+## XIRR: bảng dòng tiền và thẻ lỗi gọn lại, bảng thẳng hàng với khối bên trái (27/10/2026)
+
+**Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án xem.** Hai yêu cầu liền nhau trên màn XIRR:
+_"giảm padding, height các phần khoanh đỏ áp dụng màn web pc và web mobile"_ (một dòng bảng dòng tiền, thẻ lỗi), rồi
+_"chỗ tôi khoanh đỏ đang chưa thẳng hàng, sửa lại cho bảng dòng tiền bên phải bằng với bảng bên trái"_.
+
+- `src/ui/screens/XirrBody.module.css`: ô nhập và nút × 32px, ô đệm dọc 2px ở mọi khổ → dòng 68,5 → 36,5px (PC),
+  44,5 → 36,5px (điện thoại). Nút × KHÔNG có lớp phủ chạm (dòng < 44px thì lớp phủ chạm sang dòng bên, xoá nhầm) —
+  vùng chạm trên điện thoại còn 32 × 36px, dưới mức 44px của NFR-USA-01: cái giá đã biết. Lớp phủ nút lịch kẹp trong
+  dòng (`inset: -2px -8px`): lần sửa đầu để nó thò 4px ra khỏi dòng cuối, khung bảng mọc thanh cuộn dọc (đo 120 /
+  116px) — chủ dự án chụp được trong ảnh thứ hai. Từ 1280px: hàng tiêu đề bên phải cao bằng dòng tiêu đề 18px bên
+  trái, nút "+ Thêm dòng" 28px → khung bảng 64 → 50,5px, đúng mép trên ô "Khi nào dùng" (1280, 1353, 1440, 1920).
+- `src/ui/result/ErrorState.module.css`: đệm 6 / 12px, khe 2px ở mọi khổ, câu nguyên nhân `--leading-tight` → thẻ
+  99 → 69px (1440), 116 → 86px (1100), 75,5 → 66px (390). Áp cho thẻ lỗi của mọi công thức (một component).
+- Ca kiểm: `xirr-mobile-css.test.ts` (sửa ca 36px/44px, thêm ca dòng gọn, lớp phủ nút lịch, hàng tiêu đề từ 1280
+  so với cỡ chữ tiêu đề bên trái). `result-card`, `ErrorState`, `warning-surface`, `tokens`, `hover-media` xanh.
+- Đo trên Chrome (dev :3000) ở 1920, 1440, 1353, 1280, 1100, 390, 360: không tràn ngang, khung bảng hết cuộn dọc.
+
+---
+
+## Bỏ câu gợi ý "chú ý …" ở cuối đề Bài tập (27/10/2026)
+
+**Trạng thái: CHƯA XONG — đã làm, chờ chủ dự án xem.** Chủ dự án: _"xóa các phần giải thích như sau đi '— chú ý ô
+nào cộng vào, ô nào trừ ra.' không cần thiết trong phần bài tập"_. 123 đề điền số (`dien-so`) kết thúc bằng một câu
+gợi ý bẫy ("— chú ý …", ", chú ý …", "; chú ý …", ". Chú ý …"); cắt cả 123, kèm phần tương ứng ở bản tiếng Anh
+("— mind …", ", noting …", ". Note that …", ". Watch …"; Q438 và Q470 viết khác khuôn, cắt tay theo vị trí).
+Cảnh, mệnh đề quy ước và câu "Điền … vào đúng ô trống …" giữ nguyên. Không đụng Q310 ("ngưỡng đáng chú ý", không phải
+gợi ý) và 4 chỗ "chú ý" trong `explain`.
+
+- File: `src/core/quiz/items/` — `tinh-toan.ts`, `thuc-hanh.ts`, `technical.ts`, `risk.ts`, `valuation-multiples.ts`
+  (246 dòng = 123 × 2). Cắt bằng script tạm, soát từng câu trước khi ghi. CLAUDE.md: thêm luật "đề không nói trước bẫy".
+- Kiểm: `src/core/quiz` (gồm cửa gác số trong `giai.gan` phải có trong đề/bảng/dòng điền), `i18n.test`,
+  `prose-audit`, `QuizBody.test` xanh; prettier, eslint sạch.
 
 ---
 

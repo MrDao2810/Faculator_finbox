@@ -32,6 +32,23 @@ function CardIcon({ formula }: { formula: FormulaSummary }) {
   );
 }
 
+/**
+ * Icon NHÓM đứng trước tên nhóm ở đáy thẻ (27/10/2026). Chủ dự án khoanh đúng chỗ trước "Lợi nhuận
+ * & cổ tức": _"điều chỉnh lại toàn bộ sao cho icon của danh mục thì ở chỗ khoanh đỏ như ảnh"_. Từ
+ * 23/10 đầu thẻ là hình riêng của công thức, nên icon nhóm về đứng cạnh chính tên nhóm.
+ *
+ * Màu xanh chủ đạo (`--category-ink`), cùng màu icon đầu thẻ — chủ dự án chọn cùng ngày; chữ nhóm
+ * bên cạnh vẫn xám. Cỡ đi theo cỡ chữ nhãn bằng `em` (`.categoryMark svg`), nên ba mức chữ
+ * 13 / 12 / 11px không phải khai lại.
+ */
+function CategoryMark({ id }: { id: string }) {
+  return (
+    <span className={styles.categoryMark} aria-hidden="true">
+      <CategoryIcon id={id} size={14} />
+    </span>
+  );
+}
+
 export interface FormulaCardProps {
   formula: FormulaSummary;
   /** Ẩn nhãn nhóm khi cả danh sách vốn đã thuộc một nhóm. */
@@ -144,7 +161,10 @@ function FormulaCardBase({
         </span>
         {showCategory && category !== undefined && (
           <span className={styles.tileCategory}>
-            <Pick value={category.shortName} />
+            <CategoryMark id={category.id} />
+            <span className={styles.categoryText}>
+              <Pick value={category.shortName} />
+            </span>
           </span>
         )}
       </Link>
@@ -195,7 +215,10 @@ function FormulaCardBase({
 
         {showCategory && category !== undefined && (
           <div className={styles.category}>
-            <Pick value={category.name} />
+            <CategoryMark id={category.id} />
+            <span className={styles.categoryText}>
+              <Pick value={category.name} />
+            </span>
           </div>
         )}
       </div>

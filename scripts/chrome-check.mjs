@@ -5226,7 +5226,14 @@ window.__localeLog = [];
       tran: document.documentElement.scrollWidth > document.documentElement.clientWidth + 1,
       /* Khổ khung vẽ đang dùng — 360 là 'compact', 960 là 'wide'. */
       viewW: svg === null ? null : Number((svg.getAttribute('viewBox') ?? '0 0 0 0').split(' ')[2]),
-      soNen: svg === null ? 0 : svg.querySelectorAll('rect[class*="body"]').length,
+      /* Thân nến là một path cho mỗi chiều phiên từ 28/10/2026; số cây nến nằm ở data-so-nen. */
+      soNen:
+        svg === null
+          ? 0
+          : [...svg.querySelectorAll('path[class*="body"]')].reduce(
+              (tong, el) => tong + Number(el.getAttribute('data-so-nen') ?? 0),
+              0,
+            ),
       soVetLoi: svg === null ? 0 : svg.querySelectorAll('rect[class*="badBand"]').length,
       soNutKhoang: fig === null ? 0 : fig.querySelectorAll('[role="group"] button').length,
       chuThich: fig === null ? '' : (fig.querySelector('figcaption')?.textContent ?? ''),

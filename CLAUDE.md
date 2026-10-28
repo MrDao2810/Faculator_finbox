@@ -339,6 +339,35 @@ by an equivalence test over the whole Registry in `search.test.ts`; `useValueTex
 `useLabelText` return stable callbacks, which lets `PortfolioScreen` memoise its 30 saved rows (they were rebuilt
 on every keystroke of the add dialog).
 
+**Round 4 (same day): `/du-lieu/`.** Typing 7 keys into a cell of the 250-session table: slowest key 216–360 →
+88–168 ms at CPU 4×; the 1T/3T/6T buttons 119–271 → 76–112 ms. The rows were already `memo` per row; what each
+key still paid for was the candlestick chart, the column widths and the year line. Now `DataTableScreen` feeds
+`MemoCandleChart` and the year line a `useDeferredValue` copy of `rows`; the check card stays on the live rows
+(a deferred copy would mark the wrong line red for a frame after a row is removed), and `kiemBang()` memoises
+`checkSeries` by array so the deferred render does not check twice. Column widths read per-row character counts
+cached by row object (`doDaiCacO`), so a key re-measures one row instead of formatting 1.250 cells.
+**`CandleChart` draws one `<path>` per kind and direction** (wick, body, volume × up/down) instead of a
+`<line>`+`<rect>`+`<rect>` per session: ~1.030 SVG nodes → ~35. It is NOT pixel-identical: compared pixel by
+pixel, 0,5–7% of pixels differ at anti-aliased edges (up to 95/255 on a pixel), largest with 250 candles at 390px
+where neighbouring candles touch — one path is filled once where separate shapes composited over each other.
+Side by side the screenshots read the same; this was disclosed to the owner. The body paths carry `data-so-nen`
+(candles in the path), which `check:chrome` sums. The paste sheet's virtual grid now only sets state when the
+first visible row or the height changes; measured with wheel scrolling (each notch crosses a row) it gains
+nothing, it only helps fine scrolling.
+
+**Round 5 (same day): service worker v6** (`public/sw.js`, `CACHE = 'ffb-v6'`). Two caches instead of one:
+`STATIC_CACHE` (`ffb-v6-tinh`, FIFO 300) holds everything under `/_next/static/` and serves it cache-first with
+NO network revalidation — the names carry a content hash; pages, RSC payloads and icons stay in `ffb-v6` (FIFO
+160, never evicting the `/cong-thuc/` shell) with the old stale-while-revalidate. Before, one 160-entry FIFO held
+everything, 111 HTML + 111 RSC payloads alone exceed it, so the oldest JS/CSS chunks — what offline needs — were
+evicted first, and every page view re-fetched and re-wrote ~49 chunks into the cache (on Cloudflare the refetch
+mostly hit the HTTP cache thanks to `immutable` in `public/_headers`, the rewrite did not). Navigations return the
+response at once and write the cache through `event.waitUntil` (they used to wait for `cache.put` + `keys()` +
+eviction), and navigation preload is enabled in `activate` (`event.preloadResponse` first, `fetch` otherwise).
+Measured with the browser's HTTP cache off, reloading `pe`: 57 server hits (49 chunks) → 8 (0 chunks); reopening
+the list 56 → 14. The four offline checks at the end of `check:chrome` pass unchanged. Bump `CACHE` and
+`STATIC_CACHE` together when the strategy changes; `activate` deletes every other cache.
+
 ## The one network call — `MarketFeed`
 
 **The site now calls one external server at runtime**, and that reverses a constraint the repo used

@@ -57,7 +57,7 @@ chứ. sửa lại cho tôi"_.
 
 ## Tối ưu hiệu năng toàn dự án — 5 đợt (28/10/2026)
 
-**Trạng thái: ĐANG LÀM — đợt 4 (đợt 1–3 xong, chờ chủ dự án xem).** Chủ dự án: _"tối ưu lại toàn bộ code trong dự án để dự án chạy mượt hơn"_. Khảo sát
+**Trạng thái: CHƯA XONG — cả 5 đợt đã làm và đo, chờ chủ dự án xem.** Chủ dự án: _"tối ưu lại toàn bộ code trong dự án để dự án chạy mượt hơn"_. Khảo sát
 trước (7 agent đo/soát chỉ đọc + 1 agent phản biện, bản build HEAD 2609f26 trong scratchpad, 360×780, CPU hãm 4×), rồi
 chủ dự án duyệt: làm cả 5 đợt theo thứ tự; thẻ danh sách chỉ tải trước khi rê chuột/chạm; phần "nhá trạng thái rỗng"
 (CLS lúc mở Danh mục có dữ liệu 0,465, `/du-lieu/`, kệ hằng ngày) ĐỂ SAU, chủ dự án xem riêng — đó là thay đổi nhìn thấy.
@@ -82,6 +82,56 @@ chủ dự án duyệt: làm cả 5 đợt theo thứ tự; thẻ danh sách ch�
 **Kế hoạch:** đợt 1 gói JS trang chi tiết · đợt 2 gõ/kéo trên màn chi tiết · đợt 3 danh sách, tìm kiếm, Danh mục ·
 đợt 4 `/du-lieu/` · đợt 5 service worker. Không làm: `:has()`, `content-visibility` trên màn chi tiết, observer tiêu đề
 tab (đo ra không đáng kể); layout lạnh lúc mở trang (chưa rõ nguyên nhân).
+
+### Đợt 5 — service worker (xong, chờ chủ dự án xem)
+
+| File           | Sửa gì / vì sao                                                                                                                                                                                                      |
+| -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `public/sw.js` | v6: kho riêng cho chunk có băm (`/_next/static/`, lấy thẳng từ kho, không tải lại để so; FIFO 300); trang + RSC ở kho cũ (FIFO 160, không xoá khung); trả HTML ngay, ghi kho qua `waitUntil`; bật navigation preload |
+| `CLAUDE.md`    | Đoạn "Round 5"                                                                                                                                                                                                       |
+
+**Đo (bản build, tắt bộ nhớ đệm HTTP của trình duyệt để chỉ còn kho của worker, đếm request ở PHÍA MÁY CHỦ):**
+
+| Thao tác             | Trước (v5)                     | Sau (v6)                         |
+| -------------------- | ------------------------------ | -------------------------------- |
+| Tải lại `pe`         | 57 request, 49 là chunk JS/CSS | **8**, 0 chunk; HTML qua preload |
+| Mở lại `/cong-thuc/` | 56 request                     | **14**                           |
+
+- Trên Cloudflare chunk mang `Cache-Control: immutable` (`public/_headers`), nên bản cũ tải lại phần lớn trúng bộ nhớ
+  đệm HTTP chứ không ra mạng; phần lợi thật là thôi ghi lại ~49 chunk vào kho mỗi lượt xem trang, thôi để 111 HTML +
+  111 payload RSC đẩy chunk ra khỏi kho (chạy ngoại tuyến cần chính các chunk ấy), và trang về sớm hơn một nhịp ghi kho.
+- `check:chrome` 208/216 — bốn ca ngoại tuyến cuối file đều đạt (worker cài, `/` mất mạng về khung, trang chưa có trong
+  kho về khung); 8 ca trượt có sẵn.
+- Người đã cài bản cũ: lần đầu gặp v6, kho `ffb-v5` bị xoá ở `activate` và tải lại một lần.
+
+### Đợt 4 — `/du-lieu/` (xong, chờ chủ dự án xem)
+
+| File                                  | Sửa gì / vì sao                                                                                                                                                                                    |
+| ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/app/du-lieu/DataTableScreen.tsx` | Biểu đồ nến (bản `memo`) và dòng năm đọc bản HOÃN của bảng (`useDeferredValue`); khối kiểm tra vẫn theo bảng tức thời; `checkSeries` nhớ theo mảng; độ rộng cột đọc số ký tự đã nhớ theo từng dòng |
+| `src/ui/series/CandleChart.tsx`       | Nến và cột khối lượng vẽ bằng một `<path>` cho mỗi loại × chiều phiên thay cho 3 phần tử mỗi phiên (~1.030 → ~35 nút SVG); `data-so-nen` cho phép kiểm đếm nến                                     |
+| `src/ui/sheets/PasteImportSheet.tsx`  | Lưới ảo chỉ đặt state khi dòng đầu hoặc chiều cao khung đổi                                                                                                                                        |
+| `scripts/chrome-check.mjs`            | Ca "phiên lỗi không vẽ nhưng vẫn được đếm" đếm nến qua `data-so-nen`                                                                                                                               |
+| `CLAUDE.md`                           | Đoạn "Round 4"                                                                                                                                                                                     |
+
+**Đo (bản build, 360×780, CPU 4×, trung vị lượt 1–3 của 4 lượt):**
+
+| Thao tác                                    | Trước          | Sau                                                |
+| ------------------------------------------- | -------------- | -------------------------------------------------- |
+| Gõ 7 phím vào một ô — phím chậm nhất        | 216–360 ms     | **88–168 ms**                                      |
+| Gõ 7 phím vào một ô — luồng chính cả loạt   | 988–1.429 ms   | 720–994 ms                                         |
+| Bấm 1T / 3T / 6T / Cả chuỗi của biểu đồ nến | 119–271 ms     | **76–112 ms**                                      |
+| Sắp một cột                                 | 480–674 ms     | 415–577 ms                                         |
+| Cuộn lưới hộp "Bảng dữ liệu" bằng con lăn   | script ~396 ms | ~400 ms (không đổi — mỗi nấc lăn đã vượt một dòng) |
+
+- **Biểu đồ nến KHÔNG trùng từng điểm ảnh** với bản cũ: so từng điểm ảnh (sáng/tối, 1440/390, 1T/cả chuỗi), lệch
+  0,5–7% điểm ảnh ở mép làm mịn, nặng nhất khi 250 cây nến dồn trong 390px (các cây sát nhau: một path tô một lần,
+  còn từng hình riêng thì chồng màu lên nhau ở chỗ chạm). Đặt cạnh nhau mắt thường không phân biệt được (ảnh ở
+  `scratchpad/shots-nen/`). Nếu chủ dự án thấy khác, trả lại cách vẽ cũ là một thay đổi nhỏ; phần lợi khi gõ ô vẫn
+  còn nhờ biểu đồ đi sau một nhịp.
+- `npm run check` xanh (202 file), `check:chrome` 208/216 (8 ca có sẵn), test `/du-lieu/` và sheet xanh.
+- Không làm: ảo hoá thân bảng 250 dòng (đổi cách cuộn/tìm bằng Ctrl+F — nhìn thấy được), ghi kho gom lại (đo ~vài
+  ms mỗi phím, không đáng rủi ro mất dữ liệu).
 
 ### Đợt 3 — danh sách, tìm kiếm, Danh mục (xong, chờ chủ dự án xem)
 

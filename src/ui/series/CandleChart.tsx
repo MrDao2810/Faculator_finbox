@@ -308,8 +308,8 @@ export function CandleChart({ rows, code, range, onRangeChange }: CandleChartPro
           */}
           {(() => {
             const net = {
-              up: { bac: '', than: '', cot: '' },
-              down: { bac: '', than: '', cot: '' },
+              up: { bac: '', than: '', cot: '', soNen: 0 },
+              down: { bac: '', than: '', cot: '', soNen: 0 },
             };
             bars.forEach((bar, position) => {
               const chieu = bar.up ? net.up : net.down;
@@ -330,6 +330,7 @@ export function CandleChart({ rows, code, range, onRangeChange }: CandleChartPro
               const top = Math.min(yMo, yDong);
               /* Phiên đứng giá cho thân cao 0 — nới lên 1 đơn vị, nếu không cây nến biến mất hẳn. */
               const caoThan = Math.max(1, Math.abs(yDong - yMo));
+              chieu.soNen += 1;
               chieu.bac += `M${String(x)} ${String(toY(cao))}V${String(toY(thap))}`;
               chieu.than += `M${String(x - bodyW / 2)} ${String(top)}h${String(bodyW)}v${String(caoThan)}h${String(-bodyW)}Z`;
             });
@@ -346,7 +347,12 @@ export function CandleChart({ rows, code, range, onRangeChange }: CandleChartPro
                   net[huong].than === '' ? null : (
                     <g key={huong} className={huong === 'up' ? styles.up : styles.down}>
                       <path className={styles.wick} d={net[huong].bac} />
-                      <path className={styles.body} d={net[huong].than} />
+                      {/* `data-so-nen`: số cây nến trong path — `check:chrome` đếm nến qua đây. */}
+                      <path
+                        className={styles.body}
+                        d={net[huong].than}
+                        data-so-nen={net[huong].soNen}
+                      />
                     </g>
                   ),
                 )}

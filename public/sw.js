@@ -34,8 +34,24 @@
  *
  * v5: mất mạng mà trang xin không có trong kho thì CHUYỂN HƯỚNG sang khung, không trả HTML của khung
  * dưới URL lạ nữa — xem `handleNavigation()`. Kho không đổi nội dung, nhưng đây là đổi chiến lược.
+ *
+ * v6 (28/10/2026, đợt tối ưu hiệu năng): HAI kho thay cho một. Chunk có băm trong tên
+ * (`/_next/static/`) vào kho `STATIC_CACHE` và lấy THẲNG từ kho, không hỏi lại mạng; trang và
+ * payload RSC ở kho này như trước. Trước đó mọi thứ chung một kho FIFO 160 mục: riêng 111 HTML cộng
+ * 111 payload RSC (prefetch của màn danh sách) đã vượt 160, nên chunk JS/CSS cũ nhất bị đẩy ra trước
+ * — đúng thứ cần để chạy ngoại tuyến. Thêm: trả HTML ngay chứ không chờ ghi kho xong, và bật
+ * navigation preload.
  */
-const CACHE = 'ffb-v5';
+const CACHE = 'ffb-v6';
+
+/**
+ * Kho của tài nguyên BẤT BIẾN — mọi file dưới `/_next/static/` mang băm nội dung trong tên, nên tên
+ * còn là nội dung còn: lấy từ kho mà không cần tải lại để so. Trần riêng: một lần triển khai sinh
+ * khoảng 100 file ở đây (chunk JS, CSS, 17 chunk nhóm công thức), và bản cũ phải còn chỗ cho người
+ * chưa tải lại trang.
+ */
+const STATIC_CACHE = 'ffb-v6-tinh';
+const STATIC_MAX_ENTRIES = 300;
 
 /**
  * Trang dựng sẵn để làm khung khi mở lúc mất mạng — màn Công thức, HTML tĩnh đầy đủ.
@@ -69,12 +85,24 @@ self.addEventListener('install', (event) => {
 
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches
-      .keys()
-      .then((keys) =>
-        Promise.all(keys.filter((key) => key !== CACHE).map((key) => caches.delete(key))),
-      )
-      .then(() => self.clients.claim()),
+    Promise.all([
+      caches
+        .keys()
+        .then((keys) =>
+          Promise.all(
+            keys
+              .filter((key) => key !== CACHE && key !== STATIC_CACHE)
+              .map((key) => caches.delete(key)),
+          ),
+        ),
+      /*
+       * Navigation preload: trình duyệt gửi request của trang NGAY lúc điều hướng, song song với việc
+       * đánh thức service worker, thay vì đợi worker dậy rồi mới `fetch`. Trên điện thoại worker đang
+       * ngủ mất vài chục tới vài trăm mili giây để dậy — trước đây mọi lần mở trang cứng đều chịu
+       * khoản ấy, vì `handleNavigation` chặn mọi điều hướng. Trình duyệt không hỗ trợ thì bỏ qua.
+       */
+      self.registration.navigationPreload?.enable().catch(() => undefined),
+    ]).then(() => self.clients.claim()),
   );
 });
 
@@ -84,17 +112,22 @@ self.addEventListener('activate', (event) => {
  * `cache.keys()` trả đúng thứ tự chèn, nên phần đầu mảng là mục cũ nhất — xoá từ đầu là lối
  * vào trước ra trước. Không cố đoán mục nào "quan trọng": đoán sai còn tệ hơn xoá theo tuổi.
  */
-async function putCapped(request, response) {
-  const cache = await caches.open(CACHE);
+async function putCapped(request, response, cacheName = CACHE, max = MAX_ENTRIES) {
+  const cache = await caches.open(cacheName);
   await cache.put(request, response);
 
   const keys = await cache.keys();
-  if (keys.length <= MAX_ENTRIES) return;
+  if (keys.length <= max) return;
 
-  for (const key of keys.slice(0, keys.length - MAX_ENTRIES)) {
+  for (const key of keys.slice(0, keys.length - max)) {
     // Không bao giờ vứt khung ngoại tuyến — mất nó là mất luôn màn dự phòng lúc ngoại tuyến.
     if (new URL(key.url).pathname !== SHELL) await cache.delete(key);
   }
+}
+
+/** Tài nguyên bất biến: có băm nội dung trong tên — xem `STATIC_CACHE`. */
+function isImmutable(request) {
+  return new URL(request.url).pathname.startsWith('/_next/static/');
 }
 
 /** Chỉ đụng tới tài nguyên của chính site này, và chỉ với GET. */
@@ -130,13 +163,19 @@ function handles(request) {
  * `public/_redirects`; URL khác thì bỏ truy vấn vì nó thuộc về trang kia. Mã 302, không 301: đây là
  * câu trả lời tạm của lúc mất mạng, không phải của máy chủ.
  */
-async function handleNavigation(request) {
+async function handleNavigation(event) {
+  const { request } = event;
   try {
-    const response = await fetch(request);
+    // Bản trình duyệt đã tải sẵn (navigation preload) nếu có; không thì tự tải như trước.
+    const preloaded = await event.preloadResponse;
+    const response = preloaded ?? (await fetch(request));
     // CHỈ giữ phản hồi lành — nhánh tài nguyên bên dưới đã kiểm `ok`, nhánh này thì trước đợt
     // 15 thì không: một lần 404 hay 5xx là trang lỗi nằm luôn trong kho và được trả về mãi
     // cho URL đó, kể cả khi mạng đã tốt trở lại.
-    if (response.ok) await putCapped(request, response.clone());
+    //
+    // Ghi kho SAU khi trả trang (v6): trước đây trang chờ `cache.put`, `cache.keys()` và lượt cắt
+    // bớt xong mới tới tay trình duyệt. `waitUntil` giữ worker sống tới khi ghi xong.
+    if (response.ok) event.waitUntil(putCapped(request, response.clone()));
     return response;
   } catch {
     const cached = await caches.match(request);
@@ -158,10 +197,27 @@ async function handleNavigation(request) {
 }
 
 /**
- * Tài nguyên tĩnh: trả bản trong kho ngay, đồng thời tải bản mới về cho lần sau.
+ * Tài nguyên BẤT BIẾN (`/_next/static/`): có trong kho thì trả luôn, KHÔNG tải lại để so (v6).
  *
- * Hợp với chunk JS/CSS có băm trong tên: tên đổi nghĩa là nội dung đổi, nên bản trong kho
- * không bao giờ cũ so với tên đang xin.
+ * Trước v6 nhánh này dùng chung lối "trả kho rồi tải bản mới" với mọi tài nguyên, nên người quay
+ * lại vẫn tải lại mọi chunk đã có — vô ích, vì tên mang băm nội dung: tên đổi thì nội dung đổi, tên
+ * còn thì nội dung còn.
+ */
+async function handleImmutable(event) {
+  const { request } = event;
+  const cached = await caches.match(request);
+  if (cached !== undefined) return cached;
+
+  const response = await fetch(request);
+  if (response.ok) {
+    event.waitUntil(putCapped(request, response.clone(), STATIC_CACHE, STATIC_MAX_ENTRIES));
+  }
+  return response;
+}
+
+/**
+ * Tài nguyên còn lại (payload RSC, biểu tượng…): trả bản trong kho ngay, đồng thời tải bản mới về
+ * cho lần sau.
  */
 async function handleAsset(request) {
   const cached = await caches.match(request);
@@ -186,5 +242,11 @@ self.addEventListener('fetch', (event) => {
   const { request } = event;
   if (!handles(request)) return;
 
-  event.respondWith(request.mode === 'navigate' ? handleNavigation(request) : handleAsset(request));
+  event.respondWith(
+    request.mode === 'navigate'
+      ? handleNavigation(event)
+      : isImmutable(request)
+        ? handleImmutable(event)
+        : handleAsset(request),
+  );
 });

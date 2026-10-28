@@ -239,6 +239,24 @@ export function sweepPoints(
   });
 }
 
+/**
+ * Chỉ các giá trị `y` của một lượt quét — cùng các mức x với `sweepPoints()`, nhưng KHÔNG dựng
+ * nhãn chữ. `rankSweepVariables()` chỉ cần biên độ, mà mỗi nhãn là hai lần `Intl.NumberFormat`:
+ * đo trên bản build, khi gõ vào DCA 8 đợt thì 68,6 trong 89,8 ms `formatNumber` nằm ở nhánh này,
+ * dựng nhãn rồi vứt đi (28/10/2026).
+ */
+function sweepYs(
+  formula: FormulaModule,
+  inputs: CalcInputs,
+  ctx: CalcContext,
+  variable: VariableSpec,
+): Array<number | null> {
+  const current = inputs[variable.key] ?? variable.defaultValue;
+  return sweepXs(variable, current, SWEEP_SPAN).map(
+    (x) => runFormula(formula, { ...inputs, [variable.key]: x }, ctx).value,
+  );
+}
+
 export interface SweepRank {
   variable: VariableSpec;
   /** Biên độ đầu ra tương đối khi quét biến này. Càng lớn càng đáng vẽ. -1 là không dùng được. */
@@ -265,7 +283,7 @@ export function rankSweepVariables(
 
   return sweepCandidates(formula.spec, level)
     .map((variable, index) => {
-      const ys = sweepPoints(formula, base, ctx, variable.key).map((point) => point.y);
+      const ys = sweepYs(formula, base, ctx, variable);
       const extent = extentOf(ys);
       const usable = ys.filter((y) => y !== null).length;
 
@@ -294,14 +312,46 @@ export function rankSweepVariables(
     .map(({ variable, swing }) => ({ variable, swing }));
 }
 
+/**
+ * Kết quả đã tính của `pickSweepVariable`, theo (module, ctx, mức) — 28/10/2026.
+ *
+ * `rankSweepVariables` chốt bằng `defaultInputs()`, nên trục mặc định là hàm thuần của ba thứ ấy,
+ * không phụ thuộc số đang gõ. Thế mà `buildChartModel()` hỏi nó ở MỖI lượt dựng biểu đồ, tức mỗi
+ * phím và mỗi nấc kéo: quét 41 mức × mọi biến chỉ để ra lại đúng một câu trả lời. Đo bằng node, nó
+ * chiếm 35% (pe) tới 94% (DCA 8 đợt) thời gian dựng mô hình; nhớ lại thì số lượt `runFormula` mỗi
+ * lần dựng giảm 66–84%.
+ *
+ * Khoá bằng chính các object: màn chi tiết `useMemo` sẵn `ctx`, và `resolveRepeat()` trả CÙNG module
+ * cho cùng số đợt (xem `registry/repeat.ts`). Thêm một đợt là module khác, khoá khác, tự tính lại;
+ * nạp chuỗi giá là `ctx` khác, cũng vậy. `WeakMap` nên không giữ lại module hay ctx nào đã bỏ.
+ */
+const TRUC_DA_CHON = new WeakMap<
+  FormulaModule,
+  WeakMap<CalcContext, Map<Level, VariableSpec | null>>
+>();
+
 /** Biến mặc định đưa lên trục X. `null` khi công thức không có biến nào quét được. */
 export function pickSweepVariable(
   formula: FormulaModule,
   ctx: CalcContext,
   level: Level,
 ): VariableSpec | null {
+  let theoCtx = TRUC_DA_CHON.get(formula);
+  if (theoCtx === undefined) {
+    theoCtx = new WeakMap();
+    TRUC_DA_CHON.set(formula, theoCtx);
+  }
+  let theoMuc = theoCtx.get(ctx);
+  if (theoMuc === undefined) {
+    theoMuc = new Map();
+    theoCtx.set(ctx, theoMuc);
+  }
+  if (theoMuc.has(level)) return theoMuc.get(level) ?? null;
+
   const ranked = rankSweepVariables(formula, ctx, level);
   // Ưu tiên biến thật sự làm kết quả đổi; cả nhóm phẳng thì vẫn vẽ, đường thẳng là câu trả lời thật.
   const best = ranked.find((rank) => rank.swing > 0) ?? ranked[0];
-  return best?.variable ?? null;
+  const chon = best?.variable ?? null;
+  theoMuc.set(level, chon);
+  return chon;
 }

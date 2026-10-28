@@ -566,23 +566,23 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'Chỉ báo dựa trên khối lượng: OBV, Chaikin Money Flow, MFI, đường Tích luỹ/Phân phối',
-        en: 'Volume-based indicators: OBV, Chaikin Money Flow, MFI, the Accumulation/Distribution Line',
-      },
-      b: {
-        vi: 'Phá kháng cự hay thủng hỗ trợ trên đồ thị giá',
-        en: 'A break above resistance or below support on the price chart',
-      },
-      c: {
         vi: 'Dao động động lượng như RSI, Stochastic và các đường trung bình động',
         en: 'Momentum oscillators such as RSI and Stochastic, and moving averages',
       },
-      d: {
+      b: {
         vi: 'Chính mức độ bóp của dải: bóp càng chặt thì xác suất phá lên càng cao',
         en: 'The tightness of the squeeze itself: the tighter the bands, the likelier an upside break',
       },
+      c: {
+        vi: 'Chỉ báo dựa trên khối lượng: OBV, Chaikin Money Flow, MFI, đường Tích luỹ/Phân phối',
+        en: 'Volume-based indicators: OBV, Chaikin Money Flow, MFI, the Accumulation/Distribution Line',
+      },
+      d: {
+        vi: 'Phá kháng cự hay thủng hỗ trợ trên đồ thị giá',
+        en: 'A break above resistance or below support on the price chart',
+      },
     },
-    answers: ['a', 'b'],
+    answers: ['c', 'd'],
     explain: {
       vi: 'Trong vùng đi ngang, giá phẳng thì động lượng và trung bình động cũng phẳng theo, nên StockCharts loại chúng ra và chỉ sang nhóm khối lượng: “Momentum oscillators and moving averages are of little value during a consolidation because these indicators simply flatten along with price action. Instead, chartists should consider using volume-based indicators, such as the Accumulation Distribution Line, Chaikin Money Flow, the Money Flow Index (MFI) or On Balance Volume (OBV).” Còn để xác nhận cú phá, trang dùng chính đồ thị giá: “a break above resistance can be used to confirm a break above the upper band. Similarly, a break below support can be used to confirm a break below the lower band.” Bản thân dải bóp không nói hướng nào: “Because the Bollinger Band Squeeze does not provide any directional clues, chartists must use other aspects of technical analysis to anticipate or confirm a directional break.”',
       en: 'During a consolidation price is flat, so momentum and moving averages flatten with it; StockCharts rules them out and points to volume instead: “Momentum oscillators and moving averages are of little value during a consolidation because these indicators simply flatten along with price action. Instead, chartists should consider using volume-based indicators, such as the Accumulation Distribution Line, Chaikin Money Flow, the Money Flow Index (MFI) or On Balance Volume (OBV).” To confirm the break, the page uses the price chart itself: “a break above resistance can be used to confirm a break above the upper band. Similarly, a break below support can be used to confirm a break below the lower band.” The squeeze itself says nothing about direction: “Because the Bollinger Band Squeeze does not provide any directional clues, chartists must use other aspects of technical analysis to anticipate or confirm a directional break.”',
@@ -1196,23 +1196,23 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'Bỏ qua khối lượng giao dịch vì bản thân giao cắt hai đường MA đã đủ để tự xác nhận tín hiệu',
-        en: 'Ignore trading volume, since the MA crossover itself is already enough confirmation',
-      },
-      b: {
         vi: 'Xác nhận thêm bằng khối lượng giao dịch tại thời điểm xảy ra giao cắt',
         en: 'Confirm with trading volume at the moment the crossover happens',
       },
-      c: {
+      b: {
         vi: 'Kết hợp thêm chỉ báo RSI hoặc MACD để kiểm tra trạng thái quá mua/quá bán trước khi ra quyết định',
         en: 'Add RSI or MACD to check for overbought/oversold conditions before deciding',
       },
-      d: {
+      c: {
         vi: 'Không mua đuổi ngay khi vừa xuất hiện giao cắt, nên chờ giá kiểm định lại đường MA',
         en: 'Do not chase the cross the moment it appears — wait for price to retest the moving average',
       },
+      d: {
+        vi: 'Bỏ qua khối lượng giao dịch vì bản thân giao cắt hai đường MA đã đủ để tự xác nhận tín hiệu',
+        en: 'Ignore trading volume, since the MA crossover itself is already enough confirmation',
+      },
     },
-    answers: ['b', 'c', 'd'],
+    answers: ['a', 'b', 'c'],
     explain: {
       vi: 'Bài viết của DSC liệt kê các cách làm tín hiệu giao cắt MA đáng tin hơn. Về khối lượng: “Khối lượng giao dịch là yếu tố then chốt. Một điểm cắt vàng đi kèm với thanh khoản tăng đột biến cho thấy dòng tiền lớn đang tham gia mua vào. Ngược lại, điểm cắt tử thần xuất hiện cùng khối lượng bán lớn chứng tỏ áp lực thoát hàng mạnh mẽ.” Về chỉ báo động lượng, bài khuyến nghị dùng thêm RSI hoặc MACD để kiểm tra vùng quá mua/quá bán trước khi vào lệnh. Và vì đường MA có độ trễ, DSC cảnh báo mua ngay khi vừa giao cắt đôi khi khiến nhà đầu tư mua đúng nhịp điều chỉnh ngắn hạn — nên chờ retest thay vì vào lệnh ngay. Phương án d ngược hoàn toàn với các khuyến nghị này.',
       en: "DSC's article lists ways to make the crossover signal more reliable. On volume, it states: “Khối lượng giao dịch là yếu tố then chốt. Một điểm cắt vàng đi kèm với thanh khoản tăng đột biến cho thấy dòng tiền lớn đang tham gia mua vào. Ngược lại, điểm cắt tử thần xuất hiện cùng khối lượng bán lớn chứng tỏ áp lực thoát hàng mạnh mẽ.” (trading volume is the key factor — a spike in volume on a golden cross shows large capital flowing in, while heavy selling volume on a death cross shows strong distribution pressure). It also recommends adding RSI or MACD to check for overbought/oversold zones before entering, and warns that because a moving average lags, buying right when the cross appears can mean buying right into a short-term pullback — better to wait for a retest first. Option d is the exact opposite of this advice.",
@@ -1688,23 +1688,23 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'Phiên mở cửa rơi sâu xuống dưới giá đóng cửa phiên trước (gap giảm)',
-        en: 'A session that opens with a sharp gap down from the prior close',
-      },
-      b: {
         vi: 'Phiên giá đi ngang, mở cửa gần sát đóng cửa hôm trước, dao động trong phiên hẹp',
         en: 'A flat session that opens near the prior close with a narrow intraday range',
       },
-      c: {
-        vi: 'Phiên khối lượng giao dịch tăng đột biến nhưng giá mở cửa không gap',
-        en: 'A session with a volume spike but no opening gap',
+      b: {
+        vi: 'Phiên mở cửa rơi sâu xuống dưới giá đóng cửa phiên trước (gap giảm)',
+        en: 'A session that opens with a sharp gap down from the prior close',
       },
-      d: {
+      c: {
         vi: 'Phiên mở cửa nhảy vọt lên cao hẳn so với giá đóng cửa phiên trước (gap tăng)',
         en: 'A session that opens with a sharp gap up from the prior close',
       },
+      d: {
+        vi: 'Phiên khối lượng giao dịch tăng đột biến nhưng giá mở cửa không gap',
+        en: 'A session with a volume spike but no opening gap',
+      },
     },
-    answers: ['a', 'd'],
+    answers: ['b', 'c'],
     explain: {
       vi: 'DNSE giải thích vì sao TR lấy giá trị lớn nhất trong 3 khoảng cách thay vì chỉ High − Low: “Việc tính toán này vô cùng quan trọng vì nó bao quát toàn bộ biên độ thực tế của giá, giúp nhà đầu tư không bị đánh lừa bởi những phiên mở cửa vọt tăng hoặc giảm sâu tạo Gap.” Ở phiên gap tăng, giá đã nhảy vọt trước khi phiên mở nên phần biến động đó nằm ngoài khoảng High − Low trong phiên; TR bắt lại phần đó bằng cách so |High − Close hôm trước|. Tương tự với gap giảm, TR dùng |Low − Close hôm trước|. Phiên đi ngang không gap hoặc phiên chỉ tăng khối lượng thì High − Low trong phiên đã bao trùm đủ biến động, TR trùng với Range thông thường nên không bị tính thiếu.',
       en: "DNSE explains why TR takes the largest of three distances rather than just High − Low: “Việc tính toán này vô cùng quan trọng vì nó bao quát toàn bộ biên độ thực tế của giá, giúp nhà đầu tư không bị đánh lừa bởi những phiên mở cửa vọt tăng hoặc giảm sâu tạo Gap.” (this calculation matters because it captures the price's full actual range, keeping investors from being fooled by sessions that gap sharply up or down at the open.) On a gap-up session, the price has already jumped before the open, so that move falls outside the intraday High − Low; TR recovers it by comparing |High − prior close|. A gap-down session works the same way through |Low − prior close|. A flat session with no gap, or one with only a volume spike, already has its full move captured by the intraday High − Low, so TR equals the ordinary range and nothing is understated.",
@@ -2505,26 +2505,26 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'Đọc MOM dương là giá hiện tại cao hơn giá n phiên trước',
-        en: "Reading a positive MOM as today's price being above the price n sessions ago",
-      },
-      b: {
         vi: 'Dùng cả MOM lẫn RSI cho cùng một quyết định rồi coi đó là hai xác nhận độc lập',
         en: 'Using both MOM and RSI for the same decision and treating them as two independent confirmations',
       },
-      c: {
+      b: {
         vi: 'Đổi chu kỳ n sau mỗi lệnh thua để tìm chu kỳ mà lẽ ra đã thắng',
         en: 'Changing the lookback period n after each losing trade to find the one that would have worked',
+      },
+      c: {
+        vi: 'Đọc MOM dương là giá hiện tại cao hơn giá n phiên trước',
+        en: "Reading a positive MOM as today's price being above the price n sessions ago",
       },
       d: {
         vi: 'Coi mọi lần MOM cắt qua đường 0 là một tín hiệu vào lệnh',
         en: 'Treating every MOM cross of the zero line as an entry signal',
       },
     },
-    answers: ['b', 'c', 'd'],
+    answers: ['a', 'b', 'd'],
     explain: {
-      vi: 'Ba lựa chọn đầu là ba mục riêng trong danh sách sai lầm của nguồn. Về RSI: “If you use both MOM and RSI for the same decision, you may think you have two independent confirmations when you actually have two views of the same underlying data.” Về đổi chu kỳ: “It is tempting to change your lookback period after a losing trade to find one that would have worked. This is curve fitting.” Về cắt đường 0: “In sideways markets, MOM will cross zero repeatedly without leading to any sustained move.” Còn (a) là cách đọc đúng của công thức hiệu số: MOM > 0 nghĩa là giá hôm nay cao hơn giá n phiên trước.',
-      en: "The first three are separate items on the source's list of mistakes. On RSI: “If you use both MOM and RSI for the same decision, you may think you have two independent confirmations when you actually have two views of the same underlying data.” On changing the period: “It is tempting to change your lookback period after a losing trade to find one that would have worked. This is curve fitting.” On zero-line crosses: “In sideways markets, MOM will cross zero repeatedly without leading to any sustained move.” Option (a) is simply the correct reading of the difference formula: MOM > 0 means today's close is above the close n sessions ago.",
+      vi: 'Ba lựa chọn (a), (b) và (d) là ba mục riêng trong danh sách sai lầm của nguồn. Về RSI: “If you use both MOM and RSI for the same decision, you may think you have two independent confirmations when you actually have two views of the same underlying data.” Về đổi chu kỳ: “It is tempting to change your lookback period after a losing trade to find one that would have worked. This is curve fitting.” Về cắt đường 0: “In sideways markets, MOM will cross zero repeatedly without leading to any sustained move.” Còn (c) là cách đọc đúng của công thức hiệu số: MOM > 0 nghĩa là giá hôm nay cao hơn giá n phiên trước.',
+      en: "Options (a), (b) and (d) are separate items on the source's list of mistakes. On RSI: “If you use both MOM and RSI for the same decision, you may think you have two independent confirmations when you actually have two views of the same underlying data.” On changing the period: “It is tempting to change your lookback period after a losing trade to find one that would have worked. This is curve fitting.” On zero-line crosses: “In sideways markets, MOM will cross zero repeatedly without leading to any sustained move.” Option (c) is simply the correct reading of the difference formula: MOM > 0 means today's close is above the close n sessions ago.",
     },
     source: {
       url: 'https://trendsandbreakouts.com/momentum-indicator',
@@ -2660,15 +2660,15 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
         en: 'A strong uptrend is under way: price can move above the upper threshold and stay there for many sessions',
       },
       c: {
-        vi: 'Mã biến động mạnh mà ngưỡng lại đặt hẹp: mã như vậy cần dải rộng hơn mới bao được phần lớn dao động giá',
-        en: 'A highly volatile stock with a narrow threshold: such a stock needs wider bands to encompass most of its price action',
-      },
-      d: {
         vi: 'SMA được tính từ giá đóng cửa thay vì giá trung bình trong phiên',
         en: "The SMA is computed from closing prices rather than the session's average price",
       },
+      d: {
+        vi: 'Mã biến động mạnh mà ngưỡng lại đặt hẹp: mã như vậy cần dải rộng hơn mới bao được phần lớn dao động giá',
+        en: 'A highly volatile stock with a narrow threshold: such a stock needs wider bands to encompass most of its price action',
+      },
     },
-    answers: ['b', 'c'],
+    answers: ['b', 'd'],
     explain: {
       vi: 'StockCharts: “In a strong uptrend, prices often move above the upper envelope and continue above this line.” và số đọc quá mua khi đó có thể là dấu hiệu sức mạnh, vì thế “overbought and oversold readings are best used when the trend flattens”. Về ngưỡng: “Securities with high volatility will require wider bands to encompass most price action.”, tức một ngưỡng hẹp áp lên mã biến động mạnh sẽ báo quá mua liên tục mà không có gì bất thường. Giá đóng cửa là đầu vào chuẩn của SMA, còn đo bằng phần trăm chính là điều làm con số so sánh được; hai chi tiết đó không làm số đọc kém tin cậy.',
       en: 'StockCharts: “In a strong uptrend, prices often move above the upper envelope and continue above this line.”, and an overbought reading there can be a sign of strength, which is why “overbought and oversold readings are best used when the trend flattens”. On thresholds: “Securities with high volatility will require wider bands to encompass most price action.”, so a narrow threshold applied to a volatile stock keeps flagging overbought with nothing unusual going on. Closing prices are the standard SMA input, and measuring in percent is exactly what makes the number comparable; neither detail weakens the reading.',
@@ -3011,12 +3011,12 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'RVOL chỉ có ý nghĩa khi tính đúng trên 60 phiên như trong hai ví dụ',
-        en: 'RVOL is only meaningful when computed over exactly 60 sessions, as in both examples',
-      },
-      b: {
         vi: 'Mã A quy đổi ra chỉ khoảng 500.000 cổ phiếu phiên đó — theo tác giả vẫn chưa đủ khối lượng để giao dịch nghiêm túc',
         en: 'Ticker A converts to only about 500,000 shares that session — per the author, still not enough volume for serious trading',
+      },
+      b: {
+        vi: 'RVOL chỉ có ý nghĩa khi tính đúng trên 60 phiên như trong hai ví dụ',
+        en: 'RVOL is only meaningful when computed over exactly 60 sessions, as in both examples',
       },
       c: {
         vi: 'Mã B quy đổi ra khoảng 5 triệu cổ phiếu phiên đó — tác giả cho đây là mức đáng quan tâm hơn hẳn',
@@ -3027,7 +3027,7 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
         en: 'Because both tickers share the same 5:1 RVOL, they are equally trustworthy for judging liquidity',
       },
     },
-    answers: ['b', 'c'],
+    answers: ['a', 'c'],
     explain: {
       vi: "Trích nguyên văn: “Say a stock has traded an average volume of 100,000 shares a day over the last 60 days. Then it pops up on your relative volume scanner with an RVOL of 5:1. Sounds like high relative volume, right? Not really. That ratio means it only traded 500,000 shares that day. That's not enough volume for me.”; và “Say a stock traded an average of a million shares daily over the last 60 days. If it shows up on your relative volume scanner with an RVOL of 5:1, that's 5 million shares in volume. Now, that's a stock I'm more interested in.” Cùng một tỷ lệ RVOL nhưng quy đổi ra khối lượng tuyệt đối khác xa nhau, nên tỷ lệ không thể đứng một mình để đánh giá thanh khoản thực — phải nhân ngược lại ra số cổ phiếu.",
       en: "Verbatim: “Say a stock has traded an average volume of 100,000 shares a day over the last 60 days. Then it pops up on your relative volume scanner with an RVOL of 5:1. Sounds like high relative volume, right? Not really. That ratio means it only traded 500,000 shares that day. That's not enough volume for me.”; and “Say a stock traded an average of a million shares daily over the last 60 days. If it shows up on your relative volume scanner with an RVOL of 5:1, that's 5 million shares in volume. Now, that's a stock I'm more interested in.” The same RVOL ratio converts into very different absolute volumes, so the ratio alone cannot judge real liquidity — it has to be multiplied back into a share count.",

@@ -1,6 +1,6 @@
 import { FORMULA_SUMMARIES, dailyShelfFormulas } from '@/application';
 import { FormulaCard } from '@/ui/browse';
-import { T } from '@/ui/i18n/T';
+import { BrowseT } from '@/ui/browse/BrowseT';
 
 import styles from './DailyShelf.module.css';
 import { FeaturedFormulas } from './FeaturedFormulas';
@@ -41,7 +41,7 @@ export function DailyShelf() {
       <FeaturedFormulas
         heading={
           <h2 className={styles.blockTitle} id={SHELF_TITLE_ID}>
-            <T k="shelf.title" />
+            <BrowseT k="shelf.title" />
           </h2>
         }
         pinned={SHELF.map((formula) => ({

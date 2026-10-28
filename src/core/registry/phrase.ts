@@ -69,7 +69,13 @@ export function terms(text: string): Term[] {
   let offset = 0;
 
   for (const char of text) {
-    const piece = normalizeVi(char);
+    /*
+     * Lối tắt ASCII (28/10/2026): với ký tự dưới 0x80, `normalizeVi` chỉ còn là `toLowerCase` — NFD
+     * không tách gì, không có dấu, không có `đ`. Đa số ký tự của tên, mô tả và thẻ là ASCII, mà
+     * `normalizeVi` dựng ba chuỗi và chạy ba regex cho MỖI ký tự: phím tìm đầu tiên (dựng chỉ mục cả
+     * 111 công thức) tốn 168 ms ở CPU 4×. `search.test.ts` so kết quả với đường cũ trên cả Registry.
+     */
+    const piece = char.charCodeAt(0) < 0x80 ? char.toLowerCase() : normalizeVi(char);
     const end = offset + char.length;
 
     // Dấu thanh rời (chuỗi gốc ở dạng NFD) bỏ dấu ra rỗng: nó thuộc về chữ đứng trước.

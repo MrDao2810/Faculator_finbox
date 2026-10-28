@@ -1223,7 +1223,19 @@ export function PasteImportSheet({
         ref={measure}
         onScroll={(event) => {
           const node = event.currentTarget;
-          setView({ top: node.scrollTop, height: node.clientHeight });
+          const top = node.scrollTop;
+          const height = node.clientHeight;
+          /*
+           * Chỉ đổi state khi cửa sổ dòng THẬT SỰ đổi (28/10/2026): `view.top` chỉ dùng để tính dòng
+           * đầu (`from`), nên cuộn trong cùng một dòng 32px — hay cuộn NGANG — mà vẫn đặt state mới là
+           * dựng lại cả hộp ở mỗi sự kiện cuộn. Đo trên bản build (CPU 4×): cuộn lưới làm luồng chính
+           * bận 100%, khung hình p95 112–137 ms. Trả lại đúng object cũ thì React bỏ qua lượt dựng.
+           */
+          setView((current) =>
+            Math.floor(current.top / ROW_H) === Math.floor(top / ROW_H) && current.height === height
+              ? current
+              : { top, height },
+          );
         }}
       >
         {/*

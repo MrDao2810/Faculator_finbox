@@ -10,6 +10,7 @@ import { T } from '../i18n/T';
 /* Nhập thẳng từ file chứ không qua barrel — cùng lý do đã ghi ở `FormulaCard.tsx`. */
 import { Badge } from '../primitives/Badge';
 import { CategoryIcon, toneClass } from './CategoryIcon';
+import { IntentLink } from './IntentLink';
 import { DescriptionHit } from './DescriptionHit';
 import styles from './GroupCard.module.css';
 
@@ -104,7 +105,8 @@ export function GroupCard({
       <ul className={styles.list}>
         {formulas.map((formula) => (
           <li key={formula.id}>
-            <Link
+            {/* Tải trước khi tỏ ý, không khi lọt khung nhìn — xem docblock `IntentLink`. */}
+            <IntentLink
               href={formulaPath(formula.id)}
               className={styles.row}
               onClick={() => {
@@ -138,7 +140,7 @@ export function GroupCard({
               >
                 <path d="m9 6 6 6-6 6" />
               </svg>
-            </Link>
+            </IntentLink>
           </li>
         ))}
       </ul>

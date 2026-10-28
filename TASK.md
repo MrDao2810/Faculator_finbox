@@ -4,6 +4,178 @@ Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 
 ---
 
+## Biểu đồ: chú giải xuống đáy hình (28/10/2026)
+
+**Trạng thái: CHƯA XONG — đã sửa, chờ chủ dự án xem.** Chủ dự án khoanh chú giải "Từng phiên · Đường hồi quy, độ dốc β"
+của hình phân tán Beta: _"nó nằm ở vị trí rất khó nhìn, cần chuyển xuống cuối dưới chart và padding chuẩn 1 chút. áp
+dụng cho toàn bộ công thức, màn web pc và web mobile"_.
+
+- `src/ui/charts/chu-giai-duoi.ts` (mới): `xepChuGiaiDuoi()` xếp chú giải trong `<svg>` thành hàng dưới tên trục ngang,
+  mỗi hàng canh giữa vùng vẽ, hàng cuối cách đáy khung 6 đơn vị; trả về phần chiều cao để đáy vùng vẽ lùi lên đúng bấy
+  nhiêu (`viewBox` giữ nguyên). Khe tên trục → chú giải 24 đơn vị (20 chỉ cho 6px ở 390, đo trong Chrome).
+- `ScatterChart.tsx` (Beta) và `ColumnChart.tsx` (14 công thức "Trả nợ / Số dư / Từng đợt mua…"): bỏ chú giải đầu hình,
+  dùng hàm trên; tên trục ngang lùi lên theo.
+- `LineChart.tsx` + `chart.module.css`: legend HTML (SMA + giá đóng cửa, Bollinger, MACD, các đường thành phần, Nến…)
+  dời xuống sau khung vẽ, canh giữa.
+- Không đụng: vành khuyên (chú giải bên phải) và thang đo (cột phải trên PC, dưới vòng cung trên điện thoại).
+- Test: `chu-giai-duoi.test.ts` (4 ca); `charts.test.tsx` ghim chú giải thấp hơn tên trục ngang ở hình phân tán và hình
+  cột, và legend HTML đứng sau `<svg>`. Toàn bộ vitest xanh (202 tệp, 5021 ca); tsc, eslint, prettier sạch.
+- Đo trên Chrome (dev :3000) ở 1440 và 390 trên beta, tra-gop-nien-kim, gia-von-trung-binh-dca (3 mục, xuống 2 hàng ở
+  390), sma-n-phien, macd-duong-chinh: khe tên trục → chú giải 10–14px (SVG) và 12–13px (HTML), không tràn ngang. Chưa
+  build, chưa thêm khẳng định `check:chrome`.
+
+---
+
+## Bài tập: rải lại đáp án câu chọn nhiều, sửa 4 lời giải nói ngược đáp án (28/10/2026)
+
+**Trạng thái: CHƯA XONG — đã sửa, chờ chủ dự án xem.** Chủ dự án chụp câu EV/EBITDA (đáp án C và D): _"tại sao những
+câu hỏi có lựa chọn đáp án nhiều 1 lúc thế này thì toàn là 2 câu cuối hoặc 2 câu xát nhau thế? cần rundom ngẫu nhiên
+chứ. sửa lại cho tôi"_.
+
+- Nguyên nhân: lần đảo đáp án 29/09 chỉ XOAY bộ đáp án câu chọn nhiều (A+B → B+C → C+D → D+A), nên hai đáp án vẫn sát
+  nhau. Đo trên 18 câu: 10/13 câu hai đáp án là cặp liền nhau (A+B riêng 5 câu), không câu nào B+D; cả 5 câu ba đáp án
+  đều có D.
+- `src/core/quiz/items/{valuation-multiples,risk,technical}.ts`: chia lại bằng cây cú pháp TypeScript, xếp câu theo băm
+  của mã. 13 câu hai đáp án đủ 6 cặp (B+D 3 câu, mỗi cặp khác 2), cặp liền nhau còn 6/13; 5 câu ba đáp án đủ 4 bộ (A+B+C
+  2 câu). Đáp án đúng giữ thứ tự tương đối với nhau, phương án sai cũng vậy; đối chiếu trước/sau: chữ của đáp án đúng và
+  của bốn phương án không đổi ở cả 18 câu. Q320 (câu trong ảnh) C+D → A+D; Q267 giữ A+C.
+- Lỗi thứ hai tìm ra khi rà: lần xoay 29/09 bỏ sót chữ cái trong lời giải của 4 câu, lời giải nói ngược đáp án. Q320 ghi
+  "Phương án c và d sai" ngay dưới C, D đang hiện "Đúng"; Q331 và Q294 gọi nhầm phương án sai; Q236 viết "Ba lựa chọn
+  đầu" cho ba ô cuối. Đã sửa chữ cái (vi và en) theo vị trí mới ở Q320, Q331, Q338, Q259, Q243, Q263, Q236; Q294 sau khi
+  đổi tình cờ khớp lại. Câu trắc nghiệm một đáp án gọi chữ cái (Q208, Q210, Q278, Q284) đã soát, đều đúng.
+- `src/core/quiz/quiz.test.ts`: ca phân bố đòi đủ 6 cặp + 4 bộ ba và cặp liền nhau ≤ 60%; ca mới "lời giải gọi phương án
+  bằng chữ cái thì chữ ấy trỏ đúng phương án" với bảng ghim `CHU_CAI_TRONG_LOI_GIAI` (13 câu, mỗi chữ cái một đoạn chữ của
+  phương án), cấm trỏ theo vị trí ("lựa chọn đầu"). Cả hai ca đã thử đỏ trên dữ liệu cũ (thiếu B+D; Q320 lệch chữ).
+- `src/app/cong-thuc/[id]/FormulaNotationCard.test.tsx`: hạn 15 giây cho khối quét 111 công thức (ca của sáng nay), theo
+  tiền lệ `FormulaDetail.test.tsx` — chạy cả bộ lần đầu nó quá 5 giây vì máy bận (riêng thì 1,8 giây). Ca
+  `huong-dan.test.ts` cũng từng quá hạn một lần như thế, lần chạy sau xanh; chưa đụng.
+- Toàn bộ vitest xanh (201 tệp, 5014 ca); tsc, eslint, prettier sạch. Chưa xem trên Chrome, chưa build.
+- Còn để ngỏ: thứ tự phương án vẫn CỐ ĐỊNH theo từng câu (dữ liệu, không trộn lúc chạy) — làm lại bài thì thấy đúng thứ
+  tự cũ. Trộn mỗi lần mở là việc lớn hơn (lời giải gọi chữ cái phải đổi theo), chờ chủ dự án quyết.
+
+---
+
+## Tối ưu hiệu năng toàn dự án — 5 đợt (28/10/2026)
+
+**Trạng thái: ĐANG LÀM — đợt 4 (đợt 1–3 xong, chờ chủ dự án xem).** Chủ dự án: _"tối ưu lại toàn bộ code trong dự án để dự án chạy mượt hơn"_. Khảo sát
+trước (7 agent đo/soát chỉ đọc + 1 agent phản biện, bản build HEAD 2609f26 trong scratchpad, 360×780, CPU hãm 4×), rồi
+chủ dự án duyệt: làm cả 5 đợt theo thứ tự; thẻ danh sách chỉ tải trước khi rê chuột/chạm; phần "nhá trạng thái rỗng"
+(CLS lúc mở Danh mục có dữ liệu 0,465, `/du-lieu/`, kệ hằng ngày) ĐỂ SAU, chủ dự án xem riêng — đó là thay đổi nhìn thấy.
+
+**Số nền (bản build, trước đợt 1):**
+
+- First Load JS trang chi tiết 461–495 kB gzip. Chunk route `app/cong-thuc/[id]/page` 875 kB thô / 234,6 kB gzip, trong
+  đó 17 file nhóm công thức 764 kB thô / ~198 kB gzip (chỉ 22,5 kB là `calc`; diễn giải 52,7, ví dụ + chuỗi mẫu 48,5,
+  `tests` 12,1 kB gzip). Trang chi tiết còn tải nhầm chunk của route danh sách (lỗi trộn client manifest của module `T`,
+  −39,6 kB gzip khi sửa). Prop `spec` đi kèm RSC của mọi trang: TB 3,96 kB gzip, 8–12 kB ở 12 trang chuỗi giá.
+- Tải lạnh pe trên mạng di động (150 ms, 1,6 Mbps) + CPU 4×: hydrate xong ở ~3,9 s. Thí nghiệm nạp Registry theo nhóm
+  (bản sao, không phải cài đặt): 495 → ~251 kB, hydrate 3,87 → 2,47 s; cái giá: chuyển trang client danh sách → pe
+  chậm thêm ~350 ms vì chunk nhóm không nằm trong RSC.
+- Gõ 14 phím pe: 512 ms luồng chính (script 251). Mỗi phím React dựng lại gần cả màn HAI lần (lượt gấp + lượt hoãn của
+  `useDeferredValue` cấp màn); `pickSweepVariable` xếp hạng lại mọi trục ở mỗi phím. Thí nghiệm memo, onChange ổn định,
+  dời `useDeferredValue` và nhớ xếp hạng: script −39…−54%.
+- `/cong-thuc/`: prefetch theo khung nhìn của 111 thẻ tải ~1 MB RSC khi cuộn hết, ~0,3–0,7 s luồng chính; lúc tải còn
+  kéo 311 kB JS của route khác. Phím tìm đầu tiên 168 ms (dựng chỉ mục, `normalizeVi` từng ký tự).
+- `/du-lieu/` 250 phiên: ~250 ms mỗi phím gõ ô, sắp cột 0,7–0,9 s (nến + kiểm tra + ghi cả chuỗi mỗi phím).
+- Service worker: stale-while-revalidate cả chunk có mã băm, RSC chung cache FIFO 160 mục với JS/CSS.
+
+**Kế hoạch:** đợt 1 gói JS trang chi tiết · đợt 2 gõ/kéo trên màn chi tiết · đợt 3 danh sách, tìm kiếm, Danh mục ·
+đợt 4 `/du-lieu/` · đợt 5 service worker. Không làm: `:has()`, `content-visibility` trên màn chi tiết, observer tiêu đề
+tab (đo ra không đáng kể); layout lạnh lúc mở trang (chưa rõ nguyên nhân).
+
+### Đợt 3 — danh sách, tìm kiếm, Danh mục (xong, chờ chủ dự án xem)
+
+| File                                             | Sửa gì / vì sao                                                                                                                                                                                                                        |
+| ------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/ui/browse/IntentLink.tsx` (mới)             | Link tải trước khi rê chuột / chạm / tiêu điểm (`router.prefetch`), `prefetch={false}` tắt tải theo khung nhìn                                                                                                                         |
+| `src/ui/browse/FormulaCard.tsx`, `GroupCard.tsx` | Thẻ hàng của danh sách và dòng công thức của kết quả tìm dùng `IntentLink`; 16 ô của kệ và link điều hướng giữ `<Link>` mặc định (chủ dự án chọn)                                                                                      |
+| `src/core/registry/phrase.ts`                    | `terms()` có lối tắt ASCII (ký tự < 0x80 chỉ `toLowerCase`, không qua `normalizeVi`) — phím tìm đầu tiên phải dựng chỉ mục cả 111 công thức                                                                                            |
+| `src/ui/i18n/units.ts`                           | Bốn hook định dạng trả hàm ổn định (`useCallback`)                                                                                                                                                                                     |
+| `src/app/danh-muc/PortfolioScreen.tsx`           | `savedRows` bọc `useMemo` — trước đó 30 dòng phép tính đã lưu dựng lại ở MỖI phím gõ trong hộp Thêm mã, kể cả khi đang mở tab Mã                                                                                                       |
+| Test                                             | `FormulaCard.test.tsx` (dựng không tải gì; rê/chạm/tiêu điểm thì tải đúng trang), `search.test.ts` (lối tắt ASCII trùng khít đường cũ trên cả Registry và chuỗi NFD), giả router ở `FormulaCard.test.tsx` và `FormulaFolders.test.tsx` |
+
+**Đo (bản build, 360×780, CPU 4×, `scratchpad/r1-checks/nav3.mjs`):**
+
+| Chỉ số                                                 | Trước          | Sau            |
+| ------------------------------------------------------ | -------------- | -------------- |
+| Lướt hết `/cong-thuc/`: payload RSC tải ngầm           | 71–72          | **0**          |
+| Lướt hết `/cong-thuc/`: luồng chính bận                | 1.234–1.331 ms | **575–581 ms** |
+| Bấm thẳng thẻ `roe` (chưa rê/chạm), cục bộ / mạng chậm | 974 / 828 ms   | 865 / 821 ms   |
+| Rê rồi bấm · chạm rồi bấm (cục bộ)                     | 831 · 919 ms   | 824 · 806 ms   |
+
+- `npm run check` xanh (202 file). `check:chrome` 208/216 (8 ca có sẵn), `verify:static` 55/56 (ca Sortino có sẵn).
+- Không làm: tách context Preferences (đổi chế độ / sáng tối dựng lại ~500 lá chữ, chỉ vài ms mỗi lần đổi); tách
+  state của hộp Thêm mã khỏi màn Danh mục (sau `useMemo` mỗi phím còn ~5–10 ms script).
+
+### Đợt 2 — gõ và kéo trên màn chi tiết (xong, chờ chủ dự án xem)
+
+| File                                       | Sửa gì / vì sao                                                                                                                                                                                                                         |
+| ------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/app/cong-thuc/[id]/FormulaDetail.tsx` | `useDeferredValue` dời vào vỏ `memo` `BieuDoHoan` quanh biểu đồ (lượt hoãn thôi dựng lại cả màn); bản `memo` của 8 khối không phụ thuộc số gõ; `onChangeFor(key)`, `moNhapSo`/`moDocBieuDo`, `KHONG_CAU_HOI` giữ props ổn định          |
+| `src/core/chart/sweep.ts`                  | Nhớ `pickSweepVariable` theo (module, ctx, mức); xếp hạng bằng `sweepYs` (không dựng nhãn chữ)                                                                                                                                          |
+| `src/core/registry/repeat.ts`              | Nhớ `repeatLimits` theo spec gốc                                                                                                                                                                                                        |
+| `src/core/chart/history.ts`                | Lọc giá đóng cửa một lần cho cả chuỗi (`bangCua`), mỗi phiên chỉ `slice`; nhãn ngày dựng một lần                                                                                                                                        |
+| `scripts/perf-probe.mjs`                   | Rơi về thanh trượt khi công thức không có ô chữ (trước đó ném lỗi ở `lich-tra-no`)                                                                                                                                                      |
+| Test                                       | `chart.test.ts` (bản nhớ trùng phép xếp hạng gốc trên 111 × 2 mức; lượt hai không chạy calc), `history.test.ts` (dựng lại cách lọc cũ, đòi mọi điểm trùng trên chuỗi có phiên hỏng), `tail-mobile-css.test.ts` nhận tên `MemoQuizPanel` |
+| `CLAUDE.md`                                | Đoạn "Round 2" trong mục mới                                                                                                                                                                                                            |
+
+**Đo (`perf-probe`, 14 phím, CPU 4×, 360×780, trung vị 3 lượt, hai vòng xen kẽ trước/sau):**
+
+| Trang                       | Script trước | Script sau | Luồng chính trước → sau |
+| --------------------------- | ------------ | ---------- | ----------------------- |
+| `pe`                        | 171 / 187 ms | 89 / 90 ms | 376–407 → 262–263 ms    |
+| `gia-von-trung-binh-dca`    | 318 / 292 ms | 152 / 150  | 484–554 → 359–409       |
+| `wacc`                      | 256 / 253 ms | 147 / 143  | 429–475 → 313–325       |
+| `lich-tra-no` (thanh trượt) | 343 / 289 ms | 176 / 175  | 469–567 → 349–356       |
+| `bien-an-toan`              | 169 / 188 ms | 107 / 129  | 354–358 → 270–312       |
+| `loi-nhuan-rong`            | 238 / 338 ms | 182 / 160  | 559–722 → 475–530       |
+
+- Kiểm chức năng 9 công thức so bản gốc: trùng từng ký tự, console 0 lỗi. `npm run check` xanh (201 file).
+  `verify:static` 55/56 (ca Sortino có sẵn). `check:chrome` 208/216 — 8 ca trượt đúng là 8 ca có sẵn từ trước (khung
+  chỉ-có-nghĩa, 4 nhãn trục chạm mép, nút form Danh mục, hai ca ngày của bảng dữ liệu).
+- Không làm: hoãn bảng lịch trả nợ (`lich-tra-no`) vì bảng sẽ trễ một nhịp sau con số — nhìn thấy được; đọc
+  `getBoundingClientRect` mỗi lần rê biểu đồ và đo lại khung "?" mỗi phím khi đang mở (đo ra vài ms).
+
+### Đợt 1 — gói JS trang chi tiết (xong, chờ chủ dự án xem)
+
+| File                                                                                 | Sửa gì / vì sao                                                                                                                                                                                                                                                      |
+| ------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/core/formulas/index.ts`, `src/application/index.ts`                             | `FORMULA_GROUPS` (17 khoá = tên file nhóm), `FormulaGroupKey`, `groupOfFormula()`                                                                                                                                                                                    |
+| `src/application/formula-groups/*.ts` (17 file mới)                                  | Cửa nạp động của từng nhóm: chỉ `FormulaDetailHost` nhập, bằng `import()`                                                                                                                                                                                            |
+| `src/app/cong-thuc/[id]/FormulaDetailHost.tsx` (mới)                                 | Vỏ `next/dynamic` nạp đúng một nhóm rồi dựng `FormulaDetail`; không thêm khung Suspense nên không nháy trắng                                                                                                                                                         |
+| `src/app/cong-thuc/[id]/FormulaDetail.tsx`                                           | Bỏ `FORMULA_MODULES`/`findFormulaModule`/`ALL_SPECS`; nhận `modules` (nhóm); `chainFor()` chạy trên nhóm. Hộp dán dữ liệu qua `PasteImportPanel`                                                                                                                     |
+| `src/app/cong-thuc/[id]/page.tsx`                                                    | Dựng vỏ với `id` + `group`; `spec` thôi đi qua RSC                                                                                                                                                                                                                   |
+| `src/app/cong-thuc/[id]/PasteImportPanel.tsx` (mới)                                  | `PasteImportSheet` + bộ đọc dán + CSS chỉ tải khi mở hộp lần đầu                                                                                                                                                                                                     |
+| `src/ui/browse/BrowseT.tsx` (mới), `FormulaCard.tsx`, `app/cong-thuc/DailyShelf.tsx` | Lá chữ riêng cho cây server của màn danh sách — sửa lỗi trộn manifest khiến trang chi tiết tải chunk danh sách                                                                                                                                                       |
+| `src/application/i18n/index.ts`, `preferences-context.tsx`                           | Từ điển tiếng Anh nạp động (`loadLocale`); `locale` của context là ngôn ngữ ĐANG HIỆN, đổi khi từ điển về; tấm che chỉ gỡ khi chữ đã sẵn                                                                                                                             |
+| `src/core/xirr.ts` (mới), `formulas/returns.ts`, `core/portfolio.ts`                 | Phần toán XIRR tách khỏi file nhóm; Danh mục thôi chở spec của nhóm `returns`                                                                                                                                                                                        |
+| `src/test-setup.ts` (mới), `vitest.config.ts`                                        | Nạp sẵn từ điển tiếng Anh cho cả bộ test                                                                                                                                                                                                                             |
+| Test                                                                                 | `formula-groups.test.ts` (mới, 5 ca: đủ nhóm, mỗi công thức một nhóm, file cửa, 17 dòng nạp, chuỗi FR-15 gọn trong nhóm), `load-locale.test.ts` (mới, 2 ca), `FormulaDetail.test.tsx` truyền nhóm thật, `how-to.test.ts` đọc cả hàm phụ ở module con, `i18n.test.ts` |
+| `scripts/verify-static.mjs`                                                          | 3 phép kiểm mới (đỏ trên bản gốc, xanh trên bản mới): không chunk danh sách ở trang chi tiết, `pe` không mang mã nhóm khác, từ điển en không trang nào nạp sẵn                                                                                                       |
+| `CLAUDE.md`                                                                          | Mục mới "Detail-page JS is loaded by group, and English by need"; sửa hai câu "FormulaDetail imports the whole Registry"; 53 → 56 assertion                                                                                                                          |
+
+**Đo trên bản build (bản sao scratchpad, cùng máy, CPU 4×):**
+
+| Chỉ số                                              | Trước                | Sau                          |
+| --------------------------------------------------- | -------------------- | ---------------------------- |
+| First Load JS `pe` / `ty-so-sharpe` / `xirr`        | 495 / 494,5 / 463 kB | **234,5 / 259,7 / 208,6 kB** |
+| First Load JS `/danh-muc/` / gói chung mọi trang    | 203 / 142 kB         | **184,4 / 134 kB**           |
+| HTML gzip `ty-so-sharpe` / `ty-so-sortino`          | 31,2 / 35 kB         | 20,7 / 23,1 kB               |
+| `pe` bấm được, mạng di động (150 ms, 1,6 Mbps)      | 3790 ms              | **2232 ms**                  |
+| `rsi-wilder` bấm được, mạng di động                 | 3729 ms              | **2320 ms**                  |
+| Chuyển client danh sách → `pe` (cục bộ / mạng chậm) | 495 / 600 ms         | 526 / 542 ms                 |
+| Tiếng Anh: trang hiện ra sau / khung lộ chữ Việt    | 1559 ms / 0          | 1575 ms / 0                  |
+
+- Kiểm chức năng 9 công thức (pe, wacc, bien-an-toan Nâng cao, rsi-wilder + ví dụ, lich-tra-no, xirr, ev, DCA thêm
+  đợt, beta + ví dụ): chữ và kết quả trùng bản gốc từng ký tự, console 0 lỗi, không khung trắng khi chuyển trang.
+- `npm run check` xanh (201 file, 5.010 ca). `verify:static` 55/56 — ca trượt "hình hai vế" của `ty-so-sortino` có sẵn
+  trên bản gốc, không do đợt này.
+- Chưa làm trong đợt 1: bộ dữ liệu ví dụ 250 phiên nạp khi bấm nút (đụng các file nhóm chuỗi giá mà phiên khác hay
+  sửa; nay nó chỉ còn đi theo trang chuỗi giá, ~13,6 kB gzip); ba hộp Nạp mẫu / Xuất / Lưu vẫn nhập tĩnh (nhỏ, và
+  ~60 ca kiểm mở chúng đồng bộ).
+
+---
+
 ## Popup Bài tập: hàng tiêu đề thấp lại ở máy tính (28/10/2026)
 
 **Trạng thái: CHƯA XONG — đã sửa, chờ chủ dự án xem.** Chủ dự án khoanh hàng "Bài tập · Câu 4 / 4 · thanh tiến độ · ×"

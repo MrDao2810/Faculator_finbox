@@ -113,15 +113,27 @@ export interface RepeatLimits {
   declared: number;
 }
 
-/** Miền của số nhóm; `null` khi công thức không khai nhóm lặp. */
-export function repeatLimits(spec: FormulaSpec): RepeatLimits | null {
-  const goc = gocCua(spec);
-  const { repeat } = goc;
-  if (repeat === undefined) return null;
+/**
+ * Miền đã tính theo spec GỐC (28/10/2026): `runFormula()` hỏi miền này ở mỗi lượt gọi, kể cả trong
+ * vòng quét 41 mức của biểu đồ, mà nó chỉ phụ thuộc phần khai báo của spec gốc.
+ */
+const MIEN_NHOM = new WeakMap<FormulaSpec, Readonly<RepeatLimits> | null>();
 
-  const dem = goc.variables.find((bien) => bien.key === repeat.countKey);
-  const declared = soNhomKhaiSan(goc, repeat);
-  return { min: dem?.min ?? 1, max: dem?.max ?? declared, declared };
+/** Miền của số nhóm; `null` khi công thức không khai nhóm lặp. */
+export function repeatLimits(spec: FormulaSpec): Readonly<RepeatLimits> | null {
+  const goc = gocCua(spec);
+  const daTinh = MIEN_NHOM.get(goc);
+  if (daTinh !== undefined) return daTinh;
+
+  const { repeat } = goc;
+  let mien: Readonly<RepeatLimits> | null = null;
+  if (repeat !== undefined) {
+    const dem = goc.variables.find((bien) => bien.key === repeat.countKey);
+    const declared = soNhomKhaiSan(goc, repeat);
+    mien = Object.freeze({ min: dem?.min ?? 1, max: dem?.max ?? declared, declared });
+  }
+  MIEN_NHOM.set(goc, mien);
+  return mien;
 }
 
 /**

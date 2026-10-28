@@ -600,3 +600,56 @@ describe('trục thời gian — quét toàn Registry', () => {
     expect(JSON.stringify(once)).toBe(JSON.stringify(twice));
   });
 });
+
+/*
+ * Từ 28/10/2026 mỗi phiên không còn tự cắt rồi lọc lại cả tiền tố: giá dùng được lọc MỘT lần cho cả
+ * chuỗi (`bangCua` trong `history.ts`), mỗi phiên chỉ còn một `slice`. Ca này dựng lại đúng cách cũ
+ * ngay tại chỗ và đòi từng điểm của mọi công thức theo chuỗi trùng khít — trên một chuỗi có cả phiên
+ * trống và phiên giá 0, đúng chỗ hai cách đếm "phiên dùng được" có thể lệch nhau.
+ */
+describe('mỗi phiên dùng đúng chuỗi giá của tiền tố, kể cả khi có phiên hỏng', () => {
+  it('lọc một lần cho cả chuỗi ra đúng từng điểm như cắt rồi lọc lại từng tiền tố', () => {
+    const coLo: ReadonlyArray<SeriesRow> = BARS.map((bar, i) =>
+      i % 17 === 3 ? { ...bar, close: null } : i % 23 === 5 ? { ...bar, close: 0 } : bar,
+    );
+    const dung = (rows: ReadonlyArray<SeriesRow>): number[] =>
+      rows
+        .map((row) => row.close)
+        .filter((value): value is number => typeof value === 'number' && value > 0);
+    const ctx: CalcContext = { ...WITH_BARS, bars: coLo, series: dung(coLo) };
+    const last = coLo.length - 1;
+
+    let soCongThuc = 0;
+    for (const formula of FORMULA_MODULES) {
+      const plan = historyPlan(formula, ASOF);
+      if (plan === null || !plan.truncateSeries) continue;
+      soCongThuc += 1;
+      const inputs = defaultInputs(formula.spec);
+      const points = historyPoints(formula, inputs, ctx);
+      coLo.forEach((bar, i) => {
+        const close = bar.close;
+        const sessionInputs =
+          close === null || !Number.isFinite(close) || plan.priceKeys.length === 0
+            ? inputs
+            : { ...inputs, ...Object.fromEntries(plan.priceKeys.map((key) => [key, close])) };
+        const cachCu: CalcContext = {
+          ...ctx,
+          bars: coLo.slice(0, i + 1),
+          series: dung(coLo.slice(0, i + 1)),
+          ...(ctx.marketSeries === undefined
+            ? {}
+            : {
+                marketSeries: ctx.marketSeries.slice(
+                  0,
+                  Math.max(0, ctx.marketSeries.length - (last - i)),
+                ),
+              }),
+        };
+        expect(points[i]?.y, `${formula.spec.id} · phiên ${String(i)}`).toBe(
+          runFormula(formula, sessionInputs, cachCu).value,
+        );
+      });
+    }
+    expect(soCongThuc).toBeGreaterThan(30);
+  });
+});

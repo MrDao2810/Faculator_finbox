@@ -9,6 +9,11 @@ import type { FormulaSummary } from '@/application';
 import { FormulaFolders } from './FormulaFolders';
 import { GroupCard } from './GroupCard';
 
+/* Dòng công thức dùng `IntentLink` (gọi `useRouter()` để tải trước khi tỏ ý) — jsdom không có App Router. */
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({ push: vi.fn(), replace: vi.fn(), prefetch: vi.fn() }),
+}));
+
 afterEach(cleanup);
 
 /*

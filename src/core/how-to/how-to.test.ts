@@ -68,10 +68,33 @@ function maCuaCongThuc(file: string, id: string): string | undefined {
   const noiDung = readFileSync(FORMULAS_DIR + file, 'utf8');
 
   const hamCucBo = new Map<string, string>();
-  for (const m of noiDung.matchAll(/^(?:export )?function (\w+)\(/gm)) {
-    const from = m.index ?? 0;
-    const den = noiDung.indexOf('\n}', from);
-    hamCucBo.set(m[1] as string, noiDung.slice(from, den === -1 ? undefined : den));
+  const gomHam = (nguon: string, chiLay?: ReadonlySet<string>): void => {
+    for (const m of nguon.matchAll(/^(?:export )?function (\w+)\(/gm)) {
+      const ten = m[1] as string;
+      if (chiLay !== undefined && !chiLay.has(ten)) continue;
+      const from = m.index ?? 0;
+      const den = nguon.indexOf('\n}', from);
+      hamCucBo.set(ten, nguon.slice(from, den === -1 ? undefined : den));
+    }
+  };
+  gomHam(noiDung);
+  /*
+   * Hàm phụ nằm ở module RIÊNG ngoài thư mục công thức cũng là mã của `calc` (28/10/2026: phần toán
+   * XIRR dời sang `src/core/xirr.ts` để màn Danh mục khỏi chở spec của cả nhóm). Chỉ lấy đúng những
+   * hàm file nhóm nhập vào, nên mẩu bằng chứng vẫn phải nằm trên đường gọi thật của công thức.
+   */
+  for (const m of noiDung.matchAll(/^import \{([^}]+)\} from '(\.\.\/[\w-]+)';$/gm)) {
+    const ten = new Set(
+      (m[1] as string)
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean),
+    );
+    try {
+      gomHam(readFileSync(`${FORMULAS_DIR}${m[2] as string}.ts`, 'utf8'), ten);
+    } catch {
+      // Không phải file .ts đơn (thư mục có index) — không có hàm phụ nào của calc ở đó.
+    }
   }
 
   const khoi = noiDung

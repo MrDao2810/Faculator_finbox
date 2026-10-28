@@ -11,7 +11,8 @@
  */
 
 import { fail, ok } from './calc-output';
-import { xirr } from './formulas/returns';
+/* Từ `./xirr`, KHÔNG từ `./formulas/returns`: file nhóm kéo spec của cả nhóm vào `/danh-muc/`. */
+import { xirr } from './xirr';
 import type { CalcOutput } from './types';
 
 /** Một mã đang nắm giữ. */

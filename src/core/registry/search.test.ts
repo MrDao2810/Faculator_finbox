@@ -11,6 +11,8 @@ import {
   selectFormulas,
   tokenize,
 } from './search';
+import { FORMULA_MODULES } from '../formulas';
+import { terms, type Term } from './phrase';
 import type { FormulaQuery, FormulaSpec } from './types';
 
 /** Fixture tối thiểu — chỉ điền đủ trường mà tìm kiếm dùng tới. */
@@ -677,5 +679,56 @@ describe('countBySegmentFor()', () => {
       stock: 0,
       personal: 1,
     });
+  });
+});
+
+/*
+ * Lối tắt ASCII của `terms()` (28/10/2026): ký tự dưới 0x80 chỉ `toLowerCase`, không qua
+ * `normalizeVi`. Ca này dựng lại đường cũ ngay tại chỗ (chuẩn hoá TỪNG ký tự) và đòi hai bên ra
+ * đúng một dãy mảnh — chữ, ký hiệu, vị trí bắt đầu/kết thúc, cờ dính — trên mọi tên, mô tả và thẻ
+ * của cả Registry, ở cả hai ngôn ngữ, cộng một chuỗi NFD có dấu thanh rời.
+ */
+describe('terms() — lối tắt ASCII ra đúng dãy mảnh như chuẩn hoá từng ký tự', () => {
+  function termsCu(text: string): Term[] {
+    const out: Term[] = [];
+    let truocLaManh = false;
+    let offset = 0;
+    for (const char of text) {
+      const piece = normalizeVi(char);
+      const end = offset + char.length;
+      const truoc = out[out.length - 1];
+      if (piece === '' && truoc !== undefined && truocLaManh) truoc.end = end;
+      for (const c of piece) {
+        const last = out[out.length - 1];
+        if (/[a-z0-9]/.test(c)) {
+          if (last !== undefined && truocLaManh && !last.kyHieu) {
+            last.text += c;
+            last.end = end;
+          } else {
+            out.push({ text: c, kyHieu: false, dinh: truocLaManh, start: offset, end });
+          }
+          truocLaManh = true;
+        } else if (/[%/&+×]/.test(c)) {
+          out.push({ text: c, kyHieu: true, dinh: truocLaManh, start: offset, end });
+          truocLaManh = true;
+        } else {
+          truocLaManh = false;
+        }
+      }
+      offset = end;
+    }
+    return out;
+  }
+
+  it('trùng khít trên cả Registry và chuỗi NFD', () => {
+    const chuoi = FORMULA_MODULES.flatMap(({ spec }) => [
+      spec.name.vi,
+      spec.name.en,
+      spec.description.vi,
+      spec.description.en,
+      ...spec.tags,
+    ]);
+    chuoi.push('Đ%B — Lãi/lỗ P/E 1,5 × DOL'.normalize('NFD'), 'ROE ≥ 15% & EPS + 2');
+    for (const text of chuoi) expect(terms(text), text).toEqual(termsCu(text));
   });
 });

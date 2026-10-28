@@ -207,7 +207,7 @@ function diemPhien(
   const point: ChartPoint = {
     x: index,
     y: out.value,
-    label: formatSessionDate(bar.date),
+    label: nhanNgayCua(bars)[index] ?? formatSessionDate(bar.date),
     valueLabel: formatCalcOutput(out),
   };
   // Phiên gần nhất LÀ "giá trị hiện tại" của đường thời gian — cùng vai với điểm đang nhập của
@@ -215,6 +215,53 @@ function diemPhien(
   if (index === last) point.marked = true;
   if (out.warning !== undefined) point.reason = out.warning.code;
   return point;
+}
+
+/**
+ * Bảng dựng MỘT LẦN cho mỗi mảng `bars` (28/10/2026), khoá bằng chính mảng ấy.
+ *
+ * Đường thời gian chạy công thức trên từng tiền tố của chuỗi. Trước đây mỗi phiên tự cắt rồi lọc lại
+ * cả tiền tố (`bars.slice(0, i + 1).map(close).filter(> 0)`), tức O(n²) cho mỗi lần dựng biểu đồ —
+ * đo khi kéo thanh trượt trên `ty-so-sharpe` đã nạp 250 phiên: 124 ms riêng phần này. Nay giá đóng
+ * cửa dùng được lọc một lần, `dauDen[i]` là số giá dùng được trong `bars[0..i]`, và mỗi phiên chỉ còn
+ * một `slice` — CÙNG mảng mà phép lọc cũ trả về, cùng luật lọc (`typeof === 'number' && > 0`).
+ *
+ * Nhãn ngày cũng không đổi theo số người dùng gõ, nên nhớ luôn ở đây thay vì dựng lại 250 lần mỗi
+ * lần dựng (`parseSeriesDate` cho từng điểm).
+ */
+interface BangChuoi {
+  readonly giaDung: ReadonlyArray<number>;
+  readonly dauDen: ReadonlyArray<number>;
+  nhanNgay?: ReadonlyArray<string>;
+}
+const BANG_CHUOI = new WeakMap<ReadonlyArray<SeriesRow>, BangChuoi>();
+
+function bangCua(bars: ReadonlyArray<SeriesRow>): BangChuoi {
+  let bang = BANG_CHUOI.get(bars);
+  if (bang === undefined) {
+    const giaDung: number[] = [];
+    const dauDen: number[] = [];
+    for (const row of bars) {
+      const close = row.close;
+      if (typeof close === 'number' && close > 0) giaDung.push(close);
+      dauDen.push(giaDung.length);
+    }
+    bang = { giaDung, dauDen };
+    BANG_CHUOI.set(bars, bang);
+  }
+  return bang;
+}
+
+/** Giá đóng cửa dùng được của `bars[0..index]` — đúng mảng mà phép lọc tiền tố trả về. */
+function giaDungDen(bars: ReadonlyArray<SeriesRow>, index: number): number[] {
+  const bang = bangCua(bars);
+  return bang.giaDung.slice(0, bang.dauDen[index] ?? 0);
+}
+
+function nhanNgayCua(bars: ReadonlyArray<SeriesRow>): ReadonlyArray<string> {
+  const bang = bangCua(bars);
+  bang.nhanNgay ??= bars.map((row) => formatSessionDate(row.date));
+  return bang.nhanNgay;
 }
 
 /**
@@ -257,10 +304,8 @@ function ketQuaPhien(
     ? {
         ...ctx,
         bars: bars.slice(0, index + 1),
-        series: bars
-          .slice(0, index + 1)
-          .map((row) => row.close)
-          .filter((value): value is number => typeof value === 'number' && value > 0),
+        // = `bars.slice(0, index + 1)` lọc giá > 0, nhưng không lọc lại cả tiền tố — xem `bangCua`.
+        series: giaDungDen(bars, index),
         ...(ctx.marketSeries === undefined
           ? {}
           : {

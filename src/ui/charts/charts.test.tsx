@@ -164,6 +164,24 @@ function drawLoadedAdvanced(id: string, extra: CalcInputs = {}) {
 }
 
 /**
+ * Chú giải trong `<svg>` (hình cột, hình phân tán) đứng ở ĐÁY hình, dưới tên trục ngang — 28/10/2026,
+ * chủ dự án: "cần chuyển xuống cuối dưới chart". Tên trục ngang là thẻ chữ `axisTitle` canh giữa; mọi
+ * hàng chú giải phải có chân chữ thấp hơn nó, và hàng cuối nằm sát đáy `viewBox`.
+ */
+function chuGiaiDuoiTenTrucNgang(svg: Element) {
+  const cao = Number(svg.getAttribute('viewBox')?.split(' ')[3]);
+  const tenTrucNgang = [...svg.querySelectorAll('text[class*="axisTitle"]')].find(
+    (el) => el.getAttribute('text-anchor') === 'middle',
+  );
+  const y = [...svg.querySelectorAll('[data-chu-giai] text')].map((el) =>
+    Number(el.getAttribute('y')),
+  );
+  expect(y.length).toBeGreaterThan(0);
+  for (const chan of y) expect(chan).toBeGreaterThan(Number(tenTrucNgang?.getAttribute('y')));
+  expect(Math.max(...y)).toBe(cao - 6);
+}
+
+/**
  * Nhiều chuỗi trên một biểu đồ — bước mở đường cho SMA, Bollinger và MACD.
  *
  * Đây là "ví dụ tối thiểu" của đợt: chưa công thức nào truyền chuỗi phụ, nên chỗ duy nhất chứng
@@ -277,6 +295,15 @@ describe('Biểu đồ nhiều chuỗi', () => {
     for (const m of muc) {
       expect(m.querySelector('svg line[class*="seriesLine"]')).not.toBeNull();
     }
+  });
+
+  it('legend đứng DƯỚI hình, không ở trên (28/10/2026)', () => {
+    const { container } = render(<LineChart model={moHinhHaiChuoi()} idBase="vd" />);
+    const hinh = container.querySelector('svg[data-chart-svg="vd"]');
+    const legend = container.querySelector('ul[class*="legend"]');
+    if (hinh === null || legend === null) throw new Error('thiếu hình hoặc legend');
+    // eslint-disable-next-line no-bitwise -- cờ bit là đúng API của compareDocumentPosition
+    expect(hinh.compareDocumentPosition(legend) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
   it('chuỗi khai nét đứt thì nét đứt thật, không chỉ khác màu — NFR-USA-06', () => {
@@ -2869,6 +2896,8 @@ describe('Loại biểu đồ — ô chọn dạng vẽ', () => {
     expect(svg?.textContent).toContain('Từng phiên');
     expect(svg?.textContent).toContain('Đường hồi quy, độ dốc β =');
     expect(svg?.textContent).toContain('Lợi suất FPT một phiên (%)');
+    if (svg === null) throw new Error('không vẽ');
+    chuGiaiDuoiTenTrucNgang(svg);
     expect(screen.queryByLabelText('Loại biểu đồ')).toBeNull();
     expect(screen.getByRole('table').textContent).toContain('Lợi suất VN-Index một phiên (%)');
   });
@@ -3475,6 +3504,7 @@ describe('Hình cột theo kỳ — Trả nợ từng năm', () => {
       'Tiền gốc',
       'Tiền lãi',
     ]);
+    chuGiaiDuoiTenTrucNgang(svg);
   });
 
   it('ô "Xem theo" có mục Trả nợ từng năm; chọn thì vẽ hình cột, không có ô Loại biểu đồ', async () => {

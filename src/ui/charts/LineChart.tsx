@@ -756,6 +756,9 @@ export function LineChart({
    *
    * Mỗi mục có MẪU NÉT thật (cùng lớp tông, cùng nét đứt, cùng độ dày) chứ không phải một ô màu:
    * màu không được là dấu hiệu duy nhất (NFR-USA-06), và mẫu nét nói luôn cả kiểu nét lẫn độ dày.
+   *
+   * Đứng DƯỚI hình, canh giữa như tên trục ngang, từ 28/10/2026 — cùng lượt với chú giải trong `<svg>`
+   * của hình cột và hình phân tán (`chu-giai-duoi.ts`, lời chủ dự án ở đó). Trước đó nó ở trên hình.
    */
   /*
    * Dạng Nến luôn có legend, kể cả khi chỉ một đường: hình có hai lớp (nến và đường kết quả), và
@@ -837,7 +840,6 @@ export function LineChart({
 
   return (
     <>
-      {legend}
       <div className={fill ? `${styles.plot} ${styles.plotFill}` : styles.plot}>
         <svg
           ref={svgRef}
@@ -1306,6 +1308,7 @@ export function LineChart({
           )}
         </svg>
       </div>
+      {legend}
     </>
   );
 }

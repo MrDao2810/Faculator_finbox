@@ -67,7 +67,7 @@ npm test               # vitest run
 npm run format         # prettier --write .
 npm run format:check   # prettier --check .
 npm run check          # lint + typecheck + format:check + test — run before pushing
-npm run verify:static  # 53 assertions against a built out/ — run after build
+npm run verify:static  # 56 assertions against a built out/ — run after build
 npm run check:chrome   # 216 assertions in a real headless Chrome (360×780, 560 and 1440) — needs out/ + Chrome
 npm run size           # measures out/, gates First Load JS at 180 kB (NFR-PER-04 budget is 200 kB)
 npm run gen:summaries  # regenerates src/core/formulas/summaries.generated.ts
@@ -259,6 +259,85 @@ at the card's left edge, under the ▸** (19/10/2026, owner circled it on `fcfe`
 after the triangle and left an empty strip on the left). The summary becomes a two-row grid
 (`'dau ten so' / 'vai vai vai'`, `.stepText` is `display: contents`, a role-less `<span>`); the line went
 3 → 2 rows at 390. From 1024px unchanged. `chain-mobile-css.test.ts` pins it.
+
+## Detail-page JS is loaded by group, and English by need (28/10/2026)
+
+The owner asked for the whole project to run more smoothly; round 1 of the performance plan (TASK.md) cut a
+detail page's First Load JS from **461–495 kB to 209–260 kB gzip** (`pe` 495 → 234,5) and, on a mobile network
+with CPU 4×, the time until `pe` is interactive from 3,79 s to 2,23 s. Client navigation from the list was
+measured unchanged (495 → 526 ms locally, 600 → 542 ms on a slow network), with no blank frame. What changed,
+and what is easy to break:
+
+- **`FormulaDetail` no longer imports `FORMULA_MODULES`.** `page.tsx` asks `groupOfFormula(id)` at build time and
+  renders `FormulaDetailHost` (`src/app/cong-thuc/[id]/`), which loads ONE group file through `next/dynamic` —
+  17 static `import('@/application/formula-groups/<key>')` lines, one per file in `src/core/formulas/` — and passes
+  that group's modules down as `modules`. 17 static client leaves chosen by the page do NOT work: in Next 15 every
+  client reference of a page shares the page entry's chunk group, so they would still ship all 17. No Suspense
+  boundary is added (`ssr: true`, no `loading` → a Fragment), so hydration keeps the static HTML and client
+  navigation keeps the old screen until the chunk arrives. **`chainFor()` sees only the group**, which is why
+  `formula-groups.test.ts` requires every FR-15 ancestor to live in its formula's group (all 7 are in
+  `valuation-dcf`); it also ties `FORMULA_GROUPS`, the 17 gate files and the 17 `dynamic()` lines together. A new
+  group file needs all three. Never import `FORMULA_GROUPS`/`FORMULA_MODULES` from a client component.
+- **`spec` is no longer a prop from the server**: the host takes it from the group module, so it left the RSC
+  payload of all 111 pages (3,96 kB gzip on average, 8–12 kB on the 12 series pages whose example dataset rode
+  along).
+- **`BrowseT` (`src/ui/browse/`) is `T` for the list's server tree**, and it must stay a separate module, not a
+  re-export. Next merges client manifests along the path ('' → app → app/cong-thuc → app/cong-thuc/[id]) and the
+  later one wins, so a `'use client'` module imported by BOTH the root layout's server tree and
+  `app/cong-thuc/page`'s server tree made every detail page load the list route's chunk (39,6 kB gzip).
+- **`PasteImportSheet` is behind `PasteImportPanel`** (`next/dynamic`) on the detail screen; `/du-lieu/` keeps the
+  static import because its `<dialog>` is in the static HTML.
+- **The English dictionary loads on demand** (`loadLocale` in `src/application/i18n/index.ts`, a bare `import()`).
+  `PreferencesProvider` exposes `locale` = the language ON SCREEN: it stays `'vi'` until the stored choice's
+  dictionary is in memory, then the whole screen switches at once, and `data-locale-pending` is removed only then
+  (measured: EN reveal 1559 → 1575 ms, no frame showing Vietnamese). `prefs.locale` is the stored choice. A failed
+  load (offline, chunk never cached) reveals the page in Vietnamese at once. `en` is no longer re-exported from the
+  i18n index — a static import would pull it back into the shared chunk; tests import `./en` directly, and
+  `src/test-setup.ts` (vitest `setupFiles`) preloads it so EN tests stay synchronous.
+- **`xirr()` lives in `src/core/xirr.ts`**, re-exported by `formulas/returns.ts`: `/danh-muc/` imported it from the
+  group file and shipped the spec of the whole group (9,7 kB gzip). `how-to.test.ts` now also reads helper functions
+  a group file imports from a sibling module (`../xirr`), so a `calcEvidence` snippet may live there.
+- `verify:static` holds all of it: no detail page mentions `app/cong-thuc/page-`, `pe`'s chunks carry no
+  `rsi-wilder`/`ty-so-sharpe` code, and the English dictionary is one chunk no HTML references.
+
+**Round 2 (same day): a keystroke on the detail screen does about half the JS work.** Measured with
+`scripts/perf-probe.mjs` (14 keys, CPU 4×, script time): `pe` 171–187 → 89–90 ms, DCA 292–318 → 150–152,
+`wacc` ~255 → 143–147, `lich-tra-no` (slider) 289–343 → 175–176. Each keystroke used to render almost the whole
+screen TWICE and redo work that does not depend on the number typed. The rules that keep it this way:
+
+- **`useDeferredValue` lives in `BieuDoHoan`** (end of `FormulaDetail.tsx`), a `memo` shell around `FormulaChart`
+  that also computes `chartOutput` from the deferred inputs. At screen level, the deferred value arriving re-ran
+  the whole screen (28 commits for 14 keys). Every prop of `BieuDoHoan` must keep its identity between renders.
+- **The blocks that do not depend on the inputs are `memo` copies declared at the top of `FormulaDetail.tsx`**
+  (`MemoExplanationAccordion`, `MemoVariableTable`, `MemoExampleBlock`, `MemoSourceBlock`, `MemoQuizPanel`,
+  `MemoConstantsNote`, `MemoGuideHint`, `MemoVariableField`). Do not pass them a closure, object or array written
+  inline in JSX: `memo` loses silently and no test turns red. Fields get `onChangeFor(key)` (one wrapper per key
+  over a ref updated in `useLayoutEffect`), the two "?" buttons `moNhapSo`/`moDocBieuDo`, an empty quiz
+  `KHONG_CAU_HOI`.
+- **`pickSweepVariable` is memoised by (module, ctx, level)** in `sweep.ts`: it ranks on `defaultInputs()`, so the
+  default axis never depended on the number typed, yet it swept 41 levels × every variable on each keystroke
+  (35–94% of a chart build). Ranking uses `sweepYs` (no label formatting). `repeatLimits` is memoised by base spec.
+  `chart.test.ts` checks the memo against a fresh ranking for all 111 × 2 levels and that a repeat call runs no
+  `calc`.
+- **The time chart filters a series once** (`bangCua` in `history.ts`, keyed by the `bars` array): each session
+  takes a `slice` of the pre-filtered closes instead of re-filtering its whole prefix (O(n²) → O(n)), and the date
+  labels are built once per series. `history.test.ts` rebuilds the old per-prefix filter inline and requires every
+  point of every series formula to match, on a series with empty and zero closes.
+- `scripts/perf-probe.mjs` falls back to a slider (ArrowRight) when a formula has no text input; it used to throw on
+  `lich-tra-no`, its own heaviest benchmark page.
+
+**Round 3 (same day): list cards prefetch on intent, not on sight.** The owner chose it when asked. A default
+`<Link>` prefetches the RSC payload of every card entering the viewport, so scrolling the 111-card list fetched
+71–72 payloads in the background and kept the main thread busy 1,23–1,33 s at CPU 4× (measured; after: 0
+payloads, 575–581 ms). The list row (`FormulaCard` variant `row`) and the formula rows of a search result
+(`GroupCard`) use `IntentLink` (`src/ui/browse/`): `prefetch={false}` — which turns off BOTH Next's viewport and
+hover prefetch (`app-dir/link.js`) — plus `router.prefetch(href)` on `mouseenter`, `touchstart` and `focus`. The
+16 shelf tiles and the nav links keep the default `<Link>`. Clicking a never-hovered card was measured no slower
+(974 → 865 ms locally, 828 → 821 on a slow network). `IntentLink` calls `useRouter()`, so a jsdom test rendering a
+row card needs the usual `vi.mock('next/navigation')`. Also: `terms()` (search index) has an ASCII fast path, gated
+by an equivalence test over the whole Registry in `search.test.ts`; `useValueText`/`useCalcText`/`useUnitText`/
+`useLabelText` return stable callbacks, which lets `PortfolioScreen` memoise its 30 saved rows (they were rebuilt
+on every keystroke of the add dialog).
 
 ## The one network call — `MarketFeed`
 
@@ -1643,7 +1722,7 @@ at all):
   average of prices, amount and shares as `extraColumns` in the table and the hover box) and **"Lợi suất từng
   kỳ"** (`loi-suat-trung-binh-hinh-hoc`: signed columns, geometric vs arithmetic mean lines). `ColumnChart.tsx`
   keeps its legend INSIDE the `<svg>` (exports), lays it out BEFORE the plot (three items wrap to two rows at
-  390px and used to cover the axis title), thins period labels so the last one never sits beside its
+  390px; since 28/10/2026 the legend sits at the BOTTOM, see "Chart legends" below), thins period labels so the last one never sits beside its
   neighbour ("19 20"), thins value labels counting from 0 (the old `thin()` dropped the 0 of a chart with
   negative columns), puts the higher line's label above it and the lower one's below (the two labels used to
   meet between the lines), and writes every hover figure in the chart's word form, extra columns included
@@ -1689,7 +1768,7 @@ at all):
   enough VN-Index sessions too: `seriesWindow()` also cuts `ctx.marketSeries`, so no market series means no entry,
   as `calc` says MISSING_SERIES). The regression line's slope IS `output.value`, not recomputed, and it runs through
   the mean point; a failed result (flat VN-Index) draws the dots with no line. Both axes contain 0, so the two zero
-  rules split the four quadrants. Legend inside the `<svg>`; hovering snaps to the nearest dot within 16 units and
+  rules split the four quadrants. Legend inside the `<svg>`, at the bottom; hovering snaps to the nearest dot within 16 units and
   shows date, VN-Index return, stock return. One form (`'dots'`), no "Loại biểu đồ". `series-view.test.ts` recomputes
   every pair and the least-squares slope independently; `giu-lua-chon.test.ts` and `dang-ve.test.ts` now carry the
   real VN-Index in their context, as the screen always does, which is why their counts moved.
@@ -1706,6 +1785,17 @@ at all):
   recomputes every line at every session from the definition (SMA, EMA seeded with the mean of the first n, MACD's
   signal, momentum, rolling max/min, TR). Known and NOT from this round: on every time axis the lowest value label
   touches the first date label, and at 390px the axis title's Vietnamese accents touch the frame's top edge.
+
+**Chart legends sit at the BOTTOM of the chart, centred under the x-axis title** (28/10/2026, owner, circling the Beta
+scatter's "Từng phiên · Đường hồi quy…" squeezed on top of the y-axis title: _"nó nằm ở vị trí rất khó nhìn, cần chuyển
+xuống cuối dưới chart và padding chuẩn 1 chút. áp dụng cho toàn bộ công thức, màn web pc và web mobile"_). Three
+legends moved: the in-`<svg>` legend of `ColumnChart` and `ScatterChart`, laid out by `xepChuGiaiDuoi()`
+(`src/ui/charts/chu-giai-duoi.ts`: rows wrap within the plot width, each row centred on the plot, last baseline at
+`H − 6`; it returns the height it takes so the plot's BOTTOM moves up, the `viewBox` and CSS aspect ratio unchanged),
+and `LineChart`'s HTML `<ul>` (now after `.plot`, `justify-content: center`). Measured in Chrome at 1440 and 390: x-axis
+title to legend 10–14px for the SVG legends and 12–13px for the HTML one, no sideways scroll. Donut and gauge legends
+were NOT touched (their side/under-ring layouts are the owner's own rounds). `chu-giai-duoi.test.ts` and
+`chuGiaiDuoiTenTrucNgang()` in `charts.test.tsx` pin it; no `check:chrome` assertion.
 
 Measured over the Registry (`dang-ve.test.ts` pins it): with no series, 257 drawable charts — Đường/Cột/Điểm
 211 (Cột 224 with the 13 column charts that need no series), Bậc thang 23, Lãi/lỗ 27, Vành khuyên 27 (5
@@ -1972,8 +2062,9 @@ button and every phrase of all 111 opens the right panel kind with the right mea
 same rows, the 481 pinned). Things that are easy to break:
 
 - **The content lives in `src/core/how-to/`, NOT in `FormulaSpec`**, and only `page.tsx` reads it (via
-  the build-only sub-path `@/application/how-to`, never the barrel). `FormulaDetail` imports the whole
-  Registry, so anything in `spec` ships in every detail page's JS; `spec.symbols` once cost 185 → 198 kB.
+  the build-only sub-path `@/application/how-to`, never the barrel). Anything in `spec` ships in client JS —
+  in the formula's GROUP chunk since 28/10/2026 (see "Detail-page JS is loaded by group"), before that in every
+  detail page; `spec.symbols` once cost 185 → 198 kB.
   `notation-view.ts` builds everything at build time and passes one `notation` prop.
   `build-only-imports.test.ts` pins who may import `katex`, `latex-html`, `mathml-marks`,
   `notation-view` and the how-to data. `verify:static` fails if a step line shows up in any `out/` JS
@@ -3187,6 +3278,23 @@ now requires each letter to hold 20–30% of the multiple-choice answers and no 
 exceed a third — so **a new question must not default to B**, and one whose explanation cites a
 letter must be checked against its own `choices`.
 
+**Multi-select answer sets cover every combination since 28/10/2026, and "rotated" was the defect.**
+Rotating A+B gives B+C, C+D, D+A: the two answers stay side by side. The owner: _"tại sao những câu
+hỏi có lựa chọn đáp án nhiều 1 lúc thế này thì toàn là 2 câu cuối hoặc 2 câu xát nhau thế? cần
+rundom ngẫu nhiên chứ"_. Measured: 10 of 13 two-answer sets adjacent (A+B alone 5), no B+D, and all
+5 three-answer sets contained D. Redistributed the same way (syntax tree, hash order, correct and
+wrong choices each keep their relative order): the 13 pairs now cover all six (B+D three times, the
+rest twice), the 5 triples all four (A+B+C twice). The 29/09 rotation had also left **four
+explanations contradicting their own answers**, missed because the remap list above named only the
+letters it changed: Q320, the question the owner photographed, read "Phương án c và d sai" under C
+and D marked correct; Q331 and Q294 named the wrong distractor; Q236 said "Ba lựa chọn đầu" for the
+last three. Two gates in `quiz.test.ts` now: every pair and triple occurs and adjacent pairs (A+B,
+B+C, C+D) stay ≤ 60% of the two-answer sets; and `CHU_CAI_TRONG_LOI_GIAI` pins, for each of the 13
+explanations that cite a choice by letter, a snippet of that choice, so moving choices without
+editing the explanation goes red. A new letter citation needs a row there; a POSITIONAL citation
+("lựa chọn đầu", "phương án cuối") is rejected outright. The order is still fixed per question
+(data, not shuffled at runtime): retaking a quiz shows the same order.
+
 **Coverage: 150 of 473 questions are fill-in with a Thay số row (plus Q088), and 109 of 111
 formulas have at least one** (25/09/2026 — "áp dụng cho toàn bộ 111 công thức"). The two
 without: `chuoi-phien-giam-dai-nhat` (a count then a max — no arithmetic to fill; the workflow
@@ -3442,9 +3550,10 @@ hover, not the final number.**
   screen and requires, for all 35, one continuous line (no hatching after the first computable session; the
   warm-up at the left is allowed) covering ≥ 60% of the axis. Measured: CV 64%, Beta 76%, the 55-window group
   78%, every technical indicator ≥ 87%. It also pins the count of 35.
-- **Cost, measured with esbuild**: the data module went from 2,95 kB to 12,8 kB gzip, and it ships in every
-  detail page because `FormulaDetail` imports the whole Registry. The size gate was already red. The cure, not
-  done: load `example.dataset` with a dynamic `import()` on the button click.
+- **Cost, measured with esbuild**: the data module went from 2,95 kB to 12,8 kB gzip. Since 28/10/2026 it ships
+  only with the formula groups that use it (a shared chunk of ~13,6 kB gzip on the series pages), no longer on
+  every detail page. The cure, not done: load `example.dataset` with a dynamic `import()` on the button click
+  (it means changing the series group files, which other sessions edit).
 - `kiem.ts` builds its `Intl.NumberFormat` once: per call it pushed `vi-du.test.ts` past Vitest's 5 s timeout
   under the full suite (2.664 ms alone → 160 ms).
 

@@ -12,7 +12,8 @@ import { COLUMN_LABELS } from '@/core/paste-import';
 
 import { MAX_HOLDINGS } from '../portfolio-store';
 
-import { LOCALES, en, isLocale, missingKeys, t, vi } from './index';
+import { en } from './en';
+import { LOCALES, isLocale, missingKeys, t, vi } from './index';
 
 /** Gốc src/ — hai cửa gác quét file (khoá mồ côi, import t trong client) dùng chung. */
 const SRC = fileURLToPath(new URL('../..', import.meta.url));

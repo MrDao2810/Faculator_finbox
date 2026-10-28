@@ -74,6 +74,47 @@ export const FORMULA_MODULES: ReadonlyArray<FormulaModule> = [
   ...CORPORATE_FORMULAS,
 ];
 
+/**
+ * 17 file nhóm theo khoá, khoá là TÊN FILE trong thư mục này (28/10/2026).
+ *
+ * Có bảng này để mỗi trang chi tiết chỉ nạp NHÓM của chính nó: `page.tsx` (lúc build) hỏi
+ * `groupOfFormula()`, rồi vỏ `FormulaDetailHost` nạp động đúng một file cửa
+ * `src/application/formula-groups/<khoá>.ts`. Trước đó `FormulaDetail` nhập `FORMULA_MODULES`, nên
+ * trang nào cũng chở cả 111 công thức — 764 kB thô / ~198 kB gzip, chỉ 22,5 kB trong đó là `calc`.
+ *
+ * Thêm một file nhóm thì thêm khoá ở đây, thêm file cửa cùng tên, và một dòng `dynamic()` trong
+ * `FormulaDetailHost.tsx`; `formula-groups.test.ts` đỏ nếu thiếu một trong ba.
+ */
+export const FORMULA_GROUPS = {
+  multiples: MULTIPLE_FORMULAS,
+  fundamentals: FUNDAMENTAL_FORMULAS,
+  'valuation-multiples': VALUATION_MULTIPLE_FORMULAS,
+  'valuation-dcf': VALUATION_DCF_FORMULAS,
+  fees: FEE_FORMULAS,
+  returns: RETURN_FORMULAS,
+  performance: PERFORMANCE_FORMULAS,
+  risk: RISK_FORMULAS,
+  'risk-drawdown': RISK_DRAWDOWN_FORMULAS,
+  'risk-volatility': RISK_VOLATILITY_FORMULAS,
+  'risk-ratios': RISK_RATIO_FORMULAS,
+  'technical-trend': TECHNICAL_TREND_FORMULAS,
+  'technical-volatility': TECHNICAL_VOLATILITY_FORMULAS,
+  derivatives: DERIVATIVE_FORMULAS,
+  personal: PERSONAL_FORMULAS,
+  planning: PLANNING_FORMULAS,
+  corporate: CORPORATE_FORMULAS,
+} as const satisfies Record<string, ReadonlyArray<FormulaModule>>;
+
+export type FormulaGroupKey = keyof typeof FORMULA_GROUPS;
+
+/** Nhóm chứa công thức `id`; không có thì undefined. */
+export function groupOfFormula(id: string): FormulaGroupKey | undefined {
+  for (const [key, modules] of Object.entries(FORMULA_GROUPS)) {
+    if (modules.some((m) => m.spec.id === id)) return key as FormulaGroupKey;
+  }
+  return undefined;
+}
+
 /** Chỉ phần metadata — thứ Registry, sitemap và giao diện đọc tới. */
 export const ALL_FORMULAS: ReadonlyArray<FormulaSpec> = FORMULA_MODULES.map((m) => m.spec);
 

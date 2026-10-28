@@ -1,5 +1,7 @@
 'use client';
 
+import { useCallback } from 'react';
+
 import { formatCalcOutput, formatValueWithUnit, labelInEnglish, unitLabel } from '@/application';
 import type { CalcOutput, FormatNumberOptions } from '@/application';
 import { usePick, usePreferences } from '@/application/preferences-context';
@@ -26,7 +28,7 @@ import { usePick, usePreferences } from '@/application/preferences-context';
 /** Nhãn đơn vị theo locale: `'lần'` → `'times'` khi đang ở EN. */
 export function useUnitText(): (unit: string) => string {
   const pick = usePick();
-  return (unit: string) => pick(unitLabel(unit));
+  return useCallback((unit: string) => pick(unitLabel(unit)), [pick]);
 }
 
 /**
@@ -37,7 +39,11 @@ export function useUnitText(): (unit: string) => string {
  */
 export function useCalcText(): (out: CalcOutput, options?: FormatNumberOptions) => string {
   const pick = usePick();
-  return (out, options) => formatCalcOutput(out, options, pick(unitLabel(out.unit)));
+  return useCallback(
+    (out: CalcOutput, options?: FormatNumberOptions) =>
+      formatCalcOutput(out, options, pick(unitLabel(out.unit))),
+    [pick],
+  );
 }
 
 /**
@@ -51,7 +57,10 @@ export function useCalcText(): (out: CalcOutput, options?: FormatNumberOptions) 
  */
 export function useLabelText(): (label: string) => string {
   const { locale } = usePreferences();
-  return (label: string) => (locale === 'en' ? labelInEnglish(label) : label);
+  return useCallback(
+    (label: string) => (locale === 'en' ? labelInEnglish(label) : label),
+    [locale],
+  );
 }
 
 /** `formatValueWithUnit()` nhưng đơn vị theo locale. */
@@ -61,5 +70,9 @@ export function useValueText(): (
   options?: FormatNumberOptions,
 ) => string {
   const pick = usePick();
-  return (value, unit, options) => formatValueWithUnit(value, pick(unitLabel(unit)), options);
+  return useCallback(
+    (value: number, unit: string, options?: FormatNumberOptions) =>
+      formatValueWithUnit(value, pick(unitLabel(unit)), options),
+    [pick],
+  );
 }

@@ -9,6 +9,7 @@ import { usePick, useT } from '@/application/preferences-context';
 import { useLabelText } from '@/ui/i18n/units';
 
 import styles from './chart.module.css';
+import { CHAN, xepChuGiaiDuoi } from './chu-giai-duoi';
 import { textWidth } from './ticks';
 import { useChartSize } from './use-chart-size';
 import type { ChartSize } from './use-chart-size';
@@ -24,7 +25,8 @@ import type { ChartSize } from './use-chart-size';
  * Mỗi kỳ một cột đứng trên mốc 0. Nhiều chuỗi thì chồng lên nhau theo thứ tự khai (khúc đầu nằm dưới
  * cùng); một chuỗi thì giá trị âm đi xuống dưới mốc 0. Chú giải nằm TRONG `<svg>` như vành khuyên: đường
  * xuất PDF / PNG chép đúng thẻ `<svg>`, và một hình cột chồng xuất ra mà không biết màu nào là gốc,
- * màu nào là lãi thì chỉ còn hai mảng màu.
+ * màu nào là lãi thì chỉ còn hai mảng màu. Nó đứng ở ĐÁY hình, dưới tên trục ngang, từ 28/10/2026
+ * (`chu-giai-duoi.ts`).
  *
  * Rê chuột / chạm vào một cột thì các cột khác mờ đi và một ô nhỏ hiện tên kỳ cùng từng số — đúng dòng
  * của bảng số, chỉ nhanh hơn. Ô ấy mang `data-testid` hậu tố `-hover` nên `chart-snapshot` bỏ nó khỏi
@@ -36,11 +38,11 @@ const SIZES = {
   wide: { W: 640, H: 400 },
 } as const;
 
-/** Lề: trên cho tên trục đứng (và dòng chú giải), dưới cho nhãn kỳ và tên trục ngang. */
+/**
+ * Lề: trên cho tên trục đứng, dưới cho nhãn kỳ và tên trục ngang. Chú giải (khi có) ở đáy lấy thêm chỗ
+ * dưới cùng (`xepChuGiaiDuoi()`), không nằm trong `bottom`.
+ */
 const PAD = { top: 18, right: 10, bottom: 34, leftMin: 24, leftMax: 60 } as const;
-
-/** Chiều cao dòng chú giải trên đầu hình, khi có. */
-const LEGEND_H = 16;
 
 const TICK_FONT_SIZE = 10;
 const TICK_GAP = 5;
@@ -105,7 +107,7 @@ export function ColumnChart({ model, idBase, fill = false, size: sizeProp }: Col
   /* Chú giải chỉ khi có từ hai thứ để phân biệt: hai chuỗi, hoặc một chuỗi cạnh vạch ngang. */
   const coChuGiai = model.series.length + lines.length >= 2;
 
-  const { plot, sy, cols, xLabels, yLabels, legend, lineLabelY } = useMemo(() => {
+  const { plot, sy, cols, xLabels, yLabels, legend, xTitleY, lineLabelY } = useMemo(() => {
     const budget = LABEL_BUDGET[size];
     const nhanY = thuaTuKhong(model.y.ticks, budget.y);
     const rongNhat = Math.max(0, ...nhanY.map((tick) => textWidth(tick.label, TICK_FONT_SIZE)));
@@ -113,40 +115,39 @@ export function ColumnChart({ model, idBase, fill = false, size: sizeProp }: Col
     const x1 = W - PAD.right;
 
     /*
-     * Chú giải: các chuỗi rồi các vạch ngang, xếp từ mép trái vùng vẽ, xuống hàng khi tràn. Xếp TRƯỚC
-     * khi đặt vùng vẽ, vì số hàng quyết định vùng vẽ bắt đầu ở đâu — ở 390px ba mục xuống hai hàng, và
-     * bản đầu chỉ chừa một hàng nên hàng thứ hai đè lên tên trục (đo 23/10/2026).
+     * Chú giải: các chuỗi rồi các vạch ngang, ở ĐÁY hình dưới tên trục ngang (28/10/2026, xem
+     * `chu-giai-duoi.ts`), xuống hàng khi tràn. Xếp TRƯỚC khi đặt vùng vẽ, vì số hàng quyết định đáy
+     * vùng vẽ ở đâu — ở 390px ba mục xuống hai hàng (đo 23/10/2026, khi chú giải còn ở đầu hình và hàng
+     * thứ hai từng đè lên tên trục).
      */
-    const muc: Array<{
+    const { muc, cao } = xepChuGiaiDuoi<{
       key: string;
-      x: number;
-      y: number;
       text: string;
       kieu: 'o' | 'vach' | 'vachDut';
       tone?: SeriesTone;
-    }> = [];
-    let lx = x0;
-    let ly = PAD.top - 4;
-    const them = (key: string, text: string, kieu: 'o' | 'vach' | 'vachDut', tone?: SeriesTone) => {
-      const rongMuc = 14 + textWidth(text, TICK_FONT_SIZE) * 1.1 + 12;
-      if (lx + rongMuc > x1 && lx > x0) {
-        lx = x0;
-        ly += LEGEND_H;
-      }
-      muc.push({ key, x: lx, y: ly, text, kieu, ...(tone === undefined ? {} : { tone }) });
-      lx += rongMuc;
-    };
-    if (coChuGiai) {
-      for (const series of model.series)
-        them(`s-${series.key}`, pick(series.label), 'o', series.tone);
-      lines.forEach((line, index) =>
-        them(`l-${String(index)}`, pick(line.label), line.dash === true ? 'vachDut' : 'vach'),
-      );
-    }
-    const soHang = muc.length === 0 ? 0 : (ly - (PAD.top - 4)) / LEGEND_H + 1;
+    }>(
+      coChuGiai
+        ? [
+            ...model.series.map((series) => ({
+              key: `s-${series.key}`,
+              text: pick(series.label),
+              kieu: 'o' as const,
+              tone: series.tone,
+            })),
+            ...lines.map((line, index) => ({
+              key: `l-${String(index)}`,
+              text: pick(line.label),
+              kieu: line.dash === true ? ('vachDut' as const) : ('vach' as const),
+            })),
+          ]
+        : [],
+      x0,
+      x1,
+      W,
+      H,
+    );
 
-    const top = PAD.top + soHang * LEGEND_H;
-    const box = { x0, x1, y0: top, y1: H - PAD.bottom } as const;
+    const box = { x0, x1, y0: PAD.top, y1: H - PAD.bottom - cao } as const;
 
     const scaleY = linearScale(model.y.domain, [box.y1, box.y0]);
     const chanY = Math.min(Math.max(scaleY(0), box.y0), box.y1);
@@ -216,6 +217,7 @@ export function ColumnChart({ model, idBase, fill = false, size: sizeProp }: Col
       xLabels: nhanX,
       yLabels: nhanY,
       legend: muc,
+      xTitleY: H - CHAN - cao,
       lineLabelY: nhanVach,
     };
   }, [model, lines, coChuGiai, size, W, H, pick]);
@@ -402,7 +404,7 @@ export function ColumnChart({ model, idBase, fill = false, size: sizeProp }: Col
         <text
           className={styles.axisTitle}
           x={(plot.x0 + plot.x1) / 2}
-          y={H - 6}
+          y={xTitleY}
           textAnchor="middle"
         >
           {pick(model.xTitle)}

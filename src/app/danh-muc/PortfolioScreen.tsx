@@ -1692,86 +1692,95 @@ export function PortfolioScreen() {
   }, [pending, needle, quotes, shownSort]);
 
   /*
-   * Mọi dòng của bảng Phép tính đã lưu, dựng MỘT lượt — xem `SavedRowView`. Không bọc `useMemo`: hai
-   * hook định dạng (`pick`, `valueText`) trả hàm mới mỗi lượt render nên phụ thuộc của nó đổi mỗi lần,
-   * mà kho chỉ giữ tối đa ba mươi mục.
+   * Mọi dòng của bảng Phép tính đã lưu, dựng MỘT lượt — xem `SavedRowView`.
+   *
+   * Bọc `useMemo` từ 28/10/2026. Trước đó không bọc vì `valueText` trả hàm mới mỗi lượt (nay
+   * `useValueText` dùng `useCallback`, `pick` vốn đã ổn định), và đo trên bản build: mỗi phím gõ trong
+   * hộp Thêm mã dựng lại 30 dòng — `displayCalcName`, `suggestCalcNames`, `formatNumber`,
+   * `normalizeVi` — khoảng 30% script của phím ấy ở CPU 4×, kể cả khi đang mở tab Mã.
    */
-  const savedRows: SavedRowView[] = savedCalcs.map((saved) => {
-    const summaryOf = SUMMARY_BY_ID.get(saved.formulaId);
-    // Công thức bị gỡ khỏi Registry thì id vẫn là thứ nhận ra được, hơn là một dòng trống.
-    const formulaName = summaryOf === undefined ? saved.formulaId : pick(summaryOf.name);
-    const viResult =
-      saved.resultValue === null
-        ? undefined
-        : formatValueWithUnit(saved.resultValue, saved.resultUnit);
-    const localResult =
-      saved.resultValue === null ? undefined : valueText(saved.resultValue, saved.resultUnit);
+  const savedRows = useMemo<SavedRowView[]>(
+    () =>
+      savedCalcs.map((saved) => {
+        const summaryOf = SUMMARY_BY_ID.get(saved.formulaId);
+        // Công thức bị gỡ khỏi Registry thì id vẫn là thứ nhận ra được, hơn là một dòng trống.
+        const formulaName = summaryOf === undefined ? saved.formulaId : pick(summaryOf.name);
+        const viResult =
+          saved.resultValue === null
+            ? undefined
+            : formatValueWithUnit(saved.resultValue, saved.resultUnit);
+        const localResult =
+          saved.resultValue === null ? undefined : valueText(saved.resultValue, saved.resultUnit);
 
-    /*
-     * Tên đã cất là chuỗi ĐÃ GHÉP ở ngôn ngữ lúc bấm Lưu, nên đổi sang EN nó vẫn tiếng Việt.
-     * `displayCalcName()` nhận ra tên nào vốn là GỢI Ý rồi dựng lại ở ngôn ngữ đang xem; tên người
-     * dùng tự gõ giữ nguyên từng chữ.
-     */
-    const savedName =
-      summaryOf === undefined
-        ? saved.name
-        : displayCalcName({
-            stored: saved.name,
-            viName: summaryOf.name.vi,
-            localName: formulaName,
-            ...(saved.code === undefined ? {} : { code: saved.code }),
-            ...(viResult === undefined || localResult === undefined
-              ? {}
-              : { viResult, localResult }),
-            savedAt: saved.savedAt,
-          });
+        /*
+         * Tên đã cất là chuỗi ĐÃ GHÉP ở ngôn ngữ lúc bấm Lưu, nên đổi sang EN nó vẫn tiếng Việt.
+         * `displayCalcName()` nhận ra tên nào vốn là GỢI Ý rồi dựng lại ở ngôn ngữ đang xem; tên người
+         * dùng tự gõ giữ nguyên từng chữ.
+         */
+        const savedName =
+          summaryOf === undefined
+            ? saved.name
+            : displayCalcName({
+                stored: saved.name,
+                viName: summaryOf.name.vi,
+                localName: formulaName,
+                ...(saved.code === undefined ? {} : { code: saved.code }),
+                ...(viResult === undefined || localResult === undefined
+                  ? {}
+                  : { viResult, localResult }),
+                savedAt: saved.savedAt,
+              });
 
-    /*
-     * Tên nào là GỢI Ý tự sinh ("GVR · P/E · 10/10/2026") thì cột Công thức chỉ cần tên công thức —
-     * mã đã có cột riêng ngay cạnh, ngày cũng vậy, in lại là nói ba lần. Tên người dùng tự đặt thì giữ
-     * nguyên làm dòng chính, tên công thức xuống làm dòng phụ để người ta còn biết nó tính gì.
-     *
-     * Nhận ra gợi ý bằng cách dựng lại đúng bộ gợi ý rồi so — cùng cách `displayCalcName()` làm, nên
-     * không cần thêm một trường cờ vào kho (chỉ cứu được bản lưu từ nay về sau). Hậu tố né trùng
-     * " (2)" do `dedupe()` gắn SAU khi ghép nên phải tách ra trước khi so.
-     */
-    const suffix = /\s\(\d+\)$/.exec(savedName);
-    const base = (suffix === null ? savedName : savedName.slice(0, suffix.index))
-      .trim()
-      .toLowerCase();
-    const suggested = suggestCalcNames({
-      formulaName,
-      ...(saved.code === undefined ? {} : { code: saved.code }),
-      ...(localResult === undefined ? {} : { resultText: localResult }),
-      savedAt: saved.savedAt,
-    }).some((name) => name.trim().toLowerCase() === base);
+        /*
+         * Tên nào là GỢI Ý tự sinh ("GVR · P/E · 10/10/2026") thì cột Công thức chỉ cần tên công thức —
+         * mã đã có cột riêng ngay cạnh, ngày cũng vậy, in lại là nói ba lần. Tên người dùng tự đặt thì giữ
+         * nguyên làm dòng chính, tên công thức xuống làm dòng phụ để người ta còn biết nó tính gì.
+         *
+         * Nhận ra gợi ý bằng cách dựng lại đúng bộ gợi ý rồi so — cùng cách `displayCalcName()` làm, nên
+         * không cần thêm một trường cờ vào kho (chỉ cứu được bản lưu từ nay về sau). Hậu tố né trùng
+         * " (2)" do `dedupe()` gắn SAU khi ghép nên phải tách ra trước khi so.
+         */
+        const suffix = /\s\(\d+\)$/.exec(savedName);
+        const base = (suffix === null ? savedName : savedName.slice(0, suffix.index))
+          .trim()
+          .toLowerCase();
+        const suggested = suggestCalcNames({
+          formulaName,
+          ...(saved.code === undefined ? {} : { code: saved.code }),
+          ...(localResult === undefined ? {} : { resultText: localResult }),
+          savedAt: saved.savedAt,
+        }).some((name) => name.trim().toLowerCase() === base);
 
-    /*
-     * Luật "cần nạp lại chuỗi" — đúng luật `seriesMismatch` của `FormulaDetail`, đọc cùng kho
-     * (`ffb.series.v1`). Phép tính không dùng chuỗi giá thì không bao giờ bị cờ.
-     */
-    const needsReload = saved.needsSeries && seriesRows !== (saved.seriesCount ?? 0);
+        /*
+         * Luật "cần nạp lại chuỗi" — đúng luật `seriesMismatch` của `FormulaDetail`, đọc cùng kho
+         * (`ffb.series.v1`). Phép tính không dùng chuỗi giá thì không bao giờ bị cờ.
+         */
+        const needsReload = saved.needsSeries && seriesRows !== (saved.seriesCount ?? 0);
 
-    const title = suggested ? formulaName : savedName;
+        const title = suggested ? formulaName : savedName;
 
-    return {
-      saved,
-      title,
-      // Tên tự đặt hay mang sẵn mã ("HPG · P/E") — thêm mã nữa là đọc "HPG · HPG · P/E".
-      label:
-        saved.code === undefined || title.includes(saved.code) ? title : `${saved.code} · ${title}`,
-      subtitle: suggested || savedName.includes(formulaName) ? null : formulaName,
-      needsReload,
-      // `_ _` chứ không 0 (FR-06): dòng bị cờ, hoặc bản lưu cũ/hỏng không còn kết quả.
-      result: needsReload || localResult === undefined ? '_ _' : localResult,
-      date: formatIsoDate(isoDayOf(saved.savedAt)),
-      haystack: normalizeVi(
-        [savedName, formulaName, summaryOf?.name.vi, summaryOf?.name.en, saved.code]
-          .filter((part): part is string => part !== undefined)
-          .join(' '),
-      ),
-    };
-  });
+        return {
+          saved,
+          title,
+          // Tên tự đặt hay mang sẵn mã ("HPG · P/E") — thêm mã nữa là đọc "HPG · HPG · P/E".
+          label:
+            saved.code === undefined || title.includes(saved.code)
+              ? title
+              : `${saved.code} · ${title}`,
+          subtitle: suggested || savedName.includes(formulaName) ? null : formulaName,
+          needsReload,
+          // `_ _` chứ không 0 (FR-06): dòng bị cờ, hoặc bản lưu cũ/hỏng không còn kết quả.
+          result: needsReload || localResult === undefined ? '_ _' : localResult,
+          date: formatIsoDate(isoDayOf(saved.savedAt)),
+          haystack: normalizeVi(
+            [savedName, formulaName, summaryOf?.name.vi, summaryOf?.name.en, saved.code]
+              .filter((part): part is string => part !== undefined)
+              .join(' '),
+          ),
+        };
+      }),
+    [savedCalcs, pick, valueText, seriesRows],
+  );
 
   /*
    * Mặc định mới nhất trước; bấm tiêu đề cột để sắp khác (14/10/2026). Chip lọc theo mã và ô CHỌN chiều

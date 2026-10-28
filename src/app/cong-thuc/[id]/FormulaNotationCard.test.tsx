@@ -301,7 +301,15 @@ describe('FormulaNotationCard — mở và đóng khung', () => {
   });
 });
 
-describe('FormulaNotationCard — cả 111 công thức', () => {
+/*
+ * Hạn 15 giây cho các ca quét dưới đây thay cho mặc định 5 giây, cùng lý do ca quét 111 màn ở
+ * `FormulaDetail.test.tsx`: mỗi ca dựng 111 thẻ và bấm vài trăm chỗ, chạy riêng mất khoảng 1,8 giây
+ * nhưng khi cả bộ chạy song song thì lên gần 6 giây (đo 28/10/2026), tức đỏ vì máy bận chứ không vì
+ * sản phẩm sai. Đặt ở `describe` thì các ca bên trong kế thừa.
+ */
+const HAN_QUET = 15_000;
+
+describe('FormulaNotationCard — cả 111 công thức', { timeout: HAN_QUET }, () => {
   /*
    * Mọi dòng bảng là một nút (28/10/2026) — trước đó chỉ dòng có khung cách tính, nên ca này từng đếm
    * nút bằng số khung đã khai. Dòng có khung mở khung đủ bước, dòng còn lại khung chỉ có nghĩa.

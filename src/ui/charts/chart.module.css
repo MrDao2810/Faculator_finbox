@@ -661,9 +661,15 @@
 
 /* ── Legend — chỉ dựng khi có từ hai chuỗi trở lên ───────────────────────── */
 
+/*
+ * Đứng DƯỚI hình từ 28/10/2026, canh giữa như tên trục ngang ngay trên nó — cùng chỗ với chú giải
+ * trong `<svg>` của hình cột và hình phân tán (`chu-giai-duoi.ts`). Khoảng cách tới hình là `gap` của
+ * thẻ `.chart`, cộng phần lề đáy viewBox dưới tên trục ngang.
+ */
 .legend {
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
   gap: var(--space-1) var(--space-3);
 
   margin: 0;

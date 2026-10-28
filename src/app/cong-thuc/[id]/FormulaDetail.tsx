@@ -9,9 +9,11 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { createPortal } from 'react-dom';
 import {
+  memo,
   useCallback,
   useDeferredValue,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -21,7 +23,6 @@ import {
 
 import {
   ACTIVE_TICKER_KEY,
-  FORMULA_MODULES,
   FORMULA_ORIGIN_KEY,
   FORMULA_USAGE_KEY,
   FORMULA_VISIT_KEY,
@@ -49,7 +50,6 @@ import {
   displayCalcName,
   draftFor,
   emptyCashflowRow,
-  findFormulaModule,
   formulaOriginToStore,
   guidePath,
   formatIsoDate,
@@ -139,7 +139,7 @@ import { holdOriginThrough } from '@/ui/layout/OriginTracker';
 import { DisclaimerBar, useBackTarget } from '@/ui/navigation';
 import { GuideHint } from '@/ui/guide';
 import { QuizPanel } from '@/ui/quiz';
-import { ExportSheet, PasteImportSheet, PresetSheet, SaveCalcSheet } from '@/ui/sheets';
+import { ExportSheet, PresetSheet, SaveCalcSheet } from '@/ui/sheets';
 import {
   ChainPanel,
   DetailBody,
@@ -153,22 +153,40 @@ import {
 import { FormulaNotationCard } from './FormulaNotationCard';
 import { GuideHintPanel, type GuideHintPanelState } from './GuideHintPanel';
 import type { NotationView } from './notation-types';
+import { PasteImportPanel } from './PasteImportPanel';
 import { QuizFormulaPicture } from './QuizFormulaPicture';
 import { TickerPickerPanel } from './TickerPickerPanel';
 
 import styles from './FormulaDetail.module.css';
 
-/**
- * Spec của cả thư viện, dựng một lần ngoài component — `chainFor()` cần nhìn toàn Registry để
- * biết công thức nào cấp số liệu cho công thức nào.
+/*
+ * Bản `memo` của các khối màn này dựng lại thừa ở MỖI phím gõ (28/10/2026).
  *
- * Đọc từ `FORMULA_MODULES` chứ không từ `FORMULAS`: màn này vốn đã kéo `FORMULA_MODULES` vào gói
- * qua `findFormulaModule()`, nên đây là 0 byte thêm.
+ * Đo trên bản build (đếm lượt dựng component khi gõ 14 phím vào `pe`): 995 lượt dựng, 376 lượt có
+ * props y hệt lượt trước — Giải thích, Bảng biến, Ví dụ (kéo theo LoiGiai và CongThucDien), Nguồn,
+ * Bài tập, hai nút "?", ConstantsNote, và mọi ô nhập. Props của chúng đã ổn định (spec của trang,
+ * `activeSpec` cùng object cho cùng số đợt, các `useMemo`/`useCallback` ở dưới), nên `memo` bỏ qua
+ * cả cây con. Bọc TẠI ĐÂY chứ không ở file của từng component: các màn khác dùng chúng không gõ
+ * phím liên tục, và một `memo` ở gốc thì mọi call site phải giữ props ổn định mới được lợi.
+ *
+ * Giữ cho chúng hiệu lực: KHÔNG truyền closure hay object/mảng viết thẳng trong JSX vào các bản này
+ * (dùng `onChangeFor`, `moNhapSo`/`moDocBieuDo`, `KHONG_CAU_HOI`) — một tham chiếu mới mỗi lượt là
+ * `memo` thua, lặng lẽ, không test nào đỏ.
  */
-const ALL_SPECS = FORMULA_MODULES.map((module) => module.spec);
+const MemoExplanationAccordion = memo(ExplanationAccordion);
+const MemoVariableTable = memo(VariableTable);
+const MemoExampleBlock = memo(ExampleBlock);
+const MemoSourceBlock = memo(SourceBlock);
+const MemoQuizPanel = memo(QuizPanel);
+const MemoConstantsNote = memo(ConstantsNote);
+const MemoGuideHint = memo(GuideHint);
+const MemoVariableField = memo(VariableField);
+
+/** Mảng rỗng DÙNG CHUNG cho công thức chưa có câu hỏi — `?? []` viết tại chỗ là một mảng mới mỗi lượt. */
+const KHONG_CAU_HOI: ReadonlyArray<QuizItem> = [];
 
 /**
- * Chuỗi giá đóng cửa VN-Index — tính MỘT LẦN ngoài component, giống `ALL_SPECS`.
+ * Chuỗi giá đóng cửa VN-Index — tính MỘT LẦN ngoài component.
  *
  * Khác `bars`/`series` vốn phụ thuộc trạng thái người dùng (đã dán chuỗi hay chưa, đang xem mã
  * nào), đây là một chuỗi CỐ ĐỊNH (FR-17) nên luôn có mặt trong `ctx` — công thức Beta không cần
@@ -257,6 +275,13 @@ function clearVisitStores(formulaId: string): void {
 
 export interface FormulaDetailProps {
   spec: FormulaSpec;
+  /**
+   * Module của NHÓM chứa công thức này (28/10/2026): `FormulaDetailHost` nạp động đúng một file
+   * nhóm rồi truyền xuống, thay cho `FORMULA_MODULES` (cả 111 công thức, ~198 kB gzip mỗi trang).
+   * Đủ cho chuỗi FR-15 vì mọi tổ tiên của một công thức nằm cùng nhóm với nó —
+   * `formula-groups.test.ts` gác điều đó, vì `chainFor()` ở dưới chỉ nhìn thấy nhóm này.
+   */
+  modules: ReadonlyArray<FormulaModule>;
   /**
    * Ngày tra hằng số thuế & phí, cố định lúc build.
    * Tầng Domain không tự lấy ngày hệ thống (NFR-REL-03), và nếu lấy `new Date()` ở đây thì
@@ -437,6 +462,7 @@ const THONG_BAO_MS = 5000;
  */
 export function FormulaDetail({
   spec,
+  modules,
   asOf,
   notation,
   quiz,
@@ -475,7 +501,7 @@ export function FormulaDetail({
    * Cả hai phép giải đều trả cùng một object cho cùng một số nhóm (xem `registry/repeat.ts`), nên
    * dùng thẳng trong lượt dựng mà không cần `useMemo`, và vẫn an toàn khi làm phụ thuộc của hook.
    */
-  const baseFormula = findFormulaModule(spec.id);
+  const baseFormula = modules.find((m) => m.spec.id === spec.id);
   const formula = baseFormula === undefined ? undefined : resolveRepeat(baseFormula, inputs);
   const activeSpec = resolveRepeatSpec(spec, inputs);
 
@@ -724,10 +750,26 @@ export function FormulaDetail({
     setODangTro(null);
   }, []);
 
-  function moGoiY(muc: MucId, event: ReactMouseEvent<HTMLAnchorElement>): void {
+  /*
+   * `useCallback([])` vì hai lối mở dưới đây đi qua `MemoGuideHint`: thân chỉ gọi hai setter của
+   * React (tham chiếu vĩnh viễn ổn định), nên không có gì để cũ đi.
+   */
+  const moGoiY = useCallback((muc: MucId, event: ReactMouseEvent<HTMLAnchorElement>): void => {
     setODangTro(null);
     setGoiY({ muc, anchor: event.currentTarget, point: { x: event.clientX, y: event.clientY } });
-  }
+  }, []);
+  const moNhapSo = useCallback(
+    (event: ReactMouseEvent<HTMLAnchorElement>) => {
+      moGoiY('nhap-so', event);
+    },
+    [moGoiY],
+  );
+  const moDocBieuDo = useCallback(
+    (event: ReactMouseEvent<HTMLAnchorElement>) => {
+      moGoiY('doc-bieu-do', event);
+    },
+    [moGoiY],
+  );
 
   /*
    * Hình ĐANG HIỆN ở khối Biểu đồ — mục nào của dòng "Xem kết quả đổi theo", dạng Đường hay Cột.
@@ -1434,15 +1476,22 @@ export function FormulaDetail({
    * mọi công thức đều đi đường cũ y hệt trước đợt này — đó cũng là lý do 4 ca kiểm quét cả 111
    * màn không phải sửa một dòng nào.
    */
-  const chainSpecs = useMemo(() => chainFor(ALL_SPECS, spec.id), [spec.id]);
+  const chainSpecs = useMemo(
+    () =>
+      chainFor(
+        modules.map((m) => m.spec),
+        spec.id,
+      ),
+    [modules, spec.id],
+  );
   const inChain = mode === 'advanced' && chainSpecs.length > 0;
 
   const chainModules = useMemo(
     () =>
       chainSpecs
-        .map((step) => findFormulaModule(step.id))
+        .map((step) => modules.find((m) => m.spec.id === step.id))
         .filter((found): found is FormulaModule => found !== undefined),
-    [chainSpecs],
+    [chainSpecs, modules],
   );
 
   /** Ô nhập của cả chuỗi: bước đang xem lấy từ `inputs`, các bước khác lấy từ `chainInputs`. */
@@ -1507,6 +1556,11 @@ export function FormulaDetail({
    *
    * `chartOutput` phải tính lại theo `chartInputs`, không dùng chung `output` ở trên: đưa kết quả
    * MỚI kèm số liệu CŨ vào cùng một lượt dựng là biểu đồ vẽ một đằng còn câu mô tả nói một nẻo.
+   *
+   * Từ 28/10/2026 cặp `useDeferredValue` + `chartOutput` sống trong `BieuDoHoan` (cuối file), không
+   * ở màn này nữa. Đặt ở cấp màn thì giá trị hoãn tới là React chạy lại CẢ màn chi tiết lần thứ hai
+   * cho mỗi phím — đo trên bản build: 28 lượt commit cho 14 phím, mọi khối không memo dựng lại hai
+   * lần. Trong vỏ memo thì lượt hoãn chỉ dựng lại vỏ ấy và biểu đồ.
    */
   /*
    * Biểu đồ quét trên `effectiveInputs` chứ không phải `inputs`: ô móc nối đang nhận 13,1% từ
@@ -1515,14 +1569,6 @@ export function FormulaDetail({
    * nhập đang hiển thị — hình khớp với thứ người dùng thấy trong ô, còn câu "chưa tính được"
    * thì khối Kết quả nói, đó mới là chỗ FR-06 canh.
    */
-  const chartInputs = useDeferredValue(effectiveInputs);
-  const chartOutput: CalcOutput = useMemo(
-    () =>
-      formula === undefined
-        ? { value: null, unit: spec.resultUnit, warning: MISSING_CALCULATOR }
-        : runFormula(formula, chartInputs, ctx),
-    [formula, chartInputs, ctx, spec.resultUnit],
-  );
 
   /*
    * Công thức này có ăn chuỗi giá hay không — quyết định có hiện nút "Dán chuỗi giá" và lối vào
@@ -1846,6 +1892,33 @@ export function FormulaDetail({
    * `useCallback([])` dựng một vỏ bọc vĩnh viễn không đổi tham chiếu — component tự phòng thân,
    * không bắt `FormulaChart` phải tự lo (cùng tinh thần `closeRef` ở `ChartFullscreen.tsx`).
    */
+  /*
+   * `onChange` ổn định theo KHOÁ ô (28/10/2026), để `MemoVariableField` bỏ qua mọi ô không đổi số.
+   *
+   * Trước đó mỗi ô nhận `onChange={(value) => { setValue(variable.key, value); }}` viết thẳng trong
+   * JSX, tức một hàm mới mỗi lượt — nên gõ một phím vào một ô là dựng lại TẤT CẢ ô (đo trong jsdom:
+   * 6 ô ở pe, 12 ở DCA, 25 ở DCA 12 đợt), mỗi ô kéo theo `NumberInput`/`SliderInput`/`InlineNumber`.
+   * Cùng khuôn với `onChartApplyPoint` ngay dưới: ref giữ `setValue` mới nhất, mỗi khoá một vỏ bọc
+   * vĩnh viễn. Ref cập nhật trong `useLayoutEffect` chứ không `useEffect`: một sự kiện gõ có thể tới
+   * giữa lượt commit và lượt chạy effect thụ động, và khi ấy nó phải gọi `setValue` của lượt vừa
+   * commit chứ không phải lượt trước.
+   */
+  const setValueRef = useRef(setValue);
+  useLayoutEffect(() => {
+    setValueRef.current = setValue;
+  });
+  const onChangeTheoKhoa = useRef(new Map<string, (value: number) => void>());
+  function onChangeFor(key: string): (value: number) => void {
+    let handler = onChangeTheoKhoa.current.get(key);
+    if (handler === undefined) {
+      handler = (value: number) => {
+        setValueRef.current(key, value);
+      };
+      onChangeTheoKhoa.current.set(key, handler);
+    }
+    return handler;
+  }
+
   const applyChartPointRef = useRef(setValue);
   useEffect(() => {
     applyChartPointRef.current = setValue;
@@ -2594,7 +2667,7 @@ export function FormulaDetail({
    * kể cả bọc `.cuoiSoLieu`.
    */
   const hangSoBlock =
-    hangSoDung.length === 0 ? null : <ConstantsNote constants={hangSoDung} compact={merged} />;
+    hangSoDung.length === 0 ? null : <MemoConstantsNote constants={hangSoDung} compact={merged} />;
 
   /*
    * Khối Kết quả dựng một lần rồi đặt vào một trong hai chỗ — xem `merged` ngay trên. Dựng tại chỗ
@@ -3144,16 +3217,11 @@ export function FormulaDetail({
                 từ 1280px) luật `.merged .blockTitle` đẩy tiêu đề thành ẩn-khỏi-mắt, và một nút nằm
                 trong đó sẽ ẩn theo ở đúng khổ màn web.
               */}
-                <GuideHint
+                <MemoGuideHint
                   className={styles.hintSoLieu}
                   href={`${guidePath(spec.id)}#nhap-so`}
                   nhan={t('guide.hint.input')}
-                  {...(bai === undefined
-                    ? {}
-                    : {
-                        onMo: (event: ReactMouseEvent<HTMLAnchorElement>) =>
-                          moGoiY('nhap-so', event),
-                      })}
+                  {...(bai === undefined ? {} : { onMo: moNhapSo })}
                 />
               </div>
 
@@ -3238,13 +3306,11 @@ export function FormulaDetail({
                       : undefined;
 
                   return linked === undefined ? (
-                    <VariableField
+                    <MemoVariableField
                       key={variable.key}
                       spec={variable}
                       value={inputs[variable.key] ?? variable.defaultValue}
-                      onChange={(value) => {
-                        setValue(variable.key, value);
-                      }}
+                      onChange={onChangeFor(variable.key)}
                       mode={mode}
                       sourceNote={
                         variable.type === 'toggle' ? t('detail.constantSource') : undefined
@@ -3546,7 +3612,7 @@ export function FormulaDetail({
 
           ĐỪNG thêm lại "?" ở đây mà không mang theo một mục nói VIỆC.
         */}
-        <ExplanationAccordion
+        <MemoExplanationAccordion
           explanation={spec.explanation}
           showMeaning={false}
           className={`${styles.deferred} ${styles.blockExplain}`}
@@ -3649,26 +3715,20 @@ export function FormulaDetail({
                 không nói gì tệ hơn không có nút. Xem `HinhDangXem.hinhChuoi`.
               */}
               {hinhBieuDo?.hinhChuoi === true ? null : (
-                <GuideHint
+                <MemoGuideHint
                   className={styles.hintCanhTieuDe}
                   href={`${guidePath(spec.id)}#doc-bieu-do`}
                   nhan={t('guide.hint.chart')}
-                  {...(bai === undefined
-                    ? {}
-                    : {
-                        onMo: (event: ReactMouseEvent<HTMLAnchorElement>) =>
-                          moGoiY('doc-bieu-do', event),
-                      })}
+                  {...(bai === undefined ? {} : { onMo: moDocBieuDo })}
                 />
               )}
             </div>
-            <FormulaChart
+            <BieuDoHoan
               formula={formula}
-              inputs={chartInputs}
+              inputs={effectiveInputs}
               ctx={ctx}
-              output={chartOutput}
               level={mode}
-              {...(chartSeriesLabel === undefined ? {} : { seriesLabel: chartSeriesLabel })}
+              seriesLabel={chartSeriesLabel}
               // KHÔNG thay bằng closure viết trực tiếp ở đây — xem docblock `onApplyPoint` ở trên.
               onApplyPoint={onChartApplyPoint}
               lockedKeys={chartLockedKeys}
@@ -3692,7 +3752,7 @@ export function FormulaDetail({
             `activeSpec` vẫn là spec của các ô đang có, nhưng bảng chỉ mô tả biến đếm và nhóm 1 của
             nhóm lặp (20/10/2026) — đợt mua vừa thêm KHÔNG thêm hàng nào. Xem `VariableTable.tsx`.
           */}
-          <VariableTable formula={activeSpec} mode={mode} className={styles.deferred} />
+          <MemoVariableTable formula={activeSpec} mode={mode} className={styles.deferred} />
 
           {/* ── 9. Ví dụ và nguồn — FR-02, FR-04 ─────────────────────────────── */}
           {/*
@@ -3706,7 +3766,7 @@ export function FormulaDetail({
         auto` kéo theo `contain: paint`, nên khung "cách tính" bật ra từ hình công thức bị cắt ở
         mép khối.
       */}
-          <ExampleBlock
+          <MemoExampleBlock
             formula={spec}
             {...(viDu === undefined ? {} : { giai: viDu })}
             hinhCongThuc={viDuPicture}
@@ -3716,7 +3776,7 @@ export function FormulaDetail({
         </div>
       </div>
 
-      <SourceBlock sources={spec.source} className={styles.deferred} />
+      <MemoSourceBlock sources={spec.source} className={styles.deferred} />
 
       {/*
         ── Kiểm tra hiểu bài — WF-19 ──────────────────────────────────────────────────────
@@ -3761,9 +3821,9 @@ export function FormulaDetail({
         />
       )}
 
-      <QuizPanel
+      <MemoQuizPanel
         formulaId={spec.id}
-        items={quiz?.items ?? []}
+        items={quiz?.items ?? KHONG_CAU_HOI}
         hinhCongThuc={quizPicture}
         kyHieu={quizKyHieu}
         onFinish={saveQuizResult}
@@ -3837,7 +3897,7 @@ export function FormulaDetail({
       )}
 
       {mountedSheets.has('paste') && (
-        <PasteImportSheet
+        <PasteImportPanel
           open={sheet === 'paste'}
           // Mở ra là thấy ngay chuỗi màn đang tính — sheet cũng là chỗ SOI lại chuỗi ấy, không
           // riêng cửa nhập. Xem `initialRows` ở PasteImportSheet.
@@ -3964,3 +4024,52 @@ const MISSING_CALCULATOR = {
     en: 'This is our mistake, not yours. Please try another formula.',
   },
 } as const;
+
+/**
+ * Biểu đồ chạy sau một nhịp (28/10/2026) — giữ `useDeferredValue` RIÊNG cho biểu đồ.
+ *
+ * Màn đưa `effectiveInputs` mới vào ở mọi lượt; vỏ này giữ bản hoãn của nó, tính `chartOutput`
+ * theo đúng bản hoãn (kết quả MỚI kèm số liệu CŨ là hình một đằng, câu mô tả một nẻo — xem docblock
+ * ở chỗ dùng), rồi mới đưa xuống `FormulaChart`. Bọc `memo` là điều kiện chứ không phải trang trí:
+ * khi giá trị hoãn tới, React chỉ dựng lại vỏ này và biểu đồ, không chạy lại cả màn chi tiết lần
+ * thứ hai. Mọi prop phải giữ tham chiếu ổn định giữa các lượt (`onChartApplyPoint`,
+ * `chartLockedKeys`, `setHinhBieuDo`, `ctx`), y như luật đã có của `memo(FormulaChart)`.
+ */
+const BieuDoHoan = memo(function BieuDoHoan({
+  formula,
+  inputs,
+  ctx,
+  level,
+  seriesLabel,
+  onApplyPoint,
+  lockedKeys,
+  onViewChange,
+}: {
+  formula: FormulaModule;
+  inputs: CalcInputs;
+  ctx: CalcContext;
+  level: FormulaSpec['level'];
+  seriesLabel: string | undefined;
+  onApplyPoint: (key: string, value: number) => void;
+  lockedKeys: ReadonlySet<string> | undefined;
+  onViewChange: (hinh: HinhDangXem) => void;
+}) {
+  const chartInputs = useDeferredValue(inputs);
+  const chartOutput = useMemo<CalcOutput>(
+    () => runFormula(formula, chartInputs, ctx),
+    [formula, chartInputs, ctx],
+  );
+  return (
+    <FormulaChart
+      formula={formula}
+      inputs={chartInputs}
+      ctx={ctx}
+      output={chartOutput}
+      level={level}
+      {...(seriesLabel === undefined ? {} : { seriesLabel })}
+      onApplyPoint={onApplyPoint}
+      {...(lockedKeys === undefined ? {} : { lockedKeys })}
+      onViewChange={onViewChange}
+    />
+  );
+});

@@ -17,7 +17,7 @@ import {
   type ReactNode,
 } from 'react';
 
-import { pick, t, type Locale, type MessageKey } from './i18n';
+import { isLocaleLoaded, loadLocale, pick, t, type Locale, type MessageKey } from './i18n';
 import type { Bilingual } from '@/core/types';
 import {
   DEFAULT_PREFERENCES,
@@ -49,6 +49,16 @@ const PreferencesContext = createContext<PreferencesContextValue | null>(null);
 export function PreferencesProvider({ children }: { children: ReactNode }) {
   const [prefs, setPrefs] = useState<Preferences>(DEFAULT_PREFERENCES);
   const [hydrated, setHydrated] = useState(false);
+  /*
+   * Từ điển tiếng Anh nạp động (28/10/2026, xem `loadLocale`). `prefs.locale` là lựa chọn ĐÃ LƯU;
+   * `locale` mà mọi component đọc là ngôn ngữ ĐANG HIỆN — vẫn `'vi'` cho tới khi từ điển của lựa
+   * chọn ấy về, rồi cả màn đổi một lượt. Nhờ vậy không có lúc nào chữ giao diện tiếng Việt đứng cạnh
+   * nội dung công thức tiếng Anh, và mọi `useMemo` khoá theo `locale` tự tính lại khi từ điển về.
+   * `soLanNapTuDien` chỉ để buộc dựng lại khi lời hứa `loadLocale` xong.
+   */
+  const [, setSoLanNapTuDien] = useState(0);
+  const tuDienSan = isLocaleLoaded(prefs.locale);
+  const locale: Locale = tuDienSan ? prefs.locale : 'vi';
 
   // Đọc trong effect chứ không phải lúc khởi tạo state: bản build là HTML tĩnh,
   // đọc localStorage ngay lúc render đầu sẽ lệch hydration.
@@ -63,24 +73,44 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
     setHydrated(true);
   }, []);
 
+  useEffect(() => {
+    if (isLocaleLoaded(prefs.locale)) return;
+    let conHieuLuc = true;
+    loadLocale(prefs.locale).then(
+      () => {
+        if (conHieuLuc) setSoLanNapTuDien((n) => n + 1);
+      },
+      () => {
+        // Ngoại tuyến mà chunk từ điển chưa từng được cất: ở lại tiếng Việt, và gỡ tấm che ngay
+        // thay vì để người dùng nhìn trang trắng tới hạn `LOCALE_REVEAL_MS` của script khởi động.
+        delete document.documentElement.dataset.localePending;
+      },
+    );
+    return () => {
+      conHieuLuc = false;
+    };
+  }, [prefs.locale]);
+
   // HTML tĩnh khai `lang="vi"` (layout.tsx). Người dùng đã chọn EN thì thuộc tính phải đổi
   // theo, không thì trình đọc màn hình đọc chữ Anh bằng giọng Việt. Chạy sau hydrate nên
-  // không lệch với HTML tĩnh.
+  // không lệch với HTML tĩnh. Theo ngôn ngữ ĐANG HIỆN, không theo lựa chọn đang chờ từ điển.
   useEffect(() => {
-    document.documentElement.lang = prefs.locale;
-  }, [prefs.locale]);
+    document.documentElement.lang = locale;
+  }, [locale]);
 
   /*
    * Gỡ tấm che mà script khởi động đặt cho người đã chọn EN (`data-locale-pending`, xem
-   * `layout.tsx`). Chạy ở lượt vẽ đầu tiên SAU khi đọc xong `localStorage` — lượt ấy đã mang chữ
-   * tiếng Anh, vì `prefs` và `hydrated` đổi trong cùng một lượt. Effect của cha chạy sau effect của
-   * mọi con trong cùng lượt commit, nên lúc gỡ thì cây con đã vẽ xong. Không có thuộc tính (người
-   * dùng VI, máy chặn `localStorage`, môi trường test) thì `delete` là phép không làm gì.
+   * `layout.tsx`). Chạy ở lượt vẽ đầu tiên SAU khi đọc xong `localStorage` VÀ từ điển của lựa chọn
+   * ấy đã về — lượt ấy đã mang chữ tiếng Anh. Từ 28/10/2026 từ điển tiếng Anh nạp động, nên với người
+   * dùng EN đây là lượt sau lượt hydrate một nhịp tải (vẫn trong hạn `LOCALE_REVEAL_MS`). Effect của
+   * cha chạy sau effect của mọi con trong cùng lượt commit, nên lúc gỡ thì cây con đã vẽ xong. Không
+   * có thuộc tính (người dùng VI, máy chặn `localStorage`, môi trường test) thì `delete` là phép
+   * không làm gì.
    */
   useEffect(() => {
-    if (!hydrated) return;
+    if (!hydrated || !tuDienSan) return;
     delete document.documentElement.dataset.localePending;
-  }, [hydrated]);
+  }, [hydrated, tuDienSan]);
 
   /*
    * Bảng màu — ghi vào `<html>`, nhưng CHỈ SAU KHI đã đọc xong `localStorage`.
@@ -153,6 +183,7 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
   const value = useMemo<PreferencesContextValue>(
     () => ({
       ...prefs,
+      locale,
       hydrated,
       setMode: (mode) => persist({ ...prefs, mode }),
       setLocale: (locale) => persist({ ...prefs, locale }),
@@ -160,7 +191,7 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
       setFeeScheduleId: (feeScheduleId) => persist({ ...prefs, feeScheduleId }),
       setUnitScale: (unitScale) => persist({ ...prefs, unitScale }),
     }),
-    [prefs, hydrated, persist],
+    [prefs, locale, hydrated, persist],
   );
 
   return <PreferencesContext.Provider value={value}>{children}</PreferencesContext.Provider>;

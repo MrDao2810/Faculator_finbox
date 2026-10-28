@@ -5,15 +5,17 @@ import { findCategory, formulaPath } from '@/application';
 import type { FormulaSummary } from '@/application';
 
 import { Pick } from '../i18n/Pick';
-import { T } from '../i18n/T';
 /*
- * Nhập THẲNG từ file chứ không qua barrel `@/ui/primitives`, cùng cách hai dòng trên nhập
- * `Pick`/`T`. Thẻ này được dựng từ CẢ hai phía — `FormulaListScreen` phía máy khách và kệ
- * `DailyShelf` phía máy chủ — nên đi qua barrel là kéo theo `Button`, `Input`, `Select`,
- * `BottomSheet`, `Switch` (đều mang `'use client'`) vào đồ thị của khối server, chỉ để lấy một
- * `<span>`. `Badge` không có `'use client'` và không gọi hook nào.
+ * Nhập THẲNG từ file chứ không qua barrel `@/ui/primitives`, cùng cách dòng trên nhập `Pick`. Thẻ
+ * này được dựng từ CẢ hai phía — `FormulaListScreen` phía máy khách và kệ `DailyShelf` phía máy
+ * chủ — nên đi qua barrel là kéo theo `Button`, `Input`, `Select`, `BottomSheet`, `Switch` (đều
+ * mang `'use client'`) vào đồ thị của khối server, chỉ để lấy một `<span>`. `Badge` không có
+ * `'use client'` và không gọi hook nào.
  */
 import { Badge } from '../primitives/Badge';
+/* `BrowseT` chứ không `T`: xem docblock của `BrowseT.tsx` — lỗi trộn manifest của Next. */
+import { BrowseT } from './BrowseT';
+import { IntentLink } from './IntentLink';
 import { CategoryIcon, toneClass } from './CategoryIcon';
 import { DescriptionHit } from './DescriptionHit';
 import styles from './FormulaCard.module.css';
@@ -175,8 +177,14 @@ function FormulaCardBase({
    * Lớp tông cũng đặt trên chính thẻ, y như nhánh ô — xem chú thích ở trên và docblock
    * `toneClass()`. Icon và badge nhóm bên trong chỉ đọc hai khe `--category-*`.
    */
+  /*
+   * Thẻ hàng tải trước trang đích khi người dùng TỎ Ý (rê, chạm, tiêu điểm), không tải khi lọt vào
+   * khung nhìn — xem docblock `IntentLink` (28/10/2026). Nhánh này chỉ dựng ở phía máy khách (màn
+   * danh sách, màn tìm kiếm), nên trao `onClick` cho một lá client là được; kệ ở phía server dùng
+   * nhánh `tile` phía trên, vẫn `<Link>` mặc định.
+   */
   return (
-    <Link
+    <IntentLink
       href={formulaPath(formula.id)}
       className={`${styles.card} ${toneClass()}`}
       onClick={handleClick}
@@ -201,7 +209,7 @@ function FormulaCardBase({
             <Pick value={formula.name} />
           </span>
           <Badge tone={isBasic ? 'basic' : 'advanced'} className={styles.levelBadge}>
-            <T k={isBasic ? 'level.basic' : 'level.advanced'} />
+            <BrowseT k={isBasic ? 'level.basic' : 'level.advanced'} />
           </Badge>
         </span>
 
@@ -237,7 +245,7 @@ function FormulaCardBase({
       >
         <path d="m9 6 6 6-6 6" />
       </svg>
-    </Link>
+    </IntentLink>
   );
 }
 

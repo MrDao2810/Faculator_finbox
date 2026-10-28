@@ -353,6 +353,13 @@ export {
 
 // ── Thư viện công thức — đủ 111 / 111 ───────────────────────────────────────
 export { FORMULA_MODULES, findFormulaModule } from '@/core/formulas';
+/*
+ * Bảng nhóm (28/10/2026): `page.tsx` hỏi nhóm lúc build, `FormulaDetailHost` nạp động đúng nhóm ấy.
+ * Không component client nào được nhập `FORMULA_GROUPS` (nó kéo cả 17 nhóm, đúng thứ cần tránh);
+ * kiểu `FormulaGroupKey` thì được, vì bị xoá lúc biên dịch.
+ */
+export type { FormulaGroupKey } from '@/core/formulas';
+export { FORMULA_GROUPS, groupOfFormula } from '@/core/formulas';
 
 // Hằng số thị trường một công thức tra — khối minh bạch nguồn số của màn chi tiết
 export { constantsUsedBy } from '@/core/formulas';

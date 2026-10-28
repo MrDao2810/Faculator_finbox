@@ -17,7 +17,7 @@ import {
   quizCoverage,
   quizFor,
 } from './index';
-import type { QuizItem } from './types';
+import type { QuizChoiceKey, QuizItem } from './types';
 
 /**
  * Bất biến của ngân hàng câu hỏi.
@@ -289,6 +289,72 @@ const CAU_DIEN_SO: ReadonlyArray<string> = [
   'Q411',
 ];
 
+/**
+ * Lời giải nào gọi phương án bằng CHỮ CÁI, và chữ ấy trỏ vào phương án nào — ghim bằng một đoạn
+ * chữ của chính phương án ấy (bản `vi`).
+ *
+ * Lần đảo đáp án ngày 29/09/2026 xoay bộ đáp án của câu chọn nhiều nhưng bỏ sót chữ cái trong lời
+ * giải của bốn câu, nên lời giải nói ngược đáp án: Q320 ghi "Phương án c và d sai" ngay dưới hai ô
+ * C, D đang hiện "Đúng" (chủ dự án chụp đúng câu này ngày 28/10/2026), Q331 và Q294 gọi nhầm phương
+ * án sai, Q236 viết "Ba lựa chọn đầu" trong khi ba đáp án đúng là ba ô cuối. Không ca kiểm nào thấy,
+ * vì đáp án và nội dung phương án vẫn đúng, chỉ chữ cái trong câu văn lệch.
+ *
+ * Có bảng này thì đổi chỗ phương án mà quên sửa lời giải là đỏ: đoạn chữ ghim không còn nằm ở chữ
+ * cái ấy. Lời giải mới gọi phương án bằng chữ cái thì thêm một dòng vào đây. Lời giải KHÔNG được
+ * trỏ phương án bằng vị trí ("ba lựa chọn đầu", "phương án cuối"): vị trí đổi theo mỗi lần đảo mà
+ * không có chữ cái nào để soát.
+ */
+const CHU_CAI_TRONG_LOI_GIAI: Readonly<
+  Record<string, Readonly<Partial<Record<QuizChoiceKey, string>>>>
+> = {
+  Q208: { c: 'bỏ hết khoản phải trả' },
+  Q210: { a: 'trái chủ được trả trước' },
+  Q236: { a: 'MOM lẫn RSI', b: 'Đổi chu kỳ', c: 'Đọc MOM dương', d: 'cắt qua đường 0' },
+  Q243: { a: 'tâm lý', b: 'Tần suất', c: 'hồi phục', d: 'Độ sâu' },
+  Q259: { b: 'danh nghĩa', c: 'số phiên quan sát' },
+  Q263: {
+    a: 'phần mềm giao dịch',
+    b: 'khá phức tạp',
+    c: 'giá đóng cửa cuối năm',
+    d: 'hiếm khi đạt được',
+  },
+  Q267: {
+    a: 'Bỏ một chiến lược',
+    b: 'phụ thuộc vào kết quả',
+    c: 'không phải dấu hiệu hệ thống hỏng',
+    d: 'đã đến lúc phải thắng',
+  },
+  Q278: { b: 'cơ quan quản lý', d: 'tự động chiết khấu' },
+  Q284: { b: '36 phiên' },
+  Q294: { d: 'Bỏ qua khối lượng' },
+  Q320: { b: 'khấu hao', c: 'Vốn hóa thị trường' },
+  Q331: { b: 'vốn hoá dưới 1.000 tỷ' },
+  Q338: { d: 'sau năm 2000' },
+};
+
+/** "(a)", "(b)"… — chỉ chữ THƯỜNG: "(A)" ở Q270 là quỹ A, không phải phương án. */
+const CHU_TRONG_NGOAC = /\(([a-d])\)/g;
+/** "Phương án c và d", "đáp án b", "ý d", "Choices b and c", "Option (a)"… */
+const CHU_SAU_TU_KHOA =
+  /(?<![\p{L}\p{N}])(?:[Pp]hương án|[Đđ]áp án|[Ll]ựa chọn|[Ýý]|[Cc]hoices?|[Oo]ptions?)\s+\(?[a-dA-D]\)?(?![\p{L}\p{N}])(?:\s*(?:,|và|and|hay|or)\s*\(?[a-dA-D]\)?(?![\p{L}\p{N}]))*/gu;
+const MOT_CHU_CAI = /(?<![\p{L}\p{N}])\(?([a-dA-D])\)?(?![\p{L}\p{N}])/gu;
+/** Trỏ phương án bằng vị trí — xem `CHU_CAI_TRONG_LOI_GIAI`. */
+const TRO_THEO_VI_TRI =
+  /(?<![\p{L}\p{N}])(?:(?:lựa chọn|phương án|đáp án|ý) (?:đầu|cuối)|(?:first|last) (?:two|three) (?:choices|options|answers))(?![\p{L}\p{N}])/giu;
+
+function chuCaiTrongLoiGiai(text: string): QuizChoiceKey[] {
+  const thay = new Set<QuizChoiceKey>();
+  for (const m of text.matchAll(CHU_TRONG_NGOAC)) thay.add(m[1] as QuizChoiceKey);
+  for (const m of text.matchAll(CHU_SAU_TU_KHOA)) {
+    // Bỏ từ khoá ("Phương án", "Choices"…) rồi đọc từng chữ cái của chuỗi kiểu "c và d".
+    const duoi = m[0].replace(/^\S+(?:\s+(?:án|chọn))?\s+/u, '');
+    for (const chu of duoi.matchAll(MOT_CHU_CAI)) {
+      thay.add(chu[1]!.toLowerCase() as QuizChoiceKey);
+    }
+  }
+  return [...thay].sort();
+}
+
 function thieuNgoacKep(item: QuizItem): boolean {
   return !NGOAC_KEP.test(item.explain.vi);
 }
@@ -497,6 +563,17 @@ describe('ngân hàng câu hỏi kiểm tra hiểu bài', () => {
    * thứ tự tương đối; lời giải nào gọi phương án bằng chữ cái thì đổi chữ theo. Ngưỡng 20–30% mỗi
    * chữ cái chứ không đòi đúng 25%: câu mới thêm vào không phải tính lại cả ngân hàng, nhưng một lô
    * lại dồn về B thì đỏ ngay.
+   *
+   * Câu chọn nhiều thì lần đảo ấy chỉ XOAY bộ đáp án (A+B → B+C → C+D → D+A), mà xoay thì hai đáp
+   * án vẫn đứng sát nhau. Chủ dự án, 28/10/2026: _"tại sao những câu hỏi có lựa chọn đáp án nhiều 1
+   * lúc thế này thì toàn là 2 câu cuối hoặc 2 câu xát nhau thế? cần rundom ngẫu nhiên chứ"_. Đo lúc
+   * ấy: 10 trên 13 câu hai đáp án là cặp liền nhau (A+B riêng năm câu), không câu nào là B+D, và cả
+   * năm câu ba đáp án đều có D. Đã chia lại bằng cây cú pháp, xếp câu theo băm của mã: 13 câu hai
+   * đáp án đủ sáu cặp (B+D ba câu, mỗi cặp khác hai câu), năm câu ba đáp án đủ bốn bộ (A+B+C hai
+   * câu); đáp án đúng giữ thứ tự tương đối với nhau, phương án sai cũng vậy. Nên ca dưới đòi đủ mọi
+   * tổ hợp, và cặp liền nhau không quá 60% số câu hai đáp án: chia ngẫu nhiên thì ba trong sáu cặp
+   * là cặp liền nhau, tức khoảng một nửa. Lời giải gọi phương án bằng chữ cái: xem
+   * `CHU_CAI_TRONG_LOI_GIAI`.
    */
   it('đáp án đúng rải đều bốn chữ cái, không dồn vào một vị trí', () => {
     const tn = QUIZ_ITEMS.filter((item) => item.format === 'trac-nghiem');
@@ -513,6 +590,34 @@ describe('ngân hàng câu hỏi kiểm tra hiểu bài', () => {
       boDem.set(bo, (boDem.get(bo) ?? 0) + 1);
     }
     expect(Math.max(...boDem.values()) / cn.length).toBeLessThanOrEqual(0.34);
+
+    // Đủ sáu cặp và đủ bốn bộ ba: thiếu một tổ hợp là đáp án lại dồn về vài vị trí quen.
+    for (const bo of ['ab', 'ac', 'ad', 'bc', 'bd', 'cd', 'abc', 'abd', 'acd', 'bcd']) {
+      expect(boDem.get(bo) ?? 0, `bộ đáp án ${bo.toUpperCase()}`).toBeGreaterThan(0);
+    }
+    const haiDapAn = cn.filter((item) => item.answers.length === 2).length;
+    const lienNhau = ['ab', 'bc', 'cd'].reduce((tong, bo) => tong + (boDem.get(bo) ?? 0), 0);
+    expect(lienNhau / haiDapAn, `${lienNhau}/${haiDapAn} cặp liền nhau`).toBeLessThanOrEqual(0.6);
+  });
+
+  it('lời giải gọi phương án bằng chữ cái thì chữ ấy trỏ đúng phương án', () => {
+    for (const item of QUIZ_ITEMS) {
+      if (!hasChoices(item)) continue;
+      const ghim = CHU_CAI_TRONG_LOI_GIAI[item.id] ?? {};
+      const mong = Object.keys(ghim).sort();
+      for (const loiGiai of [item.explain.vi, item.explain.en]) {
+        if (loiGiai === undefined) continue;
+        expect(chuCaiTrongLoiGiai(loiGiai), `${item.id}: ${loiGiai.slice(0, 60)}…`).toEqual(mong);
+        expect(loiGiai.match(TRO_THEO_VI_TRI), item.id).toBeNull();
+      }
+      for (const [chu, doan] of Object.entries(ghim)) {
+        expect(item.choices[chu as QuizChoiceKey].vi, `${item.id} phương án ${chu}`).toContain(
+          doan,
+        );
+      }
+    }
+    const coPhuongAn = new Set(QUIZ_ITEMS.filter(hasChoices).map((item) => item.id));
+    for (const id of Object.keys(CHU_CAI_TRONG_LOI_GIAI)) expect(coPhuongAn, id).toContain(id);
   });
 
   it('khối số liệu của đề bài không có ô trống', () => {

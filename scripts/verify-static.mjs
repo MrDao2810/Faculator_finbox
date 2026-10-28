@@ -23,6 +23,7 @@
  */
 
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
+import { join } from 'node:path';
 
 /** Marker Next chèn vào chỗ cây bị loại khỏi HTML tĩnh. */
 const BAILOUT = 'BAILOUT_TO_CLIENT_SIDE_RENDERING';
@@ -916,6 +917,70 @@ check(
   'trang Cài đặt dựng sẵn aria-current trên icon, không mục nav nào sáng',
   iconDangMo && soDangMo === 1,
   `icon ${iconDangMo ? 'có' : 'KHÔNG có'} aria-current · ${String(soDangMo)} thuộc tính trong trang`,
+);
+
+/*
+ * ── Gói JS của trang chi tiết (đợt tối ưu 28/10/2026) ──────────────────────────────────────────
+ *
+ * Ba lỗi đã đo được và đã sửa, mỗi lỗi một phép kiểm để nó không quay lại lặng lẽ:
+ *
+ * 1. Trang chi tiết từng tải chunk của route DANH SÁCH (39,6 kB gzip): Next trộn client manifest
+ *    theo đoạn đường dẫn và lấy bản sau đè bản trước, mà module `T` vừa nằm trong cây server của
+ *    layout vừa nằm trong cây server của `app/cong-thuc/page`. Xem docblock `BrowseT.tsx`.
+ * 2. Trang chi tiết từng chở cả 111 công thức. Nay `FormulaDetailHost` nạp đúng nhóm của mình; trang
+ *    `pe` (nhóm `multiples`) không được mang mã của `rsi-wilder` hay `ty-so-sharpe`.
+ * 3. Từ điển tiếng Anh từng nằm trong chunk chung của mọi trang. Nay nạp động (`loadLocale`), nên
+ *    không HTML nào được tham chiếu chunk chứa nó.
+ */
+const chunkCuaTrang = (page) => {
+  if (!existsSync(page)) return [];
+  const html = readFileSync(page, 'utf8');
+  return [...new Set(html.match(/\/_next\/static\/chunks\/[^"]+?\.js/g) ?? [])].map((src) =>
+    join('out', decodeURIComponent(src)),
+  );
+};
+const trangChiTiet = ['out/cong-thuc/pe/index.html', 'out/cong-thuc/rsi-wilder/index.html'];
+const nhamChunkDanhSach = trangChiTiet.filter((page) =>
+  existsSync(page) ? readFileSync(page, 'utf8').includes('app/cong-thuc/page-') : true,
+);
+check(
+  'trang chi tiết không tải chunk của route danh sách (lỗi trộn manifest của module `T`)',
+  nhamChunkDanhSach.length === 0,
+  nhamChunkDanhSach.length === 0
+    ? `${String(trangChiTiet.length)} trang`
+    : nhamChunkDanhSach.join(' · '),
+);
+
+const maCuaPe = chunkCuaTrang('out/cong-thuc/pe/index.html')
+  .filter((file) => existsSync(file))
+  .map((file) => readFileSync(file, 'utf8'))
+  .join('\n');
+const nhomKhac = ['rsi-wilder', 'ty-so-sharpe'].filter((id) => maCuaPe.includes(`"${id}"`));
+check(
+  'trang pe chỉ chở nhóm công thức của nó — không mang mã của nhóm khác',
+  maCuaPe !== '' && nhomKhac.length === 0,
+  maCuaPe === ''
+    ? 'không đọc được chunk của pe'
+    : nhomKhac.length === 0
+      ? 'đúng nhóm'
+      : nhomKhac.join(', '),
+);
+
+const DAU_TU_DIEN_EN = 'Results are for reference only, not investment advice.';
+const chunkTuDienEn = readdirSync('out/_next/static/chunks')
+  .filter((f) => f.endsWith('.js'))
+  .filter((f) => readFileSync(join('out/_next/static/chunks', f), 'utf8').includes(DAU_TU_DIEN_EN));
+const trangNapSanEn = [
+  'out/cong-thuc/index.html',
+  'out/cong-thuc/pe/index.html',
+  'out/danh-muc/index.html',
+]
+  .filter((page) => existsSync(page))
+  .filter((page) => chunkTuDienEn.some((f) => readFileSync(page, 'utf8').includes(f)));
+check(
+  'từ điển tiếng Anh nằm ở chunk riêng, không trang nào nạp sẵn nó',
+  chunkTuDienEn.length === 1 && trangNapSanEn.length === 0,
+  `${String(chunkTuDienEn.length)} chunk chứa từ điển · ${trangNapSanEn.length === 0 ? 'không trang nào tham chiếu' : trangNapSanEn.join(' · ')}`,
 );
 
 /*

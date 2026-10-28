@@ -228,13 +228,18 @@ async function waitFor(expression, timeoutMs = 10000) {
 /**
  * Cài bộ đếm vào trang rồi đặt con trỏ vào ô nhập đầu tiên của khối Số liệu.
  *
- * Bỏ qua `input[type=range]`: thanh trượt là một đường khác (một sự kiện mỗi khung hình khi kéo),
- * đo riêng thì mới tách được hai chi phí.
+ * Ưu tiên ô chữ, bỏ qua `input[type=range]`: thanh trượt là một đường khác (một sự kiện mỗi khung
+ * hình khi kéo), đo riêng thì mới tách được hai chi phí. Công thức KHÔNG có ô chữ nào (`lich-tra-no`:
+ * con số cạnh nhãn thanh trượt là một `<span>` cho tới khi bấm, xem `GO_SO_TRUC_TIEP` ở
+ * `SliderInput.tsx`) thì rơi về thanh trượt và bấm ArrowRight — trước 28/10/2026 script ném "không
+ * thấy ô nhập nào" ở đúng trang mốc nặng nhất của nó. Cột `loaiO` của kết quả nói đã đo kiểu nào.
  */
 const CAI_DAT = `(() => {
   const o = document.querySelector('main') ?? document.body;
-  const el = [...o.querySelectorAll('input')].find((i) => i.type !== 'range' && !i.disabled);
+  const all = [...o.querySelectorAll('input')].filter((i) => !i.disabled && i.type !== 'hidden');
+  const el = all.find((i) => i.type !== 'range') ?? all.find((i) => i.type === 'range');
   if (!el) return null;
+  const kind = el.type === 'range' ? 'range' : 'text';
   const p = { key: [], longtask: [], t0: 0 };
   window.__ffbPerf = p;
   new PerformanceObserver((list) => {
@@ -245,9 +250,9 @@ const CAI_DAT = `(() => {
     requestAnimationFrame(() => { p.key.push(performance.now() - t); });
   });
   el.focus();
-  el.setSelectionRange(el.value.length, el.value.length);
+  if (kind === 'text') el.setSelectionRange(el.value.length, el.value.length);
   p.t0 = performance.now();
-  return { ok: true, name: el.getAttribute('id') ?? el.getAttribute('name') ?? '?' };
+  return { ok: true, kind, name: el.getAttribute('id') ?? el.getAttribute('name') ?? '?' };
 })()`;
 
 const DOC_KET_QUA = `(() => {
@@ -261,6 +266,17 @@ const DOC_KET_QUA = `(() => {
     so: sau.length,
   };
 })()`;
+
+async function bamMuiTen() {
+  const base = {
+    key: 'ArrowRight',
+    code: 'ArrowRight',
+    windowsVirtualKeyCode: 39,
+    nativeVirtualKeyCode: 39,
+  };
+  await send('Input.dispatchKeyEvent', { type: 'rawKeyDown', ...base });
+  await send('Input.dispatchKeyEvent', { type: 'keyUp', ...base });
+}
 
 async function goMotPhim(ch) {
   const code = `Digit${ch}`;
@@ -321,7 +337,8 @@ async function doMotLuot(id) {
 
   const truoc = await docDongHo();
   for (let i = 0; i < KEYS; i += 1) {
-    await goMotPhim(String((i % 9) + 1));
+    if (dat.kind === 'range') await bamMuiTen();
+    else await goMotPhim(String((i % 9) + 1));
     await new Promise((r) => setTimeout(r, GAP_MS));
   }
   // Chờ phần hoãn (useDeferredValue của biểu đồ) chạy nốt rồi mới chốt sổ.
@@ -339,6 +356,7 @@ async function doMotLuot(id) {
     daiNhat: Math.round(kq.dai),
     p50: Math.round(trungVi(kq.key) * 10) / 10,
     soPhimNhan: kq.key.length,
+    loaiO: dat.kind,
   };
 }
 

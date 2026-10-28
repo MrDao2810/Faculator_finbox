@@ -756,26 +756,26 @@ export const RUI_RO: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
+        vi: 'Tần suất dữ liệu dùng để tính (lợi suất tháng so với lợi suất năm)',
+        en: 'The data frequency used (monthly returns vs. annual returns)',
+      },
+      b: {
         vi: 'Chọn dùng lợi suất danh nghĩa hay lợi suất đã điều chỉnh cổ tức',
         en: 'Whether nominal or dividend-adjusted returns are used',
       },
-      b: {
+      c: {
         vi: 'Không có yếu tố nào khác ngoài số phiên quan sát ảnh hưởng tới kết quả',
         en: 'No factor other than the number of observed sessions affects the result',
-      },
-      c: {
-        vi: 'Tần suất dữ liệu dùng để tính (lợi suất tháng so với lợi suất năm)',
-        en: 'The data frequency used (monthly returns vs. annual returns)',
       },
       d: {
         vi: 'Cách tính là rời rạc (dựa thẳng vào lợi suất lịch sử) hay khớp một đường phân phối xác suất liên tục',
         en: 'Whether the method is discrete (straight from historical returns) or fits a continuous probability distribution',
       },
     },
-    answers: ['c', 'd'],
+    answers: ['a', 'd'],
     explain: {
-      vi: 'Nguồn đưa đúng ví dụ: “Using the monthly returns of the S&P 500 Index for 10 years (2001-2010)... gives a downside deviation of 3.71%... If, however, 10 discrete periods of annual returns are used then there are only four observations below 5%, which produces a dramatically different number” — đổi tần suất tháng sang năm trên cùng một chuỗi giá đã đủ đổi hẳn kết quả. Bài viết còn thuật lại ví dụ của Sortino và Forsey (1996) trên thị trường Nhật thập niên 1980: “In fact, the monthly downside deviation of the sample period was 2.74 percent calculated under the discrete method... The monthly downside deviation rises to 3.20 percent when calculated according to a method that involves fitting a continuous probability curve over the distribution of returns and using integral calculus for the computation.” Cùng một dữ liệu, đổi cách tính (rời rạc/liên tục) cũng đổi kết quả. Phương án (a) không được nguồn nhắc tới, còn (b) bị chính hai ví dụ trên bác bỏ trực tiếp.',
-      en: "The source gives this exact example: “Using the monthly returns of the S&P 500 Index for 10 years (2001-2010)... gives a downside deviation of 3.71%... If, however, 10 discrete periods of annual returns are used then there are only four observations below 5%, which produces a dramatically different number” — switching monthly to annual frequency on the same price series alone changes the result drastically. The article also recounts Sortino and Forsey's (1996) 1980s Japan example: “In fact, the monthly downside deviation of the sample period was 2.74 percent calculated under the discrete method... The monthly downside deviation rises to 3.20 percent when calculated according to a method that involves fitting a continuous probability curve over the distribution of returns and using integral calculus for the computation.” Same underlying data, different method (discrete vs. continuous), different result. Option (a) is never mentioned by the source, and (b) is directly contradicted by both examples above.",
+      vi: 'Nguồn đưa đúng ví dụ: “Using the monthly returns of the S&P 500 Index for 10 years (2001-2010)... gives a downside deviation of 3.71%... If, however, 10 discrete periods of annual returns are used then there are only four observations below 5%, which produces a dramatically different number” — đổi tần suất tháng sang năm trên cùng một chuỗi giá đã đủ đổi hẳn kết quả. Bài viết còn thuật lại ví dụ của Sortino và Forsey (1996) trên thị trường Nhật thập niên 1980: “In fact, the monthly downside deviation of the sample period was 2.74 percent calculated under the discrete method... The monthly downside deviation rises to 3.20 percent when calculated according to a method that involves fitting a continuous probability curve over the distribution of returns and using integral calculus for the computation.” Cùng một dữ liệu, đổi cách tính (rời rạc/liên tục) cũng đổi kết quả. Phương án (b) không được nguồn nhắc tới, còn (c) bị chính hai ví dụ trên bác bỏ trực tiếp.',
+      en: "The source gives this exact example: “Using the monthly returns of the S&P 500 Index for 10 years (2001-2010)... gives a downside deviation of 3.71%... If, however, 10 discrete periods of annual returns are used then there are only four observations below 5%, which produces a dramatically different number” — switching monthly to annual frequency on the same price series alone changes the result drastically. The article also recounts Sortino and Forsey's (1996) 1980s Japan example: “In fact, the monthly downside deviation of the sample period was 2.74 percent calculated under the discrete method... The monthly downside deviation rises to 3.20 percent when calculated according to a method that involves fitting a continuous probability curve over the distribution of returns and using integral calculus for the computation.” Same underlying data, different method (discrete vs. continuous), different result. Option (b) is never mentioned by the source, and (c) is directly contradicted by both examples above.",
     },
     source: {
       url: 'https://rpc.cfainstitute.org/sites/default/files/-/media/documents/code/gips/the-sortino-ratio.pdf',
@@ -948,18 +948,18 @@ export const RUI_RO: ReadonlyArray<QuizItem> = [
       en: 'According to CFA Level I exam-prep material, which conditions make the Treynor ratio fail to give a meaningful comparison between portfolios?',
     },
     choices: {
-      a: {
+      a: { vi: 'Beta của danh mục lớn hơn 1', en: "The portfolio's beta is greater than 1" },
+      b: {
         vi: 'Phần bù rủi ro (tử số, Rp − Rf) của danh mục bị âm',
         en: "The portfolio's risk premium (numerator, Rp − Rf) is negative",
       },
-      b: { vi: 'Beta của danh mục âm', en: "The portfolio's beta is negative" },
-      c: { vi: 'Beta của danh mục lớn hơn 1', en: "The portfolio's beta is greater than 1" },
+      c: { vi: 'Beta của danh mục âm', en: "The portfolio's beta is negative" },
       d: {
         vi: 'Lãi suất phi rủi ro tăng trong kỳ đánh giá',
         en: 'The risk-free rate rises during the evaluation period',
       },
     },
-    answers: ['a', 'b'],
+    answers: ['b', 'c'],
     explain: {
       vi: 'Nguồn nêu đúng hai điều kiện làm hỏng khả năng so sánh của tỷ số Treynor: “As with the Sharpe ratio, the Treynor ratio requires positive numerators to give meaningful comparative results” (tử số phải dương) và “Apart from this, the Treynor ratio does not work for negative beta assets” (không dùng được với beta âm). Beta lớn hơn 1 hay lãi suất phi rủi ro đổi theo thời gian không nằm trong hai điều kiện này — công thức vẫn tính và so sánh bình thường.',
       en: "The source names exactly two conditions that break the Treynor ratio's comparability: “As with the Sharpe ratio, the Treynor ratio requires positive numerators to give meaningful comparative results” (the numerator must be positive) and “Apart from this, the Treynor ratio does not work for negative beta assets” (it fails for negative-beta assets). A beta above 1 or a rising risk-free rate is not among these conditions — the ratio still computes and compares normally in those cases.",
@@ -1078,23 +1078,23 @@ export const RUI_RO: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
+        vi: 'Danh mục duy trì Information Ratio trên 0,5 liên tục nhiều năm',
+        en: 'The portfolio sustains an Information Ratio above 0.5 for many years running',
+      },
+      b: {
         vi: 'Mẫu quan sát quá ngắn, ví dụ mới chỉ chạy một backtest vài tháng',
         en: 'The observation sample is too short, e.g. only a few months of backtest',
       },
-      b: {
+      c: {
         vi: 'Lợi suất phân phối lệch mạnh, không đủ ôn hoà như giả định của thước đo',
         en: 'Returns are heavily skewed, not well-behaved as the measure assumes',
-      },
-      c: {
-        vi: 'Danh mục duy trì Information Ratio trên 0,5 liên tục nhiều năm',
-        en: 'The portfolio sustains an Information Ratio above 0.5 for many years running',
       },
       d: {
         vi: 'Benchmark dùng để so sánh không phù hợp hoặc là một benchmark quá yếu',
         en: 'The benchmark used for comparison is a poor fit or is too weak',
       },
     },
-    answers: ['a', 'b', 'd'],
+    answers: ['b', 'c', 'd'],
     explain: {
       vi: '“a mismatched benchmark renders it meaningless”; về mẫu ngắn: “Short backtests routinely print far higher values that regress sharply out of sample”; về phân phối lợi suất: “like the Sharpe ratio it assumes reasonably well-behaved return distributions and enough observations for the mean estimate to be trustworthy”. Ba điều trên đúng, còn duy trì IR trên 0,5 nhiều năm lại là điều ngược lại: chính nguồn gọi mốc đó là biểu hiện của kỹ năng thật (rule of thumb 0,5 = tốt khi giữ được qua nhiều năm), không phải dấu hiệu thước đo bị sai.',
       en: 'The source: “a mismatched benchmark renders it meaningless”; on short samples: “Short backtests routinely print far higher values that regress sharply out of sample”; on return distributions: “like the Sharpe ratio it assumes reasonably well-behaved return distributions and enough observations for the mean estimate to be trustworthy”. All three hold, while sustaining an IR above 0.5 for years is the opposite case, the same source calls that a mark of genuine skill, not a sign the measure is broken.',
@@ -1666,22 +1666,22 @@ export const RUI_RO: ReadonlyArray<QuizItem> = [
         en: 'The psychological toll on an investor holding through the whole period',
       },
       b: {
-        vi: 'Mức lãi suất cần thiết để hồi phục về đúng đỉnh cũ sau cú sụt 30% đó',
-        en: 'The required gain to recover back to the old peak after that 30% drop',
-      },
-      c: {
-        vi: 'Độ sâu của cú sụt giảm lớn nhất mà mỗi quỹ từng trải qua',
-        en: 'The depth of the single largest drawdown each fund ever experienced',
-      },
-      d: {
         vi: 'Tần suất các đợt sụt giảm gần bằng mức tối đa mà quỹ từng trải qua trước đó',
         en: 'The frequency of near-maximum drawdowns each fund went through before that',
       },
+      c: {
+        vi: 'Mức lãi suất cần thiết để hồi phục về đúng đỉnh cũ sau cú sụt 30% đó',
+        en: 'The required gain to recover back to the old peak after that 30% drop',
+      },
+      d: {
+        vi: 'Độ sâu của cú sụt giảm lớn nhất mà mỗi quỹ từng trải qua',
+        en: 'The depth of the single largest drawdown each fund ever experienced',
+      },
     },
-    answers: ['a', 'd'],
+    answers: ['a', 'b'],
     explain: {
-      vi: 'Nguồn viết: “According to maximum drawdown, both strategies look the same. But clearly, the experience of owning them would have been very different.” Ví dụ đi kèm: quỹ B liên tục gặp các đợt sụt 10%, 15%, 20% trước cú 30%, còn quỹ A ngoài cú 30% đó chỉ giảm nhẹ quanh 5% — hai trải nghiệm nắm giữ rất khác nhau dù MDD giống hệt. Vậy tần suất các đợt sụt gần-tối-đa (d) và cảm giác nắm giữ qua cả giai đoạn (a) không thể suy ra chỉ từ con số MDD. Ngược lại, độ sâu cú giảm lớn nhất (c) chính là con số MDD nên hiển nhiên giống nhau ở cả hai quỹ, và mức lãi cần để hồi phục (b) chỉ phụ thuộc vào % lỗ (30%) nên cũng giống nhau bất kể tần suất.',
-      en: 'The source states: “According to maximum drawdown, both strategies look the same. But clearly, the experience of owning them would have been very different.” In its example, fund B repeatedly hits 10%, 15%, 20% drawdowns before the 30% one, while fund A only has shallow ~5% dips besides that 30% drawdown — two very different holding experiences despite an identical MDD. So the frequency of near-maximum drawdowns (d) and the psychological experience of holding through the period (a) cannot be inferred from the MDD figure alone. By contrast, the depth of the largest drawdown (c) is exactly what MDD reports, so it is obviously the same for both funds, and the gain needed to recover (b) depends only on the loss percentage (30%), so it is also identical regardless of frequency.',
+      vi: 'Nguồn viết: “According to maximum drawdown, both strategies look the same. But clearly, the experience of owning them would have been very different.” Ví dụ đi kèm: quỹ B liên tục gặp các đợt sụt 10%, 15%, 20% trước cú 30%, còn quỹ A ngoài cú 30% đó chỉ giảm nhẹ quanh 5% — hai trải nghiệm nắm giữ rất khác nhau dù MDD giống hệt. Vậy cảm giác nắm giữ qua cả giai đoạn (a) và tần suất các đợt sụt gần-tối-đa (b) không thể suy ra chỉ từ con số MDD. Ngược lại, độ sâu cú giảm lớn nhất (d) chính là con số MDD nên hiển nhiên giống nhau ở cả hai quỹ, và mức lãi cần để hồi phục (c) chỉ phụ thuộc vào % lỗ (30%) nên cũng giống nhau bất kể tần suất.',
+      en: 'The source states: “According to maximum drawdown, both strategies look the same. But clearly, the experience of owning them would have been very different.” In its example, fund B repeatedly hits 10%, 15%, 20% drawdowns before the 30% one, while fund A only has shallow ~5% dips besides that 30% drawdown — two very different holding experiences despite an identical MDD. So the psychological experience of holding through the period (a) and the frequency of near-maximum drawdowns (b) cannot be inferred from the MDD figure alone. By contrast, the depth of the largest drawdown (d) is exactly what MDD reports, so it is obviously the same for both funds, and the gain needed to recover (c) depends only on the loss percentage (30%), so it is also identical regardless of frequency.',
     },
     source: {
       url: 'https://portfoliobuilder.substack.com/p/building-blocks-drawdown',
@@ -2408,26 +2408,26 @@ export const RUI_RO: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'Phép kiểm định này khá phức tạp, không phải nhà đầu tư cá nhân nào cũng tự tính hay hiểu được',
-        en: 'The test is fairly complex — not every individual investor can compute or understand it',
-      },
-      b: {
-        vi: 'Điều kiện để phép kiểm định đáng tin (đủ số chứng khoán so sánh, CV đủ nhỏ) hiếm khi đạt được trên thực tế thị trường cổ phiếu',
-        en: 'The condition for the test to be reliable (enough securities to compare, small enough CV) is rarely met in real stock markets',
-      },
-      c: {
         vi: 'Vì đơn giản và trực quan nên hầu hết công ty chứng khoán đều tích hợp sẵn phép kiểm định này vào phần mềm giao dịch',
         en: 'Because it is simple and intuitive, most brokerages build this test directly into their trading software',
       },
-      d: {
+      b: {
+        vi: 'Phép kiểm định này khá phức tạp, không phải nhà đầu tư cá nhân nào cũng tự tính hay hiểu được',
+        en: 'The test is fairly complex — not every individual investor can compute or understand it',
+      },
+      c: {
         vi: 'Phép kiểm định chỉ cần biết giá đóng cửa cuối năm của từng cổ phiếu, không cần dữ liệu nào khác',
         en: "The test only needs each stock's year-end closing price and nothing else",
       },
+      d: {
+        vi: 'Điều kiện để phép kiểm định đáng tin (đủ số chứng khoán so sánh, CV đủ nhỏ) hiếm khi đạt được trên thực tế thị trường cổ phiếu',
+        en: 'The condition for the test to be reliable (enough securities to compare, small enough CV) is rarely met in real stock markets',
+      },
     },
-    answers: ['a', 'b'],
+    answers: ['b', 'd'],
     explain: {
-      vi: '“The test statistic is complex which may not be accessible by many ordinary investors” — nên (a) đúng. Bài viết cũng nói thẳng điều kiện để phép kiểm định đáng tin (đủ số chứng khoán so sánh, CV đủ nhỏ) “is rarely achieved in securities, especially in stock market”, nên (b) cũng đúng. Không có căn cứ nào cho (c) — phần mềm giao dịch tích hợp sẵn phép kiểm định này — hay cho (d) — chỉ cần giá đóng cửa cuối năm.',
-      en: '“The test statistic is complex which may not be accessible by many ordinary investors”, so (a) is true. The paper also states outright that the condition for the test to be reliable (enough securities, small enough CV) “is rarely achieved in securities, especially in stock market”, so (b) is true too. Nothing in the source supports (c) — brokerages building this test into trading software — or (d) — needing only year-end closing prices.',
+      vi: '“The test statistic is complex which may not be accessible by many ordinary investors” — nên (b) đúng. Bài viết cũng nói thẳng điều kiện để phép kiểm định đáng tin (đủ số chứng khoán so sánh, CV đủ nhỏ) “is rarely achieved in securities, especially in stock market”, nên (d) cũng đúng. Không có căn cứ nào cho (a) — phần mềm giao dịch tích hợp sẵn phép kiểm định này — hay cho (c) — chỉ cần giá đóng cửa cuối năm.',
+      en: '“The test statistic is complex which may not be accessible by many ordinary investors”, so (b) is true. The paper also states outright that the condition for the test to be reliable (enough securities, small enough CV) “is rarely achieved in securities, especially in stock market”, so (d) is true too. Nothing in the source supports (a) — brokerages building this test into trading software — or (c) — needing only year-end closing prices.',
     },
     source: {
       url: 'https://arxiv.org/pdf/2109.03977',

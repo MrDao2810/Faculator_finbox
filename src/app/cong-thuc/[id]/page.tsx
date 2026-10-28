@@ -1,14 +1,14 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
-import { FORMULAS, findCategory } from '@/application';
+import { FORMULAS, findCategory, groupOfFormula } from '@/application';
 import { baiHuongDanFor } from '@/application/huong-dan';
 import { expressionShape } from '@/application/quiz-math';
 import { substitutionShape } from '@/application/thay-so';
 import { viDuGiaiFor } from '@/application/vi-du';
 import { DocumentTitle } from '@/ui/i18n/DocumentTitle';
 
-import { FormulaDetail } from './FormulaDetail';
+import { FormulaDetailHost } from './FormulaDetailHost';
 import { buildNotationView } from './notation-view';
 import { quizViewFor } from './quiz-view';
 
@@ -132,12 +132,19 @@ export default async function FormulaDetailPage({ params }: { params: Promise<{ 
    */
   const thaySoCay = substitutionShape(formula);
   const bai = baiHuongDanFor(formula.id, AS_OF);
+  /*
+   * Nhóm của công thức (28/10/2026): vỏ `FormulaDetailHost` nạp động đúng một file nhóm thay vì cả
+   * Registry, và lấy `spec` từ chính module ấy — nên `spec` không đi qua RSC nữa. Xem docblock của vỏ.
+   */
+  const group = groupOfFormula(formula.id);
+  if (group === undefined) throw new Error(`Công thức "${formula.id}" không thuộc nhóm nào.`);
 
   return (
     <>
       <DocumentTitle title={formula.name} />
-      <FormulaDetail
-        spec={formula}
+      <FormulaDetailHost
+        id={formula.id}
+        group={group}
         asOf={AS_OF}
         notation={buildNotationView(formula)}
         quiz={quiz}

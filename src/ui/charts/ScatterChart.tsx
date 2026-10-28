@@ -9,6 +9,7 @@ import { usePick } from '@/application/preferences-context';
 import { useLabelText } from '@/ui/i18n/units';
 
 import styles from './chart.module.css';
+import { CHAN, xepChuGiaiDuoi } from './chu-giai-duoi';
 import { textWidth, thin, tickAnchor } from './ticks';
 import { useChartSize } from './use-chart-size';
 import type { ChartSize } from './use-chart-size';
@@ -23,7 +24,8 @@ import type { ChartSize } from './use-chart-size';
  * Mỗi phiên một chấm hơi trong, để chỗ nhiều phiên chồng lên nhau đậm hơn. Hai vạch 0 chia bốn góc:
  * trên phải là phiên cả hai cùng tăng, dưới trái cùng giảm. Đường hồi quy màu của "con số ở khối Kết
  * quả" (như vạch VaR của histogram), vì độ dốc của nó CHÍNH LÀ Beta. Chú giải nằm TRONG `<svg>` như
- * hình cột: file xuất PDF / PNG chép đúng thẻ `<svg>`.
+ * hình cột: file xuất PDF / PNG chép đúng thẻ `<svg>`. Nó đứng ở ĐÁY hình, dưới tên trục ngang, từ
+ * 28/10/2026 (`chu-giai-duoi.ts`); trước đó nó ở đầu hình, sát trên tên trục đứng.
  *
  * Rê chuột / chạm thì chấm gần nhất đậm lên và một ô nhỏ hiện ngày cùng hai lợi suất — đúng dòng của
  * bảng số. Ô ấy mang hậu tố `-hover`, vùng bắt con trỏ hậu tố `-hover-capture`, nên `chart-snapshot`
@@ -35,11 +37,11 @@ const SIZES = {
   wide: { W: 640, H: 400 },
 } as const;
 
-/** Lề: trên cho dòng chú giải và tên trục đứng, dưới cho nhãn trục ngang và tên trục ngang. */
+/**
+ * Lề: trên cho tên trục đứng, dưới cho nhãn trục ngang và tên trục ngang. Chú giải ở đáy lấy thêm chỗ
+ * dưới cùng (`xepChuGiaiDuoi()`), không nằm trong `bottom`.
+ */
 const PAD = { top: 18, right: 10, bottom: 34, leftMin: 24, leftMax: 60 } as const;
-
-/** Chiều cao một dòng chú giải trên đầu hình. */
-const LEGEND_H = 16;
 
 const TICK_FONT_SIZE = 10;
 const TICK_GAP = 5;
@@ -106,7 +108,7 @@ export function ScatterChart({ model, idBase, fill = false, size: sizeProp }: Sc
   /** Chỉ số chấm đang dò, `null` khi không dò. */
   const [hover, setHover] = useState<number | null>(null);
 
-  const { plot, sx, sy, dots, xLabels, yLabels, legend, fitLine } = useMemo(() => {
+  const { plot, sx, sy, dots, xLabels, yLabels, legend, xTitleY, fitLine } = useMemo(() => {
     const budget = LABEL_BUDGET[size];
     const nhanY = thin(model.y.ticks, budget.y);
     const rongNhat = Math.max(0, ...nhanY.map((tick) => textWidth(tick.label, TICK_FONT_SIZE)));
@@ -114,27 +116,23 @@ export function ScatterChart({ model, idBase, fill = false, size: sizeProp }: Sc
     const x1 = W - PAD.right;
 
     /*
-     * Chú giải: chấm rồi đường hồi quy, xếp từ mép trái vùng vẽ, xuống hàng khi tràn — xếp TRƯỚC khi
-     * đặt vùng vẽ, vì số hàng quyết định vùng vẽ bắt đầu ở đâu (bài học của hình cột ở 390px).
+     * Chú giải: chấm rồi đường hồi quy, ở ĐÁY hình dưới tên trục ngang (28/10/2026, xem
+     * `chu-giai-duoi.ts`) — xếp TRƯỚC khi đặt vùng vẽ, vì số hàng quyết định đáy vùng vẽ ở đâu.
      */
-    const muc: Array<{ key: string; x: number; y: number; text: string; kieu: 'cham' | 'vach' }> =
-      [];
-    let lx = x0;
-    let ly = PAD.top - 4;
-    const them = (key: string, text: string, kieu: 'cham' | 'vach') => {
-      const rongMuc = 14 + textWidth(text, TICK_FONT_SIZE) * 1.1 + 12;
-      if (lx + rongMuc > x1 && lx > x0) {
-        lx = x0;
-        ly += LEGEND_H;
-      }
-      muc.push({ key, x: lx, y: ly, text, kieu });
-      lx += rongMuc;
-    };
-    them('cham', pick(model.pointLabel), 'cham');
-    if (model.fit !== undefined) them('vach', pick(model.fit.label), 'vach');
-    const soHang = (ly - (PAD.top - 4)) / LEGEND_H + 1;
+    const { muc, cao } = xepChuGiaiDuoi<{ key: string; text: string; kieu: 'cham' | 'vach' }>(
+      [
+        { key: 'cham', text: pick(model.pointLabel), kieu: 'cham' },
+        ...(model.fit === undefined
+          ? []
+          : [{ key: 'vach', text: pick(model.fit.label), kieu: 'vach' as const }]),
+      ],
+      x0,
+      x1,
+      W,
+      H,
+    );
 
-    const box = { x0, x1, y0: PAD.top + soHang * LEGEND_H, y1: H - PAD.bottom } as const;
+    const box = { x0, x1, y0: PAD.top, y1: H - PAD.bottom - cao } as const;
     const scaleX = linearScale(model.x.domain, [box.x0, box.x1]);
     const scaleY = linearScale(model.y.domain, [box.y1, box.y0]);
 
@@ -152,6 +150,7 @@ export function ScatterChart({ model, idBase, fill = false, size: sizeProp }: Sc
       xLabels: thin(model.x.ticks, budget.x),
       yLabels: nhanY,
       legend: muc,
+      xTitleY: H - CHAN - cao,
       fitLine:
         doan === null
           ? null
@@ -328,7 +327,7 @@ export function ScatterChart({ model, idBase, fill = false, size: sizeProp }: Sc
         <text
           className={styles.axisTitle}
           x={(plot.x0 + plot.x1) / 2}
-          y={H - 6}
+          y={xTitleY}
           textAnchor="middle"
         >
           {pick(model.x.title)}

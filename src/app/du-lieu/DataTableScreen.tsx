@@ -1,6 +1,15 @@
 'use client';
 
-import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import {
+  memo,
+  useCallback,
+  useDeferredValue,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import type { CSSProperties } from 'react';
 
 import {
@@ -234,6 +243,55 @@ interface SeriesRowFieldsProps {
   onRemove: (index: number) => void;
   /** Tiêu điểm vừa rời khỏi cả dòng — lúc ấy mới được sắp xếp lại. */
   onLeave: () => void;
+}
+
+/*
+ * Biểu đồ nến bản `memo` (28/10/2026). Màn đưa vào nó mảng HOÃN (`useDeferredValue`), nên ở lượt dựng
+ * gấp của mỗi phím gõ mảng ấy chưa đổi và cả 250 cây nến (~1.000 phần tử SVG) được bỏ qua; biểu đồ vẽ
+ * lại một lần ở lượt hoãn, và lượt ấy bị ngắt nếu người dùng gõ tiếp. Đo trên bản build (CPU 4×):
+ * gõ một ô của bảng 250 phiên tốn ~250 ms mỗi phím trước đợt này.
+ */
+const MemoCandleChart = memo(CandleChart);
+
+/**
+ * `checkSeries` nhớ theo CHÍNH mảng bảng: bảng tức thời và bản hoãn trỏ tới cùng một mảng ở lượt
+ * hoãn, nên lượt ấy không kiểm lại lần hai.
+ */
+const KIEM_THEO_BANG = new WeakMap<ReadonlyArray<SeriesRow>, ReturnType<typeof checkSeries>>();
+
+function kiemBang(rows: ReadonlyArray<SeriesRow>): ReturnType<typeof checkSeries> {
+  let kiem = KIEM_THEO_BANG.get(rows);
+  if (kiem === undefined) {
+    kiem = checkSeries(rows);
+    KIEM_THEO_BANG.set(rows, kiem);
+  }
+  return kiem;
+}
+
+/**
+ * Số ký tự mỗi ô của một dòng đang in — nhớ theo CHÍNH object dòng (28/10/2026), cho `widths`.
+ *
+ * Sửa một ô chỉ thay object của đúng dòng ấy (`setCell`), nên mỗi phím chỉ phải đo lại một dòng
+ * thay vì định dạng lại cả 1.250 ô (`rawViNumber`, `ngayIn`). Hai bảng vì ô ngày in khác nhau
+ * giữa điện thoại (ngày/tháng) và máy tính (đủ năm).
+ */
+const DO_DAI_O: Readonly<Record<'gon' | 'du', WeakMap<SeriesRow, ReadonlyArray<number>>>> = {
+  gon: new WeakMap(),
+  du: new WeakMap(),
+};
+
+function doDaiCacO(row: SeriesRow, duNam: boolean): ReadonlyArray<number> {
+  const bang = DO_DAI_O[duNam ? 'du' : 'gon'];
+  let doDai = bang.get(row);
+  if (doDai === undefined) {
+    doDai = COLUMNS.map((column) => {
+      if (column.key === 'date') return ngayIn(row.date, duNam).length;
+      const value = row[column.key];
+      return value === null ? 0 : rawViNumber(value).length;
+    });
+    bang.set(row, doDai);
+  }
+  return doDai;
 }
 
 /**
@@ -475,10 +533,20 @@ export function DataTableScreen() {
     }
   }, [code, rows, loaded]);
 
-  const check = useMemo(() => checkSeries(rows), [rows]);
+  const check = useMemo(() => kiemBang(rows), [rows]);
   const issueByIndex = useMemo(
     () => new Map(check.rows.map((row) => [row.index, row.issues])),
     [check],
+  );
+  /*
+   * Bản HOÃN của bảng (28/10/2026) — cho những thứ không cần theo kịp từng phím: biểu đồ nến và dòng
+   * năm trên bảng. Kiểm tra dữ liệu (`check`) vẫn theo bảng tức thời, vì nó tô đỏ số thứ tự của dòng
+   * lỗi: bản hoãn sẽ tô nhầm dòng trong một khung hình khi vừa xoá một dòng (chỉ số dời).
+   */
+  const rowsHoan = useDeferredValue(rows);
+  const issueHoanByIndex = useMemo(
+    () => new Map(kiemBang(rowsHoan).rows.map((row) => [row.index, row.issues])),
+    [rowsHoan],
   );
 
   /**
@@ -699,8 +767,8 @@ export function DataTableScreen() {
   const yearNote = useMemo(() => {
     let tu = Number.POSITIVE_INFINITY;
     let den = Number.NEGATIVE_INFINITY;
-    rows.forEach((row, index) => {
-      if (issueByIndex.has(index)) return;
+    rowsHoan.forEach((row, index) => {
+      if (issueHoanByIndex.has(index)) return;
       const ngay = parseSeriesDate(row.date);
       if (ngay === null || ngay.year === null) return;
       tu = Math.min(tu, ngay.year);
@@ -710,7 +778,7 @@ export function DataTableScreen() {
     return tu === den
       ? t('paste.yearOne').replace('{nam}', String(tu))
       : t('paste.yearRange').replace('{tu}', String(tu)).replace('{den}', String(den));
-  }, [rows, issueByIndex, t]);
+  }, [rowsHoan, issueHoanByIndex, t]);
 
   /**
    * Bề ngang từng cột, tính bằng `ch` theo chữ DÀI NHẤT cột ấy đang in — cùng cách với lưới popup.
@@ -719,18 +787,11 @@ export function DataTableScreen() {
    */
   const widths = useMemo(
     () =>
-      COLUMNS.map((column) => {
+      COLUMNS.map((column, cot) => {
         const head = t(mayTinh ? column.full : column.short);
         let longest = beNgangTenCot(head);
         for (const row of rows) {
-          const value = column.key === 'date' ? null : row[column.key];
-          const text =
-            column.key === 'date'
-              ? ngayIn(row.date, mayTinh)
-              : value === null
-                ? ''
-                : rawViNumber(value);
-          longest = Math.max(longest, text.length);
+          longest = Math.max(longest, doDaiCacO(row, mayTinh)[cot] ?? 0);
         }
         return Math.min(longest, 16);
       }),
@@ -857,7 +918,7 @@ export function DataTableScreen() {
         <p className={styles.empty}>{t('series.empty')}</p>
       ) : (
         <>
-          <CandleChart rows={rows} code={code} range={range} onRangeChange={setRange} />
+          <MemoCandleChart rows={rowsHoan} code={code} range={range} onRangeChange={setRange} />
 
           <div className={styles.lower}>
             <section className={styles.tableCard} aria-labelledby="khoi-bang-so-lieu">

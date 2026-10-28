@@ -296,58 +296,63 @@ export function CandleChart({ rows, code, range, onRangeChange }: CandleChartPro
             );
           })}
 
-          {/* Cột khối lượng. Vẽ TRƯỚC nến để nến nằm trên khi hai dải chạm nhau. */}
-          {volumeMax > 0 &&
-            bars.map((bar, position) => {
-              if (bar.volume === null || !Number.isFinite(bar.volume) || bar.volume <= 0) {
-                return null;
+          {/*
+            Cột khối lượng rồi tới nến — vẽ TRƯỚC nến để nến nằm trên khi hai dải chạm nhau.
+
+            Mỗi loại một `<path>` theo chiều phiên (28/10/2026), không phải một `<rect>`/`<line>` cho
+            từng phiên: 250 phiên từng là ~1.000 phần tử SVG mà React phải đối chiếu ở mỗi lần vẽ lại,
+            và trình duyệt phải dàn và vẽ từng cái. Cùng toạ độ, cùng lớp tô và nét (`.wick`, `.body`,
+            `.volume` trong chiều `.up`/`.down`), nên hình y hệt; các cột không chồng lên nhau nên
+            `fill-opacity` của bảng tối cũng không đậm thêm chỗ nào. Cùng cách biểu đồ Nến ở màn chi
+            tiết vẽ bằng bốn `<path>`.
+          */}
+          {(() => {
+            const net = {
+              up: { bac: '', than: '', cot: '' },
+              down: { bac: '', than: '', cot: '' },
+            };
+            bars.forEach((bar, position) => {
+              const chieu = bar.up ? net.up : net.down;
+              const x = xOf(position);
+              if (
+                volumeMax > 0 &&
+                bar.volume !== null &&
+                Number.isFinite(bar.volume) &&
+                bar.volume > 0
+              ) {
+                const yVol = toVolY(bar.volume);
+                chieu.cot += `M${String(x - bodyW / 2)} ${String(yVol)}h${String(bodyW)}v${String(Math.max(0.5, K.y1 - yVol))}h${String(-bodyW)}Z`;
               }
-              const y = toVolY(bar.volume);
-              /* Chiều phiên tăng/giảm — chỉ đổi màu ở bảng TỐI (xem `.volume.up`/`.volume.down`
-                 trong CSS); bảng sáng vẫn phẳng một màu `--color-sunken` như trước. */
-              const toneVol = bar.up ? styles.up : styles.down;
-              return (
-                <rect
-                  key={`v${String(bar.index)}`}
-                  className={`${styles.volume} ${toneVol}`}
-                  x={xOf(position) - bodyW / 2}
-                  y={y}
-                  width={bodyW}
-                  height={Math.max(0.5, K.y1 - y)}
-                />
-              );
-            })}
-
-          {/* Nến: bấc từ giá thấp tới giá cao, thân từ giá mở tới giá đóng. */}
-          {bars.map((bar, position) => {
-            const x = xOf(position);
-            const cao = bar.high ?? Math.max(bar.open ?? bar.close, bar.close);
-            const thap = bar.low ?? Math.min(bar.open ?? bar.close, bar.close);
-            const mo = bar.open ?? bar.close;
-
-            const yCao = toY(cao);
-            const yThap = toY(thap);
-            const yMo = toY(mo);
-            const yDong = toY(bar.close);
-
-            const top = Math.min(yMo, yDong);
-            /* Phiên đứng giá cho thân cao 0 — nới lên 1 đơn vị, nếu không cây nến biến mất hẳn. */
-            const cao2 = Math.max(1, Math.abs(yDong - yMo));
-            const tone = bar.up ? styles.up : styles.down;
-
+              const cao = bar.high ?? Math.max(bar.open ?? bar.close, bar.close);
+              const thap = bar.low ?? Math.min(bar.open ?? bar.close, bar.close);
+              const yMo = toY(bar.open ?? bar.close);
+              const yDong = toY(bar.close);
+              const top = Math.min(yMo, yDong);
+              /* Phiên đứng giá cho thân cao 0 — nới lên 1 đơn vị, nếu không cây nến biến mất hẳn. */
+              const caoThan = Math.max(1, Math.abs(yDong - yMo));
+              chieu.bac += `M${String(x)} ${String(toY(cao))}V${String(toY(thap))}`;
+              chieu.than += `M${String(x - bodyW / 2)} ${String(top)}h${String(bodyW)}v${String(caoThan)}h${String(-bodyW)}Z`;
+            });
+            /* Chiều phiên tăng/giảm của cột khối lượng chỉ đổi màu ở bảng TỐI (`.volume.up`/`.down`). */
             return (
-              <g key={bar.index} className={tone}>
-                <line className={styles.wick} x1={x} x2={x} y1={yCao} y2={yThap} />
-                <rect
-                  className={styles.body}
-                  x={x - bodyW / 2}
-                  y={top}
-                  width={bodyW}
-                  height={cao2}
-                />
-              </g>
+              <>
+                {net.up.cot !== '' && (
+                  <path className={`${styles.volume} ${styles.up}`} d={net.up.cot} />
+                )}
+                {net.down.cot !== '' && (
+                  <path className={`${styles.volume} ${styles.down}`} d={net.down.cot} />
+                )}
+                {(['up', 'down'] as const).map((huong) =>
+                  net[huong].than === '' ? null : (
+                    <g key={huong} className={huong === 'up' ? styles.up : styles.down}>
+                      <path className={styles.wick} d={net[huong].bac} />
+                      <path className={styles.body} d={net[huong].than} />
+                    </g>
+                  ),
+                )}
+              </>
             );
-          })}
+          })()}
 
           {/* Mốc giá đóng cửa gần nhất — đường đứt chạy hết bề ngang cộng thẻ giá ở mép phải. */}
           {lastY !== null && model.last !== null && (

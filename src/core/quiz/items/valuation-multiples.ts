@@ -305,23 +305,23 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'Các doanh nghiệp so sánh có biên lợi nhuận gộp chênh lệch lớn (ví dụ Amazon và Yahoo trong bài viết)',
-        en: 'The companies being compared have very different gross margins (e.g., Amazon and Yahoo in the article)',
-      },
-      b: {
-        vi: 'Một doanh nghiệp gộp chung doanh thu từ các mảng kinh doanh có bản chất khác nhau, như AOL với mảng truy cập dial-up và mảng quảng cáo/thương mại',
-        en: "A company lumps revenue from businesses with very different natures into one figure, as with AOL's dialup-access and advertising/commerce segments",
-      },
-      c: {
         vi: 'Doanh nghiệp mới niêm yết trên sàn chứng khoán trong năm đó',
         en: 'The company just listed on the stock exchange that year',
       },
-      d: {
+      b: {
+        vi: 'Các doanh nghiệp so sánh có biên lợi nhuận gộp chênh lệch lớn (ví dụ Amazon và Yahoo trong bài viết)',
+        en: 'The companies being compared have very different gross margins (e.g., Amazon and Yahoo in the article)',
+      },
+      c: {
         vi: 'Doanh nghiệp đang trả cổ tức bằng tiền mặt hàng quý',
         en: 'The company pays quarterly cash dividends',
       },
+      d: {
+        vi: 'Một doanh nghiệp gộp chung doanh thu từ các mảng kinh doanh có bản chất khác nhau, như AOL với mảng truy cập dial-up và mảng quảng cáo/thương mại',
+        en: "A company lumps revenue from businesses with very different natures into one figure, as with AOL's dialup-access and advertising/commerce segments",
+      },
     },
-    answers: ['a', 'b'],
+    answers: ['b', 'd'],
     explain: {
       vi: "Damodaran chỉ ra P/S là thước đo thô, không tách được đòn bẩy biên lợi nhuận: “Yahoo trades at 130 times sales. But few would say that Amazon, which trades at 20 times sales, is only one-third as richly valued as Yahoo.” Amazon phải trừ giá vốn hàng bán khỏi doanh thu còn Yahoo gần như không có giá vốn, nên hai con số P/S không thể so sánh trực tiếp. Tương tự, AOL không nên gộp một P/S chung vì “AOL's revenue comes from two very different businesses -- dialup access and advertising/commerce”, hai mảng có biên lợi nhuận khác hẳn nhau.",
       en: "Damodaran points out that P/S is a crude measure that cannot separate out margin leverage: “Yahoo trades at 130 times sales. But few would say that Amazon, which trades at 20 times sales, is only one-third as richly valued as Yahoo.” Amazon has to subtract cost of goods sold from revenue while Yahoo carries almost none, so the two P/S figures are not directly comparable. Likewise, AOL should not be assigned one blended P/S because “AOL's revenue comes from two very different businesses -- dialup access and advertising/commerce”, two segments with very different margins.",
@@ -694,26 +694,26 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
+        vi: 'Nợ (tiền gửi, khoản vay) chính là nguyên liệu đầu vào cho hoạt động kinh doanh cốt lõi là cho vay, không phải một quyết định tài trợ tách rời như ở doanh nghiệp sản xuất',
+        en: 'Debt (deposits, borrowings) is the raw material for the core lending business itself, not a financing decision separate from operations the way it is for a manufacturer',
+      },
+      b: {
         vi: 'Ngân hàng và công ty bảo hiểm không có khấu hao tài sản cố định nên EBITDA luôn bằng doanh thu',
         en: 'Banks and insurers have no fixed-asset depreciation, so EBITDA always equals revenue',
       },
-      b: {
+      c: {
         vi: 'Vốn hóa thị trường của ngân hàng luôn lớn hơn giá trị sổ sách nên không tính được EV',
         en: "A bank's market capitalization is always larger than its book value, so EV cannot be calculated",
-      },
-      c: {
-        vi: 'Nợ (tiền gửi, khoản vay) chính là nguyên liệu đầu vào cho hoạt động kinh doanh cốt lõi là cho vay, không phải một quyết định tài trợ tách rời như ở doanh nghiệp sản xuất',
-        en: 'Debt (deposits, borrowings) is the raw material for the core lending business itself, not a financing decision separate from operations the way it is for a manufacturer',
       },
       d: {
         vi: 'Lãi vay là cấu phần cốt lõi của cả doanh thu lẫn chi phí hoạt động, nên loại lãi vay ra để tính EBITDA sẽ xóa mất đúng phần quan trọng nhất',
         en: 'Interest is a core component of both revenue and operating expenses, so stripping it out to compute EBITDA removes exactly the most important piece',
       },
     },
-    answers: ['c', 'd'],
+    answers: ['a', 'd'],
     explain: {
-      vi: 'Nguồn chuyên môn (Mergers & Inquisitions) khẳng định thẳng: “In fact, you don’t even calculate Enterprise Value for banks and insurance firms.” Lý do gốc rễ nằm ở hai điểm nguồn nêu: với ngân hàng và bảo hiểm, nợ (tiền gửi, khoản vay) tài trợ trực tiếp cho hoạt động cho vay, tức là hoạt động kinh doanh chính chứ không phải một khoản tài trợ tách biệt khỏi hoạt động ("debt... related to the company\'s core operations"); và “EBITDA is no longer meaningful because interest is a critical component of both revenue and expenses” — loại lãi vay ra khỏi lợi nhuận đúng bằng việc loại bỏ động cơ lợi nhuận chính của một ngân hàng. Phương án c và d sai: ngân hàng vẫn có khấu hao (dù nhỏ so với tài sản tài chính), và quy mô vốn hóa lớn hay nhỏ không phải lý do khiến EV mất nghĩa.',
-      en: 'The professional source (Mergers & Inquisitions) states plainly: “In fact, you don’t even calculate Enterprise Value for banks and insurance firms.” The root cause has two parts per the source: for banks and insurers, debt (deposits, borrowings) directly funds the core lending business rather than being a financing decision separate from operations ("debt... related to the company\'s core operations"); and “EBITDA is no longer meaningful because interest is a critical component of both revenue and expenses” — stripping out interest removes the very driver of a bank\'s profit. Choices c and d are wrong: banks still carry some depreciation, and market-cap size is not the reason EV loses meaning.',
+      vi: 'Nguồn chuyên môn (Mergers & Inquisitions) khẳng định thẳng: “In fact, you don’t even calculate Enterprise Value for banks and insurance firms.” Lý do gốc rễ nằm ở hai điểm nguồn nêu: với ngân hàng và bảo hiểm, nợ (tiền gửi, khoản vay) tài trợ trực tiếp cho hoạt động cho vay, tức là hoạt động kinh doanh chính chứ không phải một khoản tài trợ tách biệt khỏi hoạt động ("debt... related to the company\'s core operations"); và “EBITDA is no longer meaningful because interest is a critical component of both revenue and expenses” — loại lãi vay ra khỏi lợi nhuận đúng bằng việc loại bỏ động cơ lợi nhuận chính của một ngân hàng. Phương án b và c sai: ngân hàng vẫn có khấu hao (dù nhỏ so với tài sản tài chính), và quy mô vốn hóa lớn hay nhỏ không phải lý do khiến EV mất nghĩa.',
+      en: 'The professional source (Mergers & Inquisitions) states plainly: “In fact, you don’t even calculate Enterprise Value for banks and insurance firms.” The root cause has two parts per the source: for banks and insurers, debt (deposits, borrowings) directly funds the core lending business rather than being a financing decision separate from operations ("debt... related to the company\'s core operations"); and “EBITDA is no longer meaningful because interest is a critical component of both revenue and expenses” — stripping out interest removes the very driver of a bank\'s profit. Choices b and c are wrong: banks still carry some depreciation, and market-cap size is not the reason EV loses meaning.',
     },
     source: {
       url: 'https://mergersandinquisitions.com/bank-insurance-modeling-101/',
@@ -911,23 +911,23 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'Ngành công nghệ, nơi doanh nghiệp gần như không vay nợ',
-        en: 'The technology sector, where firms carry almost no debt',
-      },
-      b: {
-        vi: 'Ngành bán lẻ, nơi các doanh nghiệp so sánh có đòn bẩy tài chính tương đồng nhau',
-        en: 'The retail sector, where the firms being compared have similar financial leverage',
-      },
-      c: {
         vi: 'Ngành ngân hàng, nơi nợ vay chiếm phần lớn tổng tài sản',
         en: 'The banking sector, where borrowed funds make up most of total assets',
       },
-      d: {
+      b: {
         vi: 'Doanh nghiệp mới niêm yết, chưa có lịch sử báo cáo tài chính',
         en: 'Recently listed companies with no financial reporting history yet',
       },
+      c: {
+        vi: 'Ngành công nghệ, nơi doanh nghiệp gần như không vay nợ',
+        en: 'The technology sector, where firms carry almost no debt',
+      },
+      d: {
+        vi: 'Ngành bán lẻ, nơi các doanh nghiệp so sánh có đòn bẩy tài chính tương đồng nhau',
+        en: 'The retail sector, where the firms being compared have similar financial leverage',
+      },
     },
-    answers: ['a', 'b'],
+    answers: ['c', 'd'],
     explain: {
       vi: '“Analysts have historically been able to get away with this inconsistency because they have used it in sectors with no debt (technology) or sectors where financial leverage is similar (retail).” Khi nợ gần bằng 0 (công nghệ) hoặc đòn bẩy giữa các doanh nghiệp so sánh gần giống nhau (bán lẻ), phần "lệch" do P/Sales bỏ qua nợ trở nên không đáng kể; ngân hàng — nơi nợ chiếm phần lớn tài sản — không nằm trong nhóm này.',
       en: '“Analysts have historically been able to get away with this inconsistency because they have used it in sectors with no debt (technology) or sectors where financial leverage is similar (retail).” When debt is close to zero (technology) or leverage is similar across the compared firms (retail), the distortion from P/Sales ignoring debt becomes negligible; banking, where debt makes up most of total assets, is not in this group.',
@@ -1120,23 +1120,23 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'P/E của doanh nghiệp đang cao hơn trung bình ngành',
-        en: "The company's P/E is higher than the industry average",
-      },
-      b: {
         vi: 'P/E đang âm vì doanh nghiệp làm ăn thua lỗ',
         en: 'P/E is negative because the company is posting a loss',
       },
-      c: {
+      b: {
         vi: 'Tốc độ tăng trưởng G dự phóng âm, tức tăng trưởng tương lai được dự đoán thấp hơn hiện tại và quá khứ',
         en: 'The projected growth rate G is negative, meaning future growth is expected to be lower than both current and past growth',
+      },
+      c: {
+        vi: 'P/E của doanh nghiệp đang cao hơn trung bình ngành',
+        en: "The company's P/E is higher than the industry average",
       },
       d: {
         vi: 'Cổ phiếu vừa thực hiện chia tách (stock split) làm tăng số lượng cổ phiếu lưu hành',
         en: 'The stock just went through a split, increasing the number of shares outstanding',
       },
     },
-    answers: ['b', 'c'],
+    answers: ['a', 'b'],
     explain: {
       vi: 'Nguồn nêu đúng hai trường hợp khiến PEG âm: “P/E âm tức là doanh nghiệp đang làm ăn thua lỗ và lúc này chỉ số không có ý nghĩa về định giá và kinh tế” và “G âm: Nhà đầu tư dự đoán mức tăng trưởng trong tương lai sẽ thấp hơn mức tăng trưởng của hiện tại và quá khứ”. Chia tách cổ phiếu hay P/E cao hơn trung bình ngành không tự nó làm PEG âm.',
       en: 'The source names exactly two cases that make PEG negative: “P/E âm tức là doanh nghiệp đang làm ăn thua lỗ và lúc này chỉ số không có ý nghĩa về định giá và kinh tế” and “G âm: Nhà đầu tư dự đoán mức tăng trưởng trong tương lai sẽ thấp hơn mức tăng trưởng của hiện tại và quá khứ”. A stock split or a P/E above the industry average does not by itself make PEG negative.',
@@ -1367,22 +1367,22 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
         en: 'High-growth stocks, especially in technology, where much of the value comes from expected future earnings',
       },
       b: {
-        vi: 'Tổ chức tài chính, quỹ đầu tư bất động sản (REIT) và doanh nghiệp ít tài sản hữu hình, nơi giá trị sổ sách không phản ánh đúng giá trị kinh tế thực',
-        en: 'Financial institutions, REITs, and asset-light businesses, where book value does not reflect true economic value',
-      },
-      c: {
         vi: 'Cổ phiếu có vốn hoá dưới 1.000 tỷ đồng',
         en: 'Stocks with a market capitalization below VND 1,000 billion',
+      },
+      c: {
+        vi: 'Tổ chức tài chính, quỹ đầu tư bất động sản (REIT) và doanh nghiệp ít tài sản hữu hình, nơi giá trị sổ sách không phản ánh đúng giá trị kinh tế thực',
+        en: 'Financial institutions, REITs, and asset-light businesses, where book value does not reflect true economic value',
       },
       d: {
         vi: 'EPS hoặc giá trị sổ sách mỗi cổ phiếu (BVPS) bị âm',
         en: 'EPS or book value per share (BVPS) is negative',
       },
     },
-    answers: ['a', 'b', 'd'],
+    answers: ['a', 'c', 'd'],
     explain: {
-      vi: "Wikipedia liệt kê đúng ba hạn chế này. Về tăng trưởng: “The formula does not account for future earnings growth, making it unsuitable for evaluating growth stocks, particularly in sectors such as technology where much of a company's value derives from expected future earnings.” Về giá trị âm: “The equation requires both positive earnings per share and positive book value per share. Companies with negative earnings or negative equity produce an undefined result under the square root, making the metric inapplicable.” Về ngành nghề: “The metric is most applicable to industrial and manufacturing companies. It is less useful for financial institutions, REITs, and asset-light businesses where book value may not reflect the company's true economic value.” Đáp án d (ngưỡng vốn hoá) không nằm trong danh sách hạn chế nào được nguồn nêu ra.",
-      en: "Wikipedia lists exactly these three limitations. On growth: “The formula does not account for future earnings growth, making it unsuitable for evaluating growth stocks, particularly in sectors such as technology where much of a company's value derives from expected future earnings.” On negative values: “The equation requires both positive earnings per share and positive book value per share. Companies with negative earnings or negative equity produce an undefined result under the square root, making the metric inapplicable.” On sector: “The metric is most applicable to industrial and manufacturing companies. It is less useful for financial institutions, REITs, and asset-light businesses where book value may not reflect the company's true economic value.” Choice d (a market-cap threshold) is not among any limitation the source states.",
+      vi: "Wikipedia liệt kê đúng ba hạn chế này. Về tăng trưởng: “The formula does not account for future earnings growth, making it unsuitable for evaluating growth stocks, particularly in sectors such as technology where much of a company's value derives from expected future earnings.” Về giá trị âm: “The equation requires both positive earnings per share and positive book value per share. Companies with negative earnings or negative equity produce an undefined result under the square root, making the metric inapplicable.” Về ngành nghề: “The metric is most applicable to industrial and manufacturing companies. It is less useful for financial institutions, REITs, and asset-light businesses where book value may not reflect the company's true economic value.” Đáp án b (ngưỡng vốn hoá) không nằm trong danh sách hạn chế nào được nguồn nêu ra.",
+      en: "Wikipedia lists exactly these three limitations. On growth: “The formula does not account for future earnings growth, making it unsuitable for evaluating growth stocks, particularly in sectors such as technology where much of a company's value derives from expected future earnings.” On negative values: “The equation requires both positive earnings per share and positive book value per share. Companies with negative earnings or negative equity produce an undefined result under the square root, making the metric inapplicable.” On sector: “The metric is most applicable to industrial and manufacturing companies. It is less useful for financial institutions, REITs, and asset-light businesses where book value may not reflect the company's true economic value.” Choice b (a market-cap threshold) is not among any limitation the source states.",
     },
     source: {
       url: 'https://en.wikipedia.org/wiki/Graham_number',
@@ -1721,22 +1721,22 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
         en: 'Modern business models and management activity such as takeovers have made the strategy less lucrative',
       },
       b: {
-        vi: 'NCAV chỉ có thể tính được cho công ty niêm yết sau năm 2000',
-        en: 'NCAV can only be calculated for companies listed after the year 2000',
-      },
-      c: {
         vi: 'Khi một doanh nghiệp đóng cửa ngày nay, chi phí thanh lý phát sinh nhiều hơn, ăn vào phần vốn lưu động đáng lẽ còn lại cho cổ đông',
         en: 'When a business closes today, liquidation costs are higher and eat into the working capital that would otherwise be left for shareholders',
       },
-      d: {
+      c: {
         vi: 'Cổ phiếu net-net càng khó tìm hơn khi thị trường đang trong xu hướng tăng giá',
         en: 'Net-net stocks are even harder to find when the market is in an uptrend',
       },
+      d: {
+        vi: 'NCAV chỉ có thể tính được cho công ty niêm yết sau năm 2000',
+        en: 'NCAV can only be calculated for companies listed after the year 2000',
+      },
     },
-    answers: ['a', 'c', 'd'],
+    answers: ['a', 'b', 'c'],
     explain: {
-      vi: "Nguồn giải thích vì sao net-net khó áp dụng hơn ngày nay: “During Graham's time, whenever businesses were liquidated, many companies preferred to ascribe the working capital to the shareholders' value. Therefore, the net-net approach was more practical than it is now. Today, closing a business usually attracts numerous costs which extract the working capital. However, it may still be viable if one is well-versed in the market and tries to make short-term gains. This is also a method of dispersing the risks that may arise when trading. On the other hand, finding net-net companies is extremely difficult, especially when the market trend is bullish.” Cùng bài viết còn dẫn lời Warren Buffett rằng mô hình kinh doanh thay đổi và các hoạt động quản trị hiện đại như thâu tóm khiến chiến lược này kém hấp dẫn hơn ngày nay. Không có giới hạn 'sau năm 2000' nào được nhắc tới trong nguồn — đáp án b bịa.",
-      en: "The source explains why net-net investing is harder today: “During Graham's time, whenever businesses were liquidated, many companies preferred to ascribe the working capital to the shareholders' value. Therefore, the net-net approach was more practical than it is now. Today, closing a business usually attracts numerous costs which extract the working capital. However, it may still be viable if one is well-versed in the market and tries to make short-term gains. This is also a method of dispersing the risks that may arise when trading. On the other hand, finding net-net companies is extremely difficult, especially when the market trend is bullish.” The same article also cites Warren Buffett as saying that evolving business models and modern management activity such as takeovers have made the strategy less lucrative today. No 'after the year 2000' cutoff appears anywhere in the source — choice b is fabricated.",
+      vi: "Nguồn giải thích vì sao net-net khó áp dụng hơn ngày nay: “During Graham's time, whenever businesses were liquidated, many companies preferred to ascribe the working capital to the shareholders' value. Therefore, the net-net approach was more practical than it is now. Today, closing a business usually attracts numerous costs which extract the working capital. However, it may still be viable if one is well-versed in the market and tries to make short-term gains. This is also a method of dispersing the risks that may arise when trading. On the other hand, finding net-net companies is extremely difficult, especially when the market trend is bullish.” Cùng bài viết còn dẫn lời Warren Buffett rằng mô hình kinh doanh thay đổi và các hoạt động quản trị hiện đại như thâu tóm khiến chiến lược này kém hấp dẫn hơn ngày nay. Không có giới hạn 'sau năm 2000' nào được nhắc tới trong nguồn — đáp án d bịa.",
+      en: "The source explains why net-net investing is harder today: “During Graham's time, whenever businesses were liquidated, many companies preferred to ascribe the working capital to the shareholders' value. Therefore, the net-net approach was more practical than it is now. Today, closing a business usually attracts numerous costs which extract the working capital. However, it may still be viable if one is well-versed in the market and tries to make short-term gains. This is also a method of dispersing the risks that may arise when trading. On the other hand, finding net-net companies is extremely difficult, especially when the market trend is bullish.” The same article also cites Warren Buffett as saying that evolving business models and modern management activity such as takeovers have made the strategy less lucrative today. No 'after the year 2000' cutoff appears anywhere in the source — choice d is fabricated.",
     },
     source: {
       url: 'https://www.wallstreetmojo.com/net-net/',

@@ -59,7 +59,10 @@ describe('cuối màn chi tiết dưới 1024px (19/10/2026)', () => {
 
   /* Lớp `.quizBlock` chỉ có tác dụng khi màn thật sự trao nó cho khối Bài tập. */
   it('màn chi tiết trao lớp quizBlock cho QuizPanel', () => {
-    expect(doc('./FormulaDetail.tsx')).toMatch(/<QuizPanel[^>]*className=\{styles\.quizBlock\}/);
+    // `MemoQuizPanel` từ 28/10/2026: bản `memo` của `QuizPanel`, xem đầu `FormulaDetail.tsx`.
+    expect(doc('./FormulaDetail.tsx')).toMatch(
+      /<(?:Memo)?QuizPanel[^>]*className=\{styles\.quizBlock\}/,
+    );
   });
 
   it('thẻ Bài tập đệm 8 / 12px, ô miễn trừ đệm dọc 6px và dòng 1,4', () => {

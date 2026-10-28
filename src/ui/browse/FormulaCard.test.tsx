@@ -6,12 +6,22 @@ import type { ReactElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
+import { formulaPath } from '@/application';
 import type { FormulaSpec } from '@/application';
 
 import { CategoryIcon, toneClass } from './CategoryIcon';
 import { FormulaCard } from './FormulaCard';
 
 afterEach(cleanup);
+
+/*
+ * Thẻ hàng dùng `IntentLink`, lá này gọi `useRouter()` để tải trước khi người dùng tỏ ý (28/10/2026).
+ * jsdom không dựng App Router, nên giả router; `prefetch` là thứ ca kiểm dưới cùng soi.
+ */
+const { prefetch } = vi.hoisted(() => ({ prefetch: vi.fn() }));
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({ push: vi.fn(), replace: vi.fn(), prefetch }),
+}));
 
 /** Đúng SVG mà `CategoryIcon` vẽ cho một nhóm, cỡ 14 như dòng nhóm của thẻ dùng. */
 function iconNhom(id: string): string {
@@ -244,5 +254,25 @@ describe('FormulaCard — onSelect và ranh giới server/client', () => {
 
     // Cú bấm đi kèm để màn Công thức phân biệt mở ngay trong tab này với Ctrl/⌘-bấm mở tab mới.
     expect(onSelect).toHaveBeenCalledWith(PE, expect.objectContaining({ type: 'click' }));
+  });
+});
+
+describe('thẻ hàng tải trước khi người dùng tỏ ý, không tải khi dựng (28/10/2026)', () => {
+  it('dựng xong chưa tải gì; rê chuột, chạm hay đưa tiêu điểm thì tải đúng trang đích', async () => {
+    prefetch.mockClear();
+    render(<FormulaCard formula={PE} />);
+    expect(prefetch).not.toHaveBeenCalled();
+
+    const link = screen.getByRole('link');
+    await userEvent.hover(link);
+    expect(prefetch).toHaveBeenLastCalledWith(formulaPath('pe'));
+
+    prefetch.mockClear();
+    link.dispatchEvent(new Event('touchstart', { bubbles: true }));
+    expect(prefetch).toHaveBeenLastCalledWith(formulaPath('pe'));
+
+    prefetch.mockClear();
+    link.focus();
+    expect(prefetch).toHaveBeenLastCalledWith(formulaPath('pe'));
   });
 });

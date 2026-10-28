@@ -13,7 +13,13 @@ import { areaPath, gapsOf, linePath } from './path';
 import { nearestPointByX, pointerToViewBox } from './pointer';
 import { seriesOf } from './series';
 import { decimalsOf, extentOf, linearScale, niceAxis, niceStep } from './scale';
-import { pickSweepVariable, sweepCandidates, sweepDomain, sweepPoints } from './sweep';
+import {
+  pickSweepVariable,
+  rankSweepVariables,
+  sweepCandidates,
+  sweepDomain,
+  sweepPoints,
+} from './sweep';
 import { condensePoints } from './table';
 import { PRIMARY_SERIES_KEY } from './types';
 import type { ChartPoint } from './types';
@@ -588,6 +594,43 @@ describe('pickSweepVariable()', () => {
     // Hàm không nhận inputs; ca này chốt lại đúng điều đó bằng chữ ký, và chốt kết quả ổn định.
     expect(pickSweepVariable(pe, CTX, 'basic')?.key).toBe(before?.key);
     expect(before?.key).toBe('price');
+  });
+
+  /*
+   * Từ 28/10/2026 kết quả được NHỚ theo (module, ctx, mức), vì `buildChartModel()` hỏi nó ở mỗi phím.
+   * Hai điều phải giữ: bản nhớ ra đúng câu trả lời của phép xếp hạng gốc trên cả 111 × 2 mức, và lượt
+   * hỏi lại cùng khoá không chạy công thức lần nào — còn ctx mới (nạp chuỗi giá) thì tính lại.
+   */
+  it('nhớ theo (module, ctx, mức): trùng phép xếp hạng gốc, lượt hai không chạy calc, ctx mới thì tính lại', () => {
+    for (const formula of FORMULA_MODULES) {
+      for (const level of ['basic', 'advanced'] as const) {
+        const ctx: CalcContext = { ...CTX };
+        const ranked = rankSweepVariables(formula, ctx, level);
+        const goc = (ranked.find((rank) => rank.swing > 0) ?? ranked[0])?.variable.key ?? null;
+        expect(
+          pickSweepVariable(formula, ctx, level)?.key ?? null,
+          `${formula.spec.id} · ${level}`,
+        ).toBe(goc);
+      }
+    }
+
+    const pe = moduleOf('pe');
+    let calls = 0;
+    const counted = {
+      spec: pe.spec,
+      calc: (...args: Parameters<typeof pe.calc>) => {
+        calls += 1;
+        return pe.calc(...args);
+      },
+    };
+    const ctx: CalcContext = { ...CTX };
+    pickSweepVariable(counted, ctx, 'basic');
+    const lanDau = calls;
+    expect(lanDau).toBeGreaterThan(0);
+    pickSweepVariable(counted, ctx, 'basic');
+    expect(calls).toBe(lanDau);
+    pickSweepVariable(counted, { ...CTX }, 'basic');
+    expect(calls).toBe(2 * lanDau);
   });
 });
 

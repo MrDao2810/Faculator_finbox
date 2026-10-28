@@ -7,6 +7,7 @@ import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vite
 import {
   DISCLAIMER_VI,
   FORMULAS,
+  FORMULA_GROUPS,
   FORMULA_USAGE_KEY,
   FORMULA_VISIT_KEY,
   INPUT_DRAFT_KEY,
@@ -20,6 +21,7 @@ import {
   SAVED_CALCS_KEY,
   WORKING_SERIES_KEY,
   formatIsoDate,
+  groupOfFormula,
   parseFormulaUsage,
   parseActiveTicker,
   parseSavedCalcs,
@@ -129,6 +131,13 @@ function specOf(id: string): FormulaSpec {
  */
 const notationCache = new WeakMap<FormulaSpec, NotationView>();
 
+/** Module của nhóm chứa `spec`: đúng thứ `FormulaDetailHost` nạp động ở trang thật (28/10/2026). */
+function nhomCua(spec: FormulaSpec) {
+  const group = groupOfFormula(spec.id);
+  if (group === undefined) throw new Error(`Công thức '${spec.id}' không thuộc nhóm nào.`);
+  return FORMULA_GROUPS[group];
+}
+
 /**
  * Màn chi tiết như `page.tsx` dựng nó.
  *
@@ -152,6 +161,7 @@ function Man({ spec, bai }: { spec: FormulaSpec; bai?: BaiHuongDan }) {
   return (
     <FormulaDetail
       spec={spec}
+      modules={nhomCua(spec)}
       asOf={AS_OF}
       notation={notation}
       {...(thaySoCay === null ? {} : { thaySoCay })}
@@ -1519,6 +1529,7 @@ describe('WF-19 — thẻ Bài tập ở trạng thái nghỉ', () => {
     render(
       <FormulaDetail
         spec={spec}
+        modules={nhomCua(spec)}
         asOf={AS_OF}
         notation={buildNotationView(spec)}
         quiz={{ items: [cauHoi] }}

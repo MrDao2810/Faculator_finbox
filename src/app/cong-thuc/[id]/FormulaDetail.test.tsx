@@ -5,6 +5,7 @@ import userEvent from '@testing-library/user-event';
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import {
+  DISCLAIMER_VI,
   FORMULAS,
   FORMULA_USAGE_KEY,
   FORMULA_VISIT_KEY,
@@ -529,6 +530,39 @@ describe('WF-03 — chín khối đúng thứ tự wireframe', () => {
     expect(khung.querySelector('#goi-y-nhap-so')).not.toBeNull();
   });
 
+  /*
+   * Rê vào một ô trong khung "Lấy số liệu ở đâu" thì ký hiệu của ô ấy sáng vàng ở thẻ Công thức, đúng
+   * vệt của khung "cách tính" (28/10/2026, chủ dự án: _"Khi hover vào biến trong popup này thì cũng sẽ
+   * được highlight vàng như bên kia"_). Thẻ tô bằng `data-active`, và dòng bảng nào cũng mang
+   * `data-hang` — kể cả dòng không có bước tính như `t`, nơi trước đó chỉ chữ trong hình sáng lên.
+   */
+  it('rê vào một ô trong khung "Lấy số liệu ở đâu" thì ký hiệu của ô sáng ở thẻ Công thức', async () => {
+    const user = userEvent.setup();
+    const spec = specOf('wacc');
+    const { container } = render(<Man spec={spec} bai={baiHuongDanFor('wacc', AS_OF)} />);
+    const the = container.querySelector('[class*="formulaCard"]') as HTMLElement;
+    const so = (latex: string) => String(spec.symbols?.findIndex((s) => s.latex === latex));
+
+    await user.click(screen.getByRole('link', { name: /Hướng dẫn: lấy số liệu ở đâu/ }));
+    const khung = await screen.findByRole('dialog');
+    const hang = (nhan: string) =>
+      [...khung.querySelectorAll('dt')].find((dt) => dt.textContent?.startsWith(nhan))
+        ?.parentElement as Element;
+
+    fireEvent.pointerEnter(hang('Vốn chủ sở hữu (E)'));
+    expect(the.getAttribute('data-active')).toBe(so('E'));
+    fireEvent.pointerLeave(hang('Vốn chủ sở hữu (E)'));
+    expect(the.hasAttribute('data-active')).toBe(false);
+
+    fireEvent.pointerEnter(hang('Thuế suất'));
+    expect(the.getAttribute('data-active')).toBe(so('t'));
+    expect(the.querySelector(`dt[data-hang="${so('t')}"]`)).not.toBeNull();
+
+    // Đóng khung khi con trỏ còn trên hàng: vệt tắt theo, không treo lại trên thẻ.
+    fireEvent.keyDown(document, { key: 'Escape' });
+    expect(the.hasAttribute('data-active')).toBe(false);
+  });
+
   it('nút ở khối Biểu đồ mở mục của biểu đồ, không mở mục của ô nhập', async () => {
     const user = userEvent.setup();
     render(<Man spec={specOf('pe')} bai={baiHuongDanFor('pe', AS_OF)} />);
@@ -768,9 +802,14 @@ describe('WF-03 — chín khối đúng thứ tự wireframe', () => {
    * tay để ca này không phụ thuộc nội dung bảng của công thức thật.
    */
   it('thẻ Công thức: hình + dòng chữ bên trái, bảng ký hiệu MathML bên phải, mỗi ký hiệu một dòng', () => {
+    /*
+     * Bảng dựng tay vẫn phải chứa mọi dòng mà dữ liệu cách tính của `pe` nhắc tới — từ 28/10/2026 cả
+     * dòng kết quả `P/E` cũng có cụm ở dòng chữ (`skippedPhrases`), thiếu dòng ấy là thẻ ném lỗi.
+     */
     const spec: FormulaSpec = {
       ...specOf('pe'),
       symbols: [
+        { latex: 'P/E', meaning: { vi: 'hệ số giá trên lợi nhuận', en: 'price to earnings' } },
         {
           latex: 'P',
           meaning: { vi: 'giá thị trường một cổ phiếu', en: 'market price per share' },
@@ -792,9 +831,13 @@ describe('WF-03 — chín khối đúng thứ tự wireframe', () => {
     expect(bang?.getAttribute('aria-label')).toBe(t('detail.symbols'));
     const dts = [...(bang?.querySelectorAll('dt') ?? [])];
     const dds = [...(bang?.querySelectorAll('dd') ?? [])].map((dd) => dd.textContent);
-    expect(dts).toHaveLength(2);
+    expect(dts).toHaveLength(3);
     expect(dts.every((dt) => dt.querySelector('math') !== null)).toBe(true);
-    expect(dds).toEqual(['giá thị trường một cổ phiếu', 'lợi nhuận trên mỗi cổ phiếu']);
+    expect(dds).toEqual([
+      'hệ số giá trên lợi nhuận',
+      'giá thị trường một cổ phiếu',
+      'lợi nhuận trên mỗi cổ phiếu',
+    ]);
   });
 
   /*
@@ -1371,13 +1414,21 @@ describe('WF-03 — nối ba bottom sheet của gói 2.5', () => {
     ).not.toBeNull();
   });
 
+  /*
+   * Sheet không còn ô "Miễn trừ tự động đính kèm" từ 28/10/2026 (xem `ExportSheet.tsx`), nên ca này
+   * nhận sheet qua công tắc "Kèm biểu đồ" và giữ FR-24 bằng hành vi: không công tắc nào cho miễn trừ,
+   * và câu miễn trừ nằm sẵn trong vùng in.
+   */
   it('bấm Xuất thì mở sheet xuất file, và miễn trừ không tắt được (FR-24)', async () => {
-    render(<Man spec={specOf('pe')} />);
+    const { container } = render(<Man spec={specOf('pe')} />);
 
     await userEvent.click(screen.getByRole('button', { name: t('detail.download') }));
 
-    expect(screen.getByText(/Miễn trừ tự động đính kèm/)).not.toBeNull();
-    expect(screen.getByText(/Không thể tắt/)).not.toBeNull();
+    expect(screen.getByRole('switch', { name: t('export.withChart') })).not.toBeNull();
+    expect(screen.queryByRole('switch', { name: /miễn trừ/i })).toBeNull();
+    expect(container.querySelector('.print-region .print-disclaimer')?.textContent).toBe(
+      DISCLAIMER_VI,
+    );
   });
 });
 
@@ -1392,7 +1443,7 @@ describe('WF-03 — bottom sheet chỉ dựng khi người dùng mở', () => {
 
     // Vùng in của ExportSheet đi theo sheet, nên nó cũng chưa có mặt.
     expect(container.querySelector('.print-region')).toBeNull();
-    expect(screen.queryByText(/Miễn trừ tự động đính kèm/)).toBeNull();
+    expect(screen.queryByRole('switch', { name: t('export.withChart') })).toBeNull();
     expect(screen.queryByRole('button', { name: 'Nạp' })).toBeNull();
   });
 

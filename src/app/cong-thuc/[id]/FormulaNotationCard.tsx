@@ -17,6 +17,11 @@ export interface FormulaNotationCardProps {
   spec: FormulaSpec;
   /** Mọi thứ dựng sẵn lúc build — `buildNotationView()` ở `page.tsx`. */
   notation: NotationView;
+  /**
+   * Ký hiệu tô sáng từ NGOÀI thẻ — ô đang được rê vào trong khung "Lấy số liệu ở đâu" (28/10/2026).
+   * Chỉ tô, không mở khung "cách tính"; khung của chính thẻ đang mở thì ký hiệu của khung ấy thắng.
+   */
+  soi?: number | null;
 }
 
 /** Khung cuộn ngang của hình — cuộn thì điểm chạm trôi theo, khung phải đặt lại. */
@@ -41,18 +46,23 @@ function formulaScroller(card: HTMLDivElement): Element | null {
  *
  * ── Điểm chạm ─────────────────────────────────────────────────────────────────────────────────
  *
- * Mỗi dòng bảng ký hiệu có khung mang số thứ tự `k` ở ba chỗ, đều qua thuộc tính `data-sym="k"`:
- * phần tử MathML trong hình (gắn lúc build, `mathml-marks.ts`), đoạn chữ ở dòng chữ, và `<dt>` +
- * nút nghĩa ở bảng. Chỉ nút ở bảng là điểm dừng của phím Tab — người dùng bàn phím mở khung từ
- * bảng ký hiệu; hình và dòng chữ là lối tắt cho chuột và ngón tay.
+ * Mỗi dòng bảng ký hiệu mang số thứ tự `k` ở ba chỗ, đều qua thuộc tính `data-sym="k"`: phần tử
+ * MathML trong hình (gắn lúc build, `mathml-marks.ts`), đoạn chữ ở dòng chữ, và `<dt>` + nút nghĩa
+ * ở bảng. Chỉ nút ở bảng là điểm dừng của phím Tab — người dùng bàn phím mở khung từ bảng ký hiệu;
+ * hình và dòng chữ là lối tắt cho chuột và ngón tay.
  *
- * MỌI ký hiệu trong hình là điểm chạm, không chỉ ký hiệu có bước tính (26/10/2026). Chủ dự án:
- * _"hiện tại đang chỉ chú thích những ký hiệu khó hiểu, tôi muốn ký hiệu nào cũng cần giải thích"_.
- * Ký hiệu không có bước tính (số nhập thẳng như thị giá `P`) mở khung chỉ có dòng "ký hiệu: nghĩa",
- * đúng khung hình trong lời giải Bài tập đã mở từ 25/09/2026. Ở BẢNG thì dòng ấy giữ là chữ thường,
- * không thành nút: khung của nó chép lại đúng dòng đang đứng đó, bật ra cạnh chính nó chỉ che các
- * dòng bên dưới. Hệ quả: bàn phím không mở khung chỉ-có-nghĩa, nhưng cũng không mất gì — nghĩa ấy
- * đọc được ngay ở bảng.
+ * MỌI ký hiệu là điểm chạm ở cả ba chỗ, không chỉ ký hiệu có bước tính. Ở hình từ 26/10/2026 (chủ
+ * dự án: _"hiện tại đang chỉ chú thích những ký hiệu khó hiểu, tôi muốn ký hiệu nào cũng cần giải
+ * thích"_); ở bảng và dòng chữ từ 28/10/2026 — chủ dự án khoanh "Thị giá", "100%" ở dòng chữ và hai
+ * dòng `P`, `100%` của bảng Biên an toàn: _"đang chưa hover vào để bật popup lên được như những phần
+ * khác, sửa toàn bộ công thức liên quan"_. Ký hiệu không có bước tính (số nhập thẳng như thị giá
+ * `P`, hằng số, kết quả) mở khung chỉ có dòng "ký hiệu: nghĩa", đúng khung hình trong lời giải Bài
+ * tập đã mở từ 25/09/2026.
+ *
+ * Điều này ĐẢO lựa chọn của 26/10/2026, khi dòng bảng không có bước tính còn giữ là chữ thường vì
+ * khung của nó chép lại đúng dòng đang đứng đó. Chủ dự án muốn mọi dòng cùng một cách dùng; cái giá
+ * biết trước là khung ấy lặp lại dòng và che các dòng bên dưới khi mở. Cụm ở dòng chữ của dòng không
+ * có bước tính khai ở `FormulaHowTo.skippedPhrases`.
  *
  * Tô sáng thuần CSS: thẻ mang `data-active="k"` khi khung của `k` đang mở, và 12 selector tĩnh
  * trong `FormulaNotationCard.module.css` tô mọi `[data-sym='k']`. Không ghi gì vào DOM của MathML.
@@ -76,6 +86,7 @@ function formulaScroller(card: HTMLDivElement): Element | null {
 export const FormulaNotationCard = memo(function FormulaNotationCard({
   spec,
   notation,
+  soi = null,
 }: FormulaNotationCardProps) {
   const t = useT();
   const pick = usePick();
@@ -141,7 +152,7 @@ export const FormulaNotationCard = memo(function FormulaNotationCard({
     <div
       ref={cardRef}
       className={`${detailStyles.formulaCard} ${styles.card}`}
-      data-active={state === null ? undefined : state.sym}
+      data-active={state?.sym ?? soi ?? undefined}
       onPointerOver={handlers.onPointerOver}
       onPointerOut={handlers.onPointerOut}
       onClick={handlers.onClick}
@@ -198,10 +209,9 @@ export const FormulaNotationCard = memo(function FormulaNotationCard({
         Chủ dự án chốt bố cục 16/09/2026. Đây là DỮ LIỆU, không phải đoạn văn giải thích — hai bản
         đoạn văn/chú giải trước đó đều bị bỏ ("quê mùa"); đừng dựng lại chúng ở đây.
 
-        Dòng có khung cách tính: nghĩa bọc trong một `<button>` trông như chữ thường (gạch chấm), và
-        khung mở ra ngay trong `<dd>` ấy — thứ tự DOM đặt khung ngay sau nút, nên Tab đi thẳng vào
-        liên kết trong khung. Dòng không có bước tính giữ chữ thường; khung chỉ-có-nghĩa của nó (mở
-        từ hình) cũng dựng trong `<dd>` của nó.
+        Mọi dòng: nghĩa bọc trong một `<button>` trông như chữ thường (gạch chấm), và khung mở ra
+        ngay trong `<dd>` ấy — thứ tự DOM đặt khung ngay sau nút, nên Tab đi thẳng vào liên kết trong
+        khung. Dòng không có bước tính mở khung chỉ-có-nghĩa (28/10/2026, xem "Điểm chạm").
       */}
       {symbols.length > 0 && (
         <div className={styles.legend}>
@@ -213,30 +223,34 @@ export const FormulaNotationCard = memo(function FormulaNotationCard({
             aria-label={t('detail.symbols')}
           >
             {symbols.map((symbol, index) => {
-              const howTo = howToBySym.get(index);
               const meaning = pick(symbol.meaning);
               const open = state?.sym === index;
               return (
                 <Fragment key={symbol.latex}>
+                  {/*
+                    `data-hang` có ở MỌI dòng, kể cả dòng không có bước tính: nó chỉ để tô sáng
+                    (`FormulaNotationCard.module.css`), không phải điểm chạm — `useHowToPanel` chỉ
+                    đọc `data-sym`. Thiếu nó thì ô "Thuế suất (t)" rê trong khung "Lấy số liệu ở
+                    đâu" chỉ sáng chữ `t` trong hình, còn dòng `t` của bảng đứng im (28/10/2026).
+                    Cũng từ hôm ấy mọi dòng mang `data-sym` (xem "Điểm chạm" ở docblock), nên ở
+                    `<dt>` hai thuộc tính tô cùng một chỗ.
+                  */}
                   <dt
-                    {...(howTo === undefined ? {} : { 'data-sym': index })}
+                    data-hang={index}
+                    data-sym={index}
                     // eslint-disable-next-line react/no-danger -- MathML dựng lúc build, xem trên
                     dangerouslySetInnerHTML={symbolInner[index]}
                   />
                   <dd>
-                    {howTo === undefined ? (
-                      meaning
-                    ) : (
-                      <button
-                        type="button"
-                        className={styles.meaningButton}
-                        data-sym={index}
-                        aria-expanded={open}
-                        {...(open ? { 'aria-controls': panelId(index) } : {})}
-                      >
-                        {meaning}
-                      </button>
-                    )}
+                    <button
+                      type="button"
+                      className={styles.meaningButton}
+                      data-sym={index}
+                      aria-expanded={open}
+                      {...(open ? { 'aria-controls': panelId(index) } : {})}
+                    >
+                      {meaning}
+                    </button>
                     {open && !legendHidden && panelFor(index)}
                   </dd>
                 </Fragment>

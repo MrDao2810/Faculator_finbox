@@ -76,33 +76,10 @@
 }
 
 /*
- * Khối miễn trừ. Cố ý KHÔNG phải ô tick: FR-24 và WF-12 nói rõ không có tuỳ chọn tắt.
- * Nếu sau này ai đó định thêm công tắc ở đây thì phải sửa cả buildExportContent() ở tầng
- * Domain — và hàm đó có test chặn.
+ * `.locked`, `.lockedTitle`, `.lockedDetail` — ô vàng "! Miễn trừ tự động đính kèm" — BỎ ngày
+ * 28/10/2026 cùng câu chữ của nó (chủ dự án: _"xóa các phần khoanh đỏ đi"_). Miễn trừ vẫn gắn vào mọi
+ * file xuất; lý do và chỗ ghim ở docblock `ExportSheet.tsx`.
  */
-.locked {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-
-  margin-top: var(--space-4);
-  padding: var(--space-3);
-
-  background: var(--color-warning-soft);
-  border: 1px solid var(--color-warning-line);
-  border-radius: var(--radius-md);
-}
-
-.lockedTitle {
-  font-size: var(--text-sm);
-  font-weight: var(--weight-bold);
-  color: var(--color-warning);
-}
-
-.lockedDetail {
-  font-size: var(--text-xs);
-  color: var(--color-ink-soft);
-}
 
 .error {
   margin: var(--space-3) 0 0;

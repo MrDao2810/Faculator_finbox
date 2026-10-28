@@ -20,6 +20,10 @@ export const HOW_TO_MULTIPLES: Readonly<Record<string, FormulaHowTo>> = {
       },
     ],
     skipped: { 'P/E': 'ket-qua', P: 'nhap-tho' },
+    skippedPhrases: {
+      'P/E': { vi: ['P/E'], en: ['P/E'] },
+      P: { vi: ['Giá thị trường'], en: ['Market price'] },
+    },
   },
 
   pb: {
@@ -33,5 +37,9 @@ export const HOW_TO_MULTIPLES: Readonly<Record<string, FormulaHowTo>> = {
       },
     ],
     skipped: { 'P/B': 'ket-qua', P: 'nhap-tho' },
+    skippedPhrases: {
+      'P/B': { vi: ['P/B'], en: ['P/B'] },
+      P: { vi: ['Giá thị trường'], en: ['Market price'] },
+    },
   },
 };

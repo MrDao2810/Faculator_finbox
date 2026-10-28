@@ -23,5 +23,12 @@ export const HOW_TO_RISK: Readonly<Record<string, FormulaHowTo>> = {
     },
     whyNone:
       'Vốn tài khoản, mức rủi ro mỗi lệnh, giá vào và giá cắt lỗ đều do người dùng tự gõ, còn số tiền chấp nhận mất và khoản lỗ mỗi cổ phiếu là hai phép tính đã hiện trọn trong hình.',
+    skippedPhrases: {
+      Q: { vi: ['Cỡ lệnh'], en: ['Position size'] },
+      V: { vi: ['Vốn tài khoản'], en: ['Account capital'] },
+      r: { vi: ['Rủi ro mỗi lệnh'], en: ['Risk per trade'] },
+      'P_{vao}': { vi: ['Giá vào lệnh'], en: ['Entry price'] },
+      'P_{cat}': { vi: ['Giá cắt lỗ'], en: ['Stop-loss price'] },
+    },
   },
 };

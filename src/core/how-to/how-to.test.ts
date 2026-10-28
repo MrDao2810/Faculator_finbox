@@ -398,6 +398,38 @@ describe('khung cách tính — các bước', () => {
     expect(sai, sai.join('\n')).toEqual([]);
   });
 
+  /*
+   * Cụm của dòng KHÔNG có khung (28/10/2026, `skippedPhrases`) chịu đúng luật của cụm trong khung,
+   * cộng một luật riêng: khoá phải là dòng nằm trong `skipped`. Dòng có khung khai cụm ở chính khung
+   * của nó — khai ở hai chỗ thì hai chỗ sẽ lệch nhau.
+   */
+  it('cụm của dòng không có khung: khoá là dòng bỏ qua, đủ hai ngôn ngữ, chép nguyên văn', () => {
+    const sai: string[] = [];
+    for (const spec of canKiem) {
+      const howTo = HOW_TO[spec.id];
+      for (const [symbol, cum] of Object.entries(howTo?.skippedPhrases ?? {})) {
+        const noi = `${spec.id} · ${symbol}`;
+        if (howTo?.skipped[symbol] === undefined) {
+          sai.push(`${noi}: không phải dòng trong \`skipped\``);
+        }
+        if (cum.vi.length === 0 || cum.en.length === 0) {
+          sai.push(`${noi}: phải có cụm ở cả hai ngôn ngữ`);
+        }
+        for (const ngon of ['vi', 'en'] as const) {
+          const dong = spec.expression?.[ngon] ?? '';
+          for (const phrase of cum[ngon]) {
+            if (!dong.includes(phrase))
+              sai.push(`${noi} · ${ngon}: "${phrase}" không có trong dòng chữ`);
+            if (expressionLines(phrase).length > 1)
+              sai.push(`${noi} · ${ngon}: "${phrase}" vắt qua hai dòng`);
+            if (DASHES.test(phrase)) sai.push(`${noi} · ${ngon}: "${phrase}" có gạch ngang`);
+          }
+        }
+      }
+    }
+    expect(sai, sai.join('\n')).toEqual([]);
+  });
+
   it('không chữ nào của khung dùng gạch ngang — đứng cạnh dấu trừ là đọc nhầm', () => {
     const sai: string[] = [];
     for (const { spec, entry } of moiKhung()) {

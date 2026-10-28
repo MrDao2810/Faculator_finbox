@@ -49,6 +49,9 @@ export const HOW_TO_RISK_VOLATILITY: Readonly<Record<string, FormulaHowTo>> = {
       },
     ],
     skipped: { s: 'ket-qua', t: 'chi-so-chay', 'n - 1': 'da-hien-trong-hinh' },
+    skippedPhrases: {
+      s: { vi: ['Độ lệch chuẩn phiên'], en: ['Session standard deviation'] },
+    },
   },
 
   'do-bien-dong-nam-hoa': {
@@ -75,6 +78,11 @@ export const HOW_TO_RISK_VOLATILITY: Readonly<Record<string, FormulaHowTo>> = {
       '\\sigma_{nam}': 'ket-qua',
       D: 'nhap-tho',
       '\\sqrt{D}': 'da-hien-trong-hinh',
+    },
+    skippedPhrases: {
+      '\\sigma_{nam}': { vi: ['Độ biến động năm'], en: ['Annualized volatility'] },
+      D: { vi: ['Số phiên giao dịch trong một năm'], en: ['number of trading sessions in a year'] },
+      '\\sqrt{D}': { vi: ['căn bậc hai của'], en: ['square root of'] },
     },
   },
 
@@ -110,6 +118,14 @@ export const HOW_TO_RISK_VOLATILITY: Readonly<Record<string, FormulaHowTo>> = {
       t: 'chi-so-chay',
       'n - 1': 'da-hien-trong-hinh',
     },
+    skippedPhrases: {
+      DD: { vi: ['Độ lệch chuẩn bán phần'], en: ['Downside deviation'] },
+      B: { vi: ['Ngưỡng'], en: ['threshold'] },
+      'r_t < B': {
+        vi: ['riêng các phiên dưới ngưỡng'],
+        en: ['for sessions below the threshold only'],
+      },
+    },
   },
 
   /*
@@ -141,6 +157,9 @@ export const HOW_TO_RISK_VOLATILITY: Readonly<Record<string, FormulaHowTo>> = {
       },
     ],
     skipped: { CV: 'ket-qua', r: 'nam-trong-ky-hieu-khac' },
+    skippedPhrases: {
+      CV: { vi: ['Hệ số biến thiên'], en: ['Coefficient of variation'] },
+    },
   },
 
   'bien-do-dao-dong-lon-nhat': {
@@ -177,6 +196,10 @@ export const HOW_TO_RISK_VOLATILITY: Readonly<Record<string, FormulaHowTo>> = {
       },
     ],
     skipped: { A: 'ket-qua', '100': 'hang-so' },
+    skippedPhrases: {
+      '100': { vi: ['100'], en: ['100'] },
+      A: { vi: ['Biên độ dao động'], en: ['Price range'] },
+    },
   },
 
   'chuoi-phien-giam-dai-nhat': {
@@ -211,5 +234,8 @@ export const HOW_TO_RISK_VOLATILITY: Readonly<Record<string, FormulaHowTo>> = {
       },
     ],
     skipped: { L: 'ket-qua', k: 'chi-so-chay', t: 'chi-so-chay' },
+    skippedPhrases: {
+      L: { vi: ['Chuỗi giảm dài nhất'], en: ['Longest losing streak'] },
+    },
   },
 };

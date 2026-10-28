@@ -21,6 +21,13 @@ export const HOW_TO_FUNDAMENTALS: Readonly<Record<string, FormulaHowTo>> = {
     },
     whyNone:
       'Lợi nhuận sau thuế, cổ tức ưu đãi và số cổ phiếu lưu hành đều đọc thẳng trên báo cáo tài chính, còn phép trừ, phép chia và hệ số 10^9 đổi tỷ ₫ ra ₫ đã hiện trọn trong hình.',
+    skippedPhrases: {
+      EPS: { vi: ['EPS'], en: ['EPS'] },
+      '\\text{LNST}': { vi: ['Lợi nhuận sau thuế'], en: ['Net income after tax'] },
+      '\\text{Cổ tức ưu đãi}': { vi: ['Cổ tức ưu đãi'], en: ['Preferred dividends'] },
+      '\\text{Số CP lưu hành}': { vi: ['Số cổ phiếu lưu hành'], en: ['Shares outstanding'] },
+      '10^9': { vi: ['10^9'], en: ['10^9'] },
+    },
   },
 
   bvps: {
@@ -33,6 +40,12 @@ export const HOW_TO_FUNDAMENTALS: Readonly<Record<string, FormulaHowTo>> = {
     },
     whyNone:
       'Vốn chủ sở hữu và số cổ phiếu lưu hành đều đọc thẳng trên báo cáo tài chính, còn phép chia và hệ số 10^9 đổi tỷ ₫ ra ₫ đã hiện trọn trong hình.',
+    skippedPhrases: {
+      BVPS: { vi: ['BVPS'], en: ['BVPS'] },
+      '\\text{Vốn chủ sở hữu}': { vi: ['Vốn chủ sở hữu'], en: ['Equity'] },
+      '\\text{Số CP lưu hành}': { vi: ['Số cổ phiếu lưu hành'], en: ['Shares outstanding'] },
+      '10^9': { vi: ['10^9'], en: ['10^9'] },
+    },
   },
 
   roe: {
@@ -45,6 +58,12 @@ export const HOW_TO_FUNDAMENTALS: Readonly<Record<string, FormulaHowTo>> = {
     },
     whyNone:
       'Lợi nhuận sau thuế và vốn chủ sở hữu đều đọc thẳng trên báo cáo tài chính, và calc chỉ chia hai số ấy rồi nhân 100 đúng như hình.',
+    skippedPhrases: {
+      '100': { vi: ['100'], en: ['100'] },
+      ROE: { vi: ['ROE'], en: ['ROE'] },
+      '\\text{LNST}': { vi: ['Lợi nhuận sau thuế'], en: ['Net income after tax'] },
+      '\\text{Vốn chủ sở hữu}': { vi: ['Vốn chủ sở hữu'], en: ['Equity'] },
+    },
   },
 
   roa: {
@@ -57,6 +76,12 @@ export const HOW_TO_FUNDAMENTALS: Readonly<Record<string, FormulaHowTo>> = {
     },
     whyNone:
       'Lợi nhuận sau thuế và tổng tài sản đều đọc thẳng trên báo cáo tài chính, và calc chỉ chia hai số ấy rồi nhân 100 đúng như hình.',
+    skippedPhrases: {
+      '100': { vi: ['100'], en: ['100'] },
+      ROA: { vi: ['ROA'], en: ['ROA'] },
+      '\\text{LNST}': { vi: ['Lợi nhuận sau thuế'], en: ['Net income after tax'] },
+      '\\text{Tổng tài sản}': { vi: ['Tổng tài sản'], en: ['Total assets'] },
+    },
   },
 
   'bien-loi-nhuan-rong': {
@@ -69,6 +94,12 @@ export const HOW_TO_FUNDAMENTALS: Readonly<Record<string, FormulaHowTo>> = {
     },
     whyNone:
       'Lợi nhuận sau thuế và doanh thu thuần đều đọc thẳng trên báo cáo kết quả kinh doanh, và calc chỉ chia hai số ấy rồi nhân 100 đúng như hình.',
+    skippedPhrases: {
+      '100': { vi: ['100'], en: ['100'] },
+      ROS: { vi: ['ROS'], en: ['ROS'] },
+      '\\text{LNST}': { vi: ['Lợi nhuận sau thuế'], en: ['Net income after tax'] },
+      '\\text{Doanh thu thuần}': { vi: ['Doanh thu thuần'], en: ['Net revenue'] },
+    },
   },
 
   'bien-loi-nhuan-gop': {
@@ -81,6 +112,12 @@ export const HOW_TO_FUNDAMENTALS: Readonly<Record<string, FormulaHowTo>> = {
     },
     whyNone:
       'Doanh thu thuần và giá vốn hàng bán đều đọc thẳng trên báo cáo kết quả kinh doanh, còn phép trừ ra lợi nhuận gộp và phép chia nhân 100 đã hiện trọn trong hình.',
+    skippedPhrases: {
+      '100': { vi: ['100'], en: ['100'] },
+      '\\text{Biên gộp}': { vi: ['Biên gộp'], en: ['Gross margin'] },
+      '\\text{Doanh thu}': { vi: ['Doanh thu thuần'], en: ['Net revenue'] },
+      '\\text{Giá vốn}': { vi: ['Giá vốn hàng bán'], en: ['Cost of goods sold'] },
+    },
   },
 
   /*
@@ -98,6 +135,11 @@ export const HOW_TO_FUNDAMENTALS: Readonly<Record<string, FormulaHowTo>> = {
     },
     whyNone:
       'Tổng nợ phải trả và vốn chủ sở hữu đều đọc thẳng trên bảng cân đối kế toán, và calc chỉ chia hai số ấy đúng như hình.',
+    skippedPhrases: {
+      'D/E': { vi: ['D/E'], en: ['D/E'] },
+      '\\text{Tổng nợ phải trả}': { vi: ['Tổng nợ phải trả'], en: ['Total liabilities'] },
+      '\\text{Vốn chủ sở hữu}': { vi: ['Vốn chủ sở hữu'], en: ['Equity'] },
+    },
   },
 
   'thanh-toan-hien-hanh': {
@@ -109,6 +151,11 @@ export const HOW_TO_FUNDAMENTALS: Readonly<Record<string, FormulaHowTo>> = {
     },
     whyNone:
       'Tài sản ngắn hạn và nợ ngắn hạn đều đọc thẳng trên bảng cân đối kế toán, và calc chỉ chia hai số ấy đúng như hình.',
+    skippedPhrases: {
+      '\\text{Current ratio}': { vi: ['Hệ số hiện hành'], en: ['Current ratio'] },
+      '\\text{Tài sản ngắn hạn}': { vi: ['Tài sản ngắn hạn'], en: ['Current assets'] },
+      '\\text{Nợ ngắn hạn}': { vi: ['Nợ ngắn hạn'], en: ['Current liabilities'] },
+    },
   },
 
   'thanh-toan-nhanh': {
@@ -121,6 +168,12 @@ export const HOW_TO_FUNDAMENTALS: Readonly<Record<string, FormulaHowTo>> = {
     },
     whyNone:
       'Tài sản ngắn hạn, hàng tồn kho và nợ ngắn hạn đều đọc thẳng trên bảng cân đối kế toán, còn phép trừ tồn kho và phép chia đã hiện trọn trong hình.',
+    skippedPhrases: {
+      '\\text{Quick ratio}': { vi: ['Hệ số nhanh'], en: ['Quick ratio'] },
+      '\\text{Tài sản ngắn hạn}': { vi: ['Tài sản ngắn hạn'], en: ['Current assets'] },
+      '\\text{Hàng tồn kho}': { vi: ['Hàng tồn kho'], en: ['Inventory'] },
+      '\\text{Nợ ngắn hạn}': { vi: ['Nợ ngắn hạn'], en: ['Current liabilities'] },
+    },
   },
 
   'vong-quay-tong-tai-san': {
@@ -132,6 +185,11 @@ export const HOW_TO_FUNDAMENTALS: Readonly<Record<string, FormulaHowTo>> = {
     },
     whyNone:
       'Doanh thu thuần và tổng tài sản đều đọc thẳng trên báo cáo tài chính, và calc chỉ chia hai số ấy đúng như hình.',
+    skippedPhrases: {
+      '\\text{Vòng quay}': { vi: ['Vòng quay tài sản'], en: ['Asset turnover'] },
+      '\\text{Doanh thu thuần}': { vi: ['Doanh thu thuần'], en: ['Net revenue'] },
+      '\\text{Tổng tài sản}': { vi: ['Tổng tài sản'], en: ['Total assets'] },
+    },
   },
 
   /*
@@ -151,5 +209,10 @@ export const HOW_TO_FUNDAMENTALS: Readonly<Record<string, FormulaHowTo>> = {
       },
     ],
     skipped: { '\\text{Payout}': 'ket-qua', DPS: 'nhap-tho', '100': 'hang-so' },
+    skippedPhrases: {
+      '100': { vi: ['100'], en: ['100'] },
+      '\\text{Payout}': { vi: ['Hệ số chi trả'], en: ['Payout ratio'] },
+      DPS: { vi: ['Cổ tức tiền mặt mỗi cổ phiếu'], en: ['Cash dividend per share'] },
+    },
   },
 };

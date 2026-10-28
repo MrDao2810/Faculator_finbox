@@ -1035,4 +1035,30 @@ dialog.dialog > div {
   .explain {
     padding: var(--space-2) var(--space-3);
   }
+
+  /*
+   * Hàng tiêu đề của popup ("Bài tập · Câu 4 / 4 · thanh tiến độ · ×") thấp lại, 65 → 50px
+   * (28/10/2026, chủ dự án khoanh hàng ấy trên máy tính: _"height phần khoanh đỏ đang quá cao, giảm
+   * padding xuống"_). Đo trước: đệm của primitive 16px trên / 12px dưới, và nút × cao 44px đứng
+   * `flex-start` với lề trên âm 8px nên chiếm 36px — chữ "Bài tập" cách mép trên 16px mà cách
+   * đường kẻ dưới 24px. Nay căn giữa theo trục dọc, đệm 12px trên dưới, nút × ăn lề âm 12px trên
+   * dưới nên chỉ chiếm 20px của hàng mà vùng chạm vẫn đủ 44px, nằm gọn trong 12px đệm — cùng cách
+   * khối điện thoại của primitive đã làm cho mọi hộp nổi giữa (`BottomSheet.module.css`, 19/10).
+   *
+   * Riêng popup này, và chỉ từ 1024px: ảnh chụp là màn máy tính; dưới 1024px hàng này đã 53px
+   * (đệm 16px, chữ 16px) nhờ khối điện thoại ấy. Đệm hai bên giữ 20px để "Bài tập" thẳng mép với
+   * thân popup. Cỡ chữ không đổi — lời giao chỉ nói tới đệm.
+   *
+   * Bộ chọn cấu trúc vì `BottomSheet` không nhận lớp cho phần đầu: `dialog.dialog > div > header`
+   * cộng `:first-child` là (0,2,3), thắng `.panelCenter .header` (0,2,0) bất kể thứ tự nạp — cùng mẹo
+   * của tấm Lưu và tấm Nạp mẫu.
+   */
+  dialog.dialog > div > header:first-child {
+    align-items: center;
+    padding-block: var(--space-3);
+  }
+
+  dialog.dialog > div > header:first-child > button:last-child {
+    margin-block: calc(-1 * var(--space-3));
+  }
 }

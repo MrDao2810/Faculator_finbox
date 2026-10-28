@@ -12,18 +12,28 @@ import {
   formulaPath,
   headerHasScreenActions,
   headerTitleKey,
+  isSettingsPath,
   showsFooterDisclaimer,
 } from './routes';
 import { DEFAULT_LIST_PARAMS, parseListParams } from './url-state';
 
 describe('bản đồ đường dẫn (WF-18)', () => {
   /*
-   * Bốn mục từ 15/09/2026: "Trang chủ" rời thanh khi trang chủ gộp vào màn Công thức, nên "Công
-   * thức" vừa là mục đầu vừa là màn mở đầu. Ca này từng ghim năm mục với "home" đứng đầu.
+   * Ba mục từ 28/10/2026. "Trang chủ" rời thanh ngày 15/09/2026 khi trang chủ gộp vào màn Công thức
+   * (ca này từng ghim năm mục với "home" đứng đầu), rồi "Cài đặt" rời thanh ở cả PC lẫn điện thoại,
+   * thành icon bánh răng cạnh nút Sáng/Tối trên thanh trên (`SettingsLink`).
    */
-  it('thanh nav có đúng bốn mục, "Công thức" đứng đầu, "Về chúng tôi" đứng cuối', () => {
-    expect(NAV_ITEMS).toHaveLength(4);
-    expect(NAV_ITEMS.map((i) => i.key)).toEqual(['formulas', 'portfolio', 'settings', 'about']);
+  it('thanh nav có đúng ba mục, "Công thức" đứng đầu, "Về chúng tôi" đứng cuối', () => {
+    expect(NAV_ITEMS).toHaveLength(3);
+    expect(NAV_ITEMS.map((i) => i.key)).toEqual(['formulas', 'portfolio', 'about']);
+  });
+
+  /*
+   * Gác vế ngược lại: Cài đặt không được lặng lẽ quay về thanh nav. Chủ dự án chốt 28/10/2026 lối vào
+   * là icon trên thanh trên; đưa mục về là đảo quyết định ấy, phải hỏi trước.
+   */
+  it('không mục nav nào trỏ tới /cai-dat/ — lối vào là icon trên thanh trên', () => {
+    expect(NAV_ITEMS.some((i) => i.href === ROUTES.settings)).toBe(false);
   });
 
   /*
@@ -174,7 +184,7 @@ describe('headerHasScreenActions()', () => {
     expect(headerHasScreenActions('/danh-muc')).toBe(true);
   });
 
-  it('màn chính và các màn khác giữ Sáng/Tối và ngôn ngữ — khớp tuyệt đối', () => {
+  it('màn chính và các màn khác giữ Cài đặt, Sáng/Tối và ngôn ngữ — khớp tuyệt đối', () => {
     for (const path of [
       ROUTES.formulas,
       ROUTES.settings,
@@ -202,7 +212,17 @@ describe('activeRouteKey()', () => {
 
   it('trang con vẫn sáng mục cha', () => {
     expect(activeRouteKey('/cong-thuc/wacc/')).toBe('formulas');
-    expect(activeRouteKey('/cai-dat/')).toBe('settings');
+  });
+
+  /*
+   * NGOẠI LỆ CÓ CHỦ Ý với lý lẽ "không để trống cả thanh nav" của hai ca màn tìm kiếm / bảng dữ liệu
+   * bên dưới: Cài đặt rời thanh nav ngày 28/10/2026, và gán nó về một mục khác là nói sai chỗ người
+   * dùng đang đứng. Dấu "đang ở đây" của màn này là icon bánh răng mang `aria-current` (`SettingsLink`,
+   * gác ở `isSettingsPath()` ngay dưới và ở `SettingsLink.test.tsx`).
+   */
+  it('màn Cài đặt không sáng mục nav nào — có hay không dấu gạch cuối', () => {
+    expect(activeRouteKey(ROUTES.settings)).toBeNull();
+    expect(activeRouteKey('/cai-dat')).toBeNull();
   });
 
   it('chấp nhận đường dẫn thiếu dấu "/" ở cuối', () => {
@@ -225,6 +245,33 @@ describe('activeRouteKey()', () => {
 
   it('đường dẫn lạ thì không mục nào sáng', () => {
     expect(activeRouteKey('/khong-co-trang-nay/')).toBeNull();
+  });
+});
+
+/*
+ * Trạng thái "đang ở đây" của icon Cài đặt (28/10/2026) — thay cho mục nav đã bỏ. Khớp TUYỆT ĐỐI như
+ * `headerTitleKey()`: màn này không có trang con, và một đường dẫn chỉ BẮT ĐẦU bằng '/cai-dat' (như
+ * '/cai-dat-khac/') không phải nó.
+ */
+describe('isSettingsPath()', () => {
+  it('đúng màn Cài đặt, có hay không dấu gạch cuối', () => {
+    expect(isSettingsPath(ROUTES.settings)).toBe(true);
+    expect(isSettingsPath('/cai-dat')).toBe(true);
+  });
+
+  it('mọi màn khác thì không — kể cả đường dẫn chung tiền tố', () => {
+    for (const path of [
+      ROUTES.formulas,
+      ROUTES.portfolio,
+      ROUTES.about,
+      ROUTES.search,
+      '/cong-thuc/pe/',
+      '/cai-dat/x/',
+      '/cai-dat-khac/',
+      '/',
+    ]) {
+      expect(isSettingsPath(path), path).toBe(false);
+    }
   });
 });
 
@@ -304,6 +351,9 @@ describe('backLinkFor() — màn trong nào cũng có đường ra', () => {
   /*
    * Các màn có mục riêng ở thanh nav KHÔNG phải màn trong — chúng bày tên màn hoặc tên sản phẩm.
    * Ba dạng danh tính loại trừ nhau, nên trùng ở đây là thanh trên có hai thứ cùng đòi chỗ.
+   *
+   * Màn Cài đặt ghim riêng: từ 28/10/2026 nó mở bằng icon trên thanh trên, không còn mục nav, nên
+   * vòng lặp `NAV_ITEMS` không còn chạm tới nó — mà nó vẫn là màn gốc mang tên màn.
    */
   it('mọi màn gốc KHÔNG có đường ra, và không trùng với bảng tên màn', () => {
     for (const item of NAV_ITEMS) {
@@ -311,6 +361,8 @@ describe('backLinkFor() — màn trong nào cũng có đường ra', () => {
     }
     expect(backLinkFor(ROUTES.formulas)).toBeNull();
     expect(headerTitleKey(ROUTES.formulas)).not.toBeNull();
+    expect(backLinkFor(ROUTES.settings)).toBeNull();
+    expect(headerTitleKey(ROUTES.settings)).not.toBeNull();
   });
 
   /*

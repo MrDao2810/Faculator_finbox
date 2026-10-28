@@ -123,6 +123,12 @@ export const HOW_TO_RISK_DRAWDOWN: Readonly<Record<string, FormulaHowTo>> = {
       P_t: 'nhap-tho',
       '100': 'hang-so',
     },
+    skippedPhrases: {
+      '100': { vi: ['100'], en: ['100'] },
+      MDD: { vi: ['Sụt giảm sâu nhất'], en: ['Maximum drawdown'] },
+      '\\max_{t \\le N}': { vi: ['lớn nhất của'], en: ['largest of'] },
+      P_t: { vi: ['Giá phiên đó'], en: ['price at that session'] },
+    },
   },
 
   'sut-giam-hien-tai': {
@@ -154,6 +160,11 @@ export const HOW_TO_RISK_DRAWDOWN: Readonly<Record<string, FormulaHowTo>> = {
       t: 'chi-so-chay',
       '100': 'hang-so',
     },
+    skippedPhrases: {
+      '100': { vi: ['100'], en: ['100'] },
+      'DD_{t}': { vi: ['Sụt giảm hiện tại'], en: ['Current drawdown'] },
+      'P_{t}': { vi: ['Giá phiên gần nhất'], en: ['most recent session price'] },
+    },
   },
 
   'var-lich-su': {
@@ -177,6 +188,10 @@ export const HOW_TO_RISK_DRAWDOWN: Readonly<Record<string, FormulaHowTo>> = {
       },
     ],
     skipped: { 'VaR_{\\alpha}': 'ket-qua', '\\alpha': 'nhap-tho', N: 'nhap-tho', '100': 'hang-so' },
+    skippedPhrases: {
+      '100': { vi: ['100'], en: ['100'] },
+      'VaR_{\\alpha}': { vi: ['VaR'], en: ['VaR'] },
+    },
   },
 
   /*
@@ -233,6 +248,10 @@ export const HOW_TO_RISK_DRAWDOWN: Readonly<Record<string, FormulaHowTo>> = {
       N: 'nhap-tho',
       '\\mid': 'phep-toan',
       '100': 'hang-so',
+    },
+    skippedPhrases: {
+      '100': { vi: ['100'], en: ['100'] },
+      'CVaR_{\\alpha}': { vi: ['CVaR'], en: ['CVaR'] },
     },
   },
 };

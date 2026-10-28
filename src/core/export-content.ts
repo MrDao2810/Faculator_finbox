@@ -2,8 +2,9 @@
  * Tầng DOMAIN — nội dung của file xuất ra (gói WBS 2.5.3).
  *
  * FR-22: xuất PDF/PNG kèm biểu đồ và bảng biến.
- * FR-24: **miễn trừ đính kèm là bắt buộc, KHÔNG có tuỳ chọn tắt.** WF-12 ghi thẳng trên màn:
- * "Miễn trừ tự động đính kèm · Không thể tắt — mọi file xuất ra đều mang tuyên bố miễn trừ."
+ * FR-24: **miễn trừ đính kèm là bắt buộc, KHÔNG có tuỳ chọn tắt.** WF-12 từng ghi thẳng trên màn:
+ * "Miễn trừ tự động đính kèm · Không thể tắt — mọi file xuất ra đều mang tuyên bố miễn trừ." Câu ấy
+ * rời sheet ngày 28/10/2026 theo yêu cầu chủ dự án (xem `ExportSheet.tsx`); luật dưới đây thì không đổi.
  *
  * Vì thế phần dựng nội dung nằm ở đây chứ không ở component: `buildExportContent()` là cổng
  * duy nhất, và nó luôn gắn `disclaimer` bất kể tuỳ chọn nào. Không có đường nào dựng được một

@@ -2,12 +2,13 @@
  * Hai dáng của cùng một chỗ đứng: tên sản phẩm (có link về màn Công thức) và tên màn (một `<h1>`).
  *
  * Hai luật dưới đây cố ý dùng CÙNG cỡ chữ và CÙNG độ đậm. Đó là số đo, không phải khẩu vị: ở khổ
- * 360px, lòng thanh trên là 328px và cụm điều khiển bên phải đã ăn hơn hai phần ba — "Faculator"
- * và "Công thức" đều 9 ký tự nên đổi qua lại ở cùng một bậc chữ thì bề rộng không đổi, tức không
- * màn nào vỡ hình vì lượt đổi này.
+ * 360px, lòng thanh trên là 328px và cụm điều khiển bên phải ăn ~114px (ba nút Cài đặt, Sáng/Tối, VI
+ * từ 28/10/2026; ~74px trước đó) — "Faculator" và "Công thức" đều 9 ký tự nên đổi qua lại ở cùng
+ * một bậc chữ thì bề rộng không đổi, tức không màn nào vỡ hình vì lượt đổi này.
  *
- * Muốn tên màn TO hơn (bản thiết kế cũ vẽ ~26px) thì phải nhường chỗ ở cụm bên phải trước — riêng
- * màn danh sách công thức còn mang thêm cụm nút Cơ bản / Nâng cao, và nó là màn chật nhất.
+ * Muốn tên màn TO hơn (bản thiết kế cũ vẽ ~26px) thì phải nhường chỗ ở cụm bên phải trước. Chỗ chật
+ * nhất nay là nút quay lại "‹ Danh sách công thức" của màn chi tiết ở 320px: đo 28/10/2026 còn dư
+ * chưa tới 1px trước khi chữ bị cắt "…" (320 dưới mức 360 sản phẩm hứa, nên chấp nhận).
  */
 .brand {
   display: flex;
@@ -57,7 +58,8 @@
  *
  * Chủ dự án chốt 10/09/2026 — lý do đầy đủ ở `HeaderIdentity.tsx`, chỗ dựng cả hai dạng. Tóm tắt:
  * từ 1024px thanh `.nav` hiện ra và tự gạch chân mục đang mở, nên tên màn ở đầu thanh là nói lần
- * thứ hai cùng một điều.
+ * thứ hai cùng một điều. ('/cai-dat/' không còn mục nav từ 28/10/2026; ở đó icon bánh răng đang mở
+ * là thứ nói điều ấy — xem `HeaderIdentity.tsx`.)
  *
  * Mốc 1024 khớp `@media` của `.nav` trong `HeaderNav.module.css`. Một con số ở hai nơi là nguy cơ
  * lệch, nhưng CSS Module này không đọc được file kia — đổi mốc bên ấy thì PHẢI đổi cả bên này,

@@ -36,6 +36,16 @@ export const ROUTES = {
    */
   data: '/du-lieu/',
   portfolio: '/danh-muc/',
+  /**
+   * Màn Cài đặt. KHÔNG còn trong `NAV_ITEMS` từ 28/10/2026 — chủ dự án: _"không cần phải có Cài đặt
+   * ở trên mainlayout mà chỉ cần icon setting ở bên trái cùng hàng với icon theme sáng tối"_. Lối vào
+   * là icon bánh răng `SettingsLink` trên thanh trên, ở mọi khổ (ở `/danh-muc/` dưới 1024px nó ẩn
+   * cùng Sáng/Tối và VI, xem `HEADER_SCREEN_ACTIONS`).
+   *
+   * Vẫn là một màn gốc: CÓ trong `sitemap.xml` và trong `HEADER_TITLES`, không có nút quay lại
+   * (`backLinkFor()` trả `null`), và `activeRouteKey()` trả `null` — không mục nav nào sáng ở đây,
+   * có chủ ý (xem chú thích trong hàm ấy).
+   */
   settings: '/cai-dat/',
   /**
    * Màn giới thiệu sản phẩm. CÓ trong `NAV_ITEMS` và CÓ trong `sitemap.xml`: khác `/tim-kiem/`
@@ -62,11 +72,12 @@ export const ROUTES = {
 export type RouteKey = keyof typeof ROUTES;
 
 /**
- * Bốn mục có mặt ở thanh nav.
- * `search`, `data` và `guide` là route thật nhưng không phải mục điều hướng — tách kiểu ra để
- * component thanh nav không phải bịa một icon cho chúng.
+ * Ba mục có mặt ở thanh nav.
+ * `search`, `data`, `guide` và `settings` là route thật nhưng không phải mục điều hướng — tách kiểu
+ * ra để component thanh nav không phải bịa một icon cho chúng. `settings` vào nhóm này ngày
+ * 28/10/2026, khi Cài đặt rời thanh nav thành icon bánh răng trên thanh trên.
  */
-export type NavKey = Exclude<RouteKey, 'search' | 'data' | 'guide'>;
+export type NavKey = Exclude<RouteKey, 'search' | 'data' | 'guide' | 'settings'>;
 
 /**
  * `id` của khối "Danh sách công thức" trên màn Công thức, dùng làm neo `#…`.
@@ -140,8 +151,10 @@ export interface NavItem {
    * không `height`, nên một nhãn hai dòng đội CẢ thanh lên và ăn chỗ của mọi màn.
    *
    * Từ 15/09/2026 thanh còn bốn mục (mục "Trang chủ" đi theo trang chủ), mỗi tab về lại ~90px nên
-   * tiền đề ấy yếu đi. Nhãn ngắn vẫn giữ: đổi chữ trên thanh dưới là một quyết định hiển thị riêng,
-   * chưa ai đo lại để chốt — và giữ thì không hỏng gì.
+   * tiền đề ấy yếu đi. Từ 28/10/2026 còn BA mục (Cài đặt thành icon trên thanh trên): mỗi tab ~120px
+   * ở 360 và ~106px ở 320, trong khi "Về chúng tôi" 12px đậm đo được 69px — nhãn đầy đủ nay vừa ở mọi
+   * khổ. Nhãn ngắn vẫn giữ: đổi chữ trên thanh dưới là một quyết định hiển thị riêng, chủ dự án chưa
+   * yêu cầu — và giữ thì không hỏng gì.
    *
    * Rút nhãn cho cả hai thanh thì mất chữ đúng ở chỗ có thừa chỗ: thanh trên desktop là hàng chữ
    * trần, ở đó "Về chúng tôi" vừa thoải mái và là tên màn người dùng sẽ thấy trong thẻ trình
@@ -151,19 +164,22 @@ export interface NavItem {
 }
 
 /**
- * Bốn mục của thanh điều hướng.
+ * Ba mục của thanh điều hướng: Công thức · Danh mục · Về chúng tôi.
  *
- * Ba mục đầu theo đúng thứ tự WF-18 — chúng là một LUỒNG TÁC VỤ: xem & tính → giữ → chỉnh. Mục
- * "Trang chủ" từng đứng đầu hàng; nó rời thanh ngày 15/09/2026 khi trang chủ gộp vào màn Công thức,
- * nên "Công thức" nay vừa là mục đầu vừa là màn mở đầu.
+ * Hai mục đầu theo đúng thứ tự WF-18 — chúng là một LUỒNG TÁC VỤ: xem & tính → giữ. Mục "Trang chủ"
+ * từng đứng đầu hàng; nó rời thanh ngày 15/09/2026 khi trang chủ gộp vào màn Công thức, nên "Công
+ * thức" nay vừa là mục đầu vừa là màn mở đầu.
  *
- * "Về chúng tôi" không nằm trong luồng ấy nên đứng cuối, sau `settings`: chen nó vào giữa là đẩy
- * Cài đặt khỏi chỗ quen bấm.
+ * Vế thứ ba của luồng ấy, "chỉnh" (Cài đặt), rời thanh ngày 28/10/2026 ở CẢ thanh trên PC lẫn thanh
+ * tab dưới — chủ dự án: _"không cần phải có Cài đặt ở trên mainlayout mà chỉ cần icon setting ở bên
+ * trái cùng hàng với icon theme sáng tối"_. Lối vào nay là icon bánh răng `SettingsLink`, đứng ngay
+ * bên trái nút Sáng/Tối. Đưa Cài đặt về đây là đảo lại quyết định ấy — hỏi chủ dự án trước.
+ *
+ * "Về chúng tôi" không nằm trong luồng nên đứng cuối.
  */
 export const NAV_ITEMS: ReadonlyArray<NavItem> = [
   { key: 'formulas', href: ROUTES.formulas, labelKey: 'nav.formulas' },
   { key: 'portfolio', href: ROUTES.portfolio, labelKey: 'nav.portfolio' },
-  { key: 'settings', href: ROUTES.settings, labelKey: 'nav.settings' },
   {
     key: 'about',
     href: ROUTES.about,
@@ -229,17 +245,22 @@ export function headerTitleKey(pathname: string): MessageKey | null {
 }
 
 /**
- * Những màn tự đặt nút của mình lên thanh trên ở khổ điện thoại, thay cho cụm Sáng/Tối · ngôn ngữ.
+ * Những màn tự đặt nút của mình lên thanh trên ở khổ điện thoại, thay cho cụm Cài đặt · Sáng/Tối ·
+ * ngôn ngữ.
  *
  * Chỉ `/danh-muc/` (14/10/2026): bản vẽ khổ điện thoại của chủ dự án đặt icon Tìm kiếm và icon Làm
  * mới giá ở góc phải thanh trên và không vẽ hai nút Sáng/Tối, VI. Hỏi lại thì chủ dự án chốt: *"cứ
  * làm theo thiết kế. còn button sáng tối thì để người dùng thay đổi ở màn home"* — tức hai nút ấy
- * vẫn có ở các màn khác, chỉ màn này nhường chỗ. Cùng ngày, xem màn chạy thật, chủ dự án gạch icon
- * Làm mới giá và cho ô tìm mở ra ngay trên thanh, nên nay chỉ còn icon Tìm kiếm.
+ * vẫn có ở các màn khác, chỉ màn này nhường chỗ. Cùng ngày icon Làm mới giá bị gạch rồi được thêm
+ * lại bên phải icon Tìm kiếm, nên nay là hai icon ấy; ô tìm mở ra ngay trên thanh.
+ *
+ * Icon Cài đặt (28/10/2026) đứng trong cùng cụm nên nhường chỗ theo, không cần dòng nào thêm. Cái giá,
+ * đã nói với chủ dự án: trên điện thoại, từ màn Danh mục không còn lối vào Cài đặt trực tiếp (trước
+ * có tab dưới) — phải sang màn khác trước, đúng như với nút Sáng/Tối.
  *
  * Bảng theo đường dẫn chứ không để màn tự báo lúc chạy: `HeaderControls` đọc nó lúc dựng HTML tĩnh,
- * nên trang tĩnh của `/danh-muc/` đã giấu sẵn hai nút cũ — không nháy hai nút ấy rồi mới đổi sau
- * hydrate. Khớp TUYỆT ĐỐI như `headerTitleKey()`.
+ * nên trang tĩnh của `/danh-muc/` đã giấu sẵn ba nút cũ — không nháy chúng rồi mới đổi sau hydrate.
+ * Khớp TUYỆT ĐỐI như `headerTitleKey()`.
  */
 const HEADER_SCREEN_ACTIONS: ReadonlyArray<string> = [ROUTES.portfolio];
 
@@ -247,6 +268,18 @@ const HEADER_SCREEN_ACTIONS: ReadonlyArray<string> = [ROUTES.portfolio];
 export function headerHasScreenActions(pathname: string): boolean {
   const path = pathname.endsWith('/') ? pathname : `${pathname}/`;
   return HEADER_SCREEN_ACTIONS.includes(path);
+}
+
+/**
+ * Đường dẫn này có phải màn Cài đặt không — `SettingsLink` đọc nó để mang `aria-current="page"`.
+ *
+ * Từ 28/10/2026 Cài đặt không còn mục nav (xem `ROUTES.settings`), nên trạng thái "đang ở đây" của nó
+ * không còn đi qua `activeRouteKey()`. Khớp TUYỆT ĐỐI như `headerTitleKey()`: màn này không có trang
+ * con. Chuẩn hoá dấu '/' cuối vì `usePathname()` có thể trả '/cai-dat' không dấu.
+ */
+export function isSettingsPath(pathname: string): boolean {
+  const path = pathname.endsWith('/') ? pathname : `${pathname}/`;
+  return path === ROUTES.settings;
 }
 
 /** Chỗ quay về mà thanh trên bày cho một màn TRONG — đúng bộ prop của `BackLink`. */
@@ -387,6 +420,12 @@ export function showsFooterDisclaimer(pathname: string): boolean {
  * Nhánh riêng cho '/' đã bỏ cùng mục "Trang chủ": '/' chỉ còn là trang chuyển hướng, nó không sáng
  * mục nào — và vòng lặp dưới không cần bước bỏ qua nữa, vì không còn mục nào mang `href` '/' để
  * khớp tiền tố với MỌI đường dẫn.
+ *
+ * '/cai-dat/' cũng không sáng mục nào, và đó là NGOẠI LỆ CÓ CHỦ Ý với nguyên tắc "đừng tắt hết mọi
+ * mục" ghi ngay dưới: Cài đặt rời thanh nav ngày 28/10/2026 (xem `ROUTES.settings`), và gán nó về một
+ * mục khác là nói sai chỗ người dùng đang đứng. Dấu "đang ở đây" của màn này là icon bánh răng mang
+ * `aria-current` (`SettingsLink`, viền 2px + lõi đặc) cùng `<h1>` "Cài đặt" trên thanh trên dưới
+ * 1024px. Đừng "sửa" cho nó sáng một mục.
  */
 export function activeRouteKey(pathname: string): NavKey | null {
   const path = pathname.endsWith('/') ? pathname : `${pathname}/`;

@@ -1,7 +1,8 @@
 /*
  * Ô ngôn ngữ theo bản thiết kế: chữ nhỏ trong khung bo nhẹ, VIỀN NGOÀI và nền trong — bản Figma
  * "FINBOX VERSION 2". Lý do đầy đủ ở docblock `ThemeSwitch.module.css`, nút anh em đứng cạnh;
- * hai nút phải đổi cùng nhau, lệch một cái là thanh trên có hai kiểu nút.
+ * ba nút (cùng icon Cài đặt, `SettingsLink.module.css`, từ 28/10/2026) phải đổi cùng nhau, lệch một
+ * cái là thanh trên có hai kiểu nút — `header-buttons-css.test.ts` so ba khung với nhau.
  *
  * Nhìn cao 32px nhưng vùng chạm thật vẫn 44px nhờ lớp phủ ::after — NFR-USA-01.
  */

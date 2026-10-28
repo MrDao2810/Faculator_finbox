@@ -19,7 +19,9 @@ anything: a 112th formula is a product-scope decision, not a free addition. The 
 108 (valuation 18 → 19, for `gia-tri-noi-tai-fcff`) was signed off by the project owner in package
 5.2.3; three more "deliberately unregistered" formulas (`gia-muc-tieu`, `beta`, `xirr`) then closed
 out 108 → 111 — full history in `src/core/registry/categories.ts`'s docblock. **The SRS table in
-section 3.8 still says 94 / 13 / 107 and has to be corrected to 98 / 13 / 111.**
+section 3.8 still says 94 / 13 / 107 and has to be corrected to 98 / 13 / 111.** Likewise, wireframe WF-18
+still draws Cài đặt as a nav item; since 28/10/2026 it is a gear in the header (see the Notes) — do not
+"restore" it from WF-18.
 
 WBS branches 1 (foundation), 2 (component library), 3 (screens) and 4 (charts) are done, as are
 packages 2.4.3 (maths notation) and **3.2.2 + 5.2.3** (the valuation chain and the WF-04 advanced
@@ -65,8 +67,8 @@ npm test               # vitest run
 npm run format         # prettier --write .
 npm run format:check   # prettier --check .
 npm run check          # lint + typecheck + format:check + test — run before pushing
-npm run verify:static  # 51 assertions against a built out/ — run after build
-npm run check:chrome   # 204 assertions in a real headless Chrome (360×780, 560 and 1440) — needs out/ + Chrome
+npm run verify:static  # 53 assertions against a built out/ — run after build
+npm run check:chrome   # 216 assertions in a real headless Chrome (360×780, 560 and 1440) — needs out/ + Chrome
 npm run size           # measures out/, gates First Load JS at 180 kB (NFR-PER-04 budget is 200 kB)
 npm run gen:summaries  # regenerates src/core/formulas/summaries.generated.ts
 npm run gen:icons      # regenerates the PWA PNGs from the icon geometry
@@ -529,11 +531,13 @@ the three-shape table (dòng gọn / 560px / 1024px) of 22/09/2026. What was dec
   the +/− sign. PC is unchanged. `check:chrome` compares computed size, weight and colour at 360 and 560.
   What the design changed, and what is easy to break:
   - **The header says "Danh mục" (`portfolio.title`, was "Danh mục của tôi") and carries TWO icons, Tìm kiếm
-    then Làm mới giá to its right, instead of Sáng/Tối and VI.** The owner: _"cứ làm theo thiết kế. còn button
-    sáng tối thì để người dùng thay đổi ở màn home"_ — the two buttons stay on every other screen.
+    then Làm mới giá to its right, instead of Sáng/Tối and VI** (and, since 28/10/2026, the Settings gear — see
+    the Notes). The owner: _"cứ làm theo thiết kế. còn button sáng tối thì để người dùng thay đổi ở màn home"_ —
+    the header's own buttons stay on every other screen. The cost of the gear joining them: on a phone there is
+    no direct way from Danh mục to Settings (there was a tab), the user switches screen first.
     `HeaderControls` (client) renders an empty slot `HEADER_ACTIONS_ID`; the screen `createPortal`s into it
     after mount; `headerHasScreenActions()` in `routes.ts` (pathname-based, so the static HTML already hides
-    Sáng/Tối and VI below 1024px — no flash) lists the screens that do this, today only `/danh-muc/`. The slot
+    the gear, Sáng/Tối and VI below 1024px — no flash) lists the screens that do this, today only `/danh-muc/`. The slot
     is `display: contents`, or an empty flex item adds a 4px gap on every screen. **The refresh icon went and
     came back the same day** (14/10/2026): crossed out on a screenshot (_"bỏ icon refect ở đầu đi chỉ để lại
     icon search"_), then restored (_"thêm lại icon refresh lên để ở bên phải của icon search đồng thời xóa
@@ -1944,12 +1948,28 @@ its "ký hiệu: nghĩa" legend row, `data-title-only`, `aria-label` = the bare 
 marks every legend row it can place (560 of 568; the 8 misses sit inside a longer name, `D` in `D/E`,
 so hovering there opens the longer name's panel), so `latexHtml` is now the ONE picture: the second
 marking `latexHtmlAllSymbols` and the `needsFormulaPicture` flag that decided when to build it are gone,
-and the quiz and example pictures read `latexHtml`. Two things were deliberately left as they were:
-**the legend row of a step-less symbol stays plain text, not a button** (its panel would repeat the row
-it pops out of and cover the rows below), so a keyboard user does not open those panels, and loses
-nothing; and **the expression line has phrases only for the 112** (`phrases` live in the how-to data,
-and a step-less symbol has none). A case in `FormulaNotationCard.test.tsx` clicks every marked symbol
-of all 111 pictures. Things that are easy to break:
+and the quiz and example pictures read `latexHtml`. A case in `FormulaNotationCard.test.tsx` clicks
+every marked symbol of all 111 pictures.
+
+**Since 28/10/2026 the legend and the expression line do the same** (owner, circling "Thị giá" and "100%"
+in `bien-an-toan`'s expression line and the `P` and `100%` legend rows: _"đang chưa hover vào để bật popup
+lên được như những phần khác, sửa toàn bộ công thức liên quan"_). That reverses two choices of 26/10:
+**every legend row is a button now** (a step-less row's panel repeats the row and covers the rows below;
+the owner wants one behaviour), and **step-less rows have phrases too**, declared in
+`FormulaHowTo.skippedPhrases` (keyed by a `skipped` row; an entry's phrases stay on the entry). The result
+row counts: "Biên an toàn" opens `MOS`. 481 of 568 rows now have a phrase (101 before); the other 87 have
+no words of their own in the line (running indices, groups like `(1 - t)` whose parts are phrases, `n`
+inside "Giá của n phiên trước", rows the line folds into a total). The 377 phrases were proposed by a
+script that split both lines at their operators and aligned the vi and en operands, then read row by
+row; about 40 needed a hand fix. `expression-segments.ts` gained one rule for it: **an occurrence inside
+a LONGER phrase of another row belongs to the longer one** ("EBITDA" inside the result "EV/EBITDA"; picture
+rule 5), a partial overlap or two rows claiming the same text still throws, and a phrase with no
+standalone occurrence still throws "không thấy". So never give a row a phrase that only appears inside
+another row's phrase (`α` of VaR sits only in "Phân vị mức (1 − Độ tin cậy)"), and `\sqrt{m}` of Sortino has
+none because "căn bậc hai của" there also opens `σ_d`'s own root. Gates: `how-to.test.ts` (key is a
+`skipped` row, both languages, verbatim, one line, no dash), `FormulaNotationCard.test.tsx` (every legend
+button and every phrase of all 111 opens the right panel kind with the right meaning, vi and en cover the
+same rows, the 481 pinned). Things that are easy to break:
 
 - **The content lives in `src/core/how-to/`, NOT in `FormulaSpec`**, and only `page.tsx` reads it (via
   the build-only sub-path `@/application/how-to`, never the barrel). `FormulaDetail` imports the whole
@@ -1975,6 +1995,15 @@ of all 111 pictures. Things that are easy to break:
 - **Keyboard users open panels from the legend buttons only.** There is no tab stop inside the MathML;
   that is deliberate. Step text follows the expression-line rules (`src/core/expression-rules.ts`, shared
   with `formulas.test.ts`).
+- **Hovering a field row in the "Lấy số liệu ở đâu" popover lights that field's symbol in the card**
+  (28/10/2026, owner: _"Khi hover vào biến trong popup này thì cũng sẽ được highlight vàng như bên kia"_).
+  `kyHieuCuaO()` (`src/core/o-ky-hieu.ts`) maps a field to its legend row by reading the symbol pinned on its
+  label ('(E)' → `E`, '(C1)' → `C_i`) or the whole label against a `\text{…}` row; 215 of 269 fields map, the
+  rest light nothing. `GuideMuc` reports the row (`onTroO`), `FormulaDetail` holds it and passes `soi` to
+  `FormulaNotationCard`, which puts it in `data-active` (the card's own open panel wins). Highlight only, no
+  panel. Every legend row now carries `data-hang` on its `<dt>` and meaning, a highlight-only attribute
+  (`useHowToPanel` reads `data-sym` only), so a row with no steps lights up too — which also means hovering
+  such a symbol in the picture now lights its legend row.
 - **On phones (<1024px) a small "Chú thích" button at the card's bottom-right hides and shows the
   legend** (17/09/2026). The owner circled `fcfe`'s eight-row legend pushing the inputs down, then
   renamed the button from "Ẩn ký hiệu"/"Hiện ký hiệu" to one label for both states, so the chevron and
@@ -2324,7 +2353,14 @@ reach the next row, and × deletes in one tap. The calendar button's overlay is 
 (`table.cashflow td button::after`), or the last row's overlay grew a 4px vertical scrollbar on the table. **From
 1280px the table's top edge is level with the "Giải thích cho người mới" block's first item** (owner circled the
 13,5px step): the right head row is exactly the left title's line box, `calc(var(--text-md) * var(--leading-tight))`,
-and "+ Thêm dòng" drops to 28px there. `xirr-mobile-css.test.ts` pins all of it, the left title's size included.
+and "+ Thêm dòng" drops to 28px there. **From 1024px the column titles start where the cell text starts**
+(28/10/2026, owner circling "NGÀY" over two "dd/mm/yyyy": _"gióng thẳng hàng phần này xem nào"_): the header had only
+the primitive's 12px cell padding while the text sits behind the input's own 8px too, so "NGÀY" stuck out 8px left of
+the dates and "SỐ TIỀN (₫)" 8px right of the amounts at 1024–1920. The header now pads `--space-3` + `--space-2` on
+its TEXT side only (left for the date, right for the amount), inside `min-width: 1024px` because the `.dateCol`
+selector outranks the phone block's `table.cashflow thead th`; below 1024px it was already 8px = 4 + 4. Measured 0px
+at 360–1920, column widths unchanged. The `/du-lieu/` table and the paste grid were checked and need nothing (header
+button and cell input both pad 8px). `xirr-mobile-css.test.ts` pins all of it, the left title's size included.
 **Below 1024px the card's label is styled as a block title** (20/10/2026, owner circling "SỐ LIỆU", "KẾT QUẢ",
 "BIỂU ĐỒ" on `tra-gop-nien-kim`: _"cần điều chỉnh lại cho giống nhau về kích thước lẫn in đậm, áp dụng bản
 mobile"_). All three were 12px, but the label was weight 500 with 0.08em spacing against the titles' 700 and
@@ -2527,7 +2563,12 @@ Five things are easy to break:
   button. Content renders only while `phase !== 'idle'`.
 - **960px wide from 1024px (`92vw` below), up to 88dvh tall** (`dialog.dialog` in `QuizBody.module.css`,
   one class plus an element so it beats `.sheetCenter` / `.panelCenter` in any load order). Its height
-  follows the content, so the centred dialog moves when an explanation opens; not changed.
+  follows the content, so the centred dialog moves when an explanation opens; not changed. **Its title
+  row is 50px from 1024px** (28/10/2026, owner: _"height phần khoanh đỏ đang quá cao, giảm padding xuống"_;
+  it was 65px, "Bài tập" 16px from the top and 24px from the rule): centred, 12px block padding, the ×
+  with −12px block margins so it takes 20px of the row with its 44px tap area inside the padding.
+  `dialog.dialog > div > header:first-child` is (0,2,3) and beats `.panelCenter .header`; below 1024px
+  the primitive's 53px phone header is unchanged. `quiz-desktop-css.test.ts` pins it.
 - **The two-column answer grid lost its `'1280'` tier.** Measured in Chrome: half the dialog is 354px of
   text at 1024 and 363px from ~1044px, enough for the 55-character tier and not for 78 (`bien-an-toan`'s
   60- and 62-character answers broke onto two lines at 1280 and 1440). `khoHaiCot()` returns `'1024' | '0'`.
@@ -3662,6 +3703,26 @@ English, the owner reviews it**. What that produced, and what is easy to break:
 
 ## Notes
 
+- **Settings is a gear icon in the header, not a nav item** (28/10/2026, owner: _"không cần phải có Cài đặt ở trên
+  mainlayout mà chỉ cần icon setting ở bên trái cùng hàng với icon theme sáng tối"_; asked, they chose PC AND phone).
+  `NAV_ITEMS` has three entries (Công thức · Danh mục · Về chúng tôi), so the desktop nav and the bottom tab bar
+  both lost the item; `NavKey` excludes `'settings'` and the gear paths left `TabIcon`. `SettingsLink`
+  (`src/ui/navigation/`) is a `next/link` to `/cai-dat/`, named by `nav.settings` (`aria-label` + `title`), drawn in a
+  box copied from `ThemeSwitch` (36 × 32px, 4px left of it at every width; `header-buttons-css.test.ts` compares the
+  three hand copies of that box). Things that are easy to break:
+  - **It must be a DIRECT child of `.controls`**, not inside the `HEADER_ACTIONS_ID` slot: that is how
+    `.controlsScreen > :not(.screenActions)` hides it with Sáng/Tối and VI on `/danh-muc/` below 1024px (the cost,
+    told to the owner: no direct way to Settings from Danh mục on a phone).
+  - **`activeRouteKey('/cai-dat/')` is `null` on purpose** — no nav item lights on that screen, an exception to the
+    "never switch every item off" rule written in that function. The "you are here" cue is the gear itself:
+    `aria-current="page"` (from `isSettingsPath()`, in the static HTML), which CSS turns into a 2px accent frame with
+    1px less padding (the box keeps its size) and React into a solid gear core — two non-colour cues (NFR-USA-06), no
+    `accent-soft` fill (the Figma removed fills from these buttons). On PC this is the ONLY visible cue, because the
+    screen's `<h1>` is hidden from 1024px like every titled screen; showing that title on PC was not asked.
+  - Measured in Chrome (28/10/2026): the right cluster 74 → 114px (VI) / 116,5px (EN), no overflow at 320–1440; the nav
+    shrank 328 → 266px at 1024 and stays at the bar's exact centre; "‹ Danh sách công thức" at 320px still fits, by
+    under 1px (a wider phone font would ellipsize it; 320 is below the promised 360).
+  - Do not bring Settings back into `NAV_ITEMS` without asking; `routes.test.ts` pins its absence.
 - **Below 1024px the two frame bars are shorter** (19/10/2026, owner: _"padding và height … đang quá cao"_):
   `--header-height` 48px (56px from 1024px) and `--tabbar-height` 52px, set in the `max-width: 1023.98px` body block
   of `globals.css`'s "BẬC MÀN". The header's `.inner` drops its 4px vertical padding at the same mark, or the detail
@@ -3702,8 +3763,10 @@ English, the owner reviews it**. What that produced, and what is easy to break:
   CSP-legal under the existing `'unsafe-inline'`, paired with `suppressHydrationWarning` on
   `<html>` — sets it before first paint so dark users get no white flash. The control has **two
   shapes for one preference**: `ThemeSwitch`, a single icon button in the header — shown at **every**
-  width since the search icon left the header and freed a slot; the `.themeControl` wrapper that
-  used to hide it below 1024px is gone — and `ThemePicker`, the labelled two-option control in
+  width since the search icon left the header and freed a slot (except on `/danh-muc/` below 1024px,
+  where the screen's own icons take the cluster); the `.themeControl` wrapper that used to hide it
+  below 1024px is gone; the Settings gear stands immediately to its left since 28/10/2026 — and
+  `ThemePicker`, the labelled two-option control in
   Settings. Settings is therefore no longer the _only_ way in on a phone, but that row still can't
   be dropped: it is the one place a user reads which theme is set instead of decoding an icon.
   Both read and write
@@ -3712,6 +3775,13 @@ English, the owner reviews it**. What that produced, and what is easy to break:
   CSS pick by `data-theme` rather than letting React pick one: first render is always `light` so
   that it matches the static HTML, so a React-picked icon would show a sun on a dark page until
   hydration — the exact flash the boot script exists to prevent.
+- **The export sheet ("Xuất kết quả") no longer says the disclaimer is attached** (28/10/2026, owner circling three
+  things: _"xóa các phần khoanh đỏ đi"_). Gone: WF-12's yellow box "! Miễn trừ tự động đính kèm · Không thể tắt — mọi
+  file xuất ra đều mang tuyên bố miễn trừ." and the two hint lines under the "Kèm biểu đồ" / "Kèm bảng biến & giải
+  thích" switches (keys `export.withChartHint`, `export.withDetailsHint`, `export.disclaimerLocked*`, tombstone in
+  `vi.ts`). Drop the sentence, keep the behaviour, the `quiz.localOnly` pattern: `buildExportContent()` still always
+  fills `disclaimer`, every PDF/PNG still carries it, and no switch exists for it; `ExportSheet.test.tsx` pins both
+  the absence on the sheet and the disclaimer in the print region. Do not rebuild the box without asking.
 - **Exported files stay light, always.** `draw-card.ts` used to read live tokens through
   `getComputedStyle` so the PNG matched the UI; with two palettes that turns every share card
   dark, disclaimer box included. It now pins `CARD_COLORS` to the light palette, and
@@ -3760,7 +3830,8 @@ English, the owner reviews it**. What that produced, and what is easy to break:
   "Hiển thị · N công thức" line). `/` is only a redirect: `public/_redirects` returns 301 in
   production, and `src/app/page.tsx` carries a `noindex` `<meta http-equiv="refresh">` for dev,
   preview and `check:chrome`, whose servers ignore `_redirects`. There is no `ROUTES.home`, no "Trang
-  chủ" nav item (4 items), no header mode toggle (`showsModeToggle`/`HeaderModeToggle` are gone), and
+  chủ" nav item (3 items since 28/10/2026: Công thức · Danh mục · Về chúng tôi — Cài đặt is a gear in the
+  header, see the Notes), no header mode toggle (`showsModeToggle`/`HeaderModeToggle` are gone), and
   the sitemap gives `/cong-thuc/` priority 1. `manifest.webmanifest` keeps `"id": "/"` while
   `start_url` moved, so installed PWAs keep their identity; `sw.js` uses `/cong-thuc/` as its
   offline shell (never `/`, which is a 301 in production). **Offline, the service worker never

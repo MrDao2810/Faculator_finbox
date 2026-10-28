@@ -809,7 +809,8 @@
  * khung thấp hơn (19/10/2026). Chủ dự án chụp thanh trên ("Công thức" + Sáng/Tối + VI) và thanh điều
  * hướng dưới: _"padding và height của các phần này đang quá cao, cần giảm xuống"_.
  *
- * - Thanh trên 56 → 48px. Hai nút bên phải cao 32px, nên 56px là 12px trống mỗi phía; 48px còn 8px.
+ * - Thanh trên 56 → 48px. Các nút bên phải cao 32px (ba nút từ 28/10/2026: Cài đặt, Sáng/Tối, VI),
+ *   nên 56px là 12px trống mỗi phía; 48px còn 8px.
  *   Đệm dọc 4px của `.inner` bỏ ở cùng mốc (`AppHeader.module.css`), vì nút quay lại của màn chi tiết
  *   (`BackLink`) giữ vùng chạm 44px: còn đệm thì thanh màn ấy cao 52px, các màn khác 48px — thanh nhảy
  *   mỗi lần đổi màn. Từ 1024px vẫn 56px: thanh PC mang cả hàng nav.

@@ -866,6 +866,59 @@ check(
 );
 
 /*
+ * Icon Cài đặt (28/10/2026) — chủ dự án bỏ mục "Cài đặt" khỏi thanh nav (PC lẫn thanh tab dưới) và đặt
+ * một icon bánh răng ngay bên trái nút Sáng/Tối.
+ *
+ * Kiểm trên HTML TĨNH hai lời hứa mà jsdom không thấy được ở bản build thật:
+ *
+ * 1. Mỗi trang có đúng MỘT link tới /cai-dat/ — icon ấy — và nó là thẻ `<a>` thật đứng NGAY TRƯỚC nút
+ *    Sáng/Tối. Hai link nghĩa là một thanh nav vẫn còn mục Cài đặt; không link nào nghĩa là icon chỉ
+ *    dựng sau hydrate. Màn Danh mục cũng phải có nó trong HTML: CSS chỉ giấu nó dưới 1024px.
+ * 2. Trang /cai-dat/ dựng SẴN `aria-current="page"` trên icon, và đó là thuộc tính `aria-current` DUY
+ *    NHẤT của trang — không mục nav nào được sáng ở màn này (xem `activeRouteKey()`).
+ *
+ * Bản build đọc nhãn tiếng Việt (lượt dựng tĩnh luôn là `vi`), nên nhận nút Sáng/Tối qua nhãn của nó.
+ */
+const ICON_CAI_DAT =
+  /<a[^>]*href="\/cai-dat\/"[^>]*>(?:(?!<\/a>)[\s\S])*<\/a><button[^>]*aria-label="Chuyển sang giao diện tối"/;
+const trangCoIcon = [
+  'out/cong-thuc/index.html',
+  'out/cong-thuc/pe/index.html',
+  'out/danh-muc/index.html',
+  'out/cai-dat/index.html',
+  'out/ve-chung-toi/index.html',
+];
+const loiIcon = trangCoIcon.flatMap((page) => {
+  if (!existsSync(page)) return [`${page}: không có`];
+  const html = readFileSync(page, 'utf8');
+  const soLink = (html.match(/href="\/cai-dat\/"/g) ?? []).length;
+  if (soLink !== 1) return [`${page}: ${String(soLink)} link tới /cai-dat/`];
+  if (!ICON_CAI_DAT.test(html)) return [`${page}: link không đứng ngay trước nút Sáng/Tối`];
+  return [];
+});
+
+check(
+  'mỗi trang đúng MỘT link Cài đặt — icon ngay trước nút Sáng/Tối, không còn mục nav',
+  loiIcon.length === 0,
+  loiIcon.length === 0 ? `${String(trangCoIcon.length)} trang` : loiIcon.join(' · '),
+);
+
+const htmlCaiDat = existsSync('out/cai-dat/index.html')
+  ? readFileSync('out/cai-dat/index.html', 'utf8')
+  : '';
+const soDangMo = (htmlCaiDat.match(/aria-current="page"/g) ?? []).length;
+/* Hai lookahead vì thứ tự thuộc tính là việc của `next/link` (nó đặt `href` sau các prop khác). */
+const iconDangMo = /<a(?=[^>]*href="\/cai-dat\/")(?=[^>]*aria-current="page")[^>]*>/.test(
+  htmlCaiDat,
+);
+
+check(
+  'trang Cài đặt dựng sẵn aria-current trên icon, không mục nav nào sáng',
+  iconDangMo && soDangMo === 1,
+  `icon ${iconDangMo ? 'có' : 'KHÔNG có'} aria-current · ${String(soDangMo)} thuộc tính trong trang`,
+);
+
+/*
  * Khối chuỗi công thức (WF-04, gói 5.2.3) — hai tính chất chỉ nhìn thấy được trên bản build.
  *
  * 1. Khối KHÔNG được có trong HTML tĩnh. Nó chỉ hiện ở chế độ Nâng cao, mà chế độ đọc từ

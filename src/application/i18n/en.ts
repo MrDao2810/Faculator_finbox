@@ -582,13 +582,8 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'export.png': 'PNG',
   'export.pngHint': 'quick to share',
   'export.withChart': 'Include the chart',
-  'export.withChartHint': "An image of the formula's chart, if it has one",
   'export.chartNone': 'This formula has no chart.',
   'export.withDetails': 'Include variables & explanation',
-  'export.withDetailsHint': 'What each variable means, plus the plain-language explanation',
-  'export.disclaimerLocked': 'Disclaimer attached automatically',
-  'export.disclaimerLockedDetail':
-    'Cannot be turned off — every exported file carries the disclaimer.',
   'export.doPdf': 'Export PDF',
   'export.doPng': 'Export PNG',
   'export.failed': 'Could not export the file. Your browser may be blocking downloads.',

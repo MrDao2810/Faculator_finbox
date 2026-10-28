@@ -61,6 +61,10 @@ export const HOW_TO_PERSONAL: Readonly<Record<string, FormulaHowTo>> = {
       },
     ],
     skipped: { EMI: 'ket-qua', P: 'nhap-tho', '(1+i)^n - 1': 'da-hien-trong-hinh' },
+    skippedPhrases: {
+      EMI: { vi: ['Trả hằng tháng'], en: ['Monthly payment'] },
+      P: { vi: ['Số tiền vay'], en: ['Loan amount'] },
+    },
   },
 
   'tra-gop-goc-deu': {
@@ -81,6 +85,10 @@ export const HOW_TO_PERSONAL: Readonly<Record<string, FormulaHowTo>> = {
       },
     ],
     skipped: { A_1: 'ket-qua', P: 'nhap-tho' },
+    skippedPhrases: {
+      A_1: { vi: ['Kỳ đầu'], en: ['First period'] },
+      P: { vi: ['Số tiền vay'], en: ['Loan amount'] },
+    },
   },
 
   'lich-tra-no': {
@@ -128,6 +136,9 @@ export const HOW_TO_PERSONAL: Readonly<Record<string, FormulaHowTo>> = {
       },
     ],
     skipped: { '\\text{Tổng lãi}': 'ket-qua', k: 'chi-so-chay' },
+    skippedPhrases: {
+      '\\text{Tổng lãi}': { vi: ['Tổng lãi'], en: ['Total interest'] },
+    },
   },
 
   'lai-kep': {
@@ -142,6 +153,13 @@ export const HOW_TO_PERSONAL: Readonly<Record<string, FormulaHowTo>> = {
     },
     whyNone:
       'Gốc, lãi suất năm, số lần nhập lãi và số năm đều gõ thẳng, phép chia r ÷ n và tích n × t đã hiện trọn trong hình.',
+    skippedPhrases: {
+      A: { vi: ['Số tiền cuối'], en: ['Final amount'] },
+      P: { vi: ['Gốc'], en: ['Principal'] },
+      r: { vi: ['Lãi suất năm'], en: ['Annual rate'] },
+      n: { vi: ['Số lần nhập lãi'], en: ['Compounding frequency'] },
+      t: { vi: ['Số năm'], en: ['Years'] },
+    },
   },
 
   'lai-tien-gui': {
@@ -149,6 +167,13 @@ export const HOW_TO_PERSONAL: Readonly<Record<string, FormulaHowTo>> = {
     skipped: { I: 'ket-qua', P: 'nhap-tho', r: 'nhap-tho', '12': 'hang-so', T: 'nhap-tho' },
     whyNone:
       'Số tiền gửi, lãi suất năm và số tháng đều gõ thẳng, phép đổi lãi năm ra lãi tháng r ÷ 12 đã hiện trọn trong hình.',
+    skippedPhrases: {
+      '12': { vi: ['12'], en: ['12'] },
+      I: { vi: ['Tiền lãi'], en: ['Interest'] },
+      P: { vi: ['Số tiền gửi'], en: ['Deposit amount'] },
+      r: { vi: ['Lãi suất năm'], en: ['Annual rate'] },
+      T: { vi: ['Số tháng'], en: ['Number of months'] },
+    },
   },
 
   'tiet-kiem-muc-tieu': {
@@ -166,6 +191,11 @@ export const HOW_TO_PERSONAL: Readonly<Record<string, FormulaHowTo>> = {
       FV: 'nhap-tho',
       n: 'nhap-tho',
       '(1+i)^n - 1': 'da-hien-trong-hinh',
+    },
+    skippedPhrases: {
+      PMT: { vi: ['Gửi hằng tháng'], en: ['Monthly deposit'] },
+      FV: { vi: ['Mục tiêu'], en: ['Goal'] },
+      n: { vi: ['Số tháng'], en: ['Number of months'] },
     },
   },
 };

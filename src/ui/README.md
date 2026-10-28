@@ -11,7 +11,8 @@
   `<details>`, dòng mã của Danh mục là `<li>`), nên hợp đồng phân cấp mà nó mã hoá đã chuyển sang
   bảng "Ba bậc chữ" dưới đây cùng các cửa gác đi kèm.
 - `navigation/` — gói 2.1: `AppHeader`, `OfflineBanner`, `ModeToggle`, `LangSwitch`,
-  `BottomTabBar`, `DisclaimerBar`.
+  `ThemeSwitch`, `SettingsLink` (icon Cài đặt trên thanh trên, thay mục nav từ 28/10/2026),
+  `HeaderNav`, `BottomTabBar`, `DisclaimerBar`.
 - `layout/` — gói 1.4.2: `AppShell`.
 - `browse/` — gói 2.2 và 3.1: `SearchBox`, `CategoryChips` (hàng chip nhóm của màn Công thức),
   `FormulaCard`, `EmptyState`, `VirtualList` (ảo hoá WF-02), `SearchResults` và

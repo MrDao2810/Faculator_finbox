@@ -14,6 +14,11 @@ export const HOW_TO_PERFORMANCE: Readonly<Record<string, FormulaHowTo>> = {
     skipped: { 'r_{nam}': 'ket-qua', 'r_{ky}': 'nhap-tho', m: 'nhap-tho' },
     whyNone:
       'Lợi suất một kỳ và số kỳ trong năm đều gõ thẳng, còn phép luỹ thừa đã hiện trọn trong hình.',
+    skippedPhrases: {
+      'r_{nam}': { vi: ['Lợi suất năm'], en: ['Annual return'] },
+      'r_{ky}': { vi: ['Lợi suất một kỳ'], en: ['Return per period'] },
+      m: { vi: ['Số kỳ trong năm'], en: ['Number of periods per year'] },
+    },
   },
 
   'loi-suat-thuc': {
@@ -21,6 +26,11 @@ export const HOW_TO_PERFORMANCE: Readonly<Record<string, FormulaHowTo>> = {
     skipped: { 'r_{thuc}': 'ket-qua', 'r_{danh\\,nghia}': 'nhap-tho', '\\pi': 'nhap-tho' },
     whyNone:
       'Lợi suất danh nghĩa đọc trên sao kê và lạm phát đọc từ số liệu công bố đều gõ thẳng, phép chia đã hiện trọn trong hình.',
+    skippedPhrases: {
+      'r_{thuc}': { vi: ['Lợi suất thực'], en: ['Real return'] },
+      'r_{danh\\,nghia}': { vi: ['Lợi suất danh nghĩa'], en: ['Nominal return'] },
+      '\\pi': { vi: ['Lạm phát'], en: ['Inflation'] },
+    },
   },
 
   'lai-suat-hieu-dung': {
@@ -28,6 +38,11 @@ export const HOW_TO_PERFORMANCE: Readonly<Record<string, FormulaHowTo>> = {
     skipped: { EAR: 'ket-qua', r: 'nhap-tho', m: 'nhap-tho' },
     whyNone:
       'Lãi suất niêm yết và số lần ghép lãi đều gõ thẳng, phép chia r ÷ m và phép luỹ thừa đã hiện trọn trong hình.',
+    skippedPhrases: {
+      EAR: { vi: ['EAR'], en: ['EAR'] },
+      r: { vi: ['Lãi suất danh nghĩa'], en: ['Nominal rate'] },
+      m: { vi: ['Số lần ghép lãi'], en: ['Compounding frequency'] },
+    },
   },
 
   'tong-loi-suat-tai-dau-tu': {
@@ -53,6 +68,10 @@ export const HOW_TO_PERFORMANCE: Readonly<Record<string, FormulaHowTo>> = {
       },
     ],
     skipped: { TR: 'ket-qua', n: 'nhap-tho' },
+    skippedPhrases: {
+      TR: { vi: ['Tổng lợi suất'], en: ['Total return'] },
+      n: { vi: ['Số năm'], en: ['Years'] },
+    },
   },
 
   'loi-suat-trung-binh-hinh-hoc': {
@@ -67,6 +86,11 @@ export const HOW_TO_PERFORMANCE: Readonly<Record<string, FormulaHowTo>> = {
     },
     whyNone:
       'Lợi suất từng kỳ và số kỳ đều gõ thẳng, phép nhân dồn và căn bậc n đã hiện trọn trong hình.',
+    skippedPhrases: {
+      'r_{G}': { vi: ['Lợi suất hình học'], en: ['Geometric return'] },
+      r_k: { vi: ['r kỳ 1', 'r kỳ 2'], en: ['period-1 return', 'period-2 return'] },
+      n: { vi: ['Số kỳ'], en: ['Number of periods'] },
+    },
   },
 
   'irr-nien-kim': {
@@ -80,6 +104,12 @@ export const HOW_TO_PERFORMANCE: Readonly<Record<string, FormulaHowTo>> = {
     },
     whyNone:
       'Vốn bỏ ra, dòng thu mỗi kỳ và số kỳ đều gõ thẳng, IRR là chính kết quả, và cụm 1 − (1 + IRR)^(−n) đã hiện trọn trong hình.',
+    skippedPhrases: {
+      IRR: { vi: ['IRR'], en: ['IRR'] },
+      P: { vi: ['Vốn bỏ ra'], en: ['Capital invested'] },
+      C: { vi: ['Dòng thu mỗi kỳ'], en: ['Payment per period'] },
+      n: { vi: ['Số kỳ'], en: ['Number of periods'] },
+    },
   },
 
   'thoi-gian-nhan-doi': {
@@ -95,6 +125,15 @@ export const HOW_TO_PERFORMANCE: Readonly<Record<string, FormulaHowTo>> = {
     },
     whyNone:
       'Lợi suất năm là số gõ thẳng, phần còn lại là hằng số 2, 72, 100 và phép logarit đã hiện trọn trong hình.',
+    skippedPhrases: {
+      '2': { vi: ['2'], en: ['2'] },
+      '72': { vi: ['72'], en: ['72'] },
+      '100': { vi: ['100'], en: ['100'] },
+      t: { vi: ['Số năm nhân đôi'], en: ['Years to double'] },
+      '\\ln': { vi: ['ln'], en: ['ln'] },
+      r: { vi: ['Lợi suất năm'], en: ['Annual return'] },
+      '\\approx': { vi: ['xấp xỉ nhanh bằng'], en: ['roughly'] },
+    },
   },
 
   'loi-suat-quy-nam-theo-ngay': {
@@ -107,6 +146,13 @@ export const HOW_TO_PERFORMANCE: Readonly<Record<string, FormulaHowTo>> = {
       d: 'nhap-tho',
     },
     whyNone: 'Giá mua, giá bán và số ngày nắm giữ đều gõ thẳng, 365 là hằng số.',
+    skippedPhrases: {
+      '365': { vi: ['365'], en: ['365'] },
+      'r_{nam}': { vi: ['Lợi suất quy năm'], en: ['Annualized return'] },
+      'P_{ban}': { vi: ['Giá bán'], en: ['Sell price'] },
+      'P_{mua}': { vi: ['Giá mua'], en: ['Buy price'] },
+      d: { vi: ['Số ngày nắm giữ'], en: ['Days held'] },
+    },
   },
 
   'loi-suat-vuot-chuan': {
@@ -114,5 +160,10 @@ export const HOW_TO_PERFORMANCE: Readonly<Record<string, FormulaHowTo>> = {
     skipped: { ER: 'ket-qua', 'r_{p}': 'nhap-tho', 'r_{b}': 'nhap-tho' },
     whyNone:
       'Lợi suất danh mục và lợi suất chuẩn so sánh đều gõ thẳng, kết quả chỉ là hiệu của hai số ấy.',
+    skippedPhrases: {
+      ER: { vi: ['Lợi suất vượt chuẩn'], en: ['Excess return'] },
+      'r_{p}': { vi: ['Lợi suất danh mục'], en: ['Portfolio return'] },
+      'r_{b}': { vi: ['Lợi suất chuẩn so sánh'], en: ['Benchmark return'] },
+    },
   },
 };

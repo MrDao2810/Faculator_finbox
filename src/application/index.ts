@@ -276,6 +276,13 @@ export {
   resolveRepeatSpec,
 } from '@/core/registry/repeat';
 
+/*
+ * ── Ô nhập → dòng bảng ký hiệu (28/10/2026) ──
+ * Rê vào một ô trong khung "Lấy số liệu ở đâu" thì ký hiệu của ô sáng lên ở thẻ Công thức. File lá,
+ * không kéo theo thư viện công thức.
+ */
+export { kyHieuCuaO } from '@/core/o-ky-hieu';
+
 // ── Chạy cả một chuỗi công thức nối nhau — FR-15 (gói 5.2.3) ────────────────
 export type { ChainField, ChainInputs, ChainOverrides, ChainResult, ChainStep } from '@/core/calc';
 export { chainFor, runChain } from '@/core/calc';
@@ -495,6 +502,7 @@ export {
   guidePath,
   headerHasScreenActions,
   headerTitleKey,
+  isSettingsPath,
   showsFooterDisclaimer,
 } from './routes';
 

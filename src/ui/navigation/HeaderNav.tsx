@@ -11,10 +11,11 @@ import { useActiveNavKey } from './useActiveNavKey';
 /**
  * Nav ngang trong thanh trên — chỉ hiện ở màn PC (≥1024px, xem `HeaderNav.module.css`).
  *
- * Cùng bốn mục và cùng nguồn `NAV_ITEMS` với `BottomTabBar`, nhưng KHÔNG dùng `TabIcon`: icon
+ * Cùng ba mục và cùng nguồn `NAV_ITEMS` với `BottomTabBar`, nhưng KHÔNG dùng `TabIcon`: icon
  * dọc (icon trên, chữ dưới) hợp bố cục thanh dưới di động, còn ở đây là một hàng ngang cao
- * `--header-height` (56px) — icon 22px cạnh chữ chỉ chật thêm mà không thêm nghĩa, bốn nhãn
- * tiếng Việt ngắn đã tự đủ rõ, đúng quy ước menu ngang desktop thông thường.
+ * `--header-height` (56px) — icon 22px cạnh chữ chỉ chật thêm mà không thêm nghĩa, ba nhãn
+ * tiếng Việt ngắn đã tự đủ rõ, đúng quy ước menu ngang desktop thông thường. Cài đặt không còn ở
+ * đây từ 28/10/2026: nó là icon bánh răng ở cụm nút bên phải (`SettingsLink`).
  *
  * Mục đang chọn vẫn giữ ≥2 dấu hiệu ngoài màu (NFR-USA-06): đậm chữ + gạch chân accent, thay
  * cho cặp "đậm chữ + icon đặc" mà `BottomTabBar` dùng.

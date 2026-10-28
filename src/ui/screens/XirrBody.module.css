@@ -112,11 +112,37 @@
  * Cái giá, biết trước: nút × trên điện thoại chỉ còn vùng chạm 32 × 36px, dưới mức 44px của
  * NFR-USA-01. KHÔNG bù bằng lớp phủ `::after` như các nút nhỏ khác: dòng thấp hơn 44px thì lớp phủ
  * thò sang dòng bên cạnh, và một cú chạm sát mép xoá nhầm dòng kia — xoá một chạm, không hoàn tác.
- * Đệm ngang của ô giữ nguyên (12px ở PC, 4px dưới 1024px), nên chữ vẫn thẳng cột với hàng tiêu đề.
+ * Đệm ngang của ô giữ nguyên (12px ở PC, 4px dưới 1024px). Chữ tiêu đề thẳng mép chữ trong ô nhờ đệm
+ * riêng của hàng tiêu đề — xem "Từ 1024px: chữ tiêu đề thẳng mép chữ trong ô" ngay dưới.
  */
 table.cashflow td {
   padding-top: 2px;
   padding-bottom: 2px;
+}
+
+/*
+ * ── Từ 1024px: chữ tiêu đề thẳng mép chữ trong ô (28/10/2026) ──────────────────────────────────
+ *
+ * Chủ dự án khoanh "NGÀY" cùng hai ô "dd/mm/yyyy" dưới nó: _"gióng thẳng hàng phần này xem nào"_. Đo
+ * trên Chrome ở 1024–1920: tiêu đề chỉ có đệm ô 12px của primitive `Table`, còn chữ trong ô nhập lùi
+ * thêm 8px đệm của chính ô (`.cell`) — "NGÀY" thò sang trái 8px so với ngày, "SỐ TIỀN (₫)" thò sang phải
+ * 8px so với số. Câu "chữ vẫn thẳng cột" của đợt Dòng gọn chỉ đúng dưới 1024px, nơi hàng tiêu đề đã đệm
+ * 8px = 4px đệm ô + 4px đệm ô nhập từ 20/10/2026.
+ *
+ * Nên ở đây cũng vậy: tiêu đề đệm thêm đúng 8px ấy, chỉ ở PHÍA CHỮ — trái cho cột ngày (chữ canh
+ * trái), phải cho cột số tiền (canh phải). Ô nhập, nút lịch, nút × và bề rộng cột không đổi.
+ *
+ * Bọc trong `min-width: 1024px` là bắt buộc: bộ chọn có lớp `.dateCol` mạnh hơn `table.cashflow thead
+ * th` của khối điện thoại bên dưới, để ngoài thì nó thắng cả ở điện thoại và đẩy lệch chỗ đang thẳng.
+ */
+@media (min-width: 1024px) {
+  table.cashflow thead .dateCol {
+    padding-left: calc(var(--space-3) + var(--space-2));
+  }
+
+  table.cashflow thead :global(.numeric) {
+    padding-right: calc(var(--space-3) + var(--space-2));
+  }
 }
 
 /*

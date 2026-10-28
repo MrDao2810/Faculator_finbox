@@ -40,13 +40,46 @@ describe('segmentExpression()', () => {
     expect(() => segmentExpression(SHARPE, [{ sym: 2, phrase: 'Beta' }])).toThrow(/không thấy/);
   });
 
-  it('cụm của hai ký hiệu chồng lên nhau thì ném lỗi', () => {
+  it('cụm của hai ký hiệu chồng MỘT PHẦN lên nhau thì ném lỗi', () => {
+    expect(() =>
+      segmentExpression(SHARPE, [
+        { sym: 4, phrase: 'căn bậc hai của Số phiên' },
+        { sym: 5, phrase: 'Số phiên trong một năm' },
+      ]),
+    ).toThrow(/chồng/);
+  });
+
+  it('hai ký hiệu khai cùng một cụm thì ném lỗi', () => {
+    expect(() =>
+      segmentExpression(SHARPE, [
+        { sym: 4, phrase: 'Số phiên trong một năm' },
+        { sym: 5, phrase: 'Số phiên trong một năm' },
+      ]),
+    ).toThrow(/chồng/);
+  });
+
+  /*
+   * 28/10/2026: dòng kết quả cũng có cụm, nên "EBITDA" nằm trong tên kết quả "EV/EBITDA". Chỗ ấy thuộc
+   * tên dài — đúng luật 5 của hình — và chỉ chỗ đứng riêng của "EBITDA" mới là điểm chạm của nó.
+   */
+  it('chỗ nằm trọn trong cụm dài hơn của ký hiệu khác thì thuộc cụm dài', () => {
+    const doan = segmentExpression('EV/EBITDA = Giá trị doanh nghiệp ÷ EBITDA', [
+      { sym: 0, phrase: 'EV/EBITDA' },
+      { sym: 1, phrase: 'EBITDA' },
+    ]);
+    expect(doan.filter((d) => d.sym !== undefined)).toEqual([
+      { text: 'EV/EBITDA', sym: 0 },
+      { text: 'EBITDA', sym: 1 },
+    ]);
+  });
+
+  it('cụm chỉ có chỗ nằm trong cụm dài hơn của ký hiệu khác thì coi như không thấy', () => {
     expect(() =>
       segmentExpression(SHARPE, [
         { sym: 4, phrase: 'căn bậc hai của Số phiên trong một năm' },
         { sym: 5, phrase: 'Số phiên trong một năm' },
       ]),
-    ).toThrow(/chồng/);
+    ).toThrow(/không thấy/);
   });
 });
 

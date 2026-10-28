@@ -389,7 +389,8 @@ export function SettingsScreen() {
             <span className={styles.rowText}>
               <span className={styles.rowLabel}>{t('settings.mode.label')}</span>
             </span>
-            {/* Dùng lại đúng nút của thanh trên, không dựng bản thứ hai — một nguồn sự thật. */}
+            {/* Dùng lại đúng nút của màn Công thức (cụm ấy rời thanh trên từ 15/09/2026), không
+                dựng bản thứ hai — một nguồn sự thật. */}
             <ModeToggle compact />
           </div>
 
@@ -401,7 +402,8 @@ export function SettingsScreen() {
           chỗ người ta tới để ĐỌC xem mình đang đặt gì, một icon đơn lẻ bắt đoán. Hai hình khác
           nhau nhưng cùng đọc/ghi qua `usePreferences` — một nguồn sự thật.
 
-          Nút trên thanh chỉ hiện từ 1024px, nên hàng này là lối vào DUY NHẤT trên điện thoại.
+          Nút icon trên thanh nay hiện ở mọi khổ (trừ màn Danh mục dưới 1024px), nên hàng này không
+          còn là lối vào duy nhất trên điện thoại — nhưng vẫn là chỗ duy nhất ĐỌC được đang đặt gì.
         */}
           {/*
           Dòng phụ đã bỏ (chủ dự án chốt). Nó từng nói thêm một vế KHÔNG suy ra được từ nhãn: file

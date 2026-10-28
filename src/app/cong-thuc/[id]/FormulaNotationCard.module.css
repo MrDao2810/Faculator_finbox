@@ -61,6 +61,9 @@
  * vài px), không đổi cỡ chữ, đệm hay viền, nên không có gì xê dịch.
  *
  * Bảng ký hiệu dài nhất hiện có 10 dòng (Sortino); `notation.test.ts` chặn bảng nào dài hơn 12.
+ *
+ * `[data-hang='k']` là dòng `k` của BẢNG, có ở mọi dòng kể cả dòng không có bước tính (28/10/2026):
+ * khung "Lấy số liệu ở đâu" tô ký hiệu của ô đang được rê vào, và dòng bảng của nó phải sáng cùng hình.
  */
 .card[data-active='0'] [data-sym='0'],
 .card[data-active='1'] [data-sym='1'],
@@ -73,7 +76,19 @@
 .card[data-active='8'] [data-sym='8'],
 .card[data-active='9'] [data-sym='9'],
 .card[data-active='10'] [data-sym='10'],
-.card[data-active='11'] [data-sym='11'] {
+.card[data-active='11'] [data-sym='11'],
+.card[data-active='0'] [data-hang='0'],
+.card[data-active='1'] [data-hang='1'],
+.card[data-active='2'] [data-hang='2'],
+.card[data-active='3'] [data-hang='3'],
+.card[data-active='4'] [data-hang='4'],
+.card[data-active='5'] [data-hang='5'],
+.card[data-active='6'] [data-hang='6'],
+.card[data-active='7'] [data-hang='7'],
+.card[data-active='8'] [data-hang='8'],
+.card[data-active='9'] [data-hang='9'],
+.card[data-active='10'] [data-hang='10'],
+.card[data-active='11'] [data-hang='11'] {
   background-color: var(--color-symbol-mark);
   box-shadow: 0 0 0 2px var(--color-symbol-mark);
   border-radius: 3px;

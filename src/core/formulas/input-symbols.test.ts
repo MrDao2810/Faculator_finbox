@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
+import { chuPhang, kyHieuCuaNhan } from '../o-ky-hieu';
+
 import { ALL_FORMULAS } from './index';
 
 /**
@@ -152,27 +154,7 @@ const KY_HIEU_O_NHAP: Readonly<Record<string, Readonly<Record<string, string>>>>
   'don-bay-tong-hop': { revenue: 'DT', variableCost: 'BP', interest: 'I' },
 };
 
-const HY_LAP: Readonly<Record<string, string>> = {
-  Delta: 'Δ',
-  alpha: 'α',
-  beta: 'β',
-  pi: 'π',
-  sigma: 'σ',
-};
-
-/** Hình công thức viết thành chữ phẳng, để dò ký hiệu: `P_{mua}` thành 'Pmua', `\Delta B` thành 'ΔB'. */
-function chuPhang(latex: string): string {
-  return latex
-    .replace(/\\text\{([^}]*)\}/g, '$1')
-    .replace(/\\(Delta|alpha|beta|pi|sigma)\s*/g, (_, ten: string) => HY_LAP[ten] ?? ten)
-    .replace(/\\,/g, ' ')
-    .replace(/[_{}^]/g, '');
-}
-
-/** Nhãn mang ký hiệu ở cuối '… (X)', hoặc mở đầu bằng nó 'X — …'. */
-function kyHieuCuaNhan(nhan: string): string | null {
-  return (/ \(([^()]+)\)$/.exec(nhan) ?? /^(\S+) — /.exec(nhan))?.[1] ?? null;
-}
+/* `chuPhang` và `kyHieuCuaNhan` dời sang `../o-ky-hieu.ts` ngày 28/10/2026, dùng chung với khung "Lấy số liệu ở đâu". */
 
 describe('ô nhập mang ký hiệu của hình công thức', () => {
   it('mọi công thức có mặt trong bảng, không thừa id nào', () => {

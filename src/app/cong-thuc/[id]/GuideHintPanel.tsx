@@ -76,9 +76,19 @@ export interface GuideHintPanelProps {
    * khoảng ba tháng"). Cùng nếp với `hinh`: luôn truyền, mục nào không cần thì bỏ qua.
    */
   giaTri: Readonly<Record<string, number>>;
+  /** Ô đang được rê vào ở mục "Lấy số liệu ở đâu" — chuyển thẳng xuống `GuideMuc`. */
+  onTroO?: (key: string | null) => void;
 }
 
-export function GuideHintPanel({ bai, state, onClose, id, hinh, giaTri }: GuideHintPanelProps) {
+export function GuideHintPanel({
+  bai,
+  state,
+  onClose,
+  id,
+  hinh,
+  giaTri,
+  onTroO,
+}: GuideHintPanelProps) {
   const t = useT();
   const panelRef = useRef<HTMLDivElement>(null);
   const [cho, setCho] = useState<{ top: number; left: number; maxHeight: number | null } | null>(
@@ -168,7 +178,14 @@ export function GuideHintPanel({ bai, state, onClose, id, hinh, giaTri }: GuideH
         TRƯỚC khi viết dòng JSX đầu tiên: đó là chỗ từng làm trang hướng dẫn trả HTTP 500 suốt ba
         đợt mà không ca kiểm nào thấy.
       */}
-      <GuideMuc bai={bai} muc={state.muc} idPrefix="goi-y-" hinh={hinh} giaTri={giaTri} />
+      <GuideMuc
+        bai={bai}
+        muc={state.muc}
+        idPrefix="goi-y-"
+        hinh={hinh}
+        giaTri={giaTri}
+        onTroO={onTroO}
+      />
 
       {/*
         ── Nút "Mở toàn trang ↗" ĐANG ẨN TẠM (03/10/2026, theo yêu cầu chủ dự án) ──────────────

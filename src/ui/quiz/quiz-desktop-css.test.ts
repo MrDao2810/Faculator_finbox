@@ -85,4 +85,28 @@ describe('phần chấm điểm của Bài tập từ 1024px', () => {
     expect(CSS.indexOf('.facts {')).toBeLessThan(khoi);
     expect(CSS.indexOf('.fact {')).toBeLessThan(khoi);
   });
+
+  /*
+   * 28/10/2026, chủ dự án khoanh hàng tiêu đề của popup ("Bài tập · Câu 4 / 4 · thanh tiến độ · ×")
+   * trên máy tính: _"height phần khoanh đỏ đang quá cao, giảm padding xuống"_. Đo trong Chrome ở 1024 và
+   * 1440: 65 → 50px, chữ "Bài tập" cách mép trên và đường kẻ dưới đều 12px (trước 16 / 24px).
+   */
+  it('hàng tiêu đề popup: căn giữa, đệm 12px trên dưới, nút × chỉ chiếm 20px của hàng', () => {
+    const dau = /dialog\.dialog > div > header:first-child\s*\{([^}]*)\}/.exec(PC)?.[1] ?? '';
+    expect(dau).toMatch(/align-items:\s*center;/);
+    expect(dau).toMatch(/padding-block:\s*var\(--space-3\);/);
+    // Chỉ đệm trên dưới: đệm hai bên vẫn của primitive, để "Bài tập" thẳng mép với thân popup.
+    expect(dau).not.toMatch(/padding:|padding-inline/);
+
+    const nut = /header:first-child > button:last-child\s*\{([^}]*)\}/.exec(PC)?.[1] ?? '';
+    // Lề âm bằng đúng đệm: nút 44px chiếm 20px của hàng, vùng chạm nằm gọn trong phần đệm.
+    expect(nut).toMatch(/margin-block:\s*calc\(-1 \* var\(--space-3\)\);/);
+  });
+
+  it('hàng tiêu đề popup chỉ đổi từ 1024px — khổ điện thoại giữ đầu hộp của primitive', () => {
+    const tatCa = CSS.split('dialog.dialog > div > header').length - 1;
+    const mayTinh = PC.split('dialog.dialog > div > header').length - 1;
+    expect(tatCa).toBe(2);
+    expect(mayTinh).toBe(tatCa);
+  });
 });

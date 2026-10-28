@@ -21,6 +21,13 @@ export const HOW_TO_CORPORATE: Readonly<Record<string, FormulaHowTo>> = {
     },
     whyNone:
       'Định phí, giá bán và biến phí một sản phẩm là số người dùng tự gõ, số dư đảm phí đã hiện trọn phép tính trong hình, còn sản lượng và doanh thu hoà vốn là hai kết quả của công thức.',
+    skippedPhrases: {
+      'Q_{hv}': { vi: ['Sản lượng hoà vốn'], en: ['Break-even output'] },
+      FC: { vi: ['Định phí'], en: ['Fixed cost'] },
+      P: { vi: ['Giá bán một sản phẩm'], en: ['Selling price per unit'] },
+      VC: { vi: ['Biến phí một sản phẩm'], en: ['Variable cost per unit'] },
+      'DT_{hv}': { vi: ['Doanh thu hoà vốn'], en: ['Break-even revenue'] },
+    },
   },
 
   /*
@@ -81,5 +88,11 @@ export const HOW_TO_CORPORATE: Readonly<Record<string, FormulaHowTo>> = {
       },
     ],
     skipped: { DTL: 'ket-qua', DT: 'nhap-tho', BP: 'nhap-tho', I: 'nhap-tho' },
+    skippedPhrases: {
+      DTL: { vi: ['Đòn bẩy tổng hợp'], en: ['Degree of total leverage'] },
+      DT: { vi: ['Doanh thu'], en: ['Revenue'] },
+      BP: { vi: ['Tổng biến phí'], en: ['Total variable cost'] },
+      I: { vi: ['Lãi vay'], en: ['Interest expense'] },
+    },
   },
 };

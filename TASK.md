@@ -4,6 +4,136 @@ Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 
 ---
 
+## Popup Bài tập: hàng tiêu đề thấp lại ở máy tính (28/10/2026)
+
+**Trạng thái: CHƯA XONG — đã sửa, chờ chủ dự án xem.** Chủ dự án khoanh hàng "Bài tập · Câu 4 / 4 · thanh tiến độ · ×"
+của popup trên máy tính: _"height phần khoanh đỏ đang quá cao, giảm padding xuống"_.
+
+- Đo trước (Chrome, dev, `basis-vn30f`): từ 1024px hàng cao 65px — đệm của khung dialog dùng chung 16px trên / 12px
+  dưới, nút × 44px đứng sát trên nên chiếm 36px; chữ "Bài tập" cách mép trên 16px mà cách đường kẻ dưới 24px. Ở 390px
+  hàng vốn 53px (khối điện thoại của `BottomSheet` đã căn giữa từ 19/10).
+- `src/ui/quiz/QuizBody.module.css` (khối `min-width: 1024px` cuối file): hàng căn giữa theo trục dọc, đệm 12px trên
+  dưới; nút × lề âm 12px trên dưới nên chỉ chiếm 20px, vùng chạm 44px nằm gọn trong phần đệm. Bộ chọn cấu trúc
+  `dialog.dialog > div > header:first-child` (0,2,3) thắng `.panelCenter .header` — chỉ popup Bài tập đổi, các hộp
+  thoại khác giữ nguyên. Đệm hai bên giữ 20px (thẳng mép thân popup), cỡ chữ không đổi.
+- Đo sau ở 1440 và 1024: 65 → 50px, chữ cách trên 12px / dưới 13px (gồm đường kẻ); 390px không đổi (53px). Không tràn,
+  console sạch.
+- Test: 2 ca mới ở `src/ui/quiz/quiz-desktop-css.test.ts`. Bộ quiz, tokens, hover-media, radius, hairline, BottomSheet
+  xanh (471 ca); prettier sạch.
+- Không áp ở điện thoại vì ảnh là màn máy tính — chờ chủ dự án nói nếu muốn hạ cả khổ ấy.
+
+---
+
+## Sheet "Xuất kết quả": bỏ hai dòng mô tả công tắc và ô "Miễn trừ tự động đính kèm" (28/10/2026)
+
+**Trạng thái: CHƯA XONG — đã sửa, chờ chủ dự án xem.** Chủ dự án khoanh ba chỗ trên sheet xuất file: _"xóa các phần
+khoanh đỏ đi"_ — dòng "Ảnh biểu đồ của công thức, nếu công thức đó có vẽ", dòng "Ý nghĩa từng biến và phần giải thích
+cho người mới", và ô vàng "! Miễn trừ tự động đính kèm · Không thể tắt — mọi file xuất ra đều mang tuyên bố miễn trừ.".
+
+- `ExportSheet.tsx`: bỏ `hint` của hai công tắc và ô `role="note"`; docblock ghi lý do. `ExportSheet.module.css`: bỏ
+  `.locked`, `.lockedTitle`, `.lockedDetail` (mộ chí). `vi.ts` / `en.ts`: bỏ 4 khoá, mộ chí ở `vi.ts`.
+- Bỏ câu, giữ hành vi (như `quiz.localOnly`): mọi file PDF/PNG vẫn mang câu miễn trừ, vẫn không có công tắc tắt nó.
+  `export-content.ts` sửa câu docblock trích WF-12.
+- Test: ca cũ đòi ô miễn trừ phải hiện ĐẢO thành ca "sheet không còn ô báo miễn trừ, cũng không còn dòng mô tả" (viết thẳng
+  câu, vì khoá đã bỏ); ca "câu miễn trừ nằm sẵn trong vùng in" giữ nguyên. Hai ca ở `FormulaDetail.test.tsx` từng dùng câu
+  miễn trừ làm dấu nhận sheet, nay dùng công tắc "Kèm biểu đồ" + câu miễn trừ trong vùng in. Toàn bộ vitest xanh (4998),
+  tsc, eslint, prettier sạch.
+- Xem trên Chrome (dev), `pe`, sáng và tối: ở 1440 sheet giữa màn 560 × 370px, ở 390 sheet đáy 390 × 361px; chỉ còn hai
+  thẻ định dạng và hai công tắc 44px. Chưa chạy `check:chrome` và build.
+
+---
+
+## Bảng dòng tiền XIRR: chữ tiêu đề cột thẳng mép chữ trong ô (28/10/2026)
+
+**Trạng thái: CHƯA XONG — đã sửa, chờ chủ dự án xem.** Chủ dự án khoanh "NGÀY" cùng hai ô "dd/mm/yyyy" dưới nó:
+_"gióng thẳng hàng phần này xem nào"_.
+
+- Nguyên nhân, đo trên Chrome (dev) ở 1024–1920: tiêu đề cột chỉ có đệm ô 12px của primitive `Table`, còn chữ trong ô
+  nhập lùi thêm 8px đệm của chính ô (`.cell`). "NGÀY" thò sang trái 8px so với ngày, "SỐ TIỀN (₫)" thò sang phải 8px so
+  với số. Dưới 1024px đã thẳng (0px) từ 20/10/2026.
+- `XirrBody.module.css`: khối mới `@media (min-width: 1024px)` — tiêu đề đệm `--space-3` + `--space-2` = 20px ở PHÍA
+  CHỮ (trái cho cột ngày, phải cho cột số tiền). Ô nhập, nút lịch, nút × và bề rộng cột không đổi. Sửa luôn câu chú thích
+  sai của đợt "Dòng gọn" ("chữ vẫn thẳng cột với hàng tiêu đề" chỉ đúng dưới 1024px).
+- Đo sau: lệch 0px ở 360 / 390 / 768 / 1024 / 1100 / 1280 / 1440 / 1920, bề rộng ba cột y hệt trước, không trang/bảng nào
+  cuộn ngang. Bảng anh em đã soát, không cần sửa: Bảng số liệu `/du-lieu/` và lưới popup Bảng dữ liệu (nút tiêu đề và ô
+  nhập cùng đệm 8px).
+- Test: một ca ở `xirr-mobile-css.test.ts` so chính các giá trị đệm (ô nhập, primitive, hai khổ). Bộ xirr-mobile-css,
+  screens, hover-media, tokens xanh; prettier sạch. Chưa chạy `check:chrome` và build.
+
+---
+
+## Cài đặt rời thanh điều hướng, thành icon bánh răng cạnh nút Sáng/Tối (28/10/2026)
+
+**Trạng thái: CHƯA XONG — đã sửa, chờ chủ dự án xem.** Chủ dự án: _"thay đổi bây giờ không cần phải có Cài đặt ở trên
+mainlayout mà chỉ cần icon setting ở bên trái cùng hàng với icon theme sáng tối"_. Hỏi phạm vi, chủ dự án chọn **cả PC
+lẫn điện thoại**: bỏ mục Cài đặt ở thanh nav PC VÀ thanh tab dưới (còn 3 tab), icon bánh răng ở thanh trên mọi khổ.
+
+- `src/application/routes.ts`: `NAV_ITEMS` còn 3 mục (Công thức · Danh mục · Về chúng tôi); `NavKey` loại `'settings'`;
+  hàm mới `isSettingsPath()` (xuất qua barrel `index.ts`); `activeRouteKey('/cai-dat/')` nay trả `null` — ngoại lệ có
+  chủ ý, ghi rõ trong docblock để người sau không "sửa" cho nó sáng một mục. Docblock `ROUTES.settings`,
+  `HEADER_SCREEN_ACTIONS` (câu "chỉ còn icon Tìm kiếm" vốn đã cũ), `NavItem.shortLabelKey` cập nhật số đo 3 tab.
+- `src/ui/navigation/SettingsLink.tsx` + `.module.css` (mới): `<Link>` tới `/cai-dat/`, tên `nav.settings` ("Cài
+  đặt"/"Settings") ở `aria-label` + `title`; khung chép đúng nút Sáng/Tối (36 × 32px). Ở màn Cài đặt mang
+  `aria-current="page"`: viền accent 2px (đệm bớt 1px, khung không nở) + lõi bánh răng tô đặc — hai dấu hiệu ngoài màu.
+  Không tô nền xanh nhạt (Figma đã bỏ mảng nền ở các nút thanh trên).
+- `HeaderControls.tsx`: icon là con trực tiếp của cụm, ngay trước `ThemeSwitch` → ở `/danh-muc/` dưới 1024px nó tự ẩn
+  cùng Sáng/Tối và VI theo luật nhường chỗ có sẵn. `TabIcon.tsx`: bỏ hình bánh răng (dời sang icon mới).
+- Chú thích cập nhật: `HeaderNav`, `BottomTabBar` (+ CSS), `HeaderNav.module.css`, `AppHeader` (+ CSS, số đo 1024px mới),
+  `HeaderIdentity` (+ CSS), `ThemeSwitch.module.css`, `LangSwitch.module.css`, `globals.css`, `vi.ts`, hai chú thích cũ
+  ở `SettingsScreen.tsx`, `src/ui/README.md`, CLAUDE.md (mục Notes mới + 3 chỗ nhắc "4 mục"/"Sáng/Tối và VI").
+- Test: `routes.test.ts` (3 mục, không mục nào trỏ `/cai-dat/`, `activeRouteKey` null, `isSettingsPath`, Cài đặt vẫn là
+  màn gốc), `HeaderNav.test.tsx` (3 link, ở màn Cài đặt không mục nào sáng), `AppHeader.test.tsx` (icon có ở 8 màn, đứng
+  ngay trước Sáng/Tối, ngoài thanh nav, `aria-current` chỉ ở màn Cài đặt, bản EN), mới: `SettingsLink.test.tsx`,
+  `BottomTabBar.test.tsx`, `header-buttons-css.test.ts` (so khung của ba nút anh em). `check:chrome`: thêm 4 phép kiểm
+  (360: vị trí icon + 3 tab; 360 màn Cài đặt: trạng thái đang mở; 1440 màn Cài đặt; 1440 Danh mục đủ 3 nút) và vế icon
+  ẩn ở Danh mục 360/560. `verify:static`: thêm 2 phép kiểm (đúng một link Cài đặt mỗi trang, đứng trước Sáng/Tối;
+  trang Cài đặt dựng sẵn `aria-current`).
+- Đo trên Chrome thật (dev, 70 tổ hợp 320–1440 × 7 màn × VI/EN): icon 36 × 32px, cách Sáng/Tối 4px, cùng tâm dọc, không
+  tràn; cụm phải 74 → 114px; nav ở 1024px hẹp 328 → 266px, vẫn đúng tâm; console không lỗi hydration.
+- **Cái giá / việc chủ dự án cần xem**: (1) trên điện thoại, từ màn Danh mục không còn lối vào Cài đặt trực tiếp (icon ẩn
+  cùng Sáng/Tối ở đó); (2) ở PC màn Cài đặt chỉ còn icon "đang mở" nói đang ở đâu — tên màn vẫn ẩn từ 1024px như mọi màn,
+  không mục nav nào gạch chân; (3) ở 320px nút "‹ Danh sách công thức" còn dư chưa tới 1px trước khi bị cắt "…".
+- Kiểm: `npm run check` (lint, tsc, prettier) sạch; toàn bộ vitest xanh khi chạy riêng (199 file, 4997 ca — lượt chạy
+  chung với `next build` có 2 ca quét nặng quá 5 giây, chạy lại thì đạt). Build trên bản sao: `verify:static` 52/53,
+  `check:chrome` 208/216 — mọi phép kiểm của việc này đạt; các phép hỏng KHÔNG thuộc việc này:
+  - `verify:static` "hình hai vế" (Sortino) và `check:chrome` "khung chỉ-có-nghĩa" — do mục "Dòng chữ và bảng ký hiệu"
+    ngay dưới: tên kết quả nay bọc trong `<span>` nên chuỗi liền "Tỷ số Sortino =" không còn trong HTML (chữ hiện vẫn
+    đúng), và mọi dòng bảng ký hiệu thành nút nên không còn "ký hiệu không có nút" để rê. Hai phép kiểm cần viết lại.
+  - 4 phép "nhãn tràn viewBox" (lich-tra-no, diem-hoa-von, lai-kep): tên trục chạm mép trên — lỗi đã ghi trong CLAUDE.md.
+  - "hàng nút form thêm mã dạt mép phải" (hở 20px) và 2 phép ngày ở bảng dữ liệu PC (kiểm còn đòi dd/mm, từ 21/10 PC in
+    đủ dd/mm/yyyy) — chưa tìm nguyên nhân, nằm ngoài thanh trên.
+  - Cỡ gói: `/cong-thuc/` 181,0 kB, `/danh-muc/` 202,2 kB (cổng 180 kB vốn đỏ); chưa build bản gốc để so chênh lệch.
+
+---
+
+## Dòng chữ và bảng ký hiệu: ký hiệu nào cũng mở khung (28/10/2026)
+
+**Trạng thái: CHƯA XONG — đã sửa, chờ chủ dự án xem.** Chủ dự án khoanh "Thị giá", "100%" ở dòng chữ dưới hình và
+hai dòng `P`, `100%` của bảng ký hiệu Biên an toàn: _"sửa lỗi những chỗ khoanh đỏ đang chưa hover vào để bật popup lên
+được như những phần khác, sửa toàn bộ công thức liên quan"_. Từ 26/10 chỉ HÌNH mở khung cho mọi ký hiệu; ở bảng và dòng
+chữ chỉ ký hiệu có bước tính mới mở.
+
+- **Bảng ký hiệu**: mọi dòng là nút (`FormulaNotationCard.tsx`), ký hiệu không có bước tính mở khung chỉ có dòng nghĩa,
+  đúng khung mà hình đang mở. Đảo lựa chọn 26/10 ("dòng ấy giữ chữ thường vì khung chép lại đúng dòng").
+- **Dòng chữ**: trường mới `FormulaHowTo.skippedPhrases` (`src/core/how-to/types.ts`), khai cụm chữ cho dòng không có
+  khung, kể cả dòng kết quả ("Biên an toàn" mở `MOS`). 377 dòng ở 17 file nhóm, cộng cụm cho 3 khung còn thiếu (EBITDA
+  của EV/EBITDA, `r` của DDM hai giai đoạn, `E` của WACC). Cụm do script đề xuất (tách hai dòng vi/en theo phép toán,
+  ghép theo vị trí), rồi soát từng công thức; khoảng 40 dòng sửa tay (vd. "Số cổ phiếu lưu hành" của EPS/BVPS, kết quả
+  của XIRR và IRR là chữ "XIRR", "IRR" chứ không phải vế trái, `\max` của sụt giảm là "lớn nhất của").
+  Nay 481 trên 568 dòng có cụm (trước 101). 87 dòng không có chữ riêng để rê: chỉ số chạy, phép gộp mà từng phần đã là
+  cụm (`(1 - t)`), ký hiệu nằm trong tên dài hơn (`n` trong "Giá của n phiên trước"), dòng chữ không nhắc.
+- `expression-segments.ts`: chỗ nằm trọn trong cụm DÀI HƠN của ký hiệu khác thì thuộc cụm dài ("EBITDA" trong tên kết
+  quả "EV/EBITDA"), như luật 5 của hình. Chồng một phần hay hai ký hiệu khai cùng cụm vẫn ném lỗi.
+- `notation-view.ts` gộp cụm của dòng không có khung vào điểm chạm.
+- Test: cửa gác dữ liệu mới ở `how-to.test.ts`; `FormulaNotationCard.test.tsx` quét mọi nút bảng và mọi cụm của 111
+  công thức (đúng nghĩa, đúng loại khung, vi và en phủ cùng dòng, ghim 481); ca Biên an toàn đảo chiều; ba ca mới ở
+  `expression-segments.test.ts`; `notation.test.ts` và một ca `FormulaDetail.test.tsx` (bảng dựng tay của `pe` thêm dòng
+  `P/E`) sửa theo. Toàn bộ vitest xanh (4949), tsc, eslint, prettier sạch.
+- Đo bằng chuột thật trên Chrome (dev) ở 1440 và 390: Biên an toàn, ATR, EV/EBITDA — mọi cụm và dòng bảng thử đều mở
+  khung, con trỏ hình bàn tay. Chưa chạy `check:chrome` và build.
+
+---
+
 ## Thẻ lỗi một hàng: câu nguyên nhân dạt mép phải (27/10/2026)
 
 **Trạng thái: CHƯA XONG — đã sửa, chờ chủ dự án xem.** Chủ dự án khoanh câu "Cần tối thiểu 2 dòng tiền" dưới
@@ -338,6 +468,30 @@ bấm ra ngoài) = Thoát (xoá tiến trình dở, không ghi gì); giữ thẻ
   sửa dở ở việc khác (biểu đồ phân tán), không thuộc đợt này; `tsc` cũng chỉ còn lỗi ở nhóm file biểu đồ ấy.
 - Còn lại / để chủ dự án quyết: popup cao theo nội dung nên dịch lên xuống khi mở lời giải (có thể ghim chiều cao hoặc
   neo mép trên); không có ca `check:chrome` nào gác popup.
+
+---
+
+## Rê ô trong khung "Lấy số liệu ở đâu" thì ký hiệu sáng ở thẻ Công thức (28/10/2026)
+
+**Trạng thái: CHƯA XONG — đã sửa, chờ chủ dự án xem.** Chủ dự án chụp khung "?" của khối Số liệu trên `wacc`, mũi tên từ
+"Vốn chủ sở hữu (E)" sang dòng `E:` đang sáng vàng ở thẻ Công thức: _"Khi hover vào biến trong popup này thì cũng sẽ được
+highlight vàng như bên kia"_.
+
+- `src/core/o-ky-hieu.ts` (mới): `kyHieuCuaO(spec, key)` trả dòng bảng ký hiệu của một ô, đọc ký hiệu ở cuối nhãn
+  ('(E)' → dòng `E`), cả nhãn khi hình viết bằng chữ ('Vốn chủ sở hữu' → `\text{Vốn chủ sở hữu}`), và ô nhóm lặp
+  ('(C1)' → `C_i`). `chuPhang` và `kyHieuCuaNhan` dời từ `input-symbols.test.ts` sang đây, test cũ import lại.
+  215/269 ô khớp một dòng; ô không khớp (ký hiệu chỉ là chỉ số dưới như `h`, `n` của RSI) thì không sáng gì.
+- `src/application/index.ts`: xuất `kyHieuCuaO`.
+- `src/ui/guide/GuideBody.tsx`: `GuideMuc` nhận `onTroO`; mỗi hàng ô (tên + câu) báo ô khi rê vào / rời ra.
+- `GuideHintPanel.tsx`: chuyển `onTroO` xuống. `FormulaDetail.tsx`: giữ ô đang rê, suy ra ký hiệu lúc vẽ, xoá khi
+  mở hay đóng khung; truyền `soi` cho thẻ.
+- `FormulaNotationCard.tsx`: prop `soi` vào `data-active` (khung "cách tính" đang mở thì nó thắng); chỉ tô, không mở
+  khung. Mọi dòng bảng mang thêm `data-hang` (dt và chữ nghĩa), CSS tô cả `[data-hang]`. Hệ quả cố ý: rê vào ký hiệu
+  không có bước tính trong HÌNH (vd `P`) thì dòng bảng của nó nay cũng sáng, trước chỉ chữ trong hình sáng.
+- Test: `o-ky-hieu.test.ts` (5 ca, quét cả Registry: ô sáng thì sáng đúng dòng của nó); `FormulaDetail.test.tsx` ca mới
+  trên `wacc`: rê E sáng E, rời ra tắt, rê Thuế suất sáng `t` cả ở dòng bảng, Esc khi còn đang rê thì tắt.
+
+Kiểm: cả bộ vitest 4943 ca xanh, typecheck, lint, prettier sạch. Chưa xem trên Chrome.
 
 ---
 

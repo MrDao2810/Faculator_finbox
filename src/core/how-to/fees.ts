@@ -68,6 +68,12 @@ export const HOW_TO_FEES: Readonly<Record<string, FormulaHowTo>> = {
     },
     whyNone:
       'Hình nhân thẳng hai số gõ tay (khối lượng, giá mua) với tỷ lệ phí tra từ biểu phí, không có đại lượng nào phải tính trước.',
+    skippedPhrases: {
+      'F_{mua}': { vi: ['Phí mua'], en: ['Buy fee'] },
+      Q: { vi: ['Khối lượng'], en: ['Quantity'] },
+      'P_{mua}': { vi: ['Giá mua'], en: ['Buy price'] },
+      'r_{mua}': { vi: ['Tỷ lệ phí mua'], en: ['Buy fee rate'] },
+    },
   },
 
   'phi-giao-dich-ban': {
@@ -80,6 +86,12 @@ export const HOW_TO_FEES: Readonly<Record<string, FormulaHowTo>> = {
     },
     whyNone:
       'Hình nhân thẳng hai số gõ tay (khối lượng, giá bán) với tỷ lệ phí tra từ biểu phí, không có đại lượng nào phải tính trước.',
+    skippedPhrases: {
+      'F_{ban}': { vi: ['Phí bán'], en: ['Sell fee'] },
+      Q: { vi: ['Khối lượng'], en: ['Quantity'] },
+      'P_{ban}': { vi: ['Giá bán'], en: ['Sell price'] },
+      'r_{ban}': { vi: ['Tỷ lệ phí bán'], en: ['Sell fee rate'] },
+    },
   },
 
   'thue-chuyen-nhuong': {
@@ -92,6 +104,12 @@ export const HOW_TO_FEES: Readonly<Record<string, FormulaHowTo>> = {
     },
     whyNone:
       'Hình nhân thẳng hai số gõ tay (khối lượng, giá bán) với thuế suất tra từ biểu phí, không có đại lượng nào phải tính trước.',
+    skippedPhrases: {
+      T: { vi: ['Thuế'], en: ['Tax'] },
+      Q: { vi: ['Khối lượng'], en: ['Quantity'] },
+      'P_{ban}': { vi: ['Giá bán'], en: ['Sell price'] },
+      'r_{thue}': { vi: ['Thuế suất chuyển nhượng'], en: ['Transfer tax rate'] },
+    },
   },
 
   'thue-co-tuc': {
@@ -104,6 +122,12 @@ export const HOW_TO_FEES: Readonly<Record<string, FormulaHowTo>> = {
     },
     whyNone:
       'Hình nhân thẳng hai số gõ tay (khối lượng, cổ tức mỗi cổ phiếu) với thuế suất tra từ biểu phí, không có đại lượng nào phải tính trước.',
+    skippedPhrases: {
+      'T_{ct}': { vi: ['Thuế cổ tức'], en: ['Dividend tax'] },
+      Q: { vi: ['Khối lượng'], en: ['Quantity'] },
+      D: { vi: ['Cổ tức mỗi cổ phiếu'], en: ['Dividend per share'] },
+      'r_{ct}': { vi: ['Thuế suất cổ tức'], en: ['Dividend tax rate'] },
+    },
   },
 
   'phi-luu-ky': {
@@ -116,6 +140,12 @@ export const HOW_TO_FEES: Readonly<Record<string, FormulaHowTo>> = {
     },
     whyNone:
       'Hình nhân thẳng hai số gõ tay (khối lượng, số tháng nắm giữ) với mức phí tra từ biểu phí, không có đại lượng nào phải tính trước.',
+    skippedPhrases: {
+      'F_{lk}': { vi: ['Phí lưu ký'], en: ['Custody fee'] },
+      Q: { vi: ['Khối lượng'], en: ['Quantity'] },
+      M: { vi: ['Số tháng nắm giữ'], en: ['Holding period'] },
+      c: { vi: ['Mức phí mỗi cổ phiếu mỗi tháng'], en: ['Rate per share per month'] },
+    },
   },
 
   'gia-hoa-von': {
@@ -146,6 +176,13 @@ export const HOW_TO_FEES: Readonly<Record<string, FormulaHowTo>> = {
       'r_{ban}': 'hang-so-bieu-phi',
       'r_{thue}': 'hang-so-bieu-phi',
       '1 - r_{ban} - r_{thue}': 'da-hien-trong-hinh',
+    },
+    skippedPhrases: {
+      'P_{hv}': { vi: ['Giá hoà vốn'], en: ['Break-even price'] },
+      Q: { vi: ['Khối lượng'], en: ['Quantity'] },
+      'P_{mua}': { vi: ['Giá mua'], en: ['Buy price'] },
+      'r_{ban}': { vi: ['Tỷ lệ phí bán'], en: ['Sell fee rate'] },
+      'r_{thue}': { vi: ['Thuế suất bán'], en: ['Sell tax rate'] },
     },
   },
 
@@ -186,6 +223,13 @@ export const HOW_TO_FEES: Readonly<Record<string, FormulaHowTo>> = {
       'P_{ban}': 'nhap-tho',
       'P_{mua}': 'nhap-tho',
       'F_{mua} + F_{ban} + T + F_{lk}': 'da-hien-trong-hinh',
+    },
+    skippedPhrases: {
+      'L_{rong}': { vi: ['Lợi nhuận ròng'], en: ['Net profit'] },
+      Q: { vi: ['Khối lượng'], en: ['Quantity'] },
+      'P_{ban}': { vi: ['Giá bán'], en: ['Sell price'] },
+      'P_{mua}': { vi: ['Giá mua'], en: ['Buy price'] },
+      'F_{mua} + F_{ban} + T + F_{lk}': { vi: ['Tổng chi phí'], en: ['Total costs'] },
     },
   },
 
@@ -236,6 +280,14 @@ export const HOW_TO_FEES: Readonly<Record<string, FormulaHowTo>> = {
       'P_{mua}': 'nhap-tho',
       'Q \\cdot P_{mua} + F_{mua} + F_{lk}': 'da-hien-trong-hinh',
       '100': 'hang-so',
+    },
+    skippedPhrases: {
+      '100': { vi: ['100'], en: ['100'] },
+      'ROI_{rong}': { vi: ['ROI ròng'], en: ['Net ROI'] },
+      'Q \\cdot P_{mua} + F_{mua} + F_{lk}': {
+        vi: ['Vốn thực bỏ ra'],
+        en: ['Actual capital deployed'],
+      },
     },
   },
 };

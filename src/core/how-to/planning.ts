@@ -16,6 +16,13 @@ export const HOW_TO_PLANNING: Readonly<Record<string, FormulaHowTo>> = {
     },
     whyNone:
       'Số tiền gửi, lãi suất không kỳ hạn và số tháng đã gửi đều là số gõ thẳng, phép quy lãi năm về tháng đã hiện trọn trong hình.',
+    skippedPhrases: {
+      '12': { vi: ['12'], en: ['12'] },
+      I: { vi: ['Lãi thực nhận'], en: ['Interest received'] },
+      P: { vi: ['Số tiền gửi'], en: ['Deposit amount'] },
+      'r_{kkh}': { vi: ['Lãi suất không kỳ hạn năm'], en: ['Annual demand-deposit rate'] },
+      t: { vi: ['Số tháng đã gửi'], en: ['Months held'] },
+    },
   },
 
   /*
@@ -49,6 +56,15 @@ export const HOW_TO_PLANNING: Readonly<Record<string, FormulaHowTo>> = {
       r_d: 'nhap-tho',
       T: 'nhap-tho',
     },
+    skippedPhrases: {
+      '12': { vi: ['12'], en: ['12'] },
+      '\\Delta': { vi: ['Chênh lệch'], en: ['Difference'] },
+      P: { vi: ['Tiền gửi'], en: ['Deposit'] },
+      r_n: { vi: ['Lãi suất kỳ ngắn'], en: ['Short-term rate'] },
+      m: { vi: ['Kỳ hạn ngắn'], en: ['Short term'] },
+      r_d: { vi: ['Lãi suất kỳ dài'], en: ['Long-term rate'] },
+      T: { vi: ['Tổng số tháng'], en: ['Total months'] },
+    },
   },
 
   'gia-von-trung-binh-dca': {
@@ -63,6 +79,11 @@ export const HOW_TO_PLANNING: Readonly<Record<string, FormulaHowTo>> = {
     },
     whyNone:
       'Tiền và giá mỗi đợt đều là số gõ thẳng, còn tổng tiền và tổng số cổ phiếu đã hiện trọn trong hình.',
+    skippedPhrases: {
+      '\\bar{P}': { vi: ['Giá vốn trung bình'], en: ['Average cost'] },
+      '\\sum_i C_i': { vi: ['Tổng tiền đã mua'], en: ['Total amount invested'] },
+      '\\sum_i C_i / P_i': { vi: ['Tổng số cổ phiếu mua được'], en: ['Total shares acquired'] },
+    },
   },
 
   /* Ô lợi suất gõ theo %/năm, nên hình của bước viết dạng tỷ lệ, không `÷ 100`. */
@@ -91,6 +112,13 @@ export const HOW_TO_PLANNING: Readonly<Record<string, FormulaHowTo>> = {
       FV: 'nhap-tho',
       C: 'nhap-tho',
     },
+    skippedPhrases: {
+      n: { vi: ['Số kỳ'], en: ['Number of periods'] },
+      '\\lceil': { vi: ['làm tròn lên'], en: ['rounded up'] },
+      '\\ln': { vi: ['ln'], en: ['ln'] },
+      FV: { vi: ['Mục tiêu'], en: ['Target'] },
+      C: { vi: ['Mức góp mỗi kỳ'], en: ['Contribution per period'] },
+    },
   },
 
   'thue-tncn-dau-tu': {
@@ -104,5 +132,13 @@ export const HOW_TO_PLANNING: Readonly<Record<string, FormulaHowTo>> = {
       'r_{ct}': 'hang-so-bieu-phi',
     },
     whyNone: 'Khối lượng, giá bán và cổ tức là số gõ thẳng, còn hai thuế suất tra từ biểu phí.',
+    skippedPhrases: {
+      T: { vi: ['Tổng thuế'], en: ['Total tax'] },
+      Q: { vi: ['Khối lượng'], en: ['Quantity'] },
+      'P_{ban}': { vi: ['Giá bán'], en: ['Sale price'] },
+      'r_{cn}': { vi: ['Thuế suất chuyển nhượng'], en: ['Transfer tax rate'] },
+      D: { vi: ['Cổ tức mỗi cổ phiếu'], en: ['Dividend per share'] },
+      'r_{ct}': { vi: ['Thuế suất cổ tức'], en: ['Dividend tax rate'] },
+    },
   },
 };

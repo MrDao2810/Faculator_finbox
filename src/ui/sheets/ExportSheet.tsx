@@ -93,8 +93,14 @@ export interface ExportSheetProps {
  *    những gì CSS in mô tả. PNG thì vẽ tay bằng Canvas. Cộng lại tiết kiệm khoảng 400 kB so
  *    với jsPDF + html2canvas, đáng kể với một trang tĩnh (NFR-PER-04).
  * 2. **Miễn trừ không có công tắc.** Nội dung file dựng bằng `buildExportContent()` ở tầng
- *    Domain, mà hàm đó luôn điền `disclaimer`. Trên màn cũng không vẽ ô tick nào cho nó —
- *    đúng câu WF-12: "Không thể tắt — mọi file xuất ra đều mang tuyên bố miễn trừ."
+ *    Domain, mà hàm đó luôn điền `disclaimer`. Trên màn cũng không vẽ ô tick nào cho nó.
+ *
+ * Sheet KHÔNG còn nói điều đó bằng chữ (28/10/2026). Ô vàng "! Miễn trừ tự động đính kèm · Không thể
+ * tắt — mọi file xuất ra đều mang tuyên bố miễn trừ." của WF-12 và hai dòng mô tả dưới hai công tắc
+ * ("Ảnh biểu đồ của công thức, nếu công thức đó có vẽ", "Ý nghĩa từng biến và phần giải thích cho
+ * người mới") bỏ cùng một lượt — chủ dự án khoanh cả ba: _"xóa các phần khoanh đỏ đi"_. Bỏ câu, giữ
+ * hành vi: file xuất ra vẫn mang miễn trừ, `ExportSheet.test.tsx` vẫn ghim nó trong vùng in. Đừng
+ * dựng lại ô vàng mà không hỏi — thiếu câu báo trông như sơ suất, nhưng không phải.
  */
 export function ExportSheet({
   open,
@@ -267,28 +273,15 @@ export function ExportSheet({
         ))}
       </div>
 
+      {/* Hai công tắc không có dòng mô tả, và sau chúng không còn ô "Miễn trừ tự động đính kèm" —
+          cả ba bỏ ngày 28/10/2026, xem docblock. Miễn trừ vẫn ở cuối vùng in bên dưới (FR-24). */}
       <div className={styles.options}>
-        <Switch
-          checked={includeChart}
-          onChange={setIncludeChart}
-          label={t('export.withChart')}
-          hint={t('export.withChartHint')}
-        />
+        <Switch checked={includeChart} onChange={setIncludeChart} label={t('export.withChart')} />
         <Switch
           checked={includeDetails}
           onChange={setIncludeDetails}
           label={t('export.withDetails')}
-          hint={t('export.withDetailsHint')}
         />
-      </div>
-
-      {/* Không phải ô tick — là thông báo. Người dùng không có cách nào bỏ nó ra (FR-24). */}
-      <div className={styles.locked} role="note">
-        <span className={styles.lockedTitle}>
-          <span aria-hidden="true">! </span>
-          {t('export.disclaimerLocked')}
-        </span>
-        <span className={styles.lockedDetail}>{t('export.disclaimerLockedDetail')}</span>
       </div>
 
       {failed && (

@@ -109,12 +109,16 @@ describe('buildNotationView() — thẻ Công thức dựng lúc build', () => {
     expect(sai, sai.join('\n')).toEqual([]);
   });
 
-  it('ghép các đoạn lại đúng bằng dòng chữ gốc, và đoạn nào cũng trỏ tới dòng có khung', () => {
+  /*
+   * Từ 28/10/2026 đoạn chữ của dòng KHÔNG có khung cũng là điểm chạm (`skippedPhrases`), nên phép so
+   * là "dòng có thật của bảng", không còn là "dòng có khung".
+   */
+  it('ghép các đoạn lại đúng bằng dòng chữ gốc, và đoạn nào cũng trỏ tới một dòng của bảng', () => {
     const sai: string[] = [];
     for (const spec of canKiem) {
       const view = viewOf(spec);
       if (view instanceof Error) continue;
-      const coKhung = new Set(view.howTo.map((h) => h.sym));
+      const soDong = (spec.symbols ?? []).length;
       for (const ngon of ['vi', 'en'] as const) {
         const dong = view.expression[ngon];
         /*
@@ -128,8 +132,8 @@ describe('buildNotationView() — thẻ Công thức dựng lúc build', () => {
         for (const d of dong.flat()) {
           if (d.text.includes('\n'))
             sai.push(`${spec.id} · ${ngon}: đoạn còn sót ký tự xuống dòng`);
-          if (d.sym !== undefined && !coKhung.has(d.sym)) {
-            sai.push(`${spec.id} · ${ngon}: đoạn "${d.text}" trỏ tới dòng không có khung`);
+          if (d.sym !== undefined && !(d.sym >= 0 && d.sym < soDong)) {
+            sai.push(`${spec.id} · ${ngon}: đoạn "${d.text}" trỏ ra ngoài bảng ký hiệu`);
           }
         }
       }

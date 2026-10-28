@@ -10,8 +10,13 @@
  * - Khớp theo RANH GIỚI TỪ: trước và sau cụm không được là chữ hay số, để "Số phiên" không khớp vào
  *   giữa "Số phiên trong một năm" của một cụm khác mà người viết không định.
  * - Mọi chỗ xuất hiện của cụm đều thành điểm chạm.
- * - Cụm không có trong dòng chữ, hay cụm của HAI ký hiệu khác nhau chồng lên nhau: ném lỗi. Hàm này
- *   chạy lúc build, nên lỗi làm đỏ `next build` thay vì in ra một dòng chữ tô sáng sai.
+ * - Chỗ nằm TRỌN trong cụm dài hơn của ký hiệu khác thì thuộc cụm dài ấy (28/10/2026): "EBITDA" trong
+ *   "EV/EBITDA" là một phần của tên kết quả, không phải ô EBITDA — đúng luật 5 của hình
+ *   (`mathml-marks.ts`: không khớp vào bên trong một tên đã là dòng riêng của bảng). Từ ngày ấy dòng
+ *   KẾT QUẢ và mọi dòng không có bước tính cũng có cụm, nên chuyện tên này chứa tên kia mới xảy ra.
+ * - Cụm không có chỗ đứng riêng nào trong dòng chữ, hay cụm của HAI ký hiệu khác nhau chồng một phần
+ *   lên nhau (hoặc trùng khít): ném lỗi. Hàm này chạy lúc build, nên lỗi làm đỏ `next build` thay vì
+ *   in ra một dòng chữ tô sáng sai.
  *
  * Hàm thuần, không import gì — ghép các đoạn lại luôn ra đúng dòng chữ ban đầu.
  */
@@ -100,14 +105,20 @@ function segmentOne(
       const end = from + phrase.length;
       if (!isBoundary(text, from - 1) || !isBoundary(text, end)) continue;
 
-      const overlap = claimed.find((range) => from < range.end && end > range.start);
-      if (overlap !== undefined) {
-        if (overlap.sym !== sym) {
+      const overlaps = claimed.filter((range) => from < range.end && end > range.start);
+      if (overlaps.length > 0) {
+        const chong = overlaps.find(
+          (range) =>
+            range.sym !== sym &&
+            !(from >= range.start && end <= range.end && end - from < range.end - range.start),
+        );
+        if (chong !== undefined) {
           throw new Error(
-            `expression-segments: cụm "${phrase}" của dòng ${String(sym)} chồng lên cụm của dòng ${String(overlap.sym)}`,
+            `expression-segments: cụm "${phrase}" của dòng ${String(sym)} chồng lên cụm của dòng ${String(chong.sym)}`,
           );
         }
-        found += 1;
+        // Cùng ký hiệu thì chỗ này đã là điểm chạm; nằm trọn trong tên dài hơn thì thuộc tên ấy.
+        if (overlaps.some((range) => range.sym === sym)) found += 1;
         continue;
       }
 

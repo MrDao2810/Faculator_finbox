@@ -33,6 +33,10 @@ export const HOW_TO_VALUATION_MULTIPLES: Readonly<Record<string, FormulaHowTo>> 
       },
     ],
     skipped: { 'P/S': 'ket-qua', P: 'nhap-tho' },
+    skippedPhrases: {
+      'P/S': { vi: ['P/S'], en: ['P/S'] },
+      P: { vi: ['Giá thị trường'], en: ['Market price'] },
+    },
   },
 
   ev: {
@@ -46,6 +50,11 @@ export const HOW_TO_VALUATION_MULTIPLES: Readonly<Record<string, FormulaHowTo>> 
       },
     ],
     skipped: { EV: 'ket-qua', '\\text{Nợ vay}': 'nhap-tho', '\\text{Tiền mặt}': 'nhap-tho' },
+    skippedPhrases: {
+      EV: { vi: ['EV'], en: ['EV'] },
+      '\\text{Nợ vay}': { vi: ['Nợ vay'], en: ['Debt'] },
+      '\\text{Tiền mặt}': { vi: ['Tiền và tương đương tiền'], en: ['Cash and cash equivalents'] },
+    },
   },
 
   'ev-ebitda': {
@@ -68,6 +77,7 @@ export const HOW_TO_VALUATION_MULTIPLES: Readonly<Record<string, FormulaHowTo>> 
       {
         kind: 'defined',
         symbol: 'EBITDA',
+        phrases: { vi: ['EBITDA'], en: ['EBITDA'] },
         steps: [
           {
             latex: 'EBIT = \\text{LNTT} + \\text{Lãi vay}',
@@ -87,6 +97,9 @@ export const HOW_TO_VALUATION_MULTIPLES: Readonly<Record<string, FormulaHowTo>> 
       },
     ],
     skipped: { 'EV/EBITDA': 'ket-qua' },
+    skippedPhrases: {
+      'EV/EBITDA': { vi: ['EV/EBITDA'], en: ['EV/EBITDA'] },
+    },
   },
 
   'ev-sales': {
@@ -100,6 +113,10 @@ export const HOW_TO_VALUATION_MULTIPLES: Readonly<Record<string, FormulaHowTo>> 
       },
     ],
     skipped: { 'EV/Sales': 'ket-qua', '\\text{Doanh thu}': 'nhap-tho' },
+    skippedPhrases: {
+      'EV/Sales': { vi: ['EV/Sales'], en: ['EV/Sales'] },
+      '\\text{Doanh thu}': { vi: ['Doanh thu thuần'], en: ['Net revenue'] },
+    },
   },
 
   peg: {
@@ -113,6 +130,10 @@ export const HOW_TO_VALUATION_MULTIPLES: Readonly<Record<string, FormulaHowTo>> 
       },
     ],
     skipped: { PEG: 'ket-qua', g: 'nhap-tho' },
+    skippedPhrases: {
+      PEG: { vi: ['PEG'], en: ['PEG'] },
+      g: { vi: ['Tăng trưởng lợi nhuận kỳ vọng'], en: ['Expected earnings growth'] },
+    },
   },
 
   'von-hoa-thi-truong': {
@@ -120,6 +141,12 @@ export const HOW_TO_VALUATION_MULTIPLES: Readonly<Record<string, FormulaHowTo>> 
     skipped: { '\\text{Vốn hoá}': 'ket-qua', P: 'nhap-tho', N: 'nhap-tho', '1000': 'hang-so' },
     whyNone:
       'Giá và số cổ phiếu lưu hành là số đọc thẳng trên bảng giá hay báo cáo, còn 1.000 chỉ là hệ số đổi triệu ₫ ra tỷ ₫.',
+    skippedPhrases: {
+      '1000': { vi: ['1.000'], en: ['1,000'] },
+      '\\text{Vốn hoá}': { vi: ['Vốn hoá'], en: ['Market cap'] },
+      P: { vi: ['Giá thị trường'], en: ['Market price'] },
+      N: { vi: ['Số cổ phiếu lưu hành'], en: ['Shares outstanding'] },
+    },
   },
 
   'so-graham': {
@@ -140,6 +167,10 @@ export const HOW_TO_VALUATION_MULTIPLES: Readonly<Record<string, FormulaHowTo>> 
       },
     ],
     skipped: { '\\text{Graham}': 'ket-qua', '22{,}5': 'hang-so' },
+    skippedPhrases: {
+      '\\text{Graham}': { vi: ['Số Graham'], en: ['Graham number'] },
+      '22{,}5': { vi: ['22,5'], en: ['22.5'] },
+    },
   },
 
   /*
@@ -157,6 +188,13 @@ export const HOW_TO_VALUATION_MULTIPLES: Readonly<Record<string, FormulaHowTo>> 
     },
     whyNone:
       'Tài sản ngắn hạn, tổng nợ phải trả và số cổ phiếu lưu hành đều đọc thẳng trên báo cáo tài chính, còn 1.000 chỉ là hệ số đổi đơn vị.',
+    skippedPhrases: {
+      '1000': { vi: ['1.000'], en: ['1,000'] },
+      NCAV: { vi: ['NCAV mỗi cổ phiếu'], en: ['NCAV per share'] },
+      '\\text{TSNH}': { vi: ['Tài sản ngắn hạn'], en: ['Current assets'] },
+      '\\text{Tổng nợ}': { vi: ['Tổng nợ phải trả'], en: ['Total liabilities'] },
+      N: { vi: ['Số cổ phiếu lưu hành'], en: ['Shares outstanding'] },
+    },
   },
 
   'ty-suat-loi-nhuan-tren-gia': {
@@ -170,6 +208,11 @@ export const HOW_TO_VALUATION_MULTIPLES: Readonly<Record<string, FormulaHowTo>> 
       },
     ],
     skipped: { 'E/P': 'ket-qua', P: 'nhap-tho', '100\\%': 'hang-so' },
+    skippedPhrases: {
+      'E/P': { vi: ['Tỷ suất lợi nhuận'], en: ['Earnings yield'] },
+      P: { vi: ['Giá thị trường'], en: ['Market price'] },
+      '100\\%': { vi: ['100'], en: ['100'] },
+    },
   },
 
   /*
@@ -187,5 +230,9 @@ export const HOW_TO_VALUATION_MULTIPLES: Readonly<Record<string, FormulaHowTo>> 
       },
     ],
     skipped: { 'P_{\\text{mục tiêu}}': 'ket-qua', 'P/E_{\\text{mục tiêu}}': 'nhap-tho' },
+    skippedPhrases: {
+      'P_{\\text{mục tiêu}}': { vi: ['Giá mục tiêu'], en: ['Target price'] },
+      'P/E_{\\text{mục tiêu}}': { vi: ['P/E mục tiêu'], en: ['Target P/E'] },
+    },
   },
 };

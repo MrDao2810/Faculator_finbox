@@ -2081,8 +2081,9 @@ window.__localeLog = [];
    * nhỏ "tính sau", nên nó chỉ còn hai điều kiện (không tràn ngang, "Thêm mới" bấm được) kèm lời hẹn:
    * khi có bản vẽ khổ nhỏ, viết lại bộ đo cho đúng bản vẽ ấy. Bản vẽ đã tới — đây là bộ đo viết lại.
    *
-   * Dưới 1024px: thanh trên "Danh mục" + MỘT icon Tìm kiếm (không Sáng/Tối, VI; icon Làm mới giá của bản
-   * vẽ đầu bị chủ dự án gạch cùng ngày), bấm thì ô tìm mở ngay trên thanh trên; hai tab
+   * Dưới 1024px: thanh trên "Danh mục" + icon Tìm kiếm rồi Làm mới giá (không Cài đặt, Sáng/Tối, VI; icon
+   * Làm mới giá bị chủ dự án gạch rồi thêm lại cùng ngày, icon Cài đặt thêm vào cụm ngày 28/10/2026),
+   * bấm Tìm kiếm thì ô tìm mở ngay trên thanh trên; hai tab
    * ngang; thẻ tóm tắt thu một hàng; bảng Mã năm cột, chạm dòng thì dòng chi tiết mở với Lãi/lỗ, Lãi/lỗ
    * %, Tỷ trọng và hai nút Sửa · Xoá; "Thêm mới" ghim đáy ngay trên thanh điều hướng. Mọi thứ ấy là CSS
    * trong `@media` của CSS Module (jsdom không áp), và cú chạm phải là chuột THẬT — `PortfolioScreen`
@@ -2117,6 +2118,8 @@ window.__localeLog = [];
       nutThanh: [...document.querySelectorAll('#header-screen-actions button')].filter(hien).map((b) => b.getAttribute('aria-label')),
       themeHien: hien(document.querySelector('button[aria-label^="Chuyển sang giao diện"]')),
       ngonNguHien: hien(document.querySelector('button[aria-label^="Chuyển sang tiếng"]')),
+      // Icon Cài đặt (28/10/2026) nhường chỗ cùng cụm — chỉ CSS giấu nó, nên chỉ đo được ở đây.
+      caiDatHien: hien(document.querySelector('header a[href^="/cai-dat"]')),
       tabNgang: tabs.length === 2 && Math.abs(tabs[0].top - tabs[1].top) < 1 && tabs[1].left > tabs[0].right - 1,
       // Chữ NHÌN THẤY trên tab (innerText bỏ phần display: none) — số đếm đã bỏ ở khổ này (14/10/2026).
       chuTab: [...document.querySelectorAll('[role="tab"]')].map((t) => t.innerText.trim()),
@@ -2224,11 +2227,12 @@ window.__localeLog = [];
 
     const nho = await evaluate(DOC_DANH_MUC_NHO);
     check(
-      `${String(rong)} · Danh mục: thanh trên có icon Tìm kiếm rồi Làm mới giá bên phải, không có Sáng/Tối và VI`,
+      `${String(rong)} · Danh mục: thanh trên có icon Tìm kiếm rồi Làm mới giá bên phải, không có Cài đặt, Sáng/Tối và VI`,
       nho.nutThanh.join('|') === 'Tìm kiếm|Làm mới giá' &&
+        nho.caiDatHien === false &&
         nho.themeHien === false &&
         nho.ngonNguHien === false,
-      `nút ${nho.nutThanh.join(', ')} · sáng/tối ${String(nho.themeHien)} · VI ${String(nho.ngonNguHien)}`,
+      `nút ${nho.nutThanh.join(', ')} · cài đặt ${String(nho.caiDatHien)} · sáng/tối ${String(nho.themeHien)} · VI ${String(nho.ngonNguHien)}`,
     );
 
     // Chạm chuột thật vào icon Tìm kiếm rồi gõ: ô mở trên thanh trên và lọc bảng.
@@ -3737,6 +3741,73 @@ window.__localeLog = [];
     JSON.stringify(ke360),
   );
 
+  /*
+   * ── Icon Cài đặt bên trái nút Sáng/Tối, thay cho mục Cài đặt của thanh nav ─
+   *
+   * Chủ dự án, 28/10/2026: _"không cần phải có Cài đặt ở trên mainlayout mà chỉ cần icon setting ở
+   * bên trái cùng hàng với icon theme sáng tối"_, cho cả PC lẫn điện thoại. jsdom chỉ thấy thứ tự DOM
+   * (`AppHeader.test.tsx`); chỗ đứng NHÌN THẤY — bên trái, sát (khe `--space-1`), cùng hàng, cùng cỡ —
+   * và thanh tab dưới còn ba mục chỉ đo được ở đây. Ở màn Cài đặt, icon là dấu "đang ở đây" duy nhất
+   * trên PC (không mục nav nào gạch chân), nên đo cả hai dấu hiệu ngoài màu: viền 2px và lõi đặc — và
+   * khung không được nở ra vì chúng.
+   */
+  const DOC_BANH_RANG = `(() => {
+    const hien = (el) => !!el && getComputedStyle(el).display !== 'none' && el.getBoundingClientRect().width > 0;
+    const thanh = document.querySelector('header');
+    const icon = thanh.querySelector('a[href^="/cai-dat"]');
+    const theme = thanh.querySelector('button[aria-label^="Chuyển sang giao diện"]');
+    const g = icon === null ? null : icon.getBoundingClientRect();
+    const t = theme === null ? null : theme.getBoundingClientRect();
+    const mucCua = (nav) => (nav === undefined || nav === null || !hien(nav) ? null : [...nav.querySelectorAll('li')].map((li) => (li.textContent ?? '').trim()).join('|'));
+    return {
+      hien: hien(icon),
+      ten: icon === null ? null : icon.getAttribute('aria-label'),
+      khe: g === null || t === null ? null : Math.round((t.left - g.right) * 10) / 10,
+      lechTam: g === null || t === null ? null : Math.round(((t.top + t.bottom - g.top - g.bottom) / 2) * 10) / 10,
+      rong: g === null ? null : Math.round(g.width * 10) / 10,
+      cao: g === null ? null : Math.round(g.height * 10) / 10,
+      caoTheme: t === null ? null : Math.round(t.height * 10) / 10,
+      dangMo: icon === null ? null : icon.getAttribute('aria-current'),
+      vien: icon === null ? null : getComputedStyle(icon).borderTopWidth,
+      loiDac: icon !== null && icon.querySelectorAll('svg path')[1]?.getAttribute('fill') === 'currentColor',
+      navTren: mucCua(thanh.querySelector('nav')),
+      navDuoi: mucCua([...document.querySelectorAll('nav')].find((n) => hien(n) && n.getBoundingClientRect().top > window.innerHeight / 2)),
+      mucDangMo: [...document.querySelectorAll('nav a[aria-current]')].filter(hien).length,
+      tran: document.documentElement.scrollWidth > document.documentElement.clientWidth + 1,
+      thanhTran: thanh.firstElementChild.scrollWidth > thanh.firstElementChild.clientWidth + 1,
+    };
+  })()`;
+
+  const rang360 = await evaluate(DOC_BANH_RANG);
+  check(
+    'Điện thoại 360 · icon Cài đặt đứng sát bên trái Sáng/Tối, cùng hàng cùng cỡ; thanh dưới còn ba tab',
+    rang360.hien === true &&
+      rang360.ten === 'Cài đặt' &&
+      rang360.khe !== null &&
+      rang360.khe >= 0 &&
+      rang360.khe <= 8 &&
+      Math.abs(rang360.lechTam ?? 99) <= 1 &&
+      rang360.cao === rang360.caoTheme &&
+      rang360.dangMo === null &&
+      rang360.navDuoi === 'Công thức|Danh mục|Giới thiệu' &&
+      rang360.tran === false &&
+      rang360.thanhTran === false,
+    JSON.stringify(rang360),
+  );
+
+  await open('/cai-dat/');
+  const rang360CaiDat = await evaluate(DOC_BANH_RANG);
+  check(
+    'Điện thoại 360 · ở màn Cài đặt icon mang aria-current, viền 2px, lõi đặc, khung không nở; không tab nào sáng',
+    rang360CaiDat.dangMo === 'page' &&
+      rang360CaiDat.vien === '2px' &&
+      rang360CaiDat.loiDac === true &&
+      rang360CaiDat.rong === rang360.rong &&
+      rang360CaiDat.cao === rang360.cao &&
+      rang360CaiDat.mucDangMo === 0,
+    JSON.stringify(rang360CaiDat),
+  );
+
   await send('Emulation.setDeviceMetricsOverride', {
     width: 560,
     height: 900,
@@ -3868,6 +3939,27 @@ window.__localeLog = [];
   );
 
   /*
+   * Vế PC của icon Cài đặt (xem `DOC_BANH_RANG` ở khổ 360). Tên màn ẩn từ 1024px (ca ngay trên) và
+   * mục Cài đặt đã rời thanh nav, nên ở đây icon đang mở là thứ DUY NHẤT nói "đang ở màn Cài đặt".
+   */
+  const rangPc = await evaluate(DOC_BANH_RANG);
+  check(
+    'PC 1440 · màn Cài đặt: nav ba mục không mục nào sáng; icon bên trái Sáng/Tối mang viền 2px và lõi đặc',
+    rangPc.hien === true &&
+      rangPc.navTren === 'Công thức|Danh mục|Về chúng tôi' &&
+      rangPc.mucDangMo === 0 &&
+      rangPc.dangMo === 'page' &&
+      rangPc.vien === '2px' &&
+      rangPc.loiDac === true &&
+      rangPc.khe !== null &&
+      rangPc.khe >= 0 &&
+      rangPc.khe <= 8 &&
+      Math.abs(rangPc.lechTam ?? 99) <= 1 &&
+      rangPc.tran === false,
+    JSON.stringify(rangPc),
+  );
+
+  /*
    * ── Form thêm mã của màn Danh mục xếp hai cột, hàng nút dạt phải ─────────
    *
    * Chủ dự án chụp form ở ~1500px: _"giao diện đang để thừa khá nhiều… chia các ô nhập trên thành
@@ -3881,6 +3973,27 @@ window.__localeLog = [];
    * việc trang đang ở chế độ nào.
    */
   await open('/danh-muc/');
+
+  /*
+   * Vế PC của luật nhường chỗ ở màn Danh mục: dưới 1024px cụm Cài đặt · Sáng/Tối · VI ẩn (phép kiểm ở
+   * 360 và 560), từ 1024px cả ba phải HIỆN — màn ấy tự giấu nút của nó ở khổ PC. Trước icon Cài đặt
+   * (28/10/2026) chưa phép kiểm nào gác vế này, kể cả cho Sáng/Tối và VI.
+   */
+  const cumPcDanhMuc = await evaluate(`(() => {
+    const hien = (el) => !!el && getComputedStyle(el).display !== 'none' && el.getBoundingClientRect().width > 0;
+    const thanh = document.querySelector('header');
+    return {
+      caiDat: hien(thanh.querySelector('a[href^="/cai-dat"]')),
+      sangToi: hien(thanh.querySelector('button[aria-label^="Chuyển sang giao diện"]')),
+      ngonNgu: hien(thanh.querySelector('button[aria-label^="Chuyển sang tiếng"]')),
+    };
+  })()`);
+  check(
+    'PC 1440 · Danh mục: thanh trên vẫn có đủ Cài đặt, Sáng/Tối và VI',
+    cumPcDanhMuc.caiDat === true && cumPcDanhMuc.sangToi === true && cumPcDanhMuc.ngonNgu === true,
+    JSON.stringify(cumPcDanhMuc),
+  );
+
   await evaluate(
     `(() => { const b = [...document.querySelectorAll('button')].find((x) => /Thêm mới/.test(x.textContent ?? '')); if (b) b.click(); return Boolean(b); })()`,
   );

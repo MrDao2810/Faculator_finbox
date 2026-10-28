@@ -3,7 +3,7 @@
 import { cleanup, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { ROUTES } from '@/application';
+import { PREFERENCES_STORAGE_KEY, ROUTES } from '@/application';
 import { PreferencesProvider } from '@/application/preferences-context';
 
 import { AppHeader } from './AppHeader';
@@ -13,9 +13,9 @@ import { HEADER_ACTIONS_ID } from './HeaderControls';
  * Thành phần của thanh trên.
  *
  * Phép kiểm ở đây KHÔNG lặp lại hành vi của từng nút — mỗi nút đã có file kiểm riêng. Nó gác
- * đúng một thứ: nút đổi giao diện phải có mặt trong thanh, ở đúng chỗ nút tìm kiếm cũ từng đứng —
- * kể từ đợt đổi icon tìm kiếm thành icon đổi theme, nút này hiện ở MỌI khổ màn, không còn bị ẩn
- * dưới 1024px.
+ * chuyện các nút có mặt trong thanh, ở đúng chỗ: nút đổi giao diện đứng ở chỗ nút tìm kiếm cũ từng
+ * đứng (hiện ở MỌI khổ màn, không còn bị ẩn dưới 1024px), và từ 28/10/2026 icon Cài đặt đứng ngay
+ * bên trái nó, thay cho mục Cài đặt của thanh nav.
  */
 
 /**
@@ -53,8 +53,8 @@ describe('AppHeader', () => {
   });
 
   /*
-   * Thanh trên KHÔNG được dùng bản có chữ: hai ô "Sáng | Tối" rộng gấp ba nút icon, và ở 1024px
-   * cụm nút phải chỉ còn dư 16px.
+   * Thanh trên KHÔNG được dùng bản có chữ: hai ô "Sáng | Tối" rộng gấp ba nút icon, và ở 360px cụm
+   * nút phải (ba nút từ 28/10/2026) đã ăn ~114px trong lòng thanh 328px.
    */
   it('dùng bản icon, không phải cụm hai ô có chữ của màn Cài đặt', async () => {
     dungThanh();
@@ -63,11 +63,13 @@ describe('AppHeader', () => {
     expect(screen.queryByRole('group', { name: 'Giao diện' })).toBeNull();
   });
 
-  it('vẫn giữ nguyên hai điều khiển có mặt ở mọi màn', async () => {
+  /* Ba điều khiển từ 28/10/2026 — icon Cài đặt thêm vào cụm; chỗ đứng của nó gác ở describe riêng dưới. */
+  it('vẫn giữ nguyên ba điều khiển có mặt ở mọi màn', async () => {
     dungThanh();
 
     await screen.findByRole('button', { name: 'Chuyển sang giao diện tối' });
     expect(screen.getByRole('button', { name: 'Chuyển sang tiếng Anh' })).toBeTruthy();
+    expect(screen.getByRole('link', { name: 'Cài đặt' })).toBeTruthy();
   });
 });
 
@@ -123,7 +125,8 @@ describe('AppHeader — danh tính đổi theo màn', () => {
    *
    * Chủ dự án chốt 10/09/2026: từ khổ có thanh điều hướng (1024px), màn có tên quay về bày icon +
    * "Faculator" như trang chủ — tên màn ở đầu thanh là nói lần thứ hai điều mà mục nav đang gạch
-   * chân đã nói. Dưới 1024px thì tên màn ở lại y như cũ.
+   * chân đã nói. Dưới 1024px thì tên màn ở lại y như cũ. (Màn Cài đặt không còn mục nav từ
+   * 28/10/2026; ở PC điều ấy do icon bánh răng đang mở nói — xem describe "icon Cài đặt" cuối file.)
    *
    * Thanh trên được dựng sẵn vào HTML tĩnh nên phép chọn PHẢI là CSS, không thể là `matchMedia`
    * lúc render (lệch hydration — xem `HeaderIdentity`). Hệ quả: cả hai dạng cùng nằm trong DOM.
@@ -190,18 +193,19 @@ describe('AppHeader — ô trống cho nút của màn', () => {
     expect(o?.childElementCount).toBe(0);
   });
 
-  it('chỉ màn Danh mục gắn class nhường chỗ; Sáng/Tối và VI vẫn nằm trong DOM', async () => {
+  it('chỉ màn Danh mục gắn class nhường chỗ; Cài đặt, Sáng/Tối và VI vẫn nằm trong DOM', async () => {
     dungThanh(ROUTES.portfolio);
 
     const cum = document.getElementById(HEADER_ACTIONS_ID)?.parentElement;
     expect(cum?.className).toMatch(/controlsScreen/);
-    // Ẩn bằng CSS dưới 1024px, không gỡ khỏi DOM: từ 1024px hai nút vẫn phải có ở màn này.
+    // Ẩn bằng CSS dưới 1024px, không gỡ khỏi DOM: từ 1024px ba nút vẫn phải có ở màn này.
     expect(await screen.findByRole('button', { name: 'Chuyển sang giao diện tối' })).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Chuyển sang tiếng Anh' })).toBeTruthy();
+    expect(screen.getByRole('link', { name: 'Cài đặt' }).parentElement).toBe(cum);
   });
 
   it.each([ROUTES.formulas, ROUTES.settings, ROUTES.about, '/cong-thuc/wacc/'])(
-    'màn %s giữ Sáng/Tối và VI ở mọi khổ — không có class nhường chỗ',
+    'màn %s giữ Cài đặt, Sáng/Tối và VI ở mọi khổ — không có class nhường chỗ',
     (path) => {
       dungThanh(path);
 
@@ -209,4 +213,71 @@ describe('AppHeader — ô trống cho nút của màn', () => {
       expect(cum?.className).not.toMatch(/controlsScreen/);
     },
   );
+});
+
+/*
+ * Icon Cài đặt (28/10/2026) — chủ dự án: "không cần phải có Cài đặt ở trên mainlayout mà chỉ cần icon
+ * setting ở bên trái cùng hàng với icon theme sáng tối", cho cả PC lẫn điện thoại.
+ *
+ * jsdom không áp CSS Module nên ca này không đo được chỗ đứng trên màn — nó gác thứ chỗ đứng ấy dựa
+ * vào: icon là con TRỰC TIẾP của cụm nút (luật nhường chỗ ở màn Danh mục chỉ phủ con trực tiếp), đứng
+ * ngay TRƯỚC nút Sáng/Tối trong DOM (thứ tự DOM là thứ tự trên màn của hàng flex), và nằm NGOÀI thanh
+ * nav. Phần nhìn thấy được (bên trái, cùng hàng, cùng cỡ) do `check:chrome` đo.
+ */
+describe('AppHeader — icon Cài đặt', () => {
+  it.each([
+    ROUTES.formulas,
+    ROUTES.portfolio,
+    ROUTES.settings,
+    ROUTES.about,
+    ROUTES.search,
+    ROUTES.data,
+    '/cong-thuc/wacc/',
+    '/huong-dan/cong-thuc/pe/',
+  ])('màn %s có đúng một icon Cài đặt, ngay bên trái nút Sáng/Tối', async (path) => {
+    dungThanh(path);
+
+    const theme = await screen.findByRole('button', { name: 'Chuyển sang giao diện tối' });
+    const icon = screen.getAllByRole('link', { name: 'Cài đặt' });
+    expect(icon).toHaveLength(1);
+
+    const banhRang = icon[0];
+    expect((banhRang?.getAttribute('href') ?? '').replace(/\/$/, '')).toBe('/cai-dat');
+    expect(banhRang?.textContent, 'là icon nên không mang chữ nào').toBe('');
+    expect(banhRang?.nextElementSibling).toBe(theme);
+    expect(banhRang?.parentElement).toBe(document.getElementById(HEADER_ACTIONS_ID)?.parentElement);
+  });
+
+  it('không nằm trong thanh nav — Cài đặt không còn là mục điều hướng', async () => {
+    dungThanh(ROUTES.formulas);
+
+    await screen.findByRole('button', { name: 'Chuyển sang giao diện tối' });
+    const nav = screen.getByRole('navigation', { name: 'Điều hướng chính' });
+    expect(nav.querySelector('a[href^="/cai-dat"]')).toBeNull();
+    expect(screen.getByRole('link', { name: 'Cài đặt' }).closest('nav')).toBeNull();
+  });
+
+  it('chỉ ở màn Cài đặt icon mới mang aria-current="page"', async () => {
+    dungThanh(ROUTES.settings);
+    await screen.findByRole('button', { name: 'Chuyển sang giao diện tối' });
+    expect(screen.getByRole('link', { name: 'Cài đặt' }).getAttribute('aria-current')).toBe('page');
+
+    for (const path of [ROUTES.formulas, ROUTES.portfolio, ROUTES.about, '/cong-thuc/wacc/']) {
+      cleanup();
+      dungThanh(path);
+      await screen.findByRole('button', { name: 'Chuyển sang giao diện tối' });
+      expect(
+        screen.getByRole('link', { name: 'Cài đặt' }).getAttribute('aria-current'),
+        path,
+      ).toBeNull();
+    }
+  });
+
+  it('chuyển sang tiếng Anh thì tên icon đổi theo', async () => {
+    window.localStorage.setItem(PREFERENCES_STORAGE_KEY, JSON.stringify({ locale: 'en' }));
+    dungThanh(ROUTES.formulas);
+
+    expect(await screen.findByRole('link', { name: 'Settings' })).toBeTruthy();
+    expect(screen.queryByRole('link', { name: 'Cài đặt' })).toBeNull();
+  });
 });

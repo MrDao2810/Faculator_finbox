@@ -158,12 +158,18 @@ export function GuideMuc({
   idPrefix = '',
   hinh,
   giaTri,
+  onTroO,
 }: {
   bai: BaiHuongDan;
   muc: MucId;
   idPrefix?: string;
   hinh?: HinhDangXem | null;
   giaTri?: Readonly<Record<string, number>>;
+  /**
+   * Báo ô nào đang được rê vào ở mục "Lấy số liệu ở đâu" (`null` khi rời ra), để màn tính tô sáng
+   * ký hiệu của ô ấy ở thẻ Công thức (28/10/2026). Trang đầy đủ không có thẻ ấy nên không truyền.
+   */
+  onTroO?: (key: string | null) => void;
 }) {
   const neo = `${idPrefix}${muc}`;
 
@@ -173,7 +179,7 @@ export function GuideMuc({
         <T k={TIEU_DE[muc]} />
       </h2>
 
-      {muc === 'nhap-so' && <KhoiNhapSo bai={bai} giaTri={giaTri} />}
+      {muc === 'nhap-so' && <KhoiNhapSo bai={bai} giaTri={giaTri} onTroO={onTroO} />}
       {muc === 'doc-ket-qua' && <KhoiDocKetQua bai={bai} />}
       {muc === 'doc-bieu-do' && <KhoiBieuDo bai={bai} hinh={hinh} />}
       {muc === 'ket-qua-trong' && <KhoiKetQuaTrong bai={bai} />}
@@ -222,16 +228,18 @@ export function GuideBody({ bai, idPrefix = '' }: { bai: BaiHuongDan; idPrefix?:
 function KhoiNhapSo({
   bai,
   giaTri,
+  onTroO,
 }: {
   bai: BaiHuongDan;
   giaTri: Readonly<Record<string, number>> | undefined;
+  onTroO: ((key: string | null) => void) | undefined;
 }) {
   if (bai.rieng === undefined || bai.rieng.oNhap.length === 0) return null;
 
   return (
     <dl className={styles.fieldSources}>
       {bai.rieng.oNhap.map((o) => (
-        <HangONhap key={o.key} o={o} thongSo={bai.thongSo} giaTri={giaTri} />
+        <HangONhap key={o.key} o={o} thongSo={bai.thongSo} giaTri={giaTri} onTroO={onTroO} />
       ))}
     </dl>
   );
@@ -248,10 +256,12 @@ function HangONhap({
   o,
   thongSo,
   giaTri,
+  onTroO,
 }: {
   o: ONhapHuongDan;
   thongSo: Readonly<Record<string, ThongSoO>>;
   giaTri: Readonly<Record<string, number>> | undefined;
+  onTroO: ((key: string | null) => void) | undefined;
 }) {
   const dien = (cau: Bilingual): Bilingual => ({
     vi: dienCau(cau.vi, thongSo, giaTri),
@@ -259,7 +269,16 @@ function HangONhap({
   });
 
   return (
-    <div className={styles.fieldRow}>
+    /*
+     * Rê vào CẢ HÀNG (tên ô lẫn câu bên dưới) là đang đọc về ô ấy, nên ký hiệu của nó sáng lên ở thẻ
+     * Công thức — `onTroO`, xem `GuideMuc`. Không làm hàng thành nút, không điểm Tab: đây là lối tắt
+     * cho mắt, chữ trong hàng đọc được đủ mà không cần nó.
+     */
+    <div
+      className={styles.fieldRow}
+      onPointerEnter={onTroO === undefined ? undefined : () => onTroO(o.key)}
+      onPointerLeave={onTroO === undefined ? undefined : () => onTroO(null)}
+    >
       <dt className={styles.fieldLabel}>
         <Pick value={o.nhan} />
         {/*

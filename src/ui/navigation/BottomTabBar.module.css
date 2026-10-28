@@ -34,7 +34,7 @@
 
   font-size: var(--text-xs);
   /*
-   * `medium` chứ không `regular` — cùng độ đậm với `HeaderNav.link`, vốn là chính bốn mục này ở
+   * `medium` chứ không `regular` — cùng độ đậm với `HeaderNav.link`, vốn là chính các mục này ở
    * khổ desktop. Trước đợt rà soát phân cấp, cùng một mục điều hướng có hai độ đậm tuỳ bề ngang
    * màn hình; đó là phần bất nhất NỘI TẠI đo được của mục "menubar chưa đồng bộ" trong bản rà
    * soát. Cỡ chữ vẫn khác nhau có chủ đích (12px dưới icon ở khổ điện thoại, 14px cho hàng chữ
@@ -67,9 +67,10 @@
  * `nowrap` không phải trang trí — nó giữ chiều cao của cả thanh.
  *
  * Hồi thanh có năm mục, năm nhãn chia nhau 360px: mỗi tab 72px, trừ đệm còn 64px cho chữ. Từ
- * 15/09/2026 còn bốn mục (~90px mỗi tab) nên dư hơn, nhưng luật vẫn đứng: `.link` khai `min-height`
- * chứ không `height`, nên một nhãn xuống dòng không bị cắt — nó đẩy thanh dính dưới cao thêm ~16px
- * trên MỌI màn, và chỉ một tab cao hơn các tab kia.
+ * 15/09/2026 còn bốn mục (~90px mỗi tab), từ 28/10/2026 còn ba (~120px ở 360, ~106px ở 320 — Cài đặt
+ * thành icon trên thanh trên) nên dư hơn nhiều, nhưng luật vẫn đứng: `.link` khai `min-height` chứ
+ * không `height`, nên một nhãn xuống dòng không bị cắt — nó đẩy thanh dính dưới cao thêm ~16px trên
+ * MỌI màn, và chỉ một tab cao hơn các tab kia.
  *
  * Nhãn dài nhất đã được rút ở tầng dữ liệu (`NavItem.shortLabelKey`); luật này là lớp chặn thứ
  * hai, cho font hệ điều hành rộng hơn dự tính hoặc cho ngôn ngữ thêm sau.
@@ -82,6 +83,9 @@
 /*
  * Dưới 380px thu đệm ngang để chữ được trọn 68px thay vì 64px. Chỉ đụng khổ hẹp nhất: từ 380px
  * trở lên mỗi tab đã có ≥76px và đệm var(--space-1) vẫn thoải mái.
+ *
+ * Số đo trên là của thời năm mục. Với ba mục (28/10/2026) chữ đã có ≥102px ở 320, nên khối này
+ * không còn cần; giữ vì vô hại — gỡ là một quyết định riêng, đo lại trước khi gỡ.
  */
 @media (max-width: 379px) {
   .link {

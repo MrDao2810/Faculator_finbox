@@ -121,6 +121,9 @@ export const HOW_TO_RISK_RATIOS: Readonly<Record<string, FormulaHowTo>> = {
       },
     ],
     skipped: { '\\beta_i': 'ket-qua', i: 'chi-so-chay' },
+    skippedPhrases: {
+      '\\beta_i': { vi: ['Beta'], en: ['Beta'] },
+    },
   },
 
   /*
@@ -177,6 +180,11 @@ export const HOW_TO_RISK_RATIOS: Readonly<Record<string, FormulaHowTo>> = {
       },
     ],
     skipped: { S: 'ket-qua', '\\sqrt{m}': 'da-hien-trong-hinh', m: 'nhap-tho' },
+    skippedPhrases: {
+      S: { vi: ['Tỷ số Sharpe'], en: ['Sharpe ratio'] },
+      '\\sqrt{m}': { vi: ['căn bậc hai của'], en: ['square root of'] },
+      m: { vi: ['Số phiên trong một năm'], en: ['Sessions per year'] },
+    },
   },
 
   /*
@@ -201,6 +209,16 @@ export const HOW_TO_RISK_RATIOS: Readonly<Record<string, FormulaHowTo>> = {
       t: 'chi-so-chay',
       '\\min(0, r_t - r_f)': 'da-hien-trong-hinh',
     },
+    skippedPhrases: {
+      Sortino: { vi: ['Tỷ số Sortino'], en: ['Sortino ratio'] },
+      '\\sigma_d': { vi: ['Độ lệch chuẩn phần giảm'], en: ['Downside deviation'] },
+      m: { vi: ['Số phiên trong một năm'], en: ['Sessions per year'] },
+      n: { vi: ['Tổng số phiên'], en: ['Total number of sessions'] },
+      '\\min(0, r_t - r_f)': {
+        vi: ['phần hụt dưới ngưỡng'],
+        en: ['shortfalls below the threshold'],
+      },
+    },
   },
 
   'ty-so-treynor': {
@@ -216,6 +234,10 @@ export const HOW_TO_RISK_RATIOS: Readonly<Record<string, FormulaHowTo>> = {
       },
     ],
     skipped: { T: 'ket-qua', m: 'nhap-tho' },
+    skippedPhrases: {
+      T: { vi: ['Tỷ số Treynor'], en: ['Treynor ratio'] },
+      m: { vi: ['Số phiên trong một năm'], en: ['Sessions per year'] },
+    },
   },
 
   /*
@@ -264,6 +286,11 @@ export const HOW_TO_RISK_RATIOS: Readonly<Record<string, FormulaHowTo>> = {
       },
     ],
     skipped: { IR: 'ket-qua', '\\sqrt{m}': 'da-hien-trong-hinh', m: 'nhap-tho' },
+    skippedPhrases: {
+      IR: { vi: ['Tỷ số thông tin'], en: ['Information ratio'] },
+      '\\sqrt{m}': { vi: ['căn bậc hai của'], en: ['square root of'] },
+      m: { vi: ['Số phiên trong một năm'], en: ['Sessions per year'] },
+    },
   },
 
   /*
@@ -310,6 +337,9 @@ export const HOW_TO_RISK_RATIOS: Readonly<Record<string, FormulaHowTo>> = {
       },
     ],
     skipped: { Calmar: 'ket-qua' },
+    skippedPhrases: {
+      Calmar: { vi: ['Tỷ số Calmar'], en: ['Calmar ratio'] },
+    },
   },
 
   /*
@@ -371,6 +401,9 @@ export const HOW_TO_RISK_RATIOS: Readonly<Record<string, FormulaHowTo>> = {
       'W/L': 'ket-qua',
       r: 'nam-trong-ky-hieu-khac',
       '\\left| \\overline{r^{-}}_h \\right|': 'phep-toan',
+    },
+    skippedPhrases: {
+      'W/L': { vi: ['Tỷ số thắng/thua'], en: ['Win/loss ratio'] },
     },
   },
 };

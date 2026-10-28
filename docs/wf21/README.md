@@ -136,7 +136,9 @@ console.log(n,w,u,d)"
   `build-only-imports.test.ts` và hai assert mới trong `verify-static.mjs` (HTML phải có chữ, gói
   JS phải không có).
 - **Nút "?" không được nhét vào `BottomTabBar`.** Bốn tab đang chia đều; thêm tab thứ năm là bóp cả
-  bốn xuống dưới ngưỡng dễ bấm. Nó ở thanh trên, cạnh VI và nút sáng/tối.
+  bốn xuống dưới ngưỡng dễ bấm. Nó ở thanh trên, cạnh VI và nút sáng/tối. (28/10/2026: thanh tab dưới
+  còn ba tab — Cài đặt rời thanh thành icon bánh răng ở thanh trên, nên cụm thanh trên nay là Cài đặt ·
+  Sáng/Tối · VI. Lý lẽ "đừng thêm tab" vẫn đứng.)
 - **Neo phải cuộn được trên trang tĩnh.** `output: 'export'` nên không có router phía máy chủ: đọc
   hash trong effect và cuộn tay, **đừng** dùng `useSearchParams` — nó ép cả nhánh vào `<Suspense>`
   và bay mất HTML tĩnh (đúng cái bẫy `FormulaDetail` đã ghi cho `?ma=`).

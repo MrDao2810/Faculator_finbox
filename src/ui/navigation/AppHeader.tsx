@@ -6,8 +6,9 @@ import { HeaderNav } from './HeaderNav';
 /**
  * Thanh trên — gói WBS 2.1.1, dựng lại theo bản thiết kế hi-fi ở đợt 8.
  *
- * Danh tính ở đầu thanh, nút đổi giao diện Sáng / Tối, nút ngôn ngữ. Dính trên khi cuộn để mấy nút
- * này luôn với tới được trên điện thoại.
+ * Danh tính ở đầu thanh, icon Cài đặt, nút đổi giao diện Sáng / Tối, nút ngôn ngữ. Dính trên khi
+ * cuộn để mấy nút này luôn với tới được trên điện thoại. Icon Cài đặt thay cho mục Cài đặt của thanh
+ * nav từ 28/10/2026 — xem `SettingsLink`.
  *
  * Cụm Cơ bản / Nâng cao KHÔNG còn ở đây từ 15/09/2026: nó từng chỉ hiện ở màn danh sách công thức
  * (`HeaderModeToggle` + `showsModeToggle()`), và khi trang chủ gộp vào màn ấy thì cụm nút dời xuống
@@ -38,8 +39,9 @@ export function AppHeader() {
         <HeaderNav />
 
         {/*
-          Sáng/Tối · ngôn ngữ, và ô trống cho nút của màn — xem `HeaderControls`. Ở màn Danh mục khổ
-          dưới 1024px hai nút đầu nhường chỗ cho icon Tìm kiếm và ô tìm của màn (bản vẽ 14/10/2026).
+          Cài đặt · Sáng/Tối · ngôn ngữ, và ô trống cho nút của màn — xem `HeaderControls`. Ở màn
+          Danh mục khổ dưới 1024px ba nút ấy nhường chỗ cho icon Tìm kiếm, Làm mới giá và ô tìm của
+          màn (bản vẽ 14/10/2026).
         */}
         <HeaderControls />
       </div>

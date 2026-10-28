@@ -14,7 +14,8 @@ import { LangSwitch } from './LangSwitch';
  * Nav ngang của thanh trên — chỉ khác `BottomTabBar` ở chỗ không có icon và dấu hiệu "đang chọn"
  * là gạch chân thay vì icon đặc; nguồn mục và cách xác định `pathname` dùng chung qua
  * `useActiveNavKey()`, nên phép kiểm ở đây tập trung vào phần khác biệt: href đúng, mục đang
- * chọn đúng, và nhãn đổi theo ngôn ngữ — không lặp lại mọi ca của `BottomTabBar`.
+ * chọn đúng, và nhãn đổi theo ngôn ngữ — không lặp lại mọi ca của `BottomTabBar`
+ * (`BottomTabBar.test.tsx`).
  */
 
 let pathname: string = ROUTES.portfolio;
@@ -50,22 +51,21 @@ function boDauCuoi(path: string): string {
 
 describe('HeaderNav', () => {
   /*
-   * Bốn mục từ 15/09/2026 — "Trang chủ" rời thanh cùng trang chủ riêng. Ca đầu gác vế vắng mặt
-   * trước, vì một mục thừa không làm đỏ bốn phép `getByRole` phía dưới.
+   * Ba mục từ 28/10/2026 — "Trang chủ" rời thanh cùng trang chủ riêng (15/09/2026), "Cài đặt" rời
+   * thanh thành icon bánh răng ở cụm nút bên phải (`SettingsLink`, gác ở `AppHeader.test.tsx`). Ca đầu
+   * gác vế vắng mặt trước, vì một mục thừa không làm đỏ ba phép `getByRole` phía dưới.
    */
-  it('bốn mục trỏ đúng ROUTES, không còn "Trang chủ"', () => {
+  it('ba mục trỏ đúng ROUTES, không còn "Trang chủ" và "Cài đặt"', () => {
     dungNav();
     expect(screen.queryByRole('link', { name: 'Trang chủ' })).toBeNull();
-    expect(screen.getAllByRole('link')).toHaveLength(4);
+    expect(screen.queryByRole('link', { name: 'Cài đặt' })).toBeNull();
+    expect(screen.getAllByRole('link')).toHaveLength(3);
     expect(
       boDauCuoi(screen.getByRole('link', { name: 'Công thức' }).getAttribute('href') ?? ''),
     ).toBe(boDauCuoi(ROUTES.formulas));
     expect(
       boDauCuoi(screen.getByRole('link', { name: 'Danh mục' }).getAttribute('href') ?? ''),
     ).toBe(boDauCuoi(ROUTES.portfolio));
-    expect(
-      boDauCuoi(screen.getByRole('link', { name: 'Cài đặt' }).getAttribute('href') ?? ''),
-    ).toBe(boDauCuoi(ROUTES.settings));
     expect(
       boDauCuoi(screen.getByRole('link', { name: 'Về chúng tôi' }).getAttribute('href') ?? ''),
     ).toBe(boDauCuoi(ROUTES.about));
@@ -100,12 +100,25 @@ describe('HeaderNav', () => {
     );
   });
 
+  /*
+   * Ở màn Cài đặt không mục nav nào sáng — ngoại lệ có chủ ý, xem `activeRouteKey()`. Dấu "đang ở
+   * đây" nằm ở icon bánh răng của cụm nút bên phải.
+   */
+  it('ở màn Cài đặt không mục nào mang aria-current', () => {
+    pathname = ROUTES.settings;
+    dungNav();
+
+    for (const link of screen.getAllByRole('link')) {
+      expect(link.getAttribute('aria-current'), link.textContent ?? '').toBeNull();
+    }
+  });
+
   it('nav mang aria-label đọc từ nav.primary', () => {
     dungNav();
     expect(screen.getByRole('navigation', { name: 'Điều hướng chính' })).toBeTruthy();
   });
 
-  it('chuyển sang EN thì cả bốn nhãn đổi theo', async () => {
+  it('chuyển sang EN thì cả ba nhãn đổi theo', async () => {
     const user = userEvent.setup();
     // Đặt cạnh LangSwitch — đúng cách hai component thật sự sống chung trong AppHeader — để đổi
     // locale qua một tương tác thật, không chỉ ghi thẳng localStorage.
@@ -121,7 +134,7 @@ describe('HeaderNav', () => {
     expect(screen.queryByRole('link', { name: 'Home' })).toBeNull();
     expect(screen.getByRole('link', { name: 'Formulas' })).toBeTruthy();
     expect(screen.getByRole('link', { name: 'Portfolio' })).toBeTruthy();
-    expect(screen.getByRole('link', { name: 'Settings' })).toBeTruthy();
+    expect(screen.queryByRole('link', { name: 'Settings' })).toBeNull();
     expect(screen.getByRole('link', { name: 'About us' })).toBeTruthy();
   });
 });

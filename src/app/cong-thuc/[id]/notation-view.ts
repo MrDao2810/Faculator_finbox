@@ -30,7 +30,9 @@ export function buildNotationView(
   const indexOf = (latex: string): number => {
     const index = symbols.findIndex((symbol) => symbol.latex === latex);
     if (index === -1) {
-      throw new Error(`notation-view: ${spec.id} có khung cho "${latex}" mà bảng ký hiệu không có`);
+      throw new Error(
+        `notation-view: ${spec.id} có khung hay cụm chữ cho "${latex}" mà bảng ký hiệu không có`,
+      );
     }
     return index;
   };
@@ -65,10 +67,18 @@ export function buildNotationView(
     }
   }
 
-  const phrasesOf = (locale: 'vi' | 'en'): ExpressionPhrase[] =>
-    entries.flatMap((entry) =>
+  /*
+   * Cụm của dòng có khung và của dòng không có khung (28/10/2026): ở dòng chữ, cụm nào khai cũng là
+   * điểm chạm — khung của dòng không có bước tính chỉ có dòng "ký hiệu: nghĩa", như ở hình.
+   */
+  const phrasesOf = (locale: 'vi' | 'en'): ExpressionPhrase[] => [
+    ...entries.flatMap((entry) =>
       (entry.phrases?.[locale] ?? []).map((phrase) => ({ sym: indexOf(entry.symbol), phrase })),
-    );
+    ),
+    ...Object.entries(howTo?.skippedPhrases ?? {}).flatMap(([symbol, phrases]) =>
+      phrases[locale].map((phrase) => ({ sym: indexOf(symbol), phrase })),
+    ),
+  ];
 
   /* Mỗi vế của hình là một DÒNG chữ (luật 6) — cắt dòng trước, tìm cụm trong từng dòng. */
   const expressionOf = (locale: 'vi' | 'en') => {

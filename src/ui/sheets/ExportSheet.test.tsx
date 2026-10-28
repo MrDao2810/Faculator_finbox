@@ -102,11 +102,31 @@ describe('ExportSheet — FR-24', () => {
     );
   }
 
-  it('nói rõ miễn trừ không tắt được, đúng câu WF-12', () => {
+  /*
+   * Ca ĐẢO NGƯỢC (28/10/2026). Ca cũ đòi ô "Miễn trừ tự động đính kèm · Không thể tắt…" của WF-12 phải
+   * hiện; chủ dự án khoanh ô ấy cùng hai dòng mô tả dưới hai công tắc: _"xóa các phần khoanh đỏ đi"_.
+   * Câu được viết thẳng ra vì khoá i18n đã bỏ. Miễn trừ vẫn vào file — ca "câu miễn trừ nằm sẵn trong
+   * vùng in" ngay dưới gác phần ấy. Câu quay lại phải là một quyết định, không phải sơ suất.
+   */
+  it('sheet không còn ô báo miễn trừ, cũng không còn dòng mô tả dưới hai công tắc', () => {
     open();
+    // Phần sheet người dùng thấy — bỏ vùng in, thứ chỉ ra giấy.
+    const sheet = document.querySelector('dialog')?.cloneNode(true) as HTMLElement;
+    sheet.querySelector('.print-region')?.remove();
 
-    expect(screen.getByText(/Miễn trừ tự động đính kèm/)).not.toBeNull();
-    expect(screen.getByText(/Không thể tắt/)).not.toBeNull();
+    for (const cau of [
+      'Miễn trừ tự động đính kèm',
+      'Không thể tắt',
+      'Ảnh biểu đồ của công thức',
+      'Ý nghĩa từng biến',
+    ]) {
+      expect(sheet.textContent, cau).not.toContain(cau);
+    }
+    expect(sheet.querySelector('[role="note"]')).toBeNull();
+    // Công tắc không còn câu mô tả nào để trỏ tới.
+    for (const box of screen.getAllByRole('switch')) {
+      expect(box.hasAttribute('aria-describedby')).toBe(false);
+    }
   });
 
   /*

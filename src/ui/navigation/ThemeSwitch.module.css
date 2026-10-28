@@ -1,6 +1,7 @@
 /*
- * Cùng ngôn ngữ hình với `LangSwitch` đứng cạnh: khung bo nhẹ, cao 32px. Vùng chạm thật 44px nằm
- * ở lớp phủ ::after — NFR-USA-01.
+ * Cùng ngôn ngữ hình với `LangSwitch` bên phải và icon Cài đặt (`SettingsLink`, 28/10/2026) bên
+ * trái: khung bo nhẹ, cao 32px. Ba khung chép tay, `header-buttons-css.test.ts` so chúng với nhau.
+ * Vùng chạm thật 44px nằm ở lớp phủ ::after — NFR-USA-01.
  *
  * VIỀN NGOÀI, nền trong — bản thiết kế Figma "FINBOX VERSION 2". Bản trước tô nền
  * `--color-accent-soft`, nên hai nút này là hai mảng xanh nhạt duy nhất trên thanh trên và mắt

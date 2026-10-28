@@ -106,6 +106,35 @@ describe('bảng dòng tiền XIRR ở mọi khổ', () => {
     expect(khoi).toMatch(/\.blockHead > button\s*\{\s*min-height:\s*28px;/);
   });
 
+  /*
+   * Chữ tiêu đề thẳng mép chữ trong ô (28/10/2026). Chủ dự án khoanh "NGÀY" trên hai ô "dd/mm/yyyy":
+   * _"gióng thẳng hàng phần này xem nào"_. Đo trên Chrome: lệch đúng 8px ở 1024–1920, khớp 0px dưới
+   * 1024px. Luật: đệm tiêu đề phía chữ = đệm ô + đệm ô nhập, ở cả hai khổ — ca so CHÍNH các giá trị
+   * ấy, không chép số, để đổi đệm ô nhập mà quên tiêu đề thì đỏ.
+   */
+  it('chữ tiêu đề thẳng mép chữ trong ô: đệm tiêu đề phía chữ = đệm ô + đệm ô nhập', () => {
+    const goc = CSS.slice(0, CSS.indexOf('@media'));
+    const demO = /(?:^|\})\s*\.cell\s*\{[^}]*padding:\s*0 (var\([^)]+\));/.exec(goc)?.[1];
+    expect(demO).toBe('var(--space-2)');
+    const pc = /@media \(min-width: 1024px\)\s*\{([\s\S]*?)\n\}/.exec(CSS)?.[1] ?? '';
+    const tong = `calc\\(var\\(--space-3\\) \\+ ${String(demO).replace(/[()]/g, '\\$&')}\\)`;
+    expect(pc).toMatch(
+      new RegExp(`table\\.cashflow thead \\.dateCol\\s*\\{\\s*padding-left:\\s*${tong};`),
+    );
+    expect(pc).toMatch(
+      new RegExp(
+        `table\\.cashflow thead :global\\(\\.numeric\\)\\s*\\{\\s*padding-right:\\s*${tong};`,
+      ),
+    );
+    // Đệm ô 12px là của primitive `Table` — đổi nó thì số trên phải đổi theo.
+    expect(doc('../primitives/Table.module.css')).toMatch(
+      /\.table th,\s*\.table td\s*\{\s*padding:\s*var\(--space-3\);/,
+    );
+    // Dưới 1024px: 8px = 4px đệm ô + 4px đệm ô nhập (cùng ca "đệm ô 2px dọc · 4px ngang" ở trên).
+    expect(luat('table.cashflow thead th')).toMatch(/padding:\s*var\(--space-2\);/);
+    expect(luat('.cell')).toMatch(/padding:\s*0 var\(--space-1\);/);
+  });
+
   it('khối điện thoại đứng sau luật gốc của ô nhập — cùng hạng ưu tiên, thứ tự quyết định', () => {
     const khoi = CSS.indexOf('@media (max-width: 1023.98px)');
     expect(CSS.indexOf('.cell {')).toBeLessThan(khoi);

@@ -80,7 +80,9 @@
  * — hở 13px. Không có khối này thì nav rộng thêm 48px, tức tràn 35px vào cụm nút.
  *
  * (15/09/2026: thanh còn bốn mục và không màn nào còn cụm Cơ bản/Nâng cao ở thanh trên, nên số đo
- * trên đã cũ và chỗ chật rộng ra. Khối này giữ nguyên vì vô hại — xem ghi chú ⚠ ở `AppHeader.module.css`.)
+ * trên đã cũ và chỗ chật rộng ra. 28/10/2026: còn ba mục — Cài đặt thành icon ở cụm phải — nav ở
+ * 1024px hẹp lại 328 → 266px. Khối này giữ nguyên vì vô hại — số đo mới ở ghi chú ⚠ của
+ * `AppHeader.module.css`.)
  */
 @media (min-width: 1024px) and (max-width: 1279px) {
   .link {

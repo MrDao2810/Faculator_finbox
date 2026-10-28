@@ -16,8 +16,12 @@ export const vi = {
   'app.brand': 'Faculator',
 
   /*
-   * Điều hướng — bốn mục. `nav.home` ("Trang chủ") đã BỎ ngày 15/09/2026: trang chủ gộp vào màn
+   * Điều hướng — ba mục. `nav.home` ("Trang chủ") đã BỎ ngày 15/09/2026: trang chủ gộp vào màn
    * Công thức, nên mục ấy không còn màn nào để trỏ tới — xem docblock `NAV_ITEMS`.
+   *
+   * `nav.settings` KHÔNG còn là mục nav từ 28/10/2026 (Cài đặt rời thanh nav): nó là tên của icon
+   * bánh răng trên thanh trên (`SettingsLink`, `aria-label` + `title`) — tên ĐÍCH của link, giữ
+   * nguyên chữ của mục cũ.
    */
   'nav.primary': 'Điều hướng chính',
   'nav.skipToContent': 'Bỏ qua điều hướng, tới nội dung',
@@ -1689,16 +1693,21 @@ export const vi = {
   'export.png': 'PNG',
   'export.pngHint': 'chia sẻ nhanh',
   'export.withChart': 'Kèm biểu đồ',
-  'export.withChartHint': 'Ảnh biểu đồ của công thức, nếu công thức đó có vẽ',
+  /*
+   * Mộ chí: `export.withChartHint` ("Ảnh biểu đồ của công thức, nếu công thức đó có vẽ"),
+   * `export.withDetailsHint` ("Ý nghĩa từng biến và phần giải thích cho người mới"),
+   * `export.disclaimerLocked` ("Miễn trừ tự động đính kèm") và `export.disclaimerLockedDetail`
+   * ("Không thể tắt — mọi file xuất ra đều mang tuyên bố miễn trừ."). Chủ dự án khoanh cả ba chỗ trên
+   * sheet Xuất kết quả: _"xóa các phần khoanh đỏ đi"_ (28/10/2026). Bỏ câu, giữ hành vi: miễn trừ vẫn
+   * gắn vào mọi file xuất (`buildExportContent()` luôn điền `disclaimer`), chỉ là sheet không nói ra
+   * nữa — cùng lối `quiz.localOnly`. Đừng dựng lại mà không hỏi.
+   */
   /* Câu dự phòng của vùng in và của tấm PNG: người dùng bật "Kèm biểu đồ" nhưng công thức này
      không vẽ hình nào (11 công thức khai `chartType: 'none'`), hoặc hình chưa nạp xong. Nói ĐÚNG
      lý do chứ không để một khung rỗng — người mở file không có cách nào khác để biết vì sao chỗ
      ấy trống. Thay cho `export.chartPending` cũ, câu hẹn "sẽ có ở bản sau" nay đã sai. */
   'export.chartNone': 'Công thức này không có biểu đồ.',
   'export.withDetails': 'Kèm bảng biến & giải thích',
-  'export.withDetailsHint': 'Ý nghĩa từng biến và phần giải thích cho người mới',
-  'export.disclaimerLocked': 'Miễn trừ tự động đính kèm',
-  'export.disclaimerLockedDetail': 'Không thể tắt — mọi file xuất ra đều mang tuyên bố miễn trừ.',
   'export.doPdf': 'Xuất PDF',
   'export.doPng': 'Xuất PNG',
   'export.failed': 'Chưa xuất được file. Trình duyệt có thể đang chặn tải xuống.',

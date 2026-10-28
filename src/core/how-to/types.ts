@@ -127,6 +127,20 @@ export interface FormulaHowTo {
   entries: ReadonlyArray<HowToEntry>;
   /** Mọi dòng bảng ký hiệu không có khung, khoá là `SymbolNote.latex`. */
   skipped: Readonly<Record<string, HowToSkipReason>>;
+  /**
+   * Cụm chữ ở dòng chữ dưới hình của những dòng KHÔNG có khung, khoá là `SymbolNote.latex` của một
+   * dòng trong `skipped` (28/10/2026). Cụm của dòng CÓ khung vẫn khai ở `HowToEntry.phrases`.
+   *
+   * Từ 26/10/2026 mọi ký hiệu trong hình mở khung, nhưng ở dòng chữ chỉ cụm của dòng có khung là điểm
+   * chạm: "Giá trị nội tại" của Biên an toàn mở khung, "Thị giá" và "100%" ngay cạnh thì không. Chủ
+   * dự án khoanh đúng hai chỗ ấy: _"đang chưa hover vào để bật popup lên được như những phần khác,
+   * sửa toàn bộ công thức liên quan"_. Dòng không có ở dòng chữ (chỉ số chạy `t`, ký hiệu chỉ nằm
+   * trong tên dài hơn như `D` của `D/E`, phép tính gộp như `(1 - t)` mà tên các phần đã là cụm riêng)
+   * thì không khai, và không mất gì: rê vào hình hay bảng vẫn mở khung của nó.
+   *
+   * Luật như `HowToEntry.phrases`: chép nguyên văn, có ở cả hai ngôn ngữ hoặc không ở ngôn ngữ nào.
+   */
+  skippedPhrases?: Readonly<Record<string, HowToPhrases>>;
   /** Bắt buộc khi `entries` rỗng: vì sao công thức này không có phần nào phải tính. */
   whyNone?: string;
 }

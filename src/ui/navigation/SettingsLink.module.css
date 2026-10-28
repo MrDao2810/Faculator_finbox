@@ -1,0 +1,61 @@
+/*
+ * Icon Cài đặt — BA nút anh em trên thanh trên (Cài đặt · Sáng/Tối · VI) chung một khung: bo nhẹ, cao
+ * 32px, viền ngoài nền trong. Lý do của khung ở docblock `ThemeSwitch.module.css`; khối dưới chép đúng
+ * từng khai báo của nó, và `header-buttons-css.test.ts` so ba bản chép với nhau — lệch một cái là
+ * thanh trên có hai kiểu nút.
+ *
+ * Khác duy nhất về khung: đây là thẻ `<a>`, nên bỏ gạch chân của link.
+ */
+.button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-width: 34px;
+  min-height: 32px;
+  padding: 0 var(--space-2);
+
+  color: var(--color-accent);
+  text-decoration: none;
+
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+@media (hover: hover) {
+  .button:hover {
+    border-color: var(--color-accent);
+  }
+}
+
+/* Vùng chạm thật 44px ở lớp phủ — NFR-USA-01. Cao 44px trong thanh 48px, không đội thanh lên. */
+.button::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: var(--tap-min);
+  transform: translateY(-50%);
+}
+
+/*
+ * Đang ở màn Cài đặt: viền accent dày 2px, đệm ngang bớt 1px để khung vẫn đúng 36 × 32px (lối
+ * "đang chọn" của `Chip.module.css`). Cùng với lõi bánh răng chuyển sang đặc (do `SettingsLink.tsx`
+ * vẽ), đó là hai dấu hiệu ngoài màu của NFR-USA-06 — viền accent 1px khi rê chuột vẫn khác hẳn viền
+ * 2px này.
+ *
+ * KHÔNG tô nền `--color-accent-soft` như `Chip`: bản Figma "FINBOX VERSION 2" đã bỏ mảng xanh nhạt
+ * khỏi các nút của thanh trên (docblock `ThemeSwitch.module.css`).
+ *
+ * Đọc `aria-current` chứ không thêm lớp riêng: thuộc tính ấy đã là nguồn duy nhất của trạng thái,
+ * nên CSS và trình đọc màn hình không thể nói hai điều khác nhau.
+ */
+.button[aria-current='page'] {
+  padding: 0 calc(var(--space-2) - 1px);
+  border-width: 2px;
+  border-color: var(--color-accent);
+}

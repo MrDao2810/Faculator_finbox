@@ -141,6 +141,11 @@ export function HeaderIdentity() {
      * mở, nên tên màn ở đầu thanh là nói lần thứ hai cùng một điều. Dưới 1024px không có thanh ấy
      * — tên màn ở lại, y như cũ.
      *
+     * Riêng '/cai-dat/' từ 28/10/2026: Cài đặt rời thanh nav, nên ở PC không mục nào gạch chân.
+     * Thứ nói "đang ở đâu" ở đó là icon bánh răng ở cụm phải, mang `aria-current` với viền 2px và
+     * lõi đặc (`SettingsLink`). Tên màn vẫn ẩn từ 1024px như mọi màn có tên — hiện riêng nó ở PC là
+     * một quyết định của chủ dự án, chưa được hỏi.
+     *
      * Mốc 1024 không phải chọn bừa: đó ĐÚNG mốc `.nav` trong `HeaderNav.module.css` hiện ra. Đổi
      * mốc bên ấy thì phải đổi cả bên này, không thì có khổ màn mất cả hai thứ trả lời "tôi đang ở
      * đâu".

@@ -6,9 +6,11 @@
  * `formulas/input-symbols.test.ts` ghim bằng bảng tay; ở đây chỉ đọc ngược lại cái nhãn đã ghim ấy để
  * tìm dòng bảng ký hiệu có cùng chữ phẳng.
  *
- * Dùng cho khung "Lấy số liệu ở đâu" (26/10/2026, chủ dự án: _"Khi hover vào biến trong popup này thì
- * cũng sẽ được highlight vàng như bên kia"_): rê vào một ô trong khung thì ký hiệu của ô ấy sáng lên ở
- * thẻ Công thức.
+ * Dùng cho khung "Lấy số liệu ở đâu" (28/10/2026, chủ dự án: _"Khi hover vào biến trong popup này thì
+ * cũng sẽ được highlight vàng như bên kia"_). Bản đầu làm ký hiệu của ô ấy sáng lên ở thẻ Công thức,
+ * và bị bác cùng ngày: _"khi hover vào thì cần chuyển con trỏ chuột thành bàn tay và hiện thêm popup
+ * mới chú thích chứ không phải sáng phần trước"_. Nay phần ký hiệu NGAY TRONG tên ô ('(TSNH)') là
+ * điểm chạm, mở khung chú thích của đúng dòng bảng ấy — `nhanCoKyHieu()` cắt tên ô quanh phần đó.
  */
 
 import type { FormulaSpec } from './registry/types';
@@ -68,4 +70,52 @@ export function kyHieuCuaO(spec: FormulaSpec, key: string): number | null {
 
   const caNhan = tim(o.label.vi.trim());
   return caNhan >= 0 ? caNhan : null;
+}
+
+/** Một tên ô cắt làm ba khúc quanh phần mang ký hiệu; ghép `truoc + kyHieu + sau` ra đúng tên gốc. */
+export interface KhucNhan {
+  truoc: string;
+  kyHieu: string;
+  sau: string;
+}
+
+/** Ô có dòng trong bảng ký hiệu: dòng nào, và tên ô ở mỗi ngôn ngữ cắt quanh phần ký hiệu ra sao. */
+export interface NhanCoKyHieu {
+  sym: number;
+  vi: KhucNhan;
+  en: KhucNhan;
+}
+
+/** Cắt theo đúng hai dạng `kyHieuCuaNhan()` đọc; nhãn không mang ký hiệu thì cả nhãn là ký hiệu. */
+function chiaNhan(nhan: string): KhucNhan {
+  const cuoi = / \(([^()]+)\)$/.exec(nhan);
+  if (cuoi !== null) {
+    return { truoc: nhan.slice(0, cuoi.index + 1), kyHieu: nhan.slice(cuoi.index + 1), sau: '' };
+  }
+  const dau = /^(\S+) — /.exec(nhan)?.[1];
+  if (dau !== undefined) return { truoc: '', kyHieu: dau, sau: nhan.slice(dau.length) };
+  return { truoc: '', kyHieu: nhan, sau: '' };
+}
+
+/**
+ * Phần nào của tên ô `key` là ký hiệu của hình — chỗ đặt điểm chạm trong khung "Lấy số liệu ở đâu":
+ * '(TSNH)' của 'Tài sản ngắn hạn (TSNH)', 'EPS' của 'EPS — lợi nhuận trên mỗi cổ phiếu', và CẢ tên khi
+ * hình viết bằng chữ ('Vốn chủ sở hữu' với dòng `\text{Vốn chủ sở hữu}`). `null` khi ô không ứng với
+ * dòng nào — cùng luật `kyHieuCuaO()`, nên ô nào không có dòng thì tên ô in trơn.
+ *
+ * Bản tiếng Anh mang đúng ký hiệu ấy ở đúng chỗ ấy (`formulas/input-symbols.test.ts` ghim); tên ô
+ * khớp cả cụm chữ thì tên tiếng Anh ("Equity") cũng là điểm chạm cả cụm.
+ */
+export function nhanCoKyHieu(spec: FormulaSpec, key: string): NhanCoKyHieu | null {
+  const sym = kyHieuCuaO(spec, key);
+  const o = spec.variables.find((v) => v.key === key);
+  if (sym === null || o === undefined) return null;
+
+  const vi = chiaNhan(o.label.vi);
+  const caCum = vi.kyHieu === o.label.vi;
+  return {
+    sym,
+    vi,
+    en: caCum ? { truoc: '', kyHieu: o.label.en, sau: '' } : chiaNhan(o.label.en),
+  };
 }

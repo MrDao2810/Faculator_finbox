@@ -17,11 +17,11 @@ export interface FormulaNotationCardProps {
   spec: FormulaSpec;
   /** Mọi thứ dựng sẵn lúc build — `buildNotationView()` ở `page.tsx`. */
   notation: NotationView;
-  /**
-   * Ký hiệu tô sáng từ NGOÀI thẻ — ô đang được rê vào trong khung "Lấy số liệu ở đâu" (28/10/2026).
-   * Chỉ tô, không mở khung "cách tính"; khung của chính thẻ đang mở thì ký hiệu của khung ấy thắng.
+  /*
+   * Mộ chí (28/10/2026): prop `soi` từng tô ký hiệu của ô đang được rê vào trong khung "Lấy số liệu
+   * ở đâu". Chủ dự án bác cùng ngày (_"hiện thêm popup mới chú thích chứ không phải sáng phần
+   * trước"_); khung ấy nay tự mở khung chú thích, xem `GuideHintPanel`.
    */
-  soi?: number | null;
 }
 
 /** Khung cuộn ngang của hình — cuộn thì điểm chạm trôi theo, khung phải đặt lại. */
@@ -86,7 +86,6 @@ function formulaScroller(card: HTMLDivElement): Element | null {
 export const FormulaNotationCard = memo(function FormulaNotationCard({
   spec,
   notation,
-  soi = null,
 }: FormulaNotationCardProps) {
   const t = useT();
   const pick = usePick();
@@ -152,7 +151,7 @@ export const FormulaNotationCard = memo(function FormulaNotationCard({
     <div
       ref={cardRef}
       className={`${detailStyles.formulaCard} ${styles.card}`}
-      data-active={state?.sym ?? soi ?? undefined}
+      data-active={state?.sym}
       onPointerOver={handlers.onPointerOver}
       onPointerOut={handlers.onPointerOut}
       onClick={handlers.onClick}
@@ -228,15 +227,12 @@ export const FormulaNotationCard = memo(function FormulaNotationCard({
               return (
                 <Fragment key={symbol.latex}>
                   {/*
-                    `data-hang` có ở MỌI dòng, kể cả dòng không có bước tính: nó chỉ để tô sáng
-                    (`FormulaNotationCard.module.css`), không phải điểm chạm — `useHowToPanel` chỉ
-                    đọc `data-sym`. Thiếu nó thì ô "Thuế suất (t)" rê trong khung "Lấy số liệu ở
-                    đâu" chỉ sáng chữ `t` trong hình, còn dòng `t` của bảng đứng im (28/10/2026).
-                    Cũng từ hôm ấy mọi dòng mang `data-sym` (xem "Điểm chạm" ở docblock), nên ở
-                    `<dt>` hai thuộc tính tô cùng một chỗ.
+                    Mọi dòng mang `data-sym` ở cả `<dt>` lẫn nút nghĩa (28/10/2026, xem "Điểm chạm"
+                    ở docblock), nên khung mở thì cả dòng sáng. `data-hang` từng đứng cạnh nó, chỉ
+                    để ô rê trong khung "Lấy số liệu ở đâu" tô được dòng không có bước tính; lối tô
+                    ấy đã bỏ cùng ngày (xem `GuideHintPanel`), và `data-sym` tô đúng chỗ ấy rồi.
                   */}
                   <dt
-                    data-hang={index}
                     data-sym={index}
                     // eslint-disable-next-line react/no-danger -- MathML dựng lúc build, xem trên
                     dangerouslySetInnerHTML={symbolInner[index]}

@@ -1177,7 +1177,8 @@ button with its panel. What the grid is now, and what is easy to break:
   The "250 phiên đọc được, từ … tới …" line under the grid is gone (owner, same day); the count stays on
   the Nạp button, the year span on the year line, and the status bar now only reports bad rows. A headerless block pasted at a caret
   runs DOWN the screen (`latest.current.order`), not down the grid, or a column pasted into a newest-first view
-  would fill older sessions upwards. The button's accessible name is the FULL label ("Giá mở
+  would fill older sessions upwards (a line that carries a DATE does not land there at all since 28/10/2026, see
+  "A file and a paste…" below). The button's accessible name is the FULL label ("Giá mở
   cửa"; "Khối lượng (KL)" because "KL" is not inside it), so tests still find headers by full name. Extra
   columns do not sort.
 - **Below 1024px a date cell shows only dd/mm while not being edited** (`ngayIn`), and the year sits once above
@@ -1266,8 +1267,28 @@ back a "drop this column" choice under another word.
 - **A file and a paste that carries a header row REPLACE the grid.** Both used to be overlaid at the caret, and
   since the sheet opens pre-filled with the series in use, a two-column "Ngày · Đóng" file dropped its closes
   into "Giá mở cửa", left the old closes and the old rows below in place, and still offered "Nạp 57 dòng"
-  (FR-06). A headerless block is still pasted at the caret like a spreadsheet; when it is shorter than the series
-  already there, the old rows below it survive and are imported. **That is a known hazard, not decided yet.**
+  (FR-06). A headerless block is still pasted at the caret like a spreadsheet, **except a line that carries a
+  date, which is a NEW session** (28/10/2026, a tester's bug the owner had fixed: _"Dán dữ liệu chuỗi OHLC không
+  check ngày đã tồn tại (không đồng nhất với thao tác Thêm dòng)"_). Measured in Chrome before, on a 08–15/09
+  table: a 15/09 line pasted onto row 1 silently replaced 15/09's numbers; a 16/09 line there deleted the 15/09
+  session and the WF-05 check card still said "Không dòng nào đang lỗi"; a repeated date surfaced only on the
+  WF-05 table after Nạp, while the sheet said "Không đọc được thứ tự phiên". Now:
+  - A line whose block covers the date column and whose date cell is not blank goes through `mergeRowsByDate()`
+    (`paste-import.ts`): inserted at its date, after a row of the same date, in the grid's own direction; the row
+    under the caret is never touched. Three cases still overwrite in place: a block that does not cover the date
+    column (pasting a column of prices edits cells, no date changes), a line with a blank date cell, and a target
+    row with numbers but no date (attaching dates to a closes-only series).
+  - `parseCells()` / `parsePaste()` skip a repeated date with `checkSeries()`'s own key (`displaySeriesDate`), so
+    `08/09/2026` and `2026-09-08` clash in both places. The first ACCEPTED occurrence wins (a broken row above it
+    is not "a session already recorded"), so the pasted line is the one flagged — like the row "Thêm dòng" adds —
+    with `short` "trùng ngày" on its date cell, and Nạp stays locked until "Bỏ qua", which drops the pasted
+    duplicate and keeps the session already there. It is dropped before `orderOf()`, so equal dates no longer
+    turn the whole table "unknown order".
+  - The owner was offered "flag it like Thêm dòng" or "update that session by date" and said "sửa lại cho tôi"
+    without picking; the first was built because it is what the bug report asks for. The cost: replacing a
+    session's numbers by pasting a dated line now means editing its cells (or deleting the old row on the
+    WF-05 table) instead. `PasteImportSheet.test.tsx` is the sheet's first behaviour test (`fireEvent.paste` with
+    a `clipboardData` object); it was red on the old code in 4 of its 6 cases.
 - **Column widths are computed, not fixed.** The old `3rem + 11rem + 5 × 9.5rem` = 984px never fit the widest
   popup's 966px scroller, so every screen had a horizontal scrollbar and at a 1025px window the Volume column
   was mostly hidden, with the scrollbar itself below the popup's edge. Since 20/10/2026 each column's width
@@ -2115,15 +2136,36 @@ same rows, the 481 pinned). Things that are easy to break:
 - **Keyboard users open panels from the legend buttons only.** There is no tab stop inside the MathML;
   that is deliberate. Step text follows the expression-line rules (`src/core/expression-rules.ts`, shared
   with `formulas.test.ts`).
-- **Hovering a field row in the "Lấy số liệu ở đâu" popover lights that field's symbol in the card**
-  (28/10/2026, owner: _"Khi hover vào biến trong popup này thì cũng sẽ được highlight vàng như bên kia"_).
-  `kyHieuCuaO()` (`src/core/o-ky-hieu.ts`) maps a field to its legend row by reading the symbol pinned on its
-  label ('(E)' → `E`, '(C1)' → `C_i`) or the whole label against a `\text{…}` row; 215 of 269 fields map, the
-  rest light nothing. `GuideMuc` reports the row (`onTroO`), `FormulaDetail` holds it and passes `soi` to
-  `FormulaNotationCard`, which puts it in `data-active` (the card's own open panel wins). Highlight only, no
-  panel. Every legend row now carries `data-hang` on its `<dt>` and meaning, a highlight-only attribute
-  (`useHowToPanel` reads `data-sym` only), so a row with no steps lights up too — which also means hovering
-  such a symbol in the picture now lights its legend row.
+- **In the "Lấy số liệu ở đâu" popover, the symbol inside a field's name opens that symbol's panel**
+  (28/10/2026). The owner first asked: _"Khi hover vào biến trong popup này thì cũng sẽ được highlight vàng
+  như bên kia"_, and the first build lit the field's symbol in the formula CARD when the pointer was anywhere on
+  the field's row. The owner circled '(TSNH)' and '(N)' on `ncav-tren-co-phieu` the same day: _"khi hover vào thì
+  cần chuyển con trỏ chuột thành bàn tay và hiện thêm popup mới chú thích chứ không phải sáng phần trước"_. So
+  the card no longer lights up from the popover (`soi`, `onTroO` and the 12 `[data-hang]` selectors are gone;
+  `data-sym` on every `<dt>` already lit the row). Now the symbol part of the name is a `<button>` with a hand
+  cursor, the card's dotted underline and its yellow mark while open, and it opens the CARD'S OWN panel
+  ("ký hiệu: nghĩa", the steps and the "Xem công thức" link when the row has them) through the card's machinery:
+  `useHowToPanel` (hover opens after 100 ms, a click or tap pins, Esc and an outside tap close), `usePanelPlacement`,
+  `HowToPanel`. `nhanCoKyHieu()` (`src/core/o-ky-hieu.ts`) cuts the name around the symbol — '(TSNH)' at the end,
+  'EPS' at the start of 'EPS — …', the whole name when the picture writes it in words (`\text{Vốn chủ sở hữu}`) —
+  with `kyHieuCuaO()`'s mapping: 215 of 269 fields, the rest print plain ("Tổng nợ phải trả" has no row of its
+  own). The English name carries the same symbol, and a sweep in `o-ky-hieu.test.ts` holds both languages. Four
+  things are easy to break:
+  - **The panel is `position: fixed` (`HowToPanel coDinh`, `usePanelPlacement(…, coDinh)`)**: the popover scrolls
+    (`overflow-y: auto`), and an `absolute` panel inside it is clipped at its edge. Measured in Chrome: `V`'s panel
+    on `bien-an-toan` runs 53px below the popover and is on top there. `fixed` escapes the clip only while no
+    ancestor has `transform`, `filter` or `contain`.
+  - **The panel renders right after the button, inside the `<dt>`**, so it is a descendant of the popover: a
+    click in it (or on its link) is not an outside click for the popover, and Tab goes from the button into the
+    link. The `<dt>` is bold, so `.panel.panelCoDinh` resets the weight.
+  - **Esc closes the panel first, the popover on the second press.** The popover's `keydown` listener runs in the
+    CAPTURE phase and returns while a panel is open; `useHowToPanel`'s own listener closes the panel and gives
+    focus back to the button. Capture makes the order fixed: both listeners sit on `document`, and in the bubble
+    phase whichever was registered last runs last, which changes every time the panel opens.
+  - **In the popover, `data-sym` is the ROW index, not the legend row**: each button is its own control
+    (`aria-expanded` does not light on a second field that maps to the same legend row), and the panel content
+    comes from `diemCham[row].sym`. `GuideMuc` takes the name renderer as a prop (`nhanO`); the full guide page
+    passes none and prints plain names, because it has no card to borrow a panel from.
 - **On phones (<1024px) a small "Chú thích" button at the card's bottom-right hides and shows the
   legend** (17/09/2026). The owner circled `fcfe`'s eight-row legend pushing the inputs down, then
   renamed the button from "Ẩn ký hiệu"/"Hiện ký hiệu" to one label for both states, so the chevron and

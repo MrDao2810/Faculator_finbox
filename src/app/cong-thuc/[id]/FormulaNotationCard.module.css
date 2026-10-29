@@ -62,8 +62,8 @@
  *
  * Bảng ký hiệu dài nhất hiện có 10 dòng (Sortino); `notation.test.ts` chặn bảng nào dài hơn 12.
  *
- * `[data-hang='k']` là dòng `k` của BẢNG, có ở mọi dòng kể cả dòng không có bước tính (28/10/2026):
- * khung "Lấy số liệu ở đâu" tô ký hiệu của ô đang được rê vào, và dòng bảng của nó phải sáng cùng hình.
+ * 12 cặp `[data-hang='k']` từng đứng cạnh đây (28/10/2026), cho ô rê trong khung "Lấy số liệu ở đâu"
+ * tô dòng bảng; lối tô ấy bỏ cùng ngày, và `<dt>` của mọi dòng đã mang `data-sym`.
  */
 .card[data-active='0'] [data-sym='0'],
 .card[data-active='1'] [data-sym='1'],
@@ -76,19 +76,7 @@
 .card[data-active='8'] [data-sym='8'],
 .card[data-active='9'] [data-sym='9'],
 .card[data-active='10'] [data-sym='10'],
-.card[data-active='11'] [data-sym='11'],
-.card[data-active='0'] [data-hang='0'],
-.card[data-active='1'] [data-hang='1'],
-.card[data-active='2'] [data-hang='2'],
-.card[data-active='3'] [data-hang='3'],
-.card[data-active='4'] [data-hang='4'],
-.card[data-active='5'] [data-hang='5'],
-.card[data-active='6'] [data-hang='6'],
-.card[data-active='7'] [data-hang='7'],
-.card[data-active='8'] [data-hang='8'],
-.card[data-active='9'] [data-hang='9'],
-.card[data-active='10'] [data-hang='10'],
-.card[data-active='11'] [data-hang='11'] {
+.card[data-active='11'] [data-sym='11'] {
   background-color: var(--color-symbol-mark);
   box-shadow: 0 0 0 2px var(--color-symbol-mark);
   border-radius: 3px;
@@ -199,6 +187,22 @@
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-sm);
+}
+
+/*
+ * Khung chú thích mở từ tên ô trong khung "Lấy số liệu ở đâu" (28/10/2026, `HowToPanel coDinh`).
+ *
+ * `fixed` theo toạ độ khung nhìn chứ không `absolute` theo thẻ: khung "?" tự cuộn (`overflow-y:
+ * auto`), và một khung `absolute` bên trong khối cuộn bị cắt đúng ở mép khối ấy — khung chú thích
+ * thì phải được thò ra ngoài khung "?". Phần tử `fixed` thoát phép cắt của mọi khối cha không mang
+ * `transform`/`filter`/`contain`, và khung "?" lẫn các khối của thân bài không mang thứ nào.
+ *
+ * Nó đứng trong `<dt>` của tên ô, vốn in đậm, nên trả nét chữ về thường; tiêu đề khung vẫn
+ * `--weight-medium` nhờ `.panelTitle`. Hai lớp: thắng `.panel` bất kể thứ tự nạp CSS.
+ */
+.panel.panelCoDinh {
+  position: fixed;
+  font-weight: var(--weight-regular);
 }
 
 /*

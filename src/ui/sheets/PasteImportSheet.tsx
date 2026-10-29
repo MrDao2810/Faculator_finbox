@@ -18,6 +18,7 @@ import {
   displaySeriesDate,
   fitToSeriesColumns,
   formatNumber,
+  mergeRowsByDate,
   parseCellNumber,
   parseCells,
   splitPasteTable,
@@ -991,7 +992,8 @@ export function PasteImportSheet({
    * Cùng lý do, một khối dán CÓ DÒNG TIÊU ĐỀ cũng thay lưới dù dán vào ô nào: mang theo tiêu đề
    * nghĩa là người dùng chép cả một bảng, và tên cột của bảng ấy phải được dùng để xếp cột. Đè nó
    * lên lưới là vứt dòng tiêu đề đi rồi rải số theo vị trí. Khối KHÔNG có tiêu đề thì vẫn là dán
-   * một mẩu vào chỗ con trỏ, như bảng tính.
+   * một mẩu vào chỗ con trỏ, như bảng tính — trừ dòng MANG NGÀY, là một phiên mới chứ không phải
+   * mấy ô để đè (28/10/2026, xem nhánh dưới).
    */
   const applyBlock = useCallback(
     (text: string, atRow: number, atColumn: number, replace = false): boolean => {
@@ -1036,8 +1038,42 @@ export function PasteImportSheet({
             ? (shown[position] ?? position)
             : current.length + position - shown.length;
         });
-        const height = Math.max(current.length, ...targets.map((line) => line + 1));
-        const blockRow = new Map(targets.map((line, offset) => [line, offset]));
+
+        /*
+         * Dòng dán MANG NGÀY là một phiên MỚI, không đè lên phiên nằm dưới con trỏ (28/10/2026).
+         *
+         * Tester báo, chủ dự án giao sửa: "Dán dữ liệu chuỗi OHLC không check ngày đã tồn tại (không
+         * đồng nhất với thao tác Thêm dòng)". Trước ngày này mọi dòng của mẩu dán đè theo vị trí, nên
+         * ngày dưới con trỏ bị thay mà không ai hỏi: dán một dòng 15/09 vào dòng 1 là số của 15/09
+         * đổi im lặng, dán một dòng 16/09 vào đó là phiên 15/09 biến mất. Nay dòng ấy được chèn vào
+         * đúng ngày của nó (`mergeRowsByDate()`), và nếu ngày ấy đã có thì bộ đọc báo trùng ngày
+         * như cột kiểm tra của bảng WF-05 báo khi "Thêm dòng" gõ một ngày đã có.
+         *
+         * Ba trường hợp vẫn đè tại chỗ, như bảng tính:
+         *   · mẩu dán không phủ cột Ngày — dán một cột giá vào các phiên đang có là sửa ô, ngày
+         *     của từng dòng không đổi nên không phiên nào mất;
+         *   · dòng dán để trống ô ngày;
+         *   · dòng nằm dưới con trỏ có số mà CHƯA có ngày (chuỗi chỉ có giá đóng cửa): dán ngày vào
+         *     là gắn ngày cho phiên ấy, không có phiên nào bị đè.
+         */
+        const dateAt = kinds.indexOf('date');
+        const dateInBlock = dateAt - atColumn;
+        const mangNgay = dateAt !== -1 && dateInBlock >= 0 && dateInBlock < blockWidth;
+        const laPhienMoi = (offset: number): boolean => {
+          if (!mangNgay || (table.cells[offset]?.[dateInBlock] ?? '').trim() === '') return false;
+          const target = current[targets[offset] ?? -1];
+          if (target === undefined || isBlank([target])) return true;
+          return (target[dateAt] ?? '').trim() !== '';
+        };
+        const phienMoi: number[] = [];
+        const taiCho: Array<[number, number]> = [];
+        targets.forEach((line, offset) => {
+          if (laPhienMoi(offset)) phienMoi.push(offset);
+          else taiCho.push([line, offset]);
+        });
+
+        const height = Math.max(current.length, ...taiCho.map(([line]) => line + 1));
+        const blockRow = new Map(taiCho);
         nextColumns = Array.from(
           { length: width },
           (_, index): ColumnKind => kinds[index] ?? 'ignore',
@@ -1053,6 +1089,18 @@ export function PasteImportSheet({
               '',
           );
         });
+        if (phienMoi.length > 0) {
+          rows = mergeRowsByDate(
+            rows,
+            phienMoi.map((offset) =>
+              Array.from(
+                { length: width },
+                (_, column) => table.cells[offset]?.[column - atColumn] ?? '',
+              ),
+            ),
+            dateAt,
+          );
+        }
       }
 
       /*

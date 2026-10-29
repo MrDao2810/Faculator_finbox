@@ -541,36 +541,96 @@ describe('WF-03 — chín khối đúng thứ tự wireframe', () => {
   });
 
   /*
-   * Rê vào một ô trong khung "Lấy số liệu ở đâu" thì ký hiệu của ô ấy sáng vàng ở thẻ Công thức, đúng
-   * vệt của khung "cách tính" (28/10/2026, chủ dự án: _"Khi hover vào biến trong popup này thì cũng sẽ
-   * được highlight vàng như bên kia"_). Thẻ tô bằng `data-active`, và dòng bảng nào cũng mang
-   * `data-hang` — kể cả dòng không có bước tính như `t`, nơi trước đó chỉ chữ trong hình sáng lên.
+   * Phần ký hiệu trong tên ô ở khung "Lấy số liệu ở đâu" mở khung CHÚ THÍCH của thẻ Công thức ngay
+   * trong khung "?" (28/10/2026). Chủ dự án khoanh '(TSNH)' và '(N)' trên `ncav-tren-co-phieu`: _"khi
+   * hover vào thì cần chuyển con trỏ chuột thành bàn tay và hiện thêm popup mới chú thích chứ không
+   * phải sáng phần trước"_ — bản đầu cùng ngày tô ký hiệu của ô ở thẻ Công thức khi rê vào cả hàng.
    */
-  it('rê vào một ô trong khung "Lấy số liệu ở đâu" thì ký hiệu của ô sáng ở thẻ Công thức', async () => {
-    const user = userEvent.setup();
-    const spec = specOf('wacc');
-    const { container } = render(<Man spec={spec} bai={baiHuongDanFor('wacc', AS_OF)} />);
-    const the = container.querySelector('[class*="formulaCard"]') as HTMLElement;
-    const so = (latex: string) => String(spec.symbols?.findIndex((s) => s.latex === latex));
+  describe('khung "Lấy số liệu ở đâu": ký hiệu trong tên ô mở khung chú thích', () => {
+    /** Rê chuột — jsdom không có `PointerEvent` đầy đủ, nên dựng sự kiện mang `pointerType` bằng tay. */
+    function reChuot(
+      type: 'pointerover' | 'pointerout',
+      target: Element,
+      relatedTarget: Element | null = null,
+    ) {
+      const event = new MouseEvent(type, { bubbles: true, relatedTarget });
+      Object.defineProperty(event, 'pointerType', { value: 'mouse' });
+      act(() => {
+        target.dispatchEvent(event);
+      });
+    }
 
-    await user.click(screen.getByRole('link', { name: /Hướng dẫn: lấy số liệu ở đâu/ }));
-    const khung = await screen.findByRole('dialog');
-    const hang = (nhan: string) =>
-      [...khung.querySelectorAll('dt')].find((dt) => dt.textContent?.startsWith(nhan))
-        ?.parentElement as Element;
+    async function moKhung(id: string) {
+      const user = userEvent.setup();
+      const spec = specOf(id);
+      const { container } = render(<Man spec={spec} bai={baiHuongDanFor(id, AS_OF)} />);
+      await user.click(screen.getByRole('link', { name: /Hướng dẫn: lấy số liệu ở đâu/ }));
+      const khung = await screen.findByRole('dialog');
+      const the = container.querySelector('[class*="formulaCard"]') as HTMLElement;
+      return { user, spec, khung, the };
+    }
 
-    fireEvent.pointerEnter(hang('Vốn chủ sở hữu (E)'));
-    expect(the.getAttribute('data-active')).toBe(so('E'));
-    fireEvent.pointerLeave(hang('Vốn chủ sở hữu (E)'));
-    expect(the.hasAttribute('data-active')).toBe(false);
+    it('rê chuột vào "(TSNH)" thì mở khung nghĩa của dòng ấy, rời ra thì tắt; thẻ Công thức không sáng', async () => {
+      const { khung, the, spec } = await moKhung('ncav-tren-co-phieu');
+      const nut = within(khung).getByRole('button', { name: '(TSNH)' });
+      // Nút là đúng phần ký hiệu; phần còn lại của tên ô là chữ trơn.
+      expect(nut.closest('dt')?.textContent).toBe('Tài sản ngắn hạn (TSNH)');
+      // Ô không ứng với dòng nào của bảng ký hiệu thì không có nút.
+      const tongNo = [...khung.querySelectorAll('dt')].find(
+        (dt) => dt.textContent === 'Tổng nợ phải trả',
+      );
+      expect(tongNo?.querySelector('button')).toBeNull();
 
-    fireEvent.pointerEnter(hang('Thuế suất'));
-    expect(the.getAttribute('data-active')).toBe(so('t'));
-    expect(the.querySelector(`dt[data-hang="${so('t')}"]`)).not.toBeNull();
+      reChuot('pointerover', nut);
+      const chuThich = await within(khung).findByRole('group');
+      const tsnh = spec.symbols?.find((s) => s.latex === '\\text{TSNH}');
+      expect(chuThich.textContent).toContain(tsnh?.meaning.vi ?? '∅');
+      // Số nhập thẳng: khung chỉ có "ký hiệu: nghĩa", như khung của chính dòng ấy ở thẻ.
+      expect(chuThich.hasAttribute('data-title-only')).toBe(true);
+      expect(nut.getAttribute('aria-expanded')).toBe('true');
+      expect(nut.getAttribute('aria-controls')).toBe(chuThich.id);
+      // Không còn tô ở thẻ Công thức — "chứ không phải sáng phần trước".
+      expect(the.hasAttribute('data-active')).toBe(false);
 
-    // Đóng khung khi con trỏ còn trên hàng: vệt tắt theo, không treo lại trên thẻ.
-    fireEvent.keyDown(document, { key: 'Escape' });
-    expect(the.hasAttribute('data-active')).toBe(false);
+      reChuot('pointerout', nut, khung);
+      await waitFor(() => {
+        expect(within(khung).queryByRole('group')).toBeNull();
+      });
+      expect(nut.getAttribute('aria-expanded')).toBe('false');
+    });
+
+    it('chạm "(N)" thì khung chú thích được ghim; Esc đóng nó trước, lần Esc sau mới đóng khung "?"', async () => {
+      const { user, khung } = await moKhung('ncav-tren-co-phieu');
+      const nut = within(khung).getByRole('button', { name: '(N)' });
+
+      await user.click(nut);
+      expect(within(khung).getByRole('group').textContent).toContain('số cổ phiếu lưu hành');
+
+      await user.keyboard('{Escape}');
+      expect(within(khung).queryByRole('group')).toBeNull();
+      expect(screen.getByRole('dialog')).toBe(khung);
+      expect(document.activeElement).toBe(nut);
+
+      await user.keyboard('{Escape}');
+      expect(screen.queryByRole('dialog')).toBeNull();
+    });
+
+    it('ký hiệu nhận số từ công thức khác mở đủ bước tính và liên kết, như ở thẻ Công thức', async () => {
+      const { user, khung } = await moKhung('bien-an-toan');
+
+      await user.click(within(khung).getByRole('button', { name: '(V)' }));
+      const chuThich = within(khung).getByRole('group');
+      expect(chuThich.hasAttribute('data-title-only')).toBe(false);
+      expect(chuThich.querySelectorAll('li').length).toBeGreaterThan(0);
+      expect(chuThich.querySelector('a')?.getAttribute('href')?.replace(/\/$/, '')).toBe(
+        '/cong-thuc/mo-hinh-gordon',
+      );
+
+      // Bấm trong khung chú thích là bấm TRONG khung "?": không lớp nào đóng.
+      fireEvent.pointerDown(chuThich);
+      expect(screen.getByRole('dialog')).toBe(khung);
+      expect(within(khung).getByRole('group')).toBe(chuThich);
+    });
   });
 
   it('nút ở khối Biểu đồ mở mục của biểu đồ, không mở mục của ô nhập', async () => {

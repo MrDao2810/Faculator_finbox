@@ -218,6 +218,22 @@ describe('mục "Lấy số liệu ở đâu": câu minh hoạ đi theo số đa
     const { container } = dung({ sessions: 55 });
     expect(container.textContent).not.toMatch(/[{}]/);
   });
+
+  /*
+   * Tên ô: trang đầy đủ in chữ trơn — ở đó không có thẻ Công thức nào để mượn khung chú thích. Khung
+   * "?" truyền `nhanO` để dựng phần ký hiệu thành nút (28/10/2026, xem `GuideHintPanel`).
+   */
+  it('tên ô in trơn khi không có `nhanO`, và dựng bằng `nhanO` khi khung "?" truyền vào', () => {
+    const { container } = dung();
+    expect(container.querySelector('dt')?.textContent).toBe('Số phiên trong kỳ');
+    expect(container.querySelector('button')).toBeNull();
+    cleanup();
+
+    const dung2 = render(
+      <GuideMuc bai={bai} muc="nhap-so" nhanO={(o) => <button type="button">{o.key}</button>} />,
+    );
+    expect(dung2.container.querySelector('dt button')?.textContent).toBe('sessions');
+  });
 });
 
 describe('mục "Đọc biểu đồ" trong khung chỉ in đúng một hình, đúng một dạng', () => {

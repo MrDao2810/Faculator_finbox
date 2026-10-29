@@ -1,3 +1,5 @@
+import type { ReactNode } from 'react';
+
 import { dienCau, fillRepeat, repeatIndexIn } from '@/application';
 import type {
   BaiHuongDan,
@@ -158,7 +160,7 @@ export function GuideMuc({
   idPrefix = '',
   hinh,
   giaTri,
-  onTroO,
+  nhanO,
 }: {
   bai: BaiHuongDan;
   muc: MucId;
@@ -166,10 +168,12 @@ export function GuideMuc({
   hinh?: HinhDangXem | null;
   giaTri?: Readonly<Record<string, number>>;
   /**
-   * Báo ô nào đang được rê vào ở mục "Lấy số liệu ở đâu" (`null` khi rời ra), để màn tính tô sáng
-   * ký hiệu của ô ấy ở thẻ Công thức (28/10/2026). Trang đầy đủ không có thẻ ấy nên không truyền.
+   * Dựng TÊN ô ở mục "Lấy số liệu ở đâu" thay cho chữ trơn. Khung "?" của màn tính truyền vào để
+   * phần ký hiệu của tên ('(TSNH)') thành điểm chạm mở khung chú thích (28/10/2026); trang đầy đủ
+   * không truyền, vì ở đó không có thẻ Công thức nào để mượn khung. Thân bài vẫn không gọi hook nào:
+   * hàm này chạy ở nơi gọi, nên mọi hook nằm phía khung.
    */
-  onTroO?: (key: string | null) => void;
+  nhanO?: (o: ONhapHuongDan) => ReactNode;
 }) {
   const neo = `${idPrefix}${muc}`;
 
@@ -179,7 +183,7 @@ export function GuideMuc({
         <T k={TIEU_DE[muc]} />
       </h2>
 
-      {muc === 'nhap-so' && <KhoiNhapSo bai={bai} giaTri={giaTri} onTroO={onTroO} />}
+      {muc === 'nhap-so' && <KhoiNhapSo bai={bai} giaTri={giaTri} nhanO={nhanO} />}
       {muc === 'doc-ket-qua' && <KhoiDocKetQua bai={bai} />}
       {muc === 'doc-bieu-do' && <KhoiBieuDo bai={bai} hinh={hinh} />}
       {muc === 'ket-qua-trong' && <KhoiKetQuaTrong bai={bai} />}
@@ -228,18 +232,18 @@ export function GuideBody({ bai, idPrefix = '' }: { bai: BaiHuongDan; idPrefix?:
 function KhoiNhapSo({
   bai,
   giaTri,
-  onTroO,
+  nhanO,
 }: {
   bai: BaiHuongDan;
   giaTri: Readonly<Record<string, number>> | undefined;
-  onTroO: ((key: string | null) => void) | undefined;
+  nhanO: ((o: ONhapHuongDan) => ReactNode) | undefined;
 }) {
   if (bai.rieng === undefined || bai.rieng.oNhap.length === 0) return null;
 
   return (
     <dl className={styles.fieldSources}>
       {bai.rieng.oNhap.map((o) => (
-        <HangONhap key={o.key} o={o} thongSo={bai.thongSo} giaTri={giaTri} onTroO={onTroO} />
+        <HangONhap key={o.key} o={o} thongSo={bai.thongSo} giaTri={giaTri} nhanO={nhanO} />
       ))}
     </dl>
   );
@@ -256,12 +260,12 @@ function HangONhap({
   o,
   thongSo,
   giaTri,
-  onTroO,
+  nhanO,
 }: {
   o: ONhapHuongDan;
   thongSo: Readonly<Record<string, ThongSoO>>;
   giaTri: Readonly<Record<string, number>> | undefined;
-  onTroO: ((key: string | null) => void) | undefined;
+  nhanO: ((o: ONhapHuongDan) => ReactNode) | undefined;
 }) {
   const dien = (cau: Bilingual): Bilingual => ({
     vi: dienCau(cau.vi, thongSo, giaTri),
@@ -270,17 +274,15 @@ function HangONhap({
 
   return (
     /*
-     * Rê vào CẢ HÀNG (tên ô lẫn câu bên dưới) là đang đọc về ô ấy, nên ký hiệu của nó sáng lên ở thẻ
-     * Công thức — `onTroO`, xem `GuideMuc`. Không làm hàng thành nút, không điểm Tab: đây là lối tắt
-     * cho mắt, chữ trong hàng đọc được đủ mà không cần nó.
+     * Mộ chí (28/10/2026): hàng này từng bắt `pointerenter`/`pointerleave` để tô sáng ký hiệu của ô ở
+     * thẻ Công thức (`onTroO`). Chủ dự án bác ngay trong ngày: _"khi hover vào thì cần chuyển con trỏ
+     * chuột thành bàn tay và hiện thêm popup mới chú thích chứ không phải sáng phần trước"_. Lối ấy nay
+     * là phần ký hiệu trong tên ô, mở khung chú thích ngay cạnh nó — xem `nhanO`. Đừng gắn lại bộ
+     * nghe rê chuột lên cả hàng.
      */
-    <div
-      className={styles.fieldRow}
-      onPointerEnter={onTroO === undefined ? undefined : () => onTroO(o.key)}
-      onPointerLeave={onTroO === undefined ? undefined : () => onTroO(null)}
-    >
+    <div className={styles.fieldRow}>
       <dt className={styles.fieldLabel}>
-        <Pick value={o.nhan} />
+        {nhanO === undefined ? <Pick value={o.nhan} /> : nhanO(o)}
         {/*
           Dấu Nâng cao chỉ in ở 12/269 ô, và nó là NGOẠI LỆ DUY NHẤT của luật "chỉ chữ trong file":
           hai chữ này không có trong `guide-111.json`.

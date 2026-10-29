@@ -1,14 +1,26 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react';
+import type { ReactNode } from 'react';
 
-import { guidePath, type BaiHuongDan, type HinhDangXem, type MucId } from '@/application';
-import { useT } from '@/application/preferences-context';
+import {
+  guidePath,
+  nhanCoKyHieu,
+  type BaiHuongDan,
+  type FormulaSpec,
+  type HinhDangXem,
+  type MucId,
+  type ONhapHuongDan,
+} from '@/application';
+import { usePick, usePreferences, useT } from '@/application/preferences-context';
 import { GuideMuc } from '@/ui/guide/GuideBody';
 
+import { HowToPanel } from './HowToPanel';
+import type { NotationView } from './notation-types';
 import { placePanel } from './place-panel';
-import { anchorBox, viewportBounds } from './use-panel-placement';
+import { useHowToPanel } from './use-how-to-panel';
+import { anchorBox, usePanelPlacement, viewportBounds } from './use-panel-placement';
 import styles from './GuideHintPanel.module.css';
 
 /**
@@ -47,6 +59,14 @@ import styles from './GuideHintPanel.module.css';
  */
 const HIEN_MO_TOAN_TRANG = false;
 
+/**
+ * Khung "?" tự cuộn: cuộn thì tên ô trôi theo, khung chú thích phải đặt lại. Hàm cấp module, vì
+ * `usePanelPlacement` để nó trong danh sách phụ thuộc.
+ */
+function chinhKhung(khung: HTMLDivElement): Element {
+  return khung;
+}
+
 export interface GuideHintPanelState {
   muc: MucId;
   anchor: Element;
@@ -76,10 +96,30 @@ export interface GuideHintPanelProps {
    * khoảng ba tháng"). Cùng nếp với `hinh`: luôn truyền, mục nào không cần thì bỏ qua.
    */
   giaTri: Readonly<Record<string, number>>;
-  /** Ô đang được rê vào ở mục "Lấy số liệu ở đâu" — chuyển thẳng xuống `GuideMuc`. */
-  onTroO?: (key: string | null) => void;
+  /** Công thức của màn: tên các ô (để cắt quanh phần ký hiệu) và bảng ký hiệu (nghĩa của từng dòng). */
+  spec: FormulaSpec;
+  /** Đúng `notation` của thẻ Công thức — khung chú thích dùng lại hình ký hiệu và các bước tính của nó. */
+  notation: NotationView;
 }
 
+/**
+ * ── Phần ký hiệu trong tên ô mở khung chú thích (28/10/2026) ─────────────────────────────────
+ *
+ * Chủ dự án khoanh '(TSNH)' và '(N)' trong mục "Lấy số liệu ở đâu" của `ncav-tren-co-phieu`: _"khi
+ * hover vào thì cần chuyển con trỏ chuột thành bàn tay và hiện thêm popup mới chú thích chứ không
+ * phải sáng phần trước"_. Bản đầu cùng ngày tô ký hiệu của ô ở thẻ Công thức khi rê vào cả hàng;
+ * nay phần ký hiệu của tên ô là một nút, rê vào (hay chạm, Enter) thì mở ĐÚNG khung chú thích của
+ * thẻ — "ký hiệu: nghĩa", các bước tính và liên kết sang công thức nguồn nếu dòng ấy có.
+ *
+ * Dùng lại chứ không chép, cùng nếp `QuizFormulaPicture`: `useHowToPanel` (rê mở sau một nhịp, rời
+ * thì tắt, bấm/chạm thì ghim, Esc và chạm ra ngoài thì đóng), `usePanelPlacement` và `HowToPanel`.
+ * Khác đúng một chỗ: khung chú thích `position: fixed` theo khung nhìn (`coDinh`), vì khung "?" tự
+ * cuộn và cắt mọi khung `absolute` bên trong nó.
+ *
+ * Gốc của khung "?" là "thẻ" của `useHowToPanel` (`cardRef`): bộ nghe con trỏ gắn ở đó, và khung chú
+ * thích dựng NGAY SAU nút trong `<dt>` — vẫn là con cháu của gốc, nên bấm vào khung chú thích (hay
+ * liên kết trong nó) không bị khung "?" coi là bấm ra ngoài, và Tab đi từ nút thẳng vào liên kết.
+ */
 export function GuideHintPanel({
   bai,
   state,
@@ -87,10 +127,45 @@ export function GuideHintPanel({
   id,
   hinh,
   giaTri,
-  onTroO,
+  spec,
+  notation,
 }: GuideHintPanelProps) {
   const t = useT();
-  const panelRef = useRef<HTMLDivElement>(null);
+  const pick = usePick();
+  const { locale } = usePreferences();
+
+  /*
+   * Điểm chạm đánh số theo HÀNG của mục, không theo dòng bảng ký hiệu: trong khung này `data-sym` của
+   * nút là số thứ tự hàng. Mỗi nút nhờ thế là một điều khiển riêng — hai ô trỏ cùng một dòng bảng thì
+   * `aria-expanded` của nút này không bật theo nút kia, và khung mở cạnh đúng nút vừa chạm.
+   */
+  const oNhap = bai.rieng?.oNhap;
+  const diemCham = useMemo(
+    () => (oNhap ?? []).map((o) => nhanCoKyHieu(spec, o.key)),
+    [oNhap, spec],
+  );
+  const hangCua = useMemo(() => new Map((oNhap ?? []).map((o, hang) => [o.key, hang])), [oNhap]);
+  const coDiemCham = useCallback((hang: number) => (diemCham[hang] ?? null) !== null, [diemCham]);
+  const howToBySym = useMemo(
+    () => new Map(notation.howTo.map((howTo) => [howTo.sym, howTo])),
+    [notation.howTo],
+  );
+
+  const {
+    state: chuThich,
+    cardRef: panelRef,
+    panelRef: chuThichRef,
+    anchorRef,
+    pointRef,
+    handlers,
+  } = useHowToPanel(coDiemCham, locale);
+  const choChuThich = usePanelPlacement(
+    chuThich,
+    { cardRef: panelRef, panelRef: chuThichRef, anchorRef, pointRef },
+    chinhKhung,
+    true,
+  );
+
   const [cho, setCho] = useState<{ top: number; left: number; maxHeight: number | null } | null>(
     null,
   );
@@ -127,12 +202,21 @@ export function GuideHintPanel({
      * thì khung đã đóng trước (bấm ra ngoài), nhưng đi bằng bàn phím thì khung vẫn mở trong lúc hình
      * bên dưới đổi. `giaTri` cùng lẽ: đổi số trong ô là đổi độ dài câu "… phiên là khoảng …".
      */
-  }, [state, onClose, hinh, giaTri]);
+  }, [state, onClose, hinh, giaTri, panelRef]);
 
-  /* Esc đóng, và bấm ra ngoài đóng — hai lối thoát quen thuộc của mọi khung nổi trong sản phẩm. */
+  /*
+   * Esc đóng, và bấm ra ngoài đóng — hai lối thoát quen thuộc của mọi khung nổi trong sản phẩm.
+   *
+   * Khung chú thích của một ký hiệu đang mở thì Esc chỉ đóng KHUNG ẤY (bộ nghe của `useHowToPanel`
+   * lo, rồi trả tiêu điểm về nút ký hiệu); lần Esc sau mới đóng khung này. Bộ nghe ở đây gắn pha
+   * BẮT (`capture`) để luôn chạy TRƯỚC bộ nghe của khung chú thích, khi khung ấy chắc chắn còn mở:
+   * cả hai cùng nằm ở `document`, và ở pha nổi thì thứ tự theo lần gắn — đổi mỗi lần khung chú
+   * thích mở hay đóng, vì effect này gắn lại theo `chuThich`.
+   */
   useEffect(() => {
     const phim = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
+      if (e.key !== 'Escape' || chuThich !== null) return;
+      onClose();
     };
     const ngoai = (e: MouseEvent) => {
       const panel = panelRef.current;
@@ -141,13 +225,56 @@ export function GuideHintPanel({
       if (dich instanceof Node && (panel.contains(dich) || state.anchor.contains(dich))) return;
       onClose();
     };
-    document.addEventListener('keydown', phim);
+    document.addEventListener('keydown', phim, true);
     document.addEventListener('pointerdown', ngoai);
     return () => {
-      document.removeEventListener('keydown', phim);
+      document.removeEventListener('keydown', phim, true);
       document.removeEventListener('pointerdown', ngoai);
     };
-  }, [state, onClose]);
+  }, [state, onClose, chuThich, panelRef]);
+
+  /** Tên ô ở mục "Lấy số liệu ở đâu": phần ký hiệu là nút mở khung chú thích, phần còn lại chữ trơn. */
+  const nhanO = (o: ONhapHuongDan): ReactNode => {
+    const hang = hangCua.get(o.key) ?? -1;
+    const nhan = diemCham[hang] ?? null;
+    const symbol = nhan === null ? undefined : spec.symbols?.[nhan.sym];
+    if (nhan === null || symbol === undefined) return pick(o.nhan);
+
+    // Cùng luật chọn ngôn ngữ của `pick()`: tên tiếng Anh rỗng thì in tiếng Việt.
+    const khuc = locale === 'en' && o.nhan.en.trim() !== '' ? nhan.en : nhan.vi;
+    const mo = chuThich?.sym === hang;
+    const idChuThich = `${id}-ky-hieu-${String(hang)}`;
+    return (
+      <>
+        {/* Một khối chữ: `<dt>` là hàng flex, tách ba khúc ra ba con thì giữa chúng thành ba khe 8px. */}
+        <span>
+          {khuc.truoc}
+          <button
+            type="button"
+            className={styles.kyHieu}
+            data-sym={hang}
+            aria-expanded={mo}
+            {...(mo ? { 'aria-controls': idChuThich } : {})}
+          >
+            {khuc.kyHieu}
+          </button>
+          {khuc.sau}
+        </span>
+        {mo && (
+          <HowToPanel
+            id={idChuThich}
+            // Dòng không có bước tính: khung chỉ có "ký hiệu: nghĩa", như ở thẻ Công thức.
+            howTo={howToBySym.get(nhan.sym) ?? { sym: nhan.sym, kind: 'defined', steps: [] }}
+            symbolHtml={notation.symbolsHtml[nhan.sym] ?? ''}
+            meaning={pick(symbol.meaning)}
+            placement={choChuThich}
+            panelRef={chuThichRef}
+            coDinh
+          />
+        )}
+      </>
+    );
+  };
 
   return (
     <div
@@ -156,6 +283,10 @@ export function GuideHintPanel({
       className={styles.panel}
       role="dialog"
       aria-label={t('guide.howToUse')}
+      onPointerOver={handlers.onPointerOver}
+      onPointerOut={handlers.onPointerOut}
+      onClick={handlers.onClick}
+      onBlur={handlers.onBlur}
       style={
         cho === null
           ? { visibility: 'hidden' }
@@ -184,7 +315,7 @@ export function GuideHintPanel({
         idPrefix="goi-y-"
         hinh={hinh}
         giaTri={giaTri}
-        onTroO={onTroO}
+        nhanO={nhanO}
       />
 
       {/*

@@ -57,7 +57,6 @@ import {
   hasDraftData,
   hasDraftMarketSeries,
   isTickerCode,
-  kyHieuCuaO,
   needsPriceSeries,
   parseActiveTicker,
   QUIZ_PROGRESS_KEY,
@@ -735,27 +734,22 @@ export function FormulaDetail({
    */
   const [goiY, setGoiY] = useState<GuideHintPanelState | null>(null);
   /*
-   * Ô đang được rê vào trong khung "Lấy số liệu ở đâu" (28/10/2026, chủ dự án: _"Khi hover vào biến
-   * trong popup này thì cũng sẽ được highlight vàng như bên kia"_). Thẻ Công thức tô ký hiệu của ô ấy
-   * bằng đúng vệt vàng của khung "cách tính". Khung đóng thì `goiY` là `null` và vệt tắt theo ngay lúc
-   * vẽ, kể cả khi con trỏ chưa kịp bắn `pointerleave`; mở hay đóng khung đều xoá ô cũ, để lần mở sau
-   * không sáng sẵn một ký hiệu chưa ai trỏ.
+   * Mộ chí (28/10/2026): ở đây từng có `oDangTro` — ô đang được rê vào trong khung "Lấy số liệu ở
+   * đâu" — để thẻ Công thức tô ký hiệu của ô ấy (prop `soi`). Chủ dự án bác cùng ngày: _"hiện thêm
+   * popup mới chú thích chứ không phải sáng phần trước"_. Phần ký hiệu trong tên ô nay tự mở khung
+   * chú thích ngay trong khung "?", xem `GuideHintPanel`; màn này không còn giữ trạng thái nào cho nó.
    */
-  const [oDangTro, setODangTro] = useState<string | null>(null);
-  const kyHieuSoi = goiY === null || oDangTro === null ? null : kyHieuCuaO(spec, oDangTro);
 
   /* Ổn định qua các lượt dựng: `GuideHintPanel` gắn/gỡ bộ nghe theo nó. */
   const dongGoiY = useCallback(() => {
     setGoiY(null);
-    setODangTro(null);
   }, []);
 
   /*
-   * `useCallback([])` vì hai lối mở dưới đây đi qua `MemoGuideHint`: thân chỉ gọi hai setter của
-   * React (tham chiếu vĩnh viễn ổn định), nên không có gì để cũ đi.
+   * `useCallback([])` vì hai lối mở dưới đây đi qua `MemoGuideHint`: thân chỉ gọi setter của React
+   * (tham chiếu vĩnh viễn ổn định), nên không có gì để cũ đi.
    */
   const moGoiY = useCallback((muc: MucId, event: ReactMouseEvent<HTMLAnchorElement>): void => {
-    setODangTro(null);
     setGoiY({ muc, anchor: event.currentTarget, point: { x: event.clientX, y: event.clientY } });
   }, []);
   const moNhapSo = useCallback(
@@ -3147,7 +3141,7 @@ export function FormulaDetail({
           component riêng: nó giữ nguyên các nút MathML qua mọi lượt render của màn này và tự lo
           khung "cách tính" (17/09/2026) — xem docblock `FormulaNotationCard.tsx`.
         */}
-        <FormulaNotationCard spec={spec} notation={notation} soi={kyHieuSoi} />
+        <FormulaNotationCard spec={spec} notation={notation} />
       </section>
 
       {/* ── 4. Số liệu — ô nhập sinh từ VariableSpec (FR-05) ──────────────── */}
@@ -3817,7 +3811,10 @@ export function FormulaDetail({
           // Số ĐANG HIỆN trong các ô, gồm cả số nạp từ mã và số chảy từ công thức khác — đúng thứ
           // người dùng so với câu "… phiên là khoảng …" trong khung (14/10/2026).
           giaTri={effectiveInputs}
-          onTroO={setODangTro}
+          // Phần ký hiệu trong tên ô mở khung chú thích của thẻ Công thức (28/10/2026): cùng bảng ký
+          // hiệu, cùng hình và bước tính dựng sẵn lúc build.
+          spec={spec}
+          notation={notation}
         />
       )}
 

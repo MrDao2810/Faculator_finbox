@@ -186,6 +186,7 @@ export {
   detectNumberStyle,
   fitToSeriesColumns,
   guessColumns,
+  mergeRowsByDate,
   orderOf,
   parseCellNumber,
   parseCells,
@@ -278,10 +279,11 @@ export {
 
 /*
  * ── Ô nhập → dòng bảng ký hiệu (28/10/2026) ──
- * Rê vào một ô trong khung "Lấy số liệu ở đâu" thì ký hiệu của ô sáng lên ở thẻ Công thức. File lá,
- * không kéo theo thư viện công thức.
+ * Phần ký hiệu trong tên ô ở khung "Lấy số liệu ở đâu" là điểm chạm mở khung chú thích của dòng ấy.
+ * File lá, không kéo theo thư viện công thức.
  */
-export { kyHieuCuaO } from '@/core/o-ky-hieu';
+export type { KhucNhan, NhanCoKyHieu } from '@/core/o-ky-hieu';
+export { nhanCoKyHieu } from '@/core/o-ky-hieu';
 
 // ── Chạy cả một chuỗi công thức nối nhau — FR-15 (gói 5.2.3) ────────────────
 export type { ChainField, ChainInputs, ChainOverrides, ChainResult, ChainStep } from '@/core/calc';

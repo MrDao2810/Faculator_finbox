@@ -19,6 +19,12 @@ export interface HowToPanelProps {
   /** Toạ độ trong thẻ. `null` ở lượt dựng đầu: khung ẩn đi để đo kích thước trước khi đặt. */
   placement: { top: number; left: number; maxHeight: number | null; maxWidth?: number } | null;
   panelRef: RefObject<HTMLDivElement | null>;
+  /**
+   * Toạ độ là của KHUNG NHÌN và khung `position: fixed` — khi khung mở từ trong một khối tự cuộn
+   * (khung "Lấy số liệu ở đâu", 28/10/2026), nơi khung `absolute` bị cắt ở mép khối. Mặc định
+   * `false`: toạ độ trong thẻ, như thẻ Công thức và hình trong lời giải.
+   */
+  coDinh?: boolean;
 }
 
 /**
@@ -44,6 +50,7 @@ export function HowToPanel({
   meaning,
   placement,
   panelRef,
+  coDinh = false,
 }: HowToPanelProps) {
   const t = useT();
   const pick = usePick();
@@ -67,7 +74,7 @@ export function HowToPanel({
       ref={panelRef}
       role="group"
       aria-label={howTo.steps.length > 0 ? `${t('detail.howTo.label')}: ${meaning}` : meaning}
-      className={styles.panel}
+      className={coDinh ? `${styles.panel} ${styles.panelCoDinh}` : styles.panel}
       style={style}
       {...(howTo.steps.length === 0 ? { 'data-title-only': '' } : {})}
     >

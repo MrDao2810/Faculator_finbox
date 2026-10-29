@@ -8,12 +8,14 @@ import {
   detectDelimiter,
   fitToSeriesColumns,
   guessColumns,
+  mergeRowsByDate,
   parseCells,
   parsePaste,
   splitPasteTable,
   summarizeSkipped,
   type ColumnKind,
 } from './paste-import';
+import { checkSeries } from './price-series';
 
 /** Đúng chuỗi mẫu WF-11 vẽ trong vùng dán: dán thẳng từ Excel nên ngăn bằng Tab. */
 const WF11 = [
@@ -229,9 +231,17 @@ describe('parsePaste() — số kiểu Việt Nam', () => {
 
 describe('parsePaste() — chặn đầu vào quá lớn', () => {
   it('cắt ở trần và NÓI RÕ đã cắt bao nhiêu, không cắt im lặng', () => {
-    const huge = Array.from({ length: MAX_PASTE_LINES + 25 }, (_, i) => `15/07\t${i + 1}`).join(
-      '\n',
-    );
+    /*
+     * Mỗi dòng một ngày khác nhau. Bản cũ dán 5.025 lần cùng '15/07'; từ 28/10/2026 bộ đọc bỏ
+     * ngày trùng như bảng WF-05, nên khối ấy chỉ còn một phiên và ca này sẽ đo luật trùng ngày
+     * chứ không đo cái trần.
+     */
+    const ngay = (i: number): string =>
+      new Date(Date.UTC(2000, 0, 1 + i)).toISOString().slice(0, 10);
+    const huge = Array.from(
+      { length: MAX_PASTE_LINES + 25 },
+      (_, i) => `${ngay(i)}\t${i + 1}`,
+    ).join('\n');
     const result = parsePaste(huge);
 
     expect(result.truncated).toBe(25);
@@ -593,6 +603,248 @@ describe('parseCells()', () => {
     expect(result.skipped).toHaveLength(1);
     expect(result.skipped[0]?.line).toBe(2);
     expect(result.skipped[0]?.column).toBe('date');
+  });
+});
+
+/*
+ * ── Ngày trùng: cùng luật với bảng WF-05 (28/10/2026) ───────────────────────────────────
+ *
+ * Tester báo, chủ dự án giao sửa: "Dán dữ liệu chuỗi OHLC không check ngày đã tồn tại (không đồng
+ * nhất với thao tác Thêm dòng)". Bảng WF-05 báo ngày trùng qua `checkSeries()`; bộ đọc của tấm dán
+ * thì không có luật ấy, nên phiên lặp đi thẳng vào bảng và chỉ bị chỉ ra sau khi đã Nạp. Các ca dưới
+ * ghim rằng hai nơi dùng CHUNG một khoá ngày và cùng báo lần gặp sau.
+ */
+describe('parseCells() — ngày trùng, cùng luật với bảng WF-05', () => {
+  it('lần gặp sau của một ngày bị bỏ qua và chỉ đúng ô Ngày; lần gặp đầu vẫn được nạp', () => {
+    const result = parseCells(
+      [
+        ['14/09/2026', '109'],
+        ['15/09/2026', '111'],
+        ['15/09/2026', '205'],
+      ],
+      ['date', 'close'],
+    );
+
+    expect(closeSeries(result)).toEqual([109, 111]);
+    expect(result.skipped).toEqual([
+      {
+        line: 3,
+        reason: 'trùng ngày với một dòng khác',
+        short: 'trùng ngày',
+        column: 'date',
+        raw: '15/09/2026 205',
+      },
+    ]);
+    expect(summarizeSkipped(result.skipped)).toEqual(['trùng ngày với một dòng khác (dòng 3)']);
+  });
+
+  it('cùng một ngày viết hai lối vẫn là trùng — đúng khoá của checkSeries()', () => {
+    const cells = [
+      ['2026-09-15', '111'],
+      ['15/09/2026', '205'],
+    ];
+    const result = parseCells(cells, ['date', 'close']);
+    const bang = checkSeries(
+      cells.map(([date = '', close = '']) => ({
+        date,
+        open: null,
+        high: null,
+        low: null,
+        close: Number(close),
+        volume: null,
+      })),
+    );
+
+    expect(result.skipped.map((row) => row.line)).toEqual([2]);
+    // Bảng WF-05 cũng báo đúng dòng thứ hai, cùng một lý do.
+    expect(bang.rows.map((row) => [row.index + 1, row.issues.map((issue) => issue.code)])).toEqual([
+      [2, ['DUPLICATE_DATE']],
+    ]);
+  });
+
+  it('hai ngày bằng nhau không còn làm cả bảng thành "không đọc được thứ tự"', () => {
+    const result = parseCells(
+      [
+        ['14/09/2026', '109'],
+        ['15/09/2026', '111'],
+        ['15/09/2026', '205'],
+      ],
+      ['date', 'close'],
+    );
+
+    expect(result.order).toBe('oldest-first');
+  });
+
+  it('dòng hỏng không phải "phiên đã ghi": phiên cùng ngày phía sau vẫn được nạp', () => {
+    const result = parseCells(
+      [
+        ['15/09/2026', ''],
+        ['15/09/2026', '111'],
+      ],
+      ['date', 'close'],
+    );
+
+    expect(closeSeries(result)).toEqual([111]);
+    expect(result.skipped.map((row) => [row.line, row.short])).toEqual([[1, 'thiếu giá đóng cửa']]);
+  });
+
+  it('chuỗi chỉ có giá đóng cửa (cột Ngày trống mọi dòng) không bị dò trùng', () => {
+    const result = parseCells(
+      [
+        ['', '', '', '', '25,4', ''],
+        ['', '', '', '', '25,4', ''],
+      ],
+      SERIES_COLUMNS,
+    );
+
+    expect(closeSeries(result)).toEqual([25.4, 25.4]);
+    expect(result.skipped).toEqual([]);
+  });
+
+  it('lối dán chữ cũng thế: dán hai lần cùng một đoạn thì phiên lặp không vào chuỗi', () => {
+    const result = parsePaste('15/09/2026\t111\n15/09/2026\t111');
+
+    expect(closeSeries(result)).toEqual([111]);
+    expect(result.skipped.map((row) => row.short)).toEqual(['trùng ngày']);
+  });
+});
+
+/*
+ * ── Chèn dòng mới theo ngày (28/10/2026) ─────────────────────────────────────────────────
+ *
+ * Nửa còn lại của cùng lỗi: mẩu dán không tiêu đề từng ĐÈ lên các ô dưới con trỏ theo vị trí, nên
+ * dán một phiên vào dòng 1 là thay mất phiên đang nằm ở đó — im lặng. Dòng dán có ngày nay là một
+ * phiên MỚI và đứng ở đúng ngày của nó.
+ */
+describe('mergeRowsByDate()', () => {
+  const LUOI: ReadonlyArray<ReadonlyArray<string>> = [
+    ['10/09/2026', '107'],
+    ['11/09/2026', '105'],
+    ['15/09/2026', '111'],
+    ['', ''],
+  ];
+  const ngay = (grid: ReadonlyArray<ReadonlyArray<string>>): string[] =>
+    grid.map((row) => row[0] ?? '');
+
+  it('dòng mới đứng đúng ngày của nó, dòng đã có không đổi, dòng trống vẫn ở cuối', () => {
+    expect(mergeRowsByDate(LUOI, [['14/09/2026', '109']], 0)).toEqual([
+      ['10/09/2026', '107'],
+      ['11/09/2026', '105'],
+      ['14/09/2026', '109'],
+      ['15/09/2026', '111'],
+      ['', ''],
+    ]);
+  });
+
+  it('cùng ngày thì đứng SAU dòng đã có — bộ đọc báo dòng mới là trùng, như "Thêm dòng"', () => {
+    const grid = mergeRowsByDate(LUOI, [['15/09/2026', '205']], 0);
+
+    expect(grid.slice(2, 4)).toEqual([
+      ['15/09/2026', '111'],
+      ['15/09/2026', '205'],
+    ]);
+    const result = parseCells(grid, ['date', 'close']);
+    expect(result.skipped.map((row) => row.line)).toEqual([4]);
+    expect(closeSeries(result)).toEqual([107, 105, 111]);
+  });
+
+  it('mới hơn mọi dòng thì về cuối phần dữ liệu, cũ hơn mọi dòng thì lên đầu', () => {
+    const grid = mergeRowsByDate(
+      LUOI,
+      [
+        ['16/09/2026', '120'],
+        ['09/09/2026', '100'],
+      ],
+      0,
+    );
+
+    expect(ngay(grid)).toEqual([
+      '09/09/2026',
+      '10/09/2026',
+      '11/09/2026',
+      '15/09/2026',
+      '16/09/2026',
+      '',
+    ]);
+    expect(parseCells(grid, ['date', 'close']).order).toBe('oldest-first');
+  });
+
+  it('lưới xếp mới trước thì chèn theo chiều ấy, và dòng mới vẫn đứng sau dòng cùng ngày', () => {
+    const giam = [
+      ['15/09/2026', '111'],
+      ['11/09/2026', '105'],
+      ['10/09/2026', '107'],
+    ];
+    const grid = mergeRowsByDate(
+      giam,
+      [
+        ['14/09/2026', '109'],
+        ['11/09/2026', '200'],
+      ],
+      0,
+    );
+
+    expect(grid).toEqual([
+      ['15/09/2026', '111'],
+      ['14/09/2026', '109'],
+      ['11/09/2026', '105'],
+      ['11/09/2026', '200'],
+      ['10/09/2026', '107'],
+    ]);
+  });
+
+  it('nhiều dòng mới chung một chỗ xếp theo ngày; bằng ngày thì giữ thứ tự dán', () => {
+    const grid = mergeRowsByDate(
+      LUOI,
+      [
+        ['14/09/2026', 'b'],
+        ['12/09/2026', 'a'],
+        ['14/09/2026', 'c'],
+      ],
+      0,
+    );
+
+    expect(grid.slice(2, 5)).toEqual([
+      ['12/09/2026', 'a'],
+      ['14/09/2026', 'b'],
+      ['14/09/2026', 'c'],
+    ]);
+  });
+
+  it('ngày không đọc được đứng sau dòng có dữ liệu cuối, trước dòng trống', () => {
+    expect(ngay(mergeRowsByDate(LUOI, [['31/13/2026', '1']], 0))).toEqual([
+      '10/09/2026',
+      '11/09/2026',
+      '15/09/2026',
+      '31/13/2026',
+      '',
+    ]);
+  });
+
+  it('dòng mới đứng ngay sau dòng cũ hơn nó; dòng chưa có ngày không bị dời khỏi thứ tự cũ', () => {
+    const grid = mergeRowsByDate(
+      [
+        ['10/09/2026', '107'],
+        ['', '99'],
+        ['15/09/2026', '111'],
+      ],
+      [['14/09/2026', '109']],
+      0,
+    );
+
+    expect(grid).toEqual([
+      ['10/09/2026', '107'],
+      ['14/09/2026', '109'],
+      ['', '99'],
+      ['15/09/2026', '111'],
+    ]);
+  });
+
+  it('không có dòng mới thì trả bản sao y nguyên', () => {
+    const grid = mergeRowsByDate(LUOI, [], 0);
+
+    expect(grid).toEqual(LUOI);
+    expect(grid).not.toBe(LUOI);
   });
 });
 

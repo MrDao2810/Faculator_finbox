@@ -4,6 +4,103 @@ Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 
 ---
 
+## Khung "Lấy số liệu ở đâu": ký hiệu trong tên ô mở khung chú thích (28/10/2026)
+
+**Trạng thái: CHƯA XONG — đã sửa, chờ chủ dự án xem.** Chủ dự án khoanh '(TSNH)' và '(N)' trong khung "?" của khối Số
+liệu trên `ncav-tren-co-phieu`: _"phần nãy đã sửa khi hover vào thì cần chuyển con trỏ chuột thành bàn tay và hiện thêm
+popup mới chú thích chứ không phải sáng phần trước."_ Thay cho mục cùng ngày "Rê ô trong khung … thì ký hiệu sáng ở thẻ
+Công thức" (bên dưới).
+
+- **Hành vi mới.** Phần ký hiệu của tên ô — '(TSNH)', 'EPS' của 'EPS — …', cả tên khi hình viết bằng chữ ('Vốn chủ sở
+  hữu') — là một nút: con trỏ bàn tay, gạch chân chấm như điểm chạm ở thẻ Công thức, vệt vàng khi đang mở. Rê chuột thì
+  sau 100 ms mở khung chú thích ngay cạnh nút, rời ra thì tắt; bấm/chạm thì ghim, bấm lại thì đóng; Esc đóng khung chú
+  thích trước, Esc lần nữa mới đóng khung "?". Khung chú thích là ĐÚNG khung "cách tính" của thẻ: "ký hiệu: nghĩa", cộng
+  bước tính và link "Xem công thức" nếu dòng ấy có (vd `V` của Biên an toàn → Mô hình Gordon). Thẻ Công thức không còn
+  sáng khi rê trong khung "?". Ô không có dòng nào trong bảng ký hiệu (54/269, vd "Tổng nợ phải trả") in tên trơn.
+- `src/core/o-ky-hieu.ts`: `nhanCoKyHieu(spec, key)` (mới) cắt tên ô ở cả hai ngôn ngữ quanh phần ký hiệu, cùng luật
+  `kyHieuCuaO()`. `src/application/index.ts`: xuất nó (kèm hai kiểu), bỏ `kyHieuCuaO` khỏi barrel (UI không còn dùng).
+- `src/ui/guide/GuideBody.tsx`: `GuideMuc` bỏ `onTroO` (và bộ nghe rê chuột trên cả hàng), nhận `nhanO` để dựng tên ô;
+  trang hướng dẫn đầy đủ không truyền nên vẫn in trơn.
+- `GuideHintPanel.tsx/.module.css`: dùng lại `useHowToPanel` + `usePanelPlacement` + `HowToPanel` của thẻ (gốc khung "?"
+  là "thẻ" của hook); nút `.kyHieu`; Esc của khung "?" nghe ở pha bắt và nhường khi khung chú thích đang mở; nhận thêm
+  `spec`, `notation`. `data-sym` của nút là số thứ tự HÀNG, nên mỗi nút là một điều khiển riêng.
+- `HowToPanel.tsx`, `use-panel-placement.ts`: tuỳ chọn `coDinh` — toạ độ khung nhìn và `position: fixed`, vì khung "?" tự
+  cuộn và cắt mọi khung `absolute` bên trong. `FormulaNotationCard.module.css`: `.panel.panelCoDinh` (trả nét chữ về
+  thường, vì khung đứng trong `<dt>` đậm).
+- `FormulaNotationCard.tsx/.module.css`: bỏ prop `soi`, thuộc tính `data-hang` và 12 selector `[data-hang]` (thừa: `<dt>`
+  của mọi dòng đã mang `data-sym`). `FormulaDetail.tsx`: bỏ `oDangTro`/`kyHieuSoi`/`soi`/`onTroO`, truyền `spec` và
+  `notation` cho khung "?".
+- Test:
+  - `src/core/o-ky-hieu.test.ts`: +4 ca — NCAV, "EPS — …", tên viết bằng chữ, và quét 111 công thức ở cả hai ngôn ngữ
+    (ba khúc ghép đúng tên ô; tiếng Anh cùng ký hiệu; đúng 215 ô). Bốn ca cũ đổi chữ "sáng" trong tên.
+  - `FormulaDetail.test.tsx`: ca cũ "rê ô thì thẻ sáng" thay bằng 3 ca — rê "(TSNH)" mở khung nghĩa, rời ra tắt, thẻ
+    không sáng, "Tổng nợ phải trả" không có nút; chạm "(N)" ghim, Esc hai nấc, tiêu điểm về nút; "(V)" của Biên an toàn
+    có bước tính và link Gordon, bấm trong khung chú thích không đóng lớp nào. Trên code cũ cả ba phải đỏ vì không có
+    nút nào để tìm (suy từ mã, không chạy lại trên bản sao).
+  - `src/ui/guide/GuideBody.test.tsx`: +1 ca (không `nhanO` thì tên ô trơn, có thì dựng bằng nó).
+- **Kiểm:** `npm run check` xanh (ESLint, tsc, prettier, 203 file / 5.050 ca). Chrome riêng trỏ vào dev :3000:
+  - 1440, `ncav-tren-co-phieu`: con trỏ `pointer`; rê "(TSNH)" → khung "TSNH tài sản ngắn hạn, tỷ ₫", `position: fixed`,
+    nằm trên cùng (`elementFromPoint` ở bốn góc); vệt vàng trên nút; đưa chuột vào khung thì khung ở lại; rời ra chỗ
+    trống thì tắt mà khung "?" ở lại; rê sang "(N)" đổi khung; thẻ không sáng; không tràn ngang.
+  - 1440, `bien-an-toan`: bấm "(V)" → bước tính và link Gordon; đáy khung thò 53px dưới khung "?" mà vẫn hiện trọn. Esc
+    lần 1 đóng khung chú thích (tiêu điểm về "(V)"), lần 2 đóng khung "?".
+  - 390 có chạm: chạm "(TSNH)" mở, chạm lại đóng, khung "?" ở lại.
+  - Tiếng Anh: "Current assets (TSNH)", "Shares outstanding (N)" có nút, "Total liabilities" trơn; khung "TSNH current
+    assets, billion ₫".
+- Chưa build, chưa chạy `check:chrome` (không phép nào trong đó đo khung "?").
+- **Phát hiện khi thử, KHÔNG do mục này, chưa sửa:** nhãn "1 Issue" của Next dev trên trang chi tiết — ghi ở mục "Tối ưu
+  hiệu năng" bên dưới.
+
+---
+
+## Dán dữ liệu kiểm ngày trùng như "Thêm dòng" (28/10/2026)
+
+**Trạng thái: CHƯA XONG — đã sửa, chờ chủ dự án xem.** Lỗi tester báo, chủ dự án đưa vào hỏi rồi bảo _"nếu chưa sửa thì
+sửa lại cho tôi"_: _"Chuỗi OHLC - Dán dữ liệu / Thêm dòng — Dán dữ liệu chuỗi OHLC không check ngày đã tồn tại (không
+đồng nhất với thao tác Thêm dòng)"_.
+
+- **Đo trước khi sửa** (Chrome riêng trỏ vào dev :3000, bảng 6 phiên 08–15/09/2026, PC 1440):
+  - "Thêm dòng" rồi gõ 11/09/2026: cột kiểm tra báo ngay "Ngày 11/09/2026 xuất hiện ở hơn một dòng".
+  - Dán một dòng 15/09 vào dòng 1 của tấm "Bảng dữ liệu": số của 15/09 bị thay, không câu nào nói, nạp xong "Không dòng
+    nào đang lỗi" — đúng lỗi tester tả.
+  - Dán một dòng 16/09 (ngày mới) vào dòng 1: phiên 15/09 **mất hẳn**, cũng "Không dòng nào đang lỗi".
+  - Dán một dòng 11/09 (đã có ở dòng 3) vào dòng 1: 15/09 mất, tấm chỉ nói "Không đọc được thứ tự phiên" (sai nguyên
+    nhân), phiên lặp chỉ lộ ra trên bảng sau khi Nạp.
+  - Nguyên nhân: khối dán không tiêu đề đè các ô dưới con trỏ theo VỊ TRÍ, và bộ đọc của tấm (`parseCells`) không có
+    luật ngày trùng. Mục 13/10/2026 "Dán dữ liệu: sáu cột cố định…" đã ghi chỗ này là "chưa làm, cần chủ dự án quyết".
+- **Luật đã chọn:** dán kiểm ngày y như Thêm dòng. Chủ dự án được đưa hai luật (báo trùng như Thêm dòng, hay cập nhật
+  phiên theo ngày) và bảo sửa mà không chọn; làm luật thứ nhất vì đó đúng là điều lời báo lỗi đòi. Cái giá: muốn thay số
+  một phiên bằng cách dán một dòng có ngày thì nay phải sửa ô (hoặc xoá dòng cũ ở bảng) — chủ dự án muốn luật kia thì đổi.
+- `src/core/paste-import.ts`:
+  - `readRows()` bỏ qua lần gặp sau của một ngày, cùng khoá với `checkSeries()` (`displaySeriesDate`), chỉ tính các phiên
+    đã nhận; lý do "trùng ngày với một dòng khác", nhãn ngắn "trùng ngày", tô đúng ô Ngày. Bỏ trước `orderOf()`, nên hai
+    ngày bằng nhau không còn làm cả bảng "không đọc được thứ tự".
+  - `mergeRowsByDate()` (mới, xuất qua `@/application`): chèn dòng mới vào đúng ngày, sau dòng cùng ngày, theo chiều của
+    lưới (tăng hay giảm); dòng đã có không sửa, không dời; ngày không đọc được đứng sau dòng có dữ liệu cuối.
+- `src/ui/sheets/PasteImportSheet.tsx` (`applyBlock`): dòng dán phủ cột Ngày và có ngày là phiên MỚI, đi qua
+  `mergeRowsByDate()`. Vẫn đè tại chỗ như bảng tính: khối không phủ cột Ngày (dán một cột giá), dòng để trống ô ngày, dòng
+  dưới con trỏ có số mà chưa có ngày (gắn ngày cho chuỗi chỉ có giá đóng cửa). Khối có dòng tiêu đề vẫn thay cả lưới.
+- Test:
+  - `src/core/paste-import.test.ts`: 6 ca ngày trùng (có ca so khoá với `checkSeries()`), 8 ca `mergeRowsByDate()`. Ca "cắt
+    ở trần" dán 5.025 lần cùng '15/07' nên đổi sang ngày khác nhau — nó đo cái trần, không đo luật trùng.
+  - `src/ui/sheets/PasteImportSheet.test.tsx` (mới, ca hành vi đầu tiên của tấm): dựng lại bốn cảnh trên, cộng hai ca giữ
+    nguyên lối bảng tính (dán cột giá; gắn ngày cho chuỗi chỉ có giá đóng cửa).
+  - `src/app/du-lieu/DataTableScreen.test.tsx`: dán phiên đã có → báo trùng trước khi nạp, bảng giữ số cũ; "Thêm dòng" gõ
+    cùng ngày → bảng báo trùng.
+  - Chạy các ca mới trên code CŨ (bản sao HEAD trong scratchpad): 17 ca đỏ, đúng các cảnh lỗi. 5 ca xanh ở cả hai bản: hai
+    ca lối bảng tính, ca "Thêm dòng", và hai ca luật mới phải để yên (dòng hỏng phía trên, chuỗi chỉ có giá đóng cửa).
+    `npm run check` xanh: 203 tệp, 5.043 ca; eslint, tsc, prettier sạch.
+- **Đo lại trên Chrome sau khi sửa** (cùng kịch bản, thêm ca dán cột giá): dán 15/09 hay 11/09 → tấm báo "1 dòng trùng
+  ngày", "trùng ngày với một dòng khác (dòng N)", nút Nạp khoá tới khi tích "Bỏ qua 1 dòng lỗi"; nạp xong bảng giữ đủ 6 phiên
+  với số cũ. Dán 16/09 → "Nạp 7 dòng", 15/09 còn nguyên. Dán cột giá → điền đúng hai ô như trước. Khối có tiêu đề vẫn thay
+  cả bảng (thiết kế cũ). Chưa build, chưa chạy `check:chrome`.
+- **Thấy thêm, chưa sửa:** sau mỗi lần dán vào lưới đã có sẵn chuỗi, tấm hỏi "Số này đọc là bao nhiêu? 1.000" về chính
+  con số sản phẩm in ra, vì lần dán đặt lại quy ước số đã chốt (`setStyle(null)` trong `applyBlock`). Có từ trước, không do
+  đợt này; câu tóm tắt "N dòng bỏ qua: …" in TỔNG số dòng bỏ qua ở mỗi nhóm lý do, cũng có từ trước.
+- CLAUDE.md: thay câu "That is a known hazard, not decided yet" của mục tấm dán bằng luật mới.
+
+---
+
 ## Biểu đồ: chú giải xuống đáy hình (28/10/2026)
 
 **Trạng thái: CHƯA XONG — đã sửa, chờ chủ dự án xem.** Chủ dự án khoanh chú giải "Từng phiên · Đường hồi quy, độ dốc β"
@@ -223,6 +320,17 @@ tab (đo ra không đáng kể); layout lạnh lúc mở trang (chưa rõ nguyê
 - Chưa làm trong đợt 1: bộ dữ liệu ví dụ 250 phiên nạp khi bấm nút (đụng các file nhóm chuỗi giá mà phiên khác hay
   sửa; nay nó chỉ còn đi theo trang chuỗi giá, ~13,6 kB gzip); ba hộp Nạp mẫu / Xuất / Lưu vẫn nhập tĩnh (nhỏ, và
   ~60 ca kiểm mở chúng đồng bộ).
+- **LỖI tìm thấy sau (28/10/2026, khi thử khung "Lấy số liệu ở đâu"), CHƯA SỬA:** trên dev, mọi trang chi tiết báo cảnh
+  báo hydrate lệch thuộc tính (nhãn "1 Issue" góc dưới): id `useId()` của các ô nhập khối Số liệu khác nhau giữa HTML máy
+  chủ và lần hydrate — trên `pe`, `htmlFor`/`id` là `_R_8p955esnebmilb_` ở máy chủ, `_R_1354l5esnebmilb_` ở máy khách.
+  Đo bằng hai bản sao chạy `next dev` riêng (cổng 3107, 3108): 2609f26 (trước đợt 1) sạch, HEAD 01939a3 (chưa có thay
+  đổi nào sau commit) có — tức lỗi do các đợt này. Nghi phạm: `FormulaDetail` nay đứng sau `next/dynamic` của
+  `FormulaDetailHost`, đúng loại lỗi CLAUDE.md đã ghi cho `src/ui/charts/` và `src/ui/quiz/` ("không được gọi `useId()`
+  sau ranh giới `next/dynamic`"). Câu "console 0 lỗi" ở trên đo trên bản BUILD, nơi React không in cảnh báo này. Hệ quả
+  chưa đo trên bản build: React giữ id của máy chủ trong DOM ("This won't be patched up") trong khi tự nó tin là id máy
+  khách, nên phần tử dựng SAU mà trỏ tới một id như thế (`aria-describedby`, `htmlFor`, `aria-controls`) có thể trỏ hụt.
+  Hai hướng sửa, cần chủ dự án chọn: truyền `id` dựng từ `spec.id` + khoá ô cho mọi ô nhập (cách biểu đồ và Bài tập đang
+  làm), hoặc bỏ ranh giới `next/dynamic` và tìm cách khác tách nhóm công thức.
 
 ---
 
@@ -698,6 +806,10 @@ bấm ra ngoài) = Thoát (xoá tiến trình dở, không ghi gì); giữ thẻ
 **Trạng thái: CHƯA XONG — đã sửa, chờ chủ dự án xem.** Chủ dự án chụp khung "?" của khối Số liệu trên `wacc`, mũi tên từ
 "Vốn chủ sở hữu (E)" sang dòng `E:` đang sáng vàng ở thẻ Công thức: _"Khi hover vào biến trong popup này thì cũng sẽ được
 highlight vàng như bên kia"_.
+
+→ **Bị bác và thay cùng ngày** (_"… hiện thêm popup mới chú thích chứ không phải sáng phần trước"_): xem mục "Khung "Lấy số
+liệu ở đâu": ký hiệu trong tên ô mở khung chú thích" ở đầu file. `onTroO`, `soi`, `data-hang` dưới đây đã gỡ;
+`kyHieuCuaO` còn, dùng bên trong `nhanCoKyHieu`.
 
 - `src/core/o-ky-hieu.ts` (mới): `kyHieuCuaO(spec, key)` trả dòng bảng ký hiệu của một ô, đọc ký hiệu ở cuối nhãn
   ('(E)' → dòng `E`), cả nhãn khi hình viết bằng chữ ('Vốn chủ sở hữu' → `\text{Vốn chủ sở hữu}`), và ô nhóm lặp
@@ -6011,6 +6123,8 @@ thấy mục nào trong file này ghi yêu cầu bỏ nó trước đây, nên k
 - **Dán một khối KHÔNG có dòng tiêu đề lên lưới đang có chuỗi vẫn là đè tại chỗ con trỏ**, kiểu bảng tính: bảng
   dán ngắn hơn chuỗi cũ thì các dòng cũ còn lại phía dưới và vẫn được nạp. Sửa là đổi hẳn cách dán, cần chủ dự
   án quyết: dán nhiều cột vào ô đầu lưới thì thay lưới, hay giữ như bảng tính.
+  → 28/10/2026: dòng dán có ngày không còn đè, nó thành phiên mới và ngày trùng bị báo — xem mục "Dán dữ liệu kiểm
+  ngày trùng như Thêm dòng". Dán khối không phủ cột Ngày vẫn đè như bảng tính.
 - **Mã lấy từ Finbox (`?ma=`) vẫn trống bốn cột.** API chỉ trả giá đóng cửa của 10 phiên, không sửa được ở đây.
 - Bảng dán ghi tên cột lạ ("KLGD", "Khối lượng khớp lệnh") vẫn thành cột thừa; gán lại được bằng ô chọn. Thêm
   từ vào bộ nhận tiêu đề là việc riêng.

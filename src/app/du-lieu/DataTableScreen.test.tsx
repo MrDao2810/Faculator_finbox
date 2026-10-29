@@ -558,6 +558,61 @@ describe('DataTableScreen — dán đè hay xoá bảng thì mã cũ không còn
 });
 
 /*
+ * Dán và "Thêm dòng" dùng chung MỘT luật ngày trùng (28/10/2026).
+ *
+ * Tester báo, chủ dự án giao sửa: "Dán dữ liệu chuỗi OHLC không check ngày đã tồn tại (không đồng nhất
+ * với thao tác Thêm dòng)". Đo trên Chrome trước khi sửa: dán một dòng 15/09 vào dòng 1 của tấm thì số
+ * của phiên 15/09 bị thay, nạp xong cột kiểm tra vẫn "Không dòng nào đang lỗi"; còn "Thêm dòng" gõ
+ * đúng ngày ấy thì bị báo ngay. Hai ca dưới chạy hai thao tác trên cùng một bảng.
+ */
+describe('DataTableScreen — dán và "Thêm dòng" cùng một luật ngày trùng', () => {
+  const SAU_PHIEN: ReadonlyArray<SeriesRow> = [
+    { date: '08/09/2026', open: 100, high: 105, low: 95, close: 102, volume: 1000 },
+    { date: '09/09/2026', open: 102, high: 106, low: 100, close: 104, volume: 1100 },
+    { date: '10/09/2026', open: 104, high: 108, low: 103, close: 107, volume: 1200 },
+    { date: '11/09/2026', open: 107, high: 109, low: 104, close: 105, volume: 1300 },
+    { date: '14/09/2026', open: 105, high: 110, low: 104, close: 109, volume: 1400 },
+    { date: '15/09/2026', open: 109, high: 112, low: 108, close: 111, volume: 1500 },
+  ];
+
+  it('dán một phiên đã có: tấm báo trùng ngày trước khi nạp, và bảng giữ số cũ của phiên ấy', async () => {
+    napBang(SAU_PHIEN);
+    moMan();
+    await screen.findByLabelText('Dòng 1 · Đóng');
+
+    await userEvent.click(screen.getByRole('button', { name: 'Dán Excel/CSV' }));
+    fireEvent.paste(await screen.findByLabelText('Ngày, Dòng 1'), {
+      clipboardData: { getData: () => '15/09/2026\t200\t210\t190\t205\t9999' },
+    });
+
+    expect(await screen.findByText('1 dòng trùng ngày')).toBeTruthy();
+    expect((screen.getByRole('button', { name: 'Nạp 6 dòng' }) as HTMLButtonElement).disabled).toBe(
+      true,
+    );
+
+    await userEvent.click(screen.getByRole('checkbox', { name: /Bỏ qua 1 dòng lỗi/ }));
+    await userEvent.click(screen.getByRole('button', { name: 'Nạp 6 dòng' }));
+
+    await waitFor(() => {
+      expect((screen.getByLabelText('Dòng 1 · Đóng') as HTMLInputElement).value).toBe('111');
+    });
+    expect(screen.queryByLabelText('Dòng 7 · Ngày')).toBeNull();
+    expect(screen.getByText('Không dòng nào đang lỗi.')).toBeTruthy();
+  });
+
+  it('"Thêm dòng" rồi gõ cùng ngày ấy thì bảng cũng báo trùng — một luật cho hai thao tác', async () => {
+    napBang(SAU_PHIEN);
+    moMan();
+    await screen.findByLabelText('Dòng 1 · Đóng');
+
+    await userEvent.click(screen.getByRole('button', { name: /Thêm dòng/ }));
+    await userEvent.type(await screen.findByLabelText('Dòng 1 · Ngày'), '15/09/2026');
+
+    expect(await screen.findByText(/Ngày 15\/09\/2026 xuất hiện ở hơn một dòng/)).toBeTruthy();
+  });
+});
+
+/*
  * ── Bảng theo khuôn lưới "Bảng dữ liệu" (20/10/2026) ────────────────────────────────────────────
  *
  * Chủ dự án, sau khi lưới của popup "Bảng dữ liệu" dựng lại theo bản vẽ: _"thay đổi tương tự với

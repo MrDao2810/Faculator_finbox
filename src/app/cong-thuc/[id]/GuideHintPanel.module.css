@@ -34,6 +34,37 @@
   font-size: var(--text-base);
 }
 
+/*
+ * Phần ký hiệu trong tên ô — '(TSNH)' của 'Tài sản ngắn hạn (TSNH)' (28/10/2026). Là `<button>` để
+ * bàn phím và trình đọc màn hình mở được khung chú thích, nhưng trông như chữ của tên ô, thêm đúng
+ * ba dấu hiệu của điểm chạm trên thẻ Công thức (`FormulaNotationCard.module.css`): gạch chân CHẤM
+ * màu viền ô nhập, con trỏ bàn tay, và vệt `--color-symbol-mark` khi khung của nó đang mở. Không có
+ * `:hover` riêng, như bên ấy: rê vào thì khung mở sau một nhịp, và vệt sáng theo khung.
+ */
+.kyHieu {
+  appearance: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 3px;
+  background: none;
+
+  font: inherit;
+  line-height: inherit;
+  color: inherit;
+  cursor: pointer;
+
+  text-decoration-line: underline;
+  text-decoration-style: dotted;
+  text-decoration-color: var(--color-border-strong);
+  text-underline-offset: 3px;
+}
+
+.kyHieu[aria-expanded='true'] {
+  background-color: var(--color-symbol-mark);
+  box-shadow: 0 0 0 2px var(--color-symbol-mark);
+}
+
 .full {
   align-self: flex-start;
   font-size: var(--text-sm);

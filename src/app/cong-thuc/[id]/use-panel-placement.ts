@@ -125,6 +125,8 @@ export interface PanelPlacement {
  * @param scrollerOf — khung cuộn ngang chứa hình, nếu có: hình dài cuộn thì điểm chạm trôi theo.
  *   Truyền một hàm ở cấp MODULE, không phải hàm dựng trong thân component: nó nằm trong danh sách
  *   phụ thuộc, nên hàm mới ở mỗi lượt render sẽ gỡ rồi gắn lại hai bộ nghe sau mỗi lần gõ.
+ * @param coDinh — trả toạ độ KHUNG NHÌN, cho khung `position: fixed` (`HowToPanel coDinh`): khung
+ *   chú thích mở trong khung "Lấy số liệu ở đâu", vốn tự cuộn và cắt mọi khung `absolute` bên trong.
  */
 export function usePanelPlacement(
   state: HowToPanelState | null,
@@ -135,6 +137,7 @@ export function usePanelPlacement(
     pointRef: RefObject<{ x: number; y: number } | null>;
   },
   scrollerOf: (card: HTMLDivElement) => Element | null,
+  coDinh = false,
 ): PanelPlacement | null {
   const { cardRef, panelRef, anchorRef, pointRef } = refs;
   const [placement, setPlacement] = useState<PanelPlacement | null>(null);
@@ -167,8 +170,8 @@ export function usePanelPlacement(
         bounds,
       );
       setPlacement({
-        top: place.top - cardRect.top,
-        left: place.left - cardRect.left,
+        top: coDinh ? place.top : place.top - cardRect.top,
+        left: coDinh ? place.left : place.left - cardRect.left,
         maxHeight: place.maxHeight,
         ...(maxWidth === undefined ? {} : { maxWidth }),
       });
@@ -182,7 +185,7 @@ export function usePanelPlacement(
       window.removeEventListener('resize', update);
       scroller?.removeEventListener('scroll', update);
     };
-  }, [state, cardRef, panelRef, anchorRef, pointRef, scrollerOf]);
+  }, [state, cardRef, panelRef, anchorRef, pointRef, scrollerOf, coDinh]);
 
   return placement;
 }

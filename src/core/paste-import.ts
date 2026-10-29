@@ -44,7 +44,7 @@
  * Toàn bộ file là hàm thuần nên test được bằng Node và không cần thư viện CSV nào.
  */
 
-import { parseSeriesDate } from './price-series';
+import { displaySeriesDate, parseSeriesDate } from './price-series';
 import { normalizeVi } from './registry/search';
 
 /**
@@ -795,6 +795,87 @@ export function fitToSeriesColumns(table: PasteTable): FittedTable {
   };
 }
 
+/** Dòng lưới trống hoàn toàn — chỗ chừa sẵn để gõ tiếp, không phải dữ liệu. */
+function dongTrong(row: ReadonlyArray<string>): boolean {
+  return row.every((cell) => cell.trim() === '');
+}
+
+/**
+ * Chèn các dòng MỚI vào lưới theo NGÀY của chúng, không sửa và không dời dòng nào đã có (28/10/2026).
+ *
+ * Lối vào của luật "dòng dán có ngày là một phiên MỚI" ở tấm Bảng dữ liệu. Trước ngày này mẩu dán
+ * không tiêu đề đè lên các ô dưới con trỏ theo VỊ TRÍ, như bảng tính, nên ngày nằm dưới con trỏ bị
+ * thay mà không ai hỏi. Đo trên Chrome với bảng 08–15/09/2026: dán một dòng 15/09 vào dòng 1 là số
+ * của 15/09 đổi im lặng; dán một dòng 16/09 vào dòng 1 là phiên 15/09 biến mất, bảng vẫn báo "Không
+ * dòng nào đang lỗi". Nay dòng mới đứng ở đúng ngày của nó, và bộ đọc tự báo nếu ngày ấy đã có.
+ *
+ * Luật đặt chỗ:
+ *   · Chiều của lưới đọc từ những dòng có ngày đọc được: không tăng ở đâu và giảm ít nhất một chỗ thì
+ *     là giảm dần (bảng dán kiểu CafeF, mới trước); còn lại là tăng dần — chiều của mọi chuỗi màn
+ *     ngoài đổ vào.
+ *   · Dòng mới đứng NGAY SAU dòng cuối cùng cũ hơn hoặc bằng nó (lưới giảm dần: mới hơn hoặc bằng).
+ *     Cùng ngày thì đứng sau dòng đã có, nên `parseCells()` gặp dòng cũ trước và báo dòng MỚI là
+ *     trùng ngày — như dòng "Thêm dòng" vừa thêm ở bảng WF-05.
+ *   · Không dòng nào ở phía trước nó: đứng trước dòng có ngày đầu tiên.
+ *   · Ngày không đọc được: đứng sau dòng có dữ liệu cuối cùng; bộ đọc sẽ chỉ đúng ô ấy là sai ngày.
+ *   · Nhiều dòng mới chung một chỗ thì xếp theo ngày (theo chiều của lưới), bằng nhau giữ thứ tự dán.
+ *
+ * Giữ lưới đúng chiều thời gian không chỉ cho đẹp: `orderOf()` đọc ra 'unknown' khi ngày lộn xộn, và
+ * khi ấy màn chi tiết nạp chuỗi theo đúng thứ tự trong lưới.
+ *
+ * @param dateAt cột Ngày của lưới; `-1` (lưới không có cột ngày) thì dòng mới nối sau dòng có dữ liệu cuối
+ */
+export function mergeRowsByDate(
+  grid: ReadonlyArray<ReadonlyArray<string>>,
+  added: ReadonlyArray<ReadonlyArray<string>>,
+  dateAt: number,
+): string[][] {
+  let tail = grid.length;
+  while (tail > 0 && dongTrong(grid[tail - 1] ?? [])) tail -= 1;
+
+  const keys = grid.map((row, index) =>
+    index < tail && dateAt >= 0 ? dateKey(row[dateAt] ?? '') : null,
+  );
+  const known = keys.filter((key): key is number => key !== null);
+  const giam =
+    known.length >= 2 &&
+    known.every((key, index) => index === 0 || key <= (known[index - 1] ?? key)) &&
+    known.some((key, index) => index > 0 && key < (known[index - 1] ?? key));
+  const dauCoNgay = keys.findIndex((key) => key !== null);
+
+  const cho = added.map((row, thuTu) => {
+    const key = dateAt >= 0 ? dateKey(row[dateAt] ?? '') : null;
+    if (key === null) return { at: tail, key, thuTu };
+    let sau = -1;
+    keys.forEach((co, index) => {
+      if (co !== null && (giam ? co >= key : co <= key)) sau = index;
+    });
+    const at = sau !== -1 ? sau + 1 : dauCoNgay !== -1 ? dauCoNgay : tail;
+    return { at, key, thuTu };
+  });
+  cho.sort((a, b) => {
+    if (a.at !== b.at) return a.at - b.at;
+    if (a.key === null || b.key === null) {
+      if (a.key === b.key) return a.thuTu - b.thuTu;
+      return a.key === null ? 1 : -1;
+    }
+    if (a.key !== b.key) return giam ? b.key - a.key : a.key - b.key;
+    return a.thuTu - b.thuTu;
+  });
+
+  const out: string[][] = [];
+  let next = 0;
+  for (let index = 0; index <= grid.length; index += 1) {
+    while (next < cho.length && cho[next]?.at === index) {
+      out.push([...(added[cho[next]?.thuTu ?? 0] ?? [])]);
+      next += 1;
+    }
+    const row = grid[index];
+    if (row !== undefined) out.push([...row]);
+  }
+  return out;
+}
+
 /** Đọc từng dòng thô thành phiên giá. Dòng nào hỏng thì rơi vào `skipped`, không ném lỗi. */
 function readRows(
   body: ReadonlyArray<TableRow>,
@@ -803,6 +884,8 @@ function readRows(
 ): { rows: PriceBar[]; skipped: SkippedRow[] } {
   const rows: PriceBar[] = [];
   const skipped: SkippedRow[] = [];
+  /** Ngày của các phiên ĐÃ NHẬN, viết theo khoá của `checkSeries()` — xem ca ngày trùng ở cuối vòng. */
+  const daCo = new Set<string>();
 
   for (const row of body) {
     const shown = row.text.trim();
@@ -876,6 +959,34 @@ function readRows(
       });
       continue;
     }
+
+    /*
+     * Ngày trùng — cùng luật, cùng khoá với cột "Kiểm tra dữ liệu" của bảng WF-05 (28/10/2026).
+     *
+     * Lỗi do tester báo, chủ dự án giao sửa: "Dán dữ liệu chuỗi OHLC không check ngày đã tồn tại
+     * (không đồng nhất với thao tác Thêm dòng)". Ở bảng WF-05, "Thêm dòng" rồi gõ một ngày đã có thì
+     * `checkSeries()` báo ngay "Ngày … xuất hiện ở hơn một dòng". Còn ở tấm này bộ đọc không có luật
+     * ấy: đo trên Chrome, dán một phiên đã có thì tấm không nói gì (hoặc chỉ nói "không đọc được thứ
+     * tự phiên", sai nguyên nhân), và phiên lặp chỉ lộ ra sau khi đã bấm Nạp.
+     *
+     * Chỉ tính các phiên ĐÃ NHẬN: dòng hỏng phía trên không được nạp, nên nó không phải "phiên đã
+     * ghi" mà dòng này trùng với. Lần gặp ĐẦU trong lưới thắng, như `checkSeries()`; dòng vừa dán
+     * được `mergeRowsByDate()` đặt sau dòng đã có cùng ngày, nên dòng bị báo là dòng MỚI — đúng như
+     * dòng mà "Thêm dòng" vừa thêm. Bỏ nó TRƯỚC `orderOf()` còn giữ cho chiều thời gian đọc được:
+     * hai ngày bằng nhau từng làm cả bảng thành "không đọc được thứ tự".
+     */
+    const khoa = displaySeriesDate(date);
+    if (khoa !== '' && daCo.has(khoa)) {
+      skipped.push({
+        line: row.line,
+        reason: 'trùng ngày với một dòng khác',
+        short: 'trùng ngày',
+        column: 'date',
+        raw: preview,
+      });
+      continue;
+    }
+    if (khoa !== '') daCo.add(khoa);
 
     rows.push({
       date,

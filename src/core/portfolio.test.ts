@@ -179,6 +179,18 @@ describe('summarisePortfolio — bốn con số của WF-06', () => {
     expect(summary.xirr.unit).toBe('%/năm');
   });
 
+  it('mua đúng ngày định giá và giá không nhúc nhích: không có suất sinh lợi, không in giá trị đoán 10 %', () => {
+    // 100 CP × 100.000 ₫ = giá vốn: mọi dòng tiền cùng một ngày và cân nhau.
+    const summary = summarisePortfolio(
+      [holding({ code: 'FPT', quantity: 100, costPrice: 100_000, buyDate: '2026-01-02' })],
+      PRICES,
+      '2026-01-02',
+    );
+
+    expect(summary.xirr.value).toBeNull();
+    expect(summary.xirr.warning).toBeDefined();
+  });
+
   it('ngày mua sai định dạng thì nói rõ mã nào, không tính bừa', () => {
     const summary = summarisePortfolio([holding({ buyDate: '02/01/2025' })], PRICES, asOf);
 

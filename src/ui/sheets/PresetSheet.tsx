@@ -231,7 +231,7 @@ export function PresetSheet({
     if (spec === undefined) return null;
     if (ranked) return null;
     if (wantsSeries) return null;
-    return t('preset.noTickerNote');
+    return t(spec.id === 'xirr' ? 'preset.noTickerXirr' : 'preset.noTickerNote');
   }
 
   /** Tên và đơn vị của một ô — tra từ spec, không đoán từ khoá. */

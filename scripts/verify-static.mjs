@@ -367,8 +367,8 @@ const veChu = /<p[^>]*data-lines="2"[^>]*>([\s\S]*?)<\/p>/.exec(sortinoHtml)?.[1
 check(
   'hình hai vế: dòng chữ tách sẵn hai khối trong HTML tĩnh, mỗi khối một công thức',
   (veChu.match(/data-eq="\d+"/g) ?? []).length === 2 &&
-    veChu.includes('Tỷ số Sortino =') &&
-    veChu.includes('Độ lệch chuẩn phần giảm ='),
+    veChu.replace(/<[^>]*>/g, '').includes('Tỷ số Sortino =') &&
+    veChu.replace(/<[^>]*>/g, '').includes('Độ lệch chuẩn phần giảm ='),
   'out/cong-thuc/ty-so-sortino/index.html',
 );
 

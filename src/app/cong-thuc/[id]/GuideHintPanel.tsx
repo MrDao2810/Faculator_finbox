@@ -216,6 +216,15 @@ export function GuideHintPanel({
   useEffect(() => {
     const phim = (e: KeyboardEvent) => {
       if (e.key !== 'Escape' || chuThich !== null) return;
+      /*
+       * Tiêu điểm đang ở một nút ký hiệu BÊN TRONG khung (từ 28/10/2026 tên ô có `<button>`) thì trả nó
+       * về nút "?" đã mở khung: tháo khung khỏi DOM mà không làm vậy, tiêu điểm rơi về `<body>` và người
+       * dùng bàn phím mất chỗ đứng (29/10/2026).
+       */
+      const panel = panelRef.current;
+      if (panel !== null && panel.contains(document.activeElement)) {
+        (state.anchor as HTMLElement).focus?.();
+      }
       onClose();
     };
     const ngoai = (e: MouseEvent) => {

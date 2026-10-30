@@ -80,8 +80,8 @@ export const RUT_TRUOC_HAN: FormulaModule = {
       {
         latex: 'r_{kkh}',
         meaning: {
-          vi: 'lãi suất không kỳ hạn của ngân hàng, %/năm',
-          en: "the bank's demand-deposit rate, %/year",
+          vi: 'lãi suất không kỳ hạn của ngân hàng một năm, dạng thập phân, tức 1% là 0,01',
+          en: "the bank's demand-deposit rate per year, as a decimal, so 1% is 0.01",
         },
       },
       {
@@ -215,8 +215,8 @@ export const RUT_TRUOC_HAN: FormulaModule = {
           max: 5,
           level: 'advanced',
           description: {
-            vi: 'Mỗi ngân hàng một mức, thường quanh 0,1%/năm — xem biểu lãi suất không kỳ hạn của ngân hàng bạn rồi nhập vào đây.',
-            en: "Each bank sets its own rate, usually around 0.1%/year — check your bank's demand-deposit rate table and enter it here.",
+            vi: 'Mỗi ngân hàng một mức, thường rất thấp — xem biểu lãi suất không kỳ hạn của ngân hàng bạn rồi nhập vào đây.',
+            en: "Each bank sets its own rate, usually very low — check your bank's demand-deposit rate table and enter it here.",
           },
         },
       ),
@@ -367,7 +367,13 @@ export const GUI_QUAY_VONG: FormulaModule = {
         },
       },
       { latex: 'P', meaning: { vi: 'số tiền gửi ban đầu, ₫', en: 'initial deposit amount, ₫' } },
-      { latex: 'r_n', meaning: { vi: 'lãi suất kỳ ngắn, %/năm', en: 'short-term rate, %/year' } },
+      {
+        latex: 'r_n',
+        meaning: {
+          vi: 'lãi suất kỳ ngắn một năm, dạng thập phân, tức 1% là 0,01',
+          en: 'short-term rate per year, as a decimal, so 1% is 0.01',
+        },
+      },
       { latex: 'm', meaning: { vi: 'kỳ hạn ngắn, tháng', en: 'short term, months' } },
       {
         latex: '12',
@@ -383,7 +389,13 @@ export const GUI_QUAY_VONG: FormulaModule = {
           en: 'number of rollover rounds, the total time divided by the short term',
         },
       },
-      { latex: 'r_d', meaning: { vi: 'lãi suất kỳ dài, %/năm', en: 'long-term rate, %/year' } },
+      {
+        latex: 'r_d',
+        meaning: {
+          vi: 'lãi suất kỳ dài một năm, dạng thập phân, tức 1% là 0,01',
+          en: 'long-term rate per year, as a decimal, so 1% is 0.01',
+        },
+      },
       {
         latex: 'T',
         meaning: {
@@ -1535,8 +1547,8 @@ export const THUE_TNCN_DAU_TU: FormulaModule = {
           min: 0,
           max: 1_000_000,
           description: {
-            vi: 'Cổ tức tiền mặt trên mỗi cổ phiếu, trước thuế. Nhập 0 nếu không có.',
-            en: 'The cash dividend per share, before tax. Enter 0 if there is none.',
+            vi: 'Cổ tức tiền mặt trên mỗi cổ phiếu, tính bằng đồng, trước thuế. Nghị quyết thường ghi theo tỷ lệ trên mệnh giá 10.000 ₫, nên cổ tức 15% là 1.500 ₫. Nhập 0 nếu không có.',
+            en: 'The cash dividend per share, in dong, before tax. Resolutions usually state it as a percentage of the 10.000 ₫ par value, so a 15% dividend is 1.500 ₫. Enter 0 if there is none.',
           },
         },
       ),

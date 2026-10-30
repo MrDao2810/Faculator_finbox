@@ -535,8 +535,8 @@ export const SUT_GIAM_HIEN_TAI: FormulaModule = {
     variables: [drawdownLookback()],
     explanation: {
       meaning: {
-        vi: 'Khoảng cách còn lại để giá quay về đỉnh cũ — phần "chìm dưới mặt nước" mà người đang nắm giữ chịu ngay lúc này.',
-        en: 'The remaining distance for price to return to its old peak — the "underwater" portion a current holder is sitting through right now.',
+        vi: 'Giá hiện tại đang thấp hơn đỉnh cũ bao nhiêu phần trăm, tính trên giá đỉnh: phần "chìm dưới mặt nước" mà người đang nắm giữ chịu ngay lúc này. Muốn về lại đỉnh, giá phải tăng nhiều hơn con số này, vì phần tăng được tính trên giá hiện tại thấp hơn.',
+        en: 'How far the current price sits below its old peak, as a percent of the peak price: the "underwater" portion a current holder is sitting through right now. Getting back to the peak takes a larger rise than this figure, since that rise is measured from the lower current price.',
       },
       whenToUse: {
         vi: 'Dùng khi bạn đang cầm một cổ phiếu đã lùi khỏi mức cao nhất gần đây và muốn biết giá hôm nay còn cách mức đó bao xa, trước khi quyết định mua thêm hay cắt lỗ.',

@@ -380,6 +380,23 @@ function commaSplitsColumns(lines: ReadonlyArray<string>): boolean {
   const rows = lines.map((line) => line.split(',').map((cell) => cell.trim()));
   if (rows.every((cells) => cells.length < 2)) return false;
 
+  /*
+   * Dòng tiêu đề cắt theo phẩy ra các ô chữ khớp tên cột (đúng file `toCsv()` xuất: "Ngày,Mở,Cao,…")
+   * VÀ phần lớn dòng thân cắt ra đúng ngần ấy ô thì phẩy đang ngăn cột (29/10/2026). Không có nhánh
+   * này, giá nguyên ngắn (`72,74,71,73`) trông như số thập phân ghép cặp: nạp lại chính file sản phẩm
+   * vừa xuất ra thì Mở = 72,74, cột Thấp mất, không dòng nào bị báo.
+   */
+  const dau = rows[0];
+  if (dau !== undefined && looksLikeHeader(dau)) {
+    const than = rows.slice(1);
+    if (
+      than.length > 0 &&
+      than.filter((cells) => cells.length === dau.length).length > than.length / 2
+    ) {
+      return true;
+    }
+  }
+
   let decimalShaped = 0;
   for (const cells of rows) {
     const suspicious = cells.some(

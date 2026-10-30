@@ -125,13 +125,16 @@ export const GIA_LY_THUYET_VN30F: FormulaModule = {
       },
       {
         latex: 'r',
-        meaning: { vi: 'lãi suất phi rủi ro, %/năm', en: 'risk-free rate, %/year' },
+        meaning: {
+          vi: 'lãi suất phi rủi ro một năm, dạng thập phân, tức 1% là 0,01',
+          en: 'risk-free rate per year, as a decimal, so 1% is 0.01',
+        },
       },
       {
         latex: 'q',
         meaning: {
-          vi: 'tỷ suất cổ tức của rổ VN30, %/năm',
-          en: 'dividend yield of the VN30 basket, %/year',
+          vi: 'tỷ suất cổ tức của rổ VN30 một năm, dạng thập phân, tức 1% là 0,01',
+          en: 'dividend yield of the VN30 basket per year, as a decimal, so 1% is 0.01',
         },
       },
       {
@@ -853,8 +856,8 @@ export const SO_HOP_DONG_TOI_DA: FormulaModule = {
       {
         latex: 'k',
         meaning: {
-          vi: 'tỷ lệ ký quỹ ban đầu do công ty chứng khoán quy định, %',
-          en: 'initial margin ratio set by the securities company, %',
+          vi: 'tỷ lệ ký quỹ ban đầu do công ty chứng khoán quy định, dạng thập phân, tức 1% là 0,01',
+          en: 'initial margin ratio set by the securities company, as a decimal, so 1% is 0.01',
         },
       },
     ],
@@ -990,8 +993,8 @@ export const SO_HOP_DONG_TOI_DA: FormulaModule = {
           { vi: 'số hợp đồng tối đa', en: 'the maximum number of contracts' },
           { vi: 'Tỷ lệ ký quỹ ban đầu', en: 'Initial margin ratio' },
           {
-            vi: 'Nhập tỷ lệ ký quỹ theo quy định của công ty chứng khoán, thường quanh 17%.',
-            en: 'Enter the margin ratio set by your securities company, typically around 17%.',
+            vi: 'Nhập tỷ lệ ký quỹ theo quy định của công ty chứng khoán, thường từ 17% trở lên.',
+            en: 'Enter the margin ratio set by your securities company, typically 17% or more.',
           },
         ),
       };
@@ -1051,8 +1054,8 @@ export const CO_VI_THE_PHAI_SINH: FormulaModule = {
       {
         latex: 'r',
         meaning: {
-          vi: 'rủi ro chấp nhận mỗi lệnh, % của vốn',
-          en: 'risk accepted per trade, % of capital',
+          vi: 'rủi ro chấp nhận mỗi lệnh, phần vốn dạng thập phân, tức 1% là 0,01',
+          en: 'risk accepted per trade as a share of capital, as a decimal, so 1% is 0.01',
         },
       },
       {

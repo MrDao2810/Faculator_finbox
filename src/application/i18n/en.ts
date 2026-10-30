@@ -77,7 +77,7 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'search.resultCount': 'result(s)',
   'search.noMatch': 'Nothing found for',
   'search.suggest.title': 'You might need',
-  'search.hot.title': 'Hot categories',
+  'search.hot.title': 'Featured formula groups',
   'search.folder.seeAll': 'See all',
   'search.folder.open': 'Open group',
   'search.noneIn': 'No results in:',
@@ -191,10 +191,10 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'detail.saveToPortfolio': '☆ Save to portfolio',
   /* Rút gọn theo bản tiếng Việt (24/09/2026) — lý do đầy đủ ghi ở vi.ts. */
   'detail.cancel': 'Leave',
-  'detail.presetNoData': 'This formula uses no data from ticker',
+  'detail.presetNoData': 'No figure could be supplied to this formula from ticker',
   'detail.presetNoDataFix':
-    'It runs on your own numbers — type them into the fields above, or tap "See the worked ' +
-    'example" to use the example numbers.',
+    'Usually its market price could not be looked up. Pick another ticker, or type the numbers ' +
+    'into the fields above.',
   'detail.restoredNote': 'saved calculation from',
   'detail.restoredMissing':
     'saved calculation not found — it may have been deleted on this device.',
@@ -214,7 +214,7 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'detail.constantsCollapse': 'Collapse',
   'detail.constantsExpand': 'Expand',
   'detail.pasteSeries': 'Use sample data',
-  'detail.loadExample': 'View illustrative example',
+  'detail.loadExample': 'Load illustrative example',
   'detail.exampleLoaded': 'Illustrative example loaded ✓',
   /* `detail.exampleSeriesNote` đã bỏ cùng bản tiếng Việt — câu ấy nói sai về số liệu thật đứng
      cạnh nó; lý do đầy đủ ghi ở `FormulaDetail.tsx`. */
@@ -282,8 +282,10 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   /* Tám khoá của sheet này đã bỏ cùng bản tiếng Việt — xem `vi.ts` để biết khoá nào và vì sao. */
   'preset.load': 'Load',
   'preset.noTickerNote':
-    'None of the four tickers below changes a field of this formula — it runs on your own ' +
-    'numbers. Loading one here only carries it over to the formulas that do use a ticker.',
+    'None of the four tickers below changes a field of this formula, because it runs on your own numbers.',
+  'preset.noTickerXirr':
+    'Loading a ticker here replaces the cash-flow table with two rows built from its prices: ' +
+    '100.000.000 ₫ paid on the first session, its value received on the latest one.',
   'preset.cannotCompute': 'no result with this ticker',
   'preset.lastPrice': 'Latest session price',
   'preset.statements': 'Financial statements',

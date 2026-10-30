@@ -96,8 +96,8 @@ export const TRA_GOP_NIEN_KIM: FormulaModule = {
     categoryId: 'loans',
     name: { vi: 'Trả góp niên kim', en: 'Annuity loan payment (EMI)' },
     description: {
-      vi: 'Số tiền cố định phải trả mỗi tháng cho khoản vay trả góp dư nợ giảm dần.',
-      en: 'The fixed amount due each month for a reducing-balance instalment loan.',
+      vi: 'Số tiền như nhau phải trả mỗi tháng cho khoản vay trả góp đều, lãi tính trên dư nợ còn lại.',
+      en: 'The same amount due every month on a level-payment instalment loan, with interest charged on the remaining balance.',
     },
     latex: 'EMI = \\frac{P \\cdot i \\,(1+i)^n}{(1+i)^n - 1}',
     expression: {

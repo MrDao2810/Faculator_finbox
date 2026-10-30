@@ -108,7 +108,7 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
       },
       sharesOutstanding: {
         layODau: {
-          vi: 'Báo cáo quản trị hoặc bản cáo bạch, mục cổ phiếu đang lưu hành.',
+          vi: 'Thuyết minh báo cáo tài chính mới nhất, mục cổ phiếu đang lưu hành.',
           en: 'Corporate governance report or prospectus, the shares outstanding section.',
         },
         luuY: {
@@ -141,7 +141,7 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
       },
       sharesOutstanding: {
         layODau: {
-          vi: 'Báo cáo quản trị hoặc bản cáo bạch, mục cổ phiếu đang lưu hành.',
+          vi: 'Thuyết minh báo cáo tài chính mới nhất, mục cổ phiếu đang lưu hành.',
           en: 'Corporate governance report or prospectus, the shares outstanding section.',
         },
         luuY: {
@@ -435,8 +435,8 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
     oNhap: {
       dividendPerShare: {
         layODau: {
-          vi: 'Nghị quyết chi trả cổ tức của doanh nghiệp.',
-          en: "The company's dividend payment resolution.",
+          vi: 'Cổ tức tiền mặt cả năm mỗi cổ phiếu, bằng đồng: 15% mệnh giá 10.000 ₫ là 1.500 ₫.',
+          en: 'Full-year cash dividend per share, in dong: 15% of the 10.000 ₫ par value is 1.500 ₫.',
         },
         luuY: {
           vi: 'Chỉ lấy cổ tức tiền mặt, không lấy cổ tức bằng cổ phiếu.',
@@ -546,8 +546,8 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
     oNhap: {
       ev: {
         layODau: {
-          vi: 'Nhận tự động từ công thức EV.',
-          en: 'Auto-filled from the Enterprise value formula.',
+          vi: 'Tính bằng công thức EV (mở từ ký hiệu EV) rồi nhập vào đây; ô này không tự điền.',
+          en: 'Work it out with the EV formula (open it from the EV symbol), then type it here.',
         },
       },
       ebitda: {
@@ -579,8 +579,8 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
     oNhap: {
       ev: {
         layODau: {
-          vi: 'Nhận tự động từ công thức EV.',
-          en: 'Auto-filled from the Enterprise value formula.',
+          vi: 'Tính bằng công thức EV (mở từ ký hiệu EV) rồi nhập vào đây; ô này không tự điền.',
+          en: 'Work it out with the EV formula (open it from the EV symbol), then type it here.',
         },
       },
       revenue: {
@@ -824,8 +824,8 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
     oNhap: {
       dividend: {
         layODau: {
-          vi: 'Cổ tức tiền mặt của kỳ gần nhất, theo nghị quyết chi trả.',
-          en: 'The cash dividend of the most recent period, per the dividend payment resolution.',
+          vi: 'Cổ tức tiền mặt 12 tháng gần nhất mỗi cổ phiếu, bằng đồng: 15% mệnh giá là 1.500 ₫.',
+          en: 'Cash dividend per share over the last 12 months, in dong: 15% of par value is 1.500 ₫.',
         },
       },
       growth: {
@@ -840,8 +840,8 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
       },
       requiredReturn: {
         layODau: {
-          vi: 'Nhận tự động từ CAPM, hoặc nhập mức bạn tự đòi hỏi.',
-          en: 'Auto-filled from the Capital asset pricing model, or enter the rate you demand yourself.',
+          vi: 'Chế độ Nâng cao nhận tự động từ CAPM; còn lại nhập mức bạn tự đòi hỏi.',
+          en: 'Advanced mode auto-fills it from CAPM; otherwise enter the rate you demand yourself.',
         },
         luuY: {
           vi: 'Phải lớn hơn tăng trưởng g, nếu không mô hình cho kết quả vô lý.',
@@ -867,8 +867,8 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
     oNhap: {
       dividend: {
         layODau: {
-          vi: 'Cổ tức tiền mặt của kỳ gần nhất, theo nghị quyết chi trả.',
-          en: 'The cash dividend of the most recent period, per the dividend payment resolution.',
+          vi: 'Cổ tức tiền mặt 12 tháng gần nhất mỗi cổ phiếu, bằng đồng: 15% mệnh giá là 1.500 ₫.',
+          en: 'Cash dividend per share over the last 12 months, in dong: 15% of par value is 1.500 ₫.',
         },
       },
       growthStage1: {
@@ -894,14 +894,14 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
           en: 'The dividend growth rate after the fast-growth stage ends.',
         },
         luuY: {
-          vi: 'Phải thấp hơn hẳn g1 và nhỏ hơn suất sinh lợi r.',
-          en: 'Must be well below g1 and less than the required return r.',
+          vi: 'Phải nhỏ hơn suất sinh lợi r, thường thấp hơn g1 vì tăng trưởng chậm dần.',
+          en: 'Must be below the required return r, and is usually below g1 as growth slows.',
         },
       },
       requiredReturn: {
         layODau: {
-          vi: 'Nhận tự động từ CAPM, hoặc nhập mức bạn tự đòi hỏi.',
-          en: 'Auto-filled from the Capital asset pricing model, or enter the rate you demand yourself.',
+          vi: 'Mức bạn đòi hỏi, có thể tính bằng công thức CAPM. Ô này không tự điền.',
+          en: 'The rate you demand; the CAPM formula can work it out. This field is not auto-filled.',
         },
         luuY: {
           vi: 'Phải lớn hơn tăng trưởng g, nếu không mô hình cho kết quả vô lý.',
@@ -931,14 +931,14 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
           en: 'The 10-year government bond yield, on HNX or in market news bulletins.',
         },
         luuY: {
-          vi: 'Việt Nam 2026 quanh 3–4%/năm. Không dùng lãi suất tiết kiệm ngân hàng.',
-          en: 'In Vietnam in 2026 it is around 3 to 4%/year. Do not use bank savings rates.',
+          vi: 'Lấy số mới nhất, tính theo năm. Không dùng lãi suất tiết kiệm ngân hàng.',
+          en: 'Use the latest figure, per year. Do not use bank savings rates.',
         },
       },
       beta: {
         layODau: {
-          vi: 'Nhận tự động từ công thức Beta, hoặc nhập theo mã.',
-          en: 'Auto-filled from the Beta coefficient formula, or fill it in by ticker.',
+          vi: 'Kết quả của công thức Beta (mở từ ký hiệu β), hoặc beta công ty chứng khoán công bố.',
+          en: 'The result of the Beta formula (open it from the β symbol), or a beta a broker publishes.',
         },
         luuY: {
           vi: 'Trên 1 là nhạy hơn thị trường, dưới 1 là ít nhạy hơn.',
@@ -978,8 +978,8 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
           en: 'Use market capitalization if available, because WACC is based on market values.',
         },
         luuY: {
-          vi: 'Có thể lấy số liệu trong sổ sách, nhưng sẽ kém chính xác.',
-          en: 'You can use the book figure, but it will be less accurate.',
+          vi: 'Không dùng vốn chủ sở hữu trên bảng cân đối: thường thấp hơn vốn hoá nhiều lần.',
+          en: 'Do not use balance-sheet equity: it is often many times below market cap.',
         },
       },
       debt: {
@@ -990,8 +990,8 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
       },
       costEquity: {
         layODau: {
-          vi: 'Nhận tự động từ công thức CAPM.',
-          en: 'Auto-filled from the Capital asset pricing model formula.',
+          vi: 'Chế độ Nâng cao nhận tự động từ công thức CAPM; còn lại nhập mức bạn ước.',
+          en: 'Advanced mode auto-fills it from the CAPM formula; otherwise enter your own estimate.',
         },
         luuY: {
           vi: 'Thường 11–16% với cổ phiếu Việt Nam.',
@@ -1010,8 +1010,8 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
       },
       taxRate: {
         layODau: {
-          vi: 'Thuế suất phổ thông theo luật hiện hành.',
-          en: 'The standard rate under current law.',
+          vi: 'Thuế suất thu nhập doanh nghiệp, mặc định là mức phổ thông theo luật.',
+          en: 'The corporate income tax rate, defaulting to the standard rate under law.',
         },
         luuY: {
           vi: '20% cho phần lớn doanh nghiệp. Doanh nghiệp ưu đãi có thể thấp hơn, xem thuyết minh.',
@@ -1043,8 +1043,8 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
       },
       taxRate: {
         layODau: {
-          vi: 'Thuế suất phổ thông theo luật hiện hành.',
-          en: 'The standard rate under current law.',
+          vi: 'Thuế suất thu nhập doanh nghiệp, mặc định là mức phổ thông theo luật.',
+          en: 'The corporate income tax rate, defaulting to the standard rate under law.',
         },
         luuY: {
           vi: '20% cho phần lớn doanh nghiệp. Doanh nghiệp ưu đãi có thể thấp hơn, xem thuyết minh.',
@@ -1066,12 +1066,12 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
       },
       nwcChange: {
         layODau: {
-          vi: 'Chênh lệch vốn lưu động giữa hai kỳ, xem báo cáo lưu chuyển tiền tệ.',
-          en: 'The change in working capital between two periods; see the cash flow statement.',
+          vi: 'Vốn lưu động ròng cuối kỳ trừ đầu kỳ, tính trên bảng cân đối kế toán.',
+          en: 'Net working capital at the end of the period minus the start, from the balance sheet.',
         },
         luuY: {
-          vi: 'Nếu vốn lưu động giảm thì nhập số âm.',
-          en: 'If working capital fell, enter a negative number.',
+          vi: 'Tăng thì nhập dương, giảm thì nhập âm; báo cáo lưu chuyển tiền tệ ghi ngược dấu.',
+          en: 'Enter a rise as positive and a fall as negative; the cash flow statement shows the opposite sign.',
         },
       },
     },
@@ -1093,20 +1093,20 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
     oNhap: {
       fcff: {
         layODau: {
-          vi: 'Nhận tự động từ công thức FCFF.',
-          en: 'Auto-filled from the Free cash flow to firm formula.',
+          vi: 'Chế độ Nâng cao nhận tự động từ công thức FCFF; còn lại nhập FCFF cả năm.',
+          en: 'Advanced mode auto-fills it from the FCFF formula; otherwise enter the full-year FCFF.',
         },
       },
       interest: {
         layODau: {
-          vi: 'Báo cáo kết quả kinh doanh, mục chi phí tài chính.',
-          en: 'Income statement, the financial expenses line.',
+          vi: 'Báo cáo kết quả kinh doanh, dòng "Trong đó: chi phí lãi vay", đủ 12 tháng.',
+          en: 'Income statement, the "of which: interest expense" line, full 12 months.',
         },
       },
       taxRate: {
         layODau: {
-          vi: 'Thuế suất phổ thông theo luật hiện hành.',
-          en: 'The standard rate under current law.',
+          vi: 'Thuế suất thu nhập doanh nghiệp, mặc định là mức phổ thông theo luật.',
+          en: 'The corporate income tax rate, defaulting to the standard rate under law.',
         },
         luuY: {
           vi: '20% cho phần lớn doanh nghiệp. Doanh nghiệp ưu đãi có thể thấp hơn, xem thuyết minh.',
@@ -1142,8 +1142,8 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
     oNhap: {
       fcff: {
         layODau: {
-          vi: 'Nhận tự động từ công thức FCFF.',
-          en: 'Auto-filled from the Free cash flow to firm formula.',
+          vi: 'Chế độ Nâng cao nhận tự động từ công thức FCFF; còn lại nhập FCFF cả năm.',
+          en: 'Advanced mode auto-fills it from the FCFF formula; otherwise enter the full-year FCFF.',
         },
       },
       growth: {
@@ -1152,14 +1152,14 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
           en: 'The cash flow growth rate you believe can be sustained forever.',
         },
         luuY: {
-          vi: 'Đặt thấp hơn tăng trưởng GDP dài hạn, thường 3–5%, và luôn phải nhỏ hơn WACC.',
-          en: 'Set it below long-term GDP growth, usually 3 to 5%, and always below WACC.',
+          vi: 'Không đặt vượt tăng trưởng GDP dài hạn, thường 3–5%, và luôn phải nhỏ hơn WACC.',
+          en: 'Do not set it above long-term GDP growth, usually 3 to 5%, and always below WACC.',
         },
       },
       wacc: {
         layODau: {
-          vi: 'Nhận tự động từ công thức WACC, hoặc nhập ước tính riêng của bạn.',
-          en: 'Auto-filled from the Weighted average cost of capital formula, or type in your own estimate.',
+          vi: 'Chế độ Nâng cao nhận tự động từ công thức WACC; còn lại nhập ước tính riêng của bạn.',
+          en: 'Advanced mode auto-fills it from the WACC formula; otherwise type in your own estimate.',
         },
         luuY: {
           vi: 'Phải lớn hơn tăng trưởng dài hạn g, nếu không mô hình vô nghĩa.',
@@ -1287,8 +1287,8 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
     oNhap: {
       intrinsic: {
         layODau: {
-          vi: 'Nhận tự động từ Mô hình Gordon, hoặc nhập từ mô hình định giá khác của bạn.',
-          en: 'Auto-filled from the Gordon growth model, or enter it from another valuation model of yours.',
+          vi: 'Chế độ Nâng cao nhận tự động từ Gordon; chế độ Cơ bản nhập giá trị nội tại bạn đã ước.',
+          en: 'Advanced mode auto-fills it from Gordon; in Basic mode enter the intrinsic value you estimated.',
         },
         luuY: {
           vi: 'Biên an toàn chỉ chắc bằng mô hình sinh ra con số này.',
@@ -1355,8 +1355,8 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
           en: 'The closing price of the first session of the period you are looking at.',
         },
         luuY: {
-          vi: 'Nếu có chia tách trong kỳ thì phải dùng giá đã điều chỉnh.',
-          en: 'If there was a stock split during the period, use the adjusted price.',
+          vi: 'Giá điều chỉnh (chia tách, thưởng) thường đã trừ cổ tức, nên khi dùng nó nhập cổ tức 0.',
+          en: 'An adjusted price (split, bonus) usually has dividends removed, so enter 0 for dividends.',
         },
       },
       endPrice: {
@@ -1438,7 +1438,10 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
           vi: 'Cộng các đợt chi trả tiền mặt trong 12 tháng gần nhất.',
           en: 'Add up the cash payouts over the last 12 months.',
         },
-        luuY: { vi: 'Chỉ cộng cổ tức tiền mặt.', en: 'Only add cash dividends.' },
+        luuY: {
+          vi: 'Chỉ cộng cổ tức tiền mặt, bằng đồng, trước thuế: 15% mệnh giá là 1.500 ₫.',
+          en: 'Add cash dividends only, in dong, before tax: 15% of par value is 1.500 ₫.',
+        },
       },
     },
     docKetQua: {
@@ -1523,8 +1526,8 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
       },
       inflation: {
         layODau: {
-          vi: 'Chỉ số giá tiêu dùng do Tổng cục Thống kê công bố, mục CPI bình quân năm.',
-          en: 'The consumer price index published by the General Statistics Office, under average annual CPI.',
+          vi: 'Mức tăng giá tiêu dùng (CPI) bình quân năm, tính bằng %, do Tổng cục Thống kê công bố.',
+          en: 'The average annual rise in consumer prices (CPI), in %, published by the General Statistics Office.',
         },
         luuY: {
           vi: 'Việt Nam nhiều năm gần đây quanh 3–4%.',
@@ -1630,7 +1633,10 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
           vi: 'Lãi của kỳ đầu tiên, tính bằng phần trăm.',
           en: 'The return of the first period, as a percentage.',
         },
-        luuY: { vi: 'Kỳ lỗ nhập số âm.', en: 'Enter a losing period as a negative number.' },
+        luuY: {
+          vi: 'Kỳ lỗ nhập số âm. Các kỳ phải dài bằng nhau.',
+          en: 'Enter a losing period as a negative. All periods must be equally long.',
+        },
       },
       // Kỳ 2 và kỳ 3 không còn câu riêng (14/10/2026), cùng lượt với đợt 2, 3 của
       // `gia-von-trung-binh-dca`: lặp lại câu của kỳ 1. Bài chỉ kể nhóm 1 — xem `isLaterRepeatSlot`.
@@ -1653,14 +1659,14 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
     oNhap: {
       investment: {
         layODau: {
-          vi: 'Số tiền chi một lần ở thời điểm bắt đầu.',
-          en: 'The lump sum paid out at the start.',
+          vi: 'Vốn bỏ ra một lần lúc đầu, hoặc số tiền vay bạn nhận về nếu bạn là người vay.',
+          en: 'The capital put in once at the start, or the loan you receive if you are the borrower.',
         },
       },
       payment: {
         layODau: {
-          vi: 'Số tiền bạn nhận về đều đặn mỗi kỳ.',
-          en: 'The amount you receive regularly each period.',
+          vi: 'Tiền nhận về đều mỗi kỳ, hoặc khoản trả góp mỗi kỳ nếu bạn là người vay.',
+          en: 'The amount received each period, or your installment each period if you are the borrower.',
         },
         luuY: {
           vi: 'Mọi kỳ phải bằng nhau; nếu không đều thì dùng XIRR.',
@@ -1731,6 +1737,10 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
         layODau: {
           vi: 'Giá khớp lệnh bán, hoặc giá dự định bán.',
           en: 'The price your sell order was filled at, or the price you plan to sell at.',
+        },
+        luuY: {
+          vi: 'Tính bằng đồng: bảng giá ghi 66,8 nghĩa là 66.800 ₫.',
+          en: 'In dong: a price board showing 66,8 means 66.800 ₫.',
         },
       },
       days: {
@@ -2160,8 +2170,8 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
           en: 'The number of sessions included in the regression against the market index.',
         },
         luuY: {
-          vi: 'Tối thiểu {sessions|min} phiên, nên dùng 120 hoặc 250. Nếu quá ít phiên thì beta rất kém ổn định.',
-          en: 'At least {sessions|min} sessions; 120 or 250 is better. With too few sessions, beta is very unstable.',
+          vi: 'Tối thiểu {sessions|min} phiên; càng nhiều phiên beta càng ổn định, quá ít phiên thì rất kém ổn định.',
+          en: 'At least {sessions|min} sessions; more sessions make beta steadier, and too few make it very unstable.',
         },
       },
     },
@@ -2522,12 +2532,12 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
     oNhap: {
       period: {
         layODau: {
-          vi: 'Số phiên của đường trung bình.',
-          en: 'The number of sessions in the moving average.',
+          vi: 'Số phiên Wilder dùng để làm mượt mức tăng và mức giảm giá.',
+          en: 'The number of periods Wilder uses to smooth the gains and losses.',
         },
         luuY: {
-          vi: '20 phiên cho ngắn hạn, 50 trung hạn, 200 dài hạn. RSI dùng 14 phiên.',
-          en: '20 sessions for the short term, 50 for the medium term, 200 for the long term. RSI uses 14 sessions.',
+          vi: '14 phiên là mặc định của Wilder; số nhỏ hơn làm RSI chạm 70 và 30 thường hơn.',
+          en: "14 is Wilder's default; a smaller number makes RSI hit 70 and 30 more often.",
         },
       },
     },
@@ -2543,14 +2553,14 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
 
   'roc-toc-do-thay-doi': {
     deLamGi: {
-      vi: 'Biết giá hôm nay cao hơn hay thấp hơn n phiên trước bao nhiêu phần trăm.',
-      en: "Shows by what percent today's price is higher or lower than the price n sessions ago.",
+      vi: 'Biết giá phiên cuối cao hơn hay thấp hơn n phiên trước bao nhiêu phần trăm.',
+      en: "Shows by what percent the last session's price is higher or lower than n sessions ago.",
     },
     oNhap: {
       period: {
         layODau: {
-          vi: 'Số phiên lùi về trước để so với giá hôm nay.',
-          en: "How many sessions to go back to compare with today's price.",
+          vi: 'Số phiên lùi về trước để so với giá phiên cuối.',
+          en: "How many sessions to go back to compare with the last session's price.",
         },
         luuY: {
           vi: 'Tránh chọn đúng phiên có sự kiện bất thường như chia tách.',
@@ -2576,8 +2586,8 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
     oNhap: {
       period: {
         layODau: {
-          vi: 'Số phiên lùi về trước để so với giá hôm nay.',
-          en: "How many sessions to go back to compare with today's price.",
+          vi: 'Số phiên lùi về trước để so với giá phiên cuối.',
+          en: "How many sessions to go back to compare with the last session's price.",
         },
         luuY: {
           vi: 'Tránh chọn đúng phiên có sự kiện bất thường như chia tách.',
@@ -2769,8 +2779,8 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
     oNhap: {
       period: {
         layODau: {
-          vi: 'Số phiên lấy trung bình biên độ.',
-          en: 'The number of sessions the range is averaged over.',
+          vi: 'Chu kỳ làm mượt Wilder của biên độ thực.',
+          en: 'The Wilder smoothing period of the true range.',
         },
         luuY: { vi: '14 là chuẩn Wilder.', en: "14 is Wilder's standard." },
       },
@@ -2882,8 +2892,8 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
           en: 'The number of most recent sessions used to measure volatility.',
         },
         luuY: {
-          vi: '{sample} phiên là khoảng {sample|thoiGian}, cửa sổ ba tháng đủ ổn định mà vẫn bám tình hình hiện tại.',
-          en: '{sample} sessions is about {sample|thoiGian}; a three-month window is stable enough yet tracks the present.',
+          vi: '{sample} phiên là khoảng {sample|thoiGian}, đủ ổn định mà vẫn bám tình hình hiện tại.',
+          en: '{sample} sessions is about {sample|thoiGian}; that is stable enough yet tracks the present.',
         },
       },
       tradingDays: {
@@ -3113,8 +3123,8 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
           en: 'Set by the securities company where you opened your derivatives account.',
         },
         luuY: {
-          vi: 'Thị trường Việt Nam thường 17–20%, có thể nâng khi biến động mạnh.',
-          en: 'Usually 17 to 20% in Vietnam, and it may be raised when volatility is high.',
+          vi: 'Thường từ 17% trở lên tuỳ công ty chứng khoán, có thể nâng khi biến động mạnh.',
+          en: 'Usually 17% or more depending on the broker, and it may be raised when volatility is high.',
         },
       },
     },
@@ -3152,22 +3162,22 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
       },
       stopPoints: {
         layODau: {
-          vi: 'Số điểm từ giá vào lệnh tới mức thoát lệnh.',
-          en: 'The number of points from your entry price to your exit level.',
+          vi: 'Số điểm từ giá vào lệnh tới điểm cắt lỗ bạn đặt, không phải tới điểm chốt lời.',
+          en: 'The number of points from your entry price to your stop-loss level, not to your profit target.',
         },
         luuY: {
-          vi: 'Đặt quá hẹp sẽ ra 0 hợp đồng.',
-          en: 'Setting it too tight gives 0 contracts.',
+          vi: 'Đặt quá rộng, hoặc vốn quá nhỏ, sẽ ra 0 hợp đồng.',
+          en: 'Setting it too wide, or having too little capital, gives 0 contracts.',
         },
       },
     },
     docKetQua: {
-      vi: 'Làm tròn xuống số nguyên hợp đồng, nên rủi ro thực luôn nhỏ hơn hoặc bằng mức đã định.',
-      en: 'Rounded down to a whole number of contracts, so the actual risk is always at or below the level you set.',
+      vi: 'Làm tròn xuống số nguyên hợp đồng, nên khoản lỗ khi chạm điểm cắt lỗ không vượt mức đã định; chưa tính phí giao dịch và trượt giá.',
+      en: 'Rounded down to a whole number of contracts, so the loss at the stop-loss does not exceed the level you set; trading fees and slippage are not counted.',
     },
     deSai: {
-      vi: 'Đặt khoảng cách cắt lỗ quá hẹp, kết quả ra 0 hợp đồng.',
-      en: 'Setting the stop-loss distance too tight, which gives 0 contracts.',
+      vi: 'Đặt cắt lỗ quá hẹp chỉ để mở được nhiều hợp đồng: giá dao động bình thường cũng đủ chạm cắt lỗ.',
+      en: 'Setting the stop-loss too tight just to open more contracts: ordinary price swings are enough to hit it.',
     },
   },
 
@@ -3266,6 +3276,10 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
           vi: 'Giá khớp lệnh bán, hoặc giá dự định bán.',
           en: 'The price your sell order was matched at, or the price you plan to sell at.',
         },
+        luuY: {
+          vi: 'Tính bằng đồng: bảng giá ghi 66,8 nghĩa là 66.800 ₫.',
+          en: 'In dong: a price board showing 66,8 means 66.800 ₫.',
+        },
       },
     },
     docKetQua: {
@@ -3299,6 +3313,10 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
           vi: 'Giá khớp lệnh bán, hoặc giá dự định bán.',
           en: 'The price your sell order was matched at, or the price you plan to sell at.',
         },
+        luuY: {
+          vi: 'Tính bằng đồng: bảng giá ghi 66,8 nghĩa là 66.800 ₫.',
+          en: 'In dong: a price board showing 66,8 means 66.800 ₫.',
+        },
       },
     },
     docKetQua: {
@@ -3329,8 +3347,8 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
       },
       dividendPerShare: {
         layODau: {
-          vi: 'Cổ tức tiền mặt theo nghị quyết chi trả.',
-          en: "The cash dividend set in the company's payout resolution.",
+          vi: 'Cổ tức tiền mặt cả năm mỗi cổ phiếu, bằng đồng: 15% mệnh giá 10.000 ₫ là 1.500 ₫.',
+          en: 'Full-year cash dividend per share, in dong: 15% of the 10.000 ₫ par value is 1.500 ₫.',
         },
       },
     },
@@ -3461,6 +3479,10 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
           vi: 'Giá khớp lệnh bán, hoặc giá dự định bán.',
           en: 'The price your sell order was matched at, or the price you plan to sell at.',
         },
+        luuY: {
+          vi: 'Tính bằng đồng: bảng giá ghi 66,8 nghĩa là 66.800 ₫.',
+          en: 'In dong: a price board showing 66,8 means 66.800 ₫.',
+        },
       },
     },
     docKetQua: {
@@ -3510,6 +3532,10 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
           vi: 'Giá khớp lệnh bán, hoặc giá dự định bán.',
           en: 'The price your sell order was matched at, or the price you plan to sell at.',
         },
+        luuY: {
+          vi: 'Tính bằng đồng: bảng giá ghi 66,8 nghĩa là 66.800 ₫.',
+          en: 'In dong: a price board showing 66,8 means 66.800 ₫.',
+        },
       },
     },
     docKetQua: {
@@ -3535,12 +3561,12 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
       },
       rate: {
         layODau: {
-          vi: 'Bảng lãi suất của ngân hàng hoặc hợp đồng vay.',
-          en: "The bank's interest rate table, or your loan contract.",
+          vi: 'Lãi suất ghi trên sổ tiết kiệm, hoặc mức sinh lời mỗi năm bạn kỳ vọng.',
+          en: 'The rate written on your savings book, or the yearly return you expect.',
         },
         luuY: {
-          vi: 'Vay mua nhà thường 8–12%/năm sau kỳ ưu đãi.',
-          en: 'Home loans usually run 8 to 12%/year after the promotional period.',
+          vi: 'Lãi suất tiết kiệm đang niêm yết cho đúng kỳ hạn là mốc thận trọng.',
+          en: 'The savings rate currently posted for the same term is the prudent benchmark.',
         },
       },
       years: {
@@ -3584,12 +3610,12 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
       },
       rate: {
         layODau: {
-          vi: 'Bảng lãi suất của ngân hàng hoặc hợp đồng vay.',
-          en: "The bank's interest rate table, or your loan contract.",
+          vi: 'Biểu lãi suất tiền gửi của ngân hàng, đúng dòng kỳ hạn bạn gửi, hoặc mức ghi trên sổ.',
+          en: "The bank's deposit rate table, the row for your term, or the rate written on your savings book.",
         },
         luuY: {
-          vi: 'Vay mua nhà thường 8–12%/năm sau kỳ ưu đãi.',
-          en: 'Home loans usually run 8 to 12%/year after the promotional period.',
+          vi: 'Kỳ hạn khác nhau có lãi suất khác nhau, lấy đúng dòng kỳ hạn của sổ.',
+          en: 'Different terms carry different rates, so take the row for your own term.',
         },
       },
       months: {
@@ -3627,8 +3653,8 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
           en: 'The return you believe you can earn throughout the saving period.',
         },
         luuY: {
-          vi: 'Gửi tiết kiệm 5–6%, quỹ cổ phiếu dài hạn 8–12%. Đặt cao là tự lừa mình.',
-          en: 'Savings deposits pay 5 to 6%, long-term equity funds 8 to 12%. Setting it high is fooling yourself.',
+          vi: 'Đặt sát lãi suất tiết kiệm nếu cần chắc chắn. Đặt cao là tự lừa mình.',
+          en: 'Stay near the savings rate if you need certainty. Setting it high is fooling yourself.',
         },
       },
       months: {
@@ -3692,8 +3718,8 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
           en: 'See your deposit contract, under the early withdrawal clause.',
         },
         luuY: {
-          vi: 'Phần lớn ngân hàng để 0,1–0,5%/năm.',
-          en: 'Most banks set it at 0,1 to 0,5%/year.',
+          vi: 'Mỗi ngân hàng một mức, thường rất thấp.',
+          en: 'Each bank sets its own, usually very low.',
         },
       },
     },
@@ -3922,6 +3948,10 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
           vi: 'Giá khớp của đợt mua đầu tiên.',
           en: 'The matched price of the first purchase round.',
         },
+        luuY: {
+          vi: 'Tính bằng đồng: bảng giá ghi 66,8 nghĩa là 66.800 ₫.',
+          en: 'In dong: a price board showing 66,8 means 66.800 ₫.',
+        },
       },
       // Đợt 2 và đợt 3 không còn câu riêng (14/10/2026). Chủ dự án chụp chúng trong khung "?": _"xóa
       // mấy kiểu giải thích tôi đưa như này đi"_. Chúng lặp lại câu của đợt 1, và "để 0 nếu chưa có
@@ -4089,11 +4119,15 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
           vi: 'Giá khớp lệnh bán, hoặc giá dự định bán.',
           en: 'The price your sell order was matched at, or the price you plan to sell at.',
         },
+        luuY: {
+          vi: 'Tính bằng đồng: bảng giá ghi 66,8 nghĩa là 66.800 ₫.',
+          en: 'In dong: a price board showing 66,8 means 66.800 ₫.',
+        },
       },
       dividendPerShare: {
         layODau: {
-          vi: 'Cổ tức tiền mặt theo nghị quyết chi trả.',
-          en: "The cash dividend set in the company's payout resolution.",
+          vi: 'Cổ tức tiền mặt cả năm mỗi cổ phiếu, bằng đồng: 15% mệnh giá 10.000 ₫ là 1.500 ₫.',
+          en: 'Full-year cash dividend per share, in dong: 15% of the 10.000 ₫ par value is 1.500 ₫.',
         },
       },
     },

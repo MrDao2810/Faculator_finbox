@@ -1019,8 +1019,8 @@ const CHUA_CO_CHUOI: CalcWarning = {
     en: 'There is no price series with enough sessions yet, so nothing can be drawn session by session.',
   },
   fix: {
-    vi: 'Nạp bộ số liệu mẫu hoặc dán chuỗi giá từ Excel.',
-    en: 'Load a sample dataset or paste a price series from Excel.',
+    vi: 'Thêm phiên giá (nút Nạp mẫu hoặc Sử dụng dữ liệu mẫu), hoặc giảm số phiên hay chu kỳ ở khối Số liệu.',
+    en: 'Add price sessions (the Load sample or Use sample data button), or lower the sessions or period in the Inputs block.',
   },
 };
 

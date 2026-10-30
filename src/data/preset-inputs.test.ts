@@ -120,7 +120,8 @@ describe('số cổ phiếu — hai khoá, hai đơn vị', () => {
 
   it('cùng khoá, đúng đơn vị thì vẫn điền — cửa đơn vị không chặn nhầm ca hợp lệ', () => {
     expect(presetInputs(FPT, moduleOf('roe').spec).equity).toBe(FPT.fundamentals.equity);
-    expect(presetInputs(FPT, moduleOf('wacc').spec).equity).toBe(FPT.fundamentals.equity);
+    // WACC lấy VỐN HOÁ cho ô E, không lấy vốn chủ sổ sách (REVIEW-4 L01-06).
+    expect(presetInputs(FPT, moduleOf('wacc').spec).equity).toBe(FPT.fundamentals.marketCap);
   });
 
   /*

@@ -147,8 +147,8 @@ export const PS: FormulaModule = {
           min: -1_000_000,
           max: 10_000_000,
           description: {
-            vi: 'Doanh thu thuần bốn quý gần nhất chia cho số cổ phiếu đang lưu hành.',
-            en: 'Net revenue over the last four quarters divided by shares outstanding.',
+            vi: 'Doanh thu thuần bốn quý gần nhất chia cho số cổ phiếu đang lưu hành, tính bằng đồng: doanh thu tỷ ₫ nhân 1 tỷ rồi chia số cổ phiếu.',
+            en: 'Net revenue over the last four quarters divided by shares outstanding, in dong: revenue in billion ₫ times 1 billion, divided by the share count.',
           },
         },
       ),
@@ -179,8 +179,8 @@ export const PS: FormulaModule = {
       inputs: { price: 72_700, salesPerShare: 37_157 },
       expected: 1.9566,
       note: {
-        vi: 'So với mốc 1 lần: 1,96 lần nghĩa là với giá 72.700 ₫ cho phần doanh thu 37.157 ₫ mà một cổ phiếu FPT mang về trong bốn quý gần nhất, thị trường đang trả 1,96 đồng cho mỗi đồng doanh thu một năm.',
-        en: 'Compared with the 1 times mark: 1.96 times means that, at 72,700 ₫ for the 37,157 ₫ of revenue one FPT share brought in over the last four quarters, the market is paying 1.96 dong for each dong of annual revenue.',
+        vi: 'So với 1 đồng doanh thu: 1,96 lần nghĩa là với giá 72.700 ₫ cho phần doanh thu 37.157 ₫ mà một cổ phiếu FPT mang về trong bốn quý gần nhất, thị trường đang trả 1,96 đồng cho mỗi đồng doanh thu một năm.',
+        en: 'Compared with 1 dong of revenue: 1.96 times means that, at 72,700 ₫ for the 37,157 ₫ of revenue one FPT share brought in over the last four quarters, the market is paying 1.96 dong for each dong of annual revenue.',
       },
       source: {
         vi: 'stockanalysis.com, doanh thu bốn quý gần nhất của CTCP FPT (mã FPT); giá phiên 11/09/2026.',
@@ -228,8 +228,8 @@ export const PS: FormulaModule = {
           { vi: 'P/S', en: 'P/S' },
           { vi: 'Doanh thu trên mỗi cổ phiếu', en: 'revenue per share' },
           {
-            vi: 'Nhập doanh thu khác 0 hoặc chọn kỳ báo cáo khác.',
-            en: 'Enter a non-zero revenue or choose a different reporting period.',
+            vi: 'Doanh thu bằng 0 thì bội số không tính được; kiểm tra lại số đã nhập, hoặc dùng P/B.',
+            en: 'A revenue of 0 gives no multiple; check the figure you entered, or use P/B.',
           },
         ),
       };
@@ -482,8 +482,8 @@ export const EV_EBITDA: FormulaModule = {
     ],
     explanation: {
       meaning: {
-        vi: 'Số năm dòng lợi nhuận hoạt động cần có để hoàn lại toàn bộ giá mua doanh nghiệp, nếu EBITDA giữ nguyên.',
-        en: 'How many years of operating earnings it would take to recover the full purchase price, if EBITDA stays constant.',
+        vi: 'Giá mua trọn doanh nghiệp, đã tính nợ và tiền mặt, bằng bao nhiêu năm EBITDA, tức lợi nhuận trước lãi vay, thuế và khấu hao; đây không phải số năm hoàn vốn, vì EBITDA chưa trừ thuế, chi đầu tư và vốn lưu động.',
+        en: 'How many years of EBITDA, profit before interest, tax and depreciation, the price of the whole company equals; it is not a payback period, because EBITDA comes before tax, capital spending and working capital.',
       },
       whenToUse: {
         vi: 'Dùng khi bạn so hai công ty cùng ngành mà một bên vay nợ nặng, một bên gần như không vay, và muốn biết bên nào đang đắt hơn so với khoản lãi làm ra từ kinh doanh chính.',
@@ -546,8 +546,8 @@ export const EV_EBITDA: FormulaModule = {
           { vi: 'EV/EBITDA', en: 'EV/EBITDA' },
           { vi: 'EBITDA', en: 'EBITDA' },
           {
-            vi: 'Nhập EBITDA khác 0 hoặc chọn kỳ báo cáo khác.',
-            en: 'Enter a non-zero EBITDA or choose a different reporting period.',
+            vi: 'EBITDA bằng 0 thì bội số không tính được; dùng EV/Sales hoặc P/B thay thế.',
+            en: 'An EBITDA of 0 gives no multiple; use EV/Sales or P/B instead.',
           },
         ),
       };
@@ -691,8 +691,8 @@ export const EV_SALES: FormulaModule = {
           { vi: 'EV/Sales', en: 'EV/Sales' },
           { vi: 'Doanh thu thuần', en: 'net revenue' },
           {
-            vi: 'Nhập doanh thu khác 0 hoặc chọn kỳ báo cáo khác.',
-            en: 'Enter a non-zero revenue or choose a different reporting period.',
+            vi: 'Doanh thu bằng 0 thì bội số không tính được; kiểm tra lại số đã nhập, hoặc dùng P/B.',
+            en: 'A revenue of 0 gives no multiple; check the figure you entered, or use P/B.',
           },
         ),
       };
@@ -768,7 +768,7 @@ export const PEG: FormulaModule = {
         max: 1_000,
         description: {
           vi: 'Hệ số giá trên lợi nhuận — tính bằng công thức P/E của nhóm Chỉ số DN.',
-          en: 'The price-to-earnings ratio — calculated with the P/E formula in the Company ratios group.',
+          en: 'The price-to-earnings ratio — calculated with the P/E formula of this library.',
         },
       }),
       numberVar(
@@ -1437,7 +1437,7 @@ export const TY_SUAT_LOI_NHUAN_TREN_GIA: FormulaModule = {
     },
     latex: 'E/P = \\frac{EPS}{P} \\times 100\\%',
     expression: {
-      vi: 'Tỷ suất lợi nhuận = EPS ÷ Giá thị trường × 100',
+      vi: 'Tỷ suất lợi nhuận trên giá = EPS ÷ Giá thị trường × 100',
       en: 'Earnings yield = EPS ÷ Market price × 100',
     },
     substitution: '{eps} ÷ {price} × 100',
@@ -1721,8 +1721,8 @@ export const GIA_MUC_TIEU: FormulaModule = {
             en: 'Target price needs a positive EPS — multiplying the target P/E by zero or negative earnings does not give a meaningful price.',
           },
           {
-            vi: 'Dùng Số Graham hoặc NCAV trên cổ phiếu để định giá doanh nghiệp đang lỗ.',
-            en: 'Use the Graham number or net current asset value per share to value a loss-making company.',
+            vi: 'Dùng NCAV trên cổ phiếu hoặc P/B để định giá doanh nghiệp đang lỗ.',
+            en: 'Use net current asset value per share or P/B to value a loss-making company.',
           },
         ),
       };

@@ -16,6 +16,7 @@ import {
   MAX_SERIES_ROWS,
   SERIES_COLUMNS,
   displaySeriesDate,
+  detectNumberStyle,
   fitToSeriesColumns,
   formatNumber,
   mergeRowsByDate,
@@ -582,7 +583,8 @@ export function PasteImportSheet({
     columns: ColumnKind[];
     names: string[];
     order: ReadonlyArray<number> | null;
-  }>({ grid, columns, names, order: null });
+    style: NumberStyle | null;
+  }>({ grid, columns, names, order: null, style: null });
 
   const parsed = useMemo(
     () => parseCells(grid, columns, style ?? undefined),
@@ -801,7 +803,7 @@ export function PasteImportSheet({
   }, [sapXep, grid.length]);
   const lineAt = (position: number): number =>
     order === null ? position : (order[position] ?? position);
-  latest.current = { grid, columns, names, order };
+  latest.current = { grid, columns, names, order, style };
 
   /**
    * Số thứ tự TRÊN MÀN (đếm từ 1) của một dòng lưới. Chủ dự án (20/10/2026, lượt ba): _"sao số thứ tự 1
@@ -1002,8 +1004,21 @@ export function PasteImportSheet({
       if (table.cells.length === 0) return false;
       if (!replace && table.cells.length === 1 && blockWidth <= 1) return false;
 
-      const { grid: current, columns: kinds, names: titles, order: shown } = latest.current;
+      const {
+        grid: current,
+        columns: kinds,
+        names: titles,
+        order: shown,
+        style: gridStyle,
+      } = latest.current;
 
+      /*
+       * Lưới đã được viết theo kiểu Việt (tấm tự đổ chuỗi đang dùng vào, `setStyle('vi')`) thì dán thêm
+       * KHÔNG được đoán lại quy ước cho cả lưới (29/10/2026): một dòng chép từ trang tiếng Anh
+       * (`73,500`) kéo `detectNumberStyle` sang `en` và 5 phiên cũ `72.700` bị đọc thành 72,7, nút Nạp
+       * vẫn mở. Mẩu dán được đoán riêng rồi viết lại theo kiểu Việt; lưới giữ `vi`.
+       */
+      let giuKieuViet = false;
       let nextColumns: ColumnKind[];
       let nextNames: string[];
       let rows: string[][];
@@ -1029,6 +1044,24 @@ export function PasteImportSheet({
          * lưới đứng TRƯỚC. Rải theo chỉ số lưới thì cột số dán vào chạy ngược lên trên. Quá dòng cuối
          * trên màn thì mẩu dán mở thêm dòng mới ở cuối lưới.
          */
+        if (gridStyle === 'vi') {
+          giuKieuViet = true;
+          const cotNgay = kinds.indexOf('date') - atColumn;
+          const soCuaMau = table.cells.flatMap((row) =>
+            row.filter((_, column) => column !== cotNgay),
+          );
+          const kieuMau = detectNumberStyle(soCuaMau).style;
+          table.cells = table.cells.map((row) =>
+            row.map((cell, column) => {
+              if (column === cotNgay) return cell;
+              const so = parseCellNumber(cell, kieuMau);
+              // Số viết lại không có dấu nghìn: trong kiểu Việt "73900" và "0,5" đọc không mơ hồ.
+              return so === null || !Number.isFinite(so) || /e/i.test(String(so))
+                ? cell
+                : String(so).replace('.', ',');
+            }),
+          );
+        }
         const width = Math.max(kinds.length, atColumn + blockWidth);
         const start = shown === null ? atRow : Math.max(0, shown.indexOf(atRow));
         const targets = table.cells.map((_, offset) => {
@@ -1107,6 +1140,9 @@ export function PasteImportSheet({
        * Quá trần thì cắt NGAY lúc dán, và cắt phần CŨ. Phần nào là cũ thì hỏi chính bộ đọc —
        * chuỗi xếp mới trước thì phần cũ nằm ở CUỐI, ngược lại thì ở đầu. Không đoán bằng vị trí.
        */
+      // Dòng trống ở đuôi lưới (`current` luôn có một) không phải phiên: để lại thì mỗi lần dán sửa
+      // đẻ thêm một dòng trống, và lưới gần trần cắt mất phiên cũ nhất vì đếm cả chúng (29/10/2026).
+      while (rows.length > 0 && isBlank([rows[rows.length - 1] ?? []])) rows = rows.slice(0, -1);
       let truncated = table.truncated;
       if (rows.length > maxRows) {
         const probe = parseCells(rows, nextColumns);
@@ -1120,7 +1156,7 @@ export function PasteImportSheet({
       setNames(nextNames);
       setGrid(nextGrid);
       // Bộ dữ liệu khác thì quy ước số và lời đồng ý bỏ dòng lỗi lần trước không còn đúng nữa.
-      setStyle(null);
+      setStyle(giuKieuViet ? 'vi' : null);
       setSkipBad(false);
       setDropped({ preamble: table.preamble, truncated });
       // Bộ số mới thì thứ tự đã chốt của bộ cũ không còn nghĩa gì: về mặc định, mới nhất lên đầu.

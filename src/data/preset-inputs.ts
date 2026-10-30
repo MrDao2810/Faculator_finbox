@@ -228,7 +228,14 @@ function matched(preset: Preset, spec: FormulaSpec): Array<[string, PresetValue]
   const out: Array<[string, PresetValue]> = [];
 
   for (const variable of spec.variables) {
-    const candidate = all[variable.key];
+    /*
+     * WACC: ô `equity` là E trong tỷ trọng vốn, và nguồn sổ sách (`fundamentals.equity`) làm kết luận đảo dấu
+     * (FPT: WACC 9,36% / DCF 79.328 ₫ / biên an toàn +8,36% thay vì 10,87% / 60.651 ₫ / −19,87%). Mô tả ô và
+     * "Sai lầm thường gặp" của công thức đều đòi VỐN HOÁ THỊ TRƯỜNG, nên ô này lấy `marketCap` (29/10/2026, REVIEW-4 L01-06).
+     * Không có vốn hoá thì để trống, không lùi về sổ sách.
+     */
+    const candidate =
+      spec.id === 'wacc' && variable.key === 'equity' ? all.marketCap : all[variable.key];
     if (candidate === undefined) continue;
     if (!candidate.units.includes(variable.unit)) continue;
     out.push([variable.key, candidate]);

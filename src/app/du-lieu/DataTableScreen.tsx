@@ -335,8 +335,15 @@ const SeriesRowFields = memo(function SeriesRowFields({
        * sang ô Mở) thì chưa nhập xong — sắp lúc ấy là dòng nhảy đi chỗ khác giữa lúc người dùng
        * đang gõ, đúng thứ chủ dự án dặn tránh: *"nhập liệu xong rồi mới check ngày rồi sort"*.
        */
+      /*
+       * Và cũng chưa sắp khi tiêu điểm sang một dòng KHÁC của cùng bảng (29/10/2026). Dòng key theo chỉ
+       * số mảng; sắp lại giữa lúc ô bên dòng kia đã nhận tiêu điểm thì React giữ nguyên ô ấy mà gắn cho
+       * nó dữ liệu của một phiên khác — sửa ngày dòng 1 rồi bấm ô Mở của dòng 2, số gõ tiếp rơi vào
+       * phiên 02/09 thay vì 03/09, và được lưu luôn. Sắp khi tiêu điểm rời hẳn phần thân bảng.
+       */
       onBlur={(event) => {
         if (event.currentTarget.contains(event.relatedTarget)) return;
+        if (event.currentTarget.parentElement?.contains(event.relatedTarget)) return;
         onLeave();
       }}
     >
@@ -650,7 +657,15 @@ export function DataTableScreen() {
    * vế này vì lưới của nó không bao giờ tự sắp lại.
    */
   const onLeave = useCallback(() => {
-    setRows((current) => sortRowsByDate(current));
+    /*
+     * Chỉ thay mảng khi thứ tự THẬT SỰ đổi (29/10/2026). `sortRowsByDate` luôn trả một mảng mới; mảng
+     * mới làm effect ghi kho coi như "người dùng vừa sửa bảng" và xoá chuỗi đã dán tại chỗ ở màn chi
+     * tiết, dù người dùng chỉ chạm vào một ô rồi rời ra.
+     */
+    setRows((current) => {
+      const sapXong = sortRowsByDate(current);
+      return sapXong.some((row, i) => row !== current[i]) ? sapXong : current;
+    });
     setSapXep((current) => (current.thuTu === null ? current : { ...current, cu: true }));
   }, []);
 

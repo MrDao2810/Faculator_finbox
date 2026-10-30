@@ -4248,14 +4248,14 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
         },
       },
       {
-        kyHieu: '\\ln \\frac{P_t}{P_{t-1}}',
+        kyHieu: 'u_t',
         moTa: {
           vi: 'là lợi suất log của FPT giữa từng cặp phiên liền nhau trong mẫu ấy',
           en: 'is FPT’s log return between each pair of consecutive sessions in that sample',
         },
       },
       {
-        kyHieu: '\\sigma',
+        kyHieu: 's',
         moTa: {
           vi: 'là độ lệch chuẩn mẫu của các lợi suất log ấy: 0,0191283',
           en: 'is the sample standard deviation of those log returns: 0.0191283',

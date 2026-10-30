@@ -2414,8 +2414,9 @@ describe('bóc tách — ba công thức vay', () => {
 
     const [giaiDoanDau, cuoiKy] = model.bars;
 
-    expect(giaiDoanDau?.label.vi).toBe('Cổ tức giai đoạn 1');
-    expect(cuoiKy?.label.vi).toBe('Giá trị cuối kỳ');
+    // Không dùng "Hiện giá" (chủ dự án, 30/10/2026: "Hiện nghĩa là sao? Bỏ đi").
+    expect(giaiDoanDau?.label.vi).toBe('Phần giai đoạn đầu');
+    expect(cuoiKy?.label.vi).toBe('Phần dài hạn');
     expect(model.bars[2]?.label.vi).toBe('Giá trị cổ phiếu');
 
     const tyTrongCuoiKy = (cuoiKy?.delta ?? 0) / (output.value ?? 1);

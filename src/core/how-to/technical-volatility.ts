@@ -294,15 +294,17 @@ export const HOW_TO_TECHNICAL_VOLATILITY: Readonly<Record<string, FormulaHowTo>>
     },
   },
 
+  /*
+   * Hình hai vế từ 30/10/2026: độ lệch chuẩn mẫu `s` đã viết thẳng trong hình, nên khung cách tính
+   * chuyển sang hai thứ hình còn gọi tên mà chưa tính: lợi suất log `u_t` và bình quân `\bar{u}`.
+   * n là n của hình, số phiên GIÁ lấy mẫu: n giá cho n − 1 lợi suất, từ phiên 2 tới phiên n.
+   */
   'do-bien-dong-lich-su': {
     entries: [
       {
         kind: 'derived',
-        symbol: '\\sigma',
-        phrases: {
-          vi: ['Độ lệch chuẩn mẫu của lợi suất log mỗi phiên'],
-          en: ['Sample standard deviation of per-session log returns'],
-        },
+        symbol: 'u_t',
+        phrases: { vi: ['Lợi suất log phiên t'], en: ['Log return of session t'] },
         steps: [
           {
             latex: 'u_t = \\ln \\frac{P_t}{P_{t-1}}',
@@ -311,44 +313,49 @@ export const HOW_TO_TECHNICAL_VOLATILITY: Readonly<Record<string, FormulaHowTo>>
               en: 'Log return of session t = Natural log of (Close of session t ÷ Previous close)',
             },
           },
+        ],
+        /* Từ 26/10/2026 calc lấy lợi suất log qua `logReturns()` của series-utils (cùng hàm với hình phân phối). */
+        calcEvidence: ['closes.slice(-sample)', 'logReturns(closes.slice(-sample))'],
+      },
+      {
+        kind: 'derived',
+        symbol: '\\bar{u}',
+        phrases: { vi: ['Lợi suất log bình quân'], en: ['Average log return'] },
+        steps: [
           {
-            /*
-             * n ở đây là n của hình: số phiên GIÁ lấy mẫu (ô Số phiên giá lấy mẫu). n giá cho n − 1 lợi
-             * suất log, từ phiên 2 tới phiên n, nên độ lệch chuẩn mẫu chia n − 2. Tới 16/10/2026 bước
-             * này viết n cho số lợi suất, nên ai thay n = 55 phiên như lời giải ví dụ thì chia 54 và ra
-             * 30,08 %/năm thay vì 30,37 trên màn.
-             */
-            latex: '\\sigma = \\sqrt{\\frac{1}{n - 2} \\sum_{t=2}^{n} (u_t - \\bar{u})^2}',
+            latex: '\\bar{u} = \\frac{\\sum_{t=2}^{n} u_t}{n - 1}',
             expression: {
-              vi: 'Độ lệch chuẩn mẫu của lợi suất log mỗi phiên = Căn bậc hai của (Tổng bình phương (Lợi suất log phiên t − Lợi suất log trung bình) ÷ (Số phiên giá lấy mẫu n − 2))',
-              en: 'Sample standard deviation of per-session log returns = Square root of (Sum of squares (Log return of session t − Mean log return) ÷ (Sample sessions n − 2))',
+              vi: 'Lợi suất log bình quân = Tổng lợi suất log các phiên ÷ (Số phiên giá lấy mẫu − 1)',
+              en: 'Average log return = Sum of session log returns ÷ (Sample sessions − 1)',
             },
           },
         ],
-        /* Từ 26/10/2026 calc lấy lợi suất log qua `logReturns()` của series-utils (cùng hàm với hình phân phối). */
-        calcEvidence: [
-          'closes.slice(-sample)',
-          'logReturns(closes.slice(-sample))',
-          'sampleStdDev(loiSuatLog)',
-        ],
+        calcEvidence: ['sampleStdDev(loiSuatLog)'],
       },
     ],
     skipped: {
       '\\sigma_{nam}': 'ket-qua',
-      '\\ln \\frac{P_t}{P_{t-1}}': 'da-hien-trong-hinh',
-      P_t: 'nhap-tho',
-      'P_{t-1}': 'nhap-tho',
+      s: 'da-hien-trong-hinh',
       t: 'chi-so-chay',
       n: 'nhap-tho',
+      'n - 2': 'da-hien-trong-hinh',
       N: 'nhap-tho',
       '\\sqrt{N}': 'da-hien-trong-hinh',
       '100': 'hang-so',
     },
+    /*
+     * `\sqrt{N}` không có cụm chữ: "căn bậc hai của" có ở cả hai dòng, dòng sau là căn của `s`,
+     * nên rê vào đó mà mở khung `\sqrt{N}` là sai chỗ (cùng lý do `\sqrt{m}` của Sortino).
+     */
     skippedPhrases: {
       '100': { vi: ['100'], en: ['100'] },
       '\\sigma_{nam}': { vi: ['Độ biến động năm'], en: ['Annual volatility'] },
+      s: {
+        vi: ['Độ lệch chuẩn mẫu của lợi suất log'],
+        en: ['Sample standard deviation of log returns'],
+      },
+      n: { vi: ['Số phiên giá lấy mẫu'], en: ['Sample sessions'] },
       N: { vi: ['Số phiên một năm'], en: ['Sessions per year'] },
-      '\\sqrt{N}': { vi: ['căn bậc hai của'], en: ['square root of'] },
     },
   },
 

@@ -121,7 +121,7 @@ export const HOW_TO_VALUATION_DCF: Readonly<Record<string, FormulaHowTo>> = {
       {
         kind: 'linked',
         symbol: 'E',
-        phrases: { vi: ['Vốn chủ sở hữu'], en: ['Equity'] },
+        phrases: { vi: ['Vốn hoá'], en: ['Market cap'] },
         formulaId: 'von-hoa-thi-truong',
         variableKey: 'equity',
       },
@@ -144,7 +144,7 @@ export const HOW_TO_VALUATION_DCF: Readonly<Record<string, FormulaHowTo>> = {
     skippedPhrases: {
       WACC: { vi: ['WACC'], en: ['WACC'] },
       D: { vi: ['Nợ vay'], en: ['Debt'] },
-      'E+D': { vi: ['Tổng nguồn vốn'], en: ['Total capital'] },
+      'E+D': { vi: ['Tổng vốn'], en: ['Total capital'] },
       r_d: { vi: ['Chi phí nợ vay'], en: ['Cost of debt'] },
       t: { vi: ['Thuế suất'], en: ['Tax rate'] },
     },

@@ -45,6 +45,25 @@ describe('detectDelimiter()', () => {
     expect(detectDelimiter('')).toBe('\t');
     expect(detectDelimiter('   \n  ')).toBe('\t');
   });
+
+  it('file CSV do chính sản phẩm xuất, giá nguyên ngắn (72, 74, 71, 73): dòng tiêu đề chứng minh phẩy ngăn cột', () => {
+    const csv = [
+      'Ngày,Mở,Cao,Thấp,Đóng,Khối lượng',
+      '01/09/2026,72,74,71,73,1234500',
+      '02/09/2026,73,75,72,74,1100000',
+    ].join('\n');
+    expect(detectDelimiter(csv)).toBe(',');
+
+    const result = parsePaste(csv);
+    expect(result.rows).toHaveLength(2);
+    expect(result.rows[0]).toMatchObject({ open: 72, high: 74, low: 71, close: 73 });
+    expect(result.skipped).toHaveLength(0);
+  });
+
+  it('phẩy vẫn là dấu thập phân khi tiêu đề và dòng thân không cùng số ô', () => {
+    // "15/07,25,40" cắt theo phẩy ra 3 ô, tiêu đề chỉ có 2: không phải CSV ngăn bằng phẩy.
+    expect(detectDelimiter('Ngày,Giá\n15/07,25,40\n16/07,25,70')).toBe('\t');
+  });
 });
 
 describe('guessColumns()', () => {

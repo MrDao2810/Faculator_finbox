@@ -115,8 +115,10 @@ describe('chuỗi định giá CAPM → Gordon → Biên an toàn', () => {
     });
     const warning = chain.byId.get('mo-hinh-gordon')?.output.warning;
 
-    expect(warning?.message.vi).toContain(CAPM.spec.name.vi);
-    expect(warning?.fix?.vi).toContain(CAPM.spec.name.vi);
+    /* Câu chỉ lấy phần tên trước gạch dài (REVIEW-4 L11-04). */
+    const ten = CAPM.spec.name.vi.split(' — ')[0] ?? '';
+    expect(warning?.message.vi).toContain(ten);
+    expect(warning?.fix?.vi).toContain(ten);
     expect(warning?.fix?.vi).toContain('Suất sinh lợi yêu cầu (r)');
   });
 

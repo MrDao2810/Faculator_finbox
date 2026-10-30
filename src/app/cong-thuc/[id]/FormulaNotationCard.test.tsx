@@ -352,7 +352,8 @@ describe('FormulaNotationCard — cả 111 công thức', { timeout: HAN_QUET },
    * Cụm nào ở dòng chữ cũng mở khung mang đúng nghĩa của dòng nó trỏ tới (28/10/2026). Đếm trên cả
    * thư viện để thấy ngay khi một cụm rơi mất: tiếng Việt và tiếng Anh phải phủ cùng các dòng.
    *
-   * 481 trên 568 dòng bảng có cụm ở dòng chữ (trước ngày ấy 101 — chỉ dòng có khung cách tính). 87
+   * 483 trên 568 dòng bảng có cụm ở dòng chữ (481 tới 30/10/2026, khi hình `do-bien-dong-lich-su`
+   * viết thẳng độ lệch chuẩn mẫu và `s`, `n` có chữ riêng; trước 28/10 là 101 — chỉ dòng có khung). 85
    * dòng còn lại không có chữ riêng nào để rê: chỉ số chạy (`t`, `i`, `k`), phép tính gộp mà từng phần
    * đã là cụm riêng (`(1 - t)`, `(1 + r)^n`, `n - 1`), ký hiệu nằm lọt trong tên dài hơn (`n` trong
    * "Giá của n phiên trước", `D` trong `D/E`), hay dòng hình có mà chữ không nhắc (`F_{mua}` của Lợi
@@ -396,7 +397,7 @@ describe('FormulaNotationCard — cả 111 công thức', { timeout: HAN_QUET },
       unmount();
     }
     expect(sai, sai.join('\n')).toEqual([]);
-    expect(soDongCoCum).toBe(481);
+    expect(soDongCoCum).toBe(483);
   });
 
   /*

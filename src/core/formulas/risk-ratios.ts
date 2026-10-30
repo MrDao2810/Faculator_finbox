@@ -304,8 +304,8 @@ export const BETA: FormulaModule = {
     categoryId: 'risk',
     name: { vi: 'Beta — hệ số rủi ro hệ thống', en: 'Beta coefficient' },
     description: {
-      vi: 'Mức một cổ phiếu biến động mạnh hay yếu hơn thị trường chung, đo bằng VN-Index.',
-      en: 'How much more or less a stock swings than the broader market, measured against the VN-Index.',
+      vi: 'Mức một cổ phiếu thường lên xuống theo nhịp thị trường chung, đo bằng VN-Index.',
+      en: "How strongly a stock tends to move with the market's ups and downs, measured against the VN-Index.",
     },
     latex: '\\beta_i = \\frac{\\text{Cov}(R_i, R_m)}{\\text{Var}(R_m)}',
     expression: {
@@ -317,8 +317,8 @@ export const BETA: FormulaModule = {
       {
         latex: '\\beta_i',
         meaning: {
-          vi: 'hệ số beta của cổ phiếu i, đo biên độ so với thị trường, lần',
-          en: 'beta of stock i, its swing relative to the market, times',
+          vi: 'hệ số beta của cổ phiếu i, đo độ nhạy theo nhịp thị trường, lần',
+          en: 'beta of stock i, its sensitivity to the way the market moves, times',
         },
       },
       {
@@ -380,8 +380,8 @@ export const BETA: FormulaModule = {
         en: "How sensitive the stock is to the market's own swings: the slope of the regression line of the stock's return against the VN-Index return, showing whether the stock amplifies or dampens the index.",
       },
       whenToUse: {
-        vi: 'Dùng khi bạn thấy VN-Index đang chao đảo và muốn biết cổ phiếu mình cầm thường lên xuống mạnh hơn hay nhẹ hơn cả thị trường.',
-        en: 'Use it when you see the VN-Index swinging hard and want to know whether the stock you hold usually moves more or less than the market as a whole.',
+        vi: 'Dùng khi bạn thấy VN-Index đang chao đảo và muốn biết mỗi khi chỉ số lên hay xuống thì cổ phiếu mình cầm thường đi theo mạnh hơn hay nhẹ hơn.',
+        en: 'Use it when you see the VN-Index swinging hard and want to know whether, each time the index moves, the stock you hold tends to follow it by more or by less.',
       },
       howToRead: {
         vi: 'So với mốc 1 của thị trường: lớn hơn nghĩa là mỗi khi VN-Index lên hay xuống, cổ phiếu thường lên hay xuống mạnh hơn, nhỏ hơn là nhẹ hơn. Beta âm nghĩa là cổ phiếu thường đi ngược chiều VN-Index trong các phiên đã chọn.',
@@ -468,6 +468,31 @@ export const BETA: FormulaModule = {
 
     const marketCloses = requireMarketCloses(ctx, sessions);
     if (!Array.isArray(marketCloses)) return fail(unit, marketCloses);
+
+    /*
+     * Phiên thiếu hoặc hỏng giá đóng cửa nằm trong cửa sổ thì KHÔNG được lặng lẽ lọc đi (29/10/2026):
+     * hai chuỗi ghép với nhau theo vị trí tính từ phiên cuối, bỏ một phiên ở giữa chuỗi cổ phiếu thì mọi
+     * cặp đứng trước chỗ trống lệch nhau một phiên, và Beta 0,8126 nhảy thành 0,4070 mà không một cảnh
+     * báo nào. Chuỗi thị trường không mang ngày nên không ghép theo ngày được; báo thẳng là an toàn nhất.
+     */
+    const phienHong = (ctx.bars ?? [])
+      .slice(-sessions)
+      .filter((bar) => typeof bar.close !== 'number' || !(bar.close > 0)).length;
+    if (phienHong > 0) {
+      return fail(
+        unit,
+        meaningless(
+          {
+            vi: `Trong ${String(sessions)} phiên gần nhất có ${String(phienHong)} phiên thiếu hoặc sai giá đóng cửa, nên không ghép được từng phiên của cổ phiếu với VN-Index.`,
+            en: `${String(phienHong)} of the last ${String(sessions)} sessions have a missing or invalid close, so the stock cannot be paired session by session with the VN-Index.`,
+          },
+          {
+            vi: 'Điền hoặc xoá phiên hỏng ở màn Bảng dữ liệu rồi tính lại.',
+            en: 'Fill in or delete the faulty session on the Data table screen, then recalculate.',
+          },
+        ),
+      );
+    }
 
     const stockReturns = simpleReturns(stockCloses.slice(-sessions));
     const marketReturns = simpleReturns(marketCloses.slice(-sessions));
@@ -579,8 +604,8 @@ export const TY_SO_SHARPE: FormulaModule = {
         en: 'A high return on a bumpy price line is not necessarily better than a lower, smoother one. Sharpe weighs the return earned above the risk-free rate against the standard deviation of session-by-session returns.',
       },
       whenToUse: {
-        vi: 'Dùng khi bạn cân nhắc để tiền trong một quỹ hay danh mục cổ phiếu thay vì gửi tiết kiệm, và muốn biết phần lãi hơn tiết kiệm có xứng với độ lên xuống phải chịu không.',
-        en: 'Use it when you are weighing a fund or a stock portfolio against a savings deposit and want to know whether the extra return over savings is worth the ups and downs you have to sit through.',
+        vi: 'Dùng khi bạn cân nhắc để tiền vào quỹ hay cổ phiếu thay vì giữ trái phiếu chính phủ, và muốn biết phần lãi hơn mức phi rủi ro có xứng với độ lên xuống không.',
+        en: 'Use it when you are weighing a fund or a stock portfolio against a government bond and want to know whether the extra return over the risk-free rate is worth the ups and downs you have to sit through.',
       },
       howToRead: {
         vi: 'So với tỷ số Sharpe của một quỹ hay danh mục khác, cùng kỳ và cùng lãi suất phi rủi ro: cao hơn nghĩa là mỗi phần lên xuống phải chịu đổi được nhiều lãi vượt mức phi rủi ro hơn, thấp hơn là kém hơn. Số âm nghĩa là danh mục sinh lời kém lãi suất phi rủi ro.',
@@ -782,8 +807,8 @@ export const TY_SO_SORTINO: FormulaModule = {
         en: 'Sharpe penalizes even sharply rising sessions, since they also inflate the standard deviation. Sortino measures only the return that falls below an acceptable threshold, matching how investors actually perceive risk.',
       },
       whenToUse: {
-        vi: 'Dùng khi bạn so hai quỹ mà một quỹ hay có phiên tăng vọt, và muốn biết phần lãi hơn tiết kiệm có xứng với các phiên lỗ phải chịu không, không coi cú tăng vọt là rủi ro.',
-        en: 'Use it when you are comparing two funds, one of which has the odd session that shoots up, and want to know whether its return above savings is worth the losing sessions it puts you through, without counting those jumps as risk.',
+        vi: 'Dùng khi bạn so hai quỹ mà một quỹ hay có phiên tăng vọt, và muốn biết phần lãi hơn mức phi rủi ro có xứng với các phiên lỗ không, không coi cú tăng vọt là rủi ro.',
+        en: 'Use it when you are comparing two funds, one of which has the odd session that shoots up, and want to know whether its return above the risk-free rate is worth its losing sessions, without counting jumps as risk.',
       },
       howToRead: {
         vi: 'So với tỷ số Sortino của quỹ hay danh mục bạn đang đặt cạnh, cùng kỳ và cùng lãi suất phi rủi ro: cao hơn nghĩa là phần lãi vượt mức phi rủi ro bù cho các phiên lỗ tốt hơn, thấp hơn là kém hơn. Số âm nghĩa là lãi bình quân còn thua mức phi rủi ro.',
@@ -969,8 +994,8 @@ export const TY_SO_TREYNOR: FormulaModule = {
           // Trước gói này câu mô tả cố ý KHÔNG nhắc "công thức Beta" vì thư viện chưa có — nay
           // đã đăng ký (`BETA` phía trên), nên nêu lại làm một nguồn thật.
           description: {
-            vi: 'Số liệu được nhập sẽ được tính bằng công thức Beta của thư viện này (cần cả chuỗi giá cổ phiếu lẫn chuỗi VN-Index, mỗi chuỗi tối thiểu 60 phiên), hoặc lấy từ bảng dữ liệu công ty chứng khoán, báo cáo quỹ hay trang thống kê của sở giao dịch. Beta 1 nghĩa là biến động ngang thị trường.',
-            en: "The figure you enter comes from this library's Beta formula (it needs both the stock price series and the VN-Index series, at least 60 sessions each), or from a brokerage data table, a fund report or an exchange statistics page. A beta of 1 means volatility in line with the market.",
+            vi: 'Số liệu được nhập sẽ được tính bằng công thức Beta của thư viện này (cần cả chuỗi giá cổ phiếu lẫn chuỗi VN-Index, mỗi chuỗi tối thiểu 60 phiên), hoặc lấy từ bảng dữ liệu công ty chứng khoán, báo cáo quỹ hay trang thống kê của sở giao dịch. Beta 1 nghĩa là danh mục thường lên xuống đúng theo nhịp thị trường.',
+            en: "The figure you enter comes from this library's Beta formula (it needs both the stock price series and the VN-Index series, at least 60 sessions each), or from a brokerage data table, a fund report or an exchange statistics page. A beta of 1 means the portfolio tends to move in step with the market.",
           },
         },
       ),
@@ -981,8 +1006,8 @@ export const TY_SO_TREYNOR: FormulaModule = {
         en: 'Sharpe divides by TOTAL volatility, Treynor divides only by the volatility that moves with the market. Anyone holding a diversified portfolio has already eliminated the idiosyncratic part, so only beta is worth pricing.',
       },
       whenToUse: {
-        vi: 'Dùng khi bạn đã chia tiền ra nhiều mã và muốn chấm riêng một quỹ hay một phần trong đó, xem phần lãi hơn tiết kiệm có xứng với mức nó lên xuống theo thị trường không.',
-        en: 'Use it when you have already spread your money across many stocks and want to grade one fund or one slice of those holdings, checking whether its return above savings is worth how much it moves with the market.',
+        vi: 'Dùng khi bạn đã chia tiền ra nhiều mã và muốn chấm riêng một quỹ hay một phần, xem phần lãi hơn mức phi rủi ro có xứng với mức nó lên xuống theo thị trường không.',
+        en: 'Use it when you have already spread your money across many stocks and want to grade one fund or one slice of those holdings, checking whether its return above the risk-free rate is worth how much it moves with the market.',
       },
       howToRead: {
         vi: 'So với phần VN-Index lãi hơn lãi suất phi rủi ro trong cùng kỳ, tính theo năm: cao hơn nghĩa là mỗi phần rủi ro theo thị trường mà danh mục gánh được trả công hơn chính thị trường, thấp hơn là kém hơn. Số âm nghĩa là lãi của danh mục còn thua mức phi rủi ro.',
@@ -1193,7 +1218,7 @@ export const TY_SO_THONG_TIN: FormulaModule = {
         en: 'Outperformance against the benchmark divided by how far the portfolio strays from it: beating the benchmark while tracking it closely scores higher than beating it by the same margin through a bold bet away from it.',
       },
       whenToUse: {
-        vi: 'Dùng khi bạn cầm một quỹ hay một danh mục tự chọn mã và muốn biết nó có thắng VN-Index không, và phần thắng ấy có xứng với độ lên xuống phải chịu không.',
+        vi: 'Dùng khi bạn cầm một quỹ hay một danh mục tự chọn mã và muốn biết nó có thắng VN-Index không, và phần thắng ấy có xứng với độ lên xuống không.',
         en: 'Use it when you hold a fund or a portfolio of hand-picked stocks and want to know whether it beat the VN-Index, and whether that edge was worth the ups and downs it took.',
       },
       howToRead: {
@@ -1318,8 +1343,8 @@ export const TY_SO_CALMAR: FormulaModule = {
       {
         latex: 'r_{nam}',
         meaning: {
-          vi: 'lợi suất năm hoá theo lãi kép, quy đổi theo ô Số phiên trong một năm',
-          en: 'compounded annual return, scaled by the Sessions per year field',
+          vi: 'lợi suất năm hoá theo lãi kép, dạng thập phân, quy đổi theo ô Số phiên trong một năm',
+          en: 'compounded annual return, as a decimal, scaled by the Sessions per year field',
         },
       },
       {

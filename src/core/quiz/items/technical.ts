@@ -2851,7 +2851,7 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
       ketQua: { vi: '23,14 %/năm', en: '23.14 %/year' },
       gan: [
         {
-          kyHieu: '\\ln \\frac{P_t}{P_{t-1}}',
+          kyHieu: 'u_t',
           moTa: {
             vi: 'là lợi suất log của 5 phiên liên tiếp, từ cũ tới mới: 1,5%, −2,0%, 0,5%, −1,0% và 1,0%',
             en: 'is the log return of 5 consecutive sessions, oldest first: 1.5%, −2.0%, 0.5%, −1.0% and 1.0%',

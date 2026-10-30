@@ -96,8 +96,8 @@ const dividendPerShare = numberVar(
     min: 0,
     max: 1_000_000,
     description: {
-      vi: 'Số tiền cổ tức nhận được trên mỗi cổ phiếu, trước thuế.',
-      en: 'The dividend amount received per share, before tax.',
+      vi: 'Số đồng cổ tức nhận được trên mỗi cổ phiếu, trước thuế. Công ty công bố theo tỷ lệ phần trăm thì nhân với mệnh giá 10.000 ₫: cổ tức 15% là 1.500 ₫.',
+      en: 'Dividend in dong received per share, before tax. If announced as a percentage, multiply by the 10.000 ₫ par value: a 15% dividend is 1.500 ₫.',
     },
   },
 );
@@ -145,8 +145,8 @@ export const PHI_GIAO_DICH_MUA: FormulaModule = {
       {
         latex: 'r_{mua}',
         meaning: {
-          vi: 'tỷ lệ phí môi giới lệnh mua theo biểu phí đang chọn, tính trên giá trị lệnh',
-          en: 'buy-side brokerage fee rate from the selected schedule, on the order value',
+          vi: 'tỷ lệ phí môi giới lệnh mua, trên giá trị lệnh, dạng thập phân, 1% là 0,01',
+          en: 'buy-side brokerage fee rate on the order value, as a decimal, 1% is 0.01',
         },
       },
     ],
@@ -245,8 +245,8 @@ export const PHI_GIAO_DICH_BAN: FormulaModule = {
       {
         latex: 'r_{ban}',
         meaning: {
-          vi: 'tỷ lệ phí môi giới lệnh bán theo biểu phí đang chọn, tính trên giá trị lệnh',
-          en: 'sell-side brokerage fee rate from the selected schedule, on the order value',
+          vi: 'tỷ lệ phí môi giới lệnh bán, trên giá trị lệnh, dạng thập phân, 1% là 0,01',
+          en: 'sell-side brokerage fee rate on the order value, as a decimal, 1% is 0.01',
         },
       },
     ],
@@ -340,8 +340,8 @@ export const THUE_CHUYEN_NHUONG: FormulaModule = {
       {
         latex: 'r_{thue}',
         meaning: {
-          vi: 'thuế suất chuyển nhượng, tính trên giá trị bán chứ không trên lãi',
-          en: 'transfer tax rate, charged on the sell value rather than on the gain',
+          vi: 'thuế suất chuyển nhượng, trên giá trị bán chứ không trên lãi, dạng thập phân, 1% là 0,01',
+          en: 'transfer tax rate on the sell value rather than the gain, as a decimal, 1% is 0.01',
         },
       },
     ],
@@ -444,8 +444,8 @@ export const THUE_CO_TUC: FormulaModule = {
       {
         latex: 'r_{ct}',
         meaning: {
-          vi: 'thuế suất cổ tức tiền mặt, tính trên số cổ tức công bố',
-          en: 'cash dividend tax rate, charged on the announced dividend',
+          vi: 'thuế suất cổ tức tiền mặt, trên số cổ tức công bố, dạng thập phân, 1% là 0,01',
+          en: 'cash dividend tax rate on the announced dividend, as a decimal, 1% is 0.01',
         },
       },
     ],
@@ -688,15 +688,15 @@ export const GIA_HOA_VON: FormulaModule = {
       {
         latex: 'r_{ban}',
         meaning: {
-          vi: 'tỷ lệ phí môi giới lệnh bán, tính trên giá trị bán',
-          en: 'sell-side brokerage fee rate, on the sell value',
+          vi: 'tỷ lệ phí môi giới lệnh bán, trên giá trị bán, dạng thập phân, 1% là 0,01',
+          en: 'sell-side brokerage fee rate on the sell value, as a decimal, 1% is 0.01',
         },
       },
       {
         latex: 'r_{thue}',
         meaning: {
-          vi: 'thuế suất chuyển nhượng, tính trên giá trị bán',
-          en: 'transfer tax rate, on the sell value',
+          vi: 'thuế suất chuyển nhượng, trên giá trị bán, dạng thập phân, 1% là 0,01',
+          en: 'transfer tax rate on the sell value, as a decimal, 1% is 0.01',
         },
       },
       {

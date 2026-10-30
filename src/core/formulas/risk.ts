@@ -41,8 +41,8 @@ export const CO_LENH_RUI_RO: FormulaModule = {
       {
         latex: 'r',
         meaning: {
-          vi: 'rủi ro mỗi lệnh, tức % vốn chấp nhận mất nếu chạm cắt lỗ',
-          en: 'risk per trade, the % of capital you accept losing if the stop is hit',
+          vi: 'rủi ro mỗi lệnh, tức phần vốn chấp nhận mất nếu chạm cắt lỗ, dạng thập phân, 2% là 0,02',
+          en: 'risk per trade, the capital share you accept losing at the stop, as a decimal, 2% is 0.02',
         },
       },
       {

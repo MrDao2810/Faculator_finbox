@@ -675,8 +675,8 @@ export const DO_RONG_DAI_BOLLINGER: FormulaModule = {
     variables: [withSymbol(BOLLINGER_PERIOD, 'n'), BOLLINGER_K],
     explanation: {
       meaning: {
-        vi: 'Một con số cho biết dải đang nở hay đang bóp: chia cho đường giữa nên cổ phiếu giá thấp và cổ phiếu giá cao so sánh với nhau được.',
-        en: 'A single number showing whether the band is expanding or squeezing: dividing by the middle line makes a low-priced stock comparable with a high-priced one.',
+        vi: 'Một con số cho biết dải rộng hay hẹp so với đường giữa: chia cho đường giữa nên cổ phiếu giá thấp và cổ phiếu giá cao so sánh với nhau được.',
+        en: 'A single number showing how wide or narrow the band is relative to the middle line: dividing by the middle line makes a low-priced stock comparable with a high-priced one.',
       },
       whenToUse: {
         vi: 'Dùng khi bạn thấy một mã mấy tuần nay đi ngang lặng lẽ, giá co vào một khoảng hẹp, và muốn một con số cho biết khoảng ấy đã hẹp tới mức nào.',
@@ -1422,8 +1422,8 @@ export const STOCHASTIC_K: FormulaModule = {
           { vi: '%K', en: '%K' },
           { vi: 'biên độ n phiên', en: 'n-session range' },
           {
-            vi: 'Giá cao nhất đang bằng giá thấp nhất — chuỗi toàn phiên kịch trần hoặc kịch sàn, chọn chu kỳ dài hơn.',
-            en: 'The highest price equals the lowest price — the series consists entirely of limit-up or limit-down sessions; choose a longer period.',
+            vi: 'Giá cao nhất đang bằng giá thấp nhất — giá không đổi suốt chu kỳ vừa chọn (mã ngừng giao dịch hoặc đứng giá), chọn chu kỳ dài hơn hoặc chuỗi khác.',
+            en: 'The highest price equals the lowest price — the price did not change across the chosen period (a halted or flat stock); choose a longer period or another series.',
           },
         ),
       );
@@ -1637,14 +1637,21 @@ export const DO_BIEN_DONG_LICH_SU: FormulaModule = {
     categoryId: 'technical',
     name: { vi: 'Độ biến động lịch sử năm hoá', en: 'Annualized historical volatility' },
     description: {
-      vi: 'Độ lệch chuẩn của lợi suất log hằng phiên, quy về mức tương đương cả năm bằng căn bậc hai số phiên.',
-      en: 'The standard deviation of daily log returns, scaled to an annual-equivalent level using the square root of the number of sessions.',
+      vi: 'Độ lệch chuẩn của lợi suất log hằng phiên, quy về mức tương đương cả năm bằng cách nhân với căn bậc hai của số phiên giao dịch một năm.',
+      en: 'The standard deviation of daily log returns, scaled to an annual-equivalent level by multiplying by the square root of the number of sessions in a year.',
     },
+    /*
+     * Hai vế, viết bằng phép tính (30/10/2026). Hình cũ là `\sigma_{n}(\ln \frac{P_t}{P_{t-1}})`: một
+     * ký hiệu "gọi" một biểu thức trong ngoặc, đúng lối `ký hiệu(đối số)` chủ dự án đã cấm từ
+     * 22/09/2026. Chủ dự án đọc nó là σ đứng cạnh n mà không có dấu nhân chia cộng trừ nào, và hỏi
+     * hai thứ ấy liên quan gì. Vế sau giờ viết thẳng độ lệch chuẩn mẫu như `do-lech-chuan-loi-suat-phien`,
+     * nên n hiện ra đúng chỗ nó tham gia phép tính: cận của tổng và mẫu số n − 2.
+     */
     latex:
-      '\\sigma_{nam} = \\sigma_{n}\\left(\\ln \\frac{P_t}{P_{t-1}}\\right) \\times \\sqrt{N} \\times 100',
+      '\\sigma_{nam} = s \\times \\sqrt{N} \\times 100 \\qquad s = \\sqrt{\\frac{\\sum_{t=2}^{n}(u_t - \\bar{u})^2}{n - 2}}',
     expression: {
-      vi: 'Độ biến động năm = Độ lệch chuẩn mẫu của lợi suất log mỗi phiên × căn bậc hai của Số phiên một năm × 100',
-      en: 'Annual volatility = Sample standard deviation of per-session log returns × square root of Sessions per year × 100',
+      vi: 'Độ biến động năm = Độ lệch chuẩn mẫu của lợi suất log × căn bậc hai của Số phiên một năm × 100\nĐộ lệch chuẩn mẫu của lợi suất log = căn bậc hai của [Tổng bình phương (Lợi suất log phiên t − Lợi suất log bình quân) ÷ (Số phiên giá lấy mẫu − 2)]',
+      en: 'Annual volatility = Sample standard deviation of log returns × square root of Sessions per year × 100\nSample standard deviation of log returns = square root of [Sum of squares (Log return of session t − Average log return) ÷ (Sample sessions − 2)]',
     },
     substitution: '{@sigmaLog} × √{tradingDays} × 100',
     symbols: [
@@ -1656,45 +1663,45 @@ export const DO_BIEN_DONG_LICH_SU: FormulaModule = {
         },
       },
       {
-        latex: '\\sigma',
+        latex: 's',
         meaning: {
-          vi: 'độ lệch chuẩn mẫu của dãy lợi suất log trong ngoặc',
-          en: 'sample standard deviation of the log returns in the brackets',
+          vi: 'độ lệch chuẩn mẫu của các lợi suất log trong mẫu, tính theo phiên',
+          en: 'sample standard deviation of the log returns in the sample, per session',
         },
       },
       {
-        latex: '\\ln \\frac{P_t}{P_{t-1}}',
+        latex: 'u_t',
         meaning: {
-          vi: 'lợi suất log của phiên t, tức logarit tự nhiên của tỷ số hai giá đóng cửa liên tiếp',
-          en: 'log return of session t, the natural log of the ratio of two consecutive closes',
+          vi: 'lợi suất log phiên t, logarit tự nhiên của giá đóng cửa phiên t chia giá phiên trước',
+          en: 'log return of session t, the natural log of its close divided by the previous close',
         },
       },
       {
-        latex: 'P_t',
+        latex: '\\bar{u}',
         meaning: {
-          vi: 'giá đóng cửa phiên t, ₫',
-          en: 'closing price of session t, in VND',
-        },
-      },
-      {
-        latex: 'P_{t-1}',
-        meaning: {
-          vi: 'giá đóng cửa phiên liền trước, ₫',
-          en: 'closing price of the previous session, in VND',
+          vi: 'lợi suất log bình quân của các phiên trong mẫu',
+          en: 'average log return over the sampled sessions',
         },
       },
       {
         latex: 't',
         meaning: {
-          vi: 'phiên đang xét, chạy qua số phiên giá lấy mẫu',
-          en: 'the session in view, running over the sampled sessions',
+          vi: 'phiên đang xét, đánh số từ 2 tới n vì phiên 1 chưa có phiên trước để so',
+          en: 'the session in view, numbered 2 to n since session 1 has no previous close',
         },
       },
       {
         latex: 'n',
         meaning: {
           vi: 'số phiên giá lấy mẫu',
-          en: 'number of sampled sessions',
+          en: 'number of sampled price sessions',
+        },
+      },
+      {
+        latex: 'n - 2',
+        meaning: {
+          vi: 'mẫu số, vì n phiên giá cho n − 1 lợi suất, độ lệch chuẩn mẫu chia số lợi suất trừ 1',
+          en: 'denominator, as n prices give n − 1 returns and the sample deviation takes 1 off that',
         },
       },
       {

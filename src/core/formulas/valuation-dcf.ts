@@ -137,8 +137,8 @@ export const MO_HINH_GORDON: FormulaModule = {
           min: 0,
           max: 100_000,
           description: {
-            vi: 'Cổ tức tiền mặt trên mỗi cổ phiếu trong 12 tháng gần nhất.',
-            en: 'Cash dividend per share over the most recent 12 months.',
+            vi: 'Tổng cổ tức tiền mặt trên mỗi cổ phiếu trong 12 tháng gần nhất, tính bằng đồng, cộng mọi đợt. Nghị quyết thường ghi theo tỷ lệ trên mệnh giá 10.000 ₫, nên cổ tức 15% là 1.500 ₫.',
+            en: 'Total cash dividend per share over the most recent 12 months, in dong, adding up every payment. Resolutions usually state it as a percentage of the 10.000 ₫ par value, so a 15% dividend is 1.500 ₫.',
           },
         },
       ),
@@ -152,8 +152,8 @@ export const MO_HINH_GORDON: FormulaModule = {
         0.1,
         {
           description: {
-            vi: 'Tốc độ tăng cổ tức đều đặn mãi mãi — nên thấp hơn tăng trưởng GDP dài hạn.',
-            en: 'The rate at which dividends grow steadily forever — should be lower than long-term GDP growth.',
+            vi: 'Tốc độ tăng cổ tức đều đặn mãi mãi, không nên vượt tăng trưởng GDP dài hạn.',
+            en: 'The rate at which dividends grow steadily forever, which should not exceed long-term GDP growth.',
           },
         },
       ),
@@ -397,10 +397,16 @@ export const DDM_HAI_GIAI_DOAN: FormulaModule = {
       {
         key: 'pvStage1',
         sign: 1,
-        /* Rút ngắn 26/10/2026 ("Cổ tức giai đoạn đầu"): quá 19 ký tự, bị cắt trên thanh ngang. */
-        shortLabel: { vi: 'Cổ tức giai đoạn 1', en: 'Stage-1 dividends' },
+        /*
+         * Rút ngắn 26/10/2026 ("Cổ tức giai đoạn đầu"): quá 19 ký tự, bị cắt trên thanh ngang.
+         * "Hiện giá cổ tức GĐ1" / "Hiện giá cuối kỳ" sống một ngày (29/10/2026): chủ dự án hỏi "Hiện
+         * nghĩa là sao? Bỏ đi". "Phần …" nói đây là một phần của Giá trị cổ phiếu ở hôm nay (tổng của
+         * hình), nên không cần thuật ngữ chiết khấu; "giai đoạn đầu" và "dài hạn" là đúng chữ của hai
+         * ô tăng trưởng trên màn.
+         */
+        shortLabel: { vi: 'Phần giai đoạn đầu', en: 'First-stage part' },
       },
-      { key: 'pvTerminal', sign: 1, shortLabel: { vi: 'Giá trị cuối kỳ', en: 'Terminal value' } },
+      { key: 'pvTerminal', sign: 1, shortLabel: { vi: 'Phần dài hạn', en: 'Long-run part' } },
     ],
     breakdownTotal: { vi: 'Giá trị cổ phiếu', en: 'Share value' },
     level: 'advanced',
@@ -416,8 +422,8 @@ export const DDM_HAI_GIAI_DOAN: FormulaModule = {
           min: 0,
           max: 100_000,
           description: {
-            vi: 'Cổ tức tiền mặt trên mỗi cổ phiếu trong 12 tháng gần nhất.',
-            en: 'Cash dividend per share over the most recent 12 months.',
+            vi: 'Tổng cổ tức tiền mặt trên mỗi cổ phiếu trong 12 tháng gần nhất, tính bằng đồng, cộng mọi đợt. Nghị quyết thường ghi theo tỷ lệ trên mệnh giá 10.000 ₫, nên cổ tức 15% là 1.500 ₫.',
+            en: 'Total cash dividend per share over the most recent 12 months, in dong, adding up every payment. Resolutions usually state it as a percentage of the 10.000 ₫ par value, so a 15% dividend is 1.500 ₫.',
           },
         },
       ),
@@ -461,8 +467,8 @@ export const DDM_HAI_GIAI_DOAN: FormulaModule = {
         0.1,
         {
           description: {
-            vi: 'Tốc độ tăng đều mãi mãi sau giai đoạn đầu — nên quanh tăng trưởng GDP.',
-            en: 'The steady growth rate forever after the first stage — should be close to GDP growth.',
+            vi: 'Tốc độ tăng đều mãi mãi sau giai đoạn đầu, không nên vượt tăng trưởng GDP.',
+            en: 'The steady growth rate forever after the first stage, which should not exceed GDP growth.',
           },
         },
       ),
@@ -634,8 +640,8 @@ export const DDM_HAI_GIAI_DOAN: FormulaModule = {
             en: 'The terminal value is only meaningful when the required return r is greater than the long-term growth rate g2 — r below g2 produces a negative value.',
           },
           {
-            vi: 'Giảm g2 về mức bền vững dài hạn (thường quanh tăng trưởng GDP) hoặc nâng r.',
-            en: 'Lower g2 to a sustainable long-term level (usually near GDP growth) or raise r.',
+            vi: 'Giảm g2 về mức bền vững dài hạn (thường không vượt tăng trưởng GDP) hoặc nâng r.',
+            en: 'Lower g2 to a sustainable long-term level (usually not above GDP growth) or raise r.',
           },
         ),
       );
@@ -792,8 +798,8 @@ export const CAPM: FormulaModule = {
         min: -3,
         max: 4,
         description: {
-          vi: 'Độ nhạy của cổ phiếu so với thị trường. Số liệu được nhập sẽ được tính bằng công thức Beta của thư viện này (nhóm Rủi ro), hoặc lấy từ nguồn dữ liệu bên ngoài.',
-          en: "The stock's sensitivity relative to the market. The figure you enter comes from this library's Beta formula (Risk group), or from an external data source.",
+          vi: 'Độ nhạy của cổ phiếu so với thị trường. Số liệu được nhập có thể tính bằng công thức Beta của thư viện này (nhóm Rủi ro), hoặc lấy từ nguồn dữ liệu bên ngoài. Ô này không tự điền.',
+          en: "The stock's sensitivity relative to the market. The figure you enter can be computed with this library's Beta formula (Risk group), or taken from an external data source. This field is not filled automatically.",
         },
       }),
       sliderVar(
@@ -814,12 +820,12 @@ export const CAPM: FormulaModule = {
     ],
     explanation: {
       meaning: {
-        vi: 'Nắm cổ phiếu rủi ro hơn gửi tiết kiệm thì phải đòi hỏi mức sinh lợi cao hơn bấy nhiêu — CAPM lượng hoá con số đó qua beta.',
-        en: 'Holding a stock is riskier than a savings deposit, so it must demand a correspondingly higher return — CAPM quantifies that through beta.',
+        vi: 'Nắm cổ phiếu rủi ro hơn giữ trái phiếu chính phủ thì phải đòi hỏi mức sinh lợi cao hơn bấy nhiêu — CAPM lượng hoá con số đó qua beta.',
+        en: 'Holding a stock is riskier than a government bond, so it must demand a correspondingly higher return — CAPM quantifies that through beta.',
       },
       whenToUse: {
-        vi: 'Dùng khi bạn phân vân giữa gửi tiết kiệm và mua một cổ phiếu, và muốn biết cổ phiếu đó phải lãi tối thiểu bao nhiêu mỗi năm mới bõ công chịu rủi ro.',
-        en: 'Use it when you are torn between a savings deposit and a stock and want to know the minimum yearly return the stock must earn to be worth its extra risk.',
+        vi: 'Dùng khi bạn phân vân giữa giữ trái phiếu chính phủ và mua một cổ phiếu, và muốn biết cổ phiếu đó phải lãi tối thiểu bao nhiêu mỗi năm mới bõ công chịu rủi ro.',
+        en: 'Use it when you are torn between a government bond and a stock and want to know the minimum yearly return the stock must earn to be worth its extra risk.',
       },
       howToRead: {
         vi: 'So với mức lãi mỗi năm bạn thực sự kỳ vọng ở cổ phiếu này: kỳ vọng cao hơn con số này nghĩa là phần lãi ấy đủ bù cho rủi ro của mã, thấp hơn là chưa đủ bù, dù có khi vẫn cao hơn lãi gửi tiết kiệm.',
@@ -913,8 +919,8 @@ export const WACC: FormulaModule = {
       // phân số của hình: bảng ký hiệu có hàng `E`, `D` và `E+D` nhưng KHÔNG có hàng nào tên "tỷ
       // trọng", nên hai chữ ấy không nối được với hình (06/10/2026, cùng đợt `gia-hoa-von`). Viết
       // thẳng phép chia thì mỗi chữ trong dòng này đều là một hàng của bảng bên phải.
-      vi: 'WACC = (Vốn chủ sở hữu ÷ Tổng nguồn vốn) × Chi phí vốn chủ + (Nợ vay ÷ Tổng nguồn vốn) × Chi phí nợ vay × (1 − Thuế suất)',
-      en: 'WACC = (Equity ÷ Total capital) × Cost of equity + (Debt ÷ Total capital) × Cost of debt × (1 − Tax rate)',
+      vi: 'WACC = (Vốn hoá ÷ Tổng vốn) × Chi phí vốn chủ + (Nợ vay ÷ Tổng vốn) × Chi phí nợ vay × (1 − Thuế suất)',
+      en: 'WACC = (Market cap ÷ Total capital) × Cost of equity + (Debt ÷ Total capital) × Cost of debt × (1 − Tax rate)',
     },
     substitutionDerived: { t: '{taxRate} ÷ 100' },
     substitution:
@@ -938,7 +944,13 @@ export const WACC: FormulaModule = {
         latex: 'D',
         meaning: { vi: 'nợ vay chịu lãi, tỷ ₫', en: 'interest-bearing debt, billion ₫' },
       },
-      { latex: 'E+D', meaning: { vi: 'tổng nguồn vốn, tỷ ₫', en: 'total capital, billion ₫' } },
+      {
+        latex: 'E+D',
+        meaning: {
+          vi: 'tổng vốn, vốn hoá cộng nợ vay, tỷ ₫',
+          en: 'total capital, market cap plus debt, billion ₫',
+        },
+      },
       { latex: 'r_e', meaning: { vi: 'chi phí vốn chủ, %/năm', en: 'cost of equity, %/year' } },
       {
         latex: 'r_d',
@@ -973,22 +985,31 @@ export const WACC: FormulaModule = {
      * (điểm %), hình này chia VỐN (tỷ ₫).
      */
     composition: {
-      title: { vi: 'Cơ cấu nguồn vốn', en: 'Capital structure' },
+      title: { vi: 'Cơ cấu vốn theo giá thị trường', en: 'Capital structure at market value' },
       /* Rút ngắn 26/10/2026 ("Tổng nguồn vốn (E+D)"): quá 19 ký tự, bị cắt trên thanh ngang. */
       total: { vi: 'Tổng vốn (E+D)', en: 'Total capital (E+D)' },
       unit: 'tỷ ₫',
-      parts: [{ key: 'equity' }, { key: 'debt' }],
+      parts: [
+        { key: 'equity', label: { vi: 'Vốn hoá (E)', en: 'Market cap (E)' } },
+        { key: 'debt' },
+      ],
     },
     resultUnit: '%',
     variables: [
-      numberVar('equity', { vi: 'Vốn chủ sở hữu (E)', en: 'Equity (E)' }, 'tỷ ₫', 600, {
-        min: 0,
-        max: 10_000_000,
-        description: {
-          vi: 'Giá trị thị trường của vốn chủ — với công ty niêm yết là vốn hoá.',
-          en: 'The market value of equity — for a listed company, its market capitalization.',
+      numberVar(
+        'equity',
+        { vi: 'Vốn hoá thị trường (E)', en: 'Market capitalization (E)' },
+        'tỷ ₫',
+        600,
+        {
+          min: 0,
+          max: 10_000_000,
+          description: {
+            vi: 'Giá trị thị trường của vốn chủ, với công ty niêm yết là vốn hoá. Không lấy số vốn chủ sở hữu trên bảng cân đối.',
+            en: 'The market value of equity, for a listed company its market capitalization. Do not use the equity figure from the balance sheet.',
+          },
         },
-      }),
+      ),
       numberVar('debt', { vi: 'Nợ vay (D)', en: 'Debt (D)' }, 'tỷ ₫', 400, {
         min: 0,
         max: 10_000_000,
@@ -1037,8 +1058,8 @@ export const WACC: FormulaModule = {
         0.5,
         {
           description: {
-            vi: 'Thuế suất thực nộp của doanh nghiệp; lãi vay được khấu trừ thuế.',
-            en: "The company's effective tax rate; interest expense is tax-deductible.",
+            vi: 'Thuế suất thu nhập doanh nghiệp bạn áp dụng, mặc định là mức phổ thông; lãi vay được khấu trừ thuế.',
+            en: 'The corporate income tax rate you apply, defaulting to the standard rate; interest expense is tax-deductible.',
           },
         },
       ),
@@ -1267,8 +1288,8 @@ export const FCFF: FormulaModule = {
         0.5,
         {
           description: {
-            vi: 'Thuế suất thực nộp của doanh nghiệp.',
-            en: "The company's effective tax rate.",
+            vi: 'Thuế suất thu nhập doanh nghiệp bạn áp dụng, mặc định là mức phổ thông.',
+            en: 'The corporate income tax rate you apply, defaulting to the standard rate.',
           },
         },
       ),
@@ -1311,8 +1332,8 @@ export const FCFF: FormulaModule = {
     ],
     explanation: {
       meaning: {
-        vi: 'Số tiền doanh nghiệp thực sự tạo ra trong kỳ cho tất cả người góp vốn, sau khi đã nộp thuế và tái đầu tư để duy trì hoạt động.',
-        en: 'The cash a company actually generates in the period for all capital providers, after paying tax and reinvesting to keep operations running.',
+        vi: 'Số tiền doanh nghiệp thực sự tạo ra trong kỳ cho tất cả người góp vốn, sau khi đã nộp thuế, chi đầu tư vốn (CapEx) và bù thêm vốn lưu động.',
+        en: 'The cash a company actually generates in the period for all capital providers, after paying tax, capital spending (CapEx) and funding extra working capital.',
       },
       whenToUse: {
         vi: 'Dùng khi bạn thấy công ty báo lãi lớn và muốn biết sau khi nộp thuế, xây xưởng, mua máy, ôm thêm hàng tồn kho, thực sự còn dư bao nhiêu tiền cho cả chủ nợ lẫn cổ đông.',
@@ -1511,8 +1532,8 @@ export const FCFE: FormulaModule = {
           min: -1_000_000,
           max: 10_000_000,
           description: {
-            vi: 'Số liệu được nhập là kết quả của công thức FCFF, hoặc con số bạn đã có sẵn.',
-            en: 'The figure you enter is the result of the FCFF formula, or a figure you already have.',
+            vi: 'Số liệu được nhập là kết quả của công thức FCFF, hoặc con số bạn đã có sẵn. Nhập số cả năm 12 tháng, không nhập số một quý hay nửa năm.',
+            en: 'The figure you enter is the result of the FCFF formula, or a figure you already have. Enter the full 12 months, not a quarter or half a year.',
           },
         },
       ),
@@ -1684,8 +1705,8 @@ export const GIA_TRI_NOI_TAI_FCFF: FormulaModule = {
       {
         latex: 'FCFF',
         meaning: {
-          vi: 'dòng tiền tự do của doanh nghiệp kỳ vừa rồi, tỷ ₫',
-          en: 'free cash flow to the firm in the latest period, billion ₫',
+          vi: 'dòng tiền tự do của doanh nghiệp năm gần nhất, đủ 12 tháng, tỷ ₫',
+          en: 'free cash flow to the firm for the latest full 12 months, billion ₫',
         },
       },
       {
@@ -1739,8 +1760,8 @@ export const GIA_TRI_NOI_TAI_FCFF: FormulaModule = {
           min: -1_000_000,
           max: 10_000_000,
           description: {
-            vi: 'Số liệu được nhập là kết quả của công thức FCFF, hoặc con số bạn đã có sẵn.',
-            en: 'The figure you enter is the result of the FCFF formula, or a figure you already have.',
+            vi: 'Số liệu được nhập là kết quả của công thức FCFF, hoặc con số bạn đã có sẵn. Nhập số cả năm 12 tháng, không nhập số một quý hay nửa năm.',
+            en: 'The figure you enter is the result of the FCFF formula, or a figure you already have. Enter the full 12 months, not a quarter or half a year.',
           },
         },
       ),
@@ -1754,8 +1775,8 @@ export const GIA_TRI_NOI_TAI_FCFF: FormulaModule = {
         0.1,
         {
           description: {
-            vi: 'Tốc độ tăng dòng tiền đều mãi mãi — nên quanh tăng trưởng GDP dài hạn.',
-            en: 'The rate at which cash flow grows steadily forever — should be close to long-term GDP growth.',
+            vi: 'Tốc độ tăng dòng tiền đều mãi mãi, không nên vượt tăng trưởng GDP dài hạn.',
+            en: 'The rate at which cash flow grows steadily forever, which should not exceed long-term GDP growth.',
           },
         },
       ),
@@ -1948,8 +1969,8 @@ export const GIA_TRI_NOI_TAI_FCFF: FormulaModule = {
             en: 'The model only works when WACC is greater than the growth rate g — g exceeding WACC produces a meaningless negative value.',
           },
           {
-            vi: 'Giảm g về mức bền vững dài hạn (thường quanh tăng trưởng GDP) hoặc xem lại WACC.',
-            en: 'Lower g to a sustainable long-term level (usually near GDP growth) or review WACC.',
+            vi: 'Giảm g về mức bền vững dài hạn (thường không vượt tăng trưởng GDP) hoặc xem lại WACC.',
+            en: 'Lower g to a sustainable long-term level (usually not above GDP growth) or review WACC.',
           },
         ),
       );

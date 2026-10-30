@@ -875,7 +875,7 @@ describe('Biểu đồ độ nhạy — FR-06 ở tầng vẽ', () => {
     const warning = screen.getByRole('status').textContent ?? '';
     expect(warning).toContain('phiên giá');
     // Phải có câu chỉ đường, không được báo lỗi rồi bỏ mặc (NFR-USA-04).
-    expect(warning).toMatch(/Nạp bộ số liệu mẫu|dán chuỗi giá/i);
+    expect(warning).toMatch(/Nạp mẫu|Sử dụng dữ liệu mẫu/i);
   });
 
   /*

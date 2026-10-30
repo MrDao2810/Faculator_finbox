@@ -57,6 +57,13 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
    * `soLanNapTuDien` chỉ để buộc dựng lại khi lời hứa `loadLocale` xong.
    */
   const [, setSoLanNapTuDien] = useState(0);
+  /*
+   * Lần thử nạp lại (29/10/2026). Effect nạp từ điển chỉ phụ thuộc `prefs.locale`; nạp hỏng một lần
+   * (mở PWA lúc mất mạng rồi bấm VI) thì lựa chọn đã lưu vẫn là 'en', bấm nút lần nữa không đổi gì và
+   * effect không chạy lại: nút chết tới khi tải lại trang dù `loadLocale` đã hứa "lần sau thử lại".
+   * `setLocale` tăng số này khi lựa chọn trùng cái đã lưu mà từ điển của nó chưa có.
+   */
+  const [lanThu, setLanThu] = useState(0);
   const tuDienSan = isLocaleLoaded(prefs.locale);
   const locale: Locale = tuDienSan ? prefs.locale : 'vi';
 
@@ -89,7 +96,7 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
     return () => {
       conHieuLuc = false;
     };
-  }, [prefs.locale]);
+  }, [prefs.locale, lanThu]);
 
   // HTML tĩnh khai `lang="vi"` (layout.tsx). Người dùng đã chọn EN thì thuộc tính phải đổi
   // theo, không thì trình đọc màn hình đọc chữ Anh bằng giọng Việt. Chạy sau hydrate nên
@@ -186,7 +193,10 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
       locale,
       hydrated,
       setMode: (mode) => persist({ ...prefs, mode }),
-      setLocale: (locale) => persist({ ...prefs, locale }),
+      setLocale: (next) => {
+        if (next === prefs.locale && !isLocaleLoaded(next)) setLanThu((n) => n + 1);
+        persist({ ...prefs, locale: next });
+      },
       setTheme: (theme) => persist({ ...prefs, theme }),
       setFeeScheduleId: (feeScheduleId) => persist({ ...prefs, feeScheduleId }),
       setUnitScale: (unitScale) => persist({ ...prefs, unitScale }),

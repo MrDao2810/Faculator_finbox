@@ -1052,10 +1052,19 @@ export function PortfolioScreen() {
     const onStorage = (event: StorageEvent): void => {
       if (event.key === null || khoTheoDoi.has(event.key)) docLaiKho();
     };
+    /*
+     * Ngày định giá theo tab vừa quay lại (29/10/2026). `asOf` chỉ được đặt một lần lúc gắn màn, nên tab
+     * mở qua nửa đêm giữ ngày hôm qua: mã mua "hôm nay" bị báo "ngày mua nằm sau ngày định giá" và XIRR
+     * của mã mua gần đây lệch hẳn (123,2 % thay vì 106,0 %/năm trên cùng giá).
+     */
     const onVisible = (): void => {
-      if (document.visibilityState === 'visible') docLaiKho();
+      if (document.visibilityState === 'visible') {
+        setAsOf(todayIso());
+        docLaiKho();
+      }
     };
     const onPageShow = (): void => {
+      setAsOf(todayIso());
       docLaiKho();
     };
     window.addEventListener('storage', onStorage);
@@ -1221,6 +1230,7 @@ export function PortfolioScreen() {
    */
   const lamMoi = useCallback((): void => {
     setPriceAttempt((n) => n + 1);
+    setAsOf(todayIso());
     // Đọc lại kho bằng đúng lối của thao tác sửa và của tab khác — đọc hỏng thì giữ bảng đang hiện.
     docLaiKho();
 
@@ -1312,8 +1322,10 @@ export function PortfolioScreen() {
     setForm({
       code: holding.code,
       name: holding.name ?? '',
-      quantity: formatNumber(holding.quantity) ?? String(holding.quantity),
-      costPrice: formatNumber(holding.costPrice) ?? String(holding.costPrice),
+      // Đủ chữ số lẻ để đọc lại ra ĐÚNG số trong kho: mặc định 2 số lẻ làm giá vốn bình quân 64.166,666…
+      // thành 64.166,67 ngay khi mở Sửa rồi Lưu mà không đụng tới ô (29/10/2026).
+      quantity: formatNumber(holding.quantity, { maxDecimals: 20 }) ?? String(holding.quantity),
+      costPrice: formatNumber(holding.costPrice, { maxDecimals: 20 }) ?? String(holding.costPrice),
       buyDate: holding.buyDate,
       beta:
         holding.beta === undefined || holding.beta === null
@@ -1476,6 +1488,8 @@ export function PortfolioScreen() {
     const safeBuyDate = buyDate ?? '';
     const name = form.name.trim();
 
+    // Cửa ngày mua ở trên so với `todayIso()` mới; ngày định giá của bảng cũng phải theo cùng mốc ấy.
+    setAsOf(todayIso());
     // Áp lên bản MỚI NHẤT của kho, không lên state có thể đã cũ — xem `khoDaThay`.
     docLaiKho();
     setHoldings((current) =>

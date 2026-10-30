@@ -146,15 +146,16 @@ describe('chữ của ô nhập gắn vào ĐÚNG ô, và phủ đủ mọi ô',
   });
 
   /*
-   * 159/263 ô có thêm một câu `luuY`. Con số này là một phép đếm, không phải một cái trần: thêm
+   * 166/263 ô có thêm một câu `luuY`. Con số này là một phép đếm, không phải một cái trần: thêm
    * lưu ý cho một ô là việc tốt. Ghim để thấy nó đi lên, và để không ai xoá bớt mà không ai biết.
    *
+   * Từ 159 lên 166 ngày 30/10/2026: bảy ô giá (giá bán, giá đợt 1) có câu nói giá tính bằng đồng.
    * Từ 163 xuống 159 ngày 14/10/2026: bốn trong sáu ô nhóm lặp bị bỏ câu có lưu ý (giá đợt 2, 3 và
    * kỳ 2, 3).
    */
-  it('159 ô có thêm câu lưu ý', () => {
+  it('166 ô có thêm câu lưu ý', () => {
     const coLuuY = MOI_O.filter(({ o }) => (o?.luuY?.vi ?? '').trim() !== '');
-    expect(coLuuY).toHaveLength(159);
+    expect(coLuuY).toHaveLength(166);
   });
 
   /*
@@ -261,7 +262,7 @@ describe('giữ đúng khuôn của tài liệu', () => {
  * ── Bản tiếng Anh: đủ, và mang đúng những gì bản Việt mang ──────────────────────────────────
  *
  * Mộ chí: hai ca "nợ bản tiếng Anh, đếm thành tiếng" (111 mục, 263 ô chưa dịch) đã về 0 ngày
- * 15/10/2026 — chủ dự án chọn "dịch nháp rồi duyệt" và cả 755 chuỗi đã có `en`. Đúng như lời hẹn
+ * 15/10/2026 — chủ dự án chọn "dịch nháp rồi duyệt" và cả 762 chuỗi đã có `en`. Đúng như lời hẹn
  * của chính hai ca ấy, chúng đổi thành lời khẳng định đã dịch xong, kèm những gì máy kiểm được.
  *
  * Máy KHÔNG kiểm được nghĩa: một câu dịch đảo chiều ("cao là tốt" thành "thấp là tốt") hay đổi chỗ
@@ -297,8 +298,8 @@ describe('bản tiếng Anh của kho', () => {
     ),
   ];
 
-  it('đủ 755 chuỗi, chuỗi nào cũng có bản tiếng Anh', () => {
-    expect(MOI_CAP).toHaveLength(755);
+  it('đủ 762 chuỗi, chuỗi nào cũng có bản tiếng Anh', () => {
+    expect(MOI_CAP).toHaveLength(762);
     for (const { nhan, cau } of MOI_CAP) {
       expect((cau.en ?? '').trim(), nhan).not.toBe('');
     }
@@ -394,7 +395,7 @@ describe('những chỗ TÀI LIỆU TỰ NHẬN còn mở', () => {
   });
 
   /*
-   * 20 câu `luuY` viết khoảng bằng gạch en: "3–5% là vùng hợp lý", "thường 7–9%", "1–2% là mức
+   * 14 câu `luuY` viết khoảng bằng gạch en: "3–5% là vùng hợp lý", "thường 7–9%", "1–2% là mức
    * quản trị rủi ro thông dụng".
    *
    * Chúng mâu thuẫn với luật gạch ngang ở trên, và được GIỮ NGUYÊN VĂN có chủ ý: đây là chữ chủ dự
@@ -403,9 +404,9 @@ describe('những chỗ TÀI LIỆU TỰ NHẬN còn mở', () => {
    * thành "3 trừ 5%". Lối ra có sẵn và là một dòng mỗi chỗ: luật dự án đã chốt cách nối bằng chữ
    * ("từ 3 đến 5%"), đúng như bảng ký hiệu đã làm.
    *
-   * Ca này ghim ĐÚNG 20 chỗ. Con số chỉ được phép đi XUỐNG, và chỗ thứ 21 làm đỏ ngay.
+   * Ca này ghim ĐÚNG 14 chỗ (18 trước 30/10/2026, khi bốn câu mốc lãi suất và ký quỹ bỏ khoảng gạch; 20 trước 29/10/2026, khi hai câu lãi vay ở lãi kép và lãi tiền gửi bị thay). Con số chỉ được phép đi XUỐNG, và chỗ thứ 21 làm đỏ ngay.
    */
-  it('đúng 20 câu lưu ý còn viết khoảng bằng gạch en, chờ chủ dự án chốt', () => {
+  it('đúng 14 câu lưu ý còn viết khoảng bằng gạch en, chờ chủ dự án chốt', () => {
     const coGach = MOI_O.filter(({ o }) => /[–—]/.test(o?.luuY?.vi ?? '')).map(
       ({ id, key }) => `${id}.${key}`,
     );
@@ -413,20 +414,14 @@ describe('những chỗ TÀI LIỆU TỰ NHẬN còn mở', () => {
     expect(coGach.sort()).toEqual(
       [
         'capm.erp',
-        'capm.riskFree',
         'co-lenh-rui-ro.riskPercent',
         'co-vi-the-phai-sinh.riskPercent',
         'gia-ly-thuyet-vn30f.dividendYield',
         'gia-tri-noi-tai-fcff.growth',
-        'lai-kep.rate',
-        'lai-tien-gui.rate',
         'lich-tra-no.rate',
         'loi-suat-thuc.inflation',
         'mo-hinh-gordon.growth',
-        'rut-truoc-han.demandRate',
-        'so-hop-dong-toi-da.marginRatio',
         'so-ky-dca.rate',
-        'tiet-kiem-muc-tieu.rate',
         'tra-gop-goc-deu.rate',
         'tra-gop-nien-kim.rate',
         'ty-so-thang-thua.threshold',
@@ -566,7 +561,7 @@ describe('số trong câu của ô nhập: đi theo ô hay đứng yên có ch�
    * MACD là một QUY ƯỚC, mặc định của ô được chọn theo đúng quy ước ấy, và cho nó chạy theo ô thì
    * thành "10 là mặc định phổ biến" — một câu sai. Nên ca này không cấm; nó bắt XẾP LOẠI. Mỗi câu
    * trùng số mặc định mà không phải chỗ trống phải nằm trong một trong ba nhóm dưới, mỗi nhóm một
-   * lý do. Ba nhóm cộng lại 43 câu; câu thứ 44 làm đỏ, và người thêm nó phải chọn: thành chỗ
+   * lý do. Ba nhóm cộng lại 42 câu; câu thứ 43 làm đỏ, và người thêm nó phải chọn: thành chỗ
    * trống, hay ghi vào một nhóm.
    *
    * 0, 1 và 100 không tính: chúng là mốc tự nhiên ("để 0 nếu chưa có"), không phải số minh hoạ.
@@ -608,10 +603,7 @@ describe('số trong câu của ô nhập: đi theo ô hay đứng yên có ch�
       'wacc.taxRate.luuY',
       'loi-suat-thuc.inflation.luuY',
       'mo-hinh-gordon.growth.luuY',
-      'lai-kep.rate.luuY',
       'so-ky-dca.rate.luuY',
-      'tiet-kiem-muc-tieu.rate.luuY',
-      'rut-truoc-han.demandRate.luuY',
       'so-hop-dong-toi-da.marginRatio.luuY',
       'ty-so-calmar.sessionsPerYear.luuY',
       'ty-so-sharpe.sessionsPerYear.luuY',

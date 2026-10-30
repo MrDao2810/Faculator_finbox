@@ -119,10 +119,37 @@ async function putCapped(request, response, cacheName = CACHE, max = MAX_ENTRIES
   const keys = await cache.keys();
   if (keys.length <= max) return;
 
-  for (const key of keys.slice(0, keys.length - max)) {
-    // Không bao giờ vứt khung ngoại tuyến — mất nó là mất luôn màn dự phòng lúc ngoại tuyến.
-    if (new URL(key.url).pathname !== SHELL) await cache.delete(key);
+  // Xoá đúng số mục thừa, bỏ qua mục được bảo vệ chứ không tính nó vào số đã xoá.
+  let thua = keys.length - max;
+  for (const key of keys) {
+    if (thua <= 0) break;
+    // Không bao giờ vứt khung ngoại tuyến — mất nó là mất luôn màn dự phòng lúc ngoại tuyến. Chỉ KHUNG
+    // THẬT (không truy vấn): bản `/cong-thuc/?q=…` cũng có pathname ấy, mà bảo vệ cả chúng thì kho
+    // phình mãi và HTML các trang công thức đã ghé bị đẩy ra trước (29/10/2026).
+    const url = new URL(key.url);
+    if (url.pathname === SHELL && url.search === '') continue;
+    await cache.delete(key);
+    thua -= 1;
   }
+}
+
+/**
+ * Trang HTML trong kho ứng với một URL điều hướng mà kho không có đúng khoá.
+ *
+ * Hai ca thật khi mất mạng (29/10/2026), cả hai trước đây bị chuyển hướng oan về danh sách dù trang đã
+ * nằm trong kho:
+ *   · Next xuất tĩnh, lúc không lấy được payload RSC, tải CỨNG `…/index.txt` (không mang `?_rsc=`);
+ *   · URL có truy vấn (`?luu=`, `?ma=`, `?so=`) hoặc thiếu gạch chéo cuối: HTML tĩnh của trang giống hệt,
+ *     phần truy vấn do client đọc trong effect.
+ * Trả `{ path, cached }`: `path` là đường dẫn chuẩn của trang (có gạch chéo cuối, không `index.txt`).
+ */
+async function pageFromCache(url) {
+  let path = url.pathname.replace(/\/index\.txt$/, '/');
+  if (!path.endsWith('/') && !/\.[a-z0-9]+$/i.test(path)) path += '/';
+  const cached = await caches.match(new URL(path, self.location.origin).href, {
+    ignoreSearch: true,
+  });
+  return { path, cached };
 }
 
 /** Tài nguyên bất biến: có băm nội dung trong tên — xem `STATIC_CACHE`. */
@@ -182,6 +209,17 @@ async function handleNavigation(event) {
     if (cached !== undefined) return cached;
 
     const url = new URL(request.url);
+    const trang = await pageFromCache(url);
+    if (trang.cached !== undefined) {
+      // Cùng đường dẫn, chỉ khác truy vấn: trả thẳng HTML (không dính lỗi hydration #418 của v4).
+      if (trang.path === url.pathname) return trang.cached;
+      // Đường dẫn khác (`index.txt`, thiếu gạch chéo): chuyển sang URL của trang để thanh địa chỉ và
+      // router đứng đúng chỗ. `index.txt` không mang truy vấn của trang nên bỏ; URL thiếu gạch giữ lại.
+      const dich = new URL(trang.path, self.location.origin);
+      if (!url.pathname.endsWith('/index.txt')) dich.search = url.search;
+      return Response.redirect(dich.href, 302);
+    }
+
     if (url.pathname !== SHELL) {
       const target = new URL(SHELL, self.location.origin);
       if (url.pathname === '/') target.search = url.search;

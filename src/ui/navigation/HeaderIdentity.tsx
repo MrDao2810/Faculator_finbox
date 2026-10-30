@@ -107,7 +107,15 @@ export function HeaderIdentity() {
         : undefined;
 
     return (
+      /*
+       * `key={pathname}`: `/tim-kiem/` và trang chi tiết được cấp CÙNG bộ tham số, thanh trên lại nằm
+       * ở layout gốc nên instance sống qua cú điều hướng giữa hai màn ấy; effect của `useBackTarget`
+       * chỉ chạy lại khi tham số đổi, nên đích tính cho màn trước bị dùng cho màn sau (từ kết quả tìm
+       * kiếm sang `/cong-thuc/roe/` nút ‹ vẫn ghi "Danh sách công thức"; từ chi tiết về `/tim-kiem/`
+       * nút ‹ trỏ về chính nó). Gắn lại theo đường dẫn là cách rẻ nhất để không còn đích cũ sống sót.
+       */
       <BackLink
+        key={pathname}
         fallbackHref={back.fallbackHref}
         labelKey={back.labelKey}
         rememberOrigin={back.rememberOrigin}

@@ -281,10 +281,17 @@ function ketQuaPhien(
   const last = bars.length - 1;
   const close = bar.close;
 
+  /*
+   * Phiên không có giá đóng cửa dùng được (trống, 0, âm) thì ô giá của phiên ấy là NaN, để công thức
+   * báo thiếu số và điểm vẽ gạch chéo (29/10/2026). Trước đó close trống rơi về `inputs` (giá người
+   * dùng đang gõ, vẽ 15,21 lần giữa các phiên ~11,97) và close 0 được thế thẳng làm giá (`hpr` −97,44%),
+   * trong khi `bangCua()` / `ctx.series` lại loại mọi close không dương: một hàm, hai luật.
+   */
+  const giaPhien = close !== null && Number.isFinite(close) && close > 0 ? close : Number.NaN;
   const sessionInputs =
-    close === null || !Number.isFinite(close) || plan.priceKeys.length === 0
+    plan.priceKeys.length === 0
       ? inputs
-      : { ...inputs, ...Object.fromEntries(plan.priceKeys.map((key) => [key, close])) };
+      : { ...inputs, ...Object.fromEntries(plan.priceKeys.map((key) => [key, giaPhien])) };
 
   /*
    * Cắt CẢ `bars` lẫn `series`, và cắt từ cùng một chỗ.

@@ -529,12 +529,15 @@ export function LineChart({
               const rong = Math.max(1, Math.min(BAR_MAX_WIDTH, buoc * BAR_FILL));
               const chanY = Math.min(Math.max(scaleY(0), box.y0), box.y1);
 
-              return model.points.flatMap((point) => {
+              return model.points.flatMap((point, index) => {
                 if (point.y === null) return [];
                 const dinhY = scaleY(point.y);
                 return [
                   {
-                    key: point.label,
+                    // Chỉ số điểm, không phải nhãn x: nhãn in ít chữ số nên trùng nhau (41 mức quét chỉ có
+                    // 11 nhãn khác nhau trên `rut-truoc-han`), và chuỗi không ngày thì mọi nhãn rỗng. Khoá
+                    // trùng làm React không gỡ được `<rect>` cũ: cột "ma" tích tụ mỗi lần gõ (29/10/2026).
+                    key: String(index),
                     x: scaleX(point.x) - rong / 2,
                     y: Math.min(dinhY, chanY),
                     w: rong,

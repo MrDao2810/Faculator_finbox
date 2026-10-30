@@ -209,7 +209,7 @@ export const HOW_TO_VALUATION_MULTIPLES: Readonly<Record<string, FormulaHowTo>> 
     ],
     skipped: { 'E/P': 'ket-qua', P: 'nhap-tho', '100\\%': 'hang-so' },
     skippedPhrases: {
-      'E/P': { vi: ['Tỷ suất lợi nhuận'], en: ['Earnings yield'] },
+      'E/P': { vi: ['Tỷ suất lợi nhuận trên giá'], en: ['Earnings yield'] },
       P: { vi: ['Giá thị trường'], en: ['Market price'] },
       '100\\%': { vi: ['100'], en: ['100'] },
     },

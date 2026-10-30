@@ -19,6 +19,13 @@
  *    trong dòng `(1 - t)` đúng là thuế suất `t`. Không đoán theo chữ đứng kề: `365/d` hay `1/t` là
  *    phép chia, không phải một tên — cửa gác bảng ký hiệu đã buộc mọi tên nhiều chữ phải có dòng riêng.
  * 6. Con của `mfrac`, `msub`… là các ĐỐI SỐ riêng, nên không khớp một dãy vắt qua chúng.
+ * 7. Không khớp vào bên trong một chỉ số viết bằng CHỮ (30/10/2026): `n` không phải chữ n đầu của
+ *    `nam` trong `\sigma_{nam}`. Chủ dự án rê vào chữ n ấy trên `do-bien-dong-lich-su` và bật ra
+ *    chú thích "n: số phiên giá lấy mẫu". Luật 5 không chặn được vì `nam` không phải một dòng bảng
+ *    (dòng bảng là cả cụm `\sigma_{nam}`). Chỉ số có toán tử (`t-1`) hay một chữ (`SMA_{n}`) vẫn khớp,
+ *    và một dòng bảng phủ TRỌN cụm cũng vậy: số mũ `n t` của `lai-kep` là tích n × t, có dòng riêng,
+ *    mà dựng ra y hệt một từ hai chữ. Đo trên cả 111: 8 công thức có chữ lạc như thế (`m` trong
+ *    `P_{mo}`, `n` trong `BB_{tren}`, `m` trong `N_{max}`…), đều là lỗi cùng loại.
  *
  * Tám dòng không tìm được chỗ đều không đứng riêng trong hình: `D` và `E` chỉ nằm trong tên `D/E`,
  * `\Delta` trong `\Delta NWC`, `t` trong `n t`, `r` của hệ số biến thiên dưới gạch của `\bar{r}`…
@@ -209,6 +216,20 @@ function textOf(node: MathNode): string {
   return node.type === 'text' ? node.raw : node.children.map(textOf).join('');
 }
 
+/**
+ * Một `mrow` gồm từ hai `<mi>` một chữ trở lên, không toán tử, không số: KaTeX dựng chỉ số `nam`,
+ * `phien`, `tren` như thế. Đó là một từ viết liền, nên không ký hiệu một chữ nào được khớp vào giữa.
+ */
+function isWordScript(node: ElementNode): boolean {
+  return (
+    node.name === 'mrow' &&
+    node.children.length >= 2 &&
+    node.children.every(
+      (child) => child.type === 'element' && child.name === 'mi' && [...textOf(child)].length === 1,
+    )
+  );
+}
+
 function isWrapSafeEdge(node: MathNode | undefined): boolean {
   if (node === undefined || node.type !== 'element') return true;
   return node.name !== 'mo' || ZERO_SPACING_OPERATORS.has(textOf(node));
@@ -272,7 +293,7 @@ export function markSymbols(
 
   const candidates: Candidate[] = [];
 
-  const visit = (parent: ElementNode): void => {
+  const visit = (parent: ElementNode, wordScript = false): void => {
     const children = parent.children;
     const isArgumentList = ARGUMENT_ELEMENTS.has(parent.name);
 
@@ -302,6 +323,8 @@ export function markSymbols(
       for (const keySeq of pattern.keys) {
         const length = keySeq.length;
         if (isArgumentList && length > 1) continue; // luật 6
+        // Luật 7: trong chỉ số dạng chữ chỉ khớp dòng phủ trọn cụm (số mũ `n t` của `lai-kep`).
+        if (wordScript && length < children.length) continue;
 
         for (const start of matchStarts(children, keySeq)) {
           const nodes = children.slice(start, start + length);
@@ -360,8 +383,9 @@ export function markSymbols(
       }
     }
 
-    for (const child of children) {
-      if (child.type === 'element' && child.name !== 'annotation') visit(child);
+    for (const [position, child] of children.entries()) {
+      if (child.type !== 'element' || child.name === 'annotation') continue;
+      visit(child, SCRIPT_ELEMENTS.has(parent.name) && position > 0 && isWordScript(child));
     }
   };
 

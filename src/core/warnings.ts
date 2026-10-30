@@ -30,9 +30,9 @@ export const WARNING_CODES = [
 export const WARNING_LABELS: Readonly<Record<WarningCode, Bilingual>> = {
   DIVIDE_BY_ZERO: { vi: 'Chia cho 0', en: 'Division by zero' },
   MEANINGLESS: { vi: 'Không có ý nghĩa', en: 'Not meaningful' },
-  MISSING_SERIES: { vi: 'Thiếu dữ liệu chuỗi', en: 'Missing series data' },
+  MISSING_SERIES: { vi: 'Thiếu chuỗi giá', en: 'Missing price series' },
   MODEL_VIOLATION: { vi: 'Vi phạm điều kiện mô hình', en: 'Model condition violated' },
-  INHERITED: { vi: 'Cảnh báo kế thừa', en: 'Inherited warning' },
+  INHERITED: { vi: 'Lỗi từ bước trước', en: 'Error from a previous step' },
   INCOMPLETE_INPUT: { vi: 'Chưa nhập đủ', en: 'Incomplete input' },
 };
 
@@ -51,8 +51,8 @@ export function divideByZero(what: Bilingual, divisor: Bilingual, fix?: Bilingua
       en: `Cannot calculate ${what.en} because ${divisor.en} is 0.`,
     },
     fix: fix ?? {
-      vi: `Nhập ${divisor.vi} khác 0 hoặc chọn kỳ khác.`,
-      en: `Enter a non-zero ${divisor.en} or choose a different period.`,
+      vi: `Nhập ${divisor.vi} khác 0.`,
+      en: `Enter a non-zero ${divisor.en}.`,
     },
   };
 }
@@ -83,8 +83,8 @@ export function missingSeries(needed: number, have: number, what?: Bilingual): C
       en: `Need at least ${needed} ${label.en}, currently only ${have}.`,
     },
     fix: {
-      vi: 'Nạp bộ số liệu mẫu hoặc dán chuỗi giá từ Excel.',
-      en: 'Load a sample dataset or paste a price series from Excel.',
+      vi: 'Thêm phiên giá (nút Nạp mẫu hoặc Sử dụng dữ liệu mẫu), hoặc giảm số phiên hay chu kỳ ở khối Số liệu.',
+      en: 'Add price sessions (the Load sample or Use sample data button), or lower the sessions or period in the Inputs block.',
     },
   };
 }
@@ -115,20 +115,26 @@ export function modelViolation(condition: Bilingual, fix?: Bilingual): CalcWarni
  * @param selfLabel     tên biến đang bị kế thừa lỗi, ví dụ 'WACC'
  */
 export function inheritedFrom(upstreamLabel: Bilingual, selfLabel?: Bilingual): CalcWarning {
+  /* Nhãn thượng nguồn là tên đầy đủ có gạch dài; câu chỉ cần phần trước gạch (REVIEW-4 L11-04). */
+  const ten = (b: Bilingual): Bilingual => ({
+    vi: b.vi.split(' — ')[0] ?? b.vi,
+    en: b.en.split(' — ')[0] ?? b.en,
+  });
+  const tenTren = ten(upstreamLabel);
   const fix: Bilingual = selfLabel
     ? {
-        vi: `Mở ${upstreamLabel.vi} để sửa · hoặc nhập thẳng ${selfLabel.vi} tại đây.`,
-        en: `Open ${upstreamLabel.en} to fix it · or override ${selfLabel.en} here.`,
+        vi: `Sửa số ở thẻ ${tenTren.vi} trong khối "Số liệu lấy từ công thức khác", hoặc gõ thẳng vào ô "${selfLabel.vi}" ở khối Số liệu.`,
+        en: `Fix the number on the ${tenTren.en} card in the "Numbers taken from other formulas" block, or type straight into the "${selfLabel.en}" field in the Inputs block.`,
       }
     : {
-        vi: `Sửa ${upstreamLabel.vi} hoặc nhập thẳng giá trị này.`,
-        en: `Fix ${upstreamLabel.en} or enter this value manually.`,
+        vi: `Sửa số ở thẻ ${tenTren.vi} trong khối "Số liệu lấy từ công thức khác", hoặc gõ thẳng giá trị này.`,
+        en: `Fix the number on the ${tenTren.en} card in the "Numbers taken from other formulas" block, or type this value in.`,
       };
   return {
     code: 'INHERITED',
     message: {
-      vi: `Chưa tính được vì ${upstreamLabel.vi} ở bước trước đang lỗi.`,
-      en: `Cannot calculate because ${upstreamLabel.en} in the previous step is broken.`,
+      vi: `Chưa tính được vì bước ${tenTren.vi} ở khối "Số liệu lấy từ công thức khác" đang lỗi.`,
+      en: `Cannot calculate because the ${tenTren.en} step in the "Numbers taken from other formulas" block is broken.`,
     },
     fix,
   };

@@ -113,7 +113,7 @@ export const vi = {
    * khác việc — không phải chỗ để hồi sinh khoá cũ.
    */
   /* Khối lối tắt ở trạng thái chưa gõ gì. Số trên ô là số công thức ĐÃ DÙNG ĐƯỢC. */
-  'search.hot.title': 'Danh mục hot',
+  'search.hot.title': 'Nhóm công thức nổi bật',
   /*
    * Thẻ nhóm ở khổ PC — bản vẽ "Thư mục theo nhóm". Hai link cuối thẻ ghép thêm con số hoặc tên
    * nhóm phía sau ("Xem tất cả 20 →", "Mở nhóm Vay nợ →"), nên viết cụt, không dấu chấm.
@@ -451,10 +451,9 @@ export const vi = {
    * sinh, lãi kép…). Hai khoá tách rời vì giữa chúng có `<strong>{mã}</strong>` — ghép một chuỗi
    * rồi cắt lại theo dấu là kiểu vỡ ngay khi dịch sang ngôn ngữ khác trật tự.
    */
-  'detail.presetNoData': 'Công thức này không dùng số liệu của mã',
+  'detail.presetNoData': 'Chưa cấp được số nào cho công thức này từ mã',
   'detail.presetNoDataFix':
-    'Nó chạy bằng số của chính bạn — nhập thẳng vào các ô ở trên, hoặc bấm "Xem ví dụ thực tế" để ' +
-    'dùng bộ số của ví dụ.',
+    'Thường do chưa tra được thị giá. Chọn mã khác, hoặc tự nhập số vào các ô ở trên.',
   /*
    * ── Dải "AAA điền được 2 trong 4 ô…" ĐÃ BỎ, cùng cả cụm khoá `detail.presetPartial*` ──────
    *
@@ -529,8 +528,8 @@ export const vi = {
    * mà đó đúng là việc của khung "cách tính" khi rê chuột vào ký hiệu (`src/core/how-to/`).
    */
   'detail.pasteSeries': 'Sử dụng dữ liệu mẫu',
-  'detail.loadExample': 'Xem ví dụ minh hoạ',
-  'detail.exampleLoaded': 'Đã xem ví dụ minh hoạ ✓',
+  'detail.loadExample': 'Nạp ví dụ minh hoạ',
+  'detail.exampleLoaded': 'Đã nạp ví dụ minh hoạ ✓',
   /* `detail.exampleSeriesLabel` đã BỎ — câu biểu đồ giờ dùng `dataset.name` ('FPT', 'VN-Index')
      thay vì chuỗi i18n cố định; xem `chartSeriesLabel` ở `FormulaDetail.tsx`. Bỏ: 29/09/2026. */
   /*
@@ -740,8 +739,11 @@ export const vi = {
    * là bốn mã này", còn câu kia trả lời "vừa bấm Nạp thì có gì đổi": hai câu hỏi khác nhau.
    */
   'preset.noTickerNote':
-    'Bốn mã dưới đây không đổi được ô nào của công thức này — nó chạy bằng số của chính bạn. Nạp ' +
-    'một mã ở đây chỉ để mã đó theo bạn sang những công thức có dùng tới.',
+    'Bốn mã dưới đây không đổi được ô nào của công thức này, vì nó chạy bằng số của chính bạn.',
+  /* XIRR là công thức duy nhất bật nút Nạp mà không có ô nào điền theo mã: Nạp thay bảng dòng tiền (REVIEW-4 L11-01). */
+  'preset.noTickerXirr':
+    'Nạp một mã ở đây sẽ thay bảng dòng tiền bằng hai dòng dựng từ giá của mã: chi 100.000.000 ₫ ở ' +
+    'phiên đầu, thu giá trị tương ứng ở phiên gần nhất.',
   'preset.cannotCompute': 'không ra kết quả với mã này',
   /* Dòng phụ cho công thức chỉ ăn chuỗi giá: mức giá là thứ duy nhất khác nhau giữa các mã. */
   'preset.lastPrice': 'Giá phiên gần nhất',

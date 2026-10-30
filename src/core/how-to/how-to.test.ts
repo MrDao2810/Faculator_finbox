@@ -259,12 +259,16 @@ describe('khung cách tính — phủ đủ và khai đúng chỗ', () => {
     );
   });
 
-  it.skipIf(dangLoc)('tổng số khung: 112 — 82 derived, 23 linked, 7 defined', () => {
+  /*
+   * 112 → 113 ngày 30/10/2026: `do-bien-dong-lich-su` viết thẳng độ lệch chuẩn mẫu trong hình, nên
+   * một khung (`\sigma`) thành hai (`u_t`, `\bar{u}`).
+   */
+  it.skipIf(dangLoc)('tổng số khung: 113 — 83 derived, 23 linked, 7 defined', () => {
     const dem = { derived: 0, linked: 0, defined: 0 };
     for (const spec of ALL_FORMULAS) {
       for (const entry of HOW_TO[spec.id]?.entries ?? []) dem[entry.kind] += 1;
     }
-    expect(dem).toEqual({ derived: 82, linked: 23, defined: 7 });
+    expect(dem).toEqual({ derived: 83, linked: 23, defined: 7 });
   });
 
   it('công thức không có khung nào phải ghi lý do — và có khung thì không ghi', () => {

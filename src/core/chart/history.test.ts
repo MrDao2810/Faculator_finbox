@@ -628,10 +628,12 @@ describe('mỗi phiên dùng đúng chuỗi giá của tiền tố, kể cả kh
       const points = historyPoints(formula, inputs, ctx);
       coLo.forEach((bar, i) => {
         const close = bar.close;
+        // Phiên không có close dương thì ô giá là NaN (29/10/2026), không phải giá người dùng đang gõ.
+        const gia = close !== null && Number.isFinite(close) && close > 0 ? close : Number.NaN;
         const sessionInputs =
-          close === null || !Number.isFinite(close) || plan.priceKeys.length === 0
+          plan.priceKeys.length === 0
             ? inputs
-            : { ...inputs, ...Object.fromEntries(plan.priceKeys.map((key) => [key, close])) };
+            : { ...inputs, ...Object.fromEntries(plan.priceKeys.map((key) => [key, gia])) };
         const cachCu: CalcContext = {
           ...ctx,
           bars: coLo.slice(0, i + 1),
@@ -651,5 +653,31 @@ describe('mỗi phiên dùng đúng chuỗi giá của tiền tố, kể cả kh
       });
     }
     expect(soCongThuc).toBeGreaterThan(30);
+  });
+
+  it('phiên có Đóng cửa trống hoặc 0 thì không vẽ số (không dùng giá đang gõ, không thế giá 0)', () => {
+    const hong = BARS.map((bar, i) =>
+      i === 20 ? { ...bar, close: null } : i === 30 ? { ...bar, close: 0 } : bar,
+    );
+    const ctx: CalcContext = {
+      ...WITH_BARS,
+      bars: hong,
+      series: hong
+        .map((row) => row.close)
+        .filter((value): value is number => typeof value === 'number' && value > 0),
+    };
+    let soCongThuc = 0;
+    for (const id of ['pe', 'bien-an-toan', 'hpr', 'roi-rong']) {
+      const formula = moduleOf(id);
+      const plan = historyPlan(formula, ASOF);
+      if (plan === null || plan.priceKeys.length === 0) continue;
+      soCongThuc += 1;
+      const points = historyPoints(formula, defaultInputs(formula.spec), ctx);
+      expect(points[19]?.y, `${id} · phiên liền trước`).not.toBeNull();
+      expect(points[20]?.y, `${id} · close trống`).toBeNull();
+      expect(points[30]?.y, `${id} · close 0`).toBeNull();
+      expect(points[31]?.y, `${id} · phiên liền sau`).not.toBeNull();
+    }
+    expect(soCongThuc).toBeGreaterThanOrEqual(2);
   });
 });

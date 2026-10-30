@@ -989,15 +989,15 @@ export const RSI_WILDER: FormulaModule = {
       {
         latex: '\\overline{Gain}_n',
         meaning: {
-          vi: 'trung bình mức tăng giá mỗi phiên trong ô Số phiên, làm mượt theo Wilder, ₫',
-          en: 'average per-session price gain over the Sessions field, Wilder-smoothed, ₫',
+          vi: 'trung bình mức tăng giá mỗi phiên, làm mượt theo Wilder với chu kỳ ô Số phiên, ₫',
+          en: 'average per-session price gain, Wilder-smoothed with the Sessions field as period, ₫',
         },
       },
       {
         latex: '\\overline{Loss}_n',
         meaning: {
-          vi: 'trung bình mức giảm giá mỗi phiên trong ô Số phiên, làm mượt theo Wilder, ₫',
-          en: 'average per-session price loss over the Sessions field, Wilder-smoothed, ₫',
+          vi: 'trung bình mức giảm giá mỗi phiên, làm mượt theo Wilder với chu kỳ ô Số phiên, ₫',
+          en: 'average per-session price loss, Wilder-smoothed with the Sessions field as period, ₫',
         },
       },
     ],
@@ -1135,8 +1135,8 @@ export const RSI_WILDER: FormulaModule = {
             en: 'The closing price stayed unchanged throughout the period, so there is no upward or downward momentum to compare.',
           },
           {
-            vi: 'Chọn chuỗi giá có biến động, hoặc kéo dài số phiên để bao được nhịp giá gần nhất.',
-            en: 'Choose a price series with some movement, or extend the number of periods to capture the most recent price swing.',
+            vi: 'Chọn chuỗi giá có biến động trong những phiên gần nhất; giá đứng yên thì RSI không có nghĩa.',
+            en: 'Choose a price series that moved in the most recent sessions; with a flat price RSI has no meaning.',
           },
         ),
       );
@@ -1161,8 +1161,8 @@ export const ROC_TOC_DO_THAY_DOI: FormulaModule = {
     categoryId: 'technical',
     name: { vi: 'Tốc độ thay đổi giá (ROC)', en: 'Rate of change (ROC)' },
     description: {
-      vi: 'Giá hôm nay cao hơn hay thấp hơn giá của n phiên trước bao nhiêu phần trăm.',
-      en: "How many percent today's price is above or below the price from n periods ago.",
+      vi: 'Giá phiên cuối của chuỗi cao hơn hay thấp hơn giá của n phiên trước bao nhiêu phần trăm.',
+      en: "How many percent the last session's price is above or below the price from n periods ago.",
     },
     latex: 'ROC = \\left(\\frac{P_t}{P_{t-n}} - 1\\right) \\times 100',
     expression: {

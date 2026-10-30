@@ -586,10 +586,10 @@ export const TONG_LOI_SUAT_TAI_DAU_TU: FormulaModule = {
       unit: '%',
       parts: [
         { key: 'fromPriceGrowth', label: { vi: 'Phần do giá tăng', en: 'From price growth' } },
-        /* Rút ngắn 26/10/2026 ("Phần thêm nhờ cổ tức tái đầu tư"): bị cắt trên hình thanh ngang. */
+        /* Rút ngắn 26/10/2026, gọi lại đúng nghĩa 29/10/2026: phần này là `total − fromPriceGrowth`, tức TOÀN BỘ phần cổ tức góp vào, cả tiền cổ tức người không tái đầu tư vẫn nhận, nên không gọi là "nhờ tái đầu tư". */
         {
           key: 'fromReinvestedDividends',
-          label: { vi: 'Phần nhờ tái đầu tư', en: 'From reinvesting' },
+          label: { vi: 'Phần nhờ cổ tức', en: 'From dividends' },
         },
       ],
     },
@@ -656,8 +656,8 @@ export const TONG_LOI_SUAT_TAI_DAU_TU: FormulaModule = {
       inputs: { priceGrowth: 19.29, dividendYield: 2.75, years: 5 },
       expected: 176.6492,
       note: {
-        vi: 'So với số vốn bỏ ra lúc đầu: sau 5 năm số tiền thành gấp 2,77 lần, tức tăng 176,65%, trong đó riêng phần giá tăng cho 141,56%, còn lại nhờ cổ tức đem mua thêm cổ phiếu. Con số giả định giá tăng đều 19,29% mỗi năm suốt 5 năm và tính cổ tức trước thuế, trừ 5% thuế cổ tức thì còn 174,8%.',
-        en: 'Compared with the money put in at the start: after five years it has grown to 2.77 times, a 176.65% gain, of which price growth alone gives 141.56% and the rest comes from dividends used to buy more shares. The figure assumes the price rises a steady 19.29% a year for all five years and counts the dividend before tax, and after the 5% dividend tax it drops to 174.8%.',
+        vi: 'So với số vốn bỏ ra lúc đầu: sau 5 năm số tiền thành gấp 2,77 lần, tức tăng 176,65%, trong đó riêng phần giá tăng cho 141,56%, còn lại là phần cổ tức đóng góp, kể cả lãi của số cổ phiếu mua thêm. Con số giả định giá tăng đều 19,29% mỗi năm suốt 5 năm và tính cổ tức trước thuế, trừ 5% thuế cổ tức thì còn 174,8%.',
+        en: 'Compared with the money put in at the start: after five years it has grown to 2.77 times, a 176.65% gain, of which price growth alone gives 141.56% and the rest is the contribution of dividends, including the gains on the shares bought with it. It assumes the price rises a steady 19.29% a year and counts the dividend before tax, and after the 5% dividend tax it drops to 174.8%.',
       },
       source: {
         vi: 'Mức tăng giá lấy theo VN-Index giai đoạn 9/2024–8/2026, tỷ suất cổ tức lấy theo FPT tại thị giá 11/09/2026; hai nguồn ghép lại để minh hoạ tác động tái đầu tư.',
@@ -747,7 +747,7 @@ export const TONG_LOI_SUAT_TAI_DAU_TU: FormulaModule = {
       },
       {
         key: 'fromReinvestedDividends',
-        label: { vi: 'Phần thêm nhờ cổ tức tái đầu tư', en: 'Extra from reinvested dividends' },
+        label: { vi: 'Phần do cổ tức (gồm tái đầu tư)', en: 'From dividends (incl. reinvesting)' },
         tone: 'teal',
       },
     ],
@@ -1080,15 +1080,15 @@ export const IRR_NIEN_KIM: FormulaModule = {
       {
         latex: 'P',
         meaning: {
-          vi: 'vốn bỏ ra ban đầu, một lần ở đầu kỳ 0, ₫',
-          en: 'initial capital invested, a single sum at period 0, ₫',
+          vi: 'khoản một lần ở đầu kỳ 0, vốn bỏ ra hoặc tiền vay nhận về, ₫',
+          en: 'single sum at period 0, the capital put in or the loan received, ₫',
         },
       },
       {
         latex: 'C',
         meaning: {
-          vi: 'dòng thu đều nhận về cuối mỗi kỳ, ₫',
-          en: 'equal payment received at the end of each period, ₫',
+          vi: 'khoản đều cuối mỗi kỳ, tiền thu về hoặc tiền trả góp, ₫',
+          en: 'equal amount at the end of each period, income received or installment paid, ₫',
         },
       },
       {
@@ -1117,8 +1117,8 @@ export const IRR_NIEN_KIM: FormulaModule = {
           min: 0,
           max: 100_000_000_000,
           description: {
-            vi: 'Khoản chi một lần ở đầu kỳ 0.',
-            en: 'A single lump sum paid out at the start, period 0.',
+            vi: 'Khoản tiền một lần ở đầu kỳ 0: vốn bạn bỏ ra, hoặc số tiền vay bạn nhận về nếu bạn là người vay.',
+            en: 'A single lump sum at the start, period 0: the capital you put in, or the loan you receive if you are the borrower.',
           },
         },
       ),
@@ -1131,8 +1131,8 @@ export const IRR_NIEN_KIM: FormulaModule = {
           min: 0,
           max: 100_000_000_000,
           description: {
-            vi: 'Khoản nhận về như nhau ở cuối mỗi kỳ.',
-            en: 'The same amount received at the end of every period.',
+            vi: 'Khoản bằng nhau ở cuối mỗi kỳ: tiền bạn nhận về, hoặc tiền trả góp nếu bạn là người vay.',
+            en: 'The same amount at the end of every period: what you receive, or your installment if you are the borrower.',
           },
         },
       ),
@@ -1336,7 +1336,7 @@ export const THOI_GIAN_NHAN_DOI: FormulaModule = {
   spec: {
     id: 'thoi-gian-nhan-doi',
     categoryId: 'returns',
-    name: { vi: 'Thời gian nhân đôi vốn', en: 'Doubling time (rule of 72)' },
+    name: { vi: 'Thời gian nhân đôi vốn', en: 'Doubling time' },
     description: {
       vi: 'Cần bao nhiêu năm để vốn tăng gấp đôi ở một mức lợi suất kép cho trước.',
       en: 'How many years it takes for capital to double at a given compound rate of return.',
@@ -1790,8 +1790,8 @@ export const LOI_SUAT_VUOT_CHUAN: FormulaModule = {
     ],
     explanation: {
       meaning: {
-        vi: 'Phần thành tích thật sự do lựa chọn đầu tư tạo ra, sau khi trừ đi mặt bằng chung.',
-        en: 'The share of performance genuinely created by the investment choices, after subtracting the general market backdrop.',
+        vi: 'Phần lợi suất hơn hoặc kém chuẩn so sánh; chưa điều chỉnh theo mức rủi ro đã chịu.',
+        en: 'The return above or below the benchmark, not yet adjusted for the risk taken.',
       },
       whenToUse: {
         vi: 'Dùng khi bạn tổng kết danh mục cuối năm và muốn biết việc tự chọn mã đã giúp mình hơn hay kém VN-Index cùng kỳ bao nhiêu.',

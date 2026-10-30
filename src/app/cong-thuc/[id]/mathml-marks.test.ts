@@ -63,6 +63,17 @@ describe('markSymbols() — luật khớp', () => {
     expect(soCho('C = V^{1/t} - 1', ['C', 'V', 't'], 2)).toBe(1);
   });
 
+  it('luật 7 — chữ n của chỉ số "nam" không phải ký hiệu n', () => {
+    // Hình cũ của `do-bien-dong-lich-su`: rê vào chữ n của `nam` mở chú thích "số phiên giá lấy mẫu".
+    expect(soCho('\\sigma_{nam} = s_{n} \\times 2', ['\\sigma_{nam}', 's_{n}', 'n'], 2)).toBe(1);
+    // `m` trong `P_{mo}` của lãi lỗ vị thế cũng vậy.
+    expect(soCho('L = (P_{dong} - P_{mo}) \\times m', ['L', 'P_{dong}', 'P_{mo}', 'm'], 3)).toBe(1);
+  });
+
+  it('luật 7 — dòng bảng phủ trọn cụm chỉ số thì vẫn khớp: số mũ n t là tích n × t', () => {
+    expect(soCho('A = P^{n t}', ['A', 'P', 'n t'], 2)).toBe(1);
+  });
+
   it('luật 6 — không khớp một dãy vắt qua hai đối số của phân số', () => {
     // "a b" là một dãy hai chữ; trong \frac{a}{b} hai chữ ấy là tử và mẫu, không phải một dãy.
     expect(soCho('x = \\frac{a}{b}', ['x', 'a b', 'a', 'b'], 1)).toBe(0);

@@ -3129,11 +3129,11 @@ window.__localeLog = [];
    */
   await open('/cong-thuc/ema-n-phien/');
   await waitFor(
-    "[...document.querySelectorAll('button')].some((b) => /Xem ví dụ minh hoạ/.test(b.textContent ?? ''))",
+    "[...document.querySelectorAll('button')].some((b) => /Nạp ví dụ minh hoạ/.test(b.textContent ?? ''))",
   );
   const nenPc = await evaluate(`(async () => {
     const { chon, cho } = await ${DOI_DANG}();
-    const nut = [...document.querySelectorAll('button')].find((b) => /Xem ví dụ minh hoạ/.test(b.textContent ?? ''));
+    const nut = [...document.querySelectorAll('button')].find((b) => /Nạp ví dụ minh hoạ/.test(b.textContent ?? ''));
     if (!nut) return { loi: 'không thấy nút Xem ví dụ minh hoạ' };
     /* Bấm lại mỗi giây: cú bấm trước khi hydrate xong thì không có trình xử lý nào nhận. */
     for (let i = 0; i < 40 && !document.querySelector('figure path[data-points]'); i += 1) {
@@ -3172,11 +3172,11 @@ window.__localeLog = [];
    */
   await open('/cong-thuc/var-lich-su/');
   await waitFor(
-    "[...document.querySelectorAll('button')].some((b) => /Xem ví dụ minh hoạ/.test(b.textContent ?? ''))",
+    "[...document.querySelectorAll('button')].some((b) => /Nạp ví dụ minh hoạ/.test(b.textContent ?? ''))",
   );
   const phanPhoiPc = await evaluate(`(async () => {
     const { chon, cho } = await ${DOI_DANG}();
-    const nut = [...document.querySelectorAll('button')].find((b) => /Xem ví dụ minh hoạ/.test(b.textContent ?? ''));
+    const nut = [...document.querySelectorAll('button')].find((b) => /Nạp ví dụ minh hoạ/.test(b.textContent ?? ''));
     if (!nut) return { loi: 'không thấy nút Xem ví dụ minh hoạ' };
     for (let i = 0; i < 40 && !document.querySelector('figure path[data-points]'); i += 1) {
       if (i % 10 === 0) nut.click();
@@ -3475,7 +3475,7 @@ window.__localeLog = [];
       ) ?? null;
     const hot =
       [...document.querySelectorAll('h2')]
-        .find((h) => /Danh mục hot/.test(h.textContent ?? ''))
+        .find((h) => /Nhóm công thức nổi bật/.test(h.textContent ?? ''))
         ?.closest('section') ?? null;
     const the = luoi === null ? [] : [...luoi.querySelectorAll(':scope > li > section')];
     const dau = the[0] ?? null;

@@ -4,6 +4,232 @@ Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 
 ---
 
+## Bỏ chữ "Hiện giá" ở biểu đồ DDM hai giai đoạn (30/10/2026)
+
+**Trạng thái: CHƯA XONG — chờ chủ dự án xem.**
+
+Chủ dự án khoanh "Hiện" trong chú thích vành khuyên "Hiện giá cổ tức GĐ1": _"'Hiện' nghĩa là sao ? Bỏ đi"_. "Hiện giá"
+(giá trị hiện tại) do lượt rà câu chữ 29/10 đặt (REVIEW-4, L01-10), thay cho "Cổ tức giai đoạn 1" / "Giá trị cuối kỳ"
+vì hai số ấy đã chiết khấu. Xoá riêng chữ "Hiện" thì còn "giá cổ tức GĐ1", sai nghĩa, nên đổi cả hai nhãn:
+"Phần giai đoạn đầu" và "Phần dài hạn" (EN "First-stage part", "Long-run part"). "Phần …" là một phần của Giá trị
+cổ phiếu ở hôm nay (tổng của hình), nên vẫn đúng là số đã quy về hôm nay; "giai đoạn đầu", "dài hạn" là chữ của hai ô
+tăng trưởng trên màn.
+
+- `src/core/formulas/valuation-dcf.ts`: hai `shortLabel` của `breakdown`.
+- `src/core/huong-dan/bieu-do/noi-dung/dinh-gia.ts`: đoạn "Đọc biểu đồ" trích tên thanh (vi, en).
+- `src/core/chart/chart.test.ts`: ca ghim tên thanh.
+
+Kiểm: `npm run check` xanh (210 file, 5.075 ca). Trên Chrome thật (dev, 390 và 1440): chú thích vành khuyên và khung
+bật khi rê vào hai lát đọc đúng hai nhãn mới.
+
+Chưa đụng: một đáp án bài tập ở `src/core/quiz/items/valuation-dcf.ts` ("Cộng thẳng vào tổng hiện giá các dòng tiền")
+cũng dùng "hiện giá".
+
+---
+
+## Hình và chú thích của "Độ biến động lịch sử năm hoá" (30/10/2026)
+
+**Trạng thái: CHƯA XONG — chờ chủ dự án xem.**
+
+Chủ dự án rê vào n trên `do-bien-dong-lich-su`: chữ n của "nam" mở chú thích của n, phần "am" mở chú thích của
+σ*nam, và hình viết `σ_n(ln P_t/P*{t−1})` không có dấu phép tính nào giữa σ và n.
+
+Hai lỗi, sửa cả hai:
+
+- **Gắn dấu ký hiệu sai chỗ** (`src/app/cong-thuc/[id]/mathml-marks.ts`, luật 7). KaTeX dựng chỉ số `nam` thành ba chữ
+  rời, bộ gắn dấu khớp dòng `n` vào chữ đầu. Đo trên cả 111 hình: thêm 7 hình cùng lỗi (`loi-suat-nam-hoa`,
+  `dai-bollinger-tren`, `do-rong-dai-bollinger`, `lai-lo-vi-the-long`, `lai-lo-vi-the-short`, `so-hop-dong-toi-da`;
+  chữ `m`/`n` trong `nam`, `tren`, `mo`, `max`). Giờ trong chỉ số toàn chữ chỉ dòng phủ trọn cụm mới khớp; số mũ `n t`
+  của `lai-kep` (tích n × t) giữ nguyên. Hai ca mới trong `mathml-marks.test.ts`, ca đầu đỏ trên mã cũ.
+- **Hình viết kiểu hàm số** (`src/core/formulas/technical-volatility.ts`). `σ_n(…)` là lối `ký hiệu(đối số)` đã bị cấm
+  từ 22/09/2026. Hình mới hai vế, theo khuôn `do-lech-chuan-loi-suat-phien`:
+  `σ_nam = s × √N × 100` và `s = √( Σ_{t=2}^{n} (u_t − ū)² ÷ (n − 2) )`. Bảng ký hiệu bỏ `σ`, `ln P_t/P_{t−1}`, `P_t`,
+  `P_{t−1}`, thêm `s`, `u_t`, `ū`, `n − 2` (nói vì sao chia n − 2). Dòng chữ hai dòng. Khung cách tính
+  (`src/core/how-to/technical-volatility.ts`) chuyển sang `u_t` (ln P*t/P*{t−1}) và `ū`. Lời giải ví dụ
+  (`src/core/vi-du/items.ts`) và lời giải bài tập Q308 (`src/core/quiz/items/technical.ts`) đổi ký hiệu theo.
+  Ghim cập nhật: 113 khung (83 derived), 483 dòng có cụm chữ. Kết quả tính không đổi (calc không sửa).
+
+Kiểm: `npm run check` xanh (210 file, 5.075 ca). Chưa xem trên trình duyệt.
+
+Còn lại: câu bài tập điền số Q308 viết `(5 − 1)` (5 lợi suất) trong khi hình giờ ghi `n − 2`
+theo số phiên GIÁ (6 − 2): cùng số, khác cách đếm. Chưa sửa, chờ chủ dự án quyết.
+
+---
+
+## Rà lỗi toàn dự án: kiểm thử máy, quét trình duyệt, 10 mảng mã (29/10/2026)
+
+**Trạng thái: CHƯA XONG — đợt 1 và đợt 2 ĐÃ SỬA (xem "Đã sửa" ngay dưới), chờ chủ dự án xem; còn đợt 3 và mức thấp.**
+Chủ dự án: _"kiểm tra lại toàn bộ dự án + kiểm thử để phân tích các lỗi phát sinh"_, rồi _"tiếp tục sửa"_. Phần rà chạy ở
+bản sao của `HEAD a400fc5`; phần sửa nằm trong cây làm việc.
+
+**Đã sửa (29/10/2026), mỗi lỗi một ca test đỏ trước trên bản agent tái hiện, xanh sau; `npm run check` xanh (209 file,
+5.072 ca), lint, tsc, prettier sạch. Chưa build lại, chưa chạy `check:chrome`.**
+
+- Lỗi 1 (đường thời gian): `history.ts` `ketQuaPhien` đặt ô giá của phiên không có close dương là `NaN` (công thức báo
+  thiếu số, điểm gạch chéo). Ca mới trong `history.test.ts`; ca "cắt rồi lọc lại từng tiền tố" sửa theo luật mới.
+- Lỗi 2 (dán thêm): `PasteImportSheet.tsx` `applyBlock` giữ quy ước `vi` khi lưới do tấm tự viết, mẩu dán được đoán
+  riêng rồi viết lại kiểu Việt (`latest.current` mang thêm `style`). Ca mới trong `PasteImportSheet.test.tsx`.
+- Lỗi 3 (XIRR): `xirr.ts` trả `null` khi mọi dòng tiền cùng một ngày. Ca mới trong `portfolio.test.ts`.
+- Lỗi 4 (ghi nhầm phiên): `DataTableScreen.tsx` chỉ sắp lại theo ngày khi tiêu điểm rời hẳn phần thân bảng, không sắp
+  khi chỉ sang dòng khác. Cái giá: sửa ngày dòng 1 rồi Tab sang dòng 2, bảng chưa nhảy chỗ cho tới khi rời bảng.
+- Lỗi 5 (dòng trống đẻ thêm): `applyBlock` bỏ dòng trống ở đuôi lưới trước khi cắt trần và nối dòng trống mới.
+- Lỗi 6 (CSV nạp lại): `paste-import.ts` `commaSplitsColumns` tin phẩy là dấu ngăn cột khi dòng đầu là tiêu đề
+  (`looksLikeHeader`) và đa số dòng thân cắt ra đúng số ô ấy. Ca "Ngày,Giá" + "15/07,25,40" vẫn là số thập phân.
+- Lỗi 7 (chạm ô xoá chuỗi đã dán): `onLeave` chỉ thay mảng khi thứ tự thật sự đổi.
+- Lỗi Beta (11): `risk-ratios.ts` báo `MEANINGLESS` khi cửa sổ `sessions` gần nhất có phiên thiếu hoặc sai close. Ghép theo
+  NGÀY không làm được vì `ctx.marketSeries` không mang ngày. `dong-luong-momentum` (lệch "n phiên trước" khi có phiên
+  trống) CHƯA sửa. File mới `beta-phien-hong.test.ts`.
+- Lỗi 8, 9 và mục thấp `putCapped` (service worker): `sw.js` thêm `pageFromCache()`: `index.txt` chuyển sang chính trang,
+  URL có truy vấn trả thẳng HTML, URL thiếu gạch chéo chuyển sang bản có gạch; `putCapped` chỉ bảo vệ khung thật
+  (`/cong-thuc/` không truy vấn) và xoá đủ số mục thừa. Không đổi `CACHE` vì nội dung kho không đổi. File mới
+  `src/ui/layout/service-worker-fetch.test.ts` nạp nguyên `public/sw.js` vào một hàm với `caches`, `fetch` giả.
+- Lỗi 10 (`asOf`) và mục thấp làm tròn giá vốn: `PortfolioScreen.tsx` đặt lại `asOf` lúc tab hiện lại, `pageshow`, Làm mới
+  và lúc lưu; ô Sửa đổ số với `maxDecimals: 20`. File mới `PortfolioScreen.ngay-dinh-gia.test.tsx`.
+- Lỗi 13 (nút VI/EN): `preferences-context.tsx` có thêm `lanThu`; `setLocale` tăng nó khi chọn lại đúng ngôn ngữ đã lưu mà
+  từ điển chưa nạp được. File mới `preferences-context.thu-lai.test.tsx`.
+- Lỗi 14 (tiêu điểm): `GuideHintPanel.tsx` trả tiêu điểm về nút "?" khi Esc đóng khung lúc tiêu điểm đang ở trong khung.
+  File mới `FormulaDetail.guide-focus.test.tsx`. Ghi chú cũ trong `FormulaDetail.tsx` ("không có gì nhận tiêu điểm")
+  vẫn còn, đã hết đúng.
+- Lỗi 15 (nút ‹): `HeaderIdentity.tsx` gắn `key={pathname}` cho `BackLink`. Sửa `useBackTarget` bằng `usePathname`
+  làm vỡ mọi test mock `next/navigation` chỉ với `useRouter`, nên đã bỏ cách đó. File mới
+  `HeaderIdentity.dieu-huong.test.tsx` (đỏ khi bỏ `key`, đã kiểm).
+- Lỗi 12 (dạng Cột khoá theo nhãn): `LineChart.tsx` khoá cột bằng chỉ số điểm. File mới `line-bar-keys.test.tsx` (đỏ
+  41 → 71 cột khi trả lại khoá cũ, đã kiểm).
+- **Chưa sửa** (mức thấp): Thang đo xếp giá trị đúng bằng mốc (80 %) vào vùng trên, trục không nhãn khi chuỗi không ngày,
+  "-0 %", chia sẻ lần hai trong 5 giây, câu "Mã chưa tra được thị giá" lúc đang tải, giá không ngày phiên,
+  khung chú thích lệch khi đổi cỡ cửa sổ, `dong-luong-momentum` lệch khi có phiên trống.
+
+**Kiểm thử máy (trên HEAD).**
+
+- `npm run check` xanh: 203 file, 5.050 ca đạt, 48 bỏ qua.
+- Build ở bản sao: `verify:static` 55/56, `check:chrome` 208/216, `size` đỏ như trước (trang chi tiết 208–260 kB so với
+  cổng 180). Bản sao phải tạo bằng `git -c core.autocrlf=false archive`: máy này đặt `core.autocrlf=true`, `git archive`
+  mặc định ghi CRLF và làm hỏng thêm một ca của `verify:static` (lời giải ví dụ của `pe`), trông như lỗi sản phẩm mà không
+  phải.
+- Quét Chrome thật trên bản build: khoảng 700 lượt tải, 4 cấu hình (vi 1440, vi 360, en + Nâng cao + tối 390, trang
+  hướng dẫn tiếng Anh), mỗi trang chi tiết bấm qua mọi mục "Xem theo", mọi "Loại biểu đồ", mọi ô chọn và gõ 0 /
+  999999999999 / −5: **không một lỗi console, ngoại lệ, request lỗi, chữ NaN/undefined, khoá i18n thô hay tràn ngang**.
+- Quét dev `:3000` (chỉ đọc): chỉ có cảnh báo hydrate đã biết, trên 106/111 trang chi tiết (trừ `xirr` và 4 công thức
+  chuỗi giá). Không cảnh báo nào khác.
+
+**8 ca `check:chrome` và ca `verify:static` "có sẵn" đã được lần nguyên nhân: không ca nào là lỗi người dùng thấy.**
+
+- Phép kiểm lạc hậu sau thay đổi có chủ ý (sửa phép kiểm, không sửa sản phẩm): "rê vào ký hiệu không có bước tính"
+  (từ 28/10 mọi hàng bảng ký hiệu là nút nên bộ chọn không còn tìm được ký hiệu nào), hai ca ngày của `/du-lieu/` (từ
+  21/10 PC in đủ dd/mm/yyyy), và `verify:static` Sortino (từ 28/10 tên kết quả được bọc `<span data-sym>`, `includes`
+  trên HTML thô không thấy "Tỷ số Sortino =").
+- Phép kiểm đo sai thứ (lỗi của công cụ đo): bốn ca "nhãn tràn viewBox" đo hộp em của font qua `getBBox()` chứ không
+  đo mực chữ, nên báo tràn cạnh trên trong khi chữ vẫn nằm trong khung (ngoại lệ hiếm: chữ HOA mang dấu chồng như Ể);
+  ca "hàng nút form thêm mã" đo tới mép viền footer nên luôn ra đúng 20px padding, đỏ từ 23/09.
+
+**Lỗi tìm được và đã chạy lại bằng bản tái hiện** (mỗi lỗi do một agent rà, rồi một agent khác cố bác bỏ và tự chạy lại;
+mức ghi theo agent kiểm chứng). Tái hiện nằm ở thư mục scratch của phiên, không ở repo: khi sửa, viết lại thành ca test.
+
+Mức CAO:
+
+1. **Đường thời gian vẽ số sai ở phiên có Đóng cửa trống hoặc 0** (`src/core/chart/history.ts:285`, `ketQuaPhien`). Close
+   `null` rơi về giá người dùng đang gõ, close 0 được thay thẳng làm giá, trong khi `ctx.series` lại loại mọi close không
+   dương. `pe` với phiên 08/09 trống vẽ 15,21 lần giữa các phiên ~11,97; close 0 thì `bien-an-toan` vẽ 100 %, `hpr` −97,44 %.
+   Vi phạm FR-06. Sửa: phiên không có close dương thì `fail(MISSING_SERIES)` (gạch chéo), thêm ca vào `history.test.ts`.
+2. **Dán thêm vào lưới đã có chuỗi: giá cũ bị đọc nhỏ đi 1.000 lần** (`PasteImportSheet.tsx:1103`, `applyBlock`). Nhánh
+   dán thêm luôn `setStyle(null)` nên quy ước số đoán lại trên cả lưới; dán một dòng chép từ trang tiếng Anh (`73,500`)
+   làm 5 phiên cũ `72.700 …` thành `72,7 …`, nút Nạp không bị khoá. Sửa: giữ quy ước `vi` cho các ô đã có, đoán riêng cho mẩu dán.
+3. **XIRR toàn DM in "10 %" khi mọi dòng tiền cùng một ngày và cân nhau** (`src/core/xirr.ts:82`). `npv` luôn bằng 0 nên vòng
+   Newton đầu trả luôn giá trị đoán khởi điểm 0,1. Mã mua hôm nay, giá vốn bằng thị giá: lãi/lỗ +0,00 % mà XIRR 10 %. Sửa:
+   trả `null` khi mọi `years` bằng 0 (và `summarisePortfolio` rơi về `MEANINGLESS`).
+
+Mức TRUNG BÌNH:
+
+4. **`/du-lieu/`: sửa ngày rồi bấm sang ô dòng khác, số gõ tiếp ghi vào phiên khác** (`DataTableScreen.tsx:1023`, dòng key
+   theo chỉ số mảng, mà `onLeave` sắp lại mảng; React giữ ô đang có tiêu điểm và gắn dữ liệu phiên khác). Ghi luôn vào
+   `localStorage`.
+5. **Bảng dữ liệu: mỗi lần dán sửa tại chỗ đẻ thêm một dòng trống; lưới gần trần 400 thì mất phiên cũ nhất**
+   (`PasteImportSheet.tsx:1075`). 400 phiên, dán hai ô → "Nạp 399 dòng".
+6. **Nạp lại đúng file CSV sản phẩm xuất ra: giá ngắn (≤ 3 chữ số) bị đọc thành số lẻ, cột lệch, không dòng nào bị báo**
+   (`paste-import.ts:379`, `commaSplitsColumns` bỏ qua dòng tiêu đề đã chứng minh dấu phẩy là dấu ngăn cột).
+7. **`/du-lieu/`: chỉ chạm vào một ô rồi rời ra cũng xoá chuỗi đã dán ở màn chi tiết** (`DataTableScreen.tsx:652`,
+   `sortRowsByDate` luôn trả mảng mới nên effect ghi kho coi là "vừa sửa").
+8. **Mất mạng, bấm sang công thức đã có HTML trong kho lại bị đưa về danh sách** (`public/sw.js:184`). Next tải cứng
+   `…/index.txt`, kho không có khoá đó, `sw.js` trả 302 về `/cong-thuc/`. `check:chrome` không phủ đường này.
+9. **Mất mạng, URL có `?luu=`/`?ma=`/`?so=` hoặc thiếu gạch chéo cuối bị 302 về danh sách** (`public/sw.js:181`,
+   `caches.match(request)` không `ignoreSearch`). Cả hai lỗi sw đều sửa trong `handleNavigation`.
+10. **Tab Danh mục mở qua nửa đêm: `asOf` đóng băng, XIRR báo "ngày mua nằm sau ngày định giá" và tính lệch**
+    (`PortfolioScreen.tsx:856`, `setAsOf(todayIso())` chỉ chạy một lần). Cùng giá, FPT mua 19/10: 123,2 % thay vì 106,0 %.
+11. **Beta ra số sai không cảnh báo khi chuỗi giá có một ô Đóng cửa trống** (`risk-ratios.ts:466`). `FormulaDetail` lọc phiên
+    thiếu giá khỏi `ctx.series`, Beta ghép lợi suất theo chỉ số mảng với VN-Index nên mọi cặp phía trước lệch một phiên:
+    0,8126 → 0,4070. `dong-luong-momentum` lệch cùng kiểu (500 → 100). Sửa: ghép theo NGÀY, hoặc `fail` khi cửa sổ có phiên hỏng.
+12. **Dạng Cột của `LineChart` khoá cột bằng nhãn x; nhãn trùng làm cột "ma" tích tụ** (`LineChart.tsx:537`). `rut-truoc-han`,
+    Nâng cao, trục lãi suất không kỳ hạn, dạng Cột: gõ đổi số, 41 mức vẽ ra 71 rồi 98 cột. Chuỗi không ngày dạng Cột cũng
+    trùng khoá (5.114 cảnh báo khi quét Registry). Sửa: khoá theo `point.x` hoặc chỉ số.
+13. **Nạp từ điển tiếng Anh hỏng một lần thì nút VI/EN chết đến khi tải lại trang** (`preferences-context.tsx:76`, effect
+    chỉ phụ thuộc `[prefs.locale]`). Do đợt hiệu năng 7b3cf18; docblock của `loadLocale` hứa "lần sau thử lại" mà không
+    đường nào dẫn tới lần sau. Gặp được: mở PWA lúc mất mạng rồi bấm VI.
+14. **Đóng khung "?" (Esc hoặc bấm ra ngoài) khi tiêu điểm đang ở nút ký hiệu bên trong làm tiêu điểm rơi về `<body>`**
+    (`GuideHintPanel.tsx:233`). Lộ ra từ đợt 28/10 vì tên ô có `<button>`. Khung "?" cũng không chuyển tiêu điểm vào khi mở
+    bằng bàn phím nên nút ký hiệu mới chỉ với tới sau khi Tab qua gần hết trang.
+15. **Nút quay lại ở thanh trên giữ đích cũ khi đi giữa `/tim-kiem/` và trang chi tiết** (`useBackTarget.ts`, effect không
+    phụ thuộc `pathname`; hai màn trả cùng bộ props nên React giữ instance). Từ chi tiết bấm ‹ "Tìm công thức" về
+    `/tim-kiem/?q=roe`, trên màn tìm kiếm nút ‹ vẫn trỏ về chính nó.
+
+Mức THẤP (agent rà báo, đã chạy lại, **chưa qua vòng phản biện riêng**):
+
+- Giá không có ngày phiên (`asOfDate` null) vẫn hiện: trạng thái `stale` không in ngày phiên (đúng điều CLAUDE.md cấm),
+  `ready` lại báo "Chưa có mã nào tra được thị giá" trong khi bảng có giá (`PortfolioScreen.tsx:2004`; verifier hạ từ
+  trung bình xuống thấp vì cần Finbox trả bản ghi thiếu `date`).
+- Câu "Mã chưa tra được thị giá không nằm trong tổng…" hiện cả lúc giá còn đang tải (`PortfolioScreen.tsx:2577`).
+- Mở "Sửa" rồi Lưu không đụng giá vốn vẫn làm tròn giá vốn trong kho về 2 chữ số lẻ, "Vốn đã bỏ ra" đổi 9.625.000 →
+  9.625.001 (`PortfolioScreen.tsx:1316`, `formatNumber` mặc định 2 số lẻ).
+- Thang đo xếp giá trị đúng bằng mốc (80 %) vào vùng "Sát đỉnh (> 80 %)", còn 20 % vào "Ở giữa (20 – 80 %)" (`gauge.ts:87`).
+- Chuỗi chỉ có cột Đóng cửa (không ngày): trục thời gian không nhãn, figcaption đọc "từ tới ." (`history.ts:209`).
+- `putCapped` của `sw.js` bảo vệ mọi mục `/cong-thuc/` kể cả bản có truy vấn, kho vượt trần và đẩy HTML trang công thức ra ngoài (`sw.js:124`).
+- Khung chú thích `position: fixed` trong khung "?" không đi theo nút ký hiệu khi đổi cỡ cửa sổ, lệch 500px trong test
+  (`use-panel-placement.ts:175`, lỗi của đợt 28/10 mới làm).
+- Kết quả âm rất nhỏ in "-0" (ROI 99.999.000 / 100.000.000 → "-0 %", `format.ts:97`).
+- Bấm Chia sẻ lần nữa trong 5 giây không gia hạn thông báo (`FormulaDetail.tsx:537`, suy từ mã, chưa chạy).
+
+**Cảnh báo hydrate `useId` (đã ghi ở mục hiệu năng): chưa lần ra cơ chế, khuyến nghị đổi.**
+
+- Dựng `FormulaDetailHost` thật của `pe` qua SSR rồi hydrate bằng chính React 19.2 canary mà Next 15.5.22 dùng (chép
+  nguyên `loadable.js`, chunk có sẵn và về trễ 200 ms, có và không Suspense): **id luôn khớp, 0 cảnh báo**. Vậy lệch nằm ở
+  phần runtime riêng của Next (nạp chunk phía server hoặc lớp bọc dev), chưa cô lập được vì không được chạy `next dev`.
+- `useId` có mặt trong HTML tĩnh màn chi tiết: `Input` (mọi ô số, ô ngày bảng XIRR), `Select` (`FeeScheduleField` ở 14
+  công thức phí/thuế), `SliderInput`, `Toggle`, `RadioGroup`. Không lệch vì gắn sau hydrate: mọi `BottomSheet`/popup bài
+  tập, `SearchBox`, `PasteImportSheet`, `Switch` của ExportSheet, `LinkedInput` (chỉ Nâng cao).
+- **Production:** React không vá thuộc tính lệch, nhưng cả `htmlFor` lẫn `id` đều mang id của server nên liên kết nhãn–ô
+  vẫn đúng. Chỉ gãy khi một thuộc tính THAM CHIẾU bị ghi lại sau đó mà phần tử đích còn từ HTML tĩnh (ví dụ `aria-describedby`
+  trỏ `_R_3_-hint` khi span hint vẫn là `_R_2_-hint`). Với props thật của `NumberInput` chưa tìm ra đường người dùng chạm
+  tới, nên mức thấp, nhưng là bom hẹn giờ cho thay đổi sau này.
+- Cách sửa vẫn nghiêng về **cách 1** (id tất định `${spec.id}-${variable.key}` truyền xuống `NumberInput`/`SliderInput`/
+  `SelectInput`/`Toggle`/`RadioGroup`, `FeeScheduleField`, `DateCell` thêm chỉ số dòng; ~8 file; thêm gác "không id dạng React
+  trong HTML tĩnh màn chi tiết" như `charts.test.tsx`). Cách 2 (gỡ `next/dynamic`) mất gần hết lợi First Load JS (234,5 → ~495 kB
+  ở `pe`). Cần một lần `next dev` sau khi sửa để xác nhận nhãn "1 Issue" biến mất.
+
+**Mảng sạch:** các bản `Memo*` và `useDeferredValue` của đợt hiệu năng 2–4 (không thấy dữ liệu cũ khi đổi ngôn ngữ, Cơ bản
+↔ Nâng cao, thêm/bỏ đợt DCA, nạp mẫu); fuzz 111 công thức × min/max/0/âm/1e-9/1e12 × mọi tuỳ chọn qua `runFormula` (không
+ngoại lệ, không `ok()` mang số không hữu hạn, không `fail()` thiếu lý do); `ddm-hai-giai-doan` đã có chặn `dividend === 0`
+(mục "đã biết" trong CLAUDE.md không còn đúng, nên sửa dòng ấy); tìm kiếm 40 truy vấn vi/en; vi.ts ↔ en.ts đủ khoá.
+Ghi chú vụn: `ddm-hai-giai-doan` và `lich-tra-no` với `years` = 1e12 chưa kẹp thì vòng lặp treo máy, giao diện không chạm
+tới (slider và `share-inputs.ts` đều kẹp).
+
+**Còn lại:** chọn thứ tự sửa. Đề xuất đợt 1 gồm các lỗi cho số sai hoặc mất dữ liệu (1, 2, 3, 4, 5, 6, 7, 11); đợt 2 là
+`sw.js` (8, 9), hai lỗi tiêu điểm/nút (13, 14, 15) và `asOf` (10); đợt 3 là hydrate `useId` và sửa các phép kiểm lạc hậu
+của `check:chrome`/`verify:static`; mức thấp gom vào sau.
+
+## Rà câu chữ toàn dự án, lượt thứ tư (29/10/2026)
+
+**Trạng thái: CHƯA XONG — đã rà và đã sửa 30 mục Cao cùng nhóm N1 đến N7 (N3, N5, N6 xong 30/10/2026; chủ dự án giao tự sửa); còn mục Vừa/Thấp theo lô, chờ chủ dự án xem.** Chủ dự án: _"kiểm tra lại toàn bộ câu
+từ trong dự án sau và xem những phần nào đang đang giải thích không rõ ràng, gây hiểu lầm của dự án, đặc biệt là phần
+công thức"_.
+
+- 11 agent chỉ đọc (10 lô công thức + 1 lô chuỗi giao diện và cảnh báo), mọi số chạy lại bằng `runFormula`.
+- Kết quả: `src/core/formulas/REVIEW-4.md` (mới). 221 phát hiện, 30 mức Cao, 7 nhóm sửa đồng loạt, danh sách mục cũ
+  của REVIEW-2/3 chưa áp, đề xuất 5 đợt sửa và 5 câu hỏi cho chủ dự án.
+- Số liệu sạch: mọi số trong "Đọc kết quả" và lời giải ví dụ khớp `calc`, trừ L04-07 (EMA) và L08-17.
+- Một mục cần sửa code: L01-06, `src/data/preset-inputs.ts:136` điền ô E của WACC bằng vốn chủ sổ sách.
+- Không rà: ngân hàng câu hỏi bài tập, đoạn "Đọc biểu đồ", `docKetQua`/`deSai` của hướng dẫn.
+- Đã sửa 29/10/2026: xem mục "Đã sửa trong lượt này" của REVIEW-4.md. Code đổi: `src/data/preset-inputs.ts` (WACC lấy vốn hoá cho ô E), `PresetSheet.tsx` (`preset.noTickerXirr`), `warnings.ts` (`inheritedFrom`, `missingSeries`, nhãn chip), `build.ts`, cùng chữ trong `src/core/formulas/*.ts`, `huong-dan/noi-dung/items.ts`, `i18n/vi.ts`/`en.ts`.
+- Còn lại: mục Vừa/Thấp, N3/N5/N6; ba câu hỏi chưa quyết (đổi tên "Biên độ dao động lớn nhất", ô số lần nhập lãi, nguồn Hull).
+
 ## Khung "Lấy số liệu ở đâu": ký hiệu trong tên ô mở khung chú thích (28/10/2026)
 
 **Trạng thái: CHƯA XONG — đã sửa, chờ chủ dự án xem.** Chủ dự án khoanh '(TSNH)' và '(N)' trong khung "?" của khối Số

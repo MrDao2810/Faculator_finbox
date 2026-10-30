@@ -559,8 +559,8 @@ export const TY_SUAT_CO_TUC: FormulaModule = {
           min: 0,
           max: 1_000_000,
           description: {
-            vi: 'Tổng cổ tức tiền mặt trả cho một cổ phiếu trong một năm.',
-            en: 'Total cash dividend paid per share over one year.',
+            vi: 'Tổng cổ tức tiền mặt một cổ phiếu nhận trong năm, tính bằng đồng, cộng mọi đợt, trước thuế. Nghị quyết thường ghi theo tỷ lệ trên mệnh giá 10.000 ₫, nên cổ tức 15% là 1.500 ₫.',
+            en: 'Total cash dividend one share receives during the year, in dong, adding up every payment, before tax. Resolutions usually state it as a percentage of the 10.000 ₫ par value, so a 15% dividend is 1.500 ₫.',
           },
         },
       ),

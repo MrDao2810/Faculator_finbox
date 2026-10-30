@@ -469,6 +469,47 @@ describe('sửa bảng thì chuỗi đã thay tại chỗ ở màn chi tiết h�
 
     expect(window.sessionStorage.getItem(WORKING_SERIES_KEY)).toBeNull();
   });
+
+  it('chỉ chạm vào một ô rồi rời ra, không sửa gì: chuỗi kia vẫn còn (29/10/2026)', async () => {
+    napBang();
+    gieoChuoiTaiCho();
+    moMan();
+
+    const oDong = await screen.findByLabelText('Dòng 1 · Đóng');
+    fireEvent.focus(oDong);
+    fireEvent.focusOut(oDong, { relatedTarget: document.body });
+
+    expect(window.sessionStorage.getItem(WORKING_SERIES_KEY)).not.toBeNull();
+  });
+});
+
+describe('DataTableScreen — sửa ngày rồi bấm sang dòng khác, số gõ tiếp vào đúng phiên (29/10/2026)', () => {
+  it('chưa xếp lại khi tiêu điểm chỉ chuyển giữa hai dòng; số gõ tiếp ghi vào phiên của ô đang thấy', async () => {
+    napBang(BA_PHIEN);
+    moMan();
+    await screen.findByLabelText('Dòng 1 · Ngày');
+
+    // Dòng 1 là 03/01. Sửa nó thành ngày CŨ nhất rồi bấm thẳng sang ô Mở của dòng 2 (02/01).
+    const oNgay = screen.getByLabelText('Dòng 1 · Ngày');
+    fireEvent.focus(oNgay);
+    fireEvent.change(oNgay, { target: { value: '2024-12-01' } });
+    const oMoDong2 = screen.getByLabelText('Dòng 2 · Mở');
+    fireEvent.focusOut(oNgay, { relatedTarget: oMoDong2 });
+    fireEvent.focus(oMoDong2);
+    fireEvent.change(screen.getByLabelText('Dòng 2 · Mở'), { target: { value: '999' } });
+
+    const luu = JSON.parse(window.localStorage.getItem(PRICE_SERIES_KEY) ?? '{}') as {
+      rows: Array<{ date: string; open: number }>;
+    };
+    const phien0201 = luu.rows.find((row) => row.date === '02/01/2025');
+    const phien0101 = luu.rows.find((row) => row.date === '01/01/2025');
+    expect(phien0201?.open).toBe(999);
+    expect(phien0101?.open).toBe(100);
+
+    // Rời hẳn phần thân bảng thì mới xếp lại theo ngày.
+    fireEvent.focusOut(screen.getByLabelText('Dòng 2 · Mở'), { relatedTarget: document.body });
+    expect(ngayDaLuu()[0]).toBe('01/12/2024');
+  });
 });
 
 /*

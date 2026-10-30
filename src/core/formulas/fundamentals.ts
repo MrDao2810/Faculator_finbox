@@ -732,7 +732,10 @@ export const BIEN_LOI_NHUAN_RONG: FormulaModule = {
        */
       parts: [
         { key: 'netIncome', label: { vi: 'Lãi ròng (LNST)', en: 'Net income (LNST)' } },
-        { key: 'revenueLessNetIncome', label: { vi: 'Chi phí và thuế', en: 'Costs and taxes' } },
+        {
+          key: 'revenueLessNetIncome',
+          label: { vi: 'Doanh thu còn lại', en: 'Remaining revenue' },
+        },
       ],
     },
     resultUnit: '%',
@@ -796,8 +799,8 @@ export const BIEN_LOI_NHUAN_RONG: FormulaModule = {
           { vi: 'ROS', en: 'ROS' },
           { vi: 'Doanh thu thuần', en: 'Net revenue' },
           {
-            vi: 'Nhập doanh thu thuần khác 0, hoặc chọn kỳ có doanh thu.',
-            en: 'Enter a non-zero net revenue, or choose a period with revenue.',
+            vi: 'Nhập doanh thu thuần khác 0 để tính biên lợi nhuận.',
+            en: 'Enter a non-zero net revenue to work out the margin.',
           },
         ),
       );
@@ -958,8 +961,8 @@ export const NO_TREN_VON_CHU: FormulaModule = {
     categoryId: 'fundamentals',
     name: { vi: 'D/E — hệ số nợ trên vốn chủ', en: 'D/E — debt to equity ratio' },
     description: {
-      vi: 'Doanh nghiệp đang vay bao nhiêu đồng nợ trên mỗi đồng vốn của cổ đông.',
-      en: 'How much debt the company carries for every unit of shareholder capital.',
+      vi: 'Doanh nghiệp đang gánh bao nhiêu đồng nợ phải trả, gồm cả nợ vay lẫn các khoản không tính lãi, trên mỗi đồng vốn của cổ đông.',
+      en: 'How much in total liabilities, borrowings and interest-free items alike, the company carries for every unit of shareholder capital.',
     },
     latex: 'D/E = \\frac{\\text{Tổng nợ phải trả}}{\\text{Vốn chủ sở hữu}}',
     expression: {
@@ -1041,8 +1044,8 @@ export const NO_TREN_VON_CHU: FormulaModule = {
           min: 0,
           max: 10_000_000,
           description: {
-            vi: 'Toàn bộ nợ ngắn hạn và dài hạn trên bảng cân đối kế toán.',
-            en: 'All short-term and long-term debt on the balance sheet.',
+            vi: 'Toàn bộ nợ ngắn hạn và dài hạn trên bảng cân đối kế toán, không riêng nợ vay.',
+            en: 'All short-term and long-term liabilities on the balance sheet, not just borrowed debt.',
           },
         },
       ),
@@ -1050,12 +1053,12 @@ export const NO_TREN_VON_CHU: FormulaModule = {
     ],
     explanation: {
       meaning: {
-        vi: 'Mức độ dùng đòn bẩy tài chính: doanh nghiệp dựa vào tiền vay nhiều hay ít so với vốn tự có.',
-        en: 'The degree of financial leverage: how much the company relies on borrowed money relative to its own capital.',
+        vi: 'Mức độ dùng đòn bẩy tài chính: doanh nghiệp dựa vào vốn của người khác, gồm nợ vay lẫn các khoản chiếm dụng như phải trả người bán, nhiều hay ít so với vốn tự có.',
+        en: "The degree of financial leverage: how much the company relies on other people's money, both borrowings and interest-free items such as trade payables, relative to its own capital.",
       },
       whenToUse: {
-        vi: 'Dùng khi bạn nghe tin lãi suất cho vay đang tăng và muốn biết công ty có cổ phiếu mình định mua đang gánh khoản nợ lớn cỡ nào so với phần vốn thuộc về cổ đông.',
-        en: 'Use it when you hear that lending rates are rising and want to know how large a debt load the company whose shares you plan to buy is carrying compared with the capital that belongs to its shareholders.',
+        vi: 'Dùng khi bạn đang tìm hiểu một công ty và muốn biết nó đang gánh khoản nợ phải trả lớn cỡ nào so với phần vốn thuộc về cổ đông.',
+        en: 'Use it when you are looking into a company and want to know how large a load of liabilities it carries compared with the capital that belongs to its shareholders.',
       },
       howToRead: {
         vi: 'So với hệ số của các công ty cùng ngành ở cùng thời điểm: cao hơn nghĩa là công ty gánh nhiều nợ hơn đối thủ trên mỗi đồng vốn của cổ đông, thấp hơn là nhẹ nợ hơn. Trên 1 nghĩa là tổng nợ phải trả đã nhiều hơn số vốn thuộc về cổ đông.',
@@ -1252,8 +1255,8 @@ export const THANH_TOAN_HIEN_HANH: FormulaModule = {
           { vi: 'hệ số thanh toán hiện hành', en: 'current ratio' },
           { vi: 'Nợ ngắn hạn', en: 'Current liabilities' },
           {
-            vi: 'Doanh nghiệp không có nợ ngắn hạn thì không cần hệ số này — thanh khoản đã an toàn.',
-            en: 'A company with no current liabilities does not need this ratio — its liquidity is already safe.',
+            vi: 'Nợ ngắn hạn bằng 0 thì hệ số này không có nghĩa. Nếu doanh nghiệp thật sự không có nợ ngắn hạn, không cần tính; còn không thì kiểm lại ô này.',
+            en: 'With zero current liabilities this ratio has no meaning. If the company truly has none, you do not need it; otherwise recheck this field.',
           },
         ),
       );
@@ -1411,8 +1414,8 @@ export const THANH_TOAN_NHANH: FormulaModule = {
           { vi: 'hệ số thanh toán nhanh', en: 'quick ratio' },
           { vi: 'Nợ ngắn hạn', en: 'Current liabilities' },
           {
-            vi: 'Doanh nghiệp không có nợ ngắn hạn thì không cần hệ số này — thanh khoản đã an toàn.',
-            en: 'A company with no current liabilities does not need this ratio — its liquidity is already safe.',
+            vi: 'Nợ ngắn hạn bằng 0 thì hệ số này không có nghĩa. Nếu doanh nghiệp thật sự không có nợ ngắn hạn, không cần tính; còn không thì kiểm lại ô này.',
+            en: 'With zero current liabilities this ratio has no meaning. If the company truly has none, you do not need it; otherwise recheck this field.',
           },
         ),
       );
@@ -1625,8 +1628,8 @@ export const TY_LE_CHI_TRA_CO_TUC: FormulaModule = {
           min: 0,
           max: 100_000,
           description: {
-            vi: 'Tổng cổ tức tiền mặt trả cho một cổ phiếu trong năm.',
-            en: 'Total cash dividend paid per share during the year.',
+            vi: 'Tổng cổ tức tiền mặt một cổ phiếu nhận trong năm, tính bằng đồng, cộng mọi đợt, trước thuế. Nghị quyết thường ghi theo tỷ lệ trên mệnh giá 10.000 ₫, nên cổ tức 15% là 1.500 ₫.',
+            en: 'Total cash dividend one share receives during the year, in dong, adding up every payment, before tax. Resolutions usually state it as a percentage of the 10.000 ₫ par value, so a 15% dividend is 1.500 ₫.',
           },
         },
       ),
@@ -1714,8 +1717,8 @@ export const TY_LE_CHI_TRA_CO_TUC: FormulaModule = {
           { vi: 'hệ số chi trả cổ tức', en: 'dividend payout ratio' },
           { vi: 'EPS', en: 'EPS' },
           {
-            vi: 'Nhập EPS khác 0 hoặc chọn kỳ có lợi nhuận.',
-            en: 'Enter a non-zero EPS or choose a period with profit.',
+            vi: 'Nhập EPS khác 0; công ty không có lợi nhuận thì hệ số chi trả không tính được.',
+            en: 'Enter a non-zero EPS; a company with no earnings has no payout ratio.',
           },
         ),
       );

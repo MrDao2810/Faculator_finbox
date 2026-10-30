@@ -132,7 +132,7 @@ and `don-bay-hieu-dung` keep their `%` anchors. Same 10-agent draft-plus-adversa
 the sentence above; `how-to-read-rules.test.ts` gates all 111. One real `calc` defect surfaced while
 writing prose, not fixed here: `mo-hinh-gordon` guards `dividend === 0` with `fail(MEANINGLESS)` and
 documents exactly why (FR-06 — a silent `ok(0 ₫)` reads as a real share price), but the sibling
-`ddm-hai-giai-doan` takes the same `dividend` input with no such guard.
+`ddm-hai-giai-doan` took the same `dividend` input with no such guard until it gained one (`valuation-dcf.ts`, with a case for "cổ tức 0"; found already fixed in the 29/10/2026 audit).
 
 **"Ý nghĩa" (`explanation.meaning`) states what the formula MEASURES and may carry no sample
 figure** (09/10/2026). This is the fourth FR-03 section and the last to get a rule, which is
@@ -1725,7 +1725,7 @@ at all):
   interest), goal savings (deposits + interest), both instalment loans (principal + total interest over the
   WHOLE term, beside the first-period breakdown), periods to goal (contributions + return, total = the balance,
   which tops the goal because n rounds up), net profit after fees (net + costs = gross profit), HPR (price
-  gain and dividend), total return with reinvestment (price part + the EXTRA from reinvesting), break-even revenue
+  gain and dividend), total return with reinvestment (price part + the dividends' contribution, "Phần nhờ cổ tức", which includes the dividend cash a holder who does not reinvest still receives), break-even revenue
   (variable cost + fixed cost), total leverage (variable cost, fixed cost, interest, profit before tax — four
   parts), derivatives position size (loss at stop + room left) and effective leverage (equity + exposure above
   it). Rejected, with the reason in `TASK.md`: ROE/ROA/EPS/BVPS (no whole among their inputs; adding a field
@@ -2078,8 +2078,18 @@ Sharpe's card and said users cannot tell how "Lợi suất bình quân một phi
 or tapping a symbol in the KaTeX picture, its phrase in the expression line, or its legend row opens a
 floating panel with 1–3 steps (a small KaTeX picture plus an expression-style line) and, when the
 library has one, a link to that quantity's own formula. The same symbol lights up in all three places.
-The owner scoped it to **quantities that must be computed**. 112 panels across 61 formulas; 50 formulas
-have none, and each records why in `whyNone`.
+The owner scoped it to **quantities that must be computed**. 113 panels across 61 formulas (112 until
+30/10/2026, see `do-bien-dong-lich-su` below); 50 formulas have none, and each records why in `whyNone`.
+
+**A word subscript is one name, never loose letters** (30/10/2026). The owner hovered the `n` of `\sigma_{nam}`
+on `do-bien-dong-lich-su` and got "n: số phiên giá lấy mẫu": KaTeX draws `nam` as three `<mi>`, and the marker
+matched the single-letter row `n` inside it, so the n of "nam" opened n's panel and "am" opened σ*nam's. Same
+defect on 7 more pictures (`m` in `P*{mo}`, `n`in`BB*{tren}`, `m`in`N*{max}`, `m`in`r*{nam}`…). Rule 7 of
+`mathml-marks.ts`: inside a script argument made only of single-letter `<mi>`, only a legend row covering the
+WHOLE run matches (`lai-kep`'s exponent `n t`is the product n × t and keeps its row). The same round rewrote
+that formula's picture, which drew`\sigma*{n}(\ln \frac{P*t}{P*{t-1}})`— a`symbol(arg)`call the 22/09/2026
+rule below forbids; the owner read it as σ next to n with no operator. It is now two blocks,`\sigma\_{nam} = s × \sqrt{N} × 100`and the sample deviation`s`written out like`do-lech-chuan-loi-suat-phien`,
+so `n`appears where it computes (the sum's bound and`n − 2`).
 
 **Since 26/10/2026 EVERY symbol in the picture opens a panel**, not just those 112 (owner: _"hiện tại
 đang chỉ chú thích những ký hiệu khó hiểu, tôi muốn ký hiệu nào cũng cần giải thích"_). A symbol with no
@@ -2097,7 +2107,7 @@ lên được như những phần khác, sửa toàn bộ công thức liên qua
 **every legend row is a button now** (a step-less row's panel repeats the row and covers the rows below;
 the owner wants one behaviour), and **step-less rows have phrases too**, declared in
 `FormulaHowTo.skippedPhrases` (keyed by a `skipped` row; an entry's phrases stay on the entry). The result
-row counts: "Biên an toàn" opens `MOS`. 481 of 568 rows now have a phrase (101 before); the other 87 have
+row counts: "Biên an toàn" opens `MOS`. 483 of 568 rows now have a phrase (101 before); the other 85 have
 no words of their own in the line (running indices, groups like `(1 - t)` whose parts are phrases, `n`
 inside "Giá của n phiên trước", rows the line folds into a total). The 377 phrases were proposed by a
 script that split both lines at their operators and aligned the vi and en operands, then read row by
@@ -2109,7 +2119,7 @@ another row's phrase (`α` of VaR sits only in "Phân vị mức (1 − Độ ti
 none because "căn bậc hai của" there also opens `σ_d`'s own root. Gates: `how-to.test.ts` (key is a
 `skipped` row, both languages, verbatim, one line, no dash), `FormulaNotationCard.test.tsx` (every legend
 button and every phrase of all 111 opens the right panel kind with the right meaning, vi and en cover the
-same rows, the 481 pinned). Things that are easy to break:
+same rows, the 483 pinned). Things that are easy to break:
 
 - **The content lives in `src/core/how-to/`, NOT in `FormulaSpec`**, and only `page.tsx` reads it (via
   the build-only sub-path `@/application/how-to`, never the barrel). Anything in `spec` ships in client JS —

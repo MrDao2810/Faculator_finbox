@@ -162,6 +162,47 @@ describe('PasteImportSheet — dòng dán mang ngày là phiên MỚI, ngày đ�
   });
 });
 
+describe('PasteImportSheet — dán thêm vào lưới đã có chuỗi (29/10/2026)', () => {
+  it('dòng chép từ trang tiếng Anh không làm giá cũ bị đọc lại nhỏ đi 1.000 lần', async () => {
+    const onImport = moTam([
+      { date: '14/09/2026', open: 72600, high: 73000, low: 72400, close: 72700, volume: 1_000_000 },
+      { date: '15/09/2026', open: 72700, high: 73200, low: 72500, close: 73100, volume: 1_100_000 },
+    ]);
+    // Kiểu Anh: dấu phẩy ngăn nghìn. Nếu quy ước đoán lại trên cả lưới, "72.700" thành 72,7.
+    dan('Ngày, Dòng 1', '16/09/2026\t73,500\t74,100\t73,200\t73,900\t1,234,500');
+
+    await userEvent.click(nutNap(3));
+    expect(daNap(onImport)).toEqual([
+      '14/09/2026 · 72700',
+      '15/09/2026 · 73100',
+      '16/09/2026 · 73900',
+    ]);
+  });
+
+  it('dán sửa hai ô vào chuỗi đủ 400 phiên: không phiên nào mất, không đẻ thêm dòng trống', async () => {
+    const dau = Date.UTC(2025, 0, 1);
+    const bonTram: Phien[] = Array.from({ length: 400 }, (_, i) => {
+      const ngay = new Date(dau + i * 86_400_000);
+      const dd = String(ngay.getUTCDate()).padStart(2, '0');
+      const mm = String(ngay.getUTCMonth() + 1).padStart(2, '0');
+      return {
+        date: `${dd}/${mm}/${String(ngay.getUTCFullYear())}`,
+        open: 100 + i,
+        high: 110 + i,
+        low: 90 + i,
+        close: 105 + i,
+        volume: 1000 + i,
+      };
+    });
+    const onImport = moTam(bonTram);
+    dan('Giá mở cửa, Dòng 1', '500\t510');
+
+    expect(nutNap(400).disabled).toBe(false);
+    await userEvent.click(nutNap(400));
+    expect(onImport.mock.calls[0]?.[0].rows).toHaveLength(400);
+  });
+});
+
 describe('PasteImportSheet — mẩu dán không mang ngày vẫn điền theo ô như bảng tính', () => {
   it('dán một cột giá vào cột Giá đóng cửa thì sửa giá của các phiên đang có, ngày không đổi', async () => {
     const onImport = moTam();

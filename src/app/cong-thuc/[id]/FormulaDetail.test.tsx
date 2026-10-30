@@ -1701,7 +1701,7 @@ describe('WF-03 — lối nạp chuỗi giá cho công thức ăn chuỗi (FR-12
    * của riêng mình để dán — xem docblock `loadIllustrativeExample()`. Khác "Nạp mẫu": không đòi
    * người dùng biết bộ mẫu là gì, chỉ cần bấm một nút là công thức chạy ra đúng con số minh hoạ.
    */
-  it('nút "Xem ví dụ minh hoạ" nạp thẳng chuỗi có sẵn trong spec.example, ra số NGAY', async () => {
+  it('nút "Nạp ví dụ minh hoạ" nạp thẳng chuỗi có sẵn trong spec.example, ra số NGAY', async () => {
     render(<Man spec={specOf('ty-so-sharpe')} />);
 
     expect(screen.getByTestId('result-text').textContent).toContain(NO_VALUE);

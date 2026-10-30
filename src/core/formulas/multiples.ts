@@ -105,7 +105,7 @@ export const PE: FormulaModule = {
     ],
     explanation: {
       meaning: {
-        vi: 'Số năm lợi nhuận cần có để hoàn lại đúng số tiền đang bỏ ra mua cổ phiếu, nếu lợi nhuận giữ nguyên.',
+        vi: 'Số năm lợi nhuận cần có để cộng lại bằng đúng số tiền đang bỏ ra mua cổ phiếu, nếu lợi nhuận giữ nguyên.',
         en: 'The number of years of profit needed to recoup the money spent buying the share, if profit stays unchanged.',
       },
       whenToUse: {
@@ -174,8 +174,8 @@ export const PE: FormulaModule = {
           { vi: 'P/E', en: 'P/E' },
           { vi: 'EPS', en: 'EPS' },
           {
-            vi: 'Nhập EPS khác 0 hoặc chọn kỳ khác. Doanh nghiệp không có lợi nhuận trên mỗi cổ phiếu ở kỳ này.',
-            en: 'Enter a non-zero EPS or choose another period. The company has no earnings per share for this period.',
+            vi: 'EPS bằng 0 nghĩa là bốn quý gần nhất công ty hoà vốn nên P/E không tính được; dùng P/B hoặc P/S thay thế.',
+            en: 'An EPS of 0 means the company broke even over the last four quarters, so P/E cannot be worked out; use P/B or P/S instead.',
           },
         ),
       };

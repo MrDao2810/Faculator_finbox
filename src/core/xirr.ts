@@ -70,6 +70,10 @@ export function xirr(cashflows: ReadonlyArray<Cashflow>, options: XirrOptions = 
 
   const diem = xirrDiem(cashflows);
   if (diem === null) return null;
+  // Mọi dòng tiền cùng một ngày: giá trị hiện tại luôn bằng tổng tiền với MỌI suất, nên không có
+  // suất nào "đúng". Không có dòng này, vòng Newton đầu thấy |npv| < tolerance và trả luôn giá trị
+  // đoán khởi điểm (danh mục mua hôm nay đúng bằng thị giá in "10 %/năm").
+  if (diem.every((d) => d.days === 0)) return null;
   const points = diem.map((d) => ({ years: d.days / DAYS_PER_YEAR, amount: d.amount }));
 
   const npv = (rate: number): number =>
@@ -139,8 +143,8 @@ export function xirrNotConverged(): CalcWarning {
        * quy ra năm đã vượt trần — và câu cũ chỉ nêu nguyên nhân thứ nhất, tức bảo người dùng đi
        * kiểm thứ vốn đã đúng.
        */
-      vi: 'Kiểm tra lại: cần ít nhất một khoản chi ra và một khoản thu về, kèm ngày đúng thứ tự. Nếu đã đủ cả hai thì lãi hoặc lỗ đang nằm trong quãng ngày quá ngắn để quy ra suất sinh lợi năm — với quãng vài ngày, ROI hoặc HPR đọc dễ hơn.',
-      en: 'Check again: you need at least one outflow and one inflow, with dates in the correct order. If both are already there, the gain or loss sits in too short a span of days to annualize — over a few days, ROI or HPR reads more easily.',
+      vi: 'Kiểm tra lại: cần ít nhất một khoản chi ra và một khoản thu về, kèm ngày của từng khoản. Nếu đã đủ cả hai thì lãi hoặc lỗ đang nằm trong quãng ngày quá ngắn để quy ra suất sinh lợi năm — với quãng vài ngày, ROI hoặc HPR đọc dễ hơn.',
+      en: 'Check again: you need at least one outflow and one inflow, each with its date. If both are already there, the gain or loss sits in too short a span of days to annualize — over a few days, ROI or HPR reads more easily.',
     },
   );
 }

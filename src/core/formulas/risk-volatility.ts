@@ -565,8 +565,8 @@ export const DO_LECH_CHUAN_BAN_PHAN: FormulaModule = {
         en: 'Use it when you are sizing up a stock prone to sudden jumps and want to measure how rough its down sessions alone are, without those jumps being counted as risk.',
       },
       howToRead: {
-        vi: 'So với độ lệch chuẩn lợi suất theo phiên của chính mã ấy, cùng các phiên: sát hoặc vượt nó nghĩa là dao động dồn vào các phiên dưới ngưỡng, nhỏ hơn hẳn là dao động chủ yếu đến từ phiên trên ngưỡng. Kết quả 0 nghĩa là không phiên nào rơi dưới ngưỡng.',
-        en: "Compared with the same stock's per-session return standard deviation over the same sessions: close to it or above it means the swings are concentrated in sessions below your threshold, well below it means they come mostly from sessions above it. A result of 0 means no session fell below the threshold.",
+        vi: 'So với độ lệch chuẩn bán phần của một mã khác, cùng ngưỡng và cùng các phiên: cao hơn nghĩa là các phiên dưới ngưỡng của mã này rơi sâu hơn hoặc dày hơn, thấp hơn là nhẹ hơn. Kết quả 0 nghĩa là không phiên nào rơi dưới ngưỡng.',
+        en: "Compared with another stock's downside deviation at the same threshold over the same sessions: higher means this stock's sessions below the threshold fall deeper or more often, lower means they are milder. A result of 0 means no session fell below the threshold.",
       },
       commonMistakes: {
         vi: 'Chia cho số phiên nằm dưới ngưỡng thay vì cho tổng số phiên quan sát — làm thế thì danh mục càng ít phiên xấu lại càng bị chấm rủi ro cao. Lỗi thứ hai là quên đặt ngưỡng theo cùng đơn vị kỳ với chuỗi lợi suất.',
@@ -583,8 +583,8 @@ export const DO_LECH_CHUAN_BAN_PHAN: FormulaModule = {
       dataset: FPT_2026,
       expected: 1.1989,
       note: {
-        vi: 'So với độ lệch chuẩn lợi suất theo phiên của FPT, 1,93% trên cùng 55 phiên: riêng các phiên giảm chỉ cho ra 1,2%, tức quãng này FPT dao động mạnh ở phiên tăng hơn ở phiên giảm. Con số đi với ngưỡng 0%, đặt ô Ngưỡng lợi suất mỗi phiên là 2% thì nó thành 2,63%, vượt cả 1,93%, vì phiên tăng dưới 2% cũng bị tính vào.',
-        en: "Compared with FPT's per-session return standard deviation over the same 55 sessions, 1.93%: the down sessions alone give only 1.2%, so in this stretch FPT swung harder on up sessions than on down ones. The figure goes with a 0% threshold, and setting the Per-session return threshold field to 2% turns it into 2.63%, above 1.93%, since sessions up less than 2% are then counted too.",
+        vi: 'So với độ lệch chuẩn lợi suất theo phiên của FPT, 1,93% trên cùng 55 phiên: riêng các phiên giảm cho ra 1,2%, còn riêng các phiên tăng, tính cùng cách, cho 1,51%, nên quãng này FPT dao động mạnh ở phiên tăng hơn. Với ngưỡng 2% con số thành 2,63%, vượt cả 1,93%, vì phiên tăng dưới 2% cũng bị tính.',
+        en: "Compared with FPT's per-session return standard deviation over the same 55 sessions, 1.93%: the down sessions alone give 1.2% and the up sessions alone, measured the same way, 1.51%, so FPT swung harder on up sessions here. With a 2% threshold the figure becomes 2.63%, above 1.93%, since sessions up less than 2% are then counted.",
       },
       source: {
         vi: 'VNDirect, giá đóng cửa CTCP FPT (mã FPT), chuỗi 250 phiên 12/09/2025–15/09/2026.',
@@ -786,8 +786,8 @@ export const HE_SO_BIEN_THIEN: FormulaModule = {
           { vi: 'hệ số biến thiên', en: 'coefficient of variation' },
           { vi: 'Lợi suất bình quân mỗi phiên', en: 'Average return per session' },
           {
-            vi: 'Chọn kỳ có giá thay đổi, hoặc dùng Độ lệch chuẩn lợi suất theo phiên để đo riêng mức dao động.',
-            en: 'Choose a period where the price changes, or use the Daily return standard deviation to measure volatility on its own.',
+            vi: 'Đổi ô Số phiên lấy để tính sang một cửa sổ có giá thay đổi, hoặc dùng Độ lệch chuẩn lợi suất theo phiên để đo riêng mức dao động.',
+            en: 'Change the Number of sessions used field to a window where the price changes, or use the Daily return standard deviation to measure volatility on its own.',
           },
         ),
       );
@@ -801,8 +801,8 @@ export const HE_SO_BIEN_THIEN: FormulaModule = {
             en: 'The average return in this period is negative, so the coefficient of variation comes out negative and cannot be used to rank risk.',
           },
           {
-            vi: 'Chọn kỳ có lợi suất bình quân dương, hoặc dùng Độ lệch chuẩn lợi suất theo phiên.',
-            en: 'Choose a period with a positive average return, or use the Daily return standard deviation instead.',
+            vi: 'Đổi ô Số phiên lấy để tính sang một cửa sổ có lợi suất bình quân dương, hoặc dùng Độ lệch chuẩn lợi suất theo phiên.',
+            en: 'Change the Number of sessions used field to a window with a positive average return, or use the Daily return standard deviation instead.',
           },
         ),
       );
@@ -1062,8 +1062,8 @@ export const CHUOI_PHIEN_GIAM_DAI_NHAT: FormulaModule = {
     ],
     explanation: {
       meaning: {
-        vi: 'Đợt giảm liền mạch dài nhất trong kỳ, đếm theo số phiên có giá đóng cửa thấp hơn phiên liền trước.',
-        en: 'The longest unbroken decline in the period, counted as the number of sessions whose closing price is lower than the one right before it.',
+        vi: 'Đợt giảm liền mạch dài nhất trong kỳ, đếm theo số phiên có giá đóng cửa thấp hơn phiên liền trước. Một phiên đứng giá cắt đứt chuỗi.',
+        en: 'The longest unbroken decline in the period, counted as the number of sessions whose closing price is lower than the one right before it. A flat session breaks the streak.',
       },
       whenToUse: {
         vi: 'Dùng khi bạn vừa mua một cổ phiếu và muốn biết trước đây nó từng giảm liền nhiều nhất bao nhiêu phiên, để không hoảng khi gặp vài phiên đỏ liên tiếp.',

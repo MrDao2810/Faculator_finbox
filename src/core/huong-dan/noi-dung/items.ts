@@ -519,7 +519,7 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
       },
       cash: {
         layODau: {
-          vi: 'Bảng cân đối kế toán, mục tiền và các khoản tương đương tiền.',
+          vi: 'Bảng cân đối kế toán, dòng đầu tiên của tài sản ngắn hạn (tiền mặt và tiền gửi ngân hàng).',
           en: 'Balance sheet, the cash and cash equivalents line.',
         },
         luuY: {
@@ -1168,7 +1168,7 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
       },
       netDebt: {
         layODau: {
-          vi: 'Nợ vay trừ tiền và tương đương tiền.',
+          vi: 'Nợ vay trừ tiền mặt và tiền gửi ngân hàng.',
           en: 'Debt minus cash and cash equivalents.',
         },
         luuY: {

@@ -9,7 +9,7 @@ import { usePick } from '@/application/preferences-context';
 import { useLabelText } from '@/ui/i18n/units';
 
 import styles from './chart.module.css';
-import { floatingLabel, textWidth, thin, tickAnchor } from './ticks';
+import { floatingLabel, textWidth, thin, tickAnchor, xAxisTitlePlace } from './ticks';
 import { useChartSize } from './use-chart-size';
 import type { ChartSize } from './use-chart-size';
 
@@ -259,11 +259,13 @@ export function HistogramChart({
         <text className={styles.axisTitle} x={plot.x0 - 2} y={plot.y0 - 4}>
           {pick(model.y.title)}
         </text>
+        {/* Tên trục ngang ở đầu mút phải trục, không ở giữa đáy — lý do ở `LineChart.tsx`. */}
         <text
           className={styles.axisTitle}
-          x={(plot.x0 + plot.x1) / 2}
+          x={xAxisTitlePlace(pick(model.x.title), plot.x1).x}
           y={H - 6}
-          textAnchor="middle"
+          textAnchor={xAxisTitlePlace(pick(model.x.title), plot.x1).anchor}
+          data-ten-truc-ngang=""
         >
           {pick(model.x.title)}
         </text>

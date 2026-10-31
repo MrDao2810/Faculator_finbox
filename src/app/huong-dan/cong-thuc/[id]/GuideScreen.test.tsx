@@ -310,7 +310,7 @@ describe('GuideScreen', () => {
       { ten: 'EV — bóc tách', mo: true },
       { ten: 'EV theo Vốn hoá thị trường', mo: false },
       { ten: 'EV theo Nợ vay', mo: false },
-      { ten: 'EV theo Tiền và tương đương tiền', mo: false },
+      { ten: 'EV theo Tiền mặt và tiền gửi', mo: false },
     ]);
     // Thanh NẰM NGANG — đoạn cũ nói "cột cuối vẽ từ 0 lên".
     expect(screen.getByText(/các thanh nằm ngang, đọc từ trên xuống/)).toBeTruthy();

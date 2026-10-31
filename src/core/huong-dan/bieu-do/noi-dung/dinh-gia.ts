@@ -62,7 +62,7 @@ export const BIEU_DO_DINH_GIA: Readonly<Record<string, BieuDoRieng>> = {
       },
       cash: {
         duong: d(
-          'Đường chạy từ trái sang phải theo ô Tiền và tương đương tiền, từ một nửa đến gấp rưỡi con số bạn đang nhập; vạch đứt dọc có chấm tròn là đúng con số bạn nhập. Đây là phép thử nếu lượng tiền mặt đổi mà vốn hoá và nợ vay đứng yên thì EV ra bao nhiêu, không phải diễn biến thị trường. Đường đi xuống đều: mua xong doanh nghiệp thì tiền trong két về tay người mua, nên mỗi đồng tiền mặt làm cái giá thật giảm đúng một đồng.',
+          'Đường chạy từ trái sang phải theo ô Tiền mặt và tiền gửi, từ một nửa đến gấp rưỡi con số bạn đang nhập; vạch đứt dọc có chấm tròn là đúng con số bạn nhập. Đây là phép thử nếu lượng tiền mặt đổi mà vốn hoá và nợ vay đứng yên thì EV ra bao nhiêu, không phải diễn biến thị trường. Đường đi xuống đều: mua xong doanh nghiệp thì tiền trong két về tay người mua, nên mỗi đồng tiền mặt làm cái giá thật giảm đúng một đồng.',
           'The line runs left to right along the Cash and cash equivalents field, from half to one and a half times the figure you have entered; the dashed vertical line with a dot marks your own figure. It is a what-if on cash with market cap and debt held still, not market history. The line falls steadily: once the company is bought its cash belongs to the buyer, so each unit of cash lowers the real price by exactly one unit.',
         ),
         cot: d(

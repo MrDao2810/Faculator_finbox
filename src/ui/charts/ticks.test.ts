@@ -9,7 +9,7 @@
 
 import { describe, expect, it } from 'vitest';
 
-import { floatingLabel, textWidth, thin, tickAnchor } from './ticks';
+import { floatingLabel, textWidth, thin, tickAnchor, xAxisTitlePlace } from './ticks';
 
 /** Khung của `LineChart`, chép sang để ca kiểm đọc ra cùng những con số như lúc vẽ. */
 const W = 320;
@@ -92,5 +92,18 @@ describe('floatingLabel()', () => {
     const text = 'x'.repeat(200);
 
     expect(floatingLabel(250, 'end', text, FONT, W)).toEqual({ x: 0, anchor: 'start' });
+  });
+});
+
+describe('xAxisTitlePlace()', () => {
+  it('tên vừa chỗ: canh `end` ở đầu mút phải trục', () => {
+    expect(xAxisTitlePlace('Giá thị trường (P) (nghìn ₫)', 314)).toEqual({ x: 314, anchor: 'end' });
+  });
+
+  it('tên dài hơn chỗ từ mép trái tới đầu mút: dán mép trái, giữ đầu chuỗi', () => {
+    const dai = 'Dividends received during the period (D) (thousand ₫/share)';
+    expect(xAxisTitlePlace(dai, 314)).toEqual({ x: 2, anchor: 'start' });
+    // Khổ máy tính rộng gấp đôi: cùng tên ấy vẫn đứng ở đầu mút.
+    expect(xAxisTitlePlace(dai, 630)).toEqual({ x: 630, anchor: 'end' });
   });
 });

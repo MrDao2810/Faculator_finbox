@@ -631,7 +631,7 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
       {
         kyHieu: '\\text{Tiền mặt}',
         moTa: {
-          vi: 'là tiền, tương đương tiền và đầu tư tài chính ngắn hạn của FPT cùng ngày: 28.971,6 tỷ ₫',
+          vi: 'là tiền mặt, tiền gửi và đầu tư tài chính ngắn hạn của FPT cùng ngày: 28.971,6 tỷ ₫',
           en: "is FPT's cash, cash equivalents and short-term investments on the same date: 28971.6 billion ₫",
         },
       },
@@ -665,7 +665,7 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
       {
         url: 'https://cafef.vn/du-lieu/bao-cao-tai-chinh/fpt/bsheet/2026/2/0/0/bao-cao-tai-chinh-cong-ty-co-phan-fpt.chn',
         nhan: {
-          vi: 'Tiền FPT 30/06/2026: dòng Tiền và các khoản tương đương tiền cộng dòng Các khoản đầu tư tài chính ngắn hạn, cột Quý 2- 2026',
+          vi: 'Tiền FPT 30/06/2026: dòng tiền mặt và tiền gửi (Tiền và các khoản tương đương tiền) cộng dòng Các khoản đầu tư tài chính ngắn hạn, cột Quý 2- 2026',
           en: 'FPT cash at 2026-06-30: the cash and cash equivalents line plus the short-term investments line, Quý 2- 2026 column',
         },
       },

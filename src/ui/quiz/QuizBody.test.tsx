@@ -744,9 +744,9 @@ describe('khối lời giải có cấu trúc — QuizGiai', () => {
     const kyHieu = [...(bang?.querySelectorAll(':scope > dt') ?? [])];
     expect(kyHieu.map((dt) => dt.querySelector('math')?.textContent)).toEqual(['P', 'EPS']);
     const nghia = [...(bang?.querySelectorAll(':scope > dd') ?? [])].map((dd) => dd.textContent);
-    expect(nghia[0]).toContain('= 36.000');
-    expect(nghia[0]).toContain('giá thị trường một cổ phiếu');
-    expect(nghia[1]).toContain('= 3.000');
+    // Dấu phẩy ngăn con số với nghĩa (31/10/2026): thiếu nó, "= 36.000 giá thị trường…" đọc dính.
+    expect(nghia[0]).toContain('= 36.000, giá thị trường một cổ phiếu');
+    expect(nghia[1]).toContain('= 3.000, lợi nhuận mỗi cổ phiếu');
   });
 
   /*

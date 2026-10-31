@@ -165,14 +165,13 @@ function drawLoadedAdvanced(id: string, extra: CalcInputs = {}) {
 
 /**
  * Chú giải trong `<svg>` (hình cột, hình phân tán) đứng ở ĐÁY hình, dưới tên trục ngang — 28/10/2026,
- * chủ dự án: "cần chuyển xuống cuối dưới chart". Tên trục ngang là thẻ chữ `axisTitle` canh giữa; mọi
- * hàng chú giải phải có chân chữ thấp hơn nó, và hàng cuối nằm sát đáy `viewBox`.
+ * chủ dự án: "cần chuyển xuống cuối dưới chart". Tên trục ngang là thẻ chữ `[data-ten-truc-ngang]`;
+ * mọi hàng chú giải phải có chân chữ thấp hơn nó, và hàng cuối nằm sát đáy `viewBox`.
  */
 function chuGiaiDuoiTenTrucNgang(svg: Element) {
   const cao = Number(svg.getAttribute('viewBox')?.split(' ')[3]);
-  const tenTrucNgang = [...svg.querySelectorAll('text[class*="axisTitle"]')].find(
-    (el) => el.getAttribute('text-anchor') === 'middle',
-  );
+  const tenTrucNgang = svg.querySelector('[data-ten-truc-ngang]');
+  expect(tenTrucNgang).not.toBeNull();
   const y = [...svg.querySelectorAll('[data-chu-giai] text')].map((el) =>
     Number(el.getAttribute('y')),
   );
@@ -340,6 +339,109 @@ describe('Một chuỗi — không được đổi gì', () => {
     expect(truc.length).toBe(2);
     expect(Number(truc[0]?.getAttribute('x2'))).toBe(CHART_GEOMETRY.PLOT.x1);
   });
+});
+
+/*
+ * TRỤC NGÀY KHÔNG VẼ TÊN (30/10/2026). Chủ dự án khoanh chữ "Ngày" đứng một mình giữa đáy biểu đồ
+ * "Tỷ suất lợi nhuận trên giá theo thời gian": "lỗi nghiêm trọng trong việc chú thích trên biểu đồ".
+ * Nhãn vạch đã là tháng/năm và tên biểu đồ đã có "theo thời gian"; tên trục chỉ còn ở cột đầu của
+ * bảng số (trình đọc màn hình). Ba lối dựng trục ngày đều đi qua đây: thời gian, các đường thành
+ * phần, đường sụt giảm.
+ */
+describe('Trục ngày không vẽ chữ "Ngày" dưới hình', () => {
+  const TRUC_NGAY = [
+    ['ty-suat-loi-nhuan-tren-gia', '__time'],
+    ['sma-n-phien', '__time'],
+    ['macd-duong-chinh', '__components'],
+    ['sut-giam-sau-nhat', '__drawdown'],
+  ] as const;
+
+  it.each(TRUC_NGAY)(
+    '%s · %s: không có tên trục ngang, bảng số vẫn có cột Ngày, lề dưới trả cho vùng vẽ',
+    (id, sweepKey) => {
+      const formula = moduleOf(id);
+      const inputs = defaultInputs(formula.spec);
+      const model = buildChartModel({
+        formula,
+        inputs,
+        ctx: WITH_BARS,
+        output: runFormula(formula, inputs, WITH_BARS),
+        level: 'advanced',
+        sweepKey,
+      });
+      if (model.kind !== 'line') throw new Error(`${id} phải dựng ra hình đường`);
+      expect(model.sweepKey).toBe(sweepKey);
+      expect(model.x.dates).toBe(true);
+      expect(model.table.columns[0].vi).toBe('Ngày');
+
+      const { container } = render(<LineChart model={model} idBase="t" size="compact" />);
+      const chu = [...container.querySelectorAll('svg text')].map((el) => el.textContent);
+      expect(chu).not.toContain('Ngày');
+      expect(container.querySelector('[data-ten-truc-ngang]')).toBeNull();
+
+      // Trục X ở `H - 20`: 14 đơn vị mà tên trục từng chiếm nay thuộc vùng vẽ.
+      const trucX = container.querySelector('line[class*="axis"]');
+      expect(Number(trucX?.getAttribute('y1'))).toBe(CHART_GEOMETRY.H - 20);
+    },
+  );
+
+  it('trục là một đại lượng (P/E theo Giá thị trường) vẫn vẽ tên trục ngang, lề dưới như cũ', () => {
+    const { container } = draw('pe');
+    const ten = container.querySelector('[data-ten-truc-ngang]');
+    expect(ten?.textContent).toMatch(/^Giá thị trường/);
+    const trucX = container.querySelector('line[class*="axis"]');
+    expect(Number(trucX?.getAttribute('y1'))).toBe(CHART_GEOMETRY.PLOT.y1);
+  });
+
+  /*
+   * Cùng ngày, tin nhắn tiếp theo của chủ dự án: "những biểu đồ khác tôi cũng thấy có chú thích ở giữa
+   * màn như lỗi trên". Tên trục ngang của cả năm loại hình có trục ngang nay canh `end` ở đầu mút phải
+   * trục (như trục Ox), không ở giữa đáy; hình bóc tách trước đó còn BẮT ĐẦU từ giữa đáy.
+   */
+  it.each([
+    ['pe', null, 'svg[data-chart-svg]'],
+    ['tra-gop-nien-kim', '__columns', 'svg[data-columns]'],
+    ['var-lich-su', '__distribution', 'svg[data-histogram]'],
+    ['beta', '__scatter', 'svg[data-scatter]'],
+    ['ev', null, 'svg[data-chart-svg]'],
+  ] as const)(
+    '%s: tên trục ngang ở đầu mút phải trục, không ở giữa đáy',
+    async (id, khoa, chon) => {
+      const formula = moduleOf(id);
+      const inputs = defaultInputs(formula.spec);
+      // Hai hình mở sẵn (quét của P/E, bóc tách của EV) dựng trên ngữ cảnh chưa nạp chuỗi: nạp chuỗi
+      // thì P/E mở trên trục thời gian, nơi không còn tên trục ngang.
+      const ctx: CalcContext =
+        khoa === null
+          ? CTX
+          : {
+              ...WITH_BARS,
+              marketSeries: SAMPLE_DATA.vnIndex()
+                .map((bar) => bar.close)
+                .filter((close): close is number => typeof close === 'number' && close > 0),
+            };
+      const { container } = render(
+        <ChartBody
+          formula={formula}
+          inputs={inputs}
+          ctx={ctx}
+          output={runFormula(formula, inputs, ctx)}
+          level="advanced"
+          seriesLabel="FPT"
+        />,
+      );
+      if (khoa !== null) await userEvent.selectOptions(screen.getByLabelText('Xem theo'), khoa);
+
+      const svg = container.querySelector(chon);
+      const rong = Number(svg?.getAttribute('viewBox')?.split(' ')[2]);
+      const ten = svg?.querySelector('[data-ten-truc-ngang]');
+      expect(ten?.getAttribute('text-anchor')).toBe('end');
+      const x = Number(ten?.getAttribute('x'));
+      expect(x).toBeGreaterThan(rong * 0.8);
+      // Canh `end` thì tên dài tràn về bên TRÁI: phải còn nằm trọn trong khung.
+      expect(textWidth(ten?.textContent ?? '', 10)).toBeLessThan(x);
+    },
+  );
 });
 
 /**

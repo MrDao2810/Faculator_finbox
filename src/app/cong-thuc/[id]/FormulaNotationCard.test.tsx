@@ -338,6 +338,14 @@ describe('FormulaNotationCard — cả 111 công thức', { timeout: HAN_QUET },
         }
         if (!(khung.textContent ?? '').includes(spec.symbols?.[sym]?.meaning.vi ?? '∅'))
           sai.push(`${spec.id}: nút dòng ${String(sym)} sai nghĩa`);
+        // Tiêu đề khung đọc "ký hiệu: nghĩa", như dòng bảng (31/10/2026): chủ dự án khoanh "Tiền mặt
+        // tiền và tương đương tiền" trên `ev`, ký hiệu và nghĩa chỉ cách nhau một khe, không dấu câu.
+        const tieuDe = khung.querySelector('p');
+        const kyHieu = tieuDe?.querySelector('math')?.textContent ?? '∅';
+        if (tieuDe?.textContent !== `${kyHieu}: ${spec.symbols?.[sym]?.meaning.vi ?? '∅'}`)
+          sai.push(
+            `${spec.id}: tiêu đề khung dòng ${String(sym)} là "${tieuDe?.textContent ?? ''}"`,
+          );
         if (khung.hasAttribute('data-title-only') === coBuoc.has(sym))
           sai.push(`${spec.id}: nút dòng ${String(sym)} sai loại khung`);
         fireEvent.click(n);

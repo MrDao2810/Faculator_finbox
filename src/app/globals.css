@@ -460,6 +460,17 @@
    */
   --section-title-size: var(--text-sm);
 
+  /*
+   * Phần cộng thêm vào MỌI cỡ chữ ở khổ PC — 0 ở đây, 0,5px từ 1024px (khối `@media` phía dưới).
+   * Chủ dự án 31/10/2026: _"phông chữ màn web pc đang hơi nhỏ. tăng 0.5 hoặc 0.4 gì đó trong toàn
+   * bộ dự án"_. Một nút chỉnh duy nhất: tám bậc `--text-*` ở khổ PC viết lại bằng `calc(bậc + nút)`,
+   * và mấy chỗ ghi cỡ chữ bằng số trần (px/rem) mà vẫn áp ở PC cộng nó vào số của mình. Đổi 0,5 → 0,4
+   * chỉ cần sửa một dòng ở khối PC. Không đổi cỡ gốc của `html`: `rem` còn đo khoảng cách và bề ngang
+   * (cột `2rem`, khung `22rem`), đổi gốc là giãn cả bố cục chứ không riêng chữ.
+   * Chữ TRONG hình SVG (biểu đồ) không cộng: nó tính bằng đơn vị viewBox và tự to theo khung.
+   */
+  --font-bump: 0px;
+
   --leading-tight: 1.25;
   --leading-normal: 1.5;
 
@@ -801,6 +812,31 @@
 @media (min-width: 1024px) {
   body {
     --gutter: var(--space-8);
+  }
+}
+
+/*
+ * Chữ PC nhỉnh thêm 0,5px (31/10/2026, xem `--font-bump` trong `:root`). Viết lại cả tám bậc ở đây vì
+ * token khai trên `:root` đã tính xong giá trị ở `:root` rồi mới thừa kế xuống: đổi nút trên `body`
+ * thôi thì `--text-sm` vẫn là 14px. Cùng lý do, `--section-title-size` (suy từ `--text-sm`) phải khai
+ * lại để đọc bậc mới. `typography.test.ts` ghim mỗi dòng bằng đúng bậc của `:root`.
+ *
+ * `screen and` có chủ ý: khi in, bề ngang của truy vấn là bề ngang TỜ GIẤY (A4 ngang 1123px), và file
+ * xuất ra là tài liệu đứng riêng, không phải "màn web PC" — giữ nguyên chữ như trước (cùng lý do với
+ * khối PC cuối `BottomSheet.module.css`).
+ */
+@media screen and (min-width: 1024px) {
+  body {
+    --font-bump: 0.5px;
+    --text-xs: calc(12px + var(--font-bump));
+    --text-sm: calc(14px + var(--font-bump));
+    --text-base: calc(16px + var(--font-bump));
+    --text-md: calc(18px + var(--font-bump));
+    --text-lg: calc(20px + var(--font-bump));
+    --text-xl: calc(26px + var(--font-bump));
+    --text-2xl: calc(32px + var(--font-bump));
+    --text-3xl: calc(40px + var(--font-bump));
+    --section-title-size: var(--text-sm);
   }
 }
 

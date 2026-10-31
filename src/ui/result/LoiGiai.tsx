@@ -197,7 +197,11 @@ export function LoiGiai({
                         đặt cạnh một bài cụ thể thì chủ dự án đọc không ra (25/09/2026).
                       */}
                       {dongBang !== undefined && dong.moTa === undefined && (
-                        <span className={styles.giaiNghia}>{chu(dongBang.nghia)}</span>
+                        <>
+                          {/* Dấu phẩy giữa con số và nghĩa: thiếu nó, "= 42.500 giá trị nội tại…" đọc dính. */}
+                          <span className={styles.giaiPhay}>, </span>
+                          <span className={styles.giaiNghia}>{chu(dongBang.nghia)}</span>
+                        </>
                       )}
                     </dd>
                   </Fragment>

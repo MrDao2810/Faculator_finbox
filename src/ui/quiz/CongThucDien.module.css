@@ -13,7 +13,9 @@
  */
 /*
  * Cỡ chữ qua biến, mặc định 1.25rem (05/10/2026) — chỗ gọi nào cần nhỏ hơn thì tự đặt
- * `--ct-co-chu`, không ai phải ghi đè một bộ chọn của module khác.
+ * `--ct-co-chu`, không ai phải ghi đè một bộ chọn của module khác. Mặc định cộng `--font-bump` (từ
+ * 1024px nhỉnh thêm 0,5px, xem `globals.css`); chỗ gọi đặt biến bằng token `--text-*` thì token ấy đã
+ * tự nhỉnh, đặt số trần thì là số của riêng chỗ ấy.
  *
  * Sinh ra khi khối "Từ các ô trên, công thức tính ra" bắt đầu vẽ công thức: ở đó nhãn là
  * `--text-xs` và trị số là `--text-sm`, nên một công thức 20px bên cạnh đọc ra như tiêu đề của
@@ -24,7 +26,7 @@
   display: inline-flex;
   align-items: center;
   font-family: math, 'Times New Roman', serif;
-  font-size: var(--ct-co-chu, 1.25rem);
+  font-size: var(--ct-co-chu, calc(1.25rem + var(--font-bump)));
   line-height: 1.1;
   white-space: nowrap;
   color: var(--color-ink);

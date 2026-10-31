@@ -66,6 +66,17 @@ export interface ChartAxis {
    */
   domain: readonly [number, number];
   ticks: ReadonlyArray<ChartTick>;
+  /**
+   * Trục là ngày của chuỗi phiên: nhãn vạch là tháng/năm ("09/2025"), không phải một đại lượng.
+   *
+   * Khi có cờ này, tên trục (`title`, "Ngày") KHÔNG vẽ trên hình, chỉ còn ở cột đầu của bảng số và
+   * trong câu mô tả cho trình đọc màn hình (30/10/2026). Chủ dự án khoanh chữ "Ngày" đứng một mình
+   * giữa đáy biểu đồ "… theo thời gian": _"sao chú thích ở biểu đồ này lại có cái Ngày trơ trọi ở
+   * giữa thế này ? lỗi nghiêm trọng"_. Chữ ấy không nói thêm gì (nhãn vạch đã là ngày tháng, tên
+   * biểu đồ đã có "theo thời gian") và còn sai: nhãn vạch là THÁNG. Phần lề dưới nó chiếm được trả
+   * lại cho vùng vẽ (`plotOf()` trong `LineChart.tsx`).
+   */
+  dates?: true;
 }
 
 /**

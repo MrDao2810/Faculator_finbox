@@ -185,7 +185,7 @@ export const HOW_TO_VALUATION_DCF: Readonly<Record<string, FormulaHowTo>> = {
             latex:
               'NWC = (\\text{TSNH} - \\text{Tiền mặt}) - (\\text{Nợ ngắn hạn} - \\text{Vay ngắn hạn})',
             expression: {
-              vi: 'Vốn lưu động ròng = (Tài sản ngắn hạn − Tiền và tương đương tiền) − (Nợ ngắn hạn − Vay ngắn hạn)',
+              vi: 'Vốn lưu động ròng = (Tài sản ngắn hạn − Tiền mặt và tiền gửi) − (Nợ ngắn hạn − Vay ngắn hạn)',
               en: 'Net working capital = (Current assets − Cash and cash equivalents) − (Current liabilities − Short-term debt)',
             },
           },
@@ -261,7 +261,7 @@ export const HOW_TO_VALUATION_DCF: Readonly<Record<string, FormulaHowTo>> = {
   /*
    * Hai cạnh `dependsOn`, hai khung `linked`. Giá trị doanh nghiệp là phân số con đã hiện trọn trong
    * hình. Nợ vay ròng không có dòng riêng trên bảng cân đối, nên `defined`, dựng từ đúng hai dòng mà
-   * `ev` nhận làm ô nhập (nợ vay, tiền và tương đương tiền).
+   * `ev` nhận làm ô nhập (nợ vay, tiền mặt và tiền gửi).
    */
   'gia-tri-noi-tai-fcff': {
     entries: [
@@ -287,7 +287,7 @@ export const HOW_TO_VALUATION_DCF: Readonly<Record<string, FormulaHowTo>> = {
           {
             latex: 'D_{\\text{ròng}} = \\text{Nợ vay} - \\text{Tiền mặt}',
             expression: {
-              vi: 'Nợ vay ròng = Nợ vay chịu lãi − Tiền và tương đương tiền',
+              vi: 'Nợ vay ròng = Nợ vay chịu lãi − Tiền mặt và tiền gửi',
               en: 'Net debt = Interest-bearing debt − Cash and cash equivalents',
             },
           },

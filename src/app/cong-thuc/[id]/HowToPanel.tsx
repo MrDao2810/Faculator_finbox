@@ -81,6 +81,8 @@ export function HowToPanel({
       <p className={styles.panelTitle}>
         {/* eslint-disable-next-line react/no-danger -- MathML dựng lúc build, xem latex-html.ts */}
         <span className={styles.panelSymbol} dangerouslySetInnerHTML={symbolInner} />
+        {/* Dấu hai chấm như hàng chú thích của bảng ký hiệu: không có nó, "Tiền mặt" + "tiền và…" dính thành một câu. */}
+        <span aria-hidden="true">: </span>
         <span>{meaning}</span>
       </p>
       {howTo.steps.length > 0 && (

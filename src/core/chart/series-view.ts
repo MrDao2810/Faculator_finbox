@@ -444,6 +444,7 @@ export function buildDrawdownModel(
     title: { vi: 'Ngày', en: 'Date' },
     domain: [0, Math.max(1, points.length - 1)],
     ticks: vachPhien(cuaSo),
+    dates: true,
   };
 
   const table: ChartTable = {

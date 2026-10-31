@@ -104,3 +104,30 @@ export function floatingLabel(
 
   return { x: 0, anchor: 'start' };
 }
+
+/**
+ * Bề ngang chữ THẬT so với `textWidth()`: đo trên Chrome với phông của sản phẩm, chữ rộng hơn ước
+ * lượng chừng 8–10% (cùng hệ số `PAD_COMPACT.chuThat` của `LineChart`).
+ */
+const CHU_THAT = 1.1;
+
+/**
+ * Chỗ đứng của tên trục ngang — đầu mút phải trục, canh `end` tại `x1` (30/10/2026).
+ *
+ * Tên trục ngang từng canh giữa đáy hình; chủ dự án đọc nó là một chú thích đứng trơ trọi giữa màn
+ * (_"những biểu đồ khác tôi cũng thấy có chú thích ở giữa màn như lỗi trên"_). Ở đầu mút phải, nó
+ * đọc là tên của trục, như chữ x ở đầu trục Ox; tên trục đứng vẫn ở đầu trên trục dọc như chữ y.
+ *
+ * Canh `end` thì tên dài tràn về bên TRÁI. Tên không vừa chỗ từ mép trái khung tới `x1` (đo: tên
+ * tiếng Anh dài nhất trên khổ điện thoại, "Dividends received during the period (D) (thousand
+ * ₫/share)") thì dán vào mép trái và giữ ĐẦU chuỗi, cùng lối `floatingLabel()`.
+ */
+export function xAxisTitlePlace(
+  title: string,
+  x1: number,
+  fontSize = 10,
+): { x: number; anchor: 'start' | 'end' } {
+  return textWidth(title, fontSize) * CHU_THAT + 2 <= x1
+    ? { x: x1, anchor: 'end' }
+    : { x: 2, anchor: 'start' };
+}

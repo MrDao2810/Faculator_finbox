@@ -225,7 +225,7 @@
    * nghiêng và cho tăng size lên 1 chút"_, rồi _"bản web cũng nên sửa như vậy"_. Ở đây 12 → 13px, vẫn
    * dưới mô tả 14px; dưới 1024px là 11 → 12px (khối cuối file). Ô kệ (`.tileCategory`) theo cùng luật.
    */
-  font-size: 13px;
+  font-size: calc(13px + var(--font-bump));
   font-style: italic;
   font-weight: var(--weight-medium);
   color: var(--color-ink-soft);
@@ -421,7 +421,7 @@
   padding-top: var(--space-1);
 
   /* Nghiêng, 13px — cùng luật với `.category` của thẻ hàng, xem chú thích ở đó. */
-  font-size: 13px;
+  font-size: calc(13px + var(--font-bump));
   font-style: italic;
   font-weight: var(--weight-medium);
   color: var(--color-ink-soft);

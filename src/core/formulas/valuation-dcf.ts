@@ -1730,7 +1730,7 @@ export const GIA_TRI_NOI_TAI_FCFF: FormulaModule = {
       {
         latex: 'D_{\\text{ròng}}',
         meaning: {
-          vi: 'nợ vay ròng, nợ vay chịu lãi trừ tiền và tương đương tiền, tỷ ₫',
+          vi: 'nợ vay ròng, nợ vay chịu lãi trừ tiền mặt và tiền gửi, tỷ ₫',
           en: 'net debt, interest-bearing debt minus cash and equivalents, billion ₫',
         },
       },
@@ -1799,7 +1799,7 @@ export const GIA_TRI_NOI_TAI_FCFF: FormulaModule = {
         min: -1_000_000,
         max: 10_000_000,
         description: {
-          vi: 'Nợ vay chịu lãi trừ tiền và tương đương tiền; âm nghĩa là tiền nhiều hơn nợ.',
+          vi: 'Nợ vay chịu lãi trừ tiền mặt và tiền gửi ngân hàng; âm nghĩa là tiền nhiều hơn nợ.',
           en: 'Interest-bearing debt minus cash and cash equivalents; negative means cash exceeds debt.',
         },
       }),

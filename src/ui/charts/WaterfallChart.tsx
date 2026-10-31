@@ -8,7 +8,7 @@ import { usePick } from '@/application/preferences-context';
 import { useLabelText } from '@/ui/i18n/units';
 
 import styles from './chart.module.css';
-import { textWidth, thin, tickAnchor } from './ticks';
+import { textWidth, thin, tickAnchor, xAxisTitlePlace } from './ticks';
 import { useChartSize } from './use-chart-size';
 import type { ChartSize } from './use-chart-size';
 
@@ -80,8 +80,15 @@ const SIZES = {
   wide: { W: 640, ROW: 52, BAR: 28, LABEL: 9 },
 } as const;
 
-/** Lề trên/phải/dưới cố định. Lề TRÁI thì không — xem `padLeftFor()`. */
-const PAD = { top: 8, right: 12, bottom: 26 } as const;
+/**
+ * Lề trên/phải/dưới cố định. Lề TRÁI thì không — xem `padLeftFor()`.
+ *
+ * `bottom` 26 → 33 (30/10/2026): nhãn vạch có chân chữ ở `y1 + 14`, tên trục ở `height - 4`. Với 26
+ * hai chân chữ chỉ cách 8 đơn vị trong khi chữ cao 10, nên tên trục chạm nhãn vạch nằm trên nó —
+ * khi tên trục dời về đầu mút phải thì chạm đúng nhãn vạch cuối ("15" trên "EV (nghìn tỷ ₫)"). 33 cho
+ * khoảng cách 15 đơn vị, bằng nhịp `y1 + 13` / `H - 6` của `LineChart`.
+ */
+const PAD = { top: 8, right: 12, bottom: 33 } as const;
 
 /** Khoảng hở giữa nhãn chặng và trục — nhãn canh `end` tại `plotLeft - LABEL_GAP`. */
 const LABEL_GAP = 6;
@@ -404,7 +411,17 @@ export function WaterfallChart({
           </text>
         ))}
 
-        <text className={styles.axisTitle} x={(plotLeft + plotRight) / 2} y={height - 4}>
+        {/*
+          Tên trục giá trị ở đầu mút phải trục, canh `end` — lý do ở `LineChart.tsx`. Trước
+          30/10/2026 nó BẮT ĐẦU từ giữa đáy (không có `textAnchor`), tức lệch hẳn sang phải giữa.
+        */}
+        <text
+          className={styles.axisTitle}
+          x={xAxisTitlePlace(pick(model.y.title), plotRight).x}
+          y={height - 4}
+          textAnchor={xAxisTitlePlace(pick(model.y.title), plotRight).anchor}
+          data-ten-truc-ngang=""
+        >
           {pick(model.y.title)}
         </text>
 

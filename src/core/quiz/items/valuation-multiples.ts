@@ -741,7 +741,7 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
         value: { vi: '1.200 tỷ đồng', en: 'VND 1,200 billion' },
       },
       {
-        label: { vi: 'Tiền và tương đương tiền', en: 'Cash and cash equivalents' },
+        label: { vi: 'Tiền mặt và tiền gửi', en: 'Cash and cash equivalents' },
         value: { vi: '300 tỷ đồng', en: 'VND 300 billion' },
       },
       {

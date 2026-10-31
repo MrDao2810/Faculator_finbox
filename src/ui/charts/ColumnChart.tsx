@@ -10,7 +10,7 @@ import { useLabelText } from '@/ui/i18n/units';
 
 import styles from './chart.module.css';
 import { CHAN, xepChuGiaiDuoi } from './chu-giai-duoi';
-import { textWidth } from './ticks';
+import { textWidth, xAxisTitlePlace } from './ticks';
 import { useChartSize } from './use-chart-size';
 import type { ChartSize } from './use-chart-size';
 
@@ -401,11 +401,13 @@ export function ColumnChart({ model, idBase, fill = false, size: sizeProp }: Col
         <text className={styles.axisTitle} x={plot.x0 - 2} y={plot.y0 - 4}>
           {pick(model.y.title)}
         </text>
+        {/* Tên trục ngang ở đầu mút phải trục, không ở giữa đáy — lý do ở `LineChart.tsx`. */}
         <text
           className={styles.axisTitle}
-          x={(plot.x0 + plot.x1) / 2}
+          x={xAxisTitlePlace(pick(model.xTitle), plot.x1).x}
           y={xTitleY}
-          textAnchor="middle"
+          textAnchor={xAxisTitlePlace(pick(model.xTitle), plot.x1).anchor}
+          data-ten-truc-ngang=""
         >
           {pick(model.xTitle)}
         </text>

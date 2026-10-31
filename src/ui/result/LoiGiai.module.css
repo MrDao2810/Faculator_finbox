@@ -26,7 +26,7 @@
   grid-template-columns: minmax(0, 1fr);
   gap: var(--space-3) var(--space-4);
   margin: 0;
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem + var(--font-bump));
   line-height: 1.55;
   color: var(--color-ink-soft);
 }
@@ -63,7 +63,7 @@
 }
 
 .giaiHang > dt {
-  font-size: 0.6875rem;
+  font-size: calc(0.6875rem + var(--font-bump));
   font-weight: 600;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -143,8 +143,11 @@
   color: var(--color-ink);
 }
 
+.giaiPhay {
+  color: var(--color-muted);
+}
+
 .giaiNghia {
-  margin-left: var(--space-2);
   color: var(--color-muted);
 }
 
@@ -247,7 +250,7 @@
 
 /* Cỡ chữ của hình trong lời giải nhỏ hơn hình của ô điền số một bậc: đây là một dòng kết luận. */
 .giaiSoHinh [data-cong-thuc] {
-  font-size: 1.05rem;
+  font-size: calc(1.05rem + var(--font-bump));
 }
 
 .giaiSoRa {

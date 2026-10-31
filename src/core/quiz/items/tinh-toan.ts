@@ -680,7 +680,7 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
         value: { vi: '5.000 tỷ ₫', en: '5000 billion ₫' },
       },
       {
-        label: { vi: 'Tiền và tương đương tiền', en: 'Cash and equivalents' },
+        label: { vi: 'Tiền mặt và tiền gửi', en: 'Cash and equivalents' },
         value: { vi: '2.000 tỷ ₫', en: '2000 billion ₫' },
       },
     ],

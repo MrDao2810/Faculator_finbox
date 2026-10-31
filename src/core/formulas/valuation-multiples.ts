@@ -271,7 +271,7 @@ export const EV: FormulaModule = {
     },
     latex: 'EV = \\text{Vốn hoá} + \\text{Nợ vay} - \\text{Tiền mặt}',
     expression: {
-      vi: 'EV = Vốn hoá thị trường + Nợ vay − Tiền và tương đương tiền',
+      vi: 'EV = Vốn hoá thị trường + Nợ vay − Tiền mặt và tiền gửi',
       en: 'EV = Market capitalization + Debt − Cash and cash equivalents',
     },
     substitution: '{marketCap} + {totalDebt} − {cash}',
@@ -294,7 +294,7 @@ export const EV: FormulaModule = {
       {
         latex: '\\text{Tiền mặt}',
         meaning: {
-          vi: 'tiền và tương đương tiền, tỷ ₫',
+          vi: 'tiền mặt và tiền gửi ngân hàng rút ra được ngay, tỷ ₫',
           en: 'cash and cash equivalents, billion ₫',
         },
       },
@@ -328,15 +328,15 @@ export const EV: FormulaModule = {
       }),
       numberVar(
         'cash',
-        { vi: 'Tiền và tương đương tiền', en: 'Cash and cash equivalents' },
+        { vi: 'Tiền mặt và tiền gửi', en: 'Cash and cash equivalents' },
         'tỷ ₫',
         1_200,
         {
           min: 0,
           max: 10_000_000,
           description: {
-            vi: 'Tiền mặt, tiền gửi và các khoản tương đương tiền.',
-            en: 'Cash, deposits, and cash-equivalent items.',
+            vi: 'Tiền mặt cộng tiền gửi ngân hàng rút ra được ngay hoặc có kỳ hạn không quá 3 tháng.',
+            en: 'Cash on hand plus bank deposits that can be withdrawn at once or mature within 3 months.',
           },
         },
       ),

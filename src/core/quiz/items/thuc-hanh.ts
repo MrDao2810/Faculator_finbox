@@ -634,7 +634,7 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Một doanh nghiệp có 10 triệu cổ phiếu đang lưu hành, thị giá 17,50 USD một cổ phiếu. Bảng cân đối kế toán ghi riêng nợ vay ngắn hạn và nợ vay dài hạn, còn tiền và tương đương tiền chỉ chiếm 10% tổng tài sản. Tử số của EV/Sales là giá trị doanh nghiệp chứ không phải vốn hóa, nên phải cộng đủ cả hai khoản nợ rồi mới trừ tiền mặt. Đặt đúng năm con số vào ô trống của công thức EV/Sales.',
+      vi: 'Một doanh nghiệp có 10 triệu cổ phiếu đang lưu hành, thị giá 17,50 USD một cổ phiếu. Bảng cân đối kế toán ghi riêng nợ vay ngắn hạn và nợ vay dài hạn, còn tiền mặt và tiền gửi chỉ chiếm 10% tổng tài sản. Tử số của EV/Sales là giá trị doanh nghiệp chứ không phải vốn hóa, nên phải cộng đủ cả hai khoản nợ rồi mới trừ tiền mặt. Đặt đúng năm con số vào ô trống của công thức EV/Sales.',
       en: 'A company has 10 million shares outstanding at a market price of 17.50 USD per share. Its balance sheet lists short-term borrowings and long-term borrowings separately, while cash and cash equivalents are only 10% of total assets. The numerator of EV/Sales is enterprise value, not market capitalization, so both debt figures must be added before cash is subtracted. Put the right five numbers into the slots of the EV/Sales formula.',
     },
     facts: [
@@ -659,7 +659,7 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
       },
       {
         label: {
-          vi: 'Tiền và tương đương tiền (10% tổng tài sản)',
+          vi: 'Tiền mặt và tiền gửi (10% tổng tài sản)',
           en: 'Cash and cash equivalents (10% of total assets)',
         },
         value: { vi: '12,5 triệu USD', en: '12.5 million USD' },
@@ -734,7 +734,7 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
         value: { vi: '1.477,83 tỷ ₫', en: '1477.83 billion ₫' },
       },
       {
-        label: { vi: 'Tiền và tương đương tiền', en: 'Cash and cash equivalents' },
+        label: { vi: 'Tiền mặt và tiền gửi', en: 'Cash and cash equivalents' },
         value: { vi: '6.440,18 tỷ ₫', en: '6440.18 billion ₫' },
       },
       {
@@ -2492,7 +2492,7 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
       },
       {
         label: {
-          vi: 'Tiền và các khoản tương đương tiền (31/12/2022)',
+          vi: 'Tiền mặt và tiền gửi (31/12/2022)',
           en: 'Cash and cash equivalents (31 Dec 2022)',
         },
         value: { vi: '5.061 tỷ đồng', en: '5061 billion ₫' },

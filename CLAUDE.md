@@ -1836,7 +1836,7 @@ at all):
   signal, momentum, rolling max/min, TR). Known and NOT from this round: on every time axis the lowest value label
   touches the first date label, and at 390px the axis title's Vietnamese accents touch the frame's top edge.
 
-**Chart legends sit at the BOTTOM of the chart, centred under the x-axis title** (28/10/2026, owner, circling the Beta
+**Chart legends sit at the BOTTOM of the chart, under the x-axis title** (28/10/2026, owner, circling the Beta
 scatter's "Từng phiên · Đường hồi quy…" squeezed on top of the y-axis title: _"nó nằm ở vị trí rất khó nhìn, cần chuyển
 xuống cuối dưới chart và padding chuẩn 1 chút. áp dụng cho toàn bộ công thức, màn web pc và web mobile"_). Three
 legends moved: the in-`<svg>` legend of `ColumnChart` and `ScatterChart`, laid out by `xepChuGiaiDuoi()`
@@ -1846,6 +1846,24 @@ and `LineChart`'s HTML `<ul>` (now after `.plot`, `justify-content: center`). Me
 title to legend 10–14px for the SVG legends and 12–13px for the HTML one, no sideways scroll. Donut and gauge legends
 were NOT touched (their side/under-ring layouts are the owner's own rounds). `chu-giai-duoi.test.ts` and
 `chuGiaiDuoiTenTrucNgang()` in `charts.test.tsx` pin it; no `check:chrome` assertion.
+
+**The x-axis title sits at the RIGHT END of the axis, and a date axis has none** (30/10/2026). The owner circled "Ngày"
+alone under the middle of "Tỷ suất lợi nhuận trên giá theo thời gian": _"sao chú thích ở biểu đồ này lại có cái Ngày
+trơ trọi ở giữa thế này ? lỗi nghiêm trọng"_, then _"những biểu đồ khác tôi cũng thấy có chú thích ở giữa màn như lỗi
+trên"_. Two rules, all five chart kinds with a horizontal axis (line, columns, histogram, scatter, breakdown bars):
+
+- **A date axis draws no title** (`ChartAxis.dates`, set by the three date-axis builders: time chart, component lines,
+  drawdown). The ticks already read "09/2025", the chart title already says "theo thời gian", and "Ngày" was wrong under
+  MONTH ticks. The title stays as the data table's first column. `LineChart` gives the freed 14 units to the plot
+  (`PAD_BOTTOM_DATES` = 20 instead of 34).
+- **Any other x-axis title is `end`-anchored at the axis's right end** (`xAxisTitlePlace()` in `ticks.ts`), like x at
+  the end of Ox while the y title stands at the top of Oy; it was centred (the breakdown chart's even STARTED at the
+  middle). A title wider than the room from the frame's left edge to that end (measured: only "Dividends received
+  during the period (D) (thousand ₫/share)" on a phone) is pinned to the left edge instead, keeping its first letters.
+  The breakdown chart's bottom margin went 26 → 33: its tick and title baselines were 8 units apart, so the title
+  touched the last tick ("15" over "EV (nghìn tỷ ₫)").
+  Each title carries `data-ten-truc-ngang`, which the tests find it by. Measured in Chrome at 390 and 1440 on the time,
+  sweep, columns, histogram, scatter, breakdown and drawdown charts: nothing clipped, no title touching a tick.
 
 Measured over the Registry (`dang-ve.test.ts` pins it): with no series, 257 drawable charts — Đường/Cột/Điểm
 211 (Cột 224 with the 13 column charts that need no series), Bậc thang 23, Lãi/lỗ 27, Vành khuyên 27 (5

@@ -146,3 +146,96 @@ describe('Nhãn chữ hoa', () => {
     expect(missing).toEqual([]);
   });
 });
+
+/**
+ * Chữ PC nhỉnh thêm `--font-bump` (31/10/2026). Chủ dự án: _"phông chữ màn web pc đang hơi nhỏ. tăng
+ * 0.5 hoặc 0.4 gì đó trong toàn bộ dự án"_.
+ *
+ * Hai vế. (1) Khối `@media screen and (min-width: 1024px)` của `globals.css` viết lại đủ tám bậc bằng
+ * đúng bậc của `:root` cộng nút, và khai lại `--section-title-size` — thiếu một dòng thì bậc ấy đứng
+ * yên ở PC mà không ai thấy, vì jsdom không áp CSS. (2) "Toàn bộ dự án" phải giữ được về sau: một
+ * `font-size` ghi số trần (px/rem) áp ở PC mà không cộng nút là một chỗ chữ không nhỉnh theo. Số trần
+ * nằm trong khối chỉ dành cho khổ hẹp (`max-width` dưới 1024px) thì không tính; chữ TRONG hình SVG tính
+ * bằng đơn vị viewBox, tự to theo khung, nên hai file biểu đồ được miễn; nút "Chú thích" chỉ có dưới
+ * 1024px (từ 1024px nó `display: none`).
+ */
+describe('Chữ PC nhỉnh thêm', () => {
+  const SRC_DIR = fileURLToPath(new URL('..', import.meta.url));
+  const sizes = scale();
+
+  /** Khối `body` trong `@media screen and (min-width: 1024px)` — chỗ duy nhất khai nút ở PC. */
+  function pcBody(): string {
+    const media = cssBlock(GLOBALS_CSS, '@media screen and (min-width: 1024px)') ?? '';
+    return cssBlock(media, 'body') ?? '';
+  }
+
+  it('nút là 0 ở :root và 0,5px ở khối PC', () => {
+    const root = cssBlock(GLOBALS_CSS, ':root') ?? '';
+    expect(root).toMatch(/--font-bump:\s*0px;/);
+    expect(pcBody()).toMatch(/--font-bump:\s*0\.5px;/);
+  });
+
+  it.each(ALL_STEPS)('%s ở PC bằng đúng bậc của :root cộng nút', (name) => {
+    const goc = sizes.get(name);
+    expect(goc).toBeDefined();
+    expect(pcBody()).toContain(`${name}: calc(${String(goc)}px + var(--font-bump));`);
+  });
+
+  it('khai lại --section-title-size để nó đọc bậc mới', () => {
+    expect(pcBody()).toMatch(/--section-title-size:\s*var\(--text-sm\);/);
+  });
+
+  /** Chỗ được miễn, kèm lý do ở docblock trên. */
+  const MIEN = new Set([
+    'ui/charts/chart.module.css',
+    'ui/series/CandleChart.module.css',
+    'app/cong-thuc/[id]/FormulaNotationCard.module.css .legend > .legendToggle',
+  ]);
+
+  /** Mọi `font-size: <số>(px|rem);` áp ở PC: không nằm trong `@media` nào có `max-width` dưới 1024px. */
+  function soTranOPc(): string[] {
+    const found: string[] = [];
+    const files = readdirSync(SRC_DIR, { recursive: true, encoding: 'utf8' }).filter((name) =>
+      name.endsWith('.css'),
+    );
+
+    for (const name of files) {
+      const where = name.split('\\').join('/');
+      if (where === 'app/globals.css' || MIEN.has(where)) continue;
+      const css = readFileSync(join(SRC_DIR, name), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
+      const stack: string[] = [];
+      let head = '';
+
+      for (const char of css) {
+        if (char === '{') {
+          stack.push(head.trim());
+          head = '';
+        } else if (char === '}') {
+          stack.pop();
+          head = '';
+        } else if (char === ';') {
+          const decl = /(?:^|\s)font-size\s*:\s*([\d.]+(?:px|rem))\s*$/.exec(head);
+          head = '';
+          if (decl === null) continue;
+          const chiKhoHep = stack.some((at) => {
+            const max = /max-width:\s*([\d.]+)px/.exec(at);
+            return at.startsWith('@') && max !== null && Number(max[1]) < 1024;
+          });
+          if (chiKhoHep) continue;
+          const selector = [...stack].reverse().find((s) => !s.startsWith('@')) ?? '?';
+          const key = `${where} ${selector.replace(/\s+/g, ' ')}`;
+          if (MIEN.has(key)) continue;
+          found.push(`${key} → ${decl[1] ?? ''}`);
+        } else {
+          head += char;
+        }
+      }
+    }
+
+    return found;
+  }
+
+  it('không còn cỡ chữ số trần nào áp ở PC mà không cộng nút', () => {
+    expect(soTranOPc()).toEqual([]);
+  });
+});

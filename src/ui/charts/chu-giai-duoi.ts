@@ -8,8 +8,8 @@ import { textWidth } from './ticks';
  * _"đang có đoạn chú thích không ổn lắm. nó nằm ở vị trí rất khó nhìn, cần chuyển xuống cuối dưới chart
  * và padding chuẩn 1 chút. áp dụng cho toàn bộ công thức, màn web pc và web mobile"_.
  *
- * Nay chú giải đứng DƯỚI tên trục ngang, mỗi hàng canh giữa vùng vẽ như chính tên trục ấy, hàng cuối
- * cách đáy khung `CHAN`. Hàm này xếp hàng và trả về phần chiều cao nó chiếm, để nơi gọi đẩy đáy vùng vẽ
+ * Nay chú giải đứng DƯỚI tên trục ngang, mỗi hàng canh giữa vùng vẽ, hàng cuối cách đáy khung `CHAN`.
+ * (Tên trục ngang canh giữa tới 30/10/2026; nay nó ở đầu mút phải trục, xem `LineChart.tsx`.) Hàm này xếp hàng và trả về phần chiều cao nó chiếm, để nơi gọi đẩy đáy vùng vẽ
  * lên đúng bấy nhiêu — chiều cao khung (`viewBox`) giữ nguyên, nên tỉ lệ khung CSS vẫn khớp.
  *
  * Thuần số học, không đo DOM: cả thư mục nằm sau ranh giới `next/dynamic` (xem `ticks.ts`).

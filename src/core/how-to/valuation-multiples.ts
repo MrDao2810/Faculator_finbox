@@ -53,7 +53,7 @@ export const HOW_TO_VALUATION_MULTIPLES: Readonly<Record<string, FormulaHowTo>> 
     skippedPhrases: {
       EV: { vi: ['EV'], en: ['EV'] },
       '\\text{Nợ vay}': { vi: ['Nợ vay'], en: ['Debt'] },
-      '\\text{Tiền mặt}': { vi: ['Tiền và tương đương tiền'], en: ['Cash and cash equivalents'] },
+      '\\text{Tiền mặt}': { vi: ['Tiền mặt và tiền gửi'], en: ['Cash and cash equivalents'] },
     },
   },
 

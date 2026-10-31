@@ -20,7 +20,7 @@ import { usePick, useT } from '@/application/preferences-context';
 import { useLabelText } from '@/ui/i18n/units';
 
 import styles from './chart.module.css';
-import { floatingLabel, textWidth, thin, tickAnchor } from './ticks';
+import { floatingLabel, textWidth, thin, tickAnchor, xAxisTitlePlace } from './ticks';
 import { useChartSize } from './use-chart-size';
 import type { ChartSize } from './use-chart-size';
 
@@ -118,6 +118,15 @@ const SIZES = {
 const PAD = { top: 14, right: 10, bottom: 34, left: 36 } as const;
 
 /**
+ * Lề dưới của trục NGÀY (`ChartAxis.dates`), nơi tên trục không vẽ (30/10/2026, xem `dates`).
+ *
+ * `PAD.bottom = 34` chở hai dòng: nhãn vạch (baseline `y1 + 13`) và tên trục (baseline `H - 6`).
+ * Bỏ dòng thứ hai thì còn 20: baseline nhãn vạch ở `H - 7`, cùng khoảng hở đáy mà tên trục để lại,
+ * nên chữ không tì mép khung. 14 đơn vị trả cho vùng vẽ, không để thành một dải trống dưới hình.
+ */
+const PAD_BOTTOM_DATES = 20;
+
+/**
  * Lề trái/phải của khổ `compact` — khổ của điện thoại (dưới 768px) — gọn hơn `PAD` (19/10/2026).
  *
  * Chủ dự án khoanh khoảng trống hai bên vùng vẽ trên điện thoại: _"điều chỉnh giảm padding xung quanh
@@ -201,6 +210,7 @@ function plotOf(
   size: ChartSize,
   hasRightAxis: boolean,
   yLabels: ReadonlyArray<{ label: string }> = [],
+  dates = false,
 ) {
   const { W, H } = SIZES[size];
   const rongNhat = Math.max(0, ...yLabels.map((tick) => textWidth(tick.label, TICK_FONT_SIZE)));
@@ -219,7 +229,7 @@ function plotOf(
     x0,
     x1: hasRightAxis ? W - PAD_RIGHT_AXIS : W - lePhai,
     y0: PAD.top,
-    y1: H - PAD.bottom,
+    y1: H - (dates ? PAD_BOTTOM_DATES : PAD.bottom),
   } as const;
 }
 
@@ -415,7 +425,7 @@ export function LineChart({
      */
     const budget = LABEL_BUDGET[size];
     const nhanY = thin(model.y.ticks, budget.y);
-    const box = plotOf(size, model.yRight !== undefined, nhanY);
+    const box = plotOf(size, model.yRight !== undefined, nhanY, model.x.dates === true);
     const scaleX = linearScale(model.x.domain, [box.x0, box.x1]);
     // Trục Y lật chiều: toạ độ SVG đi xuống, giá trị đi lên.
     const scaleY = linearScale(model.y.domain, [box.y1, box.y0]);
@@ -1153,7 +1163,14 @@ export function LineChart({
 
           {/*
           Tên hai trục bằng chữ, không xoay dọc: chữ xoay 90 độ ở khổ 360 vừa khó đọc vừa ăn thêm
-          lề trái. Tên trục Y đặt trên góc trái, tên trục X ở giữa đáy — đúng lối các báo cáo in.
+          lề trái. Tên trục Y đứng ở đầu trên trục dọc, tên trục X ở đầu mút phải trục ngang, như trục Oy và
+          Ox trong sách giáo khoa. Trục ngày không có tên trục X (`ChartAxis.dates`).
+
+          Tên trục X từng canh GIỮA đáy; chủ dự án đọc nó là một chú thích đứng trơ trọi giữa hình
+          (30/10/2026: _"những biểu đồ khác tôi cũng thấy có chú thích ở giữa màn như lỗi trên"_). Nay
+          nó canh `end` tại `plot.x1`, cùng mép phải với nhãn vạch cuối (`tickAnchor`), nên đọc là
+          tên của trục chứ không phải một dòng chú thích. Hình cột, phân bố, phân tán và bóc tách theo
+          cùng luật; cả năm mang `data-ten-truc-ngang` để test tìm.
 
           `y = plot.y0 - 4` chứ không phải `- 2`: baseline lùi xuống 4 đơn vị thì cả dòng chữ 10px
           nằm gọn giữa `y = 0` và đường lưới trên cùng, thay vì thò lên trên khung và tì xuống lưới
@@ -1180,14 +1197,18 @@ export function LineChart({
             </text>
           )}
 
-          <text
-            className={styles.axisTitle}
-            x={(plot.x0 + plot.x1) / 2}
-            y={H - 6}
-            textAnchor="middle"
-          >
-            {pick(model.x.title)}
-          </text>
+          {/* Trục ngày không vẽ tên: nhãn vạch đã là ngày tháng (xem `ChartAxis.dates`). */}
+          {model.x.dates !== true && (
+            <text
+              className={styles.axisTitle}
+              x={xAxisTitlePlace(pick(model.x.title), plot.x1).x}
+              y={H - 6}
+              textAnchor={xAxisTitlePlace(pick(model.x.title), plot.x1).anchor}
+              data-ten-truc-ngang=""
+            >
+              {pick(model.x.title)}
+            </text>
+          )}
 
           {/*
           Vùng bắt sự kiện dò điểm — trong suốt, phủ đúng vùng vẽ, đặt SAU mọi thẻ khác (trừ

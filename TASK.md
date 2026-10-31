@@ -4,6 +4,76 @@ Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 
 ---
 
+## Bỏ cụm "tương đương tiền" khỏi chữ trên màn (31/10/2026)
+
+**Trạng thái: CHƯA XONG — đã sửa, chờ chủ dự án xem.** Chủ dự án, trên thẻ công thức EV: _"tương đương tiền viết vậy ai
+mà hiểu. sửa lại"_. Thay bằng "tiền mặt và tiền gửi" (bản tiếng Việt; tiếng Anh giữ "cash and cash equivalents", thuật
+ngữ quen thuộc):
+
+- `formulas/valuation-multiples.ts` (EV): dòng chữ dưới công thức, nghĩa ký hiệu "Tiền mặt" ("tiền mặt và tiền gửi ngân
+  hàng rút ra được ngay, tỷ ₫"), nhãn ô "Tiền mặt và tiền gửi", mô tả ô ("… rút ra được ngay hoặc có kỳ hạn không quá 3
+  tháng", vi và en). `how-to/valuation-multiples.ts`: cụm rê chuột theo dòng chữ mới.
+- `formulas/valuation-dcf.ts` (nợ vay ròng), `how-to/valuation-dcf.ts` (bước tính NWC và nợ vay ròng),
+  `huong-dan/noi-dung/items.ts` (lấy số ở đâu: "dòng đầu tiên của tài sản ngắn hạn (tiền mặt và tiền gửi ngân hàng)"),
+  `huong-dan/bieu-do/noi-dung/dinh-gia.ts` (tên ô trong đoạn Đọc biểu đồ), `vi-du/items.ts`, ba tệp bài tập (nhãn bảng
+  số liệu, đề bài), `GuideScreen.test.tsx` (tên biểu đồ mới).
+- Giữ có chủ ý: nhãn link nguồn ví dụ FPT vẫn ghi tên dòng gốc trên báo cáo "(Tiền và các khoản tương đương tiền)" trong
+  ngoặc, để người đọc dò đúng dòng trên CafeF.
+- Toàn bộ vitest: 5097 qua, 1 hỏng vì quá hạn 5 giây ở `PortfolioScreen.test.tsx` (chạy riêng vẫn quá hạn; tệp đó và màn
+  Danh mục không bị đụng, đang có thay đổi của phiên khác). tsc, prettier sạch.
+
+---
+
+## Dấu câu giữa ký hiệu và nghĩa: khung chú thích và dòng Thay số (31/10/2026)
+
+**Trạng thái: CHƯA XONG — chờ chủ dự án xem.**
+
+Chủ dự án khoanh tiêu đề khung chú thích của `Tiền mặt` trên `ev`, đọc thành "Tiền mặt tiền và tương đương tiền, tỷ ₫":
+_"không có dấu câu, để cách vô tội vạ"_, rồi: _"tìm lại toàn bộ công thức và sửa lỗi như trên"_.
+
+- **Khung chú thích** (`HowToPanel.tsx`): tiêu đề nay là "ký hiệu: nghĩa", đúng như dòng bảng ký hiệu (vốn đã có dấu
+  hai chấm qua `.symbols dt::after`). Ký hiệu và nghĩa trước đó chỉ cách nhau `margin` 8px. Một component, nên đủ bốn chỗ
+  mở khung: thẻ Công thức, khung "Lấy số liệu ở đâu", hình trong lời giải Bài tập và Ví dụ thực tế. Hai chấm `aria-hidden`:
+  nhãn trợ năng của khung không đổi.
+- **Dòng Thay số** (`LoiGiai.tsx`, chung cho Bài tập và Ví dụ thực tế): "= 42.500 giá trị nội tại…" thiếu dấu ngăn giữa
+  con số và nghĩa, cùng một lỗi. Nay "= 42.500, giá trị nội tại…".
+- Rà các chỗ còn lại ghép tên với nội dung: bảng ký hiệu đã có hai chấm; bảng dữ kiện của bài tập, bảng số của ví dụ,
+  khối hằng số và trang hướng dẫn đặt nhãn và giá trị thành hai cột hoặc hai dòng — không dính chữ, không sửa.
+
+Test: vòng quét mọi nút dòng bảng của 111 công thức (`FormulaNotationCard.test.tsx`) nay đòi tiêu đề khung đúng
+"ký hiệu: nghĩa" ở cả 568 dòng; `QuizBody.test.tsx` đòi "= 36.000, giá thị trường…". Test `src/ui` + `src/app/cong-thuc`
+xanh (2.063 ca), lint, typecheck, prettier sạch. Chưa xem trên Chrome.
+
+---
+
+## Tên trục ngang: bỏ "Ngày" ở trục ngày, dời về đầu mút phải ở mọi biểu đồ khác (30/10/2026)
+
+**Trạng thái: CHƯA XONG — chờ chủ dự án xem.**
+
+Chủ dự án khoanh chữ "Ngày" đứng một mình giữa đáy "Tỷ suất lợi nhuận trên giá theo thời gian": _"lỗi nghiêm trọng
+trong việc chú thích trên biểu đồ"_, rồi: _"những biểu đồ khác tôi cũng thấy có chú thích ở giữa màn như lỗi trên"_.
+
+- **Trục ngày không vẽ tên.** `ChartAxis.dates` (`src/core/chart/types.ts`) được bật ở ba chỗ dựng trục ngày
+  (`build.ts`: hình thời gian và các đường thành phần; `series-view.ts`: đường sụt giảm). Nhãn vạch đã là tháng/năm, tên
+  hình đã có "theo thời gian", và "Ngày" còn sai vì nhãn là THÁNG. Tên vẫn là cột đầu của bảng số (trình đọc màn hình).
+  `LineChart` trả 14 đơn vị lề dưới cho vùng vẽ (`PAD_BOTTOM_DATES` = 20).
+- **Mọi tên trục ngang khác canh `end` ở đầu mút phải trục** (`xAxisTitlePlace()` trong `ticks.ts`), ở cả năm loại hình:
+  `LineChart`, `ColumnChart`, `HistogramChart`, `ScatterChart`, `WaterfallChart` (hình bóc tách trước đó BẮT ĐẦU từ giữa
+  đáy). Tên dài hơn chỗ từ mép trái tới đầu mút thì dán mép trái; đo trên Registry chỉ một tên chạm điều kiện ấy, ở khổ
+  điện thoại, tiếng Anh: "Dividends received during the period (D) (thousand ₫/share)" của `hpr`.
+- **Hình bóc tách: lề dưới 26 → 33.** Chân chữ nhãn vạch và tên trục cách nhau 8 đơn vị với chữ cao 10, nên tên trục
+  chạm nhãn vạch cuối ("15" trên "EV (nghìn tỷ ₫)"); nay 15 đơn vị như hình đường.
+
+Test: `charts.test.tsx` (4 trục ngày không có chữ "Ngày", bảng số vẫn có, trục X ở `H − 20`; P/E giữ tên và lề cũ; năm
+loại hình canh `end` và không tràn mép trái), `ticks.test.ts` (`xAxisTitlePlace()`). `npm run check` xanh: 5.087 ca.
+Chrome trên dev, 390 và 1440: hình thời gian, quét P/E, cột trả nợ, phân phối VaR, phân tán Beta, bóc tách EV, sụt giảm —
+không chữ nào bị cắt hay chạm nhau.
+
+Thấy khi đo, chưa sửa (có từ trước): trên hình phân phối VaR ở 390, hai nhãn mốc "Bình quân 0,05 %" và "VaR lịch sử theo
+phân vị -1,35 %" đè lên vùng tên trục đứng "Số phiên"; số âm in bằng dấu gạch nối "-" chứ không phải dấu trừ "−".
+
+---
+
 ## Bỏ chữ "Hiện giá" ở biểu đồ DDM hai giai đoạn (30/10/2026)
 
 **Trạng thái: CHƯA XONG — chờ chủ dự án xem.**

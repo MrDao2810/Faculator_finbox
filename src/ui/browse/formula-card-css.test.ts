@@ -131,7 +131,8 @@ describe('nhãn nhóm của ô kệ nhỏ hơn mô tả một bậc', () => {
   });
 
   it('từ 1024px: nhãn 13px vẫn dưới mô tả `--text-sm` (14px)', () => {
-    expect(khai('.tileCategory', 'font-size')).toBe('13px');
+    // Cả hai cùng nhỉnh `--font-bump` ở PC (31/10/2026), nên khoảng cách một bậc giữ nguyên.
+    expect(khai('.tileCategory', 'font-size')).toBe('calc(13px + var(--font-bump))');
     expect(khai('.tileDescription', 'font-size')).toBe('var(--text-sm)');
   });
 });

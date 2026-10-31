@@ -835,6 +835,7 @@ function buildComponentsModel(
     title: { vi: 'Ngày', en: 'Date' },
     domain: [0, Math.max(1, points.length - 1)],
     ticks: sessionTicks(ctx.bars ?? []),
+    dates: true,
   };
 
   const donVi = unitLabel(view.unit);
@@ -1452,6 +1453,7 @@ function dungMoHinh(args: ChartArgs, s: SanSang): ChartModel {
       title: { vi: 'Ngày', en: 'Date' },
       domain: [0, Math.max(1, points.length - 1)],
       ticks: sessionTicks(ctx.bars ?? []),
+      dates: true,
     };
     xTableTitle = x.title;
     activeKey = HISTORY_KEY;

@@ -66,7 +66,7 @@
 
 .label {
   margin: 0;
-  font-size: 0.75rem;
+  font-size: calc(0.75rem + var(--font-bump));
   font-weight: 600;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -76,7 +76,7 @@
 
 .lead {
   margin: 0;
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem + var(--font-bump));
   color: var(--color-ink-soft);
 }
 
@@ -89,7 +89,7 @@
 
 .emptyTitle {
   margin: 0;
-  font-size: 1rem;
+  font-size: calc(1rem + var(--font-bump));
   font-weight: 600;
   color: var(--color-ink-soft);
 }
@@ -101,7 +101,7 @@
 /* ── Thanh tiến độ ─────────────────────────────────────────────────────────── */
 
 .step {
-  font-size: 0.75rem;
+  font-size: calc(0.75rem + var(--font-bump));
   font-weight: 600;
   letter-spacing: 0.04em;
   white-space: nowrap;
@@ -208,7 +208,7 @@ dialog.dialog > div {
   display: flex;
   justify-content: space-between;
   gap: var(--space-4);
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem + var(--font-bump));
 }
 
 .fact dt {
@@ -267,7 +267,7 @@ dialog.dialog > div {
 
 .prompt {
   padding: 0 0 var(--space-2);
-  font-size: 0.9375rem;
+  font-size: calc(0.9375rem + var(--font-bump));
   color: var(--color-ink);
 }
 
@@ -309,7 +309,7 @@ dialog.dialog > div {
   gap: var(--space-3);
   min-height: var(--tap-min);
   padding: var(--space-3) var(--space-4);
-  font-size: 0.875rem;
+  font-size: calc(0.875rem + var(--font-bump));
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
@@ -389,7 +389,7 @@ dialog.dialog > div {
 }
 
 .verdict {
-  font-size: 0.75rem;
+  font-size: calc(0.75rem + var(--font-bump));
   font-weight: 600;
 }
 
@@ -421,7 +421,7 @@ dialog.dialog > div {
 
 .explainTitle {
   margin: 0;
-  font-size: 0.6875rem;
+  font-size: calc(0.6875rem + var(--font-bump));
   font-weight: 600;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -434,7 +434,7 @@ dialog.dialog > div {
 
 .explainBody {
   margin: 0;
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem + var(--font-bump));
   line-height: 1.55;
   color: var(--color-ink-soft);
 }
@@ -459,7 +459,7 @@ dialog.dialog > div {
   align-items: center;
   gap: var(--space-2);
   margin: 0;
-  font-size: 0.75rem;
+  font-size: calc(0.75rem + var(--font-bump));
   color: var(--color-muted);
 }
 
@@ -520,7 +520,7 @@ dialog.dialog > div {
   width: 100%;
   padding: var(--space-2) var(--space-3);
   font: inherit;
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem + var(--font-bump));
   color: var(--color-ink-soft);
   text-align: left;
   background: none;
@@ -534,7 +534,7 @@ dialog.dialog > div {
 }
 
 .historyStep {
-  font-size: 0.6875rem;
+  font-size: calc(0.6875rem + var(--font-bump));
   font-weight: 600;
   color: var(--color-muted);
 }
@@ -601,7 +601,7 @@ dialog.dialog > div {
   display: flex;
   gap: var(--space-3);
   padding-top: var(--space-2);
-  font-size: 0.8125rem;
+  font-size: calc(0.8125rem + var(--font-bump));
   color: var(--color-ink-soft);
   border-top: 1px solid var(--color-hairline);
 }
@@ -681,7 +681,7 @@ dialog.dialog > div {
 
 .workedName,
 .workedEquals {
-  font-size: 1.125rem;
+  font-size: calc(1.125rem + var(--font-bump));
   color: var(--color-ink);
 }
 

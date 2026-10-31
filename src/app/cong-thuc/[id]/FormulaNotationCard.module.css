@@ -216,7 +216,7 @@
 }
 
 .panelSymbol {
-  margin-inline-end: var(--space-2);
+  margin-inline-end: 0;
 }
 
 .steps {

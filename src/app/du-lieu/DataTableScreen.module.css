@@ -495,7 +495,7 @@
 .lineHead,
 .lineNo {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: calc(11px + var(--font-bump));
   font-weight: var(--weight-regular);
   text-align: center;
   color: var(--color-muted);

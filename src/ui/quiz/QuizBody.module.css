@@ -254,6 +254,43 @@ dialog.dialog > div {
   }
 }
 
+/*
+ * ── Đề bài và bảng số liệu cạnh nhau (02/11/2026) ─────────────────────────────────────────────
+ *
+ * Chủ dự án: _"đối với các bài toán số, phần tóm tắt, số liệu cần được viết cạnh với giả thuyết"_.
+ * Trước đó bảng số liệu đứng TRÊN đề, một mình ở góc trái (từ 1024px nó co theo chữ), cả dải bên
+ * phải bỏ trống, rồi đề bài mới tới bên dưới. Nay đề và bảng là một khối `.deBai` (167 câu: 150 điền
+ * số, 17 trắc nghiệm), đề trước bảng sau như giả thiết rồi tóm tắt:
+ *
+ *   · Từ 768px: hai cột, đề bên trái giãn hết phần còn lại, bảng bên phải co theo chữ và không
+ *     rộng quá nửa khối (`fit-content(50%)` — nhãn dài thì tự xuống dòng trong cột của nó), hai thứ
+ *     thẳng mép trên. 768 là khổ popup có ~670px nội dung: đủ cho đề ~360px cạnh bảng ~300px.
+ *   · Dưới 768px: không đủ chỗ cho hai cột (đề sẽ còn ~140px), nên xếp chồng — đề rồi bảng ngay
+ *     dưới, khớp chữ "số liệu dưới đây" của 68 đề.
+ *
+ * `.deBai .prompt` (0,2,0) xoá đệm dưới 8px của `.prompt`: đệm ấy dành cho `<legend>` của câu không
+ * có bảng, còn ở đây khoảng cách là `gap` của khối.
+ */
+.deBai {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.deBai .prompt {
+  margin: 0;
+  padding: 0;
+}
+
+@media (min-width: 768px) {
+  .deBai {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) fit-content(50%);
+    gap: var(--space-3) var(--space-4);
+    align-items: start;
+  }
+}
+
 /* ── Câu hỏi và bốn lựa chọn ───────────────────────────────────────────────── */
 
 .choices {

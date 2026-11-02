@@ -4,6 +4,174 @@ Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 
 ---
 
+## Bài tập: bỏ dòng "Câu này có nhiều đáp án đúng — chọn đủ cả." (02/11/2026)
+
+**Trạng thái: CHƯA XONG — đã sửa, chờ chủ dự án xem.** Chủ dự án khoanh dòng ấy dưới đề Q338 (`ncav-tren-co-phieu`),
+đề đã tự ghi "(Chọn tất cả đáp án đúng)": _"bỏ đoạn khoanh đỏ này đi. đang thừa và chiếm không gian"_.
+
+- `src/ui/quiz/QuizQuestion.tsx`: không in `quiz.pickAll` nữa. Câu chọn nhiều vẫn là ô vuông, vẫn chấm trọn gói.
+- `src/application/i18n/vi.ts`, `en.ts`: xoá khoá, để mộ chí.
+- `src/ui/quiz/QuizBody.test.tsx`: ca "nói trước là có nhiều đáp án" đảo thành "không in dòng có nhiều đáp án đúng".
+- Kiểm: eslint, tsc, `vitest run src/ui/quiz src/application/i18n` 131/131.
+
+Còn lại, chờ chủ dự án quyết: 10 trong 18 câu chọn nhiều KHÔNG tự ghi "(chọn tất cả đáp án đúng)" trong đề (Q324,
+Q259, Q273, Q275, Q267, Q263, Q294, Q299, Q239, Q312) — với chúng, ô vuông là tín hiệu duy nhất. Nếu muốn, thêm lời ấy
+vào cuối đề (vi + en), giống 8 câu kia.
+
+---
+
+## Bài tập: câu chốt "Điền N con số vào đúng ô trống." → "Điền số liệu vào đúng ô trống." (02/11/2026)
+
+**Trạng thái: CHƯA XONG — đã sửa, chờ chủ dự án xem.** Chủ dự án chỉ câu Q337 (`ncav-tren-co-phieu`): _"Điền bốn
+con số vào đúng ô trống."_ → _"Điền số liệu vào đúng ô trống."_. Câu nguyên văn ấy chỉ có ở Q337; cùng đúng mẫu câu
+(chỉ khác chữ số đếm) còn ba câu, đổi luôn: Q274 (`ty-so-treynor`), Q333 (`so-graham`), Q344 (`gia-muc-tieu`). Câu
+tiếng Anh tương ứng "Put the three/four figures into the right slots." → "Put the figures into the right slots.".
+Phần còn lại của đề không đổi.
+
+Không đụng ~130 câu điền số khác viết theo mẫu "hãy đặt đúng N con số vào ô trống của công thức …": khác câu, và ở
+nhiều câu con số đếm là một phần của đề (Q261: "Bảng có đủ bốn con số của CẢ HAI tài sản — điền đúng hai con số của
+Y"). Đã đếm máy cả 150 câu điền số: không câu nào nói sai số ô trống (6 chỗ máy báo lệch đều là chữ đếm nói về bảng
+số liệu, không phải về số ô).
+
+Cùng ngày, câu thứ hai chủ dự án chỉ: Q334 (`so-graham`), đuôi câu hỏi "… cách hiểu Số Graham như vậy sai ở đâu?" →
+"… như vậy đang sai ở điểm nào?" (giữ dấu "?"; bản chủ dự án gõ không có dấu). Tiếng Anh giữ nguyên ("what is wrong
+with reading the Graham number this way?" đã đúng nghĩa). Câu cùng kiểu còn lại trong ngân hàng, Q-SMA200 ở
+`technical.ts` ("Suy luận “thế nào cũng hồi về trung bình” sai ở đâu?"), chưa đổi — chờ chủ dự án.
+
+Câu thứ ba: Q404 (`tiet-kiem-muc-tieu`), "Hãy đặt đúng bốn con số vào ô trống …" → "Hãy đặt đúng các số vào ô
+trống …"; tiếng Anh "put the right four numbers into the slots …" → "put the right numbers into the slots …".
+
+Câu thứ tư: Q292 (`roc-toc-do-thay-doi`, trắc nghiệm), đuôi "… kết quả là bao nhiêu phiên?" → "… kết quả nhận được
+là?" (bản chủ dự án gõ "là ?", bỏ khoảng trắng trước dấu hỏi cho đúng cách viết của cả ngân hàng); tiếng Anh "what is
+the result, in sessions?" → "what is the result?".
+
+Câu thứ năm: Q462 (`roc-toc-do-thay-doi`, điền số), câu chốt "Hãy đếm lùi đúng 5 phiên rồi đặt hai con số vào ô
+trống …" → "Hãy đếm lùi 5 phiên rồi nhập hai số vào ô trống …"; tiếng Anh "Count back exactly 5 sessions, then put the
+right two numbers into …" → "Count back 5 sessions, then enter the two numbers into …".
+
+File: `src/core/quiz/items/valuation-multiples.ts` (Q333, Q334, Q337, Q344), `src/core/quiz/items/risk.ts` (Q274),
+`src/core/quiz/items/tinh-toan.ts` (Q404), `src/core/quiz/items/technical.ts` (Q292),
+`src/core/quiz/items/thuc-hanh.ts` (Q462).
+
+Kiểm: prettier, eslint hai file sạch; vitest `src/core/quiz`, `src/ui/quiz`, `src/application` 735/735.
+
+---
+
+## Hình cột theo kỳ: đường lãi đơn, dư nợ trên trục phải, mốc gốc vượt lãi (02/11/2026)
+
+**Trạng thái: CHƯA XONG — đã sửa, chờ chủ dự án xem.** Chủ dự án chuyển hai đợt nhận xét về biểu đồ. Đối chiếu từng
+điểm với code: phần lớn tả một sản phẩm khác (sheet "Variables" với mã `compound-interest`, `loan-emi`, dropdown
+`compound`/`payback`, biến `bv`; AreaChart; 180 cột; nhãn "Total Gain"; thuế lương luỹ tiến) — không có lỗi nào trong
+số đó ở repo. Ba gợi ý áp được, chủ dự án bảo "bắt đầu sửa":
+
+- **A. `lai-kep`, mục "Số dư từng năm"**: thêm đường đứt "Nếu chỉ tính lãi đơn" = P × (1 + r × năm), trục trái.
+- **B. Ba công thức vay, mục "Trả nợ từng năm"** (`traNoTungNam` dùng chung): mốc dọc "Gốc vượt lãi từ năm N" ở khe
+  trước năm đầu tiên gốc trả trong năm vượt lãi; không có mốc khi điều đó đúng ngay từ năm 1 (lãi 0%). Mặc định
+  (800 triệu, 9,5%, 20 năm): năm 14.
+- **C. Cùng mục ấy**: đường "Dư nợ cuối năm" trên TRỤC PHẢI. Chọn trục phải thay vì mục riêng vì một công thức chỉ có
+  một mục cột trong "Xem theo"; tách mục phải sửa cả cơ chế ô chọn.
+
+Không đổi hình mở ra mặc định của công thức nào (quy tắc cũ: hình cột không bao giờ là hình mở ra).
+
+File:
+
+- `src/core/calc/types.ts` — `ColumnData.paths`, `ColumnData.mark`, `ColumnView.rightAxis`.
+- `src/core/chart/columns.ts` — `kiemCot()` kiểm đường (đủ số, hữu hạn, trục phải phải khai) và mốc (1 ≤ index < số kỳ).
+- `src/core/chart/types.ts` (+ `ColumnPath`), `src/core/chart/index.ts`, `src/application/index.ts` — kiểu mới.
+- `src/core/chart/build.ts` — `buildColumnsModel()`: trục trái ôm đường trái, trục phải dựng riêng (chứa 0), nhãn ngắn
+  theo bậc của trục mà đường đo theo, cột bảng số, câu cho trình đọc màn hình nói đường và mốc.
+- `src/core/formulas/personal.ts` — dữ liệu A, B, C.
+- `src/ui/charts/ColumnChart.tsx`, `chart.module.css` — vẽ đường + chấm, trục phải (lề nới theo nhãn), mốc, chú giải,
+  ô dò. Tên trục phải KẾT THÚC tại trục phải: đặt ở mép khung như `LineChart` thì đè lên nhãn "800" (đo được).
+- `src/application/i18n/vi.ts`, `en.ts` — `chart.rightAxis` ("trục phải" / "right axis") cho chú giải.
+- Test: `columns.test.ts` (dư nợ đối chiếu DẠNG ĐÓNG, mốc đối chiếu gốc/lãi tính lại, lãi đơn, trục phải không khai
+  thì mục vắng, đường nằm trong miền trục — cho cả 14 công thức); `charts.test.tsx` (vẽ đường theo trục phải, chấm ở
+  tâm cột, mốc ở khe 13–14, ô dò có dư nợ, lãi kép không có trục phải). Hai ca cũ ghim chú giải và cột bảng số được
+  cập nhật.
+- `CLAUDE.md` — mục "Cột theo kỳ".
+
+Đo bằng Chrome headless riêng trên dev :3000: niên kim 1440 / 390, gốc đều 360, lãi kép 1440 / 390, `lich-tra-no`
+tiếng Anh 320 / 1024 — không chữ nào chạm nhau, không chữ nào thò khỏi `<svg>`, trang không cuộn ngang, chú giải 1 hàng
+ở PC và 3 hàng ở điện thoại.
+
+Kiểm: lint, typecheck, prettier sạch; các bộ `src/core/chart`, `src/ui/charts`, `src/core/formulas`, `src/application/i18n`
+1114 đạt. `npm run check` cả repo: 5120 đạt, 1 đỏ là ca quá thời gian `PortfolioScreen.test.tsx` đã gặp ở các đợt trước —
+chạy riêng file đó 188/188 đạt. Chưa build lại, chưa thêm ca `check:chrome`.
+
+Không làm, kèm lý do (đã báo chủ dự án): ROI bóc tách vốn → lãi/lỗ → giá trị (phần bóc tách phải cộng ra kết quả %, hình
+cơ cấu không nhận phần âm; ROI đã bị loại khỏi hình cơ cấu 22/10); ô "số năm" cho ROI (chính là `cagr`); thuế lương luỹ
+tiến (công thức thứ 112, quyết định phạm vi). Đường lãi đơn cho `gia-tri-tuong-lai` (cùng khuôn): đã làm ở vòng
+"tiếp tục sửa" bên dưới.
+
+**Vòng "tiếp tục sửa" (cùng ngày):** `gia-tri-tuong-lai`, mục "Số dư từng năm", thêm đường "Nếu chỉ tính lãi đơn"
+PV × (1 + r × năm), cùng nhãn và nét với `lai-kep` (`valuation-dcf.ts`). Một ca mới trong `columns.test.ts`: đúng công
+thức, cùng nhãn với `lai-kep`, năm 1 bằng đỉnh cột (FV gộp lãi mỗi năm một lần), từ năm 2 cột cao hơn đường. Đo Chrome
+1440 / 390 / 320 tiếng Anh: không chạm, không tràn, không cuộn ngang. Còn chờ chủ dự án: hai con số tham chiếu có nguồn
+cho cột so CAGR (lãi tiết kiệm, lạm phát).
+
+**Đợt nhận xét thứ ba (cùng ngày), điểm 5–6:**
+
+- **Gửi góp mục tiêu (`tiet-kiem-muc-tieu`)** — hình mở ra mặc định đã là "khoản góp mỗi tháng theo Thời gian (n)",
+  chính là "biểu đồ phụ" người nhận xét đề xuất; "Số dư từng năm" đã tách tiền gửi và lãi. Chỉ thêm **vạch "Mục
+  tiêu"** vào "Số dư từng năm" (`personal.ts`, khuôn của `so-ky-dca`). Đo trên Chrome thì lộ một lỗi chung: mục tiêu
+  1 tỷ ₫ trùng đúng mép trên trục, nhãn "1 tỷ ₫" bị kẹp xuống đè lên cột cuối. Sửa ở `build.ts`
+  (`buildColumnsModel()`): vạch cao nhất trùng mép trên trục thì nới trục thêm 8% (ở đây 1 → 1,5 tỷ ₫). Hai ca mới
+  trong `columns.test.ts` (vạch đúng số mục tiêu; mọi cột trước cột cuối dưới vạch; trục cao HƠN vạch). Đo lại
+  1440 / 390 / 320 tiếng Anh: không chữ nào chạm, không tràn, không cuộn ngang.
+- **CAGR** — không sửa. Repo không vẽ "đường tăng đều giả định" nào: hình mở ra là "CAGR theo Giá trị cuối kỳ", và đường
+  giả định đã bị loại có chủ ý ngày 23/10 (xem CLAUDE.md, mục "Cột theo kỳ"). Gợi ý thứ hai — cột so CAGR với lãi tiết
+  kiệm, lạm phát — cần hai con số tham chiếu có nguồn và ngày hiệu lực (LDR-03), repo chưa có; chờ chủ dự án cấp số.
+- Mặc định người nhận xét trích (100 → 150 triệu, 8,45%) không phải của repo (100 → 200 triệu trong 5 năm, 14,87%).
+
+---
+
+## Hàng chip nhóm của "Danh sách công thức": bỏ nút ‹ ›, hiện đủ ở PC (02/11/2026)
+
+**Trạng thái: CHƯA XONG — đã sửa, chờ chủ dự án xem.** Chủ dự án: _"cải tiến lại phần hiển thị trong phần
+'Danh sách công thức' không dùng mũi tên nữa mà cho hiển thị hết ra"_. Mũi tên là hai nút ‹ › cuối hàng chip
+nhóm, chỉ có ở khổ PC.
+
+- **`src/ui/browse/CategoryChips.tsx`** — bỏ hai nút, cùng `useState`/`useEffect`/`ResizeObserver` đo mép
+  cuộn và `scrollByPage`. Component không còn state; bỏ luôn lớp bọc `.wrap`, gốc là khung `.scroller`.
+- **`src/ui/browse/CategoryChips.module.css`** — từ 1024px: `.scroller { overflow: visible }`,
+  `.group { flex-wrap: wrap; width: auto }`. Bỏ `.wrap`, `.arrow` và `flex: 1` của khung. Dưới 1024px không
+  đổi (vuốt ngang).
+- **`src/application/i18n/vi.ts`, `en.ts`** — xoá `filter.category.scrollPrev` / `scrollNext`, mộ chí ở `vi.ts`.
+- **`src/ui/browse/CategoryChips.test.tsx`** — ba ca của hai nút thay bằng bốn ca: không còn nút nào; CSS từ
+  1024px xuống dòng; dưới 1024px vẫn cuộn ngang và không xuống dòng; không còn lớp `.arrow`.
+- **`CLAUDE.md`** — đoạn màn Công thức ghi luật mới.
+
+Đo bằng Chrome thật trên dev :3000, 9 khổ × 2 ngôn ngữ × 2 chế độ: từ 1024 tới 1920 luôn 2 hàng, 0 chip bị cắt,
+trang không tràn ngang, khe giữa hai hàng 8px (vùng chạm 44px của hai hàng chạm nhau vừa khít, không chồng),
+cách hàng điều khiển phía trên và dòng "Hiển thị" phía dưới đều 12px như cũ. Dưới 1024px y như trước (1 hàng
+cuộn). Ở 1920 chế độ Cơ bản, hàng hai chỉ còn một chip "Tài chính DN · chỉ ở Nâng cao" — chấp nhận.
+
+Kiểm: lint, typecheck, prettier sạch; `npx vitest run` 5106 đạt, 1 đỏ là ca quá thời gian
+`PortfolioScreen.test.tsx` ("bảng đã đủ dòng nhờ mã chờ…") đã gặp ở đợt trước — chạy riêng file đó cùng
+`src/app/cong-thuc` thì 598/598 đạt. Chưa build lại (`verify:static` vẫn đếm 13 radio, không đổi).
+
+---
+
+## Bài tập: bảng số liệu đứng cạnh đề bài (02/11/2026)
+
+**Trạng thái: CHƯA XONG — đã sửa, chờ chủ dự án xem.** Chủ dự án: _"đối với các bài toán số, phần tóm tắt, số liệu cần
+được viết cạnh với giả thuyết"_. Trước đó bảng "Số liệu" của câu bài tập đứng TRÊN đề bài (từ 1024px co một góc trái, cả
+dải phải bỏ trống), rồi đề mới tới bên dưới. Áp cho mọi câu có bảng: 167 câu (150 điền số, 17 trắc nghiệm).
+
+- `QuizQuestion.tsx`: đề và bảng chung khối `.deBai`, đề trước bảng sau. Câu trắc nghiệm có bảng thôi dùng `<legend>`
+  (legend không đứng cạnh được thứ nằm ngoài `<fieldset>`), nhóm đáp án lấy tên qua `aria-labelledby` trỏ vào đề; câu
+  không có bảng giữ nguyên legend. `id` dựng từ `namePrefix` (câu đang làm và câu mở lại ở dải đã làm không trùng).
+- `QuizBody.module.css`: từ 768px hai cột, đề bên trái giãn hết phần còn lại, bảng bên phải co theo chữ, tối đa nửa
+  khối (`fit-content(50%)`), thẳng mép trên. Dưới 768px xếp chồng: đề rồi bảng (khớp "số liệu dưới đây" của 68 đề).
+- Đo trong Chrome (dev :3000) ở 1440, 1024, 768, 390 trên `bien-an-toan`, `vwap` (trắc nghiệm 8 dòng), `cvar-lich-su`,
+  `xirr` (đề ~600 ký tự): bảng bên phải đề ở 3 khổ rộng, xếp chồng ở 390, không trang nào và không khung nào cuộn ngang.
+- Test: 4 ca DOM ở `QuizBody.test.tsx`, 1 ca CSS ở `quiz-desktop-css.test.ts`. Cả bộ: 5106 đạt; 1 ca của
+  `PortfolioScreen.test.tsx` quá giờ khi chạy cả bộ, chạy riêng 188/188 đạt.
+- **Chưa đụng**: khối "Ví dụ thực tế" (không có bảng số liệu riêng; số nằm ở dòng Thay số). Lời "số liệu dưới đây" của 68
+  đề vẫn để nguyên dù ở khổ rộng bảng đứng bên cạnh.
+
+---
+
 ## Chữ ở khổ PC nhỉnh thêm 0,5px, toàn dự án (31/10/2026)
 
 **Trạng thái: CHƯA XONG — đã sửa, chờ chủ dự án xem.** Chủ dự án: _"phông chữ màn web pc đang hơi nhỏ. tăng 0.5 hoặc

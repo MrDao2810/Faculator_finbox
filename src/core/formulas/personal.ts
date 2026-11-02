@@ -701,19 +701,29 @@ function traNoTungNam(method: LoanMethod | 'theoO'): ColumnView {
       { key: 'principal', label: { vi: 'Tiền gốc', en: 'Principal' }, tone: 'primary' },
       { key: 'interest', label: { vi: 'Tiền lãi', en: 'Interest' }, tone: 'teal' },
     ],
+    rightAxis: { value: { vi: 'Dư nợ', en: 'Balance owed' }, unit: '₫' },
     build: (v): ColumnData | null => {
       const phuongThuc = method === 'theoO' ? methodOf(v('method')) : method;
       const rows = buildAmortisation(v('amount'), v('rate'), v('years'), phuongThuc);
       if (rows === null) return null;
 
-      const nam: Array<{ goc: number; lai: number }> = [];
+      const nam: Array<{ goc: number; lai: number; duNo: number }> = [];
       for (const row of rows) {
         const k = Math.floor((row.period - 1) / 12);
-        const muc = nam[k] ?? { goc: 0, lai: 0 };
+        const muc = nam[k] ?? { goc: 0, lai: 0, duNo: 0 };
         muc.goc += row.principal;
         muc.lai += row.interest;
+        /* Các kỳ đi theo thứ tự, nên kỳ ghi sau cùng của năm để lại dư nợ CUỐI năm. */
+        muc.duNo = row.balance;
         nam[k] = muc;
       }
+
+      /*
+       * Năm đầu tiên phần gốc trả trong năm vượt phần lãi (02/11/2026). Chỉ đánh dấu khi đó là một
+       * lúc "bắt đầu": gốc đã vượt lãi ngay từ năm 1 (lãi suất 0, hay gốc đều với lãi thấp) thì không
+       * có mốc nào để chỉ.
+       */
+      const vuot = nam.findIndex((muc) => muc.goc > muc.lai);
       return {
         groups: nam.map((muc, index) => ({
           label: { vi: `Năm ${String(index + 1)}`, en: `Year ${String(index + 1)}` },
@@ -721,6 +731,28 @@ function traNoTungNam(method: LoanMethod | 'theoO'): ColumnView {
           /* Kẹp về 0: kỳ cuối bù chênh lệch vào gốc, có thể để lại một hạt bụi âm. */
           values: [Math.max(0, muc.goc), Math.max(0, muc.lai)],
         })),
+        /*
+         * Dư nợ cuối từng năm, trên trục phải: ở mặc định nó gấp chín lần số trả một năm (800 triệu
+         * so với 89,5 triệu), vẽ chung trục trái thì cột chỉ còn một phần chín bề cao.
+         */
+        paths: [
+          {
+            label: { vi: 'Dư nợ cuối năm', en: 'Balance at year end' },
+            values: nam.map((muc) => Math.max(0, muc.duNo)),
+            right: true,
+          },
+        ],
+        ...(vuot > 0
+          ? {
+              mark: {
+                index: vuot,
+                label: {
+                  vi: `Gốc vượt lãi từ năm ${String(vuot + 1)}`,
+                  en: `Principal exceeds interest from year ${String(vuot + 1)}`,
+                },
+              },
+            }
+          : {}),
       };
     },
   };
@@ -1014,7 +1046,20 @@ export const LAI_KEP: FormulaModule = {
         boVao: principal,
         soDu: principal * Math.pow(1 + v('rate') / 100 / perYear, perYear * (k + 1)),
       }));
-      return { groups: nhomSoDuTheoNam(moc) };
+      return {
+        groups: nhomSoDuTheoNam(moc),
+        /*
+         * Số dư nếu chỉ tính lãi đơn, P × (1 + r × năm) (02/11/2026): khoảng hở giữa nó và đỉnh cột
+         * là phần lãi sinh ra từ lãi — đúng thứ làm lãi kép đáng xem, và nó lớn dần theo năm.
+         */
+        paths: [
+          {
+            label: { vi: 'Nếu chỉ tính lãi đơn', en: 'With simple interest only' },
+            values: moc.map((_, k) => principal * (1 + (v('rate') / 100) * (k + 1))),
+            dash: true,
+          },
+        ],
+      };
     },
   },
 };
@@ -1395,7 +1440,14 @@ export const TIET_KIEM_MUC_TIEU: FormulaModule = {
         boVao: payment * t,
         soDu: i === 0 ? payment * t : (payment * (Math.pow(1 + i, t) - 1)) / i,
       }));
-      return { groups: nhomSoDuTheoNam(moc) };
+      return {
+        groups: nhomSoDuTheoNam(moc),
+        /*
+         * Vạch ngang ở mục tiêu (02/11/2026), cùng nếp `so-ky-dca`: các cột lớn dần tới đúng vạch ở
+         * cột cuối — khoản góp hằng tháng tính ra để số dư chạm mục tiêu đúng tháng cuối.
+         */
+        lines: [{ value: v('target'), label: { vi: 'Mục tiêu', en: 'Goal' } }],
+      };
     },
   },
 };

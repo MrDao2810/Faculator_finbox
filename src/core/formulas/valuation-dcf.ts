@@ -2443,7 +2443,20 @@ export const GIA_TRI_TUONG_LAI: FormulaModule = {
         boVao: presentValue,
         soDu: presentValue * Math.pow(base, k + 1),
       }));
-      return { groups: nhomSoDuTheoNam(moc) };
+      return {
+        groups: nhomSoDuTheoNam(moc),
+        /*
+         * Đường "nếu chỉ tính lãi đơn", PV × (1 + r × năm) — cùng đường và cùng nhãn với "Số dư từng
+         * năm" của `lai-kep` (02/11/2026): khoảng hở tới đỉnh cột là phần sinh lợi từ chính phần sinh lợi.
+         */
+        paths: [
+          {
+            label: { vi: 'Nếu chỉ tính lãi đơn', en: 'With simple interest only' },
+            values: moc.map((_, k) => presentValue * (1 + (v('rate') / 100) * (k + 1))),
+            dash: true,
+          },
+        ],
+      };
     },
   },
 };

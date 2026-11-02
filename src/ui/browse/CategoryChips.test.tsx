@@ -103,69 +103,53 @@ describe('CategoryChips — con số', () => {
   });
 });
 
-describe('CategoryChips — hai nút cuộn', () => {
-  /*
-   * Nút chỉ dành cho chuột: bàn phím đi bằng phím mũi tên trong nhóm radio. Để nó nhận tiêu điểm
-   * là thêm hai điểm dừng Tab không làm gì cho người dùng bàn phím.
-   */
-  it('ẩn khỏi cây trợ năng và không nhận Tab', () => {
+/**
+ * Hai nút ‹ › cuộn hàng chip ở khổ PC đã bỏ (02/11/2026, chủ dự án: _"không dùng mũi tên nữa mà cho
+ * hiển thị hết ra"_). Từ 1024px hàng chip xuống dòng; dưới 1024px vẫn vuốt ngang. jsdom không áp CSS
+ * nên nửa bố cục gác bằng cách đọc thẳng file, cùng cách cụm ca con số ở dưới.
+ */
+describe('CategoryChips — hiện đủ, không nút cuộn', () => {
+  it('không dựng nút nào: chỉ còn 13 radio', () => {
     mo();
-    const nut = document.querySelectorAll('button');
-
-    expect(nut).toHaveLength(2);
-    for (const button of nut) {
-      expect(button.getAttribute('aria-hidden')).toBe('true');
-      expect(button.getAttribute('tabindex')).toBe('-1');
-      expect(button.getAttribute('title')).not.toBe('');
-    }
+    expect(document.querySelectorAll('button')).toHaveLength(0);
+    expect(screen.getAllByRole('radio')).toHaveLength(CATEGORIES.length + 1);
   });
 
-  it('lúc mới dựng: nút lùi tắt vì đang ở đầu hàng', () => {
-    mo();
-    const [lui] = document.querySelectorAll('button');
-    expect((lui as HTMLButtonElement).disabled).toBe(true);
+  const raw = readFileSync(join(process.cwd(), 'src/ui/browse/CategoryChips.module.css'), 'utf8');
+  const css = raw.replace(/\/\*[\s\S]*?\*\//g, '');
+
+  /** Thân khối `@media (min-width: 1024px)` — khối duy nhất của file mở từ 1024px. */
+  function khoiPC(): string {
+    const dau = css.indexOf('@media (min-width: 1024px)');
+    expect(dau, 'thiếu khối min-width: 1024px').toBeGreaterThanOrEqual(0);
+    let cuoi = css.indexOf('{', dau);
+    let mo = 0;
+    for (; cuoi < css.length; cuoi += 1) {
+      if (css[cuoi] === '{') mo += 1;
+      else if (css[cuoi] === '}') {
+        mo -= 1;
+        if (mo === 0) break;
+      }
+    }
+    return css.slice(dau, cuoi + 1);
+  }
+
+  it('từ 1024px: khung thôi cuộn và nhóm chip xuống dòng, bề ngang theo khung', () => {
+    const pc = khoiPC();
+    expect(pc).toMatch(/\.scroller\s*\{[^}]*overflow:\s*visible/);
+    expect(pc).toMatch(/\.group\s*\{[^}]*flex-wrap:\s*wrap/);
+    expect(pc).toMatch(/\.group\s*\{[^}]*width:\s*auto/);
   });
 
-  /*
-   * jsdom không dựng bố cục: `clientWidth`, `scrollWidth`, `scrollLeft` đều là 0, tức hàng chip
-   * "vừa khít" và cả hai nút tắt. Giả lập một hàng tràn (khung 300px, nội dung 1200px) TRƯỚC khi
-   * dựng, rồi gắn `scrollBy` giả vào đúng khung cuộn để kiểm chiều và độ dài của cú cuộn.
-   */
-  it('nút tới cuộn sang phải 4/5 khung; cuộn khỏi đầu hàng thì nút lùi bật và cuộn ngược lại', () => {
-    const goc = {
-      client: Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'clientWidth'),
-      scroll: Object.getOwnPropertyDescriptor(Element.prototype, 'scrollWidth'),
-    };
-    Object.defineProperty(HTMLElement.prototype, 'clientWidth', {
-      configurable: true,
-      get: () => 300,
-    });
-    Object.defineProperty(Element.prototype, 'scrollWidth', {
-      configurable: true,
-      get: () => 1200,
-    });
+  it('dưới 1024px vẫn là hàng vuốt ngang: khung gốc cuộn ngang, nhóm gốc không xuống dòng', () => {
+    const goc = css.replace(khoiPC(), '');
+    expect(goc).toMatch(/\.scroller\s*\{[^}]*overflow-x:\s*auto/);
+    expect(goc).toMatch(/\.group\s*\{[^}]*width:\s*max-content/);
+    expect(goc).not.toMatch(/flex-wrap:\s*wrap/);
+  });
 
-    try {
-      mo();
-      const khung = document.querySelector('fieldset')?.parentElement as HTMLDivElement;
-      const scrollBy = vi.fn();
-      khung.scrollBy = scrollBy as unknown as typeof khung.scrollBy;
-
-      const [lui, toi] = [...document.querySelectorAll('button')] as HTMLButtonElement[];
-      expect(toi?.disabled, 'hàng tràn thì nút tới phải bật').toBe(false);
-      fireEvent.click(toi as HTMLButtonElement);
-      expect(scrollBy).toHaveBeenLastCalledWith(expect.objectContaining({ left: 240 }));
-
-      // Người dùng đã cuộn giữa hàng — khung báo sự kiện cuộn, nút lùi phải bật.
-      Object.defineProperty(khung, 'scrollLeft', { configurable: true, get: () => 400 });
-      fireEvent.scroll(khung);
-      expect(lui?.disabled).toBe(false);
-      fireEvent.click(lui as HTMLButtonElement);
-      expect(scrollBy).toHaveBeenLastCalledWith(expect.objectContaining({ left: -240 }));
-    } finally {
-      if (goc.client) Object.defineProperty(HTMLElement.prototype, 'clientWidth', goc.client);
-      if (goc.scroll) Object.defineProperty(Element.prototype, 'scrollWidth', goc.scroll);
-    }
+  it('không còn lớp nút cuộn nào trong CSS', () => {
+    expect(css).not.toMatch(/\.arrow\b/);
   });
 });
 

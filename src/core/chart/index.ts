@@ -22,6 +22,7 @@ export type {
   ColumnChart,
   ColumnGroup,
   ColumnLine,
+  ColumnPath,
   ColumnSeries,
   DrawableChart,
   GaugeChart,

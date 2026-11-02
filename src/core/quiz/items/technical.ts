@@ -2307,8 +2307,8 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'DSC (dịch từ StockCharts) đưa ra quy ước chọn chu kỳ ROC theo khung thời gian dài hạn: một quý có khoảng 63 phiên giao dịch. Nếu chia đều số phiên của một quý (3 tháng) để suy ra chu kỳ ROC dùng cho khung một tháng, kết quả là bao nhiêu phiên?',
-      en: "DSC (translating StockCharts) gives a convention for picking ROC's period by timeframe: a quarter has about 63 trading sessions. If that quarter's sessions (3 months) are split evenly to derive the ROC period for a one-month window, what is the result, in sessions?",
+      vi: 'DSC (dịch từ StockCharts) đưa ra quy ước chọn chu kỳ ROC theo khung thời gian dài hạn: một quý có khoảng 63 phiên giao dịch. Nếu chia đều số phiên của một quý (3 tháng) để suy ra chu kỳ ROC dùng cho khung một tháng, kết quả nhận được là?',
+      en: "DSC (translating StockCharts) gives a convention for picking ROC's period by timeframe: a quarter has about 63 trading sessions. If that quarter's sessions (3 months) are split evenly to derive the ROC period for a one-month window, what is the result?",
     },
     facts: [
       {

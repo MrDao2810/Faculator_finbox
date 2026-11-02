@@ -977,8 +977,8 @@ export const RUI_RO: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'quy-dinh',
     prompt: {
-      vi: 'Một danh mục có lợi suất 22%/năm, lãi suất phi rủi ro 1%/năm và beta so với thị trường bằng 2,5. Công thức tỷ số Treynor đã dựng sẵn dưới đây, chia thêm cho 100 để đưa hai lợi suất từ thang phần trăm về dạng tỷ lệ. Điền ba con số vào đúng ô trống.',
-      en: "A portfolio returns 22%/year, the risk-free rate is 1%/year, and the portfolio's beta versus the market is 2.5. The Treynor ratio formula is laid out below, with the extra division by 100 that turns the two percentage returns into plain ratios. Put the three figures into the right slots.",
+      vi: 'Một danh mục có lợi suất 22%/năm, lãi suất phi rủi ro 1%/năm và beta so với thị trường bằng 2,5. Công thức tỷ số Treynor đã dựng sẵn dưới đây, chia thêm cho 100 để đưa hai lợi suất từ thang phần trăm về dạng tỷ lệ. Điền số liệu vào đúng ô trống.',
+      en: "A portfolio returns 22%/year, the risk-free rate is 1%/year, and the portfolio's beta versus the market is 2.5. The Treynor ratio formula is laid out below, with the extra division by 100 that turns the two percentage returns into plain ratios. Put the figures into the right slots.",
     },
     facts: [
       {

@@ -88,6 +88,22 @@ export function kiemCot(
     if (group.extras?.some((value) => !Number.isFinite(value)) === true) return { loi: 'khac' };
   }
   if (data.lines?.some((line) => !Number.isFinite(line.value)) === true) return { loi: 'khac' };
+  /* Đường qua từng cột: đúng một số mỗi kỳ; đường theo trục phải thì công thức phải khai trục ấy. */
+  for (const path of data.paths ?? []) {
+    if (path.values.length !== data.groups.length) return { loi: 'khac' };
+    if (path.values.some((value) => !Number.isFinite(value))) return { loi: 'khac' };
+    if (path.right === true && view.rightAxis === undefined) return { loi: 'khac' };
+  }
+  if (
+    data.mark !== undefined &&
+    !(
+      Number.isInteger(data.mark.index) &&
+      data.mark.index > 0 &&
+      data.mark.index < data.groups.length
+    )
+  ) {
+    return { loi: 'khac' };
+  }
 
   return coKhacKhong ? { data } : { loi: 'toan-khong' };
 }

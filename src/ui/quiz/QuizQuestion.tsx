@@ -192,6 +192,18 @@ export function QuizQuestion({
   const laDung = laDungCua(item, picked, typed);
   const khoa = readOnly || answered;
 
+  /*
+   * Câu có bảng số liệu dựng đề bài và bảng trong CÙNG một khối `.deBai` (02/11/2026, chủ dự án:
+   * _"đối với các bài toán số, phần tóm tắt, số liệu cần được viết cạnh với giả thuyết"_). Đề đứng
+   * trước bảng trong DOM — đọc giả thiết rồi mới tới tóm tắt, và 68 đề viết "số liệu dưới đây" —
+   * còn CSS đặt hai thứ cạnh nhau khi khung đủ rộng. Câu trắc nghiệm có bảng vì thế không dùng
+   * `<legend>`: legend phải là con đầu của `<fieldset>` mới đặt tên cho nhóm, mà nó không đứng được
+   * cạnh một thứ nằm ngoài nhóm — nên đề là `<p>` và nhóm lấy tên qua `aria-labelledby`. `id` dựng
+   * từ `namePrefix` chứ không `useId()`: khối này nằm sau ranh giới `next/dynamic` (docblock dưới).
+   */
+  const coSoLieu = item.facts !== undefined;
+  const deId = `${namePrefix}-${item.id}-de`;
+
   /**
    * Cây công thức, phân tích MỘT LẦN cho mỗi câu và mỗi ngôn ngữ.
    *
@@ -220,27 +232,29 @@ export function QuizQuestion({
         dữ liệu của 411 câu; chỉ thôi hiện lên màn.
       */}
       {item.facts !== undefined && (
-        <dl className={styles.facts}>
-          {item.facts.map((fact) => (
-            <div className={styles.fact} key={fact.label.vi}>
-              <dt>{chu(fact.label)}</dt>
-              <dd>{chu(fact.value)}</dd>
-            </div>
-          ))}
-        </dl>
+        <div className={styles.deBai}>
+          <p id={deId} className={styles.prompt}>
+            {chu(item.prompt)}
+          </p>
+          <dl className={styles.facts}>
+            {item.facts.map((fact) => (
+              <div className={styles.fact} key={fact.label.vi}>
+                <dt>{chu(fact.label)}</dt>
+                <dd>{chu(fact.value)}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
       )}
 
       {hasChoices(item) ? (
-        <fieldset className={styles.choices}>
-          <legend className={styles.prompt}>{chu(item.prompt)}</legend>
+        <fieldset className={styles.choices} {...(coSoLieu ? { 'aria-labelledby': deId } : {})}>
+          {!coSoLieu && <legend className={styles.prompt}>{chu(item.prompt)}</legend>}
           {/*
-            Câu chọn nhiều phải nói TRƯỚC rằng có nhiều đáp án. Hình tròn đổi thành hình vuông là
-            tín hiệu của trình duyệt, nhưng chỉ người quen mới đọc ra — và đọc ra sau khi đã bấm
-            nhầm thì muộn rồi.
+            Câu chọn nhiều không in dòng "Câu này có nhiều đáp án đúng…" nữa (02/11/2026, chủ dự án:
+            "đang thừa và chiếm không gian"). Tín hiệu còn lại là ô vuông thay ô tròn, và lời
+            "(chọn tất cả đáp án đúng)" mà 8 trong 18 đề tự ghi. Mộ chí `quiz.pickAll` ở `vi.ts`.
           */}
-          {item.format === 'chon-nhieu' && !answered && (
-            <p className={styles.note}>{t('quiz.pickAll')}</p>
-          )}
           {/*
             Bốn lựa chọn nằm trong một LƯỚI riêng, không phải con trực tiếp của `<fieldset>`.
             Ở khổ PC lưới chia hai cột cho đỡ thừa chỗ (24/09/2026, chủ dự án), mà `<legend>` thì
@@ -327,7 +341,7 @@ export function QuizQuestion({
           giữa HTML tĩnh và lượt hydrate.
         */
         <div className={styles.numberAsk}>
-          <p className={styles.prompt}>{chu(item.prompt)}</p>
+          {!coSoLieu && <p className={styles.prompt}>{chu(item.prompt)}</p>}
           {/*
             KHỐI CÔNG THỨC: tên đại lượng, dấu `=`, rồi công thức có ô trống. Phân số vẽ trên dưới
             với gạch phân — chủ dự án chỉ vào ảnh `β = Cov(Rᵢ, Rₘ) / Var(Rₘ)`: "trình bày trên dưới

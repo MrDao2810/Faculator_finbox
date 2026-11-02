@@ -122,6 +122,18 @@ describe('cả Registry', () => {
         expect(dinh).toBeLessThanOrEqual(hinh.y.domain[1] + 1e-9);
         if (hinh.stacked) for (const value of group.values) expect(value).toBeGreaterThanOrEqual(0);
       }
+      // Đường qua cột (02/11/2026): một số mỗi kỳ, nằm trong miền của đúng trục nó đo theo.
+      for (const path of hinh.paths ?? []) {
+        expect(path.values).toHaveLength(hinh.groups.length);
+        const truc = path.right === true ? hinh.yRight : hinh.y;
+        if (truc === undefined)
+          throw new Error(`${id}: đường trục phải mà hình không có trục phải`);
+        for (const value of path.values) {
+          expect(value).toBeGreaterThanOrEqual(truc.domain[0] - 1e-9);
+          expect(value).toBeLessThanOrEqual(truc.domain[1] + 1e-9);
+        }
+      }
+      if (hinh.yRight !== undefined) expect(hinh.yRight.domain[0]).toBeLessThanOrEqual(0);
       // Bảng số: một dòng mỗi kỳ, đủ cột.
       expect(hinh.table.rows).toHaveLength(hinh.groups.length);
       for (const row of hinh.table.rows) expect(row).toHaveLength(hinh.table.columns.length);
@@ -181,6 +193,7 @@ describe('Trả nợ từng năm — gộp từ đúng bảng trả nợ', () =>
       'Tiền gốc (₫)',
       'Tiền lãi (₫)',
       'Cộng (₫)',
+      'Dư nợ cuối năm (₫)',
     ]);
     expect(hinh.groups[0]?.totalLabel).toBe('89.484.594,03 ₫');
   });
@@ -243,6 +256,110 @@ describe('Trả nợ từng năm — gộp từ đúng bảng trả nợ', () =>
   });
 });
 
+/*
+ * Dư nợ cuối năm và mốc gốc vượt lãi (02/11/2026) — hai điều người vay muốn thấy mà cột gốc + lãi
+ * không nói: còn nợ bao nhiêu, và từ năm nào tiền trả bắt đầu đi vào gốc nhiều hơn vào lãi. Đối
+ * chiếu bằng DẠNG ĐÓNG của dư nợ, không qua `buildAmortisation()` mà hình gộp từ đó.
+ */
+describe('Trả nợ từng năm — dư nợ trên trục phải, mốc gốc vượt lãi', () => {
+  /** Dư nợ sau k kỳ, dạng đóng: niên kim P(1+i)^k − A((1+i)^k − 1)/i, gốc đều P(1 − k/n). */
+  function duNoSau(amount: number, rate: number, years: number, method: 1 | 2, k: number): number {
+    const n = Math.round(years * 12);
+    const i = rate / 100 / 12;
+    if (method === 2) return amount * (1 - k / n);
+    if (i === 0) return amount * (1 - k / n);
+    const a = (amount * i * Math.pow(1 + i, n)) / (Math.pow(1 + i, n) - 1);
+    return amount * Math.pow(1 + i, k) - (a * (Math.pow(1 + i, k) - 1)) / i;
+  }
+
+  it.each([
+    ['tra-gop-nien-kim', 1],
+    ['tra-gop-goc-deu', 2],
+    ['lich-tra-no', 1],
+    ['lich-tra-no', 2],
+  ] as const)(
+    '%s (phương thức %s): đường dư nợ = dư nợ dạng đóng ở kỳ cuối mỗi năm, đo theo trục phải',
+    (id, method) => {
+      const inputs: CalcInputs = defaultInputs(congThuc(id).spec);
+      const [amount, rate, years] = [inputs.amount ?? 0, inputs.rate ?? 0, inputs.years ?? 0];
+      const hinh = hinhCot(id, { method });
+
+      expect(hinh.paths).toHaveLength(1);
+      const duNo = hinh.paths?.[0];
+      if (duNo === undefined) throw new Error('thiếu đường dư nợ');
+      expect(duNo.label.vi).toBe('Dư nợ cuối năm');
+      expect(duNo.right).toBe(true);
+      duNo.values.forEach((value, index) => {
+        expect(value).toBeCloseTo(duNoSau(amount, rate, years, method, 12 * (index + 1)), 2);
+      });
+      expect(duNo.values.at(-1)).toBe(0);
+
+      // Trục phải tên "Dư nợ", ở bậc chữ; trục trái vẫn là số trả trong năm.
+      expect(hinh.yRight?.title.vi).toMatch(/^Dư nợ \(/);
+      expect(hinh.y.title.vi).toMatch(/^Số tiền trả trong năm \(/);
+    },
+  );
+
+  it.each([
+    ['tra-gop-nien-kim', 1],
+    ['tra-gop-goc-deu', 2],
+    ['lich-tra-no', 2],
+  ] as const)(
+    '%s (phương thức %s): mốc ở năm ĐẦU TIÊN gốc trả trong năm vượt lãi, mọi năm trước đó lãi ≥ gốc',
+    (id, method) => {
+      const inputs: CalcInputs = defaultInputs(congThuc(id).spec);
+      const [amount, rate, years] = [inputs.amount ?? 0, inputs.rate ?? 0, inputs.years ?? 0];
+      const hinh = hinhCot(id, { method });
+
+      // Gốc trả trong năm y = dư nợ đầu năm − dư nợ cuối năm; lãi = tiền trả trong năm − gốc ấy.
+      const nam = Array.from({ length: years }, (_, y) => {
+        const goc =
+          duNoSau(amount, rate, years, method, 12 * y) -
+          duNoSau(amount, rate, years, method, 12 * (y + 1));
+        const tra = hinh.groups[y]?.values.reduce((sum, value) => sum + value, 0) ?? 0;
+        return { goc, lai: tra - goc };
+      });
+      const vuot = nam.findIndex((muc) => muc.goc > muc.lai);
+      expect(vuot).toBeGreaterThan(0);
+      expect(hinh.mark?.index).toBe(vuot);
+      expect(hinh.mark?.label.vi).toBe(`Gốc vượt lãi từ năm ${String(vuot + 1)}`);
+      for (const muc of nam.slice(0, vuot)) expect(muc.goc).toBeLessThanOrEqual(muc.lai);
+      // Câu cho trình đọc màn hình nói cả mốc.
+      expect(hinh.summary.vi).toContain(`Gốc vượt lãi từ năm ${String(vuot + 1)}.`);
+    },
+  );
+
+  it('niên kim ở số mặc định (800 triệu, 9,5 %, 20 năm): gốc vượt lãi từ năm 14', () => {
+    expect(hinhCot('tra-gop-nien-kim').mark?.index).toBe(13);
+  });
+
+  it('gốc vượt lãi ngay từ năm 1 thì không có mốc: lãi suất 0', () => {
+    const hinh = hinhCot('tra-gop-nien-kim', { rate: 0 });
+    expect(hinh.mark).toBeUndefined();
+    expect(hinh.summary.vi).not.toContain('Gốc vượt lãi');
+  });
+
+  it('một đường xin trục phải mà công thức không khai trục ấy: mục vắng, không vẽ trục bịa', () => {
+    const goc = congThuc('lai-kep');
+    const view = goc.columns;
+    if (view === undefined) throw new Error('lai-kep phải có hình cột');
+    const lech: FormulaModule = {
+      ...goc,
+      columns: {
+        ...view,
+        build: (v, ctx, output) => {
+          const data = view.build(v, ctx, output);
+          return data === null
+            ? null
+            : { ...data, paths: (data.paths ?? []).map((path) => ({ ...path, right: true })) };
+        },
+      },
+    };
+    const inputs = defaultInputs(goc.spec);
+    expect(columnData(lech, inputs, CTX, runFormula(lech, inputs, CTX))).toBeNull();
+  });
+});
+
 describe('Số dư từng năm — cột cuối bằng đúng con số của công thức', () => {
   it('lai-kep: mỗi năm một cột, tiền gốc giữ nguyên, lãi tích luỹ lớn dần, cột cuối = số tiền cuối kỳ (A)', () => {
     const formula = congThuc('lai-kep');
@@ -259,6 +376,39 @@ describe('Số dư từng năm — cột cuối bằng đúng con số của cô
     expect(cao(hinh.groups.at(-1) ?? { values: [] })).toBeCloseTo(ketQua, 6);
   });
 
+  /*
+   * Đường "nếu chỉ tính lãi đơn" (02/11/2026): P × (1 + r × năm), trục trái, nét đứt. Khoảng hở giữa
+   * nó và đỉnh cột là lãi sinh từ lãi — dương từ năm 2 và lớn dần.
+   */
+  it('lai-kep: đường lãi đơn = P × (1 + r × năm), luôn ≤ đỉnh cột, khoảng hở lớn dần', () => {
+    const formula = congThuc('lai-kep');
+    const { principal = 0, rate = 0 } = defaultInputs(formula.spec);
+    const hinh = hinhCot('lai-kep');
+
+    expect(hinh.yRight).toBeUndefined();
+    expect(hinh.paths).toHaveLength(1);
+    const lien = hinh.paths?.[0];
+    if (lien === undefined) throw new Error('thiếu đường lãi đơn');
+    expect(lien.label.vi).toBe('Nếu chỉ tính lãi đơn');
+    expect(lien.dash).toBe(true);
+    expect(lien.right).toBeUndefined();
+
+    const ho = lien.values.map((value, index) => {
+      expect(value).toBeCloseTo(principal * (1 + (rate / 100) * (index + 1)), 6);
+      return cao(hinh.groups[index] ?? { values: [] }) - value;
+    });
+    for (let index = 1; index < ho.length; index += 1) {
+      expect(ho[index]).toBeGreaterThan(ho[index - 1] ?? Number.POSITIVE_INFINITY);
+    }
+    expect(hinh.table.columns.map((column) => column.vi)).toContain('Nếu chỉ tính lãi đơn (₫)');
+  });
+
+  it('lai-kep nhập lãi mỗi năm một lần: năm 1 lãi kép bằng đúng lãi đơn', () => {
+    const hinh = hinhCot('lai-kep', { perYear: 1 });
+    const nam1 = cao(hinh.groups[0] ?? { values: [] });
+    expect(hinh.paths?.[0]?.values[0]).toBeCloseTo(nam1, 6);
+  });
+
   it('gia-tri-tuong-lai: cột cuối = FV; tỷ suất âm thì mục vắng (số dư hụt dưới tiền gốc)', () => {
     const formula = congThuc('gia-tri-tuong-lai');
     const inputs = defaultInputs(formula.spec);
@@ -268,6 +418,28 @@ describe('Số dư từng năm — cột cuối bằng đúng con số của cô
 
     const am: CalcInputs = { ...inputs, rate: -5 };
     expect(columnData(formula, am, CTX, runFormula(formula, am, CTX))).toBeNull();
+  });
+
+  /* Cùng đường lãi đơn với `lai-kep` (02/11/2026): hai hình "Số dư từng năm" anh em đọc như nhau. */
+  it('gia-tri-tuong-lai: đường lãi đơn = PV × (1 + r × năm), năm 1 bằng đúng đỉnh cột, sau đó thấp dần so với cột', () => {
+    const formula = congThuc('gia-tri-tuong-lai');
+    const { presentValue = 0, rate = 0 } = defaultInputs(formula.spec);
+    const hinh = hinhCot('gia-tri-tuong-lai');
+    const lien = hinh.paths?.[0];
+    if (lien === undefined) throw new Error('thiếu đường lãi đơn');
+
+    expect(hinh.paths).toHaveLength(1);
+    expect(lien.label).toEqual(hinhCot('lai-kep').paths?.[0]?.label);
+    expect(lien.dash).toBe(true);
+    expect(hinh.yRight).toBeUndefined();
+    lien.values.forEach((value, index) => {
+      expect(value).toBeCloseTo(presentValue * (1 + (rate / 100) * (index + 1)), 6);
+    });
+    // FV gộp lãi mỗi năm một lần: năm 1 lãi kép = lãi đơn; từ năm 2 cột cao hơn đường.
+    expect(lien.values[0]).toBeCloseTo(cao(hinh.groups[0] ?? { values: [] }), 6);
+    hinh.groups.slice(1).forEach((group, index) => {
+      expect(cao(group)).toBeGreaterThan(lien.values[index + 1] ?? Number.POSITIVE_INFINITY);
+    });
   });
 
   it('gia-tri-hien-tai: khúc dưới mọi cột = PV (kết quả), cột cuối = số tiền tương lai đã nhập', () => {
@@ -298,6 +470,21 @@ describe('Số dư từng năm — cột cuối bằng đúng con số của cô
     expect((cuoi?.values[0] ?? 0) + (cuoi?.values[1] ?? 0)).toBeCloseTo(inputs.target ?? 0, 2);
     // Tiền đã gửi ở cột cuối = khoản hằng tháng × 66.
     expect(cuoi?.values[0]).toBeCloseTo((output.value ?? 0) * 66, 4);
+    // Vạch mục tiêu (02/11/2026): đúng số mục tiêu đã nhập, và đỉnh cột cuối chạm đúng vạch ấy.
+    expect(data.lines?.map((line) => [line.label.vi, line.value])).toEqual([
+      ['Mục tiêu', inputs.target],
+    ]);
+  });
+
+  it('tiet-kiem-muc-tieu: mọi cột trước cột cuối nằm dưới vạch mục tiêu', () => {
+    const hinh = hinhCot('tiet-kiem-muc-tieu');
+    const muc = hinh.lines?.[0]?.value ?? Number.NaN;
+    const dinh = hinh.groups.map((group) => cao(group));
+    for (const value of dinh.slice(0, -1)) expect(value).toBeLessThan(muc);
+    expect(dinh.at(-1)).toBeCloseTo(muc, 2);
+    // Trục ôm vạch và chừa chỗ TRÊN nó: 1 tỷ ₫ là mốc tròn, trục mà dừng đúng ở đó thì nhãn số của
+    // vạch bị kẹp xuống, đè lên đỉnh cột cuối (đo 02/11/2026).
+    expect(hinh.y.domain[1]).toBeGreaterThan(muc);
   });
 
   it('so-ky-dca: cột cuối = số dư lúc chạm đích (≥ mục tiêu), vạch ngang ở đúng mục tiêu', () => {

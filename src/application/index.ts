@@ -311,6 +311,7 @@ export type {
   ColumnChart,
   ColumnGroup,
   ColumnLine,
+  ColumnPath,
   DangVe,
   DrawableChart,
   GaugeChart,

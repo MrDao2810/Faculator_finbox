@@ -3175,8 +3175,8 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Muốn có 600 triệu ₫ sau 36 tháng, gửi đều hằng tháng với lãi 6%/năm. Hãy đặt đúng bốn con số vào ô trống của công thức tiết kiệm theo mục tiêu.',
-      en: 'To reach 600 million ₫ in 36 months by saving monthly at 6% a year, put the right four numbers into the slots of the goal-based savings formula.',
+      vi: 'Muốn có 600 triệu ₫ sau 36 tháng, gửi đều hằng tháng với lãi 6%/năm. Hãy đặt đúng các số vào ô trống của công thức tiết kiệm theo mục tiêu.',
+      en: 'To reach 600 million ₫ in 36 months by saving monthly at 6% a year, put the right numbers into the slots of the goal-based savings formula.',
     },
     facts: [
       {

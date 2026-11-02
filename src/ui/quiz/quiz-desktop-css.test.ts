@@ -16,8 +16,8 @@ const CSS = readFileSync(
   'utf8',
 ).replace(/\/\*[\s\S]*?\*\//g, '');
 
-/** Thân mọi khối `@media (min-width: 1024px)`, gộp lại — đếm ngoặc. */
-function khoiMayTinh(css: string): string {
+/** Thân mọi khối `@media <dieuKien>`, gộp lại — đếm ngoặc. */
+function khoiMayTinh(css: string, dieuKien = '(min-width: 1024px)'): string {
   const quet = /@media([^{]*)\{/g;
   let gop = '';
   let khop = quet.exec(css);
@@ -30,7 +30,7 @@ function khoiMayTinh(css: string): string {
       else if (css[i] === '}') sau -= 1;
       i += 1;
     }
-    if ((khop[1] ?? '').trim() === '(min-width: 1024px)') gop += css.slice(batDau, i - 1);
+    if ((khop[1] ?? '').trim() === dieuKien) gop += css.slice(batDau, i - 1);
     quet.lastIndex = i;
     khop = quet.exec(css);
   }
@@ -84,6 +84,28 @@ describe('phần chấm điểm của Bài tập từ 1024px', () => {
     const khoi = CSS.indexOf('.facts {', CSS.indexOf('.facts {') + 1);
     expect(CSS.indexOf('.facts {')).toBeLessThan(khoi);
     expect(CSS.indexOf('.fact {')).toBeLessThan(khoi);
+  });
+
+  /*
+   * 02/11/2026, chủ dự án: _"đối với các bài toán số, phần tóm tắt, số liệu cần được viết cạnh với
+   * giả thuyết"_. Đo trong Chrome ở 1440, 1024 và 768 trên 4 công thức (đề 1 dòng tới đề 600 ký tự,
+   * bảng 2 tới 8 dòng): bảng đứng bên phải đề, rộng tối đa nửa khối, không cuộn ngang. Ở 390 xếp chồng.
+   */
+  it('đề bài và bảng số liệu: xếp chồng ở khổ hẹp, hai cột cạnh nhau từ 768px', () => {
+    const goc = /(?:^|[{}])\s*\.deBai\s*\{([^}]*)\}/m.exec(CSS)?.[1] ?? '';
+    expect(goc).toMatch(/flex-direction:\s*column;/);
+
+    const rong =
+      /(?:^|[{}])\s*\.deBai\s*\{([^}]*)\}/m.exec(khoiMayTinh(CSS, '(min-width: 768px)'))?.[1] ?? '';
+    expect(rong).toMatch(/display:\s*grid;/);
+    // Đề giãn hết phần còn lại, bảng co theo chữ nhưng không quá nửa khối.
+    expect(rong).toMatch(/grid-template-columns:\s*minmax\(0, 1fr\) fit-content\(50%\);/);
+    expect(rong).toMatch(/align-items:\s*start;/);
+
+    // Đề trong khối không mang đệm dưới của `<legend>`.
+    const de = /\.deBai \.prompt\s*\{([^}]*)\}/.exec(CSS)?.[1] ?? '';
+    expect(de).toMatch(/padding:\s*0;/);
+    expect(de).toMatch(/margin:\s*0;/);
   });
 
   /*

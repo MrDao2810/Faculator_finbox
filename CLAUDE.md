@@ -1797,7 +1797,26 @@ at all):
   Stochastic and %B carry `referenceLines`). Period labels are now thinned by WIDTH, not count: a label needs
   the widest tick × 1,1 plus 6 units, so "11/09" and "15/09" no longer touch under 21 columns at 390px; and a
   tick label is clamped inside the plot, or a dd/mm under the first column sat on the value axis's "0".
-  `columns.test.ts` pins the 14 ids and checks each against an independent computation.
+  `columns.test.ts` pins the 14 ids and checks each against an independent computation. **Since 02/11/2026 a
+  column chart can also carry PATHS, a RIGHT AXIS and a MARK** (a reviewer's notes, relayed by the owner;
+  most of those notes described another product, see TASK.md). `ColumnData.paths` are lines through the
+  column centres, one value per period, on the left axis or, with `right`, on a second axis the view must
+  declare (`ColumnView.rightAxis`, else the entry is absent); `ColumnData.mark` is a dashed vertical line in
+  the gap BEFORE column `index` (≥ 1), named in the legend. All three go into the legend, the hover box, the
+  data table and the screen-reader sentence, and are absent from every chart that does not declare them.
+  Used by: `lai-kep` and its sibling `gia-tri-tuong-lai` ("Nếu chỉ tính lãi đơn", P × (1 + r × year), same
+  label on both, dashed, left axis: the gap to the column top is interest earned on interest) and the shared "Trả nợ từng năm" of the three loan formulas ("Dư nợ
+  cuối năm" on a right axis, because at the defaults 800 million is nine times the 89,5 million paid a
+  year; and "Gốc vượt lãi từ năm N", the first year the principal paid exceeds the interest, omitted when
+  that holds from year 1, e.g. at 0 %). The right axis title ENDS at the right axis, mirroring the left
+  title, not at the frame edge like `LineChart`'s: there it sat on the top tick ("800"), measured at 390
+  and 1440. Dots on a path only when a period is ≥ 10 units wide (50 years of compound interest on a phone
+  would be dot on dot). Both new entries stay picker entries; no chart's default changed. The same round gave
+  `tiet-kiem-muc-tieu`'s "Số dư từng năm" a "Mục tiêu" line (the `so-ky-dca` pattern: the last column's top
+  meets it exactly), and that exposed a general defect now fixed in `buildColumnsModel()`: a horizontal line
+  sitting exactly on the top of the value axis (1 tỷ ₫ is a round tick) had no room for its label above it,
+  so the label was clamped below the line onto the last column. The axis now gets 8 % more headroom whenever
+  the highest line is the axis top (here 1 → 1,5 tỷ ₫).
 - **"Thang đo" — kind `gauge`, entry `GAUGE_KEY`, declared by `spec.gauge`** (23/10/2026): a half ring split
   into the zones the formula already marks — RSI 30/70, Stochastic %K 20/80, %B at its two bands on a −25…125%
   scale — with a needle at the result. `gauge.test.ts` requires the zone boundaries to equal
@@ -3145,6 +3164,20 @@ read "— mind which …", ", noting that …", ". Note that …", ". Watch …"
 clause and the placement sentence stay. The trap is now the learner's to find, and the `giai` rows
 explain it after checking. Do not write a new "chú ý …" / "note that …" tail.
 
+**The `facts` table stands BESIDE the prompt, not above it** (02/11/2026, owner: _"đối với các bài toán số,
+phần tóm tắt, số liệu cần được viết cạnh với giả thuyết"_). Every question with `facts` (167: 150 fill-in,
+17 multiple-choice) renders the prompt and the table in one `.deBai` block, prompt first: from 768px two
+columns (`minmax(0, 1fr) fit-content(50%)`, top-aligned, the table never wider than half), below 768px
+stacked prompt-then-table. A multiple-choice question with `facts` therefore has NO `<legend>` (a legend
+cannot sit beside something outside its `<fieldset>`): the prompt is a `<p>` and the fieldset is named by
+`aria-labelledby`; questions without `facts` keep the legend. The id comes from `namePrefix`, never
+`useId()`. Pinned in `QuizBody.test.tsx` and `quiz-desktop-css.test.ts`.
+
+**A multi-select question prints no "Câu này có nhiều đáp án đúng — chọn đủ cả." line** (02/11/2026, owner:
+_"đang thừa và chiếm không gian"_; `quiz.pickAll` tombstoned in `vi.ts`). Drop the sentence, keep the behaviour:
+checkboxes, all-or-nothing grading. 8 of the 18 prompts say "(chọn tất cả đáp án đúng)" themselves; for the other
+10 the square box is the only cue. If a cue is needed, write it into the prompt, do not rebuild the shared line.
+
 **Every slot must be a figure the `facts` table states LITERALLY**, because the learner copies it.
 Four questions failed that and were fixed rather than excused: `profit-factor` wanted `0,4` while
 the table said `40%` (formula rewritten to the percentage scale, `100 − p` instead of `1 − p`),
@@ -4057,8 +4090,13 @@ English, the owner reviews it**. What that produced, and what is easy to break:
 - **There is no separate home page any more — `/cong-thuc/` is the landing screen.** On 15/09/2026
   the owner merged WF-01 (home) into WF-02 (formula list): `FormulaListScreen` stacks a typeable
   search box, the "Công thức dùng hằng ngày" shelf and the full list (a "Mức độ" Basic/Advanced
-  toggle and a sort select in its title row, a horizontally scrolling `CategoryChips` radio row, and a
-  "Hiển thị · N công thức" line). `/` is only a redirect: `public/_redirects` returns 301 in
+  toggle and a sort select in its title row, a `CategoryChips` radio row, and a
+  "Hiển thị · N công thức" line). **The chip row swipes horizontally below 1024px and WRAPS from 1024px**
+  (02/11/2026, owner: _"không dùng mũi tên nữa mà cho hiển thị hết ra"_): the two ‹ › scroll buttons it had on
+  PC are gone, with their keys (tombstone in `vi.ts`), and the component holds no state any more — it is all
+  CSS. Measured: 13 chips on 2 rows at 1024–1920 in both languages and modes, none cut, the gaps above and
+  below unchanged (12px). At 1920 in Basic mode the second row holds one chip ("Tài chính DN · chỉ ở Nâng
+  cao"), accepted. `/` is only a redirect: `public/_redirects` returns 301 in
   production, and `src/app/page.tsx` carries a `noindex` `<meta http-equiv="refresh">` for dev,
   preview and `check:chrome`, whose servers ignore `_redirects`. There is no `ROUTES.home`, no "Trang
   chủ" nav item (3 items since 28/10/2026: Công thức · Danh mục · Về chúng tôi — Cài đặt is a gear in the

@@ -139,9 +139,11 @@ export const vi = {
    * này rỗng", trong khi sự thật là "nhóm này chỉ có ở chế độ kia" — kiểu im lặng FR-06 chặn.
    */
   'filter.category.advancedOnly': 'chỉ ở Nâng cao',
-  /* Nhãn hai nút cuộn hàng chip ở khổ PC — nút chỉ có mũi tên nên chữ nằm ở `title`. */
-  'filter.category.scrollPrev': 'Nhóm phía trước',
-  'filter.category.scrollNext': 'Xem thêm nhóm',
+  /*
+   * `filter.category.scrollPrev` ('Nhóm phía trước') và `filter.category.scrollNext` ('Xem thêm nhóm')
+   * đã XOÁ (02/11/2026) cùng hai nút ‹ › cuộn hàng chip ở khổ PC. Chủ dự án: _"không dùng mũi tên nữa
+   * mà cho hiển thị hết ra"_. Từ 1024px hàng chip xuống dòng (`CategoryChips.module.css`).
+   */
   'filter.reset': 'Xoá bộ lọc',
   'sort.label': 'Sắp xếp',
   'sort.featured': 'Thiết thực trước',
@@ -614,6 +616,8 @@ export const vi = {
   'chart.donutShare': 'chiếm {p}',
   /* Dòng tổng trong ô dò của hình cột chồng (gốc + lãi của một năm…), 23/10/2026. */
   'chart.columnsTotal': 'Cộng',
+  /* Đuôi chú giải của đường đo theo trục phụ bên phải (dư nợ cuối năm), 02/11/2026. */
+  'chart.rightAxis': 'trục phải',
   /*
    * `chart.showData` ("Xem số liệu") đã GỠ ngày 26/10/2026. Nó là dòng "Xem số liệu (N)" mở bảng số
    * dưới mọi biểu đồ; chủ dự án: _"xóa bỏ toàn bộ, không cần chức năng xem này nữa"_. Bảng vẫn còn
@@ -2091,7 +2095,13 @@ export const vi = {
    * rằng bản cũ bị xoá nhầm.
    */
   /* ── Dạng chọn nhiều và điền số (WF-19C, mở 23/09/2026) ──────────────────────────────────── */
-  'quiz.pickAll': 'Câu này có nhiều đáp án đúng — chọn đủ cả.',
+  /*
+   * Mộ chí: `quiz.pickAll` ('Câu này có nhiều đáp án đúng — chọn đủ cả.') bỏ 02/11/2026. Chủ dự án
+   * khoanh nó dưới đề Q338, đề đã tự ghi "(Chọn tất cả đáp án đúng)": _"bỏ đoạn khoanh đỏ này đi.
+   * đang thừa và chiếm không gian"_. Bỏ lời, giữ hành vi: câu chọn nhiều vẫn là ô vuông, vẫn chấm
+   * trọn gói. Lúc bỏ, 10 trong 18 đề chọn nhiều KHÔNG tự ghi lời ấy — với chúng, ô vuông là tín
+   * hiệu duy nhất. Cần nói lại thì viết vào đề, đừng dựng lại dòng chung mà không hỏi.
+   */
   /*
    * Nhãn cho bộ đọc màn hình của từng ô trống trong công thức. `{n}` thay bằng thứ tự ô, tính từ
    * 1 và đếm từ trái sang phải — người dùng bộ đọc không thấy được vị trí ô trong hình, nên số

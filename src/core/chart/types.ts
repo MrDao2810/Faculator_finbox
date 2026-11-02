@@ -487,6 +487,20 @@ export interface ColumnGroup {
   shortExtraLabels?: ReadonlyArray<string>;
 }
 
+/** Một đường qua tâm từng cột: số dư nếu chỉ lãi đơn, dư nợ cuối năm (02/11/2026). */
+export interface ColumnPath {
+  label: Bilingual;
+  /** Một số mỗi kỳ, cùng thứ tự `ColumnChart.groups`. */
+  values: ReadonlyArray<number>;
+  /** Đầy đủ kèm đơn vị — cho bảng số. */
+  valueLabels: ReadonlyArray<string>;
+  /** Ở bậc của trục mà đường đo theo — cho ô dò; vắng khi trục ấy không chia bậc. */
+  shortValueLabels?: ReadonlyArray<string>;
+  dash?: boolean;
+  /** Đo theo `ColumnChart.yRight`. */
+  right?: boolean;
+}
+
 /** Một vạch ngang trên hình cột: giá vốn trung bình, lợi suất bình quân… */
 export interface ColumnLine {
   value: number;
@@ -524,6 +538,12 @@ export interface ColumnChart {
   stacked: boolean;
   /** Vạch ngang, chỉ những vạch nằm trong miền trục. Vắng mặt hẳn khi không có. */
   lines?: ReadonlyArray<ColumnLine>;
+  /** Đường qua từng cột. Vắng mặt hẳn khi không có. */
+  paths?: ReadonlyArray<ColumnPath>;
+  /** Trục phụ bên phải, chỉ khi có đường `right`. Miền chứa 0 như trục trái. */
+  yRight?: ChartAxis;
+  /** Mốc dọc trước cột `index`, kèm nhãn cho chú giải. */
+  mark?: { index: number; label: Bilingual };
   /** Tên các cột phụ (không kèm đơn vị) — số của chúng ở `ColumnGroup.extraLabels`. Vắng khi không có. */
   extraColumns?: ReadonlyArray<Bilingual>;
   table: ChartTable;

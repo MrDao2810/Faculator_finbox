@@ -300,11 +300,16 @@ describe('dạng chọn nhiều — WF-19C', () => {
     };
   }
 
-  it('dựng checkbox chứ không phải radio, và nói trước là có nhiều đáp án', () => {
+  /*
+   * Dòng "Câu này có nhiều đáp án đúng — chọn đủ cả." bỏ 02/11/2026 (chủ dự án: "đang thừa và chiếm
+   * không gian"). Ca này từng đòi nó hiện; nay ghim điều ngược lại. Viết chữ ra thay vì `t()` vì khoá
+   * đã xoá.
+   */
+  it('dựng checkbox chứ không phải radio, và không in dòng "có nhiều đáp án đúng"', () => {
     batDau([cauChonNhieu()]);
     expect(screen.getAllByRole('checkbox')).toHaveLength(4);
     expect(screen.queryByRole('radio')).toBeNull();
-    expect(screen.getByText(t('quiz.pickAll'))).toBeTruthy();
+    expect(screen.queryByText(/nhiều đáp án đúng/)).toBeNull();
   });
 
   it('chọn được nhiều ô cùng lúc, bỏ chọn lại được', () => {
@@ -1290,5 +1295,84 @@ describe('locale tiếng Anh — câu chưa dịch rơi về tiếng Việt, kh�
     expect(screen.getByText('Đề bài Q001')).not.toBeNull();
     expect(screen.queryByText(/not translated/i)).toBeNull();
     expect(screen.queryByText(/chưa có bản tiếng Anh/i)).toBeNull();
+  });
+});
+
+/*
+ * 02/11/2026, chủ dự án: _"đối với các bài toán số, phần tóm tắt, số liệu cần được viết cạnh với giả
+ * thuyết"_. Bảng số liệu từng đứng TRÊN đề bài; nay đề và bảng chung một khối, đề trước bảng sau, và
+ * CSS đặt hai thứ cạnh nhau từ 768px (`.deBai` trong `QuizBody.module.css`, ca CSS ở
+ * `quiz-desktop-css.test.ts`). Ca dưới giữ phần DOM: thứ tự, một đề duy nhất, và tên của nhóm đáp án.
+ */
+describe('đề bài và bảng số liệu chung một khối, đề trước bảng sau', () => {
+  const SO_LIEU = [
+    { label: { vi: 'Giá thị trường' }, value: { vi: '92.000 ₫' } },
+    { label: { vi: 'EPS' }, value: { vi: '7.360 ₫' } },
+  ];
+
+  function cauDienSoCoBang(): QuizItem {
+    const base = cau('Q001');
+    return {
+      id: base.id,
+      formulaId: base.formulaId,
+      kind: 'quy-uoc',
+      evidence: base.evidence,
+      prompt: base.prompt,
+      explain: base.explain,
+      source: base.source,
+      format: 'dien-so',
+      expected: 12.5,
+      tolerance: { kind: 'tuyet-doi', value: 0.1 },
+      unit: { vi: 'lần' },
+      worked: { vi: 'P/E = [92.000] ÷ [7.360]' },
+      facts: SO_LIEU,
+    };
+  }
+
+  /** Đề bài và bảng: cùng một cha, đề đứng trước. */
+  function kiemKhoi() {
+    const de = screen.getByText('Đề bài Q001');
+    const bang = screen.getByText('Giá thị trường').closest('dl');
+    expect(de.tagName).toBe('P');
+    expect(bang).not.toBeNull();
+    expect(bang?.parentElement).toBe(de.parentElement);
+    expect(
+      de.compareDocumentPosition(bang as Node) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    // Một đề duy nhất: không còn bản thứ hai của nó trong `<legend>` hay trong khối công thức.
+    expect(screen.getAllByText('Đề bài Q001')).toHaveLength(1);
+    return de;
+  }
+
+  it('câu điền số: đề rồi bảng, khối công thức ở dưới không lặp lại đề', () => {
+    batDau([cauDienSoCoBang()]);
+    kiemKhoi();
+  });
+
+  it('câu trắc nghiệm có bảng: nhóm đáp án lấy tên từ đề qua aria-labelledby, không dùng legend', () => {
+    batDau([{ ...cau('Q001'), facts: SO_LIEU }]);
+    const de = kiemKhoi();
+    const nhom = screen.getByRole('group', { name: 'Đề bài Q001' });
+    expect(nhom.getAttribute('aria-labelledby')).toBe(de.id);
+    expect(nhom.querySelector('legend')).toBeNull();
+  });
+
+  it('câu không có bảng giữ nguyên: đề là legend của nhóm đáp án', () => {
+    batDau([cau('Q001')]);
+    const nhom = screen.getByRole('group', { name: 'Đề bài Q001' });
+    expect(nhom.querySelector('legend')?.textContent).toBe('Đề bài Q001');
+    expect(nhom.hasAttribute('aria-labelledby')).toBe(false);
+  });
+
+  it('câu đã làm mở lại: đề mang id theo tiền tố của dải, không trùng id câu đang làm', () => {
+    batDau([{ ...cau('Q001'), facts: SO_LIEU }, cau('Q002')]);
+    fireEvent.click(screen.getByRole('radio', { name: /Lựa chọn A/ }));
+    fireEvent.click(screen.getByRole('button', { name: t('quiz.check') }));
+    fireEvent.click(screen.getByRole('button', { name: t('quiz.next') }));
+    // Mở lại câu 1 ở dải câu đã làm: đề của nó mang id riêng của dải.
+    fireEvent.click(screen.getByRole('button', { name: /Đề bài Q001/ }));
+    const ids = screen.getAllByText('Đề bài Q001', { selector: 'p' }).map((p) => p.id);
+    expect(ids).toHaveLength(1);
+    expect(ids[0]).toMatch(/-ls-Q001-de$/);
   });
 });

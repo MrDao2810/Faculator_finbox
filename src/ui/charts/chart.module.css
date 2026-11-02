@@ -467,6 +467,52 @@
   fill: var(--color-ink-soft);
 }
 
+/*
+ * Đường qua tâm từng cột (02/11/2026): dư nợ cuối năm (liền, màu chữ) và số dư nếu chỉ lãi đơn
+ * (đứt, màu chữ phụ). Màu chữ chứ không màu nhấn: `--color-highlight` là của con số ở khối Kết quả
+ * (vạch giá vốn), còn hai đường này là thứ để so. Chấm có viền màu nền để tách khỏi đỉnh cột.
+ */
+.columnPath,
+.columnPathDash {
+  fill: none;
+  stroke-width: 1.75;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.columnPath {
+  stroke: var(--color-ink);
+}
+
+.columnPathDash {
+  stroke: var(--color-ink-soft);
+  stroke-dasharray: 5 3;
+}
+
+.columnPathDot,
+.columnPathDotDash {
+  stroke: var(--color-surface);
+  stroke-width: 1;
+}
+
+.columnPathDot {
+  fill: var(--color-ink);
+}
+
+.columnPathDotDash {
+  fill: var(--color-ink-soft);
+}
+
+/*
+ * Mốc dọc ở khe giữa hai cột (năm gốc bắt đầu vượt lãi). Màu nhấn và nét đứt dày hơn nét đứt của
+ * đường — hai dấu hiệu, không chỉ màu (NFR-USA-06).
+ */
+.columnMark {
+  stroke: var(--color-highlight);
+  stroke-width: 1.5;
+  stroke-dasharray: 3 3;
+}
+
 /* Ô dò của một cột: nền thẻ, viền mảnh, chữ như popup vành khuyên. */
 .columnTipBox {
   fill: var(--color-surface);

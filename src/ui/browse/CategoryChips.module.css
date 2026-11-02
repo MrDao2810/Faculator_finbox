@@ -1,15 +1,10 @@
 /*
  * Hàng chip nhóm — bản vẽ gộp trang chủ vào màn Công thức (15/09/2026).
  *
- * Hai nút ‹ › đứng CUỐI hàng, liền nhau, đúng chỗ bản vẽ đặt — không tách ra hai mép: tách ra thì
- * nút trái đứng đè lên chip "Tất cả" ở vị trí người dùng bấm nhiều nhất.
+ * Dưới 1024px hàng chip vuốt ngang trong khung riêng. Từ 1024px nó XUỐNG DÒNG và hiện đủ 13 lựa
+ * chọn (02/11/2026, chủ dự án: _"không dùng mũi tên nữa mà cho hiển thị hết ra"_) — thay cho hai nút
+ * ‹ › từng đứng cuối hàng ở khổ PC. Khối `min-width: 1024px` ở cuối mục khung cuộn.
  */
-.wrap {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  min-width: 0;
-}
 
 /*
  * Khung cuộn ngang. `padding-block` 4px không phải khoảng thở: chip nhìn thấy cao 36px, vùng chạm
@@ -17,7 +12,6 @@
  * cắt, nên khung phải cao đủ 44px thì vùng chạm mới không bị xén mất 4px mỗi phía.
  */
 .scroller {
-  flex: 1;
   min-width: 0;
   padding-block: var(--space-1);
 
@@ -40,6 +34,22 @@
   margin: 0;
   padding: 0;
   border: 0;
+}
+
+/*
+ * Từ 1024px: hết cuộn, nhóm chip xuống dòng. Khoảng `gap` 8px dùng cho cả hàng lẫn cột, nên vùng chạm
+ * 44px của chip 36px (lố 4px mỗi phía) của hai hàng chạm nhau vừa khít ở giữa khe, không chồng lên
+ * nhau. Khung GIỮ đệm dọc 4px: hàng chip đầu đứng cách hàng điều khiển phía trên đúng như hồi còn cuộn.
+ */
+@media (min-width: 1024px) {
+  .scroller {
+    overflow: visible;
+  }
+
+  .group {
+    flex-wrap: wrap;
+    width: auto;
+  }
 }
 
 /*
@@ -140,45 +150,6 @@ input:checked + .face .count {
 
 :global(html[data-mode='advanced']) .countAdvanced {
   display: inline;
-}
-
-/* Nút cuộn — ẩn dưới 1024px, nơi hàng chip vuốt được bằng tay. */
-.arrow {
-  display: none;
-}
-
-@media (min-width: 1024px) {
-  .arrow {
-    display: inline-flex;
-    flex-shrink: 0;
-    align-items: center;
-    justify-content: center;
-
-    width: 32px;
-    height: 32px;
-    padding: 0;
-
-    color: var(--color-ink-soft);
-
-    background: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
-    cursor: pointer;
-  }
-
-  @media (hover: hover) {
-    .arrow:hover:not(:disabled) {
-      color: var(--color-accent);
-      border-color: var(--color-accent);
-    }
-  }
-
-  /* Hết đường cuộn thì nút mờ đi và thôi nhận chuột — vẫn giữ chỗ để hàng không xô lệch. */
-  .arrow:disabled {
-    color: var(--color-muted);
-    background: var(--color-sunken);
-    cursor: default;
-  }
 }
 
 /*

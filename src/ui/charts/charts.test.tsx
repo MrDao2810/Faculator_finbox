@@ -3605,8 +3605,79 @@ describe('Hình cột theo kỳ — Trả nợ từng năm', () => {
     expect([...svg.querySelectorAll('[data-chu-giai] text')].map((el) => el.textContent)).toEqual([
       'Tiền gốc',
       'Tiền lãi',
+      'Dư nợ cuối năm (trục phải)',
+      'Gốc vượt lãi từ năm 14',
     ]);
     chuGiaiDuoiTenTrucNgang(svg);
+  });
+
+  /*
+   * Dư nợ cuối năm trên trục phải và mốc năm gốc vượt lãi (02/11/2026). Dư nợ (800 triệu) gấp chín
+   * lần số trả một năm, nên nó đo theo trục riêng; cột vẫn cao gần trọn vùng vẽ.
+   */
+  it('dư nợ: một đường qua tâm từng cột theo trục phải; mốc dọc ở khe trước năm 14', () => {
+    const model = hinhCot();
+    const { container } = render(<ColumnChart model={model} idBase="t" size="wide" />);
+    const svg = container.querySelector('svg[data-columns]');
+    if (svg === null) throw new Error('không vẽ');
+
+    const duong = svg.querySelector('[data-duong="phai"] path');
+    expect(duong?.getAttribute('d')?.match(/[ML]/g)).toHaveLength(20);
+    // Một chấm mỗi năm, đúng tâm cột.
+    const cham = [...svg.querySelectorAll('[data-duong="phai"] circle')];
+    expect(cham).toHaveLength(20);
+    const cot1 = svg.querySelector('[data-nhom="0"] rect');
+    expect(Number(cham[0]?.getAttribute('cx'))).toBeCloseTo(
+      Number(cot1?.getAttribute('x')) + Number(cot1?.getAttribute('width')) / 2,
+      6,
+    );
+    // Điểm cuối nằm ở mốc 0 của trục phải, tức chân vùng vẽ — dư nợ trả hết.
+    const chamCuoi = cham.at(-1);
+    const chan =
+      Number(svg.querySelector('[data-nhom="19"] rect')?.getAttribute('y')) +
+      Number(svg.querySelector('[data-nhom="19"] rect')?.getAttribute('height'));
+    expect(Number(chamCuoi?.getAttribute('cy'))).toBeCloseTo(chan, 6);
+
+    // Tên trục phải ở mép phải trên vùng vẽ; nhãn vạch trục phải canh trái.
+    const tenTruc = [...svg.querySelectorAll('text')].map((el) => el.textContent);
+    expect(tenTruc).toContain(model.yRight?.title.vi);
+    expect(
+      [...svg.querySelectorAll('text[class*="tick"]')].some(
+        (el) => el.getAttribute('text-anchor') === 'start',
+      ),
+    ).toBe(true);
+
+    // Mốc dọc: giữa cột 13 và cột 14 (chỉ số 12 và 13), không đè lên cột nào.
+    const moc = svg.querySelector('line[data-moc]');
+    expect(moc?.getAttribute('data-moc')).toBe('13');
+    const x = Number(moc?.getAttribute('x1'));
+    const cot13 = svg.querySelector('[data-nhom="12"] rect');
+    const cot14 = svg.querySelector('[data-nhom="13"] rect');
+    expect(x).toBeGreaterThan(
+      Number(cot13?.getAttribute('x')) + Number(cot13?.getAttribute('width')),
+    );
+    expect(x).toBeLessThan(Number(cot14?.getAttribute('x')));
+  });
+
+  it('lãi kép: đường lãi đơn đứt nét theo trục trái, không có trục phải', () => {
+    const model = hinhCot('lai-kep');
+    const { container } = render(<ColumnChart model={model} idBase="t" size="wide" />);
+    const svg = container.querySelector('svg[data-columns]');
+    if (svg === null) throw new Error('không vẽ');
+    expect(svg.querySelector('[data-duong="trai"] path')?.getAttribute('class')).toContain(
+      'columnPathDash',
+    );
+    expect(svg.querySelector('[data-duong="phai"]')).toBeNull();
+    expect(
+      [...svg.querySelectorAll('text[class*="tick"]')].some(
+        (el) => el.getAttribute('text-anchor') === 'start',
+      ),
+    ).toBe(false);
+    expect([...svg.querySelectorAll('[data-chu-giai] text')].map((el) => el.textContent)).toEqual([
+      'Tiền gốc (P)',
+      'Tiền lãi tích luỹ',
+      'Nếu chỉ tính lãi đơn',
+    ]);
   });
 
   it('ô "Xem theo" có mục Trả nợ từng năm; chọn thì vẽ hình cột, không có ô Loại biểu đồ', async () => {
@@ -3648,6 +3719,8 @@ describe('Hình cột theo kỳ — Trả nợ từng năm', () => {
     expect(o.textContent).toContain('Tiền gốc:');
     expect(o.textContent).toContain('Tiền lãi:');
     expect(o.textContent).toContain('Cộng: 89,5 triệu ₫');
+    // Dư nợ của chính năm đang dò, ở bậc chữ của trục phải.
+    expect(o.textContent).toMatch(/Dư nợ cuối năm: [\d,]+ triệu ₫/);
     expect(container.querySelector('[data-nhom="2"]')?.getAttribute('class') ?? '').not.toContain(
       'columnDim',
     );

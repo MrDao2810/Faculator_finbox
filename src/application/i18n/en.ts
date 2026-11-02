@@ -85,8 +85,6 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'filter.category.label': 'Formula group',
   'filter.category.all': 'All',
   'filter.category.advancedOnly': 'Advanced only',
-  'filter.category.scrollPrev': 'Previous groups',
-  'filter.category.scrollNext': 'More groups',
   'filter.reset': 'Clear filters',
   'sort.label': 'Sort',
   'sort.featured': 'Most practical first',
@@ -244,6 +242,7 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'chart.kindGauge': 'Gauge',
   'chart.donutShare': '{p} of the total',
   'chart.columnsTotal': 'Total',
+  'chart.rightAxis': 'right axis',
   /* `chart.showData` đã gỡ cùng bản tiếng Việt — xem `vi.ts`. */
   'chart.tableCaption': 'Data',
   /* `chart.applyHintTimeAxis` và `chart.applyHintReady` đã bỏ cùng bản tiếng Việt — xem `vi.ts`. */
@@ -763,7 +762,7 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'quiz.seeResult': 'See result',
   'quiz.retry': 'Start over',
   'quiz.reviewWrong': 'Review what you missed',
-  'quiz.pickAll': 'This one has more than one right answer — pick them all.',
+  /* Mộ chí: `quiz.pickAll` bỏ 02/11/2026 — lý do ghi ở `vi.ts`. */
   'quiz.slotLabel': 'Slot {n} in the formula',
   'quiz.workedResult': 'Result',
   'quiz.correctSlots': 'Correct order',

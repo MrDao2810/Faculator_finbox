@@ -28,6 +28,11 @@ import type { ChartSize } from './use-chart-size';
  * màu nào là lãi thì chỉ còn hai mảng màu. Nó đứng ở ĐÁY hình, dưới tên trục ngang, từ 28/10/2026
  * (`chu-giai-duoi.ts`).
  *
+ * Từ 02/11/2026 hình còn có thể mang ĐƯỜNG qua tâm từng cột (`paths`: dư nợ cuối năm, số dư nếu chỉ
+ * lãi đơn), một TRỤC PHẢI cho đường lớn gấp mấy lần cột (`yRight`, như `LineChart`) và một MỐC DỌC ở
+ * khe trước một cột (`mark`: năm gốc bắt đầu vượt lãi). Cả ba vào chú giải, cả ba vắng mặt ở mọi hình
+ * cột không khai chúng — các hình ấy vẽ y như trước.
+ *
  * Rê chuột / chạm vào một cột thì các cột khác mờ đi và một ô nhỏ hiện tên kỳ cùng từng số — đúng dòng
  * của bảng số, chỉ nhanh hơn. Ô ấy mang `data-testid` hậu tố `-hover` nên `chart-snapshot` bỏ nó khỏi
  * file xuất, cùng vùng bắt con trỏ `-hover-capture`.
@@ -104,15 +109,43 @@ export function ColumnChart({ model, idBase, fill = false, size: sizeProp }: Col
   const [hover, setHover] = useState<number | null>(null);
 
   const lines = useMemo(() => model.lines ?? [], [model.lines]);
-  /* Chú giải chỉ khi có từ hai thứ để phân biệt: hai chuỗi, hoặc một chuỗi cạnh vạch ngang. */
-  const coChuGiai = model.series.length + lines.length >= 2;
+  const paths = useMemo(() => model.paths ?? [], [model.paths]);
+  const mark = model.mark;
+  /*
+   * Chú giải chỉ khi có từ hai thứ để phân biệt: hai chuỗi, hoặc một chuỗi cạnh vạch ngang, đường
+   * qua cột hay mốc dọc.
+   */
+  const coChuGiai =
+    model.series.length + lines.length + paths.length + (mark === undefined ? 0 : 1) >= 2;
 
-  const { plot, sy, cols, xLabels, yLabels, legend, xTitleY, lineLabelY } = useMemo(() => {
+  const {
+    plot,
+    sy,
+    syPhai,
+    cols,
+    xLabels,
+    yLabels,
+    yRightLabels,
+    legend,
+    xTitleY,
+    lineLabelY,
+    duong,
+    markX,
+  } = useMemo(() => {
     const budget = LABEL_BUDGET[size];
     const nhanY = thuaTuKhong(model.y.ticks, budget.y);
     const rongNhat = Math.max(0, ...nhanY.map((tick) => textWidth(tick.label, TICK_FONT_SIZE)));
     const x0 = Math.min(PAD.leftMax, Math.max(PAD.leftMin, Math.ceil(rongNhat) + TICK_GAP + 2));
-    const x1 = W - PAD.right;
+    /*
+     * Trục phải (02/11/2026, dư nợ cuối năm): lề phải nới đúng bằng nhãn của nó, cùng luật lề trái —
+     * chỉ khi trục ấy có mặt, để mười mấy hình cột khác giữ nguyên vùng vẽ.
+     */
+    const nhanYPhai = model.yRight === undefined ? [] : thuaTuKhong(model.yRight.ticks, budget.y);
+    const rongPhai = Math.max(0, ...nhanYPhai.map((tick) => textWidth(tick.label, TICK_FONT_SIZE)));
+    const x1 =
+      model.yRight === undefined
+        ? W - PAD.right
+        : W - Math.min(PAD.leftMax, Math.max(PAD.leftMin, Math.ceil(rongPhai) + TICK_GAP + 2));
 
     /*
      * Chú giải: các chuỗi rồi các vạch ngang, ở ĐÁY hình dưới tên trục ngang (28/10/2026, xem
@@ -123,7 +156,7 @@ export function ColumnChart({ model, idBase, fill = false, size: sizeProp }: Col
     const { muc, cao } = xepChuGiaiDuoi<{
       key: string;
       text: string;
-      kieu: 'o' | 'vach' | 'vachDut';
+      kieu: 'o' | 'vach' | 'vachDut' | 'duong' | 'duongDut' | 'moc';
       tone?: SeriesTone;
     }>(
       coChuGiai
@@ -139,6 +172,18 @@ export function ColumnChart({ model, idBase, fill = false, size: sizeProp }: Col
               text: pick(line.label),
               kieu: line.dash === true ? ('vachDut' as const) : ('vach' as const),
             })),
+            /* Đường đo theo trục phải nói rõ điều ấy ngay ở chú giải: hai trục, hai đơn vị bậc. */
+            ...paths.map((path, index) => ({
+              key: `d-${String(index)}`,
+              text:
+                path.right === true
+                  ? `${pick(path.label)} (${t('chart.rightAxis')})`
+                  : pick(path.label),
+              kieu: path.dash === true ? ('duongDut' as const) : ('duong' as const),
+            })),
+            ...(mark === undefined
+              ? []
+              : [{ key: 'moc', text: pick(mark.label), kieu: 'moc' as const }]),
           ]
         : [],
       x0,
@@ -150,6 +195,8 @@ export function ColumnChart({ model, idBase, fill = false, size: sizeProp }: Col
     const box = { x0, x1, y0: PAD.top, y1: H - PAD.bottom - cao } as const;
 
     const scaleY = linearScale(model.y.domain, [box.y1, box.y0]);
+    const scaleYPhai =
+      model.yRight === undefined ? null : linearScale(model.yRight.domain, [box.y1, box.y0]);
     const chanY = Math.min(Math.max(scaleY(0), box.y0), box.y1);
     const n = model.groups.length;
     const band = (box.x1 - box.x0) / Math.max(1, n);
@@ -210,17 +257,41 @@ export function ColumnChart({ model, idBase, fill = false, size: sizeProp }: Col
       return Math.min(Math.max(tren ? y - 4 : y + 11, box.y0 + 9), box.y1 - 2);
     });
 
+    /*
+     * Đường qua tâm từng cột. Chấm ở mỗi kỳ chỉ khi kỳ đủ rộng: 50 năm lãi kép ở khổ hẹp là chấm
+     * chồng chấm, đọc thành một nét đậm chứ không thành từng mốc.
+     */
+    const coCham = band >= 10;
+    const cacDuong = paths.map((path) => {
+      const thang = path.right === true && scaleYPhai !== null ? scaleYPhai : scaleY;
+      const diem = path.values.map((value, index) => ({
+        x: cot[index]?.cx ?? box.x0,
+        y: thang(value),
+      }));
+      return {
+        d: diem
+          .map((p, index) => `${index === 0 ? 'M' : 'L'}${p.x.toFixed(2)},${p.y.toFixed(2)}`)
+          .join(' '),
+        diem: coCham ? diem : [],
+      };
+    });
+
     return {
       plot: box,
       sy: scaleY,
+      syPhai: scaleYPhai,
       cols: cot,
       xLabels: nhanX,
       yLabels: nhanY,
+      yRightLabels: nhanYPhai,
       legend: muc,
       xTitleY: H - CHAN - cao,
       lineLabelY: nhanVach,
+      duong: cacDuong,
+      /* Mốc dọc ở khe giữa cột trước và cột `index`, không đè lên cột nào. */
+      markX: mark === undefined ? null : box.x0 + band * mark.index,
     };
-  }, [model, lines, coChuGiai, size, W, H, pick]);
+  }, [model, lines, paths, mark, coChuGiai, size, W, H, pick, t]);
 
   function handlePointerMove(event: ReactPointerEvent<SVGRectElement>) {
     const svg = svgRef.current;
@@ -259,6 +330,13 @@ export function ColumnChart({ model, idBase, fill = false, size: sizeProp }: Col
                   hoverGroup.shortTotalLabel ?? hoverGroup.totalLabel,
                 )}`,
               ]),
+          /* Đường qua cột: số của chính kỳ đang dò, ở bậc của trục mà đường đo theo. */
+          ...paths.map(
+            (path) =>
+              `${pick(path.label)}: ${labelText(
+                path.shortValueLabels?.[hover ?? 0] ?? path.valueLabels[hover ?? 0] ?? '',
+              )}`,
+          ),
           /* Cột phụ: tên không kèm đơn vị, số theo luật chữ của hình — không trộn '10.000.000 ₫'. */
           ...(hoverGroup.shortExtraLabels ?? hoverGroup.extraLabels ?? []).map((text, index) => {
             const ten = model.extraColumns?.[index];
@@ -339,6 +417,17 @@ export function ColumnChart({ model, idBase, fill = false, size: sizeProp }: Col
         {/* Mốc 0 vẽ SAU cột, để cột âm (một chuỗi) và cột dương cùng đứng trên một vạch rõ. */}
         <line className={styles.axis} x1={plot.x0} y1={sy(0)} x2={plot.x1} y2={sy(0)} />
 
+        {markX !== null && mark !== undefined && (
+          <line
+            className={styles.columnMark}
+            x1={markX}
+            y1={plot.y0}
+            x2={markX}
+            y2={plot.y1}
+            data-moc={mark.index}
+          />
+        )}
+
         {lines.map((line, index) => {
           const y = sy(line.value);
           const dash = line.dash === true;
@@ -363,6 +452,32 @@ export function ColumnChart({ model, idBase, fill = false, size: sizeProp }: Col
           );
         })}
 
+        {/* Đường qua cột vẽ SAU vạch ngang và cột: chúng là thứ để so, cột là nền. */}
+        {duong.map((path, index) => {
+          const dut = paths[index]?.dash === true;
+          return (
+            <g
+              key={`duong-${String(index)}`}
+              data-duong={paths[index]?.right === true ? 'phai' : 'trai'}
+            >
+              <path className={dut ? styles.columnPathDash : styles.columnPath} d={path.d} />
+              {path.diem.map((diem, thuTu) => (
+                <circle
+                  key={`cham-${String(thuTu)}`}
+                  className={dut ? styles.columnPathDotDash : styles.columnPathDot}
+                  cx={diem.x}
+                  cy={diem.y}
+                  r={2.25}
+                />
+              ))}
+            </g>
+          );
+        })}
+
+        {syPhai !== null && (
+          <line className={styles.axis} x1={plot.x1} y1={plot.y0} x2={plot.x1} y2={plot.y1} />
+        )}
+
         {yLabels.map((tick) => (
           <text
             key={`y-${String(tick.value)}`}
@@ -374,6 +489,20 @@ export function ColumnChart({ model, idBase, fill = false, size: sizeProp }: Col
             {tick.label}
           </text>
         ))}
+
+        {/* Nhãn trục phải, canh trái sát trục — đối xứng nhãn trục trái, như `LineChart`. */}
+        {syPhai !== null &&
+          yRightLabels.map((tick) => (
+            <text
+              key={`yr-${String(tick.value)}`}
+              className={styles.tick}
+              x={plot.x1 + TICK_GAP}
+              y={syPhai(tick.value) + 3}
+              textAnchor="start"
+            >
+              {tick.label}
+            </text>
+          ))}
 
         {xLabels.map((tick) => {
           const col = cols[tick.value];
@@ -401,6 +530,16 @@ export function ColumnChart({ model, idBase, fill = false, size: sizeProp }: Col
         <text className={styles.axisTitle} x={plot.x0 - 2} y={plot.y0 - 4}>
           {pick(model.y.title)}
         </text>
+        {/*
+          Tên trục phải KẾT THÚC tại trục phải, đối xứng tên trục trái bắt đầu tại trục trái. Không đặt
+          ở mép khung như `LineChart`: ở đó nó phủ lên cột nhãn vạch, và nhãn trên cùng ("800") nằm sát
+          ngay dưới — đo 02/11/2026, hai chữ đè nhau ở cả 390 lẫn 1440.
+        */}
+        {model.yRight !== undefined && (
+          <text className={styles.axisTitle} x={plot.x1 + 2} y={plot.y0 - 4} textAnchor="end">
+            {pick(model.yRight.title)}
+          </text>
+        )}
         {/* Tên trục ngang ở đầu mút phải trục, không ở giữa đáy — lý do ở `LineChart.tsx`. */}
         <text
           className={styles.axisTitle}
@@ -427,6 +566,32 @@ export function ColumnChart({ model, idBase, fill = false, size: sizeProp }: Col
                 height={9}
                 rx={2}
               />
+            ) : item.kieu === 'moc' ? (
+              <line
+                className={styles.columnMark}
+                x1={item.x + 5}
+                y1={item.y - 9}
+                x2={item.x + 5}
+                y2={item.y + 1}
+              />
+            ) : item.kieu === 'duong' || item.kieu === 'duongDut' ? (
+              <g>
+                <line
+                  className={item.kieu === 'duongDut' ? styles.columnPathDash : styles.columnPath}
+                  x1={item.x}
+                  y1={item.y - 3.5}
+                  x2={item.x + 10}
+                  y2={item.y - 3.5}
+                />
+                <circle
+                  className={
+                    item.kieu === 'duongDut' ? styles.columnPathDotDash : styles.columnPathDot
+                  }
+                  cx={item.x + 5}
+                  cy={item.y - 3.5}
+                  r={2.25}
+                />
+              </g>
             ) : (
               <line
                 className={item.kieu === 'vachDut' ? styles.columnLineDash : styles.columnLine}

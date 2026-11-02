@@ -1457,8 +1457,8 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'quy-dinh',
     prompt: {
-      vi: 'Một ngân hàng có EPS = 4.000 ₫/cổ phiếu. Giá trị sổ sách mỗi cổ phiếu (BVPS) theo báo cáo là 40.000 ₫, trong đó 8.000 ₫ là lợi thế thương mại (goodwill) từ các thương vụ mua lại trước đây. Khi ngân hàng có goodwill đáng kể thì nên dùng giá trị sổ sách HỮU HÌNH (loại goodwill) làm phép đối chiếu thận trọng hơn, nên công thức dưới đây trừ goodwill ra khỏi BVPS. Điền ba con số vào đúng ô trống.',
-      en: 'A bank has EPS = ₫4,000 per share. Reported book value per share (BVPS) is ₫40,000, of which ₫8,000 is goodwill from past acquisitions. When a bank carries significant goodwill, TANGIBLE book value (excluding goodwill) is the more conservative cross-check, so the formula below subtracts goodwill from BVPS. Put the three figures into the right slots.',
+      vi: 'Một ngân hàng có EPS = 4.000 ₫/cổ phiếu. Giá trị sổ sách mỗi cổ phiếu (BVPS) theo báo cáo là 40.000 ₫, trong đó 8.000 ₫ là lợi thế thương mại (goodwill) từ các thương vụ mua lại trước đây. Khi ngân hàng có goodwill đáng kể thì nên dùng giá trị sổ sách HỮU HÌNH (loại goodwill) làm phép đối chiếu thận trọng hơn, nên công thức dưới đây trừ goodwill ra khỏi BVPS. Điền số liệu vào đúng ô trống.',
+      en: 'A bank has EPS = ₫4,000 per share. Reported book value per share (BVPS) is ₫40,000, of which ₫8,000 is goodwill from past acquisitions. When a bank carries significant goodwill, TANGIBLE book value (excluding goodwill) is the more conservative cross-check, so the formula below subtracts goodwill from BVPS. Put the figures into the right slots.',
     },
     facts: [
       { label: { vi: 'EPS', en: 'EPS' }, value: { vi: '4.000 ₫', en: '₫4,000' } },
@@ -1510,7 +1510,7 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
     kind: 'hau-qua',
     evidence: 'ngo-nhan',
     prompt: {
-      vi: 'Một nhà đầu tư thấy giá cổ phiếu đang thấp hơn Số Graham đúng 3% và kết luận: "Đây chính là mức giá trị hợp lý chính xác, 3% chênh lệch là biên an toàn cụ thể tôi có được." Theo Wikipedia, cách hiểu Số Graham như vậy sai ở đâu?',
+      vi: 'Một nhà đầu tư thấy giá cổ phiếu đang thấp hơn Số Graham đúng 3% và kết luận: "Đây chính là mức giá trị hợp lý chính xác, 3% chênh lệch là biên an toàn cụ thể tôi có được." Theo Wikipedia, cách hiểu Số Graham như vậy đang sai ở điểm nào?',
       en: 'An investor notices the market price is exactly 3% below the Graham number and concludes: "This is the precise fair value, and the 3% gap is my exact margin of safety." According to Wikipedia, what is wrong with reading the Graham number this way?',
     },
     choices: {
@@ -1642,8 +1642,8 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'quy-dinh',
     prompt: {
-      vi: 'Một doanh nghiệp có tài sản ngắn hạn 6.000 tỷ ₫, nợ ngắn hạn 2.200 tỷ ₫, nợ dài hạn 900 tỷ ₫ và 250.000.000 cổ phiếu lưu hành. Công thức NCAV gốc của Graham trừ TOÀN BỘ nợ phải trả, không chỉ nợ ngắn hạn. Điền bốn con số vào đúng ô trống.',
-      en: "A company has current assets of 6,000 billion ₫, current liabilities of 2,200 billion ₫, long-term liabilities of 900 billion ₫, and 250,000,000 shares outstanding. Graham's original NCAV formula subtracts ALL liabilities, not just current ones. Put the four figures into the right slots.",
+      vi: 'Một doanh nghiệp có tài sản ngắn hạn 6.000 tỷ ₫, nợ ngắn hạn 2.200 tỷ ₫, nợ dài hạn 900 tỷ ₫ và 250.000.000 cổ phiếu lưu hành. Công thức NCAV gốc của Graham trừ TOÀN BỘ nợ phải trả, không chỉ nợ ngắn hạn. Điền số liệu vào đúng ô trống.',
+      en: "A company has current assets of 6,000 billion ₫, current liabilities of 2,200 billion ₫, long-term liabilities of 900 billion ₫, and 250,000,000 shares outstanding. Graham's original NCAV formula subtracts ALL liabilities, not just current ones. Put the figures into the right slots.",
     },
     facts: [
       {
@@ -2064,8 +2064,8 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'quy-dinh',
     prompt: {
-      vi: 'Một công ty được dự phóng lợi nhuận sau thuế năm nay là 500 tỷ đồng, có 100.000.000 cổ phiếu đang lưu hành. P/E mục tiêu theo trung bình ngành là 12 lần. Công thức giá mục tiêu dưới đây dựng EPS dự phóng của năm hiện tại rồi nhân với P/E mục tiêu. Điền ba con số vào đúng ô trống.',
-      en: 'A company is projected to earn VND 500 billion in after-tax profit this year and has 100,000,000 shares outstanding. The industry-average target P/E is 12x. The target-price formula below builds the projected EPS for the current year and multiplies by the target P/E. Put the three figures into the right slots.',
+      vi: 'Một công ty được dự phóng lợi nhuận sau thuế năm nay là 500 tỷ đồng, có 100.000.000 cổ phiếu đang lưu hành. P/E mục tiêu theo trung bình ngành là 12 lần. Công thức giá mục tiêu dưới đây dựng EPS dự phóng của năm hiện tại rồi nhân với P/E mục tiêu. Điền số liệu vào đúng ô trống.',
+      en: 'A company is projected to earn VND 500 billion in after-tax profit this year and has 100,000,000 shares outstanding. The industry-average target P/E is 12x. The target-price formula below builds the projected EPS for the current year and multiplies by the target P/E. Put the figures into the right slots.',
     },
     facts: [
       {

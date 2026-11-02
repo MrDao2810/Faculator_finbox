@@ -96,6 +96,24 @@ export interface ColumnData {
   }>;
   /** Vạch ngang tại các mức đáng so: giá vốn trung bình, lợi suất bình quân… */
   lines?: ReadonlyArray<{ value: number; label: Bilingual; dash?: boolean }>;
+  /**
+   * Đường đi qua tâm từng cột, một số mỗi kỳ (02/11/2026): số dư nếu chỉ tính lãi đơn, dư nợ cuối
+   * năm. Khác `lines` ở chỗ giá trị đổi theo kỳ. `right` thì đo theo trục phụ bên phải, mà
+   * `ColumnView.rightAxis` phải khai — dùng khi đại lượng lớn gấp mấy lần cột (dư nợ so với tiền trả
+   * một năm), vẽ chung trục thì cột bị ép dẹt.
+   */
+  paths?: ReadonlyArray<{
+    label: Bilingual;
+    values: ReadonlyArray<number>;
+    dash?: boolean;
+    right?: boolean;
+  }>;
+  /**
+   * Mốc dọc ngay TRƯỚC cột `index` — kỳ đầu tiên một điều gì đó bắt đầu đúng: năm phần gốc bắt đầu
+   * vượt phần lãi. Nhãn nói cả kỳ ấy ('Gốc vượt lãi từ năm 13'), vì nó đứng ở chú giải, xa cột.
+   * `index` từ 1: đúng ngay từ kỳ đầu thì không có lúc "bắt đầu", và công thức không khai mốc.
+   */
+  mark?: { index: number; label: Bilingual };
 }
 
 /**
@@ -118,6 +136,8 @@ export interface ColumnView {
   series: ReadonlyArray<{ key: string; label: Bilingual; tone: SeriesTone }>;
   /** Cột chỉ có ở bảng số (số cổ phiếu mua được của từng đợt…), mỗi cột một đơn vị riêng. */
   extraColumns?: ReadonlyArray<{ label: Bilingual; unit: string }>;
+  /** Trục phụ bên phải, cho các đường `ColumnData.paths` mang `right`: tên đại lượng và đơn vị. */
+  rightAxis?: { value: Bilingual; unit: string };
   /**
    * Sinh số từ đúng bộ số đang nhập và kết quả đang hiện. `null` khi không vẽ được — khi ấy mục
    * vắng khỏi ô chọn, như hình cơ cấu. Không được trả NaN / Infinity (FR-06): bộ dựng kiểm lại.

@@ -3678,8 +3678,8 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Bảng giá lịch sử của Vinamilk (VNM) cho giá đóng cửa bảy phiên liền nhau, từ phiên thứ Hai 24/08 đến phiên thứ Sáu 04/09/2026. Bạn cần ROC 5 phiên chốt phiên 04/09/2026. Bình thường một tuần lịch có đúng 5 phiên, nhưng tuần này sàn không mở cửa từ 29/08 đến 02/09 vì cuối tuần và kỳ nghỉ lễ Quốc khánh, nên giá của thứ Sáu tuần trước không còn là giá cách đó 5 phiên. Hãy đếm lùi đúng 5 phiên rồi đặt hai con số vào ô trống của công thức ROC.',
-      en: 'The price history of Vinamilk (VNM) gives the closing prices of seven consecutive sessions, from Monday 2026-08-24 to Friday 2026-09-04. You need the 5-session ROC as of the 2026-09-04 session. A calendar week normally holds exactly 5 sessions, but this time the exchange stayed closed from 2026-08-29 to 2026-09-02 for the weekend and the National Day holiday, so the previous Friday’s price is no longer the price 5 sessions back. Count back exactly 5 sessions, then put the right two numbers into the slots of the ROC formula.',
+      vi: 'Bảng giá lịch sử của Vinamilk (VNM) cho giá đóng cửa bảy phiên liền nhau, từ phiên thứ Hai 24/08 đến phiên thứ Sáu 04/09/2026. Bạn cần ROC 5 phiên chốt phiên 04/09/2026. Bình thường một tuần lịch có đúng 5 phiên, nhưng tuần này sàn không mở cửa từ 29/08 đến 02/09 vì cuối tuần và kỳ nghỉ lễ Quốc khánh, nên giá của thứ Sáu tuần trước không còn là giá cách đó 5 phiên. Hãy đếm lùi 5 phiên rồi nhập hai số vào ô trống của công thức ROC.',
+      en: 'The price history of Vinamilk (VNM) gives the closing prices of seven consecutive sessions, from Monday 2026-08-24 to Friday 2026-09-04. You need the 5-session ROC as of the 2026-09-04 session. A calendar week normally holds exactly 5 sessions, but this time the exchange stayed closed from 2026-08-29 to 2026-09-02 for the weekend and the National Day holiday, so the previous Friday’s price is no longer the price 5 sessions back. Count back 5 sessions, then enter the two numbers into the slots of the ROC formula.',
     },
     facts: [
       {

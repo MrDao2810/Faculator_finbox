@@ -84,6 +84,7 @@ import type {
   ChartTick,
   ColumnGroup,
   ColumnLine,
+  ColumnPath,
   SweepOption,
 } from './types';
 
@@ -617,8 +618,44 @@ function buildColumnsModel(
     chong ? [tongNhom(group.values)] : [...group.values],
   );
   const vach = data.lines ?? [];
-  const ys = [0, ...muc, ...vach.map((line) => line.value)];
-  const { axis: y, scale } = buildAxis(Math.min(...ys), Math.max(...ys), view.value, view.unit);
+  const duong = data.paths ?? [];
+  const duongTrai = duong.filter((path) => path.right !== true);
+  const duongPhai = duong.filter((path) => path.right === true);
+  const ys = [
+    0,
+    ...muc,
+    ...vach.map((line) => line.value),
+    ...duongTrai.flatMap((path) => path.values),
+  ];
+  let { axis: y, scale } = buildAxis(Math.min(...ys), Math.max(...ys), view.value, view.unit);
+  /*
+   * Vạch ngang trùng đúng mép trên của trục: nhãn số của nó không còn chỗ trên vạch, bị kẹp xuống dưới
+   * và đè lên đỉnh cột (mục tiêu 1 tỷ ₫ của `tiet-kiem-muc-tieu`, đo 02/11/2026 — cột cuối chạm đúng
+   * mục tiêu và 1 tỷ là một mốc tròn). Nới trục thêm một khoảng để nhãn đứng trên vạch.
+   */
+  const vachCao = Math.max(...vach.map((line) => line.value));
+  if (vach.length > 0 && vachCao > 0 && vachCao >= y.domain[1] * (1 - 1e-9)) {
+    const thap = Math.min(...ys);
+    const cao = Math.max(...ys);
+    ({ axis: y, scale } = buildAxis(thap, cao + (cao - thap) * 0.08, view.value, view.unit));
+  }
+  /*
+   * Trục phải (02/11/2026): chỉ khi có đường xin nó, miền chứa 0 như trục trái. `columnData()` đã
+   * chặn đường `right` khi công thức không khai `rightAxis`, nên nhánh vắng dưới đây không xảy ra.
+   */
+  const phai =
+    duongPhai.length === 0 || view.rightAxis === undefined
+      ? null
+      : (() => {
+          const ysPhai = [0, ...duongPhai.flatMap((path) => path.values)];
+          const lon = Math.max(...ysPhai);
+          return buildAxis(
+            Math.min(...ysPhai),
+            lon > 0 ? lon : 1,
+            view.rightAxis.value,
+            view.rightAxis.unit,
+          );
+        })();
 
   const viet = (value: number): string => formatValueWithUnit(value, view.unit);
   const vietPhu = (value: number, index: number): string =>
@@ -673,8 +710,25 @@ function buildColumnsModel(
     };
   });
 
-  /* Một nhóm kể bằng chữ: các chuỗi và (nếu chồng) tổng của cả cột. */
-  const keNhom = (group: ColumnGroup, lang: 'vi' | 'en'): string => {
+  /* Đường qua từng cột: số đầy đủ theo đơn vị trục của nó, bản ngắn ở bậc của trục ấy. */
+  const donViPhai = view.rightAxis?.unit ?? view.unit;
+  const paths: ColumnPath[] = duong.map((path) => {
+    const benPhai = path.right === true && phai !== null;
+    const bac = benPhai ? phai.scale : scale;
+    const donViDuong = benPhai ? donViPhai : view.unit;
+    const ngan = path.values.map((value) => labelAtAxisScale(value, bac));
+    return {
+      label: path.label,
+      values: path.values,
+      valueLabels: path.values.map((value) => formatValueWithUnit(value, donViDuong)),
+      ...(ngan.every((label) => label !== undefined) ? { shortValueLabels: ngan } : {}),
+      ...(path.dash === true ? { dash: true } : {}),
+      ...(benPhai ? { right: true } : {}),
+    };
+  });
+
+  /* Một nhóm kể bằng chữ: các chuỗi, (nếu chồng) tổng của cả cột, rồi các đường qua cột ấy. */
+  const keNhom = (group: ColumnGroup, thuTu: number, lang: 'vi' | 'en'): string => {
     const doc = (text: string): string => (lang === 'vi' ? text : labelInEnglish(text));
     const phan = view.series
       .map((series, index) => `${series.label[lang]} ${doc(group.valueLabels[index] ?? '')}`)
@@ -683,7 +737,10 @@ function buildColumnsModel(
       group.totalLabel === undefined
         ? ''
         : `, ${lang === 'vi' ? 'cộng' : 'total'} ${doc(group.totalLabel)}`;
-    return `${group.label[lang]}: ${phan}${tong}.`;
+    const quaDuong = paths
+      .map((path) => `, ${path.label[lang]} ${doc(path.valueLabels[thuTu] ?? '')}`)
+      .join('');
+    return `${group.label[lang]}: ${phan}${tong}${quaDuong}.`;
   };
   const dau = groups[0];
   const cuoi = groups[groups.length - 1];
@@ -697,9 +754,10 @@ function buildColumnsModel(
   const cau = (lang: 'vi' | 'en'): string =>
     [
       `${view.title[lang]}, ${String(groups.length)} ${view.category[lang].toLowerCase()}.`,
-      dau === undefined ? '' : keNhom(dau, lang),
-      cuoi === undefined || cuoi === dau ? '' : keNhom(cuoi, lang),
+      dau === undefined ? '' : keNhom(dau, 0, lang),
+      cuoi === undefined || cuoi === dau ? '' : keNhom(cuoi, groups.length - 1, lang),
       keVach(lang),
+      data.mark === undefined ? '' : `${data.mark.label[lang]}.`,
     ]
       .filter((sentence) => sentence !== '')
       .join(' ');
@@ -715,6 +773,9 @@ function buildColumnsModel(
     groups,
     stacked: chong,
     ...(lines.length === 0 ? {} : { lines }),
+    ...(paths.length === 0 ? {} : { paths }),
+    ...(phai === null ? {} : { yRight: phai.axis }),
+    ...(data.mark === undefined ? {} : { mark: data.mark }),
     ...(view.extraColumns === undefined
       ? {}
       : { extraColumns: view.extraColumns.map((column) => column.label) }),
@@ -723,16 +784,20 @@ function buildColumnsModel(
         view.category,
         ...view.series.map((series) => withUnit(series.label, donVi)),
         ...(chong ? [withUnit(TONG_COT, donVi)] : []),
+        ...paths.map((path) =>
+          withUnit(path.label, unitLabel(path.right === true ? donViPhai : view.unit)),
+        ),
         ...(view.extraColumns ?? []).map((column) =>
           withUnit(column.label, unitLabel(column.unit)),
         ),
       ],
       rows: groups.map(
-        (group) =>
+        (group, thuTu) =>
           [
             group.label,
             ...group.valueLabels,
             ...(group.totalLabel === undefined ? [] : [group.totalLabel]),
+            ...paths.map((path) => path.valueLabels[thuTu] ?? ''),
             ...(group.extraLabels ?? []),
           ] as const,
       ),

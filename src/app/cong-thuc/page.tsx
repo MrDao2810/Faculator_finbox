@@ -9,7 +9,7 @@ import { FormulaListScreen } from './FormulaListScreen';
 
 export const metadata: Metadata = {
   title: PAGE_TITLES.formulas.vi,
-  description: `Thư viện ${String(FORMULA_MODULES.length)} công thức tài chính và chứng khoán Việt Nam — tra cứu, tính toán, giải thích; chia 12 nhóm.`,
+  description: `Thư viện ${String(FORMULA_MODULES.length)} công thức tài chính và chứng khoán Việt Nam - tra cứu, tính toán, giải thích; chia 12 nhóm.`,
 };
 
 /**

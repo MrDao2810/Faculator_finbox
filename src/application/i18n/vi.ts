@@ -311,7 +311,7 @@ export const vi = {
   'variable.colName': 'BIẾN',
   'variable.colUnit': 'ĐƠN VỊ',
   'variable.colDescription': 'MÔ TẢ',
-  'variable.noDescription': '—',
+  'variable.noDescription': '-',
   'example.title': 'Ví dụ thực tế',
   /*
    * `example.editHint` ("Sửa được ngay tại đây — thay bằng số thật của mã bạn đang xem.") đã BỎ,
@@ -395,10 +395,10 @@ export const vi = {
    */
   'detail.tickerLoading': 'đang lấy dữ liệu thật của mã…',
   'detail.tickerFailed':
-    'không lấy được dữ liệu của mã — tự nhập số liệu, hoặc bấm “Nạp mẫu” để dùng bộ dữ liệu sẵn có.',
+    'không lấy được dữ liệu của mã - tự nhập số liệu, hoặc bấm “Nạp mẫu” để dùng bộ dữ liệu sẵn có.',
   'detail.tickerNoData':
     'mã này chưa có đủ dữ liệu cơ bản để nạp (báo cáo chưa đủ bốn quý liền nhau, hoặc các con số ' +
-    'không khớp nhau). Thử lại cũng vậy — chọn mã khác, hoặc tự nhập số liệu.',
+    'không khớp nhau). Thử lại cũng vậy - chọn mã khác, hoặc tự nhập số liệu.',
   /*
    * ── Hai nút icon ở hàng tiêu đề ────────────────────────────────────────────
    *
@@ -468,14 +468,14 @@ export const vi = {
    */
   // Hai câu dưới đứng SAU tên phép tính đã lưu, nên viết thường.
   'detail.restoredNote': 'phép tính đã lưu ngày',
-  'detail.restoredMissing': 'không tìm thấy phép tính đã lưu — có thể nó đã bị xoá khỏi máy này.',
+  'detail.restoredMissing': 'không tìm thấy phép tính đã lưu - có thể nó đã bị xoá khỏi máy này.',
   /*
    * Kho lưu KHÔNG cất chuỗi giá (xem docblock `saved-calc-store.ts`), nên mở lại một công thức
    * nhóm chuỗi mà bảng dữ liệu đang khác lúc lưu thì kết quả sẽ khác. Nói thẳng ra còn hơn để
    * người dùng đọc một con số mới dưới một cái tên cũ (FR-06).
    */
   'detail.restoredNeedsSeries':
-    'Phép tính này dùng chuỗi giá, mà chuỗi đang có trong máy không khớp lúc lưu — kết quả hiện tại có thể khác con số đã lưu. Nạp lại chuỗi giá trước khi đọc kết quả.',
+    'Phép tính này dùng chuỗi giá, mà chuỗi đang có trong máy không khớp lúc lưu - kết quả hiện tại có thể khác con số đã lưu. Nạp lại chuỗi giá trước khi đọc kết quả.',
 
   'detail.meaning': 'Ý nghĩa',
   'detail.formula': 'Công thức',
@@ -495,7 +495,7 @@ export const vi = {
    */
   'detail.symbols.toggle': 'Chú thích',
   'detail.inputs': 'Số liệu',
-  'detail.hiddenInBasic': 'biến nâng cao đang ẩn — chuyển chế độ để xem',
+  'detail.hiddenInBasic': 'biến nâng cao đang ẩn - chuyển chế độ để xem',
   'detail.constantSource': 'Market Config · CON-10',
   'detail.constantsInUse': 'Đang tính theo các mức sau',
   'detail.constantSince': 'áp dụng từ',
@@ -546,7 +546,7 @@ export const vi = {
    * xong vẫn không tính được" và tưởng sản phẩm hỏng; phải nói cả nguyên nhân lẫn lối đi tiếp.
    */
   'detail.liveSeriesShort':
-    'Mã này chỉ có một phiên giá — nguồn số liệu thật không cấp chuỗi dài. Công thức này cần ' +
+    'Mã này chỉ có một phiên giá - nguồn số liệu thật không cấp chuỗi dài. Công thức này cần ' +
     'nhiều phiên: dán chuỗi giá, hoặc bấm “Nạp mẫu” và chọn một trong bốn mã mẫu.',
   /*
    * Chuỗi VN-Index trong bộ mẫu là PRNG (`samples.ts`), mà công thức hồi quy với thị trường thì
@@ -684,7 +684,7 @@ export const vi = {
   'loan.colPrincipal': 'GỐC',
   'loan.colInterest': 'LÃI',
   'loan.colBalance': 'CÒN LẠI',
-  'loan.condensed.before': 'Bảng đã rút gọn — hiện',
+  'loan.condensed.before': 'Bảng đã rút gọn - hiện',
   'loan.condensed.after': 'kỳ: 12 kỳ đầu, mốc cuối mỗi năm, và kỳ cuối.',
 
   // Nạp bộ số liệu mẫu — WF-10, gói 2.5.1
@@ -1062,7 +1062,7 @@ export const vi = {
    * hồi quy theo, và người dùng Việt Nam đọc tên ấy ra ngay.
    */
   'portfolio.betaHint':
-    'Beta đo mức mã này nhảy mạnh hay yếu hơn VN-Index — beta 1,5 nghĩa là chỉ số nhích 1% thì mã ' +
+    'Beta đo mức mã này nhảy mạnh hay yếu hơn VN-Index - beta 1,5 nghĩa là chỉ số nhích 1% thì mã ' +
     'thường nhích khoảng 1,5%, dưới 1 là nhẹ hơn thị trường. Sản phẩm chưa tự tính được vì cần ' +
     'chuỗi lợi suất của cả mã lẫn chỉ số; nếu đã có số, bạn nhập vào đây.',
   /*
@@ -1184,7 +1184,7 @@ export const vi = {
    */
   'portfolio.errBuyDateFormat':
     'Ngày mua chưa đọc được. Nhập theo ngày/tháng/năm, ví dụ 03/10/2026.',
-  'portfolio.errBeta': 'Beta phải là một số, ví dụ 1,1 — hoặc để trống nếu chưa biết.',
+  'portfolio.errBeta': 'Beta phải là một số, ví dụ 1,1 - hoặc để trống nếu chưa biết.',
   'portfolio.errFull': 'Danh mục đã đủ 50 mã. Bỏ bớt một mã trước khi thêm mã mới.',
   /*
    * Lượt nhập mã từ ngoài chạm trần của bảng. Chỉ hiện khi CÓ mã bị bỏ lại, và nêu đích danh từng mã:
@@ -1218,7 +1218,7 @@ export const vi = {
    * và cuối hàng thu gọn của thẻ tóm tắt. Trạng thái mở/đóng nằm ở aria-expanded, không ở chữ.
    */
   'portfolio.details': 'Chi tiết',
-  'portfolio.priceStale': 'Chưa làm mới được thị giá — đang dùng giá đã lưu.',
+  'portfolio.priceStale': 'Chưa làm mới được thị giá - đang dùng giá đã lưu.',
   /*
    * Nguồn trả lời được nhưng không mã nào có giá. Cố ý KHÁC `portfolio.priceFailed`: ở đây mạng
    * không hỏng, chỉ là Finbox không có mã người dùng nhập — nên lời khuyên là soát lại mã, không
@@ -1745,7 +1745,7 @@ export const vi = {
   'save.submit': 'Lưu vào danh mục',
   'save.done': 'Đã lưu vào Danh mục › Công thức.',
   'save.goToPortfolio': 'Xem trong danh mục',
-  'save.errEmpty': 'Đặt một cái tên trước đã — tên trống thì sau này không tìm lại được.',
+  'save.errEmpty': 'Đặt một cái tên trước đã - tên trống thì sau này không tìm lại được.',
   'save.errDuplicate': 'Đã có một phép tính tên này. Đặt tên khác để hai mục không lẫn nhau.',
   'save.errFull': 'Đã lưu đủ 30 phép tính. Xoá bớt một mục trong danh mục trước khi lưu thêm.',
   /*
@@ -1917,7 +1917,7 @@ export const vi = {
   'aboutUs.eyebrow': 'Về Faculator Finbox',
   'aboutUs.title': 'Công cụ tài chính thông minh cho nhà đầu tư hiện đại',
   'aboutUs.lead':
-    'Faculator Finbox là ứng dụng web tra cứu, tính toán và trực quan hoá công thức cho thị trường Việt Nam. Điểm khác biệt cốt lõi: các công thức không đứng độc lập mà kết nối thành đồ thị phụ thuộc — đầu ra của bước trước chảy thẳng vào đầu vào của bước sau.',
+    'Faculator Finbox là ứng dụng web tra cứu, tính toán và trực quan hoá công thức cho thị trường Việt Nam. Điểm khác biệt cốt lõi: các công thức không đứng độc lập mà kết nối thành đồ thị phụ thuộc - đầu ra của bước trước chảy thẳng vào đầu vào của bước sau.',
   'aboutUs.stat.full': 'Đầy đủ',
   'aboutUs.stat.fullNote': 'Công cụ tài chính',
   'aboutUs.stat.fresh': 'Dữ liệu cập nhật',
@@ -1984,7 +1984,7 @@ export const vi = {
     'Sản phẩm chạy trọn trong trình duyệt: không có bước đăng ký, không có máy chủ tài khoản. Danh mục và tuỳ chọn hiển thị nằm trong localStorage của chính thiết bị, nên xoá dữ liệu trình duyệt hoặc đổi máy thì chúng không đi theo.',
   'aboutUs.yourData.sources': 'Nguồn tham khảo công khai',
   'aboutUs.yourData.sourcesNote':
-    'Mỗi công thức ghi rõ nguồn — giáo trình, chuẩn mực kế toán hoặc văn bản pháp luật — để bạn kiểm chứng. Hằng số phí và thuế lấy từ Market Config, sửa một chỗ áp dụng toàn hệ thống.',
+    'Mỗi công thức ghi rõ nguồn - giáo trình, chuẩn mực kế toán hoặc văn bản pháp luật - để bạn kiểm chứng. Hằng số phí và thuế lấy từ Market Config, sửa một chỗ áp dụng toàn hệ thống.',
 
   'aboutUs.not.title': 'Faculator không phải là gì?',
   'aboutUs.not.broker': 'Không phải sàn giao dịch',
@@ -2023,7 +2023,7 @@ export const vi = {
   'aboutUs.cta.eyebrow': 'Bắt đầu ngay hôm nay',
   'aboutUs.cta.title': 'Cùng Faculator Finbox làm chủ thị trường',
   'aboutUs.cta.note':
-    'Không cần đăng ký. Mở công thức, nạp bộ số liệu mẫu theo mã cổ phiếu và xem kết quả cập nhật tức thì — hoạt động đầy đủ cả khi ngoại tuyến.',
+    'Không cần đăng ký. Mở công thức, nạp bộ số liệu mẫu theo mã cổ phiếu và xem kết quả cập nhật tức thì - hoạt động đầy đủ cả khi ngoại tuyến.',
   'aboutUs.cta.action': 'Truy cập ngay',
 
   // Tiêu đề <h1> của màn. Chỉ có key cho màn nào THẬT SỰ hiện tiêu đề bằng chữ:
@@ -2099,8 +2099,9 @@ export const vi = {
    * Mộ chí: `quiz.pickAll` ('Câu này có nhiều đáp án đúng — chọn đủ cả.') bỏ 02/11/2026. Chủ dự án
    * khoanh nó dưới đề Q338, đề đã tự ghi "(Chọn tất cả đáp án đúng)": _"bỏ đoạn khoanh đỏ này đi.
    * đang thừa và chiếm không gian"_. Bỏ lời, giữ hành vi: câu chọn nhiều vẫn là ô vuông, vẫn chấm
-   * trọn gói. Lúc bỏ, 10 trong 18 đề chọn nhiều KHÔNG tự ghi lời ấy — với chúng, ô vuông là tín
-   * hiệu duy nhất. Cần nói lại thì viết vào đề, đừng dựng lại dòng chung mà không hỏi.
+   * trọn gói. Lúc bỏ, 10 trong 18 đề chọn nhiều không tự ghi lời ấy, nên cùng ngày đã gắn
+   * "(chọn tất cả đáp án đúng)" vào cuối 10 đề đó; một ca trong `quiz.test.ts` đòi mọi đề chọn
+   * nhiều mang lời nhắc. Cần nói lại thì viết vào đề, đừng dựng lại dòng chung mà không hỏi.
    */
   /*
    * Nhãn cho bộ đọc màn hình của từng ô trống trong công thức. `{n}` thay bằng thứ tự ô, tính từ
@@ -2141,8 +2142,9 @@ export const vi = {
    * là được". Vị trí của nhãn đã nói nó thuộc ô nào, nên thêm chữ "Đáp án" là nói lại thứ mắt
    * đã thấy.
    */
-  'quiz.whyRight': 'Vì sao đúng',
-  'quiz.whyWrong': 'Vì sao chưa đúng',
+  /* "Tại sao", không "Vì sao": chủ dự án đổi mọi câu hỏi trong đề sang "tại sao" ngày 02/11/2026, tiêu đề hộp theo. */
+  'quiz.whyRight': 'Tại sao đúng',
+  'quiz.whyWrong': 'Tại sao chưa đúng',
   /* Tiêu đề hộp giải thích của câu dựa trên quy định — không có "vì sao", chỉ có điều đúng là gì. */
   'quiz.rule': 'Quy định hiện hành',
   /* Chip tầng bằng chứng (WF-19D · S14): tầng A và tầng B của ngân hàng câu hỏi. */

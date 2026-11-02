@@ -77,8 +77,8 @@ export const LOI_SUAT: ReadonlyArray<QuizItem> = [
       b: { vi: 'Phí quản lý bao nhiêu', en: 'What the management fee is' },
       c: { vi: 'Ai là người quản lý', en: 'Who manages the fund' },
       d: {
-        vi: 'Đó là trung bình cộng hay CAGR — hai con số có thể chênh nhau vài điểm phần trăm',
-        en: 'Whether that is an arithmetic mean or a CAGR — the two figures can differ by several percentage points',
+        vi: 'Đó là trung bình cộng hay CAGR - hai con số có thể chênh nhau vài điểm phần trăm',
+        en: 'Whether that is an arithmetic mean or a CAGR - the two figures can differ by several percentage points',
       },
     },
     answer: 'd',
@@ -135,8 +135,8 @@ export const LOI_SUAT: ReadonlyArray<QuizItem> = [
     choices: {
       a: { vi: 'Đúng', en: 'Yes' },
       b: {
-        vi: 'Không — CAGR giả định một khoản vốn cố định đầu kỳ; với dòng tiền rải rác phải dùng XIRR',
-        en: 'No — CAGR assumes one fixed lump sum at the start; scattered cash flows need XIRR',
+        vi: 'Không - CAGR giả định một khoản vốn cố định đầu kỳ; với dòng tiền rải rác phải dùng XIRR',
+        en: 'No - CAGR assumes one fixed lump sum at the start; scattered cash flows need XIRR',
       },
       c: {
         vi: 'Đúng nếu số tiền mỗi tháng bằng nhau',
@@ -233,8 +233,8 @@ export const LOI_SUAT: ReadonlyArray<QuizItem> = [
     },
     answer: 'a',
     explain: {
-      vi: 'CFI: “it assumes all positive cash flows of a project will be reinvested at the same rate as the project” — điều hiếm khi xảy ra, nên MIRR ra đời để sửa. Lưu ý: giới học thuật còn tranh cãi giả định này có thực sự tồn tại hay không.',
-      en: 'CFI: “it assumes all positive cash flows of a project will be reinvested at the same rate as the project” — something that rarely happens in practice, which is why MIRR was created to fix it. Note: academics still debate whether this assumption actually holds.',
+      vi: 'CFI: “it assumes all positive cash flows of a project will be reinvested at the same rate as the project” - điều hiếm khi xảy ra, nên MIRR ra đời để sửa. Lưu ý: giới học thuật còn tranh cãi giả định này có thực sự tồn tại hay không.',
+      en: 'CFI: “it assumes all positive cash flows of a project will be reinvested at the same rate as the project” - something that rarely happens in practice, which is why MIRR was created to fix it. Note: academics still debate whether this assumption actually holds.',
     },
     source: {
       url: 'https://corporatefinanceinstitute.com/resources/valuation/internal-rate-return-irr/',
@@ -260,8 +260,8 @@ export const LOI_SUAT: ReadonlyArray<QuizItem> = [
     },
     answer: 'c',
     explain: {
-      vi: 'Phóng sự CafeF: “người vay phải chịu lãi suất gần gấp đôi, trong khi ít khách hàng biết được sự lắt léo này” — vì lãi vẫn tính trên toàn bộ vốn vay ban đầu dù mỗi tháng đã trả bớt gốc. Điều tra Tuổi Trẻ ghi nhận trường hợp lãi suất quy đổi lên tới 49,68%/năm.',
-      en: 'A CafeF report: “người vay phải chịu lãi suất gần gấp đôi, trong khi ít khách hàng biết được sự lắt léo này” — because interest is still charged on the entire original principal even though part of it has been repaid each month. A Tuổi Trẻ investigation found a case where the converted rate reached 49.68% a year.',
+      vi: 'Phóng sự CafeF: “người vay phải chịu lãi suất gần gấp đôi, trong khi ít khách hàng biết được sự lắt léo này” - vì lãi vẫn tính trên toàn bộ vốn vay ban đầu dù mỗi tháng đã trả bớt gốc. Điều tra Tuổi Trẻ ghi nhận trường hợp lãi suất quy đổi lên tới 49,68%/năm.',
+      en: 'A CafeF report: “người vay phải chịu lãi suất gần gấp đôi, trong khi ít khách hàng biết được sự lắt léo này” - because interest is still charged on the entire original principal even though part of it has been repaid each month. A Tuổi Trẻ investigation found a case where the converted rate reached 49.68% a year.',
     },
     source: {
       url: 'https://cafef.vn/tai-chinh-ngan-hang/vay-tieu-dung-tin-chap-nguoi-vay-tien-dang-bi-bop-co-200711269846808.chn',
@@ -310,8 +310,8 @@ export const LOI_SUAT: ReadonlyArray<QuizItem> = [
       a: { vi: 'Có', en: 'Yes' },
       b: { vi: 'Có nếu vay trên 12 tháng', en: 'Yes, if the loan runs more than 12 months' },
       c: {
-        vi: 'Không — APR danh nghĩa là lãi đơn; APR hiệu dụng gồm phí cộng lãi kép, một khoản phí nhỏ có thể đẩy nó lên rất cao',
-        en: 'No — a nominal APR is simple interest; an effective APR includes fees plus compounding, and a small fee can push it very high',
+        vi: 'Không - APR danh nghĩa là lãi đơn; APR hiệu dụng gồm phí cộng lãi kép, một khoản phí nhỏ có thể đẩy nó lên rất cao',
+        en: 'No - a nominal APR is simple interest; an effective APR includes fees plus compounding, and a small fee can push it very high',
       },
       d: {
         vi: 'Có với ngân hàng, không với công ty tài chính',
@@ -377,8 +377,8 @@ export const LOI_SUAT: ReadonlyArray<QuizItem> = [
     },
     answer: 'd',
     explain: {
-      vi: 'VPBank: “Lãi suất thực = Lãi suất danh nghĩa – Tỷ lệ lạm phát”; Tạp chí Thị trường Tài chính Tiền tệ cũng dùng cùng công thức. Đây là trường hợp ngộ nhận được củng cố từ chính nguồn chính thống — app nên hiện cả hai cách tính.',
-      en: 'VPBank: “Lãi suất thực = Lãi suất danh nghĩa – Tỷ lệ lạm phát”; the Tạp chí Thị trường Tài chính Tiền tệ (Finance and Monetary Market magazine) also uses the same formula. This is a case where a misconception is reinforced by mainstream sources themselves — the app should show both methods.',
+      vi: 'VPBank: “Lãi suất thực = Lãi suất danh nghĩa – Tỷ lệ lạm phát”; Tạp chí Thị trường Tài chính Tiền tệ cũng dùng cùng công thức. Đây là trường hợp ngộ nhận được củng cố từ chính nguồn chính thống - app nên hiện cả hai cách tính.',
+      en: 'VPBank: “Lãi suất thực = Lãi suất danh nghĩa – Tỷ lệ lạm phát”; the Tạp chí Thị trường Tài chính Tiền tệ (Finance and Monetary Market magazine) also uses the same formula. This is a case where a misconception is reinforced by mainstream sources themselves - the app should show both methods.',
     },
     source: {
       url: 'https://www.vpbank.com.vn/bi-kip-va-chia-se/corporate-story-and-tips/corporate-sat-category/lai-suat-danh-nghia',
@@ -426,8 +426,8 @@ export const LOI_SUAT: ReadonlyArray<QuizItem> = [
     choices: {
       a: { vi: 'Số tiền đầu tư', en: 'The amount invested' },
       b: {
-        vi: 'Thời gian nắm giữ — ROI không chứa yếu tố thời gian',
-        en: 'The holding period — ROI contains no time element',
+        vi: 'Thời gian nắm giữ - ROI không chứa yếu tố thời gian',
+        en: 'The holding period - ROI contains no time element',
       },
       c: { vi: 'Ngành nghề', en: 'The industry' },
       d: { vi: 'Phí giao dịch', en: 'The transaction fees' },
@@ -458,8 +458,8 @@ export const LOI_SUAT: ReadonlyArray<QuizItem> = [
       b: { vi: 'Nên nếu ghi chú rõ', en: 'Yes, as long as it is clearly footnoted' },
       c: { vi: 'Nên với quỹ mở', en: 'Yes, for open-ended funds' },
       d: {
-        vi: 'Không — chuẩn mực đo hiệu quả khuyến cáo không năm hoá kỳ dưới một năm',
-        en: 'No — performance measurement standards advise against annualizing a period under one year',
+        vi: 'Không - chuẩn mực đo hiệu quả khuyến cáo không năm hoá kỳ dưới một năm',
+        en: 'No - performance measurement standards advise against annualizing a period under one year',
       },
     },
     answer: 'd',
@@ -480,7 +480,7 @@ export const LOI_SUAT: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'ngo-nhan',
     prompt: {
-      vi: 'Vì sao năm hoá một kỳ ngắn lại gây hiểu nhầm mạnh nhất với lợi suất cao?',
+      vi: 'Tại sao năm hoá một kỳ ngắn lại gây hiểu nhầm mạnh nhất với lợi suất cao?',
       en: 'Why does annualizing a short period mislead the most when the return is high?',
     },
     choices: {
@@ -576,8 +576,8 @@ export const LOI_SUAT: ReadonlyArray<QuizItem> = [
     choices: {
       a: { vi: 'Chắc chắn có alpha dương', en: 'It definitely has positive alpha' },
       b: {
-        vi: 'Chưa chắc — phải điều chỉnh rủi ro; vị thế quá rủi ro vẫn có thể cho alpha âm',
-        en: 'Not necessarily — risk must be adjusted for; an overly risky position can still produce negative alpha',
+        vi: 'Chưa chắc - phải điều chỉnh rủi ro; vị thế quá rủi ro vẫn có thể cho alpha âm',
+        en: 'Not necessarily - risk must be adjusted for; an overly risky position can still produce negative alpha',
       },
       c: { vi: 'Nhà quản lý giỏi', en: 'The manager is skilled' },
       d: { vi: 'Nên tăng tỷ trọng', en: 'The weighting should be increased' },
@@ -606,16 +606,16 @@ export const LOI_SUAT: ReadonlyArray<QuizItem> = [
     choices: {
       a: { vi: 'Có', en: 'Yes' },
       b: {
-        vi: 'Không — giá tham chiếu bị điều chỉnh giảm đúng bằng cổ tức, tổng tài sản không đổi',
-        en: 'No — the reference price is adjusted down by exactly the dividend amount, so total wealth is unchanged',
+        vi: 'Không - giá tham chiếu bị điều chỉnh giảm đúng bằng cổ tức, tổng tài sản không đổi',
+        en: 'No - the reference price is adjusted down by exactly the dividend amount, so total wealth is unchanged',
       },
       c: { vi: 'Có nếu bán ngay trong phiên', en: 'Yes, if sold the same session' },
       d: { vi: 'Có với cổ phiếu vốn hoá lớn', en: 'Yes, for large-cap stocks' },
     },
     answer: 'b',
     explain: {
-      vi: 'Nguồn đặt đúng câu hỏi này và trả lời: “Không có dòng tiền mới nào được tạo ra, nó chỉ đơn thuần được chuyển từ sổ sách của công ty sang túi của cá nhân bạn” — 28.000 (giá sau điều chỉnh) + 2.000 (tiền mặt) = 30.000 như cũ.',
-      en: 'The source asks this exact question and answers: “Không có dòng tiền mới nào được tạo ra, nó chỉ đơn thuần được chuyển từ sổ sách của công ty sang túi của cá nhân bạn” — 28,000 (the adjusted price) + 2,000 (cash) = 30,000, same as before.',
+      vi: 'Nguồn đặt đúng câu hỏi này và trả lời: “Không có dòng tiền mới nào được tạo ra, nó chỉ đơn thuần được chuyển từ sổ sách của công ty sang túi của cá nhân bạn” - 28.000 (giá sau điều chỉnh) + 2.000 (tiền mặt) = 30.000 như cũ.',
+      en: 'The source asks this exact question and answers: “Không có dòng tiền mới nào được tạo ra, nó chỉ đơn thuần được chuyển từ sổ sách của công ty sang túi của cá nhân bạn” - 28,000 (the adjusted price) + 2,000 (cash) = 30,000, same as before.',
     },
     source: {
       url: 'https://fesacademy.com.vn/thu-vien-dau-tu/ngay-giao-dich-khong-huong-quyen-la-gi-tai-sao-nhan-co-tuc-xong-gia-co-phieu-lai-giam/',
@@ -637,15 +637,15 @@ export const LOI_SUAT: ReadonlyArray<QuizItem> = [
       a: { vi: 'Doanh nghiệp làm ăn tốt hơn', en: 'The company is performing better' },
       b: { vi: 'Doanh nghiệp tăng cổ tức', en: 'The company raised its dividend' },
       c: {
-        vi: 'Giá cổ phiếu đã giảm một nửa — tỷ suất tăng “ảo”',
-        en: 'The stock price has halved — the yield increase is an illusion',
+        vi: 'Giá cổ phiếu đã giảm một nửa - tỷ suất tăng “ảo”',
+        en: 'The stock price has halved - the yield increase is an illusion',
       },
       d: { vi: 'Số cổ phiếu lưu hành giảm', en: 'The number of shares outstanding decreased' },
     },
     answer: 'c',
     explain: {
-      vi: '“Nếu giá cổ phiếu giảm xuống 25.000 đồng nhưng doanh nghiệp vẫn trả 2.500 đồng, tỷ suất cổ tức trên mức giá mới sẽ tăng lên 10%” — và nếu giá giảm vì kinh doanh suy yếu thì chính mức cổ tức đó cũng khó duy trì. “Dividend Yield cao đôi khi là tín hiệu cần tìm hiểu thêm, chứ không phải tín hiệu mặc nhiên để mua vào”.',
-      en: '“Nếu giá cổ phiếu giảm xuống 25.000 đồng nhưng doanh nghiệp vẫn trả 2.500 đồng, tỷ suất cổ tức trên mức giá mới sẽ tăng lên 10%” — and if the price fell because the business weakened, that same dividend may be hard to sustain. “Dividend Yield cao đôi khi là tín hiệu cần tìm hiểu thêm, chứ không phải tín hiệu mặc nhiên để mua vào”.',
+      vi: '“Nếu giá cổ phiếu giảm xuống 25.000 đồng nhưng doanh nghiệp vẫn trả 2.500 đồng, tỷ suất cổ tức trên mức giá mới sẽ tăng lên 10%” - và nếu giá giảm vì kinh doanh suy yếu thì chính mức cổ tức đó cũng khó duy trì. “Dividend Yield cao đôi khi là tín hiệu cần tìm hiểu thêm, chứ không phải tín hiệu mặc nhiên để mua vào”.',
+      en: '“Nếu giá cổ phiếu giảm xuống 25.000 đồng nhưng doanh nghiệp vẫn trả 2.500 đồng, tỷ suất cổ tức trên mức giá mới sẽ tăng lên 10%” - and if the price fell because the business weakened, that same dividend may be hard to sustain. “Dividend Yield cao đôi khi là tín hiệu cần tìm hiểu thêm, chứ không phải tín hiệu mặc nhiên để mua vào”.',
     },
     source: {
       url: 'https://kinhtechungkhoan.vn/chi-so-dividend-yield-co-tuc-cao-khong-dong-nghia-co-phieu-hap-dan',

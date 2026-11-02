@@ -26,8 +26,8 @@ export const PHI_THUE: ReadonlyArray<QuizItem> = [
     },
     answer: 'b',
     explain: {
-      vi: 'Thông tư 111/2013/TT-BTC (sửa đổi bởi Thông tư 25/2018): “Cá nhân chuyển nhượng chứng khoán nộp thuế theo thuế suất 0,1% trên giá chuyển nhượng chứng khoán từng lần” — không phân biệt lãi hay lỗ. Cử tri từng kiến nghị Bộ Tài chính rằng “bán chứng khoán lỗ vẫn đóng thuế 0,1% là chưa phù hợp”.',
-      en: 'Circular 111/2013/TT-BTC (as amended by Circular 25/2018): “Cá nhân chuyển nhượng chứng khoán nộp thuế theo thuế suất 0,1% trên giá chuyển nhượng chứng khoán từng lần” — no distinction between gain and loss. Voters once petitioned the Ministry of Finance that “bán chứng khoán lỗ vẫn đóng thuế 0,1% là chưa phù hợp”.',
+      vi: 'Thông tư 111/2013/TT-BTC (sửa đổi bởi Thông tư 25/2018): “Cá nhân chuyển nhượng chứng khoán nộp thuế theo thuế suất 0,1% trên giá chuyển nhượng chứng khoán từng lần” - không phân biệt lãi hay lỗ. Cử tri từng kiến nghị Bộ Tài chính rằng “bán chứng khoán lỗ vẫn đóng thuế 0,1% là chưa phù hợp”.',
+      en: 'Circular 111/2013/TT-BTC (as amended by Circular 25/2018): “Cá nhân chuyển nhượng chứng khoán nộp thuế theo thuế suất 0,1% trên giá chuyển nhượng chứng khoán từng lần” - no distinction between gain and loss. Voters once petitioned the Ministry of Finance that “bán chứng khoán lỗ vẫn đóng thuế 0,1% là chưa phù hợp”.',
     },
     source: {
       url: 'https://thuvienphapluat.vn/ma-so-thue/phap-luat-thue/cat-lo-chung-khoan-thi-co-phai-dong-01-thue-tncn-khong-214868.html',
@@ -49,8 +49,8 @@ export const PHI_THUE: ReadonlyArray<QuizItem> = [
       a: { vi: 'Được, khi quyết toán', en: 'Yes, at year-end tax finalization' },
       b: { vi: 'Được 50%', en: 'Yes, 50% of it' },
       c: {
-        vi: 'Không — đây là thuế khấu trừ tại nguồn, mang tính thuế cuối cùng',
-        en: 'No — this is a withholding tax and is final',
+        vi: 'Không - đây là thuế khấu trừ tại nguồn, mang tính thuế cuối cùng',
+        en: 'No - this is a withholding tax and is final',
       },
       d: { vi: 'Được nếu lỗ trên 100 triệu', en: 'Yes, if the loss exceeds VND 100 million' },
     },
@@ -78,8 +78,8 @@ export const PHI_THUE: ReadonlyArray<QuizItem> = [
     choices: {
       a: { vi: 'Được', en: 'Yes' },
       b: {
-        vi: 'Không — thuế tính trên giá trị bán từng lần, từng mã riêng biệt',
-        en: 'No — tax is calculated on the sale value of each trade, ticker by ticker',
+        vi: 'Không - thuế tính trên giá trị bán từng lần, từng mã riêng biệt',
+        en: 'No - tax is calculated on the sale value of each trade, ticker by ticker',
       },
       c: {
         vi: 'Được nếu cùng công ty chứng khoán',
@@ -224,8 +224,8 @@ export const PHI_THUE: ReadonlyArray<QuizItem> = [
     choices: {
       a: { vi: 'Không đáng kể', en: 'Not significant' },
       b: {
-        vi: 'Rất đáng kể — phí 0,2% là 333.000 đồng, trong khi biểu phí thị trường trải từ khoảng 0,027% tới 0,5%',
-        en: "Very significant — a 0.2% fee is VND 333,000, while the market's published fee schedules span roughly 0.027% to 0.5%",
+        vi: 'Rất đáng kể - phí 0,2% là 333.000 đồng, trong khi biểu phí thị trường trải từ khoảng 0,027% tới 0,5%',
+        en: "Very significant - a 0.2% fee is VND 333,000, while the market's published fee schedules span roughly 0.027% to 0.5%",
       },
       c: { vi: 'Chỉ chênh vài nghìn đồng', en: 'Only a few thousand dong of difference' },
       d: { vi: 'Các công ty thu như nhau', en: 'All companies charge the same' },
@@ -253,8 +253,8 @@ export const PHI_THUE: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'Sai — vẫn còn thuế 0,1% khi bán, phí lưu ký hằng tháng và lãi margin',
-        en: 'False — the 0.1% sale tax, the monthly depository fee and margin interest still apply',
+        vi: 'Sai - vẫn còn thuế 0,1% khi bán, phí lưu ký hằng tháng và lãi margin',
+        en: 'False - the 0.1% sale tax, the monthly depository fee and margin interest still apply',
       },
       b: { vi: 'Đúng', en: 'True' },
       c: { vi: 'Đúng nếu giao dịch online', en: 'True, if trading online' },
@@ -285,8 +285,8 @@ export const PHI_THUE: ReadonlyArray<QuizItem> = [
       a: { vi: 'Phần trăm giá trị danh mục', en: 'A percentage of portfolio value' },
       b: { vi: 'Số lần giao dịch', en: 'The number of trades' },
       c: {
-        vi: 'Số lượng chứng khoán nắm giữ — 0,27 đồng/cổ phiếu/tháng',
-        en: 'The number of securities held — VND 0.27/share/month',
+        vi: 'Số lượng chứng khoán nắm giữ - 0,27 đồng/cổ phiếu/tháng',
+        en: 'The number of securities held - VND 0.27/share/month',
       },
       d: { vi: 'Số dư tiền mặt', en: 'The cash balance' },
     },
@@ -318,8 +318,8 @@ export const PHI_THUE: ReadonlyArray<QuizItem> = [
         en: 'Only if the portfolio exceeds VND 100 million',
       },
       c: {
-        vi: 'Có — phí tính theo số dư bình quân cuối mỗi ngày, gồm cả ngày nghỉ lễ',
-        en: 'Yes — the fee is based on the average end-of-day balance, weekends and holidays included',
+        vi: 'Có - phí tính theo số dư bình quân cuối mỗi ngày, gồm cả ngày nghỉ lễ',
+        en: 'Yes - the fee is based on the average end-of-day balance, weekends and holidays included',
       },
       d: { vi: 'Tuỳ công ty chứng khoán', en: 'It depends on the securities company' },
     },
@@ -347,8 +347,8 @@ export const PHI_THUE: ReadonlyArray<QuizItem> = [
     choices: {
       a: { vi: 'Có, mỗi công ty một mức', en: 'Yes, each company sets its own rate' },
       b: {
-        vi: 'Không — phí trả cho VSDC, do Nhà nước quy định, giống nhau ở mọi công ty',
-        en: 'No — the fee goes to VSDC and is set by the State, so it is the same at every company',
+        vi: 'Không - phí trả cho VSDC, do Nhà nước quy định, giống nhau ở mọi công ty',
+        en: 'No - the fee goes to VSDC and is set by the State, so it is the same at every company',
       },
       c: { vi: 'Có nếu danh mục lớn', en: 'Yes, if the portfolio is large' },
       d: { vi: 'Có với tài khoản mở mới', en: 'Yes, for newly opened accounts' },
@@ -409,8 +409,8 @@ export const PHI_THUE: ReadonlyArray<QuizItem> = [
       b: { vi: 'Chỉ nộp nếu trên 10 triệu', en: 'Only if it exceeds VND 10 million' },
       c: { vi: 'Chỉ nộp với cổ phiếu chưa niêm yết', en: 'Only for unlisted shares' },
       d: {
-        vi: 'Có — cổ tức tiền mặt vẫn chịu thuế TNCN 5% khấu trừ tại nguồn',
-        en: 'Yes — cash dividends are still subject to a 5% personal income tax withheld at source',
+        vi: 'Có - cổ tức tiền mặt vẫn chịu thuế TNCN 5% khấu trừ tại nguồn',
+        en: 'Yes - cash dividends are still subject to a 5% personal income tax withheld at source',
       },
     },
     answer: 'd',

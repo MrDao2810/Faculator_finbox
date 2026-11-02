@@ -185,7 +185,7 @@ function liveEntry(code: string): {
   const meta = LIVE_TICKER_META[code];
   if (fundamentals === undefined || meta === undefined) {
     throw new Error(
-      `Thiếu số liệu thật cho mã ${code} trong live-fundamentals.generated.ts — chạy lại ` +
+      `Thiếu số liệu thật cho mã ${code} trong live-fundamentals.generated.ts - chạy lại ` +
         `\`npm run gen:live-fundamentals\`.`,
     );
   }

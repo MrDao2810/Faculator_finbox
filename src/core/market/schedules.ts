@@ -39,8 +39,8 @@ export const HOSE_2026: FeeSchedule = {
       unit: '%',
       effectiveFrom: '2022-01-01',
       legalBasis: {
-        vi: 'Thông tư 102/2021/TT-BTC — mức trần phí môi giới 0,45% giá trị giao dịch, không mức sàn',
-        en: 'Circular 102/2021/TT-BTC — brokerage fee capped at 0.45% of transaction value, no floor',
+        vi: 'Thông tư 102/2021/TT-BTC: mức trần phí môi giới 0,45% giá trị giao dịch, không mức sàn',
+        en: 'Circular 102/2021/TT-BTC: brokerage fee capped at 0.45% of transaction value, no floor',
       },
       /*
        * Câu "Sửa được ở màn Cài đặt." đã BỎ (01/10/2026, chủ dự án) — cùng nếp với các câu giải
@@ -61,8 +61,8 @@ export const HOSE_2026: FeeSchedule = {
       unit: '%',
       effectiveFrom: '2022-01-01',
       legalBasis: {
-        vi: 'Thông tư 102/2021/TT-BTC — mức trần phí môi giới 0,45% giá trị giao dịch, không mức sàn',
-        en: 'Circular 102/2021/TT-BTC — brokerage fee capped at 0.45% of transaction value, no floor',
+        vi: 'Thông tư 102/2021/TT-BTC: mức trần phí môi giới 0,45% giá trị giao dịch, không mức sàn',
+        en: 'Circular 102/2021/TT-BTC: brokerage fee capped at 0.45% of transaction value, no floor',
       },
       /* Cùng câu, cùng lý do cắt vế sau — xem ghi chú ở `fee.brokerage.buy` ngay trên. */
       note: {
@@ -87,8 +87,8 @@ export const HOSE_2026: FeeSchedule = {
       // asOf trước 2015 báo thiếu hằng số là ĐÚNG.
       effectiveFrom: '2015-01-01',
       legalBasis: {
-        vi: 'Luật 71/2014/QH13 sửa đổi Luật Thuế thu nhập cá nhân — 0,1% giá bán từng lần',
-        en: 'Law 71/2014/QH13 amending the Personal Income Tax Law — 0.1% of the sale value per trade',
+        vi: 'Luật 71/2014/QH13 sửa đổi Luật Thuế thu nhập cá nhân: 0,1% giá bán từng lần',
+        en: 'Law 71/2014/QH13 amending the Personal Income Tax Law: 0.1% of the sale value per trade',
       },
       note: {
         vi: 'Tính trên giá trị bán, thu cả khi giao dịch lỗ.',
@@ -102,8 +102,8 @@ export const HOSE_2026: FeeSchedule = {
       unit: '%',
       effectiveFrom: '2026-07-01',
       legalBasis: {
-        vi: 'Luật Thuế thu nhập cá nhân 109/2025/QH15, Điều 13 khoản 2 — 0,1% giá bán từng lần',
-        en: 'Personal Income Tax Law 109/2025/QH15, Article 13 clause 2 — 0.1% of the sale value per trade',
+        vi: 'Luật Thuế thu nhập cá nhân 109/2025/QH15, Điều 13 khoản 2: 0,1% giá bán từng lần',
+        en: 'Personal Income Tax Law 109/2025/QH15, Article 13 clause 2: 0.1% of the sale value per trade',
       },
       note: {
         vi: 'Tính trên giá trị bán, thu cả khi giao dịch lỗ.',
@@ -117,8 +117,8 @@ export const HOSE_2026: FeeSchedule = {
       unit: '%',
       effectiveFrom: '2009-01-01',
       legalBasis: {
-        vi: 'Luật Thuế thu nhập cá nhân 04/2007/QH12 — thuế đầu tư vốn 5%',
-        en: 'Personal Income Tax Law 04/2007/QH12 — 5% tax on capital investment income',
+        vi: 'Luật Thuế thu nhập cá nhân 04/2007/QH12: thuế đầu tư vốn 5%',
+        en: 'Personal Income Tax Law 04/2007/QH12: 5% tax on capital investment income',
       },
     },
     {
@@ -128,12 +128,12 @@ export const HOSE_2026: FeeSchedule = {
       unit: '%',
       effectiveFrom: '2026-07-01',
       legalBasis: {
-        vi: 'Luật Thuế thu nhập cá nhân 109/2025/QH15, Điều 12 — thuế đầu tư vốn 5%',
-        en: 'Personal Income Tax Law 109/2025/QH15, Article 12 — 5% tax on capital investment income',
+        vi: 'Luật Thuế thu nhập cá nhân 109/2025/QH15, Điều 12: thuế đầu tư vốn 5%',
+        en: 'Personal Income Tax Law 109/2025/QH15, Article 12: 5% tax on capital investment income',
       },
       note: {
-        vi: 'Luật mới giảm 50% thuế cho lợi tức từ quỹ đầu tư chứng khoán/BĐS — ngoài phạm vi công thức cổ phiếu.',
-        en: 'The new law cuts the tax by 50% for income from securities/real-estate investment funds — outside the scope of the stock formulas here.',
+        vi: 'Luật mới giảm 50% thuế cho lợi tức từ quỹ đầu tư chứng khoán/BĐS - ngoài phạm vi công thức cổ phiếu.',
+        en: 'The new law cuts the tax by 50% for income from securities/real-estate investment funds - outside the scope of the stock formulas here.',
       },
     },
     {
@@ -154,8 +154,8 @@ export const HOSE_2026: FeeSchedule = {
       unit: 'ngày',
       effectiveFrom: '2022-08-29',
       legalBasis: {
-        vi: 'Quy chế bù trừ và thanh toán của VSD — Quyết định 109/QĐ-VSD 19/08/2022 (hiện hành: Quyết định 39/QĐ-HĐTV 2025 của VSDC)',
-        en: 'VSD clearing and settlement regulation — Decision 109/QĐ-VSD dated 2022-08-19 (currently VSDC Decision 39/QĐ-HĐTV 2025)',
+        vi: 'Quy chế bù trừ và thanh toán của VSD: Quyết định 109/QĐ-VSD 19/08/2022 (hiện hành: Quyết định 39/QĐ-HĐTV 2025 của VSDC)',
+        en: 'VSD clearing and settlement regulation: Decision 109/QĐ-VSD dated 2022-08-19 (currently VSDC Decision 39/QĐ-HĐTV 2025)',
       },
     },
     {
@@ -165,8 +165,8 @@ export const HOSE_2026: FeeSchedule = {
       unit: '₫/điểm',
       effectiveFrom: '2017-08-10',
       legalBasis: {
-        vi: 'Mẫu hợp đồng tương lai chỉ số VN30 do HNX xây dựng, UBCKNN chấp thuận — thị trường phái sinh vận hành tại HNX từ 10/08/2017',
-        en: 'VN30 index futures contract specification drafted by HNX and approved by the State Securities Commission — the derivatives market has run on HNX since 2017-08-10',
+        vi: 'Mẫu hợp đồng tương lai chỉ số VN30 do HNX xây dựng, UBCKNN chấp thuận: thị trường phái sinh vận hành tại HNX từ 10/08/2017',
+        en: 'VN30 index futures contract specification drafted by HNX and approved by the State Securities Commission: the derivatives market has run on HNX since 2017-08-10',
       },
     },
   ],

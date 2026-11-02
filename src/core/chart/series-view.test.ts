@@ -300,13 +300,13 @@ describe('phân phối lợi suất', () => {
     const hinh = dung(formula, CTX_FPT, DISTRIBUTION_KEY);
     if (hinh.kind !== 'histogram' || out.value === null) throw new Error('var');
 
-    const tenGon = formula.spec.name.vi.split(/s[—–]s/)[0] ?? '';
+    const tenGon = formula.spec.name.vi.split(/\s[-—–]\s/)[0] ?? '';
     expect(hinh.markers.map((marker) => marker.label.vi)).toEqual(['Bình quân', tenGon]);
     expect(hinh.markers[1]?.value).toBeCloseTo(-out.value, 9);
     expect(hinh.markers[1]?.valueLabel).toContain('%');
     expect(hinh.summary.vi).toContain(`${tenGon}: `);
     expect(hinh.sweepKey).toBe(DISTRIBUTION_KEY);
-    expect(hinh.title.vi).toBe(`${tenGon} — phân phối lợi suất phiên`);
+    expect(hinh.title.vi).toBe(`${tenGon} - phân phối lợi suất phiên`);
   });
 
   /*
@@ -339,7 +339,7 @@ describe('phân phối lợi suất', () => {
     });
     expect(hinh.markers[0]?.value).toBeCloseTo(tb, 9);
     expect(hinh.x.title.vi).toBe('Lợi suất log một phiên (%)');
-    expect(hinh.title.vi).toBe('Độ biến động lịch sử năm hoá — phân phối lợi suất log phiên');
+    expect(hinh.title.vi).toBe('Độ biến động lịch sử năm hoá - phân phối lợi suất log phiên');
     expect(hinh.table.columns[0]?.vi).toBe('Khoảng lợi suất log');
   });
 
@@ -414,7 +414,7 @@ describe('phân tán lợi suất', () => {
     }
     expect(dangVeCuaHinh(hinh, formula.spec)).toEqual(['dots']);
     expect(hinh.x.title.vi).toBe('Lợi suất VN-Index một phiên (%)');
-    expect(hinh.title.vi).toBe('Beta — phân tán lợi suất phiên');
+    expect(hinh.title.vi).toBe('Beta - phân tán lợi suất phiên');
     expect(hinh.table.columns.map((cot) => cot.vi)).toEqual([
       'Phiên',
       'Lợi suất VN-Index một phiên (%)',
@@ -461,7 +461,7 @@ describe('đường sụt giảm', () => {
     const danhDau = hinh.points.find((point) => point.marked === true);
     expect(danhDau?.y).toBeCloseTo(out.value, 9);
     expect(hinh.sweepKey).toBe(DRAWDOWN_KEY);
-    expect(hinh.title.vi).toBe('Mức sụt giảm sâu nhất — đường sụt giảm');
+    expect(hinh.title.vi).toBe('Mức sụt giảm sâu nhất - đường sụt giảm');
     expect(hinh.x.title.vi).toBe('Ngày');
     expect(hinh.points[0]?.label).toMatch(/^\d{2}\/\d{2}\/\d{4}$/);
   });

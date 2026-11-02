@@ -50,6 +50,18 @@ export const MAX_RECENT_SEARCHES = 6;
 const MAX_TERM_LENGTH = 60;
 
 /**
+ * Khoá so trùng một mục: bỏ qua hoa thường, và coi gạch dài "—" là gạch nối "-".
+ *
+ * Từ 02/11/2026 mọi tên công thức viết "P/E - hệ số…" thay vì "P/E — hệ số…" (chủ dự án: gạch dài
+ * quá dài). Kho trên máy người dùng vẫn giữ tên ghi trước ngày ấy, nên một mục cũ và lần tìm mới
+ * cùng công thức phải là MỘT mục: không thì thêm tên mới vẫn để lại tên cũ, và chip cũ không tra
+ * ngược ra công thức nào, in nguyên dấu gạch dài.
+ */
+function khoaMuc(term: string): string {
+  return term.trim().toLowerCase().replace(/—/g, '-');
+}
+
+/**
  * Đọc danh sách từ chuỗi JSON.
  *
  * TUYỆT ĐỐI không ném lỗi: chuỗi hỏng, không phải mảng, lẫn phần tử không phải chuỗi, hay
@@ -73,7 +85,7 @@ export function parseRecentSearches(raw: string | null | undefined): string[] {
     const term = item.trim();
     if (term === '' || term.length > MAX_TERM_LENGTH) continue;
     // Đọc từ máy người dùng nên vẫn phải chống trùng, phòng bản cũ ghi lỗi.
-    if (clean.some((existing) => existing.toLowerCase() === term.toLowerCase())) continue;
+    if (clean.some((existing) => khoaMuc(existing) === khoaMuc(term))) continue;
     clean.push(term);
     if (clean.length >= MAX_RECENT_SEARCHES) break;
   }
@@ -95,7 +107,7 @@ export function addRecentSearch(
   const term = rawTerm.trim();
   if (term === '' || term.length > MAX_TERM_LENGTH) return [...list];
 
-  const rest = list.filter((existing) => existing.toLowerCase() !== term.toLowerCase());
+  const rest = list.filter((existing) => khoaMuc(existing) !== khoaMuc(term));
   return [term, ...rest].slice(0, Math.max(0, max));
 }
 
@@ -112,7 +124,7 @@ export function mergeRecentSearches(
 ): string[] {
   const merged: string[] = [];
   for (const term of [...primary, ...legacy]) {
-    if (merged.some((existing) => existing.toLowerCase() === term.toLowerCase())) continue;
+    if (merged.some((existing) => khoaMuc(existing) === khoaMuc(term))) continue;
     merged.push(term);
     if (merged.length >= MAX_RECENT_SEARCHES) break;
   }
@@ -121,7 +133,7 @@ export function mergeRecentSearches(
 
 /** Bỏ một từ khoá khỏi danh sách. */
 export function removeRecentSearch(list: ReadonlyArray<string>, term: string): string[] {
-  return list.filter((existing) => existing.toLowerCase() !== term.toLowerCase());
+  return list.filter((existing) => khoaMuc(existing) !== khoaMuc(term));
 }
 
 /** Chuỗi JSON để ghi vào localStorage. */
@@ -141,6 +153,9 @@ export function serializeRecentSearches(list: ReadonlyArray<string>): string {
  * Bỏ trùng theo CHUỖI IN RA: kho cũ có thể mang cùng một công thức hai lần, một bản Việt một bản
  * Anh, và hai chip giống hệt nhau đứng cạnh nhau là lỗi nhìn thấy được. Từ nay hai màn ghi tên `vi`
  * (dạng gốc), nên kho mới không sinh ra cặp ấy nữa.
+ *
+ * Tra ngược qua `khoaMuc()`, nên một mục ghi trước 02/11/2026 ("P/E — hệ số…") vẫn ra công thức và
+ * chip in tên mới ("P/E - hệ số…").
  */
 export function localizeRecentSearches(
   terms: ReadonlyArray<string>,
@@ -149,12 +164,12 @@ export function localizeRecentSearches(
 ): string[] {
   const shown: string[] = [];
   for (const term of terms) {
-    const key = term.trim().toLowerCase();
+    const key = khoaMuc(term);
     const formula = formulas.find(
-      ({ name }) => name.vi.trim().toLowerCase() === key || name.en.trim().toLowerCase() === key,
+      ({ name }) => khoaMuc(name.vi) === key || khoaMuc(name.en) === key,
     );
     const label = formula === undefined ? term : show(formula.name);
-    if (shown.some((existing) => existing.toLowerCase() === label.toLowerCase())) continue;
+    if (shown.some((existing) => khoaMuc(existing) === khoaMuc(label))) continue;
     shown.push(label);
   }
   return shown;

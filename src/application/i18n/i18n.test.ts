@@ -2,6 +2,7 @@ import { readFileSync, readdirSync } from 'node:fs';
 import { extname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import ts from 'typescript';
 import { describe, expect, it } from 'vitest';
 
 import { DISCLAIMER_VI } from '@/core/disclaimer';
@@ -442,6 +443,85 @@ describe('chữ trên màn không dùng cụm "nhập tay"', () => {
       .map((path) => path.slice(SRC.length));
     expect(viPham).toEqual([]);
   });
+});
+
+/**
+ * Chữ trên màn không dùng gạch dài "—" (02/11/2026).
+ *
+ * Chủ dự án: _"đoạn ký hiệu này "— " đang quá dài. rà xoát lại trong toàn bộ dự án và đổi lại ngắn
+ * hơn thành "-"_. Một lượt đổi 1.333 dấu trong chữ hiển thị của 58 file (tên công thức "P/E - hệ số…",
+ * nhãn ô "EPS - lợi nhuận…", tên biểu đồ, ngân hàng câu hỏi, từ điển giao diện). Căn cứ pháp lý của
+ * biểu phí dùng ":" thay vì "-", vì vế sau là con số ("khoản 2 - 0,1%" đọc thành hai trừ 0,1%).
+ *
+ * Ca này soi bằng bộ phân tích của TypeScript, không bằng regex bỏ chú thích như ca "nhập tay": nó
+ * chỉ đọc CHUỖI, TEMPLATE và CHỮ JSX. Chú thích được dùng gạch dài, và regex cũng vậy, vì nhiều luật
+ * viết chữ CẤM gạch dài bằng chính một regex chứa nó, còn ô nhập nhận "—4" là âm 4.
+ *
+ * Một miễn trừ: trong ngân hàng câu hỏi, gạch nằm giữa “…” là câu TRÍCH NGUYÊN VĂN của nguồn tiếng
+ * Anh. Câu trích giữ đúng như nguồn viết để người đọc mở trang nguồn đối chiếu được.
+ */
+describe('chữ trên màn không dùng gạch dài "—"', () => {
+  const GACH = '—';
+
+  /** Mọi dấu gạch dài nằm trong chữ hiển thị của một file, kèm số dòng. */
+  function gachTrongChu(path: string, text: string): string[] {
+    const sf = ts.createSourceFile(
+      path,
+      text,
+      ts.ScriptTarget.Latest,
+      true,
+      path.endsWith('.tsx') ? ts.ScriptKind.TSX : ts.ScriptKind.TS,
+    );
+    const laCauHoi = path.includes(join('core', 'quiz', 'items'));
+    const out: string[] = [];
+    const soi = (node: ts.Node): void => {
+      if (
+        ts.isStringLiteral(node) ||
+        ts.isNoSubstitutionTemplateLiteral(node) ||
+        ts.isTemplateHead(node) ||
+        ts.isTemplateMiddle(node) ||
+        ts.isTemplateTail(node) ||
+        ts.isJsxText(node)
+      ) {
+        const raw = node.getText(sf);
+        for (let i = raw.indexOf(GACH); i >= 0; i = raw.indexOf(GACH, i + 1)) {
+          const truoc = raw.slice(0, i);
+          const trongTrich =
+            laCauHoi && (truoc.match(/“/g) ?? []).length > (truoc.match(/”/g) ?? []).length;
+          if (trongTrich) continue;
+          const dong = sf.getLineAndCharacterOfPosition(node.getStart(sf) + i).line + 1;
+          out.push(`${dong}: ${raw.slice(Math.max(0, i - 30), i + 20)}`);
+        }
+      }
+      ts.forEachChild(node, soi);
+    };
+    soi(sf);
+    return out;
+  }
+
+  it('máy dò bắt chuỗi và chữ JSX, bỏ qua chú thích, regex và câu trích', () => {
+    expect(gachTrongChu('a.ts', "const a = 'P/E — hệ số';")).toHaveLength(1);
+    expect(gachTrongChu('a.tsx', 'const a = <p>Bảng — {x}</p>;')).toHaveLength(1);
+    expect(gachTrongChu('a.ts', 'const a = `${x} — ${y}`;')).toHaveLength(1);
+    expect(gachTrongChu('a.ts', '/** P/E — hệ số */ const a = /[—–]/; // —')).toHaveLength(0);
+    const trich = "const a = 'Nguồn: “a — b” — c';";
+    expect(gachTrongChu(join('core', 'quiz', 'items', 'x.ts'), trich)).toHaveLength(1);
+  });
+
+  it('mọi chữ hiển thị trong src/core, src/application, src/ui, src/app, src/data không còn gạch dài', () => {
+    const files = ['core', 'application', 'ui', 'app', 'data']
+      .flatMap((tang) => walk(join(SRC, tang)))
+      .filter((path) => !path.includes('.test.'));
+    // Đường dẫn hỏng thì `files` rỗng và ca đỗ vì không có gì để soi — chặn kiểu đỗ giả đó.
+    expect(files.length, `không quét được src từ ${SRC}`).toBeGreaterThan(100);
+
+    const viPham = files.flatMap((path) => {
+      const text = readFileSync(path, 'utf8');
+      if (!text.includes(GACH)) return [];
+      return gachTrongChu(path, text).map((cho) => `${path.slice(SRC.length)}:${cho}`);
+    });
+    expect(viPham, viPham.join('\n')).toEqual([]);
+  }, 30_000);
 });
 
 /**

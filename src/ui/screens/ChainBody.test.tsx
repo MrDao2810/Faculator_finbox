@@ -320,7 +320,7 @@ describe('ChainBody — thẻ gọi theo tên con số nó cấp', () => {
     const capm = dongTomTat(container, 'capm');
     expect(capm.ten).toBe('Suất sinh lợi yêu cầu (r)');
     expect(capm.vai).toBe(
-      'kết quả của CAPM — chi phí vốn chủ sở hữu, dùng cho Mô hình Gordon (DDM một giai đoạn)',
+      'kết quả của CAPM - chi phí vốn chủ sở hữu, dùng cho Mô hình Gordon (DDM một giai đoạn)',
     );
     expect(capm.so).toContain('13,1');
 

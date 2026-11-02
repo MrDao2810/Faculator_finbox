@@ -161,8 +161,8 @@ export const DIEM_HOA_VON: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'FPT quý 2/2026 — quy ước một "sản phẩm" là 1 triệu ₫ doanh thu',
-        en: 'FPT in Q2 2026 — taking one "unit" to mean 1 million ₫ of revenue',
+        vi: 'FPT quý 2/2026 - quy ước một "sản phẩm" là 1 triệu ₫ doanh thu',
+        en: 'FPT in Q2 2026 - taking one "unit" to mean 1 million ₫ of revenue',
       },
       inputs: { fixedCost: 2_431_800_000_000, unitPrice: 1_000_000, variableCost: 689_600 },
       expected: 7_834_407.22,
@@ -177,7 +177,7 @@ export const DIEM_HOA_VON: FormulaModule = {
     },
     tests: [
       {
-        name: 'ca thường — mỗi sản phẩm dư 20.000 ₫ đảm phí',
+        name: 'ca thường - mỗi sản phẩm dư 20.000 ₫ đảm phí',
         inputs: { fixedCost: 500_000_000, unitPrice: 50_000, variableCost: 30_000 },
         expected: 25_000,
       },
@@ -192,13 +192,13 @@ export const DIEM_HOA_VON: FormulaModule = {
         expected: 0,
       },
       {
-        name: 'giá bán bằng biến phí — mẫu số bằng 0, ca chia cho 0 của WF-15',
+        name: 'giá bán bằng biến phí - mẫu số bằng 0, ca chia cho 0 của WF-15',
         inputs: { fixedCost: 500_000_000, unitPrice: 30_000, variableCost: 30_000 },
         expected: null,
         expectedWarning: 'DIVIDE_BY_ZERO',
       },
       {
-        name: 'giá bán thấp hơn biến phí — bán càng nhiều càng lỗ',
+        name: 'giá bán thấp hơn biến phí - bán càng nhiều càng lỗ',
         inputs: { fixedCost: 500_000_000, unitPrice: 25_000, variableCost: 30_000 },
         expected: null,
         expectedWarning: 'MEANINGLESS',
@@ -232,8 +232,8 @@ export const DIEM_HOA_VON: FormulaModule = {
         unit: 'sản phẩm',
         warning: meaningless(
           {
-            vi: 'Giá bán thấp hơn biến phí đơn vị nên mỗi sản phẩm bán ra càng làm lỗ thêm — doanh nghiệp không bao giờ hoà vốn.',
-            en: 'The selling price is below the variable cost per unit, so every unit sold adds to the loss — the company will never break even.',
+            vi: 'Giá bán thấp hơn biến phí đơn vị nên mỗi sản phẩm bán ra càng làm lỗ thêm - doanh nghiệp không bao giờ hoà vốn.',
+            en: 'The selling price is below the variable cost per unit, so every unit sold adds to the loss - the company will never break even.',
           },
           {
             vi: 'Nâng giá bán trên mức biến phí đơn vị, hoặc tìm cách giảm biến phí.',
@@ -415,8 +415,8 @@ export const DON_BAY_TONG_HOP: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'FPT quý 2/2026 — độ nhạy của lợi nhuận theo doanh thu',
-        en: 'FPT in Q2 2026 — how sensitive profit is to revenue',
+        vi: 'FPT quý 2/2026 - độ nhạy của lợi nhuận theo doanh thu',
+        en: 'FPT in Q2 2026 - how sensitive profit is to revenue',
       },
       inputs: {
         revenue: 13_788_500_000_000,
@@ -436,7 +436,7 @@ export const DON_BAY_TONG_HOP: FormulaModule = {
     },
     tests: [
       {
-        name: 'ca thường — DOL 2,67 nhân DFL 1,5 bằng 4',
+        name: 'ca thường - DOL 2,67 nhân DFL 1,5 bằng 4',
         inputs: {
           revenue: 2_000_000_000,
           variableCost: 1_200_000_000,
@@ -456,7 +456,7 @@ export const DON_BAY_TONG_HOP: FormulaModule = {
         expected: 2.6667,
       },
       {
-        name: 'EBIT vừa đủ trả lãi vay — mẫu số bằng 0, ca chia cho 0 của WF-15',
+        name: 'EBIT vừa đủ trả lãi vay - mẫu số bằng 0, ca chia cho 0 của WF-15',
         inputs: {
           revenue: 2_000_000_000,
           variableCost: 1_200_000_000,
@@ -467,7 +467,7 @@ export const DON_BAY_TONG_HOP: FormulaModule = {
         expectedWarning: 'DIVIDE_BY_ZERO',
       },
       {
-        name: 'EBIT âm — doanh nghiệp đang lỗ hoạt động, đòn bẩy không có ý nghĩa',
+        name: 'EBIT âm - doanh nghiệp đang lỗ hoạt động, đòn bẩy không có ý nghĩa',
         inputs: {
           revenue: 2_000_000_000,
           variableCost: 1_200_000_000,
@@ -491,8 +491,8 @@ export const DON_BAY_TONG_HOP: FormulaModule = {
         unit: 'lần',
         warning: meaningless(
           {
-            vi: 'EBIT không dương — doanh nghiệp đang lỗ từ hoạt động kinh doanh nên hệ số đòn bẩy không còn ý nghĩa.',
-            en: 'EBIT is not positive — the company is posting an operating loss, so the leverage coefficient is no longer meaningful.',
+            vi: 'EBIT không dương - doanh nghiệp đang lỗ từ hoạt động kinh doanh nên hệ số đòn bẩy không còn ý nghĩa.',
+            en: 'EBIT is not positive - the company is posting an operating loss, so the leverage coefficient is no longer meaningful.',
           },
           {
             vi: 'Xem lại doanh thu và cấu trúc chi phí; dùng điểm hoà vốn để biết cần bán thêm bao nhiêu.',
@@ -523,8 +523,8 @@ export const DON_BAY_TONG_HOP: FormulaModule = {
         unit: 'lần',
         warning: meaningless(
           {
-            vi: 'EBIT thấp hơn lãi vay — lợi nhuận hoạt động không đủ trả lãi, nên DFL và đòn bẩy tổng hợp vô nghĩa.',
-            en: 'EBIT is lower than interest expense — operating profit is not enough to cover interest, so DFL and the degree of total leverage are meaningless.',
+            vi: 'EBIT thấp hơn lãi vay - lợi nhuận hoạt động không đủ trả lãi, nên DFL và đòn bẩy tổng hợp vô nghĩa.',
+            en: 'EBIT is lower than interest expense - operating profit is not enough to cover interest, so DFL and the degree of total leverage are meaningless.',
           },
           {
             vi: 'Giảm nợ vay hoặc chờ EBIT vượt hẳn lãi vay rồi mới đo đòn bẩy.',

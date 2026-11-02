@@ -168,8 +168,9 @@ export interface ChartArgs {
  * ngữ khớp nhau ('P/E theo …' / 'P/E vs …'). Tên không có gạch dài thì vế ấy giữ nguyên cả câu.
  */
 function shortLabel(text: Bilingual): Bilingual {
-  const [headVi] = text.vi.split(/\s[—–]\s/);
-  const [headEn] = text.en.split(/\s[—–]\s/);
+  // Từ 02/11/2026 tên viết 'EPS - lợi nhuận…' (gạch nối có cách hai bên); gạch dài cũ vẫn nhận.
+  const [headVi] = text.vi.split(/\s[-—–]\s/);
+  const [headEn] = text.en.split(/\s[-—–]\s/);
   return { vi: (headVi ?? text.vi).trim(), en: (headEn ?? text.en).trim() };
 }
 
@@ -206,7 +207,7 @@ export function lineChartTitle(name: Bilingual, axisName: Bilingual, onTime: boo
 
 /** Tiêu đề của biểu đồ BÓC TÁCH: 'EV — bóc tách'. */
 export function breakdownTitle(name: Bilingual): Bilingual {
-  return { vi: `${name.vi} — bóc tách`, en: `${name.en} — breakdown` };
+  return { vi: `${name.vi} - bóc tách`, en: `${name.en} - breakdown` };
 }
 
 /**
@@ -923,8 +924,8 @@ function buildComponentsModel(
 
   const muc = dienSoPhien(view.label, view.periodKey, inputs);
   const title: Bilingual = {
-    vi: `${name.vi} — ${giuaCau(muc.vi)}`,
-    en: `${name.en} — ${giuaCau(muc.en)}`,
+    vi: `${name.vi} - ${giuaCau(muc.vi)}`,
+    en: `${name.en} - ${giuaCau(muc.en)}`,
   };
   const dau = points[0];
   const cuoi = points.length - 1;
@@ -1895,10 +1896,10 @@ function dungMoHinh(args: ChartArgs, s: SanSang): ChartModel {
       : {
           note: {
             vi: `Đường ngắt ở ${String(missing)} ${unit.vi} không tính được${
-              reason === undefined ? '' : ` — ${WARNING_LABELS[reason].vi.toLowerCase()}`
+              reason === undefined ? '' : ` - ${WARNING_LABELS[reason].vi.toLowerCase()}`
             }.`,
             en: `The line breaks at ${String(missing)} ${unit.en} that could not be calculated${
-              reason === undefined ? '' : ` — ${WARNING_LABELS[reason].en.toLowerCase()}`
+              reason === undefined ? '' : ` - ${WARNING_LABELS[reason].en.toLowerCase()}`
             }.`,
           },
         }),

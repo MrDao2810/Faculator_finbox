@@ -32,9 +32,12 @@ export function chuPhang(latex: string): string {
     .replace(/[_{}^]/g, '');
 }
 
-/** Nhãn mang ký hiệu ở cuối '… (X)', hoặc mở đầu bằng nó 'X — …'. */
+/**
+ * Nhãn mang ký hiệu ở cuối '… (X)', hoặc mở đầu bằng nó 'X - …' (gạch nối có cách hai bên từ
+ * 02/11/2026, trước đó là gạch dài; cả hai đều nhận).
+ */
 export function kyHieuCuaNhan(nhan: string): string | null {
-  return (/ \(([^()]+)\)$/.exec(nhan) ?? /^(\S+) — /.exec(nhan))?.[1] ?? null;
+  return (/ \(([^()]+)\)$/.exec(nhan) ?? /^(\S+) [-—] /.exec(nhan))?.[1] ?? null;
 }
 
 /**
@@ -92,7 +95,7 @@ function chiaNhan(nhan: string): KhucNhan {
   if (cuoi !== null) {
     return { truoc: nhan.slice(0, cuoi.index + 1), kyHieu: nhan.slice(cuoi.index + 1), sau: '' };
   }
-  const dau = /^(\S+) — /.exec(nhan)?.[1];
+  const dau = /^(\S+) [-—] /.exec(nhan)?.[1];
   if (dau !== undefined) return { truoc: '', kyHieu: dau, sau: nhan.slice(dau.length) };
   return { truoc: '', kyHieu: nhan, sau: '' };
 }

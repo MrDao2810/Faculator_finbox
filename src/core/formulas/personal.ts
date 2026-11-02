@@ -195,8 +195,8 @@ export const TRA_GOP_NIEN_KIM: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'Vay 3 tỷ ₫ mua nhà ở Hà Nội, 8%/năm, 20 năm, trả niên kim — tháng 3/2026',
-        en: 'A 3 billion VND home loan in Hanoi at 8%/year for 20 years, repaid as an annuity — March 2026',
+        vi: 'Vay 3 tỷ ₫ mua nhà ở Hà Nội, 8%/năm, 20 năm, trả niên kim - tháng 3/2026',
+        en: 'A 3 billion VND home loan in Hanoi at 8%/year for 20 years, repaid as an annuity - March 2026',
       },
       inputs: { amount: 3_000_000_000, rate: 8, years: 20 },
       expected: 25_093_202.07,
@@ -372,8 +372,8 @@ export const TRA_GOP_GOC_DEU: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'Cũng khoản vay 3 tỷ ₫, 8%/năm, 20 năm nhưng trả gốc đều — kỳ đầu, tháng 3/2026',
-        en: 'The same 3 billion VND loan at 8%/year for 20 years but with equal principal — first period, March 2026',
+        vi: 'Cũng khoản vay 3 tỷ ₫, 8%/năm, 20 năm nhưng trả gốc đều - kỳ đầu, tháng 3/2026',
+        en: 'The same 3 billion VND loan at 8%/year for 20 years but with equal principal - first period, March 2026',
       },
       inputs: { amount: 3_000_000_000, rate: 8, years: 20 },
       expected: 32_500_000,
@@ -541,8 +541,8 @@ export const LICH_TRA_NO: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'Tổng lãi cả 20 năm của khoản vay 3 tỷ ₫, 8%/năm, trả niên kim — tháng 3/2026',
-        en: 'Total interest over 20 years on a 3 billion VND loan at 8%/year repaid as an annuity — March 2026',
+        vi: 'Tổng lãi cả 20 năm của khoản vay 3 tỷ ₫, 8%/năm, trả niên kim - tháng 3/2026',
+        en: 'Total interest over 20 years on a 3 billion VND loan at 8%/year repaid as an annuity - March 2026',
       },
       inputs: { amount: 3_000_000_000, rate: 8, years: 20, method: 1 },
       expected: 3_022_368_496.75,
@@ -557,7 +557,7 @@ export const LICH_TRA_NO: FormulaModule = {
     },
     tests: [
       {
-        name: 'ví dụ WF-14 — tổng lãi niên kim',
+        name: 'ví dụ WF-14 - tổng lãi niên kim',
         inputs: { ...WF14, method: 1 },
         expected: 989_691_880.64,
         tolerance: 100,
@@ -968,8 +968,8 @@ export const LAI_KEP: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'Gửi 1 tỷ ₫ kỳ hạn 6 tháng lãi 8,1%/năm rồi tái tục thêm một kỳ nữa — năm 2026',
-        en: 'Deposit 1 billion VND for a 6-month term at 8.1%/year, then roll it over once more — 2026',
+        vi: 'Gửi 1 tỷ ₫ kỳ hạn 6 tháng lãi 8,1%/năm rồi tái tục thêm một kỳ nữa - năm 2026',
+        en: 'Deposit 1 billion VND for a 6-month term at 8.1%/year, then roll it over once more - 2026',
       },
       inputs: { principal: 1_000_000_000, rate: 8.1, years: 1, perYear: 2 },
       expected: 1_082_640_250,
@@ -984,7 +984,7 @@ export const LAI_KEP: FormulaModule = {
     },
     tests: [
       {
-        name: 'UT-CI-01 — 10 triệu, 8%, 10 năm, nhập lãi tháng',
+        name: 'UT-CI-01: 10 triệu, 8%, 10 năm, nhập lãi tháng',
         inputs: { principal: 10_000_000, rate: 8, years: 10, perYear: 12 },
         expected: 22_196_402.35,
         tolerance: 1,
@@ -1184,8 +1184,8 @@ export const LAI_TIEN_GUI: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'Gửi 1 tỷ ₫ kỳ hạn 6 tháng, lãi suất 8,1%/năm — năm 2026',
-        en: 'Deposit 1 billion VND for a 6-month term at 8.1%/year — 2026',
+        vi: 'Gửi 1 tỷ ₫ kỳ hạn 6 tháng, lãi suất 8,1%/năm - năm 2026',
+        en: 'Deposit 1 billion VND for a 6-month term at 8.1%/year - 2026',
       },
       inputs: { principal: 1_000_000_000, rate: 8.1, months: 6 },
       expected: 40_500_000,
@@ -1344,14 +1344,14 @@ export const TIET_KIEM_MUC_TIEU: FormulaModule = {
         en: 'Compared with what you can actually put aside each month: lower means the goal is within reach on time if the interest you earn matches your expectation, and higher means you need a longer timeline, a smaller goal or more income.',
       },
       commonMistakes: {
-        vi: 'Lấy mục tiêu chia đều cho số tháng rồi coi là đủ — cách đó bỏ qua phần tiền lãi tích luỹ.',
-        en: 'Simply dividing the goal evenly by the number of months and assuming that is enough — this ignores the interest that accumulates.',
+        vi: 'Lấy mục tiêu chia đều cho số tháng rồi coi là đủ - cách đó bỏ qua phần tiền lãi tích luỹ.',
+        en: 'Simply dividing the goal evenly by the number of months and assuming that is enough - this ignores the interest that accumulates.',
       },
     },
     example: {
       title: {
-        vi: 'Vợ chồng trẻ muốn có 1 tỷ ₫ sau 48 tháng, lãi kỳ vọng 6,8%/năm — tháng 9/2026',
-        en: 'A young couple aiming for 1 billion VND in 48 months at an expected 6.8%/year — September 2026',
+        vi: 'Vợ chồng trẻ muốn có 1 tỷ ₫ sau 48 tháng, lãi kỳ vọng 6,8%/năm - tháng 9/2026',
+        en: 'A young couple aiming for 1 billion VND in 48 months at an expected 6.8%/year - September 2026',
       },
       inputs: { target: 1_000_000_000, rate: 6.8, months: 48 },
       expected: 18_186_897.31,

@@ -55,8 +55,8 @@ export const RUT_TRUOC_HAN: FormulaModule = {
     categoryId: 'savings',
     name: { vi: 'Lãi thực nhận khi rút trước hạn', en: 'Early withdrawal interest' },
     description: {
-      vi: 'Tiền lãi thực nhận khi rút sổ tiết kiệm trước hạn — chỉ được trả theo lãi suất không kỳ hạn, mức cụ thể tuỳ từng ngân hàng.',
-      en: 'The interest actually received when withdrawing a savings book early — paid only at the demand-deposit rate, with the exact rate varying by bank.',
+      vi: 'Tiền lãi thực nhận khi rút sổ tiết kiệm trước hạn - chỉ được trả theo lãi suất không kỳ hạn, mức cụ thể tuỳ từng ngân hàng.',
+      en: 'The interest actually received when withdrawing a savings book early - paid only at the demand-deposit rate, with the exact rate varying by bank.',
     },
     latex: 'I = P \\times r_{kkh} \\times \\frac{t}{12}',
     expression: {
@@ -170,8 +170,8 @@ export const RUT_TRUOC_HAN: FormulaModule = {
         0.1,
         {
           description: {
-            vi: 'Mức lãi ghi trên sổ — chỉ được hưởng nếu gửi đủ kỳ hạn.',
-            en: 'The rate stated on the book — only earned if held for the full term.',
+            vi: 'Mức lãi ghi trên sổ - chỉ được hưởng nếu gửi đủ kỳ hạn.',
+            en: 'The rate stated on the book - only earned if held for the full term.',
           },
         },
       ),
@@ -215,8 +215,8 @@ export const RUT_TRUOC_HAN: FormulaModule = {
           max: 5,
           level: 'advanced',
           description: {
-            vi: 'Mỗi ngân hàng một mức, thường rất thấp — xem biểu lãi suất không kỳ hạn của ngân hàng bạn rồi nhập vào đây.',
-            en: "Each bank sets its own rate, usually very low — check your bank's demand-deposit rate table and enter it here.",
+            vi: 'Mỗi ngân hàng một mức, thường rất thấp - xem biểu lãi suất không kỳ hạn của ngân hàng bạn rồi nhập vào đây.',
+            en: "Each bank sets its own rate, usually very low - check your bank's demand-deposit rate table and enter it here.",
           },
         },
       ),
@@ -241,8 +241,8 @@ export const RUT_TRUOC_HAN: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'Sổ 1 tỷ ₫ kỳ hạn 6 tháng lãi 8,1%/năm, cần tiền gấp nên rút sau 3 tháng — năm 2026',
-        en: 'A 1 billion VND book with a 6-month term at 8.1%/year, withdrawn after 3 months for an urgent need — 2026',
+        vi: 'Sổ 1 tỷ ₫ kỳ hạn 6 tháng lãi 8,1%/năm, cần tiền gấp nên rút sau 3 tháng - năm 2026',
+        en: 'A 1 billion VND book with a 6-month term at 8.1%/year, withdrawn after 3 months for an urgent need - 2026',
       },
       inputs: {
         principal: 1_000_000_000,
@@ -478,8 +478,8 @@ export const GUI_QUAY_VONG: FormulaModule = {
         1,
         {
           description: {
-            vi: 'Tổng thời gian so sánh — cũng là kỳ hạn của sổ dài.',
-            en: 'The total comparison period — also the term of the long-term book.',
+            vi: 'Tổng thời gian so sánh - cũng là kỳ hạn của sổ dài.',
+            en: 'The total comparison period - also the term of the long-term book.',
           },
         },
       ),
@@ -498,14 +498,14 @@ export const GUI_QUAY_VONG: FormulaModule = {
         en: 'Compared with the 0 mark: positive means rolling over short terms ends with that many more dong than the long-term deposit, and negative means the long-term deposit ends with that much more. A negative figure does not mean losing principal, only that rolling over earns less interest.',
       },
       commonMistakes: {
-        vi: 'Quên rằng khi quay vòng, lãi suất kỳ ngắn của các vòng sau có thể đã đổi — công thức giả định mức lãi giữ nguyên suốt các vòng.',
-        en: 'Forgetting that when rolling over, the short-term rate of later rounds may have changed — the formula assumes the rate stays constant across all rounds.',
+        vi: 'Quên rằng khi quay vòng, lãi suất kỳ ngắn của các vòng sau có thể đã đổi - công thức giả định mức lãi giữ nguyên suốt các vòng.',
+        en: 'Forgetting that when rolling over, the short-term rate of later rounds may have changed - the formula assumes the rate stays constant across all rounds.',
       },
     },
     example: {
       title: {
-        vi: '1 tỷ ₫: quay vòng hai kỳ 6 tháng lãi 6,6%/năm so với một sổ 12 tháng lãi 6,8%/năm — tháng 9/2026',
-        en: '1 billion VND: rolling two 6-month terms at 6.6%/year versus a single 12-month book at 6.8%/year — September 2026',
+        vi: '1 tỷ ₫: quay vòng hai kỳ 6 tháng lãi 6,6%/năm so với một sổ 12 tháng lãi 6,8%/năm - tháng 9/2026',
+        en: '1 billion VND: rolling two 6-month terms at 6.6%/year versus a single 12-month book at 6.8%/year - September 2026',
       },
       inputs: {
         principal: 1_000_000_000,
@@ -605,7 +605,7 @@ export const GUI_QUAY_VONG: FormulaModule = {
           },
           {
             vi: 'Chọn tổng thời gian là bội số của kỳ hạn ngắn, ví dụ kỳ 3 tháng thì so ở mốc 6, 9 hay 12 tháng.',
-            en: 'Choose a total time that is a multiple of the short term — for a 3-month term, compare at 6, 9, or 12 months.',
+            en: 'Choose a total time that is a multiple of the short term - for a 3-month term, compare at 6, 9, or 12 months.',
           },
         ),
       };
@@ -917,8 +917,8 @@ export const GIA_VON_TRUNG_BINH_DCA: FormulaModule = {
         en: "Compared with the stock's current market price: a market price above this average cost means that, taking all rounds together, you are in profit, and below it means a loss, before fees and taxes.",
       },
       commonMistakes: {
-        vi: 'Cộng các mức giá rồi chia cho số đợt, coi đó là giá vốn. Cách tính này bỏ qua số tiền khác nhau ở mỗi đợt, nên có thể lệch khá xa so với giá vốn thực — lệch theo hướng nào còn tuỳ đợt nào được rót nhiều tiền hơn.',
-        en: 'Adding up the prices and dividing by the number of rounds, treating that as the cost basis. This ignores the different amount invested each round, so it can be well off the real average cost — which direction it drifts depends on which round received more money.',
+        vi: 'Cộng các mức giá rồi chia cho số đợt, coi đó là giá vốn. Cách tính này bỏ qua số tiền khác nhau ở mỗi đợt, nên có thể lệch khá xa so với giá vốn thực - lệch theo hướng nào còn tuỳ đợt nào được rót nhiều tiền hơn.',
+        en: 'Adding up the prices and dividing by the number of rounds, treating that as the cost basis. This ignores the different amount invested each round, so it can be well off the real average cost - which direction it drifts depends on which round received more money.',
       },
     },
     example: {
@@ -1302,7 +1302,7 @@ export const SO_KY_DCA: FormulaModule = {
     ],
     explanation: {
       meaning: {
-        vi: 'Số tháng góp đều tối thiểu — theo cách đầu tư định kỳ số tiền cố định mỗi tháng (DCA) — để tổng tiền góp cộng lợi nhuận tích luỹ chạm mức mục tiêu.',
+        vi: 'Số tháng góp đều tối thiểu - theo cách đầu tư định kỳ số tiền cố định mỗi tháng (DCA) - để tổng tiền góp cộng lợi nhuận tích luỹ chạm mức mục tiêu.',
         en: 'The minimum number of months of contributing a fixed amount each period (DCA) for total contributions plus accumulated returns to reach the target.',
       },
       whenToUse: {
@@ -1314,14 +1314,14 @@ export const SO_KY_DCA: FormulaModule = {
         en: 'Compared with the months left until you need the money: fewer means you get there on time if you contribute steadily and the return matches your expectation, and more means you must contribute more each month or push the date back. The result is rounded up to a whole month, so by the last month the balance may slightly exceed the goal.',
       },
       commonMistakes: {
-        vi: 'Lấy mục tiêu chia cho mức góp rồi coi đó là số tháng — cách đó bỏ qua lợi nhuận tích luỹ nên cho thời gian dài hơn hoặc bằng thực tế (bằng nhau khi lợi suất kỳ vọng là 0%), chênh lệch rõ nhất ở kế hoạch nhiều năm.',
-        en: 'Dividing the target by the contribution and treating that as the number of months — this ignores accumulated returns, so it gives a time that is longer than or equal to the actual one (equal when the expected return is 0%), with the gap becoming clearest for multi-year plans.',
+        vi: 'Lấy mục tiêu chia cho mức góp rồi coi đó là số tháng - cách đó bỏ qua lợi nhuận tích luỹ nên cho thời gian dài hơn hoặc bằng thực tế (bằng nhau khi lợi suất kỳ vọng là 0%), chênh lệch rõ nhất ở kế hoạch nhiều năm.',
+        en: 'Dividing the target by the contribution and treating that as the number of months - this ignores accumulated returns, so it gives a time that is longer than or equal to the actual one (equal when the expected return is 0%), with the gap becoming clearest for multi-year plans.',
       },
     },
     example: {
       title: {
-        vi: 'Góp 10 triệu ₫ mỗi tháng vào quỹ mở để có 500 triệu ₫, kỳ vọng 6,8%/năm — tháng 9/2026',
-        en: 'Contributing 10 million VND a month to an open-end fund toward 500 million VND at an expected 6.8%/year — September 2026',
+        vi: 'Góp 10 triệu ₫ mỗi tháng vào quỹ mở để có 500 triệu ₫, kỳ vọng 6,8%/năm - tháng 9/2026',
+        en: 'Contributing 10 million VND a month to an open-end fund toward 500 million VND at an expected 6.8%/year - September 2026',
       },
       inputs: { target: 500_000_000, contribution: 10_000_000, rate: 6.8 },
       expected: 45,
@@ -1369,8 +1369,8 @@ export const SO_KY_DCA: FormulaModule = {
           { vi: 'số kỳ cần góp', en: 'number of periods needed' },
           { vi: 'Mức góp mỗi tháng', en: 'Monthly contribution' },
           {
-            vi: 'Nhập mức góp lớn hơn 0 — không góp thì không có kế hoạch nào tới đích.',
-            en: 'Enter a contribution greater than 0 — with no contribution, no plan ever reaches the goal.',
+            vi: 'Nhập mức góp lớn hơn 0 - không góp thì không có kế hoạch nào tới đích.',
+            en: 'Enter a contribution greater than 0 - with no contribution, no plan ever reaches the goal.',
           },
         ),
       };
@@ -1567,14 +1567,14 @@ export const THUE_TNCN_DAU_TU: FormulaModule = {
         en: "Compared with this investment's profit for the year, the gap between sale and purchase price plus dividends: lower means you still keep a profit after paying the tax, and higher means you are at a loss after tax, even if you were in profit before it.",
       },
       commonMistakes: {
-        vi: 'Tưởng bán lỗ thì cả năm không mất đồng thuế nào — thuế chuyển nhượng thu theo giá trị bán, không theo lãi.',
-        en: 'Assuming that selling at a loss means no tax is owed for the year — transfer tax is charged on the sale value, not on the profit.',
+        vi: 'Tưởng bán lỗ thì cả năm không mất đồng thuế nào - thuế chuyển nhượng thu theo giá trị bán, không theo lãi.',
+        en: 'Assuming that selling at a loss means no tax is owed for the year - transfer tax is charged on the sale value, not on the profit.',
       },
     },
     example: {
       title: {
-        vi: '1.000 CP FPT: nhận cổ tức 1.000 ₫/CP trong năm rồi bán giá 72.700 ₫ — quyết toán 2026',
-        en: '1,000 FPT shares: receiving a 1,000 ₫/share dividend during the year then selling at 72,700 ₫ — 2026 filing',
+        vi: '1.000 CP FPT: nhận cổ tức 1.000 ₫/CP trong năm rồi bán giá 72.700 ₫ - quyết toán 2026',
+        en: '1,000 FPT shares: receiving a 1,000 ₫/share dividend during the year then selling at 72,700 ₫ - 2026 filing',
       },
       inputs: { quantity: 1_000, sellPrice: 72_700, dividendPerShare: 1_000 },
       expected: 122_700,

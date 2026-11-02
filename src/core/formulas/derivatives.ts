@@ -26,8 +26,8 @@ import { constantOf, missingConstant, numberVar, sliderVar, withSymbol } from '.
 
 const SOURCE_HULL: FormulaSource = {
   label: {
-    vi: 'John C. Hull — Options, Futures, and Other Derivatives, ấn bản thứ 11 (Pearson), chương 5: Determination of Forward and Futures Prices',
-    en: 'John C. Hull — Options, Futures, and Other Derivatives, 11th edition (Pearson), chapter 5: Determination of Forward and Futures Prices',
+    vi: 'John C. Hull - Options, Futures, and Other Derivatives, ấn bản thứ 11 (Pearson), chương 5: Determination of Forward and Futures Prices',
+    en: 'John C. Hull - Options, Futures, and Other Derivatives, 11th edition (Pearson), chapter 5: Determination of Forward and Futures Prices',
   },
 };
 
@@ -190,8 +190,8 @@ export const GIA_LY_THUYET_VN30F: FormulaModule = {
         min: 0,
         max: 365,
         description: {
-          vi: 'Đếm từ hôm nay tới ngày đáo hạn của hợp đồng — thứ Năm thứ ba trong tháng đáo hạn.',
-          en: 'Counted from today to the contract expiry date — the third Thursday of the expiry month.',
+          vi: 'Đếm từ hôm nay tới ngày đáo hạn của hợp đồng - thứ Năm thứ ba trong tháng đáo hạn.',
+          en: 'Counted from today to the contract expiry date - the third Thursday of the expiry month.',
         },
       }),
     ],
@@ -209,8 +209,8 @@ export const GIA_LY_THUYET_VN30F: FormulaModule = {
         en: 'Compared with the VN30F price currently matched on the board: a matched price above this figure means traders are paying extra because they expect the index to rise, and one below it means the market is gloomier than the fair level.',
       },
       commonMistakes: {
-        vi: 'So giá hợp đồng với chỉ số hiện tại rồi kết luận đắt rẻ ngay — phần chênh do lãi suất và cổ tức là bình thường, không phải định giá sai.',
-        en: 'Comparing the contract price to the current index and immediately calling it overpriced or underpriced — the gap from interest rates and dividends is normal, not mispricing.',
+        vi: 'So giá hợp đồng với chỉ số hiện tại rồi kết luận đắt rẻ ngay - phần chênh do lãi suất và cổ tức là bình thường, không phải định giá sai.',
+        en: 'Comparing the contract price to the current index and immediately calling it overpriced or underpriced - the gap from interest rates and dividends is normal, not mispricing.',
       },
     },
     example: {
@@ -287,8 +287,8 @@ export const GIA_LY_THUYET_VN30F: FormulaModule = {
         unit: 'điểm',
         warning: meaningless(
           {
-            vi: 'Số ngày đến đáo hạn đang âm — hợp đồng này đã qua ngày đáo hạn.',
-            en: 'Days to expiry is negative — this contract has already passed its expiry date.',
+            vi: 'Số ngày đến đáo hạn đang âm - hợp đồng này đã qua ngày đáo hạn.',
+            en: 'Days to expiry is negative - this contract has already passed its expiry date.',
           },
           {
             vi: 'Nhập số ngày từ 0 trở lên, hoặc chọn hợp đồng kỳ hạn xa hơn.',
@@ -311,7 +311,7 @@ export const BASIS_VN30F: FormulaModule = {
   spec: {
     id: 'basis-vn30f',
     categoryId: 'derivatives',
-    name: { vi: 'Basis — chênh giá so với chỉ số', en: 'Futures basis' },
+    name: { vi: 'Basis - chênh giá so với chỉ số', en: 'Futures basis' },
     description: {
       vi: 'Khoảng chênh giữa giá hợp đồng VN30F và chỉ số VN30 cơ sở, tính bằng điểm.',
       en: 'The gap between the VN30F contract price and the underlying VN30 index, in points.',
@@ -382,8 +382,8 @@ export const BASIS_VN30F: FormulaModule = {
         en: 'Compared with the fair gap, the theoretical futures price minus the VN30 index at the same moment: a larger basis means buyers are paying extra out of optimism, and a smaller or deeply negative one means the market is pessimistic about the index.',
       },
       commonMistakes: {
-        vi: 'Quên rằng một phần basis là chi phí nắm giữ hợp lý (lãi suất trừ cổ tức) — không phải cứ basis dương là thị trường hưng phấn.',
-        en: 'Forgetting that part of the basis is the fair cost of carry (interest minus dividends) — a positive basis does not automatically mean the market is euphoric.',
+        vi: 'Quên rằng một phần basis là chi phí nắm giữ hợp lý (lãi suất trừ cổ tức) - không phải cứ basis dương là thị trường hưng phấn.',
+        en: 'Forgetting that part of the basis is the fair cost of carry (interest minus dividends) - a positive basis does not automatically mean the market is euphoric.',
       },
     },
     example: {
@@ -558,8 +558,8 @@ export const LAI_LO_VI_THE_LONG: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'VN30F2005 — vị thế Long mở trong đợt ATC phiên đáo hạn bất thường 21/05/2020',
-        en: 'VN30F2005 — a long opened in the ATC auction of the unusual 2020-05-21 expiry session',
+        vi: 'VN30F2005 - vị thế Long mở trong đợt ATC phiên đáo hạn bất thường 21/05/2020',
+        en: 'VN30F2005 - a long opened in the ATC auction of the unusual 2020-05-21 expiry session',
       },
       inputs: { entryPoints: 864, exitPoints: 815.55, contracts: 1 },
       expected: -4_845_000,
@@ -613,8 +613,8 @@ export const LAI_LO_VI_THE_LONG: FormulaModule = {
         unit: '₫',
         warning: meaningless(
           {
-            vi: 'Số hợp đồng đang âm — vị thế mua không có số lượng âm.',
-            en: 'Number of contracts is negative — a long position cannot have a negative quantity.',
+            vi: 'Số hợp đồng đang âm - vị thế mua không có số lượng âm.',
+            en: 'Number of contracts is negative - a long position cannot have a negative quantity.',
           },
           {
             vi: 'Nhập số hợp đồng từ 0 trở lên; muốn tính chiều bán thì dùng công thức vị thế Short.',
@@ -734,8 +734,8 @@ export const LAI_LO_VI_THE_SHORT: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'VN30F2005 — mặt còn lại của phiên đáo hạn 21/05/2020, vị thế Short',
-        en: 'VN30F2005 — the other side of the 2020-05-21 expiry session, a short position',
+        vi: 'VN30F2005 - mặt còn lại của phiên đáo hạn 21/05/2020, vị thế Short',
+        en: 'VN30F2005 - the other side of the 2020-05-21 expiry session, a short position',
       },
       inputs: { entryPoints: 864, exitPoints: 815.55, contracts: 1 },
       expected: 4_845_000,
@@ -784,8 +784,8 @@ export const LAI_LO_VI_THE_SHORT: FormulaModule = {
         unit: '₫',
         warning: meaningless(
           {
-            vi: 'Số hợp đồng đang âm — vị thế bán không có số lượng âm.',
-            en: 'Number of contracts is negative — a short position cannot have a negative quantity.',
+            vi: 'Số hợp đồng đang âm - vị thế bán không có số lượng âm.',
+            en: 'Number of contracts is negative - a short position cannot have a negative quantity.',
           },
           {
             vi: 'Nhập số hợp đồng từ 0 trở lên; muốn tính chiều mua thì dùng công thức vị thế Long.',
@@ -913,8 +913,8 @@ export const SO_HOP_DONG_TOI_DA: FormulaModule = {
         en: 'Compared with the number of contracts you plan to open: planning more than this means the account lacks the initial margin for them, planning fewer leaves spare cash beyond the margin. The result is rounded down, so 0 means the capital does not cover the margin for even one contract.',
       },
       commonMistakes: {
-        vi: 'Coi số tối đa là số nên mở. Trần này chỉ nói tài khoản đủ tiền ký quỹ, không nói gì về mức rủi ro hợp lý — cỡ vị thế nên tính theo % rủi ro.',
-        en: 'Treating the maximum as the number you should open. This ceiling only says the account has enough margin — it says nothing about a sensible risk level; position size should be based on % risk instead.',
+        vi: 'Coi số tối đa là số nên mở. Trần này chỉ nói tài khoản đủ tiền ký quỹ, không nói gì về mức rủi ro hợp lý - cỡ vị thế nên tính theo % rủi ro.',
+        en: 'Treating the maximum as the number you should open. This ceiling only says the account has enough margin - it says nothing about a sensible risk level; position size should be based on % risk instead.',
       },
     },
     example: {
@@ -1137,8 +1137,8 @@ export const CO_VI_THE_PHAI_SINH: FormulaModule = {
           min: 0,
           max: 200,
           description: {
-            vi: 'Số điểm chênh giữa điểm vào lệnh và điểm cắt lỗ — dùng được cho cả vị thế Long và Short.',
-            en: 'The point gap between the entry level and the stop-loss level — applies to both Long and Short positions.',
+            vi: 'Số điểm chênh giữa điểm vào lệnh và điểm cắt lỗ - dùng được cho cả vị thế Long và Short.',
+            en: 'The point gap between the entry level and the stop-loss level - applies to both Long and Short positions.',
           },
         },
       ),
@@ -1234,8 +1234,8 @@ export const CO_VI_THE_PHAI_SINH: FormulaModule = {
         unit: 'HĐ',
         warning: meaningless(
           {
-            vi: 'Khoảng cách cắt lỗ đang âm — khoảng cách là số điểm chênh nên luôn dương.',
-            en: 'Stop-loss distance is negative — a distance is a point gap, so it must always be positive.',
+            vi: 'Khoảng cách cắt lỗ đang âm - khoảng cách là số điểm chênh nên luôn dương.',
+            en: 'Stop-loss distance is negative - a distance is a point gap, so it must always be positive.',
           },
           {
             vi: 'Nhập số điểm chênh giữa điểm vào lệnh và điểm cắt lỗ, không phân biệt chiều Long hay Short.',
@@ -1351,8 +1351,8 @@ export const DON_BAY_HIEU_DUNG: FormulaModule = {
           min: 0,
           max: 100_000_000_000,
           description: {
-            vi: 'Tiền ký quỹ cộng lãi lỗ đã bù trừ — giá trị ròng của tài khoản phái sinh.',
-            en: 'Margin deposit plus settled P&L — the net value of the derivatives account.',
+            vi: 'Tiền ký quỹ cộng lãi lỗ đã bù trừ - giá trị ròng của tài khoản phái sinh.',
+            en: 'Margin deposit plus settled P&L - the net value of the derivatives account.',
           },
         },
       ),
@@ -1371,8 +1371,8 @@ export const DON_BAY_HIEU_DUNG: FormulaModule = {
         en: 'Compared with the ceiling, 100 divided by the initial margin ratio in percent: well below it means the account still has spare cash as a cushion, and at or above it means the real money left only just covers, or already falls short of, the initial margin required.',
       },
       commonMistakes: {
-        vi: 'Nghĩ nghịch đảo tỷ lệ ký quỹ là đòn bẩy cố định của mọi lệnh. Đó chỉ là mức TRẦN — mức cao nhất được phép khi nộp đúng ký quỹ tối thiểu; nộp ký quỹ dày hơn thì đòn bẩy thực đã thấp hơn ngay từ lúc vào lệnh, còn thua lỗ theo thời gian lại tự đẩy đòn bẩy thực lên cao hơn con số ban đầu.',
-        en: 'Assuming the inverse of the margin ratio is the fixed leverage for every trade. That is only the CEILING — the maximum allowed when depositing exactly the minimum margin; depositing more margin means the actual leverage is already lower from the start, while losses over time push actual leverage above the initial figure on their own.',
+        vi: 'Nghĩ nghịch đảo tỷ lệ ký quỹ là đòn bẩy cố định của mọi lệnh. Đó chỉ là mức TRẦN - mức cao nhất được phép khi nộp đúng ký quỹ tối thiểu; nộp ký quỹ dày hơn thì đòn bẩy thực đã thấp hơn ngay từ lúc vào lệnh, còn thua lỗ theo thời gian lại tự đẩy đòn bẩy thực lên cao hơn con số ban đầu.',
+        en: 'Assuming the inverse of the margin ratio is the fixed leverage for every trade. That is only the CEILING - the maximum allowed when depositing exactly the minimum margin; depositing more margin means the actual leverage is already lower from the start, while losses over time push actual leverage above the initial figure on their own.',
       },
     },
     example: {

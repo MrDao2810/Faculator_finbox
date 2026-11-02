@@ -30,9 +30,9 @@ describe('highlightRanges — tô đúng đoạn khớp trên chuỗi GỐC', ()
   });
 
   it('tô CẢ CỤM đã gõ, không tô từng từ rời', () => {
-    expect(hits('ROI — tỷ suất lợi nhuận', 'ty suat')).toBe('tỷ suất');
+    expect(hits('ROI - tỷ suất lợi nhuận', 'ty suat')).toBe('tỷ suất');
     // Hai từ không đứng liền nhau trong chuỗi thì không phải cụm — cùng luật với matchFormula.
-    expect(hits('ROI — tỷ suất lợi nhuận', 'ty loi')).toBe('');
+    expect(hits('ROI - tỷ suất lợi nhuận', 'ty loi')).toBe('');
   });
 
   it('cụm xuất hiện nhiều lần thì tô từng lần, đúng thứ tự', () => {
@@ -46,7 +46,7 @@ describe('highlightRanges — tô đúng đoạn khớp trên chuỗi GỐC', ()
   });
 
   it('ký hiệu đã gõ phải có mặt và dính liền như lúc gõ', () => {
-    expect(hits('%B — vị trí giá trong dải Bollinger', '%b')).toBe('%B');
+    expect(hits('%B - vị trí giá trong dải Bollinger', '%b')).toBe('%B');
     expect(hits('0% là dải dưới, 100% bám dải trên', '%b')).toBe('');
   });
 
@@ -60,7 +60,7 @@ describe('highlightRanges — tô đúng đoạn khớp trên chuỗi GỐC', ()
   });
 
   it('ký hiệu không gõ thì bước qua, nên "p e" tô trọn "P/E"', () => {
-    expect(hits('P/E — hệ số giá trên lợi nhuận', 'p e')).toBe('P/E');
+    expect(hits('P/E - hệ số giá trên lợi nhuận', 'p e')).toBe('P/E');
   });
 
   it('chuỗi rỗng hoặc từ khoá rỗng thì không tô gì, không ném lỗi', () => {
@@ -90,8 +90,8 @@ describe('highlightParts — cắt chuỗi cho giao diện', () => {
   it('ghép các mẩu lại phải ra đúng chuỗi ban đầu', () => {
     const cases: ReadonlyArray<[string, string]> = [
       ['Định giá', 'dinh'],
-      ['P/E — hệ số giá trên lợi nhuận', 'p e'],
-      ['ROI — tỷ suất lợi nhuận', 'ty loi'],
+      ['P/E - hệ số giá trên lợi nhuận', 'p e'],
+      ['ROI - tỷ suất lợi nhuận', 'ty loi'],
       ['Lãi kép', 'khong khop gi'],
       ['Đòn bẩy tài chính', 'don bay tai chinh'],
     ];

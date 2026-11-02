@@ -197,7 +197,7 @@ function tenCongThuc(): Set<string> {
   for (const { spec } of FORMULA_MODULES) {
     ten.add(spec.name.vi.toLowerCase());
     ten.add(spec.name.en.toLowerCase());
-    ten.add((spec.name.vi.split(/\s[—–(]/)[0] ?? '').trim().toLowerCase());
+    ten.add((spec.name.vi.split(/\s[-—–(]/)[0] ?? '').trim().toLowerCase());
     ten.add(spec.id.replace(/-/g, ' '));
   }
   return ten;

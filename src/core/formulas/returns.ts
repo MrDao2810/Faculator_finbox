@@ -22,7 +22,7 @@ export const ROI: FormulaModule = {
   spec: {
     id: 'roi',
     categoryId: 'returns',
-    name: { vi: 'ROI — tỷ suất lợi nhuận', en: 'ROI — return on investment' },
+    name: { vi: 'ROI - tỷ suất lợi nhuận', en: 'ROI - return on investment' },
     description: {
       vi: 'Phần trăm lãi hoặc lỗ so với số vốn đã bỏ ra.',
       en: 'The percentage gain or loss relative to the capital invested.',
@@ -103,8 +103,8 @@ export const ROI: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'FPT — bỏ ra 62,9 triệu ₫ ngày 24/07/2026, tới 11/09/2026 giá trị 72,7 triệu ₫',
-        en: 'FPT — 62.9 million ₫ invested on 2026-07-24, worth 72.7 million ₫ by 2026-09-11',
+        vi: 'FPT - bỏ ra 62,9 triệu ₫ ngày 24/07/2026, tới 11/09/2026 giá trị 72,7 triệu ₫',
+        en: 'FPT - 62.9 million ₫ invested on 2026-07-24, worth 72.7 million ₫ by 2026-09-11',
       },
       inputs: { cost: 62_900_000, current: 72_700_000 },
       expected: 15.5803,
@@ -154,7 +154,7 @@ export const HPR: FormulaModule = {
   spec: {
     id: 'hpr',
     categoryId: 'returns',
-    name: { vi: 'HPR — lợi suất kỳ nắm giữ', en: 'HPR — holding period return' },
+    name: { vi: 'HPR - lợi suất kỳ nắm giữ', en: 'HPR - holding period return' },
     description: {
       vi: 'Lợi suất một kỳ nắm giữ, tính cả chênh lệch giá lẫn cổ tức nhận được.',
       en: 'The holding-period return, including both the price change and dividends received.',
@@ -245,8 +245,8 @@ export const HPR: FormulaModule = {
     ],
     explanation: {
       meaning: {
-        vi: 'Trong kỳ nắm giữ, mỗi trăm đồng bỏ ra mua cổ phiếu mang lại bao nhiêu đồng — tính cả phần giá lên xuống lẫn cổ tức đã nhận.',
-        en: 'Over the holding period, how many đồng each hundred đồng spent on the stock returns — counting both the price move and the dividends received.',
+        vi: 'Trong kỳ nắm giữ, mỗi trăm đồng bỏ ra mua cổ phiếu mang lại bao nhiêu đồng - tính cả phần giá lên xuống lẫn cổ tức đã nhận.',
+        en: 'Over the holding period, how many đồng each hundred đồng spent on the stock returns - counting both the price move and the dividends received.',
       },
       whenToUse: {
         vi: 'Dùng khi bạn vừa bán một cổ phiếu đã giữ qua đợt chia cổ tức tiền mặt và muốn biết tính cả tiền chênh giá lẫn cổ tức thì mình lời được bao nhiêu so với giá mua.',
@@ -263,8 +263,8 @@ export const HPR: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'FPT — giá 62.900 ₫ ngày 24/07/2026 lên 72.700 ₫ ngày 11/09/2026, trong kỳ không có cổ tức',
-        en: 'FPT — 62,900 ₫ on 2026-07-24 rising to 72,700 ₫ on 2026-09-11, with no dividend in the period',
+        vi: 'FPT - giá 62.900 ₫ ngày 24/07/2026 lên 72.700 ₫ ngày 11/09/2026, trong kỳ không có cổ tức',
+        en: 'FPT - 62,900 ₫ on 2026-07-24 rising to 72,700 ₫ on 2026-09-11, with no dividend in the period',
       },
       inputs: { startPrice: 62_900, endPrice: 72_700, dividend: 0 },
       expected: 15.5803,
@@ -324,7 +324,7 @@ export const CAGR: FormulaModule = {
   spec: {
     id: 'cagr',
     categoryId: 'returns',
-    name: { vi: 'CAGR — tăng trưởng kép hằng năm', en: 'CAGR — compound annual growth rate' },
+    name: { vi: 'CAGR - tăng trưởng kép hằng năm', en: 'CAGR - compound annual growth rate' },
     description: {
       vi: 'Tốc độ tăng trưởng bình quân mỗi năm của một khoản đầu tư.',
       en: 'The average annual growth rate of an investment.',
@@ -415,8 +415,8 @@ export const CAGR: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'Quỹ VESAF — NAV/CCQ từ 10.000 ₫ lên 33.913 ₫ sau 9,12 năm',
-        en: 'The VESAF fund — NAV per unit from 10,000 ₫ to 33,913 ₫ over 9.12 years',
+        vi: 'Quỹ VESAF - NAV/CCQ từ 10.000 ₫ lên 33.913 ₫ sau 9,12 năm',
+        en: 'The VESAF fund - NAV per unit from 10,000 ₫ to 33,913 ₫ over 9.12 years',
       },
       inputs: { start: 10_000, end: 33_913, years: 9.12 },
       expected: 14.3284,
@@ -585,8 +585,8 @@ export const TY_SUAT_CO_TUC: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'FPT — cổ tức tiền mặt 2.000 ₫/CP/năm trên thị giá 72.700 ₫ ngày 11/09/2026',
-        en: 'FPT — a 2,000 ₫/share/year cash dividend against the 72,700 ₫ price on 2026-09-11',
+        vi: 'FPT - cổ tức tiền mặt 2.000 ₫/CP/năm trên thị giá 72.700 ₫ ngày 11/09/2026',
+        en: 'FPT - a 2,000 ₫/share/year cash dividend against the 72,700 ₫ price on 2026-09-11',
       },
       inputs: { price: 72_700, dividendPerShare: 2_000 },
       expected: 2.751,
@@ -682,7 +682,7 @@ export const XIRR: FormulaModule = {
   spec: {
     id: 'xirr',
     categoryId: 'returns',
-    name: { vi: 'XIRR — suất sinh lợi nội tại theo ngày thực', en: 'XIRR' },
+    name: { vi: 'XIRR - suất sinh lợi nội tại theo ngày thực', en: 'XIRR' },
     description: {
       vi: 'Suất sinh lợi năm hoá từ một chuỗi dòng tiền vào ra không đều kỳ, tính đúng theo ngày thực.',
       en: 'The annualized rate of return from a series of irregularly timed cash inflows and outflows, computed on actual dates.',
@@ -748,8 +748,8 @@ export const XIRR: FormulaModule = {
     variables: [],
     explanation: {
       meaning: {
-        vi: 'Suất sinh lợi năm hoá của một khoản đầu tư có nhiều lần rót thêm hoặc rút bớt tiền vào những NGÀY KHÔNG ĐỀU nhau — khác IRR thường vốn giả định các kỳ cách đều nhau.',
-        en: 'The annualized rate of return of an investment with multiple contributions or withdrawals on IRREGULARLY spaced DATES — unlike ordinary IRR, which assumes evenly spaced periods.',
+        vi: 'Suất sinh lợi năm hoá của một khoản đầu tư có nhiều lần rót thêm hoặc rút bớt tiền vào những NGÀY KHÔNG ĐỀU nhau - khác IRR thường vốn giả định các kỳ cách đều nhau.',
+        en: 'The annualized rate of return of an investment with multiple contributions or withdrawals on IRREGULARLY spaced DATES - unlike ordinary IRR, which assumes evenly spaced periods.',
       },
       whenToUse: {
         vi: 'Dùng khi bạn đã nạp thêm hay rút bớt tiền nhiều lần vào những ngày lệch nhau và muốn biết cả khoản đầu tư đó bình quân mỗi năm lãi bao nhiêu, tính đúng theo ngày.',
@@ -766,8 +766,8 @@ export const XIRR: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'FPT — ba lần mua trong tháng 7 và 8/2026, bán hết 300 CP ngày 11/09/2026',
-        en: 'FPT — three purchases across July and August 2026, all 300 shares sold on 2026-09-11',
+        vi: 'FPT - ba lần mua trong tháng 7 và 8/2026, bán hết 300 CP ngày 11/09/2026',
+        en: 'FPT - three purchases across July and August 2026, all 300 shares sold on 2026-09-11',
       },
       inputs: {},
       cashflows: [
@@ -788,7 +788,7 @@ export const XIRR: FormulaModule = {
     },
     tests: [
       {
-        name: 'một khoản chi và một khoản thu sau đúng một năm — 10%/năm',
+        name: 'một khoản chi và một khoản thu sau đúng một năm - 10%/năm',
         inputs: {},
         cashflows: [
           { date: '2025-01-01', amount: -100_000_000 },
@@ -797,7 +797,7 @@ export const XIRR: FormulaModule = {
         expected: 10,
       },
       {
-        name: 'lỗ sau một năm thì suất sinh lợi âm — -20%/năm',
+        name: 'lỗ sau một năm thì suất sinh lợi âm - -20%/năm',
         inputs: {},
         cashflows: [
           { date: '2025-01-01', amount: -100_000_000 },

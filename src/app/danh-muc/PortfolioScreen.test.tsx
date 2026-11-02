@@ -476,7 +476,7 @@ describe('WF-06 — từ mã sang công thức', () => {
    */
   it('chọn công thức trong form: một nút vừa lưu mã vừa mở đúng trang công thức', async () => {
     const sheet = await moSheetCongThuc();
-    await userEvent.click(within(sheet).getByRole('button', { name: /P\/E — hệ số/ }));
+    await userEvent.click(within(sheet).getByRole('button', { name: /P\/E - hệ số/ }));
 
     // Nhãn nút phải nói ra việc nó sắp làm, không còn là "Thêm vào danh mục" trơn.
     expect(screen.queryByRole('button', { name: 'Thêm vào danh mục' })).toBeNull();
@@ -560,7 +560,7 @@ describe('WF-06 — từ mã sang công thức', () => {
    */
   it('chọn công thức rồi thì không có nút "Bỏ chọn công thức"; mở lại hộp thoại thì ô trống', async () => {
     const sheet = await moSheetCongThuc();
-    await userEvent.click(within(sheet).getByRole('button', { name: /P\/E — hệ số/ }));
+    await userEvent.click(within(sheet).getByRole('button', { name: /P\/E - hệ số/ }));
 
     expect(screen.getByRole('button', { name: 'Thêm và mở công thức' })).toBeTruthy();
     expect(screen.queryByRole('button', { name: 'Bỏ chọn công thức' })).toBeNull();
@@ -692,7 +692,7 @@ describe('WF-06 — từ mã sang công thức', () => {
     feed.snapshots.mockResolvedValue(new Map([['FPT', { ...FPT_SNAPSHOT, priceVnd: null }]]));
     const sheet = await moSheetCongThucKhiSua();
 
-    expect(within(sheet).getByRole('button', { name: /P\/E — hệ số/ })).toBeTruthy();
+    expect(within(sheet).getByRole('button', { name: /P\/E - hệ số/ })).toBeTruthy();
   });
 
   it('công thức nâng cao nằm trong nhóm Nâng cao', async () => {
@@ -704,7 +704,7 @@ describe('WF-06 — từ mã sang công thức', () => {
 
     expect(within(nangCao).getByRole('button', { name: /WACC/ })).toBeTruthy();
     // Và công thức cơ bản thì KHÔNG được lọt vào nhóm nâng cao.
-    expect(within(nangCao).queryByRole('button', { name: /P\/E — hệ số/ })).toBeNull();
+    expect(within(nangCao).queryByRole('button', { name: /P\/E - hệ số/ })).toBeNull();
   });
 });
 
@@ -1737,7 +1737,7 @@ describe('WF-06 — lãi/lỗ và những thứ dòng mã từng giấu', () => 
 
     await userEvent.click(screen.getByRole('button', { name: 'Thêm công thức' }));
     const sheet = await tamTrenCung();
-    await userEvent.click(within(sheet).getByRole('button', { name: /P\/E — hệ số/ }));
+    await userEvent.click(within(sheet).getByRole('button', { name: /P\/E - hệ số/ }));
 
     await userEvent.click(screen.getByRole('button', { name: 'Lưu và mở công thức' }));
 
@@ -2552,7 +2552,7 @@ describe('WF-06 — tab Công thức: bảng', () => {
     expect(chuCuaO(b as HTMLElement, 0)).not.toContain('FPT');
     // C do người dùng tự đặt: giữ nguyên từng chữ, và tên công thức đứng dưới để biết nó tính gì.
     expect(chuCuaO(c as HTMLElement, 0)).toContain('P/E của HPG tháng 9');
-    expect(chuCuaO(c as HTMLElement, 0)).toContain('P/E — hệ số');
+    expect(chuCuaO(c as HTMLElement, 0)).toContain('P/E - hệ số');
   });
 
   it('con số kết quả đọc từ số thô đã lưu kèm đơn vị, và "Mở" dẫn tới đúng bản lưu', async () => {

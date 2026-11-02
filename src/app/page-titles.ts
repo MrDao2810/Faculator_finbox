@@ -15,7 +15,7 @@ export const PAGE_TITLES = {
   formulas: { vi: 'Công thức', en: 'Formulas' },
   search: { vi: 'Tìm công thức', en: 'Search formulas' },
   portfolio: { vi: 'Danh mục cá nhân', en: 'Portfolio' },
-  dataTable: { vi: 'Bảng dữ liệu — chuỗi giá OHLCV', en: 'Data table: OHLCV price series' },
+  dataTable: { vi: 'Bảng dữ liệu - chuỗi giá OHLCV', en: 'Data table: OHLCV price series' },
   settings: { vi: 'Cài đặt', en: 'Settings' },
   about: { vi: 'Về chúng tôi', en: 'About us' },
 } as const satisfies Record<string, Bilingual>;

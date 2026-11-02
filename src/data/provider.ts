@@ -26,7 +26,7 @@ function assertContract(presets: ReadonlyArray<Preset>): void {
 
   const chiTiet = lech.map((item) => `${item.code} (v${String(item.version)})`).join(', ');
   throw new Error(
-    `Bộ số liệu mẫu sai phiên bản hợp đồng: ${chiTiet} — bản này đọc v${String(
+    `Bộ số liệu mẫu sai phiên bản hợp đồng: ${chiTiet} - bản này đọc v${String(
       PRESET_CONTRACT_VERSION,
     )}. Sinh lại bộ số liệu, hoặc nâng PRESET_CONTRACT_VERSION nếu hình dạng dữ liệu đã đổi.`,
   );

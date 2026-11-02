@@ -343,8 +343,8 @@ export function buildDistributionModel(
   return {
     kind: 'histogram',
     title: {
-      vi: `${name.vi} — phân phối ${loaiVi} phiên`,
-      en: `${name.en} — distribution of session ${loaiEn}`,
+      vi: `${name.vi} - phân phối ${loaiVi} phiên`,
+      en: `${name.en} - distribution of session ${loaiEn}`,
     },
     summary: {
       vi: summaryVi.filter((s) => s !== '').join(' '),
@@ -485,7 +485,7 @@ export function buildDrawdownModel(
 
   return {
     kind: 'line',
-    title: { vi: `${name.vi} — đường sụt giảm`, en: `${name.en} — drawdown curve` },
+    title: { vi: `${name.vi} - đường sụt giảm`, en: `${name.en} - drawdown curve` },
     summary: {
       vi: summaryVi.filter((s) => s !== '').join(' '),
       en: summaryEn.filter((s) => s !== '').join(' '),
@@ -601,8 +601,8 @@ export function buildScatterModel(
   return {
     kind: 'scatter',
     title: {
-      vi: `${name.vi} — phân tán lợi suất phiên`,
-      en: `${name.en} — scatter of session returns`,
+      vi: `${name.vi} - phân tán lợi suất phiên`,
+      en: `${name.en} - scatter of session returns`,
     },
     summary: {
       vi: summaryVi.filter((s) => s !== '').join(' '),

@@ -15,7 +15,7 @@ export const DCF: ReadonlyArray<QuizItem> = [
     kind: 'dieu-kien',
     evidence: 'ngo-nhan',
     prompt: {
-      vi: 'Trong mô hình Gordon, vì sao g không được vượt tốc độ tăng trưởng của nền kinh tế?',
+      vi: 'Trong mô hình Gordon, tại sao g không được vượt tốc độ tăng trưởng của nền kinh tế?',
       en: 'In the Gordon growth model, why must g not exceed the growth rate of the economy?',
     },
     choices: {
@@ -83,8 +83,8 @@ export const DCF: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'Tỷ lệ tái đầu tư thành 0 mà doanh nghiệp vẫn tăng trưởng mãi — giả định vô lý',
-        en: 'The reinvestment rate becomes 0 while the company keeps growing forever — an absurd assumption',
+        vi: 'Tỷ lệ tái đầu tư thành 0 mà doanh nghiệp vẫn tăng trưởng mãi - giả định vô lý',
+        en: 'The reinvestment rate becomes 0 while the company keeps growing forever - an absurd assumption',
       },
       b: { vi: 'Mô hình chính xác hơn', en: 'The model becomes more accurate' },
       c: { vi: 'Giá trị cuối kỳ bằng 0', en: 'Terminal value becomes 0' },
@@ -174,7 +174,7 @@ export const DCF: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'ngo-nhan',
     prompt: {
-      vi: 'Bạn tra beta của cùng một cổ phiếu trên ba trang tài chính và ra ba số khác nhau. Vì sao?',
+      vi: 'Bạn tra beta của cùng một cổ phiếu trên ba trang tài chính và ra ba số khác nhau. Tại sao?',
       en: 'You look up the beta of the same stock on three financial websites and get three different numbers. Why?',
     },
     choices: {
@@ -239,8 +239,8 @@ export const DCF: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'Không hẳn — danh mục beta cao vượt danh mục beta thấp hơn 5 điểm phần trăm/năm, và 2010–2020 CAPM đúng 10/11 năm',
-        en: 'Not quite — a high-beta portfolio beat a low-beta one by more than 5 percentage points a year, and CAPM was right 10 of 11 years from 2010 to 2020',
+        vi: 'Không hẳn - danh mục beta cao vượt danh mục beta thấp hơn 5 điểm phần trăm/năm, và 2010–2020 CAPM đúng 10/11 năm',
+        en: 'Not quite - a high-beta portfolio beat a low-beta one by more than 5 percentage points a year, and CAPM was right 10 of 11 years from 2010 to 2020',
       },
       b: { vi: 'Hoàn toàn đúng', en: 'Completely true' },
       c: { vi: 'Beta chỉ sai ở thị trường mới nổi', en: 'Beta is only wrong in emerging markets' },
@@ -365,23 +365,23 @@ export const DCF: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'Chi phí vốn chủ — ra giá trị vốn chủ',
-        en: 'Cost of equity — produces equity value',
+        vi: 'Chi phí vốn chủ - ra giá trị vốn chủ',
+        en: 'Cost of equity - produces equity value',
       },
       b: {
-        vi: 'Lãi suất phi rủi ro — ra giá trị doanh nghiệp',
-        en: 'Risk-free rate — produces firm value',
+        vi: 'Lãi suất phi rủi ro - ra giá trị doanh nghiệp',
+        en: 'Risk-free rate - produces firm value',
       },
-      c: { vi: 'WACC — ra thẳng giá trị vốn chủ', en: 'WACC — produces equity value directly' },
+      c: { vi: 'WACC - ra thẳng giá trị vốn chủ', en: 'WACC - produces equity value directly' },
       d: {
-        vi: 'WACC — ra giá trị doanh nghiệp, còn phải trừ nợ',
-        en: 'WACC — produces firm value, from which debt must still be subtracted',
+        vi: 'WACC - ra giá trị doanh nghiệp, còn phải trừ nợ',
+        en: 'WACC - produces firm value, from which debt must still be subtracted',
       },
     },
     answer: 'd',
     explain: {
-      vi: 'FCFF là dòng tiền của mọi bên nên chiết khấu bằng WACC: “the weighted average cost of capital (WACC) is the appropriate discount rate”. Shinhan Securities VN: FCFF cho ra “giá trị doanh nghiệp (bao gồm giá trị của chủ nợ và chủ sở hữu)” — muốn ra vốn chủ phải trừ nợ.',
-      en: 'FCFF is cash flow to every capital provider, so it is discounted at WACC: “the weighted average cost of capital (WACC) is the appropriate discount rate”. Shinhan Securities VN: FCFF produces “giá trị doanh nghiệp (bao gồm giá trị của chủ nợ và chủ sở hữu)” — reaching equity value still requires subtracting debt.',
+      vi: 'FCFF là dòng tiền của mọi bên nên chiết khấu bằng WACC: “the weighted average cost of capital (WACC) is the appropriate discount rate”. Shinhan Securities VN: FCFF cho ra “giá trị doanh nghiệp (bao gồm giá trị của chủ nợ và chủ sở hữu)” - muốn ra vốn chủ phải trừ nợ.',
+      en: 'FCFF is cash flow to every capital provider, so it is discounted at WACC: “the weighted average cost of capital (WACC) is the appropriate discount rate”. Shinhan Securities VN: FCFF produces “giá trị doanh nghiệp (bao gồm giá trị của chủ nợ và chủ sở hữu)” - reaching equity value still requires subtracting debt.',
     },
     source: {
       url: 'https://www.wallstreetprep.com/knowledge/common-errors-in-dcf-models/',
@@ -403,8 +403,8 @@ export const DCF: ReadonlyArray<QuizItem> = [
       a: { vi: 'Rồi', en: 'Yes, it does' },
       b: { vi: 'Chỉ đúng với doanh nghiệp sản xuất', en: 'Only true for manufacturing companies' },
       c: {
-        vi: 'Chưa — đó chỉ là một điểm dừng trung gian',
-        en: 'Not yet — that is only an intermediate stop',
+        vi: 'Chưa - đó chỉ là một điểm dừng trung gian',
+        en: 'Not yet - that is only an intermediate stop',
       },
       d: { vi: 'Chỉ đúng nếu không có nợ', en: 'Only true if there is no debt' },
     },
@@ -437,8 +437,8 @@ export const DCF: ReadonlyArray<QuizItem> = [
       b: { vi: 'Doanh nghiệp đang gian lận', en: 'The company is committing fraud' },
       c: { vi: 'FCFE âm là lỗi tính toán', en: 'Negative FCFE is a calculation error' },
       d: {
-        vi: 'Có thể do tái đầu tư nhiều hơn số kiếm được — một năm FCF còn nhiễu hơn một năm lợi nhuận',
-        en: 'It may simply be reinvesting more than it earns — a single year of FCF is even noisier than a single year of earnings',
+        vi: 'Có thể do tái đầu tư nhiều hơn số kiếm được - một năm FCF còn nhiễu hơn một năm lợi nhuận',
+        en: 'It may simply be reinvesting more than it earns - a single year of FCF is even noisier than a single year of earnings',
       },
     },
     answer: 'd',
@@ -509,8 +509,8 @@ export const DCF: ReadonlyArray<QuizItem> = [
     },
     answer: 'c',
     explain: {
-      vi: 'Damodaran bác bỏ ngộ nhận này: “In fact, it is when it does not account for the bulk of the value that you should be wary of a DCF!” — vì phần lớn lợi nhuận của cổ đông đến từ tăng giá chứ không phải cổ tức. Vấn đề nằm ở chất lượng giả định tạo ra terminal value, không phải ở tỷ trọng.',
-      en: "Damodaran rejects this misconception: “In fact, it is when it does not account for the bulk of the value that you should be wary of a DCF!” — because most of a shareholder's return comes from price appreciation, not dividends. The real issue is the quality of the assumptions behind the terminal value, not its share of the total.",
+      vi: 'Damodaran bác bỏ ngộ nhận này: “In fact, it is when it does not account for the bulk of the value that you should be wary of a DCF!” - vì phần lớn lợi nhuận của cổ đông đến từ tăng giá chứ không phải cổ tức. Vấn đề nằm ở chất lượng giả định tạo ra terminal value, không phải ở tỷ trọng.',
+      en: "Damodaran rejects this misconception: “In fact, it is when it does not account for the bulk of the value that you should be wary of a DCF!” - because most of a shareholder's return comes from price appreciation, not dividends. The real issue is the quality of the assumptions behind the terminal value, not its share of the total.",
     },
     source: {
       url: 'https://aswathdamodaran.substack.com/p/myth-55-the-terminal-value-ate-my-16-11-30',
@@ -561,16 +561,16 @@ export const DCF: ReadonlyArray<QuizItem> = [
     choices: {
       a: { vi: 'Mô hình bảo thủ', en: 'A conservative model' },
       b: {
-        vi: 'Chimera DCF — trộn các đơn vị không tương thích',
-        en: 'A Chimera DCF — mixing incompatible units',
+        vi: 'Chimera DCF - trộn các đơn vị không tương thích',
+        en: 'A Chimera DCF - mixing incompatible units',
       },
       c: { vi: 'Mô hình hai giai đoạn', en: 'A two-stage model' },
       d: { vi: 'Mô hình rút gọn', en: 'A simplified model' },
     },
     answer: 'b',
     explain: {
-      vi: 'Damodaran đặt tên cho lỗi này trong bài “If you have a D and a CF, you have a DCF!”. Bốn chiều phải nhất quán: vốn chủ vs doanh nghiệp, trước thuế vs sau thuế, danh nghĩa vs thực, và đồng tiền — điều rất đáng chú ý khi trộn dòng tiền VND với chiết khấu theo USD.',
-      en: 'Damodaran names this mistake in his piece “If you have a D and a CF, you have a DCF!”. Four dimensions have to stay consistent: equity vs. firm, pre-tax vs. after-tax, nominal vs. real, and currency — well worth noting when VND cash flows get mixed with a USD discount rate.',
+      vi: 'Damodaran đặt tên cho lỗi này trong bài “If you have a D and a CF, you have a DCF!”. Bốn chiều phải nhất quán: vốn chủ vs doanh nghiệp, trước thuế vs sau thuế, danh nghĩa vs thực, và đồng tiền - điều rất đáng chú ý khi trộn dòng tiền VND với chiết khấu theo USD.',
+      en: 'Damodaran names this mistake in his piece “If you have a D and a CF, you have a DCF!”. Four dimensions have to stay consistent: equity vs. firm, pre-tax vs. after-tax, nominal vs. real, and currency - well worth noting when VND cash flows get mixed with a USD discount rate.',
     },
     source: {
       url: 'https://aswathdamodaran.blogspot.com/2015/02/dcf-myth-1-if-you-have-ddiscount-rate.html',
@@ -615,13 +615,13 @@ export const DCF: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'ngo-nhan',
     prompt: {
-      vi: 'Lợi nhuận tăng trưởng các năm khác nhau. Dùng trung bình cộng 7,14%/năm để chiếu tới 2022 ra 162,08 tỷ, trong khi số thật là 148,43 tỷ. Vì sao lệch?',
+      vi: 'Lợi nhuận tăng trưởng các năm khác nhau. Dùng trung bình cộng 7,14%/năm để chiếu tới 2022 ra 162,08 tỷ, trong khi số thật là 148,43 tỷ. Tại sao lệch?',
       en: 'Profit growth differs from year to year. Using a 7.14%/year arithmetic average to project to 2022 gives VND 162.08 billion, while the actual figure is VND 148.43 billion. Why the gap?',
     },
     choices: {
       a: {
-        vi: 'Trung bình cộng phóng đại vì không phản ánh tính tích luỹ — phải dùng CAGR 5,80%',
-        en: 'The arithmetic average overstates it because it ignores compounding — the 5.80% CAGR should be used instead',
+        vi: 'Trung bình cộng phóng đại vì không phản ánh tính tích luỹ - phải dùng CAGR 5,80%',
+        en: 'The arithmetic average overstates it because it ignores compounding - the 5.80% CAGR should be used instead',
       },
       b: { vi: 'Do làm tròn', en: 'It is just rounding' },
       c: { vi: 'Do thiếu một năm dữ liệu', en: "It is missing a year's data" },
@@ -650,8 +650,8 @@ export const DCF: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'Giảm sai lầm loại 1 nhưng tăng sai lầm loại 2 — bỏ lỡ cơ hội',
-        en: 'It reduces type 1 errors but increases type 2 errors — missed opportunities',
+        vi: 'Giảm sai lầm loại 1 nhưng tăng sai lầm loại 2 - bỏ lỡ cơ hội',
+        en: 'It reduces type 1 errors but increases type 2 errors - missed opportunities',
       },
       b: { vi: 'Không có giá nào', en: 'There is no cost at all' },
       c: { vi: 'Phải trả phí giao dịch cao hơn', en: 'You have to pay higher transaction fees' },
@@ -684,8 +684,8 @@ export const DCF: ReadonlyArray<QuizItem> = [
         en: 'Yes, that is exactly what a margin of safety is for',
       },
       b: {
-        vi: 'Gần như không — biên an toàn trên một định giá sai chỉ gây hại',
-        en: 'Almost not at all — a margin of safety on a flawed valuation only does harm',
+        vi: 'Gần như không - biên an toàn trên một định giá sai chỉ gây hại',
+        en: 'Almost not at all - a margin of safety on a flawed valuation only does harm',
       },
       c: { vi: 'Có nếu doanh nghiệp trả cổ tức', en: 'Yes, if the company pays dividends' },
       d: { vi: 'Có nếu nắm giữ trên 5 năm', en: 'Yes, if held for more than 5 years' },
@@ -722,14 +722,14 @@ export const DCF: ReadonlyArray<QuizItem> = [
       },
       c: { vi: 'Chỉ đủ khi kèm ROE trên 15%', en: 'Only enough when paired with an ROE above 15%' },
       d: {
-        vi: 'Chưa — báo cáo ghi nhận tài sản, còn thị trường định giá khả năng tài sản đó tạo tiền',
-        en: 'Not yet — the financial statements record the assets, while the market prices the ability of those assets to generate cash',
+        vi: 'Chưa - báo cáo ghi nhận tài sản, còn thị trường định giá khả năng tài sản đó tạo tiền',
+        en: 'Not yet - the financial statements record the assets, while the market prices the ability of those assets to generate cash',
       },
     },
     answer: 'd',
     explain: {
       vi: '“chữ sổ sách là phần dễ bị bỏ qua nhất. BCTC ghi nhận tài sản, còn thị trường định giá khả năng tài sản đó tạo tiền”; “Bẫy giá trị xuất hiện khi cổ phiếu trông rẻ nhưng thiếu cơ chế mở khóa giá trị”.',
-      en: 'Not yet — book value is an accounting figure, not a margin of safety: “chữ sổ sách là phần dễ bị bỏ qua nhất. BCTC ghi nhận tài sản, còn thị trường định giá khả năng tài sản đó tạo tiền”; “Bẫy giá trị xuất hiện khi cổ phiếu trông rẻ nhưng thiếu cơ chế mở khóa giá trị”.',
+      en: 'Not yet - book value is an accounting figure, not a margin of safety: “chữ sổ sách là phần dễ bị bỏ qua nhất. BCTC ghi nhận tài sản, còn thị trường định giá khả năng tài sản đó tạo tiền”; “Bẫy giá trị xuất hiện khi cổ phiếu trông rẻ nhưng thiếu cơ chế mở khóa giá trị”.',
     },
     source: {
       url: 'https://nguoiquansat.vn/co-phieu-duoi-gia-tri-so-sach-bai-hoc-benjamin-graham-va-chiec-bay-p-b-thap-tren-san-chung-khoan-viet-nam-296389.html',

@@ -63,12 +63,12 @@ const MAX_FIELDS_SHOWN = 3;
 /**
  * Nhãn biến rút về phần TÊN, bỏ phần giải nghĩa sau gạch ngang.
  *
- * Registry đặt nhãn theo khuôn `'EPS — lợi nhuận trên mỗi cổ phiếu'`: vế sau là lời giải thích,
- * đúng chỗ ở bảng biến và cạnh ô nhập, nhưng ở đây nó chiếm hai dòng để nói một điều người dùng
- * đang không hỏi. Nhãn không có gạch ngang thì giữ nguyên xi.
+ * Registry đặt nhãn theo khuôn `'EPS - lợi nhuận trên mỗi cổ phiếu'` (gạch dài cho tới 02/11/2026):
+ * vế sau là lời giải thích, đúng chỗ ở bảng biến và cạnh ô nhập, nhưng ở đây nó chiếm hai dòng để
+ * nói một điều người dùng đang không hỏi. Nhãn không có gạch ngang thì giữ nguyên xi.
  */
 function tenNgan(label: string): string {
-  return label.split(/\s+[—–]\s+/)[0] ?? label;
+  return label.split(/\s+[-—–]\s+/)[0] ?? label;
 }
 
 /**

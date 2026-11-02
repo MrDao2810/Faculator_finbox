@@ -36,8 +36,8 @@ import { SOURCE_CFA, SOURCE_VAS, numberVar, withSymbol } from './shared';
 
 const SOURCE_PHAN_TICH_BCTC: FormulaSource = {
   label: {
-    vi: 'Giáo trình Phân tích báo cáo tài chính — Nguyễn Năng Phúc (NXB Đại học Kinh tế Quốc dân)',
-    en: 'Financial Statement Analysis textbook — Nguyễn Năng Phúc (National Economics University Press)',
+    vi: 'Giáo trình Phân tích báo cáo tài chính - Nguyễn Năng Phúc (NXB Đại học Kinh tế Quốc dân)',
+    en: 'Financial Statement Analysis textbook - Nguyễn Năng Phúc (National Economics University Press)',
   },
 };
 
@@ -213,14 +213,14 @@ export const EPS_CO_BAN: FormulaModule = {
         en: "Compared with the company's own EPS for the same period a year earlier: higher means each share you hold is earning more profit, lower means it is earning less. A negative figure means the company is making a loss, counted per share.",
       },
       commonMistakes: {
-        vi: 'So EPS tuyệt đối giữa hai doanh nghiệp có số cổ phiếu khác nhau — EPS 1.000 ₫ không tệ hơn EPS 6.000 ₫ nếu thị giá cũng thấp tương ứng.',
-        en: 'Comparing absolute EPS between two companies with different share counts — an EPS of 1,000 ₫ is not worse than an EPS of 6,000 ₫ if the share price is proportionally lower too.',
+        vi: 'So EPS tuyệt đối giữa hai doanh nghiệp có số cổ phiếu khác nhau - EPS 1.000 ₫ không tệ hơn EPS 6.000 ₫ nếu thị giá cũng thấp tương ứng.',
+        en: 'Comparing absolute EPS between two companies with different share counts - an EPS of 1,000 ₫ is not worse than an EPS of 6,000 ₫ if the share price is proportionally lower too.',
       },
     },
     example: {
       title: {
-        vi: 'FPT 6 tháng đầu 2026 — LNST 5.055,1 tỷ ₫, 1,71 tỷ cổ phiếu lưu hành',
-        en: 'FPT H1 2026 — net income 5,055.1 billion ₫, 1.71 billion shares outstanding',
+        vi: 'FPT 6 tháng đầu 2026 - LNST 5.055,1 tỷ ₫, 1,71 tỷ cổ phiếu lưu hành',
+        en: 'FPT H1 2026 - net income 5,055.1 billion ₫, 1.71 billion shares outstanding',
       },
       inputs: { netIncome: 5_055.1, preferredDividend: 0, sharesOutstanding: 1_714_326_422 },
       expected: 2_948.74,
@@ -245,7 +245,7 @@ export const EPS_CO_BAN: FormulaModule = {
         expected: 5_442.18,
       },
       {
-        name: 'doanh nghiệp lỗ thì EPS âm — vẫn là con số có nghĩa',
+        name: 'doanh nghiệp lỗ thì EPS âm - vẫn là con số có nghĩa',
         inputs: { netIncome: -1_200, preferredDividend: 0, sharesOutstanding: 1_000_000_000 },
         expected: -1_200,
       },
@@ -286,7 +286,7 @@ export const BVPS: FormulaModule = {
   spec: {
     id: 'bvps',
     categoryId: 'fundamentals',
-    name: { vi: 'BVPS — giá trị sổ sách mỗi cổ phiếu', en: 'BVPS — book value per share' },
+    name: { vi: 'BVPS - giá trị sổ sách mỗi cổ phiếu', en: 'BVPS - book value per share' },
     description: {
       vi: 'Mỗi cổ phiếu đang nắm giữ bao nhiêu đồng vốn chủ sở hữu trên sổ sách.',
       en: 'How much book equity each share currently represents.',
@@ -346,8 +346,8 @@ export const BVPS: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'FPT ngày 30/06/2026 — vốn chủ của cổ đông công ty mẹ 39.851,5 tỷ ₫, 1,71 tỷ cổ phiếu',
-        en: 'FPT at 30 June 2026 — parent-company equity 39,851.5 billion ₫, 1.71 billion shares',
+        vi: 'FPT ngày 30/06/2026 - vốn chủ của cổ đông công ty mẹ 39.851,5 tỷ ₫, 1,71 tỷ cổ phiếu',
+        en: 'FPT at 30 June 2026 - parent-company equity 39,851.5 billion ₫, 1.71 billion shares',
       },
       inputs: { equity: 39_851.5, sharesOutstanding: 1_714_326_422 },
       expected: 23_246.16,
@@ -424,7 +424,7 @@ export const ROE: FormulaModule = {
   spec: {
     id: 'roe',
     categoryId: 'fundamentals',
-    name: { vi: 'ROE — tỷ suất sinh lời trên vốn chủ', en: 'ROE — return on equity' },
+    name: { vi: 'ROE - tỷ suất sinh lời trên vốn chủ', en: 'ROE - return on equity' },
     description: {
       vi: 'Một đồng vốn của cổ đông làm ra bao nhiêu đồng lợi nhuận trong một năm.',
       en: 'How much profit each unit of shareholder capital generates in a year.',
@@ -484,8 +484,8 @@ export const ROE: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'FPT 6 tháng đầu 2026 — LNST 5.055,1 tỷ ₫ trên vốn chủ 39.851,5 tỷ ₫',
-        en: 'FPT H1 2026 — net income 5,055.1 billion ₫ on equity of 39,851.5 billion ₫',
+        vi: 'FPT 6 tháng đầu 2026 - LNST 5.055,1 tỷ ₫ trên vốn chủ 39.851,5 tỷ ₫',
+        en: 'FPT H1 2026 - net income 5,055.1 billion ₫ on equity of 39,851.5 billion ₫',
       },
       inputs: { netIncome: 5_055.1, equity: 39_851.5 },
       expected: 12.6848,
@@ -501,7 +501,7 @@ export const ROE: FormulaModule = {
     tests: [
       { name: 'bộ số FPT của WF-10', inputs: { netIncome: 8_894, equity: 36_456 }, expected: 24.4 },
       {
-        name: 'doanh nghiệp lỗ thì ROE âm — vẫn là con số có nghĩa',
+        name: 'doanh nghiệp lỗ thì ROE âm - vẫn là con số có nghĩa',
         inputs: { netIncome: -1_200, equity: 10_000 },
         expected: -12,
       },
@@ -512,7 +512,7 @@ export const ROE: FormulaModule = {
         expectedWarning: 'DIVIDE_BY_ZERO',
       },
       {
-        name: 'vốn chủ âm thì ROE vô nghĩa — ca kinh điển của nhóm',
+        name: 'vốn chủ âm thì ROE vô nghĩa - ca kinh điển của nhóm',
         inputs: { netIncome: 500, equity: -2_000 },
         expected: null,
         expectedWarning: 'MEANINGLESS',
@@ -559,7 +559,7 @@ export const ROA: FormulaModule = {
   spec: {
     id: 'roa',
     categoryId: 'fundamentals',
-    name: { vi: 'ROA — tỷ suất sinh lời trên tài sản', en: 'ROA — return on assets' },
+    name: { vi: 'ROA - tỷ suất sinh lời trên tài sản', en: 'ROA - return on assets' },
     description: {
       vi: 'Một đồng tài sản của doanh nghiệp tạo ra bao nhiêu đồng lợi nhuận.',
       en: 'How much profit each unit of company assets generates.',
@@ -601,8 +601,8 @@ export const ROA: FormulaModule = {
     variables: [withSymbol(netIncome, 'LNST'), totalAssets],
     explanation: {
       meaning: {
-        vi: 'Hiệu quả dùng toàn bộ tài sản — cả vốn tự có lẫn vốn vay — để tạo ra lợi nhuận.',
-        en: 'How efficiently all assets — both equity-funded and debt-funded — are used to generate profit.',
+        vi: 'Hiệu quả dùng toàn bộ tài sản - cả vốn tự có lẫn vốn vay - để tạo ra lợi nhuận.',
+        en: 'How efficiently all assets - both equity-funded and debt-funded - are used to generate profit.',
       },
       whenToUse: {
         vi: 'Dùng khi bạn so hai công ty cùng ngành mà một bên vay nợ nhiều hơn hẳn, và muốn biết bên nào làm ra nhiều lãi hơn trên toàn bộ tài sản, kể cả phần mua bằng tiền vay.',
@@ -613,14 +613,14 @@ export const ROA: FormulaModule = {
         en: 'Compared with the ROA of companies in the same industry for the same period: higher means the company earns more profit on each dong of assets it uses, lower means it uses its assets less efficiently than its rivals. A negative figure means the company is making a loss.',
       },
       commonMistakes: {
-        vi: 'So ROA giữa hai ngành khác cấu trúc tài sản — ngân hàng và bán lẻ có mặt bằng ROA hoàn toàn khác nhau.',
-        en: 'Comparing ROA across industries with different asset structures — banks and retailers sit on completely different ROA baselines.',
+        vi: 'So ROA giữa hai ngành khác cấu trúc tài sản - ngân hàng và bán lẻ có mặt bằng ROA hoàn toàn khác nhau.',
+        en: 'Comparing ROA across industries with different asset structures - banks and retailers sit on completely different ROA baselines.',
       },
     },
     example: {
       title: {
-        vi: 'FPT 6 tháng đầu 2026 — LNST 5.055,1 tỷ ₫ trên tổng tài sản 73.734,2 tỷ ₫',
-        en: 'FPT H1 2026 — net income 5,055.1 billion ₫ on total assets of 73,734.2 billion ₫',
+        vi: 'FPT 6 tháng đầu 2026 - LNST 5.055,1 tỷ ₫ trên tổng tài sản 73.734,2 tỷ ₫',
+        en: 'FPT H1 2026 - net income 5,055.1 billion ₫ on total assets of 73,734.2 billion ₫',
       },
       inputs: { netIncome: 5_055.1, totalAssets: 73_734.2 },
       expected: 6.8558,
@@ -640,7 +640,7 @@ export const ROA: FormulaModule = {
         expected: 13.08,
       },
       {
-        name: 'doanh nghiệp lỗ thì ROA âm — vẫn là con số có nghĩa',
+        name: 'doanh nghiệp lỗ thì ROA âm - vẫn là con số có nghĩa',
         inputs: { netIncome: -1_200, totalAssets: 50_000 },
         expected: -2.4,
       },
@@ -677,7 +677,7 @@ export const BIEN_LOI_NHUAN_RONG: FormulaModule = {
   spec: {
     id: 'bien-loi-nhuan-rong',
     categoryId: 'fundamentals',
-    name: { vi: 'ROS — biên lợi nhuận ròng', en: 'ROS — net profit margin' },
+    name: { vi: 'ROS - biên lợi nhuận ròng', en: 'ROS - net profit margin' },
     description: {
       vi: 'Cứ 100 đồng doanh thu thì doanh nghiệp giữ lại được bao nhiêu đồng lãi ròng.',
       en: 'Out of every 100 units of revenue, how much the company keeps as net profit.',
@@ -760,8 +760,8 @@ export const BIEN_LOI_NHUAN_RONG: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'FPT 6 tháng đầu 2026 — LNST 5.055,1 tỷ ₫ trên doanh thu thuần 26.268,5 tỷ ₫',
-        en: 'FPT H1 2026 — net income 5,055.1 billion ₫ on net revenue of 26,268.5 billion ₫',
+        vi: 'FPT 6 tháng đầu 2026 - LNST 5.055,1 tỷ ₫ trên doanh thu thuần 26.268,5 tỷ ₫',
+        en: 'FPT H1 2026 - net income 5,055.1 billion ₫ on net revenue of 26,268.5 billion ₫',
       },
       inputs: { netIncome: 5_055.1, revenue: 26_268.5 },
       expected: 19.244,
@@ -777,12 +777,12 @@ export const BIEN_LOI_NHUAN_RONG: FormulaModule = {
     tests: [
       { name: 'ca thường', inputs: { netIncome: 8_894, revenue: 62_850 }, expected: 14.15 },
       {
-        name: 'doanh nghiệp lỗ thì biên ròng âm — vẫn là con số có nghĩa',
+        name: 'doanh nghiệp lỗ thì biên ròng âm - vẫn là con số có nghĩa',
         inputs: { netIncome: -1_200, revenue: 30_000 },
         expected: -4,
       },
       {
-        name: 'doanh thu bằng 0 — ca kinh điển của nhóm',
+        name: 'doanh thu bằng 0 - ca kinh điển của nhóm',
         inputs: { netIncome: 8_894, revenue: 0 },
         expected: null,
         expectedWarning: 'DIVIDE_BY_ZERO',
@@ -885,8 +885,8 @@ export const BIEN_LOI_NHUAN_GOP: FormulaModule = {
     ],
     explanation: {
       meaning: {
-        vi: 'Sức mạnh giá bán so với chi phí trực tiếp — chưa tính chi phí bán hàng, quản lý hay lãi vay.',
-        en: 'Pricing power relative to direct costs — before selling, administrative, or interest expenses.',
+        vi: 'Sức mạnh giá bán so với chi phí trực tiếp - chưa tính chi phí bán hàng, quản lý hay lãi vay.',
+        en: 'Pricing power relative to direct costs - before selling, administrative, or interest expenses.',
       },
       whenToUse: {
         vi: 'Dùng khi bạn đọc tin giá vật tư tăng hay đối thủ hạ giá bán, và muốn biết mỗi đồng bán hàng còn lại bao nhiêu sau khi trừ riêng chi phí làm ra món hàng đó.',
@@ -897,14 +897,14 @@ export const BIEN_LOI_NHUAN_GOP: FormulaModule = {
         en: 'Compared with the gross margin of companies in the same industry for the same period: higher means the company gets a better price relative to what the goods cost to make, lower means it sells closer to cost than its rivals. A negative figure means the company is selling below cost.',
       },
       commonMistakes: {
-        vi: 'Nhầm biên gộp với biên ròng — biên gộp cao vẫn có thể lỗ ròng nếu chi phí vận hành và lãi vay quá lớn.',
-        en: 'Confusing gross margin with net margin — a high gross margin can still coexist with a net loss if operating costs and interest expense are too large.',
+        vi: 'Nhầm biên gộp với biên ròng - biên gộp cao vẫn có thể lỗ ròng nếu chi phí vận hành và lãi vay quá lớn.',
+        en: 'Confusing gross margin with net margin - a high gross margin can still coexist with a net loss if operating costs and interest expense are too large.',
       },
     },
     example: {
       title: {
-        vi: 'FPT 6 tháng đầu 2026 — doanh thu thuần 26.268,5 tỷ ₫, giá vốn 17.745 tỷ ₫',
-        en: 'FPT H1 2026 — net revenue 26,268.5 billion ₫, cost of goods sold 17,745 billion ₫',
+        vi: 'FPT 6 tháng đầu 2026 - doanh thu thuần 26.268,5 tỷ ₫, giá vốn 17.745 tỷ ₫',
+        en: 'FPT H1 2026 - net revenue 26,268.5 billion ₫, cost of goods sold 17,745 billion ₫',
       },
       inputs: { revenue: 26_268.5, cogs: 17_745 },
       expected: 32.4476,
@@ -920,12 +920,12 @@ export const BIEN_LOI_NHUAN_GOP: FormulaModule = {
     tests: [
       { name: 'ca thường', inputs: { revenue: 62_850, cogs: 38_400 }, expected: 38.9 },
       {
-        name: 'giá vốn cao hơn doanh thu thì biên gộp âm — bán dưới giá vốn',
+        name: 'giá vốn cao hơn doanh thu thì biên gộp âm - bán dưới giá vốn',
         inputs: { revenue: 30_000, cogs: 33_000 },
         expected: -10,
       },
       {
-        name: 'doanh thu bằng 0 — ca kinh điển của nhóm',
+        name: 'doanh thu bằng 0 - ca kinh điển của nhóm',
         inputs: { revenue: 0, cogs: 38_400 },
         expected: null,
         expectedWarning: 'DIVIDE_BY_ZERO',
@@ -959,7 +959,7 @@ export const NO_TREN_VON_CHU: FormulaModule = {
   spec: {
     id: 'no-tren-von-chu',
     categoryId: 'fundamentals',
-    name: { vi: 'D/E — hệ số nợ trên vốn chủ', en: 'D/E — debt to equity ratio' },
+    name: { vi: 'D/E - hệ số nợ trên vốn chủ', en: 'D/E - debt to equity ratio' },
     description: {
       vi: 'Doanh nghiệp đang gánh bao nhiêu đồng nợ phải trả, gồm cả nợ vay lẫn các khoản không tính lãi, trên mỗi đồng vốn của cổ đông.',
       en: 'How much in total liabilities, borrowings and interest-free items alike, the company carries for every unit of shareholder capital.',
@@ -1065,14 +1065,14 @@ export const NO_TREN_VON_CHU: FormulaModule = {
         en: "Compared with the ratio of companies in the same industry at the same time: higher means the company carries more debt than its rivals for each dong of shareholders' capital, lower means it is less indebted. Above 1 means total liabilities already exceed the capital that belongs to shareholders.",
       },
       commonMistakes: {
-        vi: 'Coi mọi khoản nợ như nhau — nợ chiếm dụng nhà cung cấp không tốn lãi, khác hẳn nợ vay ngân hàng.',
-        en: 'Treating all debt as the same — trade payables to suppliers carry no interest, unlike bank borrowings.',
+        vi: 'Coi mọi khoản nợ như nhau - nợ chiếm dụng nhà cung cấp không tốn lãi, khác hẳn nợ vay ngân hàng.',
+        en: 'Treating all debt as the same - trade payables to suppliers carry no interest, unlike bank borrowings.',
       },
     },
     example: {
       title: {
-        vi: 'FPT ngày 30/06/2026 — nợ phải trả 32.738,4 tỷ ₫ trên tổng vốn chủ 40.995,7 tỷ ₫',
-        en: 'FPT at 30 June 2026 — total liabilities 32,738.4 billion ₫ against total equity of 40,995.7 billion ₫',
+        vi: 'FPT ngày 30/06/2026 - nợ phải trả 32.738,4 tỷ ₫ trên tổng vốn chủ 40.995,7 tỷ ₫',
+        en: 'FPT at 30 June 2026 - total liabilities 32,738.4 billion ₫ against total equity of 40,995.7 billion ₫',
       },
       inputs: { totalLiabilities: 32_738.4, equity: 40_995.7 },
       expected: 0.7986,
@@ -1088,7 +1088,7 @@ export const NO_TREN_VON_CHU: FormulaModule = {
     tests: [
       { name: 'ca thường', inputs: { totalLiabilities: 22_500, equity: 36_456 }, expected: 0.6172 },
       {
-        name: 'đòn bẩy cao — nợ gấp hơn 3 lần vốn chủ',
+        name: 'đòn bẩy cao - nợ gấp hơn 3 lần vốn chủ',
         inputs: { totalLiabilities: 80_000, equity: 25_000 },
         expected: 3.2,
       },
@@ -1099,7 +1099,7 @@ export const NO_TREN_VON_CHU: FormulaModule = {
         expectedWarning: 'DIVIDE_BY_ZERO',
       },
       {
-        name: 'vốn chủ âm thì hệ số nợ vô nghĩa — ca kinh điển của nhóm',
+        name: 'vốn chủ âm thì hệ số nợ vô nghĩa - ca kinh điển của nhóm',
         inputs: { totalLiabilities: 22_500, equity: -3_000 },
         expected: null,
         expectedWarning: 'MEANINGLESS',
@@ -1212,8 +1212,8 @@ export const THANH_TOAN_HIEN_HANH: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'FPT ngày 30/06/2026 — tài sản ngắn hạn 45.702 tỷ ₫, nợ ngắn hạn 29.365,3 tỷ ₫',
-        en: 'FPT at 30 June 2026 — current assets 45,702 billion ₫, current liabilities 29,365.3 billion ₫',
+        vi: 'FPT ngày 30/06/2026 - tài sản ngắn hạn 45.702 tỷ ₫, nợ ngắn hạn 29.365,3 tỷ ₫',
+        en: 'FPT at 30 June 2026 - current assets 45,702 billion ₫, current liabilities 29,365.3 billion ₫',
       },
       inputs: { currentAssets: 45_702, currentLiabilities: 29_365.3 },
       expected: 1.5563,
@@ -1233,12 +1233,12 @@ export const THANH_TOAN_HIEN_HANH: FormulaModule = {
         expected: 1.5,
       },
       {
-        name: 'dưới 1 lần — nợ đến hạn vượt tài sản ngắn hạn',
+        name: 'dưới 1 lần - nợ đến hạn vượt tài sản ngắn hạn',
         inputs: { currentAssets: 18_000, currentLiabilities: 24_000 },
         expected: 0.75,
       },
       {
-        name: 'nợ ngắn hạn bằng 0 — ca kinh điển của nhóm',
+        name: 'nợ ngắn hạn bằng 0 - ca kinh điển của nhóm',
         inputs: { currentAssets: 42_000, currentLiabilities: 0 },
         expected: null,
         expectedWarning: 'DIVIDE_BY_ZERO',
@@ -1344,8 +1344,8 @@ export const THANH_TOAN_NHANH: FormulaModule = {
         min: 0,
         max: 10_000_000,
         description: {
-          vi: 'Giá trị hàng tồn kho — phần tài sản ngắn hạn khó đổi thành tiền nhanh nhất.',
-          en: 'The value of inventory — the current asset that is hardest to convert into cash quickly.',
+          vi: 'Giá trị hàng tồn kho - phần tài sản ngắn hạn khó đổi thành tiền nhanh nhất.',
+          en: 'The value of inventory - the current asset that is hardest to convert into cash quickly.',
         },
       }),
       currentLiabilities,
@@ -1364,14 +1364,14 @@ export const THANH_TOAN_NHANH: FormulaModule = {
         en: 'Compared with the 1 mark: above 1 means that without selling anything from inventory, the rest of the current assets can still pay off all the debts falling due within the year, and below 1 means paying on time depends on selling the goods in inventory.',
       },
       commonMistakes: {
-        vi: 'Quên rằng khoản phải thu trong tử số cũng có thể khó đòi — hệ số nhanh cao chưa chắc tiền đã về kịp.',
-        en: 'Forgetting that receivables in the numerator can also be hard to collect — a high quick ratio does not guarantee the cash arrives on time.',
+        vi: 'Quên rằng khoản phải thu trong tử số cũng có thể khó đòi - hệ số nhanh cao chưa chắc tiền đã về kịp.',
+        en: 'Forgetting that receivables in the numerator can also be hard to collect - a high quick ratio does not guarantee the cash arrives on time.',
       },
     },
     example: {
       title: {
-        vi: 'FPT ngày 30/06/2026 — tài sản ngắn hạn 45.702 tỷ ₫, tồn kho 1.183,1 tỷ ₫, nợ ngắn hạn 29.365,3 tỷ ₫',
-        en: 'FPT at 30 June 2026 — current assets 45,702 billion ₫, inventory 1,183.1 billion ₫, current liabilities 29,365.3 billion ₫',
+        vi: 'FPT ngày 30/06/2026 - tài sản ngắn hạn 45.702 tỷ ₫, tồn kho 1.183,1 tỷ ₫, nợ ngắn hạn 29.365,3 tỷ ₫',
+        en: 'FPT at 30 June 2026 - current assets 45,702 billion ₫, inventory 1,183.1 billion ₫, current liabilities 29,365.3 billion ₫',
       },
       inputs: { currentAssets: 45_702, inventory: 1_183.1, currentLiabilities: 29_365.3 },
       expected: 1.516,
@@ -1391,7 +1391,7 @@ export const THANH_TOAN_NHANH: FormulaModule = {
         expected: 1.1607,
       },
       {
-        name: 'nợ ngắn hạn bằng 0 — ca kinh điển của nhóm',
+        name: 'nợ ngắn hạn bằng 0 - ca kinh điển của nhóm',
         inputs: { currentAssets: 42_000, inventory: 9_500, currentLiabilities: 0 },
         expected: null,
         expectedWarning: 'DIVIDE_BY_ZERO',
@@ -1427,8 +1427,8 @@ export const THANH_TOAN_NHANH: FormulaModule = {
         'lần',
         meaningless(
           {
-            vi: 'Hàng tồn kho đang lớn hơn tài sản ngắn hạn — hai số liệu này mâu thuẫn vì tồn kho là một phần của tài sản ngắn hạn.',
-            en: 'Inventory is larger than current assets — these two figures are inconsistent, since inventory is a part of current assets.',
+            vi: 'Hàng tồn kho đang lớn hơn tài sản ngắn hạn - hai số liệu này mâu thuẫn vì tồn kho là một phần của tài sản ngắn hạn.',
+            en: 'Inventory is larger than current assets - these two figures are inconsistent, since inventory is a part of current assets.',
           },
           {
             vi: 'Kiểm tra lại hai ô trên bảng cân đối kế toán, cùng một kỳ báo cáo.',
@@ -1492,8 +1492,8 @@ export const VONG_QUAY_TONG_TAI_SAN: FormulaModule = {
     variables: [revenue, totalAssets],
     explanation: {
       meaning: {
-        vi: 'Tốc độ "quay" tài sản thành doanh thu — thước đo hiệu suất vận hành của doanh nghiệp.',
-        en: 'The speed at which assets are "turned" into revenue — a measure of operating efficiency.',
+        vi: 'Tốc độ "quay" tài sản thành doanh thu - thước đo hiệu suất vận hành của doanh nghiệp.',
+        en: 'The speed at which assets are "turned" into revenue - a measure of operating efficiency.',
       },
       whenToUse: {
         vi: 'Dùng khi bạn thấy một công ty vừa mở thêm nhiều cửa hàng, nhà máy và muốn biết tài sản của nó giờ mang về bao nhiêu doanh thu, so với trước đó hay đối thủ cùng ngành.',
@@ -1504,14 +1504,14 @@ export const VONG_QUAY_TONG_TAI_SAN: FormulaModule = {
         en: "Compared with the company's own turnover in earlier years, when the revenue entered covers a full year: higher means each dong of assets is bringing in more revenue, lower means each dong of assets is bringing in less revenue than before.",
       },
       commonMistakes: {
-        vi: 'Kết luận vòng quay thấp là kém mà không nhìn mô hình kinh doanh — doanh nghiệp thâm dụng tài sản vốn dĩ quay chậm.',
-        en: 'Concluding that low turnover means poor performance without looking at the business model — asset-intensive companies inherently turn over more slowly.',
+        vi: 'Kết luận vòng quay thấp là kém mà không nhìn mô hình kinh doanh - doanh nghiệp thâm dụng tài sản vốn dĩ quay chậm.',
+        en: 'Concluding that low turnover means poor performance without looking at the business model - asset-intensive companies inherently turn over more slowly.',
       },
     },
     example: {
       title: {
-        vi: 'FPT 6 tháng đầu 2026 — doanh thu thuần 26.268,5 tỷ ₫ trên tổng tài sản 73.734,2 tỷ ₫',
-        en: 'FPT H1 2026 — net revenue 26,268.5 billion ₫ on total assets of 73,734.2 billion ₫',
+        vi: 'FPT 6 tháng đầu 2026 - doanh thu thuần 26.268,5 tỷ ₫ trên tổng tài sản 73.734,2 tỷ ₫',
+        en: 'FPT H1 2026 - net revenue 26,268.5 billion ₫ on total assets of 73,734.2 billion ₫',
       },
       inputs: { revenue: 26_268.5, totalAssets: 73_734.2 },
       expected: 0.3563,
@@ -1635,7 +1635,7 @@ export const TY_LE_CHI_TRA_CO_TUC: FormulaModule = {
       ),
       numberVar(
         'eps',
-        { vi: 'EPS — lợi nhuận trên mỗi cổ phiếu', en: 'EPS — earnings per share' },
+        { vi: 'EPS - lợi nhuận trên mỗi cổ phiếu', en: 'EPS - earnings per share' },
         '₫',
         6_050,
         {
@@ -1662,14 +1662,14 @@ export const TY_LE_CHI_TRA_CO_TUC: FormulaModule = {
         en: 'Compared with the 100% mark: below 100% means the company pays out part of its profit and keeps the rest to reinvest, above 100% means it pays out more than it earned and must dip into accumulated cash. A result of 0 does not necessarily mean the company paid nothing, because stock dividends are not counted here.',
       },
       commonMistakes: {
-        vi: 'Chỉ nhìn tỷ suất cổ tức cao mà không xem hệ số chi trả — cổ tức cao nhờ trả vượt khả năng lợi nhuận là cổ tức sắp bị cắt.',
-        en: "Looking only at a high dividend yield without checking the payout ratio — a high dividend funded beyond the company's earning capacity is a dividend about to be cut.",
+        vi: 'Chỉ nhìn tỷ suất cổ tức cao mà không xem hệ số chi trả - cổ tức cao nhờ trả vượt khả năng lợi nhuận là cổ tức sắp bị cắt.',
+        en: "Looking only at a high dividend yield without checking the payout ratio - a high dividend funded beyond the company's earning capacity is a dividend about to be cut.",
       },
     },
     example: {
       title: {
-        vi: 'FPT — cổ tức tiền mặt 2.000 ₫/CP, EPS bốn quý gần nhất 5.867 ₫',
-        en: 'FPT — cash dividend 2,000 ₫/share, trailing four-quarter EPS 5,867 ₫',
+        vi: 'FPT - cổ tức tiền mặt 2.000 ₫/CP, EPS bốn quý gần nhất 5.867 ₫',
+        en: 'FPT - cash dividend 2,000 ₫/share, trailing four-quarter EPS 5,867 ₫',
       },
       inputs: { dividendPerShare: 2_000, eps: 5_867 },
       expected: 34.089,
@@ -1689,7 +1689,7 @@ export const TY_LE_CHI_TRA_CO_TUC: FormulaModule = {
         expected: 33.06,
       },
       {
-        name: 'bộ số VNM — trả gần hết lợi nhuận làm ra',
+        name: 'bộ số VNM - trả gần hết lợi nhuận làm ra',
         inputs: { dividendPerShare: 3_850, eps: 4_310 },
         expected: 89.33,
       },

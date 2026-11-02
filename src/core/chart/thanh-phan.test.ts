@@ -302,7 +302,7 @@ describe('hình', () => {
     expect(hinh.options.find((option) => option.key === COMPONENTS_KEY)?.label.vi).toBe(
       'Giá nay và giá 15 phiên trước',
     );
-    expect(hinh.title.vi).toBe('Động lượng (Momentum) — giá nay và giá 15 phiên trước');
+    expect(hinh.title.vi).toBe('Động lượng (Momentum) - giá nay và giá 15 phiên trước');
   });
 
   it('componentPoints trả null khi chưa nạp chuỗi — không có hình thì không có đường nào', () => {

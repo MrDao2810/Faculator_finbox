@@ -717,7 +717,7 @@ describe('WF-03 — chín khối đúng thứ tự wireframe', () => {
 
     await user.click(screen.getByRole('link', { name: /Hướng dẫn: đọc biểu đồ/ }));
     let khung = await screen.findByRole('dialog');
-    expect(within(khung).getByRole('heading', { name: 'EV — bóc tách' })).not.toBeNull();
+    expect(within(khung).getByRole('heading', { name: 'EV - bóc tách' })).not.toBeNull();
     expect(khung.textContent).toContain('các thanh nằm ngang');
     expect(within(khung).queryByText('Dạng Đường')).toBeNull();
     expect(within(khung).queryByText('Dạng Cột')).toBeNull();
@@ -1053,7 +1053,7 @@ describe('WF-03 — không hiện cùng một con số hai lần', () => {
     const khoiKetQua = screen.getByRole('region', { name: 'Kết quả' });
 
     expect(within(khoiKetQua).getByText('KẾT QUẢ')).not.toBeNull();
-    expect(within(khoiKetQua).getByText('P/E — hệ số giá trên lợi nhuận')).not.toBeNull();
+    expect(within(khoiKetQua).getByText('P/E - hệ số giá trên lợi nhuận')).not.toBeNull();
   });
 
   /*

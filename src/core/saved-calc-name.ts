@@ -32,9 +32,16 @@ const MAX_SUFFIX_TRIES = 40;
 /** Dấu ngăn giữa các mảnh của một cái tên. Cùng ký tự màn Danh mục dùng cho dòng phụ. */
 const SEPARATOR = ' · ';
 
-/** Khoá so trùng: bỏ qua hoa thường và khoảng trắng thừa. */
+/**
+ * Khoá so trùng: bỏ qua hoa thường, khoảng trắng thừa, và coi gạch dài "—" là gạch nối "-".
+ *
+ * Tên công thức viết "P/E - hệ số…" từ 02/11/2026, "P/E — hệ số…" trước đó, và tên gợi ý ghép
+ * nguyên tên ấy rồi cất vào kho. Không nhận hai dạng là một thì mọi bản lưu cũ trượt khỏi bộ gợi ý:
+ * `displayCalcName()` coi nó là tên tự gõ, in nguyên gạch dài và tách thành hai dòng ở màn Danh mục.
+ * Hai ký tự cùng độ dài, nên chỗ cắt ở `MAX_SAVED_NAME` của hai dạng trùng nhau.
+ */
 function key(value: string): string {
-  return value.trim().toLowerCase().replace(/\s+/g, ' ');
+  return value.trim().toLowerCase().replace(/\s+/g, ' ').replace(/—/g, '-');
 }
 
 export interface SuggestCalcNameInput {
@@ -139,11 +146,13 @@ export interface DisplayCalcNameInput {
  * Kết quả giống hệt thứ họ sẽ nhận nếu bấm chọn gợi ý đó, nên không mất gì.
  *
  * Ở locale tiếng Việt thì `viName === localName`, hàm trả lại đúng chuỗi cũ — không phải ca đặc
- * biệt nào cả, nó rơi ra từ chính phép so.
+ * biệt nào cả, nó rơi ra từ chính phép so. Trừ một ca: tên cất trước 02/11/2026 còn gạch dài "—"
+ * của tên công thức cũ thì vẫn đi qua phép so, để gợi ý được dựng lại bằng tên mới ("P/E - …").
  */
 export function displayCalcName(input: DisplayCalcNameInput): string {
   const stored = input.stored.trim();
-  if (stored === '' || input.viName === input.localName) return input.stored;
+  if (stored === '') return input.stored;
+  if (input.viName === input.localName && !/—/.test(stored)) return input.stored;
 
   /*
    * Tách hậu tố né trùng ' (2)' ra trước khi so: nó do `dedupe()` gắn thêm SAU khi ghép, nên nó

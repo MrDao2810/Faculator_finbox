@@ -45,36 +45,36 @@ import { SOURCE_CFA, sliderVar, withSymbol } from './shared';
 
 const SOURCE_BOLLINGER: FormulaSource = {
   label: {
-    vi: 'John Bollinger — Bollinger on Bollinger Bands (McGraw-Hill, 2001), phần II: Dải Bollinger',
-    en: 'John Bollinger — Bollinger on Bollinger Bands (McGraw-Hill, 2001), Part II: The Bollinger Bands',
+    vi: 'John Bollinger - Bollinger on Bollinger Bands (McGraw-Hill, 2001), phần II: Dải Bollinger',
+    en: 'John Bollinger - Bollinger on Bollinger Bands (McGraw-Hill, 2001), Part II: The Bollinger Bands',
   },
 };
 
 const SOURCE_WILDER: FormulaSource = {
   label: {
-    vi: 'J. Welles Wilder Jr. — New Concepts in Technical Trading Systems (Trend Research, 1978), phần Average True Range',
-    en: 'J. Welles Wilder Jr. — New Concepts in Technical Trading Systems (Trend Research, 1978), the Average True Range section',
+    vi: 'J. Welles Wilder Jr. - New Concepts in Technical Trading Systems (Trend Research, 1978), phần Average True Range',
+    en: 'J. Welles Wilder Jr. - New Concepts in Technical Trading Systems (Trend Research, 1978), the Average True Range section',
   },
 };
 
 const SOURCE_MURPHY: FormulaSource = {
   label: {
-    vi: 'John J. Murphy — Technical Analysis of the Financial Markets (New York Institute of Finance, 1999)',
-    en: 'John J. Murphy — Technical Analysis of the Financial Markets (New York Institute of Finance, 1999)',
+    vi: 'John J. Murphy - Technical Analysis of the Financial Markets (New York Institute of Finance, 1999)',
+    en: 'John J. Murphy - Technical Analysis of the Financial Markets (New York Institute of Finance, 1999)',
   },
 };
 
 const SOURCE_HULL: FormulaSource = {
   label: {
-    vi: 'John C. Hull — Options, Futures, and Other Derivatives (Pearson), mục "Estimating volatility from historical data"',
-    en: 'John C. Hull — Options, Futures, and Other Derivatives (Pearson), the "Estimating volatility from historical data" section',
+    vi: 'John C. Hull - Options, Futures, and Other Derivatives (Pearson), mục "Estimating volatility from historical data"',
+    en: 'John C. Hull - Options, Futures, and Other Derivatives (Pearson), the "Estimating volatility from historical data" section',
   },
 };
 
 const SOURCE_JOHNSON: FormulaSource = {
   label: {
-    vi: 'Barry Johnson — Algorithmic Trading & DMA: An Introduction to Direct Access Trading Strategies (4Myeloma Press, 2010), phần chuẩn so sánh VWAP',
-    en: 'Barry Johnson — Algorithmic Trading & DMA: An Introduction to Direct Access Trading Strategies (4Myeloma Press, 2010), the VWAP benchmark section',
+    vi: 'Barry Johnson - Algorithmic Trading & DMA: An Introduction to Direct Access Trading Strategies (4Myeloma Press, 2010), phần chuẩn so sánh VWAP',
+    en: 'Barry Johnson - Algorithmic Trading & DMA: An Introduction to Direct Access Trading Strategies (4Myeloma Press, 2010), the VWAP benchmark section',
   },
 };
 
@@ -537,8 +537,8 @@ export const DAI_BOLLINGER_DUOI: FormulaModule = {
         en: "Compared with the latest closing price: a close at or below this figure means the price has dropped to the bottom edge of the stock's everyday range over the past n sessions, and a close above it means the price has not reached that edge.",
       },
       commonMistakes: {
-        vi: 'Mua chỉ vì giá chạm dải dưới. Dải mô tả độ phân tán của giá, không nói gì về việc doanh nghiệp đang tốt hay xấu — chạm dải dưới trong xu hướng giảm là chuyện bình thường.',
-        en: 'Buying just because price touched the lower band. The band describes price dispersion, not whether the business is doing well or poorly — touching the lower band during a downtrend is entirely normal.',
+        vi: 'Mua chỉ vì giá chạm dải dưới. Dải mô tả độ phân tán của giá, không nói gì về việc doanh nghiệp đang tốt hay xấu - chạm dải dưới trong xu hướng giảm là chuyện bình thường.',
+        en: 'Buying just because price touched the lower band. The band describes price dispersion, not whether the business is doing well or poorly - touching the lower band during a downtrend is entirely normal.',
       },
     },
     example: {
@@ -688,7 +688,7 @@ export const DO_RONG_DAI_BOLLINGER: FormulaModule = {
       },
       commonMistakes: {
         vi: 'Đoán hướng từ độ rộng. Dải bóp chỉ nói biến động đang thấp, hoàn toàn không nói giá sắp lên hay xuống. Cũng đừng so độ rộng của hai mã có chu kỳ tính khác nhau.',
-        en: 'Guessing direction from the bandwidth. A squeeze only says volatility is low — it says nothing about whether price is about to rise or fall. Also avoid comparing the bandwidth of two stocks computed with different periods.',
+        en: 'Guessing direction from the bandwidth. A squeeze only says volatility is low - it says nothing about whether price is about to rise or fall. Also avoid comparing the bandwidth of two stocks computed with different periods.',
       },
     },
     example: {
@@ -723,7 +723,7 @@ export const DO_RONG_DAI_BOLLINGER: FormulaModule = {
         expected: 5.8121,
       },
       {
-        name: 'chuỗi phẳng lì thì độ rộng đúng bằng 0 — đây là số thật, không phải lỗi',
+        name: 'chuỗi phẳng lì thì độ rộng đúng bằng 0 - đây là số thật, không phải lỗi',
         inputs: { period: 10, k: 2 },
         series: CLOSES_PHANG,
         expected: 0,
@@ -767,7 +767,7 @@ export const ATR_DAO_DONG_THUC: FormulaModule = {
   spec: {
     id: 'atr-dao-dong-thuc',
     categoryId: 'technical',
-    name: { vi: 'ATR — dao động thực trung bình', en: 'ATR — average true range (Wilder)' },
+    name: { vi: 'ATR - dao động thực trung bình', en: 'ATR - average true range (Wilder)' },
     description: {
       vi: 'Biên độ một phiên thường đi được bao nhiêu đồng, đã tính cả khoảng nhảy giá so với phiên trước.',
       en: 'How many VND a session typically moves, including any price gap versus the previous session.',
@@ -891,8 +891,8 @@ export const ATR_DAO_DONG_THUC: FormulaModule = {
     ],
     explanation: {
       meaning: {
-        vi: 'Thước đo biên độ một phiên tính bằng đồng, cộng cả phần giá nhảy qua đêm — nên nó phản ánh rủi ro thật hơn là lấy giá cao trừ giá thấp.',
-        en: "A measure of a session's range in VND that also includes overnight price gaps — so it reflects real risk better than simply taking high minus low.",
+        vi: 'Thước đo biên độ một phiên tính bằng đồng, cộng cả phần giá nhảy qua đêm - nên nó phản ánh rủi ro thật hơn là lấy giá cao trừ giá thấp.',
+        en: "A measure of a session's range in VND that also includes overnight price gaps - so it reflects real risk better than simply taking high minus low.",
       },
       whenToUse: {
         vi: 'Dùng khi bạn sắp đặt lệnh cắt lỗ hay chốt lời cho một mã và muốn biết một phiên bình thường giá của nó lên xuống khoảng bao nhiêu đồng.',
@@ -927,7 +927,7 @@ export const ATR_DAO_DONG_THUC: FormulaModule = {
     },
     tests: [
       {
-        name: 'sáu phiên số tròn, chu kỳ 5 — trung bình của 6, 5, 5, 6, 5',
+        name: 'sáu phiên số tròn, chu kỳ 5 - trung bình của 6, 5, 5, 6, 5',
         inputs: { period: 5 },
         bars: BARS_KIEM,
         expected: 5.4,
@@ -1029,7 +1029,7 @@ export const PHAN_TRAM_B_BOLLINGER: FormulaModule = {
   spec: {
     id: 'phan-tram-b-bollinger',
     categoryId: 'technical',
-    name: { vi: '%B — vị trí giá trong dải Bollinger', en: 'Bollinger %B' },
+    name: { vi: '%B - vị trí giá trong dải Bollinger', en: 'Bollinger %B' },
     description: {
       vi: 'Giá đóng cửa đang nằm ở đâu giữa hai dải: 0% là dải dưới, 100% là dải trên.',
       en: 'Where the closing price sits between the two bands: 0% is the lower band, 100% is the upper band.',
@@ -1210,8 +1210,8 @@ export const PHAN_TRAM_B_BOLLINGER: FormulaModule = {
           { vi: '%B', en: '%B' },
           { vi: 'bề rộng dải', en: 'band width' },
           {
-            vi: 'Chuỗi giá đang phẳng lì nên hai dải trùng nhau — nạp chuỗi có dao động thật.',
-            en: 'The price series is flat, so the two bands coincide — load a series with actual price movement.',
+            vi: 'Chuỗi giá đang phẳng lì nên hai dải trùng nhau - nạp chuỗi có dao động thật.',
+            en: 'The price series is flat, so the two bands coincide - load a series with actual price movement.',
           },
         ),
       );
@@ -1341,8 +1341,8 @@ export const STOCHASTIC_K: FormulaModule = {
         en: 'Compared with the usual 80 and 20 marks: above 80 means the last session closed near the top of the last n sessions, below 20 means near the bottom, and in between means it leans toward neither edge. Exactly 100 means it closed at the highest price of all n sessions, and exactly 0 at the lowest.',
       },
       commonMistakes: {
-        vi: 'Bán ngay khi %K trên 80 trong một xu hướng tăng mạnh — chỉ báo này có thể nằm trên 80 rất lâu. Nó chỉ dùng tốt khi giá dao động trong biên độ.',
-        en: 'Selling immediately when %K is above 80 during a strong uptrend — this indicator can stay above 80 for a long time. It works best when price is range-bound.',
+        vi: 'Bán ngay khi %K trên 80 trong một xu hướng tăng mạnh - chỉ báo này có thể nằm trên 80 rất lâu. Nó chỉ dùng tốt khi giá dao động trong biên độ.',
+        en: 'Selling immediately when %K is above 80 during a strong uptrend - this indicator can stay above 80 for a long time. It works best when price is range-bound.',
       },
     },
     example: {
@@ -1422,8 +1422,8 @@ export const STOCHASTIC_K: FormulaModule = {
           { vi: '%K', en: '%K' },
           { vi: 'biên độ n phiên', en: 'n-session range' },
           {
-            vi: 'Giá cao nhất đang bằng giá thấp nhất — giá không đổi suốt chu kỳ vừa chọn (mã ngừng giao dịch hoặc đứng giá), chọn chu kỳ dài hơn hoặc chuỗi khác.',
-            en: 'The highest price equals the lowest price — the price did not change across the chosen period (a halted or flat stock); choose a longer period or another series.',
+            vi: 'Giá cao nhất đang bằng giá thấp nhất - giá không đổi suốt chu kỳ vừa chọn (mã ngừng giao dịch hoặc đứng giá), chọn chu kỳ dài hơn hoặc chuỗi khác.',
+            en: 'The highest price equals the lowest price - the price did not change across the chosen period (a halted or flat stock); choose a longer period or another series.',
           },
         ),
       );
@@ -1444,8 +1444,8 @@ export const VWAP: FormulaModule = {
     id: 'vwap',
     categoryId: 'technical',
     name: {
-      vi: 'VWAP — giá bình quân theo khối lượng',
-      en: 'VWAP — volume weighted average price',
+      vi: 'VWAP - giá bình quân theo khối lượng',
+      en: 'VWAP - volume weighted average price',
     },
     description: {
       vi: 'Giá trung bình của n phiên gần nhất, nhưng phiên khớp nhiều cổ phiếu được tính nặng hơn.',
@@ -1532,7 +1532,7 @@ export const VWAP: FormulaModule = {
       },
       commonMistakes: {
         vi: 'Nhầm với VWAP trong phiên của bảng giá: bản trong phiên tính theo từng lệnh khớp và giá điển hình (cao + thấp + đóng) chia 3, còn công thức này gộp theo PHIÊN và dùng giá đóng cửa, nên hai con số không trùng nhau.',
-        en: 'Confusing this with the intraday VWAP shown on trading boards: the intraday version is computed trade-by-trade using the typical price (high + low + close) ÷ 3, whereas this formula pools by SESSION and uses the closing price — so the two numbers will not match.',
+        en: 'Confusing this with the intraday VWAP shown on trading boards: the intraday version is computed trade-by-trade using the typical price (high + low + close) ÷ 3, whereas this formula pools by SESSION and uses the closing price - so the two numbers will not match.',
       },
     },
     example: {
@@ -1611,8 +1611,8 @@ export const VWAP: FormulaModule = {
           { vi: 'VWAP', en: 'VWAP' },
           { vi: 'tổng khối lượng', en: 'total volume' },
           {
-            vi: 'Các phiên đang chọn đều có khối lượng bằng 0 — kiểm tra lại cột khối lượng của bảng dữ liệu.',
-            en: 'The selected sessions all have zero volume — check the volume column of the data table.',
+            vi: 'Các phiên đang chọn đều có khối lượng bằng 0 - kiểm tra lại cột khối lượng của bảng dữ liệu.',
+            en: 'The selected sessions all have zero volume - check the volume column of the data table.',
           },
         ),
       );
@@ -1986,8 +1986,8 @@ export const TY_LE_KHOI_LUONG: FormulaModule = {
         en: 'Compared with the 1 mark: above 1 means the latest session traded more shares than the average of the n sessions before it, by that many times, and below 1 means trading is thinner than usual. Exactly 0 means not a single share changed hands in the latest session.',
       },
       commonMistakes: {
-        vi: 'Tính trung bình có gộp cả phiên gần nhất — làm vậy thì chính phiên đột biến kéo mốc so sánh lên và tỷ lệ bị nén lại. Ở đây mốc chỉ gồm các phiên LIỀN TRƯỚC.',
-        en: 'Including the most recent session in the average — doing so lets the very spike being measured pull up its own baseline, compressing the ratio. Here the baseline consists only of the PRECEDING sessions.',
+        vi: 'Tính trung bình có gộp cả phiên gần nhất - làm vậy thì chính phiên đột biến kéo mốc so sánh lên và tỷ lệ bị nén lại. Ở đây mốc chỉ gồm các phiên LIỀN TRƯỚC.',
+        en: 'Including the most recent session in the average - doing so lets the very spike being measured pull up its own baseline, compressing the ratio. Here the baseline consists only of the PRECEDING sessions.',
       },
     },
     example: {
@@ -2065,8 +2065,8 @@ export const TY_LE_KHOI_LUONG: FormulaModule = {
           { vi: 'tỷ lệ khối lượng', en: 'volume ratio' },
           { vi: 'khối lượng trung bình', en: 'average volume' },
           {
-            vi: 'Các phiên làm mốc đều có khối lượng bằng 0 — kiểm tra lại cột khối lượng của bảng dữ liệu.',
-            en: 'All baseline sessions have zero volume — check the volume column of the data table.',
+            vi: 'Các phiên làm mốc đều có khối lượng bằng 0 - kiểm tra lại cột khối lượng của bảng dữ liệu.',
+            en: 'All baseline sessions have zero volume - check the volume column of the data table.',
           },
         ),
       );

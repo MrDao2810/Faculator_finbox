@@ -141,6 +141,6 @@ function formulaById(fromId: string, id: string): FormulaSpec {
  * phép trừ, lỗi chủ dự án đã bắt hai lần (dòng công thức 16/09, bảng ký hiệu 17/09/2026).
  */
 function shortName(name: Bilingual): Bilingual {
-  const cut = (text: string) => text.split(' — ')[0] ?? text;
+  const cut = (text: string) => text.split(' - ')[0] ?? text;
   return { vi: cut(name.vi), en: cut(name.en) };
 }

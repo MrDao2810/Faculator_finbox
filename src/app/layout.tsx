@@ -20,7 +20,7 @@ export const metadata: Metadata = {
     template: `%s · ${APP_NAME}`,
   },
   description:
-    'Thư viện công thức tài chính và chứng khoán Việt Nam — tra cứu, tính toán, giải thích.',
+    'Thư viện công thức tài chính và chứng khoán Việt Nam - tra cứu, tính toán, giải thích.',
   applicationName: APP_NAME,
 
   /*

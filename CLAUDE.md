@@ -3175,8 +3175,10 @@ cannot sit beside something outside its `<fieldset>`): the prompt is a `<p>` and
 
 **A multi-select question prints no "Câu này có nhiều đáp án đúng — chọn đủ cả." line** (02/11/2026, owner:
 _"đang thừa và chiếm không gian"_; `quiz.pickAll` tombstoned in `vi.ts`). Drop the sentence, keep the behaviour:
-checkboxes, all-or-nothing grading. 8 of the 18 prompts say "(chọn tất cả đáp án đúng)" themselves; for the other
-10 the square box is the only cue. If a cue is needed, write it into the prompt, do not rebuild the shared line.
+checkboxes, all-or-nothing grading. The cue lives in the prompt instead: all 18 prompts end with one (10 had it
+appended the same day, " (chọn tất cả đáp án đúng)" / " (select all that apply)"), and a case in `quiz.test.ts`
+requires `vi` to match `/chọn (tất cả|đủ)/i` and `en` `/select all that apply/i` on every multi-select question. A new
+one must carry it; do not rebuild the shared line.
 
 **Every slot must be a figure the `facts` table states LITERALLY**, because the learner copies it.
 Four questions failed that and were fixed rather than excused: `profit-factor` wanted `0,4` while
@@ -3212,7 +3214,7 @@ and the right edge: _"giảm padding … để có thể có nhiều không gian
 70 → 48px. The empty space either side of a SHORT formula is centring, not padding. The graded part followed the
 same day (_"giảm padding xuống, size text giảm xuống … áp dụng cho mobile và các công thức có ví dụ"_): below 1024px
 the verdict line (`p.markRight` / `p.markWrong`, the fill-in "Sai · Kết quả … · Thứ tự đúng …" and the multi-select
-"Đúng / Sai") is 14px with no `<p>` margin (28 → 12px either side), the "Vì sao chưa đúng" box pads 8/12px and its
+"Đúng / Sai") is 14px with no `<p>` margin (28 → 12px either side), the "Tại sao chưa đúng" box pads 8/12px and its
 prose 12px, and `LoiGiai` — shared with the "Ví dụ thực tế" block, which is what "công thức có ví dụ" covers — is 12px
 text, 8px between rows, the drawn arithmetic 15px. CAGR at 390: answer box 398 → 336px, example block 759 → 662px.
 From 1024px the same two PADDING numbers apply since 21/10/2026 (owner, on `rut-truoc-han`'s graded fill-in at
@@ -3468,7 +3470,8 @@ not; `quiz.correctAnswer` ("Đáp án đúng") is retired, since the badge sits 
 position already says which option it belongs to. `quiz.wrong` went from "Chưa đúng" to "Sai"
 in the same round — a softened three-word label beside a strike-through reads as hesitation.
 Note the deliberate asymmetry left behind: the explanation box below still titles itself
-"Vì sao chưa đúng", because there it is addressing the reader's reasoning, not labelling a box.
+"Tại sao chưa đúng" ("Vì sao chưa đúng" until 02/11/2026, when the owner moved every question prompt from "vì sao" to
+"tại sao" and the two box titles followed), because there it is addressing the reader's reasoning, not labelling a box.
 
 The English side splits in two. The 40 UI strings are all translated; the questions are not — 205
 of 411, counted out loud by a case in `quiz.test.ts`, because every question written from batch 1
@@ -3947,6 +3950,30 @@ English, the owner reviews it**. What that produced, and what is easy to break:
 
 ## Notes
 
+- **On-screen text uses a hyphen `-`, never the em dash `—`** (02/11/2026, owner: _"đoạn ký hiệu này "— " đang quá
+  dài. rà xoát lại trong toàn bộ dự án và đổi lại ngắn hơn thành "-"_). One AST-driven pass changed 1.333 dashes in
+  the display text of 58 files (formula names `P/E - hệ số giá trên lợi nhuận`, field labels `EPS - lợi nhuận trên
+mỗi cổ phiếu`, chart titles, the quiz bank, both dictionaries), `summaries.generated.ts` was regenerated and the
+  manifest description followed. **Quotes of on-screen text elsewhere in this file written before that date still show
+  `—`; the screen no longer does.** Comments, docs, test names and `scripts/` console output keep `—` freely. What is
+  easy to break:
+  - **The gate is `chữ trên màn không dùng gạch dài "—"` in `i18n.test.ts`.** It parses every non-test `.ts`/`.tsx`
+    of `src/{core,application,ui,app,data}` with the TypeScript API and reads only string, template and JSX text, so
+    comments and REGEX literals may keep `—`: the writing rules ban it with `/[–—]/`, and `format.ts` /
+    `paste-import.ts` accept a typed `—4` as minus 4 (two tests pin that, keep them).
+  - **Two deliberate exceptions.** Inside a curly-quoted `“…”` run of the quiz bank the dash is the source's own
+    (14 dashes in 5 verbatim English quotes), so it stays, per the verbatim-quote rule. And `legalBasis` in
+    `schedules.ts` uses a colon instead of `-`, because its right side is a number: "Điều 13 khoản 2 - 0,1%" reads as
+    "two minus 0,1%", the minus misreading the owner has reported twice.
+  - **Six places cut a name at its separator to get the symbol** (`shortLabel` in `build.ts`, `shortTotalLabel` in
+    `breakdown.ts`, `inheritedFrom` in `warnings.ts`, `shortName` in `notation-view.ts`, `kyHieuCuaNhan`/`chiaNhan` in
+    `o-ky-hieu.ts`, `tenNgan` in `PresetSheet.tsx`). They cut at a SPACED hyphen `-` (the regex ones accept the old
+    `—` too); no name or label carries a spaced hyphen for any other reason, keep it that way.
+  - **Data saved on the customer's machine before 02/11/2026 still holds `—`.** A saved calculation's auto-name embeds
+    the formula name, and recent searches store it: `key()` in `saved-calc-name.ts` and `khoaMuc()` in
+    `recent-searches.ts` treat `—` as `-`, and `displayCalcName()` no longer returns early in Vietnamese while the
+    stored name still has `—`, so old auto-names are rebuilt with the new name instead of being shown as hand-typed
+    (two lines, old dash). A hand-typed name keeps its `—` verbatim.
 - **Settings is a gear icon in the header, not a nav item** (28/10/2026, owner: _"không cần phải có Cài đặt ở trên
   mainlayout mà chỉ cần icon setting ở bên trái cùng hàng với icon theme sáng tối"_; asked, they chose PC AND phone).
   `NAV_ITEMS` has three entries (Công thức · Danh mục · Về chúng tôi), so the desktop nav and the bottom tab bar

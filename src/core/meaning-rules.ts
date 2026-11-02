@@ -115,7 +115,7 @@ export function meaningProblems(item: YNghiaInput): string[] {
       const c = chuan(so);
       if (SO_CHUNG.has(c) || choPhep.has(c) || quyUoc.has(c)) continue;
       loi.push(
-        `${item.id}.${ngon}: con số "${so}" không phải hằng số của công thức — hình không vẽ nó, ` +
+        `${item.id}.${ngon}: con số "${so}" không phải hằng số của công thức - hình không vẽ nó, ` +
           `và nó không nằm trong 0/1/100 hay QUY_UOC. Số liệu minh hoạ thuộc về khối Ví dụ thực tế, ` +
           `câu Ý nghĩa phải nói khái quát`,
       );

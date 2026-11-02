@@ -40,8 +40,8 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Một cổ phiếu đang giao dịch ở 36.000 ₫. Doanh nghiệp vừa công bố báo cáo quý mới nên EPS lũy kế bốn quý gần nhất đã khác EPS của năm tài chính trước, và P/E theo quy ước lấy EPS bốn quý gần nhất. Bảng số liệu có cả hai mức EPS — đặt đúng hai con số vào ô trống của công thức P/E.',
-      en: 'A stock trades at 36,000 ₫. The company has just reported a new quarter, so trailing four-quarter EPS now differs from last fiscal year EPS, and by convention P/E uses the trailing four-quarter figure. The table holds both EPS figures — put the right two numbers into the slots of the P/E formula.',
+      vi: 'Một cổ phiếu đang giao dịch ở 36.000 ₫. Doanh nghiệp vừa công bố báo cáo quý mới nên EPS lũy kế bốn quý gần nhất đã khác EPS của năm tài chính trước, và P/E theo quy ước lấy EPS bốn quý gần nhất. Bảng số liệu có cả hai mức EPS - đặt đúng hai số vào vị trí của công thức P/E.',
+      en: 'A stock trades at 36,000 ₫. The company has just reported a new quarter, so trailing four-quarter EPS now differs from last fiscal year EPS, and by convention P/E uses the trailing four-quarter figure. The table holds both EPS figures - put the right two numbers into the slots of the P/E formula.',
     },
     facts: [
       {
@@ -65,8 +65,8 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
       en: 'P/E = [36000] ÷ [3000]',
     },
     explain: {
-      vi: '36.000 chia 3.000 ra 12,0 lần: nhà đầu tư đang trả 12 đồng cho mỗi đồng lợi nhuận một năm. Đặt nhầm EPS 2.400 ₫ của năm tài chính trước vào mẫu số sẽ ra 15,0 lần — cổ phiếu trông đắt hơn thực tế một phần tư, chỉ vì mẫu số đã lỗi thời so với báo cáo mới nhất. EPS bốn quý gần nhất là quy ước của P/E trailing, và nó đổi sau mỗi kỳ báo cáo.',
-      en: '36,000 divided by 3,000 gives 12.0x: the investor is paying 12 dong for each dong of a year of profit. Putting the prior fiscal year EPS of 2,400 ₫ in the denominator instead gives 15.0x — the stock looks a quarter more expensive than it is, purely because the denominator is out of date against the latest report. Trailing four-quarter EPS is the convention for trailing P/E, and it changes after every reporting period.',
+      vi: '36.000 chia 3.000 ra 12,0 lần: nhà đầu tư đang trả 12 đồng cho mỗi đồng lợi nhuận một năm. Đặt nhầm EPS 2.400 ₫ của năm tài chính trước vào mẫu số sẽ ra 15,0 lần - cổ phiếu trông đắt hơn thực tế một phần tư, chỉ vì mẫu số đã lỗi thời so với báo cáo mới nhất. EPS bốn quý gần nhất là quy ước của P/E trailing, và nó đổi sau mỗi kỳ báo cáo.',
+      en: '36,000 divided by 3,000 gives 12.0x: the investor is paying 12 dong for each dong of a year of profit. Putting the prior fiscal year EPS of 2,400 ₫ in the denominator instead gives 15.0x - the stock looks a quarter more expensive than it is, purely because the denominator is out of date against the latest report. Trailing four-quarter EPS is the convention for trailing P/E, and it changes after every reporting period.',
     },
     giai: {
       tinh: { vi: 'P/E của cổ phiếu', en: 'The P/E of the stock' },
@@ -90,7 +90,7 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Một báo cáo phân tích cổ phiếu CTG ngày 23/06/2026 chốt vùng định giá 12 tháng từ 40.000 đến 45.000 đồng/cp và lấy giá trị trung tâm 42.500 đồng/cp làm giá trị nội tại, trong khi giá đóng cửa phiên 22/06/2026 là 33.850 đồng/cp. Báo cáo còn ghi sẵn một dòng upside tham khảo +25,5%, nhưng con số đó chia phần chênh cho thị giá chứ không phải cho giá trị nội tại. Hãy đặt đúng ba con số vào ô trống của công thức Biên an toàn.',
+      vi: 'Một báo cáo phân tích cổ phiếu CTG ngày 23/06/2026 chốt vùng định giá 12 tháng từ 40.000 đến 45.000 đồng/cp và lấy giá trị trung tâm 42.500 đồng/cp làm giá trị nội tại, trong khi giá đóng cửa phiên 22/06/2026 là 33.850 đồng/cp. Báo cáo còn ghi sẵn một dòng upside tham khảo +25,5%, nhưng con số đó chia phần chênh cho thị giá chứ không phải cho giá trị nội tại. Hãy đặt đúng ba số vào vị trí của công thức Biên an toàn.',
       en: 'A research note on the Vietnamese bank stock CTG dated 2026-06-23 sets a 12-month valuation range from 40000 to 45000 ₫ per share and takes the 42500 ₫ midpoint as the intrinsic value, while the closing price on 2026-06-22 was 33850 ₫. The note also prints a reference upside of +25.5%, but that figure divides the gap by the market price rather than by the intrinsic value. Put the right three numbers into the slots of the margin of safety formula.',
     },
     facts: [
@@ -153,7 +153,7 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Tạp chí Mekong Asean đưa tin kết quả quý 2/2026 của Dệt may Thành Công (TCM): doanh thu thuần cao nhất bốn quý gần đây, nhưng giá vốn hàng bán tăng nhanh hơn doanh thu nên biên lợi nhuận gộp co lại. Bảng số liệu chép từ bài báo có cả doanh thu thuần lũy kế 6 tháng và lợi nhuận sau thuế, hai con số không thuộc công thức này. Hãy đặt đúng ba con số của riêng quý 2/2026 vào ô trống của công thức biên lợi nhuận gộp.',
+      vi: 'Tạp chí Mekong Asean đưa tin kết quả quý 2/2026 của Dệt may Thành Công (TCM): doanh thu thuần cao nhất bốn quý gần đây, nhưng giá vốn hàng bán tăng nhanh hơn doanh thu nên biên lợi nhuận gộp co lại. Bảng số liệu chép từ bài báo có cả doanh thu thuần lũy kế 6 tháng và lợi nhuận sau thuế, hai con số không thuộc công thức này. Hãy đặt đúng ba số của riêng quý 2/2026 vào vị trí của công thức biên lợi nhuận gộp.',
       en: 'Mekong Asean magazine reported Thanh Cong Textile Garment (TCM) Q2 2026 results: net revenue was the highest in four quarters, but cost of goods sold grew faster than revenue, so the gross profit margin narrowed. The table copied from the article also holds the six-month cumulative net revenue and the after-tax profit, two figures that do not belong in this formula. Put the right three Q2 2026 figures into the slots of the gross profit margin formula.',
     },
     facts: [
@@ -210,8 +210,8 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Quý II/2026, DIC Corp (mã DIG) báo doanh thu thuần 613 tỷ đồng nhưng lợi nhuận gộp chỉ 42 tỷ đồng, trong khi lợi nhuận sau thuế lại lên tới 143 tỷ đồng nhờ doanh thu tài chính và lãi từ công ty liên doanh, liên kết. Biên lợi nhuận ròng lấy dòng lãi CUỐI CÙNG của báo cáo kết quả kinh doanh, không phải lãi từ bán hàng. Bảng số liệu có cả hai dòng lãi — đặt đúng hai con số vào ô trống của công thức ROS.',
-      en: 'In Q2 2026, DIC Corp (ticker DIG) reported net revenue of 613 billion dong but gross profit of only 42 billion dong, while net income after tax reached 143 billion dong thanks to financial income and profit from joint ventures and associates. Net profit margin takes the LAST profit line of the income statement, not the profit from selling goods. The table holds both profit lines — put the right two numbers into the slots of the ROS formula.',
+      vi: 'Quý II/2026, DIC Corp (mã DIG) báo doanh thu thuần 613 tỷ đồng nhưng lợi nhuận gộp chỉ 42 tỷ đồng, trong khi lợi nhuận sau thuế lại lên tới 143 tỷ đồng nhờ doanh thu tài chính và lãi từ công ty liên doanh, liên kết. Biên lợi nhuận ròng lấy dòng lãi CUỐI CÙNG của báo cáo kết quả kinh doanh, không phải lãi từ bán hàng. Bảng số liệu có cả hai dòng lãi - đặt đúng hai số vào vị trí của công thức ROS.',
+      en: 'In Q2 2026, DIC Corp (ticker DIG) reported net revenue of 613 billion dong but gross profit of only 42 billion dong, while net income after tax reached 143 billion dong thanks to financial income and profit from joint ventures and associates. Net profit margin takes the LAST profit line of the income statement, not the profit from selling goods. The table holds both profit lines - put the right two numbers into the slots of the ROS formula.',
     },
     facts: [
       {
@@ -239,8 +239,8 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
       en: 'ROS = [143] ÷ [613] × 100',
     },
     explain: {
-      vi: 'Lấy 143 chia 613 rồi nhân 100 ra 23,33%: cứ 100 đồng doanh thu thuần quý II, DIG giữ lại hơn 23 đồng lãi ròng. Bẫy nằm ở dòng lợi nhuận gộp 42 tỷ đồng — đặt nó vào tử số thì ra 6,85%, đúng bằng biên lợi nhuận gộp mà bài báo nói đã co từ 39% xuống 6,9%. Đây là ca hiếm khi biên ròng CAO HƠN biên gộp, vì phần lãi lớn không đến từ bán hàng mà từ 116 tỷ đồng doanh thu tài chính cùng 40 tỷ đồng lãi công ty liên doanh, liên kết. ROS luôn lấy dòng lãi cuối cùng sau thuế, nên nó nhận trọn cả những khoản ngoài hoạt động cốt lõi; muốn đo sức khoẻ của việc bán hàng thì phải đọc biên gộp bên cạnh, chứ không thay ROS bằng nó. Số 100 trong công thức là hằng số đổi tỷ lệ ra phần trăm nên luôn hiện sẵn, không phải ô để điền.',
-      en: 'Dividing 143 by 613 and multiplying by 100 gives 23.33%: out of every 100 dong of Q2 net revenue, DIG keeps more than 23 dong of net profit. The trap is the gross profit line of 42 billion dong — putting that in the numerator yields 6.85%, exactly the gross margin the article says shrank from 39% to 6.9%. This is the rare case where the net margin is HIGHER than the gross margin, because most of the profit came not from selling goods but from 116 billion dong of financial income plus 40 billion dong of profit from joint ventures and associates. ROS always takes the last profit line after tax, so it absorbs everything outside core operations; to judge the health of the selling business you read the gross margin beside it rather than replacing ROS with it. The 100 in the formula is the structural constant that converts the ratio to a percentage, so it stays visible and is not a slot.',
+      vi: 'Lấy 143 chia 613 rồi nhân 100 ra 23,33%: cứ 100 đồng doanh thu thuần quý II, DIG giữ lại hơn 23 đồng lãi ròng. Bẫy nằm ở dòng lợi nhuận gộp 42 tỷ đồng - đặt nó vào tử số thì ra 6,85%, đúng bằng biên lợi nhuận gộp mà bài báo nói đã co từ 39% xuống 6,9%. Đây là ca hiếm khi biên ròng CAO HƠN biên gộp, vì phần lãi lớn không đến từ bán hàng mà từ 116 tỷ đồng doanh thu tài chính cùng 40 tỷ đồng lãi công ty liên doanh, liên kết. ROS luôn lấy dòng lãi cuối cùng sau thuế, nên nó nhận trọn cả những khoản ngoài hoạt động cốt lõi; muốn đo sức khoẻ của việc bán hàng thì phải đọc biên gộp bên cạnh, chứ không thay ROS bằng nó. Số 100 trong công thức là hằng số đổi tỷ lệ ra phần trăm nên luôn hiện sẵn, không phải ô để điền.',
+      en: 'Dividing 143 by 613 and multiplying by 100 gives 23.33%: out of every 100 dong of Q2 net revenue, DIG keeps more than 23 dong of net profit. The trap is the gross profit line of 42 billion dong - putting that in the numerator yields 6.85%, exactly the gross margin the article says shrank from 39% to 6.9%. This is the rare case where the net margin is HIGHER than the gross margin, because most of the profit came not from selling goods but from 116 billion dong of financial income plus 40 billion dong of profit from joint ventures and associates. ROS always takes the last profit line after tax, so it absorbs everything outside core operations; to judge the health of the selling business you read the gross margin beside it rather than replacing ROS with it. The 100 in the formula is the structural constant that converts the ratio to a percentage, so it stays visible and is not a slot.',
     },
     giai: {
       tinh: { vi: 'biên lợi nhuận ròng', en: 'Net profit margin' },
@@ -264,7 +264,7 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Báo cáo tài chính hợp nhất quý 1/2023 của Hòa Phát (HPG) ghi vốn chủ sở hữu 96.437 tỷ ₫, trong đó 91 tỷ ₫ là lợi ích cổ đông không kiểm soát, tức phần vốn của cổ đông thiểu số ở các công ty con chứ không thuộc về cổ đông HPG. BVPS ở trang này lấy vốn chủ sở hữu của cổ đông công ty mẹ chia cho số cổ phiếu đang lưu hành và KHÔNG trừ tài sản vô hình; bản có trừ tài sản vô hình là giá trị sổ sách hữu hình, một chỉ tiêu khác. Bảng số liệu có sẵn cả hai dòng tài sản vô hình để thử bạn: hãy đặt đúng ba con số vào ô trống của công thức BVPS.',
+      vi: 'Báo cáo tài chính hợp nhất quý 1/2023 của Hòa Phát (HPG) ghi vốn chủ sở hữu 96.437 tỷ ₫, trong đó 91 tỷ ₫ là lợi ích cổ đông không kiểm soát, tức phần vốn của cổ đông thiểu số ở các công ty con chứ không thuộc về cổ đông HPG. BVPS ở trang này lấy vốn chủ sở hữu của cổ đông công ty mẹ chia cho số cổ phiếu đang lưu hành và KHÔNG trừ tài sản vô hình; bản có trừ tài sản vô hình là giá trị sổ sách hữu hình, một chỉ tiêu khác. Bảng số liệu có sẵn cả hai dòng tài sản vô hình để thử bạn: hãy đặt đúng ba số vào vị trí của công thức BVPS.',
       en: "Hoa Phat Group (HPG) reported consolidated equity of 96,437 billion ₫ at March 31, 2023, of which 91 billion ₫ is non-controlling interests, the minority shareholders' stake in its subsidiaries rather than value belonging to HPG shareholders. The BVPS formula on this page divides equity attributable to the parent company's shareholders by shares outstanding and does NOT subtract intangible assets; the version that subtracts them is tangible book value, a different metric. The table deliberately includes both intangible-asset lines: put the right three figures into the slots of the BVPS formula.",
     },
     facts: [
@@ -334,7 +334,7 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Đầu năm 2019 một nhà đầu tư bỏ 600.000.000 ₫ mua cổ phiếu VCB ở giá 60.000 ₫ một cổ phiếu. Cuối năm 2022 giá lên 90.000 ₫ nên vẫn số cổ phiếu ấy đã thành 900.000.000 ₫. Bảng theo dõi danh mục của nhà đầu tư kẻ bốn cột năm là 2019, 2020, 2021 và 2022, nhưng t trong công thức CAGR là số năm đã trôi qua giữa hai mốc chứ không phải số cột năm trong bảng. Đặt đúng ba con số của bảng vào ô trống của công thức CAGR.',
+      vi: 'Đầu năm 2019 một nhà đầu tư bỏ 600.000.000 ₫ mua cổ phiếu VCB ở giá 60.000 ₫ một cổ phiếu. Cuối năm 2022 giá lên 90.000 ₫ nên vẫn số cổ phiếu ấy đã thành 900.000.000 ₫. Bảng theo dõi danh mục của nhà đầu tư kẻ bốn cột năm là 2019, 2020, 2021 và 2022, nhưng t trong công thức CAGR là số năm đã trôi qua giữa hai mốc chứ không phải số cột năm trong bảng. Đặt đúng ba số của bảng vào vị trí của công thức CAGR.',
       en: "At the start of 2019 an investor put 600,000,000 ₫ into VCB shares at 60,000 ₫ per share. By the end of 2022 the price had risen to 90,000 ₫, so the same shares were worth 900,000,000 ₫. The investor's portfolio sheet has four year columns, 2019, 2020, 2021 and 2022, but t in the CAGR formula is the number of years that elapsed between the two marks, not the number of year columns in the sheet. Put the right three figures from the table into the slots of the CAGR formula.",
     },
     facts: [
@@ -411,7 +411,7 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'DNSE lấy ví dụ một nhà đầu tư rót 200 triệu đồng vào cổ phiếu VNM: beta của VNM là 1,1 lần, lãi suất phi rủi ro 3%/năm, và thị trường được kỳ vọng tăng 5%/năm. CAPM cộng vào lãi suất phi rủi ro PHẦN BÙ rủi ro thị trường, tức phần vượt của kỳ vọng thị trường so với lãi suất phi rủi ro, chứ không phải bản thân mức kỳ vọng ấy. Bảng số liệu có đủ cả hai con số, hãy đặt đúng ba con số vào ô trống của công thức CAPM.',
+      vi: 'DNSE lấy ví dụ một nhà đầu tư rót 200 triệu đồng vào cổ phiếu VNM: beta của VNM là 1,1 lần, lãi suất phi rủi ro 3%/năm, và thị trường được kỳ vọng tăng 5%/năm. CAPM cộng vào lãi suất phi rủi ro PHẦN BÙ rủi ro thị trường, tức phần vượt của kỳ vọng thị trường so với lãi suất phi rủi ro, chứ không phải bản thân mức kỳ vọng ấy. Bảng số liệu có đủ cả hai con số, hãy đặt đúng ba số vào vị trí của công thức CAPM.',
       en: "DNSE works through an example of an investor putting 200 million dong into VNM shares: VNM's beta is 1.1, the risk-free rate is 3%/year, and the market is expected to rise 5%/year. CAPM adds the market risk PREMIUM to the risk-free rate, meaning the excess of the expected market return over the risk-free rate, not that expected return itself. The table holds both figures, so put the right three numbers into the slots of the CAPM formula.",
     },
     facts: [
@@ -476,7 +476,7 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Bài tập ôn thi CPA: một cổ phiếu đang có thị giá 20.000 ₫/cổ phần, cổ tức năm trước 2.000 ₫/cổ phần, tỷ suất sinh lợi yêu cầu 16%/năm. Phương án đang xét giả định hai năm tới cổ tức tăng 9%/năm, các năm sau đó tăng ổn định 6%/năm mãi mãi. Bảng số liệu có cả cổ tức năm trước lẫn cổ tức dự kiến năm tới, và có cả hai tốc độ tăng trưởng. Đặt đúng năm con số vào ô trống của công thức DDM hai giai đoạn.',
+      vi: 'Bài tập ôn thi CPA: một cổ phiếu đang có thị giá 20.000 ₫/cổ phần, cổ tức năm trước 2.000 ₫/cổ phần, tỷ suất sinh lợi yêu cầu 16%/năm. Phương án đang xét giả định hai năm tới cổ tức tăng 9%/năm, các năm sau đó tăng ổn định 6%/năm mãi mãi. Bảng số liệu có cả cổ tức năm trước lẫn cổ tức dự kiến năm tới, và có cả hai tốc độ tăng trưởng. Đặt đúng năm số vào vị trí của công thức DDM hai giai đoạn.',
       en: "A CPA exam exercise: a share trades at 20,000 ₫ per share, paid a dividend of 2,000 ₫ per share last year, and the required return is 16% per year. The case under review assumes dividends grow 9% per year for the next two years, then settle at a steady 6% per year forever. The table holds both last year's dividend and next year's expected dividend, and both growth rates. Put the right five numbers into the slots of the two-stage DDM formula.",
     },
     facts: [
@@ -552,7 +552,7 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'TACA hướng dẫn tính EPS cơ bản cho một doanh nghiệp có lợi nhuận sau thuế bốn quý gần nhất 1.621 tỷ ₫ và cổ tức ưu đãi phải trả 300 tỷ ₫. Trong kỳ doanh nghiệp phát hành thêm hai đợt cổ phiếu và mua lại 10.000.000 cổ phiếu quỹ, nên số cổ phiếu đầu kỳ, số cuối kỳ và số bình quân gia quyền cả kỳ là ba con số khác nhau; EPS cơ bản chia cho số bình quân gia quyền. Bảng số liệu có đủ cả ba, hãy đặt đúng ba con số vào ô trống của công thức EPS.',
+      vi: 'TACA hướng dẫn tính EPS cơ bản cho một doanh nghiệp có lợi nhuận sau thuế bốn quý gần nhất 1.621 tỷ ₫ và cổ tức ưu đãi phải trả 300 tỷ ₫. Trong kỳ doanh nghiệp phát hành thêm hai đợt cổ phiếu và mua lại 10.000.000 cổ phiếu quỹ, nên số cổ phiếu đầu kỳ, số cuối kỳ và số bình quân gia quyền cả kỳ là ba con số khác nhau; EPS cơ bản chia cho số bình quân gia quyền. Bảng số liệu có đủ cả ba, hãy đặt đúng ba số vào vị trí của công thức EPS.',
       en: 'TACA works through basic EPS for a company whose trailing four-quarter profit after tax is 1621 billion ₫ and whose preferred dividend payable is 300 billion ₫. During the period the company issued shares twice and bought back 10,000,000 treasury shares, so the opening share count, the closing share count and the weighted average for the period are three different numbers; basic EPS divides by the weighted average. The table holds all three, so put the right three numbers into the slots of the EPS formula.',
     },
     facts: [
@@ -634,7 +634,7 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Một doanh nghiệp có 10 triệu cổ phiếu đang lưu hành, thị giá 17,50 USD một cổ phiếu. Bảng cân đối kế toán ghi riêng nợ vay ngắn hạn và nợ vay dài hạn, còn tiền mặt và tiền gửi chỉ chiếm 10% tổng tài sản. Tử số của EV/Sales là giá trị doanh nghiệp chứ không phải vốn hóa, nên phải cộng đủ cả hai khoản nợ rồi mới trừ tiền mặt. Đặt đúng năm con số vào ô trống của công thức EV/Sales.',
+      vi: 'Một doanh nghiệp có 10 triệu cổ phiếu đang lưu hành, thị giá 17,50 USD một cổ phiếu. Bảng cân đối kế toán ghi riêng nợ vay ngắn hạn và nợ vay dài hạn, còn tiền mặt và tiền gửi chỉ chiếm 10% tổng tài sản. Tử số của EV/Sales là giá trị doanh nghiệp chứ không phải vốn hóa, nên phải cộng đủ cả hai khoản nợ rồi mới trừ tiền mặt. Đặt đúng năm số vào vị trí của công thức EV/Sales.',
       en: 'A company has 10 million shares outstanding at a market price of 17.50 USD per share. Its balance sheet lists short-term borrowings and long-term borrowings separately, while cash and cash equivalents are only 10% of total assets. The numerator of EV/Sales is enterprise value, not market capitalization, so both debt figures must be added before cash is subtracted. Put the right five numbers into the slots of the EV/Sales formula.',
     },
     facts: [
@@ -677,8 +677,8 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
       en: 'EV/Sales = ([175] + [20] + [30] − [12.5]) ÷ [85]',
     },
     explain: {
-      vi: 'Giá trị doanh nghiệp = vốn hóa + nợ vay − tiền mặt, nên tử số là 175 + 20 + 30 − 12,5 = 212,5 triệu USD; chia cho doanh thu thuần 85 triệu USD ra 2,5 lần. Cái bẫy nằm ở dòng Tổng tài sản 125 triệu USD: chỉ 10% số đó là tiền mặt, tức 12,5 triệu USD, nên ai kéo nhầm 125 vào ô trừ sẽ ra 100 ÷ 85 ≈ 1,18 lần, rẻ hơn thực tế gần một nửa. Hai khoản nợ đều phải cộng vào: bỏ sót khoản vay dài hạn 30 triệu USD thì tỷ số tụt còn 2,15 lần. Và nếu chỉ đặt vốn hóa 175 lên tử số rồi chia cho doanh thu thì con số 2,06 lần thu được là P/S chứ không phải EV/Sales — bội số ghép tử số của riêng cổ đông với mẫu số của cả doanh nghiệp, tức bỏ qua đúng phần nợ mà người mua sẽ phải gánh.',
-      en: 'Enterprise value = market cap + borrowings − cash, so the numerator is 175 + 20 + 30 − 12.5 = 212.5 million USD; divided by net revenue of 85 million USD that gives 2.5x. The trap is the Total assets row of 125 million USD: only 10% of it is cash, that is 12.5 million USD, so anyone who drags 125 into the subtraction slot gets 100 ÷ 85 ≈ 1.18x, almost half as cheap as reality. Both debt figures must be added: dropping the 30 million USD of long-term borrowings pulls the ratio down to 2.15x. And putting only the 175 market cap in the numerator gives 2.06x, which is P/S rather than EV/Sales — a multiple that pairs an equity numerator with a whole-firm denominator, ignoring exactly the debt a buyer would have to take on.',
+      vi: 'Giá trị doanh nghiệp = vốn hóa + nợ vay − tiền mặt, nên tử số là 175 + 20 + 30 − 12,5 = 212,5 triệu USD; chia cho doanh thu thuần 85 triệu USD ra 2,5 lần. Cái bẫy nằm ở dòng Tổng tài sản 125 triệu USD: chỉ 10% số đó là tiền mặt, tức 12,5 triệu USD, nên ai kéo nhầm 125 vào ô trừ sẽ ra 100 ÷ 85 ≈ 1,18 lần, rẻ hơn thực tế gần một nửa. Hai khoản nợ đều phải cộng vào: bỏ sót khoản vay dài hạn 30 triệu USD thì tỷ số tụt còn 2,15 lần. Và nếu chỉ đặt vốn hóa 175 lên tử số rồi chia cho doanh thu thì con số 2,06 lần thu được là P/S chứ không phải EV/Sales - bội số ghép tử số của riêng cổ đông với mẫu số của cả doanh nghiệp, tức bỏ qua đúng phần nợ mà người mua sẽ phải gánh.',
+      en: 'Enterprise value = market cap + borrowings − cash, so the numerator is 175 + 20 + 30 − 12.5 = 212.5 million USD; divided by net revenue of 85 million USD that gives 2.5x. The trap is the Total assets row of 125 million USD: only 10% of it is cash, that is 12.5 million USD, so anyone who drags 125 into the subtraction slot gets 100 ÷ 85 ≈ 1.18x, almost half as cheap as reality. Both debt figures must be added: dropping the 30 million USD of long-term borrowings pulls the ratio down to 2.15x. And putting only the 175 market cap in the numerator gives 2.06x, which is P/S rather than EV/Sales - a multiple that pairs an equity numerator with a whole-firm denominator, ignoring exactly the debt a buyer would have to take on.',
     },
     giai: {
       tinh: { vi: 'EV trên doanh thu', en: 'EV to sales ratio' },
@@ -714,8 +714,8 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Cuối năm 2022, cổ phiếu FPT có vốn hoá thị trường 86.774,72 tỷ ₫. Nợ vay của FPT nằm ở hai dòng riêng trên bảng cân đối kế toán — vay ngắn hạn và vay dài hạn — và EV cộng cả hai dòng đó. Bảng số liệu dưới đây có nhiều dòng hơn số ô trống trong công thức. Đặt đúng bốn con số vào ô trống của công thức EV.',
-      en: "At the end of 2022, FPT had a market capitalization of 86774.72 billion ₫. FPT's borrowings sit on two separate balance sheet lines — short-term debt and long-term debt — and EV adds both of them. The table below has more rows than the formula has slots. Put the right four numbers into the slots of the EV formula.",
+      vi: 'Cuối năm 2022, cổ phiếu FPT có vốn hoá thị trường 86.774,72 tỷ ₫. Nợ vay của FPT nằm ở hai dòng riêng trên bảng cân đối kế toán - vay ngắn hạn và vay dài hạn - và EV cộng cả hai dòng đó. Bảng số liệu dưới đây có nhiều dòng hơn số vị trí cần điền trong công thức. Đặt đúng bốn số vào vị trí của công thức EV.',
+      en: "At the end of 2022, FPT had a market capitalization of 86774.72 billion ₫. FPT's borrowings sit on two separate balance sheet lines - short-term debt and long-term debt - and EV adds both of them. The table below has more rows than the formula has slots. Put the right four numbers into the slots of the EV formula.",
     },
     facts: [
       {
@@ -757,8 +757,8 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
       en: 'EV = [86774.72] + [10904.34] + [1477.83] − [6440.18]',
     },
     explain: {
-      vi: 'Đặt đúng chỗ thì EV = 86.774,72 + 10.904,34 + 1.477,83 − 6.440,18 = 92.716,71 tỷ ₫, khớp con số Simplize tính cho FPT cuối năm 2022. Hai khoản vay phải cộng riêng vì bảng cân đối kế toán trình bày chúng ở hai dòng, và nguồn định nghĩa rõ phần nào của nợ được đưa vào: “Nợ vay là tổng các khoản nợ có yếu tố lãi suất (phải trả lãi) và bao gồm cả các khoản nợ ngắn hạn và dài hạn.” Bẫy nằm ở dòng nợ vay ròng 5.941,99 tỷ ₫: nó đã trừ tiền mặt sẵn, nên ai đặt nó vào ô nợ vay rồi vẫn trừ tiếp 6.440,18 là trừ tiền mặt hai lần, ra 86.276,53 tỷ ₫ — thấp hơn EV thật gần 6.440 tỷ, thậm chí thấp hơn cả vốn hoá. Dòng EBITDA 10.141,07 tỷ ₫ thuộc về công thức EV/EBITDA ở trang khác, không phải một số hạng của EV, và nó cố ý đứng sát con số vay ngắn hạn 10.904,34 tỷ ₫ để ai chép vội dễ lấy nhầm.',
-      en: 'Placed correctly, EV = 86,774.72 + 10,904.34 + 1,477.83 − 6,440.18 = 92,716.71 billion ₫, matching the figure Simplize computes for FPT at the end of 2022. The two borrowing lines are added separately because the balance sheet presents them as two lines, and the source states exactly which part of the liabilities goes in: “Nợ vay là tổng các khoản nợ có yếu tố lãi suất (phải trả lãi) và bao gồm cả các khoản nợ ngắn hạn và dài hạn.” (Roughly, borrowings are the total of interest-bearing liabilities, short-term and long-term alike.) The trap is the net debt row of 5,941.99 billion ₫: cash has already been taken out of it, so putting it in the debt slot and still subtracting 6,440.18 subtracts cash twice and lands on 86,276.53 billion ₫ — nearly 6,440 billion below the real EV, and even below market cap. The 10,141.07 billion ₫ EBITDA row belongs to the EV/EBITDA formula on another page, not to a term of EV, and it sits deliberately close to the 10,904.34 billion ₫ short-term debt figure so a hurried reader can grab the wrong one.',
+      vi: 'Đặt đúng chỗ thì EV = 86.774,72 + 10.904,34 + 1.477,83 − 6.440,18 = 92.716,71 tỷ ₫, khớp con số Simplize tính cho FPT cuối năm 2022. Hai khoản vay phải cộng riêng vì bảng cân đối kế toán trình bày chúng ở hai dòng, và nguồn định nghĩa rõ phần nào của nợ được đưa vào: “Nợ vay là tổng các khoản nợ có yếu tố lãi suất (phải trả lãi) và bao gồm cả các khoản nợ ngắn hạn và dài hạn.” Bẫy nằm ở dòng nợ vay ròng 5.941,99 tỷ ₫: nó đã trừ tiền mặt sẵn, nên ai đặt nó vào ô nợ vay rồi vẫn trừ tiếp 6.440,18 là trừ tiền mặt hai lần, ra 86.276,53 tỷ ₫ - thấp hơn EV thật gần 6.440 tỷ, thậm chí thấp hơn cả vốn hoá. Dòng EBITDA 10.141,07 tỷ ₫ thuộc về công thức EV/EBITDA ở trang khác, không phải một số hạng của EV, và nó cố ý đứng sát con số vay ngắn hạn 10.904,34 tỷ ₫ để ai chép vội dễ lấy nhầm.',
+      en: 'Placed correctly, EV = 86,774.72 + 10,904.34 + 1,477.83 − 6,440.18 = 92,716.71 billion ₫, matching the figure Simplize computes for FPT at the end of 2022. The two borrowing lines are added separately because the balance sheet presents them as two lines, and the source states exactly which part of the liabilities goes in: “Nợ vay là tổng các khoản nợ có yếu tố lãi suất (phải trả lãi) và bao gồm cả các khoản nợ ngắn hạn và dài hạn.” (Roughly, borrowings are the total of interest-bearing liabilities, short-term and long-term alike.) The trap is the net debt row of 5,941.99 billion ₫: cash has already been taken out of it, so putting it in the debt slot and still subtracting 6,440.18 subtracts cash twice and lands on 86,276.53 billion ₫ - nearly 6,440 billion below the real EV, and even below market cap. The 10,141.07 billion ₫ EBITDA row belongs to the EV/EBITDA formula on another page, not to a term of EV, and it sits deliberately close to the 10,904.34 billion ₫ short-term debt figure so a hurried reader can grab the wrong one.',
     },
     giai: {
       tinh: { vi: 'giá trị doanh nghiệp', en: 'Enterprise value' },
@@ -792,7 +792,7 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Một bài hướng dẫn định giá đi từ EBIT 20 triệu USD, thuế suất 21%, khấu hao, chi đầu tư và thay đổi vốn lưu động để ra FCFF 11,8 triệu USD, rồi bắc cầu sang FCFE: doanh nghiệp trả 3 triệu USD chi phí lãi vay và vay ròng thêm 1 triệu USD trong kỳ. Công thức trừ lãi vay SAU THUẾ, nên hệ số (1 − thuế suất) đã nằm sẵn trong hình, trong khi bảng số liệu lại đưa luôn khoản lãi vay sau thuế mà nguồn tính sẵn. Đặt đúng bốn con số vào ô trống của công thức FCFE.',
+      vi: 'Một bài hướng dẫn định giá đi từ EBIT 20 triệu USD, thuế suất 21%, khấu hao, chi đầu tư và thay đổi vốn lưu động để ra FCFF 11,8 triệu USD, rồi bắc cầu sang FCFE: doanh nghiệp trả 3 triệu USD chi phí lãi vay và vay ròng thêm 1 triệu USD trong kỳ. Công thức trừ lãi vay SAU THUẾ, nên hệ số (1 − thuế suất) đã nằm sẵn trong hình, trong khi bảng số liệu lại đưa luôn khoản lãi vay sau thuế mà nguồn tính sẵn. Đặt đúng bốn số vào vị trí của công thức FCFE.',
       en: 'A valuation guide starts from EBIT of USD 20 million, a 21% tax rate, depreciation, capital spending and the change in working capital to reach FCFF of USD 11.8 million, then bridges across to FCFE: the company pays USD 3 million of interest expense and raises USD 1 million of net new debt during the period. The formula subtracts AFTER-TAX interest, so the (1 − tax rate) factor is already drawn in the picture, while the table also hands you the after-tax interest the source has already worked out. Put the right four numbers into the slots of the FCFE formula.',
     },
     facts: [
@@ -805,8 +805,8 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
       },
       {
         label: {
-          vi: 'FCFF — dòng tiền tự do của doanh nghiệp',
-          en: 'FCFF — free cash flow to the firm',
+          vi: 'FCFF - dòng tiền tự do của doanh nghiệp',
+          en: 'FCFF - free cash flow to the firm',
         },
         value: { vi: '11,8 triệu USD', en: 'USD 11.8 million' },
       },
@@ -844,8 +844,8 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
       en: 'FCFE = [11.8] − [3] × (1 − [21] ÷ 100) + [1]',
     },
     explain: {
-      vi: 'FCFE chỉ trừ phần lãi vay SAU THUẾ, nên ô lãi vay nhận con số gộp 3 triệu USD, còn hệ số (1 − 21 ÷ 100) nằm sẵn trong hình lo phần khấu trừ thuế: 3 × 0,79 ra 2,37 triệu USD. Bảng số liệu cố ý đưa luôn 2,37 triệu USD — đặt con số ấy vào ô lãi vay là trừ thuế hai lần, ra 10,93 thay vì 10,43. Vay ròng mới 1 triệu USD thì CỘNG vào chứ không trừ, vì tiền vay thêm là tiền cổ đông được dùng ngay trong kỳ; đúng vì thế mà khi vay ròng đảo chiều sang âm, FCFE sụt mạnh dù hoạt động kinh doanh không đổi. EBIT 20 triệu USD là đầu vào của bước tính FCFF phía trước, không phải FCFF, nên nó không vào ô nào cả. “take the same $11.8M FCFF from above. Assume interest expense of $3M and the firm raised $1M of net new debt.”',
-      en: 'FCFE subtracts only the AFTER-TAX interest, so the interest slot takes the gross figure of USD 3 million while the (1 − 21 ÷ 100) factor already drawn in the picture handles the tax deduction: 3 × 0.79 gives USD 2.37 million. The table deliberately also offers USD 2.37 million — putting that figure into the interest slot deducts tax twice and gives 10.93 instead of 10.43. Net new borrowing of USD 1 million is ADDED, not subtracted, because borrowed money is cash shareholders can use straight away in the period; that is exactly why FCFE drops sharply when net borrowing turns negative even though the underlying business has not changed. EBIT of USD 20 million is an input to the earlier FCFF step, not FCFF itself, so it belongs in no slot at all. “take the same $11.8M FCFF from above. Assume interest expense of $3M and the firm raised $1M of net new debt.”',
+      vi: 'FCFE chỉ trừ phần lãi vay SAU THUẾ, nên ô lãi vay nhận con số gộp 3 triệu USD, còn hệ số (1 − 21 ÷ 100) nằm sẵn trong hình lo phần khấu trừ thuế: 3 × 0,79 ra 2,37 triệu USD. Bảng số liệu cố ý đưa luôn 2,37 triệu USD - đặt con số ấy vào ô lãi vay là trừ thuế hai lần, ra 10,93 thay vì 10,43. Vay ròng mới 1 triệu USD thì CỘNG vào chứ không trừ, vì tiền vay thêm là tiền cổ đông được dùng ngay trong kỳ; đúng vì thế mà khi vay ròng đảo chiều sang âm, FCFE sụt mạnh dù hoạt động kinh doanh không đổi. EBIT 20 triệu USD là đầu vào của bước tính FCFF phía trước, không phải FCFF, nên nó không vào ô nào cả. “take the same $11.8M FCFF from above. Assume interest expense of $3M and the firm raised $1M of net new debt.”',
+      en: 'FCFE subtracts only the AFTER-TAX interest, so the interest slot takes the gross figure of USD 3 million while the (1 − 21 ÷ 100) factor already drawn in the picture handles the tax deduction: 3 × 0.79 gives USD 2.37 million. The table deliberately also offers USD 2.37 million - putting that figure into the interest slot deducts tax twice and gives 10.93 instead of 10.43. Net new borrowing of USD 1 million is ADDED, not subtracted, because borrowed money is cash shareholders can use straight away in the period; that is exactly why FCFE drops sharply when net borrowing turns negative even though the underlying business has not changed. EBIT of USD 20 million is an input to the earlier FCFF step, not FCFF itself, so it belongs in no slot at all. “take the same $11.8M FCFF from above. Assume interest expense of $3M and the firm raised $1M of net new debt.”',
     },
     giai: {
       tinh: { vi: 'dòng tiền tự do của cổ đông', en: 'Free cash flow to equity' },
@@ -889,7 +889,7 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Một tài liệu định giá dựng ví dụ cho doanh nghiệp ABC: EBIT 250 triệu USD, thuế suất thuế TNDN 30%, khấu hao và phân bổ 50 triệu USD, chi đầu tư tài sản cố định 100 triệu USD, và vốn lưu động ròng tăng 20 triệu USD trong kỳ. Bảng số liệu còn có lợi nhuận sau thuế, là con số đã trừ lãi vay và đã nộp thuế rồi, nên nó không phải thứ đi vào ô đầu tiên. Đặt đúng năm con số vào ô trống của công thức FCFF.',
+      vi: 'Một tài liệu định giá dựng ví dụ cho doanh nghiệp ABC: EBIT 250 triệu USD, thuế suất thuế TNDN 30%, khấu hao và phân bổ 50 triệu USD, chi đầu tư tài sản cố định 100 triệu USD, và vốn lưu động ròng tăng 20 triệu USD trong kỳ. Bảng số liệu còn có lợi nhuận sau thuế, là con số đã trừ lãi vay và đã nộp thuế rồi, nên nó không phải thứ đi vào vị trí đầu tiên. Đặt đúng năm số vào vị trí của công thức FCFF.',
       en: 'A valuation write-up builds an example for Company ABC: EBIT of $250 million, a 30% corporate income tax rate, depreciation and amortization of $50 million, capital expenditure of $100 million, and net working capital rising by $20 million over the period. The table also carries net income, a figure that already deducts interest and already pays tax, so it is not what belongs in the first slot. Put the right five numbers into the slots of the FCFF formula.',
     },
     facts: [
@@ -987,7 +987,7 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Một nhà đầu tư mua 1.000 cổ phiếu ở giá 50.000 ₫ rồi giữ 3 tháng trước khi bán. Công ty chứng khoán thu phí môi giới 0,15% mỗi chiều, thuế chuyển nhượng khi bán là 0,1% giá bán, phí lưu ký 0,27 ₫ một cổ phiếu một tháng. Ở mẫu số, phần còn lại của mỗi đồng bán ra đã điền sẵn 0,0015 cho phí bán và 0,001 cho thuế bán; khối lượng 1.000 cũng đã điền sẵn ở cả tử lẫn mẫu. Bảng số liệu còn có giá phiên gần nhất, phí bán ước tính và phí lưu ký một tháng. Hãy đặt đúng ba con số vào ô trống của công thức giá hoà vốn.',
+      vi: 'Một nhà đầu tư mua 1.000 cổ phiếu ở giá 50.000 ₫ rồi giữ 3 tháng trước khi bán. Công ty chứng khoán thu phí môi giới 0,15% mỗi chiều, thuế chuyển nhượng khi bán là 0,1% giá bán, phí lưu ký 0,27 ₫ một cổ phiếu một tháng. Ở mẫu số, phần còn lại của mỗi đồng bán ra đã điền sẵn 0,0015 cho phí bán và 0,001 cho thuế bán; khối lượng 1.000 cũng đã điền sẵn ở cả tử lẫn mẫu. Bảng số liệu còn có giá phiên gần nhất, phí bán ước tính và phí lưu ký một tháng. Hãy đặt đúng ba số vào vị trí của công thức giá hoà vốn.',
       en: 'An investor buys 1,000 shares at 50,000 ₫ and holds them for 3 months before selling. The broker charges 0.15% brokerage on each side, the transfer tax on the sale is 0.1% of the sale value, and custody costs 0.27 ₫ per share per month. In the denominator, the share of each dong of proceeds that survives is already filled in: 0.0015 for the sell fee and 0.001 for the sell tax; the quantity 1000 is already filled in on both the top and the bottom. The table also lists the latest session price, an estimated sell fee and one month of custody. Put the right three figures into the slots of the break-even price formula.',
     },
     facts: [
@@ -1067,8 +1067,8 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Một khoản tiền 500.000.000 ₫ sẽ được nhận trọn gói sau 5 năm nữa, giữa chừng không có đồng nào chảy về. Người nhận muốn quy khoản đó về hôm nay với tỷ lệ chiết khấu 8%/năm. Bảng số liệu ghi kỳ hạn theo cả năm lẫn tháng, và còn có thêm mức lạm phát dự kiến — đặt đúng ba con số vào ô trống của công thức giá trị hiện tại.',
-      en: 'A lump sum of 500,000,000 ₫ will be received in 5 years, with no cash flow in between. The recipient wants to bring it back to today at a discount rate of 8%/year. The table states the remaining term in both years and months, and it also lists an expected inflation rate — put the right three numbers into the slots of the present value formula.',
+      vi: 'Một khoản tiền 500.000.000 ₫ sẽ được nhận trọn gói sau 5 năm nữa, giữa chừng không có đồng nào chảy về. Người nhận muốn quy khoản đó về hôm nay với tỷ lệ chiết khấu 8%/năm. Bảng số liệu ghi kỳ hạn theo cả năm lẫn tháng, và còn có thêm mức lạm phát dự kiến - đặt đúng ba số vào vị trí của công thức giá trị hiện tại.',
+      en: 'A lump sum of 500,000,000 ₫ will be received in 5 years, with no cash flow in between. The recipient wants to bring it back to today at a discount rate of 8%/year. The table states the remaining term in both years and months, and it also lists an expected inflation rate - put the right three numbers into the slots of the present value formula.',
     },
     facts: [
       {
@@ -1099,8 +1099,8 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
       en: 'Present value = [500000000] ÷ (1 + [8] ÷ 100) ^ [5]',
     },
     explain: {
-      vi: 'Tỷ lệ chiết khấu tính theo năm nên số mũ cũng phải đếm theo năm: ô số mũ nhận 5, không phải 60. Đặt nhầm 60 tháng vào đó thì mẫu số thành 1,08^60, tức khoảng 101,26 lần thay vì 1,47 lần, và kết quả rơi xuống chưa tới 5 triệu ₫ — nhỏ hơn con số đúng gần 69 lần. Mức lạm phát 4%/năm trong bảng là số gây nhiễu: lạm phát có thể là một lý do để chọn tỷ lệ chiết khấu cao hay thấp, nhưng nó không thay chỗ của tỷ lệ chiết khấu trong công thức; đặt 4 vào ô tỷ lệ sẽ ra khoảng 410,96 triệu ₫, cao hơn thực tế hơn 70 triệu ₫. Ô tỷ lệ nhận 8 vì con số trong bảng viết theo phần trăm, còn công thức cần tỷ lệ, nên phần ÷ 100 đã được in sẵn chứ không bỏ trống. Đặt đúng cả ba thì 500.000.000 ÷ 1,08^5 ≈ 340.291.598,52 ₫: khoản 500 triệu ₫ nhận sau 5 năm chỉ đáng khoảng 340 triệu ₫ ở hôm nay, đúng mức mà UB Academy tính ra trong ví dụ gốc.',
-      en: "The discount rate is quoted per year, so the exponent must be counted in years too: the exponent slot takes 5, not 60. Putting 60 months there makes the denominator 1.08^60, about 101.26 times instead of 1.47 times, and the result drops below 5 million ₫ — nearly 69 times smaller than the correct figure. The 4%/year inflation rate in the table is a distractor: inflation can be a reason to pick a higher or lower discount rate, but it does not take the discount rate's place in the formula; putting 4 in the rate slot gives about 410.96 million ₫, over 70 million ₫ too high. The rate slot takes 8 because the table states a percentage while the formula needs a ratio, which is why the ÷ 100 is printed rather than left blank. Placed correctly, 500,000,000 ÷ 1.08^5 is about 340,291,598.52 ₫: a 500 million ₫ sum received in 5 years is worth only about 340 million ₫ today, the same figure UB Academy computes in the original example.",
+      vi: 'Tỷ lệ chiết khấu tính theo năm nên số mũ cũng phải đếm theo năm: ô số mũ nhận 5, không phải 60. Đặt nhầm 60 tháng vào đó thì mẫu số thành 1,08^60, tức khoảng 101,26 lần thay vì 1,47 lần, và kết quả rơi xuống chưa tới 5 triệu ₫ - nhỏ hơn con số đúng gần 69 lần. Mức lạm phát 4%/năm trong bảng là số gây nhiễu: lạm phát có thể là một lý do để chọn tỷ lệ chiết khấu cao hay thấp, nhưng nó không thay chỗ của tỷ lệ chiết khấu trong công thức; đặt 4 vào ô tỷ lệ sẽ ra khoảng 410,96 triệu ₫, cao hơn thực tế hơn 70 triệu ₫. Ô tỷ lệ nhận 8 vì con số trong bảng viết theo phần trăm, còn công thức cần tỷ lệ, nên phần ÷ 100 đã được in sẵn chứ không bỏ trống. Đặt đúng cả ba thì 500.000.000 ÷ 1,08^5 ≈ 340.291.598,52 ₫: khoản 500 triệu ₫ nhận sau 5 năm chỉ đáng khoảng 340 triệu ₫ ở hôm nay, đúng mức mà UB Academy tính ra trong ví dụ gốc.',
+      en: "The discount rate is quoted per year, so the exponent must be counted in years too: the exponent slot takes 5, not 60. Putting 60 months there makes the denominator 1.08^60, about 101.26 times instead of 1.47 times, and the result drops below 5 million ₫ - nearly 69 times smaller than the correct figure. The 4%/year inflation rate in the table is a distractor: inflation can be a reason to pick a higher or lower discount rate, but it does not take the discount rate's place in the formula; putting 4 in the rate slot gives about 410.96 million ₫, over 70 million ₫ too high. The rate slot takes 8 because the table states a percentage while the formula needs a ratio, which is why the ÷ 100 is printed rather than left blank. Placed correctly, 500,000,000 ÷ 1.08^5 is about 340,291,598.52 ₫: a 500 million ₫ sum received in 5 years is worth only about 340 million ₫ today, the same figure UB Academy computes in the original example.",
     },
     giai: {
       tinh: { vi: 'Giá trị hiện tại (PV)', en: 'Present value' },
@@ -1125,7 +1125,7 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Một doanh nghiệp niêm yết có dòng tiền ổn định; ban phân tích giả định FCFF từ nay tăng đều mãi ở tốc độ bền vững dài hạn. Mô hình FCFF là dòng tiền thuộc về cả chủ nợ lẫn cổ đông nên phải chiết khấu bằng WACC, không phải bằng chi phí vốn chủ sở hữu, và bảng số liệu cố ý có cả hai suất chiết khấu lẫn hai mức tăng trưởng. Số cổ phiếu lưu hành đã in sẵn ở mẫu số, hãy đặt đúng năm con số còn lại vào ô trống của công thức giá trị nội tại từ FCFF.',
+      vi: 'Một doanh nghiệp niêm yết có dòng tiền ổn định; ban phân tích giả định FCFF từ nay tăng đều mãi ở tốc độ bền vững dài hạn. Mô hình FCFF là dòng tiền thuộc về cả chủ nợ lẫn cổ đông nên phải chiết khấu bằng WACC, không phải bằng chi phí vốn chủ sở hữu, và bảng số liệu cố ý có cả hai suất chiết khấu lẫn hai mức tăng trưởng. Số cổ phiếu lưu hành đã in sẵn ở mẫu số, hãy đặt đúng năm số còn lại vào vị trí của công thức giá trị nội tại từ FCFF.',
       en: 'A listed company has stable cash flow; the analysts assume FCFF now grows steadily forever at a sustainable long-term rate. FCFF belongs to both creditors and shareholders, so it must be discounted at the WACC rather than at the cost of equity, and the table deliberately carries both discount rates and both growth rates. The share count is already printed in the denominator, so place the remaining five figures into the slots of the FCFF intrinsic value formula.',
     },
     facts: [
@@ -1221,7 +1221,7 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Bài viết của VietnamBiz về giá trị tương lai của tiền lấy ví dụ: một người gửi tiết kiệm 100.000.000 ₫, kì hạn gửi mỗi lần là 1 năm, lãi suất 10%/năm, và đến hết năm thứ 5 mới rút cả gốc lẫn lãi; lãi mỗi kỳ nhập vào gốc nên đây là lãi kép. Bảng số liệu có cả kì hạn gửi lẫn thời gian giữ, và lãi suất vẫn đang ghi theo phần trăm. Hãy đặt đúng ba con số vào ô trống của công thức Giá trị tương lai.',
+      vi: 'Bài viết của VietnamBiz về giá trị tương lai của tiền lấy ví dụ: một người gửi tiết kiệm 100.000.000 ₫, kì hạn gửi mỗi lần là 1 năm, lãi suất 10%/năm, và đến hết năm thứ 5 mới rút cả gốc lẫn lãi; lãi mỗi kỳ nhập vào gốc nên đây là lãi kép. Bảng số liệu có cả kì hạn gửi lẫn thời gian giữ, và lãi suất vẫn đang ghi theo phần trăm. Hãy đặt đúng ba số vào vị trí của công thức Giá trị tương lai.',
       en: 'A VietnamBiz article on the future value of money works through this example: a saver deposits 100,000,000 ₫ on a term of 1 year each time, at a rate of 10%/year, and only withdraws principal plus interest at the end of year 5; each period of interest is rolled back into the principal, so this is compound interest. The table holds both the deposit term and the holding period, and the rate is still written as a percentage. Put the right three numbers into the slots of the future value formula.',
     },
     facts: [
@@ -1282,7 +1282,7 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Trung tâm Nghiên cứu khoa học và Đào tạo chứng khoán (UBCKNN) nêu ví dụ: nhà đầu tư A mua 1.000 cổ phiếu ở giá 30.000 ₫ một cổ phiếu, một năm sau bán lại toàn bộ ở 35.000 ₫, và trước khi bán đã nhận cổ tức tiền mặt 1.000 ₫ mỗi cổ phiếu. HPR tính trên một cổ phiếu nên số lượng cổ phiếu không vào công thức. Bảng số liệu còn có tỷ lệ cổ tức công bố theo mệnh giá và mệnh giá cổ phiếu − hãy đặt đúng bốn con số vào ô trống của công thức HPR.',
+      vi: 'Trung tâm Nghiên cứu khoa học và Đào tạo chứng khoán (UBCKNN) nêu ví dụ: nhà đầu tư A mua 1.000 cổ phiếu ở giá 30.000 ₫ một cổ phiếu, một năm sau bán lại toàn bộ ở 35.000 ₫, và trước khi bán đã nhận cổ tức tiền mặt 1.000 ₫ mỗi cổ phiếu. HPR tính trên một cổ phiếu nên số lượng cổ phiếu không vào công thức. Bảng số liệu còn có tỷ lệ cổ tức công bố theo mệnh giá và mệnh giá cổ phiếu − hãy đặt đúng bốn số vào vị trí của công thức HPR.',
       en: 'The State Securities Commission research and training center (SRTC) gives this example: investor A buys 1,000 shares at 30,000 ₫ per share, sells the whole lot a year later at 35,000 ₫, and before selling receives a cash dividend of 1,000 ₫ per share. HPR is measured per share, so the number of shares never enters the formula. The table also carries the announced dividend rate as a percentage of par value and the par value itself − put the right four numbers into the slots of the HPR formula.',
     },
     facts: [
@@ -1353,7 +1353,7 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Một khoản tiết kiệm 200.000.000 ₫ gửi kỳ hạn 3 tháng, ngân hàng niêm yết lãi suất danh nghĩa 12%/năm, đến hạn tự động nhập lãi vào gốc rồi gửi tiếp nên trong một năm lãi được ghép 4 lần. Công thức EAR lấy r là lãi suất danh nghĩa cả năm, còn m là số lần ghép lãi trong một năm chứ không phải số tháng của mỗi kỳ. Hãy đặt đúng ba con số trong bảng vào ô trống của công thức EAR.',
+      vi: 'Một khoản tiết kiệm 200.000.000 ₫ gửi kỳ hạn 3 tháng, ngân hàng niêm yết lãi suất danh nghĩa 12%/năm, đến hạn tự động nhập lãi vào gốc rồi gửi tiếp nên trong một năm lãi được ghép 4 lần. Công thức EAR lấy r là lãi suất danh nghĩa cả năm, còn m là số lần ghép lãi trong một năm chứ không phải số tháng của mỗi kỳ. Hãy đặt đúng ba số trong bảng vào vị trí của công thức EAR.',
       en: 'A savings deposit of 200,000,000 ₫ is placed on a three-month term. The bank quotes a nominal rate of 12%/year and, at maturity, automatically rolls the interest into the principal and redeposits it, so interest compounds 4 times within one year. In the EAR formula r is the nominal rate for a full year, while m is the number of compounding periods per year, not the number of months in each period. Put the right three figures from the table into the slots of the EAR formula.',
     },
     facts: [
@@ -1385,8 +1385,8 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
       en: 'EAR = ((1 + [12] ÷ [4] ÷ 100)^[4] − 1) × 100',
     },
     explain: {
-      vi: 'Công thức EAR lấy r là lãi suất danh nghĩa CẢ NĂM và m là SỐ LẦN ghép lãi trong một năm, nên 12 vào ô r, còn 4 vào cả hai ô m: một lần ở mẫu số, một lần ở số mũ. Mỗi quý số dư sinh 12 ÷ 4 = 3 %, ghép bốn lần thành (1 + 0,03)^4 = 1,1255, tức 12,55 %/năm chứ không phải 12 % — đúng con số bài giảng ghi cho trường hợp m = 4. Bảng số liệu cài hai cái bẫy. Dòng "Kỳ hạn mỗi lần nhập lãi vào gốc: 3 tháng" là độ dài của một kỳ, không phải số kỳ trong năm; đặt 3 vào hai ô m sẽ ra 12,49 %, gần đúng nên rất khó nhận ra là sai. Còn 200.000.000 ₫ không vào ô nào cả: lãi suất hiệu dụng là một tỷ lệ, gửi nhiều hay ít thì tỷ lệ ấy vẫn thế.',
-      en: 'The EAR formula takes r as the nominal rate for a FULL YEAR and m as the NUMBER OF TIMES interest compounds within that year, so 12 goes into the r slot and 4 goes into both m slots: once in the denominator, once in the exponent. Each quarter the balance earns 12 ÷ 4 = 3%, and compounding four times gives (1 + 0.03)^4 = 1.1255, that is 12.55%/year rather than 12% — the figure the lesson reports for m = 4. The table hides two traps. The row "Term of each compounding period: 3 months" is the length of one period, not the number of periods in a year; putting 3 into both m slots gives 12.49%, close enough that the error is hard to spot. And the 200,000,000 ₫ deposit belongs in no slot at all: an effective rate is a ratio, so the size of the deposit does not change it.',
+      vi: 'Công thức EAR lấy r là lãi suất danh nghĩa CẢ NĂM và m là SỐ LẦN ghép lãi trong một năm, nên 12 vào ô r, còn 4 vào cả hai ô m: một lần ở mẫu số, một lần ở số mũ. Mỗi quý số dư sinh 12 ÷ 4 = 3 %, ghép bốn lần thành (1 + 0,03)^4 = 1,1255, tức 12,55 %/năm chứ không phải 12 % - đúng con số bài giảng ghi cho trường hợp m = 4. Bảng số liệu cài hai cái bẫy. Dòng "Kỳ hạn mỗi lần nhập lãi vào gốc: 3 tháng" là độ dài của một kỳ, không phải số kỳ trong năm; đặt 3 vào hai ô m sẽ ra 12,49 %, gần đúng nên rất khó nhận ra là sai. Còn 200.000.000 ₫ không vào ô nào cả: lãi suất hiệu dụng là một tỷ lệ, gửi nhiều hay ít thì tỷ lệ ấy vẫn thế.',
+      en: 'The EAR formula takes r as the nominal rate for a FULL YEAR and m as the NUMBER OF TIMES interest compounds within that year, so 12 goes into the r slot and 4 goes into both m slots: once in the denominator, once in the exponent. Each quarter the balance earns 12 ÷ 4 = 3%, and compounding four times gives (1 + 0.03)^4 = 1.1255, that is 12.55%/year rather than 12% - the figure the lesson reports for m = 4. The table hides two traps. The row "Term of each compounding period: 3 months" is the length of one period, not the number of periods in a year; putting 3 into both m slots gives 12.49%, close enough that the error is hard to spot. And the 200,000,000 ₫ deposit belongs in no slot at all: an effective rate is a ratio, so the size of the deposit does not change it.',
     },
     giai: {
       tinh: { vi: 'Lãi suất hiệu dụng năm (EAR)', en: 'Effective annual rate' },
@@ -1410,8 +1410,8 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
     kind: 'dinh-che',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Ngày 01/03/2025 một nhà đầu tư mua 1.000 cổ phiếu VCI giá 100.000 ₫, đến 01/04/2025 bán hết ở 105.000 ₫. Công ty chứng khoán thu phí 0,15% mỗi chiều, thuế chuyển nhượng 0,1% khi bán, phí lưu ký 0,27 ₫ một cổ phiếu mỗi tháng — ba mức này đã in sẵn trong công thức nên không phải điền. Bảng số liệu có cả giá trị mua, giá trị bán, phần lãi gộp và số ngày nắm giữ: đặt đúng bốn con số vào ô trống của công thức Lợi nhuận ròng.',
-      en: 'On 2025-03-01 an investor buys 1,000 VCI shares at 100,000 ₫ and on 2025-04-01 sells the whole lot at 105,000 ₫. The broker charges 0.15% on each side, the transfer tax is 0.1% on the sale, and custody costs 0.27 ₫ per share per month — those three rates are already printed in the formula, so they are not to be filled in. The table holds the buy value, the sell value, the gross gain and the number of days held: put the right four numbers into the slots of the net profit formula.',
+      vi: 'Ngày 01/03/2025 một nhà đầu tư mua 1.000 cổ phiếu VCI giá 100.000 ₫, đến 01/04/2025 bán hết ở 105.000 ₫. Công ty chứng khoán thu phí 0,15% mỗi chiều, thuế chuyển nhượng 0,1% khi bán, phí lưu ký 0,27 ₫ một cổ phiếu mỗi tháng - ba mức này đã in sẵn trong công thức nên không phải điền. Bảng số liệu có cả giá trị mua, giá trị bán, phần lãi gộp và số ngày nắm giữ: đặt đúng bốn số vào vị trí của công thức Lợi nhuận ròng.',
+      en: 'On 2025-03-01 an investor buys 1,000 VCI shares at 100,000 ₫ and on 2025-04-01 sells the whole lot at 105,000 ₫. The broker charges 0.15% on each side, the transfer tax is 0.1% on the sale, and custody costs 0.27 ₫ per share per month - those three rates are already printed in the formula, so they are not to be filled in. The table holds the buy value, the sell value, the gross gain and the number of days held: put the right four numbers into the slots of the net profit formula.',
     },
     facts: [
       {
@@ -1515,8 +1515,8 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Một tài khoản đầu tư lãi 0,7% riêng trong tháng vừa rồi. Để so nhịp lãi đó với lãi suất tiết kiệm niêm yết theo năm, phải quy lợi suất một tháng về cả năm theo lãi kép: trong ngoặc là lợi suất MỘT KỲ, còn số mũ là số kỳ CÓ TRONG MỘT NĂM. Bảng số liệu còn có cả lợi suất lũy kế và số tháng đã nắm giữ kể từ khi mở tài khoản — đặt đúng hai con số vào ô trống của công thức lợi suất năm hoá.',
-      en: 'An investment account gained 0.7% in the past month alone. To compare that pace against a savings rate quoted per year, the monthly return has to be annualized by compounding: the bracket takes the return for ONE period, and the exponent takes the number of periods IN ONE YEAR. The table also holds the cumulative return and the number of months held since the account was opened — put the right two numbers into the slots of the annualized return formula.',
+      vi: 'Một tài khoản đầu tư lãi 0,7% riêng trong tháng vừa rồi. Để so nhịp lãi đó với lãi suất tiết kiệm niêm yết theo năm, phải quy lợi suất một tháng về cả năm theo lãi kép: trong ngoặc là lợi suất MỘT KỲ, còn số mũ là số kỳ CÓ TRONG MỘT NĂM. Bảng số liệu còn có cả lợi suất lũy kế và số tháng đã nắm giữ kể từ khi mở tài khoản - đặt đúng hai số vào vị trí của công thức lợi suất năm hoá.',
+      en: 'An investment account gained 0.7% in the past month alone. To compare that pace against a savings rate quoted per year, the monthly return has to be annualized by compounding: the bracket takes the return for ONE period, and the exponent takes the number of periods IN ONE YEAR. The table also holds the cumulative return and the number of months held since the account was opened - put the right two numbers into the slots of the annualized return formula.',
     },
     facts: [
       {
@@ -1587,7 +1587,7 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Ông A gửi 1 tỷ đồng kỳ hạn 12 tháng theo lãi suất niêm yết trong bảng. Bảng số liệu có cả lãi suất kỳ hạn 6 tháng lẫn mức tăng CPI của riêng tháng gần nhất, trong khi khoản gửi kéo dài đúng một năm nên cả tử số lẫn mẫu số đều phải là số liệu tính theo năm. Đặt đúng hai con số vào ô trống của công thức lợi suất thực sau lạm phát.',
+      vi: 'Ông A gửi 1 tỷ đồng kỳ hạn 12 tháng theo lãi suất niêm yết trong bảng. Bảng số liệu có cả lãi suất kỳ hạn 6 tháng lẫn mức tăng CPI của riêng tháng gần nhất, trong khi khoản gửi kéo dài đúng một năm nên cả tử số lẫn mẫu số đều phải là số liệu tính theo năm. Đặt đúng hai số vào vị trí của công thức lợi suất thực sau lạm phát.',
       en: 'Mr A deposits VND 1 billion for a 12-month term at the posted rate in the table. The table also holds the 6-month rate and the CPI rise for the latest month alone, while the deposit runs for exactly one year, so both the numerator and the denominator must be figures measured per year. Put the right two numbers into the slots of the real-return-after-inflation formula.',
     },
     facts: [
@@ -1651,7 +1651,7 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Cổ phiếu Công ty A đang giao dịch 48.000 ₫/CP. Doanh nghiệp vừa trả cổ tức tiền mặt 3.000 ₫/CP, cổ tức được giả định tăng đều 5%/năm mãi về sau, và nhà đầu tư đòi hỏi tỷ suất sinh lợi 10%/năm. Mô hình Gordon nhận cổ tức VỪA TRẢ rồi tự nhân tăng trưởng một lần ngay trên tử số, nên bảng số liệu cố ý để sẵn cả cổ tức kỳ vọng năm tới. Hai ô g và r nhập theo thang phần trăm nên tử số viết là (100 + g). Đặt đúng bốn con số vào ô trống của công thức Gordon.',
+      vi: 'Cổ phiếu Công ty A đang giao dịch 48.000 ₫/CP. Doanh nghiệp vừa trả cổ tức tiền mặt 3.000 ₫/CP, cổ tức được giả định tăng đều 5%/năm mãi về sau, và nhà đầu tư đòi hỏi tỷ suất sinh lợi 10%/năm. Mô hình Gordon nhận cổ tức VỪA TRẢ rồi tự nhân tăng trưởng một lần ngay trên tử số, nên bảng số liệu cố ý để sẵn cả cổ tức kỳ vọng năm tới. Hai vị trí g và r nhập theo thang phần trăm nên tử số viết là (100 + g). Đặt đúng bốn số vào vị trí của công thức Gordon.',
       en: "Company A's stock trades at 48,000 ₫ per share. The company has just paid a cash dividend of 3,000 ₫ per share, that dividend is assumed to grow at a steady 5% per year forever, and investors require a 10% annual return. The Gordon model takes the dividend JUST PAID and applies the growth factor once itself, right in the numerator, so the table deliberately also lists next year's expected dividend. The g and r fields are entered on a percentage scale, so the numerator is written as (100 + g). Put the right four figures into the slots of the Gordon formula.",
     },
     facts: [
@@ -1719,7 +1719,7 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Bảng cân đối kế toán hợp nhất của Tập đoàn Hòa Phát (HPG) tại 31/12/2025 tách nợ phải trả thành hai dòng riêng: nợ ngắn hạn và nợ dài hạn. D/E lấy TOÀN BỘ nợ phải trả, tức cộng cả hai dòng lại, còn mẫu số phải là vốn chủ sở hữu của đúng ngày chốt sổ ấy. Bảng số liệu dưới đây cố ý có thêm tổng tài sản và vốn chủ sở hữu của kỳ trước. Đặt đúng ba con số vào ô trống của công thức D/E.',
+      vi: 'Bảng cân đối kế toán hợp nhất của Tập đoàn Hòa Phát (HPG) tại 31/12/2025 tách nợ phải trả thành hai dòng riêng: nợ ngắn hạn và nợ dài hạn. D/E lấy TOÀN BỘ nợ phải trả, tức cộng cả hai dòng lại, còn mẫu số phải là vốn chủ sở hữu của đúng ngày chốt sổ ấy. Bảng số liệu dưới đây cố ý có thêm tổng tài sản và vốn chủ sở hữu của kỳ trước. Đặt đúng ba số vào vị trí của công thức D/E.',
       en: "Hoa Phat Group's (HPG) consolidated balance sheet at 31 December 2025 splits liabilities into two separate lines: short-term liabilities and long-term liabilities. D/E takes ALL liabilities, i.e. both lines added together, while the denominator must be equity at that same reporting date. The table below deliberately also carries total assets and the prior period's equity. Put the right three figures into the slots of the D/E formula.",
     },
     facts: [
@@ -1786,7 +1786,7 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Bài học định giá của Simplize tính P/B cho Vinamilk (VNM): giá cổ phiếu 74.700 ₫, vốn chủ sở hữu cuối năm 2022 là 32.816,52 tỷ ₫ trên 2,09 tỷ cổ phiếu đang lưu hành. Công thức dưới đây khai triển giá trị sổ sách mỗi cổ phiếu thành vốn chủ sở hữu chia số cổ phiếu lưu hành; vốn chủ sở hữu tính bằng tỷ ₫ chia cho số cổ phiếu tính bằng tỷ cổ phiếu nên thương số ra thẳng ₫ một cổ phiếu, không cần hệ số đổi đơn vị nào. Bảng số liệu có cả vốn điều lệ theo mệnh giá, hãy đặt đúng ba con số vào ô trống của công thức P/B.',
+      vi: 'Bài học định giá của Simplize tính P/B cho Vinamilk (VNM): giá cổ phiếu 74.700 ₫, vốn chủ sở hữu cuối năm 2022 là 32.816,52 tỷ ₫ trên 2,09 tỷ cổ phiếu đang lưu hành. Công thức dưới đây khai triển giá trị sổ sách mỗi cổ phiếu thành vốn chủ sở hữu chia số cổ phiếu lưu hành; vốn chủ sở hữu tính bằng tỷ ₫ chia cho số cổ phiếu tính bằng tỷ cổ phiếu nên thương số ra thẳng ₫ một cổ phiếu, không cần hệ số đổi đơn vị nào. Bảng số liệu có cả vốn điều lệ theo mệnh giá, hãy đặt đúng ba số vào vị trí của công thức P/B.',
       en: "Simplize's valuation lesson computes P/B for Vinamilk (VNM): share price 74700 ₫, shareholders' equity at the end of 2022 of 32816.52 billion ₫ over 2.09 billion shares outstanding. The formula below expands book value per share into equity divided by shares outstanding; equity in billions of dong over shares in billions of shares gives dong per share directly, so no unit factor is needed. The table also carries charter capital at par value, so put the right three numbers into the slots of the P/B formula.",
     },
     facts: [
@@ -1853,7 +1853,7 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'VnExpress lấy cổ phiếu X làm ví dụ: ngày 4/3/2024 giá thị trường là 25.000 đồng, EPS trong năm là 3.000 đồng, tốc độ tăng trưởng EPS dự kiến 10%/năm. Ở đây P/E được viết khai triển thành giá chia EPS, nên công thức PEG có ba ô trống. Bảng số liệu còn kèm EPS năm liền trước và tốc độ tăng trưởng doanh thu dự kiến, hãy đặt đúng ba con số vào ô trống của công thức PEG.',
+      vi: 'VnExpress lấy cổ phiếu X làm ví dụ: ngày 4/3/2024 giá thị trường là 25.000 đồng, EPS trong năm là 3.000 đồng, tốc độ tăng trưởng EPS dự kiến 10%/năm. Ở đây P/E được viết khai triển thành giá chia EPS, nên công thức PEG có ba vị trí cần điền. Bảng số liệu còn kèm EPS năm liền trước và tốc độ tăng trưởng doanh thu dự kiến, hãy đặt đúng ba số vào vị trí của công thức PEG.',
       en: 'VnExpress uses stock X as an example: on March 4, 2024 the market price is 25,000 dong, EPS for the year is 3,000 dong, and expected EPS growth is 10%/year. Here P/E is written out as price divided by EPS, so the PEG formula has three slots. The table also carries the prior year EPS and the expected revenue growth, so put the right three numbers into the slots of the PEG formula.',
     },
     facts: [
@@ -1926,7 +1926,7 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Một nhà đầu tư bán 1.000 cổ phiếu ở giá khớp lệnh 90.000 ₫, tài khoản mở tại một công ty chứng khoán thu phí môi giới kênh trực tuyến 0,15% giá trị lệnh (mức các công ty thị phần lớn công bố hiện dao động quanh 0,12% đến 0,25%). Bảng số liệu ghi thêm giá mua trước đó và thuế suất chuyển nhượng, cả hai đều là số hợp lý nhưng không thuộc công thức này. Hãy đặt đúng ba con số vào ô trống của công thức phí giao dịch bán.',
+      vi: 'Một nhà đầu tư bán 1.000 cổ phiếu ở giá khớp lệnh 90.000 ₫, tài khoản mở tại một công ty chứng khoán thu phí môi giới kênh trực tuyến 0,15% giá trị lệnh (mức các công ty thị phần lớn công bố hiện dao động quanh 0,12% đến 0,25%). Bảng số liệu ghi thêm giá mua trước đó và thuế suất chuyển nhượng, cả hai đều là số hợp lý nhưng không thuộc công thức này. Hãy đặt đúng ba số vào vị trí của công thức phí giao dịch bán.',
       en: 'An investor sells 1,000 shares at a matched price of 90,000 ₫, through a brokerage that charges an online commission of 0.15% of the order value (published online rates at the largest brokers currently sit between 0.12% and 0.25%). The table also lists the earlier buy price and the transfer tax rate, both plausible figures that belong to neither slot of this formula. Put the right three numbers into the slots of the sell-side brokerage fee formula.',
     },
     facts: [
@@ -1988,7 +1988,7 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
     kind: 'dinh-che',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Một nhà đầu tư mua 1.000 cổ phiếu ACB ở giá 25.000 ₫ qua công ty chứng khoán thu phí môi giới 0,3% giá trị lệnh. Cùng lô đó dự tính bán lại ở 30.000 ₫, và lúc bán còn chịu thuế thu nhập cá nhân 0,1%. Công thức phí giao dịch mua đã dựng sẵn dưới đây, chia thêm cho 100 để đưa tỷ lệ phí từ thang phần trăm về dạng tỷ lệ. Đặt đúng ba con số vào ô trống của công thức Phí giao dịch mua.',
+      vi: 'Một nhà đầu tư mua 1.000 cổ phiếu ACB ở giá 25.000 ₫ qua công ty chứng khoán thu phí môi giới 0,3% giá trị lệnh. Cùng lô đó dự tính bán lại ở 30.000 ₫, và lúc bán còn chịu thuế thu nhập cá nhân 0,1%. Công thức phí giao dịch mua đã dựng sẵn dưới đây, chia thêm cho 100 để đưa tỷ lệ phí từ thang phần trăm về dạng tỷ lệ. Đặt đúng ba số vào vị trí của công thức Phí giao dịch mua.',
       en: 'An investor buys 1,000 ACB shares at 25,000 ₫ through a broker charging a 0.3% commission on the order value. The same lot is meant to be sold later at 30,000 ₫, and selling also carries a 0.1% personal income tax. The buy-side fee formula is laid out below, with an extra division by 100 that turns the fee rate from a percentage into a plain ratio. Put the right three figures into the slots of the Buy-side brokerage fee formula.',
     },
     facts: [
@@ -2050,8 +2050,8 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Một nhà đầu tư để nguyên 2.000 cổ phiếu VNM trong tài khoản lưu ký suốt ba tháng 5, 6 và 7/2025, không mua bán gì thêm. Biểu phí của VSDC thu theo số cổ phiếu và theo tháng, không thu theo giá trị danh mục và cũng không thu theo ngày. Bảng số liệu dưới đây có cả số ngày nắm giữ lẫn giá trị lô cổ phiếu — hãy đặt đúng hai con số vào ô trống của công thức Phí lưu ký. Mức phí 0,27 ₫ mỗi cổ phiếu mỗi tháng đã in sẵn trong công thức.',
-      en: 'An investor leaves 2,000 VNM shares untouched in the custody account through May, June and July 2025, placing no further trades. The VSDC schedule charges by share count and by month, not on portfolio value and not by day. The table below holds both the day count and the value of the holding — put the right two numbers into the slots of the custody fee formula. The rate of 0.27 ₫ per share per month is already printed in the formula.',
+      vi: 'Một nhà đầu tư để nguyên 2.000 cổ phiếu VNM trong tài khoản lưu ký suốt ba tháng 5, 6 và 7/2025, không mua bán gì thêm. Biểu phí của VSDC thu theo số cổ phiếu và theo tháng, không thu theo giá trị danh mục và cũng không thu theo ngày. Bảng số liệu dưới đây có cả số ngày nắm giữ lẫn giá trị lô cổ phiếu - hãy đặt đúng hai số vào vị trí của công thức Phí lưu ký. Mức phí 0,27 ₫ mỗi cổ phiếu mỗi tháng đã in sẵn trong công thức.',
+      en: 'An investor leaves 2,000 VNM shares untouched in the custody account through May, June and July 2025, placing no further trades. The VSDC schedule charges by share count and by month, not on portfolio value and not by day. The table below holds both the day count and the value of the holding - put the right two numbers into the slots of the custody fee formula. The rate of 0.27 ₫ per share per month is already printed in the formula.',
     },
     facts: [
       {
@@ -2121,7 +2121,7 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Một doanh nghiệp niêm yết vừa công bố báo cáo tài chính năm, bảng dưới lấy hai dòng từ báo cáo kết quả kinh doanh và hai dòng từ bảng cân đối kế toán cuối kỳ. ROA đo lợi nhuận trên TOÀN BỘ tài sản, gồm cả phần vốn tự có lẫn phần đi vay, nên mẫu số là tổng tài sản chứ không phải vốn chủ sở hữu, còn tử số là lợi nhuận sau thuế chứ không phải trước thuế. Hãy đặt đúng hai con số vào hai ô trống của công thức ROA.',
+      vi: 'Một doanh nghiệp niêm yết vừa công bố báo cáo tài chính năm, bảng dưới lấy hai dòng từ báo cáo kết quả kinh doanh và hai dòng từ bảng cân đối kế toán cuối kỳ. ROA đo lợi nhuận trên TOÀN BỘ tài sản, gồm cả phần vốn tự có lẫn phần đi vay, nên mẫu số là tổng tài sản chứ không phải vốn chủ sở hữu, còn tử số là lợi nhuận sau thuế chứ không phải trước thuế. Hãy đặt đúng hai số vào hai vị trí của công thức ROA.',
       en: 'A listed company has just published its annual financial statements; the table below takes two lines from the income statement and two lines from the period-end balance sheet. ROA measures profit against ALL assets, both equity-funded and debt-funded, so the denominator is total assets rather than equity, and the numerator is profit after tax rather than before tax. Put the right two figures into the two slots of the ROA formula.',
     },
     facts: [
@@ -2178,7 +2178,7 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Simplize tính ROE năm 2022 của cổ phiếu BCF (CTCP Thực phẩm Bích Chi) theo quy ước vốn chủ sở hữu bình quân: lợi nhuận sau thuế cả năm chia cho trung bình cộng của vốn chủ đầu kỳ và vốn chủ cuối kỳ, rồi nhân 100. Bảng số liệu còn có tổng tài sản cuối năm và lợi nhuận sau thuế của năm 2021. Hãy đặt đúng ba con số vào ô trống của công thức ROE.',
+      vi: 'Simplize tính ROE năm 2022 của cổ phiếu BCF (CTCP Thực phẩm Bích Chi) theo quy ước vốn chủ sở hữu bình quân: lợi nhuận sau thuế cả năm chia cho trung bình cộng của vốn chủ đầu kỳ và vốn chủ cuối kỳ, rồi nhân 100. Bảng số liệu còn có tổng tài sản cuối năm và lợi nhuận sau thuế của năm 2021. Hãy đặt đúng ba số vào vị trí của công thức ROE.',
       en: 'Simplize computes the 2022 ROE of BCF (Bich Chi Food JSC) using the average-equity convention: full-year net income after tax divided by the mean of beginning and ending equity, then multiplied by 100. The table also carries year-end total assets and 2021 net income after tax. Put the right three numbers into the slots of the ROE formula.',
     },
     facts: [
@@ -2245,7 +2245,7 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Theo ví dụ của VFS: mua 1.000 cổ phiếu VCI giá 100.000 ₫, giữ một tháng rồi bán ở 105.000 ₫. Bảng dưới đã bóc sẵn từng khoản phí và thuế của cả vòng mua rồi bán. Mẫu số của ROI ròng là vốn thực bỏ ra, tức chỉ gồm những khoản tiền đã chi ra TRƯỚC lúc bán; phí giao dịch bán và thuế chuyển nhượng phát sinh lúc bán nên đã nằm trong lợi nhuận ròng ở tử số rồi. Đặt đúng năm con số vào ô trống của công thức ROI ròng.',
+      vi: 'Theo ví dụ của VFS: mua 1.000 cổ phiếu VCI giá 100.000 ₫, giữ một tháng rồi bán ở 105.000 ₫. Bảng dưới đã bóc sẵn từng khoản phí và thuế của cả vòng mua rồi bán. Mẫu số của ROI ròng là vốn thực bỏ ra, tức chỉ gồm những khoản tiền đã chi ra TRƯỚC lúc bán; phí giao dịch bán và thuế chuyển nhượng phát sinh lúc bán nên đã nằm trong lợi nhuận ròng ở tử số rồi. Đặt đúng năm số vào vị trí của công thức ROI ròng.',
       en: 'From the VFS worked example: buy 1,000 VCI shares at 100,000 ₫, hold for one month, then sell at 105,000 ₫. The table below already breaks out every fee and tax of the whole buy-then-sell round trip. The denominator of net ROI is the capital actually deployed, so it holds only the money paid out BEFORE the sale; the sell-side brokerage fee and the transfer tax arise at the sale and are already subtracted inside the net profit in the numerator. Put the right five figures into the slots of the net ROI formula.',
     },
     facts: [
@@ -2339,7 +2339,7 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Tháng 3/2023 một nhà đầu tư bỏ 500.000.000 ₫ mua cổ phiếu của một doanh nghiệp niêm yết và tới nay vẫn nắm giữ. Màn hình tài khoản hôm nay in mấy con số cạnh nhau: giá trị của riêng số cổ phiếu ấy, số dư tiền mặt chưa giải ngân, và tổng tài sản gộp cả hai. ROI chỉ so giá trị của chính khoản đã đầu tư với số vốn đã bỏ ra cho nó, không dính gì tới phần tiền còn nằm im trong tài khoản. Đặt đúng ba con số vào ô trống của công thức ROI.',
+      vi: 'Tháng 3/2023 một nhà đầu tư bỏ 500.000.000 ₫ mua cổ phiếu của một doanh nghiệp niêm yết và tới nay vẫn nắm giữ. Màn hình tài khoản hôm nay in mấy con số cạnh nhau: giá trị của riêng số cổ phiếu ấy, số dư tiền mặt chưa giải ngân, và tổng tài sản gộp cả hai. ROI chỉ so giá trị của chính khoản đã đầu tư với số vốn đã bỏ ra cho nó, không dính gì tới phần tiền còn nằm im trong tài khoản. Đặt đúng ba số vào vị trí của công thức ROI.',
       en: 'In March 2023 an investor put 500,000,000 ₫ into the shares of a listed company and still holds them. The account screen today prints several figures side by side: the value of those shares alone, the uninvested cash balance, and total assets combining the two. ROI compares only the value of the investment itself against the capital put into it, and has nothing to do with cash sitting idle in the account. Put the right three numbers into the slots of the ROI formula.',
     },
     facts: [
@@ -2409,7 +2409,7 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Một bài tập phân tích báo cáo tài chính cho bảng cân đối kế toán của một doanh nghiệp tại hai thời điểm, đơn vị tỷ đồng, kèm cả dòng hàng tồn kho. Hệ số thanh toán hiện hành lấy trọn tài sản ngắn hạn, không trừ hàng tồn kho ra, vì tồn kho vẫn là tài sản ngắn hạn; trừ ra là sang hệ số thanh toán nhanh, một công thức khác. Đặt đúng hai con số của ngày 31/12/2019 vào ô trống của công thức hệ số hiện hành.',
+      vi: 'Một bài tập phân tích báo cáo tài chính cho bảng cân đối kế toán của một doanh nghiệp tại hai thời điểm, đơn vị tỷ đồng, kèm cả dòng hàng tồn kho. Hệ số thanh toán hiện hành lấy trọn tài sản ngắn hạn, không trừ hàng tồn kho ra, vì tồn kho vẫn là tài sản ngắn hạn; trừ ra là sang hệ số thanh toán nhanh, một công thức khác. Đặt đúng hai số của ngày 31/12/2019 vào vị trí của công thức hệ số hiện hành.',
       en: "A financial statement analysis exercise gives a company's balance sheet at two dates, in billions of dong, including the inventory line. The current ratio takes the whole of current assets and does not subtract inventory, because inventory is still a current asset; subtracting it gives the quick ratio, a different formula. Put the two figures dated 31/12/2019 into the right slots of the current ratio formula.",
     },
     facts: [
@@ -2470,7 +2470,7 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Bảng cân đối kế toán ngày 31/12/2022 của Công ty Cổ phần Đầu tư Thế Giới Di Động (MWG). Đây là nhà bán lẻ nên hàng tồn kho chiếm hơn một nửa tài sản ngắn hạn, đúng chỗ mà hệ số thanh toán nhanh muốn loại ra. Bảng số liệu cố ý để thêm tổng tài sản và số dư tiền mặt: tử số lấy tài sản ngắn hạn chứ không lấy tổng tài sản, và cũng không rút gọn về mỗi tiền mặt. Đặt đúng ba con số vào ô trống của công thức hệ số thanh toán nhanh.',
+      vi: 'Bảng cân đối kế toán ngày 31/12/2022 của Công ty Cổ phần Đầu tư Thế Giới Di Động (MWG). Đây là nhà bán lẻ nên hàng tồn kho chiếm hơn một nửa tài sản ngắn hạn, đúng chỗ mà hệ số thanh toán nhanh muốn loại ra. Bảng số liệu cố ý để thêm tổng tài sản và số dư tiền mặt: tử số lấy tài sản ngắn hạn chứ không lấy tổng tài sản, và cũng không rút gọn về mỗi tiền mặt. Đặt đúng ba số vào vị trí của công thức hệ số thanh toán nhanh.',
       en: 'The balance sheet of Mobile World Investment Corporation (MWG) at 31 December 2022. This is a retailer, so inventory is more than half of current assets, exactly what the quick ratio wants to strip out. The table deliberately also carries total assets and the cash balance: the numerator takes current assets, not total assets, and it is not cut down to cash alone either. Put the right three numbers into the slots of the quick ratio formula.',
     },
     facts: [
@@ -2535,8 +2535,8 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
     kind: 'dinh-che',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Một nhà đầu tư mua 1.000 cổ phiếu ở giá 28.000 ₫, ít lâu sau cắt lỗ trọn lô này với giá khớp lệnh 25.000 ₫. Thuế chuyển nhượng chứng khoán thu 0,1% trên giá trị bán từng lần, thu cả khi giao dịch lỗ, và mức 0,1% đã để sẵn trong công thức. Bảng số liệu có cả giá mua lẫn giá bán — đặt đúng hai con số vào ô trống của công thức thuế chuyển nhượng.',
-      en: 'An investor buys 1,000 shares at 28,000 ₫, then cuts the whole lot at a matched sell price of 25,000 ₫. Securities transfer tax takes 0.1% of the sale value of each trade, collected even on a losing trade, and that 0.1% rate is already filled in. The table carries both the buy price and the sell price — put the right two numbers into the slots of the transfer tax formula.',
+      vi: 'Một nhà đầu tư mua 1.000 cổ phiếu ở giá 28.000 ₫, ít lâu sau cắt lỗ trọn lô này với giá khớp lệnh 25.000 ₫. Thuế chuyển nhượng chứng khoán thu 0,1% trên giá trị bán từng lần, thu cả khi giao dịch lỗ, và mức 0,1% đã để sẵn trong công thức. Bảng số liệu có cả giá mua lẫn giá bán - đặt đúng hai số vào vị trí của công thức thuế chuyển nhượng.',
+      en: 'An investor buys 1,000 shares at 28,000 ₫, then cuts the whole lot at a matched sell price of 25,000 ₫. Securities transfer tax takes 0.1% of the sale value of each trade, collected even on a losing trade, and that 0.1% rate is already filled in. The table carries both the buy price and the sell price - put the right two numbers into the slots of the transfer tax formula.',
     },
     facts: [
       {
@@ -2590,7 +2590,7 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
     kind: 'dinh-che',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Vinamilk (VNM) trả nốt cổ tức tiền mặt năm 2025 theo tỷ lệ 18,5% trên mệnh giá, tức 1.850 đồng mỗi cổ phiếu, với ngày giao dịch không hưởng quyền 26/6/2026 — cổ phiếu mua đúng ngày ấy không còn được nhận đợt cổ tức này. Công ty chứng khoán khấu trừ thuế thu nhập cá nhân 5% ngay tại nguồn. Bảng số liệu cố ý có cả lô mua đúng ngày giao dịch không hưởng quyền lẫn con số 18,5%: hãy đặt đúng ba con số vào ô trống của công thức Thuế cổ tức tiền mặt.',
+      vi: 'Vinamilk (VNM) trả nốt cổ tức tiền mặt năm 2025 theo tỷ lệ 18,5% trên mệnh giá, tức 1.850 đồng mỗi cổ phiếu, với ngày giao dịch không hưởng quyền 26/6/2026 - cổ phiếu mua đúng ngày ấy không còn được nhận đợt cổ tức này. Công ty chứng khoán khấu trừ thuế thu nhập cá nhân 5% ngay tại nguồn. Bảng số liệu cố ý có cả lô mua đúng ngày giao dịch không hưởng quyền lẫn con số 18,5%: hãy đặt đúng ba số vào vị trí của công thức Thuế cổ tức tiền mặt.',
       en: 'Vinamilk (VNM) is paying the remaining 2025 cash dividend at 18.5% of par value, that is 1,850 dong per share, with an ex-dividend date of June 26, 2026, so shares bought on that very day no longer receive this payment. The brokerage withholds the 5% personal income tax at source. The table deliberately holds both the lot bought on the ex-dividend date and the 18.5% figure: put the right three numbers into the slots of the cash dividend tax formula.',
     },
     facts: [
@@ -2671,7 +2671,7 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Năm 2011, Vinamilk (VNM) đạt EPS 7.717 ₫ và trả cổ tức tiền mặt 4.000 ₫ cho mỗi cổ phiếu. Doanh nghiệp công bố mức này dưới tên gọi “cổ tức 40%”, vì ở Việt Nam tỷ lệ cổ tức luôn tính trên mệnh giá 10.000 ₫ chứ không tính trên lợi nhuận. Bảng số liệu có cả 40% lẫn mệnh giá: hãy đặt đúng hai con số vào ô trống của công thức hệ số chi trả cổ tức.',
+      vi: 'Năm 2011, Vinamilk (VNM) đạt EPS 7.717 ₫ và trả cổ tức tiền mặt 4.000 ₫ cho mỗi cổ phiếu. Doanh nghiệp công bố mức này dưới tên gọi “cổ tức 40%”, vì ở Việt Nam tỷ lệ cổ tức luôn tính trên mệnh giá 10.000 ₫ chứ không tính trên lợi nhuận. Bảng số liệu có cả 40% lẫn mệnh giá: hãy đặt đúng hai số vào vị trí của công thức hệ số chi trả cổ tức.',
       en: 'In 2011, Vinamilk (VNM) earned EPS of 7,717 ₫ and paid a cash dividend of 4,000 ₫ per share. The company announced that as a “40% dividend”, because in Vietnam a dividend rate is always quoted against the 10,000 ₫ par value, never against profit. The table holds both the 40% figure and the par value: put the right two numbers into the slots of the dividend payout ratio formula.',
     },
     facts: [
@@ -2707,7 +2707,7 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
     },
     explain: {
       vi: 'Nguồn ghi: “Vào năm 2011, Công ty CP sữa Việt Nam Vinamilk (mã chứng khoán là VNM) có EPS là 7.717 vnđ, trong đó cổ tức chi trả cho mỗi cổ phiếu là 4.000 vnđ (40%)”. Tử số là 4.000 ₫ tiền mặt thật mỗi cổ phiếu, mẫu số là EPS 7.717 ₫, nhân 100 ra 51,8%: VNM đem hơn một nửa lợi nhuận đi trả cổ tức và giữ lại gần 48,2% để tái đầu tư. Cái bẫy nằm ở con số 40% trong bảng. Doanh nghiệp Việt Nam luôn công bố cổ tức theo mệnh giá 10.000 ₫ chứ không theo lợi nhuận, nên 40% chỉ nói VNM trả 4.000 ₫ trên một cổ phiếu, hoàn toàn không nói VNM dùng 40% lợi nhuận. Ai chép thẳng 40 vào tử số sẽ ra 0,5%, sai hơn một trăm lần; ai đọc luôn 40% thành hệ số chi trả thì hụt gần 12 điểm phần trăm so với con số thật.',
-      en: 'The source reads: “Vào năm 2011, Công ty CP sữa Việt Nam Vinamilk (mã chứng khoán là VNM) có EPS là 7.717 vnđ, trong đó cổ tức chi trả cho mỗi cổ phiếu là 4.000 vnđ (40%)” — in 2011 Vinamilk earned EPS of 7,717 ₫ and paid a cash dividend of 4,000 ₫ per share, announced as 40%. The numerator is the real 4,000 ₫ of cash per share, the denominator is EPS of 7,717 ₫, and multiplying by 100 gives 51.8%: VNM handed out more than half its profit and retained about 48.2% to reinvest. The trap is the 40% figure in the table. Vietnamese companies always announce dividends against the 10,000 ₫ par value rather than against profit, so 40% only says VNM paid 4,000 ₫ per share and says nothing about the share of profit. Copying 40 into the numerator gives 0.5%, off by more than a hundredfold, while reading 40% as the payout ratio understates the real figure by almost 12 percentage points.',
+      en: 'The source reads: “Vào năm 2011, Công ty CP sữa Việt Nam Vinamilk (mã chứng khoán là VNM) có EPS là 7.717 vnđ, trong đó cổ tức chi trả cho mỗi cổ phiếu là 4.000 vnđ (40%)” - in 2011 Vinamilk earned EPS of 7,717 ₫ and paid a cash dividend of 4,000 ₫ per share, announced as 40%. The numerator is the real 4,000 ₫ of cash per share, the denominator is EPS of 7,717 ₫, and multiplying by 100 gives 51.8%: VNM handed out more than half its profit and retained about 48.2% to reinvest. The trap is the 40% figure in the table. Vietnamese companies always announce dividends against the 10,000 ₫ par value rather than against profit, so 40% only says VNM paid 4,000 ₫ per share and says nothing about the share of profit. Copying 40 into the numerator gives 0.5%, off by more than a hundredfold, while reading 40% as the payout ratio understates the real figure by almost 12 percentage points.',
     },
     giai: {
       tinh: { vi: 'Hệ số chi trả cổ tức', en: 'Dividend payout ratio' },
@@ -2731,7 +2731,7 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Ngày 20/8/2021, SZL công bố chi trả cổ tức bằng tiền tỷ lệ 30%. Theo quy ước của thị trường Việt Nam, tỷ lệ công bố ấy tính trên mệnh giá 10.000 ₫, nên mỗi cổ phiếu nhận 3.000 ₫ tiền mặt; thị giá SZL thời điểm đó khoảng 50.000 ₫. Tỷ suất cổ tức thì đo trên THỊ GIÁ, không đo trên mệnh giá. Bảng số liệu có đủ cả mệnh giá lẫn thị giá, hãy đặt đúng hai con số vào ô trống của công thức tỷ suất cổ tức.',
+      vi: 'Ngày 20/8/2021, SZL công bố chi trả cổ tức bằng tiền tỷ lệ 30%. Theo quy ước của thị trường Việt Nam, tỷ lệ công bố ấy tính trên mệnh giá 10.000 ₫, nên mỗi cổ phiếu nhận 3.000 ₫ tiền mặt; thị giá SZL thời điểm đó khoảng 50.000 ₫. Tỷ suất cổ tức thì đo trên THỊ GIÁ, không đo trên mệnh giá. Bảng số liệu có đủ cả mệnh giá lẫn thị giá, hãy đặt đúng hai số vào vị trí của công thức tỷ suất cổ tức.',
       en: 'On August 20, 2021, SZL announced a cash dividend at a rate of 30%. By Vietnamese market convention that announced rate applies to the 10,000 ₫ par value, so each share receives 3,000 ₫ in cash; SZL traded around 50,000 ₫ at the time. Dividend yield, however, is measured against the MARKET price, not against par. The table holds both the par value and the market price, so put the right two numbers into the slots of the dividend yield formula.',
     },
     facts: [
@@ -2788,7 +2788,7 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Một doanh nghiệp niêm yết đã phát hành 12 triệu cổ phiếu, trong đó tự mua lại 2 triệu làm cổ phiếu quỹ, nên chỉ còn 10 triệu cổ phiếu đang lưu hành. Mệnh giá mỗi cổ phiếu là 10.000 ₫, còn giá đóng cửa phiên gần nhất là 50.000 ₫. Theo quy ước, vốn hoá thị trường lấy giá thị trường nhân số cổ phiếu ĐANG LƯU HÀNH, chứ không lấy mệnh giá và không lấy số cổ phiếu đã phát hành. Bảng số liệu có đủ cả bốn con số, hãy đặt đúng hai con số vào ô trống của công thức Vốn hoá thị trường.',
+      vi: 'Một doanh nghiệp niêm yết đã phát hành 12 triệu cổ phiếu, trong đó tự mua lại 2 triệu làm cổ phiếu quỹ, nên chỉ còn 10 triệu cổ phiếu đang lưu hành. Mệnh giá mỗi cổ phiếu là 10.000 ₫, còn giá đóng cửa phiên gần nhất là 50.000 ₫. Theo quy ước, vốn hoá thị trường lấy giá thị trường nhân số cổ phiếu ĐANG LƯU HÀNH, chứ không lấy mệnh giá và không lấy số cổ phiếu đã phát hành. Bảng số liệu có đủ cả bốn con số, hãy đặt đúng hai số vào vị trí của công thức Vốn hoá thị trường.',
       en: 'A listed company has issued 12 million shares, of which it bought back 2 million as treasury shares, leaving 10 million shares outstanding. The par value is 10,000 ₫ per share, while the latest closing price is 50,000 ₫. By convention, market capitalization multiplies the market price by the shares OUTSTANDING, not by par value and not by the issued share count. The table lists all four figures, so put the right two numbers into the slots of the market capitalization formula.',
     },
     facts: [
@@ -2848,7 +2848,7 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Một công ty có tổng tài sản đầu kỳ 300.900 $ và tổng tài sản cuối kỳ 300.400 $; trong kỳ công ty đạt doanh thu 554.000 $ và có chiết khấu bán hàng 24.000 $. Vòng quay tổng tài sản lấy doanh thu THUẦN ở tử số, tức doanh thu đã trừ các khoản giảm trừ, và lấy tổng tài sản BÌNH QUÂN ở mẫu số chứ không lấy riêng số cuối kỳ. Bảng số liệu còn một dòng không thuộc công thức này. Hãy đặt đúng bốn con số vào ô trống của công thức vòng quay tổng tài sản.',
+      vi: 'Một công ty có tổng tài sản đầu kỳ 300.900 $ và tổng tài sản cuối kỳ 300.400 $; trong kỳ công ty đạt doanh thu 554.000 $ và có chiết khấu bán hàng 24.000 $. Vòng quay tổng tài sản lấy doanh thu THUẦN ở tử số, tức doanh thu đã trừ các khoản giảm trừ, và lấy tổng tài sản BÌNH QUÂN ở mẫu số chứ không lấy riêng số cuối kỳ. Bảng số liệu còn một dòng không thuộc công thức này. Hãy đặt đúng bốn số vào vị trí của công thức vòng quay tổng tài sản.',
       en: 'A company has total assets of 300900 $ at the start of the period and 300400 $ at the end; during the period it books sales revenue of 554000 $ with sales discounts of 24000 $. Total asset turnover puts NET revenue in the numerator, meaning revenue after deductions, and AVERAGE total assets in the denominator rather than the closing figure alone. The table carries one more row that does not belong to this formula. Put the right four numbers into the slots of the total asset turnover formula.',
     },
     facts: [
@@ -2924,8 +2924,8 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Bài hướng dẫn của MISA dựng một doanh nghiệp có giá trị thị trường vốn chủ sở hữu 600 triệu USD và giá trị thị trường nợ vay 400 triệu USD, nên tổng nguồn vốn V bằng 1.000 triệu USD — con số này đã điền sẵn ở cả hai mẫu số. Công thức dưới đây cũng để sẵn hệ số (1 − thuế suất ÷ 100) ở nhánh nợ, nên ô lãi suất của nhánh ấy phải nhận chi phí nợ TRƯỚC thuế, dù bảng số liệu có sẵn cả mức sau thuế. Đặt đúng năm con số vào ô trống của công thức WACC.',
-      en: 'A MISA tutorial builds a company whose equity has a market value of 600 million USD and whose debt has a market value of 400 million USD, so total capital V is 1,000 million USD — that figure is already filled in at both denominators. The formula below also comes with the (1 − tax rate ÷ 100) factor already in place on the debt leg, so that leg’s rate slot must take the PRE-tax cost of debt, even though the table also lists the after-tax figure. Put the five figures into the right slots of the WACC formula.',
+      vi: 'Bài hướng dẫn của MISA dựng một doanh nghiệp có giá trị thị trường vốn chủ sở hữu 600 triệu USD và giá trị thị trường nợ vay 400 triệu USD, nên tổng nguồn vốn V bằng 1.000 triệu USD - con số này đã điền sẵn ở cả hai mẫu số. Công thức dưới đây cũng để sẵn hệ số (1 − thuế suất ÷ 100) ở nhánh nợ, nên vị trí lãi suất của nhánh ấy phải nhận chi phí nợ TRƯỚC thuế, dù bảng số liệu có sẵn cả mức sau thuế. Đặt đúng năm số vào vị trí của công thức WACC.',
+      en: 'A MISA tutorial builds a company whose equity has a market value of 600 million USD and whose debt has a market value of 400 million USD, so total capital V is 1,000 million USD - that figure is already filled in at both denominators. The formula below also comes with the (1 − tax rate ÷ 100) factor already in place on the debt leg, so that leg’s rate slot must take the PRE-tax cost of debt, even though the table also lists the after-tax figure. Put the five figures into the right slots of the WACC formula.',
     },
     facts: [
       {
@@ -3023,7 +3023,7 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Lấy 60 giá đóng cửa gần nhất của VN-Index, từ 30/06 đến 24/09/2026, được 59 lợi suất phiên. Ở độ tin cậy 95%, phân vị 5% của chuỗi lợi suất ấy, tức ngưỡng VaR trước khi đổi dấu, là −0,0188. Bảng số liệu liệt kê năm phiên giảm mạnh nhất của cửa sổ theo thứ tự thời gian, lợi suất viết dạng thập phân đúng như chữ r trong công thức. CVaR chỉ lấy trung bình những phiên có lợi suất KHÔNG CAO HƠN ngưỡng, nên không phải cả năm phiên đều vào. Hãy đặt đúng ba lợi suất vào ô trống của công thức CVaR, theo thứ tự thời gian, sau khi so từng phiên với ngưỡng −0,0188: phiên nào cao hơn ngưỡng, dù chỉ một chút, thì nằm ngoài phần đuôi.',
+      vi: 'Lấy 60 giá đóng cửa gần nhất của VN-Index, từ 30/06 đến 24/09/2026, được 59 lợi suất phiên. Ở độ tin cậy 95%, phân vị 5% của chuỗi lợi suất ấy, tức ngưỡng VaR trước khi đổi dấu, là −0,0188. Bảng số liệu liệt kê năm phiên giảm mạnh nhất của cửa sổ theo thứ tự thời gian, lợi suất viết dạng thập phân đúng như chữ r trong công thức. CVaR chỉ lấy trung bình những phiên có lợi suất KHÔNG CAO HƠN ngưỡng, nên không phải cả năm phiên đều vào. Hãy đặt đúng ba lợi suất vào vị trí của công thức CVaR, theo thứ tự thời gian, sau khi so từng phiên với ngưỡng −0,0188: phiên nào cao hơn ngưỡng, dù chỉ một chút, thì nằm ngoài phần đuôi.',
       en: "Take the latest 60 VN-Index closes, from 2026-06-30 to 2026-09-24, which give 59 session returns. At 95% confidence, the 5th percentile of those returns, that is, the VaR threshold before its sign is flipped, is −0.0188. The table lists the window's five sharpest down sessions in date order, with returns written as decimals, exactly like the letter r in the formula. CVaR averages only the sessions whose return is NO HIGHER than the threshold, so not all five belong in it. Put the right three returns into the slots of the CVaR formula, in date order, after comparing each session with the −0.0188 threshold: a session above the threshold, even by a hair, stays out of the tail.",
     },
     facts: [
@@ -3124,7 +3124,7 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Theo lịch sử giá của Vingroup (VIC) trên CafeF, phiên 17/08/2026 cổ phiếu đóng cửa ở 198.000 ₫, phiên giảm thứ ba liên tiếp. Bạn dựng dải Bollinger dưới với chu kỳ 20 phiên và hệ số k = 2. Bảng số liệu có cả đường trung bình 10 phiên, giá thấp nhất của 20 phiên và giá đóng cửa của chính phiên ấy. Trang ấy chỉ ghi giá từng phiên, nên hai đường trung bình và độ lệch chuẩn trong bảng được tính lại từ những giá đóng cửa ấy. Hãy đặt đúng ba con số vào ô trống của công thức dải dưới.',
+      vi: 'Theo lịch sử giá của Vingroup (VIC) trên CafeF, phiên 17/08/2026 cổ phiếu đóng cửa ở 198.000 ₫, phiên giảm thứ ba liên tiếp. Bạn dựng dải Bollinger dưới với chu kỳ 20 phiên và hệ số k = 2. Bảng số liệu có cả đường trung bình 10 phiên, giá thấp nhất của 20 phiên và giá đóng cửa của chính phiên ấy. Trang ấy chỉ ghi giá từng phiên, nên hai đường trung bình và độ lệch chuẩn trong bảng được tính lại từ những giá đóng cửa ấy. Hãy đặt đúng ba số vào vị trí của công thức dải dưới.',
       en: "According to the Vingroup (VIC) price history on CafeF, the stock closed at 198000 ₫ on 2026-08-17, its third straight down session. You build the lower Bollinger band with a 20-session period and multiplier k = 2. The table also holds the 10-session moving average, the lowest price of the 20 sessions and that day's own closing price. That page lists only each session's prices, so the averages and the standard deviation in the table were computed from those closes. Put the right three numbers into the slots of the lower band formula.",
     },
     facts: [
@@ -3215,7 +3215,7 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Theo lịch sử giá của PV GAS (GAS) trên CafeF, phiên 15/09/2026 cổ phiếu tăng mạnh và đóng cửa ở 91.400 ₫. Bạn dựng dải Bollinger trên với chu kỳ 20 phiên và hệ số k = 2 để xem phiên ấy đã ra ngoài vùng dao động quen thuộc chưa. Bảng số liệu có cả giá đóng cửa, giá cao nhất của 20 phiên và độ lệch chuẩn của riêng 10 phiên gần nhất. Trang ấy chỉ ghi giá từng phiên, nên các trung bình và độ lệch chuẩn trong bảng được tính lại từ những giá đóng cửa ấy. Hãy đặt đúng ba con số vào ô trống của công thức dải trên.',
+      vi: 'Theo lịch sử giá của PV GAS (GAS) trên CafeF, phiên 15/09/2026 cổ phiếu tăng mạnh và đóng cửa ở 91.400 ₫. Bạn dựng dải Bollinger trên với chu kỳ 20 phiên và hệ số k = 2 để xem phiên ấy đã ra ngoài vùng dao động quen thuộc chưa. Bảng số liệu có cả giá đóng cửa, giá cao nhất của 20 phiên và độ lệch chuẩn của riêng 10 phiên gần nhất. Trang ấy chỉ ghi giá từng phiên, nên các trung bình và độ lệch chuẩn trong bảng được tính lại từ những giá đóng cửa ấy. Hãy đặt đúng ba số vào vị trí của công thức dải trên.',
       en: "According to the PV GAS (GAS) price history on CafeF, the stock rallied on 2026-09-15 and closed at 91400 ₫. You build the upper Bollinger band with a 20-session period and multiplier k = 2 to see whether that session left its usual trading range. The table also holds the closing price, the highest price of the 20 sessions and the standard deviation of just the latest 10 sessions. That page lists only each session's prices, so the averages and standard deviations in the table were computed from those closes. Put the right three numbers into the slots of the upper band formula.",
     },
     facts: [
@@ -3306,7 +3306,7 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Lấy 11 giá đóng cửa VN-Index từ 19/08 đến 07/09/2026 thì được một chuỗi lợi suất phiên, liệt kê đủ ở bảng dưới theo thứ tự thời gian. Ngưỡng để mặc định 0%, tức chỉ những phiên có lợi suất dưới 0% mới vào tổng bình phương, còn mẫu số vẫn tính theo toàn bộ cửa sổ. Hãy đặt đúng ba con số vào ô trống của công thức Độ lệch chuẩn bán phần, các lợi suất theo thứ tự thời gian.',
+      vi: 'Lấy 11 giá đóng cửa VN-Index từ 19/08 đến 07/09/2026 thì được một chuỗi lợi suất phiên, liệt kê đủ ở bảng dưới theo thứ tự thời gian. Ngưỡng để mặc định 0%, tức chỉ những phiên có lợi suất dưới 0% mới vào tổng bình phương, còn mẫu số vẫn tính theo toàn bộ cửa sổ. Hãy đặt đúng ba số vào vị trí của công thức Độ lệch chuẩn bán phần, các lợi suất theo thứ tự thời gian.',
       en: 'Taking 11 VN-Index closes from 2026-08-19 to 2026-09-07 gives a series of session returns, listed in full below in date order. The threshold is left at its default of 0%, so only sessions with a return below 0% enter the sum of squares, while the denominator still counts the whole window. Put the right three numbers into the slots of the downside deviation formula, with the returns in date order.',
     },
     facts: [
@@ -3389,7 +3389,7 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Bảng giá lịch sử của Hòa Phát (HPG) cho giá đóng cửa phiên thứ Năm 24/09/2026, phiên liền trước nó và vài phiên quanh mốc hai tuần trước. Bạn cần động lượng 10 phiên chốt phiên 24/09/2026. Từ 09/09 đến 24/09/2026 sàn mở cửa đủ mọi ngày từ thứ Hai đến thứ Sáu, không có ngày nghỉ lễ nào. Hãy đếm lùi 10 phiên rồi đặt hai con số vào ô trống của công thức động lượng.',
+      vi: 'Bảng giá lịch sử của Hòa Phát (HPG) cho giá đóng cửa phiên thứ Năm 24/09/2026, phiên liền trước nó và vài phiên quanh mốc hai tuần trước. Bạn cần động lượng 10 phiên chốt phiên 24/09/2026. Từ 09/09 đến 24/09/2026 sàn mở cửa đủ mọi ngày từ thứ Hai đến thứ Sáu, không có ngày nghỉ lễ nào. Hãy đếm lùi 10 phiên rồi đặt hai số vào vị trí của công thức động lượng.',
       en: 'The price history of Hoa Phat (HPG) gives the close of Thursday 2026-09-24, the session just before it and a few sessions around the two-weeks-earlier mark. You need the 10-session momentum as of the 2026-09-24 session. From 2026-09-09 to 2026-09-24 the exchange was open every Monday to Friday, with no holidays. Count back 10 sessions, then put the right two numbers into the slots of the momentum formula.',
     },
     facts: [
@@ -3463,7 +3463,7 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Các đường trung bình ở bảng Số liệu được tính từ giá đóng cửa của Hòa Phát (HPG) trong lịch sử giá trên CafeF, tới phiên 07/08/2026; trang ấy chỉ ghi giá từng phiên, không ghi sẵn đường trung bình. Bạn theo dõi cặp 10 phiên và 20 phiên, cặp ngắn hạn quen dùng, nhưng bảng còn có cả đường 5 phiên lẫn giá đóng cửa của chính phiên ấy. Hãy đặt đúng hai con số vào ô trống của công thức chênh lệch giữa hai đường trung bình.',
+      vi: 'Các đường trung bình ở bảng Số liệu được tính từ giá đóng cửa của Hòa Phát (HPG) trong lịch sử giá trên CafeF, tới phiên 07/08/2026; trang ấy chỉ ghi giá từng phiên, không ghi sẵn đường trung bình. Bạn theo dõi cặp 10 phiên và 20 phiên, cặp ngắn hạn quen dùng, nhưng bảng còn có cả đường 5 phiên lẫn giá đóng cửa của chính phiên ấy. Hãy đặt đúng hai số vào vị trí của công thức chênh lệch giữa hai đường trung bình.',
       en: "The moving averages in the table were computed from the Hoa Phat Group (HPG) closing prices in the CafeF price history, up to the 2026-08-07 session; that page lists each session's prices, not the averages themselves. You follow the 10- and 20-session pair, the usual short-term pair, but the table also holds the 5-session line and that day's own closing price. Put the right two numbers into the slots of the moving-average gap formula.",
     },
     facts: [
@@ -3535,7 +3535,7 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
     kind: 'hau-qua',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Bản tin phái sinh ngày 22/09/2026 của Entrade ghi VN30F1M chốt phiên ở 1.949 điểm và dẫn hai kịch bản của HSC. Kịch bản Long: vào lệnh ở 1.955 khi giá vượt kháng cự, mục tiêu 1.975, cắt lỗ dưới 1.950. Một nhà đầu tư mở 3 hợp đồng Long theo đúng kịch bản ấy và muốn biết mình lãi lỗ bao nhiêu nếu giá chạy tới mục tiêu. Hãy đặt đúng ba con số vào ô trống của công thức lãi/lỗ vị thế Long.',
+      vi: 'Bản tin phái sinh ngày 22/09/2026 của Entrade ghi VN30F1M chốt phiên ở 1.949 điểm và dẫn hai kịch bản của HSC. Kịch bản Long: vào lệnh ở 1.955 khi giá vượt kháng cự, mục tiêu 1.975, cắt lỗ dưới 1.950. Một nhà đầu tư mở 3 hợp đồng Long theo đúng kịch bản ấy và muốn biết mình lãi lỗ bao nhiêu nếu giá chạy tới mục tiêu. Hãy đặt đúng ba số vào vị trí của công thức lãi/lỗ vị thế Long.',
       en: "Entrade's derivatives bulletin of 2026-09-22 reports that VN30F1M closed the session at 1949 points and quotes two HSC scenarios. The Long scenario: enter at 1955 once price breaks resistance, target 1975, stop loss below 1950. An investor opens 3 Long contracts exactly on that scenario and wants to know the profit or loss if price reaches the target. Put the right three numbers into the slots of the long position P&L formula.",
     },
     facts: [
@@ -3615,7 +3615,7 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Thư viện thuật ngữ của UB Academy minh hoạ chỉ báo MACD bằng cổ phiếu VNM: cổ phiếu đang giao dịch quanh 85.000đ, EMA 12 phiên là 86.500 và EMA 26 phiên là 88.000. Cùng đoạn ấy còn nêu đường Signal, tức EMA 9 phiên tính trên chính chuỗi MACD, ở mức −1.200. Hãy đặt đúng hai con số vào ô trống của công thức đường MACD.',
+      vi: 'Thư viện thuật ngữ của UB Academy minh hoạ chỉ báo MACD bằng cổ phiếu VNM: cổ phiếu đang giao dịch quanh 85.000đ, EMA 12 phiên là 86.500 và EMA 26 phiên là 88.000. Cùng đoạn ấy còn nêu đường Signal, tức EMA 9 phiên tính trên chính chuỗi MACD, ở mức −1.200. Hãy đặt đúng hai số vào vị trí của công thức đường MACD.',
       en: "UB Academy's glossary illustrates the MACD indicator with VNM stock: the share trades around 85000 ₫, the 12-session EMA is 86500 and the 26-session EMA is 88000. The same passage also gives the Signal line, the 9-session EMA taken on the MACD series itself, at −1200. Put the right two numbers into the slots of the MACD line formula.",
     },
     facts: [
@@ -3678,7 +3678,7 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Bảng giá lịch sử của Vinamilk (VNM) cho giá đóng cửa bảy phiên liền nhau, từ phiên thứ Hai 24/08 đến phiên thứ Sáu 04/09/2026. Bạn cần ROC 5 phiên chốt phiên 04/09/2026. Bình thường một tuần lịch có đúng 5 phiên, nhưng tuần này sàn không mở cửa từ 29/08 đến 02/09 vì cuối tuần và kỳ nghỉ lễ Quốc khánh, nên giá của thứ Sáu tuần trước không còn là giá cách đó 5 phiên. Hãy đếm lùi 5 phiên rồi nhập hai số vào ô trống của công thức ROC.',
+      vi: 'Bảng giá lịch sử của Vinamilk (VNM) cho giá đóng cửa bảy phiên liền nhau, từ phiên thứ Hai 24/08 đến phiên thứ Sáu 04/09/2026. Bạn cần ROC 5 phiên chốt phiên 04/09/2026. Bình thường một tuần lịch có đúng 5 phiên, nhưng tuần này sàn không mở cửa từ 29/08 đến 02/09 vì cuối tuần và kỳ nghỉ lễ Quốc khánh, nên giá của thứ Sáu tuần trước không còn là giá cách đó 5 phiên. Hãy đếm lùi 5 phiên rồi nhập hai số vào vị trí của công thức ROC.',
       en: 'The price history of Vinamilk (VNM) gives the closing prices of seven consecutive sessions, from Monday 2026-08-24 to Friday 2026-09-04. You need the 5-session ROC as of the 2026-09-04 session. A calendar week normally holds exactly 5 sessions, but this time the exchange stayed closed from 2026-08-29 to 2026-09-02 for the weekend and the National Day holiday, so the previous Friday’s price is no longer the price 5 sessions back. Count back 5 sessions, then enter the two numbers into the slots of the ROC formula.',
     },
     facts: [
@@ -3756,7 +3756,7 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Một bài hướng dẫn cách tính RSI 14 kỳ đưa ra một ví dụ giả định: trong 14 phiên của một cổ phiếu có 9 phiên tăng, cộng lại được 18 điểm, và 5 phiên giảm, cộng lại được 10 điểm. Bảng số liệu có hai cách lấy trung bình: một cách chia tổng cho cả 14 phiên, cách kia chỉ chia cho số phiên có tăng hoặc số phiên có giảm. Hãy đặt đúng hai con số vào ô trống của công thức RSI.',
+      vi: 'Một bài hướng dẫn cách tính RSI 14 kỳ đưa ra một ví dụ giả định: trong 14 phiên của một cổ phiếu có 9 phiên tăng, cộng lại được 18 điểm, và 5 phiên giảm, cộng lại được 10 điểm. Bảng số liệu có hai cách lấy trung bình: một cách chia tổng cho cả 14 phiên, cách kia chỉ chia cho số phiên có tăng hoặc số phiên có giảm. Hãy đặt đúng hai số vào vị trí của công thức RSI.',
       en: 'A guide to computing the 14-period RSI gives this hypothetical example: over 14 sessions of a stock there were 9 up sessions adding up to 18 points and 5 down sessions adding up to 10 points. The table holds two ways of averaging: one divides each total by all 14 sessions, the other divides only by the number of up sessions or down sessions. Put the right two numbers into the slots of the RSI formula.',
     },
     facts: [
@@ -3838,7 +3838,7 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Lịch sử giá trên CafeF ghi giá đóng cửa cổ phiếu ACB trong bảy phiên gần nhất, từ 16/09 đến 24/09/2026; ngày 19 và 20/09 là thứ Bảy và Chủ nhật nên không có phiên. Cần tính đường SMA 5 phiên tại phiên t là phiên 24/09/2026. Hãy đặt đúng năm giá đóng cửa vào năm ô trống của công thức SMA theo thứ tự của tổng: ô đầu là i = 0, tức chính phiên t, mỗi ô sau lùi thêm một phiên.',
+      vi: 'Lịch sử giá trên CafeF ghi giá đóng cửa cổ phiếu ACB trong bảy phiên gần nhất, từ 16/09 đến 24/09/2026; ngày 19 và 20/09 là thứ Bảy và Chủ nhật nên không có phiên. Cần tính đường SMA 5 phiên tại phiên t là phiên 24/09/2026. Hãy đặt đúng năm giá đóng cửa vào năm vị trí của công thức SMA theo thứ tự của tổng: vị trí đầu là i = 0, tức chính phiên t, mỗi vị trí sau lùi thêm một phiên.',
       en: "CafeF's price history lists ACB closing prices for the seven most recent sessions, from 2026-09-16 to 2026-09-24; September 19 and 20 were a Saturday and a Sunday, so there were no sessions on those days. You need the 5-session SMA at session t, the 2026-09-24 session. Put the right five closing prices into the five slots of the SMA formula in the order of the sum: the first slot is i = 0, session t itself, and each slot after it steps back one session.",
     },
     facts: [
@@ -3944,7 +3944,7 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Lịch sử giá trên CafeF cho cổ phiếu TCB (Techcombank) trong 14 phiên từ 07/09 đến 24/09/2026 cho ra các mốc dưới đây. Stochastic %K chu kỳ 14 đo đỉnh và đáy bằng giá cao nhất và giá thấp nhất TRONG PHIÊN chứ không bằng giá đóng cửa, nên bảng ghi cả hai bộ đỉnh đáy để bạn chọn. Hãy đặt đúng bốn con số vào ô trống của công thức %K.',
+      vi: 'Lịch sử giá trên CafeF cho cổ phiếu TCB (Techcombank) trong 14 phiên từ 07/09 đến 24/09/2026 cho ra các mốc dưới đây. Stochastic %K chu kỳ 14 đo đỉnh và đáy bằng giá cao nhất và giá thấp nhất TRONG PHIÊN chứ không bằng giá đóng cửa, nên bảng ghi cả hai bộ đỉnh đáy để bạn chọn. Hãy đặt đúng bốn số vào vị trí của công thức %K.',
       en: "CafeF's price history for Techcombank (TCB) over the 14 sessions from 2026-09-07 to 2026-09-24 gives the levels below. A 14-session stochastic %K measures the high and the low with the INTRADAY high and low, not with closing prices, so the table lists both sets of highs and lows for you to choose from. Put the right four numbers into the slots of the %K formula.",
     },
     facts: [
@@ -4037,7 +4037,7 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Lịch sử giá cổ phiếu FPT trên CafeF, từ 26/08 đến 25/09/2026: phiên 25/09 đóng cửa 64.700 ₫, còn giá đóng cửa cao nhất của 30 phiên ấy rơi vào phiên 10/09. FPT chốt quyền nhận cổ phiếu thưởng tỷ lệ 10:1 ngày 22/09/2026, nên cột giá điều chỉnh của CafeF đã chia giá mọi phiên trước 21/09 cho 1,1: phiên 10/09 ở cột ấy ghi 67.730 ₫, trong khi cột giá đóng cửa vẫn ghi 74.500 ₫ như bảng giá hôm ấy. Hãy đặt đúng ba con số vào ô trống của công thức Mức sụt giảm hiện tại.',
+      vi: 'Lịch sử giá cổ phiếu FPT trên CafeF, từ 26/08 đến 25/09/2026: phiên 25/09 đóng cửa 64.700 ₫, còn giá đóng cửa cao nhất của 30 phiên ấy rơi vào phiên 10/09. FPT chốt quyền nhận cổ phiếu thưởng tỷ lệ 10:1 ngày 22/09/2026, nên cột giá điều chỉnh của CafeF đã chia giá mọi phiên trước 21/09 cho 1,1: phiên 10/09 ở cột ấy ghi 67.730 ₫, trong khi cột giá đóng cửa vẫn ghi 74.500 ₫ như bảng giá hôm ấy. Hãy đặt đúng ba số vào vị trí của công thức Mức sụt giảm hiện tại.',
       en: "FPT's price history on CafeF, from 2026-08-26 to 2026-09-25: the 2026-09-25 session closed at 64700 ₫, and the highest close of those 30 sessions fell on 2026-09-10. FPT set 2026-09-22 as the record date for a bonus issue of one new share for every ten held, so CafeF's adjusted price column has divided every session before 2026-09-21 by 1.1: the 2026-09-10 session reads 67730 ₫ in that column, while the close column still shows the 74500 ₫ of that day's price board. Put the right three numbers into the slots of the current drawdown formula.",
     },
     facts: [
@@ -4122,7 +4122,7 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Bài hướng dẫn về tỷ số Calmar trên Quantt đánh giá một quỹ giao dịch hợp đồng tương lai qua ba năm: lợi suất từng năm +18,5%, +9,2% và +14,1%, còn cú sụt sâu nhất từ đỉnh xuống đáy trong cả ba năm là −12,3%. Bảng số liệu có ba cách tóm tắt lợi suất ba năm: lãi cộng dồn, bình quân cộng và lợi suất năm hoá theo lãi kép. Hãy đặt đúng hai con số, viết ở dạng thập phân, vào ô trống của công thức Calmar.',
+      vi: 'Bài hướng dẫn về tỷ số Calmar trên Quantt đánh giá một quỹ giao dịch hợp đồng tương lai qua ba năm: lợi suất từng năm +18,5%, +9,2% và +14,1%, còn cú sụt sâu nhất từ đỉnh xuống đáy trong cả ba năm là −12,3%. Bảng số liệu có ba cách tóm tắt lợi suất ba năm: lãi cộng dồn, bình quân cộng và lợi suất năm hoá theo lãi kép. Hãy đặt đúng hai số, viết ở dạng thập phân, vào vị trí của công thức Calmar.',
       en: 'A Calmar ratio tutorial on Quantt evaluates a managed futures fund over three years: annual returns of +18.5%, +9.2% and +14.1%, and a worst peak-to-trough decline of −12.3% across the whole three years. The table summarizes the three-year return three ways: cumulative gain, simple average and compounded annualized return. Put the right two numbers, written as decimals, into the slots of the Calmar formula.',
     },
     facts: [
@@ -4201,7 +4201,7 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Bài hướng dẫn tính tỷ số Sharpe trên Quantt đánh giá một danh mục cổ phiếu Anh qua sáu tháng, lợi suất từng tháng 2,8%; −1,2%; 3,5%; −0,4%; 1,9%; 2,6%, lãi suất phi rủi ro 4,0%/năm. Công thức của trang làm việc theo kỳ rồi mới quy năm: lợi suất bình quân một kỳ trừ lãi phi rủi ro của một kỳ, chia độ lệch chuẩn lợi suất kỳ, rồi nhân căn bậc hai của số kỳ trong năm, ở đây dữ liệu tháng nên là √12. Bảng số liệu có cả lãi suất năm lẫn lợi suất vượt trội mà bài đã trừ sẵn lãi phi rủi ro. Hãy đặt đúng ba con số vào ô trống của công thức Sharpe.',
+      vi: 'Bài hướng dẫn tính tỷ số Sharpe trên Quantt đánh giá một danh mục cổ phiếu Anh qua sáu tháng, lợi suất từng tháng 2,8%; −1,2%; 3,5%; −0,4%; 1,9%; 2,6%, lãi suất phi rủi ro 4,0%/năm. Công thức của trang làm việc theo kỳ rồi mới quy năm: lợi suất bình quân một kỳ trừ lãi phi rủi ro của một kỳ, chia độ lệch chuẩn lợi suất kỳ, rồi nhân căn bậc hai của số kỳ trong năm, ở đây dữ liệu tháng nên là √12. Bảng số liệu có cả lãi suất năm lẫn lợi suất vượt trội mà bài đã trừ sẵn lãi phi rủi ro. Hãy đặt đúng ba số vào vị trí của công thức Sharpe.',
       en: 'A Sharpe ratio tutorial on Quantt evaluates a UK equity portfolio over six months, with monthly returns of 2.8%; −1.2%; 3.5%; −0.4%; 1.9%; 2.6% and a risk-free rate of 4.0% a year. The formula on this page works per period and annualizes last: the average return of one period minus the risk-free rate of one period, divided by the standard deviation of period returns, then multiplied by the square root of periods per year, which for monthly data is √12. The table holds both the annual rate and an excess return from which the tutorial has already subtracted the risk-free rate. Put the right three numbers into the slots of the Sharpe formula.',
     },
     facts: [
@@ -4314,7 +4314,7 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Bài viết về tỷ lệ Sortino trên Algotrade Knowledge Hub lấy ví dụ một danh mục có tỷ suất sinh lợi tám năm lần lượt 19%, 12%, 23%, −5%, 15%, 6%, 13%, −4%, và tỷ suất lợi nhuận mục tiêu của nhà đầu tư là 7%/năm; trong công thức của trang, mức mục tiêu này đứng đúng chỗ ngưỡng mà mọi năm được đem ra so. Dòng công thức dưới đây đã viết độ lệch chuẩn phần giảm ra thành căn bậc hai, và bảng số liệu có cả lợi suất gốc của những năm lỗ lẫn mức thua lỗ tương đối so với ngưỡng. Hãy đặt đúng năm con số vào ô trống của công thức Sortino.',
+      vi: 'Bài viết về tỷ lệ Sortino trên Algotrade Knowledge Hub lấy ví dụ một danh mục có tỷ suất sinh lợi tám năm lần lượt 19%, 12%, 23%, −5%, 15%, 6%, 13%, −4%, và tỷ suất lợi nhuận mục tiêu của nhà đầu tư là 7%/năm; trong công thức của trang, mức mục tiêu này đứng đúng chỗ ngưỡng mà mọi năm được đem ra so. Dòng công thức dưới đây đã viết độ lệch chuẩn phần giảm ra thành căn bậc hai, và bảng số liệu có cả lợi suất gốc của những năm lỗ lẫn mức thua lỗ tương đối so với ngưỡng. Hãy đặt đúng năm số vào vị trí của công thức Sortino.',
       en: 'An article on the Sortino ratio on the Algotrade Knowledge Hub uses a portfolio whose returns over eight years were 19%, 12%, 23%, −5%, 15%, 6%, 13%, −4%, with an investor target return of 7% a year; in the formula on this page, that target sits exactly where the threshold every year is compared against goes. The line below writes the downside deviation out as a square root, and the table holds both the raw returns of the losing years and the shortfalls relative to the threshold. Put the right five numbers into the slots of the Sortino formula.',
     },
     facts: [
@@ -4427,7 +4427,7 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Từ giá đóng cửa cổ phiếu MWG trên lịch sử giá của CafeF, lợi suất sáu phiên gần nhất tính đến 24/09/2026 (giá đóng cửa chia giá đóng cửa phiên trước rồi trừ 1, làm tròn hai chữ số thập phân) được ghi ở bảng dưới. Ô Ngưỡng bỏ qua phiên đi ngang đặt h = 0,5%: phiên nào tăng hoặc giảm không quá 0,5% bị coi là đi ngang và không vào vế nào. Hãy đặt đúng năm lợi suất vào năm ô trống của công thức Tỷ số thắng/thua: tử số nhận các phiên tăng, mẫu số nhận các phiên giảm, trong mỗi vế xếp từ phiên mới đến phiên cũ như thứ tự trong bảng, và chép nguyên dấu cộng trừ.',
+      vi: 'Từ giá đóng cửa cổ phiếu MWG trên lịch sử giá của CafeF, lợi suất sáu phiên gần nhất tính đến 24/09/2026 (giá đóng cửa chia giá đóng cửa phiên trước rồi trừ 1, làm tròn hai chữ số thập phân) được ghi ở bảng dưới. Ô Ngưỡng bỏ qua phiên đi ngang đặt h = 0,5%: phiên nào tăng hoặc giảm không quá 0,5% bị coi là đi ngang và không vào vế nào. Hãy đặt đúng năm lợi suất vào năm vị trí của công thức Tỷ số thắng/thua: tử số nhận các phiên tăng, mẫu số nhận các phiên giảm, trong mỗi vế xếp từ phiên mới đến phiên cũ như thứ tự trong bảng, và chép nguyên dấu cộng trừ.',
       en: "From MWG closing prices on CafeF's price history, the returns of the six most recent sessions up to 2026-09-24 (the close divided by the previous close, minus 1, rounded to two decimals) are listed below. The flat-session threshold field is set to h = 0.5%: a session that rises or falls by no more than 0.5% counts as flat and goes into neither side. Put the right five returns into the five slots of the win/loss ratio formula: the numerator takes the rising sessions, the denominator takes the falling sessions, each side ordered from the newest session to the oldest as in the table, with the sign copied as shown.",
     },
     facts: [
@@ -4511,7 +4511,7 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Ví dụ thực tế trên trang tính VaR lịch sử 95% cho một danh mục bám VN-Index từ 71 giá đóng cửa ngày 04/06 đến 15/09/2026 lấy từ Investing.com, tức 70 lợi suất phiên. Theo cách tính của trang, phân vị mức 5% nằm ở vị trí h = (70 − 1) × (1 − 0,95) = 3,45 trên chuỗi lợi suất xếp tăng dần, nên phải nội suy giữa vị trí 3 và vị trí 4 với phần lẻ 0,45. Bảng số liệu có sáu lợi suất thấp nhất. Hãy đặt đúng ba con số vào ô trống của công thức VaR.',
+      vi: 'Ví dụ thực tế trên trang tính VaR lịch sử 95% cho một danh mục bám VN-Index từ 71 giá đóng cửa ngày 04/06 đến 15/09/2026 lấy từ Investing.com, tức 70 lợi suất phiên. Theo cách tính của trang, phân vị mức 5% nằm ở vị trí h = (70 − 1) × (1 − 0,95) = 3,45 trên chuỗi lợi suất xếp tăng dần, nên phải nội suy giữa vị trí 3 và vị trí 4 với phần lẻ 0,45. Bảng số liệu có sáu lợi suất thấp nhất. Hãy đặt đúng ba số vào vị trí của công thức VaR.',
       en: "The page's own worked example computes a 95% historical VaR for a portfolio tracking the VN-Index from 71 closes between 2026-06-04 and 2026-09-15 taken from Investing.com, that is, 70 session returns. Under the page's method, the 5% percentile sits at position h = (70 − 1) × (1 − 0.95) = 3.45 in the returns sorted in ascending order, so it is interpolated between position 3 and position 4 with a fractional part of 0.45. The table lists the six lowest returns. Put the right three numbers into the slots of the VaR formula.",
     },
     facts: [
@@ -4592,7 +4592,7 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Bảng lịch sử giao dịch của CafeF tách khối lượng mỗi phiên của FPT làm hai cột: khớp lệnh và thỏa thuận. Giá đóng cửa hình thành từ các lệnh khớp, còn giao dịch thỏa thuận là những giao dịch hai bên tự thỏa thuận giá với nhau, không qua khớp lệnh. Bạn cần VWAP gộp hai phiên gần nhất, 23/09 và 24/09/2026, theo đúng công thức của trang: giá đóng cửa mỗi phiên nhân với khối lượng khớp của chính phiên ấy, rồi chia cho tổng khối lượng khớp. Hai giá đóng cửa đã in sẵn trong công thức; hãy đặt đúng bốn con số vào ô trống.',
+      vi: 'Bảng lịch sử giao dịch của CafeF tách khối lượng mỗi phiên của FPT làm hai cột: khớp lệnh và thỏa thuận. Giá đóng cửa hình thành từ các lệnh khớp, còn giao dịch thỏa thuận là những giao dịch hai bên tự thỏa thuận giá với nhau, không qua khớp lệnh. Bạn cần VWAP gộp hai phiên gần nhất, 23/09 và 24/09/2026, theo đúng công thức của trang: giá đóng cửa mỗi phiên nhân với khối lượng khớp của chính phiên ấy, rồi chia cho tổng khối lượng khớp. Hai giá đóng cửa đã in sẵn trong công thức; hãy đặt đúng bốn số vào vị trí.',
       en: "CafeF's trading history splits each FPT session's volume into two columns: matched orders and put-through deals. The closing price comes out of order matching, while put-through deals are trades whose price the two parties negotiate between themselves, outside order matching. You need the VWAP pooling the two latest sessions, 2026-09-23 and 2026-09-24, exactly as this page defines it: each session's closing price times that same session's matched volume, divided by the total matched volume. The two closing prices are already printed in the formula; put the right four numbers into the slots.",
     },
     facts: [
@@ -4682,7 +4682,7 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Trang hướng dẫn hàm XIRR của Microsoft có một ví dụ mẫu: chi 10.000 ngày 01/01/2008, rồi thu về 2.750 ngày 01/03/2008, 4.250 ngày 30/10/2008, 3.250 ngày 15/02/2009 và 2.750 ngày 01/04/2009; hàm trả về 37,34%/năm. Bảng mẫu không ghi đơn vị tiền, ở đây đọc là nghìn đồng. Dòng công thức bên dưới đã điền sẵn năm dòng tiền theo thứ tự ngày và XIRR 0,3734, dòng tiền đầu tiên có số ngày bằng 0, nên chỉ còn trống số ngày của bốn lần thu tiền. Bảng số liệu đếm số ngày theo hai cách mà công thức chỉ nhận một cách. Hãy đặt đúng bốn con số vào bốn ô để tổng quy về ngày đầu bằng 0.',
+      vi: 'Trang hướng dẫn hàm XIRR của Microsoft có một ví dụ mẫu: chi 10.000 ngày 01/01/2008, rồi thu về 2.750 ngày 01/03/2008, 4.250 ngày 30/10/2008, 3.250 ngày 15/02/2009 và 2.750 ngày 01/04/2009; hàm trả về 37,34%/năm. Bảng mẫu không ghi đơn vị tiền, ở đây đọc là nghìn đồng. Dòng công thức bên dưới đã điền sẵn năm dòng tiền theo thứ tự ngày và XIRR 0,3734, dòng tiền đầu tiên có số ngày bằng 0, nên chỉ còn trống số ngày của bốn lần thu tiền. Bảng số liệu đếm số ngày theo hai cách mà công thức chỉ nhận một cách. Hãy đặt đúng bốn số vào bốn vị trí để tổng quy về ngày đầu bằng 0.',
       en: "Microsoft's help page for the XIRR function has a sample: pay out 10000 on 2008-01-01, then receive 2750 on 2008-03-01, 4250 on 2008-10-30, 3250 on 2009-02-15 and 2750 on 2009-04-01; the function returns 37.34%/year. The sample gives no currency, so read it here as thousands of dong. The line below already holds the five cash flows in date order and the XIRR of 0.3734, and the first cash flow has a day count of 0, so only the day counts of the four receipts are blank. The table counts days in two ways and the formula accepts only one. Put the right four numbers into the four slots so that the sum discounted to day one comes to 0.",
     },
     facts: [

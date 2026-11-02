@@ -50,29 +50,29 @@ import {
 
 const SOURCE_DAMODARAN_DDM: FormulaSource = {
   label: {
-    vi: 'Aswath Damodaran — Investment Valuation, ấn bản 3 (Wiley, 2012), chương 13: Dividend Discount Models',
-    en: 'Aswath Damodaran — Investment Valuation, 3rd edition (Wiley, 2012), chapter 13: Dividend Discount Models',
+    vi: 'Aswath Damodaran - Investment Valuation, ấn bản 3 (Wiley, 2012), chương 13: Dividend Discount Models',
+    en: 'Aswath Damodaran - Investment Valuation, 3rd edition (Wiley, 2012), chapter 13: Dividend Discount Models',
   },
 };
 
 const SOURCE_DAMODARAN_FCF: FormulaSource = {
   label: {
-    vi: 'Aswath Damodaran — Investment Valuation, ấn bản 3 (Wiley, 2012), chương 14–15: các mô hình dòng tiền tự do',
-    en: 'Aswath Damodaran — Investment Valuation, 3rd edition (Wiley, 2012), chapters 14–15: free cash flow models',
+    vi: 'Aswath Damodaran - Investment Valuation, ấn bản 3 (Wiley, 2012), chương 14–15: các mô hình dòng tiền tự do',
+    en: 'Aswath Damodaran - Investment Valuation, 3rd edition (Wiley, 2012), chapters 14–15: free cash flow models',
   },
 };
 
 const SOURCE_DAMODARAN_COC: FormulaSource = {
   label: {
-    vi: 'Aswath Damodaran — Investment Valuation, ấn bản 3 (Wiley, 2012), chương 7–8: lãi suất phi rủi ro, phần bù rủi ro và chi phí vốn',
-    en: 'Aswath Damodaran — Investment Valuation, 3rd edition (Wiley, 2012), chapters 7–8: risk-free rates, risk premiums and the cost of capital',
+    vi: 'Aswath Damodaran - Investment Valuation, ấn bản 3 (Wiley, 2012), chương 7–8: lãi suất phi rủi ro, phần bù rủi ro và chi phí vốn',
+    en: 'Aswath Damodaran - Investment Valuation, 3rd edition (Wiley, 2012), chapters 7–8: risk-free rates, risk premiums and the cost of capital',
   },
 };
 
 const SOURCE_GRAHAM: FormulaSource = {
   label: {
-    vi: 'Benjamin Graham — The Intelligent Investor, bản hiệu đính 2003 (HarperBusiness), chương 20: Margin of Safety',
-    en: 'Benjamin Graham — The Intelligent Investor, revised edition 2003 (HarperBusiness), chapter 20: Margin of Safety',
+    vi: 'Benjamin Graham - The Intelligent Investor, bản hiệu đính 2003 (HarperBusiness), chương 20: Margin of Safety',
+    en: 'Benjamin Graham - The Intelligent Investor, revised edition 2003 (HarperBusiness), chapter 20: Margin of Safety',
   },
 };
 
@@ -167,8 +167,8 @@ export const MO_HINH_GORDON: FormulaModule = {
         0.1,
         {
           description: {
-            vi: 'Mức sinh lợi tối thiểu để chấp nhận nắm giữ — thường lấy từ CAPM.',
-            en: 'The minimum return needed to justify holding the stock — usually taken from CAPM.',
+            vi: 'Mức sinh lợi tối thiểu để chấp nhận nắm giữ - thường lấy từ CAPM.',
+            en: 'The minimum return needed to justify holding the stock - usually taken from CAPM.',
           },
         },
       ),
@@ -187,14 +187,14 @@ export const MO_HINH_GORDON: FormulaModule = {
         en: "Compared with the stock's current market price: a higher value means the steadily growing dividend stream you assumed is, on its own, worth more than the trading price, and a lower one means the price asks for more than those dividends deliver, so it is expensive on dividends alone.",
       },
       commonMistakes: {
-        vi: 'Chọn g cao gần bằng r làm giá trị phóng đại vô lý — không doanh nghiệp nào tăng cổ tức nhanh hơn nền kinh tế mãi mãi.',
-        en: 'Picking a g close to r inflates the value absurdly — no company can grow its dividend faster than the economy forever.',
+        vi: 'Chọn g cao gần bằng r làm giá trị phóng đại vô lý - không doanh nghiệp nào tăng cổ tức nhanh hơn nền kinh tế mãi mãi.',
+        en: 'Picking a g close to r inflates the value absurdly - no company can grow its dividend faster than the economy forever.',
       },
     },
     example: {
       title: {
-        vi: 'FPT — cổ tức 2.000 ₫/CP, tăng trưởng dài hạn 5%/năm, suất sinh lợi yêu cầu 11,92% từ CAPM',
-        en: 'FPT — dividend 2,000 ₫/share, long-term growth 5%/year, required return 11.92% from CAPM',
+        vi: 'FPT - cổ tức 2.000 ₫/CP, tăng trưởng dài hạn 5%/năm, suất sinh lợi yêu cầu 11,92% từ CAPM',
+        en: 'FPT - dividend 2,000 ₫/share, long-term growth 5%/year, required return 11.92% from CAPM',
       },
       inputs: { dividend: 2_000, growth: 5, requiredReturn: 11.92 },
       expected: 30_346.82,
@@ -209,7 +209,7 @@ export const MO_HINH_GORDON: FormulaModule = {
     },
     tests: [
       {
-        name: 'ca thường — 2.000 ₫, g 5%, r 12%',
+        name: 'ca thường - 2.000 ₫, g 5%, r 12%',
         inputs: { dividend: 2_000, growth: 5, requiredReturn: 12 },
         expected: 30_000,
       },
@@ -263,8 +263,8 @@ export const MO_HINH_GORDON: FormulaModule = {
         '₫',
         meaningless(
           {
-            vi: 'Cổ tức vừa trả bằng 0 thì không có dòng cổ tức nào để chiết khấu — cách này không định giá được doanh nghiệp chưa trả cổ tức.',
-            en: 'A most recent dividend of 0 leaves no dividend stream to discount — this method cannot value a company that pays no dividend.',
+            vi: 'Cổ tức vừa trả bằng 0 thì không có dòng cổ tức nào để chiết khấu - cách này không định giá được doanh nghiệp chưa trả cổ tức.',
+            en: 'A most recent dividend of 0 leaves no dividend stream to discount - this method cannot value a company that pays no dividend.',
           },
           {
             vi: 'Nhập cổ tức tiền mặt 12 tháng gần nhất, hoặc dùng một cách định giá dựa trên dòng tiền nếu doanh nghiệp chưa trả cổ tức.',
@@ -293,8 +293,8 @@ export const MO_HINH_GORDON: FormulaModule = {
         '₫',
         meaningless(
           {
-            vi: 'Mô hình Gordon chỉ dùng được khi suất sinh lợi yêu cầu r lớn hơn tăng trưởng g — r nhỏ hơn g cho ra giá trị âm vô nghĩa.',
-            en: 'The Gordon model only works when the required return r is greater than the growth rate g — r below g produces a meaningless negative value.',
+            vi: 'Mô hình Gordon chỉ dùng được khi suất sinh lợi yêu cầu r lớn hơn tăng trưởng g - r nhỏ hơn g cho ra giá trị âm vô nghĩa.',
+            en: 'The Gordon model only works when the required return r is greater than the growth rate g - r below g produces a meaningless negative value.',
           },
           {
             vi: 'Giảm g về mức bền vững dài hạn, hoặc dùng DDM hai giai đoạn cho thời kỳ tăng trưởng nhanh.',
@@ -482,16 +482,16 @@ export const DDM_HAI_GIAI_DOAN: FormulaModule = {
         0.1,
         {
           description: {
-            vi: 'Mức sinh lợi tối thiểu để chấp nhận nắm giữ — thường lấy từ CAPM.',
-            en: 'The minimum return needed to justify holding the stock — usually taken from CAPM.',
+            vi: 'Mức sinh lợi tối thiểu để chấp nhận nắm giữ - thường lấy từ CAPM.',
+            en: 'The minimum return needed to justify holding the stock - usually taken from CAPM.',
           },
         },
       ),
     ],
     explanation: {
       meaning: {
-        vi: 'Một cổ phiếu đáng giá bao nhiêu tiền hôm nay, khi cổ tức được cho là tăng nhanh vài năm đầu rồi mới về mức đều đặn mãi mãi — thay vì đều ngay từ năm đầu.',
-        en: 'How much one share is worth today when dividends are assumed to grow fast for the first few years before settling into a steady rate forever — instead of growing steadily from year one.',
+        vi: 'Một cổ phiếu đáng giá bao nhiêu tiền hôm nay, khi cổ tức được cho là tăng nhanh vài năm đầu rồi mới về mức đều đặn mãi mãi - thay vì đều ngay từ năm đầu.',
+        en: 'How much one share is worth today when dividends are assumed to grow fast for the first few years before settling into a steady rate forever - instead of growing steadily from year one.',
       },
       whenToUse: {
         vi: 'Dùng khi bạn nhắm một cổ phiếu có cổ tức tiền mặt đang tăng nhanh qua từng năm và muốn biết nó đáng giá bao nhiêu nếu đà tăng ấy giữ thêm vài năm rồi mới chậm lại.',
@@ -508,8 +508,8 @@ export const DDM_HAI_GIAI_DOAN: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'FPT — cổ tức 2.000 ₫, tăng 14%/năm trong 5 năm rồi 5% mãi mãi, r 11,92%',
-        en: 'FPT — dividend 2,000 ₫, growing 14%/year for 5 years then 5% forever, r 11.92%',
+        vi: 'FPT - cổ tức 2.000 ₫, tăng 14%/năm trong 5 năm rồi 5% mãi mãi, r 11,92%',
+        en: 'FPT - dividend 2,000 ₫, growing 14%/year for 5 years then 5% forever, r 11.92%',
       },
       inputs: {
         dividend: 2_000,
@@ -532,7 +532,7 @@ export const DDM_HAI_GIAI_DOAN: FormulaModule = {
       {
         // Tính tay từng dòng chiết khấu: 2.053,57 + 2.108,58 + 2.165,06 + 2.223,05
         // + 2.282,60 + 29.673,75 = 40.506,60.
-        name: 'ca thường — tăng 15% trong 5 năm rồi 4% mãi mãi',
+        name: 'ca thường - tăng 15% trong 5 năm rồi 4% mãi mãi',
         inputs: {
           dividend: 2_000,
           growthStage1: 15,
@@ -606,8 +606,8 @@ export const DDM_HAI_GIAI_DOAN: FormulaModule = {
         '₫',
         meaningless(
           {
-            vi: 'Cổ tức vừa trả bằng 0 thì không có dòng cổ tức nào để chiết khấu — cách này không định giá được doanh nghiệp chưa trả cổ tức.',
-            en: 'A most recent dividend of 0 leaves no dividend stream to discount — this method cannot value a company that pays no dividend.',
+            vi: 'Cổ tức vừa trả bằng 0 thì không có dòng cổ tức nào để chiết khấu - cách này không định giá được doanh nghiệp chưa trả cổ tức.',
+            en: 'A most recent dividend of 0 leaves no dividend stream to discount - this method cannot value a company that pays no dividend.',
           },
           {
             vi: 'Nhập cổ tức tiền mặt 12 tháng gần nhất, hoặc dùng một cách định giá dựa trên dòng tiền nếu doanh nghiệp chưa trả cổ tức.',
@@ -636,8 +636,8 @@ export const DDM_HAI_GIAI_DOAN: FormulaModule = {
         '₫',
         meaningless(
           {
-            vi: 'Giá trị cuối kỳ chỉ có nghĩa khi suất sinh lợi yêu cầu r lớn hơn tăng trưởng dài hạn g2 — r nhỏ hơn g2 cho ra giá trị âm.',
-            en: 'The terminal value is only meaningful when the required return r is greater than the long-term growth rate g2 — r below g2 produces a negative value.',
+            vi: 'Giá trị cuối kỳ chỉ có nghĩa khi suất sinh lợi yêu cầu r lớn hơn tăng trưởng dài hạn g2 - r nhỏ hơn g2 cho ra giá trị âm.',
+            en: 'The terminal value is only meaningful when the required return r is greater than the long-term growth rate g2 - r below g2 produces a negative value.',
           },
           {
             vi: 'Giảm g2 về mức bền vững dài hạn (thường không vượt tăng trưởng GDP) hoặc nâng r.',
@@ -718,7 +718,7 @@ export const CAPM: FormulaModule = {
   spec: {
     id: 'capm',
     categoryId: 'valuation',
-    name: { vi: 'CAPM — chi phí vốn chủ sở hữu', en: 'CAPM — capital asset pricing model' },
+    name: { vi: 'CAPM - chi phí vốn chủ sở hữu', en: 'CAPM - capital asset pricing model' },
     description: {
       vi: 'Suất sinh lợi yêu cầu của cổ đông, tính từ lãi suất phi rủi ro và hệ số beta.',
       en: "Shareholders' required rate of return, computed from the risk-free rate and the beta coefficient.",
@@ -798,8 +798,8 @@ export const CAPM: FormulaModule = {
         min: -3,
         max: 4,
         description: {
-          vi: 'Độ nhạy của cổ phiếu so với thị trường. Số liệu được nhập có thể tính bằng công thức Beta của thư viện này (nhóm Rủi ro), hoặc lấy từ nguồn dữ liệu bên ngoài. Ô này không tự điền.',
-          en: "The stock's sensitivity relative to the market. The figure you enter can be computed with this library's Beta formula (Risk group), or taken from an external data source. This field is not filled automatically.",
+          vi: 'Độ nhạy của cổ phiếu so với thị trường. Số liệu được nhập có thể tính bằng công thức Beta của thư viện này (nhóm Rủi ro), hoặc sử dụng từ dữ liệu bên ngoài.',
+          en: "The stock's sensitivity relative to the market. The figure you enter can be computed with this library's Beta formula (Risk group), or taken from external data.",
         },
       }),
       sliderVar(
@@ -820,8 +820,8 @@ export const CAPM: FormulaModule = {
     ],
     explanation: {
       meaning: {
-        vi: 'Nắm cổ phiếu rủi ro hơn giữ trái phiếu chính phủ thì phải đòi hỏi mức sinh lợi cao hơn bấy nhiêu — CAPM lượng hoá con số đó qua beta.',
-        en: 'Holding a stock is riskier than a government bond, so it must demand a correspondingly higher return — CAPM quantifies that through beta.',
+        vi: 'Nắm cổ phiếu rủi ro hơn giữ trái phiếu chính phủ thì phải đòi hỏi mức sinh lợi cao hơn bấy nhiêu - CAPM lượng hoá con số đó qua beta.',
+        en: 'Holding a stock is riskier than a government bond, so it must demand a correspondingly higher return - CAPM quantifies that through beta.',
       },
       whenToUse: {
         vi: 'Dùng khi bạn phân vân giữa giữ trái phiếu chính phủ và mua một cổ phiếu, và muốn biết cổ phiếu đó phải lãi tối thiểu bao nhiêu mỗi năm mới bõ công chịu rủi ro.',
@@ -838,8 +838,8 @@ export const CAPM: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'FPT — lợi suất TPCP 10 năm 4,57%, beta 0,9043, phần bù rủi ro Việt Nam 8,13%',
-        en: 'FPT — 10-year government bond yield 4.57%, beta 0.9043, Vietnam risk premium 8.13%',
+        vi: 'FPT - lợi suất TPCP 10 năm 4,57%, beta 0,9043, phần bù rủi ro Việt Nam 8,13%',
+        en: 'FPT - 10-year government bond yield 4.57%, beta 0.9043, Vietnam risk premium 8.13%',
       },
       inputs: { riskFree: 4.57, beta: 0.9043, erp: 8.13 },
       expected: 11.922,
@@ -854,7 +854,7 @@ export const CAPM: FormulaModule = {
     },
     tests: [
       {
-        name: 'ca thường — 3,5 + 1,2 × 8',
+        name: 'ca thường - 3,5 + 1,2 × 8',
         inputs: { riskFree: 3.5, beta: 1.2, erp: 8 },
         expected: 13.1,
       },
@@ -864,7 +864,7 @@ export const CAPM: FormulaModule = {
         expected: 3.5,
       },
       {
-        name: 'beta âm sâu kéo suất sinh lợi yêu cầu xuống dưới 0 — vô nghĩa',
+        name: 'beta âm sâu kéo suất sinh lợi yêu cầu xuống dưới 0 - vô nghĩa',
         inputs: { riskFree: 2, beta: -1.5, erp: 8 },
         expected: null,
         expectedWarning: 'MEANINGLESS',
@@ -882,8 +882,8 @@ export const CAPM: FormulaModule = {
         '%',
         meaningless(
           {
-            vi: 'Chi phí vốn chủ tính ra âm — beta âm sâu kéo suất sinh lợi yêu cầu xuống dưới 0, không dùng làm suất chiết khấu được.',
-            en: 'The cost of equity comes out negative — a deeply negative beta pulls the required return below 0, which cannot be used as a discount rate.',
+            vi: 'Chi phí vốn chủ tính ra âm - beta âm sâu kéo suất sinh lợi yêu cầu xuống dưới 0, không dùng làm suất chiết khấu được.',
+            en: 'The cost of equity comes out negative - a deeply negative beta pulls the required return below 0, which cannot be used as a discount rate.',
           },
           {
             vi: 'Kiểm tra lại hệ số beta; cổ phiếu thường có beta trong khoảng 0,5–1,5.',
@@ -906,8 +906,8 @@ export const WACC: FormulaModule = {
     id: 'wacc',
     categoryId: 'valuation',
     name: {
-      vi: 'WACC — chi phí vốn bình quân gia quyền',
-      en: 'WACC — weighted average cost of capital',
+      vi: 'WACC - chi phí vốn bình quân gia quyền',
+      en: 'WACC - weighted average cost of capital',
     },
     description: {
       vi: 'Chi phí huy động một đồng vốn của doanh nghiệp, trộn giữa vốn chủ và nợ vay sau lá chắn thuế.',
@@ -1028,8 +1028,8 @@ export const WACC: FormulaModule = {
         0.1,
         {
           description: {
-            vi: 'Suất sinh lợi cổ đông yêu cầu — thường lấy từ CAPM.',
-            en: "Shareholders' required return — usually taken from CAPM.",
+            vi: 'Suất sinh lợi cổ đông yêu cầu - thường lấy từ CAPM.',
+            en: "Shareholders' required return - usually taken from CAPM.",
           },
         },
       ),
@@ -1093,8 +1093,8 @@ export const WACC: FormulaModule = {
      */
     example: {
       title: {
-        vi: 'FPT — vốn hoá 124.631,5 tỷ ₫ phiên 11/09/2026, nợ vay 17.444 tỷ ngày 30/06/2026, Re 11,92%, Rd 4,2%, thuế 20%',
-        en: 'FPT — market cap 124,631.5 billion ₫ at the 2026-09-11 close, debt 17,444 billion at 2026-06-30, Re 11.92%, Rd 4.2%, tax 20%',
+        vi: 'FPT - vốn hoá 124.631,5 tỷ ₫ phiên 11/09/2026, nợ vay 17.444 tỷ ngày 30/06/2026, Re 11,92%, Rd 4,2%, thuế 20%',
+        en: 'FPT - market cap 124,631.5 billion ₫ at the 2026-09-11 close, debt 17,444 billion at 2026-06-30, Re 11.92%, Rd 4.2%, tax 20%',
       },
       inputs: { equity: 124_631.5, debt: 17_444, costEquity: 11.92, costDebt: 4.2, taxRate: 20 },
       expected: 10.869,
@@ -1109,7 +1109,7 @@ export const WACC: FormulaModule = {
     },
     tests: [
       {
-        name: 'ca thường — 60% vốn chủ, 40% nợ',
+        name: 'ca thường - 60% vốn chủ, 40% nợ',
         inputs: { equity: 600, debt: 400, costEquity: 13.1, costDebt: 9, taxRate: 20 },
         expected: 10.74,
       },
@@ -1178,7 +1178,7 @@ export const FCFF: FormulaModule = {
   spec: {
     id: 'fcff',
     categoryId: 'valuation',
-    name: { vi: 'FCFF — dòng tiền tự do của doanh nghiệp', en: 'FCFF — free cash flow to firm' },
+    name: { vi: 'FCFF - dòng tiền tự do của doanh nghiệp', en: 'FCFF - free cash flow to firm' },
     description: {
       vi: 'Tiền còn lại cho cả chủ nợ lẫn cổ đông sau thuế và sau khi tái đầu tư, tính từ EBIT.',
       en: 'The cash left for both creditors and shareholders after tax and reinvestment, computed from EBIT.',
@@ -1344,14 +1344,14 @@ export const FCFF: FormulaModule = {
         en: 'Compared with net profit after tax for the same period: about equal or higher means the reported profit has turned into real cash, and much lower means much of it went into new assets or is tied up in inventory and unpaid customer bills. A negative figure means the company spent more this period than it brought in.',
       },
       commonMistakes: {
-        vi: 'Lấy lợi nhuận sau thuế thay cho EBIT × (1 − t) — làm vậy đã trừ lãi vay một lần rồi lại chiết khấu bằng WACC vốn đã chứa chi phí nợ, thành trừ hai lần.',
-        en: 'Using net income instead of EBIT × (1 − t) — that already deducts interest once, and then discounting by WACC, which already includes the cost of debt, deducts it a second time.',
+        vi: 'Lấy lợi nhuận sau thuế thay cho EBIT × (1 − t) - làm vậy đã trừ lãi vay một lần rồi lại chiết khấu bằng WACC vốn đã chứa chi phí nợ, thành trừ hai lần.',
+        en: 'Using net income instead of EBIT × (1 − t) - that already deducts interest once, and then discounting by WACC, which already includes the cost of debt, deducts it a second time.',
       },
     },
     example: {
       title: {
-        vi: 'FPT năm 2025 — EBIT 13.848,8 tỷ ₫, thuế 20%, khấu hao 2.795,9 tỷ, CapEx 5.097,9 tỷ, ΔNWC 3.608,7 tỷ',
-        en: 'FPT in 2025 — EBIT 13,848.8 billion ₫, tax 20%, depreciation 2,795.9 billion, CapEx 5,097.9 billion, ΔNWC 3,608.7 billion',
+        vi: 'FPT năm 2025 - EBIT 13.848,8 tỷ ₫, thuế 20%, khấu hao 2.795,9 tỷ, CapEx 5.097,9 tỷ, ΔNWC 3.608,7 tỷ',
+        en: 'FPT in 2025 - EBIT 13,848.8 billion ₫, tax 20%, depreciation 2,795.9 billion, CapEx 5,097.9 billion, ΔNWC 3,608.7 billion',
       },
       inputs: {
         ebit: 13_848.8,
@@ -1372,7 +1372,7 @@ export const FCFF: FormulaModule = {
     },
     tests: [
       {
-        name: 'ca thường — 500 × 0,8 + 120 − 180 − 40',
+        name: 'ca thường - 500 × 0,8 + 120 − 180 − 40',
         inputs: { ebit: 500, taxRate: 20, depreciation: 120, capex: 180, nwcChange: 40 },
         expected: 300,
       },
@@ -1437,7 +1437,7 @@ export const FCFE: FormulaModule = {
   spec: {
     id: 'fcfe',
     categoryId: 'valuation',
-    name: { vi: 'FCFE — dòng tiền tự do của cổ đông', en: 'FCFE — free cash flow to equity' },
+    name: { vi: 'FCFE - dòng tiền tự do của cổ đông', en: 'FCFE - free cash flow to equity' },
     description: {
       vi: 'Tiền còn lại riêng cho cổ đông sau khi trả lãi vay sau thuế và điều chỉnh vay nợ ròng.',
       en: 'The cash left specifically for shareholders after paying after-tax interest and adjusting for net borrowing.',
@@ -1589,14 +1589,14 @@ export const FCFE: FormulaModule = {
         en: 'Compared with total cash dividends paid in the same period: higher means the cash left for shareholders covers those dividends with some to spare, and lower means the excess dividend is coming out of savings. A negative figure means nothing is left for shareholders this period and the gap is covered from cash on hand.',
       },
       commonMistakes: {
-        vi: 'Chiết khấu FCFE bằng WACC — FCFE là dòng tiền của riêng cổ đông nên phải chiết khấu bằng chi phí vốn chủ.',
-        en: 'Discounting FCFE with WACC — FCFE is a cash flow belonging solely to shareholders, so it must be discounted with the cost of equity.',
+        vi: 'Chiết khấu FCFE bằng WACC - FCFE là dòng tiền của riêng cổ đông nên phải chiết khấu bằng chi phí vốn chủ.',
+        en: 'Discounting FCFE with WACC - FCFE is a cash flow belonging solely to shareholders, so it must be discounted with the cost of equity.',
       },
     },
     example: {
       title: {
-        vi: 'FPT năm 2025 — FCFF 5.168,34 tỷ ₫, lãi vay 809,8 tỷ, thuế 20%, vay ròng thêm 6.256,7 tỷ',
-        en: 'FPT in 2025 — FCFF 5,168.34 billion ₫, interest 809.8 billion, tax 20%, new net borrowing 6,256.7 billion',
+        vi: 'FPT năm 2025 - FCFF 5.168,34 tỷ ₫, lãi vay 809,8 tỷ, thuế 20%, vay ròng thêm 6.256,7 tỷ',
+        en: 'FPT in 2025 - FCFF 5,168.34 billion ₫, interest 809.8 billion, tax 20%, new net borrowing 6,256.7 billion',
       },
       inputs: { fcff: 5_168.34, interest: 809.8, taxRate: 20, netBorrowing: 6_256.7 },
       expected: 10_777.2,
@@ -1611,7 +1611,7 @@ export const FCFE: FormulaModule = {
     },
     tests: [
       {
-        name: 'ca thường — 300 − 48 + 30',
+        name: 'ca thường - 300 − 48 + 30',
         inputs: { fcff: 300, interest: 60, taxRate: 20, netBorrowing: 30 },
         expected: 282,
       },
@@ -1638,8 +1638,8 @@ export const FCFE: FormulaModule = {
         'tỷ ₫',
         meaningless(
           {
-            vi: 'Chi phí lãi vay âm không có ý nghĩa — doanh nghiệp không được chủ nợ trả lãi.',
-            en: 'A negative interest expense makes no sense — a company is not paid interest by its creditors.',
+            vi: 'Chi phí lãi vay âm không có ý nghĩa - doanh nghiệp không được chủ nợ trả lãi.',
+            en: 'A negative interest expense makes no sense - a company is not paid interest by its creditors.',
           },
           {
             vi: 'Nhập chi phí lãi vay từ 0 trở lên; thu nhập lãi ghi ở dòng khác của báo cáo.',
@@ -1790,8 +1790,8 @@ export const GIA_TRI_NOI_TAI_FCFF: FormulaModule = {
         0.1,
         {
           description: {
-            vi: 'Suất chiết khấu cho dòng tiền của cả doanh nghiệp — thường lấy từ WACC.',
-            en: "The discount rate for the whole firm's cash flow — usually taken from the WACC formula.",
+            vi: 'Suất chiết khấu cho dòng tiền của cả doanh nghiệp - thường lấy từ WACC.',
+            en: "The discount rate for the whole firm's cash flow - usually taken from the WACC formula.",
           },
         },
       ),
@@ -1832,14 +1832,14 @@ export const GIA_TRI_NOI_TAI_FCFF: FormulaModule = {
         en: "Compared with the stock's current market price: a higher intrinsic value means that, on the cash flow and assumptions you entered, each share is worth more than it is selling for, and a lower one means the market is paying more than that cash flow can justify.",
       },
       commonMistakes: {
-        vi: 'Chọn g gần bằng WACC làm giá trị phồng lên vô lý; và quên trừ nợ vay ròng — đó là phần thuộc về chủ nợ, không phải cổ đông.',
-        en: 'Picking a g close to WACC inflates the value absurdly; and forgetting to subtract net debt — that portion belongs to creditors, not shareholders.',
+        vi: 'Chọn g gần bằng WACC làm giá trị phồng lên vô lý; và quên trừ nợ vay ròng - đó là phần thuộc về chủ nợ, không phải cổ đông.',
+        en: 'Picking a g close to WACC inflates the value absurdly; and forgetting to subtract net debt - that portion belongs to creditors, not shareholders.',
       },
     },
     example: {
       title: {
-        vi: 'FPT — FCFF 5.168,34 tỷ ₫, tăng 5%/năm, WACC 10,87%, nợ vay ròng −11.527,6 tỷ, 1.714,33 triệu CP',
-        en: 'FPT — FCFF 5,168.34 billion ₫, growing 5%/year, WACC 10.87%, net debt −11,527.6 billion, 1,714.33 million shares',
+        vi: 'FPT - FCFF 5.168,34 tỷ ₫, tăng 5%/năm, WACC 10,87%, nợ vay ròng −11.527,6 tỷ, 1.714,33 triệu CP',
+        en: 'FPT - FCFF 5,168.34 billion ₫, growing 5%/year, WACC 10.87%, net debt −11,527.6 billion, 1,714.33 million shares',
       },
       // WACC là kết quả ví dụ của `wacc` (10,869%) làm tròn như màn hiện; từng là 9,37 khi ví dụ ấy
       // còn tính vốn chủ theo sổ sách (16/10/2026, xem ghi chú ở ví dụ `wacc`).
@@ -1858,7 +1858,7 @@ export const GIA_TRI_NOI_TAI_FCFF: FormulaModule = {
       {
         // Tính độc lập dạng đóng: 300 × 1,04 ÷ 0,067 = 4.656,7164 tỷ; − 300 = 4.356,7164;
         // ÷ 118 × 1.000 = 36.921,3256 ₫.
-        name: 'ca thường — FCFF 300, g 4%, WACC 10,7%, nợ ròng 300, 118 triệu CP',
+        name: 'ca thường - FCFF 300, g 4%, WACC 10,7%, nợ ròng 300, 118 triệu CP',
         inputs: { fcff: 300, growth: 4, wacc: 10.7, netDebt: 300, shares: 118 },
         expected: 36_921.33,
         tolerance: 1,
@@ -1935,8 +1935,8 @@ export const GIA_TRI_NOI_TAI_FCFF: FormulaModule = {
         '₫',
         meaningless(
           {
-            vi: 'FCFF bằng 0 hoặc âm thì mô hình tăng trưởng đều cho ra giá trị doanh nghiệp bằng 0 hoặc âm — không còn gì để chia cho cổ đông, nên cách này không định giá được.',
-            en: 'A zero or negative FCFF makes the steady-growth model produce a negative enterprise value — this method cannot value the company.',
+            vi: 'FCFF bằng 0 hoặc âm thì mô hình tăng trưởng đều cho ra giá trị doanh nghiệp bằng 0 hoặc âm - không còn gì để chia cho cổ đông, nên cách này không định giá được.',
+            en: 'A zero or negative FCFF makes the steady-growth model produce a negative enterprise value - this method cannot value the company.',
           },
           {
             vi: 'Dùng kỳ có dòng tiền dương, hoặc ước tính FCFF bình thường hoá của vài năm gần nhất.',
@@ -1965,8 +1965,8 @@ export const GIA_TRI_NOI_TAI_FCFF: FormulaModule = {
         '₫',
         meaningless(
           {
-            vi: 'Mô hình chỉ dùng được khi WACC lớn hơn tăng trưởng g — g vượt WACC cho ra giá trị âm vô nghĩa.',
-            en: 'The model only works when WACC is greater than the growth rate g — g exceeding WACC produces a meaningless negative value.',
+            vi: 'Mô hình chỉ dùng được khi WACC lớn hơn tăng trưởng g - g vượt WACC cho ra giá trị âm vô nghĩa.',
+            en: 'The model only works when WACC is greater than the growth rate g - g exceeding WACC produces a meaningless negative value.',
           },
           {
             vi: 'Giảm g về mức bền vững dài hạn (thường không vượt tăng trưởng GDP) hoặc xem lại WACC.',
@@ -2110,8 +2110,8 @@ export const GIA_TRI_HIEN_TAI: FormulaModule = {
     ],
     explanation: {
       meaning: {
-        vi: 'Tiền nhận sau mới rẻ hơn tiền nhận ngay, vì tiền có ngay còn sinh lợi được — PV quy mọi khoản tương lai về cùng thước đo hôm nay.',
-        en: 'Money received later is worth less than money received now, because money in hand can earn a return — PV converts every future amount to the same measuring stick, today.',
+        vi: 'Tiền nhận sau mới rẻ hơn tiền nhận ngay, vì tiền có ngay còn sinh lợi được - PV quy mọi khoản tương lai về cùng thước đo hôm nay.',
+        en: 'Money received later is worth less than money received now, because money in hand can earn a return - PV converts every future amount to the same measuring stick, today.',
       },
       whenToUse: {
         vi: 'Dùng khi bạn sẽ nhận một khoản tiền sau vài năm, như bán nhà cho trả chậm hay bảo hiểm đáo hạn, và muốn biết khoản đó đáng bao nhiêu nếu quy về tiền hôm nay.',
@@ -2122,8 +2122,8 @@ export const GIA_TRI_HIEN_TAI: FormulaModule = {
         en: 'Compared with the amount you could take today instead of that future sum: if the amount today is larger than this figure, taking it now is the better deal, and if it is smaller, waiting pays more, judged at the discount rate you chose.',
       },
       commonMistakes: {
-        vi: 'Chọn tỷ lệ chiết khấu tuỳ hứng — nó phải phản ánh mức rủi ro của chính khoản tiền đó, tiền chắc chắn chiết khấu thấp, tiền bấp bênh chiết khấu cao.',
-        en: 'Picking a discount rate arbitrarily — it should reflect the riskiness of that specific cash flow: a sure amount is discounted lightly, an uncertain one heavily.',
+        vi: 'Chọn tỷ lệ chiết khấu tuỳ hứng - nó phải phản ánh mức rủi ro của chính khoản tiền đó, tiền chắc chắn chiết khấu thấp, tiền bấp bênh chiết khấu cao.',
+        en: 'Picking a discount rate arbitrarily - it should reflect the riskiness of that specific cash flow: a sure amount is discounted lightly, an uncertain one heavily.',
       },
     },
     example: {
@@ -2144,7 +2144,7 @@ export const GIA_TRI_HIEN_TAI: FormulaModule = {
     },
     tests: [
       {
-        name: 'ca thường — 1 tỷ sau 10 năm, chiết khấu 8%',
+        name: 'ca thường - 1 tỷ sau 10 năm, chiết khấu 8%',
         inputs: { futureValue: 1_000_000_000, rate: 8, years: 10 },
         expected: 463_193_488.08,
         tolerance: 1,
@@ -2377,7 +2377,7 @@ export const GIA_TRI_TUONG_LAI: FormulaModule = {
     },
     tests: [
       {
-        name: 'ca thường — 100 triệu, 10%/năm, 15 năm',
+        name: 'ca thường - 100 triệu, 10%/năm, 15 năm',
         inputs: { presentValue: 100_000_000, rate: 10, years: 15 },
         expected: 417_724_816.94,
         tolerance: 1,
@@ -2404,8 +2404,8 @@ export const GIA_TRI_TUONG_LAI: FormulaModule = {
         '₫',
         meaningless(
           {
-            vi: 'Tỷ suất sinh lợi dưới −100% mỗi năm không có ý nghĩa — không thể mất nhiều hơn toàn bộ số tiền.',
-            en: 'A rate of return below −100% per year makes no sense — you cannot lose more than the entire amount.',
+            vi: 'Tỷ suất sinh lợi dưới −100% mỗi năm không có ý nghĩa - không thể mất nhiều hơn toàn bộ số tiền.',
+            en: 'A rate of return below −100% per year makes no sense - you cannot lose more than the entire amount.',
           },
           {
             vi: 'Nhập tỷ suất sinh lợi từ −100% trở lên.',
@@ -2537,8 +2537,8 @@ export const BIEN_AN_TOAN: FormulaModule = {
     ],
     explanation: {
       meaning: {
-        vi: 'Khoảng đệm giữa giá mua và giá trị ước tính — chỗ dựa khi chính ước tính của mình sai lệch.',
-        en: 'The cushion between the purchase price and the estimated value — a buffer for when your own estimate turns out to be wrong.',
+        vi: 'Khoảng đệm giữa giá mua và giá trị ước tính - chỗ dựa khi chính ước tính của mình sai lệch.',
+        en: 'The cushion between the purchase price and the estimated value - a buffer for when your own estimate turns out to be wrong.',
       },
       whenToUse: {
         vi: 'Dùng khi bạn đã tự ước được một cổ phiếu đáng giá bao nhiêu và muốn biết giá trên bảng đang rẻ hơn con số ấy bao xa, trước khi quyết định mua thêm hay chờ.',
@@ -2549,14 +2549,14 @@ export const BIEN_AN_TOAN: FormulaModule = {
         en: 'Compared with how far off you think your own value estimate could be: a larger margin means that even if the estimate is too high by that much, the price still does not exceed the true value, and a smaller one means an error that size already makes you overpay. A negative figure means the market price is already above your own estimate.',
       },
       commonMistakes: {
-        vi: 'Tin con số tuyệt đối của biên trong khi giá trị nội tại chỉ là ước tính — biên an toàn lớn không cứu được một mô hình định giá sai đầu vào.',
-        en: "Trusting the margin's absolute number when the intrinsic value is only an estimate — a large margin of safety cannot rescue a valuation model built on wrong inputs.",
+        vi: 'Tin con số tuyệt đối của biên trong khi giá trị nội tại chỉ là ước tính - biên an toàn lớn không cứu được một mô hình định giá sai đầu vào.',
+        en: "Trusting the margin's absolute number when the intrinsic value is only an estimate - a large margin of safety cannot rescue a valuation model built on wrong inputs.",
       },
     },
     example: {
       title: {
-        vi: 'FPT — thị giá 72.700 ₫ phiên 11/09/2026 so với giá trị nội tại 60.651,46 ₫ từ DCF',
-        en: 'FPT — market price 72,700 ₫ on 2026-09-11 against an intrinsic value of 60,651.46 ₫ from DCF',
+        vi: 'FPT - thị giá 72.700 ₫ phiên 11/09/2026 so với giá trị nội tại 60.651,46 ₫ từ DCF',
+        en: 'FPT - market price 72,700 ₫ on 2026-09-11 against an intrinsic value of 60,651.46 ₫ from DCF',
       },
       // Giá trị nội tại là kết quả ví dụ DCF; từng là 79.161 ₫ (biên +8,16%) khi WACC còn tính vốn chủ
       // theo sổ sách (16/10/2026, xem ghi chú ở ví dụ `wacc`).
@@ -2573,7 +2573,7 @@ export const BIEN_AN_TOAN: FormulaModule = {
     },
     tests: [
       {
-        name: 'ca thường — mua rẻ hơn ước tính 25%',
+        name: 'ca thường - mua rẻ hơn ước tính 25%',
         inputs: { intrinsic: 40_000, price: 30_000 },
         expected: 25,
       },
@@ -2634,8 +2634,8 @@ export const BIEN_AN_TOAN: FormulaModule = {
             en: 'A negative intrinsic value makes the margin of safety meaningless.',
           },
           {
-            vi: 'Xem lại mô hình định giá — bộ giả định đầu vào đang cho ra giá trị âm.',
-            en: 'Review the valuation model — the current input assumptions are producing a negative value.',
+            vi: 'Xem lại mô hình định giá - bộ giả định đầu vào đang cho ra giá trị âm.',
+            en: 'Review the valuation model - the current input assumptions are producing a negative value.',
           },
         ),
       );

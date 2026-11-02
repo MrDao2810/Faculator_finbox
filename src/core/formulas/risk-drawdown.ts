@@ -35,16 +35,16 @@ import { SOURCE_CFA, sliderVar, withSymbol } from './shared';
 /** Sách chuẩn của mảng VaR — phần trình bày phương pháp mô phỏng lịch sử. */
 const SOURCE_JORION: FormulaSource = {
   label: {
-    vi: 'Philippe Jorion — Value at Risk: The New Benchmark for Managing Financial Risk, ấn bản 3 (McGraw-Hill, 2006), phần phương pháp mô phỏng lịch sử',
-    en: 'Philippe Jorion — Value at Risk: The New Benchmark for Managing Financial Risk, 3rd edition (McGraw-Hill, 2006), the historical simulation method section',
+    vi: 'Philippe Jorion - Value at Risk: The New Benchmark for Managing Financial Risk, ấn bản 3 (McGraw-Hill, 2006), phần phương pháp mô phỏng lịch sử',
+    en: 'Philippe Jorion - Value at Risk: The New Benchmark for Managing Financial Risk, 3rd edition (McGraw-Hill, 2006), the historical simulation method section',
   },
 };
 
 /** Sách đo lường hiệu quả danh mục — phần các thước đo rủi ro sụt giảm. */
 const SOURCE_BACON: FormulaSource = {
   label: {
-    vi: 'Carl R. Bacon — Practical Portfolio Performance Measurement and Attribution, ấn bản 2 (Wiley, 2008), phần thước đo rủi ro sụt giảm',
-    en: 'Carl R. Bacon — Practical Portfolio Performance Measurement and Attribution, 2nd edition (Wiley, 2008), the drawdown risk measures section',
+    vi: 'Carl R. Bacon - Practical Portfolio Performance Measurement and Attribution, ấn bản 2 (Wiley, 2008), phần thước đo rủi ro sụt giảm',
+    en: 'Carl R. Bacon - Practical Portfolio Performance Measurement and Attribution, 2nd edition (Wiley, 2008), the drawdown risk measures section',
   },
 };
 
@@ -242,8 +242,8 @@ function drawdownLookback(): VariableSpec {
     10,
     {
       description: {
-        vi: 'Chuỗi dài hơn thì chỉ lấy phần cuối. Tối thiểu 30 phiên, tức khoảng một tháng rưỡi giao dịch — ngắn hơn thì chưa đủ một nhịp lên xuống để nói về sụt giảm.',
-        en: 'A longer series only uses its most recent portion. Minimum 30 sessions, roughly a month and a half of trading — anything shorter is not enough for a full up-down swing to talk about drawdown.',
+        vi: 'Chuỗi dài hơn thì chỉ lấy phần cuối. Tối thiểu 30 phiên, tức khoảng một tháng rưỡi giao dịch - ngắn hơn thì chưa đủ một nhịp lên xuống để nói về sụt giảm.',
+        en: 'A longer series only uses its most recent portion. Minimum 30 sessions, roughly a month and a half of trading - anything shorter is not enough for a full up-down swing to talk about drawdown.',
       },
     },
   );
@@ -382,8 +382,8 @@ export const SUT_GIAM_SAU_NHAT: FormulaModule = {
     variables: [withSymbol(drawdownLookback(), 'N')],
     explanation: {
       meaning: {
-        vi: 'Nếu mua đúng đỉnh xấu nhất và bán đúng đáy sau đó thì mất bao nhiêu phần trăm — thước đo nỗi đau lớn nhất mà chuỗi giá này từng bắt người nắm giữ chịu.',
-        en: 'How much you would lose if you bought at the worst possible peak and sold at the trough that followed — a measure of the deepest pain this price series has ever put a holder through.',
+        vi: 'Nếu mua đúng đỉnh xấu nhất và bán đúng đáy sau đó thì mất bao nhiêu phần trăm - thước đo nỗi đau lớn nhất mà chuỗi giá này từng bắt người nắm giữ chịu.',
+        en: 'How much you would lose if you bought at the worst possible peak and sold at the trough that followed - a measure of the deepest pain this price series has ever put a holder through.',
       },
       whenToUse: {
         vi: 'Dùng khi bạn định cầm một cổ phiếu lâu dài và muốn biết quãng vừa qua nó từng rơi từ đỉnh xuống đáy sâu nhất bao nhiêu, để tự hỏi mình có chịu nổi cú rơi như thế không.',
@@ -394,8 +394,8 @@ export const SUT_GIAM_SAU_NHAT: FormulaModule = {
         en: 'Compared with the drop from a peak you could sit through without wanting to sell in a panic: a larger figure means this stock has already fallen further than that, a smaller one means its worst fall stayed within it. A result of 0 means the price never fell back from a peak in the sessions chosen.',
       },
       commonMistakes: {
-        vi: 'Đo trên cửa sổ quá ngắn rồi kết luận cổ phiếu ít rủi ro — chưa gặp phiên xấu không có nghĩa là không có. Sụt giảm sâu nhất luôn phụ thuộc độ dài chuỗi, so hai mã thì phải so trên cùng một cửa sổ.',
-        en: 'Measuring over too short a window and concluding a stock is low-risk — not having hit a bad stretch yet does not mean one cannot happen. Maximum drawdown always depends on the length of the series, so comparing two tickers requires using the same window for both.',
+        vi: 'Đo trên cửa sổ quá ngắn rồi kết luận cổ phiếu ít rủi ro - chưa gặp phiên xấu không có nghĩa là không có. Sụt giảm sâu nhất luôn phụ thuộc độ dài chuỗi, so hai mã thì phải so trên cùng một cửa sổ.',
+        en: 'Measuring over too short a window and concluding a stock is low-risk - not having hit a bad stretch yet does not mean one cannot happen. Maximum drawdown always depends on the length of the series, so comparing two tickers requires using the same window for both.',
       },
     },
     example: {
@@ -809,10 +809,10 @@ export const CVAR_LICH_SU: FormulaModule = {
   spec: {
     id: 'cvar-lich-su',
     categoryId: 'risk',
-    name: { vi: 'CVaR — tổn thất kỳ vọng phần đuôi', en: 'Conditional VaR (expected shortfall)' },
+    name: { vi: 'CVaR - tổn thất kỳ vọng phần đuôi', en: 'Conditional VaR (expected shortfall)' },
     description: {
-      vi: 'Mức lỗ trung bình của riêng những phiên không tốt hơn ngưỡng VaR — trả lời câu "nếu ngày xấu thật sự xảy ra thì mất bao nhiêu".',
-      en: 'The average loss of just the sessions no better than the VaR threshold — answering "if the bad day actually happens, how much do I lose".',
+      vi: 'Mức lỗ trung bình của riêng những phiên không tốt hơn ngưỡng VaR - trả lời câu "nếu ngày xấu thật sự xảy ra thì mất bao nhiêu".',
+      en: 'The average loss of just the sessions no better than the VaR threshold - answering "if the bad day actually happens, how much do I lose".',
     },
     latex: 'CVaR_{\\alpha} = -E\\left[r_N \\mid r_N \\le Q_{1-\\alpha}(r_N)\\right] \\times 100',
     expression: {
@@ -946,7 +946,7 @@ export const CVAR_LICH_SU: FormulaModule = {
          * Ngưỡng phân vị dương nhưng đuôi vẫn lỗ: VaR từ chối ca này (đúng — nó đo ngưỡng), CVaR
          * thì không được từ chối theo, vì trung bình ba phiên đuôi là một khoản lỗ có thật.
          */
-        name: 'ngưỡng phân vị dương nhưng đuôi vẫn lỗ — CVaR vẫn phải trả 2,3667%',
+        name: 'ngưỡng phân vị dương nhưng đuôi vẫn lỗ - CVaR vẫn phải trả 2,3667%',
         inputs: { confidence: 95, lookback: 250 },
         series: CHUOI_DUOI_LO_NGUONG_DUONG,
         expected: 2.3667,
@@ -989,8 +989,8 @@ export const CVAR_LICH_SU: FormulaModule = {
             en: `At the ${confidence}% confidence level even the worst group of sessions averages a gain, so there is no loss to measure.`,
           },
           {
-            vi: 'Chọn cửa sổ dài hơn hoặc chuỗi có phiên giảm — mẫu mà nhóm tệ nhất vẫn lãi thì mọi thước đo tổn thất đều rỗng nghĩa.',
-            en: 'Pick a longer window or a series that includes down sessions — when even the worst group gains, every loss measure is empty.',
+            vi: 'Chọn cửa sổ dài hơn hoặc chuỗi có phiên giảm - mẫu mà nhóm tệ nhất vẫn lãi thì mọi thước đo tổn thất đều rỗng nghĩa.',
+            en: 'Pick a longer window or a series that includes down sessions - when even the worst group gains, every loss measure is empty.',
           },
         ),
       );

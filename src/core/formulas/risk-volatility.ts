@@ -29,8 +29,8 @@ import { SOURCE_CFA, numberVar, sliderVar } from './shared';
 /** Nguồn dùng chung của cả nhóm — chương về rủi ro và lợi suất lịch sử. */
 const SOURCE_INVESTMENTS: FormulaSource = {
   label: {
-    vi: 'Bodie, Kane & Marcus — Investments, ấn bản 12 (McGraw-Hill), chương 5: Risk, Return, and the Historical Record',
-    en: 'Bodie, Kane & Marcus — Investments, 12th edition (McGraw-Hill), chapter 5: Risk, Return, and the Historical Record',
+    vi: 'Bodie, Kane & Marcus - Investments, ấn bản 12 (McGraw-Hill), chương 5: Risk, Return, and the Historical Record',
+    en: 'Bodie, Kane & Marcus - Investments, 12th edition (McGraw-Hill), chapter 5: Risk, Return, and the Historical Record',
   },
 };
 
@@ -216,8 +216,8 @@ export const DO_LECH_CHUAN_LOI_SUAT_PHIEN: FormulaModule = {
         en: "Compared with the same figure for another stock over the same sessions: higher means this stock's price usually jumps around more between sessions, lower means it moves more calmly. A result of 0 means the price changed by the same percentage every session, usually because it did not move at all in the sessions chosen.",
       },
       commonMistakes: {
-        vi: 'Tính trên vài chục phiên rồi coi là mức biến động ổn định của cổ phiếu — mẫu càng mỏng, con số càng nhảy theo kỳ chọn. Một lỗi khác là đem so thẳng độ lệch chuẩn theo phiên với con số theo năm của báo cáo quỹ.',
-        en: "Computing it over a few dozen sessions and treating it as the stock's stable volatility level — the thinner the sample, the more the number jumps around depending on the period chosen. Another mistake is comparing the per-session standard deviation directly against the annualized figure in a fund report.",
+        vi: 'Tính trên vài chục phiên rồi coi là mức biến động ổn định của cổ phiếu - mẫu càng mỏng, con số càng nhảy theo kỳ chọn. Một lỗi khác là đem so thẳng độ lệch chuẩn theo phiên với con số theo năm của báo cáo quỹ.',
+        en: "Computing it over a few dozen sessions and treating it as the stock's stable volatility level - the thinner the sample, the more the number jumps around depending on the period chosen. Another mistake is comparing the per-session standard deviation directly against the annualized figure in a fund report.",
       },
     },
     example: {
@@ -440,8 +440,8 @@ export const DO_BIEN_DONG_NAM_HOA: FormulaModule = {
             en: 'The number of trading sessions per year must be greater than 0 to annualize the volatility.',
           },
           {
-            vi: 'Nhập khoảng 250 phiên — số phiên giao dịch thường thấy của một năm trên HOSE.',
-            en: 'Enter about 250 sessions — the typical number of trading sessions in a year on HOSE.',
+            vi: 'Nhập khoảng 250 phiên - số phiên giao dịch thường thấy của một năm trên HOSE.',
+            en: 'Enter about 250 sessions - the typical number of trading sessions in a year on HOSE.',
           },
         ),
       );
@@ -569,8 +569,8 @@ export const DO_LECH_CHUAN_BAN_PHAN: FormulaModule = {
         en: "Compared with another stock's downside deviation at the same threshold over the same sessions: higher means this stock's sessions below the threshold fall deeper or more often, lower means they are milder. A result of 0 means no session fell below the threshold.",
       },
       commonMistakes: {
-        vi: 'Chia cho số phiên nằm dưới ngưỡng thay vì cho tổng số phiên quan sát — làm thế thì danh mục càng ít phiên xấu lại càng bị chấm rủi ro cao. Lỗi thứ hai là quên đặt ngưỡng theo cùng đơn vị kỳ với chuỗi lợi suất.',
-        en: 'Dividing by the number of sessions below the threshold instead of the total number of observed sessions — doing so scores a portfolio with fewer bad sessions as riskier. A second mistake is forgetting to set the threshold in the same period unit as the return series.',
+        vi: 'Chia cho số phiên nằm dưới ngưỡng thay vì cho tổng số phiên quan sát - làm thế thì danh mục càng ít phiên xấu lại càng bị chấm rủi ro cao. Lỗi thứ hai là quên đặt ngưỡng theo cùng đơn vị kỳ với chuỗi lợi suất.',
+        en: 'Dividing by the number of sessions below the threshold instead of the total number of observed sessions - doing so scores a portfolio with fewer bad sessions as riskier. A second mistake is forgetting to set the threshold in the same period unit as the return series.',
       },
     },
     example: {
@@ -718,8 +718,8 @@ export const HE_SO_BIEN_THIEN: FormulaModule = {
         en: "Compared with the coefficient of the other stock you are weighing, over the same sessions: lower means each unit of this stock's average return comes with less swinging, higher means it takes more swinging to earn the same return.",
       },
       commonMistakes: {
-        vi: 'Dùng khi lợi suất bình quân âm — lúc đó tỷ số ra số âm và xếp hạng ngược hoàn toàn, nên công thức này chỉ dùng cho kỳ có lợi suất bình quân dương.',
-        en: 'Using it when the average return is negative — the ratio then comes out negative and the ranking flips entirely, so this formula should only be used for periods with a positive average return.',
+        vi: 'Dùng khi lợi suất bình quân âm - lúc đó tỷ số ra số âm và xếp hạng ngược hoàn toàn, nên công thức này chỉ dùng cho kỳ có lợi suất bình quân dương.',
+        en: 'Using it when the average return is negative - the ratio then comes out negative and the ranking flips entirely, so this formula should only be used for periods with a positive average return.',
       },
     },
     example: {
@@ -900,8 +900,8 @@ export const BIEN_DO_DAO_DONG_LON_NHAT: FormulaModule = {
     ],
     explanation: {
       meaning: {
-        vi: 'Khoảng cách giữa đỉnh và đáy giá đóng cửa trong kỳ — bề rộng của vùng giá mà cổ phiếu đã đi qua.',
-        en: 'The distance between the peak and trough closing prices in the period — the width of the price zone the stock has traveled through.',
+        vi: 'Khoảng cách giữa đỉnh và đáy giá đóng cửa trong kỳ - bề rộng của vùng giá mà cổ phiếu đã đi qua.',
+        en: 'The distance between the peak and trough closing prices in the period - the width of the price zone the stock has traveled through.',
       },
       whenToUse: {
         vi: 'Dùng khi bạn mở biểu đồ giá mấy tháng gần đây của một mã và muốn biết giá đóng cửa đã đi trong một vùng rộng cỡ nào, trước khi chọn giá mua vào hay giá chốt lời.',

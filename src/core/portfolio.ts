@@ -252,8 +252,8 @@ export function summarisePortfolio(
                   en: `Could not look up the market price of ${missingList}, so the total value cannot be calculated.`,
                 },
                 fix: {
-                  vi: 'Nguồn dữ liệu chưa có mã này — kiểm tra lại mã, hoặc bỏ mã khỏi danh mục.',
-                  en: 'The data source has no such ticker — check the code, or remove it from the portfolio.',
+                  vi: 'Nguồn dữ liệu chưa có mã này - kiểm tra lại mã, hoặc bỏ mã khỏi danh mục.',
+                  en: 'The data source has no such ticker - check the code, or remove it from the portfolio.',
                 },
               },
         )
@@ -405,8 +405,8 @@ export function summarisePortfolio(
     rate = fail('%/năm', {
       code: 'INCOMPLETE_INPUT',
       message: {
-        vi: `Thiếu hoặc sai ngày mua của ${badDates.join(', ')} — không có ngày thì không dựng được dòng tiền.`,
-        en: `Missing or invalid buy date for ${badDates.join(', ')} — without a date, no cash flow can be built.`,
+        vi: `Thiếu hoặc sai ngày mua của ${badDates.join(', ')} - không có ngày thì không dựng được dòng tiền.`,
+        en: `Missing or invalid buy date for ${badDates.join(', ')} - without a date, no cash flow can be built.`,
       },
       fix: {
         vi: 'Nhập ngày mua dạng ngày-tháng-năm cho mã còn thiếu.',

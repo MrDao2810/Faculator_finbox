@@ -21,8 +21,8 @@ export const CHI_SO_DN: ReadonlyArray<QuizItem> = [
     choices: {
       a: { vi: 'Tăng 20%', en: 'It increases by 20%' },
       b: {
-        vi: 'Không đổi — giá điều chỉnh từ 40.000 xuống khoảng 33.333 đồng',
-        en: 'Unchanged — the price adjusts from VND 40,000 down to about VND 33,333',
+        vi: 'Không đổi - giá điều chỉnh từ 40.000 xuống khoảng 33.333 đồng',
+        en: 'Unchanged - the price adjusts from VND 40,000 down to about VND 33,333',
       },
       c: { vi: 'Giảm vì bị pha loãng', en: 'It decreases due to dilution' },
       d: {
@@ -32,8 +32,8 @@ export const CHI_SO_DN: ReadonlyArray<QuizItem> = [
     },
     answer: 'b',
     explain: {
-      vi: 'DNSE nêu đúng ngộ nhận: “Số lượng cổ phiếu trong tài khoản tăng lên khiến nhiều người nghĩ rằng mình đang được thêm tiền mà không phải bỏ ra đồng nào”, trong khi “Không có giá trị mới được tạo ra” — 1.200 cổ phiếu × 33.333 đồng vẫn là 40 triệu.',
-      en: 'DNSE names the misconception exactly: “Số lượng cổ phiếu trong tài khoản tăng lên khiến nhiều người nghĩ rằng mình đang được thêm tiền mà không phải bỏ ra đồng nào” (seeing more shares in the account makes many people think they are getting free money for nothing), while “Không có giá trị mới được tạo ra” (no new value is created) — 1,200 shares × VND 33,333 is still VND 40 million.',
+      vi: 'DNSE nêu đúng ngộ nhận: “Số lượng cổ phiếu trong tài khoản tăng lên khiến nhiều người nghĩ rằng mình đang được thêm tiền mà không phải bỏ ra đồng nào”, trong khi “Không có giá trị mới được tạo ra” - 1.200 cổ phiếu × 33.333 đồng vẫn là 40 triệu.',
+      en: 'DNSE names the misconception exactly: “Số lượng cổ phiếu trong tài khoản tăng lên khiến nhiều người nghĩ rằng mình đang được thêm tiền mà không phải bỏ ra đồng nào” (seeing more shares in the account makes many people think they are getting free money for nothing), while “Không có giá trị mới được tạo ra” (no new value is created) - 1,200 shares × VND 33,333 is still VND 40 million.',
     },
     source: {
       url: 'https://www.dnse.com.vn/senses/tin-tuc/hieu-dung-ve-pha-loang-co-phieu-khi-doanh-nghiep-chia-co-tuc-35163328',
@@ -62,8 +62,8 @@ export const CHI_SO_DN: ReadonlyArray<QuizItem> = [
     },
     answer: 'a',
     explain: {
-      vi: 'DNSE: “Khi số cổ phiếu tăng nhưng lợi nhuận không đổi, EPS giảm xuống, khiến cổ phiếu trở nên kém hấp dẫn hơn về mặt định giá” — và chia liên tục mà không tăng trưởng tương ứng sẽ đẩy P/E lên.',
-      en: 'DNSE: “Khi số cổ phiếu tăng nhưng lợi nhuận không đổi, EPS giảm xuống, khiến cổ phiếu trở nên kém hấp dẫn hơn về mặt định giá” (when the share count rises but profit is unchanged, EPS falls, making the stock look less attractive on valuation) — and repeated share splits with no matching growth push the P/E up.',
+      vi: 'DNSE: “Khi số cổ phiếu tăng nhưng lợi nhuận không đổi, EPS giảm xuống, khiến cổ phiếu trở nên kém hấp dẫn hơn về mặt định giá” - và chia liên tục mà không tăng trưởng tương ứng sẽ đẩy P/E lên.',
+      en: 'DNSE: “Khi số cổ phiếu tăng nhưng lợi nhuận không đổi, EPS giảm xuống, khiến cổ phiếu trở nên kém hấp dẫn hơn về mặt định giá” (when the share count rises but profit is unchanged, EPS falls, making the stock look less attractive on valuation) - and repeated share splits with no matching growth push the P/E up.',
     },
     source: {
       url: 'https://www.dnse.com.vn/senses/tin-tuc/hieu-dung-ve-pha-loang-co-phieu-khi-doanh-nghiep-chia-co-tuc-35163328',
@@ -85,15 +85,15 @@ export const CHI_SO_DN: ReadonlyArray<QuizItem> = [
       a: { vi: 'Giá cổ phiếu đã tăng chưa', en: 'Whether the share price has already risen' },
       b: { vi: 'Khối lượng giao dịch', en: 'Trading volume' },
       c: {
-        vi: 'Lợi nhuận đến từ đâu — có khoản một lần như bán tài sản, thoái vốn, hoàn nhập dự phòng không',
-        en: 'Where the profit came from — whether it includes one-off items such as an asset sale, a divestment, or a provision reversal',
+        vi: 'Lợi nhuận đến từ đâu - có khoản một lần như bán tài sản, thoái vốn, hoàn nhập dự phòng không',
+        en: 'Where the profit came from - whether it includes one-off items such as an asset sale, a divestment, or a provision reversal',
       },
       d: { vi: 'Ý kiến của môi giới', en: "A broker's opinion" },
     },
     answer: 'c',
     explain: {
       vi: 'CafeF: “Lợi nhuận tăng mạnh đôi khi đến từ các khoản một lần – như bán tài sản, thoái vốn, hoặc hoàn nhập dự phòng”. Trường hợp KBC: mua 9,6 triệu cổ phần giá 96 tỷ rồi xác định lại giá trị 2.493 tỷ, ghi nhận lợi nhuận 2.397 tỷ.',
-      en: 'CafeF: “Lợi nhuận tăng mạnh đôi khi đến từ các khoản một lần – như bán tài sản, thoái vốn, hoặc hoàn nhập dự phòng” (a sharp jump in profit sometimes comes from one-off items — an asset sale, a divestment, or a provision reversal). Case in point, KBC: it bought 9.6 million shares for VND 96 billion, then revalued them at VND 2,493 billion, booking a VND 2,397 billion gain.',
+      en: 'CafeF: “Lợi nhuận tăng mạnh đôi khi đến từ các khoản một lần – như bán tài sản, thoái vốn, hoặc hoàn nhập dự phòng” (a sharp jump in profit sometimes comes from one-off items - an asset sale, a divestment, or a provision reversal). Case in point, KBC: it bought 9.6 million shares for VND 96 billion, then revalued them at VND 2,493 billion, booking a VND 2,397 billion gain.',
     },
     source: {
       url: 'https://cafef.vn/doc-vi-bao-cao-tai-chinh-3-chi-bao-boc-tran-doanh-nghiep-lai-ao-188251022221734407.chn',
@@ -112,12 +112,12 @@ export const CHI_SO_DN: ReadonlyArray<QuizItem> = [
       en: 'You are valuing a company using the EPS on the self-prepared financial statements it just released. What is the risk?',
     },
     choices: {
-      a: { vi: 'Không có rủi ro, số liệu là số liệu', en: 'No risk — a number is a number' },
+      a: { vi: 'Không có rủi ro, số liệu là số liệu', en: 'No risk - a number is a number' },
       b: { vi: 'Chỉ lệch vài phần trăm', en: 'It is off by only a few percent, at most' },
       c: { vi: 'Chỉ ảnh hưởng doanh nghiệp nhỏ', en: 'It only affects small companies' },
       d: {
-        vi: 'Con số có thể đảo chiều sau kiểm toán — đã có trường hợp từ lãi 39 tỷ thành lỗ 86,5 tỷ',
-        en: 'The number can flip after the audit — there have been real cases going from a VND 39 billion profit to a VND 86.5 billion loss',
+        vi: 'Con số có thể đảo chiều sau kiểm toán - đã có trường hợp từ lãi 39 tỷ thành lỗ 86,5 tỷ',
+        en: 'The number can flip after the audit - there have been real cases going from a VND 39 billion profit to a VND 86.5 billion loss',
       },
     },
     answer: 'd',
@@ -153,7 +153,7 @@ export const CHI_SO_DN: ReadonlyArray<QuizItem> = [
     answer: 'a',
     explain: {
       vi: 'GoValue: “đây là nghiệp vụ chia tách cổ phiếu. Nó không hề phát sinh bất kỳ dòng tiền mới” nên “giá trị sổ sách (Vốn CSH / Số lượng cổ phiếu) giảm tương ứng”. Nguồn còn cảnh báo lãnh đạo có thể dùng cách này để che giấu thiếu hụt dòng tiền mặt.',
-      en: 'GoValue: “đây là nghiệp vụ chia tách cổ phiếu. Nó không hề phát sinh bất kỳ dòng tiền mới” (this is a stock-split transaction; it generates no new cash flow at all), so “giá trị sổ sách (Vốn CSH / Số lượng cổ phiếu) giảm tương ứng” (book value — equity ÷ share count — falls proportionally). The source also warns that management can use this move to mask a cash-flow shortfall.',
+      en: 'GoValue: “đây là nghiệp vụ chia tách cổ phiếu. Nó không hề phát sinh bất kỳ dòng tiền mới” (this is a stock-split transaction; it generates no new cash flow at all), so “giá trị sổ sách (Vốn CSH / Số lượng cổ phiếu) giảm tương ứng” (book value - equity ÷ share count - falls proportionally). The source also warns that management can use this move to mask a cash-flow shortfall.',
     },
     source: {
       url: 'https://govalue.vn/co-phieu-thuong-la-gi/',
@@ -203,8 +203,8 @@ export const CHI_SO_DN: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'B đáng giá hơn — ROE của A chủ yếu đến từ đòn bẩy',
-        en: "B is worth more — A's ROE mostly comes from leverage",
+        vi: 'B đáng giá hơn - ROE của A chủ yếu đến từ đòn bẩy',
+        en: "B is worth more - A's ROE mostly comes from leverage",
       },
       b: { vi: 'A tốt hơn vì ROE cao hơn', en: 'A is better, since its ROE is higher' },
       c: { vi: 'Hai bên tương đương', en: 'The two are equivalent' },
@@ -325,8 +325,8 @@ export const CHI_SO_DN: ReadonlyArray<QuizItem> = [
       a: { vi: 'ROA không tính tài sản vô hình', en: 'ROA does not count intangible assets' },
       b: { vi: 'ROA tính theo quý', en: 'ROA is computed quarterly' },
       c: {
-        vi: 'Tử số là lợi nhuận sau thuế — đã trừ lãi vay, nên vẫn dính cơ cấu vốn',
-        en: 'The numerator is after-tax profit — already net of interest expense — so it still carries capital structure',
+        vi: 'Tử số là lợi nhuận sau thuế - đã trừ lãi vay, nên vẫn dính cơ cấu vốn',
+        en: 'The numerator is after-tax profit - already net of interest expense - so it still carries capital structure',
       },
       d: {
         vi: 'ROA không so sánh được trong cùng ngành',
@@ -358,8 +358,8 @@ export const CHI_SO_DN: ReadonlyArray<QuizItem> = [
       a: { vi: 'Tăng tương ứng', en: 'It rose correspondingly' },
       b: { vi: 'Bằng 0', en: 'It was zero' },
       c: {
-        vi: 'Âm gần 1 tỷ — toàn bộ lãi đến từ thu nhập khác',
-        en: 'It was negative by almost VND 1 billion — the entire profit came from other income',
+        vi: 'Âm gần 1 tỷ - toàn bộ lãi đến từ thu nhập khác',
+        en: 'It was negative by almost VND 1 billion - the entire profit came from other income',
       },
       d: { vi: 'Không công bố', en: 'It was not disclosed' },
     },
@@ -381,8 +381,8 @@ export const CHI_SO_DN: ReadonlyArray<QuizItem> = [
     kind: 'doc-ket-qua',
     evidence: 'ngo-nhan',
     prompt: {
-      vi: 'Vì sao biên lợi nhuận ròng — chỉ tiêu cuối cùng của báo cáo — lại kém tin cậy nhất?',
-      en: 'Why is the net profit margin — the last line item of the statement — the least reliable one?',
+      vi: 'Tại sao biên lợi nhuận ròng - chỉ tiêu cuối cùng của báo cáo - lại kém tin cậy nhất?',
+      en: 'Why is the net profit margin - the last line item of the statement - the least reliable one?',
     },
     choices: {
       a: {
@@ -422,8 +422,8 @@ export const CHI_SO_DN: ReadonlyArray<QuizItem> = [
       b: { vi: 'Có nếu doanh thu tăng', en: 'Yes, if revenue is growing' },
       c: { vi: 'Có với doanh nghiệp sản xuất', en: 'Yes, for manufacturing companies' },
       d: {
-        vi: 'Không — chi phí bán hàng và quản lý có thể ăn hết phần lãi đó',
-        en: 'No — selling and administrative expenses can eat up that entire margin',
+        vi: 'Không - chi phí bán hàng và quản lý có thể ăn hết phần lãi đó',
+        en: 'No - selling and administrative expenses can eat up that entire margin',
       },
     },
     answer: 'd',
@@ -668,15 +668,15 @@ export const CHI_SO_DN: ReadonlyArray<QuizItem> = [
       a: { vi: 'Rất an toàn', en: 'Very safe' },
       b: { vi: 'Doanh nghiệp thiếu vốn', en: 'The company is short of capital' },
       c: {
-        vi: 'Chưa chắc — tồn kho ứ đọng khó chuyển thành tiền, và vốn đang bị chôn',
-        en: 'Not necessarily — stagnant inventory is hard to convert into cash, and capital is tied up',
+        vi: 'Chưa chắc - tồn kho ứ đọng khó chuyển thành tiền, và vốn đang bị chôn',
+        en: 'Not necessarily - stagnant inventory is hard to convert into cash, and capital is tied up',
       },
       d: { vi: 'Tỷ số này không có ý nghĩa', en: 'This ratio is meaningless' },
     },
     answer: 'c',
     explain: {
       vi: '“tỷ số này cao là do tỷ trọng của hàng tồn kho cao chưa hẳn đã là an toàn. Nếu như thị trường biến động xấu, hàng tồn kho bị ứ đọng khiến cho hàng tồn kho khó chuyển thành tiền mặt”. Giáo trình bổ sung: vốn chôn trong tài sản ngắn hạn làm giảm lợi nhuận.',
-      en: '“tỷ số này cao là do tỷ trọng của hàng tồn kho cao chưa hẳn đã là an toàn. Nếu như thị trường biến động xấu, hàng tồn kho bị ứ đọng khiến cho hàng tồn kho khó chuyển thành tiền mặt” (a high ratio driven by a large inventory share is not necessarily safe — if the market turns unfavorable, stagnant inventory becomes hard to convert into cash). The textbook adds that capital tied up in current assets drags down profit.',
+      en: '“tỷ số này cao là do tỷ trọng của hàng tồn kho cao chưa hẳn đã là an toàn. Nếu như thị trường biến động xấu, hàng tồn kho bị ứ đọng khiến cho hàng tồn kho khó chuyển thành tiền mặt” (a high ratio driven by a large inventory share is not necessarily safe - if the market turns unfavorable, stagnant inventory becomes hard to convert into cash). The textbook adds that capital tied up in current assets drags down profit.',
     },
     source: {
       url: 'https://takeprofit.vn/tin-nhanh-chung-khoan/nhom-chi-so-thanh-toan/1648352281543',
@@ -691,8 +691,8 @@ export const CHI_SO_DN: ReadonlyArray<QuizItem> = [
     kind: 'dieu-kien',
     evidence: 'ngo-nhan',
     prompt: {
-      vi: 'Đã loại hàng tồn kho, vì sao tỷ số thanh toán nhanh vẫn có thể đánh lừa?',
-      en: 'Inventory has already been excluded — why can the quick ratio still be misleading?',
+      vi: 'Đã loại hàng tồn kho, tại sao tỷ số thanh toán nhanh vẫn có thể đánh lừa?',
+      en: 'Inventory has already been excluded - why can the quick ratio still be misleading?',
     },
     choices: {
       a: { vi: 'Vì còn tiền mặt', en: 'Because cash is still included' },
@@ -730,8 +730,8 @@ export const CHI_SO_DN: ReadonlyArray<QuizItem> = [
         en: 'The business genuinely became more efficient',
       },
       b: {
-        vi: 'Tỷ lệ tăng do mẫu số giảm — có thể không lãi hơn chút nào',
-        en: 'The ratio rose because the denominator shrank — profitability may not have improved at all',
+        vi: 'Tỷ lệ tăng do mẫu số giảm - có thể không lãi hơn chút nào',
+        en: 'The ratio rose because the denominator shrank - profitability may not have improved at all',
       },
       c: { vi: 'Doanh thu đã tăng', en: 'Revenue has increased' },
       d: { vi: 'Biên lợi nhuận đã cải thiện', en: 'The profit margin has improved' },
@@ -759,12 +759,12 @@ export const CHI_SO_DN: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'Có thể đang vắt kiệt lợi nhuận, không còn tiền tái đầu tư — cần xem nguồn tiền trả cổ tức',
-        en: 'It may be squeezing out every last bit of profit with no cash left to reinvest — check where the dividend money comes from',
+        vi: 'Có thể đang vắt kiệt lợi nhuận, không còn tiền tái đầu tư - cần xem nguồn tiền trả cổ tức',
+        en: 'It may be squeezing out every last bit of profit with no cash left to reinvest - check where the dividend money comes from',
       },
       b: {
         vi: 'Rất khoẻ, chia nhiều cho cổ đông',
-        en: 'Very healthy — paying shareholders generously',
+        en: 'Very healthy - paying shareholders generously',
       },
       c: { vi: 'Sắp phá sản', en: 'About to go bankrupt' },
       d: {
@@ -774,8 +774,8 @@ export const CHI_SO_DN: ReadonlyArray<QuizItem> = [
     },
     answer: 'a',
     explain: {
-      vi: '“Nếu tỷ lệ này quá cao (trên 70-80% chẳng hạn), đó có thể là dấu hiệu công ty đang vắt kiệt lợi nhuận để trả cổ tức, hoặc không có đủ tiền để tái đầu tư” — và nguồn tiền “Có thể là vay nợ, có thể là rút ruột từ quỹ dự phòng”.',
-      en: '“Nếu tỷ lệ này quá cao (trên 70-80% chẳng hạn), đó có thể là dấu hiệu công ty đang vắt kiệt lợi nhuận để trả cổ tức, hoặc không có đủ tiền để tái đầu tư” (if the ratio is too high — say, above 70–80% — it can signal that the company is squeezing out profit to pay dividends, or does not have enough cash to reinvest) — and the money can be “Có thể là vay nợ, có thể là rút ruột từ quỹ dự phòng” (borrowed, or drained from a reserve fund).',
+      vi: '“Nếu tỷ lệ này quá cao (trên 70-80% chẳng hạn), đó có thể là dấu hiệu công ty đang vắt kiệt lợi nhuận để trả cổ tức, hoặc không có đủ tiền để tái đầu tư” - và nguồn tiền “Có thể là vay nợ, có thể là rút ruột từ quỹ dự phòng”.',
+      en: '“Nếu tỷ lệ này quá cao (trên 70-80% chẳng hạn), đó có thể là dấu hiệu công ty đang vắt kiệt lợi nhuận để trả cổ tức, hoặc không có đủ tiền để tái đầu tư” (if the ratio is too high - say, above 70–80% - it can signal that the company is squeezing out profit to pay dividends, or does not have enough cash to reinvest) - and the money can be “Có thể là vay nợ, có thể là rút ruột từ quỹ dự phòng” (borrowed, or drained from a reserve fund).',
     },
     source: {
       url: 'https://vimo.cuthongthai.vn/blog/co-tuc-cao-bay-ngot-hay-kim-cuong-that-90-f0-khong-biet',
@@ -798,8 +798,8 @@ export const CHI_SO_DN: ReadonlyArray<QuizItem> = [
       b: { vi: 'Doanh nghiệp thiếu tiền mặt', en: 'The company is short of cash' },
       c: { vi: 'Sắp phát hành thêm cổ phiếu', en: 'It is about to issue more shares' },
       d: {
-        vi: 'Payout hợp lý phụ thuộc cơ hội đầu tư — payout cao thường là dấu hiệu hết cơ hội hấp dẫn',
-        en: 'A sensible payout depends on investment opportunities — a high payout is often a sign that attractive opportunities have run out',
+        vi: 'Payout hợp lý phụ thuộc cơ hội đầu tư - payout cao thường là dấu hiệu hết cơ hội hấp dẫn',
+        en: 'A sensible payout depends on investment opportunities - a high payout is often a sign that attractive opportunities have run out',
       },
     },
     answer: 'd',

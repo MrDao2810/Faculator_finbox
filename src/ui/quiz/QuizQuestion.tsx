@@ -252,8 +252,8 @@ export function QuizQuestion({
           {!coSoLieu && <legend className={styles.prompt}>{chu(item.prompt)}</legend>}
           {/*
             Câu chọn nhiều không in dòng "Câu này có nhiều đáp án đúng…" nữa (02/11/2026, chủ dự án:
-            "đang thừa và chiếm không gian"). Tín hiệu còn lại là ô vuông thay ô tròn, và lời
-            "(chọn tất cả đáp án đúng)" mà 8 trong 18 đề tự ghi. Mộ chí `quiz.pickAll` ở `vi.ts`.
+            "đang thừa và chiếm không gian"). Tín hiệu còn lại là ô vuông thay ô tròn, và lời nhắc
+            chọn đủ đáp án mà cả 18 đề tự ghi (`quiz.test.ts` gác). Mộ chí `quiz.pickAll` ở `vi.ts`.
           */}
           {/*
             Bốn lựa chọn nằm trong một LƯỚI riêng, không phải con trực tiếp của `<fieldset>`.

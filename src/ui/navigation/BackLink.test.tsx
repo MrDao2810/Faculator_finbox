@@ -237,11 +237,11 @@ describe('BackLink — nhãn là tên công thức, không phải một khoá', 
         fallbackHref="/cong-thuc/pe/"
         labelKey="nav.backToFormula"
         rememberOrigin={false}
-        label="P/E — hệ số giá trên lợi nhuận"
+        label="P/E - hệ số giá trên lợi nhuận"
       />,
     );
 
-    expect(hrefOf('P/E — hệ số giá trên lợi nhuận')).toBe('/cong-thuc/pe');
+    expect(hrefOf('P/E - hệ số giá trên lợi nhuận')).toBe('/cong-thuc/pe');
   });
 
   it('thiếu chữ sẵn thì lùi về khoá — mở thẳng URL vẫn có nhãn tử tế', () => {
@@ -263,10 +263,10 @@ describe('BackLink — nhãn là tên công thức, không phải một khoá', 
    */
   it('đích đổi sang màn gốc thì chữ sẵn bị bỏ, nhãn đi theo đích', () => {
     nho('/danh-muc/');
-    render(<BackLink label="P/E — hệ số giá trên lợi nhuận" />);
+    render(<BackLink label="P/E - hệ số giá trên lợi nhuận" />);
 
     expect(hrefOf('Danh mục')).toBe('/danh-muc');
-    expect(screen.queryByText('P/E — hệ số giá trên lợi nhuận')).toBeNull();
+    expect(screen.queryByText('P/E - hệ số giá trên lợi nhuận')).toBeNull();
   });
 });
 

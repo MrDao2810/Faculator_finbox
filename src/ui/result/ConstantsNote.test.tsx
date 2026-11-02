@@ -34,8 +34,8 @@ const PHI_MOI_GIOI: TypedMarketConstant = {
   unit: '%',
   effectiveFrom: '2022-01-01',
   legalBasis: {
-    vi: 'Thông tư 102/2021/TT-BTC — mức trần phí môi giới 0,45% giá trị giao dịch',
-    en: 'Circular 102/2021/TT-BTC — brokerage fee cap of 0.45% of transaction value',
+    vi: 'Thông tư 102/2021/TT-BTC: mức trần phí môi giới 0,45% giá trị giao dịch',
+    en: 'Circular 102/2021/TT-BTC: brokerage fee cap of 0.45% of transaction value',
   },
   // Cùng câu mà bản ghi thật trong `schedules.ts` mang — xem ca kiểm về ghi chú ở cuối file.
   note: {

@@ -108,7 +108,7 @@ export function exampleNoteProblems({ id, name, title, source, note }: DocViDuIn
     if (viTri !== -1) {
       const moc = doan.slice(CACH_DOC_MO_DAU[ngon].length, viTri).trim();
       if (MOC_KET_BANG_SO.test(moc)) {
-        loi.push(`${nhan}: mốc "${moc}" kết bằng chữ số — đặt đơn vị hay danh từ SAU con số`);
+        loi.push(`${nhan}: mốc "${moc}" kết bằng chữ số - đặt đơn vị hay danh từ SAU con số`);
       }
     }
 
@@ -118,7 +118,7 @@ export function exampleNoteProblems({ id, name, title, source, note }: DocViDuIn
     if (doan.length < DOC_VI_DU_TOI_THIEU) {
       loi.push(`${nhan}: ngắn ${String(doan.length)} ký tự, sàn ${String(DOC_VI_DU_TOI_THIEU)}`);
     }
-    if (GACH_DAI.test(doan)) loi.push(`${nhan}: có gạch ngang dài (— hoặc –)`);
+    if (GACH_DAI.test(doan)) loi.push(`${nhan}: có gạch ngang dài (- hoặc –)`);
 
     const tro = TU_TRO[ngon].exec(doan);
     if (tro !== null)

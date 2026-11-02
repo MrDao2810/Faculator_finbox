@@ -88,10 +88,10 @@ describe('nhanCoKyHieu — phần nào của tên ô là ký hiệu', () => {
     expect(nhanCoKyHieu(s, 'totalLiabilities')).toBeNull();
   });
 
-  it('ký hiệu mở đầu tên ("EPS — …"): điểm chạm là đúng chữ EPS, phần giải nghĩa sau là chữ trơn', () => {
+  it('ký hiệu mở đầu tên ("EPS - …"): điểm chạm là đúng chữ EPS, phần giải nghĩa sau là chữ trơn', () => {
     expect(nhanCoKyHieu(spec('pe'), 'eps')).toMatchObject({
-      vi: { truoc: '', kyHieu: 'EPS', sau: ' — lợi nhuận trên mỗi cổ phiếu' },
-      en: { truoc: '', kyHieu: 'EPS', sau: ' — earnings per share' },
+      vi: { truoc: '', kyHieu: 'EPS', sau: ' - lợi nhuận trên mỗi cổ phiếu' },
+      en: { truoc: '', kyHieu: 'EPS', sau: ' - earnings per share' },
     });
   });
 

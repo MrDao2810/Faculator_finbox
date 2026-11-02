@@ -140,7 +140,7 @@ describe('GuideScreen', () => {
     expect(khoi).not.toBeNull();
 
     const ten = [...(khoi?.querySelectorAll('dt') ?? [])].map((dt) => dt.textContent);
-    expect(ten).toEqual(['Giá thị trường (P)', 'EPS — lợi nhuận trên mỗi cổ phiếu']);
+    expect(ten).toEqual(['Giá thị trường (P)', 'EPS - lợi nhuận trên mỗi cổ phiếu']);
 
     const noi = [...(khoi?.querySelectorAll('dd') ?? [])].map((dd) => dd.textContent);
     expect(noi).toEqual([
@@ -307,7 +307,7 @@ describe('GuideScreen', () => {
 
     dungMan('ev');
     expect(hinh()).toEqual([
-      { ten: 'EV — bóc tách', mo: true },
+      { ten: 'EV - bóc tách', mo: true },
       { ten: 'EV theo Vốn hoá thị trường', mo: false },
       { ten: 'EV theo Nợ vay', mo: false },
       { ten: 'EV theo Tiền mặt và tiền gửi', mo: false },

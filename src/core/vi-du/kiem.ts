@@ -138,7 +138,7 @@ export function viDuProblems(formula: FormulaModule, giai: ViDuGiai): string[] {
     for (const ngon of ['vi', 'en'] as const) {
       const s = t?.[ngon];
       if (s === undefined || s.trim() === '') loi.push(`${ten}: thiếu bản ${ngon}`);
-      else if (GACH_DAI.test(s)) loi.push(`${ten}.${ngon}: có gạch ngang dài — hoặc –`);
+      else if (GACH_DAI.test(s)) loi.push(`${ten}.${ngon}: có gạch ngang dài - hoặc –`);
     }
   }
 
@@ -149,7 +149,7 @@ export function viDuProblems(formula: FormulaModule, giai: ViDuGiai): string[] {
   if (thaySo === undefined) {
     if (!KHONG_CO_PHEP_TINH.has(spec.id))
       loi.push(
-        'thiếu thaySo — chỉ công thức trong KHONG_CO_PHEP_TINH được bỏ dòng Áp vào công thức',
+        'thiếu thaySo - chỉ công thức trong KHONG_CO_PHEP_TINH được bỏ dòng Áp vào công thức',
       );
   } else {
     const gia = evaluateWorked(thaySo.vi);

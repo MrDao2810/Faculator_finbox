@@ -66,7 +66,7 @@ export function validateVariable(spec: VariableSpec, path: string): RegistryIssu
   if (isBlank(spec.key)) issues.push(err(path, 'Biến thiếu key.'));
   if (isBlankVi(spec.label)) issues.push(err(`${path}.label`, 'Biến thiếu nhãn tiếng Việt.'));
   if (isBlankEn(spec.label)) {
-    issues.push(warn(`${path}.label.en`, 'Biến thiếu nhãn tiếng Anh — FR-21 cần khi bật VI/EN.'));
+    issues.push(warn(`${path}.label.en`, 'Biến thiếu nhãn tiếng Anh - FR-21 cần khi bật VI/EN.'));
   }
 
   if (!Number.isFinite(spec.defaultValue)) {
@@ -172,7 +172,7 @@ export function validateFormula(
 
   if (isBlank(formula.name.vi)) issues.push(err(`${path}.name.vi`, 'Thiếu tên tiếng Việt.'));
   if (isBlank(formula.name.en)) {
-    issues.push(warn(`${path}.name.en`, 'Thiếu tên tiếng Anh — FR-21 cần khi bật VI/EN.'));
+    issues.push(warn(`${path}.name.en`, 'Thiếu tên tiếng Anh - FR-21 cần khi bật VI/EN.'));
   }
   if (isBlankVi(formula.description)) {
     issues.push(err(`${path}.description`, 'Thiếu mô tả ngắn.'));
@@ -219,7 +219,7 @@ export function validateFormula(
   }
 
   if (formula.tags.length === 0) {
-    issues.push(warn(`${path}.tags`, 'Chưa có từ khoá — tìm kiếm FR-19 sẽ khó ra công thức này.'));
+    issues.push(warn(`${path}.tags`, 'Chưa có từ khoá - tìm kiếm FR-19 sẽ khó ra công thức này.'));
   }
 
   // Biến
@@ -339,7 +339,7 @@ export function errorsOnly(issues: ReadonlyArray<RegistryIssue>): RegistryIssue[
 /** Gộp danh sách phát hiện thành một khối chữ đọc được trong log CI. */
 export function formatIssues(issues: ReadonlyArray<RegistryIssue>): string {
   return issues
-    .map((i) => `${i.severity === 'error' ? 'LỖI' : 'NHẮC'} · ${i.path} — ${i.message}`)
+    .map((i) => `${i.severity === 'error' ? 'LỖI' : 'NHẮC'} · ${i.path} - ${i.message}`)
     .join('\n');
 }
 
@@ -463,7 +463,7 @@ function checkInputs(
 
   for (const key of variableKeys) {
     if (!(key in inputs)) {
-      issues.push(warn(`${path}.${key}`, `Bỏ sót biến '${key}' — sẽ chạy bằng giá trị mặc định.`));
+      issues.push(warn(`${path}.${key}`, `Bỏ sót biến '${key}' - sẽ chạy bằng giá trị mặc định.`));
     }
   }
 

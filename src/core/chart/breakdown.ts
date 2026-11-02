@@ -167,7 +167,7 @@ function labelOf(spec: FormulaSpec, key: string): Bilingual {
  */
 function shortTotalLabel(spec: FormulaSpec): Bilingual {
   if (spec.breakdownTotal !== undefined) return spec.breakdownTotal;
-  const [headVi] = spec.name.vi.split(' — ');
-  const [headEn] = spec.name.en.split(' — ');
+  const [headVi] = spec.name.vi.split(' - ');
+  const [headEn] = spec.name.en.split(' - ');
   return { vi: headVi ?? spec.name.vi, en: headEn ?? spec.name.en };
 }

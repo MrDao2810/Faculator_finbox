@@ -143,8 +143,8 @@ export function xirrNotConverged(): CalcWarning {
        * quy ra năm đã vượt trần — và câu cũ chỉ nêu nguyên nhân thứ nhất, tức bảo người dùng đi
        * kiểm thứ vốn đã đúng.
        */
-      vi: 'Kiểm tra lại: cần ít nhất một khoản chi ra và một khoản thu về, kèm ngày của từng khoản. Nếu đã đủ cả hai thì lãi hoặc lỗ đang nằm trong quãng ngày quá ngắn để quy ra suất sinh lợi năm — với quãng vài ngày, ROI hoặc HPR đọc dễ hơn.',
-      en: 'Check again: you need at least one outflow and one inflow, each with its date. If both are already there, the gain or loss sits in too short a span of days to annualize — over a few days, ROI or HPR reads more easily.',
+      vi: 'Kiểm tra lại: cần ít nhất một khoản chi ra và một khoản thu về, kèm ngày của từng khoản. Nếu đã đủ cả hai thì lãi hoặc lỗ đang nằm trong quãng ngày quá ngắn để quy ra suất sinh lợi năm - với quãng vài ngày, ROI hoặc HPR đọc dễ hơn.',
+      en: 'Check again: you need at least one outflow and one inflow, each with its date. If both are already there, the gain or loss sits in too short a span of days to annualize - over a few days, ROI or HPR reads more easily.',
     },
   );
 }

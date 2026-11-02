@@ -163,8 +163,8 @@ export const PHAI_SINH: ReadonlyArray<QuizItem> = [
     },
     answer: 'a',
     explain: {
-      vi: 'Quy định giao dịch HĐTL chỉ số VN30: “Hệ số nhân hợp đồng: 100.000 đồng”. Nghĩa là biến động 10 điểm chỉ số bằng 1 triệu đồng mỗi hợp đồng — con số mà nhiều người mới coi là “vài điểm thì có đáng bao nhiêu”.',
-      en: 'The VN30 index futures trading rules state: “Hệ số nhân hợp đồng: 100.000 đồng”. That means a 10-point index move is worth VND 1 million per contract — a figure many newcomers dismiss as “vài điểm thì có đáng bao nhiêu”.',
+      vi: 'Quy định giao dịch HĐTL chỉ số VN30: “Hệ số nhân hợp đồng: 100.000 đồng”. Nghĩa là biến động 10 điểm chỉ số bằng 1 triệu đồng mỗi hợp đồng - con số mà nhiều người mới coi là “vài điểm thì có đáng bao nhiêu”.',
+      en: 'The VN30 index futures trading rules state: “Hệ số nhân hợp đồng: 100.000 đồng”. That means a 10-point index move is worth VND 1 million per contract - a figure many newcomers dismiss as “vài điểm thì có đáng bao nhiêu”.',
     },
     source: {
       url: 'https://www.phs.vn/san-pham-dich-vu/quy-dinh-ve-hdtl-chi-so-vn-30/22',
@@ -184,8 +184,8 @@ export const PHAI_SINH: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'Giá chuyển nhượng từng lần — lỗ vẫn phải nộp',
-        en: 'The transfer value of each trade — it is owed even on a losing trade',
+        vi: 'Giá chuyển nhượng từng lần - lỗ vẫn phải nộp',
+        en: 'The transfer value of each trade - it is owed even on a losing trade',
       },
       b: { vi: 'Phần lãi', en: 'The gain portion' },
       c: { vi: 'Số hợp đồng', en: 'The number of contracts' },
@@ -214,8 +214,8 @@ export const PHAI_SINH: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'Không — đó là tài sản đảm bảo thanh toán, không chịu lãi vay nhưng phải thanh toán lãi/lỗ hằng ngày',
-        en: 'No — it is collateral securing settlement, it carries no loan interest, but daily gains/losses must still be settled',
+        vi: 'Không - đó là tài sản đảm bảo thanh toán, không chịu lãi vay nhưng phải thanh toán lãi/lỗ hằng ngày',
+        en: 'No - it is collateral securing settlement, it carries no loan interest, but daily gains/losses must still be settled',
       },
       b: { vi: 'Phải, và phải trả lãi vay', en: 'Yes, and loan interest is owed on it' },
       c: { vi: 'Phải, nhưng lãi suất thấp hơn', en: 'Yes, but at a lower interest rate' },
@@ -247,8 +247,8 @@ export const PHAI_SINH: ReadonlyArray<QuizItem> = [
       b: { vi: 'Có nếu đặt lệnh dừng lỗ', en: 'Yes, if a stop-loss order is placed' },
       c: { vi: 'Có với hợp đồng tháng gần', en: 'Yes, for the near-month contract' },
       d: {
-        vi: 'Không — có thể lỗ vượt 100% vốn khi giá gap qua điểm cắt lỗ',
-        en: 'No — the loss can exceed 100% of capital when the price gaps through the stop-loss level',
+        vi: 'Không - có thể lỗ vượt 100% vốn khi giá gap qua điểm cắt lỗ',
+        en: 'No - the loss can exceed 100% of capital when the price gaps through the stop-loss level',
       },
     },
     answer: 'd',
@@ -276,8 +276,8 @@ export const PHAI_SINH: ReadonlyArray<QuizItem> = [
       a: { vi: 'Không bao giờ', en: 'Never' },
       b: { vi: 'Chỉ khi giữ qua đêm', en: 'Only if the position is held overnight' },
       c: {
-        vi: 'Có — khi giá trị tài sản tăng thì quy mô giao dịch tăng, yêu cầu ký quỹ tăng theo',
-        en: 'Yes — as the asset value rises the position size grows with it, so the margin requirement rises too',
+        vi: 'Có - khi giá trị tài sản tăng thì quy mô giao dịch tăng, yêu cầu ký quỹ tăng theo',
+        en: 'Yes - as the asset value rises the position size grows with it, so the margin requirement rises too',
       },
       d: { vi: 'Chỉ với vị thế bán', en: 'Only on a short position' },
     },
@@ -306,8 +306,8 @@ export const PHAI_SINH: ReadonlyArray<QuizItem> = [
       a: { vi: 'Cố định theo luật', en: 'Fixed by law' },
       b: { vi: 'Cố định 10 lần', en: 'Fixed at 10 times' },
       c: {
-        vi: 'Không — phụ thuộc tỷ lệ ký quỹ do VSDC/CTCK áp dụng và mức điểm chỉ số; các nguồn ghi 13%, 15%, 17%, 15–20% ở những thời điểm khác nhau',
-        en: 'No — it depends on the margin rate set by VSDC/the broker and on the index level; sources cite 13%, 15%, 17%, 15–20% at different points in time',
+        vi: 'Không - phụ thuộc tỷ lệ ký quỹ do VSDC/CTCK áp dụng và mức điểm chỉ số; các nguồn ghi 13%, 15%, 17%, 15–20% ở những thời điểm khác nhau',
+        en: 'No - it depends on the margin rate set by VSDC/the broker and on the index level; sources cite 13%, 15%, 17%, 15–20% at different points in time',
       },
       d: { vi: 'Do nhà đầu tư tự chọn', en: 'The investor chooses it' },
     },
@@ -366,8 +366,8 @@ export const PHAI_SINH: ReadonlyArray<QuizItem> = [
       },
       b: { vi: 'Phải chia cho 2', en: 'You must divide by 2' },
       c: {
-        vi: 'Phải chừa tiền cho ký quỹ biến đổi và call margin — khuyến nghị giữ dự phòng tiền mặt bằng 200% ký quỹ ban đầu',
-        en: 'You must leave room for variation margin and margin calls — the recommendation is to hold cash reserves equal to 200% of the initial margin',
+        vi: 'Phải chừa tiền cho ký quỹ biến đổi và call margin - khuyến nghị giữ dự phòng tiền mặt bằng 200% ký quỹ ban đầu',
+        en: 'You must leave room for variation margin and margin calls - the recommendation is to hold cash reserves equal to 200% of the initial margin',
       },
       d: { vi: 'Chỉ sai với vị thế bán', en: 'It is only wrong for a short position' },
     },
@@ -419,7 +419,7 @@ export const PHAI_SINH: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'ngo-nhan',
     prompt: {
-      vi: 'Bạn đọc “basis âm” ở hai nguồn khác nhau. Vì sao có thể hiểu ngược?',
+      vi: 'Bạn đọc “basis âm” ở hai nguồn khác nhau. Tại sao có thể hiểu ngược?',
       en: 'You read “negative basis” in two different sources. Why might it mean the opposite in each?',
     },
     choices: {
@@ -484,8 +484,8 @@ export const PHAI_SINH: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'Không — phiên ATC ngày đáo hạn có thể bật ra basis rất lớn, như +48,45 điểm ngày 21/05/2020',
-        en: 'No — the ATC session on expiry day can throw up a very large basis, such as +48.45 points on 21/05/2020',
+        vi: 'Không - phiên ATC ngày đáo hạn có thể bật ra basis rất lớn, như +48,45 điểm ngày 21/05/2020',
+        en: 'No - the ATC session on expiry day can throw up a very large basis, such as +48.45 points on 21/05/2020',
       },
       b: { vi: 'Đúng, đó là quy luật', en: 'True, that is the rule' },
       c: { vi: 'Đúng với hợp đồng tháng gần', en: 'True for the near-month contract' },
@@ -550,8 +550,8 @@ export const PHAI_SINH: ReadonlyArray<QuizItem> = [
       b: { vi: 'Có nếu chênh trên 1 điểm', en: 'Yes, if the gap exceeds 1 point' },
       c: { vi: 'Chỉ tổ chức nước ngoài làm được', en: 'Only foreign institutions can do it' },
       d: {
-        vi: 'Rất khó — khó dựng rổ chỉ số chính xác, bị hạn chế bán khống cơ sở, chi phí có thể triệt tiêu lợi nhuận',
-        en: 'Very hard — an accurate index basket is difficult to build, short-selling the underlying is restricted, and costs can wipe out the profit',
+        vi: 'Rất khó - khó dựng rổ chỉ số chính xác, bị hạn chế bán khống cơ sở, chi phí có thể triệt tiêu lợi nhuận',
+        en: 'Very hard - an accurate index basket is difficult to build, short-selling the underlying is restricted, and costs can wipe out the profit',
       },
     },
     answer: 'd',
@@ -589,8 +589,8 @@ export const PHAI_SINH: ReadonlyArray<QuizItem> = [
     },
     answer: 'b',
     explain: {
-      vi: 'Tài liệu PHS mô tả cách tính hiện hành; tài liệu MBS cũ hơn vẫn ghi “Theo Giá đóng cửa của chỉ số VN30”. Quy định đã đổi sau các phiên đáo hạn bất thường — cần xác minh mốc hiệu lực trước khi đưa vào app.',
-      en: 'The PHS document describes the current calculation method; the older MBS document still reads “Theo Giá đóng cửa của chỉ số VN30”. The rule changed after several unusual expiry sessions — the effective date needs to be verified before this goes into the app.',
+      vi: 'Tài liệu PHS mô tả cách tính hiện hành; tài liệu MBS cũ hơn vẫn ghi “Theo Giá đóng cửa của chỉ số VN30”. Quy định đã đổi sau các phiên đáo hạn bất thường - cần xác minh mốc hiệu lực trước khi đưa vào app.',
+      en: 'The PHS document describes the current calculation method; the older MBS document still reads “Theo Giá đóng cửa của chỉ số VN30”. The rule changed after several unusual expiry sessions - the effective date needs to be verified before this goes into the app.',
     },
     source: {
       url: 'https://www.phs.vn/san-pham-dich-vu/quy-dinh-ve-hdtl-chi-so-vn-30/22',

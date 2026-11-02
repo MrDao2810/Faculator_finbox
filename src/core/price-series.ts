@@ -107,7 +107,7 @@ export function checkRow(row: SeriesRow): ReadonlyArray<RowIssue> {
   if (row.close === null) {
     issues.push({
       code: 'MISSING_CLOSE',
-      message: 'Thiếu giá đóng cửa — đây là cột bắt buộc để tính Beta, Sharpe và VaR.',
+      message: 'Thiếu giá đóng cửa - đây là cột bắt buộc để tính Beta, Sharpe và VaR.',
     });
   }
 
@@ -125,7 +125,7 @@ export function checkRow(row: SeriesRow): ReadonlyArray<RowIssue> {
     if (high < low) {
       issues.push({
         code: 'HIGH_BELOW_LOW',
-        message: `Giá cao nhất (${gia(high)}) nhỏ hơn giá thấp nhất (${gia(low)}) — vui lòng kiểm tra lại.`,
+        message: `Giá cao nhất (${gia(high)}) nhỏ hơn giá thấp nhất (${gia(low)}) - vui lòng kiểm tra lại.`,
       });
     }
   }
@@ -202,7 +202,7 @@ export function checkSeries(rows: ReadonlyArray<SeriesRow>): SeriesCheck {
          */
         issues.push({
           code: 'DUPLICATE_DATE',
-          message: `Ngày ${key} xuất hiện ở hơn một dòng — mỗi phiên chỉ được ghi một lần.`,
+          message: `Ngày ${key} xuất hiện ở hơn một dòng - mỗi phiên chỉ được ghi một lần.`,
         });
       }
     }

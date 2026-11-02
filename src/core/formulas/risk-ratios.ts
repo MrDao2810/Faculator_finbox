@@ -48,50 +48,50 @@ import { SOURCE_CFA, numberVar, sliderVar, withSymbol } from './shared';
 
 const SOURCE_SHARPE: FormulaSource = {
   label: {
-    vi: 'William F. Sharpe — "The Sharpe Ratio", The Journal of Portfolio Management, tập 21 số 1 (mùa thu 1994), trang 49–58',
-    en: 'William F. Sharpe — "The Sharpe Ratio", The Journal of Portfolio Management, vol. 21 no. 1 (Fall 1994), pp. 49–58',
+    vi: 'William F. Sharpe - "The Sharpe Ratio", The Journal of Portfolio Management, tập 21 số 1 (mùa thu 1994), trang 49–58',
+    en: 'William F. Sharpe - "The Sharpe Ratio", The Journal of Portfolio Management, vol. 21 no. 1 (Fall 1994), pp. 49–58',
   },
 };
 
 const SOURCE_SORTINO: FormulaSource = {
   label: {
-    vi: 'Frank A. Sortino & Lee N. Price — "Performance Measurement in a Downside Risk Framework", The Journal of Investing, tập 3 số 3 (mùa thu 1994), trang 59–64',
-    en: 'Frank A. Sortino & Lee N. Price — "Performance Measurement in a Downside Risk Framework", The Journal of Investing, vol. 3 no. 3 (Fall 1994), pp. 59–64',
+    vi: 'Frank A. Sortino & Lee N. Price - "Performance Measurement in a Downside Risk Framework", The Journal of Investing, tập 3 số 3 (mùa thu 1994), trang 59–64',
+    en: 'Frank A. Sortino & Lee N. Price - "Performance Measurement in a Downside Risk Framework", The Journal of Investing, vol. 3 no. 3 (Fall 1994), pp. 59–64',
   },
 };
 
 const SOURCE_TREYNOR: FormulaSource = {
   label: {
-    vi: 'Jack L. Treynor — "How to Rate Management of Investment Funds", Harvard Business Review, tập 43 số 1 (1965), trang 63–75',
-    en: 'Jack L. Treynor — "How to Rate Management of Investment Funds", Harvard Business Review, vol. 43 no. 1 (1965), pp. 63–75',
+    vi: 'Jack L. Treynor - "How to Rate Management of Investment Funds", Harvard Business Review, tập 43 số 1 (1965), trang 63–75',
+    en: 'Jack L. Treynor - "How to Rate Management of Investment Funds", Harvard Business Review, vol. 43 no. 1 (1965), pp. 63–75',
   },
 };
 
 const SOURCE_SHARPE_CAPM: FormulaSource = {
   label: {
-    vi: 'William F. Sharpe — "Capital Asset Prices: A Theory of Market Equilibrium under Conditions of Risk", The Journal of Finance, tập 19 số 3 (1964), trang 425–442',
-    en: 'William F. Sharpe — "Capital Asset Prices: A Theory of Market Equilibrium under Conditions of Risk", The Journal of Finance, vol. 19 no. 3 (1964), pp. 425–442',
+    vi: 'William F. Sharpe - "Capital Asset Prices: A Theory of Market Equilibrium under Conditions of Risk", The Journal of Finance, tập 19 số 3 (1964), trang 425–442',
+    en: 'William F. Sharpe - "Capital Asset Prices: A Theory of Market Equilibrium under Conditions of Risk", The Journal of Finance, vol. 19 no. 3 (1964), pp. 425–442',
   },
 };
 
 const SOURCE_GRINOLD_KAHN: FormulaSource = {
   label: {
-    vi: 'Richard C. Grinold & Ronald N. Kahn — Active Portfolio Management, ấn bản 2 (McGraw-Hill, 1999), chương 5: Residual Risk and Return — The Information Ratio',
-    en: 'Richard C. Grinold & Ronald N. Kahn — Active Portfolio Management, 2nd edition (McGraw-Hill, 1999), chapter 5: Residual Risk and Return — The Information Ratio',
+    vi: 'Richard C. Grinold & Ronald N. Kahn - Active Portfolio Management, ấn bản 2 (McGraw-Hill, 1999), chương 5: Residual Risk and Return - The Information Ratio',
+    en: 'Richard C. Grinold & Ronald N. Kahn - Active Portfolio Management, 2nd edition (McGraw-Hill, 1999), chapter 5: Residual Risk and Return - The Information Ratio',
   },
 };
 
 const SOURCE_CALMAR: FormulaSource = {
   label: {
-    vi: 'Terry W. Young — "Calmar Ratio: A Smoother Tool", tạp chí Futures, tháng 10/1991',
-    en: 'Terry W. Young — "Calmar Ratio: A Smoother Tool", Futures magazine, October 1991',
+    vi: 'Terry W. Young - "Calmar Ratio: A Smoother Tool", tạp chí Futures, tháng 10/1991',
+    en: 'Terry W. Young - "Calmar Ratio: A Smoother Tool", Futures magazine, October 1991',
   },
 };
 
 const SOURCE_KAUFMAN: FormulaSource = {
   label: {
-    vi: 'Perry J. Kaufman — Trading Systems and Methods, ấn bản 6 (Wiley, 2020), phần đo hiệu quả hệ thống giao dịch',
-    en: 'Perry J. Kaufman — Trading Systems and Methods, 6th edition (Wiley, 2020), section on trading system performance measurement',
+    vi: 'Perry J. Kaufman - Trading Systems and Methods, ấn bản 6 (Wiley, 2020), phần đo hiệu quả hệ thống giao dịch',
+    en: 'Perry J. Kaufman - Trading Systems and Methods, 6th edition (Wiley, 2020), section on trading system performance measurement',
   },
 };
 
@@ -161,8 +161,8 @@ function invalidSessionsPerYear(sessionsPerYear: number): CalcWarning | null {
     { vi: 'kết quả quy năm', en: 'the annualized result' },
     { vi: 'Số phiên trong một năm', en: 'sessions per year' },
     {
-      vi: 'Nhập ít nhất 1 phiên mỗi năm — chuỗi theo ngày thường là 250.',
-      en: 'Enter at least 1 session per year — a daily series is usually 250.',
+      vi: 'Nhập ít nhất 1 phiên mỗi năm - chuỗi theo ngày thường là 250.',
+      en: 'Enter at least 1 session per year - a daily series is usually 250.',
     },
   );
 }
@@ -173,8 +173,8 @@ function flatSeriesWarning(what: Bilingual): CalcWarning {
     what,
     { vi: 'Độ lệch chuẩn lợi suất', en: 'standard deviation of returns' },
     {
-      vi: 'Chuỗi giá đang đứng yên nên không có biến động để chia — nạp chuỗi giá có thay đổi giữa các phiên.',
-      en: 'The price series is flat, so there is no volatility to divide by — load a price series that changes between sessions.',
+      vi: 'Chuỗi giá đang đứng yên nên không có biến động để chia - nạp chuỗi giá có thay đổi giữa các phiên.',
+      en: 'The price series is flat, so there is no volatility to divide by - load a price series that changes between sessions.',
     },
   );
 }
@@ -302,7 +302,7 @@ export const BETA: FormulaModule = {
   spec: {
     id: 'beta',
     categoryId: 'risk',
-    name: { vi: 'Beta — hệ số rủi ro hệ thống', en: 'Beta coefficient' },
+    name: { vi: 'Beta - hệ số rủi ro hệ thống', en: 'Beta coefficient' },
     description: {
       vi: 'Mức một cổ phiếu thường lên xuống theo nhịp thị trường chung, đo bằng VN-Index.',
       en: "How strongly a stock tends to move with the market's ups and downs, measured against the VN-Index.",
@@ -368,8 +368,8 @@ export const BETA: FormulaModule = {
         1,
         {
           description: {
-            vi: `Lấy bao nhiêu phiên gần nhất của CẢ HAI chuỗi giá — cổ phiếu và VN-Index — để hồi quy. ${SESSIONS_NOTE}`,
-            en: `How many of the most recent sessions of BOTH price series — the stock and the VN-Index — to use for the regression. ${SESSIONS_NOTE_EN}`,
+            vi: `Lấy bao nhiêu phiên gần nhất của CẢ HAI chuỗi giá - cổ phiếu và VN-Index - để hồi quy. ${SESSIONS_NOTE}`,
+            en: `How many of the most recent sessions of BOTH price series - the stock and the VN-Index - to use for the regression. ${SESSIONS_NOTE_EN}`,
           },
         },
       ),
@@ -388,8 +388,8 @@ export const BETA: FormulaModule = {
         en: 'Compared with the 1 mark: above means that whenever the VN-Index moves, the stock usually moves further in the same direction, below means it moves less. A negative beta means the stock usually moved against the VN-Index over the sessions chosen.',
       },
       commonMistakes: {
-        vi: 'Lấy beta của vài chục phiên gần nhất rồi coi là con số cố định lâu dài — beta đổi theo thời gian, nhất là sau các sự kiện lớn của doanh nghiệp như tăng vốn hay đổi ngành nghề kinh doanh chính.',
-        en: 'Computing beta from a few dozen recent sessions and treating it as a fixed, permanent number — beta drifts over time, especially after major corporate events such as a capital raise or a change in core business.',
+        vi: 'Lấy beta của vài chục phiên gần nhất rồi coi là con số cố định lâu dài - beta đổi theo thời gian, nhất là sau các sự kiện lớn của doanh nghiệp như tăng vốn hay đổi ngành nghề kinh doanh chính.',
+        en: 'Computing beta from a few dozen recent sessions and treating it as a fixed, permanent number - beta drifts over time, especially after major corporate events such as a capital raise or a change in core business.',
       },
     },
     example: {
@@ -413,21 +413,21 @@ export const BETA: FormulaModule = {
     },
     tests: [
       {
-        name: 'cổ phiếu biến động gấp rưỡi thị trường — beta 1,5',
+        name: 'cổ phiếu biến động gấp rưỡi thị trường - beta 1,5',
         inputs: { sessions: 60 },
         series: STOCK_BETA_1_5,
         marketSeries: MARKET_CLOSES,
         expected: 1.5,
       },
       {
-        name: 'cổ phiếu đúng bằng thị trường — beta 1',
+        name: 'cổ phiếu đúng bằng thị trường - beta 1',
         inputs: { sessions: 60 },
         series: MARKET_CLOSES,
         marketSeries: MARKET_CLOSES,
         expected: 1,
       },
       {
-        name: 'cổ phiếu đi ngược thị trường, biên độ nửa — beta −0,5',
+        name: 'cổ phiếu đi ngược thị trường, biên độ nửa - beta −0,5',
         inputs: { sessions: 60 },
         series: STOCK_BETA_NEG_0_5,
         marketSeries: MARKET_CLOSES,
@@ -516,8 +516,8 @@ export const BETA: FormulaModule = {
           { vi: 'Beta', en: 'Beta' },
           { vi: 'Phương sai lợi suất VN-Index', en: 'variance of VN-Index returns' },
           {
-            vi: 'VN-Index đứng yên suốt cửa sổ này nên không có biến động để so — chọn cửa sổ dài hơn.',
-            en: 'The VN-Index was flat over this window, so there is no volatility to compare against — choose a longer window.',
+            vi: 'VN-Index đứng yên suốt cửa sổ này nên không có biến động để so - chọn cửa sổ dài hơn.',
+            en: 'The VN-Index was flat over this window, so there is no volatility to compare against - choose a longer window.',
           },
         ),
       );
@@ -612,8 +612,8 @@ export const TY_SO_SHARPE: FormulaModule = {
         en: 'Compared with the Sharpe ratio of another fund or portfolio over the same period and risk-free rate: higher means each unit of swinging you sit through earns more return above the risk-free rate, lower means it earns less. A negative figure means the portfolio earned less than the risk-free rate over the period.',
       },
       commonMistakes: {
-        vi: 'So Sharpe của hai kỳ dài ngắn khác nhau, hoặc quên rằng độ lệch chuẩn phạt cả những phiên TĂNG mạnh — danh mục lãi đột biến vài phiên có thể bị Sharpe chấm điểm thấp oan.',
-        en: 'Comparing Sharpe ratios computed over periods of different lengths, or forgetting that standard deviation penalizes strongly RISING sessions too — a portfolio with a few outsized gains can be unfairly marked down by Sharpe.',
+        vi: 'So Sharpe của hai kỳ dài ngắn khác nhau, hoặc quên rằng độ lệch chuẩn phạt cả những phiên TĂNG mạnh - danh mục lãi đột biến vài phiên có thể bị Sharpe chấm điểm thấp oan.',
+        en: 'Comparing Sharpe ratios computed over periods of different lengths, or forgetting that standard deviation penalizes strongly RISING sessions too - a portfolio with a few outsized gains can be unfairly marked down by Sharpe.',
       },
     },
     example: {
@@ -716,8 +716,8 @@ export const TY_SO_SORTINO: FormulaModule = {
     categoryId: 'risk',
     name: { vi: 'Tỷ số Sortino', en: 'Sortino ratio' },
     description: {
-      vi: 'Như Sharpe nhưng mẫu số chỉ đếm phần biến động ĐI XUỐNG — phần rủi ro mà nhà đầu tư thật sự sợ.',
-      en: 'Like Sharpe, but the denominator counts only DOWNSIDE volatility — the kind of risk investors actually fear.',
+      vi: 'Như Sharpe nhưng mẫu số chỉ đếm phần biến động ĐI XUỐNG - phần rủi ro mà nhà đầu tư thật sự sợ.',
+      en: 'Like Sharpe, but the denominator counts only DOWNSIDE volatility - the kind of risk investors actually fear.',
     },
     latex:
       'Sortino = \\frac{\\bar{r}_p - r_f}{\\sigma_d} \\times \\sqrt{m}, \\quad \\sigma_d = \\sqrt{\\frac{1}{n} \\sum_{t=1}^{n} \\min(0, r_t - r_f)^2}',
@@ -815,8 +815,8 @@ export const TY_SO_SORTINO: FormulaModule = {
         en: 'Compared with the Sortino ratio of the fund or portfolio you are weighing it against, over the same period and risk-free rate: higher means its return above the risk-free rate pays better for the losing sessions, lower means it pays worse. A negative figure means the average return fell short of the risk-free rate.',
       },
       commonMistakes: {
-        vi: 'So thẳng Sortino với Sharpe rồi kết luận danh mục "tốt hơn" — hai thước đo có mẫu số khác nhau. Ngoài ra mẫu số chia cho TỔNG số phiên, nên chuỗi hầu như không có phiên giảm sẽ cho ra con số rất lớn, cần cảnh giác.',
-        en: 'Comparing Sortino directly against Sharpe and concluding the portfolio is "better" — the two measures use different denominators. Also, the denominator divides by the TOTAL number of sessions, so a series with almost no losing sessions produces a suspiciously huge number.',
+        vi: 'So thẳng Sortino với Sharpe rồi kết luận danh mục "tốt hơn" - hai thước đo có mẫu số khác nhau. Ngoài ra mẫu số chia cho TỔNG số phiên, nên chuỗi hầu như không có phiên giảm sẽ cho ra con số rất lớn, cần cảnh giác.',
+        en: 'Comparing Sortino directly against Sharpe and concluding the portfolio is "better" - the two measures use different denominators. Also, the denominator divides by the TOTAL number of sessions, so a series with almost no losing sessions produces a suspiciously huge number.',
       },
     },
     example: {
@@ -894,8 +894,8 @@ export const TY_SO_SORTINO: FormulaModule = {
           { vi: 'tỷ số Sortino', en: 'the Sortino ratio' },
           { vi: 'Độ lệch chuẩn phần giảm', en: 'downside deviation' },
           {
-            vi: 'Chuỗi này không có phiên nào rơi dưới ngưỡng phi rủi ro nên không có rủi ro giảm giá để chia — dùng tỷ số Sharpe hoặc kéo dài chuỗi giá.',
-            en: 'This series has no session falling below the risk-free threshold, so there is no downside risk to divide by — use the Sharpe ratio instead, or extend the price series.',
+            vi: 'Chuỗi này không có phiên nào rơi dưới ngưỡng phi rủi ro nên không có rủi ro giảm giá để chia - dùng tỷ số Sharpe hoặc kéo dài chuỗi giá.',
+            en: 'This series has no session falling below the risk-free threshold, so there is no downside risk to divide by - use the Sharpe ratio instead, or extend the price series.',
           },
         ),
       );
@@ -928,8 +928,8 @@ export const TY_SO_TREYNOR: FormulaModule = {
     categoryId: 'risk',
     name: { vi: 'Tỷ số Treynor', en: 'Treynor ratio' },
     description: {
-      vi: 'Phần lợi suất vượt lãi suất phi rủi ro tính trên mỗi đơn vị beta — rủi ro không thể phân tán bằng cách đa dạng hoá.',
-      en: 'The excess return over the risk-free rate earned per unit of beta — the risk that diversification cannot remove.',
+      vi: 'Phần lợi suất vượt lãi suất phi rủi ro tính trên mỗi đơn vị beta - rủi ro không thể phân tán bằng cách đa dạng hoá.',
+      en: 'The excess return over the risk-free rate earned per unit of beta - the risk that diversification cannot remove.',
     },
     latex: 'T = \\frac{(\\bar{r}_p - r_f) \\times m}{\\beta_p}',
     expression: {
@@ -1091,8 +1091,8 @@ export const TY_SO_TREYNOR: FormulaModule = {
           { vi: 'tỷ số Treynor', en: 'the Treynor ratio' },
           { vi: 'Hệ số beta', en: 'beta coefficient' },
           {
-            vi: 'Beta bằng 0 nghĩa là danh mục không hề đi theo thị trường — dùng tỷ số Sharpe thay thế.',
-            en: 'A beta of 0 means the portfolio does not move with the market at all — use the Sharpe ratio instead.',
+            vi: 'Beta bằng 0 nghĩa là danh mục không hề đi theo thị trường - dùng tỷ số Sharpe thay thế.',
+            en: 'A beta of 0 means the portfolio does not move with the market at all - use the Sharpe ratio instead.',
           },
         ),
       );
@@ -1226,13 +1226,13 @@ export const TY_SO_THONG_TIN: FormulaModule = {
         en: "Compared with the same portfolio's information ratio in an earlier period, with the benchmark entered the same way: higher means its lead over the benchmark now pays better for the swings you sit through, lower means it pays worse. A negative figure means the portfolio is trailing the benchmark you entered.",
       },
       commonMistakes: {
-        vi: 'Đọc tỷ số thông tin như Sharpe. Sharpe so với lãi suất phi rủi ro, tỷ số thông tin so với chuẩn thị trường — một danh mục có thể tốt theo thước này và tệ theo thước kia.',
-        en: 'Reading the information ratio the same way as Sharpe. Sharpe compares against the risk-free rate, the information ratio against a market benchmark — a portfolio can look good by one measure and poor by the other.',
+        vi: 'Đọc tỷ số thông tin như Sharpe. Sharpe so với lãi suất phi rủi ro, tỷ số thông tin so với chuẩn thị trường - một danh mục có thể tốt theo thước này và tệ theo thước kia.',
+        en: 'Reading the information ratio the same way as Sharpe. Sharpe compares against the risk-free rate, the information ratio against a market benchmark - a portfolio can look good by one measure and poor by the other.',
       },
     },
     note: {
-      vi: 'Bản rút gọn: chuẩn so sánh nhập bằng MỘT con số %/năm thay vì cả chuỗi, nên sai số theo dõi ở mẫu số chính là độ lệch chuẩn lợi suất của danh mục. Muốn sai số theo dõi đúng nghĩa thì cần chuỗi giá của chuẩn để trừ theo từng phiên — phần đó chờ gói nhập hai chuỗi.',
-      en: "Simplified version: the benchmark is entered as a SINGLE %/year figure rather than a full series, so the tracking error in the denominator is simply the standard deviation of the portfolio's own returns. A true tracking error needs the benchmark's own price series to subtract session by session — that awaits the two-series input package.",
+      vi: 'Bản rút gọn: chuẩn so sánh nhập bằng MỘT con số %/năm thay vì cả chuỗi, nên sai số theo dõi ở mẫu số chính là độ lệch chuẩn lợi suất của danh mục. Muốn sai số theo dõi đúng nghĩa thì cần chuỗi giá của chuẩn để trừ theo từng phiên - phần đó chờ gói nhập hai chuỗi.',
+      en: "Simplified version: the benchmark is entered as a SINGLE %/year figure rather than a full series, so the tracking error in the denominator is simply the standard deviation of the portfolio's own returns. A true tracking error needs the benchmark's own price series to subtract session by session - that awaits the two-series input package.",
     },
     example: {
       title: {
@@ -1329,8 +1329,8 @@ export const TY_SO_CALMAR: FormulaModule = {
     categoryId: 'risk',
     name: { vi: 'Tỷ số Calmar', en: 'Calmar ratio' },
     description: {
-      vi: 'Lợi suất năm hoá chia cho mức sụt giảm sâu nhất — đo phần lãi đổi lại bằng cú đau lớn nhất đã phải chịu.',
-      en: 'Annualized return divided by the maximum drawdown — the return earned in exchange for the biggest pain endured.',
+      vi: 'Lợi suất năm hoá chia cho mức sụt giảm sâu nhất - đo phần lãi đổi lại bằng cú đau lớn nhất đã phải chịu.',
+      en: 'Annualized return divided by the maximum drawdown - the return earned in exchange for the biggest pain endured.',
     },
     latex: 'Calmar = \\frac{r_{nam}}{MDD}',
     expression: {
@@ -1376,7 +1376,7 @@ export const TY_SO_CALMAR: FormulaModule = {
         en: "Compared with the 1 mark: above it means one year's return is larger than the deepest drop you had to sit through, below it means that drop is still bigger than a year's return. A negative figure means the price ended the period below where it started, so the whole stretch is a loss.",
       },
       commonMistakes: {
-        vi: 'Chạy Calmar trên một chuỗi ngắn, ít nhịp điều chỉnh: mức sụt giảm sâu nhất nhỏ làm tỷ số bị thổi phồng lên hàng chục lần dù lợi suất năm hoá chẳng có gì đặc biệt. Chuỗi tăng đều tuyệt đối, chưa từng sụt giảm, thì mẫu số đúng bằng 0 và công thức báo lỗi rõ ràng — không âm thầm trả về một con số sai.',
+        vi: 'Chạy Calmar trên một chuỗi ngắn, ít nhịp điều chỉnh: mức sụt giảm sâu nhất nhỏ làm tỷ số bị thổi phồng lên hàng chục lần dù lợi suất năm hoá chẳng có gì đặc biệt. Chuỗi tăng đều tuyệt đối, chưa từng sụt giảm, thì mẫu số đúng bằng 0 và công thức báo lỗi rõ ràng - không âm thầm trả về một con số sai.',
         en: 'Running Calmar on a short series with few corrections: a small maximum drawdown inflates the ratio by tens of times even though the annualized return is nothing special. A series that rises perfectly steadily, never drawing down, makes the denominator exactly zero, and the formula reports an error clearly rather than silently returning a wrong number.',
       },
     },
@@ -1452,8 +1452,8 @@ export const TY_SO_CALMAR: FormulaModule = {
           { vi: 'tỷ số Calmar', en: 'the Calmar ratio' },
           { vi: 'Mức sụt giảm sâu nhất', en: 'maximum drawdown' },
           {
-            vi: 'Chuỗi này chưa có phiên nào thấp hơn đỉnh trước đó — kéo dài chuỗi giá qua một nhịp điều chỉnh, hoặc dùng tỷ số Sharpe.',
-            en: 'This series has no session lower than its previous peak — extend the price series through a correction, or use the Sharpe ratio instead.',
+            vi: 'Chuỗi này chưa có phiên nào thấp hơn đỉnh trước đó - kéo dài chuỗi giá qua một nhịp điều chỉnh, hoặc dùng tỷ số Sharpe.',
+            en: 'This series has no session lower than its previous peak - extend the price series through a correction, or use the Sharpe ratio instead.',
           },
         ),
       );
@@ -1648,8 +1648,8 @@ export const TY_SO_THANG_THUA: FormulaModule = {
           { vi: 'tỷ số thắng/thua', en: 'the win/loss ratio' },
           { vi: 'Trung bình mức giảm của các phiên giảm', en: 'average loss of falling sessions' },
           {
-            vi: 'Chuỗi này không có phiên giảm nào vượt ngưỡng — hạ ngưỡng bỏ qua phiên đi ngang, hoặc kéo dài chuỗi giá.',
-            en: 'This series has no falling session past the threshold — lower the flat-session threshold, or extend the price series.',
+            vi: 'Chuỗi này không có phiên giảm nào vượt ngưỡng - hạ ngưỡng bỏ qua phiên đi ngang, hoặc kéo dài chuỗi giá.',
+            en: 'This series has no falling session past the threshold - lower the flat-session threshold, or extend the price series.',
           },
         ),
       );

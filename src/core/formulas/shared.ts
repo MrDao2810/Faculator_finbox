@@ -157,8 +157,8 @@ export const SOURCE_VSD: FormulaSource = {
 
 export const SOURCE_CORPORATE_FINANCE: FormulaSource = {
   label: {
-    vi: 'Brealey, Myers & Allen — Principles of Corporate Finance',
-    en: 'Brealey, Myers & Allen — Principles of Corporate Finance',
+    vi: 'Brealey, Myers & Allen - Principles of Corporate Finance',
+    en: 'Brealey, Myers & Allen - Principles of Corporate Finance',
   },
 };
 

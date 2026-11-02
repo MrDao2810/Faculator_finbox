@@ -170,14 +170,14 @@ export const PHI_GIAO_DICH_MUA: FormulaModule = {
         en: 'Compared with the cost of the shares in the whole order: this amount is charged on top of that cost, so your true cost per share sits above the matched price by exactly this figure divided by the number of shares bought.',
       },
       commonMistakes: {
-        vi: 'Tưởng phí đã nằm trong giá khớp lệnh — phí được trừ riêng khỏi tiền trong tài khoản. Và vì phí tính trên giá trị giao dịch chứ không trên khoản lãi, mua rồi bán ngay vẫn mất phí.',
-        en: 'Assuming the fee is already baked into the matched price — it is deducted separately from the account balance. And because the fee is charged on the transaction value rather than on any profit, even an immediate buy-and-sell still incurs it.',
+        vi: 'Tưởng phí đã nằm trong giá khớp lệnh - phí được trừ riêng khỏi tiền trong tài khoản. Và vì phí tính trên giá trị giao dịch chứ không trên khoản lãi, mua rồi bán ngay vẫn mất phí.',
+        en: 'Assuming the fee is already baked into the matched price - it is deducted separately from the account balance. And because the fee is charged on the transaction value rather than on any profit, even an immediate buy-and-sell still incurs it.',
       },
     },
     example: {
       title: {
-        vi: 'FPT — mua 1.000 CP giá 62.900 ₫ phiên 24/07/2026',
-        en: 'FPT — buying 1,000 shares at 62,900 ₫ at the 2026-07-24 close',
+        vi: 'FPT - mua 1.000 CP giá 62.900 ₫ phiên 24/07/2026',
+        en: 'FPT - buying 1,000 shares at 62,900 ₫ at the 2026-07-24 close',
       },
       inputs: { quantity: 1_000, buyPrice: 62_900 },
       expected: 94_350,
@@ -276,8 +276,8 @@ export const PHI_GIAO_DICH_BAN: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'FPT — bán 1.000 CP giá 72.700 ₫ phiên 11/09/2026',
-        en: 'FPT — selling 1,000 shares at 72,700 ₫ at the 2026-09-11 close',
+        vi: 'FPT - bán 1.000 CP giá 72.700 ₫ phiên 11/09/2026',
+        en: 'FPT - selling 1,000 shares at 72,700 ₫ at the 2026-09-11 close',
       },
       inputs: { quantity: 1_000, sellPrice: 72_700 },
       expected: 109_050,
@@ -371,8 +371,8 @@ export const THUE_CHUYEN_NHUONG: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'FPT — thuế trên lệnh bán 1.000 CP giá 72.700 ₫ phiên 11/09/2026',
-        en: 'FPT — tax on a sale of 1,000 shares at 72,700 ₫, 2026-09-11 close',
+        vi: 'FPT - thuế trên lệnh bán 1.000 CP giá 72.700 ₫ phiên 11/09/2026',
+        en: 'FPT - tax on a sale of 1,000 shares at 72,700 ₫, 2026-09-11 close',
       },
       inputs: { quantity: 1_000, sellPrice: 72_700 },
       expected: 72_700,
@@ -475,8 +475,8 @@ export const THUE_CO_TUC: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'FPT — 1.000 CP, cổ tức tiền mặt 1.000 ₫/CP chốt quyền 02/12/2025',
-        en: 'FPT — 1,000 shares, a 1,000 ₫/share cash dividend with a 2025-12-02 record date',
+        vi: 'FPT - 1.000 CP, cổ tức tiền mặt 1.000 ₫/CP chốt quyền 02/12/2025',
+        en: 'FPT - 1,000 shares, a 1,000 ₫/share cash dividend with a 2025-12-02 record date',
       },
       inputs: { quantity: 1_000, dividendPerShare: 1_000 },
       expected: 50_000,
@@ -583,8 +583,8 @@ export const PHI_LUU_KY: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'FPT — 1.000 CP nằm trong tài khoản 2 tháng, 24/07 đến 11/09/2026',
-        en: 'FPT — 1,000 shares sitting in the account for 2 months, 2026-07-24 to 2026-09-11',
+        vi: 'FPT - 1.000 CP nằm trong tài khoản 2 tháng, 24/07 đến 11/09/2026',
+        en: 'FPT - 1,000 shares sitting in the account for 2 months, 2026-07-24 to 2026-09-11',
       },
       inputs: { quantity: 1_000, months: 2 },
       expected: 540,
@@ -716,7 +716,7 @@ export const GIA_HOA_VON: FormulaModule = {
     explanation: {
       meaning: {
         vi: 'Mức giá bán mà tại đó tiền thu về vừa đúng bằng tiền đã bỏ ra, không lãi không lỗ.',
-        en: 'The sell price at which the proceeds exactly equal the money put in — no profit, no loss.',
+        en: 'The sell price at which the proceeds exactly equal the money put in - no profit, no loss.',
       },
       whenToUse: {
         vi: 'Dùng khi bạn đang cầm một cổ phiếu, giá vừa nhích qua giá mua một chút, và muốn biết phải bán ở giá nào thì tiền về mới bù đủ tiền mua cùng mọi khoản phí và thuế.',
@@ -733,8 +733,8 @@ export const GIA_HOA_VON: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'FPT — mua 1.000 CP giá 62.900 ₫ ngày 24/07/2026, giữ 2 tháng',
-        en: 'FPT — buy 1,000 shares at 62,900 ₫ on 2026-07-24 and hold for 2 months',
+        vi: 'FPT - mua 1.000 CP giá 62.900 ₫ ngày 24/07/2026, giữ 2 tháng',
+        en: 'FPT - buy 1,000 shares at 62,900 ₫ on 2026-07-24 and hold for 2 months',
       },
       inputs: { quantity: 1_000, months: 2, buyPrice: 62_900 },
       expected: 63_152.77,
@@ -932,8 +932,8 @@ export const LOI_NHUAN_RONG: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'FPT — mua 1.000 CP giá 62.900 ₫ ngày 24/07/2026, bán 72.700 ₫ ngày 11/09/2026',
-        en: 'FPT — buy 1,000 shares at 62,900 ₫ on 2026-07-24, sell at 72,700 ₫ on 2026-09-11',
+        vi: 'FPT - mua 1.000 CP giá 62.900 ₫ ngày 24/07/2026, bán 72.700 ₫ ngày 11/09/2026',
+        en: 'FPT - buy 1,000 shares at 62,900 ₫ on 2026-07-24, sell at 72,700 ₫ on 2026-09-11',
       },
       inputs: { quantity: 1_000, months: 2, buyPrice: 62_900, sellPrice: 72_700 },
       expected: 9_523_360,
@@ -1086,8 +1086,8 @@ export const ROI_RONG: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'FPT — vòng mua 62.900 ₫ ngày 24/07/2026, bán 72.700 ₫ ngày 11/09/2026',
-        en: 'FPT — a round trip bought at 62,900 ₫ on 2026-07-24 and sold at 72,700 ₫ on 2026-09-11',
+        vi: 'FPT - vòng mua 62.900 ₫ ngày 24/07/2026, bán 72.700 ₫ ngày 11/09/2026',
+        en: 'FPT - a round trip bought at 62,900 ₫ on 2026-07-24 and sold at 72,700 ₫ on 2026-09-11',
       },
       inputs: { quantity: 1_000, months: 2, buyPrice: 62_900, sellPrice: 72_700 },
       expected: 15.1177,
@@ -1191,7 +1191,7 @@ export function buildFeeBreakdown(
   // "Nhập giá bán để xem lợi nhuận ròng. Các ô còn lại đã đủ."
   const custodyFormula: Bilingual =
     custody === undefined
-      ? { vi: '—', en: '—' }
+      ? { vi: '-', en: '-' }
       : {
           vi: `${formatNumber(custody.value, { maxDecimals: 2 })} ₫/CP/tháng × ${formatNumber(v('quantity'))} × ${formatNumber(v('months'))}`,
           en: `${formatNumber(custody.value, { maxDecimals: 2 })} ₫/share/month × ${formatNumber(v('quantity'))} × ${formatNumber(v('months'))}`,
@@ -1253,7 +1253,7 @@ function sumRows(rows: ReadonlyArray<FeeBreakdownRow>): CalcOutput {
 
 /** '0,15% × 92.000.000 ₫'. Không tra được mức thì trả dấu gạch, không trả '0% × …'. */
 function percentTimes(rate: number | null, base: number): Bilingual {
-  if (rate === null || !Number.isFinite(base)) return { vi: '—', en: '—' };
+  if (rate === null || !Number.isFinite(base)) return { vi: '-', en: '-' };
   // minDecimals 2 để thuế 0,1% hiện thành '0,10%' đúng như wireframe, không thành '0,1%'.
   const text = `${formatNumber(rate * 100, { minDecimals: 2, maxDecimals: 3 })}% × ${formatNumber(base)} ₫`;
   return { vi: text, en: text };

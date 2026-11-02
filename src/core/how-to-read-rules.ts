@@ -174,7 +174,7 @@ export function howToReadProblems({ id, name, howToRead }: CachDocInput): string
       const moc = doan.slice(CACH_DOC_MO_DAU[ngon].length, viTri).trim();
       if (MOC_KET_BANG_SO.test(moc)) {
         loi.push(
-          `${nhan}: mốc "${moc}" kết bằng chữ số, dính dấu hai chấm thành ký hiệu tỷ lệ "${moc.slice(-1)}:" — đặt đơn vị hay danh từ SAU con số ("mốc 1 lần", "mốc 0 đồng", "the 1 mark")`,
+          `${nhan}: mốc "${moc}" kết bằng chữ số, dính dấu hai chấm thành ký hiệu tỷ lệ "${moc.slice(-1)}:" - đặt đơn vị hay danh từ SAU con số ("mốc 1 lần", "mốc 0 đồng", "the 1 mark")`,
         );
       }
     }
@@ -185,7 +185,7 @@ export function howToReadProblems({ id, name, howToRead }: CachDocInput): string
     if (doan.length < CACH_DOC_TOI_THIEU) {
       loi.push(`${nhan}: ngắn ${String(doan.length)} ký tự, sàn ${String(CACH_DOC_TOI_THIEU)}`);
     }
-    if (GACH_DAI.test(doan)) loi.push(`${nhan}: có gạch ngang dài (— hoặc –)`);
+    if (GACH_DAI.test(doan)) loi.push(`${nhan}: có gạch ngang dài (- hoặc –)`);
 
     const viDu = TRO_VI_DU[ngon].exec(doan);
     if (viDu !== null) loi.push(`${nhan}: trỏ vào ví dụ hay biểu đồ ("${viDu[0]}")`);

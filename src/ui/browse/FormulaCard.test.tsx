@@ -38,7 +38,7 @@ function iconNhom(id: string): string {
 const PE: FormulaSpec = {
   id: 'pe',
   categoryId: 'fundamentals',
-  name: { vi: 'P/E — hệ số giá trên lợi nhuận', en: 'Price to earnings ratio' },
+  name: { vi: 'P/E - hệ số giá trên lợi nhuận', en: 'Price to earnings ratio' },
   description: {
     vi: 'Nhà đầu tư trả bao nhiêu đồng cho mỗi đồng lợi nhuận của doanh nghiệp.',
     en: 'How much an investor pays for each dong of the company’s profit.',

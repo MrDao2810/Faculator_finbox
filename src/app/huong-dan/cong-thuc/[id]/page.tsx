@@ -50,7 +50,7 @@ export async function generateMetadata({
 
   return {
     title: guideTitle(formula.name).vi,
-    description: `Cần số gì, nạp số thế nào, đọc kết quả ra sao và vì sao ô kết quả có lúc để trống — hướng dẫn dùng ${formula.name.vi}.`,
+    description: `Cần số gì, nạp số thế nào, đọc kết quả ra sao và vì sao ô kết quả có lúc để trống - hướng dẫn dùng ${formula.name.vi}.`,
   };
 }
 

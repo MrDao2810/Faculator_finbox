@@ -117,8 +117,8 @@ export function modelViolation(condition: Bilingual, fix?: Bilingual): CalcWarni
 export function inheritedFrom(upstreamLabel: Bilingual, selfLabel?: Bilingual): CalcWarning {
   /* Nhãn thượng nguồn là tên đầy đủ có gạch dài; câu chỉ cần phần trước gạch (REVIEW-4 L11-04). */
   const ten = (b: Bilingual): Bilingual => ({
-    vi: b.vi.split(' — ')[0] ?? b.vi,
-    en: b.en.split(' — ')[0] ?? b.en,
+    vi: b.vi.split(' - ')[0] ?? b.vi,
+    en: b.en.split(' - ')[0] ?? b.en,
   });
   const tenTren = ten(upstreamLabel);
   const fix: Bilingual = selfLabel

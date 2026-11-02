@@ -152,7 +152,7 @@ export function whenToUseProblems({ id, name, whenToUse }: KhiNaoInput): string[
     if (cau.length < KHI_NAO_TOI_THIEU) {
       loi.push(`${nhan}: ngắn ${String(cau.length)} ký tự, sàn ${String(KHI_NAO_TOI_THIEU)}`);
     }
-    if (GACH_DAI.test(cau)) loi.push(`${nhan}: có gạch ngang dài (— hoặc –)`);
+    if (GACH_DAI.test(cau)) loi.push(`${nhan}: có gạch ngang dài (- hoặc –)`);
 
     const vaiTro = VAI_TRO[ngon].exec(cau);
     if (vaiTro !== null)
@@ -164,7 +164,7 @@ export function whenToUseProblems({ id, name, whenToUse }: KhiNaoInput): string[
       }
     }
 
-    if (cau.includes('%')) loi.push(`${nhan}: có "%" — con số là việc của mục Cách đọc kết quả`);
+    if (cau.includes('%')) loi.push(`${nhan}: có "%" - con số là việc của mục Cách đọc kết quả`);
     const nguong = NGUONG.exec(cau);
     if (nguong !== null) loi.push(`${nhan}: có ngưỡng ("${nguong[0]}")`);
 

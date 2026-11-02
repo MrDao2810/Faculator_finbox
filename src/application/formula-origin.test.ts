@@ -12,9 +12,9 @@ import { formulaOriginToStore, parseFormulaOrigin } from './formula-origin';
  */
 describe('formulaOriginToStore — lọc trước khi ghi', () => {
   it('nhận slug hợp lệ kèm tên', () => {
-    expect(formulaOriginToStore('pe', 'P/E — hệ số giá trên lợi nhuận')).toEqual({
+    expect(formulaOriginToStore('pe', 'P/E - hệ số giá trên lợi nhuận')).toEqual({
       id: 'pe',
-      name: 'P/E — hệ số giá trên lợi nhuận',
+      name: 'P/E - hệ số giá trên lợi nhuận',
     });
   });
 

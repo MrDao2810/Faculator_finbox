@@ -47,7 +47,7 @@ const GIA: KhoiBieuDoBai = {
 };
 const BOC_TACH: KhoiBieuDoBai = {
   khoa: '__breakdown',
-  ten: doan('EV — bóc tách'),
+  ten: doan('EV - bóc tách'),
   thanh: doan('Đoạn của các thanh bóc tách.'),
   nangCao: false,
   canChuoi: false,
@@ -310,7 +310,7 @@ describe('mục "Đọc biểu đồ" trong khung chỉ in đúng một hình, �
     expect(muc.map((mot) => mot.querySelector('summary h3')?.textContent)).toEqual([
       'P/E theo Giá thị trường',
       'SMA theo thời gian',
-      'EV — bóc tách',
+      'EV - bóc tách',
     ]);
     expect(muc.map((mot) => mot.open)).toEqual([true, false, false]);
     // Trang in cả hai dạng của mỗi hình đường.

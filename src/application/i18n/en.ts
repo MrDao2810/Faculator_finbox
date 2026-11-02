@@ -150,7 +150,7 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'variable.colName': 'VARIABLE',
   'variable.colUnit': 'UNIT',
   'variable.colDescription': 'DESCRIPTION',
-  'variable.noDescription': '—',
+  'variable.noDescription': '-',
   'example.title': 'Worked example',
   /* `example.editHint` đã bỏ cùng bản tiếng Việt — xem lý do ở `vi.ts`. */
   /* `example.original` / `example.reset` đã BỎ cùng bản tiếng Việt — 29/09/2026. */
@@ -174,10 +174,10 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   /* `detail.fundamentalsSource` bỏ 14/09/2026 cùng `detail.tickerSticky` — xem `vi.ts`. */
   'detail.tickerLoading': 'fetching live data for this ticker…',
   'detail.tickerFailed':
-    'could not fetch data for this ticker — enter values by hand, or tap "Load sample" to use the bundled dataset.',
+    'could not fetch data for this ticker - enter values by hand, or tap "Load sample" to use the bundled dataset.',
   'detail.tickerNoData':
     'this ticker has no usable fundamentals yet (its reports lack four consecutive quarters, or the ' +
-    'figures do not agree). Retrying will not help — pick another ticker, or enter values by hand.',
+    'figures do not agree). Retrying will not help - pick another ticker, or enter values by hand.',
   'detail.download': 'Download',
   'detail.shareLink': 'Share',
   'detail.shareCopied': 'Link copied',
@@ -195,9 +195,9 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
     'into the fields above.',
   'detail.restoredNote': 'saved calculation from',
   'detail.restoredMissing':
-    'saved calculation not found — it may have been deleted on this device.',
+    'saved calculation not found - it may have been deleted on this device.',
   'detail.restoredNeedsSeries':
-    'This calculation uses a price series, and the series on this device no longer matches the one used when it was saved — the result shown may differ from the saved number. Reload the price series before reading it.',
+    'This calculation uses a price series, and the series on this device no longer matches the one used when it was saved - the result shown may differ from the saved number. Reload the price series before reading it.',
   'detail.meaning': 'Meaning',
   'detail.formula': 'Formula',
   'detail.symbols': 'Symbols in the formula',
@@ -205,7 +205,7 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'detail.howTo.open': 'See formula:',
   'detail.symbols.toggle': 'Legend',
   'detail.inputs': 'Inputs',
-  'detail.hiddenInBasic': 'advanced variable(s) hidden — switch mode to see them',
+  'detail.hiddenInBasic': 'advanced variable(s) hidden - switch mode to see them',
   'detail.constantSource': 'Market Config · CON-10',
   'detail.constantsInUse': 'Calculated at these rates',
   'detail.constantSince': 'in effect since',
@@ -221,7 +221,7 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   /* `detail.applyToTable` / `detail.appliedToTable` đã bỏ cùng bản tiếng Việt — xem lý do ở `vi.ts`. */
   'detail.seriesLoaded': 'Price sessions loaded:',
   'detail.liveSeriesShort':
-    'This ticker has a single price session — the live source provides no long history. This ' +
+    'This ticker has a single price session - the live source provides no long history. This ' +
     'formula needs many sessions: paste a price series, or tap “Load sample” and pick one of ' +
     'the four sample tickers.',
   /* Rút gọn theo bản tiếng Việt (23/09/2026) — lý do đầy đủ ghi ở `vi.ts`. */
@@ -274,7 +274,7 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'loan.colInterest': 'INTEREST',
   'loan.colBalance': 'BALANCE',
   /* Ghép "… showing 26/240 periods: …" — số bên trái luôn ≥ 13 nên số nhiều trơn là an toàn. */
-  'loan.condensed.before': 'Condensed table — showing',
+  'loan.condensed.before': 'Condensed table - showing',
   'loan.condensed.after': 'periods: the first 12, each year-end, and the last one.',
 
   'preset.title': 'Load a sample dataset',
@@ -370,7 +370,7 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'portfolio.formCancel': 'Cancel',
   /* Vế "beta là gì" thêm cùng bản tiếng Việt — xem lý do ở `vi.ts`. */
   'portfolio.betaHint':
-    'Beta measures how much harder or softer this stock swings than the VN-Index — a beta of 1.5 ' +
+    'Beta measures how much harder or softer this stock swings than the VN-Index - a beta of 1.5 ' +
     'means the index moving 1% usually moves this stock about 1.5%, and under 1 is milder than the ' +
     'market. It cannot be computed automatically yet because that needs return series for both the ' +
     'stock and the index; enter it by hand if you already have it.',
@@ -403,7 +403,7 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'portfolio.errBuyDate': 'Purchase date must be today or in the past.',
   'portfolio.errBuyDateFormat':
     'That purchase date cannot be read. Type it as day/month/year, for example 03/10/2026.',
-  'portfolio.errBeta': 'Beta must be a number, e.g. 1.1 — or leave it blank if unknown.',
+  'portfolio.errBeta': 'Beta must be a number, e.g. 1.1 - or leave it blank if unknown.',
   'portfolio.errFull': 'The portfolio is full at 50 holdings. Remove one before adding another.',
   /* `{max}` và `{codes}` do màn thay — xem `vi.ts`. */
   'portfolio.importFull': 'The portfolio holds {max} tickers, so these were left out: {codes}.',
@@ -414,7 +414,7 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'portfolio.priceRefresh': 'Refresh',
   'portfolio.refreshPrices': 'Refresh prices',
   'portfolio.details': 'Details',
-  'portfolio.priceStale': 'Could not refresh market prices — showing saved ones.',
+  'portfolio.priceStale': 'Could not refresh market prices - showing saved ones.',
   'portfolio.priceNone': 'No market price found for any ticker yet.',
   /* "Add", không phải "Run": ô này CHỌN công thức để đính kèm, việc tính xảy ra sau khi lưu. */
   'portfolio.formulas': 'Add a formula',
@@ -497,7 +497,7 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
      localStorage (25/08/2026). Câu tương đương ở màn Danh mục (`portfolio.localOnly`) cũng đã bỏ
      ngày 09/09/2026 — nay không màn nào còn dòng cam kết dữ liệu. */
   'series.needMore':
-    'Beta and Sharpe need at least 60 sessions to mean anything statistically. Not enough yet — results will report missing data.',
+    'Beta and Sharpe need at least 60 sessions to mean anything statistically. Not enough yet - results will report missing data.',
 
   'series.chartLabel': 'Candlestick chart of the price series',
   'series.chartBlank':
@@ -595,7 +595,7 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'save.submit': 'Save to portfolio',
   'save.done': 'Saved to Portfolio › Formulas.',
   'save.goToPortfolio': 'View in portfolio',
-  'save.errEmpty': 'Give it a name first — an unnamed entry is one you will never find again.',
+  'save.errEmpty': 'Give it a name first - an unnamed entry is one you will never find again.',
   'save.errDuplicate':
     'A saved calculation already uses this name. Pick another so the two do not blur together.',
   'save.errFull':
@@ -675,7 +675,7 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'aboutUs.eyebrow': 'About Faculator Finbox',
   'aboutUs.title': 'Smart financial tools for the modern investor',
   'aboutUs.lead':
-    'Faculator Finbox is a web app for looking up, computing and visualizing formulas for the Vietnamese market. The core difference: formulas do not stand alone but connect into a dependency graph — the output of one step flows straight into the input of the next.',
+    'Faculator Finbox is a web app for looking up, computing and visualizing formulas for the Vietnamese market. The core difference: formulas do not stand alone but connect into a dependency graph - the output of one step flows straight into the input of the next.',
   'aboutUs.stat.full': 'Complete',
   'aboutUs.stat.fullNote': 'Financial tools',
   'aboutUs.stat.fresh': 'Fresh data',
@@ -720,7 +720,7 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
     'The app runs entirely in the browser: there is no sign-up step and no account server. Your portfolio and display preferences live in the localStorage of this device, so clearing browser data or switching machines leaves them behind.',
   'aboutUs.yourData.sources': 'Public reference sources',
   'aboutUs.yourData.sourcesNote':
-    'Every formula names its source — a textbook, an accounting standard or a legal document — so you can check it. Fee and tax constants come from Market Config: change them in one place and the whole system follows.',
+    'Every formula names its source - a textbook, an accounting standard or a legal document - so you can check it. Fee and tax constants come from Market Config: change them in one place and the whole system follows.',
 
   'aboutUs.not.title': 'What Faculator is not',
   'aboutUs.not.broker': 'Not a brokerage',
@@ -739,7 +739,7 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'aboutUs.cta.eyebrow': 'Start today',
   'aboutUs.cta.title': 'Master the market with Faculator Finbox',
   'aboutUs.cta.note':
-    'No sign-up needed. Open a formula, load a sample data set by ticker and watch the result update instantly — fully working offline too.',
+    'No sign-up needed. Open a formula, load a sample data set by ticker and watch the result update instantly - fully working offline too.',
   'aboutUs.cta.action': 'Open it now',
 
   'page.formulas.title': 'Formulas',

@@ -557,7 +557,7 @@ check(
        `oNhap` có khoá với bản trước (một `<ul>` các cụm tách từ chuỗi " · ", nơi tên ô chỉ là mấy
        chữ đầu câu). Thiếu `<dt>` thì chữ vẫn in ra nhưng không gắn vào ô nào. */
     guideHtml.includes('<dt') &&
-    guideHtml.includes('EPS — lợi nhuận trên mỗi cổ phiếu'),
+    guideHtml.includes('EPS - lợi nhuận trên mỗi cổ phiếu'),
   'out/huong-dan/cong-thuc/pe/index.html',
 );
 

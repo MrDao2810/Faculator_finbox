@@ -88,7 +88,7 @@ export function buildGaugeModel(
   const activeZone = Math.max(0, viTri);
   const vung = zones[activeZone];
   const valueLabel = formatValueWithUnit(value, unit);
-  const title = { vi: `${name.vi} — thang đo`, en: `${name.en} — gauge` };
+  const title = { vi: `${name.vi} - thang đo`, en: `${name.en} - gauge` };
 
   const keVung = (lang: 'vi' | 'en'): string =>
     zones

@@ -123,10 +123,10 @@ describe('đi vòng qua localStorage rồi đọc lại', () => {
 
 describe('localizeRecentSearches() — chip in theo ngôn ngữ đang bật', () => {
   const PE = {
-    name: { vi: 'P/E — hệ số giá trên lợi nhuận', en: 'P/E — price to earnings ratio' },
+    name: { vi: 'P/E - hệ số giá trên lợi nhuận', en: 'P/E - price to earnings ratio' },
   };
   const ROE = {
-    name: { vi: 'ROE — tỷ suất lợi nhuận trên vốn chủ', en: 'ROE — return on equity' },
+    name: { vi: 'ROE - tỷ suất lợi nhuận trên vốn chủ', en: 'ROE - return on equity' },
   };
   const KHONG_EN = { name: { vi: 'Thuế TNCN đầu tư', en: '' } };
   const DS = [PE, ROE, KHONG_EN];
@@ -139,7 +139,7 @@ describe('localizeRecentSearches() — chip in theo ngôn ngữ đang bật', ()
   });
 
   it('khớp không phân biệt hoa thường và bỏ khoảng trắng hai đầu', () => {
-    expect(localizeRecentSearches(['  p/e — HỆ SỐ GIÁ TRÊN LỢI NHUẬN '], DS, en)).toEqual([
+    expect(localizeRecentSearches(['  p/e - HỆ SỐ GIÁ TRÊN LỢI NHUẬN '], DS, en)).toEqual([
       PE.name.en,
     ]);
   });
@@ -157,5 +157,33 @@ describe('localizeRecentSearches() — chip in theo ngôn ngữ đang bật', ()
       PE.name.en,
       ROE.name.en,
     ]);
+  });
+
+  /*
+   * Tên công thức viết "P/E - …" từ 02/11/2026, "P/E — …" trước đó. Mục ghi trước ngày ấy vẫn là
+   * công thức P/E: chip in tên mới, không in nguyên gạch dài, và không đứng thành hai chip cạnh mục mới.
+   */
+  it('mục ghi trước ngày đổi gạch dài vẫn tra ra công thức, in tên mới, không thành chip đôi', () => {
+    const cu = 'P/E — hệ số giá trên lợi nhuận';
+    expect(localizeRecentSearches([cu], DS, vi)).toEqual([PE.name.vi]);
+    expect(localizeRecentSearches([cu], DS, en)).toEqual([PE.name.en]);
+    expect(localizeRecentSearches([PE.name.vi, cu], DS, vi)).toEqual([PE.name.vi]);
+  });
+});
+
+describe('kho lịch sử coi tên cũ (gạch dài) và tên mới (gạch nối) là một mục', () => {
+  const CU = 'P/E — hệ số giá trên lợi nhuận';
+  const MOI = 'P/E - hệ số giá trên lợi nhuận';
+
+  it('tìm lại công thức ấy thì tên mới thay chỗ mục cũ, không thêm mục thứ hai', () => {
+    expect(addRecentSearch([CU, 'WACC'], MOI)).toEqual([MOI, 'WACC']);
+  });
+
+  it('đọc kho đã lẫn cả hai thì giữ một', () => {
+    expect(parseRecentSearches(JSON.stringify([MOI, CU, 'WACC']))).toEqual([MOI, 'WACC']);
+  });
+
+  it('bỏ một mục thì bỏ được cả dạng cũ', () => {
+    expect(removeRecentSearch([CU, 'WACC'], MOI)).toEqual(['WACC']);
   });
 });

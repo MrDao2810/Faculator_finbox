@@ -25,8 +25,8 @@ import { SOURCE_CFA, numberVar, sliderVar } from './shared';
 /** Nguồn dùng chung của cả nhóm — giáo trình đầu tư kinh điển, chương về lợi suất. */
 const SOURCE_INVESTMENTS: FormulaSource = {
   label: {
-    vi: 'Bodie, Kane & Marcus — Investments, ấn bản 12 (McGraw-Hill), chương 5: Risk, Return, and the Historical Record',
-    en: 'Bodie, Kane & Marcus — Investments, 12th edition (McGraw-Hill), chapter 5: Risk, Return, and the Historical Record',
+    vi: 'Bodie, Kane & Marcus - Investments, ấn bản 12 (McGraw-Hill), chương 5: Risk, Return, and the Historical Record',
+    en: 'Bodie, Kane & Marcus - Investments, 12th edition (McGraw-Hill), chapter 5: Risk, Return, and the Historical Record',
   },
 };
 
@@ -34,8 +34,8 @@ const SOURCE_INVESTMENTS: FormulaSource = {
 function belowTotalLoss(label: Bilingual): CalcWarning {
   return meaningless(
     {
-      vi: `${label.vi} dưới −100% nghĩa là mất nhiều hơn số vốn bỏ ra — không xảy ra với vị thế mua thông thường.`,
-      en: `${label.en} below −100% would mean losing more than the capital put in — this cannot happen with an ordinary long position.`,
+      vi: `${label.vi} dưới −100% nghĩa là mất nhiều hơn số vốn bỏ ra - không xảy ra với vị thế mua thông thường.`,
+      en: `${label.en} below −100% would mean losing more than the capital put in - this cannot happen with an ordinary long position.`,
     },
     {
       vi: `Kiểm tra lại ô ${label.vi}: mất sạch vốn thì nhập đúng −100.`,
@@ -133,8 +133,8 @@ export const LOI_SUAT_NAM_HOA: FormulaModule = {
         en: 'Compared with the yearly savings rate banks quote: higher means that, if the short-period pace held all year, this would beat a deposit, and lower means it would lose to one. A negative figure means that if every period lost as much as this one, the capital would be down by that percentage after a year.',
       },
       commonMistakes: {
-        vi: 'Coi con số năm hoá là mức chắc chắn đạt được — nó chỉ đúng nếu kỳ nào cũng lặp lại y hệt, điều hiếm khi xảy ra.',
-        en: 'Treating the annualized figure as a guaranteed outcome — it only holds if every period repeats identically, which rarely happens.',
+        vi: 'Coi con số năm hoá là mức chắc chắn đạt được - nó chỉ đúng nếu kỳ nào cũng lặp lại y hệt, điều hiếm khi xảy ra.',
+        en: 'Treating the annualized figure as a guaranteed outcome - it only holds if every period repeats identically, which rarely happens.',
       },
     },
     example: {
@@ -293,8 +293,8 @@ export const LOI_SUAT_THUC: FormulaModule = {
         en: 'Compared with the 0 mark: positive means that after a year your money buys more goods than it did at the start, negative means it buys less even if the balance on your statement has grown, and exactly 0 means the interest only just kept pace with rising prices.',
       },
       commonMistakes: {
-        vi: 'Lấy lợi suất trừ thẳng lạm phát: 10% − 4% = 6%, trong khi con số đúng là 5,77% — lệch càng lớn khi lạm phát càng cao.',
-        en: 'Subtracting inflation directly from the return: 10% − 4% = 6%, when the correct figure is 5.77% — the gap widens as inflation rises.',
+        vi: 'Lấy lợi suất trừ thẳng lạm phát: 10% − 4% = 6%, trong khi con số đúng là 5,77% - lệch càng lớn khi lạm phát càng cao.',
+        en: 'Subtracting inflation directly from the return: 10% − 4% = 6%, when the correct figure is 5.77% - the gap widens as inflation rises.',
       },
     },
     example: {
@@ -467,8 +467,8 @@ export const LAI_SUAT_HIEU_DUNG: FormulaModule = {
         en: 'Compared with the effective annual rate of another place to save, worked out the same way: higher means this one really pays more interest per year, even if its quoted rate is lower, and lower means it really pays less. The result equals the quoted rate exactly when interest is added to the balance only once a year.',
       },
       commonMistakes: {
-        vi: 'So thẳng lãi danh nghĩa của hai sản phẩm mà bỏ qua tần suất ghép — bên ghép dày hơn thực chất trả nhiều lãi hơn.',
-        en: 'Comparing two products by their nominal rate alone while ignoring compounding frequency — the one that compounds more often actually pays more interest.',
+        vi: 'So thẳng lãi danh nghĩa của hai sản phẩm mà bỏ qua tần suất ghép - bên ghép dày hơn thực chất trả nhiều lãi hơn.',
+        en: 'Comparing two products by their nominal rate alone while ignoring compounding frequency - the one that compounds more often actually pays more interest.',
       },
     },
     example: {
@@ -633,7 +633,7 @@ export const TONG_LOI_SUAT_TAI_DAU_TU: FormulaModule = {
     explanation: {
       meaning: {
         vi: 'Mỗi năm nhà đầu tư hưởng hai tầng lãi: giá tăng và cổ tức mua thêm cổ phiếu, hai tầng đó nhân vào nhau rồi luỹ kế theo năm.',
-        en: 'Each year the investor earns two layers of gain — price appreciation and dividends buying more shares — the two multiply together and compound over the years.',
+        en: 'Each year the investor earns two layers of gain - price appreciation and dividends buying more shares - the two multiply together and compound over the years.',
       },
       whenToUse: {
         vi: 'Dùng khi bạn định giữ lâu một cổ phiếu trả cổ tức đều, nhận cổ tức lại mua thêm chính cổ phiếu đó, và muốn ước sau vài năm số vốn lớn lên được bao nhiêu.',
@@ -931,8 +931,8 @@ export const LOI_SUAT_TRUNG_BINH_HINH_HOC: FormulaModule = {
         en: 'Compared with the savings rate for a period of the same length: higher means that, good and bad periods together, each period on average earned more than a deposit, and lower means less. A negative figure means the capital ended below where it started, even if one period posted a big gain.',
       },
       commonMistakes: {
-        vi: 'Lấy trung bình cộng: lãi 50% rồi lỗ 50% ra trung bình cộng 0%/kỳ — trong khi trung bình hình học đúng của hai kỳ này là khoảng −13,4%/kỳ, gộp lại đúng bằng mức vốn đã giảm 25% sau hai kỳ.',
-        en: 'Using the arithmetic average: a 50% gain then a 50% loss averages to 0%/period — whereas the correct geometric mean of these two periods is about −13.4%/period, which compounds out to the actual 25% drop in capital after the two periods.',
+        vi: 'Lấy trung bình cộng: lãi 50% rồi lỗ 50% ra trung bình cộng 0%/kỳ - trong khi trung bình hình học đúng của hai kỳ này là khoảng −13,4%/kỳ, gộp lại đúng bằng mức vốn đã giảm 25% sau hai kỳ.',
+        en: 'Using the arithmetic average: a 50% gain then a 50% loss averages to 0%/period - whereas the correct geometric mean of these two periods is about −13.4%/period, which compounds out to the actual 25% drop in capital after the two periods.',
       },
     },
     example: {
@@ -1433,8 +1433,8 @@ export const THOI_GIAN_NHAN_DOI: FormulaModule = {
         en: 'Compared with the number of years left until you need the money: fewer means it doubles in time, and more means it will not yet have doubled when you need it. The decimal part is a fraction of a year, not a number of months.',
       },
       commonMistakes: {
-        vi: 'Dùng quy tắc 72 cho lợi suất rất cao hoặc rất thấp — ngoài vùng 5–12% ước lượng lệch rõ so với công thức chính xác.',
-        en: 'Applying the rule of 72 to very high or very low returns — outside the 5–12% range the approximation diverges noticeably from the exact formula.',
+        vi: 'Dùng quy tắc 72 cho lợi suất rất cao hoặc rất thấp - ngoài vùng 5–12% ước lượng lệch rõ so với công thức chính xác.',
+        en: 'Applying the rule of 72 to very high or very low returns - outside the 5–12% range the approximation diverges noticeably from the exact formula.',
       },
     },
     example: {
@@ -1457,7 +1457,7 @@ export const THOI_GIAN_NHAN_DOI: FormulaModule = {
       { name: '8%/năm thì 9,01 năm gấp đôi', inputs: { rate: 8 }, expected: 9.0065 },
       { name: '6%/năm thì 11,9 năm gấp đôi', inputs: { rate: 6 }, expected: 11.8957 },
       {
-        name: 'lợi suất 0% thì không bao giờ nhân đôi — chia cho 0',
+        name: 'lợi suất 0% thì không bao giờ nhân đôi - chia cho 0',
         inputs: { rate: 0 },
         expected: null,
         expectedWarning: 'DIVIDE_BY_ZERO',
@@ -1586,8 +1586,8 @@ export const LOI_SUAT_QUY_NAM_THEO_NGAY: FormulaModule = {
     ],
     explanation: {
       meaning: {
-        vi: 'Nếu lặp lại thương vụ này liên tục suốt 365 ngày thì cả năm được bao nhiêu — một thước đo chung cho các lần mua bán dài ngắn khác nhau.',
-        en: 'How much a full year would return if this trade repeated continuously for 365 days — a common yardstick for trades of different lengths.',
+        vi: 'Nếu lặp lại thương vụ này liên tục suốt 365 ngày thì cả năm được bao nhiêu - một thước đo chung cho các lần mua bán dài ngắn khác nhau.',
+        en: 'How much a full year would return if this trade repeated continuously for 365 days - a common yardstick for trades of different lengths.',
       },
       whenToUse: {
         vi: 'Dùng khi bạn vừa chốt một lệnh mua bán chỉ giữ vài tuần và muốn quy khoản lãi đó ra theo năm để so với gửi tiết kiệm hay với một khoản giữ lâu hơn.',
@@ -1604,8 +1604,8 @@ export const LOI_SUAT_QUY_NAM_THEO_NGAY: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'FPT — mua 62.900 ₫ ngày 24/07/2026, bán 72.700 ₫ ngày 11/09/2026, nắm 49 ngày',
-        en: 'FPT — bought at 62,900 ₫ on 2026-07-24 and sold at 72,700 ₫ on 2026-09-11, held 49 days',
+        vi: 'FPT - mua 62.900 ₫ ngày 24/07/2026, bán 72.700 ₫ ngày 11/09/2026, nắm 49 ngày',
+        en: 'FPT - bought at 62,900 ₫ on 2026-07-24 and sold at 72,700 ₫ on 2026-09-11, held 49 days',
       },
       inputs: { buyPrice: 62_900, sellPrice: 72_700, days: 49 },
       expected: 194.0491,
@@ -1802,8 +1802,8 @@ export const LOI_SUAT_VUOT_CHUAN: FormulaModule = {
         en: 'Compared with the 0 mark: positive means the portfolio did better than the benchmark you chose over the same period, negative means worse, and 0 means level. The figure is a gap in percentage points, not a percentage of the benchmark return.',
       },
       commonMistakes: {
-        vi: 'So với chuẩn không cùng mức rủi ro, hoặc lệch kỳ tính — hai lợi suất phải đo trên cùng một khoảng thời gian.',
-        en: 'Comparing against a benchmark with a different risk level, or mismatched periods — both returns must be measured over the exact same time span.',
+        vi: 'So với chuẩn không cùng mức rủi ro, hoặc lệch kỳ tính - hai lợi suất phải đo trên cùng một khoảng thời gian.',
+        en: 'Comparing against a benchmark with a different risk level, or mismatched periods - both returns must be measured over the exact same time span.',
       },
     },
     example: {

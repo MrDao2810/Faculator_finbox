@@ -49,7 +49,7 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Với số liệu dưới đây, hãy đặt đúng hai con số vào ô trống của công thức P/E.',
+      vi: 'Với số liệu dưới đây, hãy đặt đúng hai số vào vị trí của công thức P/E.',
       en: 'With the figures below, put the right two numbers into the slots of the P/E formula.',
     },
     facts: [
@@ -93,7 +93,7 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Với số liệu dưới đây, hãy đặt đúng hai con số vào ô trống của công thức P/B.',
+      vi: 'Với số liệu dưới đây, hãy đặt đúng hai số vào vị trí của công thức P/B.',
       en: 'With the figures below, put the right two numbers into the slots of the P/B formula.',
     },
     facts: [
@@ -137,7 +137,7 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Với số liệu dưới đây, hãy đặt đúng ba con số vào ô trống của công thức EPS cơ bản.',
+      vi: 'Với số liệu dưới đây, hãy đặt đúng ba số vào vị trí của công thức EPS cơ bản.',
       en: 'With the figures below, put the right three numbers into the slots of the basic EPS formula.',
     },
     facts: [
@@ -190,7 +190,7 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Với số liệu dưới đây, hãy đặt đúng hai con số vào ô trống của công thức BVPS.',
+      vi: 'Với số liệu dưới đây, hãy đặt đúng hai số vào vị trí của công thức BVPS.',
       en: 'With the figures below, put the right two numbers into the slots of the BVPS formula.',
     },
     facts: [
@@ -241,7 +241,7 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Với số liệu dưới đây, hãy đặt đúng hai con số vào ô trống của công thức ROE.',
+      vi: 'Với số liệu dưới đây, hãy đặt đúng hai số vào vị trí của công thức ROE.',
       en: 'With the figures below, put the right two numbers into the slots of the ROE formula.',
     },
     facts: [
@@ -281,7 +281,7 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Với số liệu dưới đây, hãy đặt đúng hai con số vào ô trống của công thức ROA.',
+      vi: 'Với số liệu dưới đây, hãy đặt đúng hai số vào vị trí của công thức ROA.',
       en: 'With the figures below, put the right two numbers into the slots of the ROA formula.',
     },
     facts: [
@@ -325,7 +325,7 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Với số liệu dưới đây, hãy đặt đúng hai con số vào ô trống của công thức biên lợi nhuận ròng.',
+      vi: 'Với số liệu dưới đây, hãy đặt đúng hai số vào vị trí của công thức biên lợi nhuận ròng.',
       en: 'With the figures below, put the right two numbers into the slots of the net profit margin formula.',
     },
     facts: [
@@ -369,7 +369,7 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Với số liệu dưới đây, hãy đặt đúng ba con số vào ô trống của công thức biên lợi nhuận gộp.',
+      vi: 'Với số liệu dưới đây, hãy đặt đúng ba số vào vị trí của công thức biên lợi nhuận gộp.',
       en: 'With the figures below, put the right three numbers into the slots of the gross profit margin formula.',
     },
     facts: [
@@ -416,7 +416,7 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Với số liệu dưới đây, hãy đặt đúng hai con số vào ô trống của công thức D/E.',
+      vi: 'Với số liệu dưới đây, hãy đặt đúng hai số vào vị trí của công thức D/E.',
       en: 'With the figures below, put the right two numbers into the slots of the D/E formula.',
     },
     facts: [
@@ -463,7 +463,7 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Với số liệu dưới đây, hãy đặt đúng hai con số vào ô trống của công thức hệ số thanh toán hiện hành.',
+      vi: 'Với số liệu dưới đây, hãy đặt đúng hai số vào vị trí của công thức hệ số thanh toán hiện hành.',
       en: 'With the figures below, put the right two numbers into the slots of the current ratio formula.',
     },
     facts: [
@@ -517,7 +517,7 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Với số liệu dưới đây, hãy đặt đúng ba con số vào ô trống của công thức hệ số thanh toán nhanh.',
+      vi: 'Với số liệu dưới đây, hãy đặt đúng ba số vào vị trí của công thức hệ số thanh toán nhanh.',
       en: 'With the figures below, put the right three numbers into the slots of the quick ratio formula.',
     },
     facts: [
@@ -576,7 +576,7 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Với số liệu dưới đây, hãy đặt đúng hai con số vào ô trống của công thức vòng quay tổng tài sản.',
+      vi: 'Với số liệu dưới đây, hãy đặt đúng hai số vào vị trí của công thức vòng quay tổng tài sản.',
       en: 'With the figures below, put the right two numbers into the slots of the total asset turnover formula.',
     },
     facts: [
@@ -623,7 +623,7 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Với số liệu dưới đây, hãy đặt đúng hai con số vào ô trống của công thức hệ số chi trả cổ tức.',
+      vi: 'Với số liệu dưới đây, hãy đặt đúng hai số vào vị trí của công thức hệ số chi trả cổ tức.',
       en: 'With the figures below, put the right two numbers into the slots of the dividend payout ratio formula.',
     },
     facts: [
@@ -667,7 +667,7 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Với số liệu dưới đây, hãy đặt đúng ba con số vào ô trống của công thức Enterprise Value.',
+      vi: 'Với số liệu dưới đây, hãy đặt đúng ba số vào vị trí của công thức Enterprise Value.',
       en: 'With the figures below, put the right three numbers into the slots of the Enterprise Value formula.',
     },
     facts: [
@@ -720,7 +720,7 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Với số liệu dưới đây, hãy đặt đúng hai con số vào ô trống của công thức EV/Sales.',
+      vi: 'Với số liệu dưới đây, hãy đặt đúng hai số vào vị trí của công thức EV/Sales.',
       en: 'With the figures below, put the right two numbers into the slots of the EV/Sales formula.',
     },
     facts: [
@@ -764,7 +764,7 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Với số liệu dưới đây, hãy đặt đúng bốn con số vào ô trống của mô hình Gordon.',
+      vi: 'Với số liệu dưới đây, hãy đặt đúng bốn số vào vị trí của mô hình Gordon.',
       en: 'With the figures below, put the right four numbers into the slots of the Gordon model.',
     },
     facts: [
@@ -826,7 +826,7 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Với số liệu dưới đây, hãy đặt cổ tức vừa trả vào đủ năm ô trống của mô hình DDM hai giai đoạn: bốn ô cho bốn năm tăng trưởng nhanh, và một ô cho giá trị cuối kỳ ở năm thứ tư.',
+      vi: 'Với số liệu dưới đây, hãy đặt cổ tức vừa trả vào đủ năm vị trí của mô hình DDM hai giai đoạn: bốn vị trí cho bốn năm tăng trưởng nhanh, và một vị trí cho giá trị cuối kỳ ở năm thứ tư.',
       en: 'With the figures below, put the dividend just paid into all five slots of the two-stage DDM: four slots for the four high-growth years and one for the terminal value at year four.',
     },
     facts: [
@@ -894,7 +894,7 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Với số liệu dưới đây, hãy đặt đúng ba con số vào ô trống của công thức CAPM.',
+      vi: 'Với số liệu dưới đây, hãy đặt đúng ba số vào vị trí của công thức CAPM.',
       en: 'With the figures below, put the right three numbers into the slots of the CAPM formula.',
     },
     facts: [
@@ -940,7 +940,7 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Với số liệu dưới đây, hãy đặt đúng năm con số vào ô trống của công thức WACC. Tổng nguồn vốn 600 cộng 400 bằng 1.000 đã viết sẵn.',
+      vi: 'Với số liệu dưới đây, hãy đặt đúng năm số vào vị trí của công thức WACC. Tổng nguồn vốn 600 cộng 400 bằng 1.000 đã viết sẵn.',
       en: 'With the figures below, put the right five numbers into the slots of the WACC formula. Total capital, 600 plus 400 = 1000, is already written in.',
     },
     facts: [
@@ -1007,7 +1007,7 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Với số liệu dưới đây, hãy đặt đúng năm con số vào ô trống của công thức FCFF.',
+      vi: 'Với số liệu dưới đây, hãy đặt đúng năm số vào vị trí của công thức FCFF.',
       en: 'With the figures below, put the right five numbers into the slots of the FCFF formula.',
     },
     facts: [
@@ -1070,7 +1070,7 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Với số liệu dưới đây, hãy đặt đúng bốn con số vào ô trống của công thức FCFE.',
+      vi: 'Với số liệu dưới đây, hãy đặt đúng bốn số vào vị trí của công thức FCFE.',
       en: 'With the figures below, put the right four numbers into the slots of the FCFE formula.',
     },
     facts: [
@@ -1125,7 +1125,7 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Với số liệu dưới đây, hãy đặt đúng năm con số vào ô trống của công thức định giá theo FCFF. Số cổ phiếu 150 triệu đã viết sẵn.',
+      vi: 'Với số liệu dưới đây, hãy đặt đúng năm số vào vị trí của công thức định giá theo FCFF. Số cổ phiếu 150 triệu đã viết sẵn.',
       en: 'With the figures below, put the right five numbers into the slots of the FCFF valuation formula. The 150 million shares are already written in.',
     },
     facts: [
@@ -1191,7 +1191,7 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Với số liệu dưới đây, hãy đặt đúng ba con số vào ô trống của công thức giá trị hiện tại.',
+      vi: 'Với số liệu dưới đây, hãy đặt đúng ba số vào vị trí của công thức giá trị hiện tại.',
       en: 'With the figures below, put the right three numbers into the slots of the present value formula.',
     },
     facts: [
@@ -1244,7 +1244,7 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Với số liệu dưới đây, hãy đặt đúng ba con số vào ô trống của công thức giá trị tương lai.',
+      vi: 'Với số liệu dưới đây, hãy đặt đúng ba số vào vị trí của công thức giá trị tương lai.',
       en: 'With the figures below, put the right three numbers into the slots of the future value formula.',
     },
     facts: [
@@ -1297,7 +1297,7 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Với số liệu dưới đây, hãy đặt đúng ba con số vào ô trống của công thức biên an toàn.',
+      vi: 'Với số liệu dưới đây, hãy đặt đúng ba số vào vị trí của công thức biên an toàn.',
       en: 'With the figures below, put the right three numbers into the slots of the margin of safety formula.',
     },
     facts: [
@@ -1344,7 +1344,7 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Với số liệu dưới đây, hãy đặt đúng hai con số vào ô trống của công thức phí giao dịch mua. Biểu phí 0,15% lấy từ bảng hằng số của sản phẩm và đã viết sẵn trong công thức.',
+      vi: 'Với số liệu dưới đây, hãy đặt đúng hai số vào vị trí của công thức phí giao dịch mua. Biểu phí 0,15% lấy từ bảng hằng số của sản phẩm và đã viết sẵn trong công thức.',
       en: 'With the figures below, put the right two numbers into the slots of the buy-side fee formula. The 0.15% rate comes from the product’s constants table and is already written in.',
     },
     facts: [
@@ -1389,7 +1389,7 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Với số liệu dưới đây, hãy đặt đúng hai con số vào ô trống của công thức PHÍ giao dịch bán, chưa tính thuế. Biểu phí 0,15% đã viết sẵn trong công thức.',
+      vi: 'Với số liệu dưới đây, hãy đặt đúng hai số vào vị trí của công thức PHÍ giao dịch bán, chưa tính thuế. Biểu phí 0,15% đã viết sẵn trong công thức.',
       en: 'With the figures below, put the right two numbers into the slots of the sell-side FEE formula, tax excluded. The 0.15% rate is already written in.',
     },
     facts: [
@@ -1434,7 +1434,7 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Bạn mua 1.000 cổ phiếu giá 50.000 ₫ và bán ra ở giá 60.000 ₫. Hãy đặt đúng hai con số vào ô trống của công thức thuế chuyển nhượng.',
+      vi: 'Bạn mua 1.000 cổ phiếu giá 50.000 ₫ và bán ra ở giá 60.000 ₫. Hãy đặt đúng hai số vào vị trí của công thức thuế chuyển nhượng.',
       en: 'You bought 1000 shares at 50000 ₫ and sold at 60000 ₫. Put the right two numbers into the slots of the transfer tax formula.',
     },
     facts: [
@@ -1483,7 +1483,7 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Với số liệu dưới đây, hãy đặt đúng hai con số vào ô trống của công thức thuế cổ tức tiền mặt. Thuế suất 5% đã viết sẵn trong công thức.',
+      vi: 'Với số liệu dưới đây, hãy đặt đúng hai số vào vị trí của công thức thuế cổ tức tiền mặt. Thuế suất 5% đã viết sẵn trong công thức.',
       en: 'With the figures below, put the right two numbers into the slots of the cash dividend tax formula. The 5% rate is already written in.',
     },
     facts: [
@@ -1531,7 +1531,7 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Bạn nắm giữ 1.000 cổ phiếu suốt 12 tháng và không mua bán gì thêm. Hãy đặt đúng hai con số vào ô trống của công thức phí lưu ký; mức 0,27 ₫ mỗi cổ phiếu mỗi tháng đã viết sẵn.',
+      vi: 'Bạn nắm giữ 1.000 cổ phiếu suốt 12 tháng và không mua bán gì thêm. Hãy đặt đúng hai số vào vị trí của công thức phí lưu ký; mức 0,27 ₫ mỗi cổ phiếu mỗi tháng đã viết sẵn.',
       en: 'You hold 1000 shares for 12 months and place no further trades. Put the right two numbers into the slots of the custody fee formula; the 0.27 ₫ per share per month rate is already written in.',
     },
     facts: [
@@ -1576,7 +1576,7 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Với số liệu dưới đây, hãy đặt đúng ba con số vào ô trống của công thức giá hoà vốn thực. Khối lượng 1.000 CP, các biểu phí và thuế đã viết sẵn.',
+      vi: 'Với số liệu dưới đây, hãy đặt đúng ba số vào vị trí của công thức giá hoà vốn thực. Khối lượng 1.000 CP, các biểu phí và thuế đã viết sẵn.',
       en: 'With the figures below, put the right three numbers into the slots of the true break-even price formula. The 1000 shares and every fee and tax rate are already written in.',
     },
     facts: [
@@ -1600,7 +1600,7 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
       tolerance: 0.5,
     },
     explain: {
-      vi: 'Giá hoà vốn phải gánh cả bốn khoản: phí mua 75.000 ₫, phí lưu ký 12 tháng 3.240 ₫, rồi phí bán 0,15% và thuế bán 0,1% — hai khoản sau tính trên chính GIÁ BÁN chưa biết, nên phải giải ngược: vốn đã bỏ ra 50.078.240 ₫ chia cho (1 trừ 0,0025) bằng 50.203.749 ₫, tức 50.203,75 ₫ mỗi cổ phiếu. Kết quả 50.000 ₫ là bỏ hết chi phí. 50.078,24 ₫ chỉ cộng phí mua và phí lưu ký, quên phí và thuế lúc bán. 50.228,24 ₫ cộng thẳng tổng chi phí vào giá mua, tức tính phí bán trên giá MUA thay vì trên giá bán.',
+      vi: 'Giá hoà vốn phải gánh cả bốn khoản: phí mua 75.000 ₫, phí lưu ký 12 tháng 3.240 ₫, rồi phí bán 0,15% và thuế bán 0,1% - hai khoản sau tính trên chính GIÁ BÁN chưa biết, nên phải giải ngược: vốn đã bỏ ra 50.078.240 ₫ chia cho (1 trừ 0,0025) bằng 50.203.749 ₫, tức 50.203,75 ₫ mỗi cổ phiếu. Kết quả 50.000 ₫ là bỏ hết chi phí. 50.078,24 ₫ chỉ cộng phí mua và phí lưu ký, quên phí và thuế lúc bán. 50.228,24 ₫ cộng thẳng tổng chi phí vào giá mua, tức tính phí bán trên giá MUA thay vì trên giá bán.',
       en: 'The break-even price has to carry all four charges: a 75,000 ₫ buying fee, 3,240 ₫ of depository fees over 12 months, then the 0.15% selling fee and the 0.1% sale tax, both charged on the SALE price that is still unknown, so it has to be solved backwards: the 50,078,240 ₫ already committed divided by (1 minus 0.0025) gives 50,203,749 ₫, that is 50,203.75 ₫ per share. A result of 50,000 ₫ ignores costs entirely. 50,078.24 ₫ covers only the buying fee and custody, forgetting the selling charges. 50,228.24 ₫ adds total costs onto the purchase price, charging the selling fee against the BUY price instead of the sale price.',
     },
     giai: {
@@ -1644,7 +1644,7 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Với số liệu dưới đây, hãy đặt giá mua và giá bán vào đủ năm ô trống của công thức lợi nhuận ròng.',
+      vi: 'Với số liệu dưới đây, hãy đặt giá mua và giá bán vào đủ năm vị trí của công thức lợi nhuận ròng.',
       en: 'With the figures below, put the buy and sell prices into all five slots of the net profit formula.',
     },
     facts: [
@@ -1669,7 +1669,7 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
       tolerance: 1,
     },
     explain: {
-      vi: 'Lãi gộp là 1.000 nhân (60.000 trừ 50.000) bằng 10.000.000 ₫. Trừ đủ bốn khoản: phí mua 75.000, phí bán 90.000, thuế bán 60.000, phí lưu ký 12 tháng 3.240 — tổng 228.240 ₫, còn lại 9.771.760 ₫. Kết quả 10.000.000 ₫ là lãi gộp, chưa trừ gì. 9.835.000 ₫ là chỉ trừ hai khoản phí giao dịch, quên thuế bán và phí lưu ký. 9.775.000 ₫ là quên riêng phí lưu ký, khoản nhỏ nhất nên cũng hay rơi nhất.',
+      vi: 'Lãi gộp là 1.000 nhân (60.000 trừ 50.000) bằng 10.000.000 ₫. Trừ đủ bốn khoản: phí mua 75.000, phí bán 90.000, thuế bán 60.000, phí lưu ký 12 tháng 3.240 - tổng 228.240 ₫, còn lại 9.771.760 ₫. Kết quả 10.000.000 ₫ là lãi gộp, chưa trừ gì. 9.835.000 ₫ là chỉ trừ hai khoản phí giao dịch, quên thuế bán và phí lưu ký. 9.775.000 ₫ là quên riêng phí lưu ký, khoản nhỏ nhất nên cũng hay rơi nhất.',
       en: 'Gross profit is 1,000 times (60,000 minus 50,000), that is 10,000,000 ₫. Deduct all four charges: 75,000 buying fee, 90,000 selling fee, 60,000 sale tax and 3,240 of depository fees over 12 months, 228,240 ₫ in total, leaving 9,771,760 ₫. A result of 10,000,000 ₫ is gross profit before anything. 9,835,000 ₫ deducts the two trading fees only, missing the sale tax and custody. 9,775,000 ₫ drops the depository fee alone, the smallest item and therefore the one most often forgotten.',
     },
     giai: {
@@ -1714,7 +1714,7 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Vẫn lệnh mua 1.000 cổ phiếu giá 50.000 ₫, bán ở 60.000 ₫ sau 12 tháng. Hãy đặt đúng hai con số vào ô trống của công thức ROI ròng.',
+      vi: 'Vẫn lệnh mua 1.000 cổ phiếu giá 50.000 ₫, bán ở 60.000 ₫ sau 12 tháng. Hãy đặt đúng hai số vào vị trí của công thức ROI ròng.',
       en: 'Same trade: 1000 shares bought at 50000 ₫ and sold at 60000 ₫ after 12 months. Put the right two numbers into the slots of the net ROI formula.',
     },
     facts: [
@@ -1777,7 +1777,7 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Với số liệu dưới đây, hãy đặt đúng ba con số vào ô trống của công thức ROI.',
+      vi: 'Với số liệu dưới đây, hãy đặt đúng ba số vào vị trí của công thức ROI.',
       en: 'With the figures below, put the right three numbers into the slots of the ROI formula.',
     },
     facts: [
@@ -1827,7 +1827,7 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Với số liệu dưới đây, hãy đặt đúng bốn con số vào ô trống của công thức HPR.',
+      vi: 'Với số liệu dưới đây, hãy đặt đúng bốn số vào vị trí của công thức HPR.',
       en: 'With the figures below, put the right four numbers into the slots of the HPR formula.',
     },
     facts: [
@@ -1886,7 +1886,7 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Với số liệu dưới đây, hãy đặt đúng ba con số vào ô trống của công thức CAGR.',
+      vi: 'Với số liệu dưới đây, hãy đặt đúng ba số vào vị trí của công thức CAGR.',
       en: 'With the figures below, put the right three numbers into the slots of the CAGR formula.',
     },
     facts: [
@@ -1942,7 +1942,7 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Với số liệu dưới đây, hãy đặt đúng hai con số vào ô trống của công thức tỷ suất cổ tức.',
+      vi: 'Với số liệu dưới đây, hãy đặt đúng hai số vào vị trí của công thức tỷ suất cổ tức.',
       en: 'With the figures below, put the right two numbers into the slots of the dividend yield formula.',
     },
     facts: [
@@ -1989,7 +1989,7 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Một chiến lược lãi đều 1% mỗi tháng. Hãy đặt đúng hai con số vào ô trống của công thức năm hoá.',
+      vi: 'Một chiến lược lãi đều 1% mỗi tháng. Hãy đặt đúng hai số vào vị trí của công thức năm hoá.',
       en: 'A strategy returns a steady 1% a month. Put the right two numbers into the slots of the annualization formula.',
     },
     facts: [
@@ -2049,7 +2049,7 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Gửi tiết kiệm lãi 12%/năm trong khi lạm phát 5%/năm. Hãy đặt đúng hai con số vào ô trống của công thức Fisher.',
+      vi: 'Gửi tiết kiệm lãi 12%/năm trong khi lạm phát 5%/năm. Hãy đặt đúng hai số vào vị trí của công thức Fisher.',
       en: 'A deposit pays 12% a year while inflation runs at 5% a year. Put the right two numbers into the slots of the Fisher formula.',
     },
     facts: [
@@ -2096,7 +2096,7 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Một khoản vay ghi lãi suất 12%/năm, ghép lãi theo QUÝ. Hãy đặt đúng ba con số vào ô trống của công thức lãi suất hiệu dụng năm.',
+      vi: 'Một khoản vay ghi lãi suất 12%/năm, ghép lãi theo QUÝ. Hãy đặt đúng ba số vào vị trí của công thức lãi suất hiệu dụng năm.',
       en: 'A loan quotes 12% a year compounded QUARTERLY. Put the right three numbers into the slots of the effective annual rate formula.',
     },
     facts: [
@@ -2143,7 +2143,7 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Với số liệu dưới đây, hãy đặt đúng ba con số vào ô trống của công thức tổng lợi suất có tái đầu tư cổ tức.',
+      vi: 'Với số liệu dưới đây, hãy đặt đúng ba số vào vị trí của công thức tổng lợi suất có tái đầu tư cổ tức.',
       en: 'With the figures below, put the right three numbers into the slots of the total return formula with dividends reinvested.',
     },
     facts: [
@@ -2199,7 +2199,7 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Năm thứ nhất danh mục lãi 50%, năm thứ hai lỗ 50%. Hãy đặt độ lớn của hai lợi suất ấy vào ô trống của công thức trung bình hình học; dấu cộng của năm lãi và dấu trừ của năm lỗ đã viết sẵn.',
+      vi: 'Năm thứ nhất danh mục lãi 50%, năm thứ hai lỗ 50%. Hãy đặt độ lớn của hai lợi suất ấy vào vị trí của công thức trung bình hình học; dấu cộng của năm lãi và dấu trừ của năm lỗ đã viết sẵn.',
       en: 'A portfolio gains 50% in year one and loses 50% in year two. Put the size of each return into the slots of the geometric mean formula; the plus sign of the gain year and the minus sign of the loss year are already written in.',
     },
     facts: [
@@ -2253,7 +2253,7 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Bỏ ra 100 triệu ₫ và nhận đều 30 triệu ₫ mỗi kỳ trong 4 kỳ; máy tính tài chính dò ra IRR bằng 7,7138% mỗi kỳ. IRR không có công thức tính thẳng, nên cách kiểm là chiết khấu các khoản thu theo đúng IRR ấy xem có ra lại số vốn bỏ ra không. Hãy đặt đúng hai con số vào ô trống của công thức niên kim.',
+      vi: 'Bỏ ra 100 triệu ₫ và nhận đều 30 triệu ₫ mỗi kỳ trong 4 kỳ; máy tính tài chính dò ra IRR bằng 7,7138% mỗi kỳ. IRR không có công thức tính thẳng, nên cách kiểm là chiết khấu các khoản thu theo đúng IRR ấy xem có ra lại số vốn bỏ ra không. Hãy đặt đúng hai số vào vị trí của công thức niên kim.',
       en: 'You invest 100 million ₫ and receive 30 million ₫ each period for 4 periods; a financial calculator finds an IRR of 7.7138% a period. The IRR has no closed-form formula, so the check is to discount the payments at that IRR and see whether they add back up to the outlay. Put the right two numbers into the slots of the annuity formula.',
     },
     facts: [
@@ -2284,7 +2284,7 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
       tolerance: 0.01,
     },
     explain: {
-      vi: 'IRR là mức chiết khấu làm cho bốn khoản 30 triệu, mỗi khoản chiết khấu về hiện tại theo kỳ của nó, cộng lại vừa đúng 100 triệu — ở đây là 7,71% mỗi kỳ. Không có công thức đóng, phải dò nghiệm, và đó là lý do con số không tròn. Kết quả 20,00% là tổng lãi 20 triệu chia vốn 100 triệu, bỏ qua hẳn thời điểm nhận tiền. 5,00% là chia tổng lãi ấy cho 4 kỳ rồi cho vốn. 30,00% là lấy khoản nhận chia vốn, tức nhầm dòng tiền hoàn vốn với tiền lãi.',
+      vi: 'IRR là mức chiết khấu làm cho bốn khoản 30 triệu, mỗi khoản chiết khấu về hiện tại theo kỳ của nó, cộng lại vừa đúng 100 triệu - ở đây là 7,71% mỗi kỳ. Không có công thức đóng, phải dò nghiệm, và đó là lý do con số không tròn. Kết quả 20,00% là tổng lãi 20 triệu chia vốn 100 triệu, bỏ qua hẳn thời điểm nhận tiền. 5,00% là chia tổng lãi ấy cho 4 kỳ rồi cho vốn. 30,00% là lấy khoản nhận chia vốn, tức nhầm dòng tiền hoàn vốn với tiền lãi.',
       en: 'IRR is the discount rate that makes the four 30-million payments, each discounted back over its own period, add up to exactly 100 million, which here is 7.71% a period. There is no closed form, it has to be solved numerically, which is why the figure is not round. A result of 20.00% divides the 20 million total gain by the 100 million invested, ignoring when the money arrives. 5.00% spreads that gain over four periods first. 30.00% divides the payment by the outlay, mistaking the return of capital for the return on it.',
     },
     giai: {
@@ -2322,7 +2322,7 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Vốn sinh lời 6%/năm, ghép lãi hằng năm. Hãy đặt lãi suất vào ô trống của công thức thời gian nhân đôi CHÍNH XÁC, chứ không phải quy tắc 72.',
+      vi: 'Vốn sinh lời 6%/năm, ghép lãi hằng năm. Hãy đặt lãi suất vào vị trí của công thức thời gian nhân đôi CHÍNH XÁC, chứ không phải quy tắc 72.',
       en: 'Capital compounds at 6% a year. Put the rate into the slot of the EXACT doubling-time formula, not the rule of 72.',
     },
     facts: [
@@ -2337,7 +2337,7 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
     },
     verify: { inputs: { rate: 6 }, expected: 11.895661, tolerance: 0.05 },
     explain: {
-      vi: 'Nghiệm chính xác là logarit của 2 chia cho logarit của 1,06, ra 11,90 năm. Kết quả 12,0 năm là XẤP XỈ theo quy tắc 72, tức 72 chia 6, và nó sai chưa tới hai tháng nên vẫn rất đáng dùng để nhẩm nhanh — nhưng nó là ước lượng, không phải kết quả của phép tính. Quy tắc 72 sát nhất quanh mức lãi 8% và lệch dần khi lãi suất cao. 16,7 năm là lấy 100 chia 6, một quy tắc không có cơ sở. 6,0 năm là lấy luôn con số lãi suất.',
+      vi: 'Nghiệm chính xác là logarit của 2 chia cho logarit của 1,06, ra 11,90 năm. Kết quả 12,0 năm là XẤP XỈ theo quy tắc 72, tức 72 chia 6, và nó sai chưa tới hai tháng nên vẫn rất đáng dùng để nhẩm nhanh - nhưng nó là ước lượng, không phải kết quả của phép tính. Quy tắc 72 sát nhất quanh mức lãi 8% và lệch dần khi lãi suất cao. 16,7 năm là lấy 100 chia 6, một quy tắc không có cơ sở. 6,0 năm là lấy luôn con số lãi suất.',
       en: 'The exact solution is the logarithm of 2 divided by the logarithm of 1.06, which is 11.90 years. A result of 12.0 is the rule-of-72 APPROXIMATION, 72 over 6, and it is off by less than two months, so it remains an excellent mental shortcut, but it is an estimate rather than the result of the calculation. The rule of 72 is closest around 8% and drifts as rates rise. 16.7 years divides 100 by 6, a rule with no basis. 6.0 years simply repeats the interest rate.',
     },
     giai: {
@@ -2355,7 +2355,7 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Mua ở 50.000 ₫, bán ở 55.000 ₫ sau 73 ngày. Hãy đặt đúng ba con số vào ô trống của công thức quy năm.',
+      vi: 'Mua ở 50.000 ₫, bán ở 55.000 ₫ sau 73 ngày. Hãy đặt đúng ba số vào vị trí của công thức quy năm.',
       en: 'Bought at 50000 ₫ and sold at 55000 ₫ after 73 days. Put the right three numbers into the slots of the annualization formula.',
     },
     facts: [
@@ -2408,7 +2408,7 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Danh mục lãi 18% trong khi chỉ số tham chiếu lãi 12%. Hãy đặt đúng hai con số vào ô trống của công thức lợi suất vượt chuẩn.',
+      vi: 'Danh mục lãi 18% trong khi chỉ số tham chiếu lãi 12%. Hãy đặt đúng hai số vào vị trí của công thức lợi suất vượt chuẩn.',
       en: 'A portfolio returns 18% while the benchmark returns 12%. Put the right two numbers into the slots of the excess return formula.',
     },
     facts: [
@@ -2452,7 +2452,7 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Theo quy tắc 2%, hãy đặt đúng bốn con số vào ô trống của công thức cỡ lệnh.',
+      vi: 'Theo quy tắc 2%, hãy đặt đúng bốn số vào vị trí của công thức cỡ lệnh.',
       en: 'Under the 2% rule, put the right four numbers into the slots of the position size formula.',
     },
     facts: [
@@ -2516,7 +2516,7 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Với số liệu dưới đây, hãy đặt đúng bốn con số vào ô trống của công thức giá lý thuyết hợp đồng tương lai.',
+      vi: 'Với số liệu dưới đây, hãy đặt đúng bốn số vào vị trí của công thức giá lý thuyết hợp đồng tương lai.',
       en: 'With the figures below, put the right four numbers into the slots of the theoretical futures price formula.',
     },
     facts: [
@@ -2580,7 +2580,7 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Hợp đồng tương lai đang ở 1.206 điểm trong khi chỉ số VN30 ở 1.200 điểm. Hãy đặt đúng hai con số vào ô trống của công thức basis.',
+      vi: 'Hợp đồng tương lai đang ở 1.206 điểm trong khi chỉ số VN30 ở 1.200 điểm. Hãy đặt đúng hai số vào vị trí của công thức basis.',
       en: 'The futures trade at 1206 points while the VN30 index is at 1200. Put the right two numbers into the slots of the basis formula.',
     },
     facts: [
@@ -2620,7 +2620,7 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Bạn mở vị thế Short 2 hợp đồng ở 1.250 điểm và đóng ở 1.230 điểm. Hãy đặt đúng ba con số vào ô trống của công thức lãi lỗ vị thế Short; hệ số 100.000 ₫ mỗi điểm đã viết sẵn.',
+      vi: 'Bạn mở vị thế Short 2 hợp đồng ở 1.250 điểm và đóng ở 1.230 điểm. Hãy đặt đúng ba số vào vị trí của công thức lãi lỗ vị thế Short; hệ số 100.000 ₫ mỗi điểm đã viết sẵn.',
       en: 'You open a short of 2 contracts at 1250 points and close at 1230. Put the right three numbers into the slots of the short position P&L formula; the 100000 ₫ per point multiplier is already written in.',
     },
     facts: [
@@ -2674,7 +2674,7 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Với số liệu dưới đây, hãy đặt đúng ba con số vào ô trống của công thức số hợp đồng tối đa; hệ số 100.000 ₫ mỗi điểm đã viết sẵn.',
+      vi: 'Với số liệu dưới đây, hãy đặt đúng ba số vào vị trí của công thức số hợp đồng tối đa; hệ số 100.000 ₫ mỗi điểm đã viết sẵn.',
       en: 'With the figures below, put the right three numbers into the slots of the maximum contracts formula; the 100000 ₫ per point multiplier is already written in.',
     },
     facts: [
@@ -2731,7 +2731,7 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Theo quy tắc 2%, hãy đặt đúng ba con số vào ô trống của công thức cỡ vị thế phái sinh; hệ số 100.000 ₫ mỗi điểm đã viết sẵn.',
+      vi: 'Theo quy tắc 2%, hãy đặt đúng ba số vào vị trí của công thức cỡ vị thế phái sinh; hệ số 100.000 ₫ mỗi điểm đã viết sẵn.',
       en: 'Under the 2% rule, put the right three numbers into the slots of the futures position size formula; the 100000 ₫ per point multiplier is already written in.',
     },
     facts: [
@@ -2791,7 +2791,7 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Với số liệu dưới đây, hãy đặt đúng ba con số vào ô trống của công thức đòn bẩy hiệu dụng; hệ số 100.000 ₫ mỗi điểm đã viết sẵn.',
+      vi: 'Với số liệu dưới đây, hãy đặt đúng ba số vào vị trí của công thức đòn bẩy hiệu dụng; hệ số 100.000 ₫ mỗi điểm đã viết sẵn.',
       en: 'With the figures below, put the right three numbers into the slots of the effective leverage formula; the 100000 ₫ per point multiplier is already written in.',
     },
     facts: [
@@ -2845,7 +2845,7 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Vay 600 triệu ₫, lãi 12%/năm, trả góp niên kim trong 10 năm, tức 120 kỳ tháng đã viết sẵn ở số mũ. Hãy đặt số tiền vay và lãi suất năm vào đủ bốn ô trống.',
+      vi: 'Vay 600 triệu ₫, lãi 12%/năm, trả góp niên kim trong 10 năm, tức 120 kỳ tháng đã viết sẵn ở số mũ. Hãy đặt số tiền vay và lãi suất năm vào đủ bốn vị trí.',
       en: 'A 600 million ₫ loan at 12% a year, repaid as a level annuity over 10 years; the 120 monthly periods are already in the exponent. Put the loan amount and the annual rate into all four slots.',
     },
     facts: [
@@ -2913,7 +2913,7 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Vẫn khoản vay 600 triệu ₫, lãi 12%/năm, 10 năm, nhưng trả theo phương án GỐC ĐỀU. Hãy đặt đúng bốn con số vào ô trống của công thức khoản trả kỳ đầu.',
+      vi: 'Vẫn khoản vay 600 triệu ₫, lãi 12%/năm, 10 năm, nhưng trả theo phương án GỐC ĐỀU. Hãy đặt đúng bốn số vào vị trí của công thức khoản trả kỳ đầu.',
       en: 'Same 600 million ₫ loan at 12% over 10 years, but on the EQUAL-PRINCIPAL method. Put the right four numbers into the slots of the first-payment formula.',
     },
     facts: [
@@ -2987,7 +2987,7 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Vay 600 triệu ₫, lãi 12%/năm, trả góp niên kim 10 năm. Tổng lãi bằng 120 lần khoản trả mỗi tháng trừ đi số tiền vay. Hãy đặt số tiền vay và lãi suất năm vào đủ năm ô trống.',
+      vi: 'Vay 600 triệu ₫, lãi 12%/năm, trả góp niên kim 10 năm. Tổng lãi bằng 120 lần khoản trả mỗi tháng trừ đi số tiền vay. Hãy đặt số tiền vay và lãi suất năm vào đủ năm vị trí.',
       en: 'A 600 million ₫ loan at 12% repaid as a level annuity over 10 years. Total interest is 120 monthly payments minus the amount borrowed. Put the loan amount and the annual rate into all five slots.',
     },
     facts: [
@@ -3058,7 +3058,7 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Gửi 100 triệu ₫, lãi 12%/năm ghép lãi mỗi năm một lần, trong 3 năm. Hãy đặt đúng năm con số vào ô trống của công thức lãi kép.',
+      vi: 'Gửi 100 triệu ₫, lãi 12%/năm ghép lãi mỗi năm một lần, trong 3 năm. Hãy đặt đúng năm số vào vị trí của công thức lãi kép.',
       en: 'Deposit 100 million ₫ at 12% a year compounded once a year for 3 years. Put the right five numbers into the slots of the compound interest formula.',
     },
     facts: [
@@ -3119,7 +3119,7 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Gửi 200 triệu ₫ kỳ hạn 6 tháng, lãi suất niêm yết 6%/năm. Hãy đặt đúng ba con số vào ô trống của công thức tiền lãi.',
+      vi: 'Gửi 200 triệu ₫ kỳ hạn 6 tháng, lãi suất niêm yết 6%/năm. Hãy đặt đúng ba số vào vị trí của công thức tiền lãi.',
       en: 'Deposit 200 million ₫ for 6 months at a quoted 6% a year. Put the right three numbers into the slots of the interest formula.',
     },
     facts: [
@@ -3175,7 +3175,7 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Muốn có 600 triệu ₫ sau 36 tháng, gửi đều hằng tháng với lãi 6%/năm. Hãy đặt đúng các số vào ô trống của công thức tiết kiệm theo mục tiêu.',
+      vi: 'Muốn có 600 triệu ₫ sau 36 tháng, gửi đều hằng tháng với lãi 6%/năm. Hãy đặt đúng các số vào vị trí của công thức tiết kiệm theo mục tiêu.',
       en: 'To reach 600 million ₫ in 36 months by saving monthly at 6% a year, put the right numbers into the slots of the goal-based savings formula.',
     },
     facts: [
@@ -3237,7 +3237,7 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Gửi 200 triệu ₫ kỳ hạn 12 tháng lãi 6%/năm, nhưng rút ở tháng thứ 6. Hãy đặt đúng ba con số vào ô trống của công thức lãi rút trước hạn.',
+      vi: 'Gửi 200 triệu ₫ kỳ hạn 12 tháng lãi 6%/năm, nhưng rút ở tháng thứ 6. Hãy đặt đúng ba số vào vị trí của công thức lãi rút trước hạn.',
       en: 'A 200 million ₫ deposit for 12 months at 6% is withdrawn in month 6. Put the right three numbers into the slots of the early-withdrawal formula.',
     },
     facts: [
@@ -3300,7 +3300,7 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Gửi 200 triệu ₫ trong 12 tháng: quay vòng hai kỳ 6 tháng lãi 5%/năm, so với gửi thẳng 12 tháng lãi 6%/năm. Hãy đặt đúng bốn con số vào ô trống của công thức so sánh; số tiền gửi và hai vòng quay đã viết sẵn.',
+      vi: 'Gửi 200 triệu ₫ trong 12 tháng: quay vòng hai kỳ 6 tháng lãi 5%/năm, so với gửi thẳng 12 tháng lãi 6%/năm. Hãy đặt đúng bốn số vào vị trí của công thức so sánh; số tiền gửi và hai vòng quay đã viết sẵn.',
       en: 'Placing 200 million ₫ for 12 months: two rolling 6-month terms at 5% versus one 12-month term at 6%. Put the right four numbers into the slots of the comparison formula; the deposit and the two rolls are already written in.',
     },
     facts: [
@@ -3371,7 +3371,7 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Mua ba lần, mỗi lần 12 triệu ₫, ở các mức giá 60.000 ₫, 40.000 ₫ và 30.000 ₫. Tiền mua mỗi đợt đã viết sẵn; hãy đặt ba mức giá vào ô trống.',
+      vi: 'Mua ba lần, mỗi lần 12 triệu ₫, ở các mức giá 60.000 ₫, 40.000 ₫ và 30.000 ₫. Tiền mua mỗi đợt đã viết sẵn; hãy đặt ba mức giá vào vị trí.',
       en: 'Three purchases of 12 million ₫ each at 60000 ₫, 40000 ₫ and 30000 ₫. The amount of each purchase is already written in; put the three prices into the slots.',
     },
     facts: [
@@ -3449,7 +3449,7 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Mỗi tháng bỏ vào 10 triệu ₫, lợi suất kỳ vọng 12%/năm, mục tiêu 240 triệu ₫. Hãy đặt đúng bốn con số vào ô trống của công thức số kỳ góp; kết quả phải làm tròn LÊN thành số tháng trọn vẹn.',
+      vi: 'Mỗi tháng bỏ vào 10 triệu ₫, lợi suất kỳ vọng 12%/năm, mục tiêu 240 triệu ₫. Hãy đặt đúng bốn số vào vị trí của công thức số kỳ góp; kết quả phải làm tròn LÊN thành số tháng trọn vẹn.',
       en: 'Contributing 10 million ₫ a month at an expected 12% a year toward a 240 million ₫ target, put the right four numbers into the slots of the number-of-periods formula; the result is rounded UP to whole months.',
     },
     facts: [
@@ -3479,7 +3479,7 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
       tolerance: 0.5,
     },
     explain: {
-      vi: 'Không có lợi suất thì cần đúng 24 tháng (240 chia 10). Có lợi suất 1% mỗi tháng, tiền bỏ vào sớm sinh lời thêm nên về đích sớm hơn: 22 tháng. Kết quả 24 tháng là bỏ qua phần sinh lời — nó cũng là con số ĐÚNG khi lợi suất bằng 0, nên hay bị chọn theo thói quen. 20 tháng là tính lợi suất cho cả 240 triệu ngay từ tháng đầu, trong khi số dư mới tích dần. 27 tháng thì lâu hơn cả phương án không lợi suất, không có cách tính nào dẫn tới đó.',
+      vi: 'Không có lợi suất thì cần đúng 24 tháng (240 chia 10). Có lợi suất 1% mỗi tháng, tiền bỏ vào sớm sinh lời thêm nên về đích sớm hơn: 22 tháng. Kết quả 24 tháng là bỏ qua phần sinh lời - nó cũng là con số ĐÚNG khi lợi suất bằng 0, nên hay bị chọn theo thói quen. 20 tháng là tính lợi suất cho cả 240 triệu ngay từ tháng đầu, trong khi số dư mới tích dần. 27 tháng thì lâu hơn cả phương án không lợi suất, không có cách tính nào dẫn tới đó.',
       en: 'With no return it takes exactly 24 months (240 over 10). At 1% a month the early contributions earn, so the target arrives sooner: 22 months. A result of 24-month ignores the return, and it is also the CORRECT result at zero return, which is why it gets picked out of habit. 20 months applies the return to the full 240 million from month one, when the balance is still building. 27 months is slower than saving with no return at all, which no calculation produces.',
     },
     giai: {
@@ -3514,7 +3514,7 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Trong năm bạn bán 1.000 cổ phiếu ở giá 60.000 ₫ và nhận cổ tức 3.000 ₫/CP. Hãy đặt đúng bốn con số vào ô trống của công thức thuế TNCN; hai thuế suất 0,1% và 5% đã viết sẵn.',
+      vi: 'Trong năm bạn bán 1.000 cổ phiếu ở giá 60.000 ₫ và nhận cổ tức 3.000 ₫/CP. Hãy đặt đúng bốn số vào vị trí của công thức thuế TNCN; hai thuế suất 0,1% và 5% đã viết sẵn.',
       en: 'In one year you sell 1000 shares at 60000 ₫ and receive a 3000 ₫ dividend a share. Put the right four numbers into the slots of the personal income tax formula; the 0.1% and 5% rates are already written in.',
     },
     facts: [
@@ -3575,7 +3575,7 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Với số liệu dưới đây, hãy đặt đúng ba con số vào ô trống của công thức sản lượng hoà vốn.',
+      vi: 'Với số liệu dưới đây, hãy đặt đúng ba số vào vị trí của công thức sản lượng hoà vốn.',
       en: 'With the figures below, put the right three numbers into the slots of the break-even quantity formula.',
     },
     facts: [
@@ -3605,7 +3605,7 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
       tolerance: 0.5,
     },
     explain: {
-      vi: 'Mỗi sản phẩm bán ra đóng góp 50.000 trừ 20.000 bằng 30.000 ₫ vào việc bù chi phí cố định. 600.000.000 chia 30.000 bằng 20.000 sản phẩm. Kết quả 12.000 sản phẩm là chia cho GIÁ BÁN, tức quên trừ biến phí. 30.000 sản phẩm là chia cho biến phí. 8.571 sản phẩm là chia cho tổng 50.000 cộng 20.000. Mô hình này giả định giá bán và biến phí đơn vị không đổi ở mọi mức sản lượng, và chỉ có MỘT sản phẩm — đa sản phẩm là chỗ nó gãy.',
+      vi: 'Mỗi sản phẩm bán ra đóng góp 50.000 trừ 20.000 bằng 30.000 ₫ vào việc bù chi phí cố định. 600.000.000 chia 30.000 bằng 20.000 sản phẩm. Kết quả 12.000 sản phẩm là chia cho GIÁ BÁN, tức quên trừ biến phí. 30.000 sản phẩm là chia cho biến phí. 8.571 sản phẩm là chia cho tổng 50.000 cộng 20.000. Mô hình này giả định giá bán và biến phí đơn vị không đổi ở mọi mức sản lượng, và chỉ có MỘT sản phẩm - đa sản phẩm là chỗ nó gãy.',
       en: 'Each unit sold contributes 50,000 minus 20,000, that is 30,000 ₫ toward covering fixed costs. 600,000,000 over 30,000 is 20,000 units. A result of 12,000 divides by the SELLING price, forgetting to net off variable cost. 30,000 divides by the variable cost. 8,571 divides by 50,000 plus 20,000. The model assumes the selling price and unit variable cost hold at every output level and that there is a SINGLE product, and multiple products is where it breaks.',
     },
     giai: {
@@ -3631,7 +3631,7 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Với số liệu dưới đây, hãy đặt đúng năm con số vào ô trống của công thức đòn bẩy tổng hợp; chi phí cố định đã viết sẵn.',
+      vi: 'Với số liệu dưới đây, hãy đặt đúng năm số vào vị trí của công thức đòn bẩy tổng hợp; chi phí cố định đã viết sẵn.',
       en: 'With the figures below, put the right five numbers into the slots of the degree of total leverage formula; the fixed cost is already written in.',
     },
     facts: [

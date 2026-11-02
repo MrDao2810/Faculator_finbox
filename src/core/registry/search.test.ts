@@ -210,7 +210,7 @@ describe('khớp cụm — "%b" không còn ra 96 kết quả', () => {
   const PHAN_TRAM_B = make({
     id: 'phan-tram-b-bollinger',
     categoryId: 'technical',
-    name: { vi: '%B — vị trí giá trong dải Bollinger', en: '%B — position in the Bollinger Bands' },
+    name: { vi: '%B - vị trí giá trong dải Bollinger', en: '%B - position in the Bollinger Bands' },
     description: {
       vi: 'Giá đóng cửa đang nằm ở đâu giữa hai dải: 0% là dải dưới, 100% là dải trên.',
       en: 'Where the close sits between the two bands: 0% is the lower band, 100% the upper.',
@@ -220,14 +220,14 @@ describe('khớp cụm — "%b" không còn ra 96 kết quả', () => {
   const PB = make({
     id: 'pb',
     categoryId: 'valuation',
-    name: { vi: 'P/B — hệ số giá trên giá trị sổ sách', en: 'P/B — price to book' },
+    name: { vi: 'P/B - hệ số giá trên giá trị sổ sách', en: 'P/B - price to book' },
     description: { vi: 'Thị giá đang gấp bao nhiêu lần giá trị sổ sách của một cổ phiếu.', en: '' },
     tags: ['pb', 'p b'],
   });
   const BETA = make({
     id: 'beta',
     categoryId: 'risk',
-    name: { vi: 'Beta — hệ số rủi ro hệ thống', en: 'Beta — systematic risk' },
+    name: { vi: 'Beta - hệ số rủi ro hệ thống', en: 'Beta - systematic risk' },
     description: {
       vi: 'Mức một cổ phiếu biến động mạnh hay yếu hơn thị trường, 100% bám theo chỉ số khi bằng 1.',
       en: 'How strongly a stock moves against the market.',
@@ -246,13 +246,13 @@ describe('khớp cụm — "%b" không còn ra 96 kết quả', () => {
   const CAGR = make({
     id: 'cagr',
     categoryId: 'returns',
-    name: { vi: 'CAGR — tăng trưởng kép hằng năm', en: 'CAGR — compound annual growth rate' },
+    name: { vi: 'CAGR - tăng trưởng kép hằng năm', en: 'CAGR - compound annual growth rate' },
     tags: ['cagr', 'binh quan nam'],
   });
   const PEG = make({
     id: 'peg',
     categoryId: 'valuation',
-    name: { vi: 'PEG — P/E trên tăng trưởng', en: 'PEG — P/E to growth' },
+    name: { vi: 'PEG - P/E trên tăng trưởng', en: 'PEG - P/E to growth' },
   });
   const BO = [PE, PB, PHAN_TRAM_B, BETA, MUC_TIEU, CAGR, PEG];
   const ids = (q: string, lang: 'vi' | 'en' = 'vi') => searchFormulas(BO, q, lang).map((f) => f.id);

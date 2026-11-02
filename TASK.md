@@ -4,6 +4,93 @@ Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 
 ---
 
+## Chữ trên màn: gạch dài "—" đổi thành gạch nối "-" trong toàn dự án (02/11/2026)
+
+**Trạng thái: CHƯA XONG — đã sửa, chờ chủ dự án xem.** Chủ dự án: _"đoạn ký hiệu này "— " đang quá dài. rà xoát lại
+trong toàn bộ dự án và đổi lại ngắn hơn thành "-"_.
+
+- **Phạm vi = chữ người dùng đọc được.** Một công cụ dùng bộ phân tích TypeScript đổi 1.333 dấu trong chuỗi, template và
+  chữ JSX của 58 file `src/` (tên 111 công thức "P/E - hệ số…", nhãn ô "EPS - lợi nhuận…", tên biểu đồ, ngân hàng câu
+  hỏi, hai từ điển, mô tả, ghi chú ví dụ, thông báo lỗi). `summaries.generated.ts` sinh lại bằng `npm run gen:summaries`;
+  mô tả trong `public/manifest.webmanifest` sửa tay. Không đụng: chú thích code, tài liệu (`*.md`, `docs/`), tên ca test,
+  chữ log của `scripts/`, gạch ngắn "–".
+- **Ngoại lệ có chủ đích.** (1) 14 dấu nằm trong câu trích nguyên văn tiếng Anh của nguồn (5 câu hỏi: Damodaran về ROA,
+  Vanguard về DCA, gambler's fallacy, khối lượng đột biến, Graham) giữ nguyên, theo luật câu trích giữ đúng như nguồn.
+  (2) Căn cứ pháp lý trong `schedules.ts` dùng ":" thay vì "-" ("Điều 13 khoản 2: 0,1% giá bán từng lần"), vì vế sau
+  là con số và "khoản 2 - 0,1%" đọc thành hai trừ 0,1%. (3) Đáp án Q về P/E âm "Hiện “— , —”" đổi thành "Hiện “\_ \_”",
+  đúng thứ màn in. (4) Tên ca `UT-CI-01: …` dùng ":".
+- **Logic cắt tên tại dấu ngăn** (6 chỗ: `build.ts`, `breakdown.ts`, `warnings.ts`, `notation-view.ts`,
+  `o-ky-hieu.ts`, `PresetSheet.tsx`) nay cắt tại " - "; ba regex nhận cả gạch dài cũ.
+- **Dữ liệu cũ trên máy khách**: `key()` của `saved-calc-name.ts` và `khoaMuc()` mới của `recent-searches.ts` coi "—"
+  là "-", `displayCalcName()` không trả sớm khi tên lưu còn "—". Phép tính lưu trước hôm nay vẫn được nhận là tên gợi ý
+  và in tên mới; lịch sử tìm cũ tra ra công thức, không thành chip đôi. 7 ca test mới.
+- **Cửa gác mới** `chữ trên màn không dùng gạch dài "—"` (`i18n.test.ts`): đọc bằng bộ phân tích TypeScript mọi chuỗi,
+  template, chữ JSX của `src/{core,application,ui,app,data}`, bỏ qua chú thích, regex và câu trích trong ngân hàng câu
+  hỏi. Test phía cũ: chữ màn hình bị ghim đổi theo; hai regex cắt tên trong test sửa (`series-view.test.ts` vốn viết
+  thiếu dấu gạch chéo ngược từ trước, chưa từng cắt được gì).
+- **Kiểm**: typecheck, eslint, prettier sạch; vitest 5.133 đạt, 1 đỏ là ca quá thời gian quen thuộc của màn Danh mục
+  (5,17 s, chạy riêng file đạt 188/188). Build trên bản sao: `verify:static` 56/56; đầu ra không còn "—" nào trong chữ
+  của 231 trang HTML lẫn thuộc tính; trong dữ liệu RSC chỉ còn 14 dấu của câu trích. `npm run size` đỏ như trước đợt
+  này (112 trang vượt cửa 180 kB; đợt này chỉ làm nhẹ đi vì "—" 3 byte, "-" 1 byte).
+
+---
+
+## CAPM: mô tả ô "Hệ số beta (β)" bỏ "Ô này không tự điền" (02/11/2026)
+
+**Trạng thái: CHƯA XONG — đã sửa, chờ chủ dự án xem.** Chủ dự án khoanh đuôi mô tả ô beta ở Bảng biến của `capm` và đổi
+" hoặc lấy từ nguồn dữ liệu bên ngoài. Ô này không tự điền." thành " hoặc sử dụng từ dữ liệu bên ngoài."
+
+- `src/core/formulas/valuation-dcf.ts`: `description` của ô `beta`. Bản vi đúng câu chủ dự án viết; bản en đổi theo
+  ("…, or taken from external data.", bỏ "This field is not filled automatically."). Câu này in ở cột Mô tả của Bảng
+  biến và trong bảng biến của file xuất (`export-content.ts` đọc `description.vi`).
+- "Ô này không tự điền" do đợt rà REVIEW-4 thêm vào (N7, mục L01-01) để nói ô không tự nhận số từ công thức Beta; nay
+  bỏ theo yêu cầu. Không đụng: ô beta của `ty-so-treynor` (`risk-ratios.ts`, câu khác) và hướng dẫn "Lấy số liệu ở đâu"
+  của `capm` (vốn không có câu này).
+- Kiểm: prettier, eslint sạch; vitest `src/core/formulas` + `src/application` 1000/1000 đạt.
+
+## Bài tập: lời dặn điền viết gọn "số … vào ô", bỏ "con số … ô trống" (02/11/2026)
+
+**Trạng thái: CHƯA XONG — đã sửa, chờ chủ dự án xem.** Chủ dự án sửa câu dặn của Q276 (`ty-so-thong-tin`) từ "Điền hai
+con số ấy vào đúng ô trống của công thức dưới đây." thành "Điền hai số ấy vào đúng ô của công thức dưới đây.", rồi:
+_"tương tự với những loại câu bị giống"_.
+
+- `src/core/quiz/items/{risk,technical,thuc-hanh,tinh-toan,valuation-multiples}.ts`: 149 dòng `prompt.vi`. Chỉ đổi ở
+  VẾ DẶN ĐIỀN (bắt đầu bằng "Điền / đặt / nhập", có "vào"): "con số" → "số", "ô trống" → "ô". Ví dụ "hãy đặt đúng ba
+  con số vào ô trống của công thức CAPM" → "hãy đặt đúng ba số vào ô của công thức CAPM"; "Điền số liệu vào đúng ô
+  trống." → "Điền số liệu vào đúng ô.".
+- Cố ý giữ: các câu kể tình huống dùng "con số" theo nghĩa thường ("hai con số không thuộc công thức này", "con số
+  này đã điền sẵn ở cả hai mẫu số", "Bảng số liệu có đủ cả hai con số"), hai câu tả hình ("công thức PEG có ba ô
+  trống", "nhiều dòng hơn số ô trống trong công thức"), mọi lời giải (`explain`, `giai`) và toàn bộ bản tiếng Anh.
+- Kiểm: test `src/core/quiz`, `src/ui/quiz`, `src/application` 735/735 đạt; prettier sạch.
+
+**Vòng 2, cùng ngày: "ô" → "vị trí".** Chủ dự án viết lại câu E/P thành "Điền số liệu đúng vào công thức tỷ suất lợi nhuận
+trên giá (E/P)." rồi: _"sửa tương tự với các công thức tương tự. nhưng thay vì sử dụng ngữ cảnh 'vào ô' thì thành 'vào
+vị trí'"_.
+
+- 147 dòng `prompt.vi`, cùng quy tắc vế dặn điền như trên: "vào ô" / "vào đúng ô" / "vào các ô" / "vào đủ năm ô" →
+  "vào vị trí" / "vào đúng vị trí" / "vào các vị trí" / "vào đủ năm vị trí". Ví dụ "hãy đặt đúng ba số vào vị trí của
+  công thức CAPM", "Điền hai số ấy vào đúng vị trí của công thức dưới đây." (Q276, câu chủ dự án sửa ở vòng 1).
+- 7 câu trong đề nhắc tới chỗ trống của công thức cũng đổi, để một đề không gọi một thứ bằng hai tên: "vị trí đầu là
+  i = 0 … mỗi vị trí sau" (SMA), "bốn vị trí cho bốn năm … một vị trí cho giá trị cuối kỳ" (DDM), "đi vào vị trí đầu
+  tiên" (FCFF), "Hai vị trí g và r" (Gordon), "vị trí lãi suất của nhánh ấy" (WACC), "PEG có ba vị trí cần điền",
+  "nhiều dòng hơn số vị trí cần điền" (EV).
+- Giữ "ô" ở bốn đề nhắc ô nhập THẬT trên màn ("ô Lãi suất kỳ vọng", "ô Số phiên", ô "Chu kỳ stochastic"), ở lời giải
+  (`explain`, `giai`: "đặt vào ô đầu", "ô lãi vay nhận…"), ở bản tiếng Anh, và ở nhãn đọc màn hình `quiz` "Ô trống
+  thứ {n}" trong `vi.ts`.
+- Kiểm: 735/735 đạt; prettier sạch.
+
+**Vòng 3, cùng ngày: "vì sao" → "tại sao" trong câu hỏi.** Chủ dự án đổi đề Q về VWAP ("…Theo cảnh báo của nguồn, vì
+sao cách làm này rủi ro?" → "tại sao") và bảo áp cho "những câu như này". 23 chỗ trong `prompt.vi` của 7 file
+(`derivatives`, `fundamentals`, `returns`, `risk`, `technical`, `valuation-dcf`, `valuation-multiples`), giữ chữ hoa đầu
+câu ("Vì sao?" → "Tại sao?"). Không đụng 7 chỗ "vì sao" ở lời giải và chú thích code. Kiểm: test `src/core/quiz` +
+`src/ui/quiz` 171/171; prettier sạch.
+
+Tiếp theo, chủ dự án duyệt đổi luôn tiêu đề hộp giải thích: `quiz.whyWrong` "Vì sao chưa đúng" → "Tại sao chưa đúng" và
+khóa anh em `quiz.whyRight` "Vì sao đúng" → "Tại sao đúng" (`vi.ts`; tiếng Anh giữ "Why this is wrong"). Tên một ca
+trong `quiz-desktop-css.test.ts` và hai chỗ nhắc trong `CLAUDE.md` đổi theo.
+
+---
+
 ## Bài tập: bỏ dòng "Câu này có nhiều đáp án đúng — chọn đủ cả." (02/11/2026)
 
 **Trạng thái: CHƯA XONG — đã sửa, chờ chủ dự án xem.** Chủ dự án khoanh dòng ấy dưới đề Q338 (`ncav-tren-co-phieu`),
@@ -14,9 +101,15 @@ Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 - `src/ui/quiz/QuizBody.test.tsx`: ca "nói trước là có nhiều đáp án" đảo thành "không in dòng có nhiều đáp án đúng".
 - Kiểm: eslint, tsc, `vitest run src/ui/quiz src/application/i18n` 131/131.
 
-Còn lại, chờ chủ dự án quyết: 10 trong 18 câu chọn nhiều KHÔNG tự ghi "(chọn tất cả đáp án đúng)" trong đề (Q324,
-Q259, Q273, Q275, Q267, Q263, Q294, Q299, Q239, Q312) — với chúng, ô vuông là tín hiệu duy nhất. Nếu muốn, thêm lời ấy
-vào cuối đề (vi + en), giống 8 câu kia.
+Đợt 2, chủ dự án duyệt ("ok làm tiếp"): 10 trong 18 câu chọn nhiều không tự ghi lời nhắc trong đề (Q324, Q259,
+Q273, Q275, Q267, Q263, Q294, Q299, Q239, Q312), nên với chúng ô vuông là tín hiệu duy nhất. Đã gắn " (chọn tất cả đáp
+án đúng)" / " (select all that apply)" vào cuối đề cả hai thứ tiếng, ngoài ra không đổi chữ nào.
+
+- `src/core/quiz/items/risk.ts` (5 câu), `technical.ts` (4), `valuation-multiples.ts` (1).
+- `src/core/quiz/quiz.test.ts`: ca mới "câu chọn nhiều tự ghi lời nhắc chọn đủ đáp án ngay trong đề". Bản vi phải
+  khớp `/chọn (tất cả|đủ)/i`, vì 8 câu cũ ghi ba kiểu: "chọn tất cả đáp án đúng", "chọn đủ các đáp án đúng", "Chọn
+  đủ.". Bản en (nếu có) phải khớp `/select all that apply/i`. Câu chọn nhiều viết sau mà quên lời nhắc là ca này đỏ.
+- Kiểm: prettier, eslint, tsc; test `src/core/quiz`, `src/ui/quiz`, `prose-audit`, `src/application/i18n` 213/213.
 
 ---
 

@@ -467,7 +467,7 @@ describe('những chỗ TÀI LIỆU TỰ NHẬN còn mở', () => {
       )
       .map(({ id, key }) => `${id}.${key}`);
 
-    expect(thieu, 'ô thiếu mô tả (bảng biến sẽ in "—")').toEqual([]);
+    expect(thieu, 'ô thiếu mô tả (bảng biến sẽ in "-")').toEqual([]);
     // Canary: phép quét thật sự gặp ô, và gặp cả ô khuôn.
     expect(MOI_O_REGISTRY.length).toBeGreaterThan(200);
     expect(oKhuon.length).toBeGreaterThan(0);

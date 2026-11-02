@@ -47,7 +47,7 @@ describe('phần chấm điểm của Bài tập từ 1024px', () => {
     expect(than).not.toMatch(/font-size/);
   });
 
-  it('hộp "Vì sao chưa đúng" đệm 8 / 12px', () => {
+  it('hộp "Tại sao chưa đúng" đệm 8 / 12px', () => {
     const hop = /(?:^|[{}])\s*\.explain\s*\{([^}]*)\}/m.exec(PC)?.[1] ?? '';
     expect(hop).toMatch(/padding:\s*var\(--space-2\) var\(--space-3\);/);
   });

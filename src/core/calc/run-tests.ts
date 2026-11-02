@@ -48,7 +48,7 @@ export function runAllSpecTests(
 
 /** Gộp danh sách ca hỏng thành một khối chữ đọc được trong log CI. */
 export function formatFailures(failures: ReadonlyArray<SpecTestFailure>): string {
-  return failures.map((f) => `${f.formulaId} · ${f.testName} — ${f.reason}`).join('\n');
+  return failures.map((f) => `${f.formulaId} · ${f.testName} - ${f.reason}`).join('\n');
 }
 
 function checkCase(
@@ -90,7 +90,7 @@ function checkCase(
 
   if (out.value === null) {
     const why = out.warning?.message ?? 'không rõ lý do';
-    return `mong đợi ${testCase.expected} nhưng không tính được — ${why}`;
+    return `mong đợi ${testCase.expected} nhưng không tính được - ${why}`;
   }
 
   const tolerance = testCase.tolerance ?? DEFAULT_TOLERANCE;

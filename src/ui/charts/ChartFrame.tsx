@@ -107,7 +107,7 @@ export function ChartFrame({ model, idBase, picker, action, children }: ChartFra
             hình hay ở bảng.
           */}
           <caption>
-            {t('chart.tableCaption')} — {pick(model.title)}
+            {t('chart.tableCaption')} - {pick(model.title)}
           </caption>
           {/*
             Cột dựng theo MẢNG chứ không viết cứng hai cột: từ đợt nhiều-chuỗi, mỗi chuỗi phụ

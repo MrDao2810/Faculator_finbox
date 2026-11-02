@@ -600,6 +600,22 @@ describe('ngân hàng câu hỏi kiểm tra hiểu bài', () => {
     expect(lienNhau / haiDapAn, `${lienNhau}/${haiDapAn} cặp liền nhau`).toBeLessThanOrEqual(0.6);
   });
 
+  /*
+   * Màn bài tập không in dòng chung "Câu này có nhiều đáp án đúng — chọn đủ cả." nữa (02/11/2026,
+   * chủ dự án: "đang thừa và chiếm không gian"; mộ chí `quiz.pickAll` ở `vi.ts`). Lời nhắc chọn
+   * nhiều đáp án nay nằm trong chính đề bài, cả hai thứ tiếng: thiếu nó thì ô vuông là dấu hiệu
+   * duy nhất, và người làm dễ chọn một đáp án rồi bị chấm sai cả câu.
+   */
+  it('câu chọn nhiều tự ghi lời nhắc chọn đủ đáp án ngay trong đề', () => {
+    for (const item of QUIZ_ITEMS) {
+      if (item.format !== 'chon-nhieu') continue;
+      expect(item.prompt.vi, item.id).toMatch(/chọn (tất cả|đủ)/i);
+      if (item.prompt.en !== undefined) {
+        expect(item.prompt.en, item.id).toMatch(/select all that apply/i);
+      }
+    }
+  });
+
   it('lời giải gọi phương án bằng chữ cái thì chữ ấy trỏ đúng phương án', () => {
     for (const item of QUIZ_ITEMS) {
       if (!hasChoices(item)) continue;

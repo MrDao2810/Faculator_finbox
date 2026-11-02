@@ -180,3 +180,61 @@ describe('displayCalcName', () => {
     expect(displayCalcName({ ...CHUNG, stored: '' })).toBe('');
   });
 });
+
+/*
+ * Từ 02/11/2026 tên công thức viết "P/E - hệ số…" thay vì "P/E — hệ số…". Kho trên máy người dùng
+ * vẫn giữ tên gợi ý ghép bằng tên CŨ; không nhận ra chúng thì màn Danh mục coi chúng là tên tự gõ:
+ * in nguyên gạch dài và tách tên công thức xuống dòng phụ.
+ */
+describe('tên lưu trước ngày đổi gạch dài thành gạch nối', () => {
+  const TEN_MOI_VI = 'P/E - hệ số giá trên lợi nhuận';
+  const TEN_MOI_EN = 'P/E - price to earnings ratio';
+  const CU = 'HPG · P/E — hệ số giá trên lợi nhuận';
+
+  it('đang ở tiếng Việt: gợi ý cũ được dựng lại bằng tên mới', () => {
+    expect(
+      displayCalcName({
+        stored: CU,
+        viName: TEN_MOI_VI,
+        localName: TEN_MOI_VI,
+        code: 'HPG',
+        savedAt: SAVED_AT,
+      }),
+    ).toBe('HPG · P/E - hệ số giá trên lợi nhuận');
+  });
+
+  it('đang ở tiếng Anh: gợi ý cũ vẫn được nhận ra và dịch', () => {
+    expect(
+      displayCalcName({
+        stored: `${CU} (2)`,
+        viName: TEN_MOI_VI,
+        localName: TEN_MOI_EN,
+        code: 'HPG',
+        savedAt: SAVED_AT,
+      }),
+    ).toBe('HPG · P/E - price to earnings ratio (2)');
+  });
+
+  it('tên tự gõ có gạch dài vẫn giữ nguyên từng chữ', () => {
+    const tuGo = 'HPG — mua thêm nếu về 25.000';
+    expect(
+      displayCalcName({
+        stored: tuGo,
+        viName: TEN_MOI_VI,
+        localName: TEN_MOI_VI,
+        code: 'HPG',
+        savedAt: SAVED_AT,
+      }),
+    ).toBe(tuGo);
+  });
+
+  it('gợi ý mới né một tên cũ trùng nghĩa, như né một tên trùng chữ', () => {
+    const names = suggestCalcNames({
+      formulaName: TEN_MOI_VI,
+      code: 'HPG',
+      savedAt: SAVED_AT,
+      existing: [CU],
+    });
+    expect(names[0]).toBe('HPG · P/E - hệ số giá trên lợi nhuận (2)');
+  });
+});

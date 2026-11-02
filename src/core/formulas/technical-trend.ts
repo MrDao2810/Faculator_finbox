@@ -36,22 +36,22 @@ import { labelWithSymbol, sliderVar } from './shared';
 
 const SOURCE_MURPHY: FormulaSource = {
   label: {
-    vi: 'John J. Murphy — Technical Analysis of the Financial Markets (New York Institute of Finance, 1999), chương về Moving Averages',
-    en: 'John J. Murphy — Technical Analysis of the Financial Markets (New York Institute of Finance, 1999), Moving Averages chapter',
+    vi: 'John J. Murphy - Technical Analysis of the Financial Markets (New York Institute of Finance, 1999), chương về Moving Averages',
+    en: 'John J. Murphy - Technical Analysis of the Financial Markets (New York Institute of Finance, 1999), Moving Averages chapter',
   },
 };
 
 const SOURCE_MURPHY_OSC: FormulaSource = {
   label: {
-    vi: 'John J. Murphy — Technical Analysis of the Financial Markets (New York Institute of Finance, 1999), chương về Oscillators and Contrary Opinion',
-    en: 'John J. Murphy — Technical Analysis of the Financial Markets (New York Institute of Finance, 1999), Oscillators and Contrary Opinion chapter',
+    vi: 'John J. Murphy - Technical Analysis of the Financial Markets (New York Institute of Finance, 1999), chương về Oscillators and Contrary Opinion',
+    en: 'John J. Murphy - Technical Analysis of the Financial Markets (New York Institute of Finance, 1999), Oscillators and Contrary Opinion chapter',
   },
 };
 
 const SOURCE_WILDER: FormulaSource = {
   label: {
-    vi: 'J. Welles Wilder — New Concepts in Technical Trading Systems (Trend Research, 1978), phần Relative Strength Index',
-    en: 'J. Welles Wilder — New Concepts in Technical Trading Systems (Trend Research, 1978), Relative Strength Index section',
+    vi: 'J. Welles Wilder - New Concepts in Technical Trading Systems (Trend Research, 1978), phần Relative Strength Index',
+    en: 'J. Welles Wilder - New Concepts in Technical Trading Systems (Trend Research, 1978), Relative Strength Index section',
   },
 };
 
@@ -264,8 +264,8 @@ export const SMA_N_PHIEN: FormulaModule = {
     categoryId: 'technical',
     name: { vi: 'Trung bình động đơn giản (SMA)', en: 'Simple moving average (SMA)' },
     description: {
-      vi: 'Giá đóng cửa bình quân của n phiên gần nhất — đường xu hướng cơ bản nhất.',
-      en: 'The average closing price over the most recent n periods — the most basic trend line.',
+      vi: 'Giá đóng cửa bình quân của n phiên gần nhất - đường xu hướng cơ bản nhất.',
+      en: 'The average closing price over the most recent n periods - the most basic trend line.',
     },
     latex: 'SMA_{n} = \\frac{1}{n}\\sum_{i=0}^{n-1} P_{t-i}',
     expression: {
@@ -348,8 +348,8 @@ export const SMA_N_PHIEN: FormulaModule = {
         en: "Compared with the stock's latest closing price: a close above this figure means the price sits above its average level of the last n sessions, as is common when prices are rising, and a close below it means it sits under that level, as is common when prices are falling.",
       },
       commonMistakes: {
-        vi: 'Dùng chu kỳ dài cho giao dịch ngắn hạn rồi trách đường báo trễ. SMA luôn nhìn về quá khứ — nó xác nhận xu hướng chứ không dự báo.',
-        en: 'Using a long period for short-term trading and then blaming the line for lagging. SMA always looks backward — it confirms a trend rather than predicting one.',
+        vi: 'Dùng chu kỳ dài cho giao dịch ngắn hạn rồi trách đường báo trễ. SMA luôn nhìn về quá khứ - nó xác nhận xu hướng chứ không dự báo.',
+        en: 'Using a long period for short-term trading and then blaming the line for lagging. SMA always looks backward - it confirms a trend rather than predicting one.',
       },
     },
     example: {
@@ -502,7 +502,7 @@ export const EMA_N_PHIEN: FormulaModule = {
       },
       commonMistakes: {
         vi: 'Đọc EMA tính trên chuỗi quá ngắn: khi chuỗi vừa đúng bằng chu kỳ, EMA rơi về đúng SMA vì mới chỉ có phần mồi, chưa có phiên nào được làm mượt.',
-        en: 'Reading an EMA computed on a series that is too short: when the series length exactly equals the period, the EMA falls back to the SMA because it only has the seed value — no period has been smoothed yet.',
+        en: 'Reading an EMA computed on a series that is too short: when the series length exactly equals the period, the EMA falls back to the SMA because it only has the seed value - no period has been smoothed yet.',
       },
     },
     example: {
@@ -593,8 +593,8 @@ export const MACD_DUONG_CHINH: FormulaModule = {
     categoryId: 'technical',
     name: { vi: 'Đường MACD', en: 'MACD line' },
     description: {
-      vi: 'Hiệu giữa EMA nhanh và EMA chậm — đo xem xu hướng ngắn hạn đang kéo giá đi đâu.',
-      en: 'The difference between the fast EMA and the slow EMA — measures where the short-term trend is pulling price.',
+      vi: 'Hiệu giữa EMA nhanh và EMA chậm - đo xem xu hướng ngắn hạn đang kéo giá đi đâu.',
+      en: 'The difference between the fast EMA and the slow EMA - measures where the short-term trend is pulling price.',
     },
     // Chỉ số viết theo TÊN chu kỳ, không viết cứng 12/26: hai chu kỳ là thanh trượt (2–100 và
     // 3–200), đặt khác đi là công thức in trên màn nói một đằng còn kết quả tính một nẻo. Cùng
@@ -667,8 +667,8 @@ export const MACD_DUONG_CHINH: FormulaModule = {
       }),
       sliderVar('slowPeriod', NHAN_CHU_KY_EMA_CHAM, 'phiên', 26, 3, 200, 1, {
         description: {
-          vi: 'Đường nền, phải dài hơn chu kỳ nhanh. Chuỗi giá cần ít nhất đúng bằng số phiên này — 26 phiên với bộ mặc định.',
-          en: 'The baseline, must be longer than the fast period. The price series needs at least this many periods — 26 periods with the default set.',
+          vi: 'Đường nền, phải dài hơn chu kỳ nhanh. Chuỗi giá cần ít nhất đúng bằng số phiên này - 26 phiên với bộ mặc định.',
+          en: 'The baseline, must be longer than the fast period. The price series needs at least this many periods - 26 periods with the default set.',
         },
       }),
     ],
@@ -686,8 +686,8 @@ export const MACD_DUONG_CHINH: FormulaModule = {
         en: "Compared with the 0 mark: positive means the recent price level is above the stock's own longer-run level, so the price is being pulled up, and negative means it is below that level, so the price is being pulled down.",
       },
       commonMistakes: {
-        vi: 'So MACD của cổ phiếu 25.000 ₫ với cổ phiếu 200.000 ₫ rồi kết luận mã nào mạnh hơn — đơn vị là đồng nên độ lớn phụ thuộc thị giá.',
-        en: 'Comparing the MACD of a 25,000 VND stock with a 200,000 VND stock and concluding which one is stronger — since the unit is VND, its magnitude depends on the share price.',
+        vi: 'So MACD của cổ phiếu 25.000 ₫ với cổ phiếu 200.000 ₫ rồi kết luận mã nào mạnh hơn - đơn vị là đồng nên độ lớn phụ thuộc thị giá.',
+        en: 'Comparing the MACD of a 25,000 VND stock with a 200,000 VND stock and concluding which one is stronger - since the unit is VND, its magnitude depends on the share price.',
       },
     },
     example: {
@@ -767,8 +767,8 @@ export const MACD_DUONG_TIN_HIEU: FormulaModule = {
     categoryId: 'technical',
     name: { vi: 'Đường tín hiệu MACD', en: 'MACD signal line' },
     description: {
-      vi: 'EMA 9 phiên của chính đường MACD — mốc so sánh để bắt điểm cắt mua bán.',
-      en: 'A 9-period EMA of the MACD line itself — the reference used to catch buy/sell crossover points.',
+      vi: 'EMA 9 phiên của chính đường MACD - mốc so sánh để bắt điểm cắt mua bán.',
+      en: 'A 9-period EMA of the MACD line itself - the reference used to catch buy/sell crossover points.',
     },
     // Cùng lẽ với latex của `macd-duong-chinh`: chu kỳ tín hiệu là thanh trượt 2–100 nên không
     // viết cứng 9.
@@ -855,8 +855,8 @@ export const MACD_DUONG_TIN_HIEU: FormulaModule = {
         en: 'Compared with the MACD line on the same session: MACD above this figure means momentum is tilting up, MACD below it means momentum is tilting down, and two nearly equal numbers mean it has not yet leaned either way.',
       },
       commonMistakes: {
-        vi: 'Ngạc nhiên khi đường tín hiệu còn dương trong lúc MACD đã âm — đó đúng là bản chất của một đường trung bình chạy sau, không phải lỗi tính toán.',
-        en: 'Being surprised that the signal line is still positive while MACD has already turned negative — that is exactly the nature of a lagging average, not a calculation error.',
+        vi: 'Ngạc nhiên khi đường tín hiệu còn dương trong lúc MACD đã âm - đó đúng là bản chất của một đường trung bình chạy sau, không phải lỗi tính toán.',
+        en: 'Being surprised that the signal line is still positive while MACD has already turned negative - that is exactly the nature of a lagging average, not a calculation error.',
       },
     },
     example: {
@@ -1032,15 +1032,15 @@ export const RSI_WILDER: FormulaModule = {
     variables: [
       sliderVar('period', labelWithSymbol(NHAN_SO_PHIEN, 'n'), 'phiên', 14, 2, 100, 1, {
         description: {
-          vi: 'Wilder dùng 14 phiên. Chuỗi giá phải có ít nhất số phiên này cộng thêm 1 để đủ lợi suất — 15 giá cho RSI 14. Cách làm mượt của Wilder còn kéo theo cả phần chuỗi phía trước, nên nạp chuỗi dài ngắn khác nhau thì con số cũng lệch nhau vài điểm.',
-          en: "Wilder used 14 periods. The price series must have at least this many periods plus 1 to have enough returns — 15 prices for a 14-period RSI. Wilder's smoothing also carries the earlier part of the series with it, so a longer or shorter series shifts the figure by a few points.",
+          vi: 'Wilder dùng 14 phiên. Chuỗi giá phải có ít nhất số phiên này cộng thêm 1 để đủ lợi suất - 15 giá cho RSI 14. Cách làm mượt của Wilder còn kéo theo cả phần chuỗi phía trước, nên nạp chuỗi dài ngắn khác nhau thì con số cũng lệch nhau vài điểm.',
+          en: "Wilder used 14 periods. The price series must have at least this many periods plus 1 to have enough returns - 15 prices for a 14-period RSI. Wilder's smoothing also carries the earlier part of the series with it, so a longer or shorter series shifts the figure by a few points.",
         },
       }),
     ],
     explanation: {
       meaning: {
-        vi: 'Phần tăng chiếm bao nhiêu so với tổng biến động của giá, làm mượt theo Wilder nên các phiên gần nhất nặng ký hơn — quy về thang 0 tới 100.',
-        en: 'How much of the total price movement was upward, Wilder-smoothed so the latest sessions weigh most — rescaled to a 0-to-100 range.',
+        vi: 'Phần tăng chiếm bao nhiêu so với tổng biến động của giá, làm mượt theo Wilder nên các phiên gần nhất nặng ký hơn - quy về thang 0 tới 100.',
+        en: 'How much of the total price movement was upward, Wilder-smoothed so the latest sessions weigh most - rescaled to a 0-to-100 range.',
       },
       whenToUse: {
         vi: 'Dùng khi bạn thấy giá vừa tăng hoặc giảm liền nhiều phiên và muốn biết nhịp đó đã đi quá đà chưa, trước khi quyết định mua đuổi hay bán tháo.',
@@ -1237,8 +1237,8 @@ export const ROC_TOC_DO_THAY_DOI: FormulaModule = {
         en: 'Compared with the VN-Index change over exactly the same number of sessions: higher means the stock has moved more strongly than the market as a whole, lower means more weakly. A negative figure means the price is below where it was n sessions ago, and 0 means it is right where it was.',
       },
       commonMistakes: {
-        vi: 'Chọn cửa sổ n trùng đúng một nhịp sóng của cổ phiếu, khiến ROC luôn quanh 0 dù giá vẫn đang chạy — đổi vài chu kỳ để đối chiếu trước khi kết luận.',
-        en: "Choosing a window n that happens to match one full wave of the stock's cycle, which keeps ROC hovering around 0 even though price is still moving — try a few different periods before drawing a conclusion.",
+        vi: 'Chọn cửa sổ n trùng đúng một nhịp sóng của cổ phiếu, khiến ROC luôn quanh 0 dù giá vẫn đang chạy - đổi vài chu kỳ để đối chiếu trước khi kết luận.',
+        en: "Choosing a window n that happens to match one full wave of the stock's cycle, which keeps ROC hovering around 0 even though price is still moving - try a few different periods before drawing a conclusion.",
       },
     },
     example: {
@@ -1400,8 +1400,8 @@ export const DONG_LUONG_MOMENTUM: FormulaModule = {
     ],
     explanation: {
       meaning: {
-        vi: 'Giá đã đi được bao nhiêu đồng trong n phiên — bản gốc, thô nhất của mọi chỉ báo động lượng.',
-        en: 'How many VND price has moved over n periods — the original, rawest form of every momentum indicator.',
+        vi: 'Giá đã đi được bao nhiêu đồng trong n phiên - bản gốc, thô nhất của mọi chỉ báo động lượng.',
+        en: 'How many VND price has moved over n periods - the original, rawest form of every momentum indicator.',
       },
       whenToUse: {
         vi: 'Dùng khi bạn theo dõi sát một mã quen và muốn biết giá mỗi cổ phiếu đã lên hay xuống bao nhiêu đồng so với vài tuần trước, tính thẳng bằng tiền chứ không quy ra tỷ lệ.',
@@ -1653,8 +1653,8 @@ export const GIAO_CAT_HAI_DUONG_MA: FormulaModule = {
     categoryId: 'technical',
     name: { vi: 'Giao cắt hai đường trung bình', en: 'Moving average crossover' },
     description: {
-      vi: 'Chênh lệch giữa SMA ngắn hạn và SMA dài hạn — dấu của nó cho biết cắt lên hay cắt xuống.',
-      en: 'The difference between the short-term SMA and the long-term SMA — its sign tells you whether a crossover occurred upward or downward.',
+      vi: 'Chênh lệch giữa SMA ngắn hạn và SMA dài hạn - dấu của nó cho biết cắt lên hay cắt xuống.',
+      en: 'The difference between the short-term SMA and the long-term SMA - its sign tells you whether a crossover occurred upward or downward.',
     },
     latex: 'C = SMA_{ngan} - SMA_{dai}',
     expression: {
@@ -1730,8 +1730,8 @@ export const GIAO_CAT_HAI_DUONG_MA: FormulaModule = {
     ],
     explanation: {
       meaning: {
-        vi: 'Hiệu hai đường trung bình. Dấu dương nghĩa là đường ngắn đang ở trên — cắt lên đã xảy ra; dấu âm là đường ngắn đã cắt xuống.',
-        en: 'The difference between the two moving averages. A positive sign means the short line is above — an upward crossover has occurred; a negative sign means the short line has crossed below.',
+        vi: 'Hiệu hai đường trung bình. Dấu dương nghĩa là đường ngắn đang ở trên - cắt lên đã xảy ra; dấu âm là đường ngắn đã cắt xuống.',
+        en: 'The difference between the two moving averages. A positive sign means the short line is above - an upward crossover has occurred; a negative sign means the short line has crossed below.',
       },
       whenToUse: {
         vi: 'Dùng khi bạn đang giữ một mã và muốn quyết định giữ tiếp hay thoát theo một mốc rõ ràng là đường giá bình quân ngắn nằm trên hay dưới đường dài, thay vì theo cảm tính.',

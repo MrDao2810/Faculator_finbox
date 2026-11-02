@@ -225,7 +225,7 @@ function loiTruc(cho: string, rieng: HaiDang, keHoach: KeHoachTruc): string[] {
     }
 
     if (rieng.cot === undefined) {
-      loi.push(`${cho}.cot: thiếu — đường theo một ô nhập luôn có nút Cột`);
+      loi.push(`${cho}.cot: thiếu - đường theo một ô nhập luôn có nút Cột`);
       continue;
     }
     const cot = rieng.cot[ngon];
@@ -296,7 +296,7 @@ function loiTrucLap(cho: string, rieng: HaiDang, keHoach: KeHoachTrucLap): strin
     }
 
     if (rieng.cot === undefined) {
-      loi.push(`${cho}.cot: thiếu — đường theo một ô nhập luôn có nút Cột`);
+      loi.push(`${cho}.cot: thiếu - đường theo một ô nhập luôn có nút Cột`);
       continue;
     }
     const cot = rieng.cot[ngon];
@@ -338,8 +338,8 @@ function loiThoiGian(cho: string, rieng: HaiDang, keHoach: KeHoachThoiGian): str
     if (keHoach.coCot !== (rieng.cot !== undefined)) {
       loi.push(
         keHoach.coCot
-          ? `${cho}.cot: thiếu — màn có nút Cột cho hình này`
-          : `${cho}.cot: thừa — màn KHÔNG có nút Cột cho hình này`,
+          ? `${cho}.cot: thiếu - màn có nút Cột cho hình này`
+          : `${cho}.cot: thừa - màn KHÔNG có nút Cột cho hình này`,
       );
     }
     if (rieng.cot !== undefined) {
@@ -360,7 +360,7 @@ function loiBocTach(cho: string, doan: Bilingual, keHoach: KeHoachBocTach): stri
     loi.push(...loiChung(cho, doan[ngon], ngon, [keHoach.ten[ngon], ...nhan], new Set(['0'])));
 
     if (!co(doan[ngon], TU[ngon].thanh)) {
-      loi.push(`${cho} [${ngon}]: không nói tới "${TU[ngon].thanh}" — hình này là thanh nằm ngang`);
+      loi.push(`${cho} [${ngon}]: không nói tới "${TU[ngon].thanh}" - hình này là thanh nằm ngang`);
     }
     for (const mot of nhan) {
       if (!doan[ngon].includes(mot)) loi.push(`${cho} [${ngon}]: không gọi tên thanh "${mot}"`);

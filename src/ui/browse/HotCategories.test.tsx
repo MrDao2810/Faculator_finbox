@@ -126,9 +126,9 @@ describe('Highlight — tô đoạn khớp trên màn', () => {
   });
 
   it('từ khoá rỗng thì hiện nguyên chữ', () => {
-    const { container } = render(<Highlight text="P/E — hệ số giá" query="" />);
+    const { container } = render(<Highlight text="P/E - hệ số giá" query="" />);
 
     expect(container.querySelectorAll('mark')).toHaveLength(0);
-    expect(container.textContent).toBe('P/E — hệ số giá');
+    expect(container.textContent).toBe('P/E - hệ số giá');
   });
 });

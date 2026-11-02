@@ -49,7 +49,7 @@ export const PE: FormulaModule = {
   spec: {
     id: 'pe',
     categoryId: 'fundamentals',
-    name: { vi: 'P/E — hệ số giá trên lợi nhuận', en: 'P/E — price to earnings ratio' },
+    name: { vi: 'P/E - hệ số giá trên lợi nhuận', en: 'P/E - price to earnings ratio' },
     description: {
       vi: 'Nhà đầu tư trả bao nhiêu đồng cho mỗi đồng lợi nhuận của doanh nghiệp.',
       en: "How many dong an investor pays for each dong of the company's profit.",
@@ -90,7 +90,7 @@ export const PE: FormulaModule = {
       }),
       numberVar(
         'eps',
-        { vi: 'EPS — lợi nhuận trên mỗi cổ phiếu', en: 'EPS — earnings per share' },
+        { vi: 'EPS - lợi nhuận trên mỗi cổ phiếu', en: 'EPS - earnings per share' },
         '₫',
         6_050,
         {
@@ -123,8 +123,8 @@ export const PE: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'FPT — giá 72.700 ₫ phiên 11/09/2026, EPS bốn quý gần nhất 5.867 ₫',
-        en: 'FPT — price 72,700 ₫ at the 2026-09-11 close, trailing four-quarter EPS 5,867 ₫',
+        vi: 'FPT - giá 72.700 ₫ phiên 11/09/2026, EPS bốn quý gần nhất 5.867 ₫',
+        en: 'FPT - price 72,700 ₫ at the 2026-09-11 close, trailing four-quarter EPS 5,867 ₫',
       },
       inputs: { price: 72_700, eps: 5_867 },
       expected: 12.3913,
@@ -140,13 +140,13 @@ export const PE: FormulaModule = {
     tests: [
       { name: 'ví dụ WF-03', inputs: { price: 92_000, eps: 6_050 }, expected: 15.21 },
       {
-        name: 'EPS bằng 0 — ca chia cho 0 của WF-15',
+        name: 'EPS bằng 0 - ca chia cho 0 của WF-15',
         inputs: { price: 92_000, eps: 0 },
         expected: null,
         expectedWarning: 'DIVIDE_BY_ZERO',
       },
       {
-        name: 'EPS âm — không trả số âm vô nghĩa (WF-15)',
+        name: 'EPS âm - không trả số âm vô nghĩa (WF-15)',
         inputs: { price: 92_000, eps: -1_200 },
         expected: null,
         expectedWarning: 'MEANINGLESS',
@@ -210,7 +210,7 @@ export const PB: FormulaModule = {
   spec: {
     id: 'pb',
     categoryId: 'fundamentals',
-    name: { vi: 'P/B — hệ số giá trên giá trị sổ sách', en: 'P/B — price to book ratio' },
+    name: { vi: 'P/B - hệ số giá trên giá trị sổ sách', en: 'P/B - price to book ratio' },
     description: {
       vi: 'Thị giá đang gấp bao nhiêu lần giá trị sổ sách của một cổ phiếu.',
       en: 'How many times the market price is above the book value of a share.',
@@ -287,8 +287,8 @@ export const PB: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'FPT — giá 72.700 ₫ phiên 11/09/2026, giá trị sổ sách 23.246 ₫/CP',
-        en: 'FPT — price 72,700 ₫ at the 2026-09-11 close, book value 23,246 ₫/share',
+        vi: 'FPT - giá 72.700 ₫ phiên 11/09/2026, giá trị sổ sách 23.246 ₫/CP',
+        en: 'FPT - price 72,700 ₫ at the 2026-09-11 close, book value 23,246 ₫/share',
       },
       inputs: { price: 72_700, bookValuePerShare: 23_246 },
       expected: 3.1274,

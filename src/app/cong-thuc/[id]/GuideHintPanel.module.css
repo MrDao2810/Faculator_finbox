@@ -11,7 +11,13 @@
 .panel {
   position: fixed;
   z-index: 40;
-  width: min(32rem, calc(100vw - 2 * var(--space-4)));
+  /*
+   * 32rem là 32 lần chữ 16px. Từ 1024px chữ nhỉnh `--font-bump` (31/10/2026) nên bề ngang nở theo đúng tỉ
+   * lệ ấy (512 → 528px), để câu xuống dòng ở đúng chỗ cũ: giữ 512px thì các câu "lấy ở đâu" chảy lại, và
+   * đo trên Chrome khung của `fcfe` ở 1440×900 (385 → 438px) và `capm` ở 1024×768 vượt chỗ trống dưới nút
+   * "?" rồi tự cuộn bên trong. `SummaryGuidePanel.module.css` chép đúng dòng này.
+   */
+  width: min(calc(32rem + 32 * var(--font-bump)), calc(100vw - 2 * var(--space-4)));
   overflow-y: auto;
   overscroll-behavior: contain;
 

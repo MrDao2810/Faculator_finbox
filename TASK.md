@@ -4,6 +4,48 @@ Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 
 ---
 
+## Chữ ở khổ PC nhỉnh thêm 0,5px, toàn dự án (31/10/2026)
+
+**Trạng thái: CHƯA XONG — đã sửa, chờ chủ dự án xem.** Chủ dự án: _"phông chữ màn web pc đang hơi nhỏ. tăng 0.5 hoặc
+0.4 gì đó trong toàn bộ dự án"_. Chọn 0,5px.
+
+- **Một nút chỉnh: `--font-bump`** (`globals.css`): 0 ở `:root`, 0,5px trong `@media screen and (min-width: 1024px)`.
+  Khối ấy viết lại tám bậc `--text-*` thành `calc(bậc + nút)` (12 → 12,5 … 40 → 40,5) và khai lại
+  `--section-title-size`; token trên `:root` đã tính xong ở `:root` nên chỉ đổi nút là không đủ. `screen and` để file in
+  (A4 ngang 1123px) giữ chữ cũ. Muốn 0,4px: sửa đúng một dòng. Không đổi cỡ gốc của `html` (rem còn đo bề ngang/khoảng
+  cách). Chữ trong hình SVG biểu đồ không đổi (đơn vị viewBox, tự to theo khung).
+- **26 chỗ ghi cỡ chữ số trần vẫn áp ở PC cộng nút**: bài tập (`QuizBody`, 15 chỗ rem), lời giải (`LoiGiai`, 3),
+  `CongThucDien` (mặc định 1.25rem), nhãn nhóm của thẻ công thức (2), chip "Tìm gần đây", lỗi của ô nhập, cột số thứ tự
+  của bảng dán và bảng `/du-lieu/`. Miễn: hai file CSS biểu đồ (SVG) và nút "Chú thích" (chỉ có dưới 1024px).
+- **Ba chỗ chữ to làm vỡ bố cục, đã sửa** (rà 8 nhóm màn ở 1024/1280/1440/1920, cũ ↔ mới bằng cách ép `--font-bump: 0`):
+  - Bài tập: ngưỡng hai cột của đáp án `HAI_COT_HEP` 55 → 50 ký tự (`QuizQuestion.tsx`). Đo cả ngân hàng trong popup: ô
+    chứa 353,78px chữ ở 1024; ngưỡng lớn nhất còn vừa mọi câu là 51 nhưng dư 0,11px, 50 dư 1,63px. 55 đã sai từ trước ở
+    chữ 14px (sáu câu 54–55 ký tự đã vỡ hai dòng ở 1024). 28 lượt câu về một cột.
+  - Danh mục, bảng Mã và bảng Công thức ở dải 1024–1279: chữ KHÔNG nhỉnh (`calc(token − nút)` trong khối
+    `max-width: 1279.98px`). Với chữ +0,5px, "TỶ TRỌNG" bị ô kế che thành "TỶ TRỌNC", "+309.000.000" đè mũi tên của
+    "↑ +114,4%", "158.333,33" dính thị giá; bảng chỉ có ~600px, bề cột là ngân sách đo. Đo lại: ở 1024 bảng trùng khít
+    bản cũ; từ 1280 chữ nhỉnh, không khe nào chạm (bản tiếng Việt).
+  - Popup "?" (`GuideHintPanel`, `SummaryGuidePanel`): bề ngang `calc(32rem + 32 × nút)` = 528px, nở cùng tỉ lệ chữ.
+    Giữ 512px thì `fcfe` ở 1440×900 (385 → 438px) và `capm` ở 1024×768 tự cuộn bên trong. Đo lại 10 công thức: cuộn
+    hay không cuộn y như bản cũ.
+- **Chấp nhận, không sửa** (chữ chảy lại đúng luật): vài hàng bảng ký hiệu thêm một dòng (thẻ công thức cao thêm
+  25–50px ở 1024 trên `tra-gop-nien-kim`, `roi-rong`, DCA…), thêm vài mô tả chạm kẹp 2 dòng, vài link nguồn chạm "…",
+  huy hiệu cấp độ xuống dòng thêm ở lưới 3 cột, tên trong `/tim-kiem/` cắt "…" thêm, tiêu đề thẻ `/ve-chung-toi/` ở 1280,
+  link cột phải trang hướng dẫn ở 1280, công thức điền số của Q308 (`do-bien-dong-lich-su`) cuộn ngang 8px ở 1024 (công
+  thức dài cuộn trong khung là thiết kế). Số đo ghi trong các mục cũ ở khổ PC (ô 71px, hàng tiêu đề bài tập 50px, nav
+  266px…) nay nhỉnh 0,5–1px; các bất biến (bằng cao, căn giữa, không tràn) vẫn giữ.
+- **Hỏng từ trước, thấy khi đo, chưa sửa**: tiếng Anh, bảng Mã, tiêu đề "Market price" bị ô kế che ở 1024–1360 (nặng
+  thêm 3,7px ở 1280 — cần nhãn ngắn hơn, quyết định của chủ dự án); bảng Mã ở 1024 với số rất dài (1.000.000 CP, lãi
+  10 chữ số) đè nhau như trước; tên mục dài của select "Xem theo" trên `fcfe`/`wacc` bị cắt từ 1280; popup "?" của
+  `wacc`, `fcff`, `ddm-hai-giai-doan`, `gia-tri-noi-tai-fcff`, `rut-truoc-han` vẫn tự cuộn như trước.
+
+Test: `typography.test.ts` (nút 0/0,5px, tám bậc PC bằng bậc gốc + nút, và không còn cỡ chữ số trần nào áp ở PC mà không
+cộng nút; thử bỏ một chỗ thì đỏ), `QuizBody.test.tsx` (50 ký tự hai cột, 51 một cột), `formula-card-css.test.ts`. `npm test`
+xanh (5.098 ca; một ca `PortfolioScreen.test.tsx` quá giờ khi máy đang build, chạy riêng xanh). Build ở bản sao, cũ và mới:
+`check:chrome` 208/216 cả hai, đúng 8 ca có sẵn, `verify:static` 56/56, size không đổi.
+
+---
+
 ## Bỏ cụm "tương đương tiền" khỏi chữ trên màn (31/10/2026)
 
 **Trạng thái: CHƯA XONG — đã sửa, chờ chủ dự án xem.** Chủ dự án, trên thẻ công thức EV: _"tương đương tiền viết vậy ai
@@ -21,6 +63,30 @@ ngữ quen thuộc):
   ngoặc, để người đọc dò đúng dòng trên CafeF.
 - Toàn bộ vitest: 5097 qua, 1 hỏng vì quá hạn 5 giây ở `PortfolioScreen.test.tsx` (chạy riêng vẫn quá hạn; tệp đó và màn
   Danh mục không bị đụng, đang có thay đổi của phiên khác). tsc, prettier sạch.
+
+---
+
+## Danh mục khổ điện thoại: giao diện "phập phồng" khi mở/đóng thẻ tổng (31/10/2026)
+
+**Trạng thái: CHƯA XONG — chờ chủ dự án xem trên máy.**
+
+Chủ dự án mở rồi đóng thẻ tổng của `/danh-muc/` liên tục ở khổ điện thoại: _"giao diện bị phình ra, các chức năng bị
+giãn ra gây ra lỗi phập phồng"_. Ba ảnh cho thấy nguyên nhân: thu gọn thì trang vừa khít màn, mở ra thì dài hơn màn, thanh
+cuộn cổ điển của Windows hiện ở mép phải và cả giao diện co khoảng 13px (tab, bảng, cột "Ngày mua" dịch trái); đóng lại thì
+giãn ra. Không phải lỗi bố cục của màn — là cú giãn mà `globals.css` đã ghi nhận và chấp nhận khi gỡ `scrollbar-gutter`
+(dải chừa để lại vệt 15px khác màu, chủ dự án chọn bỏ vệt).
+
+- **Dưới 1024px trang không có thanh cuộn** (`globals.css`, `html { scrollbar-width: none }` + `::-webkit-scrollbar`),
+  ghi lý do nối tiếp đoạn "Vì sao KHÔNG có `scrollbar-gutter`". Không chừa dải nên vệt khác màu không quay lại. Điện
+  thoại thật vốn dùng thanh cuộn nổi nên không đổi gì; giá phải trả: cửa sổ máy tính kéo hẹp dưới 1024px không còn thanh
+  cuộn nhìn thấy (lăn chuột, bàn di, phím vẫn cuộn). Thanh cuộn của các khung tự cuộn bên trong không bị đụng.
+- **Từ 1024px giữ nguyên**: cú giãn 15px khi trang đổi dài/ngắn vẫn còn ở PC (đổi tab Mã → Công thức), chưa được hỏi.
+
+Kiểm: Chrome trên dev, `getComputedStyle(html).scrollbarWidth` là `none` ở 360, 430, 1023 và `auto` ở 1024, 1440. Không
+tái hiện được đúng loại thanh cuộn trên máy chủ dự án: Chrome headless ẩn thanh cuộn, Chrome có giao diện tôi mở dùng thanh
+cuộn nổi kể cả khi tắt cờ, nên chưa đo được cú co trước/sau. Test: `src/app/page-scrollbar-css.test.ts` (luật có trong khối
+dưới 1024px, chỉ một chỗ, không `scrollbar-gutter`); 9 file test đọc `globals.css` xanh (597 ca), lint, typecheck, prettier
+sạch.
 
 ---
 

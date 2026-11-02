@@ -61,7 +61,16 @@ const CHOICE_KEYS: ReadonlyArray<QuizChoiceKey> = ['a', 'b', 'c', 'd'];
  * Trên 1280 KHÔNG thêm bậc nữa dù chỗ chứa còn rộng ra (86 rồi 98 ký tự): đáp án dài quá 78 ký
  * tự thì một cột vẫn đọc hơn, vì hai cột lúc ấy là hai khối chữ dày đặc đứng cạnh nhau.
  */
-const HAI_COT_HEP = 55;
+const HAI_COT_HEP = 50;
+/*
+ * 55 → 50 ngày 31/10/2026, khi chữ PC nhỉnh 0,5px (`--font-bump`, đáp án 14 → 14,5px). Đo lại trên
+ * Chrome trong popup, cả ngân hàng (196 lượt câu bậc '1024', vi và en, trạng thái chưa trả lời): bề
+ * chữ của một ô là 353,78px ở khổ 1024 và 362,75px từ ~1044px. Ngưỡng lớn nhất còn vừa MỌI câu là 51 ký
+ * tự, nhưng chỉ dư 0,11px (Q134 "Mọi dòng tiền dương được tái đầu tư ở chính mức 25%"); 50 dư ít nhất
+ * 1,63px, ngang mức dư của 55 ở chữ 14px trước đó. Thật ra 55 đã sai ngay ở chữ 14px: sáu câu 54–55 ký
+ * tự (Q315, Q030, Q051, Q120, Q144, Q178) đã vỡ hai dòng ở 1024 từ khi bài vào popup. Cái giá của 50:
+ * 28 lượt câu về một cột, trong đó 14 lượt vẫn vừa hai cột nếu đo bằng bề chữ thật.
+ */
 /*
  * Không còn `HAI_COT_RONG = 78` (bậc '1280') từ 26/10/2026, khi bài làm chuyển vào popup 960px. Đo
  * trên Chrome: trong popup, nửa bề ngang chữ là 354px ở khổ 1024 (popup 92vw = 942px) và 363px từ

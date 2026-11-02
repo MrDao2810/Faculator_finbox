@@ -2762,6 +2762,9 @@ Five things are easy to break:
 - **The two-column answer grid lost its `'1280'` tier.** Measured in Chrome: half the dialog is 354px of
   text at 1024 and 363px from ~1044px, enough for the 55-character tier and not for 78 (`bien-an-toan`'s
   60- and 62-character answers broke onto two lines at 1280 and 1440). `khoHaiCot()` returns `'1024' | '0'`.
+  **The tier is ≤50 characters since 31/10/2026**, when PC text grew 0,5px (see the Notes): measured over the whole
+  bank in the popup, a cell holds 353,78px of 14,5px text at 1024; 51 characters fit every answer by 0,11px only, 50 by
+  1,63px. 55 had already been wrong at 14px: six 54–55-character answers broke onto two lines at 1024.
 - **The how-to panel is clamped to the dialog's scrolling body** (`clipToDialog()` in
   `use-panel-placement.ts`, only inside a `<dialog>`, edges from `clientWidth` so the body's scrollbar is
   excluded), and gets a `maxWidth` when the body is narrower than its 22rem (313px at 360). Without it the
@@ -2982,7 +2985,7 @@ choices sit in a **two-column grid whose breakpoint depends on how long the long
 measured from the data and stamped as `data-hai-cot` — measuring at runtime would make the first
 client render disagree with the static HTML, the hydration class of bug this whole directory
 avoids. The attribute holds the NAME of the narrowest viewport that still fits every answer on one
-line: `1024` (≤55 characters), `1280` (≤78), or `0`, and `khoHaiCot()` in `QuizQuestion.tsx` keeps
+line: `1024` (≤55 characters, ≤50 since 31/10/2026), `1280` (≤78, gone since 26/10/2026), or `0`, and `khoHaiCot()` in `QuizQuestion.tsx` keeps
 the measured table it comes from. It was a single ≤48 threshold until 24/09/2026, set while the
 block was still capped at `max-width: 60rem`; once the block went full-frame that number was
 roughly half of what a column actually holds, and the owner photographed a question with three
@@ -3931,6 +3934,26 @@ English, the owner reviews it**. What that produced, and what is easy to break:
     shrank 328 → 266px at 1024 and stays at the bar's exact centre; "‹ Danh sách công thức" at 320px still fits, by
     under 1px (a wider phone font would ellipsize it; 320 is below the promised 360).
   - Do not bring Settings back into `NAV_ITEMS` without asking; `routes.test.ts` pins its absence.
+- **From 1024px every font size is 0,5px larger, through ONE knob, `--font-bump`** (31/10/2026, owner: _"phông chữ
+  màn web pc đang hơi nhỏ. tăng 0.5 hoặc 0.4 gì đó trong toàn bộ dự án"_). It is `0px` in `:root` and `0.5px` in
+  `@media screen and (min-width: 1024px) { body { … } }` of `globals.css`, which also rewrites the eight `--text-*`
+  steps as `calc(<root px> + var(--font-bump))` and re-declares `--section-title-size`: a token declared on `:root` is
+  computed there, so changing the knob alone would leave `--text-sm` at 14px. `screen and` keeps printed exports at the
+  old size (under print the query reads the paper width). Rules, all pinned by `typography.test.ts`:
+  - **A new `font-size` written as a bare px/rem that applies from 1024px must add the knob**
+    (`calc(13px + var(--font-bump))`); the gate scans every CSS file, skipping blocks that only apply below 1024px,
+    the two chart CSS files (SVG text is in viewBox units and scales with the frame) and the phone-only "Chú thích"
+    button. `em` and token-based values follow by themselves. The root `html` size stays 16px: `rem` also measures
+    widths and gaps, so scaling it would stretch the layout, not just the text.
+  - **Where text growth breaks a measured layout, hold or widen that one place, measured**: the Danh mục tables in the
+    1024–1279 band use `calc(token − var(--font-bump))` (the ~600px column budget; at +0,5px "TỶ TRỌNG" was covered by
+    the next cell and gain figures ran into the % arrows); the two "?" popovers are `calc(32rem + 32 * var(--font-bump))`
+    wide so their lines break where they did; the quiz two-column threshold `HAI_COT_HEP` went 55 → 50 characters
+    (measured over the whole bank in the popup: 353,78px of text per cell at 1024; 55 had already been wrong at 14px).
+  - To measure old against new on a live page, inject `body { --font-bump: 0px !important }`: every PC size goes back
+    at once. PC measurements quoted elsewhere in this file before 31/10/2026 (71px tiles, the quiz dialog's 50px title
+    row, the 266px nav at 1024…) are now 0,5–1px larger; the invariants they back (equal heights, centring, no
+    overflow) were re-measured and hold.
 - **Below 1024px the two frame bars are shorter** (19/10/2026, owner: _"padding và height … đang quá cao"_):
   `--header-height` 48px (56px from 1024px) and `--tabbar-height` 52px, set in the `max-width: 1023.98px` body block
   of `globals.css`'s "BẬC MÀN". The header's `.inner` drops its 4px vertical padding at the same mark, or the detail

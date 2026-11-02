@@ -162,7 +162,7 @@
  *
  * - Rộng 960px từ khổ máy tính, thay cho 720px của các hộp thoại khác: đây là chỗ đọc một công thức
  *   có ô điền số và lời giải năm dòng, không phải một form vài ô. 960 cũng là bề ngang để lưới hai
- *   cột của câu trắc nghiệm (`data-hai-cot='1024'`, đáp án dài nhất ≤ 55 ký tự) vẫn đủ một dòng mỗi ô
+ *   cột của câu trắc nghiệm (`data-hai-cot='1024'`, đáp án dài nhất ≤ 50 ký tự) vẫn đủ một dòng mỗi ô
  *   — xem bảng đo ở `khoHaiCot()`. Ở khổ hẹp giữ `92vw` của primitive.
  * - Cao tới 88dvh thay cho trần 600px: câu đã chấm kèm lời giải thường dài hơn 600px, và một khung
  *   cuộn thấp trong một màn còn thừa chỗ là bắt người dùng cuộn hai tầng.

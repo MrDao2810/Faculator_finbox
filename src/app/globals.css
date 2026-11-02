@@ -919,7 +919,30 @@ body {
  *
  * Kết luận: giữ bề rộng ổn định và xoá vệt là hai điều loại trừ nhau. Chủ dự án chốt bỏ vệt.
  * Cú giãn 15px khi trang đổi từ dài sang ngắn vẫn còn, và đó là hành vi mặc định của trình duyệt.
+ *
+ * ## Dưới 1024px: trang không có thanh cuộn (31/10/2026)
+ *
+ * Chủ dự án mở rồi đóng thẻ tổng của Danh mục liên tục ở khổ điện thoại: _"giao diện bị phình ra,
+ * các chức năng bị giãn ra gây ra lỗi phập phồng"_. Thẻ thu gọn thì trang vừa khít màn, mở ra thì
+ * dài hơn màn, thanh cuộn cổ điển hiện ra và cả giao diện co 13–15px; đóng lại thì giãn ra. Đây
+ * chính là cú giãn ở trên, chỉ là ở khổ hẹp nó lộ mỗi lần chạm.
+ *
+ * Ở khổ này có lối thứ ba mà máy tính khổ rộng không có: bỏ hẳn thanh cuộn của trang. Điện thoại
+ * thật vốn dùng thanh cuộn NỔI, không chiếm chỗ, nên trên điện thoại không gì đổi; chỉ cửa sổ máy
+ * tính kéo hẹp mất thanh cuộn nhìn thấy được (lăn chuột, bàn di, phím vẫn cuộn bình thường). Không
+ * chừa dải, nên vệt khác màu ở trên không quay lại. Từ 1024px giữ nguyên quyết định cũ.
+ * Thanh cuộn của các khung tự cuộn bên trong (bảng, hình, popup) không bị đụng: luật chỉ đặt trên
+ * `html`, tức thanh của khung nhìn.
  */
+@media (max-width: 1023.98px) {
+  html {
+    scrollbar-width: none;
+  }
+
+  html::-webkit-scrollbar {
+    display: none;
+  }
+}
 
 /*
  * Lưới an toàn cho NFR-USA-02: bảng nhiều cột phải cuộn trong khung riêng, không kéo cả trang.

@@ -10,7 +10,8 @@
 .panel {
   position: fixed;
   z-index: 40;
-  width: min(32rem, calc(100vw - 2 * var(--space-4)));
+  /* Nở theo chữ PC như khung "?" của màn chi tiết — lý do ở `GuideHintPanel.module.css`. */
+  width: min(calc(32rem + 32 * var(--font-bump)), calc(100vw - 2 * var(--space-4)));
   overflow-y: auto;
   overscroll-behavior: contain;
 

@@ -1393,6 +1393,28 @@
   .holdList th:nth-child(7) {
     width: 13%;
   }
+
+  /*
+   * Chữ của hai bảng KHÔNG nhỉnh `--font-bump` ở dải này (31/10/2026). Bảng chỉ có ~600px và bề cột
+   * là ngân sách đo (đoạn trên): đo trên Chrome ở 1024px, chữ +0,5px làm "TỶ TRỌNG" tràn khỏi ô và nền ô
+   * kế che chữ G ("TỶ TRỌNC"), "+309.000.000" đè mũi tên của "↑ +114,4%" (khe 0,1 → −5px), "158.333,33"
+   * dính vào thị giá đậm ngay cạnh, và ở tiếng Anh "SHARES" mất chữ S cuối. Từ 1280px bảng đủ chỗ nên
+   * nhỉnh như mọi chữ khác. Dưới 1024px nút là 0, khối điện thoại cuối file tự đặt cỡ riêng.
+   */
+  .holdHead th,
+  .savedSub,
+  .savedWarn {
+    font-size: calc(var(--text-xs) - var(--font-bump));
+  }
+
+  .codeOpen,
+  .holdCell,
+  .savedOpen,
+  .savedCode,
+  .savedResult,
+  .savedDate {
+    font-size: calc(var(--text-sm) - var(--font-bump));
+  }
 }
 
 /*

@@ -1224,6 +1224,22 @@ describe('sắp xếp lại hàng nút và lưới đáp án — 24/09/2026', ()
   const khoCua = (c: HTMLElement) =>
     c.querySelector('[data-hai-cot]')?.getAttribute('data-hai-cot');
 
+  it('ngưỡng hai cột là 50 ký tự: 50 còn hai cột, 51 về một cột', () => {
+    // 51 ký tự là đáp án thật Q134 — đo trên Chrome ở chữ 14,5px nó chỉ dư 0,11px trong ô ở 1024, xem
+    // `HAI_COT_HEP` (31/10/2026).
+    const muoiMot = doiDapAnA('Mọi dòng tiền dương được tái đầu tư ở chính mức 25%');
+    const motCot = render(<QuizBody formulaId="pe" items={[muoiMot]} />);
+    fireEvent.click(screen.getByRole('button'));
+    expect(khoCua(motCot.container)).toBe('0');
+
+    cleanup();
+
+    const nam = doiDapAnA('Mọi dòng tiền dương được tái đầu tư ở chính mức 25');
+    const haiCot = render(<QuizBody formulaId="pe" items={[nam]} />);
+    fireEvent.click(screen.getByRole('button'));
+    expect(khoCua(haiCot.container)).toBe('1024');
+  });
+
   it('độ dài đáp án quyết định khổ màn nhỏ nhất còn xếp hai cột', () => {
     const { container } = render(<QuizBody formulaId="pe" items={BA_CAU} />);
     fireEvent.click(screen.getByRole('button'));
@@ -1232,7 +1248,7 @@ describe('sắp xếp lại hàng nút và lưới đáp án — 24/09/2026', ()
     cleanup();
 
     /*
-     * 62 ký tự: quá 55 nên MỘT cột ở mọi khổ. Hồi bài làm trải hết khung trang nó hai cột từ 1280
+     * 62 ký tự: quá 50 nên MỘT cột ở mọi khổ. Hồi bài làm trải hết khung trang nó hai cột từ 1280
      * (bậc '1280', ≤ 78 ký tự); bậc ấy bỏ 26/10/2026 khi bài làm vào popup 960px, nơi nửa bề ngang
      * chỉ chứa chừng 57 ký tự — xem `khoHaiCot()`.
      */

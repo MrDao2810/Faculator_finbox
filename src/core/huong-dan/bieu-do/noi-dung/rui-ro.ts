@@ -245,6 +245,14 @@ export const BIEU_DO_RUI_RO: Readonly<Record<string, BieuDoRieng>> = {
           'Mỗi cột là độ lệch chuẩn lợi suất phiên khi lấy một số phiên, cột tô đặc là số phiên bạn đang nhập. Cột bên trái dựa trên ít phiên nên dễ lệch vì vài phiên bất thường; càng sang phải con số càng ổn định nhưng cũng càng cũ.',
           'Each bar is the daily standard deviation using a given number of sessions, and the solid one is the number you have entered. Bars on the left rest on few sessions and are easily skewed by a few odd days; moving right the figure steadies but also ages.',
         ),
+        diem: d(
+          'Mỗi chấm là độ lệch chuẩn lợi suất phiên khi lấy một số phiên gần nhất theo ô Số phiên lấy để tính, từ một nửa đến gấp rưỡi số phiên bạn đang nhập; chấm trên vạch đứt dọc là đúng số bạn nhập. Hình tính trên chuỗi giá bạn đã nạp, không phải diễn biến thị trường. Dãy chấm không có chiều cố định: đi lên là những phiên cũ vừa thêm vào dao động mạnh hơn giai đoạn gần đây, đi xuống là chúng êm hơn. Một chấm vọt hẳn lên so với chấm trước là cửa sổ vừa gom thêm một phiên giá giật mạnh; vùng gạch chéo bên phải, nếu có, là những số phiên dài hơn chuỗi đã nạp.',
+          'Each dot is the daily return standard deviation for one level of the Number of sessions used field, from half to one and a half times the number you have entered; the dot on the dashed vertical line is your own figure. It is calculated on the price series you loaded, not market history. The row has no fixed direction: where it rises, the older sessions just added swung harder than the recent stretch; where it falls, they were calmer. A dot leaping above the one before marks a window that just took in a sharp session; any hatched area on the right is lengths beyond the loaded series.',
+        ),
+        bac: d(
+          'Mỗi bậc là độ lệch chuẩn khi lấy đúng một số phiên nguyên theo ô Số phiên lấy để tính. Dạng này chỉ hiện khi bạn nhập số phiên nhỏ: một nửa số ấy thấp hơn mức tối thiểu của ô nên trục bắt đầu từ mức tối thiểu, chạy tới gấp rưỡi số bạn nhập, mỗi mức đúng một phiên; không có nửa phiên nên bậc giữ nguyên tới mức sau. Hình tính trên chuỗi giá bạn đã nạp, không phải diễn biến thị trường. Bậc đi lên là phiên cũ vừa thêm giật mạnh hơn mức chung, đi xuống là phiên ấy êm hơn.',
+          'Each step is the standard deviation using exactly one whole number of sessions on the Number of sessions used field. This form only appears when you enter a small number: half of it is below the field’s minimum, so the axis starts at that minimum and runs to one and a half times your number, one session per level; there is no half session, so each step holds until the next level. It is calculated on the price series you loaded, not market history. A step that rises is an older session that swung harder than usual; one that falls is a calmer session.',
+        ),
       },
     },
     thoiGian: {
@@ -255,6 +263,14 @@ export const BIEU_DO_RUI_RO: Readonly<Record<string, BieuDoRieng>> = {
       cot: d(
         'Mỗi cột là độ lệch chuẩn lợi suất phiên tính tới một phiên, cột cuối bên phải là phiên gần nhất. Cột cao là quãng giá giật mạnh, cột thấp là quãng yên; không cột nào nói được hướng đi của giá.',
         'Each bar is the per-session return deviation up to one session, the last one on the right being the latest. A tall bar is a jumpy stretch, a short one a quiet stretch; no bar can tell you which way the price went.',
+      ),
+      diem: d(
+        'Mỗi chấm là độ lệch chuẩn lợi suất phiên tính trên cửa sổ kết thúc ở một phiên, đi từ phiên cũ nhất bên trái tới phiên gần nhất bên phải; đoạn đầu chưa có chấm vì chưa đủ số phiên trong ô. Đây là số đo trên chuỗi giá bạn đã nạp và nó không cho biết giá lên hay xuống. Dãy chấm đi lên là các phiên gần đây giật mạnh hơn, theo cả hai chiều; đi xuống là cổ phiếu đang êm lại. Một chấm vọt lên khỏi các chấm quanh nó là một phiên giá đổi rất mạnh vừa lọt vào cửa sổ.',
+        'Each dot is the per-session return deviation over the window ending at one session, running from the oldest session on the left to the most recent session on the right; the first stretch has no dots until the window holds the number of sessions in the field. It is measured on the price series you loaded and says nothing about whether the price went up or down. When the row of dots rises recent sessions are moving harder, in both directions; when it falls the share is settling. A dot leaping above its neighbors is a very sharp session that has just entered the window.',
+      ),
+      bac: d(
+        'Mỗi bậc là độ lệch chuẩn lợi suất phiên của một phiên, đi từ phiên cũ nhất bên trái tới phiên gần nhất bên phải: bậc giữ nguyên suốt phiên ấy rồi mới sang mức của phiên sau, vì giữa hai phiên không có giá đóng cửa nào. Bậc đi lên là phiên vừa vào cửa sổ giật mạnh hơn phiên vừa rời đi, đi xuống là ngược lại. Một bậc nhảy vọt lên rồi khoảng một cửa sổ sau tụt xuống là cùng một phiên giá đổi mạnh lúc vào và lúc ra khỏi cửa sổ.',
+        'Each step is the per-session return deviation at one session, running from the oldest session on the left to the most recent session on the right: the step stays level through that session and then moves to the next one, because there is no closing price between two sessions. The staircase rises when the session entering the window swung harder than the one leaving it, and falls in the reverse case. A step that jumps up and drops back about one window later is the same sharp session entering and then leaving the window.',
       ),
     },
   },
@@ -270,6 +286,14 @@ export const BIEU_DO_RUI_RO: Readonly<Record<string, BieuDoRieng>> = {
           'Mỗi cột là độ biến động năm hoá khi lấy một số phiên, cột tô đặc là số phiên bạn đang nhập. Các cột chênh nhau nhiều là dấu hiệu độ biến động của mã thay đổi theo thời kỳ, nên một con số duy nhất chưa đủ để nói về rủi ro.',
           'Each bar is annualized volatility using a given number of sessions, and the solid one is the number you have entered. Bars that differ a lot signal that the ticker’s volatility changes from period to period, so one figure alone does not describe its risk.',
         ),
+        diem: d(
+          'Mỗi chấm là độ biến động năm hoá khi lấy một số phiên gần nhất theo ô Số phiên lấy để tính, từ một nửa đến gấp rưỡi số phiên bạn đang nhập; chấm trên vạch đứt dọc là đúng số bạn nhập. Hình tính trên chuỗi giá bạn đã nạp, không phải diễn biến thị trường. Dãy chấm không có chiều cố định: đi lên là giai đoạn cũ hơn biến động mạnh hơn hiện tại, đi xuống là giai đoạn ấy êm hơn. Các chấm trải càng rộng theo chiều dọc thì con số năm hoá càng phụ thuộc vào việc chọn bao nhiêu phiên.',
+          'Each dot is annualized volatility using a given number of recent sessions along the Number of sessions used field, from half to one and a half times the number you have entered; the dot on the dashed vertical line is your own figure. It is calculated on the price series you loaded, not market history. The row has no fixed direction: where it rises, the older stretch was more volatile than the present; where it falls, it was calmer. The wider the dots spread up and down, the more the annualized figure depends on how many sessions you choose.',
+        ),
+        bac: d(
+          'Mỗi bậc là độ biến động năm hoá khi lấy đúng một số phiên nguyên theo ô Số phiên lấy để tính. Dạng này chỉ hiện khi bạn nhập số phiên nhỏ, lúc trục bắt đầu từ mức thấp nhất ô cho phép vì một nửa số bạn nhập còn thấp hơn mức ấy, rồi chạy tới gấp rưỡi số bạn nhập, mỗi mức cách nhau một phiên. Không có phiên lẻ nên bậc đứng yên tới mức kế tiếp. Hình tính trên chuỗi giá bạn đã nạp, không phải diễn biến thị trường. Bậc đi lên là phiên cũ vừa thêm biến động mạnh hơn mức chung của cửa sổ, kéo cả con số năm lên theo; đi xuống là phiên ấy êm hơn.',
+          'Each step is annualized volatility for one whole number of sessions on the Number of sessions used field. This form only appears for a small entry, when the axis starts at the lowest value the field allows, since half your number is below it, and runs to one and a half times your number, one session apart. There are no fractional sessions, so a step holds until the next level. It is calculated on the price series you loaded, not market history. The staircase rises where the older session added swung harder than the window’s norm, lifting the yearly figure, and falls where it was calmer.',
+        ),
       },
       tradingDays: {
         duong: d(
@@ -279,6 +303,14 @@ export const BIEU_DO_RUI_RO: Readonly<Record<string, BieuDoRieng>> = {
         cot: d(
           'Mỗi cột là độ biến động năm hoá theo một quy ước số phiên trong năm, cột cao dần về bên phải và cột tô đặc là quy ước bạn đang nhập. Rủi ro của mã không đổi từ cột này sang cột khác; chỉ thước đo đổi, nên khi so hai mã phải dùng cùng một quy ước.',
           'Each bar is annualized volatility under one convention for the sessions in a year; bars grow taller to the right and the solid one is the convention you have entered. The ticker’s risk does not change from bar to bar; only the yardstick does, so compare two tickers under the same convention.',
+        ),
+        diem: d(
+          'Mỗi chấm là độ biến động năm hoá ở một mức của ô Số phiên giao dịch trong một năm (D), từ một nửa đến gấp rưỡi con số bạn đang nhập nhưng không quá mức cao nhất ô cho phép. Hình tính trên chuỗi giá bạn đã nạp, nhưng trục chỉ đổi thước quy đổi từ phiên sang năm, nên không phải diễn biến thị trường. Dãy chấm đi lên, các chấm bên trái chênh nhau nhiều hơn các chấm bên phải: con số năm hoá tăng theo căn bậc hai của số phiên trong năm, nên mỗi phiên thêm vào nâng nó ít hơn phiên trước.',
+          'Each dot is annualized volatility at one level of the Trading sessions per year (D) field, from half to one and a half times the figure you have entered, capped at the highest value the field allows. It is calculated on the price series you loaded, but the axis only changes the yardstick that turns a session into a year, so it is not market history. The row of dots rises, with bigger gaps between the dots on the left than on the right: the yearly figure grows with the square root of the sessions in a year, so each added session lifts it less than the one before.',
+        ),
+        bac: d(
+          'Mỗi bậc là độ biến động năm hoá ứng với một số phiên trong năm, theo ô Số phiên giao dịch trong một năm (D), từ một nửa đến gấp rưỡi con số bạn đang nhập. Phép tính làm tròn ô này về số phiên nguyên gần nhất, nên các mức trên trục cùng làm tròn về một số phiên cho cùng một kết quả và bậc giữ nguyên; dạng này chỉ hiện khi con số bạn nhập nhỏ. Hình tính trên chuỗi giá bạn đã nạp, nhưng trục chỉ đổi thước quy ra năm, không phải diễn biến thị trường. Bậc đi lên, mỗi bậc nhảy thấp hơn bậc nhảy trước vì con số tăng theo căn bậc hai.',
+          'Each step is annualized volatility for one count of sessions per year on the Trading sessions per year (D) field, from half to one and a half times the figure you have entered. The calculation rounds this field to the nearest whole session, so levels that round to the same count give the same result and the step holds; this form only appears when your figure is small. It is calculated on the price series you loaded; the axis only changes the yearly yardstick and is not market history. The staircase rises, each jump shorter than the last, because the figure grows with a square root.',
         ),
       },
     },
@@ -290,6 +322,14 @@ export const BIEU_DO_RUI_RO: Readonly<Record<string, BieuDoRieng>> = {
       cot: d(
         'Mỗi cột là độ biến động năm hoá tính tới một phiên, cột cuối bên phải là phiên gần nhất. Vì đã quy về một năm nên chiều cao cột so được với độ biến động của mã khác hay của chỉ số, dù hai bên có số phiên khác nhau.',
         'Each bar is the annualized volatility up to one session, the last one on the right being the latest. Because it is scaled to a year, bar height compares with the volatility of another ticker or of an index even when the two cover different numbers of sessions.',
+      ),
+      diem: d(
+        'Mỗi chấm là độ biến động quy ra cả năm, tính trên cửa sổ kết thúc ở một phiên, đi từ phiên cũ nhất bên trái tới phiên gần nhất bên phải; đoạn đầu chưa có chấm vì cửa sổ chưa đủ phiên. Đây là số đo trên chuỗi giá bạn đã nạp, không phải đường giá. Dãy chấm đi lên là cổ phiếu đang dao động mạnh dần, khoảng lãi lỗ có thể gặp trong một năm rộng ra; đi xuống là dao động đang lắng. Một chấm nhảy hẳn lên là một phiên giá đổi rất mạnh vừa vào cửa sổ, và con số năm vọt theo vì nó giả định cả năm đều giật như thế.',
+        'Each dot is volatility scaled to a full year over the window ending at one session, running from the oldest session on the left to the most recent session on the right; the first stretch has no dots until the window is full. It is measured on the price series you loaded, not the price line. When the row of dots rises the share is swinging harder, so the gain or loss range for a year widens; when it falls the swings are dying down. A dot that leaps up is a very sharp session just entering the window, and the yearly figure jumps because it assumes the whole year swings like that.',
+      ),
+      bac: d(
+        'Mỗi bậc là độ biến động năm hoá của một phiên, đi từ phiên cũ nhất bên trái tới phiên gần nhất bên phải: bậc giữ nguyên suốt phiên ấy rồi mới sang mức của phiên sau, vì giữa hai phiên không có giá đóng cửa nào. Bậc đi lên là phiên vừa vào cửa sổ giật mạnh hơn phiên vừa rời ra, đi xuống là ngược lại. Mỗi bậc là độ lệch chuẩn phiên nhân với căn bậc hai của ô Số phiên giao dịch trong một năm (D), nên dáng của dãy bậc chính là dáng của độ lệch chuẩn phiên trên cùng cửa sổ, chỉ khác thước năm.',
+        'Each step is the annualized volatility of one session, running from the oldest session on the left to the most recent session on the right: the step stays level through that session and then moves to the next one, because there is no closing price between two sessions. The staircase rises when the session entering the window swung harder than the one leaving, and falls in the reverse case. Every step is the per-session deviation times the square root of the Trading sessions per year (D) field, so the staircase has the shape of the per-session deviation on the same window, on a yearly scale.',
       ),
     },
   },
@@ -305,6 +345,14 @@ export const BIEU_DO_RUI_RO: Readonly<Record<string, BieuDoRieng>> = {
           'Mỗi cột là độ lệch chuẩn bán phần khi lấy một số phiên, cột tô đặc là số phiên bạn đang nhập. Chỉ các phiên dưới ngưỡng mới góp vào chiều cao cột, nên thêm vào một giai đoạn toàn phiên tăng sẽ làm cột thấp đi.',
           'Each bar is the downside deviation using a given number of sessions, and the solid one is the number you have entered. Only sessions below the threshold add to a bar’s height, so taking in a stretch of rising sessions makes the bar shorter.',
         ),
+        diem: d(
+          'Mỗi chấm là độ lệch chuẩn bán phần khi lấy một số phiên gần nhất theo ô Số phiên lấy để tính, từ một nửa đến gấp rưỡi số phiên bạn đang nhập; chấm trên vạch đứt dọc là đúng số bạn nhập. Hình tính trên chuỗi giá bạn đã nạp, không phải diễn biến thị trường. Dãy chấm không có chiều cố định: đi lên là phiên cũ vừa thêm vào hụt dưới ngưỡng sâu hơn mức thường thấy, đi xuống là phiên thêm vào nằm trên ngưỡng hoặc chỉ hụt chút ít. Phiên trên ngưỡng không góp gì vào phần hụt mà vẫn được đếm vào tổng số phiên, nên nó kéo chấm xuống một chút.',
+          'Each dot is the downside deviation for one level of the Number of sessions used field, from half to one and a half times the number you have entered; the dot on the dashed vertical line is your own figure. It is calculated on the price series you loaded, not market history. The row has no fixed direction: it rises where an older session added fell short of the threshold by more than usual, and falls where the added session sat above the threshold or barely missed it. A session above the threshold adds nothing to the shortfall yet still counts toward the total, so it nudges the dot down.',
+        ),
+        bac: d(
+          'Mỗi bậc là độ lệch chuẩn bán phần khi lấy đúng một số phiên nguyên theo ô Số phiên lấy để tính. Dạng này chỉ hiện khi bạn nhập số phiên nhỏ: trục khi ấy bắt đầu từ mức thấp nhất ô cho phép, vì một nửa số bạn nhập còn thấp hơn, và chạy tới gấp rưỡi, mỗi mức đúng một phiên; không có nửa phiên nên bậc giữ nguyên tới mức sau. Hình tính trên chuỗi giá bạn đã nạp, không phải diễn biến thị trường. Bậc đi lên là phiên vừa thêm rơi sâu dưới ngưỡng; bậc đi xuống nhẹ là phiên ấy nằm trên ngưỡng hoặc chỉ hụt chút ít.',
+          'Each step is the downside deviation for one whole number of sessions on the Number of sessions used field. This form only appears for a small entry: the axis then starts at the field’s lowest value, since half your number is below it, and runs to one and a half times your number, one session per level; with no half sessions, a step holds until the next level. It is calculated on the price series you loaded, not market history. A step that rises is an added session that dropped well below the threshold; a small step that falls is one above the threshold or barely short of it.',
+        ),
       },
       threshold: {
         duong: d(
@@ -314,6 +362,10 @@ export const BIEU_DO_RUI_RO: Readonly<Record<string, BieuDoRieng>> = {
         cot: d(
           'Mỗi cột là độ lệch chuẩn bán phần ứng với một ngưỡng, cột cao dần về bên phải và cột tô đặc là ngưỡng bạn đang nhập. Đặt ngưỡng bằng 0 là chỉ đếm các phiên lỗ; đặt ngưỡng dương là coi cả những phiên lãi ít hơn mức mong muốn cũng là rủi ro.',
           'Each bar is the downside deviation for one threshold; bars grow taller to the right and the solid one is the threshold you have entered. A threshold of 0 counts losing sessions only; a positive threshold also treats sessions that earned less than you wanted as risk.',
+        ),
+        diem: d(
+          'Mỗi chấm là độ lệch chuẩn bán phần ở một mức của ô Ngưỡng lợi suất mỗi phiên (B). Khi ô để 0, trục chạy hết dải cho phép của ô, từ ngưỡng âm sâu nhất tới ngưỡng dương cao nhất, và chấm của bạn nằm ở giữa; gõ một ngưỡng khác 0 thì trục chạy quanh con số ấy. Hình tính trên chuỗi giá bạn đã nạp, không phải diễn biến thị trường. Dãy chấm đi lên: ngưỡng càng cao thì càng nhiều phiên bị tính là hụt và mỗi phiên hụt càng nhiều. Các chấm bên trái nằm sát mức 0 vì gần như không phiên nào rơi sâu tới đó, các chấm bên phải chênh nhau nhiều hơn.',
+          'Each dot is the downside deviation at one level of the Per-session return threshold (B) field. With the field at 0 the axis spans the field’s whole range, from the deepest negative threshold to the highest positive one, your dot in the middle; with another threshold it runs around that figure. It is calculated on the price series you loaded, not market history. The row of dots rises: the higher the threshold, the more sessions count as short of it and the bigger each shortfall. Dots on the left sit close to 0 because hardly any session drops that deep, and dots on the right are further apart.',
         ),
       },
     },
@@ -325,6 +377,14 @@ export const BIEU_DO_RUI_RO: Readonly<Record<string, BieuDoRieng>> = {
       cot: d(
         'Mỗi cột là độ lệch chuẩn bán phần tính tới một phiên, cột cuối bên phải là phiên gần nhất. Cột cao là quãng mà cổ phiếu hay có phiên giảm mạnh; nếu cột thấp trong khi độ lệch chuẩn thường vẫn cao thì dao động chủ yếu đến từ các phiên tăng.',
         'Each bar is the downside deviation up to one session, the last one on the right being the latest. A tall bar is a stretch with frequent hard down days; if it stays short while the ordinary deviation is high, the swings come mostly from up days.',
+      ),
+      diem: d(
+        'Mỗi chấm là độ lệch chuẩn bán phần tính trên cửa sổ kết thúc ở một phiên, đi từ phiên cũ nhất bên trái tới phiên gần nhất bên phải; đoạn đầu chưa có chấm vì cửa sổ chưa đủ phiên. Đây là số đo trên chuỗi giá bạn đã nạp, và chỉ phiên dưới ngưỡng góp vào nó. Dãy chấm đi lên là các phiên dưới ngưỡng đang hụt sâu hơn, đi xuống là phần rủi ro phía dưới đang nhẹ đi. Một chấm vọt lên khỏi các chấm trước là phiên vừa rơi sâu dưới ngưỡng; một phiên nằm trên ngưỡng, tăng mạnh đến đâu cũng không đẩy chấm lên.',
+        'Each dot is the downside deviation over the window ending at one session, running from the oldest session on the left to the most recent session on the right; the first stretch has no dots until the window is full. It is measured on the price series you loaded, and only sessions below the threshold feed it. When the row of dots rises sessions below the threshold are missing it by more; when it falls the downside risk is easing. A dot jumping above the ones before is a session that has just dropped well below the threshold; a session above the threshold, however strong, never pushes a dot up.',
+      ),
+      bac: d(
+        'Mỗi bậc là độ lệch chuẩn bán phần của một phiên, đi từ phiên cũ nhất bên trái tới phiên gần nhất bên phải: bậc giữ nguyên suốt phiên ấy rồi mới sang mức của phiên sau, vì giữa hai phiên không có giá đóng cửa nào. Bậc chỉ đi lên ở phiên rơi xuống dưới ngưỡng; ở phiên nằm trên ngưỡng, bậc đứng yên hoặc đi xuống, nên hình hay có những quãng bậc lặng hoặc lùi dần xen giữa các cú nhảy lên.',
+        'Each step is the downside deviation of one session, running from the oldest session on the left to the most recent session on the right: the step stays level through that session and then moves to the next one, because there is no closing price between two sessions. The staircase only rises on a session that drops below the threshold; on a session above it, the step holds or falls, so quiet or slowly sinking stretches sit between the jumps up.',
       ),
     },
   },
@@ -340,6 +400,14 @@ export const BIEU_DO_RUI_RO: Readonly<Record<string, BieuDoRieng>> = {
           'Mỗi cột là hệ số biến thiên khi lấy một số phiên, cột tô đặc là số phiên bạn đang nhập. Cột thấp là mỗi phần lợi suất phải trả bằng ít rủi ro hơn; cột cao vọt cạnh một vùng gạch chéo là cửa sổ có lợi suất bình quân dương nhưng sắp chạm 0.',
           'Each bar is the coefficient of variation using a given number of sessions, and the solid one is the number you have entered. A short bar means each unit of return costs less risk; a towering bar next to a hatched area is a window whose average return is positive but about to touch 0.',
         ),
+        diem: d(
+          'Mỗi chấm là hệ số biến thiên khi lấy một số phiên gần nhất theo ô Số phiên lấy để tính, từ một nửa đến gấp rưỡi số phiên bạn đang nhập; chấm trên vạch đứt dọc là đúng số bạn nhập. Hình tính trên chuỗi giá bạn đã nạp, không phải diễn biến thị trường. Dãy chấm không có chiều cố định: đi lên là thêm phiên làm dao động tăng nhanh hơn lợi suất bình quân, đi xuống là ngược lại. Vùng gạch chéo là những cửa sổ có lợi suất bình quân bằng 0 hoặc âm, hoặc dài hơn chuỗi đã nạp; chấm vọt rất cao ngay cạnh vùng ấy cao vì lợi suất bình quân sát 0, chứ không vì giá giật mạnh hơn.',
+          'Each dot is the coefficient of variation for one level of the Number of sessions used field, from half to one and a half times the number you have entered; the dot on the dashed vertical line is your own figure. It is calculated on the price series you loaded, not market history. No fixed direction: it rises where added sessions lift the swing faster than the average return, and falls where the reverse holds. Hatching marks windows with an average return of 0 or below, or longer than the loaded series; a towering dot beside it reflects an average return near 0, not a wilder price.',
+        ),
+        bac: d(
+          'Mỗi bậc là hệ số biến thiên khi lấy đúng một số phiên nguyên theo ô Số phiên lấy để tính. Dạng này chỉ hiện khi bạn nhập số phiên nhỏ: trục bắt đầu từ mức thấp nhất ô cho phép, vì một nửa số bạn nhập còn thấp hơn, và chạy tới gấp rưỡi, mỗi mức đúng một phiên; không có nửa phiên nên bậc đứng yên tới mức sau. Hình tính trên chuỗi giá bạn đã nạp, không phải diễn biến thị trường. Bậc đi lên là phiên vừa thêm làm dao động lớn nhanh hơn lợi suất, đi xuống là ngược lại; bậc vọt rất cao sát vùng gạch chéo là lợi suất bình quân đang gần chạm 0.',
+          'Each step is the coefficient of variation for one whole number of sessions on the Number of sessions used field. This form only appears for a small entry: the axis starts at the field’s lowest value, since half your number is below it, and runs to one and a half times your number, one session per level; with no half sessions, a step holds until the next level. It is calculated on the price series you loaded, not market history. A step rises where the added session grew the swing faster than the return, and falls where it did not; a towering step beside hatching means an average return near 0.',
+        ),
       },
     },
     thoiGian: {
@@ -350,6 +418,14 @@ export const BIEU_DO_RUI_RO: Readonly<Record<string, BieuDoRieng>> = {
       cot: d(
         'Mỗi cột là hệ số biến thiên tính tới một phiên, cột cuối bên phải là phiên gần nhất. Cột thấp là tốt: ít rủi ro cho mỗi phần lợi suất. Không cột nào quay xuống dưới vạch 0: quãng lợi suất bình quân âm thì công thức không tính, trên hình là một vùng gạch chéo không có cột, và đừng đọc chỗ ấy là rủi ro thấp.',
         'Each bar is the coefficient of variation up to one session, the last one on the right being the latest. A short bar is good: little risk per unit of return. No bar ever hangs below the zero line: over a stretch with a negative average return the formula is not calculated, the chart shows a hatched area with no bars, and that stretch must not be read as low risk.',
+      ),
+      diem: d(
+        'Mỗi chấm là hệ số biến thiên tính trên cửa sổ kết thúc ở một phiên, đi từ phiên cũ nhất bên trái tới phiên gần nhất bên phải; đoạn đầu chưa có chấm vì cửa sổ chưa đủ phiên. Đây là số đo trên chuỗi giá bạn đã nạp, không phải đường giá. Dãy chấm đi lên là phải chịu nhiều dao động hơn cho mỗi phần lợi suất, đi xuống là dao động đang rẻ đi so với lợi suất. Về sau, một quãng không có chấm, phủ vùng gạch chéo, là lúc lợi suất bình quân của cửa sổ bằng 0 hoặc âm; mấy chấm vọt rất cao ở mép quãng ấy là lợi suất bình quân dương nhưng sát 0, không phải rủi ro thật cao.',
+        'Each dot is the coefficient of variation over the window ending at one session, running from the oldest session on the left to the most recent session on the right; the first stretch has no dots until the window is full. It is measured on the price series you loaded, not the price line. When the row of dots rises you bear more swing for each unit of return; when it falls swing is getting cheaper against return. A later gap with no dots, covered by a hatched area, is where the window’s average return is 0 or below; towering dots at its edge mean a positive average near 0, not high risk.',
+      ),
+      bac: d(
+        'Mỗi bậc là hệ số biến thiên của một phiên, đi từ phiên cũ nhất bên trái tới phiên gần nhất bên phải: bậc giữ nguyên suốt phiên ấy rồi mới sang mức của phiên sau, vì giữa hai phiên không có giá đóng cửa nào. Bậc đi lên là dao động đang tăng nhanh hơn lợi suất bình quân, đi xuống là dao động rẻ dần so với lợi suất. Bậc nhảy rất cao thường không phải giá biến động mạnh hơn mà là lợi suất bình quân vừa tụt sát 0; quãng lợi suất bình quân bằng 0 hoặc âm không có bậc nào, hình phủ vùng gạch chéo.',
+        'Each step is the coefficient of variation of one session, running from the oldest session on the left to the most recent session on the right: the step stays level through that session and then moves to the next one, because there is no closing price between two sessions. The staircase rises when swing grows faster than the average return, and falls when swing gets cheaper against return. A very tall jump is usually not a wilder price but an average return that has just slipped close to 0; where the average return is 0 or below there are no steps, only a hatched area.',
       ),
     },
   },
@@ -365,6 +441,14 @@ export const BIEU_DO_RUI_RO: Readonly<Record<string, BieuDoRieng>> = {
           'Mỗi cột là biên độ dao động của một độ dài kỳ, cột tô đặc là số phiên bạn đang nhập. Nhiều cột liền nhau bằng nhau rồi nhảy một bậc: bậc nhảy là lúc kỳ quan sát vừa lùi tới một đỉnh hoặc đáy mới.',
           'Each bar is the price range for one period length, and the solid one is the number you have entered. Several equal bars and then a jump: the jump is where the period has just reached back to a new high or low.',
         ),
+        diem: d(
+          'Mỗi chấm là biên độ dao động khi kỳ dài một số phiên theo ô Số phiên trong kỳ, từ một nửa đến gấp rưỡi số phiên bạn đang nhập; chấm trên vạch đứt dọc là đúng số bạn nhập. Hình tính trên chuỗi giá bạn đã nạp, không phải diễn biến thị trường. Dãy chấm chỉ đi lên hoặc đứng nguyên và thường xếp thành những hàng cao bằng nhau: kỳ dài thêm mà không gặp giá đóng cửa nào cao hơn đỉnh hay thấp hơn đáy đang có thì biên độ không đổi. Chấm nhảy lên là kỳ vừa lùi tới một đỉnh hay đáy mới.',
+          'Each dot is the price range for one period length along the Number of sessions in the period field, from half to one and a half times the number you have entered; the dot on the dashed vertical line is your own figure. It is calculated on the price series you loaded, not market history. The row of dots only ever rises or holds, and often lines up in runs of equal height: a longer period that meets no close above the current high or below the current low leaves the range unchanged. A dot that jumps up is a period that has just reached back to a new high or low.',
+        ),
+        bac: d(
+          'Mỗi bậc là biên độ dao động của một độ dài kỳ theo ô Số phiên trong kỳ, từ một nửa đến gấp rưỡi số phiên bạn đang nhập, nhưng không dưới mức thấp nhất ô cho phép. Bậc giữ nguyên vì kỳ dài thêm mà không gặp giá đóng cửa nào vượt đỉnh hay thủng đáy đang có thì biên độ không đổi; bậc nhảy lên đúng lúc kỳ lùi tới một đỉnh hay đáy mới. Hình tính trên chuỗi giá bạn đã nạp, không phải diễn biến thị trường. Bậc chỉ đi lên hoặc đứng yên; bậc nhảy càng cao thì đỉnh hay đáy vừa gặp càng nằm xa vùng giá cũ.',
+          'Each step is the price range for one period length on the Number of sessions in the period field, from half to one and a half times the number you have entered, but not below the lowest value the field allows. A step holds because a longer period that meets no close above the current high or below the current low leaves the range unchanged, and it jumps where the period reaches back to a new high or low. It is calculated on the price series you loaded, not market history. The staircase only ever rises or holds; the taller the step, the further the new high or low sits from the old price band.',
+        ),
       },
     },
     thoiGian: {
@@ -375,6 +459,14 @@ export const BIEU_DO_RUI_RO: Readonly<Record<string, BieuDoRieng>> = {
       cot: d(
         'Mỗi cột là biên độ dao động của kỳ kết thúc ở một phiên, cột cuối bên phải là phiên gần nhất. Cột cao là kỳ giá đi một quãng dài giữa đáy và đỉnh; nó không nói quãng ấy đi lên hay đi xuống, chỉ nói rộng bao nhiêu.',
         'Each bar is the range of the period ending at one session, the last one on the right being the latest. A tall bar is a period in which the price traveled a long way between low and high; it does not say whether that travel was up or down, only how wide.',
+      ),
+      diem: d(
+        'Mỗi chấm là biên độ của kỳ kết thúc ở một phiên, tức giá đóng cửa cao nhất của kỳ ấy cao hơn giá đóng cửa thấp nhất bao nhiêu phần trăm, đi từ phiên cũ nhất bên trái tới phiên gần nhất bên phải; đoạn đầu chưa có chấm vì chưa đủ phiên cho một kỳ. Đây là số đo trên chuỗi giá bạn đã nạp, không phải đường giá. Dãy chấm đi lên là kỳ vừa có thêm đỉnh cao hơn hoặc đáy thấp hơn, đi xuống là đỉnh hay đáy cũ đã trôi ra khỏi kỳ; những hàng chấm cao bằng nhau là quãng giá đi lại bên trong vùng cũ.',
+        'Each dot is the range of the period ending at one session, how far in percent its highest close stood above its lowest close, running from the oldest session on the left to the most recent session on the right; the first stretch has no dots until there are enough sessions for one period. It is measured on the price series you loaded, not the price line. The row of dots rises when the period gains a higher high or a lower low, and falls when an old high or low slides out of the period; runs of dots at one height are stretches where the price moved inside its old band.',
+      ),
+      bac: d(
+        'Mỗi bậc là biên độ dao động của kỳ kết thúc ở một phiên, đi từ phiên cũ nhất bên trái tới phiên gần nhất bên phải: bậc giữ nguyên suốt phiên ấy rồi mới sang mức của phiên sau, vì giữa hai phiên không có giá đóng cửa nào. Hình hay có bậc dài vì biên độ chỉ đổi khi giá vượt đỉnh, thủng đáy, hoặc khi đỉnh hay đáy cũ rời khỏi kỳ. Bậc đi lên là vùng giá vừa nới rộng, bậc đi xuống là vùng giá co lại; bậc không cho biết giá đang lên hay xuống.',
+        'Each step is the price range of the period ending at one session, running from the oldest session on the left to the most recent session on the right: the step stays level through that session and then moves to the next one, because there is no closing price between two sessions. Long steps are common, since the range only changes when the price breaks above the high or below the low, or when an old high or low leaves the period. The staircase rises when the band widens and falls when it narrows; it does not tell you whether the price is going up or down.',
       ),
     },
   },
@@ -681,6 +773,18 @@ export const BIEU_DO_RUI_RO: Readonly<Record<string, BieuDoRieng>> = {
           'Mỗi cột là tỷ số thông tin theo một quy ước số phiên trong năm, cột tô đặc là quy ước bạn đang nhập. Hai báo cáo dùng hai quy ước khác nhau sẽ cho hai tỷ số khác nhau cho cùng một mã, nên hãy xem quy ước trước khi so.',
           'Each bar is the information ratio under one convention for the sessions in a year, and the solid one is the convention you have entered. Two reports using two conventions give two different ratios for the same ticker, so check the convention before comparing.',
         ),
+        diem: d(
+          'Mỗi chấm là tỷ số thông tin theo một quy ước ở ô Số phiên trong một năm (m), từ một nửa đến gần gấp rưỡi con số bạn đang nhập; chấm nằm trên vạch đứt dọc là quy ước bạn nhập. Hình tính trên chuỗi giá bạn đã nạp, nhưng chuỗi giữ nguyên ở mọi chấm nên đây không phải diễn biến thị trường. Quy ước nhiều phiên hơn vừa phóng to kết quả một phiên, vừa chia mức chuẩn năm thành phần nhỏ hơn cho mỗi phiên: dãy chấm đi lên khi chuỗi có lợi suất bình quân dương, đi xuống khi chuỗi lỗ rõ.',
+          'Each dot is the information ratio under one convention in the Sessions per year (m) field, from half to nearly one and a half times the figure you have entered; the dot on the dashed vertical line is your own convention. It is calculated on the price series you loaded, but the series stays the same at every dot, so this is not market history. A convention with more sessions both scales up one session’s result and splits the yearly benchmark into smaller slices per session: the row of dots rises when the series has a positive average return and falls when it is clearly losing.',
+        ),
+        bac: d(
+          'Mỗi bậc là tỷ số thông tin theo một quy ước ở ô Số phiên trong một năm (m), từ một nửa đến gấp rưỡi con số bạn đang nhập, đầu trái không xuống dưới mức nhỏ nhất ô cho phép. Dạng bậc thang chỉ có khi con số ấy đủ nhỏ, ví dụ chuỗi theo tháng, để mỗi mức trên trục hơn mức trước đúng một phiên; giữa hai số phiên nguyên không có gì để tính nên bậc giữ yên. Hình tính trên chuỗi giá bạn đã nạp, không phải diễn biến thị trường. Với mức chuẩn dương, mỗi bậc sang phải hạ phần chuẩn một phiên phải vượt, nên bậc đi lên trừ khi chuỗi lỗ bình quân mỗi phiên nhiều hơn phần ấy; khi đó bậc đi xuống.',
+          'Each step is the information ratio of the price series you loaded under one convention in the Sessions per year (m) field, from half (never below the field’s minimum) to one and a half times your figure; it is not market history. The staircase is offered only for a small figure, a monthly series for instance, where each level is one session from the next; nothing lies between two whole session counts, so the step holds. With a positive benchmark each step right lowers the slice a session must beat, so the staircase rises unless the series loses more than that per session; then it falls.',
+        ),
+        laiLo: d(
+          'Dạng này chỉ hiện khi dải của ô Số phiên trong một năm (m) chứa đúng quy ước mà ở đó lợi suất bình quân một phiên của chuỗi bạn đã nạp vừa bằng phần chuẩn chia cho một phiên. Phần đường trên vạch 0 tô xanh là những quy ước mà mã thắng chuẩn, phần dưới tô đỏ là những quy ước mà mã thua; cùng một chuỗi, chỉ đổi quy ước, nên không phải diễn biến thị trường. Với mức chuẩn dương, đường đi lên qua vạch 0: quy ước ít phiên chia chuẩn ra phần lớn cho mỗi phiên nên mã thua. Mức chuẩn âm thì hai màu đổi bên và đường đi xuống.',
+          'This form appears only when the range of the Sessions per year (m) field holds the convention at which the loaded series’ average per-session return equals one session’s share of the benchmark. Above the zero line is shaded green, conventions under which the ticker beats the benchmark; below is shaded red, conventions under which it trails. The series never changes, so this is not market history. With a positive benchmark the line rises through the zero line, since few sessions per year leave a large hurdle for each. With a negative benchmark the colors swap sides and the line falls.',
+        ),
       },
     },
     thoiGian: {
@@ -691,6 +795,18 @@ export const BIEU_DO_RUI_RO: Readonly<Record<string, BieuDoRieng>> = {
       cot: d(
         'Mỗi cột là tỷ số thông tin tính tới một phiên, cột cuối bên phải là phiên gần nhất. Cột trên vạch 0 là quãng thắng chuẩn so sánh, cột dưới vạch 0 là quãng thua; cột càng dài thì phần chênh so với chuẩn càng rõ so với độ thất thường của nó.',
         'Each bar is the information ratio up to one session, the last one on the right being the latest. A bar above the zero line is a stretch that beat the benchmark, one below the zero line a stretch that trailed it; the longer the bar, the clearer the gap against how erratic it is.',
+      ),
+      diem: d(
+        'Mỗi chấm là tỷ số thông tin của đoạn chuỗi từ đầu tới một phiên, so lợi suất của cổ phiếu với mức chuẩn bạn nhập; dãy chấm đi từ phiên cũ nhất bên trái tới phiên gần nhất bên phải, những phiên đầu chưa đủ số phiên tối thiểu thì phủ gạch chéo. Dãy chấm đi lên là cổ phiếu đang thắng chuẩn một cách đều đặn hơn, đi xuống là phần thắng nhỏ lại hoặc thất thường hơn; chấm dưới mức 0 là quãng đang thua chuẩn. Càng về phải, mỗi phiên mới càng ít làm chấm xê dịch.',
+        'Each dot is the information ratio of the stretch from the start of the series to one session, setting the share’s return against the benchmark you entered; the dots run from the oldest session on the left to the most recent session on the right, and the first sessions, short of the minimum, are hatched. When the row rises the share is beating the benchmark more consistently; when it falls that edge is shrinking or growing erratic. Dots below 0 mark a stretch that trails the benchmark. Further right, each new session moves the dot less.',
+      ),
+      bac: d(
+        'Mỗi bậc là tỷ số thông tin của đoạn chuỗi từ đầu tới một phiên, đi từ phiên cũ nhất bên trái tới phiên gần nhất bên phải: bậc giữ nguyên suốt phiên ấy rồi mới nhảy sang mức của phiên sau, vì giữa hai phiên không có lợi suất mới nào. Mức chuẩn là một con số cố định, nên mỗi bậc nhảy chỉ do chính phiên vừa qua: bậc đi lên là phiên ấy làm phần thắng chuẩn dày thêm so với độ lên xuống, đi xuống là làm nó mỏng đi. Bậc nhảy thấp dần về sau vì đoạn chuỗi ngày càng dài.',
+        'Each step is the information ratio of the stretch from the start of the series to one session, running from the oldest session on the left to the most recent session on the right: the step stays level through that session and then jumps to the next, because no new return arrives between two sessions. The benchmark is a fixed figure, so every jump comes from the latest session alone: when the staircase rises that session thickened the margin over the benchmark against the swings, and when it falls it thinned it. Jumps generally shrink later on as the stretch grows longer.',
+      ),
+      laiLo: d(
+        'Dạng này chỉ hiện khi đường tỷ số thông tin có cả đoạn trên lẫn đoạn dưới vạch 0, đi từ phiên cũ nhất bên trái tới phiên gần nhất bên phải. Phần trên vạch 0 tô xanh là quãng lợi suất bình quân của cổ phiếu tính từ đầu chuỗi đang thắng mức chuẩn bạn nhập; phần dưới tô đỏ là quãng đang thua mức ấy. Đường đi lên qua vạch 0 là phiên cổ phiếu vừa vượt lên trên chuẩn, đi xuống qua vạch 0 là phiên vừa tụt xuống dưới chuẩn.',
+        'This form appears only when the information ratio line has stretches both above and below the zero line, running from the oldest session on the left to the most recent session on the right. The part above the zero line is shaded green: stretches where the share’s average return since the start of the series beats the benchmark you entered. The part below is shaded red: stretches trailing it. Where the line rises through the zero line the share has just moved ahead of the benchmark; where it falls through it, the share has just dropped behind.',
       ),
     },
   },
@@ -706,6 +822,14 @@ export const BIEU_DO_RUI_RO: Readonly<Record<string, BieuDoRieng>> = {
           'Mỗi cột là tỷ số Calmar theo một quy ước số phiên trong năm, cột tô đặc là quy ước bạn đang nhập. Mọi cột đều chia cho cùng một cú rơi sâu nhất của chuỗi, nên cả dãy chỉ là một con số được đo bằng những cây thước dài ngắn khác nhau.',
           'Each bar is the Calmar ratio under one convention for the sessions in a year, and the solid one is the convention you have entered. Every bar is divided by the same worst drop of the series, so the whole row is one number measured with yardsticks of different lengths.',
         ),
+        diem: d(
+          'Mỗi chấm là tỷ số Calmar theo một quy ước ở ô Số phiên trong một năm, từ một nửa đến gần gấp rưỡi con số bạn đang nhập; chấm nằm trên vạch đứt dọc là quy ước bạn nhập. Hình tính trên chuỗi giá bạn đã nạp, nhưng chuỗi và cú sụt sâu nhất giữ nguyên ở mọi chấm, nên đây không phải diễn biến thị trường. Chuỗi có lãi thì dãy chấm đi lên và giãn dần ra về bên phải, vì lợi suất được quy năm theo lãi kép; chuỗi lỗ thì dãy chấm đi xuống và sít dần lại.',
+          'Each dot is the Calmar ratio under one convention in the Sessions per year field, from half to nearly one and a half times the figure you have entered; the dot on the dashed vertical line is your own convention. It is calculated on the price series you loaded, but the series and its worst drop stay the same at every dot, so this is not market history. If the series made money the row of dots rises and spreads out to the right, because the return is annualized by compounding; if it lost money the row falls and the dots close up.',
+        ),
+        bac: d(
+          'Mỗi bậc là tỷ số Calmar theo một quy ước ở ô Số phiên trong một năm, từ một nửa đến gấp rưỡi con số bạn đang nhập, đầu trái không xuống dưới mức nhỏ nhất ô cho phép. Dạng này chỉ được mời khi con số ấy nhỏ, như chuỗi theo tháng, để mỗi mức trên trục chỉ hơn mức trước một phiên; không quy ước nào có nửa phiên, nên bậc đứng nguyên tới mức sau. Hình tính trên chuỗi giá bạn đã nạp, không phải diễn biến thị trường. Cú sụt sâu nhất không đổi giữa các bậc, chỉ lợi suất quy năm đổi: chuỗi có lãi thì bậc đi lên, chuỗi lỗ thì bậc đi xuống, các bậc cao gần bằng nhau.',
+          'Each step is the Calmar ratio under one convention in the Sessions per year field, from half (never below the field’s minimum) to one and a half times your figure. Steps are offered only for a small figure, as with a monthly series, where each level is one session more than the last; no convention has half a session, so a step holds until the next. It is calculated on the price series you loaded, not market history. The worst drop is the same on every step, only the annualized return changes: the staircase rises if the series made money and falls if it lost, in steps of nearly equal height.',
+        ),
       },
     },
     thoiGian: {
@@ -716,6 +840,18 @@ export const BIEU_DO_RUI_RO: Readonly<Record<string, BieuDoRieng>> = {
       cot: d(
         'Mỗi cột là tỷ số Calmar tính tới một phiên, cột cuối bên phải là phiên gần nhất. Cột trên vạch 0 là quãng có lãi tính theo năm, và càng cao thì lãi càng xứng với cú rơi đã chịu; cột dưới vạch 0 là quãng lợi suất năm hoá âm.',
         'Each bar is the Calmar ratio up to one session, the last one on the right being the latest. A bar above the zero line is a stretch with a positive yearly return, and the taller it is the better that return repays the drop endured; one below the zero line is a stretch with a negative annualized return.',
+      ),
+      diem: d(
+        'Mỗi chấm là tỷ số Calmar của đoạn chuỗi từ đầu tới một phiên: lợi suất quy năm chia cho cú sụt sâu nhất trong đoạn ấy. Dãy chấm đi từ phiên cũ nhất bên trái tới phiên gần nhất bên phải, những phiên đầu chưa đủ số phiên tối thiểu thì phủ gạch chéo. Các chấm đầu nhảy mạnh vì đoạn còn ngắn mà vẫn bị quy ra cả năm, về sau chúng lắng dần. Dãy chấm đi lên là lãi đang lớn dần so với cú rơi tệ nhất, đi xuống là lãi mòn đi hoặc giá vừa rơi một cú sâu hơn.',
+        'Each dot is the Calmar ratio of the stretch from the start of the series to one session: the annualized return divided by the deepest drawdown within it. The dots run from the oldest session on the left to the most recent session on the right, and the first sessions, short of the minimum, are hatched. Early dots jump around because a short stretch is still scaled up to a full year; later they settle. When the row rises the gain is growing against the worst drop; when it falls the gain is wearing away or the price has just dropped deeper.',
+      ),
+      bac: d(
+        'Mỗi bậc là tỷ số Calmar của đoạn chuỗi từ đầu tới một phiên, đi từ phiên cũ nhất bên trái tới phiên gần nhất bên phải: bậc giữ nguyên suốt phiên ấy rồi mới nhảy sang mức của phiên sau, vì giữa hai phiên không có giá đóng cửa nào. Khi đang có lãi, bậc đi lên là giá tăng đủ nhanh; bậc đi xuống từ từ là giá chững lại, vì cùng một khoản lãi trải trên nhiều phiên hơn thì quy ra năm mỏng dần; còn một phiên rơi xuống mức sụt mới thường làm bậc tụt mạnh, vì vừa làm lãi mỏng đi vừa làm cú sụt sâu nhất lớn thêm.',
+        'Each step is the Calmar ratio of the stretch from the start of the series to one session, running from the oldest session on the left to the most recent session on the right: the step stays level through that session and then jumps to the next, because there is no closing price between two sessions. While in profit, the staircase rises when the price climbs fast enough and falls slowly when it stalls, since the same gain spread over more sessions annualizes to less; a session sinking to a new drawdown low usually brings a big step down, thinning the gain and deepening the worst drop at once.',
+      ),
+      laiLo: d(
+        'Dạng này chỉ hiện khi đường tỷ số Calmar có cả đoạn trên lẫn đoạn dưới vạch 0, đi từ phiên cũ nhất bên trái tới phiên gần nhất bên phải. Dấu của tỷ số do giá quyết: phần trên vạch 0 tô xanh là những phiên giá đóng cửa cao hơn giá của phiên cũ nhất trong chuỗi, tức tính từ đầu chuỗi đang có lãi; phần dưới tô đỏ là lúc giá còn thấp hơn mức ấy. Đường đi lên qua vạch 0 là phiên giá vượt lại mức khởi đầu, đi xuống qua vạch 0 là phiên giá thủng mức ấy.',
+        'This form appears only when the Calmar ratio line has stretches both above and below the zero line, running from the oldest session on the left to the most recent session on the right. The price alone sets the sign: the part above the zero line is shaded green, sessions closing above the price of the oldest session in the series, so the stretch so far is a gain; the part below is shaded red, sessions still under that price. Where the line rises through the zero line the price has just climbed back over its starting level; where it falls through, the price has just broken below it.',
       ),
     },
   },
@@ -731,6 +867,10 @@ export const BIEU_DO_RUI_RO: Readonly<Record<string, BieuDoRieng>> = {
           'Mỗi cột là tỷ số thắng thua ứng với một ngưỡng, cột tô đặc là ngưỡng bạn đang nhập. Cột cao hơn mức một lần là phiên tăng trung bình lớn hơn phiên giảm trung bình; vùng gạch chéo ở bên phải là ngưỡng đã loại hết các phiên giảm hoặc hết các phiên tăng.',
           'Each bar is the win/loss ratio for one threshold, and the solid one is the threshold you have entered. A bar above one time means the average gain is larger than the average loss; a hatched area on the right is a threshold that has removed every losing session or every winning one.',
         ),
+        diem: d(
+          'Mỗi chấm là tỷ số thắng/thua tính ở một mức của ô Ngưỡng bỏ qua phiên đi ngang (h). Con số mặc định của ô là 0 nên các chấm chạy từ 0 lên một quãng ngắn, cách nhau một bước của ô, chấm ở mép trái là ngưỡng bạn nhập. Hình tính trên chuỗi giá bạn đã nạp và không phải diễn biến thị trường. Dãy chấm không có chiều cố định: đi lên là bỏ thêm phiên nhỏ làm mức tăng trung bình lớn nhanh hơn mức giảm trung bình, đi xuống là ngược lại. Hai chấm liền nhau bằng nhau là giữa hai ngưỡng ấy không có phiên nào bị bỏ thêm.',
+          'Each dot is the win/loss ratio at one level of the Threshold to ignore flat sessions (h) field. The field’s default is 0, so the dots run from 0 up a short way, one field step apart, and the dot at the left edge is your own threshold. It is calculated on the price series you loaded and is not market history. The row has no fixed direction: it rises where dropping more small sessions lifts the average gain faster than the average loss, and falls where the reverse holds. Two neighboring dots at the same height mean no session was dropped between those two thresholds.',
+        ),
       },
     },
     thoiGian: {
@@ -741,6 +881,14 @@ export const BIEU_DO_RUI_RO: Readonly<Record<string, BieuDoRieng>> = {
       cot: d(
         'Mỗi cột là tỷ số thắng/thua tính tới một phiên, cột cuối bên phải là phiên gần nhất. Cột cao hơn mức một lần là quãng phiên tăng lớn hơn phiên giảm; tỷ số này không đếm số phiên, nên cột cao vẫn có thể đi cùng một cổ phiếu giảm nhiều phiên hơn tăng.',
         'Each bar is the win/loss ratio up to one session, the last one on the right being the latest. A bar above one time is a stretch in which up sessions were bigger than down sessions; the ratio does not count sessions, so a tall bar can still go with a share that fell on more days than it rose.',
+      ),
+      diem: d(
+        'Mỗi chấm là tỷ số thắng/thua của đoạn chuỗi từ đầu tới một phiên: mức tăng trung bình của các phiên tăng chia cho mức giảm trung bình của các phiên giảm. Dãy chấm đi từ phiên cũ nhất bên trái tới phiên gần nhất bên phải, những phiên đầu chưa đủ số phiên tối thiểu thì phủ gạch chéo. Dãy chấm đi lên là phiên tăng đang lấy về nhiều hơn so với phiên giảm lấy đi, đi xuống là phiên giảm đang nặng tay hơn; càng về phải mỗi phiên mới càng ít làm chấm xê dịch, vì nó chỉ là một phần nhỏ của cả đoạn.',
+        'Each dot is the win/loss ratio of the stretch from the start of the series to one session: the average gain of the up sessions divided by the average loss of the down sessions. The dots run from the oldest session on the left to the most recent session on the right, and the first sessions, short of the minimum, are hatched. When the row rises each up session is winning back more than each down session takes; when it falls the down sessions are hitting harder. Further right, each new session moves the dot less, being only a small part of the whole stretch.',
+      ),
+      bac: d(
+        'Mỗi bậc là tỷ số thắng/thua của đoạn chuỗi từ đầu tới một phiên, đi từ phiên cũ nhất bên trái tới phiên gần nhất bên phải: bậc giữ nguyên suốt phiên ấy rồi mới nhảy sang mức của phiên sau, vì giữa hai phiên không có lợi suất mới nào. Một phiên tăng mạnh hơn mức tăng trung bình đẩy bậc lên, tăng yếu hơn lại kéo bậc xuống; một phiên giảm sâu hơn mức giảm trung bình kéo bậc xuống, giảm nông hơn lại đẩy bậc lên. Bậc đi lên là phần tăng đang thắng thế, đi xuống là phần giảm đang lấn.',
+        'Each step is the win/loss ratio of the stretch from the start of the series to one session, running from the oldest session on the left to the most recent session on the right: the step stays level through that session and then jumps to the next, because no new return arrives between two sessions. An up session bigger than the average gain lifts the step and a smaller one lowers it; a down session deeper than the average loss lowers the step and a shallower one lifts it. When the staircase rises the gains are winning out; when it falls the losses are gaining ground.',
       ),
     },
   },

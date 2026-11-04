@@ -254,7 +254,7 @@ export const BIEU_DO_KHAC: Readonly<Record<string, BieuDoRieng>> = {
         ),
         diem: d(
           'Mỗi chấm là số hợp đồng được phép mở tính ở một mức của ô Vốn tài khoản phái sinh (V), từ một nửa đến gấp rưỡi con số bạn đang nhập; chấm nằm trên vạch đứt dọc là đúng mức bạn nhập. Đây là phép thử nếu vốn tài khoản khác đi thì được mở bao nhiêu hợp đồng cho cùng mức rủi ro mỗi lệnh, không phải diễn biến thị trường. Dãy chấm đi lên, nhưng số hợp đồng làm tròn xuống số nguyên nên nhiều chấm liền nhau có thể cùng một độ cao: trong quãng ấy vốn tăng mà số hợp đồng đứng yên, phần rủi ro chưa dùng tới lớn dần cho tới khi đủ thêm một hợp đồng.',
-          'Each dot is the number of contracts allowed at one level of the Derivatives account capital (V) field, from half to one and a half times the figure you have entered; the dot on the dashed vertical line is your own figure. It is a what-if on how many contracts another account size allows for the same risk per trade, not market history. The row of dots rises, but the count is rounded down to whole contracts, so several neighboring dots can share one height: across that stretch capital grows while the count stands still, and the unused part of your risk budget grows until it covers one more contract.',
+          'Each dot is the number of contracts allowed at one level of the Derivatives account capital (V) field, from half to one and a half times the figure you have entered; the dot on the dashed vertical line is your own figure. It is a what-if on how many contracts another account size allows for the same risk per trade, not market history. The row of dots rises, but the count is rounded down to whole contracts, so neighboring dots can share one height: across that stretch capital grows while the count stands still, and the unused part of your risk budget grows until it covers one more contract.',
         ),
         bac: d(
           'Mỗi bậc là một số hợp đồng được phép mở theo ô Vốn tài khoản phái sinh (V), trên dải từ một nửa đến gấp rưỡi con số bạn đang nhập: bậc nằm ngang suốt quãng vốn chưa đủ cho thêm một hợp đồng rồi mới nhảy, vì số hợp đồng luôn làm tròn xuống số nguyên. Đây là phép thử nếu vốn tài khoản khác đi thì được mở bao nhiêu hợp đồng, không phải diễn biến thị trường. Các bậc đi lên, mỗi lần nhảy đúng một hợp đồng và dài gần bằng nhau: mỗi bậc là phần vốn mà phần rủi ro của nó vừa đủ trả khoản lỗ khi thêm một hợp đồng chạm cắt lỗ.',
@@ -418,6 +418,10 @@ export const BIEU_DO_KHAC: Readonly<Record<string, BieuDoRieng>> = {
           'Mỗi cột là khoản trả kỳ đầu ở một mức tiền vay, cột cao dần về bên phải và cột tô đặc là mức bạn đang nhập. Với lãi suất giữ nguyên, đây là kỳ NẶNG NHẤT của cả khoản vay: các kỳ sau lãi giảm dần theo dư nợ, nên kham được đỉnh cột này là kham được mọi kỳ còn lại.',
           'Each bar is the first payment at one loan amount; bars grow taller to the right and the solid one is the amount you have entered. As long as the rate stays the same, this is the HEAVIEST payment of the whole loan: later ones carry less interest as the balance falls, so being able to afford the top of this bar means affording all the rest.',
         ),
+        diem: d(
+          'Mỗi chấm là khoản trả tháng đầu tính ở một mức của ô Số tiền vay (P), từ một nửa đến gấp rưỡi con số bạn đang nhập; chấm nằm trên vạch đứt dọc là đúng số bạn nhập. Đây là phép thử nếu vay nhiều hơn hay ít hơn thì kỳ đầu phải trả bao nhiêu, không phải diễn biến thị trường. Dãy chấm đi lên thành một hàng thẳng, các chấm cách đều nhau: cả phần gốc chia đều lẫn tiền lãi tháng đầu đều tính theo số vay. Lãi suất giữ nguyên thì với cách trả này tháng đầu là tháng nặng nhất, nên mỗi chấm là mức đỉnh mà khoản vay ấy đòi bạn phải lo được.',
+          'Each dot is the first month’s payment at one level of the Loan amount (P) field, from half to one and a half times the figure you have entered; the dot on the dashed vertical line is your own amount. It is a what-if on the first payment for a larger or smaller loan, not market history. The row of dots rises in a straight line, evenly spaced: both the even slice of principal and the first month’s interest scale with the amount borrowed. At an unchanged rate the first month is the heaviest under this method, so each dot is the peak that loan asks you to meet.',
+        ),
       },
       rate: {
         duong: d(
@@ -427,6 +431,10 @@ export const BIEU_DO_KHAC: Readonly<Record<string, BieuDoRieng>> = {
         cot: d(
           'Mỗi cột là khoản trả kỳ đầu ở một mức lãi suất, cột cao dần về bên phải và cột tô đặc là mức bạn đang nhập. Lãi suất giữ nguyên thì kỳ đầu là kỳ nặng nhất của cách trả gốc đều; các kỳ sau nhẹ dần vì dư nợ giảm, nên chiều cao cột là mức đỉnh bạn phải lo được.',
           'Each bar is the first payment at one interest rate; bars grow taller to the right and the solid one is the rate you have entered. At an unchanged rate the first payment is the heaviest under equal principal; later ones get lighter as the balance falls, so bar height is the peak you must be able to meet.',
+        ),
+        diem: d(
+          'Mỗi chấm là khoản trả tháng đầu tính ở một mức của ô Lãi suất / năm, từ một nửa đến gấp rưỡi con số bạn đang nhập; chấm nằm trên vạch đứt dọc là đúng mức bạn nhập. Đây là phép thử nếu lãi suất vay đổi thì khoản trả kỳ đầu ra bao nhiêu, không phải diễn biến thị trường. Dãy chấm đi lên thành một hàng thẳng, các chấm cách đều nhau: mỗi bước lãi suất cộng thêm cùng một khoản tiền lãi trên toàn bộ số vay. Kéo dài hàng chấm về bên trái tới lãi suất bằng 0 thì nó dừng ở phần gốc mỗi tháng chứ không chạm 0, vì phần gốc chia đều không phụ thuộc lãi suất.',
+          'Each dot is the first month’s payment at one level of the Interest rate / year field, from half to one and a half times the figure you have entered; the dot on the dashed vertical line is your own rate. It is a what-if on the loan rate, not market history. The row of dots rises in a straight line, evenly spaced: each step of rate adds the same amount of interest on the whole loan. Extended to the left down to a rate of 0, the row would stop at the monthly slice of principal rather than at 0, since that slice does not depend on the rate.',
         ),
       },
       years: {
@@ -438,11 +446,23 @@ export const BIEU_DO_KHAC: Readonly<Record<string, BieuDoRieng>> = {
           'Mỗi cột là khoản trả kỳ đầu ứng với một kỳ hạn, cột thấp dần về bên phải và cột tô đặc là kỳ hạn bạn đang nhập. Phần cột không co lại được dù kéo dài kỳ hạn tới đâu chính là tiền lãi của tháng đầu tiên.',
           'Each bar is the first payment for one term; bars shrink to the right and the solid one is the term you have entered. The part of a bar that will not shrink however long the term is stretched is the first month’s interest.',
         ),
+        diem: d(
+          'Mỗi chấm là khoản trả tháng đầu ứng với một kỳ hạn tròn năm của ô Kỳ hạn, từ một nửa đến gấp rưỡi số năm bạn đang nhập, mỗi chấm cách nhau một năm; chấm nằm trên vạch đứt dọc là đúng kỳ hạn bạn nhập. Đây là phép thử nếu vay dài hay ngắn hơn thì khoản trả kỳ đầu ra bao nhiêu, không phải diễn biến thị trường. Dãy chấm đi xuống và sát lại gần nhau dần về bên phải như đang tiến tới một cái sàn: kéo dài kỳ hạn chỉ làm phần gốc mỗi tháng mỏng đi, còn tiền lãi tháng đầu vẫn tính trên trọn số vay nên không chấm nào xuống dưới mức tiền lãi ấy.',
+          'Each dot is the first month’s payment for one whole-year term on the Term field, from half to one and a half times the number of years you have entered, one dot per year; the dot on the dashed vertical line is your own term. It is a what-if on borrowing for longer or shorter, not market history. The row of dots falls and the dots close in on each other to the right, as if nearing a floor: a longer term only thins the monthly slice of principal, while the first month’s interest is still charged on the whole loan, so no dot ever drops below that interest.',
+        ),
+        bac: d(
+          'Mỗi bậc là khoản trả tháng đầu của một kỳ hạn theo ô Kỳ hạn, trên dải từ một nửa đến gấp rưỡi số năm bạn đang nhập: bậc nằm ngang suốt một năm rồi mới nhảy xuống mức của năm sau, vì kỳ hạn chỉ đổi theo từng năm tròn và giữa hai năm kề nhau màn không tính mức nào. Đây là phép thử nếu vay dài hay ngắn hơn thì kỳ đầu trả bao nhiêu, không phải diễn biến thị trường. Các bậc đi xuống, bậc tụt bên trái cao, sang phải thấp dần: mỗi năm thêm chỉ làm phần gốc mỗi tháng mỏng đi một chút, còn tiền lãi tháng đầu đứng yên như một cái sàn.',
+          'Each step is the first month’s payment for one term on the Term field, from half to one and a half times the years you have entered: it stays level for a year and only then drops to the next year’s figure, because the term changes only in whole years and nothing between two neighboring years is computed. It is a what-if on borrowing for longer or shorter, not market history. The staircase falls, with tall drops on the left that shrink to the right: each extra year only thins the monthly slice of principal a little, while the first month’s interest stays put like a floor.',
+        ),
       },
     },
     bocTach: d(
       'Hình này chỉ có một dạng: các thanh nằm ngang, đọc từ trên xuống. Gốc mỗi kỳ và Lãi kỳ đầu là hai thanh tô màu cộng lại với nhau; thanh sẫm cuối cùng là Trả kỳ đầu và bằng đúng con số ở khối Kết quả. Thanh gốc giữ nguyên chiều dài ở mọi kỳ, còn thanh lãi chỉ đúng cho kỳ đầu: từ kỳ thứ hai nó ngắn dần vì lãi tính trên dư nợ đã giảm.',
       'This chart has a single form: horizontal bars, read from top to bottom. Fixed principal and Period-1 interest are two filled bars that add together; the dark bar at the end is Period-1 payment and matches the figure in the Result block exactly. The principal bar keeps its length in every period, while the interest bar holds for the first one only: from the second period on it shortens because interest is charged on a shrinking balance.',
+    ),
+    vanhKhuyen: d(
+      'Hai múi của vòng cộng lại thành Trả kỳ đầu, con số in ở lỗ giữa và ở khối Kết quả. Múi Gốc mỗi kỳ là số tiền vay chia đều cho số tháng, tháng nào cũng đúng chừng ấy; múi Lãi kỳ đầu là tiền lãi tháng đầu trên trọn số vay, lớn nhất ở tháng này rồi nhỏ dần theo dư nợ. Mỗi múi to theo phần nó chiếm, chú giải cạnh vòng ghi giá trị và tỷ lệ phần trăm; rê chuột hay chạm một múi là hiện tên và giá trị của nó. Số tiền vay không đổi được tỷ lệ ấy, còn kỳ hạn dài hơn hay lãi suất cao hơn đều làm múi Lãi kỳ đầu to ra.',
+      'The two slices of the ring add up to Period-1 payment, the figure shown in the hole and in the Result block. The Fixed principal slice is the loan split evenly across the months, the same every month; the Period-1 interest slice is the first month’s interest on the whole loan, at its largest now and shrinking with the balance. Each slice is sized by its share, and the legend beside the ring gives its value and percentage; hover or tap a slice to see its name and value. The loan amount cannot change the split, while a longer term or a higher rate makes the Period-1 interest slice bigger.',
     ),
   },
 
@@ -457,6 +477,10 @@ export const BIEU_DO_KHAC: Readonly<Record<string, BieuDoRieng>> = {
           'Mỗi cột là tổng tiền lãi ở một mức tiền vay, cột cao dần về bên phải và cột tô đặc là mức bạn đang nhập. Đặt chiều cao cột cạnh chính số tiền vay của nó là thấy tiền lãi cả kỳ hạn lớn cỡ nào so với gốc.',
           'Each bar is the total interest at one loan amount; bars grow taller to the right and the solid one is the amount you have entered. Set a bar’s height beside its own loan amount to see how large the lifetime interest is next to the principal.',
         ),
+        diem: d(
+          'Mỗi chấm là tổng tiền lãi cả kỳ hạn tính ở một mức của ô Số tiền vay, từ một nửa đến gấp rưỡi con số bạn đang nhập; chấm nằm trên vạch đứt dọc là đúng số bạn nhập. Đây là phép thử nếu vay nhiều hay ít hơn với cùng lãi suất và kỳ hạn thì tổng tiền lãi ra bao nhiêu, không phải diễn biến thị trường. Dãy chấm đi lên thành một hàng thẳng, các chấm cách đều nhau: độ cao chấm nào chia cho số vay của nó cũng ra cùng một tỷ lệ, tức số đồng lãi phải trả cho mỗi đồng vay, và tỷ lệ ấy chỉ do lãi suất, kỳ hạn và phương thức trả quyết định.',
+          'Each dot is the total interest over the full term at one level of the Loan amount field, from half to one and a half times the figure you have entered; the dot on the dashed vertical line is your own amount. It is a what-if on borrowing more or less at the same rate and term, not market history. The row of dots rises in a straight line, evenly spaced: every dot’s height divided by its loan amount gives the same ratio, the interest paid per unit borrowed, and that ratio is set only by the rate, the term and the repayment method.',
+        ),
       },
       rate: {
         duong: d(
@@ -467,6 +491,10 @@ export const BIEU_DO_KHAC: Readonly<Record<string, BieuDoRieng>> = {
           'Mỗi cột là tổng tiền lãi ở một mức lãi suất, cột cao dần về bên phải, và với cách trả niên kim thì mỗi cột thêm nhiều hơn cột trước; cột tô đặc là mức bạn đang nhập. Chênh lệch giữa cột tô đặc và cột ngay bên trái nó là số tiền tiết kiệm được nếu thương lượng lãi suất xuống một nấc.',
           'Each bar is the total interest at one rate; bars grow taller to the right, and under the annuity method each adds more than the one before; the solid one is the rate you have entered. The gap between the solid bar and the one just left of it is the money saved by bargaining the rate down one notch.',
         ),
+        diem: d(
+          'Mỗi chấm là tổng tiền lãi cả kỳ hạn tính ở một mức của ô Lãi suất / năm, từ một nửa đến gấp rưỡi con số bạn đang nhập; chấm nằm trên vạch đứt dọc là đúng mức bạn nhập. Đây là phép thử nếu lãi suất khác đi thì cả kỳ hạn phải trả bao nhiêu tiền lãi, không phải diễn biến thị trường. Dãy chấm đi lên. Với cách trả niên kim, khoảng cách giữa hai chấm kề nhau nới rộng dần về bên phải: lãi suất càng cao thì dư nợ càng chậm giảm, nên mỗi bước lãi suất thêm vào tốn nhiều hơn bước trước. Với cách trả gốc đều, các chấm cách đều nhau vì dư nợ giảm theo một nhịp cố định.',
+          'Each dot is the total interest over the full term at one level of the Interest rate / year field, from half to one and a half times the figure you have entered; the dot on the dashed vertical line is your own rate. It is a what-if on the interest paid over the term at another rate, not market history. The row of dots rises. Under the annuity method the gap between neighboring dots widens to the right: the higher the rate, the slower the balance falls, so each extra step of rate costs more than the last. Under equal principal the dots are evenly spaced, as the balance falls at a fixed pace.',
+        ),
       },
       years: {
         duong: d(
@@ -476,6 +504,14 @@ export const BIEU_DO_KHAC: Readonly<Record<string, BieuDoRieng>> = {
         cot: d(
           'Mỗi cột là tổng tiền lãi ứng với một kỳ hạn, cột cao dần về bên phải và cột tô đặc là kỳ hạn bạn đang nhập. Đây là mặt còn lại của khoản trả hằng tháng nhẹ đi: kéo dài kỳ hạn là đổi sự dễ thở mỗi tháng lấy cột cao hơn ở đây.',
           'Each bar is the total interest for one term; bars grow taller to the right and the solid one is the term you have entered. This is the other side of a lighter monthly payment: stretching the term trades monthly comfort for a taller bar here.',
+        ),
+        diem: d(
+          'Mỗi chấm là tổng tiền lãi ứng với một kỳ hạn tròn năm của ô Kỳ hạn, từ một nửa đến gấp rưỡi số năm bạn đang nhập, mỗi chấm cách nhau một năm; chấm nằm trên vạch đứt dọc là đúng kỳ hạn bạn nhập. Đây là phép thử nếu vay dài hay ngắn hơn thì tổng tiền lãi ra bao nhiêu, không phải diễn biến thị trường. Dãy chấm đi lên. Với cách trả niên kim, chấm sau cách chấm trước mỗi lúc một xa: dư nợ giảm chậm nên mỗi năm kéo dài thêm tốn nhiều lãi hơn năm trước. Với cách trả gốc đều, các chấm cách đều nhau, mỗi năm thêm tốn đúng một khoản lãi như nhau.',
+          'Each dot is the total interest for one whole-year term on the Term field, from half to one and a half times the number of years you have entered, one dot per year; the dot on the dashed vertical line is your own term. It is a what-if on borrowing for longer or shorter, not market history. The row of dots rises. Under the annuity method each dot sits a little further above the last: the balance falls slowly, so every extra year costs more interest than the year before. Under equal principal the dots are evenly spaced, each extra year costing the same amount of interest.',
+        ),
+        bac: d(
+          'Mỗi bậc là tổng tiền lãi của một kỳ hạn theo ô Kỳ hạn, trên dải từ một nửa đến gấp rưỡi số năm bạn đang nhập: bậc nằm ngang suốt một năm rồi mới nhảy lên mức của năm sau, vì kỳ hạn đổi theo từng năm tròn và giữa hai năm không có mức nào được tính. Đây là phép thử nếu vay dài hay ngắn hơn thì tổng tiền lãi ra bao nhiêu, không phải diễn biến thị trường. Các bậc đi lên, và chiều cao mỗi lần nhảy là tiền lãi mà một năm vay thêm phải trả. Với cách trả niên kim bậc nhảy cao dần về bên phải; với cách trả gốc đều mọi bậc nhảy cao bằng nhau.',
+          'Each step is the total interest for one term on the Term field, from half to one and a half times the years you have entered: it stays level for a year and only then jumps to the next year’s total, because the term changes in whole years and nothing between two years is computed. It is a what-if on borrowing for longer or shorter, not market history. The staircase rises, and the height of each jump is the interest one more year of borrowing costs. Under the annuity method the jumps grow taller to the right; under equal principal they are all the same height.',
         ),
       },
     },
@@ -497,6 +533,10 @@ export const BIEU_DO_KHAC: Readonly<Record<string, BieuDoRieng>> = {
           'Mỗi cột là số tiền cuối kỳ ở một mức tiền gốc, cột cao dần về bên phải và cột tô đặc là mức bạn đang nhập. Mọi cột đều cao hơn số gốc nó đại diện; phần cao thêm ấy là toàn bộ tiền lãi, kể cả lãi sinh trên lãi.',
           'Each bar is the ending amount at one principal; bars grow taller to the right and the solid one is the amount you have entered. Every bar is taller than the principal it stands for; that extra height is all the interest, interest on interest included.',
         ),
+        diem: d(
+          'Mỗi chấm là số tiền cuối kỳ tính ở một mức của ô Số tiền gốc (P), từ một nửa đến gấp rưỡi con số bạn đang nhập; chấm nằm trên vạch đứt dọc là đúng số bạn nhập. Đây là phép thử nếu gửi số tiền khác thì cuối kỳ có bao nhiêu, không phải diễn biến thị trường. Dãy chấm đi lên thành một hàng thẳng, các chấm cách đều nhau: lãi suất và thời gian giữ nguyên thì đồng gốc nào gửi thêm cũng lớn lên cùng một hệ số, nên mỗi bước tiền gốc trên trục đội lên thành cùng một khoản ở cuối kỳ.',
+          'Each dot is the ending amount at one level of the Principal amount (P) field, from half to one and a half times the figure you have entered; the dot on the dashed vertical line is your own amount. It is a what-if on the ending amount for a different deposit, not market history. The row of dots rises in a straight line, evenly spaced: with the rate and time held still, every extra unit of principal grows by the same factor, so each step of principal on the axis turns into the same extra sum at the end.',
+        ),
       },
       rate: {
         duong: d(
@@ -507,6 +547,10 @@ export const BIEU_DO_KHAC: Readonly<Record<string, BieuDoRieng>> = {
           'Mỗi cột là số tiền cuối kỳ ở một mức lãi suất, cột cao dần về bên phải và cột tô đặc là mức bạn đang nhập. Chênh lệch giữa hai cột trông nhỏ ở lãi suất nhưng là tiền thật sau nhiều năm, và càng gửi lâu khoảng chênh ấy càng giãn ra.',
           'Each bar is the final amount at one interest rate; bars grow taller to the right and the solid one is the rate you have entered. The difference between two bars looks small in rate terms but is real money after many years, and the longer the money stays, the wider that gap opens.',
         ),
+        diem: d(
+          'Mỗi chấm là số tiền cuối kỳ tính ở một mức của ô Lãi suất / năm (r), từ một nửa đến gấp rưỡi con số bạn đang nhập; chấm nằm trên vạch đứt dọc là đúng mức bạn nhập. Đây là phép thử nếu lãi suất đổi thì số tiền cuối kỳ ra bao nhiêu, không phải diễn biến thị trường. Dãy chấm đi lên và khoảng cách giữa hai chấm kề nhau nới rộng dần về bên phải: lãi nhập gốc rồi lại sinh lãi, nên cùng một bước lãi suất ở vùng cao đem về nhiều hơn ở vùng thấp. Gửi càng lâu thì độ nới ấy càng rõ.',
+          'Each dot is the ending amount at one level of the Interest rate / year (r) field, from half to one and a half times the figure you have entered; the dot on the dashed vertical line is your own rate. It is a what-if on the interest rate, not market history. The row of dots rises and the gap between neighboring dots widens to the right: interest joins the principal and earns interest in turn, so the same step of rate brings more at the high end than at the low end. The longer the money stays, the more visible that widening becomes.',
+        ),
       },
       years: {
         duong: d(
@@ -516,6 +560,14 @@ export const BIEU_DO_KHAC: Readonly<Record<string, BieuDoRieng>> = {
         cot: d(
           'Mỗi cột là số tiền cuối kỳ ứng với một số năm, cột cao dần về bên phải và cột tô đặc là số năm bạn đang nhập. Rút sớm vài năm là bỏ đúng những cột cao nhất, tức bỏ phần lãi kép lớn nhất.',
           'Each bar is the final amount for one number of years; bars grow taller to the right and the solid one is the number you have entered. Withdrawing a few years early gives up exactly the tallest bars, that is the largest part of the compounding.',
+        ),
+        diem: d(
+          'Mỗi chấm là số tiền cuối kỳ sau một số năm tròn của ô Thời gian (t), từ một nửa đến gấp rưỡi số năm bạn đang nhập, mỗi chấm cách nhau một năm; chấm nằm trên vạch đứt dọc là đúng số năm bạn nhập. Đây là phép thử nếu để tiền lâu hay chóng hơn thì cuối kỳ có bao nhiêu, không phải diễn biến thị trường. Dãy chấm đi lên và chấm sau cách chấm trước mỗi lúc một xa: khoảng nhô lên giữa hai chấm kề nhau là tiền lãi của đúng một năm, mà năm sau tính lãi trên một số dư đã lớn hơn năm trước.',
+          'Each dot is the ending amount after one whole number of years on the Time (t) field, from half to one and a half times the years you have entered, one dot per year; the dot on the dashed vertical line is your own figure. It is a what-if on leaving the money for longer or shorter, not market history. The row of dots rises, each dot a little further above the last: the rise between two neighbors is exactly one year of interest, and each year earns on a balance already larger than the year before.',
+        ),
+        bac: d(
+          'Mỗi bậc là số tiền cuối kỳ sau một số năm tròn của ô Thời gian (t), trên dải từ một nửa đến gấp rưỡi số năm bạn đang nhập: bậc nằm ngang tới năm kế tiếp rồi mới nhảy lên, vì ô ấy đi từng năm một và giữa hai năm không có mức nào được tính. Đây là phép thử nếu để tiền lâu hay chóng hơn thì cuối kỳ có bao nhiêu, không phải diễn biến thị trường. Các bậc đi lên, bậc nhảy cao dần về bên phải: mỗi lần nhảy là tiền lãi của một năm, sinh trên số dư lớn hơn năm trước. Lãi nhập gốc nhiều lần trong năm thì tiền thật còn nhích lên ngay trong năm; hình chỉ giữ các mốc tròn năm.',
+          'Each step is the ending amount after a whole number of years on the Time (t) field, from half to one and a half times the years you have entered: it stays level until the next year, then jumps, because the field moves one year at a time. It is a what-if on leaving the money for longer or shorter, not market history. The staircase rises with jumps that grow taller to the right, each a year of interest earned on a larger balance than the year before. With several compoundings a year the real balance also creeps up within the year; the chart keeps only whole-year marks.',
         ),
       },
     },
@@ -532,6 +584,10 @@ export const BIEU_DO_KHAC: Readonly<Record<string, BieuDoRieng>> = {
           'Mỗi cột là tiền lãi ở một mức tiền gửi, cột cao dần về bên phải và cột tô đặc là mức bạn đang nhập. Chiều cao cột chỉ là phần lãi, chưa gồm tiền gốc bạn nhận lại khi đáo hạn.',
           'Each bar is the interest at one deposit amount; bars grow taller to the right and the solid one is the amount you have entered. Bar height is the interest alone, without the principal you get back at maturity.',
         ),
+        diem: d(
+          'Mỗi chấm là tiền lãi nhận khi đáo hạn, tính ở một mức của ô Số tiền gửi (P), từ một nửa đến gấp rưỡi con số bạn đang nhập; chấm nằm trên vạch đứt dọc là đúng số bạn nhập. Đây là phép thử nếu gửi số tiền khác thì nhận bao nhiêu tiền lãi, không phải diễn biến thị trường. Dãy chấm đi lên thành một hàng thẳng, các chấm cách đều nhau: đây là lãi đơn, tiền lãi không nhập vào gốc, nên mỗi bước tiền gửi thêm trên trục luôn đem về cùng một khoản lãi.',
+          'Each dot is the interest received at maturity at one level of the Deposit amount (P) field, from half to one and a half times the figure you have entered; the dot on the dashed vertical line is your own amount. It is a what-if on the interest earned by a different deposit, not market history. The row of dots rises in a straight line, evenly spaced: this is simple interest, never added back to the principal, so each step of deposit on the axis always brings in the same extra interest.',
+        ),
       },
       rate: {
         duong: d(
@@ -542,6 +598,10 @@ export const BIEU_DO_KHAC: Readonly<Record<string, BieuDoRieng>> = {
           'Mỗi cột là tiền lãi ở một mức lãi suất, cột cao dần về bên phải và cột tô đặc là mức bạn đang nhập. Khoảng cách giữa hai cột là số tiền chênh nếu gửi ở ngân hàng trả cao hơn hay thấp hơn một bậc.',
           'Each bar is the interest at one deposit rate; bars grow taller to the right and the solid one is the rate you have entered. The gap between two bars is the money gained or lost by depositing with a bank that pays one step more or less.',
         ),
+        diem: d(
+          'Mỗi chấm là tiền lãi tính ở một mức của ô Lãi suất / năm (r), từ một nửa đến gấp rưỡi con số bạn đang nhập; chấm nằm trên vạch đứt dọc là đúng mức bạn nhập. Đây là phép thử nếu lãi suất tiền gửi đổi thì tiền lãi ra bao nhiêu, không phải diễn biến thị trường. Dãy chấm đi lên thành một hàng thẳng, các chấm cách đều nhau vì lãi đơn tăng đúng theo tỷ lệ lãi suất. Lãi suất trên trục là mức một năm, còn tiền lãi chỉ tính cho số tháng của kỳ hạn, nên kỳ hạn càng ngắn thì tiền lãi ở mỗi chấm càng nhỏ, dù trục ngang vẫn ghi cùng các mức lãi suất.',
+          'Each dot is the interest at one level of the Interest rate / year (r) field, from half to one and a half times the figure you have entered; the dot on the dashed vertical line is your own rate. It is a what-if on the deposit rate, not market history. The row of dots rises in a straight line, evenly spaced, because simple interest grows in exact proportion to the rate. The rate on the axis is per year while the interest covers only the months of the term, so the shorter the term, the smaller the interest at every dot, even with the same rates along the axis.',
+        ),
       },
       months: {
         duong: d(
@@ -551,6 +611,14 @@ export const BIEU_DO_KHAC: Readonly<Record<string, BieuDoRieng>> = {
         cot: d(
           'Mỗi cột là tiền lãi ứng với một kỳ hạn, cột cao dần về bên phải và cột tô đặc là kỳ hạn bạn đang nhập. Các cột cách đều nhau, mỗi bước là tiền lãi của đúng một tháng.',
           'Each bar is the interest for one term; bars grow taller to the right and the solid one is the term you have entered. The bars are evenly spaced, each step being exactly one month of interest.',
+        ),
+        diem: d(
+          'Mỗi chấm là tiền lãi của một kỳ hạn tròn tháng trên ô Kỳ hạn (T), từ một nửa đến gấp rưỡi số tháng bạn đang nhập, mỗi chấm cách nhau một tháng; chấm nằm trên vạch đứt dọc là đúng kỳ hạn bạn nhập. Đây là phép thử nếu gửi dài hay ngắn hơn với cùng lãi suất thì tiền lãi ra bao nhiêu, không phải diễn biến thị trường. Dãy chấm đi lên thành một hàng thẳng, chấm sau cao hơn chấm trước đúng tiền lãi của một tháng. Hàng thẳng ấy là dấu hiệu của lãi đơn: tiền lãi của tháng trước không sinh thêm lãi ở những tháng sau.',
+          'Each dot is the interest for one whole-month term on the Term (T) field, from half to one and a half times the months you have entered, one dot per month; the dot on the dashed vertical line is your own term. It is a what-if on a longer or shorter deposit at the same rate, not market history. The row of dots rises in a straight line, each dot exactly one month of interest above the last. That straight row is the mark of simple interest: earlier months’ interest earns nothing in the months after.',
+        ),
+        bac: d(
+          'Mỗi bậc là tiền lãi của một kỳ hạn theo ô Kỳ hạn (T), trên dải từ một nửa đến gấp rưỡi số tháng bạn đang nhập: bậc nằm ngang suốt một tháng rồi mới nhảy lên mức của tháng sau, vì kỳ hạn gửi tính theo tháng tròn và giữa hai kỳ hạn kề nhau không có mức nào được tính. Đây là phép thử nếu gửi dài hay ngắn hơn với cùng lãi suất thì tiền lãi ra bao nhiêu, không phải diễn biến thị trường. Các bậc đi lên và cao đều nhau như một cầu thang thật: mỗi bậc là tiền lãi của đúng một tháng gửi thêm.',
+          'Each step is the interest for one term on the Term (T) field, from half to one and a half times the months you have entered: it stays level for a month and only then jumps to the next month’s figure, because deposit terms run in whole months and nothing between two neighboring terms is computed. It is a what-if on a longer or shorter deposit at the same rate, not market history. The staircase rises in steps of equal height, like a real flight of stairs: each step is exactly one more month of interest.',
         ),
       },
     },

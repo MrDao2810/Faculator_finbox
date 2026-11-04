@@ -77,7 +77,7 @@ soát lại tay bằng một lượt quét toàn bộ chữ hiển thị.
 
 ## Đọc biểu đồ: mỗi dạng vẽ một đoạn hướng dẫn riêng (03/11/2026)
 
-**Trạng thái: ĐANG LÀM.** Chủ dự án (ảnh khung "Đọc biểu đồ" của EV/EBITDA in "Dạng Đường"): _"kiểm tra lại toàn bộ
+**Trạng thái: CHƯA XONG — đã sửa, chờ chủ dự án xem.** Chủ dự án (ảnh khung "Đọc biểu đồ" của EV/EBITDA in "Dạng Đường"): _"kiểm tra lại toàn bộ
 biểu đồ khi chuyển dạng thì phần hướng dẫn sau đang chưa chuyển dạng hướng dẫn tương tự"_. Nguyên nhân: từ 21/10 ô "Loại
 biểu đồ" có Điểm, Bậc thang, Lãi/lỗ, Nến, Vành khuyên nhưng kho chữ chỉ có Đường/Cột, và `ChartBody` báo mọi dạng không
 phải Cột là "duong" (Vành khuyên dùng đoạn thanh ngang). Hỏi cách làm, chủ dự án chọn **viết riêng từng hình** (không
@@ -100,8 +100,30 @@ Khung (xong):
   `diem`, bóc tách báo `thanh`), `bieu-do.test.ts` (lời hứa một chiều và ca trùng chữ xét mọi dạng; ghim số đoạn từng
   dạng).
 
-Chữ (đang làm): 11 agent soạn theo file kho, brief ở scratchpad `brief-dang.md`; mẫu đã viết tay ở `co-ban.ts` (`pe`,
-`roe.netIncome`). Sau đó một lượt soát đối chiếu `calc`.
+Chữ (xong): 11 agent soạn song song theo file kho (brief ở scratchpad `brief-dang.md`), mẫu viết tay ở `co-ban.ts`
+(`pe`, `roe.netIncome`) làm chuẩn. 507 đoạn × 2 thứ tiếng, đủ 111 công thức, mỗi agent tự dò bằng `buildChartModel()`
+trên số thật (ba chuỗi FPT/STB/VN-Index + chuỗi dựng khác hẳn nhau) trước khi viết, không đoán. 10/11 agent có lúc bị
+chặn giới hạn 5 giờ của hạ tầng giữa chừng — đã `SendMessage` resume, không mất việc đã làm.
+
+- **Kiểm độc lập (tôi, không phải agent tự báo)**: chạy lại cửa gác `-t "nói đúng hình"` giới hạn đúng id của từng lô
+  cho cả 11 lô → khớp đúng số ca các agent báo. Chạy `npx vitest run src/core/huong-dan/bieu-do` không giới hạn id →
+  240/240 xanh (gồm ca phân bố và ca "không hai đoạn nào trùng nhau" trên cả kho). Prettier, eslint, tsc trên 6 file
+  `noi-dung/*.ts` sạch không cần sửa.
+- **Một lỗi tôi tự sửa trong `co-ban.ts`** (agent co-ban tự báo lại): `pb.thoiGian.duong` viết "đi xuống là khoảng
+  chênh ấy đang thu lại" — sai khi P/B dưới 1 lần (lúc ấy đi xuống là giá càng THẤP hơn sổ sách, không phải khoảng
+  chênh thu lại). Sửa thành "đi xuống là giá đang thấp dần so với sổ sách… dù P/B đang ở trên hay dưới mức một lần".
+- **Một ca kiểm lỗi thời phải sửa**: `GuideScreen.test.tsx` giả định `sma-n-phien` không có đoạn Nến (viết từ trước
+  khi có nội dung mới cho trang đầy đủ `/huong-dan/cong-thuc/<id>/`, nơi in MỌI dạng có chữ của một hình, không chỉ
+  dạng đang vẽ như khung "?"). Cập nhật đúng số lượng nhãn (Đường ×2, Điểm ×2, Bậc thang ×2, Cột ×1, Nến ×1).
+- **`npm test` toàn repo**: 5.157/5.159 đạt, 48 skip có chủ đích. 2 ca đỏ còn lại (`PortfolioScreen.test.tsx`,
+  `huong-dan.test.ts`) là timeout 5s do tải máy khi chạy cả suite — chạy riêng từng file đều xanh (2,8–3,4s), không
+  liên quan đến đợt này.
+- **Hai múi chưa chắc 100% do các agent tự báo** (đọc `calc` suy luận đúng về đại số, chưa dựng số thật để xác nhận
+  chiều ở mọi bộ số): `wacc.vanhKhuyen` (so sánh "múi nợ vay nhỏ hơn tỷ trọng nợ" khi nợ rẻ hơn vốn chủ) và các đoạn
+  Lãi/lỗ của FCFF/FCFE (điểm cắt vạch 0 tả bằng lời, không dựng số xác nhận khớp hình ở mọi bộ số mặc định — luật
+  máy không đòi khớp điểm cắt chính xác, chỉ đòi đúng chiều đầu tiên).
+- **22 "Cơ cấu" (composition) vẫn im lặng**, không đổi: chúng mang `hinhChuoi`, nằm ngoài phạm vi yêu cầu này.
+- Chưa làm: chủ dự án xem và xác nhận; đề xuất commit (tách khung / chữ) ở báo cáo cuối.
 
 ---
 

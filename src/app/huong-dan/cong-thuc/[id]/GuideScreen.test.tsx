@@ -334,11 +334,17 @@ describe('GuideScreen', () => {
     expect(screen.getAllByText('Chỉ vẽ sau khi đã nạp mã cổ phiếu hoặc chuỗi giá.')).toHaveLength(
       2,
     );
+    // Từ 03/11/2026 mỗi dạng có đoạn riêng, và trang đầy đủ in MỌI dạng của một hình: Đường và
+    // Điểm, Bậc thang có ở cả hai hình (trục Số phiên lẫn hình theo thời gian).
     expect(screen.getAllByText('Dạng Đường')).toHaveLength(2);
+    expect(screen.getAllByText('Dạng Điểm')).toHaveLength(2);
+    expect(screen.getAllByText('Dạng Bậc thang')).toHaveLength(2);
     // Hình theo thời gian vẽ kèm đường giá đóng cửa nên màn không bày nút Cột cho nó; hình theo ô
     // Số phiên thì có.
     expect(screen.getAllByText('Dạng Cột')).toHaveLength(1);
-    expect(screen.queryByText(/nến/)).toBeNull();
+    // Nến chỉ thuộc hình theo thời gian — SMA là một trong năm công thức vẽ nến kèm kết quả.
+    expect(screen.getAllByText('Dạng Nến')).toHaveLength(1);
+    expect(screen.queryByText(/Dạng Lãi\/lỗ/)).toBeNull();
   });
 
   /*

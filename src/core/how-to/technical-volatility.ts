@@ -80,10 +80,6 @@ export const HOW_TO_TECHNICAL_VOLATILITY: Readonly<Record<string, FormulaHowTo>>
       },
     ],
     skipped: { 'BB_{tren}': 'ket-qua', n: 'nhap-tho', k: 'nhap-tho' },
-    skippedPhrases: {
-      'BB_{tren}': { vi: ['Dải trên'], en: ['Upper band'] },
-      k: { vi: ['Hệ số k'], en: ['Multiplier k'] },
-    },
   },
 
   'dai-bollinger-duoi': {
@@ -108,10 +104,6 @@ export const HOW_TO_TECHNICAL_VOLATILITY: Readonly<Record<string, FormulaHowTo>>
       },
     ],
     skipped: { 'BB_{duoi}': 'ket-qua', n: 'nhap-tho', k: 'nhap-tho' },
-    skippedPhrases: {
-      'BB_{duoi}': { vi: ['Dải dưới'], en: ['Lower band'] },
-      k: { vi: ['Hệ số k'], en: ['Multiplier k'] },
-    },
   },
 
   /*
@@ -145,10 +137,6 @@ export const HOW_TO_TECHNICAL_VOLATILITY: Readonly<Record<string, FormulaHowTo>>
       },
     ],
     skipped: { BW: 'ket-qua', n: 'nhap-tho', '100': 'hang-so' },
-    skippedPhrases: {
-      '100': { vi: ['100'], en: ['100'] },
-      BW: { vi: ['Độ rộng dải'], en: ['Bandwidth'] },
-    },
   },
 
   /*
@@ -198,14 +186,6 @@ export const HOW_TO_TECHNICAL_VOLATILITY: Readonly<Record<string, FormulaHowTo>>
       n: 'nhap-tho',
       'n-1': 'da-hien-trong-hinh',
     },
-    skippedPhrases: {
-      ATR_t: { vi: ['ATR phiên này'], en: ["This session's ATR"] },
-      TR_t: { vi: ['Dao động thực phiên này'], en: ["This session's true range"] },
-      H_t: { vi: ['Cao'], en: ['High'] },
-      L_t: { vi: ['Thấp'], en: ['Low'] },
-      'C_{t-1}': { vi: ['Đóng cửa phiên trước'], en: ['Previous close'] },
-      n: { vi: ['Chu kỳ ATR'], en: ['ATR period'] },
-    },
   },
 
   /*
@@ -234,11 +214,6 @@ export const HOW_TO_TECHNICAL_VOLATILITY: Readonly<Record<string, FormulaHowTo>>
       },
     ],
     skipped: { '\\%B': 'ket-qua', C: 'nhap-tho', '100': 'hang-so' },
-    skippedPhrases: {
-      '100': { vi: ['100'], en: ['100'] },
-      '\\%B': { vi: ['%B'], en: ['%B'] },
-      C: { vi: ['Giá đóng cửa'], en: ['Closing price'] },
-    },
   },
 
   'stochastic-k': {
@@ -275,11 +250,6 @@ export const HOW_TO_TECHNICAL_VOLATILITY: Readonly<Record<string, FormulaHowTo>>
       },
     ],
     skipped: { '\\%K': 'ket-qua', C: 'nhap-tho', n: 'nhap-tho', '100': 'hang-so' },
-    skippedPhrases: {
-      '100': { vi: ['100'], en: ['100'] },
-      '\\%K': { vi: ['%K'], en: ['%K'] },
-      C: { vi: ['Giá đóng cửa'], en: ['Closing price'] },
-    },
   },
 
   vwap: {
@@ -287,11 +257,6 @@ export const HOW_TO_TECHNICAL_VOLATILITY: Readonly<Record<string, FormulaHowTo>>
     skipped: { VWAP: 'ket-qua', C_i: 'nhap-tho', V_i: 'nhap-tho', i: 'chi-so-chay', n: 'nhap-tho' },
     whyNone:
       'Giá đóng cửa và khối lượng từng phiên đọc thẳng trên bảng giá, còn phép gộp theo khối lượng đã hiện trọn trong hình.',
-    skippedPhrases: {
-      VWAP: { vi: ['VWAP'], en: ['VWAP'] },
-      C_i: { vi: ['Giá đóng cửa'], en: ['Closing price'] },
-      V_i: { vi: ['Khối lượng'], en: ['Volume'] },
-    },
   },
 
   /*
@@ -347,16 +312,6 @@ export const HOW_TO_TECHNICAL_VOLATILITY: Readonly<Record<string, FormulaHowTo>>
      * `\sqrt{N}` không có cụm chữ: "căn bậc hai của" có ở cả hai dòng, dòng sau là căn của `s`,
      * nên rê vào đó mà mở khung `\sqrt{N}` là sai chỗ (cùng lý do `\sqrt{m}` của Sortino).
      */
-    skippedPhrases: {
-      '100': { vi: ['100'], en: ['100'] },
-      '\\sigma_{nam}': { vi: ['Độ biến động năm'], en: ['Annual volatility'] },
-      s: {
-        vi: ['Độ lệch chuẩn mẫu của lợi suất log'],
-        en: ['Sample standard deviation of log returns'],
-      },
-      n: { vi: ['Số phiên giá lấy mẫu'], en: ['Sample sessions'] },
-      N: { vi: ['Số phiên một năm'], en: ['Sessions per year'] },
-    },
   },
 
   'ty-le-khoi-luong': {
@@ -372,13 +327,5 @@ export const HOW_TO_TECHNICAL_VOLATILITY: Readonly<Record<string, FormulaHowTo>>
     },
     whyNone:
       'Khối lượng từng phiên đọc thẳng trên bảng giá, còn trung bình n phiên liền trước đã hiện trọn trong hình.',
-    skippedPhrases: {
-      RVOL: { vi: ['Tỷ lệ khối lượng'], en: ['Volume ratio'] },
-      V_t: { vi: ['Khối lượng phiên gần nhất'], en: ["Most recent session's volume"] },
-      '\\frac{1}{n}\\sum_{i=1}^{n} V_{t-i}': {
-        vi: ['Trung bình khối lượng n phiên liền trước'],
-        en: ['Average volume of the preceding n sessions'],
-      },
-    },
   },
 };

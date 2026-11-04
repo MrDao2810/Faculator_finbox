@@ -13,7 +13,7 @@ import styles from './FormulaNotationCard.module.css';
 
 export interface QuizFormulaPictureProps {
   spec: FormulaSpec;
-  /** Đúng `notation` của thẻ Công thức — `latexHtml` đã gắn dấu mọi ký hiệu. */
+  /** Đúng `notation` của thẻ Công thức — `latexHtml` đã gắn dấu ký hiệu có khung cách tính. */
   notation: NotationView;
   /**
    * Tiền tố `id` của khung "cách tính" (29/09/2026). Một trang có HAI hình này — ở lời giải bài tập
@@ -40,10 +40,11 @@ function pictureScroller(card: HTMLDivElement): Element | null {
  * bấm/chạm ghim, Esc và chạm ra ngoài đóng), `usePanelPlacement`, `HowToPanel`, và lớp `.card` của
  * `FormulaNotationCard.module.css` cho con trỏ bàn tay, vệt sáng trên ký hiệu và khung nổi.
  *
- * Mọi ký hiệu đều mở khung, không chỉ ký hiệu có bước tính: ký hiệu không có bước tính mở một khung
- * chỉ có dòng tiêu đề — đúng dòng "ký hiệu: nghĩa" của bảng. Từ 25/09/2026 đây là chỗ DUY NHẤT làm
- * thế, vì thẻ Công thức có bảng ký hiệu cạnh hình; từ 26/10/2026 thẻ cũng làm thế (chủ dự án: _"ký
- * hiệu nào cũng cần giải thích"_), nên hai hình nay dùng chung `notation.latexHtml`.
+ * Chỉ ký hiệu CÓ bước tính mở khung — như thẻ Công thức (ĐẢO 04/11/2026, xem docblock của
+ * `FormulaNotationCard.tsx`: khung của ký hiệu không có bước tính chỉ chép lại đúng dòng "ký hiệu:
+ * nghĩa" đã có sẵn, chủ dự án gọi đó là thừa). Từ 25/09 tới 03/11/2026 MỌI ký hiệu mở khung ở đây —
+ * đây từng là chỗ DUY NHẤT làm thế, rồi thẻ Công thức học theo ngày 26/10/2026 và cả hai dùng chung
+ * `notation.latexHtml`/`notation.howTo`; nay cả hai cùng đảo lại một lúc, vẫn dùng chung.
  *
  * Không có điểm dừng Tab trong MathML — cùng quyết định với thẻ Công thức, nơi người dùng bàn phím
  * mở khung từ các nút ở bảng ký hiệu. Khối lời giải không có bảng ấy, nên bàn phím chưa mở được
@@ -65,10 +66,10 @@ export const QuizFormulaPicture = memo(function QuizFormulaPicture({
     () => new Map(notation.howTo.map((howTo) => [howTo.sym, howTo])),
     [notation.howTo],
   );
-  const isSymbol = useCallback((sym: number) => sym >= 0 && sym < symbols.length, [symbols.length]);
+  const hasHowTo = useCallback((sym: number) => howToBySym.has(sym), [howToBySym]);
 
   const { state, cardRef, panelRef, anchorRef, pointRef, handlers } = useHowToPanel(
-    isSymbol,
+    hasHowTo,
     locale,
   );
   const placement = usePanelPlacement(
@@ -80,14 +81,9 @@ export const QuizFormulaPicture = memo(function QuizFormulaPicture({
   const pictureInner = useMemo(() => ({ __html: notation.latexHtml }), [notation.latexHtml]);
 
   const symbol = state === null ? undefined : symbols[state.sym];
-  /*
-   * Ký hiệu không có bước tính: khung chỉ có tiêu đề. `kind` ở đây không ai đọc — `HowToPanel`
-   * dựng theo `steps` và `formula` — nhưng kiểu bắt buộc phải có một giá trị.
-   */
+  /* `hasHowTo` đã gác: `state.sym` luôn là dòng có khung thật. */
   const howTo: NotationHowToView | undefined =
-    state === null
-      ? undefined
-      : (howToBySym.get(state.sym) ?? { sym: state.sym, kind: 'defined', steps: [] });
+    state === null ? undefined : howToBySym.get(state.sym);
 
   return (
     <div

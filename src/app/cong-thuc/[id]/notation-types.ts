@@ -30,12 +30,14 @@ export interface NotationHowToView {
 
 export interface NotationView {
   /**
-   * Hình công thức, đã gắn `data-sym` cho MỌI ký hiệu tìm được chỗ trong hình (26/10/2026) — ký
-   * hiệu có bước tính mở khung đủ bước, ký hiệu còn lại mở khung chỉ có dòng "ký hiệu: nghĩa".
+   * Hình công thức, đã gắn `data-sym` cho ký hiệu CÓ khung cách tính (`FormulaHowTo.entries`).
    *
-   * Từ 25/09 tới 26/10/2026 có hai bản: bản này chỉ gắn ký hiệu có bước tính (cho thẻ Công thức,
-   * nơi bảng ký hiệu đứng cạnh hình), và `latexHtmlAllSymbols` gắn đủ cả (cho hình trong lời giải
-   * Bài tập và Ví dụ). Chủ dự án muốn ký hiệu nào trên thẻ cũng có khung, nên hai bản thành một.
+   * Từ 26/10 tới 03/11/2026 mọi ký hiệu được gắn dấu, kể cả ký hiệu không có bước tính (khung của
+   * nó khi ấy chỉ có dòng "ký hiệu: nghĩa", lặp lại đúng dòng bảng ký hiệu đã in sẵn cạnh nó) — chủ
+   * dự án gọi đó là thừa và luật bị ĐẢO lại 04/11/2026, xem docblock của `FormulaNotationCard.tsx`.
+   * Trước 26/10/2026 có hai bản riêng (bản này cho thẻ Công thức, `latexHtmlAllSymbols` cho hình
+   * trong lời giải Bài tập/Ví dụ, gắn đủ mọi ký hiệu); nay chỉ còn một bản, như trước 26/10, nhưng
+   * `QuizFormulaPicture` dùng CHUNG bản này thay vì có bản riêng.
    */
   latexHtml: string;
   /** Từng ký hiệu của bảng, MathML dòng — cùng thứ tự với `spec.symbols`. */

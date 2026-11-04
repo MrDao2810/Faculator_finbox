@@ -10,12 +10,16 @@ import { buildNotationView } from './notation-view';
 import { QuizFormulaPicture } from './QuizFormulaPicture';
 
 /**
- * Hình công thức trong khối lời giải của Bài tập (25/09/2026) — rê vào ký hiệu nào cũng mở khung
- * "cách tính" của thẻ Công thức. Chủ dự án chụp khung ấy trên `V` của Biên an toàn và nói "kiểu
- * thế", sau khi bác bảng nghĩa trơn và bảng ký hiệu cố định bên phải.
+ * Hình công thức trong khối lời giải của Bài tập (25/09/2026) — rê vào ký hiệu CÓ bước tính thì mở
+ * khung "cách tính" của thẻ Công thức. Chủ dự án chụp khung ấy trên `V` của Biên an toàn và nói
+ * "kiểu thế", sau khi bác bảng nghĩa trơn và bảng ký hiệu cố định bên phải.
+ *
+ * Từ 25/09 tới 03/11/2026 MỌI ký hiệu mở khung ở đây, kể cả số nhập thẳng — khung của nó khi ấy chỉ
+ * có dòng "ký hiệu: nghĩa". ĐẢO lại 04/11/2026, cùng lúc với thẻ Công thức (xem docblock của
+ * `FormulaNotationCard.tsx`): ký hiệu không có bước tính không còn là điểm chạm ở đâu cả.
  *
  * Dùng `bien-an-toan` vì nó có đủ hai loại ký hiệu: `V` có bước tính và liên kết sang Mô hình
- * Gordon, còn `P` là số nhập thẳng — không có bước nào, nhưng vẫn phải mở được khung nghĩa.
+ * Gordon, còn `P` là số nhập thẳng — không có bước nào, nên không còn điểm chạm.
  */
 
 afterEach(() => {
@@ -49,13 +53,13 @@ function dungHinh(id: string) {
 }
 
 describe('QuizFormulaPicture', () => {
-  it('mọi ký hiệu của bảng đều có điểm chạm trong hình, không chỉ ký hiệu có bước tính', () => {
+  it('chỉ ký hiệu CÓ bước tính có điểm chạm trong hình', () => {
     const { goc, spec, notation } = dungHinh('bien-an-toan');
     const coDau = new Set(
       [...goc.querySelectorAll('math [data-sym]')].map((el) => el.getAttribute('data-sym')),
     );
-    expect(coDau.size).toBe((spec.symbols ?? []).length);
-    expect(notation.howTo.length).toBeLessThan(coDau.size);
+    expect(coDau.size).toBeLessThan((spec.symbols ?? []).length);
+    expect(coDau.size).toBe(notation.howTo.length);
   });
 
   it('rê chuột vào ký hiệu có bước tính thì mở ĐÚNG khung của thẻ Công thức', () => {
@@ -77,26 +81,18 @@ describe('QuizFormulaPicture', () => {
     );
   });
 
-  it('ký hiệu nhập thẳng mở khung chỉ có dòng nghĩa — không bước, không liên kết', () => {
-    const { goc, soCua, spec } = dungHinh('bien-an-toan');
+  it('ký hiệu nhập thẳng KHÔNG mở khung nữa — không mang data-sym trong hình', () => {
+    const { goc, soCua } = dungHinh('bien-an-toan');
     const p = soCua('P');
-    fireEvent.click(goc.querySelector(`math [data-sym="${String(p)}"]`) as Element);
-
-    const khung = goc.querySelector('[role="group"]') as HTMLElement;
-    expect(khung).not.toBeNull();
-    expect(khung.textContent).toContain(spec.symbols?.[p]?.meaning.vi ?? '∅');
-    expect(khung.querySelector('ol')).toBeNull();
-    expect(khung.querySelector('a')).toBeNull();
-    // Khung một dòng co theo chữ thay vì rộng cố định 22rem — CSS bám thuộc tính này.
-    expect(khung.hasAttribute('data-title-only')).toBe(true);
-    // Không có gì để tính thì nhãn trợ năng không được gọi nó là "Cách tính".
-    expect(khung.getAttribute('aria-label')).toBe(spec.symbols?.[p]?.meaning.vi);
+    expect(goc.querySelector(`math [data-sym="${String(p)}"]`)).toBeNull();
+    expect(goc.querySelector('[role="group"]')).toBeNull();
   });
 
   it('bấm lại đúng ký hiệu ấy thì khung đóng', () => {
     const { goc, soCua } = dungHinh('bien-an-toan');
-    const cho = goc.querySelector(`math [data-sym="${String(soCua('P'))}"]`) as Element;
+    const cho = goc.querySelector(`math [data-sym="${String(soCua('V'))}"]`) as Element;
     fireEvent.click(cho);
+    expect(goc.querySelector('[role="group"]')).not.toBeNull();
     fireEvent.click(cho);
     expect(goc.querySelector('[role="group"]')).toBeNull();
   });

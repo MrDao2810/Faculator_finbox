@@ -31,11 +31,6 @@ export const HOW_TO_VALUATION_DCF: Readonly<Record<string, FormulaHowTo>> = {
       },
     ],
     skipped: { V_0: 'ket-qua', D_0: 'nhap-tho', g: 'nhap-tho' },
-    skippedPhrases: {
-      V_0: { vi: ['Giá trị cổ phiếu'], en: ['Share value'] },
-      D_0: { vi: ['Cổ tức vừa trả'], en: ['Most recent dividend'] },
-      g: { vi: ['g'], en: ['g'] },
-    },
   },
 
   /*
@@ -60,14 +55,6 @@ export const HOW_TO_VALUATION_DCF: Readonly<Record<string, FormulaHowTo>> = {
       D_0: 'nhap-tho',
       g_1: 'nhap-tho',
       g_2: 'nhap-tho',
-    },
-    skippedPhrases: {
-      V_0: { vi: ['Giá trị cổ phiếu'], en: ['Share value'] },
-      t: { vi: ['t'], en: ['t'] },
-      n: { vi: ['n'], en: ['n'] },
-      D_0: { vi: ['Cổ tức vừa trả'], en: ['Dividend just paid'] },
-      g_1: { vi: ['Tăng trưởng giai đoạn đầu'], en: ['First-stage growth'] },
-      g_2: { vi: ['Tăng trưởng dài hạn'], en: ['Long-run growth'] },
     },
   },
 
@@ -102,10 +89,6 @@ export const HOW_TO_VALUATION_DCF: Readonly<Record<string, FormulaHowTo>> = {
       },
     ],
     skipped: { r_e: 'ket-qua', r_f: 'nhap-tho' },
-    skippedPhrases: {
-      r_e: { vi: ['Chi phí vốn chủ'], en: ['Cost of equity'] },
-      r_f: { vi: ['Lãi suất phi rủi ro'], en: ['Risk-free rate'] },
-    },
   },
 
   /*
@@ -140,13 +123,6 @@ export const HOW_TO_VALUATION_DCF: Readonly<Record<string, FormulaHowTo>> = {
       r_d: 'nhap-tho',
       t: 'nhap-tho',
       '(1 - t)': 'da-hien-trong-hinh',
-    },
-    skippedPhrases: {
-      WACC: { vi: ['WACC'], en: ['WACC'] },
-      D: { vi: ['Nợ vay'], en: ['Debt'] },
-      'E+D': { vi: ['Tổng vốn'], en: ['Total capital'] },
-      r_d: { vi: ['Chi phí nợ vay'], en: ['Cost of debt'] },
-      t: { vi: ['Thuế suất'], en: ['Tax rate'] },
     },
   },
 
@@ -207,12 +183,6 @@ export const HOW_TO_VALUATION_DCF: Readonly<Record<string, FormulaHowTo>> = {
       CapEx: 'nhap-tho',
       '\\Delta': 'phep-toan',
     },
-    skippedPhrases: {
-      FCFF: { vi: ['FCFF'], en: ['FCFF'] },
-      t: { vi: ['Thuế suất'], en: ['Tax rate'] },
-      Dep: { vi: ['Khấu hao'], en: ['Depreciation'] },
-      CapEx: { vi: ['Chi đầu tư'], en: ['CapEx'] },
-    },
   },
 
   /*
@@ -250,11 +220,6 @@ export const HOW_TO_VALUATION_DCF: Readonly<Record<string, FormulaHowTo>> = {
       t: 'nhap-tho',
       '(1 - t)': 'da-hien-trong-hinh',
       '\\Delta': 'phep-toan',
-    },
-    skippedPhrases: {
-      FCFE: { vi: ['FCFE'], en: ['FCFE'] },
-      I: { vi: ['Chi phí lãi vay'], en: ['Interest expense'] },
-      t: { vi: ['Thuế suất'], en: ['Tax rate'] },
     },
   },
 
@@ -301,12 +266,6 @@ export const HOW_TO_VALUATION_DCF: Readonly<Record<string, FormulaHowTo>> = {
       '\\text{Số CP}': 'nhap-tho',
       '1000': 'hang-so',
     },
-    skippedPhrases: {
-      '1000': { vi: ['1.000'], en: ['1,000'] },
-      V_0: { vi: ['Giá trị nội tại'], en: ['Intrinsic value'] },
-      g: { vi: ['g'], en: ['g'] },
-      '\\text{Số CP}': { vi: ['Số cổ phiếu lưu hành'], en: ['Shares outstanding'] },
-    },
   },
 
   /*
@@ -324,12 +283,6 @@ export const HOW_TO_VALUATION_DCF: Readonly<Record<string, FormulaHowTo>> = {
     },
     whyNone:
       'Số tiền tương lai, tỷ lệ chiết khấu và số năm đều do người dùng tự gõ, còn hệ số lãi kép (1 + r)^n và phép chia đã hiện trọn trong hình.',
-    skippedPhrases: {
-      PV: { vi: ['Giá trị hiện tại'], en: ['Present value'] },
-      FV: { vi: ['Số tiền tương lai'], en: ['Future amount'] },
-      r: { vi: ['Tỷ lệ chiết khấu'], en: ['Discount rate'] },
-      n: { vi: ['Số năm'], en: ['Years'] },
-    },
   },
 
   'gia-tri-tuong-lai': {
@@ -343,12 +296,6 @@ export const HOW_TO_VALUATION_DCF: Readonly<Record<string, FormulaHowTo>> = {
     },
     whyNone:
       'Số tiền hiện tại, tỷ suất sinh lợi và số năm đều do người dùng tự gõ, còn hệ số lãi kép (1 + r)^n và phép nhân đã hiện trọn trong hình.',
-    skippedPhrases: {
-      FV: { vi: ['Giá trị tương lai'], en: ['Future value'] },
-      PV: { vi: ['Số tiền hiện tại'], en: ['Present amount'] },
-      r: { vi: ['Tỷ suất sinh lợi'], en: ['Rate of return'] },
-      n: { vi: ['Số năm'], en: ['Years'] },
-    },
   },
 
   /* V nhận thẳng kết quả mô hình Gordon (cạnh `dependsOn`); thị giá đọc trên bảng giá. */
@@ -363,10 +310,5 @@ export const HOW_TO_VALUATION_DCF: Readonly<Record<string, FormulaHowTo>> = {
       },
     ],
     skipped: { MOS: 'ket-qua', P: 'nhap-tho', '100\\%': 'hang-so' },
-    skippedPhrases: {
-      MOS: { vi: ['Biên an toàn'], en: ['Margin of safety'] },
-      P: { vi: ['Thị giá'], en: ['Market price'] },
-      '100\\%': { vi: ['100%'], en: ['100%'] },
-    },
   },
 };

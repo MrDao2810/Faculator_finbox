@@ -23,9 +23,10 @@ import type { QuizItem } from '@/application/quiz';
 export interface QuizView {
   items: ReadonlyArray<QuizItem>;
   /*
-   * Cờ `needsFormulaPicture` (25/09 – 26/10/2026) đã bỏ: nó báo `page.tsx` dựng thêm một bản hình gắn
-   * dấu mọi ký hiệu cho lời giải. Từ khi chính hình của thẻ Công thức gắn dấu mọi ký hiệu
-   * (`NotationView.latexHtml`), lời giải dùng thẳng hình ấy, không còn bản thứ hai để dựng.
+   * Cờ `needsFormulaPicture` (25/09 – 26/10/2026) đã bỏ: nó báo `page.tsx` dựng thêm một bản hình
+   * riêng cho lời giải. Từ 26/10/2026 lời giải dùng CHUNG `NotationView.latexHtml` của thẻ Công
+   * thức thay vì có bản riêng — điều đó vẫn đúng sau khi luật gắn dấu bị ĐẢO lại 04/11/2026 (xem
+   * docblock của `FormulaNotationCard.tsx`), chỉ nội dung được gắn dấu trong bản chung ấy đổi.
    */
 }
 

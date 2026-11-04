@@ -228,32 +228,23 @@ describe('FormulaNotationCard — mở và đóng khung', () => {
    * 26/10/2026, chủ dự án: _"hiện tại đang chỉ chú thích những ký hiệu khó hiểu, tôi muốn ký hiệu nào
    * cũng cần giải thích"_. `bien-an-toan` có đủ hai loại: `V` có bước tính, `P` là số nhập thẳng.
    */
-  it('ký hiệu nhập thẳng trong hình cũng mở khung — chỉ dòng nghĩa, không bước, không liên kết', () => {
+  /*
+   * ĐẢO 04/11/2026 — chủ dự án bấm vào dòng `r_e` (chính kết quả) của CAPM và thấy khung chỉ lặp
+   * lại đúng dòng "re: …" đã in sẵn cạnh đó: _"đang có những ký hiệu đơn giản có chú thích ở dưới
+   * rồi nên không cần bấm vào để hiện chú thích nữa"_. Ca đảo chiều của ca cùng tên trước 04/11/2026.
+   */
+  it('ký hiệu nhập thẳng trong hình KHÔNG mở khung nữa — không mang data-sym', () => {
     const { card, spec } = dungThe('bien-an-toan');
     const p = (spec.symbols ?? []).findIndex((s) => s.latex === 'P');
-    const trongHinh = card.querySelector(`math [data-sym="${String(p)}"]`) as Element;
-    expect(trongHinh).not.toBeNull();
-
-    fireEvent.click(trongHinh);
-    const khung = card.querySelector('[role="group"]') as HTMLElement;
-    expect(khung).not.toBeNull();
-    expect(card.getAttribute('data-active')).toBe(String(p));
-    expect(khung.textContent).toContain(spec.symbols?.[p]?.meaning.vi ?? '∅');
-    expect(khung.querySelector('ol')).toBeNull();
-    expect(khung.querySelector('a')).toBeNull();
-    expect(khung.hasAttribute('data-title-only')).toBe(true);
-    expect(khung.getAttribute('aria-label')).toBe(spec.symbols?.[p]?.meaning.vi);
-
-    fireEvent.click(trongHinh);
+    expect(card.querySelector(`math [data-sym="${String(p)}"]`)).toBeNull();
     expect(card.querySelector('[role="group"]')).toBeNull();
   });
 
   /*
-   * 28/10/2026, chủ dự án khoanh "Thị giá", "100%" ở dòng chữ và hai dòng `P`, `100%` của bảng Biên
-   * an toàn: _"đang chưa hover vào để bật popup lên được như những phần khác, sửa toàn bộ công thức
-   * liên quan"_. Ca đảo chiều của "ở bảng, dòng ấy vẫn là chữ thường" (26/10/2026).
+   * Ca đảo chiều của "dòng chữ và bảng ký hiệu: ký hiệu không có bước tính cũng mở khung, như hình"
+   * (28/10 tới 03/11/2026) — xem ĐẢO 04/11/2026 ở ca trên.
    */
-  it('dòng chữ và bảng ký hiệu: ký hiệu không có bước tính cũng mở khung, như hình', () => {
+  it('dòng chữ và bảng ký hiệu: ký hiệu không có bước tính không còn là điểm chạm', () => {
     const { card, spec } = dungThe('bien-an-toan');
     const so = (latex: string) => (spec.symbols ?? []).findIndex((s) => s.latex === latex);
 
@@ -263,19 +254,11 @@ describe('FormulaNotationCard — mở và đóng khung', () => {
       ['MOS', 'Biên an toàn'],
     ] as const) {
       const sym = String(so(latex));
-      const doan = card.querySelector(`p span[data-sym="${sym}"]`);
-      expect(doan?.textContent, latex).toBe(cum);
-      const nut = card.querySelector(`dl button[data-sym="${sym}"]`) as HTMLButtonElement;
-      expect(nut, latex).not.toBeNull();
-
-      for (const cho of [doan as Element, nut]) {
-        fireEvent.click(cho);
-        const khung = card.querySelector('[role="group"]') as HTMLElement;
-        expect(khung.hasAttribute('data-title-only'), latex).toBe(true);
-        expect(khung.getAttribute('aria-label')).toBe(spec.symbols?.[Number(sym)]?.meaning.vi);
-        fireEvent.click(cho);
-        expect(card.querySelector('[role="group"]')).toBeNull();
-      }
+      expect(card.querySelector(`p span[data-sym="${sym}"]`), latex).toBeNull();
+      expect(card.querySelector(`dl dt[data-sym="${sym}"]`), latex).toBeNull();
+      expect(card.querySelector(`dl button[data-sym="${sym}"]`), latex).toBeNull();
+      const doan = [...card.querySelectorAll('p')].find((p) => p.textContent?.includes(cum));
+      expect(doan, latex).toBeDefined();
     }
   });
 
@@ -314,7 +297,7 @@ describe('FormulaNotationCard — cả 111 công thức', { timeout: HAN_QUET },
    * Mọi dòng bảng là một nút (28/10/2026) — trước đó chỉ dòng có khung cách tính, nên ca này từng đếm
    * nút bằng số khung đã khai. Dòng có khung mở khung đủ bước, dòng còn lại khung chỉ có nghĩa.
    */
-  it('mọi dòng bảng ký hiệu là một nút, mở đúng loại khung và đúng nghĩa', () => {
+  it('chỉ dòng CÓ bước tính là một nút, dòng còn lại chữ trơn không data-sym', () => {
     const sai: string[] = [];
     for (const spec of FORMULAS) {
       const notation = buildNotationView(spec);
@@ -324,12 +307,12 @@ describe('FormulaNotationCard — cả 111 công thức', { timeout: HAN_QUET },
       );
       const card = container.firstElementChild as HTMLElement;
       const nut = [...card.querySelectorAll('dl button[data-sym]')];
-      const soDong = spec.symbols?.length ?? 0;
-      if (nut.length !== soDong) {
-        sai.push(`${spec.id}: ${String(nut.length)} nút, ${String(soDong)} dòng`);
+      if (nut.length !== coBuoc.size) {
+        sai.push(`${spec.id}: ${String(nut.length)} nút, ${String(coBuoc.size)} dòng có bước tính`);
       }
       for (const n of nut) {
         const sym = Number(n.getAttribute('data-sym'));
+        if (!coBuoc.has(sym)) sai.push(`${spec.id}: nút dòng ${String(sym)} không có bước tính`);
         fireEvent.click(n);
         const khung = card.querySelector('[role="group"]');
         if (khung === null) {
@@ -346,9 +329,20 @@ describe('FormulaNotationCard — cả 111 công thức', { timeout: HAN_QUET },
           sai.push(
             `${spec.id}: tiêu đề khung dòng ${String(sym)} là "${tieuDe?.textContent ?? ''}"`,
           );
-        if (khung.hasAttribute('data-title-only') === coBuoc.has(sym))
-          sai.push(`${spec.id}: nút dòng ${String(sym)} sai loại khung`);
+        // Dòng CÓ bước tính luôn khai ít nhất một bước — khung tiêu-đề-trơn giờ chỉ còn dựng được
+        // từ `GuideHintPanel.tsx`, không bao giờ từ thẻ Công thức (ĐẢO 04/11/2026).
+        if (khung.hasAttribute('data-title-only'))
+          sai.push(`${spec.id}: nút dòng ${String(sym)} là khung tiêu-đề-trơn`);
         fireEvent.click(n);
+      }
+      for (const index of (spec.symbols ?? []).keys()) {
+        if (coBuoc.has(index)) continue;
+        if (card.querySelector(`dl button[data-sym="${String(index)}"]`) !== null) {
+          sai.push(`${spec.id}: dòng ${String(index)} không có bước tính mà vẫn là nút`);
+        }
+        if (card.querySelector(`dl dt[data-sym="${String(index)}"]`) !== null) {
+          sai.push(`${spec.id}: dòng ${String(index)} không có bước tính mà vẫn mang data-sym`);
+        }
       }
       unmount();
     }
@@ -357,15 +351,11 @@ describe('FormulaNotationCard — cả 111 công thức', { timeout: HAN_QUET },
   });
 
   /*
-   * Cụm nào ở dòng chữ cũng mở khung mang đúng nghĩa của dòng nó trỏ tới (28/10/2026). Đếm trên cả
-   * thư viện để thấy ngay khi một cụm rơi mất: tiếng Việt và tiếng Anh phải phủ cùng các dòng.
-   *
-   * 483 trên 568 dòng bảng có cụm ở dòng chữ (481 tới 30/10/2026, khi hình `do-bien-dong-lich-su`
-   * viết thẳng độ lệch chuẩn mẫu và `s`, `n` có chữ riêng; trước 28/10 là 101 — chỉ dòng có khung). 85
-   * dòng còn lại không có chữ riêng nào để rê: chỉ số chạy (`t`, `i`, `k`), phép tính gộp mà từng phần
-   * đã là cụm riêng (`(1 - t)`, `(1 + r)^n`, `n - 1`), ký hiệu nằm lọt trong tên dài hơn (`n` trong
-   * "Giá của n phiên trước", `D` trong `D/E`), hay dòng hình có mà chữ không nhắc (`F_{mua}` của Lợi
-   * nhuận ròng, gộp trong "Tổng chi phí"). Rê vào hình hay bảng vẫn mở khung của chúng.
+   * Cụm nào ở dòng chữ cũng mở khung mang đúng nghĩa của dòng nó trỏ tới — chỉ còn cụm của dòng CÓ
+   * bước tính (ĐẢO 04/11/2026, `skippedPhrases` bị bỏ cùng lúc: 483 trên 568 dòng từng có cụm, nay
+   * còn 105 — dòng có khung từ trước, cộng vài dòng mới từ các công thức Cơ cấu thêm sau 28/10/2026).
+   * Đếm trên cả thư viện để thấy ngay khi một cụm rơi mất: tiếng Việt và tiếng Anh phải phủ cùng các
+   * dòng, và mọi dòng có cụm phải là dòng có bước tính thật.
    */
   it('bấm vào bất kỳ cụm nào ở dòng chữ cũng mở khung mang đúng nghĩa của nó', () => {
     const sai: string[] = [];
@@ -381,6 +371,10 @@ describe('FormulaNotationCard — cả 111 công thức', { timeout: HAN_QUET },
       );
       if ([...dongVi].sort().join() !== [...dongEn].sort().join()) {
         sai.push(`${spec.id}: cụm tiếng Việt và tiếng Anh không phủ cùng các dòng`);
+      }
+      for (const sym of dongVi) {
+        if (!coBuoc.has(sym))
+          sai.push(`${spec.id}: dòng ${String(sym)} có cụm mà không có bước tính`);
       }
       soDongCoCum += dongVi.size;
 
@@ -398,14 +392,14 @@ describe('FormulaNotationCard — cả 111 công thức', { timeout: HAN_QUET },
         }
         if (!(khung.textContent ?? '').includes(spec.symbols?.[sym]?.meaning.vi ?? '∅'))
           sai.push(`${spec.id}: cụm "${doan.textContent ?? ''}" sai nghĩa`);
-        if (khung.hasAttribute('data-title-only') === coBuoc.has(sym))
-          sai.push(`${spec.id}: cụm "${doan.textContent ?? ''}" sai loại khung`);
+        if (khung.hasAttribute('data-title-only'))
+          sai.push(`${spec.id}: cụm "${doan.textContent ?? ''}" mở khung tiêu-đề-trơn`);
         fireEvent.click(doan);
       }
       unmount();
     }
     expect(sai, sai.join('\n')).toEqual([]);
-    expect(soDongCoCum).toBe(483);
+    expect(soDongCoCum).toBe(105);
   });
 
   /*

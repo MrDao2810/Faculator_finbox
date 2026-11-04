@@ -4,6 +4,44 @@ Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 
 ---
 
+## Khung "cách tính" ở thẻ Công thức: chỉ ký hiệu có bước tính mới mở khung (04/11/2026)
+
+**Trạng thái: CHƯA XONG — đã sửa, chờ chủ dự án xem.** Chủ dự án gửi ảnh thẻ CAPM, bấm vào dòng `r_e`
+(chính kết quả công thức) trong bảng ký hiệu và thấy khung bật ra chỉ lặp lại đúng dòng "re: chi phí
+vốn chủ sở hữu…" đã in sẵn ngay cạnh đó: _"đang có những ký hiệu đơn giản có chú thích ở dưới rồi nên
+không cần bấm vào để hiện chú thích nữa, việc hiện chú thích chỉ dành cho những ký hiệu khó hiểu và
+có công thức liên quan thôi"_. Đây là ĐẢO lại quyết định "mọi ký hiệu đều mở khung" của 26/10 và
+28/10/2026 (ghi trong `CLAUDE.md`, mục "Hovering or tapping a symbol…").
+
+- **Phạm vi**: thẻ Công thức (`FormulaNotationCard.tsx` — hình, dòng chữ, bảng ký hiệu) và hình công
+  thức ở khối Bài tập/Ví dụ thực tế (`QuizFormulaPicture.tsx`) — hai nơi này dùng CHUNG một bản hình
+  gắn dấu (`notation.latexHtml`), nên đảo một chỗ mà không đảo chỗ kia sẽ phải dựng lại cơ chế gắn
+  dấu kép đã bỏ ngày 26/10 (`latexHtmlAllSymbols`). **Khung "Lấy số liệu ở đâu" (`GuideHintPanel.tsx`)
+  CỐ Ý GIỮ NGUYÊN** — chủ dự án nhắn riêng giữa chừng, kèm ảnh: _"phần hướng dẫn sử dụng thì cần giữ
+  lại cái popup chú thích đó"_. Ở đó "(rf)" đứng giữa câu hướng dẫn tìm số liệu chứ không đứng cạnh
+  nghĩa của nó như một dòng bảng, nên bấm vào vẫn còn tác dụng — khác thẻ Công thức.
+- **Cơ chế**: `notation-view.ts` chỉ gắn `data-sym` cho dòng thuộc `FormulaHowTo.entries` (trước đó
+  gắn cho MỌI dòng); bỏ hẳn `FormulaHowTo.skippedPhrases` (cụm chữ của dòng không có khung — trường
+  này giờ không còn chỗ dùng). `FormulaNotationCard.tsx`/`QuizFormulaPicture.tsx` gác `useHowToPanel`
+  bằng `howToBySym.has(sym)` thay vì "mọi chỉ số hợp lệ"; bảng ký hiệu chỉ dòng có khung mới là
+  `<button>`, dòng còn lại in nghĩa trơn, không `data-sym`, không con trỏ bàn tay. `HowToPanel.tsx`
+  vẫn giữ nhánh "khung chỉ-có-tiêu-đề" (`data-title-only`, steps rỗng) vì `GuideHintPanel.tsx` còn
+  dùng tới nó.
+- **Dọn dữ liệu**: xoá `skippedPhrases: {...}` khỏi 17 file `src/core/how-to/*.ts` (111 khối, viết
+  cho đợt 28/10/2026) bằng script Node gỡ theo cặp ngoặc cân bằng — không sửa tay từng file. Xoá ca
+  kiểm tương ứng trong `how-to.test.ts`.
+- **Kiểm**: `tsc --noEmit`, `eslint`, `prettier --check .` sạch. Sửa 3 ca test trong
+  `FormulaNotationCard.test.tsx` (đảo chiều: số nút nay bằng số dòng CÓ bước tính chứ không phải mọi
+  dòng; số cụm có điểm chạm ở dòng chữ 483 → 105), `notation.test.ts` (560 → 113 dòng gắn dấu — đúng
+  số `entries` toàn thư viện), `QuizFormulaPicture.test.tsx` (3 ca đảo chiều). `GuideHintPanel.tsx`
+  và ca test của nó trong `FormulaDetail.test.tsx` KHÔNG đổi — xanh nguyên, xác nhận phần giữ lại vẫn
+  đúng như cũ. Sau khi sửa hết: `src/core/how-to` + `src/app/cong-thuc/[id]` 381/381 xanh; `npm test`
+  toàn bộ 5157 xanh, 1 lỗi timeout biết trước (`PortfolioScreen.test.tsx`, CPU tranh chấp khi chạy
+  song song — chạy riêng thì xanh, không liên quan việc này).
+- **Chưa thử trên trình duyệt thật** (không chạy `npm run build` + `verify:static`/`check:chrome`).
+
+---
+
 ## Hình "Cơ cấu …" cũng có "Đọc biểu đồ" riêng (04/11/2026)
 
 **Trạng thái: CHƯA XONG — đã sửa, chờ chủ dự án xem.** Chủ dự án hỏi "hướng dẫn sử dụng của biểu đồ này đâu ?" trước

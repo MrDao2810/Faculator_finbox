@@ -42,16 +42,16 @@ function viewOf(spec: FormulaSpec): NotationView | Error {
 }
 
 /*
- * Hình gắn dấu MỌI ký hiệu, không chỉ ký hiệu có khung cách tính — từ 25/09/2026 ở dòng Công thức
- * của lời giải Bài tập, từ 26/10/2026 ở cả thẻ Công thức (chủ dự án: _"ký hiệu nào cũng cần giải
- * thích"_), nên chỉ còn một bản hình. Đo trên cả thư viện: 560 trên 568 dòng bảng tìm được chỗ (546
- * trên 554 trước khi 13 cụm chữ như "Tài sản ngắn hạn" có dòng riêng, 16/10/2026; 559 trên 567 trước
- * dòng `100` của thời gian nhân đôi, cùng ngày); 8 dòng còn lại chỉ nằm lọt trong một tên dài hơn
- * (`D` trong `D/E`…), đúng tám dòng docblock `mathml-marks.ts` đã kể — rê vào đó là mở khung của
- * tên dài hơn.
+ * Hình chỉ gắn dấu ký hiệu CÓ khung cách tính (`FormulaHowTo.entries`) — ĐẢO lại 04/11/2026. Từ
+ * 25/09/2026 (dòng Công thức của lời giải Bài tập) rồi 26/10/2026 (thẻ Công thức, chủ dự án: _"ký
+ * hiệu nào cũng cần giải thích"_) hình từng gắn dấu MỌI ký hiệu; chủ dự án xem thẻ CAPM, bấm vào
+ * dòng `r_e` (chính kết quả) và thấy khung chỉ lặp lại dòng bảng đã in sẵn cạnh nó — _"đang có những
+ * ký hiệu đơn giản có chú thích ở dưới rồi nên không cần bấm vào để hiện chú thích nữa"_, nên chỉ
+ * dòng có bước tính thật còn được gắn dấu. Đo trên cả thư viện: 113 dòng có khung, tất cả đều tìm
+ * được chỗ trong hình (đúng số `entries` của cả thư viện — `how-to.test.ts` gác phần dữ liệu).
  */
-describe('buildNotationView() — hình gắn dấu mọi ký hiệu', () => {
-  it('phủ 560 trên 568 dòng bảng, và dấu nào cũng trỏ tới một dòng có thật', () => {
+describe('buildNotationView() — hình chỉ gắn dấu ký hiệu có khung cách tính', () => {
+  it('113 dòng có khung đều tìm được chỗ, và dấu nào cũng trỏ tới một dòng có thật', () => {
     let tong = 0;
     let coCho = 0;
     const sai: string[] = [];
@@ -71,7 +71,7 @@ describe('buildNotationView() — hình gắn dấu mọi ký hiệu', () => {
     expect(sai, sai.join('\n')).toEqual([]);
     if (canKiem.length === FORMULAS.length) {
       expect(tong).toBe(568);
-      expect(coCho).toBe(560);
+      expect(coCho).toBe(113);
     }
   });
 });

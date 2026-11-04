@@ -111,6 +111,14 @@ export interface GuideHintPanelProps {
  * nay phần ký hiệu của tên ô là một nút, rê vào (hay chạm, Enter) thì mở ĐÚNG khung chú thích của
  * thẻ — "ký hiệu: nghĩa", các bước tính và liên kết sang công thức nguồn nếu dòng ấy có.
  *
+ * MỌI ký hiệu vẫn là nút ở đây, kể cả không có bước tính — khác thẻ Công thức và `QuizFormulaPicture`,
+ * nơi luật bị ĐẢO lại ngày 04/11/2026 (xem docblock của `FormulaNotationCard.tsx`: khung của dòng
+ * không có bước tính CHÉP lại đúng dòng bảng ký hiệu đã in sẵn cạnh nó nên bị gọi là thừa). Cùng ngày
+ * chủ dự án xem khung "Lấy số liệu ở đâu" của CAPM và yêu cầu GIỮ popup chú thích ở riêng chỗ này:
+ * _"phần hướng dẫn sử dụng thì cần giữ lại cái popup chú thích đó"_ — ở đây "(rf)" không đứng cạnh
+ * nghĩa của nó như một dòng bảng, mà đứng giữa câu hướng dẫn tìm số liệu, nên bấm vào vẫn còn tác
+ * dụng. Đừng đồng bộ chỗ này theo thẻ Công thức khi không có yêu cầu mới.
+ *
  * Dùng lại chứ không chép, cùng nếp `QuizFormulaPicture`: `useHowToPanel` (rê mở sau một nhịp, rời
  * thì tắt, bấm/chạm thì ghim, Esc và chạm ra ngoài thì đóng), `usePanelPlacement` và `HowToPanel`.
  * Khác đúng một chỗ: khung chú thích `position: fixed` theo khung nhìn (`coDinh`), vì khung "?" tự
@@ -272,7 +280,7 @@ export function GuideHintPanel({
         {mo && (
           <HowToPanel
             id={idChuThich}
-            // Dòng không có bước tính: khung chỉ có "ký hiệu: nghĩa", như ở thẻ Công thức.
+            // Dòng không có bước tính: khung chỉ có "ký hiệu: nghĩa" — giữ nguyên ở đây, xem docblock.
             howTo={howToBySym.get(nhan.sym) ?? { sym: nhan.sym, kind: 'defined', steps: [] }}
             symbolHtml={notation.symbolsHtml[nhan.sym] ?? ''}
             meaning={pick(symbol.meaning)}

@@ -138,10 +138,6 @@ export const HOW_TO_TECHNICAL_TREND: Readonly<Record<string, FormulaHowTo>> = {
     },
     whyNone:
       'Hình đã là trọn phép tính: cộng n giá đóng cửa đọc thẳng từ chuỗi giá rồi chia cho n ở ô Số phiên, không có đại lượng trung gian nào phải tính trước.',
-    skippedPhrases: {
-      'SMA_{n}': { vi: ['SMA'], en: ['SMA'] },
-      n: { vi: ['n'], en: ['n'] },
-    },
   },
 
   'ema-n-phien': {
@@ -160,12 +156,6 @@ export const HOW_TO_TECHNICAL_TREND: Readonly<Record<string, FormulaHowTo>> = {
       P_t: 'nhap-tho',
       k: 'da-hien-trong-hinh',
       n: 'nhap-tho',
-    },
-    skippedPhrases: {
-      EMA_t: { vi: ['EMA phiên này'], en: ["This period's EMA"] },
-      P_t: { vi: ['Giá đóng cửa'], en: ['Closing price'] },
-      k: { vi: ['Hệ số k', 'k'], en: ['Factor k', 'k'] },
-      n: { vi: ['Số phiên'], en: ['Number of periods'] },
     },
   },
 
@@ -189,9 +179,6 @@ export const HOW_TO_TECHNICAL_TREND: Readonly<Record<string, FormulaHowTo>> = {
       },
     ],
     skipped: { MACD: 'ket-qua' },
-    skippedPhrases: {
-      MACD: { vi: ['MACD'], en: ['MACD'] },
-    },
   },
 
   /*
@@ -223,9 +210,6 @@ export const HOW_TO_TECHNICAL_TREND: Readonly<Record<string, FormulaHowTo>> = {
       },
     ],
     skipped: { Signal: 'ket-qua' },
-    skippedPhrases: {
-      Signal: { vi: ['Đường tín hiệu'], en: ['Signal line'] },
-    },
   },
 
   'rsi-wilder': {
@@ -256,11 +240,6 @@ export const HOW_TO_TECHNICAL_TREND: Readonly<Record<string, FormulaHowTo>> = {
       },
     ],
     skipped: { RSI: 'ket-qua', '100': 'hang-so', RS: 'da-hien-trong-hinh' },
-    skippedPhrases: {
-      '100': { vi: ['100'], en: ['100'] },
-      RSI: { vi: ['RSI'], en: ['RSI'] },
-      RS: { vi: ['Sức mạnh tương đối'], en: ['Relative strength'] },
-    },
   },
 
   'roc-toc-do-thay-doi': {
@@ -275,12 +254,6 @@ export const HOW_TO_TECHNICAL_TREND: Readonly<Record<string, FormulaHowTo>> = {
     },
     whyNone:
       'Hai giá đóng cửa đọc thẳng từ chuỗi giá, n là ô Số phiên nhìn lại, còn phép chia, trừ 1 và nhân 100 đã hiện trọn trong hình.',
-    skippedPhrases: {
-      '100': { vi: ['100'], en: ['100'] },
-      ROC: { vi: ['ROC'], en: ['ROC'] },
-      P_t: { vi: ['Giá phiên cuối'], en: ['Last closing price'] },
-      'P_{t-n}': { vi: ['Giá của n phiên trước'], en: ['Price from n periods ago'] },
-    },
   },
 
   'dong-luong-momentum': {
@@ -294,11 +267,6 @@ export const HOW_TO_TECHNICAL_TREND: Readonly<Record<string, FormulaHowTo>> = {
     },
     whyNone:
       'Hai giá đóng cửa đọc thẳng từ chuỗi giá, n là ô Số phiên nhìn lại, còn phép trừ đã hiện trọn trong hình.',
-    skippedPhrases: {
-      M: { vi: ['Động lượng'], en: ['Momentum'] },
-      P_t: { vi: ['Giá phiên cuối'], en: ['Last closing price'] },
-      'P_{t-n}': { vi: ['Giá của n phiên trước'], en: ['Price from n periods ago'] },
-    },
   },
 
   'khoang-cach-gia-so-sma': {
@@ -318,11 +286,6 @@ export const HOW_TO_TECHNICAL_TREND: Readonly<Record<string, FormulaHowTo>> = {
       t: 'chi-so-chay',
       n: 'nhap-tho',
       '100': 'hang-so',
-    },
-    skippedPhrases: {
-      '100': { vi: ['100'], en: ['100'] },
-      D: { vi: ['Khoảng cách'], en: ['Distance'] },
-      P_t: { vi: ['Giá phiên cuối'], en: ['Last closing price'] },
     },
   },
 
@@ -346,8 +309,5 @@ export const HOW_TO_TECHNICAL_TREND: Readonly<Record<string, FormulaHowTo>> = {
       },
     ],
     skipped: { C: 'ket-qua' },
-    skippedPhrases: {
-      C: { vi: ['Chênh lệch'], en: ['Difference'] },
-    },
   },
 };

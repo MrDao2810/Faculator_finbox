@@ -128,19 +128,17 @@ export interface FormulaHowTo {
   /** Mọi dòng bảng ký hiệu không có khung, khoá là `SymbolNote.latex`. */
   skipped: Readonly<Record<string, HowToSkipReason>>;
   /**
-   * Cụm chữ ở dòng chữ dưới hình của những dòng KHÔNG có khung, khoá là `SymbolNote.latex` của một
-   * dòng trong `skipped` (28/10/2026). Cụm của dòng CÓ khung vẫn khai ở `HowToEntry.phrases`.
+   * `skippedPhrases` — BỎ 04/11/2026, cụm chữ của dòng KHÔNG có khung.
    *
-   * Từ 26/10/2026 mọi ký hiệu trong hình mở khung, nhưng ở dòng chữ chỉ cụm của dòng có khung là điểm
-   * chạm: "Giá trị nội tại" của Biên an toàn mở khung, "Thị giá" và "100%" ngay cạnh thì không. Chủ
-   * dự án khoanh đúng hai chỗ ấy: _"đang chưa hover vào để bật popup lên được như những phần khác,
-   * sửa toàn bộ công thức liên quan"_. Dòng không có ở dòng chữ (chỉ số chạy `t`, ký hiệu chỉ nằm
-   * trong tên dài hơn như `D` của `D/E`, phép tính gộp như `(1 - t)` mà tên các phần đã là cụm riêng)
-   * thì không khai, và không mất gì: rê vào hình hay bảng vẫn mở khung của nó.
-   *
-   * Luật như `HowToEntry.phrases`: chép nguyên văn, có ở cả hai ngôn ngữ hoặc không ở ngôn ngữ nào.
+   * Trường này tồn tại từ 28/10/2026 để mọi dòng bảng ký hiệu, kể cả dòng không có bước tính, đều
+   * là điểm chạm ở dòng chữ. Chủ dự án xem thẻ CAPM, bấm vào dòng `r_e` (chính kết quả công thức)
+   * rồi thấy khung chỉ lặp lại đúng dòng "re: chi phí vốn chủ sở hữu…" đã in sẵn ngay cạnh đó:
+   * _"đang có những ký hiệu đơn giản có chú thích ở dưới rồi nên không cần bấm vào để hiện chú
+   * thích nữa, việc hiện chú thích chỉ dành cho những ký hiệu khó hiểu và có công thức liên quan
+   * thôi"_. Đó cũng là lý do thực sự của khung tiêu-đề-trơn (từ 26/10/2026): nó không thêm gì
+   * ngoài chép lại dòng bảng, nên chủ dự án gọi đúng là THỪA. Xem lại `FormulaHowTo.entries` ở
+   * docblock đầu file — chỉ dòng ở đó mới còn là điểm chạm, ở cả ba chỗ (hình, dòng chữ, bảng).
    */
-  skippedPhrases?: Readonly<Record<string, HowToPhrases>>;
   /** Bắt buộc khi `entries` rỗng: vì sao công thức này không có phần nào phải tính. */
   whyNone?: string;
 }

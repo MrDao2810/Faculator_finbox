@@ -46,23 +46,24 @@ function formulaScroller(card: HTMLDivElement): Element | null {
  *
  * ── Điểm chạm ─────────────────────────────────────────────────────────────────────────────────
  *
- * Mỗi dòng bảng ký hiệu mang số thứ tự `k` ở ba chỗ, đều qua thuộc tính `data-sym="k"`: phần tử
- * MathML trong hình (gắn lúc build, `mathml-marks.ts`), đoạn chữ ở dòng chữ, và `<dt>` + nút nghĩa
- * ở bảng. Chỉ nút ở bảng là điểm dừng của phím Tab — người dùng bàn phím mở khung từ bảng ký hiệu;
- * hình và dòng chữ là lối tắt cho chuột và ngón tay.
+ * Mỗi dòng bảng ký hiệu CÓ BƯỚC TÍNH (`FormulaHowTo.entries`) mang số thứ tự `k` ở ba chỗ, đều qua
+ * thuộc tính `data-sym="k"`: phần tử MathML trong hình (gắn lúc build, `mathml-marks.ts`), đoạn chữ
+ * ở dòng chữ, và `<dt>` + nút nghĩa ở bảng. Chỉ nút ở bảng là điểm dừng của phím Tab — người dùng
+ * bàn phím mở khung từ bảng ký hiệu; hình và dòng chữ là lối tắt cho chuột và ngón tay. Dòng KHÔNG
+ * có bước tính (số nhập thẳng như thị giá `P`, hằng số, chính kết quả công thức) không mang
+ * `data-sym` ở đâu cả — `<dt>` và nghĩa của nó chỉ là chữ thường, không con trỏ bàn tay.
  *
- * MỌI ký hiệu là điểm chạm ở cả ba chỗ, không chỉ ký hiệu có bước tính. Ở hình từ 26/10/2026 (chủ
- * dự án: _"hiện tại đang chỉ chú thích những ký hiệu khó hiểu, tôi muốn ký hiệu nào cũng cần giải
- * thích"_); ở bảng và dòng chữ từ 28/10/2026 — chủ dự án khoanh "Thị giá", "100%" ở dòng chữ và hai
- * dòng `P`, `100%` của bảng Biên an toàn: _"đang chưa hover vào để bật popup lên được như những phần
- * khác, sửa toàn bộ công thức liên quan"_. Ký hiệu không có bước tính (số nhập thẳng như thị giá
- * `P`, hằng số, kết quả) mở khung chỉ có dòng "ký hiệu: nghĩa", đúng khung hình trong lời giải Bài
- * tập đã mở từ 25/09/2026.
+ * ── ĐẢO lại 04/11/2026: không phải mọi ký hiệu đều đáng mở khung ────────────────────────────────
  *
- * Điều này ĐẢO lựa chọn của 26/10/2026, khi dòng bảng không có bước tính còn giữ là chữ thường vì
- * khung của nó chép lại đúng dòng đang đứng đó. Chủ dự án muốn mọi dòng cùng một cách dùng; cái giá
- * biết trước là khung ấy lặp lại dòng và che các dòng bên dưới khi mở. Cụm ở dòng chữ của dòng không
- * có bước tính khai ở `FormulaHowTo.skippedPhrases`.
+ * Từ 26/10 (ở hình) rồi 28/10/2026 (ở bảng và dòng chữ) MỌI ký hiệu từng là điểm chạm, kể cả ký hiệu
+ * không có bước tính — khung của nó khi ấy chỉ có đúng dòng "ký hiệu: nghĩa", lặp lại y nguyên dòng
+ * bảng đang đứng cạnh nó. Chủ dự án xem thẻ CAPM, bấm vào dòng `r_e` — chính kết quả công thức — và
+ * thấy khung chỉ chép lại dòng "re: chi phí vốn chủ sở hữu…" đã in sẵn ngay bên dưới:
+ * _"đang có những ký hiệu đơn giản có chú thích ở dưới rồi nên không cần bấm vào để hiện chú thích
+ * nữa, việc hiện chú thích chỉ dành cho những ký hiệu khó hiểu và có công thức liên quan thôi"_. Vậy
+ * là khung tiêu-đề-trơn không thêm được gì — nó CHÉP, không GIẢI THÍCH — nên cả ba điểm chạm nay chỉ
+ * còn ở dòng có bước tính thật. `QuizFormulaPicture.tsx` (hình ở khối Bài tập/Ví dụ thực tế) và
+ * `GuideHintPanel.tsx` (khung "?") dùng chung `notation.howTo`/`notation.latexHtml` nên đổi theo.
  *
  * Tô sáng thuần CSS: thẻ mang `data-active="k"` khi khung của `k` đang mở, và 12 selector tĩnh
  * trong `FormulaNotationCard.module.css` tô mọi `[data-sym='k']`. Không ghi gì vào DOM của MathML.
@@ -96,11 +97,11 @@ export const FormulaNotationCard = memo(function FormulaNotationCard({
     () => new Map(notation.howTo.map((howTo) => [howTo.sym, howTo])),
     [notation.howTo],
   );
-  /* Mọi dòng bảng đều mở khung — xem "Điểm chạm" ở docblock. */
-  const isSymbol = useCallback((sym: number) => sym >= 0 && sym < symbols.length, [symbols.length]);
+  /* Chỉ dòng CÓ bước tính mở khung — xem "Điểm chạm" ở docblock (ĐẢO 04/11/2026). */
+  const hasHowTo = useCallback((sym: number) => howToBySym.has(sym), [howToBySym]);
 
   const { state, cardRef, panelRef, anchorRef, pointRef, close, handlers } = useHowToPanel(
-    isSymbol,
+    hasHowTo,
     locale,
   );
 
@@ -129,12 +130,9 @@ export const FormulaNotationCard = memo(function FormulaNotationCard({
 
   const panelFor = (sym: number) => {
     const symbol = symbols[sym];
-    if (symbol === undefined) return null;
-    /*
-     * Ký hiệu không có bước tính: khung chỉ có tiêu đề. `kind` ở đây không ai đọc — `HowToPanel`
-     * dựng theo `steps` và `formula` — nhưng kiểu bắt buộc phải có một giá trị.
-     */
-    const howTo = howToBySym.get(sym) ?? { sym, kind: 'defined' as const, steps: [] };
+    const howTo = howToBySym.get(sym);
+    /* `hasHowTo` đã gác: `state.sym` luôn là dòng có khung thật khi hàm này được gọi. */
+    if (symbol === undefined || howTo === undefined) return null;
     return (
       <HowToPanel
         id={panelId(sym)}
@@ -208,9 +206,11 @@ export const FormulaNotationCard = memo(function FormulaNotationCard({
         Chủ dự án chốt bố cục 16/09/2026. Đây là DỮ LIỆU, không phải đoạn văn giải thích — hai bản
         đoạn văn/chú giải trước đó đều bị bỏ ("quê mùa"); đừng dựng lại chúng ở đây.
 
-        Mọi dòng: nghĩa bọc trong một `<button>` trông như chữ thường (gạch chấm), và khung mở ra
-        ngay trong `<dd>` ấy — thứ tự DOM đặt khung ngay sau nút, nên Tab đi thẳng vào liên kết trong
-        khung. Dòng không có bước tính mở khung chỉ-có-nghĩa (28/10/2026, xem "Điểm chạm").
+        Dòng CÓ bước tính: nghĩa bọc trong một `<button>` trông như chữ thường (gạch chấm), và khung
+        mở ra ngay trong `<dd>` ấy — thứ tự DOM đặt khung ngay sau nút, nên Tab đi thẳng vào liên kết
+        trong khung. Dòng KHÔNG có bước tính in nghĩa trơn, không nút, không con trỏ bàn tay — khung
+        tiêu-đề-trơn của nó chỉ lặp lại đúng dòng này, nên không còn lý do để bấm vào (ĐẢO 04/11/2026,
+        xem "Điểm chạm" ở docblock).
       */}
       {symbols.length > 0 && (
         <div className={styles.legend}>
@@ -224,13 +224,20 @@ export const FormulaNotationCard = memo(function FormulaNotationCard({
             {symbols.map((symbol, index) => {
               const meaning = pick(symbol.meaning);
               const open = state?.sym === index;
+              if (!howToBySym.has(index)) {
+                return (
+                  <Fragment key={symbol.latex}>
+                    {/* eslint-disable-next-line react/no-danger -- MathML dựng lúc build, xem trên */}
+                    <dt dangerouslySetInnerHTML={symbolInner[index]} />
+                    <dd>{meaning}</dd>
+                  </Fragment>
+                );
+              }
               return (
                 <Fragment key={symbol.latex}>
                   {/*
-                    Mọi dòng mang `data-sym` ở cả `<dt>` lẫn nút nghĩa (28/10/2026, xem "Điểm chạm"
-                    ở docblock), nên khung mở thì cả dòng sáng. `data-hang` từng đứng cạnh nó, chỉ
-                    để ô rê trong khung "Lấy số liệu ở đâu" tô được dòng không có bước tính; lối tô
-                    ấy đã bỏ cùng ngày (xem `GuideHintPanel`), và `data-sym` tô đúng chỗ ấy rồi.
+                    Dòng CÓ bước tính mang `data-sym` ở cả `<dt>` lẫn nút nghĩa, nên khung mở thì cả
+                    dòng sáng (tô bằng CSS, xem docblock).
                   */}
                   <dt
                     data-sym={index}

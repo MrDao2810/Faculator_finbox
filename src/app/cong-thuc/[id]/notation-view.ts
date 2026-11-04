@@ -44,20 +44,19 @@ export function buildNotationView(
     renderings: [latexToMathml(symbol.latex), latexToInlineMathml(symbol.latex)],
   }));
   /*
-   * Gắn dấu MỌI dòng bảng, không chỉ dòng có bước tính (26/10/2026). Chủ dự án: _"hiện tại đang chỉ
-   * chú thích những ký hiệu khó hiểu, tôi muốn ký hiệu nào cũng cần giải thích"_. Ký hiệu không có
-   * bước tính mở khung chỉ có dòng "ký hiệu: nghĩa" — đúng khung hình trong lời giải Bài tập đã mở
-   * từ 25/09/2026, nên hai hình nay cùng một bản gắn dấu.
+   * Gắn dấu đúng dòng có bước tính (`targets`) — ĐẢO lại ngày 04/11/2026. Từ 26/10 tới 03/11/2026
+   * hàm này gắn dấu MỌI dòng bảng, kể cả dòng không có bước tính, để "ký hiệu nào cũng giải thích
+   * được"; chủ dự án xem thẻ CAPM, bấm vào `r_e` (chính kết quả công thức) và thấy khung chỉ lặp
+   * lại đúng dòng "re: …" đã in sẵn cạnh đó — _"đang có những ký hiệu đơn giản có chú thích ở dưới
+   * rồi nên không cần bấm vào để hiện chú thích nữa, việc hiện chú thích chỉ dành cho những ký hiệu
+   * khó hiểu và có công thức liên quan thôi"_. `markSymbols()` vẫn nhận TRỌN bảng ở tham số `legend`
+   * (luật 4/5 cần biết cụm nào là một ký hiệu riêng để không khớp lạc vào giữa tên dài hơn), chỉ
+   * `targets` mới quyết dòng nào THỰC SỰ được gắn `data-sym`.
    *
-   * Dòng không tìm được chỗ (`D` chỉ nằm trong tên `D/E`…, 8 trên 568 dòng của cả thư viện) thì
-   * lặng lẽ không có điểm chạm — rê vào đó là rê vào tên dài hơn, và khung của tên ấy mở. Dòng CÓ
+   * Dòng không tìm được chỗ (`D` chỉ nằm trong tên `D/E`…) thì lặng lẽ không có điểm chạm — dòng CÓ
    * bước tính mà không tìm được chỗ thì vẫn là lỗi dữ liệu và phải ném, ngay dưới đây.
    */
-  const marked = markSymbols(
-    latexToMathml(spec.latex),
-    legend,
-    new Set(legend.map((row) => row.index)),
-  );
+  const marked = markSymbols(latexToMathml(spec.latex), legend, targets);
 
   for (const index of targets) {
     if ((marked.hits.get(index) ?? 0) === 0) {
@@ -68,17 +67,13 @@ export function buildNotationView(
   }
 
   /*
-   * Cụm của dòng có khung và của dòng không có khung (28/10/2026): ở dòng chữ, cụm nào khai cũng là
-   * điểm chạm — khung của dòng không có bước tính chỉ có dòng "ký hiệu: nghĩa", như ở hình.
+   * Chỉ cụm của dòng CÓ khung (`entries`) là điểm chạm ở dòng chữ — ĐẢO lại 04/11/2026, xem chú
+   * thích ở `markSymbols()` trên. Dòng không có khung không còn `skippedPhrases` để khai nữa.
    */
-  const phrasesOf = (locale: 'vi' | 'en'): ExpressionPhrase[] => [
-    ...entries.flatMap((entry) =>
+  const phrasesOf = (locale: 'vi' | 'en'): ExpressionPhrase[] =>
+    entries.flatMap((entry) =>
       (entry.phrases?.[locale] ?? []).map((phrase) => ({ sym: indexOf(entry.symbol), phrase })),
-    ),
-    ...Object.entries(howTo?.skippedPhrases ?? {}).flatMap(([symbol, phrases]) =>
-      phrases[locale].map((phrase) => ({ sym: indexOf(symbol), phrase })),
-    ),
-  ];
+    );
 
   /* Mỗi vế của hình là một DÒNG chữ (luật 6) — cắt dòng trước, tìm cụm trong từng dòng. */
   const expressionOf = (locale: 'vi' | 'en') => {

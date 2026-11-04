@@ -34,10 +34,14 @@ export interface HowToPanelProps {
  * một hình KaTeX dựng sẵn lúc build và dòng chữ đọc hình ấy thành lời — cùng khuôn "hình + dòng chữ"
  * của chính thẻ Công thức, nên người dùng đọc khung như đọc một thẻ nhỏ.
  *
- * Khung KHÔNG có bước nào cũng hợp lệ: hình công thức mở khung cho MỌI ký hiệu, kể cả số liệu nhập
- * thẳng như thị giá `P` — trong khối lời giải của Bài tập từ 25/09/2026, trên thẻ Công thức từ
- * 26/10/2026. Khung ấy chỉ có dòng tiêu đề — ký hiệu và nghĩa — tức đúng dòng bảng ký hiệu. Nhãn
- * trợ năng khi ấy là nghĩa trơn: gọi nó là "Cách tính" là nói sai, vì chẳng có gì để tính.
+ * Khung KHÔNG có bước nào cũng hợp lệ — nhưng từ 04/11/2026 chỉ còn MỘT nơi gọi dựng ra khung ấy:
+ * `GuideHintPanel.tsx` ("Lấy số liệu ở đâu"), nơi chủ dự án giữ lại rõ ràng (_"phần hướng dẫn sử
+ * dụng thì cần giữ lại cái popup chú thích đó"_) dù cùng ngày đã bác đúng khung này ở `FormulaNotationCard`
+ * và `QuizFormulaPicture` (CAPM, bấm `r_e`: _"đang có những ký hiệu đơn giản có chú thích ở dưới rồi
+ * nên không cần bấm vào để hiện chú thích nữa"_) — hai nơi ấy nay gác trước bằng `hasHowTo`/
+ * `howToBySym` nên chỉ còn gọi `HowToPanel` cho dòng CÓ bước tính (`FormulaHowTo.entries`). Khung chỉ
+ * có dòng tiêu đề — ký hiệu và nghĩa — tức đúng dòng bảng ký hiệu. Nhãn trợ năng khi ấy là nghĩa
+ * trơn: gọi nó là "Cách tính" là nói sai, vì chẳng có gì để tính.
  *
  * Các object `__html` dựng một lần bằng `useMemo`: React 19 so `dangerouslySetInnerHTML` theo DANH
  * TÍNH object, nên object mới ở mỗi lượt render (lượt đặt vị trí là một lượt) sẽ thay hết MathML

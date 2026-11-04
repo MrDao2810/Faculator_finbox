@@ -923,9 +923,10 @@ export function FormulaDetail({
    * "cách tính" y như thẻ Công thức. Dựng ở ĐÂY vì cả cơ chế khung sống cạnh thẻ, trong thư mục
    * này, còn `src/ui/quiz` không với tới được; khối Bài tập chỉ nhận nút đã dựng và đặt vào ô.
    *
-   * Dựng nút luôn, không chờ cờ nào (26/10/2026): hình là chính `notation.latexHtml` của thẻ, đã gắn
-   * dấu mọi ký hiệu, và dựng một phần tử React chưa mount thì không tốn gì — chỉ lời giải nào cần
-   * hình mới đặt nó vào ô. `useMemo` giữ nguyên nút qua mỗi lần gõ ở khối Số liệu.
+   * Dựng nút luôn, không chờ cờ nào (26/10/2026): hình là chính `notation.latexHtml` của thẻ — gắn
+   * dấu ký hiệu có khung cách tính (04/11/2026) — và dựng một phần tử React chưa mount thì không tốn
+   * gì — chỉ lời giải nào cần hình mới đặt nó vào ô. `useMemo` giữ nguyên nút qua mỗi lần gõ ở khối
+   * Số liệu.
    */
   /*
    * Bảng ký hiệu cho dòng "Thay số" của lời giải: ký hiệu đúng bản MathML thẻ Công thức in

@@ -946,7 +946,7 @@ export const CVAR_LICH_SU: FormulaModule = {
          * Ngưỡng phân vị dương nhưng đuôi vẫn lỗ: VaR từ chối ca này (đúng — nó đo ngưỡng), CVaR
          * thì không được từ chối theo, vì trung bình ba phiên đuôi là một khoản lỗ có thật.
          */
-        name: 'ngưỡng phân vị dương nhưng đuôi vẫn lỗ - CVaR vẫn phải trả 2,3667%',
+        name: 'ngưỡng phân vị dương nhưng đuôi vẫn lỗ: CVaR vẫn phải trả 2,3667%',
         inputs: { confidence: 95, lookback: 250 },
         series: CHUOI_DUOI_LO_NGUONG_DUONG,
         expected: 2.3667,

@@ -1896,10 +1896,10 @@ function dungMoHinh(args: ChartArgs, s: SanSang): ChartModel {
       : {
           note: {
             vi: `Đường ngắt ở ${String(missing)} ${unit.vi} không tính được${
-              reason === undefined ? '' : ` - ${WARNING_LABELS[reason].vi.toLowerCase()}`
+              reason === undefined ? '' : ` (${WARNING_LABELS[reason].vi.toLowerCase()})`
             }.`,
             en: `The line breaks at ${String(missing)} ${unit.en} that could not be calculated${
-              reason === undefined ? '' : ` - ${WARNING_LABELS[reason].en.toLowerCase()}`
+              reason === undefined ? '' : ` (${WARNING_LABELS[reason].en.toLowerCase()})`
             }.`,
           },
         }),

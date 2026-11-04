@@ -21,7 +21,7 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
     choices: {
       a: {
         vi: 'Quá mua cũng là dấu hiệu SỨC MẠNH, RSI có thể ở trên 70 rất lâu',
-        en: 'Overbought can also be a sign of STRENGTH - RSI can stay above 70 for a long time',
+        en: 'Overbought can also be a sign of STRENGTH; RSI can stay above 70 for a long time',
       },
       b: {
         vi: 'Tín hiệu bán, chốt lời ngay',
@@ -1161,8 +1161,8 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
         en: 'Because a 73.5% rate is too low to count as statistically reliable',
       },
       b: {
-        vi: 'Vì mức sụt giảm trung bình của 49 lần lên tới 13,2%, trong đó 5 lần sụt tối thiểu 45% - thắng nhiều lần nhỏ nhưng vài lần thua rất nặng khiến tổng lỗ có thể vượt xa tổng lãi',
-        en: 'Because the average drawdown across the 49 trades reached 13.2%, with five instances of at least 45% - many small wins can be wiped out by a few very large losses',
+        vi: 'Vì mức sụt giảm trung bình của 49 lần lên tới 13,2%, trong đó 5 lần sụt tối thiểu 45%: thắng nhiều lần nhỏ nhưng vài lần thua rất nặng khiến tổng lỗ có thể vượt xa tổng lãi',
+        en: 'Because the average drawdown across the 49 trades reached 13.2%, with five instances of at least 45%: many small wins can be wiped out by a few very large losses',
       },
       c: {
         vi: 'Vì mẫu 97 năm là quá ngắn để rút ra kết luận có ý nghĩa thống kê',
@@ -1175,8 +1175,8 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
     },
     answer: 'b',
     explain: {
-      vi: 'Bài phân tích định lượng của Rob Hanna cho thấy tỷ lệ thắng 73,5% dễ gây hiểu lầm vì nó bỏ qua độ lớn của khoản lỗ: “The average drawdown for these 49 trades would have been 13.2%, and there were five separate instances with drawdowns of at least 45%.” Tác giả đánh giá đây không phải một tín hiệu đáng tin cậy đứng một mình: riêng lần Death Cross đầu tiên (1929–1933), danh mục ví dụ đã tăng lên 120.000 rồi rơi về khoảng 20.000, kết thúc thương vụ quanh 34.000 và chưa từng hồi phục về vốn ban đầu trong suốt 97 năm sau đó - một vài lần thua nặng như vậy đủ xoá sạch nhiều lần thắng nhỏ, nên chỉ nhìn tỷ lệ thắng/thua là chưa đủ.',
-      en: "Rob Hanna's quantitative analysis shows the 73.5% win rate is misleading because it ignores how large the losses were: “The average drawdown for these 49 trades would have been 13.2%, and there were five separate instances with drawdowns of at least 45%.” He judges the pattern unreliable as a standalone signal: in just the first death cross (1929-1933), the example portfolio rose to 120,000, fell to about 20,000, ended that trade around 34,000, and never returned to breakeven over the following 97 years - a few losses that severe are enough to erase many small wins, so the win rate alone is not sufficient evidence.",
+      vi: 'Bài phân tích định lượng của Rob Hanna cho thấy tỷ lệ thắng 73,5% dễ gây hiểu lầm vì nó bỏ qua độ lớn của khoản lỗ: “The average drawdown for these 49 trades would have been 13.2%, and there were five separate instances with drawdowns of at least 45%.” Tác giả đánh giá đây không phải một tín hiệu đáng tin cậy đứng một mình: riêng lần Death Cross đầu tiên (1929–1933), danh mục ví dụ đã tăng lên 120.000 rồi rơi về khoảng 20.000, kết thúc thương vụ quanh 34.000 và chưa từng hồi phục về vốn ban đầu trong suốt 97 năm sau đó: một vài lần thua nặng như vậy đủ xoá sạch nhiều lần thắng nhỏ, nên chỉ nhìn tỷ lệ thắng/thua là chưa đủ.',
+      en: "Rob Hanna's quantitative analysis shows the 73.5% win rate is misleading because it ignores how large the losses were: “The average drawdown for these 49 trades would have been 13.2%, and there were five separate instances with drawdowns of at least 45%.” He judges the pattern unreliable as a standalone signal: in just the first death cross (1929-1933), the example portfolio rose to 120,000, fell to about 20,000, ended that trade around 34,000, and never returned to breakeven over the following 97 years: a few losses that severe are enough to erase many small wins, so the win rate alone is not sufficient evidence.",
     },
     source: {
       url: 'https://proactiveadvisormagazine.com/what-weve-learned-from-97-years-of-death-crosses/',
@@ -1637,8 +1637,8 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
     },
     answer: 'd',
     explain: {
-      vi: "StockCharts: “It is important to remember that ATR doesn't indicate price direction, just volatility”. Nguồn khác liệt kê 5 lỗi phổ biến của trader với ATR, gồm dùng ATR xác định hướng vào lệnh và đi tìm “phân kỳ ATR” - “ATR indicator isn't an oscillator”.",
-      en: "StockCharts: “It is important to remember that ATR doesn't indicate price direction, just volatility”. Another source lists 5 common trader mistakes with ATR, including using ATR to determine trade direction and hunting for a “phân kỳ ATR” (an ATR divergence) - “ATR indicator isn't an oscillator”.",
+      vi: "StockCharts: “It is important to remember that ATR doesn't indicate price direction, just volatility”. Nguồn khác liệt kê 5 lỗi phổ biến của trader với ATR, gồm dùng ATR xác định hướng vào lệnh và đi tìm “phân kỳ ATR”, dù ATR vốn không phải chỉ báo dao động: “ATR indicator isn't an oscillator”.",
+      en: "StockCharts: “It is important to remember that ATR doesn't indicate price direction, just volatility”. Another source lists 5 common trader mistakes with ATR, including using ATR to determine trade direction and hunting for a “phân kỳ ATR” (an ATR divergence): “ATR indicator isn't an oscillator”.",
     },
     source: {
       url: 'https://chartschool.stockcharts.com/table-of-contents/technical-indicators-and-overlays/technical-indicators/average-true-range-atr',
@@ -1747,7 +1747,7 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
       en: 'ATR(14) = ([1000] × ([14] − 1) + [1700]) ÷ [14]',
     },
     explain: {
-      vi: 'StockCharts nêu rõ: sau lần tính đầu tiên, ATR(14) không phải trung bình cộng 14 TR gần nhất mà dùng công thức làm mịn của Wilder - “Current ATR = [(Prior ATR x 13) + Current TR] / 14”. Thay số: (1.000 × 13 + 1.700) / 14 = 14.700 / 14 = 1.050 ₫. Hệ số 13/14 và 1/14 này là quy ước làm mượt (giống cách xây EMA), khác hẳn cách lấy trung bình cộng đơn giản mà nhiều người mặc định khi dựng lại chỉ báo từ đầu.',
+      vi: 'StockCharts nêu rõ: sau lần tính đầu tiên, ATR(14) không phải trung bình cộng 14 TR gần nhất mà dùng công thức làm mịn của Wilder: “Current ATR = [(Prior ATR x 13) + Current TR] / 14”. Thay số: (1.000 × 13 + 1.700) / 14 = 14.700 / 14 = 1.050 ₫. Hệ số 13/14 và 1/14 này là quy ước làm mượt (giống cách xây EMA), khác hẳn cách lấy trung bình cộng đơn giản mà nhiều người mặc định khi dựng lại chỉ báo từ đầu.',
       en: "StockCharts spells out that after the first calculation, ATR(14) is not a plain average of the last 14 TR values - it uses Wilder's smoothing formula: “Current ATR = [(Prior ATR x 13) + Current TR] / 14”. Plugging in the numbers: (1,000 × 13 + 1,700) / 14 = 14,700 / 14 = 1,050 ₫. That 13/14-and-1/14 weighting is the smoothing convention (similar to building an EMA), which differs from the plain average many people assume when reimplementing the indicator from scratch.",
     },
     giai: {
@@ -1813,8 +1813,8 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
     },
     answer: 'c',
     explain: {
-      vi: 'DNSE hướng dẫn đặt điểm dừng lỗ động theo ATR cho lệnh mua: “Điểm dừng lỗ = Giá vào lệnh – (2 x Giá trị ATR).” Thay số: 45.000 − (2 × 1.200) = 45.000 − 2.400 = 42.600 ₫. Quy ước dùng bội số 2×ATR - không phải cộng/trừ thẳng một lần giá trị ATR, cũng không phải một tỷ lệ % cố định trên giá - nên nhầm hệ số nhân sẽ ra điểm dừng lỗ sai. Ba đáp án còn lại là ba lỗi hay gặp: 43.800 là chỉ trừ một lần ATR, bỏ mất bội số 2; 47.400 là CỘNG thay vì trừ, tức đặt dừng lỗ của lệnh bán khống lên một lệnh mua; 40.200 là trừ bốn lần ATR.',
-      en: "DNSE's guide sets a volatility-based stop-loss for a buy order: “Điểm dừng lỗ = Giá vào lệnh – (2 x Giá trị ATR).” (stop-loss = entry price − (2 × ATR value)). Plugging in the numbers: 45,000 − (2 × 1,200) = 45,000 − 2,400 = 42,600 ₫. The convention uses a 2x ATR multiple - not a single raw ATR value added or subtracted, and not a fixed percentage of price - so mixing up the multiplier produces the wrong stop level. The other three are common slips: 43,800 subtracts only one ATR and drops the 2x multiple; 47,400 ADDS instead of subtracting, placing a short position’s stop on a long one; 40,200 subtracts four ATRs.",
+      vi: 'DNSE hướng dẫn đặt điểm dừng lỗ động theo ATR cho lệnh mua: “Điểm dừng lỗ = Giá vào lệnh – (2 x Giá trị ATR).” Thay số: 45.000 − (2 × 1.200) = 45.000 − 2.400 = 42.600 ₫. Quy ước dùng bội số 2×ATR (không phải cộng/trừ thẳng một lần giá trị ATR, cũng không phải một tỷ lệ % cố định trên giá), nên nhầm hệ số nhân sẽ ra điểm dừng lỗ sai. Ba đáp án còn lại là ba lỗi hay gặp: 43.800 là chỉ trừ một lần ATR, bỏ mất bội số 2; 47.400 là CỘNG thay vì trừ, tức đặt dừng lỗ của lệnh bán khống lên một lệnh mua; 40.200 là trừ bốn lần ATR.',
+      en: "DNSE's guide sets a volatility-based stop-loss for a buy order: “Điểm dừng lỗ = Giá vào lệnh – (2 x Giá trị ATR).” (stop-loss = entry price − (2 × ATR value)). Plugging in the numbers: 45,000 − (2 × 1,200) = 45,000 − 2,400 = 42,600 ₫. The convention uses a 2x ATR multiple (not a single raw ATR value added or subtracted, and not a fixed percentage of price), so mixing up the multiplier produces the wrong stop level. The other three are common slips: 43,800 subtracts only one ATR and drops the 2x multiple; 47,400 ADDS instead of subtracting, placing a short position’s stop on a long one; 40,200 subtracts four ATRs.",
     },
     source: {
       url: 'https://www.dnse.com.vn/hoc/chi-bao-atr',
@@ -1957,8 +1957,8 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
     },
     answer: 'c',
     explain: {
-      vi: 'Tài liệu chỉ báo STOCH của TradingView mô tả ô Smooth: “The time period to be used in additional smoothing of the %K. 3 is the default. Value of 1 disables the additional smoothing.” Nghĩa là %K vẽ trên biểu đồ mặc định đã qua một lần trung bình 3 phiên - đúng thứ StockCharts gọi là “Slow %K = Fast %K smoothed with 3-period SMA”. Công thức trong thư viện này là %K gốc (fast), nên muốn hai số trùng nhau thì phải đặt Smooth = 1 trên phần mềm.',
-      en: "TradingView's STOCH documentation describes the Smooth input: “The time period to be used in additional smoothing of the %K. 3 is the default. Value of 1 disables the additional smoothing.” So the %K drawn on the chart has by default been averaged once over 3 sessions - exactly what StockCharts calls “Slow %K = Fast %K smoothed with 3-period SMA”. The formula in this library is the raw (fast) %K, so to make the two numbers agree you must set Smooth = 1 on the platform.",
+      vi: 'Tài liệu chỉ báo STOCH của TradingView mô tả ô Smooth: “The time period to be used in additional smoothing of the %K. 3 is the default. Value of 1 disables the additional smoothing.” Nghĩa là %K vẽ trên biểu đồ mặc định đã qua một lần trung bình 3 phiên, đúng thứ StockCharts gọi là “Slow %K = Fast %K smoothed with 3-period SMA”. Công thức trong thư viện này là %K gốc (fast), nên muốn hai số trùng nhau thì phải đặt Smooth = 1 trên phần mềm.',
+      en: "TradingView's STOCH documentation describes the Smooth input: “The time period to be used in additional smoothing of the %K. 3 is the default. Value of 1 disables the additional smoothing.” So the %K drawn on the chart has by default been averaged once over 3 sessions, exactly what StockCharts calls “Slow %K = Fast %K smoothed with 3-period SMA”. The formula in this library is the raw (fast) %K, so to make the two numbers agree you must set Smooth = 1 on the platform.",
     },
     source: {
       url: 'https://www.tradingview.com/support/solutions/43000502332-stochastic-stoch/',
@@ -2111,40 +2111,40 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Một phiên giao dịch được chia làm 2 đợt khớp lệnh (ví dụ theo một khung thời gian ngắn trong phiên). Số liệu mỗi đợt cho ở bảng dưới. Tính VWAP của phiên ĐÚNG theo quy ước dùng GIÁ ĐIỂN HÌNH - Typical Price = (Cao + Thấp + Đóng) / 3 - nhân khối lượng rồi chia tổng khối lượng, KHÔNG phải trung bình cộng hai giá đóng cửa và cũng KHÔNG phải chỉ lấy giá đóng cửa của đợt cuối.',
-      en: "A trading session is split into 2 matching intervals (for example, by some short intraday timeframe). Each interval's data is given in the table below. Calculate the session's VWAP correctly using the TYPICAL PRICE convention - Typical Price = (High + Low + Close) / 3 - multiplied by volume and divided by total volume, NOT a plain average of the two closing prices, and NOT just the last interval's closing price.",
+      vi: 'Một phiên giao dịch được chia làm 2 đợt khớp lệnh (ví dụ theo một khung thời gian ngắn trong phiên). Số liệu mỗi đợt cho ở bảng dưới. Tính VWAP của phiên ĐÚNG theo quy ước dùng GIÁ ĐIỂN HÌNH (Typical Price = (Cao + Thấp + Đóng) / 3), nhân khối lượng rồi chia tổng khối lượng, KHÔNG phải trung bình cộng hai giá đóng cửa và cũng KHÔNG phải chỉ lấy giá đóng cửa của đợt cuối.',
+      en: "A trading session is split into 2 matching intervals (for example, by some short intraday timeframe). Each interval's data is given in the table below. Calculate the session's VWAP correctly using the TYPICAL PRICE convention (Typical Price = (High + Low + Close) / 3), multiplied by volume and divided by total volume, NOT a plain average of the two closing prices, and NOT just the last interval's closing price.",
     },
     facts: [
       {
-        label: { vi: 'Đợt 1 - giá cao nhất', en: 'Interval 1 - high' },
+        label: { vi: 'Đợt 1: giá cao nhất', en: 'Interval 1: high' },
         value: { vi: '51.000 ₫', en: '51,000 VND' },
       },
       {
-        label: { vi: 'Đợt 1 - giá thấp nhất', en: 'Interval 1 - low' },
+        label: { vi: 'Đợt 1: giá thấp nhất', en: 'Interval 1: low' },
         value: { vi: '45.000 ₫', en: '45,000 VND' },
       },
       {
-        label: { vi: 'Đợt 1 - giá khớp cuối đợt (đóng)', en: 'Interval 1 - close' },
+        label: { vi: 'Đợt 1: giá khớp cuối đợt (đóng)', en: 'Interval 1: close' },
         value: { vi: '48.000 ₫', en: '48,000 VND' },
       },
       {
-        label: { vi: 'Đợt 1 - khối lượng khớp', en: 'Interval 1 - matched volume' },
+        label: { vi: 'Đợt 1: khối lượng khớp', en: 'Interval 1: matched volume' },
         value: { vi: '200.000 cổ phiếu', en: '200,000 shares' },
       },
       {
-        label: { vi: 'Đợt 2 - giá cao nhất', en: 'Interval 2 - high' },
+        label: { vi: 'Đợt 2: giá cao nhất', en: 'Interval 2: high' },
         value: { vi: '57.000 ₫', en: '57,000 VND' },
       },
       {
-        label: { vi: 'Đợt 2 - giá thấp nhất', en: 'Interval 2 - low' },
+        label: { vi: 'Đợt 2: giá thấp nhất', en: 'Interval 2: low' },
         value: { vi: '51.000 ₫', en: '51,000 VND' },
       },
       {
-        label: { vi: 'Đợt 2 - giá khớp cuối đợt (đóng)', en: 'Interval 2 - close' },
+        label: { vi: 'Đợt 2: giá khớp cuối đợt (đóng)', en: 'Interval 2: close' },
         value: { vi: '54.000 ₫', en: '54,000 VND' },
       },
       {
-        label: { vi: 'Đợt 2 - khối lượng khớp', en: 'Interval 2 - matched volume' },
+        label: { vi: 'Đợt 2: khối lượng khớp', en: 'Interval 2: matched volume' },
         value: { vi: '100.000 cổ phiếu', en: '100,000 shares' },
       },
     ],
@@ -2156,8 +2156,8 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
     },
     answer: 'b',
     explain: {
-      vi: 'Giá điển hình đợt 1 = (51.000+45.000+48.000)/3 = 48.000 ₫; đợt 2 = (57.000+51.000+54.000)/3 = 54.000 ₫. VWAP = (48.000×200.000 + 54.000×100.000) / (200.000+100.000) = 15.000.000.000/300.000 = 50.000 ₫. Nguồn nêu đúng quy ước này: “VWAP = Tổng (Giá Điển Hình x Khối Lượng) / Tổng Khối Lượng”, với “Typical Price = (High + Low + Close) / 3” - không phải trung bình cộng hai giá đóng cửa (sẽ ra (48.000+54.000)/2 = 51.000 ₫, sai) và cũng không phải chỉ lấy giá đóng cửa đợt cuối (54.000 ₫, càng sai). Ba đáp án còn lại là ba lỗi hay gặp: 51.000 là trung bình cộng hai giá của hai đợt, bỏ qua hẳn khối lượng; 52.000 là gán nhầm khối lượng cho đợt kia; 54.000 là chỉ lấy giá đợt cuối, tức coi VWAP như giá đóng cửa.',
-      en: "Typical price for interval 1 = (51,000+45,000+48,000)/3 = 48,000 VND; interval 2 = (57,000+51,000+54,000)/3 = 54,000 VND. VWAP = (48,000×200,000 + 54,000×100,000) / (200,000+100,000) = 15,000,000,000/300,000 = 50,000 VND. The source states exactly this convention: “VWAP = Tổng (Giá Điển Hình x Khối Lượng) / Tổng Khối Lượng” (VWAP = sum of (typical price × volume) divided by total volume), with “Typical Price = (High + Low + Close) / 3” - not a plain average of the two closing prices (which would give (48,000+54,000)/2 = 51,000 VND, wrong), and not just the last interval's closing price (54,000 VND, even more wrong). The other three are common slips: 51,000 is the plain average of the two intervals’ prices, ignoring volume entirely; 52,000 swaps the two volumes; 54,000 takes only the last interval’s price, treating VWAP as a closing price.",
+      vi: 'Giá điển hình đợt 1 = (51.000+45.000+48.000)/3 = 48.000 ₫; đợt 2 = (57.000+51.000+54.000)/3 = 54.000 ₫. VWAP = (48.000×200.000 + 54.000×100.000) / (200.000+100.000) = 15.000.000.000/300.000 = 50.000 ₫. Nguồn nêu đúng quy ước này: “VWAP = Tổng (Giá Điển Hình x Khối Lượng) / Tổng Khối Lượng”, với “Typical Price = (High + Low + Close) / 3”, không phải trung bình cộng hai giá đóng cửa (sẽ ra (48.000+54.000)/2 = 51.000 ₫, sai) và cũng không phải chỉ lấy giá đóng cửa đợt cuối (54.000 ₫, càng sai). Ba đáp án còn lại là ba lỗi hay gặp: 51.000 là trung bình cộng hai giá của hai đợt, bỏ qua hẳn khối lượng; 52.000 là gán nhầm khối lượng cho đợt kia; 54.000 là chỉ lấy giá đợt cuối, tức coi VWAP như giá đóng cửa.',
+      en: "Typical price for interval 1 = (51,000+45,000+48,000)/3 = 48,000 VND; interval 2 = (57,000+51,000+54,000)/3 = 54,000 VND. VWAP = (48,000×200,000 + 54,000×100,000) / (200,000+100,000) = 15,000,000,000/300,000 = 50,000 VND. The source states exactly this convention: “VWAP = Tổng (Giá Điển Hình x Khối Lượng) / Tổng Khối Lượng” (VWAP = sum of (typical price × volume) divided by total volume), with “Typical Price = (High + Low + Close) / 3”, not a plain average of the two closing prices (which would give (48,000+54,000)/2 = 51,000 VND, wrong), and not just the last interval's closing price (54,000 VND, even more wrong). The other three are common slips: 51,000 is the plain average of the two intervals’ prices, ignoring volume entirely; 52,000 swaps the two volumes; 54,000 takes only the last interval’s price, treating VWAP as a closing price.",
     },
     source: {
       url: 'https://www.dsc.com.vn/kien-thuc/vwap-la-gi',
@@ -2331,8 +2331,8 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
     },
     answer: 'c',
     explain: {
-      vi: 'DSC (dịch StockCharts): "Có khoảng 250 ngày giao dịch trong một năm. Điều này có thể được chia thành 125 ngày mỗi nửa năm, 63 ngày mỗi quý và 21 ngày mỗi tháng." Chia đều 63 phiên của một quý cho 3 tháng: 63 / 3 = 21 phiên - đúng bằng chu kỳ tháng mà nguồn nêu, dùng khi muốn ROC bắt biến động theo khung tháng thay vì mặc định 12 phiên. Ba đáp án còn lại là ba lỗi hay gặp: 63 là giữ nguyên chu kỳ quý mà không chia; 12 là lấy số THÁNG trong năm chứ không phải số phiên trong tháng; 5 là số phiên một tuần.',
-      en: 'DSC (translating StockCharts) states: "Có khoảng 250 ngày giao dịch trong một năm. Điều này có thể được chia thành 125 ngày mỗi nửa năm, 63 ngày mỗi quý và 21 ngày mỗi tháng." ["There are roughly 250 trading days in a year. This can be split into 125 days per half-year, 63 days per quarter and 21 days per month."] Dividing a quarter\'s 63 sessions evenly across 3 months: 63 / 3 = 21 sessions - exactly the monthly period the source gives, used when ROC should track monthly moves instead of the default 12-session window. The other three are common slips: 63 keeps the quarterly period without dividing; 12 takes the number of MONTHS in a year rather than sessions in a month; 5 is the number of sessions in a week.',
+      vi: 'DSC (dịch StockCharts): "Có khoảng 250 ngày giao dịch trong một năm. Điều này có thể được chia thành 125 ngày mỗi nửa năm, 63 ngày mỗi quý và 21 ngày mỗi tháng." Chia đều 63 phiên của một quý cho 3 tháng: 63 / 3 = 21 phiên, đúng bằng chu kỳ tháng mà nguồn nêu, dùng khi muốn ROC bắt biến động theo khung tháng thay vì mặc định 12 phiên. Ba đáp án còn lại là ba lỗi hay gặp: 63 là giữ nguyên chu kỳ quý mà không chia; 12 là lấy số THÁNG trong năm chứ không phải số phiên trong tháng; 5 là số phiên một tuần.',
+      en: 'DSC (translating StockCharts) states: "Có khoảng 250 ngày giao dịch trong một năm. Điều này có thể được chia thành 125 ngày mỗi nửa năm, 63 ngày mỗi quý và 21 ngày mỗi tháng." ["There are roughly 250 trading days in a year. This can be split into 125 days per half-year, 63 days per quarter and 21 days per month."] Dividing a quarter\'s 63 sessions evenly across 3 months: 63 / 3 = 21 sessions, exactly the monthly period the source gives, used when ROC should track monthly moves instead of the default 12-session window. The other three are common slips: 63 keeps the quarterly period without dividing; 12 takes the number of MONTHS in a year rather than sessions in a month; 5 is the number of sessions in a week.',
     },
     source: {
       url: 'https://www.dsc.com.vn/kien-thuc/chi-bao-rate-of-change-roc-la-gi',
@@ -2790,8 +2790,8 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'Dùng NHẤT QUÁN một bộ quy ước - mẫu chia n−1 hay n, quy năm 252 hay 262, cửa sổ 20 hay 21',
-        en: 'Using ONE set of conventions CONSISTENTLY - dividing by n−1 or n, annualizing with 252 or 262, a 20- or 21-day window',
+        vi: 'Dùng NHẤT QUÁN một bộ quy ước: mẫu chia n−1 hay n, quy năm 252 hay 262, cửa sổ 20 hay 21',
+        en: 'Using ONE set of conventions CONSISTENTLY: dividing by n−1 or n, annualizing with 252 or 262, a 20- or 21-day window',
       },
       b: { vi: 'Tìm ra số đúng duy nhất', en: 'Finding the single correct number' },
       c: { vi: 'Lấy trung bình hai số', en: 'Averaging the two figures' },
@@ -2815,8 +2815,8 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'quy-dinh',
     prompt: {
-      vi: 'Một mã cho 5 lợi suất log liên tiếp (đã tính sẵn, đơn vị %) ở bảng dưới. Công thức độ biến động lịch sử năm hoá đã dựng sẵn - chia cho n−1 khi tính ĐỘ LỆCH CHUẨN MẪU, rồi nhân với căn bậc hai của số phiên một năm (N = 252). Điền năm lợi suất vào đúng thứ tự các vị trí.',
-      en: "A stock's five consecutive log returns (already computed, in %) are in the table below. The annualized historical volatility formula is laid out - dividing by n−1 for the SAMPLE standard deviation, then multiplying by the square root of the number of trading sessions per year (N = 252). Put the five returns into the slots in the right order.",
+      vi: 'Một mã cho 5 lợi suất log liên tiếp (đã tính sẵn, đơn vị %) ở bảng dưới. Công thức độ biến động lịch sử năm hoá đã dựng sẵn, chia cho n−1 khi tính ĐỘ LỆCH CHUẨN MẪU, rồi nhân với căn bậc hai của số phiên một năm (N = 252). Điền năm lợi suất vào đúng thứ tự các vị trí.',
+      en: "A stock's five consecutive log returns (already computed, in %) are in the table below. The annualized historical volatility formula is laid out, dividing by n−1 for the SAMPLE standard deviation, then multiplying by the square root of the number of trading sessions per year (N = 252). Put the five returns into the slots in the right order.",
     },
     facts: [
       {
@@ -2839,7 +2839,7 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
       en: 'Annual σ = √((([1.5] − 0)^2 + ([−2.0] − 0)^2 + ([0.5] − 0)^2 + ([−1.0] − 0)^2 + ([1.0] − 0)^2) ÷ (5 − 1)) × √252',
     },
     explain: {
-      vi: 'Trung bình 5 lợi suất bằng 0, nên tổng bình phương độ lệch = tổng bình phương lợi suất = 1,5² + 2,0² + 0,5² + 1,0² + 1,0² = 8,5 (%²). Vì đây là ĐỘ LỆCH CHUẨN MẪU nên chia cho n−1 = 4, không phải n = 5: phương sai mẫu = 8,5 ÷ 4 = 2,125 (%²) → độ lệch chuẩn mẫu ≈ 1,4577%/phiên. Quy năm: 1,4577% × √252 ≈ 1,4577 × 15,8745 ≈ 23,14%/năm. Nếu lỡ chia cho n (coi như tổng thể) sẽ ra phương sai 1,70 (%²), độ lệch chuẩn 1,3038%, quy năm chỉ còn 20,70%/năm - sai quy ước. Macroption nêu rõ: “We are dividing by n - 1 rather than n, as we are calculating sample standard deviation”.',
+      vi: 'Trung bình 5 lợi suất bằng 0, nên tổng bình phương độ lệch = tổng bình phương lợi suất = 1,5² + 2,0² + 0,5² + 1,0² + 1,0² = 8,5 (%²). Vì đây là ĐỘ LỆCH CHUẨN MẪU nên chia cho n−1 = 4, không phải n = 5: phương sai mẫu = 8,5 ÷ 4 = 2,125 (%²) → độ lệch chuẩn mẫu ≈ 1,4577%/phiên. Quy năm: 1,4577% × √252 ≈ 1,4577 × 15,8745 ≈ 23,14%/năm. Nếu lỡ chia cho n (coi như tổng thể) sẽ ra phương sai 1,70 (%²), độ lệch chuẩn 1,3038%, quy năm chỉ còn 20,70%/năm, sai quy ước. Macroption nêu rõ: “We are dividing by n - 1 rather than n, as we are calculating sample standard deviation”.',
       en: 'The mean of the five returns is 0, so the sum of squared deviations equals the sum of squared returns: 1.5² + 2.0² + 0.5² + 1.0² + 1.0² = 8.5 (%²). Because this is the SAMPLE standard deviation, divide by n−1 = 4, not n = 5: sample variance = 8.5 ÷ 4 = 2.125 (%²) → sample standard deviation ≈ 1.4577%/session. Annualizing: 1.4577% × √252 ≈ 1.4577 × 15.8745 ≈ 23.14%/year. Dividing by n instead (as if it were a population) gives a variance of 1.70 (%²), a standard deviation of 1.3038%, and only 20.70%/year once annualized - against the convention. Macroption states it plainly: “We are dividing by n - 1 rather than n, as we are calculating sample standard deviation”.',
     },
     giai: {
@@ -2897,8 +2897,8 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
     },
     answer: 'b',
     explain: {
-      vi: 'Lợi suất đơn giản = 150.000 ÷ 100.000 − 1 = 50%. Nhưng công thức Độ biến động lịch sử lấy lợi suất LOG: ln(150.000 ÷ 100.000) = ln(1,5) ≈ 0,405465, tức 40,55% - KHÔNG phải 50%. Đây đúng là ví dụ nguồn đưa ra: “a 50% simple return is a 40.5% log return”. Với biến động nhỏ, hai loại lợi suất gần bằng nhau, nhưng ở một phiên biến động mạnh như thế này khoảng cách trở nên đáng kể; nguồn cảnh báo thêm: “Mixing conventions in a single calculation is one of the more common sources of error in performance analysis” - nếu lỡ đưa lợi suất đơn giản 50% vào thay vì 40,55%, độ lệch chuẩn và độ biến động năm hoá sẽ bị thổi phồng. Ba đáp án còn lại là ba lỗi hay gặp: 50,00% là lợi suất ĐƠN GIẢN, đúng thứ công thức này không nhận; 33,33% là tính ngược, lấy phần tăng chia cho giá sau thay vì giá trước; 0,41% là quên nhân 100 để đổi ra phần trăm.',
-      en: "The simple return is 150,000 ÷ 100,000 − 1 = 50%. But the Annualized historical volatility formula takes the LOG return: ln(150,000 ÷ 100,000) = ln(1.5) ≈ 0.405465, i.e. 40.55% - NOT 50%. This is exactly the source's own example: “a 50% simple return is a 40.5% log return”. For small moves the two conventions are nearly identical, but for a sharply volatile session like this one the gap becomes meaningful; the source further warns that “Mixing conventions in a single calculation is one of the more common sources of error in performance analysis” - feeding the simple 50% return in by mistake, instead of 40.55%, would inflate the standard deviation and, with it, the annualized volatility. The other three are common slips: 50.00% is the SIMPLE return, exactly what this formula does not take; 33.33% works backwards, dividing the gain by the ending price instead of the starting one; 0.41% forgets the ×100 that turns the figure into a percentage.",
+      vi: 'Lợi suất đơn giản = 150.000 ÷ 100.000 − 1 = 50%. Nhưng công thức Độ biến động lịch sử lấy lợi suất LOG: ln(150.000 ÷ 100.000) = ln(1,5) ≈ 0,405465, tức 40,55%, KHÔNG phải 50%. Đây đúng là ví dụ nguồn đưa ra: “a 50% simple return is a 40.5% log return”. Với biến động nhỏ, hai loại lợi suất gần bằng nhau, nhưng ở một phiên biến động mạnh như thế này khoảng cách trở nên đáng kể; nguồn cảnh báo thêm: “Mixing conventions in a single calculation is one of the more common sources of error in performance analysis” - nếu lỡ đưa lợi suất đơn giản 50% vào thay vì 40,55%, độ lệch chuẩn và độ biến động năm hoá sẽ bị thổi phồng. Ba đáp án còn lại là ba lỗi hay gặp: 50,00% là lợi suất ĐƠN GIẢN, đúng thứ công thức này không nhận; 33,33% là tính ngược, lấy phần tăng chia cho giá sau thay vì giá trước; 0,41% là quên nhân 100 để đổi ra phần trăm.',
+      en: "The simple return is 150,000 ÷ 100,000 − 1 = 50%. But the Annualized historical volatility formula takes the LOG return: ln(150,000 ÷ 100,000) = ln(1.5) ≈ 0.405465, i.e. 40.55%, NOT 50%. This is exactly the source's own example: “a 50% simple return is a 40.5% log return”. For small moves the two conventions are nearly identical, but for a sharply volatile session like this one the gap becomes meaningful; the source further warns that “Mixing conventions in a single calculation is one of the more common sources of error in performance analysis” - feeding the simple 50% return in by mistake, instead of 40.55%, would inflate the standard deviation and, with it, the annualized volatility. The other three are common slips: 50.00% is the SIMPLE return, exactly what this formula does not take; 33.33% works backwards, dividing the gain by the ending price instead of the starting one; 0.41% forgets the ×100 that turns the figure into a percentage.",
     },
     source: {
       url: 'https://www.pfolio.io/academy/log-vs-simple-returns',
@@ -2951,8 +2951,8 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
     },
     answer: 'a',
     explain: {
-      vi: '“Many day traders look for an RVOL over 2.0 before investing.” - 2,0 lần là ngưỡng nhiều trader trong ngày dùng làm bộ lọc trước khi vào lệnh, không phải một con số tuỳ ý, và không cần chờ tới mức cực đoan (4 lần trở lên) mới đáng để ý.',
-      en: '“Many day traders look for an RVOL over 2.0 before investing.” - 2.0x is the threshold many day traders use as a screening filter before entering, not an arbitrary figure, and one need not wait for an extreme reading (4x or above) to start watching.',
+      vi: '“Many day traders look for an RVOL over 2.0 before investing.” Tức 2,0 lần là ngưỡng nhiều trader trong ngày dùng làm bộ lọc trước khi vào lệnh, không phải một con số tuỳ ý, và không cần chờ tới mức cực đoan (4 lần trở lên) mới đáng để ý.',
+      en: '“Many day traders look for an RVOL over 2.0 before investing.” So 2.0x is the threshold many day traders use as a screening filter before entering, not an arbitrary figure, and one need not wait for an extreme reading (4x or above) to start watching.',
     },
     source: {
       url: 'https://chartschool.stockcharts.com/table-of-contents/technical-indicators-and-overlays/technical-indicators/relative-volume-rvol',
@@ -3069,8 +3069,8 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
       en: 'RVOL = [1000000] ÷ [300000]',
     },
     explain: {
-      vi: 'RVOL = khối lượng phiên ÷ khối lượng trung bình = 1.000.000 ÷ 300.000 ≈ 3,33 lần - một phép chia trực tiếp, không phải công thức phần trăm thay đổi kiểu (V − trung bình) ÷ trung bình. “if a stock typically sees an average of 300,000 shares traded per day but suddenly sees 1,000,000 shares traded in a single day, that would be considered high relative volume”.',
-      en: 'RVOL = session volume ÷ average volume = 1,000,000 ÷ 300,000 ≈ 3.33x - a plain division, not a percentage-change formula like (V − average) ÷ average. “if a stock typically sees an average of 300,000 shares traded per day but suddenly sees 1,000,000 shares traded in a single day, that would be considered high relative volume”.',
+      vi: 'RVOL = khối lượng phiên ÷ khối lượng trung bình = 1.000.000 ÷ 300.000 ≈ 3,33 lần, một phép chia trực tiếp, không phải công thức phần trăm thay đổi kiểu (V − trung bình) ÷ trung bình. “if a stock typically sees an average of 300,000 shares traded per day but suddenly sees 1,000,000 shares traded in a single day, that would be considered high relative volume”.',
+      en: 'RVOL = session volume ÷ average volume = 1,000,000 ÷ 300,000 ≈ 3.33x, a plain division, not a percentage-change formula like (V − average) ÷ average. “if a stock typically sees an average of 300,000 shares traded per day but suddenly sees 1,000,000 shares traded in a single day, that would be considered high relative volume”.',
     },
     giai: {
       tinh: { vi: 'Tỷ lệ khối lượng so với trung bình', en: 'Relative volume' },

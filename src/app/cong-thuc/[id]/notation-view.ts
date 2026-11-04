@@ -135,9 +135,10 @@ function formulaById(fromId: string, id: string): FormulaSpec {
 }
 
 /**
- * Tên công thức cắt ở " — ": "CAPM — chi phí vốn chủ sở hữu" thành "CAPM".
+ * Tên công thức cắt ở " - ": "CAPM - chi phí vốn chủ sở hữu" thành "CAPM" (gạch dài " — " cho tới
+ * 02/11/2026). `notation.test.ts` giữ phép cắt trên mọi khung có liên kết.
  *
- * Tên đứng ngay dưới các bước tính, cạnh dấu trừ `−` của hình — gạch ngang dài ở đó bị đọc thành
+ * Tên đứng ngay dưới các bước tính, cạnh dấu trừ `−` của hình — gạch ngang ở đó bị đọc thành
  * phép trừ, lỗi chủ dự án đã bắt hai lần (dòng công thức 16/09, bảng ký hiệu 17/09/2026).
  */
 function shortName(name: Bilingual): Bilingual {

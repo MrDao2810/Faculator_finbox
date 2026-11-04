@@ -78,7 +78,13 @@ import type { ThongSoO } from './noi-dung/cho-trong';
  * `HinhDangXem` đi cùng lối này dù nó không phải dữ liệu của bài: nó là thứ khối Biểu đồ của màn
  * tính báo lên để khung "?" chỉ in đúng hình đang hiện, tức chìa nối hai bên của cùng một mục.
  */
-export type { HinhDangXem, KhoiBieuDoBai, KhoiLapBai, MucBieuDoBai } from './bieu-do/types';
+export type {
+  DangDoc,
+  HinhDangXem,
+  KhoiBieuDoBai,
+  KhoiLapBai,
+  MucBieuDoBai,
+} from './bieu-do/types';
 
 /*
  * Phép điền chỗ trống của câu hướng dẫn (14/10/2026) — HÀM chạy được, đi cùng lối module lá này

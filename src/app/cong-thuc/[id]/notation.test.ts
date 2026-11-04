@@ -76,6 +76,37 @@ describe('buildNotationView() — hình gắn dấu mọi ký hiệu', () => {
   });
 });
 
+/*
+ * Khung cách tính có liên kết in "Xem công thức CAPM": tên đích là phần TRƯỚC gạch nối có cách hai bên,
+ * không kèm phần mô tả. Phép cắt này được sửa bằng máy trong lượt đổi gạch dài thành gạch nối
+ * (02/11/2026) mà không ca nào giữ; cắt hỏng thì khung in nguyên "CAPM - chi phí vốn chủ sở hữu".
+ */
+describe('buildNotationView() — tên công thức đích trong khung cách tính', () => {
+  it('chỉ là ký hiệu trước " - ", ở cả hai ngôn ngữ', () => {
+    const sai: string[] = [];
+    let coMoTa = 0;
+    for (const spec of canKiem) {
+      const view = viewOf(spec);
+      if (view instanceof Error) continue;
+      for (const khung of view.howTo) {
+        if (khung.formula === undefined) continue;
+        const dich = FORMULAS.find((f) => f.id === khung.formula?.id);
+        for (const ngon of ['vi', 'en'] as const) {
+          const day = dich?.name[ngon] ?? '';
+          if (day.includes(' - ')) coMoTa += 1;
+          const ten = khung.formula.name[ngon];
+          if (ten !== day.split(' - ')[0] || ten.includes(' - ')) {
+            sai.push(`${spec.id} → ${khung.formula.id} (${ngon}): "${ten}"`);
+          }
+        }
+      }
+    }
+    expect(sai, sai.join('\n')).toEqual([]);
+    // Có ít nhất một đích mang phần mô tả, nên ca này thật sự thử phép cắt.
+    if (canKiem.length === FORMULAS.length) expect(coMoTa).toBeGreaterThan(0);
+  });
+});
+
 describe('buildNotationView() — thẻ Công thức dựng lúc build', () => {
   it('dựng được thẻ, không ném lỗi', () => {
     const hong = canKiem.flatMap((spec) => {

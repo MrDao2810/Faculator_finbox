@@ -99,9 +99,26 @@ describe('khoiDangXem — khung "?" chọn khối của hình đang hiện', () 
     expect(khoiDangXem([GIA, THOI_GIAN], hinh('khong-co'))?.khoi).toBe(GIA);
   });
 
-  it('xin dạng Cột cho hình không có dạng ấy thì in dạng Đường', () => {
-    expect(khoiDangXem([THOI_GIAN, SO_PHIEN], hinh('__time', 'cot'))?.dang).toBe('duong');
-    expect(khoiDangXem([THOI_GIAN, SO_PHIEN], hinh('period', 'cot'))?.dang).toBe('cot');
+  /*
+   * Mỗi dạng một đoạn (03/11/2026). Đoạn của dạng đang vẽ thì in đúng đoạn ấy; hình ĐANG VẼ ở một
+   * dạng kho không có đoạn thì im — trước ngày ấy khung rơi về đoạn Đường, và chủ dự án thấy "Dạng
+   * Đường" cạnh một hình chấm. Chỉ hình CHƯA vẽ mới rơi về dạng mặc định của khối.
+   */
+  it('in đúng đoạn của dạng đang vẽ, kể cả các dạng ngoài Đường và Cột', () => {
+    const coDiem = { ...SO_PHIEN, diem: doan('Đoạn chấm.'), bac: doan('Đoạn bậc.') };
+    expect(khoiDangXem([THOI_GIAN, coDiem], hinh('period', 'cot'))?.dang).toBe('cot');
+    expect(khoiDangXem([THOI_GIAN, coDiem], hinh('period', 'diem'))?.dang).toBe('diem');
+    expect(khoiDangXem([THOI_GIAN, coDiem], hinh('period', 'bac'))?.dang).toBe('bac');
+  });
+
+  it('hình đang vẽ ở một dạng không có đoạn thì im, không in đoạn Đường thay vào', () => {
+    expect(khoiDangXem([THOI_GIAN, SO_PHIEN], hinh('__time', 'cot'))).toBeUndefined();
+    expect(khoiDangXem([THOI_GIAN, SO_PHIEN], hinh('period', 'laiLo'))).toBeUndefined();
+  });
+
+  it('hình chưa vẽ mà dạng đang giữ không có đoạn thì rơi về dạng mặc định của khối', () => {
+    expect(khoiDangXem([THOI_GIAN, SO_PHIEN], hinh(null, 'cot', false))?.dang).toBe('duong');
+    expect(khoiDangXem([BOC_TACH], null)?.dang).toBe('thanh');
   });
 
   it('không có khối nào thì không có gì để in', () => {
@@ -274,11 +291,32 @@ describe('mục "Đọc biểu đồ" trong khung chỉ in đúng một hình, �
   });
 
   it('hình bóc tách in đoạn của các thanh, không in nhãn Đường hay Cột', () => {
-    dung([BOC_TACH, GIA], hinh('__breakdown'));
+    dung([BOC_TACH, GIA], hinh('__breakdown', 'thanh'));
 
     expect(screen.getByText('Đoạn của các thanh bóc tách.')).toBeTruthy();
     expect(screen.queryByText('Dạng Đường')).toBeNull();
     expect(screen.queryByText('Dạng Cột')).toBeNull();
+    // Hình chỉ có thanh ngang: màn không bày ô "Loại biểu đồ", nên không gọi tên dạng.
+    expect(screen.queryByText('Dạng Thanh ngang')).toBeNull();
+  });
+
+  it('hình bóc tách vẽ thành vành khuyên thì in đoạn vành khuyên, kèm tên dạng', () => {
+    const coVanh = { ...BOC_TACH, vanhKhuyen: doan('Đoạn của vành khuyên.') };
+    dung([coVanh, GIA], hinh('__breakdown', 'vanhKhuyen'));
+
+    expect(screen.getByText('Đoạn của vành khuyên.')).toBeTruthy();
+    expect(screen.getByText('Dạng Vành khuyên')).toBeTruthy();
+    expect(screen.queryByText('Đoạn của các thanh bóc tách.')).toBeNull();
+  });
+
+  it('đổi sang dạng Điểm thì khung in "Dạng Điểm" và đoạn chấm, không in "Dạng Đường"', () => {
+    const coDiem = { ...GIA, diem: doan('Đoạn chấm của hình theo giá.') };
+    dung([coDiem, THOI_GIAN], hinh('price', 'diem'));
+
+    expect(screen.getByText('Dạng Điểm')).toBeTruthy();
+    expect(screen.getByText('Đoạn chấm của hình theo giá.')).toBeTruthy();
+    expect(screen.queryByText('Dạng Đường')).toBeNull();
+    expect(screen.queryByText('Đoạn đường của hình theo giá.')).toBeNull();
   });
 
   /*

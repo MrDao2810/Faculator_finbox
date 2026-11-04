@@ -18,6 +18,7 @@ import type {
   CalcInputs,
   CalcOutput,
   CalcWarning,
+  DangDoc,
   DangVe,
   FormulaModule,
   HinhDangXem,
@@ -113,6 +114,25 @@ export interface ChartBodyProps {
  * nhánh `true` thành mã chết dưới mắt lint.
  */
 const PHONG_TO_BAT: boolean = false;
+
+/**
+ * Tên trường kho chữ "Đọc biểu đồ" của từng dạng — thứ báo lên khung "?" (`HinhDangXem.dang`).
+ *
+ * Mỗi dạng một đoạn riêng từ 03/11/2026: trước đó Nến, Điểm, Bậc thang, Lãi/lỗ đều báo "duong" và
+ * Vành khuyên dùng chung đoạn thanh ngang, nên chủ dự án đổi dạng mà khung vẫn in "Dạng Đường".
+ * Thang đo không có chữ, khung im theo `hinhChuoi`; tên ở đây chỉ để bảng đủ khoá.
+ */
+const DANG_DOC: Readonly<Record<DangVe, DangDoc>> = {
+  line: 'duong',
+  candle: 'nen',
+  bar: 'cot',
+  dots: 'diem',
+  step: 'bac',
+  signArea: 'laiLo',
+  waterfall: 'thanh',
+  donut: 'vanhKhuyen',
+  gauge: 'duong',
+};
 
 /** Thứ tự in của các dạng — cùng thứ tự `dangVeCuaHinh()` liệt kê, để dạng giữ lại đứng đúng chỗ. */
 const THU_TU_DANG: ReadonlyArray<DangVe> = [
@@ -298,12 +318,11 @@ export function ChartBody({
    */
   const khoaDangHien = model.kind === 'unavailable' ? (model.sweepKey ?? sweepKey) : model.sweepKey;
   /*
-   * Các dạng thêm ngày 21/10/2026 chưa có đoạn "Đọc biểu đồ" riêng — chủ dự án chốt hướng dẫn cho
-   * chúng "chưa cần". Nến, Điểm, Bậc thang và Lãi/lỗ vẽ đúng bộ điểm và trục của dạng Đường
-   * (Nến chỉ thêm nến của phiên dưới đường ấy) nên khung "?" in đoạn Đường; Vành khuyên dùng chung
-   * đoạn bóc tách, vốn không tách theo dạng.
+   * Dạng đang hiện, theo tên kho chữ — mỗi dạng một đoạn riêng (03/11/2026, xem `DANG_DOC`). Khi
+   * dạng đã chọn hết vẽ được (`matDang`), `variant` là chính dạng ấy và `daVe` là `false`: khung nói
+   * về dạng ô chọn đang giữ, cạnh câu lý do.
    */
-  const dangDangVe = variant === 'bar' ? 'cot' : 'duong';
+  const dangDangVe = DANG_DOC[variant];
   /*
    * Các mục chưa có chữ hướng dẫn — hai mục theo chuỗi giá, mục "Cơ cấu …" (hình tròn, 22/10/2026)
    * và mục cột theo kỳ (23/10/2026) — khung "?" phải im (`HinhDangXem.hinhChuoi`) thay vì in đoạn

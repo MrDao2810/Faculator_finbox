@@ -4,7 +4,9 @@ import {
   MAX_RECENT_SEARCHES,
   addRecentSearch,
   localizeRecentSearches,
+  mergeRecentSearches,
   parseRecentSearches,
+  recentSearchChips,
   removeRecentSearch,
   serializeRecentSearches,
 } from './recent-searches';
@@ -171,6 +173,29 @@ describe('localizeRecentSearches() — chip in theo ngôn ngữ đang bật', ()
   });
 });
 
+describe('recentSearchChips() — chip mang theo công thức để mở thẳng', () => {
+  const PE = {
+    id: 'pe',
+    name: { vi: 'P/E - hệ số giá trên lợi nhuận', en: 'P/E - price to earnings ratio' },
+  };
+  const DS = [PE];
+  const vi = (name: { vi: string; en: string }) => name.vi;
+
+  it('chuỗi tra ra công thức thì chip mang đúng công thức ấy, chuỗi lạ thì null', () => {
+    expect(recentSearchChips([PE.name.en, 'dinh gia'], DS, vi)).toEqual([
+      { label: PE.name.vi, formula: PE },
+      { label: 'dinh gia', formula: null },
+    ]);
+  });
+
+  it('chữ của chip trùng đúng với localizeRecentSearches()', () => {
+    const terms = [PE.name.vi, 'P/E — hệ số giá trên lợi nhuận', 'ROI'];
+    expect(recentSearchChips(terms, DS, vi).map((chip) => chip.label)).toEqual(
+      localizeRecentSearches(terms, DS, vi),
+    );
+  });
+});
+
 describe('kho lịch sử coi tên cũ (gạch dài) và tên mới (gạch nối) là một mục', () => {
   const CU = 'P/E — hệ số giá trên lợi nhuận';
   const MOI = 'P/E - hệ số giá trên lợi nhuận';
@@ -185,5 +210,9 @@ describe('kho lịch sử coi tên cũ (gạch dài) và tên mới (gạch nố
 
   it('bỏ một mục thì bỏ được cả dạng cũ', () => {
     expect(removeRecentSearch([CU, 'WACC'], MOI)).toEqual(['WACC']);
+  });
+
+  it('gộp kho cũ vào kho đang dùng thì dạng cũ trùng dạng mới không thành mục thứ hai', () => {
+    expect(mergeRecentSearches([MOI, 'WACC'], [CU, 'XIRR'])).toEqual([MOI, 'WACC', 'XIRR']);
   });
 });

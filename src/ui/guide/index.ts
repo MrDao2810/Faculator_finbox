@@ -19,3 +19,8 @@
 
 export { GuideHint } from './GuideHint';
 export type { GuideHintProps } from './GuideHint';
+/*
+ * Phép chọn khối của khung "?" khối Biểu đồ — hàm thuần nhỏ, KHÔNG kéo thân bài theo (03/11/2026).
+ * Màn chi tiết gọi nó để ẩn nút "?" khi dạng đang vẽ chưa có đoạn chữ.
+ */
+export { khoiDangXem } from './khoi-dang-xem';

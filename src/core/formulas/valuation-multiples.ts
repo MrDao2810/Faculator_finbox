@@ -93,8 +93,8 @@ const enterpriseValueInput = numberVar(
     min: -1_000_000,
     max: 10_000_000,
     description: {
-      vi: 'Vốn hoá cộng nợ vay trừ tiền mặt - tính bằng công thức EV của nhóm này.',
-      en: 'Market cap plus debt minus cash - calculated with this group’s EV formula.',
+      vi: 'Vốn hoá cộng nợ vay trừ tiền mặt, tính bằng công thức EV của nhóm này.',
+      en: 'Market cap plus debt minus cash, calculated with this group’s EV formula.',
     },
   },
 );
@@ -173,8 +173,8 @@ export const PS: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'FPT - giá 72.700 ₫ phiên 11/09/2026, doanh thu 37.157 ₫/CP',
-        en: 'FPT - price 72,700 ₫ at the 2026-09-11 close, revenue 37,157 ₫/share',
+        vi: 'FPT: giá 72.700 ₫ phiên 11/09/2026, doanh thu 37.157 ₫/CP',
+        en: 'FPT: price 72,700 ₫ at the 2026-09-11 close, revenue 37,157 ₫/share',
       },
       inputs: { price: 72_700, salesPerShare: 37_157 },
       expected: 1.9566,
@@ -189,12 +189,12 @@ export const PS: FormulaModule = {
     },
     tests: [
       {
-        name: 'ca thường - giá 92.000 ₫, doanh thu 45.000 ₫/CP',
+        name: 'ca thường: giá 92.000 ₫, doanh thu 45.000 ₫/CP',
         inputs: { price: 92_000, salesPerShare: 45_000 },
         expected: 2.04,
       },
       {
-        name: 'doanh thu bằng 0 - ca chia cho 0 của nhóm định giá',
+        name: 'doanh thu bằng 0: ca chia cho 0 của nhóm định giá',
         inputs: { price: 92_000, salesPerShare: 0 },
         expected: null,
         expectedWarning: 'DIVIDE_BY_ZERO',
@@ -361,8 +361,8 @@ export const EV: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'FPT - vốn hoá 124.631,5 tỷ ₫, nợ vay 17.444 tỷ ₫, tiền và đầu tư ngắn hạn 28.971,6 tỷ ₫ (30/06/2026)',
-        en: 'FPT - market cap 124,631.5 billion ₫, debt 17,444 billion ₫, cash and short-term investments 28,971.6 billion ₫ (2026-06-30)',
+        vi: 'FPT: vốn hoá 124.631,5 tỷ ₫, nợ vay 17.444 tỷ ₫, tiền và đầu tư ngắn hạn 28.971,6 tỷ ₫ (30/06/2026)',
+        en: 'FPT: market cap 124,631.5 billion ₫, debt 17,444 billion ₫, cash and short-term investments 28,971.6 billion ₫ (2026-06-30)',
       },
       inputs: { marketCap: 124_631.5, totalDebt: 17_444, cash: 28_971.6 },
       expected: 113_103.9,
@@ -377,7 +377,7 @@ export const EV: FormulaModule = {
     },
     tests: [
       {
-        name: 'ca thường - vốn hoá 9.200, nợ 3.500, tiền mặt 1.200',
+        name: 'ca thường: vốn hoá 9.200, nợ 3.500, tiền mặt 1.200',
         inputs: { marketCap: 9_200, totalDebt: 3_500, cash: 1_200 },
         expected: 11_500,
       },
@@ -500,8 +500,8 @@ export const EV_EBITDA: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'FPT - EV 113.103,9 tỷ ₫, EBITDA quy năm 13.901,9 tỷ ₫ (6 tháng đầu 2026)',
-        en: 'FPT - EV 113,103.9 billion ₫, annualized EBITDA 13,901.9 billion ₫ (H1 2026)',
+        vi: 'FPT: EV 113.103,9 tỷ ₫, EBITDA quy năm 13.901,9 tỷ ₫ (6 tháng đầu 2026)',
+        en: 'FPT: EV 113,103.9 billion ₫, annualized EBITDA 13,901.9 billion ₫ (H1 2026)',
       },
       inputs: { ev: 113_103.9, ebitda: 13_901.9 },
       expected: 8.1359,
@@ -516,18 +516,18 @@ export const EV_EBITDA: FormulaModule = {
     },
     tests: [
       {
-        name: 'ca thường - EV 11.500, EBITDA 1.450',
+        name: 'ca thường: EV 11.500, EBITDA 1.450',
         inputs: { ev: 11_500, ebitda: 1_450 },
         expected: 7.93,
       },
       {
-        name: 'EBITDA bằng 0 - chia cho 0',
+        name: 'EBITDA bằng 0: chia cho 0',
         inputs: { ev: 11_500, ebitda: 0 },
         expected: null,
         expectedWarning: 'DIVIDE_BY_ZERO',
       },
       {
-        name: 'EBITDA âm thì bội số vô nghĩa - ca WF-15 của nhóm',
+        name: 'EBITDA âm thì bội số vô nghĩa: ca WF-15 của nhóm',
         inputs: { ev: 11_500, ebitda: -300 },
         expected: null,
         expectedWarning: 'MEANINGLESS',
@@ -582,7 +582,7 @@ export const EV_SALES: FormulaModule = {
   spec: {
     id: 'ev-sales',
     categoryId: 'valuation',
-    name: { vi: 'EV/Sales - EV trên doanh thu', en: 'EV/Sales - EV to sales ratio' },
+    name: { vi: 'EV/Sales - hệ số EV trên doanh thu', en: 'EV/Sales - ratio of EV to sales' },
     description: {
       vi: 'Giá mua trọn doanh nghiệp gấp bao nhiêu lần doanh thu một năm.',
       en: 'How many times the price to buy the whole company sits above one year of revenue.',
@@ -645,8 +645,8 @@ export const EV_SALES: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'FPT - EV 113.103,9 tỷ ₫, doanh thu quy năm 52.537 tỷ ₫ theo nền hợp nhất mới',
-        en: 'FPT - EV 113,103.9 billion ₫, annualized revenue 52,537 billion ₫ on the new consolidation basis',
+        vi: 'FPT: EV 113.103,9 tỷ ₫, doanh thu quy năm 52.537 tỷ ₫ theo nền hợp nhất mới',
+        en: 'FPT: EV 113,103.9 billion ₫, annualized revenue 52,537 billion ₫ on the new consolidation basis',
       },
       inputs: { ev: 113_103.9, revenue: 52_537 },
       expected: 2.1528,
@@ -661,12 +661,12 @@ export const EV_SALES: FormulaModule = {
     },
     tests: [
       {
-        name: 'ca thường - EV 11.500, doanh thu 9.800',
+        name: 'ca thường: EV 11.500, doanh thu 9.800',
         inputs: { ev: 11_500, revenue: 9_800 },
         expected: 1.17,
       },
       {
-        name: 'doanh thu bằng 0 - chia cho 0, ca WF-15 của nhóm',
+        name: 'doanh thu bằng 0: chia cho 0, ca WF-15 của nhóm',
         inputs: { ev: 11_500, revenue: 0 },
         expected: null,
         expectedWarning: 'DIVIDE_BY_ZERO',
@@ -727,7 +727,7 @@ export const PEG: FormulaModule = {
   spec: {
     id: 'peg',
     categoryId: 'valuation',
-    name: { vi: 'PEG - P/E trên tăng trưởng', en: 'PEG - P/E to growth ratio' },
+    name: { vi: 'PEG - hệ số P/E trên tăng trưởng', en: 'PEG - ratio of P/E to growth' },
     description: {
       vi: 'P/E đã chia cho tốc độ tăng trưởng lợi nhuận, để so cổ phiếu tăng trưởng với nhau.',
       en: 'P/E divided by the earnings growth rate, so growth stocks can be compared with each other.',
@@ -800,14 +800,14 @@ export const PEG: FormulaModule = {
         en: 'Compared with the 1 mark: below 1 means the price is cheap relative to the profit growth you expect, above 1 means the price is already more expensive than that growth justifies, and exactly 1 means the two are in balance.',
       },
       commonMistakes: {
-        vi: 'Dùng con số tăng trưởng quá lạc quan - g là một dự phóng, không chắc chắn như P/E vốn tính từ số liệu đã có, nên sai lệch vài điểm phần trăm ở g dễ kéo PEG lệch xa kết luận ban đầu.',
-        en: 'Using an overly optimistic growth figure - g is a forecast, less certain than P/E which is computed from data already on hand, so an error of a few percentage points in g can easily pull PEG far from the original conclusion.',
+        vi: 'Dùng con số tăng trưởng quá lạc quan, vì g là một dự phóng, không chắc chắn như P/E vốn tính từ số liệu đã có, nên sai lệch vài điểm phần trăm ở g dễ kéo PEG lệch xa kết luận ban đầu.',
+        en: 'Using an overly optimistic growth figure, since g is a forecast, less certain than P/E which is computed from data already on hand, so an error of a few percentage points in g can easily pull PEG far from the original conclusion.',
       },
     },
     example: {
       title: {
-        vi: 'FPT - P/E 12,39 lần, lợi nhuận 6 tháng đầu 2026 tăng 14,1% so với cùng kỳ',
-        en: 'FPT - P/E 12.39x, H1 2026 earnings up 14.1% year on year',
+        vi: 'FPT: P/E 12,39 lần, lợi nhuận 6 tháng đầu 2026 tăng 14,1% so với cùng kỳ',
+        en: 'FPT: P/E 12.39x, H1 2026 earnings up 14.1% year on year',
       },
       inputs: { pe: 12.39, growth: 14.1 },
       expected: 0.8787,
@@ -822,12 +822,12 @@ export const PEG: FormulaModule = {
     },
     tests: [
       {
-        name: 'ca thường - P/E 15,2 và tăng trưởng 12%',
+        name: 'ca thường: P/E 15,2 và tăng trưởng 12%',
         inputs: { pe: 15.2, growth: 12 },
         expected: 1.27,
       },
       {
-        name: 'tăng trưởng bằng 0 - chia cho 0, ca WF-15 của nhóm',
+        name: 'tăng trưởng bằng 0: chia cho 0, ca WF-15 của nhóm',
         inputs: { pe: 15.2, growth: 0 },
         expected: null,
         expectedWarning: 'DIVIDE_BY_ZERO',
@@ -857,8 +857,8 @@ export const PEG: FormulaModule = {
         unit: 'lần',
         warning: meaningless(
           {
-            vi: 'PEG cần một P/E dương - P/E bằng 0 hoặc âm nghĩa là chính P/E đang không dùng được.',
-            en: 'PEG needs a positive P/E - a P/E of zero or negative means P/E itself is unusable.',
+            vi: 'PEG cần một P/E dương; P/E bằng 0 hoặc âm nghĩa là chính P/E đang không dùng được.',
+            en: 'PEG needs a positive P/E; a P/E of zero or negative means P/E itself is unusable.',
           },
           {
             vi: 'Tính lại P/E trước; doanh nghiệp đang lỗ thì dùng P/B hoặc P/S.',
@@ -973,8 +973,8 @@ export const VON_HOA: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'FPT - giá 72.700 ₫ phiên 11/09/2026, 1.714,33 triệu cổ phiếu lưu hành',
-        en: 'FPT - price 72,700 ₫ at the 2026-09-11 close, 1,714.33 million shares outstanding',
+        vi: 'FPT: giá 72.700 ₫ phiên 11/09/2026, 1.714,33 triệu cổ phiếu lưu hành',
+        en: 'FPT: price 72,700 ₫ at the 2026-09-11 close, 1,714.33 million shares outstanding',
       },
       inputs: { price: 72_700, shares: 1_714.33 },
       expected: 124_631.79,
@@ -989,7 +989,7 @@ export const VON_HOA: FormulaModule = {
     },
     tests: [
       {
-        name: 'ca thường - giá 92.000 ₫ nhân 118 triệu CP',
+        name: 'ca thường: giá 92.000 ₫ nhân 118 triệu CP',
         inputs: { price: 92_000, shares: 118 },
         expected: 10_856,
       },
@@ -1129,8 +1129,8 @@ export const SO_GRAHAM: FormulaModule = {
     ],
     explanation: {
       meaning: {
-        vi: 'Trần giá gộp hai giới hạn Graham đặt ra - P/E không quá 15 và P/B không quá 1,5 (15 × 1,5 = 22,5).',
-        en: 'A price ceiling combining two limits Graham set - P/E no more than 15 and P/B no more than 1.5 (15 × 1.5 = 22.5).',
+        vi: 'Trần giá gộp hai giới hạn Graham đặt ra: P/E không quá 15 và P/B không quá 1,5 (15 × 1,5 = 22,5).',
+        en: 'A price ceiling combining two limits Graham set: P/E no more than 15 and P/B no more than 1.5 (15 × 1.5 = 22.5).',
       },
       whenToUse: {
         vi: 'Dùng khi bạn lọc nhanh một danh sách dài công ty làm ăn ổn định lâu năm và muốn có cho từng mã một mức giá trần thận trọng, chỉ từ lợi nhuận và giá trị sổ sách.',
@@ -1147,8 +1147,8 @@ export const SO_GRAHAM: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'FPT - EPS 5.867 ₫, giá trị sổ sách 23.246 ₫/CP tại 30/06/2026',
-        en: 'FPT - EPS 5,867 ₫, book value 23,246 ₫/share as of 2026-06-30',
+        vi: 'FPT: EPS 5.867 ₫, giá trị sổ sách 23.246 ₫/CP tại 30/06/2026',
+        en: 'FPT: EPS 5,867 ₫, book value 23,246 ₫/share as of 2026-06-30',
       },
       inputs: { eps: 5_867, bvps: 23_246 },
       expected: 55_395.36,
@@ -1163,7 +1163,7 @@ export const SO_GRAHAM: FormulaModule = {
     },
     tests: [
       {
-        name: 'ca thường - EPS 6.050 ₫ và BVPS 24.800 ₫',
+        name: 'ca thường: EPS 6.050 ₫ và BVPS 24.800 ₫',
         inputs: { eps: 6_050, bvps: 24_800 },
         expected: 58_102.5,
         tolerance: 1,
@@ -1358,8 +1358,8 @@ export const NCAV: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'FPT - tài sản ngắn hạn 45.702 tỷ ₫, tổng nợ phải trả 32.738,4 tỷ ₫, 1.714,33 triệu CP (30/06/2026)',
-        en: 'FPT - current assets 45,702 billion ₫, total liabilities 32,738.4 billion ₫, 1,714.33 million shares (2026-06-30)',
+        vi: 'FPT: tài sản ngắn hạn 45.702 tỷ ₫, tổng nợ phải trả 32.738,4 tỷ ₫, 1.714,33 triệu CP (30/06/2026)',
+        en: 'FPT: current assets 45,702 billion ₫, total liabilities 32,738.4 billion ₫, 1,714.33 million shares (2026-06-30)',
       },
       inputs: { currentAssets: 45_702, totalLiabilities: 32_738.4, shares: 1_714.33 },
       expected: 7_561.9,
@@ -1374,19 +1374,19 @@ export const NCAV: FormulaModule = {
     },
     tests: [
       {
-        name: 'ca thường - TSNH 4.800, nợ 2.600, 118 triệu CP',
+        name: 'ca thường: TSNH 4.800, nợ 2.600, 118 triệu CP',
         inputs: { currentAssets: 4_800, totalLiabilities: 2_600, shares: 118 },
         expected: 18_644.07,
         tolerance: 1,
       },
       {
-        name: 'nợ vượt tài sản ngắn hạn thì NCAV âm - không phải net-net, vẫn là con số thật',
+        name: 'nợ vượt tài sản ngắn hạn thì NCAV âm: không phải net-net, vẫn là con số thật',
         inputs: { currentAssets: 1_000, totalLiabilities: 1_500, shares: 100 },
         expected: -5_000,
         tolerance: 1,
       },
       {
-        name: 'số cổ phiếu bằng 0 - chia cho 0',
+        name: 'số cổ phiếu bằng 0: chia cho 0',
         inputs: { currentAssets: 4_800, totalLiabilities: 2_600, shares: 0 },
         expected: null,
         expectedWarning: 'DIVIDE_BY_ZERO',
@@ -1500,8 +1500,8 @@ export const TY_SUAT_LOI_NHUAN_TREN_GIA: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'FPT - EPS 5.867 ₫, giá 72.700 ₫ phiên 11/09/2026',
-        en: 'FPT - EPS 5,867 ₫, price 72,700 ₫ at the 2026-09-11 close',
+        vi: 'FPT: EPS 5.867 ₫, giá 72.700 ₫ phiên 11/09/2026',
+        en: 'FPT: EPS 5,867 ₫, price 72,700 ₫ at the 2026-09-11 close',
       },
       inputs: { eps: 5_867, price: 72_700 },
       expected: 8.0702,
@@ -1516,7 +1516,7 @@ export const TY_SUAT_LOI_NHUAN_TREN_GIA: FormulaModule = {
     },
     tests: [
       {
-        name: 'ca thường - nghịch đảo ví dụ P/E của WF-03',
+        name: 'ca thường: nghịch đảo ví dụ P/E của WF-03',
         inputs: { eps: 6_050, price: 92_000 },
         expected: 6.58,
       },
@@ -1526,7 +1526,7 @@ export const TY_SUAT_LOI_NHUAN_TREN_GIA: FormulaModule = {
         expected: 12.5,
       },
       {
-        name: 'giá bằng 0 - chia cho 0',
+        name: 'giá bằng 0: chia cho 0',
         inputs: { eps: 6_050, price: 0 },
         expected: null,
         expectedWarning: 'DIVIDE_BY_ZERO',
@@ -1537,7 +1537,7 @@ export const TY_SUAT_LOI_NHUAN_TREN_GIA: FormulaModule = {
          * kinh điển người ta dùng E/P thay P/E khi mẫu so sánh có công ty lỗ (P/E thì đảo ngược
          * thứ hạng, E/P thì không). −1.200 ÷ 92.000 × 100 = −1,3%.
          */
-        name: 'doanh nghiệp lỗ cho tỷ suất âm - vẫn là con số đọc được, khác P/E',
+        name: 'doanh nghiệp lỗ cho tỷ suất âm: vẫn là con số đọc được, khác P/E',
         inputs: { eps: -1_200, price: 92_000 },
         expected: -1.3,
       },
@@ -1661,14 +1661,14 @@ export const GIA_MUC_TIEU: FormulaModule = {
         en: "Compared with the stock's current market price: a higher target means the market today pays less for each dong of profit than the multiple you chose, a lower one means it already pays more, and the gap shows how far the price would have to move to match your multiple exactly.",
       },
       commonMistakes: {
-        vi: 'Lấy P/E mục tiêu từ một doanh nghiệp khác ngành, hoặc quên rằng giá mục tiêu tính trên EPS HIỆN TẠI - EPS có thể đổi trước khi P/E kịp đạt mức mục tiêu.',
-        en: 'Taking the target P/E from a company in a different industry, or forgetting that the target price is based on CURRENT EPS - EPS can change before P/E reaches the target level.',
+        vi: 'Lấy P/E mục tiêu từ một doanh nghiệp khác ngành, hoặc quên rằng giá mục tiêu tính trên EPS HIỆN TẠI, mà EPS có thể đổi trước khi P/E kịp đạt mức mục tiêu.',
+        en: 'Taking the target P/E from a company in a different industry, or forgetting that the target price is based on CURRENT EPS, and EPS can change before P/E reaches the target level.',
       },
     },
     example: {
       title: {
-        vi: 'FPT - EPS 5.867 ₫, P/E mục tiêu 15 lần theo trung bình lịch sử',
-        en: 'FPT - EPS 5,867 ₫, target P/E of 15x from its historical average',
+        vi: 'FPT: EPS 5.867 ₫, P/E mục tiêu 15 lần theo trung bình lịch sử',
+        en: 'FPT: EPS 5,867 ₫, target P/E of 15x from its historical average',
       },
       inputs: { eps: 5_867, targetPe: 15 },
       expected: 88_005,
@@ -1683,7 +1683,7 @@ export const GIA_MUC_TIEU: FormulaModule = {
     },
     tests: [
       {
-        name: 'ca thường - EPS 6.050 ₫ với P/E mục tiêu 18 lần',
+        name: 'ca thường: EPS 6.050 ₫ với P/E mục tiêu 18 lần',
         inputs: { eps: 6_050, targetPe: 18 },
         expected: 108_900,
       },
@@ -1717,8 +1717,8 @@ export const GIA_MUC_TIEU: FormulaModule = {
         unit: '₫',
         warning: meaningless(
           {
-            vi: 'Giá mục tiêu cần EPS dương - nhân P/E mục tiêu với lợi nhuận âm hoặc bằng 0 không cho ra một mức giá có nghĩa.',
-            en: 'Target price needs a positive EPS - multiplying the target P/E by zero or negative earnings does not give a meaningful price.',
+            vi: 'Giá mục tiêu cần EPS dương; nhân P/E mục tiêu với lợi nhuận âm hoặc bằng 0 không cho ra một mức giá có nghĩa.',
+            en: 'Target price needs a positive EPS; multiplying the target P/E by zero or negative earnings does not give a meaningful price.',
           },
           {
             vi: 'Dùng NCAV trên cổ phiếu hoặc P/B để định giá doanh nghiệp đang lỗ.',

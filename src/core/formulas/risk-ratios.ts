@@ -76,8 +76,8 @@ const SOURCE_SHARPE_CAPM: FormulaSource = {
 
 const SOURCE_GRINOLD_KAHN: FormulaSource = {
   label: {
-    vi: 'Richard C. Grinold & Ronald N. Kahn - Active Portfolio Management, ấn bản 2 (McGraw-Hill, 1999), chương 5: Residual Risk and Return - The Information Ratio',
-    en: 'Richard C. Grinold & Ronald N. Kahn - Active Portfolio Management, 2nd edition (McGraw-Hill, 1999), chapter 5: Residual Risk and Return - The Information Ratio',
+    vi: 'Richard C. Grinold & Ronald N. Kahn - Active Portfolio Management, ấn bản 2 (McGraw-Hill, 1999), chương 5: Residual Risk and Return: The Information Ratio',
+    en: 'Richard C. Grinold & Ronald N. Kahn - Active Portfolio Management, 2nd edition (McGraw-Hill, 1999), chapter 5: Residual Risk and Return: The Information Ratio',
   },
 };
 
@@ -413,21 +413,21 @@ export const BETA: FormulaModule = {
     },
     tests: [
       {
-        name: 'cổ phiếu biến động gấp rưỡi thị trường - beta 1,5',
+        name: 'cổ phiếu biến động gấp rưỡi thị trường: beta 1,5',
         inputs: { sessions: 60 },
         series: STOCK_BETA_1_5,
         marketSeries: MARKET_CLOSES,
         expected: 1.5,
       },
       {
-        name: 'cổ phiếu đúng bằng thị trường - beta 1',
+        name: 'cổ phiếu đúng bằng thị trường: beta 1',
         inputs: { sessions: 60 },
         series: MARKET_CLOSES,
         marketSeries: MARKET_CLOSES,
         expected: 1,
       },
       {
-        name: 'cổ phiếu đi ngược thị trường, biên độ nửa - beta −0,5',
+        name: 'cổ phiếu đi ngược thị trường, biên độ nửa: beta −0,5',
         inputs: { sessions: 60 },
         series: STOCK_BETA_NEG_0_5,
         marketSeries: MARKET_CLOSES,

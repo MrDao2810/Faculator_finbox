@@ -41,8 +41,12 @@ export type TextLocale = 'vi' | 'en';
 export const LATEX_BACKSLASH = /\\/;
 /** Luật 1: ngoặc nhọn của LaTeX sót lại. */
 export const LATEX_BRACES = /[{}]/;
-/** Luật 3: gạch ngang dài hoặc vừa — loại gạch duy nhất được đứng cạnh công thức là dấu trừ `−`. */
-export const DASHES = /[–—]/;
+/**
+ * Luật 3: loại gạch duy nhất được đứng cạnh công thức là dấu trừ `−`. Chặn gạch dài, gạch vừa, và từ
+ * 02/11/2026 cả gạch nối cách hai bên " - ", dấu ngăn chung của chữ trên màn từ ngày ấy. Gạch nối
+ * dính chữ ("VN-Index") vẫn qua.
+ */
+export const DASHES = /[–—]|\s-\s/;
 
 /**
  * Các lỗi của một dòng công thức viết bằng chữ, theo luật 1–3. Mảng rỗng nghĩa là đạt.

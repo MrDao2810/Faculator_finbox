@@ -285,8 +285,8 @@ export const PHI_THUE: ReadonlyArray<QuizItem> = [
       a: { vi: 'Phần trăm giá trị danh mục', en: 'A percentage of portfolio value' },
       b: { vi: 'Số lần giao dịch', en: 'The number of trades' },
       c: {
-        vi: 'Số lượng chứng khoán nắm giữ - 0,27 đồng/cổ phiếu/tháng',
-        en: 'The number of securities held - VND 0.27/share/month',
+        vi: 'Số lượng chứng khoán nắm giữ (0,27 đồng/cổ phiếu/tháng)',
+        en: 'The number of securities held (VND 0.27/share/month)',
       },
       d: { vi: 'Số dư tiền mặt', en: 'The cash balance' },
     },

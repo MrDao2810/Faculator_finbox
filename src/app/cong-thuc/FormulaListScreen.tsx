@@ -20,11 +20,12 @@ import {
   RECENT_SEARCHES_KEY,
   countByCategoryFor,
   countHiddenByLevel,
+  formulaPath,
   formulasForLevel,
   hasSelectFilters,
   isDefaultListParams,
-  localizeRecentSearches,
   parseFormulaUsage,
+  recentSearchChips,
   selectFormulas,
   usageOrderMap,
 } from '@/application';
@@ -172,11 +173,20 @@ export function FormulaListScreen({ shelf }: FormulaListScreenProps) {
   } = useRecentSearches(RECENT_SEARCHES_KEY, { absorbKey: LEGACY_HOME_RECENT_SEARCHES_KEY });
   /*
    * Chip in tên theo ngôn ngữ ĐANG BẬT, không theo ngôn ngữ lúc ghi (19/10/2026): kho chứa tên công
-   * thức, `localizeRecentSearches()` tra ngược ra công thức rồi `pick` lại. Xem docblock ở đó.
+   * thức, `recentSearchChips()` tra ngược ra công thức rồi `pick` lại. Bấm chip là MỞ công thức ấy
+   * (03/11/2026), không lọc lại danh sách — xem docblock ở đó.
    */
-  const recent = useMemo(
-    () => localizeRecentSearches(storedRecent, FORMULA_SUMMARIES, pick),
+  const recentChips = useMemo(
+    () => recentSearchChips(storedRecent, FORMULA_SUMMARIES, pick),
     [storedRecent, pick],
+  );
+  const recent = useMemo(() => recentChips.map((chip) => chip.label), [recentChips]);
+  const recentHref = useCallback(
+    (label: string) => {
+      const formula = recentChips.find((chip) => chip.label === label)?.formula ?? null;
+      return formula === null ? null : formulaPath(formula.id);
+    },
+    [recentChips],
   );
 
   /*
@@ -275,7 +285,10 @@ export function FormulaListScreen({ shelf }: FormulaListScreenProps) {
     [remember, markResultOpened],
   );
 
-  /** Bấm lại một thứ đã tìm: lọc NGAY tại chỗ, URL ghi ngay, tiêu điểm về ô tìm. */
+  /**
+   * Chip không tra ra công thức nào (tên cũ trong kho): lọc NGAY tại chỗ, URL ghi ngay, tiêu điểm về
+   * ô tìm. Chip tra ra công thức thì là link mở công thức ấy (`recentHref`), không qua đây.
+   */
   const pickRecent = useCallback(
     (term: string) => {
       setQuery(term);
@@ -337,6 +350,7 @@ export function FormulaListScreen({ shelf }: FormulaListScreenProps) {
           <RecentSearches
             variant="inline"
             terms={recent}
+            hrefFor={recentHref}
             onPick={pickRecent}
             onClear={clearRecent}
           />

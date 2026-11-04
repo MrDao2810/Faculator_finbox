@@ -4,6 +4,121 @@ Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 
 ---
 
+## Chip "Tìm gần đây" mở thẳng công thức (03/11/2026)
+
+**Trạng thái: CHƯA XONG — đã sửa, chờ chủ dự án xem.** Chủ dự án bấm chip "Giá vốn trung bình khi mua DCA" ở màn Công
+thức thì chỉ thấy ô tìm điền lại tên ấy và ra danh sách kết quả: _"phải chuyển sang phần công thức đã lưu đó"_.
+
+- `recent-searches.ts`: thêm `recentSearchChips()`, như `localizeRecentSearches()` nhưng giữ công thức của từng chip
+  (`localizeRecentSearches()` nay gọi nó). Xuất qua barrel cùng kiểu `RecentSearchChip`.
+- `RecentSearches.tsx`: quyết TỪNG chip. `hrefFor(term)` trả đường dẫn thì chip là `<Link>`; trả `null` (hoặc không
+  truyền) thì chip là nút gọi `onPick` như cũ. `onPick` thành bắt buộc.
+- `FormulaListScreen.tsx` và `SearchScreen.tsx` (`/tim-kiem/`, cùng kho, cùng khối chip) truyền `hrefFor` →
+  `formulaPath(id)`. Chip mang tên không tra ra công thức (tên PEG, EV/Sales cũ trước ngày đổi tên) vẫn lọc tại chỗ.
+- Mở công thức từ chip không đổi thứ tự lịch sử. Link dùng prefetch mặc định như ô của kệ (tối đa 6 chip).
+- Test: ca "bấm chip thì lọc ngay tại chỗ" ĐẢO thành "chip là link mở thẳng công thức"; thêm ca chip không tra ra công
+  thức vẫn lọc, ca `hrefFor` trả null ở component, ca `recentSearchChips()`, ca ở màn tìm. Các ca tìm chip bằng
+  `button` đổi sang `link`.
+- Kiểm: 4 file test liên quan 87/87; typecheck, eslint, prettier sạch. Chưa thử trên trình duyệt thật.
+
+---
+
+## Gạch nối "-" đứng sát con số đọc thành dấu trừ: sửa theo vòng soát đợt đổi gạch dài (03/11/2026)
+
+**Trạng thái: CHƯA XONG — đã sửa, chờ chủ dự án xem.** Vòng soát đối kháng (5 hướng, mỗi phát hiện có người tìm cách bác)
+của đợt "—" → "-" ngày 02/11 xác nhận 25 lỗi. 23 phát hiện về độ dễ đọc chưa kịp kiểm vì hết hạn mức. Các phát hiện ấy được
+soát lại tay bằng một lượt quét toàn bộ chữ hiển thị.
+
+- **Lỗi chính: gạch nối sát số, sát ký hiệu hay sát phép tính đọc thành dấu trừ**, đúng lỗi chủ dự án đã hai lần bắt.
+  Ví dụ "” - 28.000 (giá sau điều chỉnh) + 2.000 = 30.000" đọc thành −28.000, "FPT - 1.000 CP", "tăng trưởng g - r
+  nhỏ hơn g", "ví dụ 1,1 - hoặc…". Đã viết lại khoảng 200 chỗ (vi + en đi cặp) bằng ":", ",", ", tức" / ", i.e.",
+  ngoặc đơn hoặc dấu chấm, trong 34 file. Phạm vi gồm lời giải, đề, đáp án (cả bốn đáp án cùng một dấu để đáp án
+  đúng không lộ), cảnh báo r < g của ba mô hình định giá, sai lầm thường gặp, mô tả ô, thông báo bảng dòng tiền và
+  bảng giá, nhãn bảng số liệu Q306 ("Đợt 1: giá cao nhất").
+- **118 tiêu đề "Ví dụ thực tế" đổi một luật**: "FPT: EPS 5.867 ₫…", "FPT năm 2025: EBIT…"; mốc ngày cuối câu sau dấu
+  phẩy ("…8,1%/năm, năm 2026"). 62 tên ca test trong spec đổi " - " thành ": " (không lên màn, như `UT-CI-01: …`).
+- **Đổi tên hai công thức** vì ký hiệu đứng ngay sau gạch: "PEG - hệ số P/E trên tăng trưởng" / "PEG - ratio of P/E
+  to growth", "EV/Sales - hệ số EV trên doanh thu" / "EV/Sales - ratio of EV to sales". Hai tên này cùng với
+  `summaries.generated.ts` đã được sinh lại. Cái giá: phép tính đã lưu hay lịch sử tìm mang tên CŨ của hai công thức
+  này sẽ hiện như tên tự gõ. Nhãn "Các đường thành phần" của MACD tín hiệu đổi thành "Hai đường MACD và tín hiệu", vì
+  tiêu đề biểu đồ từng in "… MACD - MACD và …".
+- **Các lỗi khác trong 25 lỗi được xác nhận:**
+  - Ô giá đầu biểu đồ nến (/du-lieu/) khi chưa có phiên in `_ _` thay cho "-" trơ trọi.
+  - `aria-label` của biểu đồ nến bỏ " - 250 phiên".
+  - Ghi chú "đường ngắt … (chia cho 0)" dùng ngoặc.
+  - Nhãn nguồn Grinold & Kahn đổi sang "Residual Risk and Return: The Information Ratio", đúng tên chương.
+  - Bốn câu báo lỗi của luật viết từng gọi "-" là gạch bị cấm. Nay gọi tên bằng chữ, và các luật cạnh công thức
+    (`DASHES`, `GACH_DAI` ×4) chặn luôn " - ".
+  - Khoá so trùng tên `calcNameKey()` được xuất ra cho hộp lưu và màn Danh mục dùng chung. Hai chỗ này từng giữ bản chép
+    riêng, nên tên lưu lúc giao diện EN tách thành hai dòng.
+  - Tên ở nút quay lại của bảng dữ liệu (sessionStorage) đổi "—" thành "-".
+- **Cửa gác** (`i18n.test.ts`):
+  - Miễn trừ gạch dài chỉ còn cho câu trích trong `explain`, ghim đúng 14 dấu.
+  - Gác đọc giá trị thật của chuỗi, nên bắt được cả `—` và `&mdash;`.
+  - Thêm ca quét manifest và CSS `content:`.
+  - Ca mới "chữ trên màn không để gạch nối đứng sát con số".
+  - Test mới cho các chỗ cắt tên (`notation-view`, `PresetSheet`), `mergeRecentSearches`, `parseFormulaOrigin`, hộp
+    lưu, `calcNameKey`. Ca `run-chain` giờ đòi tên KHÔNG kèm phần mô tả.
+- Q114: đổi " - " thành ": " làm lời giải tụt 1 ký tự dưới sàn 120. Sàn giữ nguyên; câu được viết thêm vế "dù ATR vốn
+  không phải chỉ báo dao động".
+- **Hai mục chủ dự án gửi lại hôm nay đã xong từ trước**:
+  - "Đọc kết quả" ghi "hơn 20%": sửa ngày 20/10. Ví dụ `gia-tri-noi-tai-fcff` nay in đúng số calc: g 4% → 52.362,96 ₫,
+    g 6% → 72.343,86 ₫.
+  - "Danh sách công thức" bỏ mũi tên, xuống dòng: hàng chip từ 1024px xuống dòng, không còn nút ‹ ›, ở commit 2e62049.
+  - Bản đang chạy trên mạng mà còn thấy hai lỗi này thì bản ấy cũ hơn hai lần sửa.
+- Kiểm: typecheck, eslint, prettier sạch; vitest 5.146 đạt, 1 đỏ là ca quá thời gian quen thuộc của màn Danh mục
+  ("bảng đã đủ dòng nhờ mã chờ…", 5,36 s; chạy riêng file đạt 190/190). Chưa build lại bản sao để chạy
+  `verify:static`: đợt này chỉ đổi chữ (cộng một `NO_VALUE` ở biểu đồ nến), không chạm chỗ nào bài kiểm build bám.
+  Bản sao build của hôm qua đã dọn (gỡ junction trước).
+- Chưa làm: gạch kẹp giữa hai ký hiệu mà cửa gác không thấy đã soát bằng mắt theo danh sách người soát. Sau đợt này,
+  khoảng 1.000 gạch nối giữa hai chữ (tên công thức, nhãn ô, câu văn) giữ nguyên đúng yêu cầu "-" của chủ dự án.
+
+---
+
+## Đọc biểu đồ: mỗi dạng vẽ một đoạn hướng dẫn riêng (03/11/2026)
+
+**Trạng thái: ĐANG LÀM.** Chủ dự án (ảnh khung "Đọc biểu đồ" của EV/EBITDA in "Dạng Đường"): _"kiểm tra lại toàn bộ
+biểu đồ khi chuyển dạng thì phần hướng dẫn sau đang chưa chuyển dạng hướng dẫn tương tự"_. Nguyên nhân: từ 21/10 ô "Loại
+biểu đồ" có Điểm, Bậc thang, Lãi/lỗ, Nến, Vành khuyên nhưng kho chữ chỉ có Đường/Cột, và `ChartBody` báo mọi dạng không
+phải Cột là "duong" (Vành khuyên dùng đoạn thanh ngang). Hỏi cách làm, chủ dự án chọn **viết riêng từng hình** (không
+dùng đoạn mẫu cho mỗi dạng).
+
+Khung (xong):
+
+- `bieu-do/types.ts`: `HaiDang` thêm `diem`/`bac`/`laiLo`/`nen`, `BieuDoRieng.vanhKhuyen`, kiểu `DangDoc`, kế hoạch thêm
+  `bac`/`laiLo` (trục, ô mẫu), `laiLo`/`nen` (thời gian), `vanhKhuyen` (bóc tách).
+- `ke-hoach.ts`: dò dạng nào CÓ THỂ hiện ở từng hình: lưới bộ số gõ được (`luoiGoDuoc`, nay xuất ra) cho trục vẽ được
+  ngay; ba chuỗi thật FPT/STB/VN-Index + chuỗi ví dụ cho trục và hình cần chuỗi; luật tĩnh ô đếm kỳ cho Bậc thang.
+  111 công thức hết 2,2 s. Kết quả: Điểm 298, Bậc thang 118, Lãi/lỗ 77, Nến 5, Vành khuyên 9 → 507 đoạn × 2 thứ tiếng.
+- `kiem.ts`: luật cho từng dạng (chữ bắt buộc: chấm/bậc/xanh-đỏ-vạch 0/nến-phiên tăng-phiên giảm/múi; cùng luật trục,
+  chiều, gạch chéo, đảo chiều như đoạn Đường; Lãi/lỗ miễn luật dải vì thường chỉ hiện khi ô bằng 0). Thiếu hay thừa một
+  dạng đều đỏ.
+- `chart/dang-ve.ts`: `laDonViDem()`. `ChartBody`: báo đúng dạng đang vẽ (`DANG_DOC`). `ui/guide/khoi-dang-xem.ts` (mới):
+  phép chọn khối + dạng; dạng đang vẽ không có chữ thì IM (không in đoạn dạng khác), và `FormulaDetail` ẩn nút "?".
+  `GuideBody`: in nhãn từng dạng ("Dạng Điểm"…), trang đầy đủ in mọi dạng. i18n 6 khoá nhãn mới (vi, en).
+- Test: `GuideBody.test.tsx` (đảo ca "xin Cột thì in Đường", thêm ca Điểm/Vành khuyên/im), `charts.test.tsx` (Điểm báo
+  `diem`, bóc tách báo `thanh`), `bieu-do.test.ts` (lời hứa một chiều và ca trùng chữ xét mọi dạng; ghim số đoạn từng
+  dạng).
+
+Chữ (đang làm): 11 agent soạn theo file kho, brief ở scratchpad `brief-dang.md`; mẫu đã viết tay ở `co-ban.ts` (`pe`,
+`roe.netIncome`). Sau đó một lượt soát đối chiếu `calc`.
+
+---
+
+## Bài tập: câu chốt đề Q418 (`capm`) (03/11/2026)
+
+**Trạng thái: CHƯA XONG — đã sửa, chờ chủ dự án xem.** Chủ dự án: _"Bảng số liệu có đủ cả hai con số, hãy đặt đúng
+ba số vào vị trí của công thức CAPM."_ → _"Bảng số liệu có đầy đủ cả hai số, hãy đặt đúng số liệu vào vị trí của công
+thức CAPM."_. Câu nguyên văn ấy chỉ có ở Q418 (`src/core/quiz/items/thuc-hanh.ts`). Tiếng Anh đổi theo cùng cách như
+Q337: "put the right three numbers into the slots" → "put the right figures into the slots".
+
+- Kiểm: prettier, eslint; test `src/core/quiz`, `src/ui/quiz`, `prose-audit`, `src/application/i18n` 215/215.
+- Không đụng: 38 đề khác cũng có cụm "hãy đặt đúng ba số vào vị trí của công thức …" (21 ở `tinh-toan.ts`, 17 ở
+  `thuc-hanh.ts`), trong đó Q420 (`eps-co-ban`) gần giống hệt ("Bảng số liệu có đủ cả ba, hãy đặt đúng ba số …").
+  Chờ chủ dự án quyết có đồng bộ không.
+
+---
+
 ## Chữ trên màn: gạch dài "—" đổi thành gạch nối "-" trong toàn dự án (02/11/2026)
 
 **Trạng thái: CHƯA XONG — đã sửa, chờ chủ dự án xem.** Chủ dự án: _"đoạn ký hiệu này "— " đang quá dài. rà xoát lại
@@ -88,6 +203,13 @@ câu ("Vì sao?" → "Tại sao?"). Không đụng 7 chỗ "vì sao" ở lời g
 Tiếp theo, chủ dự án duyệt đổi luôn tiêu đề hộp giải thích: `quiz.whyWrong` "Vì sao chưa đúng" → "Tại sao chưa đúng" và
 khóa anh em `quiz.whyRight` "Vì sao đúng" → "Tại sao đúng" (`vi.ts`; tiếng Anh giữ "Why this is wrong"). Tên một ca
 trong `quiz-desktop-css.test.ts` và hai chỗ nhắc trong `CLAUDE.md` đổi theo.
+
+**Vòng 4, cùng ngày: hai câu dặn điền cụt ở "vào vị trí."** Chủ dự án sửa đề DCA (Q407, `tinh-toan.ts`) "…hãy đặt ba mức
+giá vào vị trí." thành "…vào vị trí đúng.". Câu cụt do vòng 2 đổi máy móc đuôi "vào ô trống." thành "vào vị trí.". Rà lại
+mọi `prompt.vi`: chỉ còn một câu cùng lỗi, Q472 (VWAP, `thuc-hanh.ts`) "hãy đặt đúng bốn số vào vị trí." → "hãy đặt bốn
+số vào vị trí đúng." (bỏ chữ "đúng" phía trước để câu không lặp hai lần). Các đuôi "vào đúng vị trí.", "vào từng vị
+trí.", "vào các vị trí.", "vào đủ bốn vị trí." đã trọn nghĩa nên giữ; bản tiếng Anh ("into the slots") không đổi. Kiểm:
+test `src/core/quiz` 73/73; prettier sạch.
 
 ---
 

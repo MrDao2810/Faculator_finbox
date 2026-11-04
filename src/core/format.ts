@@ -30,12 +30,16 @@ import type { Bilingual, CalcOutput } from './types';
  * HAI gạch, không phải một: một gạch trần ở cỡ chữ 40px của khối kết quả là một vệt ngắn trông
  * như lỗi hiển thị. Hai gạch cách nhau đọc ra ngay là một khoảng để điền.
  *
- * ── Ranh giới với `—`, vì sản phẩm dùng CẢ HAI ────────────────────────────────────────────────
+ * ── Ranh giới với `-`, vì sản phẩm dùng CẢ HAI ────────────────────────────────────────────────
  *
- *   `_ _`  chỗ của một CON SỐ chưa có  — hằng số này, ô giá màn Danh mục, ô trống bảng dữ liệu,
- *                                        bảng xem trước khi dán
- *   `—`    ô CHỮ không có gì để nói    — `variable.noDescription`, dòng phí không tra được mức
+ *   `_ _`  chỗ của một CON SỐ chưa có  — hằng số này, ô giá màn Danh mục, ô giá đầu biểu đồ nến
+ *                                        của /du-lieu/, ô trống bảng dữ liệu, bảng xem trước khi dán
+ *   `-`    ô CHỮ không có gì để nói    — `variable.noDescription`, dòng phí không tra được mức
  *                                        (`fees.ts`), mô tả biến trống trong file xuất
+ *
+ * (Ô chữ dùng gạch dài `—` cho tới 02/11/2026, khi mọi gạch dài trên màn đổi thành gạch nối. Ô giá
+ * của biểu đồ nến từng in gạch ấy ở chỗ một con số; nay theo luật trên mà in `_ _`, vì một `-` trơ
+ * trọi ở chỗ con số đọc thành dấu trừ hay số 0.)
  *
  * Ranh giới ấy là: gạch dưới MỜI người dùng điền vào, nên chỉ được đặt ở chỗ họ điền được. Cột
  * "Mô tả" của bảng biến thì không ai điền, nên nó giữ gạch ngang.

@@ -723,7 +723,7 @@ export const DO_RONG_DAI_BOLLINGER: FormulaModule = {
         expected: 5.8121,
       },
       {
-        name: 'chuỗi phẳng lì thì độ rộng đúng bằng 0 - đây là số thật, không phải lỗi',
+        name: 'chuỗi phẳng lì thì độ rộng đúng bằng 0: đây là số thật, không phải lỗi',
         inputs: { period: 10, k: 2 },
         series: CLOSES_PHANG,
         expected: 0,
@@ -927,7 +927,7 @@ export const ATR_DAO_DONG_THUC: FormulaModule = {
     },
     tests: [
       {
-        name: 'sáu phiên số tròn, chu kỳ 5 - trung bình của 6, 5, 5, 6, 5',
+        name: 'sáu phiên số tròn, chu kỳ 5: trung bình của 6, 5, 5, 6, 5',
         inputs: { period: 5 },
         bars: BARS_KIEM,
         expected: 5.4,
@@ -1611,8 +1611,8 @@ export const VWAP: FormulaModule = {
           { vi: 'VWAP', en: 'VWAP' },
           { vi: 'tổng khối lượng', en: 'total volume' },
           {
-            vi: 'Các phiên đang chọn đều có khối lượng bằng 0 - kiểm tra lại cột khối lượng của bảng dữ liệu.',
-            en: 'The selected sessions all have zero volume - check the volume column of the data table.',
+            vi: 'Các phiên đang chọn đều có khối lượng bằng 0. Kiểm tra lại cột khối lượng của bảng dữ liệu.',
+            en: 'The selected sessions all have zero volume. Check the volume column of the data table.',
           },
         ),
       );
@@ -2065,8 +2065,8 @@ export const TY_LE_KHOI_LUONG: FormulaModule = {
           { vi: 'tỷ lệ khối lượng', en: 'volume ratio' },
           { vi: 'khối lượng trung bình', en: 'average volume' },
           {
-            vi: 'Các phiên làm mốc đều có khối lượng bằng 0 - kiểm tra lại cột khối lượng của bảng dữ liệu.',
-            en: 'All baseline sessions have zero volume - check the volume column of the data table.',
+            vi: 'Các phiên làm mốc đều có khối lượng bằng 0. Kiểm tra lại cột khối lượng của bảng dữ liệu.',
+            en: 'All baseline sessions have zero volume. Check the volume column of the data table.',
           },
         ),
       );

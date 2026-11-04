@@ -116,7 +116,12 @@ export { summarisePortfolio, valueHoldings } from '@/core/portfolio';
 
 // ── Phép tính đã lưu — tab "Công thức" của WF-06 ────────────────────────────
 export type { DisplayCalcNameInput, SuggestCalcNameInput } from '@/core/saved-calc-name';
-export { MAX_SAVED_NAME, displayCalcName, suggestCalcNames } from '@/core/saved-calc-name';
+export {
+  MAX_SAVED_NAME,
+  calcNameKey,
+  displayCalcName,
+  suggestCalcNames,
+} from '@/core/saved-calc-name';
 
 // ── Chuỗi giá OHLCV sửa tay — WF-05 (gói 3.3.1) ─────────────────────────────
 export type {
@@ -482,7 +487,8 @@ export { SHARE_INPUTS_PARAM, decodeShareInputs, encodeShareInputs } from './shar
 export type {
   BaiHuongDan,
   BaiRiengDaChuan,
-  /* Ba kiểu của mục "Đọc biểu đồ" (13/10/2026) — module lá xuất lại, barrel không với sâu hơn. */
+  /* Các kiểu của mục "Đọc biểu đồ" (13/10/2026) — module lá xuất lại, barrel không với sâu hơn. */
+  DangDoc,
   HinhDangXem,
   KhoiBieuDoBai,
   KhoiLapBai,
@@ -538,9 +544,11 @@ export {
   localizeRecentSearches,
   mergeRecentSearches,
   parseRecentSearches,
+  recentSearchChips,
   removeRecentSearch,
   serializeRecentSearches,
 } from './recent-searches';
+export type { RecentSearchChip } from './recent-searches';
 
 // Bản nháp ô nhập — giữ số người dùng đã gõ qua cú điều hướng rời màn chi tiết
 export type { InputDraft } from './input-draft-store';

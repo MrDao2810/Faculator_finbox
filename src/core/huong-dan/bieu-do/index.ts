@@ -6,6 +6,8 @@
 
 export type {
   BieuDoRieng,
+  DangCoThe,
+  DangDoc,
   HaiDang,
   HinhDangXem,
   KeHoachBieuDo,

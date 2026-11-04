@@ -103,8 +103,8 @@ export const ROI: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'FPT - bỏ ra 62,9 triệu ₫ ngày 24/07/2026, tới 11/09/2026 giá trị 72,7 triệu ₫',
-        en: 'FPT - 62.9 million ₫ invested on 2026-07-24, worth 72.7 million ₫ by 2026-09-11',
+        vi: 'FPT: bỏ ra 62,9 triệu ₫ ngày 24/07/2026, tới 11/09/2026 giá trị 72,7 triệu ₫',
+        en: 'FPT: 62.9 million ₫ invested on 2026-07-24, worth 72.7 million ₫ by 2026-09-11',
       },
       inputs: { cost: 62_900_000, current: 72_700_000 },
       expected: 15.5803,
@@ -263,8 +263,8 @@ export const HPR: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'FPT - giá 62.900 ₫ ngày 24/07/2026 lên 72.700 ₫ ngày 11/09/2026, trong kỳ không có cổ tức',
-        en: 'FPT - 62,900 ₫ on 2026-07-24 rising to 72,700 ₫ on 2026-09-11, with no dividend in the period',
+        vi: 'FPT: giá 62.900 ₫ ngày 24/07/2026 lên 72.700 ₫ ngày 11/09/2026, trong kỳ không có cổ tức',
+        en: 'FPT: 62,900 ₫ on 2026-07-24 rising to 72,700 ₫ on 2026-09-11, with no dividend in the period',
       },
       inputs: { startPrice: 62_900, endPrice: 72_700, dividend: 0 },
       expected: 15.5803,
@@ -415,8 +415,8 @@ export const CAGR: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'Quỹ VESAF - NAV/CCQ từ 10.000 ₫ lên 33.913 ₫ sau 9,12 năm',
-        en: 'The VESAF fund - NAV per unit from 10,000 ₫ to 33,913 ₫ over 9.12 years',
+        vi: 'Quỹ VESAF: NAV/CCQ từ 10.000 ₫ lên 33.913 ₫ sau 9,12 năm',
+        en: 'The VESAF fund: NAV per unit from 10,000 ₫ to 33,913 ₫ over 9.12 years',
       },
       inputs: { start: 10_000, end: 33_913, years: 9.12 },
       expected: 14.3284,
@@ -585,8 +585,8 @@ export const TY_SUAT_CO_TUC: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'FPT - cổ tức tiền mặt 2.000 ₫/CP/năm trên thị giá 72.700 ₫ ngày 11/09/2026',
-        en: 'FPT - a 2,000 ₫/share/year cash dividend against the 72,700 ₫ price on 2026-09-11',
+        vi: 'FPT: cổ tức tiền mặt 2.000 ₫/CP/năm trên thị giá 72.700 ₫ ngày 11/09/2026',
+        en: 'FPT: a 2,000 ₫/share/year cash dividend against the 72,700 ₫ price on 2026-09-11',
       },
       inputs: { price: 72_700, dividendPerShare: 2_000 },
       expected: 2.751,
@@ -766,8 +766,8 @@ export const XIRR: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'FPT - ba lần mua trong tháng 7 và 8/2026, bán hết 300 CP ngày 11/09/2026',
-        en: 'FPT - three purchases across July and August 2026, all 300 shares sold on 2026-09-11',
+        vi: 'FPT: ba lần mua trong tháng 7 và 8/2026, bán hết 300 CP ngày 11/09/2026',
+        en: 'FPT: three purchases across July and August 2026, all 300 shares sold on 2026-09-11',
       },
       inputs: {},
       cashflows: [
@@ -788,7 +788,7 @@ export const XIRR: FormulaModule = {
     },
     tests: [
       {
-        name: 'một khoản chi và một khoản thu sau đúng một năm - 10%/năm',
+        name: 'một khoản chi và một khoản thu sau đúng một năm: 10%/năm',
         inputs: {},
         cashflows: [
           { date: '2025-01-01', amount: -100_000_000 },
@@ -797,7 +797,7 @@ export const XIRR: FormulaModule = {
         expected: 10,
       },
       {
-        name: 'lỗ sau một năm thì suất sinh lợi âm - -20%/năm',
+        name: 'lỗ sau một năm thì suất sinh lợi âm: -20%/năm',
         inputs: {},
         cashflows: [
           { date: '2025-01-01', amount: -100_000_000 },

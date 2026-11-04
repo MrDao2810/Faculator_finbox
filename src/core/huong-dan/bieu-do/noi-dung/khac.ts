@@ -18,6 +18,10 @@ export const BIEU_DO_KHAC: Readonly<Record<string, BieuDoRieng>> = {
           'Mỗi cột là giá lý thuyết ở một mức chỉ số, cột cao dần về bên phải và cột tô đặc là mức bạn đang nhập. Đem giá hợp đồng đang khớp so với đỉnh cột tô đặc: cao hơn là hợp đồng đang đắt so với lý thuyết, thấp hơn là đang rẻ.',
           'Each bar is the theoretical price at one index level; bars grow taller to the right and the solid one is the level you have entered. Set the traded contract price against the top of the solid bar: above it the contract is dear versus theory, below it cheap.',
         ),
+        diem: d(
+          'Mỗi chấm là giá lý thuyết của hợp đồng tính ở một mức của ô Chỉ số VN30 hiện tại (S), từ một nửa đến gấp rưỡi con số bạn đang nhập; chấm nằm trên vạch đứt dọc là đúng mức bạn nhập. Đây là phép thử nếu chỉ số cơ sở ở mức khác thì giá hợp lý ra bao nhiêu, không phải diễn biến thị trường. Dãy chấm đi lên thành một hàng thẳng, các chấm cách đều nhau: giá lý thuyết luôn bằng chỉ số nhân cùng một hệ số chi phí nắm giữ, nên mỗi bước chỉ số kéo giá lên đúng một khoảng như nhau.',
+          'Each dot is the contract’s theoretical price at one level of the Current VN30 index (S) field, from half to one and a half times the figure you have entered; the dot on the dashed vertical line is your own level. It is a what-if on the fair price at another index level, not market history. The row of dots rises in a straight line, evenly spaced: the theoretical price is always the index times the same carry factor, so each step of the index lifts it by the same amount.',
+        ),
       },
       riskFreeRate: {
         duong: d(
@@ -27,6 +31,10 @@ export const BIEU_DO_KHAC: Readonly<Record<string, BieuDoRieng>> = {
         cot: d(
           'Mỗi cột là giá lý thuyết ở một mức lãi suất, cột tô đặc là mức bạn đang nhập. Các cột trông gần như bằng nhau vì phần chi phí nắm giữ chỉ là một lớp mỏng phủ trên chỉ số cơ sở; lớp ấy dày lên khi còn nhiều ngày tới đáo hạn.',
           'Each bar is the theoretical price at one interest rate, and the solid one is the rate you have entered. The bars look almost equal because the cost of carry is only a thin layer on top of the underlying index; that layer thickens when more days remain to expiry.',
+        ),
+        diem: d(
+          'Mỗi chấm là giá lý thuyết tính ở một mức của ô Lãi suất phi rủi ro / năm (r), từ một nửa đến gấp rưỡi con số bạn đang nhập; chấm nằm trên vạch đứt dọc là đúng mức bạn nhập. Đây là phép thử nếu lãi suất đổi thì giá lý thuyết ra bao nhiêu, không phải diễn biến thị trường. Dãy chấm đi lên, các chấm cách đều nhau: mỗi bước lãi suất cộng thêm cùng một khoản chi phí nắm giữ cho quãng ngày còn lại tới đáo hạn. Trục dọc phóng to sát quanh dãy chấm, nên hàng chấm trông dốc mà cả dải chỉ là một phần rất nhỏ của chỉ số.',
+          'Each dot is the theoretical price at one level of the Risk-free rate / year (r) field, from half to one and a half times the figure you have entered; the dot on the dashed vertical line is your own rate. It is a what-if on the interest rate, not market history. The row of dots rises with even spacing: each step of rate adds the same amount of carry for the days left to expiry. The vertical axis is zoomed in tight around the dots, so the row looks steep while the whole range is only a sliver of the index itself.',
         ),
       },
       dividendYield: {
@@ -38,6 +46,10 @@ export const BIEU_DO_KHAC: Readonly<Record<string, BieuDoRieng>> = {
           'Mỗi cột là giá lý thuyết ở một mức tỷ suất cổ tức, cột tô đặc là mức bạn đang nhập. Các cột trông gần như bằng nhau; vào mùa chia cổ tức phần chênh này vẫn đủ để hợp đồng giao dịch thấp hơn chỉ số mà không hề bị định giá sai.',
           'Each bar is the theoretical price at one dividend yield, and the solid one is the yield you have entered. The bars look almost equal; in dividend season this difference is still enough for the contract to trade below the index without being mispriced at all.',
         ),
+        diem: d(
+          'Mỗi chấm là giá lý thuyết tính ở một mức của ô Tỷ suất cổ tức rổ VN30 / năm (q), từ một nửa đến gấp rưỡi con số bạn đang nhập; chấm nằm trên vạch đứt dọc là đúng mức bạn nhập. Đây là phép thử nếu tỷ suất cổ tức của rổ đổi thì giá lý thuyết ra bao nhiêu, không phải diễn biến thị trường. Dãy chấm đi xuống, các chấm cách đều nhau: mỗi bước cổ tức thêm vào trừ đi cùng một khoản khỏi giá hợp đồng, vì người giữ hợp đồng không nhận phần cổ tức mà rổ cổ phiếu chia ra.',
+          'Each dot is the theoretical price at one level of the VN30 basket dividend yield / year (q) field, from half to one and a half times the figure you have entered; the dot on the dashed vertical line is your own yield. It is a what-if on the basket’s dividend yield, not market history. The row of dots falls with even spacing: each step of yield takes the same amount off the contract price, because the contract holder does not receive the dividends the basket pays out.',
+        ),
       },
       days: {
         duong: d(
@@ -47,6 +59,14 @@ export const BIEU_DO_KHAC: Readonly<Record<string, BieuDoRieng>> = {
         cot: d(
           'Mỗi cột là giá lý thuyết ứng với một số ngày còn lại, cột tô đặc là số ngày bạn đang nhập. Đọc từ phải sang trái là đọc theo thời gian trôi: càng gần đáo hạn cột càng tiến về sát chỉ số cơ sở.',
           'Each bar is the theoretical price for one number of days remaining, and the solid one is the number you have entered. Reading right to left is reading time passing: the closer to expiry, the nearer the bar settles to the underlying index.',
+        ),
+        diem: d(
+          'Mỗi chấm là giá lý thuyết tính ở một mức của ô Số ngày đến đáo hạn (d), từ một nửa đến gấp rưỡi số ngày bạn đang nhập; chấm nằm trên vạch đứt dọc là đúng số ngày bạn nhập. Đây là phép thử nếu còn nhiều hay ít ngày hơn tới đáo hạn thì giá lý thuyết ra bao nhiêu, không phải diễn biến thị trường. Khi lãi suất cao hơn tỷ suất cổ tức, dãy chấm đi lên, chấm sau cao hơn chấm trước cùng một khoảng vì chi phí nắm giữ cộng dồn đều theo ngày. Cổ tức cao hơn thì dãy chấm đi xuống theo đúng nhịp ấy; hai bên bằng nhau thì mọi chấm nằm ngang ngay ở mức chỉ số.',
+          'Each dot is the theoretical price at one level of the Days to expiry (d) field, from half to one and a half times the number of days you have entered; the dot on the dashed vertical line is your own figure. It is a what-if on more or fewer days left to expiry, not market history. When the interest rate is above the dividend yield the row rises, each dot the same distance above the last, as carry builds up evenly day by day. When dividends are higher it falls at that same even pace, and if the two are equal every dot sits level with the index.',
+        ),
+        bac: d(
+          'Mỗi bậc là giá lý thuyết ứng với một số ngày tròn của ô Số ngày đến đáo hạn (d), trên dải từ một nửa đến gấp rưỡi số ngày bạn đang nhập: bậc nằm ngang suốt một ngày rồi mới nhảy sang mức của ngày kế, vì số ngày tới đáo hạn đếm theo ngày tròn. Đây là phép thử nếu còn nhiều hay ít ngày hơn thì giá lý thuyết ra bao nhiêu, không phải diễn biến thị trường. Khi lãi suất cao hơn tỷ suất cổ tức, các bậc đi lên và cao đều nhau, mỗi bậc là chi phí nắm giữ của đúng một ngày; cổ tức cao hơn thì các bậc đi xuống. Đọc từ phải sang trái, mỗi ngày trôi qua kéo giá một bậc về sát chỉ số.',
+          'Each step is the theoretical price for a whole number of days on the Days to expiry (d) field, from half to one and a half times the days you have entered: it stays level through a day, then jumps to the next day’s price, because days to expiry are counted whole. It is a what-if on more or fewer days left, not market history. When the interest rate is above the dividend yield the staircase rises in equal steps, each a single day of carry; when dividends are higher it falls. Read right to left, each day that passes moves the price one step closer to the index.',
         ),
       },
     },
@@ -63,6 +83,14 @@ export const BIEU_DO_KHAC: Readonly<Record<string, BieuDoRieng>> = {
           'Mỗi cột là lãi lỗ ở một mức điểm mở, cột tô đặc là mức bạn đang nhập. Cột mọc lên trên vạch 0 là mua thấp hơn điểm đóng nên có lãi, cột quay xuống dưới vạch 0 là mua cao hơn nên lỗ; mỗi điểm chênh nhân với hệ số nhân và số hợp đồng thành số tiền.',
           'Each bar is the profit or loss at one opening level, and the solid one is the level you have entered. A bar standing above the zero line means buying below the close, a gain; one hanging below the zero line means buying above it, a loss; every point of difference is multiplied by the contract multiplier and the number of contracts into money.',
         ),
+        diem: d(
+          'Mỗi chấm là lãi lỗ của vị thế mua tính ở một mức của ô Điểm mở vị thế (Pmo), từ một nửa đến gấp rưỡi con số bạn đang nhập; chấm nằm trên vạch đứt dọc là đúng mức bạn nhập. Đây là phép thử nếu đã mua ở mức điểm khác thì lãi lỗ ra bao nhiêu, không phải diễn biến thị trường. Dãy chấm đi xuống thành một hàng thẳng, các chấm cách đều nhau: mỗi bước điểm mở cao thêm lấy đi cùng một số tiền. Chấm nằm trên mức 0 là lãi, dưới mức 0 là lỗ, và chỗ hàng chấm vượt qua mức 0 là nơi điểm mở bằng đúng điểm đóng.',
+          'Each dot is the long position’s profit or loss at one level of the Opening points (Pmo) field, from half to one and a half times the figure you have entered; the dot on the dashed vertical line is your own level. It is a what-if on having bought at another level, not market history. The row of dots falls in a straight line, evenly spaced: each step higher in the opening level takes away the same sum of money. Dots above 0 are gains, dots below 0 are losses, and the row passes 0 where the opening level equals the closing level.',
+        ),
+        laiLo: d(
+          'Dạng này hiện khi Điểm đóng vị thế (Pdong) nằm trong dải các mức của ô Điểm mở vị thế (Pmo) đang vẽ, tức có mức mua thấp hơn và có mức mua cao hơn điểm đóng. Mảng tô xanh trên vạch 0 là những mức mua thấp hơn điểm đóng: vị thế mua có lãi. Mảng tô đỏ dưới vạch 0 là mua cao hơn điểm đóng: lỗ. Đây là phép thử nếu đã mua ở mức điểm khác thì lãi lỗ ra bao nhiêu, không phải diễn biến thị trường. Đường đi xuống đều và cắt vạch 0 đúng ở mức điểm mở bằng điểm đóng, nên mảng xanh nằm bên trái chỗ cắt, mảng đỏ bên phải.',
+          'This form appears when the Closing points (Pdong) figure lies inside the range of Opening points (Pmo) levels drawn, so some levels buy below the close and some above it. The green area above the zero line covers the levels that buy below the close: the long position gains. The red area below the zero line is buying above the close: a loss. It is a what-if on having bought at another level, not market history. The line falls steadily and crosses the zero line exactly where the opening level equals the closing level, so the green sits left of that crossing and the red to its right.',
+        ),
       },
       exitPoints: {
         duong: d(
@@ -73,6 +101,14 @@ export const BIEU_DO_KHAC: Readonly<Record<string, BieuDoRieng>> = {
           'Mỗi cột là lãi lỗ ở một mức điểm đóng, cột tô đặc là mức bạn đang nhập. Cột quay xuống dưới vạch 0 là đóng thấp hơn điểm mở, tức lỗ; cột mọc lên trên vạch 0 là lãi. Dải vẽ rộng hơn nhiều so với biến động một phiên, nên hãy nhìn các cột sát quanh cột tô đặc.',
           'Each bar is the profit or loss at one closing level, and the solid one is the level you have entered. Bars below the zero line are closes under the opening level, that is losses; bars above the zero line are gains. The range drawn is far wider than one session’s move, so look at the bars close around the solid one.',
         ),
+        diem: d(
+          'Mỗi chấm là lãi lỗ của vị thế mua tính ở một mức của ô Điểm đóng vị thế (Pdong), từ một nửa đến gấp rưỡi mức điểm bạn đang nhập; chấm nằm trên vạch đứt dọc là đúng mức bạn nhập. Đây là phép thử nếu đóng vị thế ở một mức điểm khác thì lãi lỗ ra bao nhiêu, không phải diễn biến thị trường. Dãy chấm đi lên thành một hàng thẳng, các chấm cách đều nhau: mỗi điểm chỉ số tăng thêm đem về cho vị thế mua cùng một số tiền. Chấm dưới mức 0 là lỗ, trên mức 0 là lãi, và hàng chấm vượt qua mức 0 đúng ở điểm mở vị thế.',
+          'Each dot is the long position’s profit or loss at one level of the Closing points (Pdong) field, from half to one and a half times the level you have entered; the dot on the dashed vertical line is your own level. It is a what-if on closing at a different level, not market history. The row of dots rises in a straight line, evenly spaced: every extra point on the index brings the long position the same sum of money. Dots below 0 are losses, dots above 0 are gains, and the row passes 0 exactly at the opening level.',
+        ),
+        laiLo: d(
+          'Dạng này hiện khi Điểm mở vị thế (Pmo) nằm trong dải các mức của ô Điểm đóng vị thế (Pdong) đang vẽ, tức có mức đóng thấp hơn và có mức đóng cao hơn điểm mở. Mảng tô đỏ dưới vạch 0 bên trái là đóng thấp hơn điểm mở: vị thế mua lỗ. Mảng tô xanh trên vạch 0 bên phải là đóng cao hơn điểm mở: có lãi. Đây là phép thử nếu đóng ở một mức điểm khác thì lãi lỗ ra bao nhiêu, không phải diễn biến thị trường. Đường đi lên đều và cắt vạch 0 đúng tại điểm mở; càng sang phải mảng xanh càng cao, mỗi điểm thêm một khoản tiền như nhau.',
+          'This form appears when the Opening points (Pmo) figure lies inside the range of Closing points (Pdong) levels drawn, so some closes fall below the opening level and some above it. The red area below the zero line on the left is closing under the opening level: the long position loses. The green area above the zero line on the right is closing above it: a gain. It is a what-if on closing at a different level, not market history. The line rises steadily and crosses the zero line exactly at the opening level; to the right the green grows taller by the same sum for every point.',
+        ),
       },
       contracts: {
         duong: d(
@@ -82,6 +118,10 @@ export const BIEU_DO_KHAC: Readonly<Record<string, BieuDoRieng>> = {
         cot: d(
           'Mỗi cột là lãi lỗ ở một số hợp đồng, cột tô đặc là mức bạn đang nhập. Khi vị thế đang có lãi, cột cao dần về bên phải; đang lỗ thì cột quay xuống dưới và dài dần. Trục vẽ cả các mức lẻ để thành đường liền, nhưng ngoài thực tế chỉ mở được số hợp đồng nguyên.',
           'Each bar is the profit or loss at one number of contracts, and the solid one is the number you have entered. On a position in profit the bars grow taller to the right; on a losing position they hang down and grow longer. The axis draws fractional levels to make a continuous line, but in practice only whole contracts can be opened.',
+        ),
+        diem: d(
+          'Mỗi chấm là lãi lỗ của vị thế mua tính ở một mức của ô Số hợp đồng (N), từ một nửa đến gấp rưỡi con số bạn đang nhập; chấm nằm trên vạch đứt dọc là đúng số bạn nhập. Đây là phép thử nếu mở nhiều hay ít hợp đồng hơn với cùng điểm mở và điểm đóng thì lãi lỗ ra bao nhiêu, không phải diễn biến thị trường. Khi vị thế đang có lãi, dãy chấm đi lên đều; đang lỗ thì dãy chấm đi xuống đều. Các chấm cách đều nhau vì hợp đồng nào cũng góp đúng một phần lãi lỗ như nhau, còn chấm nào rơi vào số hợp đồng lẻ là mức ngoài thực tế không mở được.',
+          'Each dot is the long position’s profit or loss at one level of the Number of contracts (N) field, from half to one and a half times the figure you have entered; the dot on the dashed vertical line is your own number. It is a what-if on more or fewer contracts at the same opening and closing levels, not market history. On a position in profit the row of dots rises evenly; on a losing one it falls evenly. The dots are evenly spaced because every contract adds the same share of profit or loss, and a dot on a fractional number of contracts is a size you cannot actually open.',
         ),
       },
     },
@@ -98,6 +138,14 @@ export const BIEU_DO_KHAC: Readonly<Record<string, BieuDoRieng>> = {
           'Mỗi cột là lãi lỗ ở một mức điểm mở, cột tô đặc là mức bạn đang nhập. Cột mọc lên trên vạch 0 là bán cao hơn điểm đóng nên có lãi, cột quay xuống dưới vạch 0 là bán thấp hơn điểm đóng nên lỗ.',
           'Each bar is the profit or loss at one opening level, and the solid one is the level you have entered. A bar standing above the zero line means selling above the close, a gain; one hanging below the zero line means selling below the close, a loss.',
         ),
+        diem: d(
+          'Mỗi chấm là lãi lỗ của vị thế bán tính ở một mức của ô Điểm mở vị thế (Pmo), từ một nửa đến gấp rưỡi con số bạn đang nhập; chấm nằm trên vạch đứt dọc là đúng mức bạn nhập. Đây là phép thử nếu đã bán ở mức điểm khác thì lãi lỗ ra bao nhiêu, không phải diễn biến thị trường. Dãy chấm đi lên thành một hàng thẳng, các chấm cách đều nhau: bán cao thêm mỗi bước là thêm đúng một khoản lãi như nhau. Chấm dưới mức 0 là bán thấp hơn điểm đóng nên lỗ, chấm trên mức 0 là lãi, và chỗ hàng chấm vượt qua mức 0 là nơi điểm mở bằng điểm đóng.',
+          'Each dot is the short position’s profit or loss at one level of the Opening points (Pmo) field, from half to one and a half times the figure you have entered; the dot on the dashed vertical line is your own level. It is a what-if on having sold at another level, not market history. The row of dots rises in a straight line, evenly spaced: each step higher in the selling level adds the same amount of gain. Dots below 0 are sales under the close and lose money, dots above 0 gain, and the row passes 0 where the opening level equals the closing level.',
+        ),
+        laiLo: d(
+          'Dạng này hiện khi Điểm đóng vị thế (Pdong) nằm trong dải các mức của ô Điểm mở vị thế (Pmo) đang vẽ, tức có mức bán thấp hơn và có mức bán cao hơn điểm đóng. Mảng tô đỏ dưới vạch 0 bên trái là bán thấp hơn điểm đóng: vị thế bán lỗ. Mảng tô xanh trên vạch 0 bên phải là bán cao hơn điểm đóng: có lãi. Đây là phép thử nếu đã bán ở mức điểm khác thì lãi lỗ ra bao nhiêu, không phải diễn biến thị trường. Đường đi lên đều và cắt vạch 0 đúng ở mức điểm mở bằng điểm đóng, hai màu đổi chỗ so với hình của vị thế mua.',
+          'This form appears when the Closing points (Pdong) figure lies inside the range of Opening points (Pmo) levels drawn, so some levels sell below the close and some above it. The red area below the zero line on the left is selling below the close: the short position loses. The green area above the zero line on the right is selling above the close: a gain. It is a what-if on having sold at another level, not market history. The line rises steadily and crosses the zero line exactly where the opening level equals the closing level, the two colors swapped compared with the long position’s chart.',
+        ),
       },
       exitPoints: {
         duong: d(
@@ -108,6 +156,14 @@ export const BIEU_DO_KHAC: Readonly<Record<string, BieuDoRieng>> = {
           'Mỗi cột là lãi lỗ của vị thế bán ở một mức điểm đóng, cột tô đặc là mức bạn đang nhập. Cột mọc lên trên vạch 0 ở bên trái là đóng thấp hơn điểm mở, tức lãi; cột quay xuống dưới vạch 0 ở bên phải là lỗ, và phía ấy không có giới hạn vì chỉ số có thể tăng mãi.',
           'Each bar is the short position’s profit or loss at one closing level, and the solid one is the level you have entered. Bars above the zero line on the left are closes under the opening level, that is gains; bars below the zero line on the right are losses, and that side has no limit because the index can keep climbing.',
         ),
+        diem: d(
+          'Mỗi chấm là lãi lỗ của vị thế bán tính ở một mức của ô Điểm đóng vị thế (Pdong), từ một nửa đến gấp rưỡi mức điểm bạn đang nhập; chấm nằm trên vạch đứt dọc là đúng mức bạn nhập. Đây là phép thử nếu đóng vị thế ở một mức điểm khác thì lãi lỗ ra bao nhiêu, không phải diễn biến thị trường. Dãy chấm đi xuống thành một hàng thẳng, các chấm cách đều nhau: mỗi điểm chỉ số tăng thêm lấy của vị thế bán cùng một số tiền. Chấm trên mức 0 là lãi, dưới mức 0 là lỗ; hàng chấm vượt qua mức 0 đúng ở điểm mở, rồi cứ thế xuống sâu thêm nếu chỉ số còn tăng.',
+          'Each dot is the short position’s profit or loss at one level of the Closing points (Pdong) field, from half to one and a half times the level you have entered; the dot on the dashed vertical line is your own level. It is a what-if on closing at a different level, not market history. The row of dots falls in a straight line, evenly spaced: every extra point on the index takes the same sum from the short position. Dots above 0 are gains and dots below 0 are losses; the row passes 0 exactly at the opening level and keeps sinking for as long as the index climbs.',
+        ),
+        laiLo: d(
+          'Dạng này hiện khi Điểm mở vị thế (Pmo) nằm trong dải các mức của ô Điểm đóng vị thế (Pdong) đang vẽ, tức có mức đóng thấp hơn và có mức đóng cao hơn điểm mở. Mảng tô xanh trên vạch 0 bên trái là đóng thấp hơn điểm mở: vị thế bán có lãi. Mảng tô đỏ dưới vạch 0 bên phải là đóng cao hơn điểm mở: lỗ. Đây là phép thử nếu đóng ở một mức điểm khác thì lãi lỗ ra bao nhiêu, không phải diễn biến thị trường. Đường đi xuống đều và cắt vạch 0 đúng tại điểm mở; mảng đỏ dừng ở mép phải của hình, còn ngoài thực tế phía ấy không có đáy vì chỉ số có thể tăng mãi.',
+          'This form appears when the Opening points (Pmo) figure lies inside the range of Closing points (Pdong) levels drawn. The green area above the zero line on the left is closing under the opening level: the short position gains. The red area below the zero line on the right is closing above it: a loss. It is a what-if on closing at a different level, not market history. The line falls steadily and crosses the zero line exactly at the opening level; the red stops at the right edge, but in practice that side has no floor because the index can keep climbing.',
+        ),
       },
       contracts: {
         duong: d(
@@ -117,6 +173,10 @@ export const BIEU_DO_KHAC: Readonly<Record<string, BieuDoRieng>> = {
         cot: d(
           'Mỗi cột là lãi lỗ của vị thế bán ở một số hợp đồng, cột tô đặc là mức bạn đang nhập. Khi vị thế đang có lãi, cột cao dần về bên phải; đang lỗ thì cột quay xuống dưới và dài dần. Chiều dài cột chia cho số hợp đồng luôn ra cùng một con số: lãi lỗ của một hợp đồng.',
           'Each bar is the short position’s profit or loss at one number of contracts, and the solid one is the number you have entered. On a position in profit the bars grow taller to the right; on a losing position they hang down and grow longer. Bar length divided by the number of contracts always gives the same figure: the result of one contract.',
+        ),
+        diem: d(
+          'Mỗi chấm là lãi lỗ của vị thế bán tính ở một mức của ô Số hợp đồng (N), từ một nửa đến gấp rưỡi con số bạn đang nhập; chấm nằm trên vạch đứt dọc là đúng số bạn nhập. Đây là phép thử nếu bán nhiều hay ít hợp đồng hơn với cùng điểm mở và điểm đóng thì lãi lỗ ra bao nhiêu, không phải diễn biến thị trường. Khi vị thế bán đang có lãi, dãy chấm đi lên; chỉ số đi ngược dự tính thì dãy chấm đi xuống. Hai chấm kề nhau luôn chênh cùng một khoản vì hợp đồng nào cũng lãi hay lỗ như nhau, còn chấm rơi vào số hợp đồng lẻ là mức ngoài thực tế không bán được.',
+          'Each dot is the short position’s profit or loss at one level of the Number of contracts (N) field, from half to one and a half times the figure you have entered; the dot on the dashed vertical line is your own number. It is a what-if on selling more or fewer contracts at the same opening and closing levels, not market history. On a short in profit the row of dots rises; if the index moves against you it falls. Neighboring dots always differ by the same amount because every contract gains or loses alike, and a dot on a fractional number of contracts is a size you cannot actually sell.',
         ),
       },
     },
@@ -133,6 +193,14 @@ export const BIEU_DO_KHAC: Readonly<Record<string, BieuDoRieng>> = {
           'Mỗi cột là số hợp đồng tối đa ở một mức vốn ký quỹ, cột tô đặc là mức bạn đang nhập. Nhiều cột liền nhau cao bằng nhau là quãng vốn tăng mà chưa đủ thêm một hợp đồng; phần vốn dôi ra trong quãng ấy không mở thêm được gì, nó chỉ làm dày phần đệm ký quỹ.',
           'Each bar is the maximum number of contracts at one level of margin, and the solid one is the level you have entered. Several neighboring bars of equal height are a stretch where capital grew without yet covering one more contract; the surplus in that stretch opens nothing more, it only thickens the margin cushion.',
         ),
+        diem: d(
+          'Mỗi chấm là số hợp đồng tối đa tính ở một mức của ô Vốn ký quỹ (V), từ một nửa đến gấp rưỡi con số bạn đang nhập; chấm nằm trên vạch đứt dọc là đúng mức bạn nhập. Đây là phép thử nếu có số tiền ký quỹ khác thì mở được tối đa bao nhiêu hợp đồng, không phải diễn biến thị trường. Dãy chấm đi lên, nhưng kết quả làm tròn xuống số hợp đồng nguyên nên nhiều chấm liền nhau có thể cùng một độ cao: cả quãng vốn ấy chưa đủ ký quỹ cho thêm một hợp đồng. Chấm nào cũng nằm đúng trên một số nguyên, không chấm nào lơ lửng giữa hai số hợp đồng.',
+          'Each dot is the maximum number of contracts at one level of the Margin capital (V) field, from half to one and a half times the figure you have entered; the dot on the dashed vertical line is your own figure. It is a what-if on the most contracts another amount of margin could open, not market history. The row of dots rises, but the count is rounded down to whole contracts, so several neighboring dots can share one height: across that stretch the capital still falls short of the margin for one more contract. Every dot lands on a whole number; none floats between two counts.',
+        ),
+        bac: d(
+          'Mỗi bậc là một số hợp đồng tối đa theo ô Vốn ký quỹ (V), trên dải từ một nửa đến gấp rưỡi con số bạn đang nhập: bậc nằm ngang suốt quãng vốn chưa đủ ký quỹ cho thêm một hợp đồng rồi mới nhảy lên, vì phép tính làm tròn xuống số hợp đồng nguyên. Đây là phép thử nếu có số tiền ký quỹ khác thì mở được bao nhiêu hợp đồng, không phải diễn biến thị trường. Các bậc đi lên, mỗi lần nhảy đúng một hợp đồng, và dài gần bằng nhau vì mỗi bậc là khoản ký quỹ của một hợp đồng. Đi từ vạch đứt dọc sang phải tới chỗ bậc nhảy lên là thấy còn cần thêm chừng bao nhiêu vốn cho hợp đồng kế tiếp.',
+          'Each step is one maximum number of contracts on the Margin capital (V) field, from half to one and a half times the figure you have entered: it stays level while the capital is short of the margin for one more contract, then jumps, because the count is rounded down to whole contracts. It is a what-if on another amount of margin, not market history. The staircase rises one contract per jump, with steps of nearly equal length, each the margin for a single contract. Following the step from the dashed vertical line to the next jump shows roughly how much more capital the next contract needs.',
+        ),
       },
       futuresPoints: {
         duong: d(
@@ -143,6 +211,14 @@ export const BIEU_DO_KHAC: Readonly<Record<string, BieuDoRieng>> = {
           'Mỗi cột là số hợp đồng tối đa ở một mức điểm, cột tô đặc là mức bạn đang nhập. Nhiều cột liền nhau cao bằng nhau rồi mới tụt một bậc: trong quãng ấy điểm tăng chưa đủ để lấy mất trọn một hợp đồng.',
           'Each bar is the maximum number of contracts at one level, and the solid one is the level you have entered. Several neighboring bars stay level and then drop one step: across that stretch the level has not risen enough to cost you a whole contract.',
         ),
+        diem: d(
+          'Mỗi chấm là số hợp đồng tối đa tính ở một mức của ô Điểm hợp đồng tương lai (F), từ một nửa đến gấp rưỡi mức điểm bạn đang nhập; chấm nằm trên vạch đứt dọc là đúng mức bạn nhập. Đây là phép thử nếu hợp đồng giao dịch ở một mức điểm khác thì số hợp đồng tối đa ra bao nhiêu, không phải diễn biến thị trường. Dãy chấm đi xuống, dốc bên trái và thoải dần sang phải: điểm càng cao thì mỗi hợp đồng đòi càng nhiều ký quỹ, nhưng một bước điểm ở bên phải lấy đi ít hợp đồng hơn ở bên trái. Kết quả làm tròn xuống số nguyên nên sang phải nhiều chấm liền nhau có thể cùng một độ cao.',
+          'Each dot is the maximum number of contracts at one level of the Futures contract points (F) field, from half to one and a half times the level you have entered; the dot on the dashed vertical line is your own level. It is a what-if on the contract trading at a different level, not market history. The row of dots falls, steep on the left and easing to the right: a higher level makes each contract need more margin, yet a step on the right costs fewer contracts than a step on the left. The count is rounded down to whole contracts, so on the right several neighboring dots can share one height.',
+        ),
+        bac: d(
+          'Mỗi bậc là một số hợp đồng tối đa theo ô Điểm hợp đồng tương lai (F), trên dải từ một nửa đến gấp rưỡi mức điểm bạn đang nhập: bậc nằm ngang suốt quãng điểm tăng chưa đủ lấy mất trọn một hợp đồng rồi mới tụt, vì phép tính làm tròn xuống số hợp đồng nguyên. Đây là phép thử nếu hợp đồng giao dịch ở mức điểm khác thì mở được bao nhiêu hợp đồng, không phải diễn biến thị trường. Các bậc đi xuống, bên trái ngắn và tụt dồn dập, càng sang phải bậc càng dài: số hợp đồng đã ít thì điểm phải tăng thêm nhiều hơn mới mất thêm một hợp đồng.',
+          'Each step is one maximum number of contracts along the Futures contract points (F) field, from half to one and a half times the level you have entered: the step stays level while the rising level has not yet cost a whole contract and only then drops, because the count is rounded down to whole contracts. It is a what-if on the contract trading at a different level, not market history. The staircase falls, with short steps dropping in quick succession on the left and longer ones to the right: once the count is small, the level has to climb further to cost one more contract.',
+        ),
       },
       marginRatio: {
         duong: d(
@@ -152,6 +228,14 @@ export const BIEU_DO_KHAC: Readonly<Record<string, BieuDoRieng>> = {
         cot: d(
           'Mỗi cột là số hợp đồng tối đa ở một tỷ lệ ký quỹ, cột tô đặc là tỷ lệ bạn đang nhập. Công ty chứng khoán nâng tỷ lệ ký quỹ là bạn bị đẩy sang các cột thấp bên phải ngay cả khi vốn không đổi.',
           'Each bar is the maximum number of contracts at one margin ratio, and the solid one is the ratio you have entered. When the broker raises the margin ratio you are pushed to the lower bars on the right even though your capital has not changed.',
+        ),
+        diem: d(
+          'Mỗi chấm là số hợp đồng tối đa tính ở một mức của ô Tỷ lệ ký quỹ ban đầu (k), từ một nửa đến gấp rưỡi con số bạn đang nhập; chấm nằm trên vạch đứt dọc là đúng tỷ lệ bạn nhập. Đây là phép thử nếu tỷ lệ ký quỹ đổi thì số hợp đồng tối đa ra bao nhiêu, không phải diễn biến thị trường. Dãy chấm đi xuống, dốc bên trái và thoải dần sang phải: ở tỷ lệ thấp, nhích tỷ lệ lên một chút đã mất hợp đồng, còn ở tỷ lệ cao phải nâng thêm nhiều mới mất thêm một. Kết quả làm tròn xuống số nguyên nên nhiều chấm liền nhau có thể cùng một độ cao.',
+          'Each dot is the maximum number of contracts at one level of the Initial margin ratio (k) field, from half to one and a half times the figure you have entered; the dot on the dashed vertical line is your own ratio. It is a what-if on the margin ratio, not market history. The row of dots falls, steep on the left and easing to the right: at a low ratio a small nudge upward already costs contracts, while at a high ratio it takes a larger rise to lose one more. The count is rounded down to whole contracts, so several neighboring dots can share one height.',
+        ),
+        bac: d(
+          'Mỗi bậc là một số hợp đồng tối đa theo ô Tỷ lệ ký quỹ ban đầu (k), trên dải từ một nửa đến gấp rưỡi con số bạn đang nhập: bậc nằm ngang tới khi tỷ lệ nâng đủ để vốn hụt trọn một hợp đồng rồi mới tụt, vì phép tính làm tròn xuống số hợp đồng nguyên. Đây là phép thử nếu tỷ lệ ký quỹ đổi thì mở được bao nhiêu hợp đồng, không phải diễn biến thị trường. Các bậc đi xuống, bên trái ngắn và dày, sang phải dài dần. Công ty chứng khoán nâng tỷ lệ một nấc nhỏ có khi chẳng làm bạn mất hợp đồng nào, có khi rơi đúng mép bậc và mất ngay một hợp đồng.',
+          'Each step is one maximum number of contracts along the Initial margin ratio (k) field, from half to one and a half times the figure you have entered: the step stays level until the ratio has risen enough for the capital to fall a whole contract short, and only then drops, because the count is rounded down to whole contracts. It is a what-if on the margin ratio, not market history. The staircase falls, with short steps on the left that lengthen to the right. A small rise in the broker’s ratio may cost you nothing, or, at the edge of a step, a whole contract at once.',
         ),
       },
     },
@@ -168,6 +252,14 @@ export const BIEU_DO_KHAC: Readonly<Record<string, BieuDoRieng>> = {
           'Mỗi cột là số hợp đồng được phép mở ở một mức vốn, cột tô đặc là mức bạn đang nhập. Các cột liền nhau cao bằng nhau là quãng vốn chưa đủ cho thêm một hợp đồng; trong quãng ấy lệnh thật ra đang chịu rủi ro thấp hơn mức bạn đặt.',
           'Each bar is the number of contracts allowed at one capital level, and the solid one is the level you have entered. Neighboring bars of equal height are a stretch where capital does not yet cover one more contract; within it the trade actually carries less risk than the limit you set.',
         ),
+        diem: d(
+          'Mỗi chấm là số hợp đồng được phép mở tính ở một mức của ô Vốn tài khoản phái sinh (V), từ một nửa đến gấp rưỡi con số bạn đang nhập; chấm nằm trên vạch đứt dọc là đúng mức bạn nhập. Đây là phép thử nếu vốn tài khoản khác đi thì được mở bao nhiêu hợp đồng cho cùng mức rủi ro mỗi lệnh, không phải diễn biến thị trường. Dãy chấm đi lên, nhưng số hợp đồng làm tròn xuống số nguyên nên nhiều chấm liền nhau có thể cùng một độ cao: trong quãng ấy vốn tăng mà số hợp đồng đứng yên, phần rủi ro chưa dùng tới lớn dần cho tới khi đủ thêm một hợp đồng.',
+          'Each dot is the number of contracts allowed at one level of the Derivatives account capital (V) field, from half to one and a half times the figure you have entered; the dot on the dashed vertical line is your own figure. It is a what-if on how many contracts another account size allows for the same risk per trade, not market history. The row of dots rises, but the count is rounded down to whole contracts, so several neighboring dots can share one height: across that stretch capital grows while the count stands still, and the unused part of your risk budget grows until it covers one more contract.',
+        ),
+        bac: d(
+          'Mỗi bậc là một số hợp đồng được phép mở theo ô Vốn tài khoản phái sinh (V), trên dải từ một nửa đến gấp rưỡi con số bạn đang nhập: bậc nằm ngang suốt quãng vốn chưa đủ cho thêm một hợp đồng rồi mới nhảy, vì số hợp đồng luôn làm tròn xuống số nguyên. Đây là phép thử nếu vốn tài khoản khác đi thì được mở bao nhiêu hợp đồng, không phải diễn biến thị trường. Các bậc đi lên, mỗi lần nhảy đúng một hợp đồng và dài gần bằng nhau: mỗi bậc là phần vốn mà phần rủi ro của nó vừa đủ trả khoản lỗ khi thêm một hợp đồng chạm cắt lỗ.',
+          'Each step is one allowed number of contracts along the Derivatives account capital (V) field, from half to one and a half times the figure you have entered: it stays level while the capital is not yet enough for one more contract and only then jumps, because the count is always rounded down to whole contracts. It is a what-if on another account size, not market history. The staircase rises one contract per jump, with steps of nearly equal length: each step is the capital whose risk share just covers one more contract hitting the stop.',
+        ),
       },
       riskPercent: {
         duong: d(
@@ -178,6 +270,14 @@ export const BIEU_DO_KHAC: Readonly<Record<string, BieuDoRieng>> = {
           'Mỗi cột là số hợp đồng ở một mức rủi ro mỗi lệnh, cột tô đặc là mức bạn đang nhập. Cột cao hơn không phải cơ hội lớn hơn: nó chỉ nói rằng nếu lệnh chạm cắt lỗ thì bạn mất phần vốn lớn hơn.',
           'Each bar is the number of contracts at one risk per trade, and the solid one is the level you have entered. A taller bar is not a bigger opportunity: it only says that if the stop is hit you lose a larger part of your capital.',
         ),
+        diem: d(
+          'Mỗi chấm là số hợp đồng được phép mở tính ở một mức của ô Rủi ro mỗi lệnh (r), từ một nửa đến gấp rưỡi con số bạn đang nhập; chấm nằm trên vạch đứt dọc là đúng mức bạn nhập. Đây là phép thử nếu chấp nhận mất nhiều hay ít hơn cho một lệnh thì số hợp đồng ra bao nhiêu, không phải diễn biến thị trường. Dãy chấm đi lên, nhưng số hợp đồng làm tròn xuống số nguyên nên nhiều chấm liền nhau có thể cùng một độ cao: nới rủi ro một chút chưa chắc đã thêm được hợp đồng nào, phải nới tới khi số tiền chấp nhận mất đủ trùm khoản lỗ của trọn một hợp đồng nữa.',
+          'Each dot is the number of contracts allowed at one level of the Risk per trade (r) field, from half to one and a half times the figure you have entered; the dot on the dashed vertical line is your own level. It is a what-if on accepting a larger or smaller loss per trade, not market history. The row of dots rises, but the count is rounded down to whole contracts, so several neighboring dots can share one height: loosening the risk a little need not add a contract, only loosening it until the amount you accept losing covers one more contract’s loss at the stop.',
+        ),
+        bac: d(
+          'Mỗi bậc là một số hợp đồng được phép mở theo ô Rủi ro mỗi lệnh (r), trên dải từ một nửa đến gấp rưỡi con số bạn đang nhập: bậc nằm ngang tới khi số tiền chấp nhận mất đủ cho thêm một hợp đồng rồi mới nhảy, vì phép tính làm tròn xuống số nguyên. Đây là phép thử nếu chấp nhận mất nhiều hay ít hơn cho một lệnh thì số hợp đồng ra bao nhiêu, không phải diễn biến thị trường. Các bậc đi lên đều, mỗi lần nhảy đúng một hợp đồng. Ở đầu trái một bậc, khoản lỗ khi chạm cắt lỗ sát mức rủi ro đã đặt nhất; càng về cuối bậc, khoản lỗ ấy càng thấp hơn mức rủi ro.',
+          'Each step is one allowed number of contracts along the Risk per trade (r) field, from half to one and a half times the figure you have entered: it stays level until the amount you accept losing covers one more contract, and only then jumps, because the count is rounded down to whole contracts. It is a what-if on accepting a larger or smaller loss per trade, not market history. The staircase rises evenly, one contract per jump. At the left end of a step the loss at the stop comes closest to the risk you set; further along the step that loss sits further below it.',
+        ),
       },
       stopPoints: {
         duong: d(
@@ -187,6 +287,14 @@ export const BIEU_DO_KHAC: Readonly<Record<string, BieuDoRieng>> = {
         cot: d(
           'Mỗi cột là số hợp đồng ở một khoảng cách cắt lỗ, cột tô đặc là khoảng cách bạn đang nhập. Các cột cao bên trái trông hấp dẫn, nhưng cắt lỗ đặt quá sát dễ bị chạm bởi dao động thường ngày trước khi xu hướng kịp chạy.',
           'Each bar is the number of contracts at one stop distance, and the solid one is the distance you have entered. The tall bars on the left look attractive, but a stop set too tight is easily hit by ordinary noise before the trend has room to run.',
+        ),
+        diem: d(
+          'Mỗi chấm là số hợp đồng được phép mở tính ở một mức của ô Khoảng cách cắt lỗ (ΔP), từ một nửa đến gấp rưỡi con số bạn đang nhập; chấm nằm trên vạch đứt dọc là đúng khoảng cách bạn nhập. Đây là phép thử nếu đặt cắt lỗ xa hay gần hơn thì số hợp đồng ra bao nhiêu, không phải diễn biến thị trường. Dãy chấm đi xuống, dốc bên trái và thoải dần sang phải: cắt lỗ sát thì nới ra một chút đã phải bớt hợp đồng, cắt lỗ xa thì phải nới thêm nhiều mới bớt thêm một. Số hợp đồng làm tròn xuống nên nhiều chấm liền nhau có thể cùng một độ cao.',
+          'Each dot is the number of contracts allowed at one level of the Stop-loss distance (ΔP) field, from half to one and a half times the figure you have entered; the dot on the dashed vertical line is your own distance. It is a what-if on placing the stop further away or closer, not market history. The row of dots falls, steep on the left and easing to the right: with a tight stop, widening it a little already means fewer contracts, while with a wide stop it takes much more to give up one more. The count is rounded down, so several neighboring dots can share one height.',
+        ),
+        bac: d(
+          'Mỗi bậc là một số hợp đồng được phép mở theo ô Khoảng cách cắt lỗ (ΔP), trên dải từ một nửa đến gấp rưỡi con số bạn đang nhập: bậc nằm ngang tới khi cắt lỗ xa tới mức số hợp đồng ấy sẽ lỗ quá mức rủi ro rồi mới tụt, vì phép tính làm tròn xuống số nguyên. Đây là phép thử nếu đặt cắt lỗ xa hay gần hơn thì số hợp đồng ra bao nhiêu, không phải diễn biến thị trường. Các bậc đi xuống, bên trái ngắn và tụt liên tiếp, sang phải dài dần: số hợp đồng đã ít thì cắt lỗ phải xa thêm nhiều mới mất thêm một hợp đồng.',
+          'Each step is one allowed number of contracts along the Stop-loss distance (ΔP) field, from half to one and a half times the figure you have entered: it stays level until the stop is far enough that this many contracts would lose more than your risk limit, and only then drops, because the count is rounded down to whole contracts. It is a what-if on placing the stop further away or closer, not market history. The staircase falls, with short steps dropping one after another on the left and longer ones to the right: once few contracts are left, the stop must move much further to cost one more.',
         ),
       },
     },
@@ -203,6 +311,10 @@ export const BIEU_DO_KHAC: Readonly<Record<string, BieuDoRieng>> = {
           'Mỗi cột là đòn bẩy hiệu dụng ở một mức điểm, cột cao dần về bên phải và cột tô đặc là mức bạn đang nhập. Chiều cao cột cũng là số lần mà mỗi phần trăm biến động của chỉ số được khuếch đại lên tài khoản.',
           'Each bar is the effective leverage at one contract level; bars grow taller to the right and the solid one is the level you have entered. Bar height is also how many times each percent the index moves is magnified onto your account.',
         ),
+        diem: d(
+          'Mỗi chấm là đòn bẩy hiệu dụng tính ở một mức của ô Điểm hợp đồng tương lai (F), từ một nửa đến gấp rưỡi con số bạn đang nhập; chấm nằm trên vạch đứt dọc là đúng mức bạn nhập. Đây là phép thử nếu hợp đồng ở mức điểm khác thì đòn bẩy ra bao nhiêu, không phải diễn biến thị trường. Dãy chấm đi lên thành một hàng thẳng, các chấm cách đều nhau: số hợp đồng và vốn thực có giữ nguyên, nên đòn bẩy tăng đúng theo tỷ lệ với điểm hợp đồng. Hình giữ vốn đứng yên; ngoài thực tế điểm đổi thì lãi lỗ của chính vị thế cũng làm vốn thực có đổi theo.',
+          'Each dot is the effective leverage at one level of the Futures contract points (F) field, from half to one and a half times the figure you have entered; the dot on the dashed vertical line is your own level. It is a what-if on leverage at another contract level, not market history. The row of dots rises in a straight line, evenly spaced: with the number of contracts and your equity held still, leverage grows in exact proportion to the contract level. The chart keeps equity fixed; in practice a move in the level also changes equity through the position’s own profit or loss.',
+        ),
       },
       contracts: {
         duong: d(
@@ -213,6 +325,10 @@ export const BIEU_DO_KHAC: Readonly<Record<string, BieuDoRieng>> = {
           'Mỗi cột là đòn bẩy ở một số hợp đồng, cột cao dần về bên phải và cột tô đặc là mức bạn đang nhập. Chiều cao cột cũng là số lần biến động của chỉ số được nhân lên trên vốn của bạn, theo cả chiều lãi lẫn chiều lỗ.',
           'Each bar is the leverage at one number of contracts; bars grow taller to the right and the solid one is the number you have entered. Bar height is also how many times a move in the index is multiplied on your capital, for gains and losses alike.',
         ),
+        diem: d(
+          'Mỗi chấm là đòn bẩy hiệu dụng tính ở một mức của ô Số hợp đồng (N), từ một nửa đến gấp rưỡi con số bạn đang nhập; chấm nằm trên vạch đứt dọc là đúng số bạn nhập. Đây là phép thử nếu giữ nhiều hay ít hợp đồng hơn với cùng số vốn thì đòn bẩy ra bao nhiêu, không phải diễn biến thị trường. Dãy chấm đi lên đều, các chấm cách đều nhau vì hợp đồng nào cũng chồng thêm một khối giá trị danh nghĩa như nhau. Chấm nào cao hơn mức trần mà tỷ lệ ký quỹ ban đầu cho phép là số hợp đồng vốn hiện có không đủ ký quỹ ban đầu để mở.',
+          'Each dot is the effective leverage at one level of the Number of contracts (N) field, from half to one and a half times the figure you have entered; the dot on the dashed vertical line is your own number. It is a what-if on holding more or fewer contracts on the same capital, not market history. The row of dots rises evenly, equally spaced, because every contract stacks the same block of notional value. Any dot above the ceiling your initial margin ratio allows is a number of contracts your current equity cannot cover in initial margin.',
+        ),
       },
       equity: {
         duong: d(
@@ -222,6 +338,10 @@ export const BIEU_DO_KHAC: Readonly<Record<string, BieuDoRieng>> = {
         cot: d(
           'Mỗi cột là đòn bẩy ở một mức vốn, cột thấp dần về bên phải và cột tô đặc là mức bạn đang nhập. Các cột bên trái cao lên rất nhanh: mất một nửa vốn là đòn bẩy gấp đôi.',
           'Each bar is the leverage at one capital level; bars shrink to the right and the solid one is the level you have entered. The bars on the left climb very fast: losing half the capital doubles the leverage.',
+        ),
+        diem: d(
+          'Mỗi chấm là đòn bẩy hiệu dụng tính ở một mức của ô Vốn thực có trong tài khoản (E), từ một nửa đến gấp rưỡi con số bạn đang nhập; chấm nằm trên vạch đứt dọc là đúng mức bạn nhập. Đây là phép thử nếu vốn trong tài khoản nhiều hay ít hơn mà vị thế giữ nguyên thì đòn bẩy ra bao nhiêu, không phải diễn biến thị trường. Dãy chấm đi xuống, các chấm bên trái cách nhau xa hơn hẳn các chấm bên phải: cùng một khoản vốn mất đi, vốn càng mỏng thì đòn bẩy càng vọt mạnh. Đọc từ phải sang trái, mỗi chấm là thêm một khoản lỗ ăn vào vốn, và mỗi lần như thế đòn bẩy vọt lên nhiều hơn lần trước.',
+          'Each dot is the effective leverage at one level of the Actual equity in the account (E) field, from half to one and a half times the figure you have entered; the dot on the dashed vertical line is your own figure. It is a what-if on more or less capital with the position unchanged, not market history. The row of dots falls, with the dots on the left much further apart than those on the right: the thinner the equity, the more the same loss of capital makes leverage jump. Read right to left, each dot is one more loss eating into equity, and each pushes leverage up more than the last.',
         ),
       },
     },
@@ -239,6 +359,10 @@ export const BIEU_DO_KHAC: Readonly<Record<string, BieuDoRieng>> = {
           'Mỗi cột là khoản trả hằng tháng ở một mức tiền vay, cột cao dần về bên phải và cột tô đặc là mức bạn đang nhập. Đem đỉnh cột so với phần thu nhập bạn dành được mỗi tháng để tìm mức vay cao nhất còn kham nổi.',
           'Each bar is the monthly payment at one loan amount; bars grow taller to the right and the solid one is the amount you have entered. Set the top of a bar against what you can spare each month to find the largest loan you can still carry.',
         ),
+        diem: d(
+          'Mỗi chấm là khoản trả hằng tháng tính ở một mức của ô Số tiền vay (P), từ một nửa đến gấp rưỡi con số bạn đang nhập; chấm nằm trên vạch đứt dọc là đúng số bạn nhập. Đây là phép thử nếu vay nhiều hơn hay ít hơn thì mỗi tháng phải trả bao nhiêu, không phải diễn biến thị trường. Dãy chấm đi lên thành một hàng thẳng, các chấm cách đều nhau: lãi suất và kỳ hạn giữ nguyên thì khoản trả tỷ lệ thuận với số vay, nên kéo dài hàng chấm về bên trái sẽ chạm 0 đúng ở mức không vay đồng nào.',
+          'Each dot is the monthly payment at one level of the Loan amount (P) field, from half to one and a half times the figure you have entered; the dot on the dashed vertical line is your own amount. It is a what-if on the monthly payment for a larger or smaller loan, not market history. The row of dots rises in a straight line, evenly spaced: with the rate and term held still the payment is proportional to the amount borrowed, so the row, extended to the left, would reach 0 exactly at borrowing nothing.',
+        ),
       },
       rate: {
         duong: d(
@@ -248,6 +372,10 @@ export const BIEU_DO_KHAC: Readonly<Record<string, BieuDoRieng>> = {
         cot: d(
           'Mỗi cột là khoản trả hằng tháng ở một mức lãi suất, cột cao dần về bên phải và cột tô đặc là mức bạn đang nhập. So cột tô đặc với một cột bên phải nó là biết mỗi tháng phải xoay thêm bao nhiêu tiền nếu lãi suất lên tới mức ấy.',
           'Each bar is the monthly payment at one interest rate; bars grow taller to the right and the solid one is the rate you have entered. Comparing the solid bar with one on its right tells you how much more you must find each month if the rate climbs that far.',
+        ),
+        diem: d(
+          'Mỗi chấm là khoản trả hằng tháng tính ở một mức của ô Lãi suất / năm, từ một nửa đến gấp rưỡi con số bạn đang nhập; chấm nằm trên vạch đứt dọc là đúng mức bạn nhập. Đây là phép thử nếu lãi suất vay đổi thì khoản trả hằng tháng ra bao nhiêu, không phải diễn biến thị trường. Dãy chấm đi lên, và khoảng cách giữa hai chấm kề nhau nới rộng dần về bên phải: lãi suất đã càng cao thì mỗi bước tăng thêm càng làm khoản trả nặng thêm nhiều hơn. Khoảng nới ra chậm nên nhìn lướt hàng chấm gần như thẳng; đặt khoảng đầu trái cạnh khoảng đầu phải mới thấy rõ.',
+          'Each dot is the monthly payment at one level of the Interest rate / year field, from half to one and a half times the figure you have entered; the dot on the dashed vertical line is your own rate. It is a what-if on the loan rate, not market history. The row of dots rises, and the gap between neighboring dots widens to the right: the higher the rate already is, the more each further step adds to the monthly payment. The widening is slow, so at a glance the row looks almost straight; set the first gap beside the last to see it.',
         ),
       },
       years: {
@@ -259,11 +387,23 @@ export const BIEU_DO_KHAC: Readonly<Record<string, BieuDoRieng>> = {
           'Mỗi cột là khoản trả hằng tháng ứng với một kỳ hạn, cột thấp dần về bên phải và cột tô đặc là kỳ hạn bạn đang nhập. Cột thấp bên phải dễ thở hơn mỗi tháng nhưng tổng tiền lãi cả đời khoản vay lại lớn hơn; hình này không cho thấy cái giá ấy.',
           'Each bar is the monthly payment for one term; bars shrink to the right and the solid one is the term you have entered. A short bar on the right is easier each month, but the total interest over the life of the loan is larger; this chart does not show that cost.',
         ),
+        diem: d(
+          'Mỗi chấm là khoản trả hằng tháng ứng với một kỳ hạn tròn năm của ô Kỳ hạn, từ một nửa đến gấp rưỡi số năm bạn đang nhập, mỗi chấm cách nhau một năm; chấm nằm trên vạch đứt dọc là đúng kỳ hạn bạn nhập. Đây là phép thử nếu vay dài hay ngắn hơn thì khoản trả hằng tháng ra bao nhiêu, không phải diễn biến thị trường. Dãy chấm đi xuống và khoảng cách giữa hai chấm kề nhau co lại dần về bên phải: năm kéo dài đầu tiên làm mỗi tháng nhẹ đi rõ rệt, những năm sau nhẹ thêm mỗi lúc một ít, vì tiền lãi chiếm phần ngày càng lớn trong khoản trả.',
+          'Each dot is the monthly payment for one whole-year term on the Term field, from half to one and a half times the number of years you have entered, one dot per year; the dot on the dashed vertical line is your own term. It is a what-if on borrowing for longer or shorter, not market history. The row of dots falls, and the gap between neighboring dots shrinks to the right: the first extra year lightens each month noticeably, later ones less and less, because interest takes a growing share of the payment.',
+        ),
+        bac: d(
+          'Mỗi bậc là khoản trả hằng tháng của một kỳ hạn theo ô Kỳ hạn, trên dải từ một nửa đến gấp rưỡi số năm bạn đang nhập: bậc nằm ngang suốt một năm rồi mới nhảy xuống mức của năm sau, vì ô Kỳ hạn đi từng năm một nên giữa hai năm không có kỳ hạn nào được tính. Đây là phép thử nếu vay dài hay ngắn hơn thì mỗi tháng trả bao nhiêu, không phải diễn biến thị trường. Các bậc đi xuống, bậc tụt bên trái cao, sang phải thấp dần: mỗi năm vay thêm giảm khoản trả ít hơn năm trước, nên một bậc tụt thấp là một năm nợ kéo dài mà mỗi tháng chỉ nhẹ đi chút ít.',
+          'Each step is the monthly payment for one term on the Term field, from half to one and a half times the years you have entered: it stays level for a year and only then drops to the next year’s payment, because the Term field moves one year at a time, so no term between two years is computed. It is a what-if on borrowing for longer or shorter, not market history. The staircase falls, with tall drops on the left that get shorter to the right: each extra year cuts the payment less than the year before, so a short drop is a year of extra debt for little monthly relief.',
+        ),
       },
     },
     bocTach: d(
       'Hình này chỉ có một dạng: các thanh nằm ngang, đọc từ trên xuống. Gốc kỳ đầu và Lãi kỳ đầu là hai thanh tô màu cộng lại với nhau; thanh sẫm cuối cùng là Trả kỳ đầu và bằng đúng con số ở khối Kết quả. Ở kỳ đầu thanh lãi thường dài hơn thanh gốc: khoản trả tháng nào cũng như nhau, nhưng những tháng đầu phần lớn số tiền ấy đi trả lãi, về sau mới chuyển dần sang trả gốc.',
       'This chart has a single form: horizontal bars, read from top to bottom. Period-1 principal and Period-1 interest are two filled bars that add together; the dark bar at the end is Period-1 payment and matches the figure in the Result block exactly. In the first period the interest bar is usually longer than the principal bar: the payment is the same every month, but early on most of it goes to interest and only later shifts toward principal.',
+    ),
+    vanhKhuyen: d(
+      'Vòng chia khoản Trả kỳ đầu thành hai múi, mỗi múi to theo phần nó chiếm: múi Gốc kỳ đầu là phần trừ vào dư nợ, múi Lãi kỳ đầu là tiền lãi tháng đầu tính trên trọn số tiền vay. Chú giải cạnh vòng ghi giá trị và tỷ lệ phần trăm của từng múi, lỗ giữa in Trả kỳ đầu, đúng con số ở khối Kết quả. Số tiền vay không làm đổi tỷ lệ hai múi; kỳ hạn càng dài hay lãi suất càng cao thì múi Lãi kỳ đầu càng to so với múi Gốc kỳ đầu. Hình chỉ tả tháng đầu: các tháng sau khoản trả vẫn thế nhưng phần lãi nhỏ dần, phần gốc lớn dần.',
+      'The ring splits Period-1 payment into two slices sized by their shares: the Period-1 principal slice is what comes off the balance, the Period-1 interest slice is the first month’s interest on the whole loan. The legend beside the ring gives each slice’s value and percentage; the hole shows Period-1 payment, the figure in the Result block. The loan amount does not change the split; a longer term or a higher rate makes the Period-1 interest slice bigger against the Period-1 principal slice. This is the first month only: later payments stay the same while interest shrinks and principal grows.',
     ),
   },
 
@@ -427,6 +567,10 @@ export const BIEU_DO_KHAC: Readonly<Record<string, BieuDoRieng>> = {
           'Mỗi cột là số tiền phải gửi mỗi tháng ở một mức mục tiêu, cột cao dần về bên phải và cột tô đặc là mức bạn đang nhập. Tìm cột cao ngang số tiền bạn thật sự để dành được mỗi tháng, rồi nhìn xuống trục ngang là thấy mục tiêu vừa sức.',
           'Each bar is the monthly deposit needed at one target; bars grow taller to the right and the solid one is the target you have entered. Find the bar level with what you can really set aside each month, then look down at the horizontal axis to see the goal within reach.',
         ),
+        diem: d(
+          'Mỗi chấm là số tiền phải gửi mỗi tháng tính ở một mức của ô Số tiền mục tiêu (FV), từ một nửa đến gấp rưỡi con số bạn đang nhập; chấm nằm trên vạch đứt dọc là đúng mục tiêu bạn nhập. Đây là phép thử nếu đặt mục tiêu lớn hay nhỏ hơn, không phải diễn biến thị trường. Dãy chấm đi lên thành một hàng thẳng, hai chấm kề nhau luôn cách nhau một khoảng như nhau: thời gian và lãi suất giữ nguyên thì khoản gửi tỷ lệ thuận với mục tiêu, nên mỗi nấc mục tiêu thêm vào đòi thêm đúng một khoản gửi như nhau.',
+          'Each dot is the monthly deposit needed at one level of the Target amount (FV) field, from half to one and a half times the figure you have entered; the dot on the dashed vertical line is your own target. It is a what-if on a larger or smaller goal, not market history. The row of dots rises in a straight line, every pair of neighbors the same distance apart: with the time and rate held still the deposit is proportional to the goal, so each extra notch of target calls for the same extra deposit.',
+        ),
       },
       rate: {
         duong: d(
@@ -437,6 +581,10 @@ export const BIEU_DO_KHAC: Readonly<Record<string, BieuDoRieng>> = {
           'Mỗi cột là số tiền phải gửi mỗi tháng ở một mức lãi suất, cột thấp dần về bên phải và cột tô đặc là mức bạn đang nhập. Lãi suất là thứ bạn không quyết được, nên lập kế hoạch theo một cột lệch về bên trái thì an toàn hơn.',
           'Each bar is the monthly deposit needed at one interest rate; bars shrink to the right and the solid one is the rate you have entered. The rate is not yours to decide, so planning on a bar somewhat to the left is the safer choice.',
         ),
+        diem: d(
+          'Mỗi chấm là số tiền phải gửi mỗi tháng tính ở một mức của ô Lãi suất kỳ vọng / năm, từ một nửa đến gấp rưỡi con số bạn đang nhập; chấm nằm trên vạch đứt dọc là đúng mức bạn nhập. Đây là phép thử nếu lãi suất kỳ vọng đổi, không phải diễn biến thị trường. Dãy chấm đi xuống về bên phải, và khoảng hạ giữa hai chấm kề nhau ngắn dần, rõ nhất khi thời gian gửi dài: lãi suất càng cao thì tiền lãi gánh hộ càng nhiều phần của mục tiêu, nhưng mỗi nấc lãi suất thêm vào bớt được ít tiền gửi hơn nấc trước.',
+          'Each dot is the monthly deposit needed at one level of the Expected interest rate / year field, from half to one and a half times the figure you have entered; the dot on the dashed vertical line is your own rate. It is a what-if on the expected rate, not market history. The row of dots falls to the right, and the drop from one dot to the next shortens as it goes, most clearly over a long saving period: a higher rate lets interest carry more of the goal, yet each extra notch of rate trims the deposit by less than the notch before.',
+        ),
       },
       months: {
         duong: d(
@@ -446,6 +594,14 @@ export const BIEU_DO_KHAC: Readonly<Record<string, BieuDoRieng>> = {
         cot: d(
           'Mỗi cột là số tiền phải gửi mỗi tháng ứng với một quãng thời gian, cột thấp dần về bên phải và cột tô đặc là quãng bạn đang nhập. Tìm cột có đỉnh vừa với số tiền bạn để dành được mỗi tháng: chân cột ấy là thời gian thực tế để tới mục tiêu.',
           'Each bar is the monthly deposit for one length of time; bars shrink to the right and the solid one is the length you have entered. Find the bar whose top matches what you can set aside each month: its position is the realistic time to reach the goal.',
+        ),
+        diem: d(
+          'Mỗi chấm là số tiền phải gửi mỗi tháng ứng với một mức của ô Thời gian (n), từ một nửa đến gấp rưỡi số tháng bạn đang nhập; chấm trên vạch đứt dọc là đúng số tháng bạn nhập. Đây là phép thử nếu cho mình nhiều hay ít thời gian hơn, không phải diễn biến thị trường. Dãy chấm đi xuống, bên trái cách nhau xa, bên phải sít lại: thêm tháng thì khoản gửi được chia mỏng ra và tiền lãi có thêm thời gian, nhưng mỗi tháng bớt được ít hơn tháng trước. Mức nào trên trục rơi vào giữa hai tháng thì chấm lấy số tháng tròn gần nhất, nên các chấm cách nhau lúc xa lúc gần.',
+          'Each dot is the monthly deposit for one level of the Time (n) field, from half to one and a half times the months you have entered; the dot on the dashed vertical line is your own figure. It is a what-if on giving yourself more or less time, not market history. The row of dots falls, far apart on the left and crowding together on the right: more months spread the deposit thinner and give interest longer, yet each one saves less than the last. A level lying between two months takes the nearest whole month, so the gaps between dots alternate long and short.',
+        ),
+        bac: d(
+          'Dạng này có khi số tháng ở ô Thời gian (n) còn ít, để trục đi đúng từng tháng một, từ một nửa đến gấp rưỡi số tháng bạn đang nhập. Mỗi bậc là số tiền phải gửi mỗi tháng của một kế hoạch dài trọn số tháng ấy: bậc nằm ngang tới tháng kế tiếp rồi mới hạ xuống, vì kế hoạch chỉ tính theo tháng tròn, không có kế hoạch dài nửa tháng. Đây là phép thử chứ không phải diễn biến thị trường. Bậc thang đi xuống, các bậc đầu hạ rất sâu rồi nông dần: thêm một tháng vào một kế hoạch ngắn bớt được nhiều tiền gửi hơn hẳn so với thêm vào một kế hoạch dài.',
+          'This form appears when the Time (n) field holds few months, so the axis moves exactly one month at a time, from half to one and a half times the months you have entered. Each step is the monthly deposit for a plan exactly that many months long: it stays level until the next month and only then drops, because a plan counts whole months and there is no plan half a month long. It is a what-if, not market history. The staircase falls, with deep drops at first that grow shallower: adding a month to a short plan saves far more each month than adding one to a long plan.',
         ),
       },
     },
@@ -462,6 +618,10 @@ export const BIEU_DO_KHAC: Readonly<Record<string, BieuDoRieng>> = {
           'Mỗi cột là tiền lãi thực nhận ở một mức tiền gửi, cột cao dần về bên phải và cột tô đặc là mức bạn đang nhập. Cột nào cũng rất thấp so với chính số tiền gửi của nó: rút trước hạn thì gần như chỉ lấy lại gốc.',
           'Each bar is the interest actually received at one deposit amount; bars grow taller to the right and the solid one is the amount you have entered. Every bar is very short next to its own deposit: withdrawing early returns little more than the principal.',
         ),
+        diem: d(
+          'Mỗi chấm là tiền lãi thực nhận khi rút trước hạn, tính ở một mức của ô Số tiền gửi (P), từ một nửa đến gấp rưỡi con số bạn đang nhập; chấm nằm trên vạch đứt dọc là đúng số tiền bạn nhập. Đây là phép thử nếu sổ mang một số tiền khác, không phải diễn biến thị trường. Dãy chấm đi lên thành hàng thẳng, các chấm cách đều nhau: lãi không kỳ hạn tính thẳng trên số tiền gửi, nên mỗi phần tiền gửi thêm vào chỉ đem về thêm đúng một khoản lãi nhỏ như nhau.',
+          'Each dot is the interest actually received on early withdrawal at one level of the Deposit amount (P) field, from half to one and a half times the figure you have entered; the dot on the dashed vertical line is your own amount. It is a what-if on a passbook holding a different sum, not market history. The row of dots rises in a straight line with even gaps: demand-deposit interest is worked out straight on the deposit, so every extra slice of money adds only the same small amount of interest.',
+        ),
       },
       contractRate: {
         duong: d(
@@ -471,6 +631,10 @@ export const BIEU_DO_KHAC: Readonly<Record<string, BieuDoRieng>> = {
         cot: d(
           'Mỗi cột là tiền lãi thực nhận ở một mức lãi suất hợp đồng, và các cột cao bằng nhau; cột tô đặc là mức bạn đang nhập. Dãy cột bằng phẳng nói đúng điều khoản rút trước hạn: lãi suất đã thoả thuận không còn được áp dụng.',
           'Each bar is the interest actually received at one contract rate, and all the bars are the same height; the solid one is the rate you have entered. The level row states the early-withdrawal clause exactly: the agreed rate no longer applies.',
+        ),
+        diem: d(
+          'Mỗi chấm là tiền lãi thực nhận ở một mức của ô Lãi suất hợp đồng / năm, từ một nửa đến gấp rưỡi con số bạn đang nhập; chấm nằm trên vạch đứt dọc là đúng mức bạn nhập. Đây là phép thử nếu sổ ghi một lãi suất khác, không phải diễn biến thị trường. Mọi chấm nằm ngang trên cùng một độ cao: rút trước hạn thì ngân hàng chỉ trả lãi không kỳ hạn, nên lãi suất hợp đồng cao hay thấp cũng cho ra cùng một số tiền. Thứ ô này làm đổi là phần lãi bị mất, xem ở hình bóc tách.',
+          'Each dot is the interest actually received at one level of the Contract rate / year field, from half to one and a half times the figure you have entered; the dot on the dashed vertical line is your own rate. It is a what-if on the passbook stating another rate, not market history. Every dot sits at the same height in one flat row: on early withdrawal the bank pays only the demand-deposit rate, so a higher or lower contract rate yields the same sum. What this field does change is the interest you lose, shown in the breakdown chart.',
         ),
       },
       termMonths: {
@@ -482,6 +646,14 @@ export const BIEU_DO_KHAC: Readonly<Record<string, BieuDoRieng>> = {
           'Mỗi cột là tiền lãi thực nhận ứng với một kỳ hạn hợp đồng, và các cột cao bằng nhau; cột tô đặc là kỳ hạn bạn đang nhập. Sổ sáu tháng hay sổ một năm, rút ở cùng một thời điểm thì nhận cùng một khoản lãi không kỳ hạn.',
           'Each bar is the interest actually received for one contract term, and all the bars are the same height; the solid one is the term you have entered. A six-month passbook or a one-year one, withdrawn at the same moment, pays the same demand-deposit interest.',
         ),
+        diem: d(
+          'Mỗi chấm là tiền lãi thực nhận ứng với một kỳ hạn ghi trên sổ, theo ô Kỳ hạn hợp đồng từ một nửa đến gấp rưỡi số tháng bạn đang nhập, mỗi chấm cách nhau một tháng; chấm nằm trên vạch đứt dọc là đúng kỳ hạn bạn nhập. Đây là phép thử nếu sổ có kỳ hạn dài hay ngắn hơn, không phải diễn biến thị trường. Các chấm xếp thành một hàng nằm ngang: rút trước hạn thì lãi chỉ tính theo số tháng đã gửi, nên sổ kỳ hạn nào cũng cho cùng một khoản.',
+          'Each dot is the interest actually received for one term written in the passbook, along the Contract term field from half to one and a half times the months you have entered, one dot per month; the dot on the dashed vertical line is your own term. It is a what-if on a longer or shorter term, not market history. The dots line up in one flat row: on early withdrawal interest depends only on the months already held, so every term pays the same.',
+        ),
+        bac: d(
+          'Mỗi bậc là tiền lãi thực nhận ứng với một kỳ hạn hợp đồng, đi theo ô Kỳ hạn hợp đồng từ một nửa đến gấp rưỡi số tháng bạn đang nhập; mỗi bậc rộng đúng một tháng vì ô này chỉ nhận số tháng tròn, giữa hai kỳ hạn liền nhau không có gì để tính. Đây là phép thử nếu sổ có kỳ hạn khác, không phải diễn biến thị trường. Ở hình này không bậc nào nhảy: cả bậc thang nằm ngang trên cùng một mức, vì lãi rút trước hạn tính theo số tháng đã gửi chứ không theo kỳ hạn ghi trên sổ.',
+          'Each step is the interest actually received for one contract term, along the Contract term field from half to one and a half times the months you have entered; every step is exactly one month wide, since the field takes whole months only and nothing lies between two neighboring terms. It is a what-if on a different term, not market history. No step jumps here: the whole staircase is flat at one level, because early-withdrawal interest follows the months already held, not the term in the passbook.',
+        ),
       },
       monthsHeld: {
         duong: d(
@@ -491,6 +663,14 @@ export const BIEU_DO_KHAC: Readonly<Record<string, BieuDoRieng>> = {
         cot: d(
           'Mỗi cột là tiền lãi thực nhận ứng với một số tháng đã gửi, cột cao dần về bên phải và cột tô đặc là số tháng bạn đang nhập. Chỉ có vài cột vì ô này nhận số tháng tròn; chờ thêm tới đúng ngày đáo hạn thì bạn nhảy khỏi dãy cột này sang mức lãi hợp đồng, cao hơn nhiều lần.',
           'Each bar is the interest actually received for one number of months held; bars grow taller to the right and the solid one is the number you have entered. There are only a few bars because the field takes whole months; waiting until the maturity date takes you off this row altogether, onto contract interest many times higher.',
+        ),
+        diem: d(
+          'Mỗi chấm là tiền lãi thực nhận nếu rút sau một số tháng, theo ô Thời gian đã gửi (t) từ khoảng một nửa đến khoảng gấp rưỡi số tháng bạn đang nhập; ô nhận số tháng tròn nên chỉ có vài chấm, cách nhau một tháng, và chấm nằm trên vạch đứt dọc là đúng số tháng bạn nhập. Đây là phép thử nếu rút sớm hay muộn hơn, không phải diễn biến thị trường. Dãy chấm đi lên đều, mỗi chấm cao hơn chấm trước đúng một khoản: mỗi tháng gửi thêm cộng một tháng lãi không kỳ hạn như nhau.',
+          'Each dot is the interest actually received if you withdraw after a given number of months, along the Time held (t) field from about half to about one and a half times the months you have entered; the field takes whole months, so there are only a few dots, one month apart, and the dot on the dashed vertical line is your own figure. It is a what-if on withdrawing sooner or later, not market history. The row of dots rises evenly, each dot higher than the last by the same amount: every extra month held adds one more equal month of demand-deposit interest.',
+        ),
+        bac: d(
+          'Mỗi bậc là tiền lãi thực nhận nếu rút sau một số tháng tròn, theo ô Thời gian đã gửi (t) từ khoảng một nửa đến khoảng gấp rưỡi số tháng bạn đang nhập. Bậc nằm ngang suốt một tháng rồi mới nhảy lên mức của tháng sau, vì ô này chỉ nhận số tháng tròn nên giữa hai mức không có gì được tính. Đây là phép thử nếu rút sớm hay muộn hơn, không phải diễn biến thị trường. Bậc thang đi lên, các bậc cao đều nhau: tháng gửi thêm nào cũng cộng đúng một tháng lãi không kỳ hạn, không hơn không kém.',
+          'Each step is the interest actually received if you withdraw after a whole number of months, along the Time held (t) field from about half to about one and a half times the months you have entered. A step stays level for a month and then jumps to the next month’s level, because the field takes whole months only and nothing in between is computed. It is a what-if on withdrawing sooner or later, not market history. The staircase rises in steps of equal height: every extra month held adds exactly one month of demand-deposit interest, no more and no less.',
         ),
       },
       demandRate: {
@@ -502,11 +682,19 @@ export const BIEU_DO_KHAC: Readonly<Record<string, BieuDoRieng>> = {
           'Mỗi cột là tiền lãi thực nhận ở một mức lãi không kỳ hạn, cột cao dần về bên phải và cột tô đặc là mức bạn đang nhập. Mỗi ngân hàng công bố mức này một khác, nên hãy thay bằng con số của chính ngân hàng bạn gửi rồi xem cột tô đặc.',
           'Each bar is the interest actually received at one demand-deposit rate; bars grow taller to the right and the solid one is the rate you have entered. Each bank publishes its own figure, so replace it with your own bank’s rate and read the solid bar.',
         ),
+        diem: d(
+          'Mỗi chấm là tiền lãi thực nhận ở một mức của ô Lãi suất không kỳ hạn / năm (rkkh), từ một nửa đến gấp rưỡi con số bạn đang nhập; chấm nằm trên vạch đứt dọc là đúng mức bạn nhập. Đây là phép thử nếu ngân hàng áp một mức lãi không kỳ hạn khác, không phải diễn biến thị trường. Dãy chấm đi lên thành hàng thẳng, cách đều nhau: đây chính là lãi suất làm ra khoản bạn nhận, nên mức ấy gấp đôi thì tiền lãi gấp đôi.',
+          'Each dot is the interest actually received at one level of the Demand-deposit rate / year (rkkh) field, from half to one and a half times the figure you have entered; the dot on the dashed vertical line is your own rate. It is a what-if on the bank applying another demand-deposit rate, not market history. The row of dots rises in a straight line with even gaps: this is the very rate that produces what you receive, so doubling it doubles the interest.',
+        ),
       },
     },
     bocTach: d(
       'Hình này chỉ có một dạng: các thanh nằm ngang, đọc từ trên xuống. Lãi theo hợp đồng là thanh tô màu, số lãi lẽ ra có cho quãng đã gửi nếu giữ tới hạn; Lãi mất do rút sớm là thanh viền nét đứt, phần bị cắt vì chỉ được trả theo lãi suất không kỳ hạn; thanh sẫm cuối cùng là Lãi thực nhận và bằng đúng con số ở khối Kết quả. Thanh trừ dài gần bằng thanh đầu là rút sớm gần như mất trắng tiền lãi.',
       'This chart has a single form: horizontal bars, read from top to bottom. Contract interest is the filled bar, what the time already deposited would have earned if held to maturity; Interest lost is the bar with a dashed outline, the part cut because only the demand rate is paid; the dark bar at the end is Interest received and matches the figure in the Result block exactly. A minus bar nearly as long as the first one means withdrawing early forfeits almost all the interest.',
+    ),
+    vanhKhuyen: d(
+      'Vành khuyên chỉ hiện khi rút sớm không mất đồng lãi nào, tức lãi suất hợp đồng không cao hơn lãi suất không kỳ hạn; thường thì Lãi mất do rút sớm là một phần trừ đi, mà phần trừ không có chỗ trên vòng tròn. Mỗi múi to theo phần của nó trong Lãi thực nhận, con số in ở lỗ giữa; chạm một múi là thấy tên và số tiền của múi ấy. Hai mức lãi bằng nhau thì cả vòng là múi Lãi theo hợp đồng, Lãi mất do rút sớm không có múi nào. Lãi hợp đồng thấp hơn thì múi Lãi mất do rút sớm thật ra là phần ngân hàng trả thêm, không phải phần mất.',
+      'The donut appears only when withdrawing early costs no interest at all, that is when the contract rate is no higher than the demand-deposit rate; normally Interest lost is subtracted, and a subtraction has no place on a ring. Each slice is sized by its share of Interest received, the figure in the hole; touching a slice shows its name and amount. With the two rates equal the whole ring is the Contract interest slice and Interest lost gets no slice. With the contract rate lower, the slice named Interest lost is really extra interest the bank pays, not a loss.',
     ),
   },
 
@@ -521,6 +709,10 @@ export const BIEU_DO_KHAC: Readonly<Record<string, BieuDoRieng>> = {
           'Mỗi cột là khoản chênh giữa gửi quay vòng và gửi kỳ dài ở một mức tiền gửi, cột tô đặc là mức bạn đang nhập. Khi gửi kỳ dài lợi hơn, mọi cột đều quay xuống dưới và cột càng dài thì gửi quay vòng càng thiệt; khi quay vòng lợi hơn thì mọi cột mọc lên trên.',
           'Each bar is the difference between rolling over and one long deposit at one deposit amount, and the solid one is the amount you have entered. When the long deposit is ahead every bar hangs downward, and the longer the bar, the more rolling over costs you; when rolling over is ahead every bar stands upward.',
         ),
+        diem: d(
+          'Mỗi chấm là khoản chênh giữa gửi quay vòng kỳ ngắn và gửi một sổ kỳ dài, tính ở một mức của ô Số tiền gửi (P), từ một nửa đến gấp rưỡi con số bạn đang nhập; chấm nằm trên vạch đứt dọc là đúng số tiền bạn nhập. Đây là phép thử nếu gửi nhiều hay ít tiền hơn, không phải diễn biến thị trường. Khi sổ kỳ dài lợi hơn, mọi chấm nằm dưới 0 và dãy chấm đi xuống đều; khi quay vòng lợi hơn, chúng nằm trên 0 và đi lên. Các chấm luôn cách đều: số tiền chỉ nhân khoản chênh lên, không bao giờ đổi bên thắng.',
+          'Each dot is the gap between rolling short deposits and one long deposit at one level of the Deposit amount (P) field, from half to one and a half times the figure you have entered; the dot on the dashed vertical line is your own amount. It is a what-if on depositing more or less, not market history. When the long deposit is ahead every dot sits below 0 and the row falls evenly; when rolling over is ahead they sit above 0 and the row rises. The gaps always stay even: the amount only scales the difference and never changes which way wins.',
+        ),
       },
       shortRate: {
         duong: d(
@@ -530,6 +722,14 @@ export const BIEU_DO_KHAC: Readonly<Record<string, BieuDoRieng>> = {
         cot: d(
           'Mỗi cột là khoản chênh ở một mức lãi kỳ ngắn, cột tô đặc là mức bạn đang nhập. Cột quay xuống dưới vạch 0 là gửi kỳ dài lợi hơn, cột mọc lên trên vạch 0 là quay vòng lợi hơn; chỗ đổi chiều là mức lãi hoà nhau giữa hai cách.',
           'Each bar is the difference at one short-term rate, and the solid one is the rate you have entered. Bars below the zero line mean the long deposit is ahead, bars above the zero line mean rolling over is ahead; the switch-over is the rate at which the two ways tie.',
+        ),
+        diem: d(
+          'Mỗi chấm là khoản chênh giữa hai cách gửi tính ở một mức của ô Lãi suất kỳ ngắn / năm (rn), từ một nửa đến gấp rưỡi con số bạn đang nhập; chấm nằm trên vạch đứt dọc là đúng mức bạn nhập. Đây là phép thử nếu lãi kỳ ngắn đổi mà lãi kỳ dài đứng yên, không phải diễn biến thị trường. Dãy chấm đi lên, khoảng cách giữa hai chấm hơi rộng dần về bên phải, vì lãi của vòng trước được nhập gốc và sinh thêm lãi ở vòng sau. Nếu dãy chấm vượt qua mức 0 thì chỗ vượt là mức lãi kỳ ngắn làm hai cách gửi hoà nhau.',
+          'Each dot is the gap between the two ways of saving at one level of the Short-term rate / year (rn) field, from half to one and a half times the figure you have entered; the dot on the dashed vertical line is your own rate. It is a what-if on the short rate with the long rate held still, not market history. The row of dots rises, the gaps widening slightly to the right, because each round’s interest joins the principal and earns interest in the next round. If the row crosses 0, the crossing is the short rate at which both ways tie.',
+        ),
+        laiLo: d(
+          'Dạng này hiện khi dải của ô Lãi suất kỳ ngắn / năm (rn) có cả mức làm quay vòng thắng lẫn mức làm sổ kỳ dài thắng. Phần trên vạch 0 tô xanh là quay vòng kỳ ngắn cầm về nhiều tiền hơn, phần dưới vạch 0 tô đỏ là sổ kỳ dài cầm về nhiều hơn; màu đỏ không có nghĩa là mất tiền gốc. Đây là phép thử nếu lãi kỳ ngắn đổi mà lãi kỳ dài đứng yên, không phải diễn biến thị trường. Đường đi lên và cắt vạch 0 ở đúng mức lãi kỳ ngắn làm hai cách gửi hoà nhau.',
+          'This form appears when the range of the Short-term rate / year (rn) field holds both rates at which rolling over wins and rates at which the long deposit wins. The part above the zero line is shaded green, where rolling short deposits ends with more money; the part below is shaded red, where the long deposit ends with more, and red never means losing principal. It is a what-if on the short rate with the long rate held still, not market history. The line rises and crosses the zero line exactly at the short rate where both ways tie.',
         ),
       },
       shortMonths: {
@@ -541,6 +741,14 @@ export const BIEU_DO_KHAC: Readonly<Record<string, BieuDoRieng>> = {
           'Mỗi cột là khoản chênh ứng với một độ dài của vòng gửi ngắn, cột tô đặc là số tháng bạn đang nhập. Chỉ có vài cột và chúng gần bằng nhau: độ dài mỗi vòng ảnh hưởng ít hơn nhiều so với chênh lệch giữa hai mức lãi suất.',
           'Each bar is the difference for one length of the short round, and the solid one is the number of months you have entered. There are only a few bars and they are nearly equal: the length of each round matters far less than the gap between the two rates.',
         ),
+        diem: d(
+          'Mỗi chấm là khoản chênh giữa hai cách gửi ứng với một độ dài vòng gửi, theo ô Kỳ hạn ngắn (m); ô này nhận số tháng tròn nên chỉ có vài chấm cách nhau một tháng quanh con số bạn đang nhập, và chấm nằm trên vạch đứt dọc là đúng số tháng bạn nhập. Đây là phép thử nếu mỗi vòng dài hay ngắn hơn, không phải diễn biến thị trường. Dãy chấm đi xuống, nhưng các mức ghi trên trục dọc cho thấy chúng chỉ chênh nhau ít: cùng một lãi suất, vòng càng dài thì lãi được nhập gốc càng ít lần, và điều ấy nhẹ hơn nhiều so với chênh lệch giữa hai mức lãi suất.',
+          'Each dot is the gap between the two ways of saving for one length of round, along the Short term (m) field; the field takes whole months, so there are only a few dots, one month apart, around the figure you have entered, and the dot on the dashed vertical line is your own figure. It is a what-if on each round being longer or shorter, not market history. The row of dots falls, though the values on the vertical axis show they differ only a little: at the same rate a longer round folds interest into the principal fewer times, which matters far less than the gap between the two rates.',
+        ),
+        bac: d(
+          'Mỗi bậc là khoản chênh giữa hai cách gửi khi mỗi vòng dài một số tháng tròn, theo ô Kỳ hạn ngắn (m), với vài mức cách nhau một tháng quanh con số bạn đang nhập. Bậc giữ nằm ngang tới mức kế tiếp rồi mới hạ, vì không có vòng gửi dài lẻ tháng: ô này chỉ nhận số tháng tròn. Đây là phép thử nếu mỗi vòng dài hay ngắn hơn, không phải diễn biến thị trường. Bậc thang đi xuống: vòng càng dài thì lãi được nhập gốc càng ít lần, nên khoản chênh nghiêng dần về phía sổ kỳ dài.',
+          'Each step is the gap between the two ways of saving when each round lasts a whole number of months, along the Short term (m) field, with a few levels one month apart around the figure you have entered. A step stays level until the next level and only then drops, because there is no round of a fractional month: the field takes whole months only. It is a what-if on each round being longer or shorter, not market history. The staircase falls: the longer each round, the fewer times interest joins the principal, so the difference leans steadily toward the long deposit.',
+        ),
       },
       longRate: {
         duong: d(
@@ -551,6 +759,14 @@ export const BIEU_DO_KHAC: Readonly<Record<string, BieuDoRieng>> = {
           'Mỗi cột là chênh lệch tiền cuối kỳ ở một mức lãi suất kỳ dài, cột tô đặc là mức bạn đang nhập. Cột mọc lên trên vạch 0 là gửi quay vòng lợi hơn, cột quay xuống dưới vạch 0 là gửi một sổ kỳ dài lợi hơn.',
           'Each bar is the gap in ending money at one long-term rate, and the solid one is the rate you have entered. A bar standing above the zero line means rolling short terms wins; one hanging below the zero line means the single long deposit wins.',
         ),
+        diem: d(
+          'Mỗi chấm là khoản chênh giữa hai cách gửi tính ở một mức của ô Lãi suất kỳ dài / năm (rd), từ một nửa đến gấp rưỡi con số bạn đang nhập; chấm nằm trên vạch đứt dọc là đúng mức bạn nhập. Đây là phép thử nếu sổ kỳ dài trả lãi khác đi, không phải diễn biến thị trường. Dãy chấm đi xuống thành hàng thẳng, các chấm cách đều: sổ kỳ dài tính lãi một lần trên cả quãng gửi, nên mỗi nấc lãi suất cộng cho nó cùng một khoản. Nếu dãy chấm vượt qua mức 0 thì chỗ ấy là lãi kỳ dài làm hai cách gửi cho về bằng nhau.',
+          'Each dot is the gap between the two ways of saving at one level of the Long-term rate / year (rd) field, from half to one and a half times the figure you have entered; the dot on the dashed vertical line is your own rate. It is a what-if on the long deposit paying a different rate, not market history. The row of dots falls in a straight line with even gaps: the long deposit earns its interest once over the whole period, so each notch of rate adds the same amount to it. If the row crosses 0, that point is the long rate at which both ways return the same.',
+        ),
+        laiLo: d(
+          'Dạng này hiện khi dải của ô Lãi suất kỳ dài / năm (rd) trải qua mức làm hai cách gửi hoà nhau. Phần trên vạch 0 tô xanh nằm bên trái: lãi kỳ dài còn thấp nên quay vòng kỳ ngắn thắng; phần dưới vạch 0 tô đỏ nằm bên phải: sổ kỳ dài thắng, chứ không phải mất tiền gốc. Đây là phép thử nếu sổ kỳ dài trả lãi khác đi, không phải diễn biến thị trường. Đường đi xuống đều và cắt vạch 0 đúng ở mức lãi kỳ dài mà gửi cách nào cũng cầm về số tiền như nhau.',
+          'This form appears when the range of the Long-term rate / year (rd) field spans the rate at which both ways tie. The part above the zero line, on the left, is shaded green: the long rate is still low, so rolling short deposits wins; the part below the zero line, on the right, is shaded red: the long deposit wins, which is no loss of principal. It is a what-if on the long deposit paying a different rate, not market history. The line falls steadily and crosses the zero line exactly at the long rate where either way returns the same.',
+        ),
       },
       totalMonths: {
         duong: d(
@@ -560,6 +776,14 @@ export const BIEU_DO_KHAC: Readonly<Record<string, BieuDoRieng>> = {
         cot: d(
           'Mỗi cột là khoản chênh ứng với một tổng thời gian gửi, cột tô đặc là số tháng bạn đang nhập. Chỉ những mức chia hết cho kỳ hạn ngắn mới có cột; các quãng gạch chéo giữa chúng là mức không xếp được trọn số vòng.',
           'Each bar is the difference for one total deposit time, and the solid one is the number of months you have entered. Only totals that divide evenly by the short term get a bar; the hatched stretches between them are totals that do not fit a whole number of rounds.',
+        ),
+        diem: d(
+          'Mỗi chấm là khoản chênh giữa hai cách gửi ở một mức của ô Tổng thời gian (T), từ một nửa đến gấp rưỡi số tháng bạn đang nhập; chấm nằm trên vạch đứt dọc là đúng số tháng bạn nhập. Đây là phép thử nếu gửi tổng cộng lâu hay chóng hơn, không phải diễn biến thị trường. Chỉ những mức chia hết cho kỳ hạn ngắn mới có chấm, phần còn lại là vùng gạch chéo; khác dạng Đường, các chấm vẫn hiện dù đứng rời nhau. Lãi kỳ dài cao hơn thì dãy chấm đi xuống; gửi đủ lâu thì lãi nhập gốc bắt đầu đuổi lại và dãy chấm đi lên, còn lãi kỳ ngắn cao hơn thì nó đi lên ngay.',
+          'Each dot is the gap between the two ways of saving at one level of the Total time (T) field, from half to one and a half times the months you have entered; the dot on the dashed vertical line is your own figure. It is a what-if on the total time, not market history. Only totals that divide evenly by the short term get a dot, the rest is a hatched area; unlike the Line form, the dots still show even when they stand apart. With the long rate higher the row falls; given enough time compounding starts to catch up and the row rises, and with a higher short rate it rises from the start.',
+        ),
+        bac: d(
+          'Bậc thang theo ô Tổng thời gian (T), từ một nửa đến gấp rưỡi số tháng bạn đang nhập, chỉ thành hình khi kỳ hạn ngắn là một tháng: khi ấy tháng nào cũng tính được, và mỗi bậc nằm ngang suốt một tháng rồi mới nhảy, vì tổng thời gian chỉ nhận số tháng tròn. Kỳ hạn ngắn dài hơn thì các mức tính được đứng rời nhau giữa vùng gạch chéo, không có bậc nào để nối, nên trên hình chỉ còn vùng gạch chéo và chấm tròn ở mức bạn nhập. Đây là phép thử, không phải diễn biến thị trường. Lãi kỳ dài cao hơn thì bậc thang đi xuống; gửi đủ lâu hoặc lãi kỳ ngắn cao hơn thì nó đi lên.',
+          'Along the Total time (T) field, from half to one and a half times the months you have entered, the staircase only takes shape when the short term is one month: every month can then be computed, and each step stays level for a month before jumping, because the total takes whole months only. With a longer short term the computable levels stand apart in a hatched area with nothing to join, so only the hatching and the dot at your own figure remain. It is a what-if, not market history. With the long rate higher the staircase falls; given enough time, or a higher short rate, it rises.',
         ),
       },
     },
@@ -577,6 +801,10 @@ export const BIEU_DO_KHAC: Readonly<Record<string, BieuDoRieng>> = {
           'Mỗi cột là giá vốn trung bình ứng với một mức tiền của đợt mua thứ nhất, cột tô đặc là mức bạn đang nhập. Các cột chỉ chênh nhau ít: một đợt mua không kéo nổi mức trung bình đi xa, và nó luôn nằm giữa giá đợt rẻ nhất và giá đợt đắt nhất.',
           'Each bar is the average cost for one amount put into the first round, and the solid one is the amount you have entered. The bars differ only a little: one round cannot drag the average far, and it always stays between the cheapest and the dearest round’s price.',
         ),
+        diem: d(
+          'Mỗi chấm là giá vốn trung bình ứng với một mức của ô Tiền mua đợt 1 (C1), từ một nửa đến gấp rưỡi con số bạn đang nhập; chấm nằm trên vạch đứt dọc là đúng số tiền bạn nhập. Đây là phép thử nếu đợt này bỏ nhiều hay ít tiền hơn, không phải diễn biến thị trường. Khi giá của đợt này cao hơn giá vốn trung bình, dãy chấm đi lên; thấp hơn thì đi xuống. Các chấm sít lại dần về bên phải: giá vốn càng tới gần giá của đợt này thì mỗi khoản tiền dồn thêm càng kéo nó đi ít.',
+          'Each dot is the average cost at one level of the Amount invested, round 1 (C1) field, from half to one and a half times the figure you have entered; the dot on the dashed vertical line is your own amount. It is a what-if on putting more or less money into this round, not market history. When this round’s price is above the average cost the row of dots rises; below it, the row falls. The dots close up toward the right: the nearer the average comes to this round’s price, the less each extra sum pulls it.',
+        ),
       },
       price1: {
         duong: d(
@@ -586,6 +814,10 @@ export const BIEU_DO_KHAC: Readonly<Record<string, BieuDoRieng>> = {
         cot: d(
           'Mỗi cột là giá vốn trung bình ứng với một mức giá của đợt mua thứ nhất, cột cao dần về bên phải và cột tô đặc là mức giá bạn đang nhập. Với số tiền mỗi đợt bằng nhau, cột nào cũng thấp hơn trung bình cộng thông thường của các mức giá: tiền đều nhau tự gom nhiều cổ phiếu hơn ở giá thấp.',
           'Each bar is the average cost for one price of the first round; bars grow taller to the right and the solid one is the price you have entered. With equal money in every round, each bar sits below the plain average of the prices: equal amounts gather more shares when the price is low.',
+        ),
+        diem: d(
+          'Mỗi chấm là giá vốn trung bình ứng với một mức của ô Giá mua đợt 1 (P1), từ một nửa đến gấp rưỡi mức giá bạn đang nhập; chấm nằm trên vạch đứt dọc là đúng mức giá bạn nhập. Đây là phép thử nếu đợt này khớp ở một giá khác, không phải diễn biến thị trường. Dãy chấm đi lên, các chấm bên trái cách nhau xa còn các chấm bên phải sít lại: khớp giá thấp thì cùng số tiền gom được nhiều cổ phiếu và kéo mạnh giá vốn, khớp giá cao thì gom được ít nên càng ít ảnh hưởng tới giá vốn.',
+          'Each dot is the average cost at one level of the Purchase price, round 1 (P1) field, from half to one and a half times the price you have entered; the dot on the dashed vertical line is your own price. It is a what-if on this round filling at a different price, not market history. The row of dots rises, far apart on the left and closing up on the right: a cheap fill lets the same money gather many shares and pull the average hard, while a dear fill gathers few and counts for less and less.',
         ),
       },
       amount2: {
@@ -597,6 +829,10 @@ export const BIEU_DO_KHAC: Readonly<Record<string, BieuDoRieng>> = {
           'Mỗi cột là giá vốn trung bình ứng với một mức tiền của đợt mua thứ hai, cột tô đặc là mức bạn đang nhập. Khi giá của đợt này sát giá vốn trung bình, dãy cột gần như phẳng: bỏ nhiều hay ít tiền vào một đợt như thế cũng gần như không đổi kết quả.',
           'Each bar is the average cost for one amount put into the second round, and the solid one is the amount you have entered. When this round is priced close to the average cost the row is nearly level: however much money goes into such a round, the result barely changes.',
         ),
+        diem: d(
+          'Mỗi chấm là giá vốn trung bình ứng với một mức của ô Tiền mua đợt 2 (C2), từ một nửa đến gấp rưỡi con số bạn đang nhập; chấm nằm trên vạch đứt dọc là đúng số tiền bạn nhập. Đây là phép thử nếu đợt thứ hai bỏ nhiều hay ít tiền hơn, không phải diễn biến thị trường. Giá đợt này cao hơn giá vốn trung bình thì dãy chấm đi lên, thấp hơn thì đi xuống, và khoảng cách giữa các chấm ngắn dần về bên phải. Đọc các mức trên trục dọc: giá đợt này càng sát giá vốn trung bình thì cả dãy chấm càng chỉ nhích trong một khoảng nhỏ.',
+          'Each dot is the average cost at one level of the Amount invested, round 2 (C2) field, from half to one and a half times the figure you have entered; the dot on the dashed vertical line is your own amount. It is a what-if on the second round taking more or less money, not market history. With this round priced above the average cost the row of dots rises, below it the row falls, and the gaps between dots shorten toward the right. Read the values on the vertical axis: the closer this round’s price sits to the average cost, the narrower the span the whole row moves through.',
+        ),
       },
       price2: {
         duong: d(
@@ -606,6 +842,10 @@ export const BIEU_DO_KHAC: Readonly<Record<string, BieuDoRieng>> = {
         cot: d(
           'Mỗi cột là giá vốn trung bình ứng với một mức giá của đợt mua thứ hai, cột cao dần về bên phải và cột tô đặc là mức giá bạn đang nhập. Bước giữa các cột bên trái lớn hơn bước giữa các cột bên phải: một đợt mua được giá thấp có sức nặng hơn một đợt mua phải giá cao.',
           'Each bar is the average cost for one price of the second round; bars grow taller to the right and the solid one is the price you have entered. The steps between bars on the left are larger than those on the right: a round bought cheaply carries more weight than one bought dear.',
+        ),
+        diem: d(
+          'Mỗi chấm là giá vốn trung bình ứng với một mức của ô Giá mua đợt 2 (P2), từ một nửa đến gấp rưỡi mức giá bạn đang nhập; chấm nằm trên vạch đứt dọc là đúng mức giá bạn nhập. Đây là phép thử nếu đợt thứ hai khớp ở giá khác, không phải diễn biến thị trường. Dãy chấm đi lên và thoải dần: ở bên trái mỗi chấm cao hơn chấm trước một khoảng lớn, càng sang phải khoảng ấy càng ngắn. Đợt mua rẻ gom được nhiều cổ phiếu nên mỗi nấc giá thấp hơn kéo giá vốn xuống mạnh, đợt mua đắt gom ít nên mỗi nấc giá cao hơn chỉ đẩy giá vốn lên chút ít.',
+          'Each dot is the average cost at one level of the Purchase price, round 2 (P2) field, from half to one and a half times the price you have entered; the dot on the dashed vertical line is your own price. It is a what-if on the second round filling at another price, not market history. The row of dots rises and levels off: on the left each dot sits well above the one before, and the step shortens further right. A cheap round gathers many shares, so every lower notch drags the average down hard; a dear round gathers few, so every higher notch nudges it up only slightly.',
         ),
       },
       amount3: {
@@ -617,6 +857,10 @@ export const BIEU_DO_KHAC: Readonly<Record<string, BieuDoRieng>> = {
           'Mỗi cột là giá vốn trung bình ứng với một mức tiền của đợt mua thứ ba, cột tô đặc là mức bạn đang nhập. Khi đợt này rẻ hơn giá vốn trung bình, cột thấp dần về bên phải: đó là hình của việc mua thêm khi giá giảm, bỏ càng nhiều tiền ở đợt rẻ thì giá phải chờ để hoà vốn càng thấp. Đợt này đắt hơn giá vốn trung bình thì cột cao dần.',
           'Each bar is the average cost for one amount put into the third round, and the solid one is the amount you have entered. When this round is cheaper than the average cost the bars shrink to the right: that is the picture of buying more as the price drops, the more money goes in at the cheap round, the lower the price you need to wait for to break even. When this round is dearer than the average cost the bars grow taller.',
         ),
+        diem: d(
+          'Mỗi chấm là giá vốn trung bình ứng với một mức của ô Tiền mua đợt 3 (C3), từ một nửa đến gấp rưỡi con số bạn đang nhập; chấm nằm trên vạch đứt dọc là đúng số tiền bạn nhập. Đây là phép thử nếu đợt thứ ba bỏ nhiều hay ít tiền hơn, không phải diễn biến thị trường. Khi giá đợt này thấp hơn giá vốn trung bình, dãy chấm đi xuống: dồn tiền vào đợt rẻ là kéo giá vốn về phía giá ấy, mỗi khoản thêm vào kéo được ít hơn khoản trước nên các chấm sít lại về bên phải. Khi giá đợt này cao hơn giá vốn trung bình thì dãy chấm đi lên.',
+          'Each dot is the average cost at one level of the Amount invested, round 3 (C3) field, from half to one and a half times the figure you have entered; the dot on the dashed vertical line is your own amount. It is a what-if on the third round taking more or less money, not market history. When this round’s price is below the average cost the row of dots falls: money put into the cheap round pulls the average toward that price, each extra sum by less than the last, so the dots close up to the right. When this round’s price is above the average cost the row rises.',
+        ),
       },
       price3: {
         duong: d(
@@ -626,6 +870,10 @@ export const BIEU_DO_KHAC: Readonly<Record<string, BieuDoRieng>> = {
         cot: d(
           'Mỗi cột là giá vốn trung bình ứng với một mức giá của đợt mua cuối, cột cao dần về bên phải và cột tô đặc là mức bạn đang nhập. Các cột bên trái chênh nhau nhiều hơn các cột bên phải: khi đợt cuối mua rẻ, nó gom được nhiều cổ phiếu nên kéo giá vốn rất mạnh; khi nó mua đắt, hai đợt trước giữ giá vốn lại nên cột nhích lên chậm hẳn.',
           'Each bar is the average cost for one price of the last round; bars grow taller to the right and the solid one is the price you have entered. The bars on the left differ more than those on the right: when the last round is cheap it gathers many shares and pulls the average very hard; when it is dear, the two earlier rounds hold the average back and the bars creep up far more slowly.',
+        ),
+        diem: d(
+          'Mỗi chấm là giá vốn trung bình ứng với một mức của ô Giá mua đợt 3 (P3), từ một nửa đến gấp rưỡi mức giá bạn đang nhập; chấm nằm trên vạch đứt dọc là đúng mức giá bạn nhập. Đây là phép thử nếu đợt thứ ba khớp ở giá khác, không phải diễn biến thị trường. Dãy chấm đi lên, dốc ở bên trái rồi thoải dần: đợt này khớp càng rẻ thì càng gom nhiều cổ phiếu và kéo giá vốn xuống mạnh, còn khớp càng đắt thì các đợt khác càng giữ giá vốn lại, nên các chấm bên phải chỉ nhích lên từng chút.',
+          'Each dot is the average cost at one level of the Purchase price, round 3 (P3) field, from half to one and a half times the price you have entered; the dot on the dashed vertical line is your own price. It is a what-if on the third round filling at another price, not market history. The row of dots rises, steep on the left and leveling off: the cheaper this round fills, the more shares it gathers and the harder it pulls the average down, while the dearer it fills, the more the other rounds hold the average back, so the dots on the right creep up a little at a time.',
         ),
       },
     },
@@ -640,6 +888,10 @@ export const BIEU_DO_KHAC: Readonly<Record<string, BieuDoRieng>> = {
           'Mỗi cột là giá vốn trung bình ứng với một mức tiền của đợt mua thứ {n}, cột tô đặc là mức bạn đang nhập. Đợt này đắt hơn giá vốn trung bình thì cột cao dần về bên phải, rẻ hơn thì cột thấp dần: dồn tiền vào đợt nào là kéo giá vốn về phía giá của đợt ấy.',
           'Each bar is the average cost for one amount put into round {n}, and the solid one is the amount you have entered. When this round is dearer than the average cost the bars grow taller to the right, and when it is cheaper they shrink: money put into a round pulls the average cost toward that round’s price.',
         ),
+        diem: d(
+          'Mỗi chấm là giá vốn trung bình ứng với một mức của ô Tiền mua đợt {n} (C{n}); chấm nằm trên vạch đứt dọc là đúng số tiền bạn nhập. Ô đã có số thì các chấm trải từ một nửa đến gấp rưỡi con số ấy; ô còn là 0, như lúc đợt vừa được thêm, thì chúng trải từ 0 tới mức lớn nhất ô cho nhập. Đây là phép thử nếu đợt này bỏ nhiều hay ít tiền hơn, không phải diễn biến thị trường. Giá đợt này cao hơn giá vốn trung bình thì dãy chấm đi lên, thấp hơn thì đi xuống. Đợt có tiền mà ô giá còn là 0 thì không tính được: chỗ ấy không có chấm, chỉ có vùng gạch chéo.',
+          'Each dot is the average cost at one level of the Amount invested, round {n} (C{n}) field; the dot on the dashed vertical line is your own amount. Once the field holds a number the dots span half to one and a half times it; while it is still 0, as in a newly added round, they span from 0 to the largest amount the field accepts. It is a what-if on more or less money in this round, not market history. With this round priced above the average cost the row of dots rises, below it the row falls. A round with money but a price still at 0 cannot be computed: no dot there, only a hatched area.',
+        ),
       },
       price: {
         duong: d(
@@ -649,6 +901,10 @@ export const BIEU_DO_KHAC: Readonly<Record<string, BieuDoRieng>> = {
         cot: d(
           'Mỗi cột là giá vốn trung bình ứng với một mức giá của đợt mua thứ {n}, cột tô đặc là mức giá bạn đang nhập. Khi đợt này đã có tiền, cột cao dần về bên phải và bước giữa các cột bên trái lớn hơn bên phải: mua được giá thấp thì gom nhiều cổ phiếu nên kéo mức trung bình mạnh hơn. Đợt chưa có tiền thì các cột bằng nhau.',
           'Each bar is the average cost for one price of round {n}, and the solid one is the price you have entered. Once this round has money in it the bars grow taller to the right, with larger steps on the left than on the right: a cheap fill gathers more shares and so pulls the average harder. While the round has no money the bars are all level.',
+        ),
+        diem: d(
+          'Mỗi chấm là giá vốn trung bình ứng với một mức của ô Giá mua đợt {n} (P{n}); chấm nằm trên vạch đứt dọc là đúng mức giá bạn nhập. Ô đã có số thì các chấm trải từ một nửa đến gấp rưỡi mức giá ấy; ô còn là 0 thì chúng trải từ 0 tới mức giá cao nhất ô cho nhập. Đây là phép thử nếu đợt này khớp ở một giá khác, không phải diễn biến thị trường. Khi đợt này đã có tiền, dãy chấm đi lên và sít lại dần về bên phải: mua rẻ thì gom nhiều cổ phiếu nên kéo giá vốn mạnh hơn. Ô tiền của đợt còn là 0 thì đợt bị bỏ qua và mọi chấm nằm ngang một hàng.',
+          'Each dot is the average cost at one level of the Purchase price, round {n} (P{n}) field; the dot on the dashed vertical line is your own price. Once the field holds a number the dots span half to one and a half times that price; while it is still 0 they span from 0 to the highest price the field accepts. It is a what-if on this round filling at another price, not market history. Once the round has money in it the row of dots rises and closes up toward the right, since a cheap fill gathers more shares and pulls harder. While its amount is still 0 the round is skipped and the dots lie level.',
         ),
       },
     },
@@ -665,6 +921,14 @@ export const BIEU_DO_KHAC: Readonly<Record<string, BieuDoRieng>> = {
           'Mỗi cột là số tháng phải góp ứng với một mức mục tiêu, cột cao dần về bên phải và cột tô đặc là mức bạn đang nhập. Chiều cao cột là số tháng nguyên, nên đếm được thẳng trên trục.',
           'Each bar is the months of contributions for one goal; bars grow taller to the right and the solid one is the goal you have entered. Bar height is a whole number of months, so it can be read straight off the axis.',
         ),
+        diem: d(
+          'Mỗi chấm là số tháng phải góp ứng với một mức của ô Số tiền mục tiêu (FV), từ một nửa đến gấp rưỡi con số bạn đang nhập; chấm nằm trên vạch đứt dọc là đúng mục tiêu bạn nhập. Đây là phép thử nếu đặt mục tiêu khác, không phải diễn biến thị trường. Dãy chấm đi lên và chấm nào cũng nằm đúng trên một số tháng nguyên, vì số tháng luôn làm tròn lên; hai chấm liền nhau có thể cùng độ cao, tức hai mức mục tiêu ấy cần cùng một số tháng. Mục tiêu càng lớn thì góp càng lâu, nhưng không lâu lên theo đúng tỷ lệ vì lợi nhuận tích luỹ gánh hộ dần.',
+          'Each dot is the months of contributions needed at one level of the Target amount (FV) field, from half to one and a half times the figure you have entered; the dot on the dashed vertical line is your own goal. It is a what-if on setting another goal, not market history. The row of dots rises and every dot sits on a whole number of months, since the months are always rounded up; two neighboring dots may share a height, meaning both goals need the same number of months. A bigger goal takes longer, yet not in full proportion, because accumulated returns carry more of the load as time goes on.',
+        ),
+        bac: d(
+          'Dạng này hiện khi kế hoạch chỉ dài ít tháng, như mục tiêu nhỏ so với mức góp, khiến nhiều mức liền nhau của ô Số tiền mục tiêu (FV) cần cùng một số tháng. Mỗi bậc là một số tháng góp: bậc nằm ngang suốt quãng mục tiêu còn vừa trong số tháng ấy, rồi nhảy lên một tháng khi mục tiêu vượt qua, vì phép tính làm tròn lên tháng trọn vẹn. Trục chạy từ một nửa đến gấp rưỡi con số bạn đang nhập; đây là phép thử, không phải diễn biến thị trường. Bậc thang đi lên, các bậc rộng gần bằng nhau và chỉ hơi rộng dần về bên phải nhờ phần lợi nhuận lớn dần.',
+          'This form appears when the plan is only a few months long, say a small goal against the monthly contribution, so neighboring levels of the Target amount (FV) field need the same months. Each step is one count of months: level while the goal still fits in that many months, then up a month once the goal passes it, because the calculation rounds up to a whole month. The axis runs from half to one and a half times the figure you have entered; it is a what-if, not market history. The staircase rises in steps of nearly equal width, widening only slightly to the right as returns grow.',
+        ),
       },
       contribution: {
         duong: d(
@@ -675,6 +939,14 @@ export const BIEU_DO_KHAC: Readonly<Record<string, BieuDoRieng>> = {
           'Mỗi cột là số tháng cần góp ở một mức góp, cột thấp dần về bên phải và cột tô đặc là mức bạn đang nhập. Các cột bên trái cao lên nhanh hơn các cột bên phải thấp đi: bớt một phần mức góp kéo dài thời gian nhiều hơn mức mà thêm đúng phần ấy rút ngắn được.',
           'Each bar is the number of months needed at one contribution level; bars shrink to the right and the solid one is the level you have entered. The bars on the left rise faster than those on the right fall: cutting the contribution by some amount stretches the time by more than adding the same amount shortens it.',
         ),
+        diem: d(
+          'Mỗi chấm là số tháng cần góp ứng với một mức của ô Mức góp mỗi tháng (C), từ một nửa đến gấp rưỡi con số bạn đang nhập; chấm nằm trên vạch đứt dọc là đúng mức góp bạn nhập. Đây là phép thử nếu mỗi tháng góp nhiều hay ít hơn, không phải diễn biến thị trường. Dãy chấm đi xuống, bên trái các chấm cách nhau nhiều tháng hơn bên phải, và có những chấm liền nhau cùng độ cao vì số tháng đã làm tròn lên. Góp càng nhiều thì càng sớm tới đích, nhưng mỗi phần góp thêm rút được ít tháng hơn phần trước.',
+          'Each dot is the months needed at one level of the Monthly contribution (C) field, from half to one and a half times the figure you have entered; the dot on the dashed vertical line is your own contribution. It is a what-if on contributing more or less each month, not market history. The row of dots falls, with bigger drops between dots on the left than on the right, and some neighbors share a height because the months are rounded up. The more you contribute, the sooner you arrive, yet each extra slice saves fewer months than the slice before.',
+        ),
+        bac: d(
+          'Dạng này hiện khi kế hoạch chỉ dài ít tháng, như mức góp lớn so với mục tiêu, khiến nhiều mức liền nhau của ô Mức góp mỗi tháng (C) cho cùng một số tháng. Mỗi bậc là một số tháng góp, nằm ngang suốt quãng mức góp thêm chưa đủ bớt trọn một tháng rồi mới hạ xuống, vì phép tính làm tròn lên tháng trọn vẹn. Trục chạy từ một nửa đến gấp rưỡi con số bạn đang nhập; đây là phép thử, không phải diễn biến thị trường. Bậc thang đi xuống, các bậc bên phải dài hơn bên trái: góp càng nhiều thì phải thêm một khoản càng lớn mới bớt được thêm một tháng.',
+          'This form appears when the plan is only a few months long, say a large contribution against the goal, so neighboring levels of the Monthly contribution (C) field give the same number of months. Each step is one count of months, level until the extra contribution saves a whole month, then dropping, because the calculation rounds up to a whole month. The axis runs from half to one and a half times the figure you have entered; it is a what-if, not market history. The staircase falls, with longer steps on the right: the more you already put in, the bigger the extra sum it takes to save a month.',
+        ),
       },
       rate: {
         duong: d(
@@ -684,6 +956,14 @@ export const BIEU_DO_KHAC: Readonly<Record<string, BieuDoRieng>> = {
         cot: d(
           'Mỗi cột là số tháng cần góp ở một mức lợi suất, cột tô đặc là mức bạn đang nhập. Kế hoạch còn ngắn thì các cột chỉ chênh nhau vài tháng, vì số tiền góp mỗi tháng quyết định thời gian nhiều hơn hẳn lợi suất. Kế hoạch càng dài thì lợi suất càng nặng ký, vì tiền lãi có nhiều năm để cộng dồn.',
           'Each bar is the number of months needed at one rate of return, and the solid one is the rate you have entered. Over a short plan the bars differ by only a few months, because how much you put in each month decides the time far more than the return does. The longer the plan, the more the return weighs, because gains have more years to build up.',
+        ),
+        diem: d(
+          'Mỗi chấm là số tháng cần góp ứng với một mức của ô Lợi suất kỳ vọng / năm, từ một nửa đến gấp rưỡi con số bạn đang nhập; chấm nằm trên vạch đứt dọc là đúng mức bạn nhập. Đây là phép thử nếu lợi suất kỳ vọng đổi, không phải diễn biến thị trường. Dãy chấm đi xuống, thường theo từng cụm: nhiều chấm liền nhau nằm cùng độ cao rồi mới tụt một nấc, vì số tháng làm tròn lên và lợi suất phải tăng một quãng mới bớt được trọn một tháng. Kế hoạch càng dài thì các cụm càng ngắn, tới khi mỗi chấm một độ cao, vì lợi nhuận có nhiều năm để cộng dồn.',
+          'Each dot is the months needed at one level of the Expected rate of return / year field, from half to one and a half times the figure you have entered; the dot on the dashed vertical line is your own rate. It is a what-if on the expected return, not market history. The row of dots falls, usually in clusters: several neighboring dots share a height before stepping down, because the months are rounded up and the return has to climb a stretch to save a whole month. The longer the plan, the shorter the clusters, until each dot has its own height, since returns have more years to build up.',
+        ),
+        bac: d(
+          'Mỗi bậc là số tháng cần góp ở một quãng của ô Lợi suất kỳ vọng / năm, trục chạy từ một nửa đến gấp rưỡi con số bạn đang nhập. Bậc nằm ngang suốt quãng lợi suất tăng thêm chưa đủ bớt trọn một tháng, rồi mới hạ xuống, vì phép tính luôn làm tròn lên tháng trọn vẹn: không có kỳ góp nửa tháng. Đây là phép thử chứ không phải diễn biến thị trường. Bậc thang đi xuống: lợi suất càng cao thì lợi nhuận gánh hộ càng nhiều và đích tới càng sớm, còn với một kế hoạch ngắn thì mỗi bậc kéo dài cả một quãng lợi suất rộng.',
+          'Each step is the months needed over one stretch of the Expected rate of return / year field, the axis running from half to one and a half times the figure you have entered. A step stays level while the extra return cannot yet save a whole month, then drops, because the calculation always rounds up to a whole month: there is no half-month contribution. It is a what-if, not market history. The staircase falls: the higher the return, the more the gains carry and the sooner you arrive, and over a short plan each step spans a wide stretch of returns.',
         ),
       },
     },
@@ -701,6 +981,10 @@ export const BIEU_DO_KHAC: Readonly<Record<string, BieuDoRieng>> = {
           'Mỗi cột là tổng thuế ở một mức khối lượng, cột cao dần về bên phải và cột tô đặc là mức bạn đang nhập. Chiều cao cột là số tiền phải nộp dù lệnh bán có lãi hay lỗ: thuế chuyển nhượng tính trên giá bán chứ không trên phần lãi.',
           'Each bar is the total tax at one quantity; bars grow taller to the right and the solid one is the quantity you have entered. Bar height is owed whether the sale made or lost money: the transfer tax is charged on the selling price, not on the gain.',
         ),
+        diem: d(
+          'Mỗi chấm là tổng thuế trong năm ở một mức của ô Khối lượng (Q), từ một nửa đến gấp rưỡi con số bạn đang nhập; chấm nằm trên vạch đứt dọc là đúng số cổ phiếu bạn nhập. Đây là phép thử nếu giao dịch số cổ phiếu khác, không phải diễn biến thị trường. Dãy chấm đi lên thành hàng thẳng, các chấm cách đều: cổ phiếu nào cũng mang cùng một khoản thuế chuyển nhượng và thuế cổ tức, nên thêm một lượng cổ phiếu là cộng thêm đúng bấy nhiêu lần khoản ấy.',
+          'Each dot is the year’s total tax at one level of the Quantity (Q) field, from half to one and a half times the figure you have entered; the dot on the dashed vertical line is your own quantity. It is a what-if on trading a different number of shares, not market history. The row of dots rises in a straight line with even gaps: every share carries the same transfer tax and dividend tax, so each extra share adds that same amount once more.',
+        ),
       },
       sellPrice: {
         duong: d(
@@ -711,6 +995,10 @@ export const BIEU_DO_KHAC: Readonly<Record<string, BieuDoRieng>> = {
           'Mỗi cột là tổng thuế ở một mức giá bán, cột cao dần về bên phải và cột tô đặc là mức giá bạn đang nhập. Dãy cột không bao giờ về tới đáy: phần thuế cổ tức không phụ thuộc giá bán nên luôn nằm sẵn trong mọi cột.',
           'Each bar is the total tax at one sale price; bars grow taller to the right and the solid one is the price you have entered. The row never comes down to the base: the dividend tax does not depend on the sale price, so it sits inside every bar.',
         ),
+        diem: d(
+          'Mỗi chấm là tổng thuế trong năm ở một mức của ô Giá bán (Pban), từ một nửa đến gấp rưỡi mức giá bạn đang nhập; chấm nằm trên vạch đứt dọc là đúng giá bạn nhập. Đây là phép thử nếu bán ở giá khác, không phải diễn biến thị trường. Dãy chấm đi lên thành hàng thẳng, cách đều nhau, vì thuế chuyển nhượng tính trên giá trị bán chứ không trên tiền lãi. Phần thuế cổ tức không đổi theo giá bán, nên kể cả chấm ở mức giá thấp nhất trên trục vẫn mang nguyên phần ấy.',
+          'Each dot is the year’s total tax at one level of the Sale price (Pban) field, from half to one and a half times the price you have entered; the dot on the dashed vertical line is your own price. It is a what-if on selling at a different price, not market history. The row of dots rises in a straight line with even gaps, because transfer tax is charged on the sale value, not on the gain. The dividend tax does not move with the sale price, so even the dot at the lowest price on the axis still carries all of it.',
+        ),
       },
       dividendPerShare: {
         duong: d(
@@ -720,6 +1008,10 @@ export const BIEU_DO_KHAC: Readonly<Record<string, BieuDoRieng>> = {
         cot: d(
           'Mỗi cột là tổng thuế ở một mức cổ tức, cột cao dần về bên phải và cột tô đặc là mức bạn đang nhập. Cột nào cũng chứa sẵn cùng một khoản thuế chuyển nhượng khi bán; phần còn lại của cột là thuế cổ tức, và chỉ phần này lớn dần về bên phải.',
           'Each bar is the total tax at one dividend level; bars grow taller to the right and the solid one is the level you have entered. Every bar holds the same transfer tax on the sale; the rest of the bar is tax on the dividend, and only that part grows toward the right.',
+        ),
+        diem: d(
+          'Mỗi chấm là tổng thuế trong năm ở một mức của ô Cổ tức tiền mặt (D), từ một nửa đến gấp rưỡi con số bạn đang nhập; chấm nằm trên vạch đứt dọc là đúng mức cổ tức bạn nhập. Đây là phép thử nếu cổ tức nhận được khác đi, không phải diễn biến thị trường. Dãy chấm đi lên đều, hai chấm kề nhau cách nhau một khoảng như nhau: thuế cổ tức khấu trừ theo một tỷ lệ cố định trên số tiền nhận. Phần thuế chuyển nhượng khi bán nằm sẵn trong mọi chấm và không đổi theo cổ tức.',
+          'Each dot is the year’s total tax at one level of the Cash dividend (D) field, from half to one and a half times the figure you have entered; the dot on the dashed vertical line is your own dividend. It is a what-if on receiving a different dividend, not market history. The row of dots rises evenly, every gap the same: dividend tax is withheld at a fixed rate on what is received. The transfer tax on the sale sits inside every dot and does not change with the dividend.',
         ),
       },
     },
@@ -732,10 +1024,22 @@ export const BIEU_DO_KHAC: Readonly<Record<string, BieuDoRieng>> = {
         'Mỗi cột là tổng thuế nếu bán ở một phiên, cột cuối bên phải là phiên gần nhất. Phần thuế chuyển nhượng trong cột lên xuống theo đúng tỷ lệ của giá đóng cửa, còn phần thuế cổ tức đứng yên qua mọi phiên; vì thế khi có cổ tức, các cột chênh nhau theo tỷ lệ ít hơn mức chênh của giá.',
         'Each bar is the total tax from selling in one session, the last one on the right being the latest. The transfer tax inside a bar moves in exact proportion to the closing price, while the dividend tax stays put in every session; so when there is a dividend, the bars differ proportionally less than the price does.',
       ),
+      diem: d(
+        'Mỗi chấm là tổng thuế nếu bạn bán ở giá đóng cửa của một phiên, đi từ phiên cũ nhất bên trái tới phiên gần nhất bên phải; khối lượng và cổ tức vẫn là con số bạn nhập. Hình đi theo đúng chuỗi giá bạn đã nạp, nên dãy chấm đi lên khi giá lên, tức bán ở phiên ấy nộp nhiều thuế chuyển nhượng hơn, và đi xuống khi giá xuống. Chuỗi càng dài thì chấm càng nhỏ và dày thành một dải; chấm cao nhất của dải là phiên bán phải nộp nhiều thuế nhất, còn phần thuế cổ tức thì như nhau ở mọi chấm.',
+        'Each dot is the total tax had you sold at one session’s closing price, running from the oldest session on the left to the most recent session on the right; quantity and dividend stay as entered. The chart follows the price series you loaded, so the row rises when the price climbs, meaning a sale in that session pays more transfer tax, and falls when the price drops. The longer the series, the smaller and denser the dots, until they read as a band; its highest dot is the session where selling costs the most tax, while the dividend tax is the same in every dot.',
+      ),
+      bac: d(
+        'Mỗi bậc là tổng thuế nếu bán ở một phiên, đi từ phiên cũ nhất bên trái tới phiên gần nhất bên phải: bậc giữ nằm ngang suốt phiên ấy rồi mới chuyển sang mức của phiên sau, vì giữa hai phiên không có giá đóng cửa nào để bán. Khối lượng và cổ tức vẫn là con số bạn nhập, nên chỉ phần thuế chuyển nhượng làm các bậc đổi theo giá. Bậc thang đi lên là giá đang tăng, bán càng về sau càng nộp nhiều thuế; đi xuống là ngược lại; bậc nhảy càng cao là giá phiên ấy đổi càng mạnh.',
+        'Each step is the total tax from selling in one session, running from the oldest session on the left to the most recent session on the right: a step holds level through its session and then moves to the next session’s level, because there is no closing price to sell at between two sessions. Quantity and dividend stay as entered, so only the transfer tax shifts the steps with the price. When the staircase rises the price is climbing and a later sale pays more tax; when it falls, the reverse; the taller a jump, the harder the price moved that session.',
+      ),
     },
     bocTach: d(
       'Hình này chỉ có một dạng: các thanh nằm ngang, đọc từ trên xuống. Thuế chuyển nhượng và Thuế cổ tức là hai thanh tô màu cộng lại với nhau; thanh sẫm cuối cùng là Tổng thuế và bằng đúng con số ở khối Kết quả. So chiều dài hai thanh đầu để biết khoản nào đang chiếm phần lớn: bán với giá trị lớn thì thanh chuyển nhượng dài, nhận nhiều cổ tức tiền mặt thì thanh cổ tức dài.',
       'This chart has a single form: horizontal bars, read from top to bottom. Transfer tax and Dividend tax are two filled bars that add together; the dark bar at the end is Total tax and matches the figure in the Result block exactly. Compare the first two bars to see which one dominates: a large sale lengthens the transfer bar, a large cash dividend lengthens the dividend bar.',
+    ),
+    vanhKhuyen: d(
+      'Mỗi múi là một khoản thuế, to theo phần của nó trong Tổng thuế in ở lỗ giữa vòng: múi Thuế chuyển nhượng tính trên giá trị bán, múi Thuế cổ tức tính trên cổ tức tiền mặt nhận về. Chú giải cạnh vòng ghi số tiền của từng khoản và nó chiếm bao nhiêu phần trăm; chạm vào một múi là thấy tên và số tiền của múi ấy. Khối lượng không làm đổi tỉ phần hai múi, vì cả hai khoản đều nhân với số cổ phiếu; cổ tức càng lớn so với giá bán thì múi Thuế cổ tức càng to. Năm nay chưa bán thì cả vòng là Thuế cổ tức.',
+      'Each slice is one tax, sized by its share of the Total tax printed in the hole: the Transfer tax slice is charged on the sale value, the Dividend tax slice on the cash dividend received. The legend beside the ring gives each amount and the percentage it takes; touching a slice shows its name and amount. Quantity never changes the split, since both taxes are multiplied by the number of shares; the larger the dividend relative to the sale price, the bigger the Dividend tax slice. With no sale yet this year, the whole ring is Dividend tax.',
     ),
   },
 
@@ -751,6 +1055,10 @@ export const BIEU_DO_KHAC: Readonly<Record<string, BieuDoRieng>> = {
           'Mỗi cột là sản lượng hoà vốn ở một mức định phí, cột cao dần về bên phải và cột tô đặc là mức bạn đang nhập. Thuê thêm mặt bằng hay mua thêm máy là nhảy sang một cột bên phải: phải bán được ngần ấy sản phẩm rồi mới bắt đầu có lãi.',
           'Each bar is the break-even volume at one level of fixed cost; bars grow taller to the right and the solid one is the level you have entered. Renting more space or buying another machine moves you to a bar on the right: that many units must be sold before any profit starts.',
         ),
+        diem: d(
+          'Mỗi chấm là sản lượng hoà vốn ở một mức của ô Định phí (FC), từ một nửa đến gấp rưỡi con số bạn đang nhập; chấm nằm trên vạch đứt dọc là đúng định phí bạn nhập. Đây là phép thử nếu định phí đổi, không phải diễn biến thị trường. Dãy chấm đi lên thành hàng thẳng, các chấm cách đều: giá bán và biến phí giữ nguyên thì mỗi sản phẩm góp một khoản như nhau để trả định phí, nên mỗi phần định phí thêm vào đòi bán thêm đúng một số sản phẩm như nhau.',
+          'Each dot is the break-even volume at one level of the Fixed cost (FC) field, from half to one and a half times the figure you have entered; the dot on the dashed vertical line is your own fixed cost. It is a what-if on fixed cost, not market history. The row of dots rises in a straight line with even gaps: with price and variable cost held still each unit contributes the same amount toward fixed cost, so each extra slice of fixed cost calls for the same number of extra units.',
+        ),
       },
       unitPrice: {
         duong: d(
@@ -761,6 +1069,10 @@ export const BIEU_DO_KHAC: Readonly<Record<string, BieuDoRieng>> = {
           'Mỗi cột là sản lượng hoà vốn ở một mức giá bán, cột thấp dần về bên phải và cột tô đặc là mức bạn đang nhập. Mấy cột cao vọt ngay sát vùng không tính được là lúc giá bán chỉ nhỉnh hơn biến phí một chút: mỗi sản phẩm lãi quá mỏng nên phải bán rất nhiều.',
           'Each bar is the break-even volume at one selling price; bars shrink to the right and the solid one is the price you have entered. The towering bars right beside the zone that cannot be calculated are prices barely above the variable cost: each unit earns so little that a great many must be sold.',
         ),
+        diem: d(
+          'Mỗi chấm là sản lượng hoà vốn ở một mức của ô Giá bán một sản phẩm (P), từ một nửa đến gấp rưỡi mức giá bạn đang nhập; chấm nằm trên vạch đứt dọc là đúng giá bạn nhập. Đây là phép thử nếu bán ở giá khác, không phải diễn biến thị trường. Vùng gạch chéo bên trái không có chấm nào là những mức giá không cao hơn biến phí, bán bao nhiêu cũng không hoà vốn. Qua khỏi vùng ấy, dãy chấm đi xuống rất gắt rồi sít lại sát đáy: giá chỉ nhỉnh hơn biến phí một chút là phải bán rất nhiều, nhích giá thêm vài nấc là số cần bán đã giảm hẳn.',
+          'Each dot is the break-even volume at one level of the Selling price per unit (P) field, from half to one and a half times the price you have entered; the dot on the dashed vertical line is your own price. It is a what-if on selling at another price, not market history. The hatched area on the left with no dots holds prices not above the variable cost, where no volume ever breaks even. Past it the row of dots falls very sharply and then crowds near the bottom: a price barely above variable cost needs a huge volume, and a few more notches of price cut it hard.',
+        ),
       },
       variableCost: {
         duong: d(
@@ -770,6 +1082,10 @@ export const BIEU_DO_KHAC: Readonly<Record<string, BieuDoRieng>> = {
         cot: d(
           'Mỗi cột là sản lượng hoà vốn ở một mức biến phí, cột cao dần về bên phải và cột tô đặc là mức bạn đang nhập. Vài cột cuối bên phải cao áp đảo: đó là vùng nguyên liệu tăng giá thêm một chút cũng đủ đẩy điểm hoà vốn ra ngoài tầm bán được.',
           'Each bar is the break-even volume at one variable cost; bars grow taller to the right and the solid one is the level you have entered. The last few bars on the right dwarf the rest: that is the zone where a slightly dearer input is enough to push break-even beyond what can be sold.',
+        ),
+        diem: d(
+          'Mỗi chấm là sản lượng hoà vốn ở một mức của ô Biến phí một sản phẩm (VC), từ một nửa đến gấp rưỡi con số bạn đang nhập; chấm nằm trên vạch đứt dọc là đúng biến phí bạn nhập. Đây là phép thử nếu chi phí làm ra một sản phẩm đổi, không phải diễn biến thị trường. Dãy chấm đi lên, các chấm bên trái sát nhau còn các chấm bên phải giãn xa dần rồi vọt lên: biến phí càng tới gần giá bán thì phần mỗi sản phẩm góp để trả định phí càng mỏng, nên số sản phẩm phải bán tăng nhanh hơn sau mỗi nấc.',
+          'Each dot is the break-even volume at one level of the Variable cost per unit (VC) field, from half to one and a half times the figure you have entered; the dot on the dashed vertical line is your own variable cost. It is a what-if on the cost of making one unit, not market history. The row of dots rises, close together on the left and spreading ever wider to the right: the nearer variable cost gets to the selling price, the thinner each unit’s contribution toward fixed cost, so the volume needed climbs faster with every notch.',
         ),
       },
     },
@@ -786,6 +1102,10 @@ export const BIEU_DO_KHAC: Readonly<Record<string, BieuDoRieng>> = {
           'Mỗi cột là đòn bẩy tổng hợp ở một mức doanh thu, cột thấp dần về bên phải và cột tô đặc là mức bạn đang nhập. Các cột đầu tiên sát vùng gạch chéo cao vọt: ngay trên điểm hoà vốn, doanh thu chỉ xê dịch một chút là lợi nhuận đã đổi gấp nhiều lần.',
           'Each bar is total leverage at one revenue level; bars shrink to the right and the solid one is the level you have entered. The first bars next to the hatched zone tower: just above break-even, a small shift in revenue changes profit many times over.',
         ),
+        diem: d(
+          'Mỗi chấm là đòn bẩy tổng hợp ở một mức của ô Doanh thu (DT), từ một nửa đến gấp rưỡi con số bạn đang nhập; chấm nằm trên vạch đứt dọc là đúng doanh thu bạn nhập. Đây là phép thử nếu doanh thu đổi mà chi phí đứng yên, không phải diễn biến thị trường. Vùng gạch chéo bên trái không có chấm là những mức doanh thu chưa đủ trả biến phí, định phí và lãi vay, ở đó hệ số không có nghĩa. Qua khỏi vùng ấy, mấy chấm đầu nằm rất cao rồi dãy chấm đi xuống và sít lại: doanh thu càng vượt xa điểm hoà vốn thì lợi nhuận càng bớt chao đảo theo doanh thu.',
+          'Each dot is total leverage at one level of the Revenue (DT) field, from half to one and a half times the figure you have entered; the dot on the dashed vertical line is your own revenue. It is a what-if on revenue with costs held still, not market history. The hatched area on the left with no dots is revenue too low to cover variable cost, fixed cost and interest, where the ratio has no meaning. Past it the first dots sit very high, then the row falls and closes up: the further revenue clears break-even, the less profit swings with it.',
+        ),
       },
       variableCost: {
         duong: d(
@@ -795,6 +1115,10 @@ export const BIEU_DO_KHAC: Readonly<Record<string, BieuDoRieng>> = {
         cot: d(
           'Mỗi cột là đòn bẩy tổng hợp ở một mức biến phí, cột cao dần về bên phải và cột tô đặc là mức bạn đang nhập. Dãy cột dừng lại trước vùng gạch chéo: cột cuối cùng cao nhất là mức biến phí mà doanh nghiệp chỉ còn cách hoà vốn một bước.',
           'Each bar is total leverage at one level of variable cost; bars grow taller to the right and the solid one is the level you have entered. The row stops short of the hatched zone: the last and tallest bar is the cost level at which the company is one step from break-even.',
+        ),
+        diem: d(
+          'Mỗi chấm là đòn bẩy tổng hợp ở một mức của ô Tổng biến phí (BP), từ một nửa đến gấp rưỡi con số bạn đang nhập; chấm nằm trên vạch đứt dọc là đúng biến phí bạn nhập. Đây là phép thử nếu biến phí đổi mà doanh thu đứng yên, không phải diễn biến thị trường. Dãy chấm đi lên, sát nhau ở bên trái rồi giãn dần, chấm cuối vọt cao ngay trước vùng gạch chéo bên phải. Vùng ấy không có chấm nào: biến phí đã ăn hết phần còn lại sau định phí và lãi vay, nên hệ số không có nghĩa.',
+          'Each dot is total leverage at one level of the Total variable cost (BP) field, from half to one and a half times the figure you have entered; the dot on the dashed vertical line is your own variable cost. It is a what-if on variable cost with revenue held still, not market history. The row of dots rises, close together on the left and then spreading out, the last dot shooting up just before the hatched area on the right. That area has no dots: variable cost has eaten what is left after fixed cost and interest, so the ratio means nothing.',
         ),
       },
       fixedCost: {
@@ -806,6 +1130,10 @@ export const BIEU_DO_KHAC: Readonly<Record<string, BieuDoRieng>> = {
           'Mỗi cột là đòn bẩy tổng hợp ở một mức định phí, cột cao dần về bên phải và mỗi cột thêm nhiều hơn cột trước; cột tô đặc là mức bạn đang nhập. Chiều cao cột là số lần mà mỗi phần trăm thay đổi của doanh thu được khuếch đại lên EPS, theo cả chiều tăng lẫn chiều giảm.',
           'Each bar is the total leverage at one fixed cost; bars grow taller to the right, each adding more than the one before, and the solid one is the level you have entered. Bar height is how many times each percent change in revenue is magnified onto EPS, on the way up and on the way down alike.',
         ),
+        diem: d(
+          'Mỗi chấm là đòn bẩy tổng hợp ở một mức của ô Định phí hoạt động, từ một nửa đến gấp rưỡi con số bạn đang nhập; chấm nằm trên vạch đứt dọc là đúng định phí bạn nhập. Đây là phép thử nếu định phí khác đi, không phải diễn biến thị trường. Dãy chấm đi lên và mỗi chấm cách chấm trước xa hơn: định phí càng nặng thì lợi nhuận còn lại càng mỏng, EPS càng nhảy mạnh theo doanh thu. Vùng gạch chéo bên phải không có chấm là chỗ định phí đã ăn hết lợi nhuận sau lãi vay.',
+          'Each dot is total leverage at one level of the Operating fixed cost field, from half to one and a half times the figure you have entered; the dot on the dashed vertical line is your own fixed cost. It is a what-if on another fixed cost, not market history. The row of dots rises, each dot further above the last: the heavier the fixed cost, the thinner the profit left over and the harder EPS jumps with revenue. The hatched area on the right, with no dots, is where fixed cost has eaten all the profit after interest.',
+        ),
       },
       interest: {
         duong: d(
@@ -815,6 +1143,10 @@ export const BIEU_DO_KHAC: Readonly<Record<string, BieuDoRieng>> = {
         cot: d(
           'Mỗi cột là đòn bẩy tổng hợp ở một mức lãi vay, cột cao dần về bên phải và cột tô đặc là mức bạn đang nhập. Phần cột tăng thêm khi lãi vay tăng là do đòn bẩy tài chính; mức cột khi không vay đồng nào là riêng đòn bẩy hoạt động.',
           'Each bar is total leverage at one level of interest; bars grow taller to the right and the solid one is the level you have entered. The extra height that comes with more interest is the work of financial leverage; the height a bar would have with no borrowing at all is operating leverage alone.',
+        ),
+        diem: d(
+          'Mỗi chấm là đòn bẩy tổng hợp ở một mức của ô Lãi vay (I), từ một nửa đến gấp rưỡi con số bạn đang nhập; chấm nằm trên vạch đứt dọc là đúng lãi vay bạn nhập. Đây là phép thử nếu lãi vay đổi, không phải diễn biến thị trường. Dãy chấm đi lên, khoảng cách giữa hai chấm kề nhau rộng dần về bên phải: lãi vay phải trả dù bán được bao nhiêu, nên mỗi khoản lãi thêm vào làm phần lợi nhuận còn lại cho cổ đông mỏng đi và EPS càng chao đảo mạnh theo doanh thu.',
+          'Each dot is total leverage at one level of the Interest expense (I) field, from half to one and a half times the figure you have entered; the dot on the dashed vertical line is your own interest. It is a what-if on interest, not market history. The row of dots rises, the gap between neighbors widening to the right: interest is owed whatever the sales, so each extra slice of it thins the profit left for shareholders and makes EPS swing harder with revenue.',
         ),
       },
     },

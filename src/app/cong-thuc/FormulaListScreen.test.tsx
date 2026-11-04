@@ -212,13 +212,32 @@ describe('FormulaListScreen — ô tìm lọc cả danh sách tại chỗ', () =
     expect(window.localStorage.getItem(RECENT_SEARCHES_KEY)).toBeNull();
   });
 
-  it('bấm chip "Tìm gần đây" thì lọc ngay tại chỗ, không chuyển màn', async () => {
+  /*
+   * 03/11/2026, ĐẢO ca "bấm chip thì lọc ngay tại chỗ": chủ dự án bấm chip "Giá vốn trung bình khi
+   * mua DCA" và chỉ thấy ô tìm điền lại chữ ấy, ra danh sách kết quả — _"khi bấm vào … thì phải chuyển
+   * sang phần công thức đã lưu đó"_. Chip là một công thức đã chọn, nên nó là link tới trang công thức.
+   */
+  it('chip "Tìm gần đây" là link mở thẳng công thức ấy, không đổ chữ vào ô tìm', async () => {
     window.localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify([PE.name.vi]));
     moMan();
 
-    fireEvent.click(await screen.findByRole('button', { name: PE.name.vi }));
+    const chip = await screen.findByRole('link', { name: PE.name.vi });
+    expect(chip.getAttribute('href')).toMatch(/^\/cong-thuc\/pe\/?$/);
+    expect(screen.queryByRole('button', { name: PE.name.vi })).toBeNull();
 
-    expect(oTim().value).toBe(PE.name.vi);
+    fireEvent.click(chip);
+    expect(oTim().value).toBe('');
+    expect(window.location.search).not.toContain('q=');
+  });
+
+  /* Tên cũ trong kho (ví dụ PEG trước ngày đổi tên 03/11/2026) không có trang để mở: vẫn lọc tại chỗ. */
+  it('chip không tra ra công thức nào vẫn là nút lọc tại chỗ', async () => {
+    window.localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify(['P/E']));
+    moMan();
+
+    fireEvent.click(await screen.findByRole('button', { name: 'P/E' }));
+
+    expect(oTim().value).toBe('P/E');
     expect(window.location.search).toContain('q=');
     expect(idTrongDanhSach()).toContain('pe');
   });
@@ -236,7 +255,7 @@ describe('FormulaListScreen — ô tìm lọc cả danh sách tại chỗ', () =
    * ngôn ngữ LÚC BẤM và chip in lại nguyên chuỗi. Nay chip in theo ngôn ngữ đang bật, và kho ghi tên
    * gốc `vi` ở mọi ngôn ngữ.
    */
-  it('tiếng Anh: chip ghi bằng tên Việt hiện bằng tên Anh, bấm thì lọc theo tên Anh', async () => {
+  it('tiếng Anh: chip ghi bằng tên Việt hiện bằng tên Anh, vẫn mở đúng công thức', async () => {
     window.localStorage.setItem(
       PREFERENCES_STORAGE_KEY,
       JSON.stringify({ mode: 'basic', locale: 'en', theme: 'light' }),
@@ -244,10 +263,9 @@ describe('FormulaListScreen — ô tìm lọc cả danh sách tại chỗ', () =
     window.localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify([PE.name.vi]));
     moMan();
 
-    fireEvent.click(await screen.findByRole('button', { name: PE.name.en }));
-    expect(screen.queryByRole('button', { name: PE.name.vi })).toBeNull();
-    expect((screen.getByRole('searchbox') as HTMLInputElement).value).toBe(PE.name.en);
-    expect(idTrongDanhSach()).toContain('pe');
+    const chip = await screen.findByRole('link', { name: PE.name.en });
+    expect(screen.queryByRole('link', { name: PE.name.vi })).toBeNull();
+    expect(chip.getAttribute('href')).toMatch(/^\/cong-thuc\/pe\/?$/);
   });
 
   it('tiếng Anh: bấm một kết quả tìm vẫn ghi tên GỐC tiếng Việt vào kho', async () => {
@@ -476,8 +494,8 @@ describe('FormulaListScreen — quay về từ một kết quả tìm', () => {
     expect(window.location.search).toBe('');
     expect(scrollTo).toHaveBeenCalledWith({ top: 0, behavior: 'auto' });
     expect(cancelScrollRestore).toHaveBeenCalledTimes(1);
-    // Chip "Tìm gần đây" mang tên công thức vừa mở, sẵn cho lượt tìm sau.
-    expect(await screen.findByRole('button', { name: PE.name.vi })).toBeTruthy();
+    // Chip "Tìm gần đây" mang tên công thức vừa mở, sẵn để mở lại.
+    expect(await screen.findByRole('link', { name: PE.name.vi })).toBeTruthy();
   });
 
   /*
@@ -549,7 +567,7 @@ describe('ô tìm ghim dưới thanh trên ở khổ điện thoại', () => {
   it('khung bọc ô tìm nằm cùng cha với khối danh sách và không chứa hàng chip lịch sử', async () => {
     window.localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify([PE.name.vi]));
     moMan();
-    const chip = await screen.findByRole('button', { name: PE.name.vi });
+    const chip = await screen.findByRole('link', { name: PE.name.vi });
 
     const cha = khoiDanhSach().parentElement;
     let khung: HTMLElement = oTim();

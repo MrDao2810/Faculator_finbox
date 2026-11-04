@@ -75,4 +75,13 @@ describe('parseFormulaOrigin — đọc lại từ kho người dùng sửa đư
   it('chuỗi dài bất thường bị chặn trước cả khi parse', () => {
     expect(parseFormulaOrigin(`{"id":"pe","name":"${'x'.repeat(600)}"}`)).toBeNull();
   });
+
+  /*
+   * Tab mở xuyên qua lần cập nhật 02/11/2026 còn giữ tên công thức viết gạch dài; nút quay lại phải in
+   * tên như màn chi tiết đang in, bằng gạch nối.
+   */
+  it('bản ghi ghi trước ngày đổi gạch dài thì đọc ra tên bằng gạch nối', () => {
+    const cu = JSON.stringify({ id: 'pe', name: 'P/E — hệ số giá trên lợi nhuận' });
+    expect(parseFormulaOrigin(cu)).toEqual({ id: 'pe', name: 'P/E - hệ số giá trên lợi nhuận' });
+  });
 });

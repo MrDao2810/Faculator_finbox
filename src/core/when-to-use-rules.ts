@@ -42,8 +42,8 @@ export const KHI_NAO_TOI_THIEU = 50;
 /** Luật 2: dấu kết câu đứng GIỮA câu, hoặc dấu nối hai vế thành hai câu. */
 const HAI_CAU = /[.!?](?=\s)|[;:\n]/;
 
-/** Luật 4. */
-const GACH_DAI = /[–—]/;
+/** Luật 4. Từ 02/11/2026 gạch nối cách hai bên " - " là dấu ngăn của chữ trên màn, nên chặn luôn. */
+const GACH_DAI = /[–—]|\s-\s/;
 
 /** Luật 5. */
 const VAI_TRO: Readonly<Record<'vi' | 'en', RegExp>> = {
@@ -152,7 +152,8 @@ export function whenToUseProblems({ id, name, whenToUse }: KhiNaoInput): string[
     if (cau.length < KHI_NAO_TOI_THIEU) {
       loi.push(`${nhan}: ngắn ${String(cau.length)} ký tự, sàn ${String(KHI_NAO_TOI_THIEU)}`);
     }
-    if (GACH_DAI.test(cau)) loi.push(`${nhan}: có gạch ngang dài (- hoặc –)`);
+    if (GACH_DAI.test(cau))
+      loi.push(`${nhan}: có gạch ngang (gạch dài, gạch vừa hoặc gạch nối cách hai bên)`);
 
     const vaiTro = VAI_TRO[ngon].exec(cau);
     if (vaiTro !== null)

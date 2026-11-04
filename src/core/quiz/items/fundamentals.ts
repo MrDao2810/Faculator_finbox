@@ -32,8 +32,8 @@ export const CHI_SO_DN: ReadonlyArray<QuizItem> = [
     },
     answer: 'b',
     explain: {
-      vi: 'DNSE nêu đúng ngộ nhận: “Số lượng cổ phiếu trong tài khoản tăng lên khiến nhiều người nghĩ rằng mình đang được thêm tiền mà không phải bỏ ra đồng nào”, trong khi “Không có giá trị mới được tạo ra” - 1.200 cổ phiếu × 33.333 đồng vẫn là 40 triệu.',
-      en: 'DNSE names the misconception exactly: “Số lượng cổ phiếu trong tài khoản tăng lên khiến nhiều người nghĩ rằng mình đang được thêm tiền mà không phải bỏ ra đồng nào” (seeing more shares in the account makes many people think they are getting free money for nothing), while “Không có giá trị mới được tạo ra” (no new value is created) - 1,200 shares × VND 33,333 is still VND 40 million.',
+      vi: 'DNSE nêu đúng ngộ nhận: “Số lượng cổ phiếu trong tài khoản tăng lên khiến nhiều người nghĩ rằng mình đang được thêm tiền mà không phải bỏ ra đồng nào”, trong khi “Không có giá trị mới được tạo ra”: 1.200 cổ phiếu × 33.333 đồng vẫn là 40 triệu.',
+      en: 'DNSE names the misconception exactly: “Số lượng cổ phiếu trong tài khoản tăng lên khiến nhiều người nghĩ rằng mình đang được thêm tiền mà không phải bỏ ra đồng nào” (seeing more shares in the account makes many people think they are getting free money for nothing), while “Không có giá trị mới được tạo ra” (no new value is created): 1,200 shares × VND 33,333 is still VND 40 million.',
     },
     source: {
       url: 'https://www.dnse.com.vn/senses/tin-tuc/hieu-dung-ve-pha-loang-co-phieu-khi-doanh-nghiep-chia-co-tuc-35163328',
@@ -153,7 +153,7 @@ export const CHI_SO_DN: ReadonlyArray<QuizItem> = [
     answer: 'a',
     explain: {
       vi: 'GoValue: “đây là nghiệp vụ chia tách cổ phiếu. Nó không hề phát sinh bất kỳ dòng tiền mới” nên “giá trị sổ sách (Vốn CSH / Số lượng cổ phiếu) giảm tương ứng”. Nguồn còn cảnh báo lãnh đạo có thể dùng cách này để che giấu thiếu hụt dòng tiền mặt.',
-      en: 'GoValue: “đây là nghiệp vụ chia tách cổ phiếu. Nó không hề phát sinh bất kỳ dòng tiền mới” (this is a stock-split transaction; it generates no new cash flow at all), so “giá trị sổ sách (Vốn CSH / Số lượng cổ phiếu) giảm tương ứng” (book value - equity ÷ share count - falls proportionally). The source also warns that management can use this move to mask a cash-flow shortfall.',
+      en: 'GoValue: “đây là nghiệp vụ chia tách cổ phiếu. Nó không hề phát sinh bất kỳ dòng tiền mới” (this is a stock-split transaction; it generates no new cash flow at all), so “giá trị sổ sách (Vốn CSH / Số lượng cổ phiếu) giảm tương ứng” (book value, i.e. equity ÷ share count, falls proportionally). The source also warns that management can use this move to mask a cash-flow shortfall.',
     },
     source: {
       url: 'https://govalue.vn/co-phieu-thuong-la-gi/',
@@ -358,8 +358,8 @@ export const CHI_SO_DN: ReadonlyArray<QuizItem> = [
       a: { vi: 'Tăng tương ứng', en: 'It rose correspondingly' },
       b: { vi: 'Bằng 0', en: 'It was zero' },
       c: {
-        vi: 'Âm gần 1 tỷ - toàn bộ lãi đến từ thu nhập khác',
-        en: 'It was negative by almost VND 1 billion - the entire profit came from other income',
+        vi: 'Âm gần 1 tỷ, toàn bộ lãi đến từ thu nhập khác',
+        en: 'It was negative by almost VND 1 billion; the entire profit came from other income',
       },
       d: { vi: 'Không công bố', en: 'It was not disclosed' },
     },
@@ -775,7 +775,7 @@ export const CHI_SO_DN: ReadonlyArray<QuizItem> = [
     answer: 'a',
     explain: {
       vi: '“Nếu tỷ lệ này quá cao (trên 70-80% chẳng hạn), đó có thể là dấu hiệu công ty đang vắt kiệt lợi nhuận để trả cổ tức, hoặc không có đủ tiền để tái đầu tư” - và nguồn tiền “Có thể là vay nợ, có thể là rút ruột từ quỹ dự phòng”.',
-      en: '“Nếu tỷ lệ này quá cao (trên 70-80% chẳng hạn), đó có thể là dấu hiệu công ty đang vắt kiệt lợi nhuận để trả cổ tức, hoặc không có đủ tiền để tái đầu tư” (if the ratio is too high - say, above 70–80% - it can signal that the company is squeezing out profit to pay dividends, or does not have enough cash to reinvest) - and the money can be “Có thể là vay nợ, có thể là rút ruột từ quỹ dự phòng” (borrowed, or drained from a reserve fund).',
+      en: '“Nếu tỷ lệ này quá cao (trên 70-80% chẳng hạn), đó có thể là dấu hiệu công ty đang vắt kiệt lợi nhuận để trả cổ tức, hoặc không có đủ tiền để tái đầu tư” (if the ratio is too high, say above 70–80%, it can signal that the company is squeezing out profit to pay dividends, or does not have enough cash to reinvest) - and the money can be “Có thể là vay nợ, có thể là rút ruột từ quỹ dự phòng” (borrowed, or drained from a reserve fund).',
     },
     source: {
       url: 'https://vimo.cuthongthai.vn/blog/co-tuc-cao-bay-ngot-hay-kim-cuong-that-90-f0-khong-biet',

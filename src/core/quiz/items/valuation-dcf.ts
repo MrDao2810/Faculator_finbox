@@ -650,8 +650,8 @@ export const DCF: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'Giảm sai lầm loại 1 nhưng tăng sai lầm loại 2 - bỏ lỡ cơ hội',
-        en: 'It reduces type 1 errors but increases type 2 errors - missed opportunities',
+        vi: 'Giảm sai lầm loại 1 nhưng tăng sai lầm loại 2 (bỏ lỡ cơ hội)',
+        en: 'It reduces type 1 errors but increases type 2 errors (missed opportunities)',
       },
       b: { vi: 'Không có giá nào', en: 'There is no cost at all' },
       c: { vi: 'Phải trả phí giao dịch cao hơn', en: 'You have to pay higher transaction fees' },

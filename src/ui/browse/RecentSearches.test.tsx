@@ -61,7 +61,7 @@ describe('RecentSearches — dạng block, màn tìm WF-09', () => {
     expect(onClear).toHaveBeenCalledTimes(1);
   });
 
-  it('chip là NÚT gọi lại tại chỗ, không phải link rời màn', async () => {
+  it('không truyền hrefFor thì chip là NÚT gọi lại tại chỗ, không phải link rời màn', async () => {
     const onPick = vi.fn();
     render(<RecentSearches terms={TERMS} onPick={onPick} onClear={vi.fn()} />);
 
@@ -73,12 +73,22 @@ describe('RecentSearches — dạng block, màn tìm WF-09', () => {
 });
 
 describe('RecentSearches — dạng inline, hàng chip dưới ô tìm ở trang chủ', () => {
-  function renderInline(hrefFor = (term: string) => `/cong-thuc/?q=${encodeURIComponent(term)}`) {
+  function renderInline(
+    hrefFor: (term: string) => string | null = (term) =>
+      `/cong-thuc/?q=${encodeURIComponent(term)}`,
+  ) {
     const onClear = vi.fn();
+    const onPick = vi.fn();
     const view = render(
-      <RecentSearches terms={TERMS} hrefFor={hrefFor} onClear={onClear} variant="inline" />,
+      <RecentSearches
+        terms={TERMS}
+        hrefFor={hrefFor}
+        onPick={onPick}
+        onClear={onClear}
+        variant="inline"
+      />,
     );
-    return { ...view, onClear };
+    return { ...view, onClear, onPick };
   }
 
   /*
@@ -124,6 +134,20 @@ describe('RecentSearches — dạng inline, hàng chip dưới ô tìm ở trang
     expect(href.startsWith('/cong-thuc')).toBe(true);
     expect(href).toContain('q=P%2FE');
     expect(screen.queryByRole('button', { name: 'P/E' })).toBeNull();
+  });
+
+  /*
+   * 03/11/2026: chip là link mở công thức, nhưng một chuỗi cũ trong kho có thể không tra ra công thức
+   * nào. Chip ấy không có trang để mở, nên vẫn là nút lọc tại chỗ — quyết từng chip, không cả hàng.
+   */
+  it('hrefFor trả null thì riêng chip ấy là nút gọi onPick, chip còn lại vẫn là link', async () => {
+    const { onPick } = renderInline((term) => (term === 'P/E' ? '/cong-thuc/pe/' : null));
+
+    expect(screen.getByRole('link', { name: 'P/E' })).not.toBeNull();
+    expect(screen.queryByRole('link', { name: 'WACC' })).toBeNull();
+
+    await userEvent.click(screen.getByRole('button', { name: 'WACC' }));
+    expect(onPick).toHaveBeenCalledWith('WACC');
   });
 });
 

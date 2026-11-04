@@ -3485,12 +3485,12 @@ describe('báo hình đang hiện lên màn chi tiết', () => {
     });
   });
 
-  it('hình bóc tách báo khoá của mục Bóc tách', () => {
+  it('hình bóc tách báo khoá của mục Bóc tách, ở dạng Thanh ngang', () => {
     const { bao } = drawBao('ev');
 
     expect(loiBaoCuoi(bao)).toEqual({
       khoa: '__breakdown',
-      dang: 'duong',
+      dang: 'thanh',
       daVe: true,
       hinhChuoi: false,
     });
@@ -3528,11 +3528,16 @@ describe('báo hình đang hiện lên màn chi tiết', () => {
    * cần"). Điểm vẽ đúng bộ điểm và trục của dạng Đường, nên khung "?" phải được báo Đường — báo Cột
    * là in đoạn nói về những cột không có trên hình.
    */
-  it('dạng Điểm báo lên là Đường — cùng bộ điểm, cùng trục', async () => {
+  /*
+   * Đảo ngày 03/11/2026: Điểm từng báo lên là Đường (cùng bộ điểm, cùng trục) nên khung "?" in "Dạng
+   * Đường" cạnh một hình chấm. Chủ dự án: "khi chuyển dạng thì phần hướng dẫn sau đang chưa chuyển
+   * dạng hướng dẫn tương tự". Nay mỗi dạng báo đúng tên của nó.
+   */
+  it('dạng Điểm báo lên đúng là Điểm, không gộp vào Đường', async () => {
     const { bao } = drawBao('pe');
 
     await userEvent.selectOptions(screen.getByLabelText('Loại biểu đồ'), 'Điểm');
-    expect(loiBaoCuoi(bao)).toEqual({ khoa: 'price', dang: 'duong', daVe: true, hinhChuoi: false });
+    expect(loiBaoCuoi(bao)).toEqual({ khoa: 'price', dang: 'diem', daVe: true, hinhChuoi: false });
   });
 
   /*

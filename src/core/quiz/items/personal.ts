@@ -27,7 +27,7 @@ export const CA_NHAN: ReadonlyArray<QuizItem> = [
     answer: 'd',
     explain: {
       vi: 'Nguồn tính sẵn: “Theo dư nợ gốc: Tiền lãi mỗi tháng 1.200.000 VND (không đổi), Tổng lãi 12 tháng: 14.400.000 VND” so với “Theo dư nợ giảm dần... Tổng lãi 12 tháng: 7.800.000 VND” - cùng một con số 12%/năm nhưng chênh gần gấp đôi.',
-      en: 'The source has already worked this out: under the original-balance method the monthly interest is a constant 1,200,000 VND and the 12-month total is 14,400,000 VND - “Theo dư nợ gốc: Tiền lãi mỗi tháng 1.200.000 VND (không đổi), Tổng lãi 12 tháng: 14.400.000 VND” - versus a 12-month total of 7,800,000 VND under the declining-balance method - “Theo dư nợ giảm dần... Tổng lãi 12 tháng: 7.800.000 VND”. Same 12%/year rate, but the difference is nearly double.',
+      en: 'The source has already worked this out: under the original-balance method the monthly interest is a constant 1,200,000 VND and the 12-month total is 14,400,000 VND: “Theo dư nợ gốc: Tiền lãi mỗi tháng 1.200.000 VND (không đổi), Tổng lãi 12 tháng: 14.400.000 VND”, versus a 12-month total of 7,800,000 VND under the declining-balance method: “Theo dư nợ giảm dần... Tổng lãi 12 tháng: 7.800.000 VND”. Same 12%/year rate, but the difference is nearly double.',
     },
     source: {
       url: 'https://wiki.batdongsan.com.vn/wiki/du-no-goc-va-du-no-giam-dan-la-gi-109402',
@@ -114,7 +114,7 @@ export const CA_NHAN: ReadonlyArray<QuizItem> = [
     answer: 'd',
     explain: {
       vi: 'Bài trên Thời báo Ngân hàng: ngân hàng “chia đều số tiền cả lãi và gốc trong các năm để đảm bảo số tiền phải trả hàng tháng là khoản tương đối cố định”; có phương án 21 tháng đầu khách hàng “chỉ trả lãi cho khoản vay”, từ tháng 22 mới “trả cả lãi lẫn gốc”.',
-      en: 'A Thời báo Ngân hàng article explains that banks spread principal and interest evenly across the loan term so the monthly payment stays roughly fixed - “chia đều số tiền cả lãi và gốc trong các năm để đảm bảo số tiền phải trả hàng tháng là khoản tương đối cố định”. Under one plan, the customer pays interest only for the first 21 months - “chỉ trả lãi cho khoản vay” - and only starts paying both principal and interest from month 22 - “trả cả lãi lẫn gốc”.',
+      en: 'A Thời báo Ngân hàng article explains that banks spread principal and interest evenly across the loan term so the monthly payment stays roughly fixed: “chia đều số tiền cả lãi và gốc trong các năm để đảm bảo số tiền phải trả hàng tháng là khoản tương đối cố định”. Under one plan, the customer pays interest only for the first 21 months (“chỉ trả lãi cho khoản vay”) and only starts paying both principal and interest from month 22 (“trả cả lãi lẫn gốc”).',
     },
     source: {
       url: 'https://thoibaonganhang.vn/nien-kim-co-dinh-don-gian-hoa-bai-toan-tai-chinh-cho-nguoi-mua-nha-84990.html',
@@ -144,7 +144,7 @@ export const CA_NHAN: ReadonlyArray<QuizItem> = [
     answer: 'c',
     explain: {
       vi: 'Trường hợp thật trên VietnamFinance: “khoản vay chuyển qua lãi suất thả nổi từ kỳ thanh toán tháng 7 với mức 18%/năm”. Điểm ít ai lường: không chỉ lãi suất cơ sở tăng mà BIÊN ĐỘ cũng bị nâng lên.',
-      en: 'A real case reported by VietnamFinance: the loan switched to the floating rate from the July payment period, at 18%/year - “khoản vay chuyển qua lãi suất thả nổi từ kỳ thanh toán tháng 7 với mức 18%/năm”. The part few people expect: it is not only the base rate that rises - the MARGIN gets raised too.',
+      en: 'A real case reported by VietnamFinance: the loan switched to the floating rate from the July payment period, at 18%/year: “khoản vay chuyển qua lãi suất thả nổi từ kỳ thanh toán tháng 7 với mức 18%/năm”. The part few people expect: it is not only the base rate that rises - the MARGIN gets raised too.',
     },
     source: {
       url: 'https://vietnamfinance.vn/lai-tha-noi-cham-dinh-18-nam-nguoi-mua-nha-xe-tra-gop-ban-het-de-thoat-no-d150828.html',
@@ -171,7 +171,7 @@ export const CA_NHAN: ReadonlyArray<QuizItem> = [
     answer: 'b',
     explain: {
       vi: 'Trường hợp chị Nguyễn Huyền (Hà Nội): “mỗi tháng chị phải gánh thêm khoảng 10 triệu đồng tiền lãi phát sinh, nâng tổng số tiền gốc và lãi phải trả hàng tháng từ 30 triệu lên gần 40 triệu đồng” - tăng khoảng một phần ba.',
-      en: 'The case of Ms. Nguyễn Huyền (Hanoi): she now bears an extra roughly 10 million dong of interest each month, raising her total monthly principal-and-interest payment from 30 million to nearly 40 million - “mỗi tháng chị phải gánh thêm khoảng 10 triệu đồng tiền lãi phát sinh, nâng tổng số tiền gốc và lãi phải trả hàng tháng từ 30 triệu lên gần 40 triệu đồng” - a rise of about a third.',
+      en: 'The case of Ms. Nguyễn Huyền (Hanoi): she now bears an extra roughly 10 million dong of interest each month, raising her total monthly principal-and-interest payment from 30 million to nearly 40 million (“mỗi tháng chị phải gánh thêm khoảng 10 triệu đồng tiền lãi phát sinh, nâng tổng số tiền gốc và lãi phải trả hàng tháng từ 30 triệu lên gần 40 triệu đồng”), a rise of about a third.',
     },
     source: {
       url: 'https://docnhanh.vn/kinh-te/cu-soc-lai-suat-tha-noi-nguoi-mua-nha-ngop-tho-vi-chi-phi-tra-no-tang-them-ca-chuc-trieu-moi-thang-tintuc1033352',
@@ -201,7 +201,7 @@ export const CA_NHAN: ReadonlyArray<QuizItem> = [
     answer: 'c',
     explain: {
       vi: '“Lãi suất vay mua nhà trong thời gian ưu đãi hiện phổ biến 8,5-11%/năm, với thời gian áp dụng thường kéo dài 6-12 tháng”, còn “Lãi suất thực tế người vay phải chịu hiện phổ biến 13-15%/năm”, tính bằng lãi suất cơ sở cộng biên độ khoảng 3,3–3,5%.',
-      en: 'The promotional home-loan rate is typically 8.5–11%/year, usually lasting 6 to 12 months - “Lãi suất vay mua nhà trong thời gian ưu đãi hiện phổ biến 8,5-11%/năm, với thời gian áp dụng thường kéo dài 6-12 tháng” - while the actual rate borrowers end up paying is typically 13–15%/year - “Lãi suất thực tế người vay phải chịu hiện phổ biến 13-15%/năm” - computed as the base rate plus a margin of about 3.3–3.5%.',
+      en: 'The promotional home-loan rate is typically 8.5–11%/year, usually lasting 6 to 12 months (“Lãi suất vay mua nhà trong thời gian ưu đãi hiện phổ biến 8,5-11%/năm, với thời gian áp dụng thường kéo dài 6-12 tháng”), while the actual rate borrowers end up paying is typically 13–15%/year (“Lãi suất thực tế người vay phải chịu hiện phổ biến 13-15%/năm”), computed as the base rate plus a margin of about 3.3–3.5%.',
     },
     source: {
       url: 'https://dantri.com.vn/bat-dong-san/lai-vay-mua-nha-len-13-15-sau-uu-dai-lam-gi-de-tranh-can-kiet-dong-tien-20260811163931692.htm',
@@ -322,7 +322,7 @@ export const CA_NHAN: ReadonlyArray<QuizItem> = [
     answer: 'a',
     explain: {
       vi: 'Công thức ngân hàng công bố: “Tiền lãi = ∑ (Dư nợ thực tế x Lãi suất/365 x Số ngày sử dụng)”. Nếu app dùng quy ước 30 ngày/tháng thì kết quả sẽ lệch so với số ngân hàng trả - ví dụ 1 tỷ gửi 6 tháng lãi 8,1%: quy ước 30 ngày ra 40,5 triệu, tính theo ngày thực ra khoảng 39,9 triệu.',
-      en: 'The formula the bank publishes: interest equals the sum, over the period, of actual balance times rate divided by 365 times days used - “Tiền lãi = ∑ (Dư nợ thực tế x Lãi suất/365 x Số ngày sử dụng)”. If an app instead assumes 30 days per month, the result will differ from what the bank actually pays - for example, 1 billion deposited for 6 months at 8.1%: the 30-day convention gives 40.5 million, while the actual-days calculation gives about 39.9 million.',
+      en: 'The formula the bank publishes: interest equals the sum, over the period, of actual balance times rate divided by 365 times days used: “Tiền lãi = ∑ (Dư nợ thực tế x Lãi suất/365 x Số ngày sử dụng)”. If an app instead assumes 30 days per month, the result will differ from what the bank actually pays - for example, 1 billion deposited for 6 months at 8.1%: the 30-day convention gives 40.5 million, while the actual-days calculation gives about 39.9 million.',
     },
     source: {
       url: 'https://techcombank.com/thong-tin/blog/cach-tinh-lai-vay-ngan-hang',
@@ -471,8 +471,8 @@ export const CA_NHAN: ReadonlyArray<QuizItem> = [
         en: 'It breaks because account maintenance fees eat into the balance',
       },
       d: {
-        vi: 'Giá căn hộ chạy nhanh hơn tốc độ tích luỹ - 5 năm qua Hà Nội tăng khoảng 72% trong khi thu nhập bình quân chỉ tăng 6–10% mỗi năm',
-        en: 'Apartment prices outrun the pace of saving - over the past five years Hanoi rose about 72% while average income grew only 6–10% a year',
+        vi: 'Giá căn hộ chạy nhanh hơn tốc độ tích luỹ: 5 năm qua Hà Nội tăng khoảng 72% trong khi thu nhập bình quân chỉ tăng 6–10% mỗi năm',
+        en: 'Apartment prices outrun the pace of saving: over the past five years Hanoi rose about 72% while average income grew only 6–10% a year',
       },
     },
     answer: 'd',

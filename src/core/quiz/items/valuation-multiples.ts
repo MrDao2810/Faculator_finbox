@@ -56,7 +56,7 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: { vi: 'Khoảng 17 lần', en: 'About 17x' },
-      b: { vi: 'Vẫn 4,42 lần - lợi nhuận là lợi nhuận', en: 'Still 4.42x - profit is profit' },
+      b: { vi: 'Vẫn 4,42 lần, lợi nhuận là lợi nhuận', en: 'Still 4.42x, profit is profit' },
       c: { vi: 'Khoảng 2 lần', en: 'About 2x' },
       d: {
         vi: 'Không tính được nếu chưa có báo cáo kiểm toán',
@@ -65,8 +65,8 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
     },
     answer: 'a',
     explain: {
-      vi: 'Loại 1.350 tỷ lợi nhuận một lần, lợi nhuận cốt lõi còn khoảng 480 tỷ, P/E cốt lõi khoảng 17 lần - gấp gần 4 lần con số hiển thị. Nguồn kết luận: “P/E cốt lõi trong tương lai của doanh nghiệp mới là yếu tố cần quan tâm”.',
-      en: 'Stripping out the one-time VND 1,350 billion gain leaves core profit at about VND 480 billion, giving a core P/E of about 17x - nearly 4 times the displayed figure. The source concludes: “P/E cốt lõi trong tương lai của doanh nghiệp mới là yếu tố cần quan tâm”.',
+      vi: 'Loại 1.350 tỷ lợi nhuận một lần, lợi nhuận cốt lõi còn khoảng 480 tỷ, P/E cốt lõi khoảng 17 lần, gấp gần 4 lần con số hiển thị. Nguồn kết luận: “P/E cốt lõi trong tương lai của doanh nghiệp mới là yếu tố cần quan tâm”.',
+      en: 'Stripping out the one-time VND 1,350 billion gain leaves core profit at about VND 480 billion, giving a core P/E of about 17x, nearly 4 times the displayed figure. The source concludes: “P/E cốt lõi trong tương lai của doanh nghiệp mới là yếu tố cần quan tâm”.',
     },
     source: {
       url: 'https://azfin.vn/p-e-thap-can-than-voi-bay-gia-tri/',
@@ -101,8 +101,8 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
     },
     answer: 'b',
     explain: {
-      vi: 'Khi EPS âm, P/E mất ý nghĩa so sánh. Nghịch lý được ghi nhận: P/E âm sâu hơn (−100) lại hàm ý khoản lỗ NHỎ hơn so với thị giá chứ không phải tệ hơn (−10) - tức con số không đọc theo trực giác được. Đây đúng là mã cảnh báo MEANINGLESS trong WarningCode.',
-      en: 'When EPS is negative, P/E loses its comparative meaning. A recorded paradox: a more deeply negative P/E (−100) actually implies a SMALLER loss relative to the market price than a less negative one (−10), not a worse one - meaning the number cannot be read intuitively. This is exactly the case the MEANINGLESS warning code in WarningCode exists for.',
+      vi: 'Khi EPS âm, P/E mất ý nghĩa so sánh. Nghịch lý được ghi nhận: P/E âm sâu hơn (−100) lại hàm ý khoản lỗ NHỎ hơn so với thị giá chứ không phải tệ hơn (−10), tức con số không đọc theo trực giác được. Đây đúng là mã cảnh báo MEANINGLESS trong WarningCode.',
+      en: 'When EPS is negative, P/E loses its comparative meaning. A recorded paradox: a more deeply negative P/E (−100) actually implies a SMALLER loss relative to the market price than a less negative one (−10), not a worse one, meaning the number cannot be read intuitively. This is exactly the case the MEANINGLESS warning code in WarningCode exists for.',
     },
     source: {
       url: 'https://24hmoney.vn/news/chi-so-pe-5-su-that-gay-soc-ma-90-nha-dau-tu-bo-qua-c30a2690593.html',
@@ -412,8 +412,8 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
       en: 'P/S = [71150.89] ÷ [57798]',
     },
     explain: {
-      vi: 'Nguồn tính lại P/S ngay sau khi có báo cáo Q1/2019: “Để chính xác hơn chúng ta cần sử dụng doanh thu lũy kế 4 Quý gần nhất của HPG.” Lấy 71.150,89 chia cho 57.798 tỷ đồng doanh thu lũy kế 4 quý ra khoảng 1,23 lần - thấp hơn 1,26 lần nếu vẫn dùng doanh thu cả năm 2018 đã lỗi thời so với báo cáo mới nhất.',
-      en: "The source recalculates P/S right after the Q1/2019 results come out: “Để chính xác hơn chúng ta cần sử dụng doanh thu lũy kế 4 Quý gần nhất của HPG.” (Roughly, for more accuracy we need to use HPG's trailing four-quarter revenue.) Dividing VND 71,150.89 billion by the trailing four-quarter revenue of VND 57,798 billion gives about 1.23x - lower than the 1.26x you would get by still using the now-outdated full-year-2018 revenue.",
+      vi: 'Nguồn tính lại P/S ngay sau khi có báo cáo Q1/2019: “Để chính xác hơn chúng ta cần sử dụng doanh thu lũy kế 4 Quý gần nhất của HPG.” Lấy 71.150,89 chia cho 57.798 tỷ đồng doanh thu lũy kế 4 quý ra khoảng 1,23 lần, thấp hơn 1,26 lần nếu vẫn dùng doanh thu cả năm 2018 đã lỗi thời so với báo cáo mới nhất.',
+      en: "The source recalculates P/S right after the Q1/2019 results come out: “Để chính xác hơn chúng ta cần sử dụng doanh thu lũy kế 4 Quý gần nhất của HPG.” (Roughly, for more accuracy we need to use HPG's trailing four-quarter revenue.) Dividing VND 71,150.89 billion by the trailing four-quarter revenue of VND 57,798 billion gives about 1.23x, lower than the 1.26x you would get by still using the now-outdated full-year-2018 revenue.",
     },
     giai: {
       tinh: { vi: 'hệ số giá trên doanh thu', en: 'Price to sales ratio' },
@@ -1053,8 +1053,8 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
     kind: 'doc-ket-qua',
     evidence: 'ngo-nhan',
     prompt: {
-      vi: "Trong nhóm ngành đồ uống, Hansen Natural có PEG thấp nhất nhóm (0,57) nhờ tăng trưởng EPS kỳ vọng 17%, nhưng độ lệch chuẩn giá cổ phiếu của hãng lên tới 62,45% - cao nhất nhóm. Theo phân tích của Damodaran, PEG thấp nhất nhóm có chắc chắn là cổ phiếu 'rẻ' nhất không?",
-      en: "In the beverage sector, Hansen Natural has the lowest PEG in the group (0.57) thanks to a 17% expected EPS growth rate, but its stock price standard deviation is 62.45% - the highest in the group. Per Damodaran's analysis, does the lowest PEG in a group necessarily mean the 'cheapest' stock?",
+      vi: "Trong nhóm ngành đồ uống, Hansen Natural có PEG thấp nhất nhóm (0,57) nhờ tăng trưởng EPS kỳ vọng 17%, nhưng độ lệch chuẩn giá cổ phiếu của hãng lên tới 62,45%, cao nhất nhóm. Theo phân tích của Damodaran, PEG thấp nhất nhóm có chắc chắn là cổ phiếu 'rẻ' nhất không?",
+      en: "In the beverage sector, Hansen Natural has the lowest PEG in the group (0.57) thanks to a 17% expected EPS growth rate, but its stock price standard deviation is 62.45%, the highest in the group. Per Damodaran's analysis, does the lowest PEG in a group necessarily mean the 'cheapest' stock?",
     },
     facts: [
       {
@@ -1237,8 +1237,8 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
     },
     answer: 'd',
     explain: {
-      vi: 'Vốn hóa thị trường chỉ là phần vốn cổ phần, không phải toàn bộ doanh nghiệp. VietstockPedia ghi rõ: “Trong khi đó, chỉ tiêu Vốn hóa thị trường (Market Capitalization) chỉ cho biết đánh giá của thị trường về giá trị cổ phần”, còn Giá trị doanh nghiệp (EV) - vốn hóa cộng nợ vay, trừ tiền mặt - mới là con số mà nguồn định nghĩa: “EV là giá trị phải bỏ ra để mua toàn bộ vốn cổ phần, nợ vay của doanh nghiệp”. Hai công ty vốn hóa bằng nhau nhưng đòn bẩy nợ khác nhau vẫn có thể có EV rất khác nhau.',
-      en: 'Market cap prices only the equity slice of a company, not the whole business. VietstockPedia states: “Trong khi đó, chỉ tiêu Vốn hóa thị trường (Market Capitalization) chỉ cho biết đánh giá của thị trường về giá trị cổ phần”, while Enterprise Value - market cap plus debt, minus cash - is defined by the source as: “EV là giá trị phải bỏ ra để mua toàn bộ vốn cổ phần, nợ vay của doanh nghiệp”. Two companies with equal market caps but different leverage can still end up with very different enterprise values.',
+      vi: 'Vốn hóa thị trường chỉ là phần vốn cổ phần, không phải toàn bộ doanh nghiệp. VietstockPedia ghi rõ: “Trong khi đó, chỉ tiêu Vốn hóa thị trường (Market Capitalization) chỉ cho biết đánh giá của thị trường về giá trị cổ phần”, còn Giá trị doanh nghiệp (EV, tức vốn hóa cộng nợ vay trừ tiền mặt) mới là con số mà nguồn định nghĩa: “EV là giá trị phải bỏ ra để mua toàn bộ vốn cổ phần, nợ vay của doanh nghiệp”. Hai công ty vốn hóa bằng nhau nhưng đòn bẩy nợ khác nhau vẫn có thể có EV rất khác nhau.',
+      en: 'Market cap prices only the equity slice of a company, not the whole business. VietstockPedia states: “Trong khi đó, chỉ tiêu Vốn hóa thị trường (Market Capitalization) chỉ cho biết đánh giá của thị trường về giá trị cổ phần”, while Enterprise Value (market cap plus debt, minus cash) is defined by the source as: “EV là giá trị phải bỏ ra để mua toàn bộ vốn cổ phần, nợ vay của doanh nghiệp”. Two companies with equal market caps but different leverage can still end up with very different enterprise values.',
     },
     source: {
       url: 'https://pedia.vietstock.vn/44/Phan-tich-co-ban/1979/Gia-tri-doanh-nghiep',
@@ -1285,8 +1285,8 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
     },
     answer: 'c',
     explain: {
-      vi: "Vốn hóa thị trường (chưa điều chỉnh) = 37.300 × 2.123.907.166 ≈ 79.222 tỷ đồng - đây là con số công thức 'Vốn hóa thị trường' trong thư viện tính ra. Tỷ lệ free-float thực tế 56,19% rơi vào vùng ≥15%, mà nguồn nêu rõ: “Riêng các Mã Chứng khoán khác có Tỷ lệ Free-Float thực tế từ 15% trở lên vẫn được làm tròn lên theo bước là 5%”, nên làm tròn thành 60%. Áp dụng đúng ví dụ HPG, nguồn tính sẵn: “79.222 tỷ đồng x 60% = 47.533 tỷ đồng”. Đây là vốn hóa điều chỉnh free-float - con số các Sở Giao dịch Chứng khoán dùng để tính trọng số cổ phiếu trong VN-Index, VN30…, khác với vốn hóa thị trường thô mà công thức này tính. Ba đáp án còn lại là ba lỗi hay gặp: 79.222 là vốn hóa thô, chưa điều chỉnh free-float; 44.514 là dùng tỷ lệ thực tế 56,19% mà bỏ qua bước làm tròn; 43.572 là làm tròn XUỐNG 55% trong khi quy tắc đòi làm tròn LÊN.",
-      en: "Raw market capitalization = VND 37,300 × 2,123,907,166 shares ≈ VND 79,222 billion - the figure this library's 'Market capitalization' formula itself produces. HPG's actual free-float ratio of 56.19% falls in the ≥15% bracket, and the source states: “Riêng các Mã Chứng khoán khác có Tỷ lệ Free-Float thực tế từ 15% trở lên vẫn được làm tròn lên theo bước là 5%”, so it rounds UP to 60%. Applying that to the HPG example, the source already computes: “79.222 tỷ đồng x 60% = 47.533 tỷ đồng”. That free-float-adjusted figure is what Vietnam's exchanges use to weight a stock inside VN-Index, VN30, and similar indices - not the raw market cap that this formula calculates. The other three are common slips: 79,222 is the raw market cap with no free-float adjustment; 44,514 uses the actual 56.19% ratio and skips the rounding step; 43,572 rounds DOWN to 55% when the rule calls for rounding UP.",
+      vi: "Vốn hóa thị trường (chưa điều chỉnh) = 37.300 × 2.123.907.166 ≈ 79.222 tỷ đồng, đây là con số công thức 'Vốn hóa thị trường' trong thư viện tính ra. Tỷ lệ free-float thực tế 56,19% rơi vào vùng ≥15%, mà nguồn nêu rõ: “Riêng các Mã Chứng khoán khác có Tỷ lệ Free-Float thực tế từ 15% trở lên vẫn được làm tròn lên theo bước là 5%”, nên làm tròn thành 60%. Áp dụng đúng ví dụ HPG, nguồn tính sẵn: “79.222 tỷ đồng x 60% = 47.533 tỷ đồng”. Đây là vốn hóa điều chỉnh free-float - con số các Sở Giao dịch Chứng khoán dùng để tính trọng số cổ phiếu trong VN-Index, VN30…, khác với vốn hóa thị trường thô mà công thức này tính. Ba đáp án còn lại là ba lỗi hay gặp: 79.222 là vốn hóa thô, chưa điều chỉnh free-float; 44.514 là dùng tỷ lệ thực tế 56,19% mà bỏ qua bước làm tròn; 43.572 là làm tròn XUỐNG 55% trong khi quy tắc đòi làm tròn LÊN.",
+      en: "Raw market capitalization = VND 37,300 × 2,123,907,166 shares ≈ VND 79,222 billion, the figure this library's 'Market capitalization' formula itself produces. HPG's actual free-float ratio of 56.19% falls in the ≥15% bracket, and the source states: “Riêng các Mã Chứng khoán khác có Tỷ lệ Free-Float thực tế từ 15% trở lên vẫn được làm tròn lên theo bước là 5%”, so it rounds UP to 60%. Applying that to the HPG example, the source already computes: “79.222 tỷ đồng x 60% = 47.533 tỷ đồng”. That free-float-adjusted figure is what Vietnam's exchanges use to weight a stock inside VN-Index, VN30, and similar indices - not the raw market cap that this formula calculates. The other three are common slips: 79,222 is the raw market cap with no free-float adjustment; 44,514 uses the actual 56.19% ratio and skips the rounding step; 43,572 rounds DOWN to 55% when the rule calls for rounding UP.",
     },
     source: {
       url: 'https://www.chungkhoanonline.com.vn/ty-le-free-float-va-von-hoa-thi-truong-dieu-chinh-ty-le-free-float/',
@@ -1423,8 +1423,8 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
       en: 'Graham Number = √(22.5 × ([2000] + [8000] + [5000]) ÷ 3 × [30000])',
     },
     explain: {
-      vi: "EPS bình quân 3 năm = (2.000 + 8.000 + 5.000) / 3 = 5.000 ₫. Số Graham = √(22,5 × 5.000 × 30.000) ≈ 58.094,75 ₫. Nếu chỉ lấy EPS năm nay (2.000 ₫) - năm lợi nhuận bị bóp méo bởi chi phí bất thường - kết quả sẽ chỉ khoảng 36.742 ₫, thấp hơn hẳn và dễ khiến cổ phiếu bị đánh giá là 'đắt' một cách sai lệch. Nguồn trích lời Benjamin Graham trong The Intelligent Investor: “In former times analysts and investors paid considerable attention to the average earnings over a fairly long period in the past— usually from seven to ten years.” - tức Graham khuyến nghị lấy thu nhập bình quân nhiều năm, không phải một năm đơn lẻ, để tính các phép định giá kiểu Số Graham.",
-      en: "Three-year average EPS = (₫2,000 + ₫8,000 + ₫5,000) / 3 = ₫5,000. Graham number = √(22.5 × 5,000 × 30,000) ≈ ₫58,094.75. Using only this year's EPS (₫2,000) - a year distorted by a one-time charge - would give only about ₫36,742, making the stock look misleadingly 'expensive' by comparison. The source quotes Benjamin Graham in The Intelligent Investor: “In former times analysts and investors paid considerable attention to the average earnings over a fairly long period in the past— usually from seven to ten years.” - that is, Graham recommended using earnings averaged over several years, not a single year, for Graham-number-style valuations.",
+      vi: "EPS bình quân 3 năm = (2.000 + 8.000 + 5.000) / 3 = 5.000 ₫. Số Graham = √(22,5 × 5.000 × 30.000) ≈ 58.094,75 ₫. Nếu chỉ lấy EPS năm nay (2.000 ₫), năm lợi nhuận bị bóp méo bởi chi phí bất thường, kết quả sẽ chỉ khoảng 36.742 ₫, thấp hơn hẳn và dễ khiến cổ phiếu bị đánh giá là 'đắt' một cách sai lệch. Nguồn trích lời Benjamin Graham trong The Intelligent Investor: “In former times analysts and investors paid considerable attention to the average earnings over a fairly long period in the past— usually from seven to ten years.” - tức Graham khuyến nghị lấy thu nhập bình quân nhiều năm, không phải một năm đơn lẻ, để tính các phép định giá kiểu Số Graham.",
+      en: "Three-year average EPS = (₫2,000 + ₫8,000 + ₫5,000) / 3 = ₫5,000. Graham number = √(22.5 × 5,000 × 30,000) ≈ ₫58,094.75. Using only this year's EPS (₫2,000), a year distorted by a one-time charge, would give only about ₫36,742, making the stock look misleadingly 'expensive' by comparison. The source quotes Benjamin Graham in The Intelligent Investor: “In former times analysts and investors paid considerable attention to the average earnings over a fairly long period in the past— usually from seven to ten years.” - that is, Graham recommended using earnings averaged over several years, not a single year, for Graham-number-style valuations.",
     },
     giai: {
       tinh: { vi: 'Số Graham', en: 'Graham number' },
@@ -1479,8 +1479,8 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
       en: 'Graham Number = √(22.5 × [4000] × ([40000] − [8000]))',
     },
     explain: {
-      vi: "BVPS hữu hình = 40.000 − 8.000 = 32.000 ₫. Số Graham = √(22,5 × 4.000 × 32.000) ≈ 53.665,63 ₫ - thấp hơn hẳn mức 60.000 ₫ nếu dùng nguyên BVPS báo cáo (đã gồm goodwill). Nguồn cảnh báo: “Because the Graham Number uses BVPS rather than tangible book value per share (TBVPS), banks with substantial goodwill from acquisitions may show an inflated result.” Dùng BVPS gộp cả goodwill mà không đối chiếu bằng TBVPS sẽ khiến một ngân hàng tăng trưởng nhờ mua lại trông 'rẻ' hơn thực tế.",
-      en: 'Tangible BVPS = ₫40,000 − ₫8,000 = ₫32,000. Graham number = √(22.5 × 4,000 × 32,000) ≈ ₫53,665.63 - notably lower than the ₫60,000 result obtained using the reported BVPS that still includes goodwill. The source warns: “Because the Graham Number uses BVPS rather than tangible book value per share (TBVPS), banks with substantial goodwill from acquisitions may show an inflated result.” Using BVPS that still includes goodwill without cross-checking against TBVPS makes an acquisition-heavy bank look cheaper than it actually is.',
+      vi: "BVPS hữu hình = 40.000 − 8.000 = 32.000 ₫. Số Graham = √(22,5 × 4.000 × 32.000) ≈ 53.665,63 ₫, thấp hơn hẳn mức 60.000 ₫ nếu dùng nguyên BVPS báo cáo (đã gồm goodwill). Nguồn cảnh báo: “Because the Graham Number uses BVPS rather than tangible book value per share (TBVPS), banks with substantial goodwill from acquisitions may show an inflated result.” Dùng BVPS gộp cả goodwill mà không đối chiếu bằng TBVPS sẽ khiến một ngân hàng tăng trưởng nhờ mua lại trông 'rẻ' hơn thực tế.",
+      en: 'Tangible BVPS = ₫40,000 − ₫8,000 = ₫32,000. Graham number = √(22.5 × 4,000 × 32,000) ≈ ₫53,665.63, notably lower than the ₫60,000 result obtained using the reported BVPS that still includes goodwill. The source warns: “Because the Graham Number uses BVPS rather than tangible book value per share (TBVPS), banks with substantial goodwill from acquisitions may show an inflated result.” Using BVPS that still includes goodwill without cross-checking against TBVPS makes an acquisition-heavy bank look cheaper than it actually is.',
     },
     giai: {
       tinh: { vi: 'Số Graham', en: 'Graham number' },
@@ -1671,8 +1671,8 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
       en: 'NCAV per share = ([6000] − [2200] − [900]) × 1000000000 ÷ [250000000]',
     },
     explain: {
-      vi: "NCAV lấy tài sản ngắn hạn trừ TỔNG nợ phải trả - tức nợ ngắn hạn cộng nợ dài hạn (2.200 + 900 = 3.100 tỷ ₫) - chứ không phải chỉ nợ ngắn hạn như vốn lưu động ròng thông thường. Kết quả đúng: (6.000 − 3.100) ÷ 250 × 1.000 = 11.600 ₫/CP. Nếu nhầm sang chỉ trừ nợ ngắn hạn, con số sẽ bị thổi phồng thành 15.200 ₫/CP. Nguồn viết: “Current and long term liabilities together make up total liabilities, and it's this total figure that net net investors use to calculate Graham's net current asset value formula.”",
-      en: "NCAV subtracts TOTAL liabilities - current plus long-term (2,200 + 900 = 3,100 billion ₫) - from current assets, not just current liabilities as in ordinary net working capital. The correct result: (6,000 − 3,100) ÷ 250 × 1,000 = 11,600 ₫/share. Subtracting only current liabilities would inflate the figure to 15,200 ₫/share. The source states: “Current and long term liabilities together make up total liabilities, and it's this total figure that net net investors use to calculate Graham's net current asset value formula.”",
+      vi: "NCAV lấy tài sản ngắn hạn trừ TỔNG nợ phải trả (tức nợ ngắn hạn cộng nợ dài hạn, 2.200 + 900 = 3.100 tỷ ₫), chứ không phải chỉ nợ ngắn hạn như vốn lưu động ròng thông thường. Kết quả đúng: (6.000 − 3.100) ÷ 250 × 1.000 = 11.600 ₫/CP. Nếu nhầm sang chỉ trừ nợ ngắn hạn, con số sẽ bị thổi phồng thành 15.200 ₫/CP. Nguồn viết: “Current and long term liabilities together make up total liabilities, and it's this total figure that net net investors use to calculate Graham's net current asset value formula.”",
+      en: "NCAV subtracts TOTAL liabilities (current plus long-term, 2,200 + 900 = 3,100 billion ₫) from current assets, not just current liabilities as in ordinary net working capital. The correct result: (6,000 − 3,100) ÷ 250 × 1,000 = 11,600 ₫/share. Subtracting only current liabilities would inflate the figure to 15,200 ₫/share. The source states: “Current and long term liabilities together make up total liabilities, and it's this total figure that net net investors use to calculate Graham's net current asset value formula.”",
     },
     giai: {
       tinh: { vi: 'NCAV trên cổ phiếu', en: 'Net current asset value per share' },
@@ -1768,8 +1768,8 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
     },
     answer: 'c',
     explain: {
-      vi: 'Bài trên Vietstock gọi so P/E thuần giữa các thị trường là sai lầm về bản chất. Khi đổi sang E/P, Việt Nam chỉ cho 6,1% - thấp hơn lãi suất tiết kiệm khoảng 6,5%, tức kênh cổ phiếu không hấp dẫn hơn gửi tiết kiệm. Bản gốc đặt tiêu đề đây là sai lầm phổ biến ở giới chuyên gia.',
-      en: 'The Vietstock article calls comparing raw P/E across markets a fundamental mistake. Converted to E/P, Vietnam yields only 6.1% - below the roughly 6.5% savings deposit rate, meaning stocks are not more attractive than a bank deposit. The original piece titles this a common mistake among professionals.',
+      vi: 'Bài trên Vietstock gọi so P/E thuần giữa các thị trường là sai lầm về bản chất. Khi đổi sang E/P, Việt Nam chỉ cho 6,1%, thấp hơn lãi suất tiết kiệm khoảng 6,5%, tức kênh cổ phiếu không hấp dẫn hơn gửi tiết kiệm. Bản gốc đặt tiêu đề đây là sai lầm phổ biến ở giới chuyên gia.',
+      en: 'The Vietstock article calls comparing raw P/E across markets a fundamental mistake. Converted to E/P, Vietnam yields only 6.1%, below the roughly 6.5% savings deposit rate, meaning stocks are not more attractive than a bank deposit. The original piece titles this a common mistake among professionals.',
     },
     source: {
       url: 'https://vietstock.vn/2017/09/so-sanh-pe-thuan-giua-cac-thi-truong-nha-dau-tu-can-hieu-ban-chat-3355-559371.htm',
@@ -1848,7 +1848,7 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
     },
     explain: {
       vi: "Nguồn nêu rõ quy ước dùng EPS 12 tháng gần nhất: “The earnings yield is a financial ratio that describes the relationship of a company's LTM earnings per share to the company's stock price per share.” Với số liệu ví dụ, E/P = 0,35 ÷ 8 × 100 = 4,375%. Nguồn diễn giải nôm na thành “every dollar invested in ABC Corp.'s stock generates 4 cents” - cách nói làm tròn thô; con số chính xác tính từ chính số liệu nguồn đưa ra là 4,375%.",
-      en: "The source states the LTM-EPS convention explicitly: “The earnings yield is a financial ratio that describes the relationship of a company's LTM earnings per share to the company's stock price per share.” Using the example figures, E/P = 0.35 ÷ 8 × 100 = 4.375%. The source loosely paraphrases this as “every dollar invested in ABC Corp.'s stock generates 4 cents” - a rough rounding; the precise value from the source's own numbers is 4.375%.",
+      en: "The source states the LTM-EPS convention explicitly: “The earnings yield is a financial ratio that describes the relationship of a company's LTM earnings per share to the company's stock price per share.” Using the example figures, E/P = 0.35 ÷ 8 × 100 = 4.375%. The source loosely paraphrases this as “every dollar invested in ABC Corp.'s stock generates 4 cents”, a rough rounding; the precise value from the source's own numbers is 4.375%.",
     },
     giai: {
       tinh: { vi: 'Tỷ suất lợi nhuận trên giá', en: 'Earnings yield' },

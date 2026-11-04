@@ -252,7 +252,7 @@ describe('khớp cụm — "%b" không còn ra 96 kết quả', () => {
   const PEG = make({
     id: 'peg',
     categoryId: 'valuation',
-    name: { vi: 'PEG - P/E trên tăng trưởng', en: 'PEG - P/E to growth' },
+    name: { vi: 'PEG - hệ số P/E trên tăng trưởng', en: 'PEG - ratio of P/E to growth' },
   });
   const BO = [PE, PB, PHAN_TRAM_B, BETA, MUC_TIEU, CAGR, PEG];
   const ids = (q: string, lang: 'vi' | 'en' = 'vi') => searchFormulas(BO, q, lang).map((f) => f.id);

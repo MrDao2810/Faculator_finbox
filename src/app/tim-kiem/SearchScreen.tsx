@@ -10,8 +10,9 @@ import {
   RECENT_SEARCHES_KEY,
   countHiddenByLevel,
   formulaListPath,
+  formulaPath,
   formulasForLevel,
-  localizeRecentSearches,
+  recentSearchChips,
   selectFormulas,
 } from '@/application';
 import type { FormulaSummary } from '@/application';
@@ -74,10 +75,18 @@ export function SearchScreen() {
     remember,
     clear: clearRecent,
   } = useRecentSearches(RECENT_SEARCHES_KEY);
-  // Chip in theo ngôn ngữ đang bật — xem `localizeRecentSearches()`.
-  const recent = useMemo(
-    () => localizeRecentSearches(storedRecent, FORMULA_SUMMARIES, pick),
+  // Chip in theo ngôn ngữ đang bật, bấm là mở công thức ấy — xem `recentSearchChips()`.
+  const recentChips = useMemo(
+    () => recentSearchChips(storedRecent, FORMULA_SUMMARIES, pick),
     [storedRecent, pick],
+  );
+  const recent = useMemo(() => recentChips.map((chip) => chip.label), [recentChips]);
+  const recentHref = useCallback(
+    (label: string) => {
+      const formula = recentChips.find((chip) => chip.label === label)?.formula ?? null;
+      return formula === null ? null : formulaPath(formula.id);
+    },
+    [recentChips],
   );
 
   // Ô nhập đi qua bản nháp cục bộ, không ghi thẳng URL từng phím — xem use-query-draft.ts.
@@ -194,7 +203,12 @@ export function SearchScreen() {
         </div>
 
         {trimmed === '' && (
-          <RecentSearches terms={recent} onPick={commitDraft} onClear={clearRecent} />
+          <RecentSearches
+            terms={recent}
+            hrefFor={recentHref}
+            onPick={commitDraft}
+            onClear={clearRecent}
+          />
         )}
       </div>
 

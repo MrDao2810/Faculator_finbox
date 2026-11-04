@@ -1,12 +1,12 @@
 import type { ReactNode } from 'react';
 
-import { dienCau, fillRepeat, repeatIndexIn } from '@/application';
+import { dienCau } from '@/application';
 import type {
   BaiHuongDan,
   Bilingual,
+  DangDoc,
   HinhDangXem,
   KhoiBieuDoBai,
-  KhoiLapBai,
   MessageKey,
   MucId,
   ONhapHuongDan,
@@ -16,6 +16,7 @@ import { Pick } from '@/ui/i18n/Pick';
 import { T } from '@/ui/i18n/T';
 
 import { GuideWarning } from './GuideWarning';
+import { doanCuaDang, khoiDangXem } from './khoi-dang-xem';
 import styles from './GuideBody.module.css';
 
 /**
@@ -345,67 +346,12 @@ function KhoiDocKetQua({ bai }: { bai: BaiHuongDan }) {
   );
 }
 
-/** Khối chữ của một ô do người dùng thêm, dựng từ khối mẫu bằng cách điền số thứ tự nhóm. */
-function khoiTuMau(khoiLap: ReadonlyArray<KhoiLapBai>, khoa: string): KhoiBieuDoBai | undefined {
-  for (const mau of khoiLap) {
-    const n = repeatIndexIn(mau.tienTo, khoa);
-    if (n === null) continue;
-    return {
-      khoa,
-      ten: fillRepeat(mau.ten, n),
-      duong: fillRepeat(mau.duong, n),
-      ...(mau.cot === undefined ? {} : { cot: fillRepeat(mau.cot, n) }),
-      nangCao: mau.nangCao,
-      // Ô của nhóm thêm là ô số thường: hình của nó vẽ được ngay, không chờ chuỗi giá.
-      canChuoi: false,
-    };
-  }
-  return undefined;
-}
-
-/**
- * Khối của hình ĐANG HIỆN trên màn tính và dạng đang vẽ — thứ khung "?" in.
- *
- * Tra bằng `KhoiBieuDoBai.khoa`, tức chính `ChartModel.sweepKey` mà khối Biểu đồ báo lên. Ba ca rơi
- * về khối ĐẦU (hình màn mở ra): khối Biểu đồ chưa kịp báo (`hinh === null` — chunk biểu đồ nạp trễ),
- * màn chưa vẽ gì và người dùng chưa chọn mục nào (`khoa === null`), và một khoá không có khối chữ.
- * Ca cuối không xảy ra trong thư viện hiện tại — `bieu-do.test.ts` đòi mọi mục của ô chọn đều có khối
- * — nên nó chỉ là lưới an toàn: thà nói về hình mặc định còn hơn để khung trống.
- *
- * `chuaVe` quyết định dòng "Chỉ vẽ sau khi đã nạp…": nó chỉ đáng in khi hình đang được tả CHƯA có
- * trên màn. Hình đã vẽ rồi mà còn in dòng ấy là nói một điều người đọc đang thấy là sai.
- *
- * ── Hình của một ô do người dùng THÊM (13/10/2026) ───────────────────────────────────────────
- *
- * Hai công thức cho thêm đợt mua / thêm kỳ, và ô chọn trục có ngay mục "Giá mua đợt 4". Ô ấy không
- * có khối riêng (lúc build chưa ai biết sẽ có mấy đợt), nên trước khi rơi về khối đầu, phép chọn
- * thử các khối MẪU (`khoiLap`): khoá là tiền tố của mẫu cộng một số thì lấy mẫu ấy và điền số vào
- * `{n}`. Không có bước này thì khung nói về "…theo Giá mua đợt 3" cạnh một hình của đợt 4.
- *
- * Xuất ra để ca kiểm gọi thẳng; nó là phép chọn thuần, không đụng tới DOM.
+/*
+ * `khoiDangXem` (phép chọn khối và dạng cho khung "?") sống ở `./khoi-dang-xem.ts` từ 03/11/2026: màn
+ * chi tiết cũng gọi nó để ẩn nút "?" khi dạng đang vẽ chưa có chữ, và không được nhập cả thân bài.
+ * Xuất lại ở đây cho ca kiểm cũ gọi thẳng.
  */
-export function khoiDangXem(
-  khoi: ReadonlyArray<KhoiBieuDoBai>,
-  hinh: HinhDangXem | null,
-  khoiLap: ReadonlyArray<KhoiLapBai> = [],
-): { khoi: KhoiBieuDoBai; dang: 'duong' | 'cot'; chuaVe: boolean } | undefined {
-  const dau = khoi[0];
-  if (dau === undefined) return undefined;
-  /* Hình theo chuỗi giá chưa có chữ: im lặng chứ không in đoạn của hình khác (xem `HinhDangXem.hinhChuoi`). */
-  if (hinh?.hinhChuoi === true) return undefined;
-
-  const khoa = hinh?.khoa ?? null;
-  const dangHien =
-    khoa === null ? undefined : (khoi.find((mot) => mot.khoa === khoa) ?? khoiTuMau(khoiLap, khoa));
-  const chon = dangHien ?? dau;
-
-  return {
-    khoi: chon,
-    // Xin dạng Cột cho một hình không có dạng ấy thì in dạng Đường — màn cũng vẽ đúng như thế.
-    dang: hinh?.dang === 'cot' && chon.cot !== undefined ? 'cot' : 'duong',
-    chuaVe: hinh === null || !hinh.daVe,
-  };
-}
+export { khoiDangXem };
 
 /**
  * Mục "Đọc biểu đồ" — chữ viết riêng cho từng HÌNH màn tính của công thức này dựng được.
@@ -484,12 +430,31 @@ function KhoiBieuDo({ bai, hinh }: { bai: BaiHuongDan; hinh: HinhDangXem | null 
 }
 
 /**
- * Chữ của MỘT hình: dòng điều kiện (nếu hình chưa có trên màn), rồi đoạn của hình bóc tách hoặc
- * từng dạng của hình đường.
+ * Thứ tự in các dạng ở trang đầy đủ, và nhãn của từng dạng — đúng thứ tự và đúng chữ ô "Loại biểu
+ * đồ" bày (`dangVeCuaHinh()`, `chart.kind*`): Thanh ngang, Vành khuyên của hình bóc tách; Đường, Nến,
+ * Cột, Điểm, Bậc thang, Lãi/lỗ của hình đường.
+ */
+const DANG_IN: ReadonlyArray<{ dang: DangDoc; nhan: MessageKey }> = [
+  { dang: 'thanh', nhan: 'guide.chart.horizontalBars' },
+  { dang: 'vanhKhuyen', nhan: 'guide.chart.donut' },
+  { dang: 'duong', nhan: 'guide.chart.line' },
+  { dang: 'nen', nhan: 'guide.chart.candle' },
+  { dang: 'cot', nhan: 'guide.chart.bar' },
+  { dang: 'diem', nhan: 'guide.chart.dots' },
+  { dang: 'bac', nhan: 'guide.chart.step' },
+  { dang: 'laiLo', nhan: 'guide.chart.signArea' },
+];
+
+/**
+ * Chữ của MỘT hình: dòng điều kiện (nếu hình chưa có trên màn), rồi đoạn của từng dạng.
  *
- * `dang` có giá trị là chỉ in dạng ấy — khung "?" theo đúng nút đang bấm ở dòng "Loại biểu đồ".
- * `undefined` là in cả hai, cho trang đầy đủ. Nhãn dạng vẫn in cả khi chỉ còn một dạng: nó nói đoạn
- * chữ đang tả dạng nào, và trùng với chữ của nút đang bấm.
+ * `dang` có giá trị là chỉ in dạng ấy — khung "?" theo đúng dạng đang chọn ở ô "Loại biểu đồ".
+ * `undefined` là in mọi dạng có chữ, cho trang đầy đủ. Nhãn dạng vẫn in cả khi chỉ còn một dạng: nó
+ * nói đoạn chữ đang tả dạng nào, và trùng với chữ của ô chọn.
+ *
+ * Ngoại lệ là hình bóc tách CHỈ có thanh ngang (sáu trong mười một công thức): màn không bày ô "Loại
+ * biểu đồ" cho nó, nên một nhãn "Dạng Thanh ngang" là gọi tên một lựa chọn không có trên màn. Đoạn
+ * ấy in trơn như trước ngày 03/11/2026.
  *
  * `<dl>` cho cặp "dạng → cách đọc", cùng khuôn và cùng lớp với `KhoiNhapSo`: hai mục liền nhau của
  * một bài mà xếp chữ hai kiểu là thứ mắt bắt được trước cả khi đọc.
@@ -500,11 +465,14 @@ function NoiDungHinh({
   chuaVe,
 }: {
   khoi: KhoiBieuDoBai;
-  dang: 'duong' | 'cot' | undefined;
+  dang: DangDoc | undefined;
   chuaVe: boolean;
 }) {
-  const inDuong = khoi.duong !== undefined && dang !== 'cot';
-  const inCot = khoi.cot !== undefined && dang !== 'duong';
+  const motThanh = khoi.thanh !== undefined && khoi.vanhKhuyen === undefined;
+  const cacDoan = DANG_IN.flatMap(({ dang: mot, nhan }) => {
+    const doan = doanCuaDang(khoi, mot);
+    return doan === undefined || (dang !== undefined && dang !== mot) ? [] : [{ mot, nhan, doan }];
+  });
 
   return (
     <>
@@ -514,36 +482,25 @@ function NoiDungHinh({
         </p>
       )}
 
-      {khoi.thanh !== undefined && (
+      {motThanh && khoi.thanh !== undefined ? (
         <p className={styles.prose}>
           <Pick value={khoi.thanh} />
         </p>
-      )}
-
-      {(inDuong || inCot) && (
-        <dl className={styles.fieldSources}>
-          {inDuong && khoi.duong !== undefined && (
-            <div className={styles.fieldRow}>
-              <dt className={styles.fieldLabel}>
-                <T k="guide.chart.line" />
-              </dt>
-              <dd className={styles.fieldWhere}>
-                <Pick value={khoi.duong} />
-              </dd>
-            </div>
-          )}
-
-          {inCot && khoi.cot !== undefined && (
-            <div className={styles.fieldRow}>
-              <dt className={styles.fieldLabel}>
-                <T k="guide.chart.bar" />
-              </dt>
-              <dd className={styles.fieldWhere}>
-                <Pick value={khoi.cot} />
-              </dd>
-            </div>
-          )}
-        </dl>
+      ) : (
+        cacDoan.length > 0 && (
+          <dl className={styles.fieldSources}>
+            {cacDoan.map(({ mot, nhan, doan }) => (
+              <div key={mot} className={styles.fieldRow}>
+                <dt className={styles.fieldLabel}>
+                  <T k={nhan} />
+                </dt>
+                <dd className={styles.fieldWhere}>
+                  <Pick value={doan} />
+                </dd>
+              </div>
+            ))}
+          </dl>
+        )
       )}
     </>
   );

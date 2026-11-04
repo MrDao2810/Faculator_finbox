@@ -85,5 +85,7 @@ export function parseFormulaOrigin(raw: string | null): FormulaOrigin | null {
 
   if (typeof id !== 'string' || typeof name !== 'string') return null;
 
-  return formulaOriginToStore(id, name);
+  // Bản ghi từ trước 02/11/2026 mang tên công thức còn gạch dài ("P/E — hệ số…"); tên trên màn nay
+  // viết gạch nối. Kho là `sessionStorage` nên chỉ một tab mở xuyên qua lần cập nhật mới gặp.
+  return formulaOriginToStore(id, name.replace(/—/g, '-'));
 }

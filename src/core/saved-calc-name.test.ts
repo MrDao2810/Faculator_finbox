@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { MAX_SAVED_NAME, displayCalcName, suggestCalcNames } from './saved-calc-name';
+import { MAX_SAVED_NAME, calcNameKey, displayCalcName, suggestCalcNames } from './saved-calc-name';
 
 /** 25/08/2026 lúc 10 giờ sáng giờ địa phương — đủ xa nửa đêm để không lệch ngày vì múi giờ. */
 const SAVED_AT = new Date(2026, 7, 25, 10, 0, 0).getTime();
@@ -226,6 +226,11 @@ describe('tên lưu trước ngày đổi gạch dài thành gạch nối', () =
         savedAt: SAVED_AT,
       }),
     ).toBe(tuGo);
+  });
+
+  it('khoá so trùng dùng chung (hộp lưu, màn Danh mục) coi hai dạng là một', () => {
+    expect(calcNameKey(`  ${CU} `)).toBe(calcNameKey('hpg · p/e - hệ số giá trên lợi nhuận'));
+    expect(calcNameKey('HPG  ·  P/E')).toBe('hpg · p/e');
   });
 
   it('gợi ý mới né một tên cũ trùng nghĩa, như né một tên trùng chữ', () => {

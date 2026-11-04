@@ -667,8 +667,8 @@ export const MACD_DUONG_CHINH: FormulaModule = {
       }),
       sliderVar('slowPeriod', NHAN_CHU_KY_EMA_CHAM, 'phiên', 26, 3, 200, 1, {
         description: {
-          vi: 'Đường nền, phải dài hơn chu kỳ nhanh. Chuỗi giá cần ít nhất đúng bằng số phiên này - 26 phiên với bộ mặc định.',
-          en: 'The baseline, must be longer than the fast period. The price series needs at least this many periods - 26 periods with the default set.',
+          vi: 'Đường nền, phải dài hơn chu kỳ nhanh. Chuỗi giá cần ít nhất đúng bằng số phiên này, tức 26 phiên với bộ mặc định.',
+          en: 'The baseline, must be longer than the fast period. The price series needs at least this many periods, i.e. 26 periods with the default set.',
         },
       }),
     ],
@@ -808,7 +808,7 @@ export const MACD_DUONG_TIN_HIEU: FormulaModule = {
      * từng phiên — hai đường cắt nhau là chỗ người đọc chỉ báo này nhìn vào.
      */
     componentLines: {
-      label: { vi: 'MACD và đường tín hiệu', en: 'MACD and signal line' },
+      label: { vi: 'Hai đường MACD và tín hiệu', en: 'Both the MACD and signal lines' },
       axis: { vi: 'MACD', en: 'MACD' },
       unit: '₫',
       lines: [
@@ -1032,8 +1032,8 @@ export const RSI_WILDER: FormulaModule = {
     variables: [
       sliderVar('period', labelWithSymbol(NHAN_SO_PHIEN, 'n'), 'phiên', 14, 2, 100, 1, {
         description: {
-          vi: 'Wilder dùng 14 phiên. Chuỗi giá phải có ít nhất số phiên này cộng thêm 1 để đủ lợi suất - 15 giá cho RSI 14. Cách làm mượt của Wilder còn kéo theo cả phần chuỗi phía trước, nên nạp chuỗi dài ngắn khác nhau thì con số cũng lệch nhau vài điểm.',
-          en: "Wilder used 14 periods. The price series must have at least this many periods plus 1 to have enough returns - 15 prices for a 14-period RSI. Wilder's smoothing also carries the earlier part of the series with it, so a longer or shorter series shifts the figure by a few points.",
+          vi: 'Wilder dùng 14 phiên. Chuỗi giá phải có ít nhất số phiên này cộng thêm 1 để đủ lợi suất, tức 15 giá cho RSI 14. Cách làm mượt của Wilder còn kéo theo cả phần chuỗi phía trước, nên nạp chuỗi dài ngắn khác nhau thì con số cũng lệch nhau vài điểm.',
+          en: "Wilder used 14 periods. The price series must have at least this many periods plus 1 to have enough returns, i.e. 15 prices for a 14-period RSI. Wilder's smoothing also carries the earlier part of the series with it, so a longer or shorter series shifts the figure by a few points.",
         },
       }),
     ],

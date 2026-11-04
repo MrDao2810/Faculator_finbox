@@ -147,7 +147,7 @@ export const FORMULA_SUMMARIES: ReadonlyArray<FormulaSummary> = [
   {
     id: 'ev-sales',
     categoryId: 'valuation',
-    name: { vi: 'EV/Sales - EV trên doanh thu', en: 'EV/Sales - EV to sales ratio' },
+    name: { vi: 'EV/Sales - hệ số EV trên doanh thu', en: 'EV/Sales - ratio of EV to sales' },
     description: { vi: 'Giá mua trọn doanh nghiệp gấp bao nhiêu lần doanh thu một năm.', en: 'How many times the price to buy the whole company sits above one year of revenue.' },
     level: 'advanced',
     tags: ['ev sales', 'ev doanh thu', 'boi so', 'dinh gia', 'ev to sales'],
@@ -155,7 +155,7 @@ export const FORMULA_SUMMARIES: ReadonlyArray<FormulaSummary> = [
   {
     id: 'peg',
     categoryId: 'valuation',
-    name: { vi: 'PEG - P/E trên tăng trưởng', en: 'PEG - P/E to growth ratio' },
+    name: { vi: 'PEG - hệ số P/E trên tăng trưởng', en: 'PEG - ratio of P/E to growth' },
     description: { vi: 'P/E đã chia cho tốc độ tăng trưởng lợi nhuận, để so cổ phiếu tăng trưởng với nhau.', en: 'P/E divided by the earnings growth rate, so growth stocks can be compared with each other.' },
     level: 'advanced',
     tags: ['peg', 'tang truong', 'boi so', 'dinh gia', 'growth'],

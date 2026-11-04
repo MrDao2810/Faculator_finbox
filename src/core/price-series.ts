@@ -125,7 +125,7 @@ export function checkRow(row: SeriesRow): ReadonlyArray<RowIssue> {
     if (high < low) {
       issues.push({
         code: 'HIGH_BELOW_LOW',
-        message: `Giá cao nhất (${gia(high)}) nhỏ hơn giá thấp nhất (${gia(low)}) - vui lòng kiểm tra lại.`,
+        message: `Giá cao nhất (${gia(high)}) nhỏ hơn giá thấp nhất (${gia(low)}), vui lòng kiểm tra lại.`,
       });
     }
   }

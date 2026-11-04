@@ -34,8 +34,8 @@ const SOURCE_INVESTMENTS: FormulaSource = {
 function belowTotalLoss(label: Bilingual): CalcWarning {
   return meaningless(
     {
-      vi: `${label.vi} dưới −100% nghĩa là mất nhiều hơn số vốn bỏ ra - không xảy ra với vị thế mua thông thường.`,
-      en: `${label.en} below −100% would mean losing more than the capital put in - this cannot happen with an ordinary long position.`,
+      vi: `${label.vi} dưới −100% nghĩa là mất nhiều hơn số vốn bỏ ra, điều không xảy ra với vị thế mua thông thường.`,
+      en: `${label.en} below −100% would mean losing more than the capital put in, which cannot happen with an ordinary long position.`,
     },
     {
       vi: `Kiểm tra lại ô ${label.vi}: mất sạch vốn thì nhập đúng −100.`,
@@ -293,8 +293,8 @@ export const LOI_SUAT_THUC: FormulaModule = {
         en: 'Compared with the 0 mark: positive means that after a year your money buys more goods than it did at the start, negative means it buys less even if the balance on your statement has grown, and exactly 0 means the interest only just kept pace with rising prices.',
       },
       commonMistakes: {
-        vi: 'Lấy lợi suất trừ thẳng lạm phát: 10% − 4% = 6%, trong khi con số đúng là 5,77% - lệch càng lớn khi lạm phát càng cao.',
-        en: 'Subtracting inflation directly from the return: 10% − 4% = 6%, when the correct figure is 5.77% - the gap widens as inflation rises.',
+        vi: 'Lấy lợi suất trừ thẳng lạm phát: 10% − 4% = 6%, trong khi con số đúng là 5,77%, và độ lệch càng lớn khi lạm phát càng cao.',
+        en: 'Subtracting inflation directly from the return: 10% − 4% = 6%, when the correct figure is 5.77%; the gap widens as inflation rises.',
       },
     },
     example: {
@@ -931,8 +931,8 @@ export const LOI_SUAT_TRUNG_BINH_HINH_HOC: FormulaModule = {
         en: 'Compared with the savings rate for a period of the same length: higher means that, good and bad periods together, each period on average earned more than a deposit, and lower means less. A negative figure means the capital ended below where it started, even if one period posted a big gain.',
       },
       commonMistakes: {
-        vi: 'Lấy trung bình cộng: lãi 50% rồi lỗ 50% ra trung bình cộng 0%/kỳ - trong khi trung bình hình học đúng của hai kỳ này là khoảng −13,4%/kỳ, gộp lại đúng bằng mức vốn đã giảm 25% sau hai kỳ.',
-        en: 'Using the arithmetic average: a 50% gain then a 50% loss averages to 0%/period - whereas the correct geometric mean of these two periods is about −13.4%/period, which compounds out to the actual 25% drop in capital after the two periods.',
+        vi: 'Lấy trung bình cộng: lãi 50% rồi lỗ 50% ra trung bình cộng 0%/kỳ, trong khi trung bình hình học đúng của hai kỳ này là khoảng −13,4%/kỳ, gộp lại đúng bằng mức vốn đã giảm 25% sau hai kỳ.',
+        en: 'Using the arithmetic average: a 50% gain then a 50% loss averages to 0%/period, whereas the correct geometric mean of these two periods is about −13.4%/period, which compounds out to the actual 25% drop in capital after the two periods.',
       },
     },
     example: {
@@ -1457,7 +1457,7 @@ export const THOI_GIAN_NHAN_DOI: FormulaModule = {
       { name: '8%/năm thì 9,01 năm gấp đôi', inputs: { rate: 8 }, expected: 9.0065 },
       { name: '6%/năm thì 11,9 năm gấp đôi', inputs: { rate: 6 }, expected: 11.8957 },
       {
-        name: 'lợi suất 0% thì không bao giờ nhân đôi - chia cho 0',
+        name: 'lợi suất 0% thì không bao giờ nhân đôi: chia cho 0',
         inputs: { rate: 0 },
         expected: null,
         expectedWarning: 'DIVIDE_BY_ZERO',
@@ -1587,7 +1587,7 @@ export const LOI_SUAT_QUY_NAM_THEO_NGAY: FormulaModule = {
     explanation: {
       meaning: {
         vi: 'Nếu lặp lại thương vụ này liên tục suốt 365 ngày thì cả năm được bao nhiêu - một thước đo chung cho các lần mua bán dài ngắn khác nhau.',
-        en: 'How much a full year would return if this trade repeated continuously for 365 days - a common yardstick for trades of different lengths.',
+        en: 'How much a full year would return if this trade repeated continuously for 365 days, a common yardstick for trades of different lengths.',
       },
       whenToUse: {
         vi: 'Dùng khi bạn vừa chốt một lệnh mua bán chỉ giữ vài tuần và muốn quy khoản lãi đó ra theo năm để so với gửi tiết kiệm hay với một khoản giữ lâu hơn.',
@@ -1604,8 +1604,8 @@ export const LOI_SUAT_QUY_NAM_THEO_NGAY: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'FPT - mua 62.900 ₫ ngày 24/07/2026, bán 72.700 ₫ ngày 11/09/2026, nắm 49 ngày',
-        en: 'FPT - bought at 62,900 ₫ on 2026-07-24 and sold at 72,700 ₫ on 2026-09-11, held 49 days',
+        vi: 'FPT: mua 62.900 ₫ ngày 24/07/2026, bán 72.700 ₫ ngày 11/09/2026, nắm 49 ngày',
+        en: 'FPT: bought at 62,900 ₫ on 2026-07-24 and sold at 72,700 ₫ on 2026-09-11, held 49 days',
       },
       inputs: { buyPrice: 62_900, sellPrice: 72_700, days: 49 },
       expected: 194.0491,

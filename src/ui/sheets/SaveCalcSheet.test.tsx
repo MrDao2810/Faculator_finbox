@@ -119,6 +119,22 @@ describe('SaveCalcSheet', () => {
     expect(screen.getByText(/Đã có một phép tính tên này/)).not.toBeNull();
   });
 
+  /*
+   * Bản lưu trước 02/11/2026 ghép tên công thức còn gạch dài "—"; gõ lại đúng tên ấy bằng gạch nối là
+   * gõ trùng. Khoá so trùng là `calcNameKey()`, cùng khoá `suggestCalcNames()` dùng để né tên.
+   */
+  it('tên lưu trước ngày đổi gạch dài vẫn tính là trùng với tên gõ bằng gạch nối', async () => {
+    const { onSave } = renderSheet({ existingNames: ['HPG · P/E — hệ số giá trên lợi nhuận'] });
+
+    const field = nameField();
+    await userEvent.clear(field);
+    await userEvent.type(field, 'HPG · P/E - hệ số giá trên lợi nhuận');
+    await userEvent.click(screen.getByRole('button', { name: 'Lưu vào danh mục' }));
+
+    expect(onSave).not.toHaveBeenCalled();
+    expect(screen.getByText(/Đã có một phép tính tên này/)).not.toBeNull();
+  });
+
   it('gợi ý tự né tên đã có, nên bấm Lưu ngay là được', async () => {
     const { onSave } = renderSheet({ code: 'HPG', existingNames: ['HPG · P/E'] });
 

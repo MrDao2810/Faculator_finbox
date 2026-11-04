@@ -87,6 +87,44 @@ const TU = {
 
 const NGON: ReadonlyArray<Ngon> = ['vi', 'en'];
 
+/** Các dạng của một hình đường có đoạn riêng (03/11/2026) — `HaiDang`, trừ Cột có luật riêng. */
+type DangDuong = 'duong' | 'diem' | 'bac' | 'laiLo';
+
+/**
+ * Chữ mà đoạn của từng dạng PHẢI dùng để tả đúng thứ dạng ấy vẽ — cùng lẽ với "cột" của đoạn Cột.
+ *
+ * - Điểm: một chấm mỗi mức đã tính, không nối (`LineChart`, lớp `.dot`).
+ * - Bậc thang: đường gấp khúc giữ nguyên tới mức kế tiếp (`stepPath()`).
+ * - Lãi/lỗ: phần trên mốc 0 tô xanh, phần dưới tô đỏ, vạch 0 nằm giữa.
+ * - Nến: nến của phiên dưới đường kết quả; chú giải in "Phiên tăng" / "Phiên giảm".
+ * - Vành khuyên: mỗi phần một múi.
+ */
+const TU_DANG: Readonly<
+  Record<'diem' | 'bac' | 'laiLo' | 'nen' | 'vanhKhuyen', Readonly<Record<Ngon, readonly string[]>>>
+> = {
+  diem: { vi: ['chấm'], en: ['dot'] },
+  bac: { vi: ['bậc'], en: ['step'] },
+  laiLo: { vi: ['xanh', 'đỏ', 'vạch 0'], en: ['green', 'red', 'zero line'] },
+  nen: { vi: ['nến', 'phiên tăng', 'phiên giảm'], en: ['candle', 'up session', 'down session'] },
+  vanhKhuyen: { vi: ['múi'], en: ['slice'] },
+};
+
+function loiTuDang(cho: string, doan: string, ngon: Ngon, dang: keyof typeof TU_DANG): string[] {
+  return TU_DANG[dang][ngon]
+    .filter((cum) => !co(doan, cum))
+    .map((cum) => `${cho} [${ngon}]: dạng này phải nói tới "${cum}"`);
+}
+
+/**
+ * Đoạn của một dạng có mặt đúng khi màn mời dạng ấy: thiếu là khung "?" im lặng ở một hình màn vẽ
+ * được, thừa là chữ cho một hình màn không bao giờ vẽ.
+ */
+function lechDang(cho: string, coHinh: boolean, coChu: boolean): string[] {
+  if (coHinh && !coChu) return [`${cho}: màn mời dạng này mà kho không có chữ`];
+  if (!coHinh && coChu) return [`${cho}: kho có chữ cho một dạng màn KHÔNG mời ở hình này`];
+  return [];
+}
+
 /** So không phân biệt hoa thường: câu tiếng Anh mở đầu bằng chữ hoa, cụm dò thì viết thường. */
 function co(doan: string, cum: string): boolean {
   return doan.toLowerCase().includes(cum.toLowerCase());
@@ -164,64 +202,102 @@ export function chieuDuyNhat(doan: string, ngon: Ngon): 'len' | 'xuong' | null {
   return coLen ? 'len' : 'xuong';
 }
 
+/**
+ * Luật của MỘT đoạn tả đường theo một ô nhập, ở một dạng vẽ cùng bộ điểm với Đường (Đường, Điểm,
+ * Bậc thang, Lãi/lỗ). Khung "?" in đúng một dạng, nên đoạn nào cũng phải tự đứng được: gọi tên trục,
+ * nói dải, nói đây không phải diễn biến thị trường, nói chiều đi — y như đoạn Đường.
+ *
+ * Riêng Lãi/lỗ bỏ luật "đường phẳng thì nói nằm ngang": dạng ấy chỉ hiện khi kết quả đổi dấu, mà một
+ * đường phẳng không đổi dấu được.
+ */
+function loiDoanTruc(
+  cho: string,
+  doan: string,
+  ngon: Ngon,
+  keHoach: KeHoachTruc,
+  dang: DangDuong,
+): string[] {
+  const loi: string[] = [];
+  const tu = TU[ngon];
+  const dau = `${cho} [${ngon}]`;
+  const { hinh } = keHoach;
+  loi.push(...loiChung(cho, doan, ngon, [keHoach.truc[ngon], keHoach.ten[ngon]], new Set(['0'])));
+  if (dang !== 'duong') loi.push(...loiTuDang(cho, doan, ngon, dang));
+
+  if (!co(doan, tu.oNhap(keHoach.truc[ngon]))) {
+    loi.push(`${dau}: không gọi tên trục "${tu.oNhap(keHoach.truc[ngon])}"`);
+  }
+  if (!co(doan, tu.khongPhaiThiTruong)) {
+    loi.push(`${dau}: thiếu câu "${tu.khongPhaiThiTruong}"`);
+  }
+
+  /*
+   * Luật dải KHÔNG áp cho Lãi/lỗ: dải "một nửa … gấp rưỡi" quanh một số khác 0 không bao giờ đi qua
+   * 0, nên ở nhiều trục dạng ấy chỉ hiện khi chính ô trên trục bằng 0 — lúc đó trục trải hai mươi
+   * bước mỗi phía quanh 0 (`sweepDomain()`). Đoạn Lãi/lỗ tả đúng ca làm nó hiện, dò ở danh sách việc.
+   */
+  const noiNuaGapRuoi = co(doan, tu.nua) && co(doan, tu.gapRuoi);
+  if (dang !== 'laiLo' && keHoach.dai === 'nua-gap-ruoi' && !noiNuaGapRuoi) {
+    loi.push(`${dau}: thiếu "${tu.nua}" … "${tu.gapRuoi}"`);
+  }
+  if (dang !== 'laiLo' && keHoach.dai === 'khac' && noiNuaGapRuoi) {
+    loi.push(`${dau}: dải của trục này không phải "${tu.nua}" … "${tu.gapRuoi}"`);
+  }
+
+  if (hinh === undefined) {
+    // Chưa nạp chuỗi giá thì trục này chưa vẽ được: không có chiều nào để đối chiếu.
+    if (!co(doan, tu.daNap)) {
+      loi.push(`${dau}: không nói hình này tính trên chuỗi "${tu.daNap}"`);
+    }
+    if (chieuDauTien(doan, ngon) === null) {
+      loi.push(`${dau}: không nói "${tu.len}" hay "${tu.xuong}" nghĩa là gì`);
+    }
+    return loi;
+  }
+
+  if (hinh.chieu === 'ngang') {
+    if (dang !== 'laiLo' && !co(doan, tu.ngang)) {
+      loi.push(`${dau}: hình đo ra phẳng mà không nói "${tu.ngang}"`);
+    }
+  } else if (chieuDauTien(doan, ngon) !== hinh.chieu) {
+    loi.push(`${dau}: chiều đầu tiên nhắc tới không phải "${tu[hinh.chieu]}"`);
+  }
+  if (hinh.coQuangTrong !== co(doan, tu.gachCheo)) {
+    loi.push(
+      hinh.coQuangTrong
+        ? `${dau}: hình có quãng không tính được mà không nhắc vùng "${tu.gachCheo}"`
+        : `${dau}: nhắc vùng "${tu.gachCheo}" trong khi hình tính được ở mọi điểm`,
+    );
+  }
+  /*
+   * Chiều đo ở trên là chiều của bộ số MẶC ĐỊNH. Trục nào có bộ số gõ được làm đường đi ngược
+   * lại thì đoạn chỉ nói một chiều sẽ nói ngược hình ngay khi người dùng gõ bộ số ấy — nên ở
+   * đó đoạn phải nêu cả hai: chiều nào trước thì luật trên đã giữ, chiều kia là ca đảo.
+   */
+  if (keHoach.daoChieu && !(co(doan, tu.len) && co(doan, tu.xuong))) {
+    loi.push(
+      `${dau}: có bộ số gõ được làm hình đi ngược lại, đoạn phải nói cả "${tu.len}" lẫn "${tu.xuong}"`,
+    );
+  }
+  return loi;
+}
+
 function loiTruc(cho: string, rieng: HaiDang, keHoach: KeHoachTruc): string[] {
   const loi: string[] = [];
   const ten = (ngon: Ngon) => [keHoach.truc[ngon], keHoach.ten[ngon]];
   const so0 = new Set(['0']);
   const { hinh } = keHoach;
 
+  loi.push(...lechDang(`${cho}.diem`, true, rieng.diem !== undefined));
+  loi.push(...lechDang(`${cho}.bac`, keHoach.bac, rieng.bac !== undefined));
+  loi.push(...lechDang(`${cho}.laiLo`, keHoach.laiLo, rieng.laiLo !== undefined));
+  loi.push(...lechDang(`${cho}.nen`, false, rieng.nen !== undefined));
+
   for (const ngon of NGON) {
     const tu = TU[ngon];
-    const duong = rieng.duong[ngon];
-    const dau = `${cho}.duong [${ngon}]`;
-    loi.push(...loiChung(`${cho}.duong`, duong, ngon, ten(ngon), so0));
-
-    if (!co(duong, tu.oNhap(keHoach.truc[ngon]))) {
-      loi.push(`${dau}: không gọi tên trục "${tu.oNhap(keHoach.truc[ngon])}"`);
-    }
-    if (!co(duong, tu.khongPhaiThiTruong)) {
-      loi.push(`${dau}: thiếu câu "${tu.khongPhaiThiTruong}"`);
-    }
-
-    const noiNuaGapRuoi = co(duong, tu.nua) && co(duong, tu.gapRuoi);
-    if (keHoach.dai === 'nua-gap-ruoi' && !noiNuaGapRuoi) {
-      loi.push(`${dau}: thiếu "${tu.nua}" … "${tu.gapRuoi}"`);
-    }
-    if (keHoach.dai === 'khac' && noiNuaGapRuoi) {
-      loi.push(`${dau}: dải của trục này không phải "${tu.nua}" … "${tu.gapRuoi}"`);
-    }
-
-    if (hinh === undefined) {
-      // Chưa nạp chuỗi giá thì trục này chưa vẽ được: không có chiều nào để đối chiếu.
-      if (!co(duong, tu.daNap)) {
-        loi.push(`${dau}: không nói hình này tính trên chuỗi "${tu.daNap}"`);
-      }
-      if (chieuDauTien(duong, ngon) === null) {
-        loi.push(`${dau}: không nói đường "${tu.len}" hay "${tu.xuong}" nghĩa là gì`);
-      }
-    } else {
-      if (hinh.chieu === 'ngang') {
-        if (!co(duong, tu.ngang)) loi.push(`${dau}: đường đo ra phẳng mà không nói "${tu.ngang}"`);
-      } else if (chieuDauTien(duong, ngon) !== hinh.chieu) {
-        loi.push(`${dau}: chiều đầu tiên nhắc tới không phải "${tu[hinh.chieu]}"`);
-      }
-      if (hinh.coQuangTrong !== co(duong, tu.gachCheo)) {
-        loi.push(
-          hinh.coQuangTrong
-            ? `${dau}: đường có quãng không tính được mà không nhắc vùng "${tu.gachCheo}"`
-            : `${dau}: nhắc vùng "${tu.gachCheo}" trong khi đường tính được ở mọi điểm`,
-        );
-      }
-      /*
-       * Chiều đo ở trên là chiều của bộ số MẶC ĐỊNH. Trục nào có bộ số gõ được làm đường đi ngược
-       * lại thì đoạn chỉ nói một chiều sẽ nói ngược hình ngay khi người dùng gõ bộ số ấy — nên ở
-       * đó đoạn phải nêu cả hai: chiều nào trước thì luật trên đã giữ, chiều kia là ca đảo.
-       */
-      if (keHoach.daoChieu && !(co(duong, tu.len) && co(duong, tu.xuong))) {
-        loi.push(
-          `${dau}: có bộ số gõ được làm đường đi ngược lại, đoạn phải nói cả "${tu.len}" lẫn "${tu.xuong}"`,
-        );
-      }
+    for (const dang of ['duong', 'diem', 'bac', 'laiLo'] as const) {
+      const doan = rieng[dang]?.[ngon];
+      if (doan !== undefined) loi.push(...loiDoanTruc(`${cho}.${dang}`, doan, ngon, keHoach, dang));
     }
 
     if (rieng.cot === undefined) {
@@ -272,27 +348,38 @@ function loiTrucLap(cho: string, rieng: HaiDang, keHoach: KeHoachTrucLap): strin
   const loi: string[] = [];
   const so0 = new Set(['0']);
 
+  loi.push(...lechDang(`${cho}.diem`, true, rieng.diem !== undefined));
+  loi.push(...lechDang(`${cho}.bac`, keHoach.bac, rieng.bac !== undefined));
+  loi.push(...lechDang(`${cho}.laiLo`, keHoach.laiLo, rieng.laiLo !== undefined));
+  loi.push(...lechDang(`${cho}.nen`, false, rieng.nen !== undefined));
+
   for (const ngon of NGON) {
     const tu = TU[ngon];
     const ten = [keHoach.truc[ngon], keHoach.ten[ngon]];
-    const duong = rieng.duong[ngon];
-    const dau = `${cho}.duong [${ngon}]`;
-    loi.push(...loiChung(`${cho}.duong`, duong, ngon, ten, so0));
 
-    if (!co(duong, tu.oNhap(keHoach.truc[ngon]))) {
-      loi.push(`${dau}: không gọi tên trục "${tu.oNhap(keHoach.truc[ngon])}"`);
-    }
-    if (!co(duong, tu.khongPhaiThiTruong)) {
-      loi.push(`${dau}: thiếu câu "${tu.khongPhaiThiTruong}"`);
-    }
-    if (!(co(duong, tu.nua) && co(duong, tu.gapRuoi))) {
-      loi.push(`${dau}: thiếu "${tu.nua}" … "${tu.gapRuoi}" cho ca ô đã có số`);
-    }
-    if (!/(^|\D)0(\D|$)/.test(duong)) {
-      loi.push(`${dau}: không nói trục ra sao khi ô còn là 0, trạng thái nhóm vừa thêm mở ra`);
-    }
-    if (chieuDauTien(duong, ngon) === null) {
-      loi.push(`${dau}: không nói đường "${tu.len}" hay "${tu.xuong}" nghĩa là gì`);
+    // Mọi dạng vẽ cùng bộ điểm với Đường: cùng luật, cộng chữ riêng của dạng (03/11/2026).
+    for (const dang of ['duong', 'diem', 'bac', 'laiLo'] as const) {
+      const doan = rieng[dang]?.[ngon];
+      if (doan === undefined) continue;
+      const dau = `${cho}.${dang} [${ngon}]`;
+      loi.push(...loiChung(`${cho}.${dang}`, doan, ngon, ten, so0));
+      if (dang !== 'duong') loi.push(...loiTuDang(`${cho}.${dang}`, doan, ngon, dang));
+
+      if (!co(doan, tu.oNhap(keHoach.truc[ngon]))) {
+        loi.push(`${dau}: không gọi tên trục "${tu.oNhap(keHoach.truc[ngon])}"`);
+      }
+      if (!co(doan, tu.khongPhaiThiTruong)) {
+        loi.push(`${dau}: thiếu câu "${tu.khongPhaiThiTruong}"`);
+      }
+      if (!(co(doan, tu.nua) && co(doan, tu.gapRuoi))) {
+        loi.push(`${dau}: thiếu "${tu.nua}" … "${tu.gapRuoi}" cho ca ô đã có số`);
+      }
+      if (!/(^|\D)0(\D|$)/.test(doan)) {
+        loi.push(`${dau}: không nói trục ra sao khi ô còn là 0, trạng thái nhóm vừa thêm mở ra`);
+      }
+      if (chieuDauTien(doan, ngon) === null) {
+        loi.push(`${dau}: không nói "${tu.len}" hay "${tu.xuong}" nghĩa là gì`);
+      }
     }
 
     if (rieng.cot === undefined) {
@@ -310,6 +397,12 @@ function loiTrucLap(cho: string, rieng: HaiDang, keHoach: KeHoachTrucLap): strin
 function loiThoiGian(cho: string, rieng: HaiDang, keHoach: KeHoachThoiGian): string[] {
   const loi: string[] = [];
 
+  // Trục thời gian luôn rời rạc (từng phiên một), nên Điểm và Bậc thang hình nào cũng có.
+  loi.push(...lechDang(`${cho}.diem`, true, rieng.diem !== undefined));
+  loi.push(...lechDang(`${cho}.bac`, true, rieng.bac !== undefined));
+  loi.push(...lechDang(`${cho}.laiLo`, keHoach.laiLo, rieng.laiLo !== undefined));
+  loi.push(...lechDang(`${cho}.nen`, keHoach.nen, rieng.nen !== undefined));
+
   for (const ngon of NGON) {
     const tu = TU[ngon];
     const ten = [
@@ -319,20 +412,30 @@ function loiThoiGian(cho: string, rieng: HaiDang, keHoach: KeHoachThoiGian): str
     ];
     const so = new Set(['0', ...keHoach.moc.map((moc) => String(moc.value))]);
 
-    const duong = rieng.duong[ngon];
-    const dau = `${cho}.duong [${ngon}]`;
-    loi.push(...loiChung(`${cho}.duong`, duong, ngon, ten, so));
+    /*
+     * Mọi dạng của hình thời gian đi từ phiên cũ nhất tới phiên gần nhất, cùng các mốc ngang công
+     * thức khai (03/11/2026). Đường giá đóng cửa vẽ kèm thì chỉ còn ở Đường, Điểm, Bậc thang: dạng
+     * Nến BỎ nó (thân nến đã mang giá đóng cửa, `LineChart`), nên đoạn Nến không được đòi nhắc nó.
+     */
+    for (const dang of ['duong', 'diem', 'bac', 'laiLo', 'nen'] as const) {
+      const doan = rieng[dang]?.[ngon];
+      if (doan === undefined) continue;
+      const dau = `${cho}.${dang} [${ngon}]`;
+      loi.push(...loiChung(`${cho}.${dang}`, doan, ngon, ten, so));
+      if (dang !== 'duong') loi.push(...loiTuDang(`${cho}.${dang}`, doan, ngon, dang));
 
-    for (const cum of [tu.phienDau, tu.phienCuoi, tu.len, tu.xuong]) {
-      if (!co(duong, cum)) loi.push(`${dau}: thiếu "${cum}"`);
-    }
-    for (const moc of keHoach.moc) {
-      if (!new RegExp(`(^|\\D)${String(moc.value)}(\\D|$)`).test(duong)) {
-        loi.push(`${dau}: không nhắc mốc ${String(moc.value)}`);
+      for (const cum of [tu.phienDau, tu.phienCuoi, tu.len, tu.xuong]) {
+        if (!co(doan, cum)) loi.push(`${dau}: thiếu "${cum}"`);
       }
-    }
-    for (const chuoi of keHoach.chuoiPhu) {
-      if (!co(duong, chuoi[ngon])) loi.push(`${dau}: không nhắc đường vẽ kèm "${chuoi[ngon]}"`);
+      for (const moc of keHoach.moc) {
+        if (!new RegExp(`(^|\\D)${String(moc.value)}(\\D|$)`).test(doan)) {
+          loi.push(`${dau}: không nhắc mốc ${String(moc.value)}`);
+        }
+      }
+      if (dang === 'nen') continue;
+      for (const chuoi of keHoach.chuoiPhu) {
+        if (!co(doan, chuoi[ngon])) loi.push(`${dau}: không nhắc đường vẽ kèm "${chuoi[ngon]}"`);
+      }
     }
 
     if (keHoach.coCot !== (rieng.cot !== undefined)) {
@@ -364,6 +467,25 @@ function loiBocTach(cho: string, doan: Bilingual, keHoach: KeHoachBocTach): stri
     }
     for (const mot of nhan) {
       if (!doan[ngon].includes(mot)) loi.push(`${cho} [${ngon}]: không gọi tên thanh "${mot}"`);
+    }
+  }
+
+  return loi;
+}
+
+/**
+ * Đoạn của hình bóc tách ở dạng Vành khuyên (03/11/2026): gọi đúng tên mọi phần và tên tổng như
+ * đoạn Thanh ngang — chú giải cạnh vòng in tên phần, lỗ giữa in tên tổng — và nói tới "múi".
+ */
+function loiVanhKhuyen(cho: string, doan: Bilingual, keHoach: KeHoachBocTach): string[] {
+  const loi: string[] = [];
+
+  for (const ngon of NGON) {
+    const nhan = [...keHoach.chang.map((chang) => chang[ngon]), keHoach.tong[ngon]];
+    loi.push(...loiChung(cho, doan[ngon], ngon, [keHoach.ten[ngon], ...nhan], new Set(['0'])));
+    loi.push(...loiTuDang(cho, doan[ngon], ngon, 'vanhKhuyen'));
+    for (const mot of nhan) {
+      if (!doan[ngon].includes(mot)) loi.push(`${cho} [${ngon}]: không gọi tên phần "${mot}"`);
     }
   }
 
@@ -425,6 +547,12 @@ export function bieuDoProblems(
   lechCap('bocTach', keHoach.bocTach !== undefined, rieng.bocTach !== undefined);
   if (keHoach.bocTach !== undefined && rieng.bocTach !== undefined) {
     loi.push(...loiBocTach('bocTach', rieng.bocTach, keHoach.bocTach));
+  }
+  loi.push(
+    ...lechDang('vanhKhuyen', keHoach.bocTach?.vanhKhuyen === true, rieng.vanhKhuyen !== undefined),
+  );
+  if (keHoach.bocTach !== undefined && rieng.vanhKhuyen !== undefined) {
+    loi.push(...loiVanhKhuyen('vanhKhuyen', rieng.vanhKhuyen, keHoach.bocTach));
   }
 
   return loi;

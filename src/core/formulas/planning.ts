@@ -241,8 +241,8 @@ export const RUT_TRUOC_HAN: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'Sổ 1 tỷ ₫ kỳ hạn 6 tháng lãi 8,1%/năm, cần tiền gấp nên rút sau 3 tháng - năm 2026',
-        en: 'A 1 billion VND book with a 6-month term at 8.1%/year, withdrawn after 3 months for an urgent need - 2026',
+        vi: 'Sổ 1 tỷ ₫ kỳ hạn 6 tháng lãi 8,1%/năm, cần tiền gấp nên rút sau 3 tháng, năm 2026',
+        en: 'A 1 billion VND book with a 6-month term at 8.1%/year, withdrawn after 3 months for an urgent need, 2026',
       },
       inputs: {
         principal: 1_000_000_000,
@@ -504,8 +504,8 @@ export const GUI_QUAY_VONG: FormulaModule = {
     },
     example: {
       title: {
-        vi: '1 tỷ ₫: quay vòng hai kỳ 6 tháng lãi 6,6%/năm so với một sổ 12 tháng lãi 6,8%/năm - tháng 9/2026',
-        en: '1 billion VND: rolling two 6-month terms at 6.6%/year versus a single 12-month book at 6.8%/year - September 2026',
+        vi: '1 tỷ ₫: quay vòng hai kỳ 6 tháng lãi 6,6%/năm so với một sổ 12 tháng lãi 6,8%/năm, tháng 9/2026',
+        en: '1 billion VND: rolling two 6-month terms at 6.6%/year versus a single 12-month book at 6.8%/year, September 2026',
       },
       inputs: {
         principal: 1_000_000_000,
@@ -1320,8 +1320,8 @@ export const SO_KY_DCA: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'Góp 10 triệu ₫ mỗi tháng vào quỹ mở để có 500 triệu ₫, kỳ vọng 6,8%/năm - tháng 9/2026',
-        en: 'Contributing 10 million VND a month to an open-end fund toward 500 million VND at an expected 6.8%/year - September 2026',
+        vi: 'Góp 10 triệu ₫ mỗi tháng vào quỹ mở để có 500 triệu ₫, kỳ vọng 6,8%/năm, tháng 9/2026',
+        en: 'Contributing 10 million VND a month to an open-end fund toward 500 million VND at an expected 6.8%/year, September 2026',
       },
       inputs: { target: 500_000_000, contribution: 10_000_000, rate: 6.8 },
       expected: 45,
@@ -1369,8 +1369,8 @@ export const SO_KY_DCA: FormulaModule = {
           { vi: 'số kỳ cần góp', en: 'number of periods needed' },
           { vi: 'Mức góp mỗi tháng', en: 'Monthly contribution' },
           {
-            vi: 'Nhập mức góp lớn hơn 0 - không góp thì không có kế hoạch nào tới đích.',
-            en: 'Enter a contribution greater than 0 - with no contribution, no plan ever reaches the goal.',
+            vi: 'Nhập mức góp lớn hơn 0, vì không góp thì không có kế hoạch nào tới đích.',
+            en: 'Enter a contribution greater than 0. With no contribution, no plan ever reaches the goal.',
           },
         ),
       };
@@ -1573,8 +1573,8 @@ export const THUE_TNCN_DAU_TU: FormulaModule = {
     },
     example: {
       title: {
-        vi: '1.000 CP FPT: nhận cổ tức 1.000 ₫/CP trong năm rồi bán giá 72.700 ₫ - quyết toán 2026',
-        en: '1,000 FPT shares: receiving a 1,000 ₫/share dividend during the year then selling at 72,700 ₫ - 2026 filing',
+        vi: '1.000 CP FPT: nhận cổ tức 1.000 ₫/CP trong năm rồi bán giá 72.700 ₫, quyết toán 2026',
+        en: '1,000 FPT shares: receiving a 1,000 ₫/share dividend during the year then selling at 72,700 ₫, 2026 filing',
       },
       inputs: { quantity: 1_000, sellPrice: 72_700, dividendPerShare: 1_000 },
       expected: 122_700,

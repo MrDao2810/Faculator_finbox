@@ -193,8 +193,8 @@ export const MO_HINH_GORDON: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'FPT - cổ tức 2.000 ₫/CP, tăng trưởng dài hạn 5%/năm, suất sinh lợi yêu cầu 11,92% từ CAPM',
-        en: 'FPT - dividend 2,000 ₫/share, long-term growth 5%/year, required return 11.92% from CAPM',
+        vi: 'FPT: cổ tức 2.000 ₫/CP, tăng trưởng dài hạn 5%/năm, suất sinh lợi yêu cầu 11,92% từ CAPM',
+        en: 'FPT: dividend 2,000 ₫/share, long-term growth 5%/year, required return 11.92% from CAPM',
       },
       inputs: { dividend: 2_000, growth: 5, requiredReturn: 11.92 },
       expected: 30_346.82,
@@ -209,7 +209,7 @@ export const MO_HINH_GORDON: FormulaModule = {
     },
     tests: [
       {
-        name: 'ca thường - 2.000 ₫, g 5%, r 12%',
+        name: 'ca thường: 2.000 ₫, g 5%, r 12%',
         inputs: { dividend: 2_000, growth: 5, requiredReturn: 12 },
         expected: 30_000,
       },
@@ -293,8 +293,8 @@ export const MO_HINH_GORDON: FormulaModule = {
         '₫',
         meaningless(
           {
-            vi: 'Mô hình Gordon chỉ dùng được khi suất sinh lợi yêu cầu r lớn hơn tăng trưởng g - r nhỏ hơn g cho ra giá trị âm vô nghĩa.',
-            en: 'The Gordon model only works when the required return r is greater than the growth rate g - r below g produces a meaningless negative value.',
+            vi: 'Mô hình Gordon chỉ dùng được khi suất sinh lợi yêu cầu r lớn hơn tăng trưởng g; nếu r nhỏ hơn g, giá trị ra âm vô nghĩa.',
+            en: 'The Gordon model only works when the required return r is greater than the growth rate g; if r is below g, the value comes out negative and meaningless.',
           },
           {
             vi: 'Giảm g về mức bền vững dài hạn, hoặc dùng DDM hai giai đoạn cho thời kỳ tăng trưởng nhanh.',
@@ -508,8 +508,8 @@ export const DDM_HAI_GIAI_DOAN: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'FPT - cổ tức 2.000 ₫, tăng 14%/năm trong 5 năm rồi 5% mãi mãi, r 11,92%',
-        en: 'FPT - dividend 2,000 ₫, growing 14%/year for 5 years then 5% forever, r 11.92%',
+        vi: 'FPT: cổ tức 2.000 ₫, tăng 14%/năm trong 5 năm rồi 5% mãi mãi, r 11,92%',
+        en: 'FPT: dividend 2,000 ₫, growing 14%/year for 5 years then 5% forever, r 11.92%',
       },
       inputs: {
         dividend: 2_000,
@@ -532,7 +532,7 @@ export const DDM_HAI_GIAI_DOAN: FormulaModule = {
       {
         // Tính tay từng dòng chiết khấu: 2.053,57 + 2.108,58 + 2.165,06 + 2.223,05
         // + 2.282,60 + 29.673,75 = 40.506,60.
-        name: 'ca thường - tăng 15% trong 5 năm rồi 4% mãi mãi',
+        name: 'ca thường: tăng 15% trong 5 năm rồi 4% mãi mãi',
         inputs: {
           dividend: 2_000,
           growthStage1: 15,
@@ -636,8 +636,8 @@ export const DDM_HAI_GIAI_DOAN: FormulaModule = {
         '₫',
         meaningless(
           {
-            vi: 'Giá trị cuối kỳ chỉ có nghĩa khi suất sinh lợi yêu cầu r lớn hơn tăng trưởng dài hạn g2 - r nhỏ hơn g2 cho ra giá trị âm.',
-            en: 'The terminal value is only meaningful when the required return r is greater than the long-term growth rate g2 - r below g2 produces a negative value.',
+            vi: 'Giá trị cuối kỳ chỉ có nghĩa khi suất sinh lợi yêu cầu r lớn hơn tăng trưởng dài hạn g2; nếu r nhỏ hơn g2, giá trị ra âm.',
+            en: 'The terminal value is only meaningful when the required return r is greater than the long-term growth rate g2; if r is below g2, the value comes out negative.',
           },
           {
             vi: 'Giảm g2 về mức bền vững dài hạn (thường không vượt tăng trưởng GDP) hoặc nâng r.',
@@ -838,8 +838,8 @@ export const CAPM: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'FPT - lợi suất TPCP 10 năm 4,57%, beta 0,9043, phần bù rủi ro Việt Nam 8,13%',
-        en: 'FPT - 10-year government bond yield 4.57%, beta 0.9043, Vietnam risk premium 8.13%',
+        vi: 'FPT: lợi suất TPCP 10 năm 4,57%, beta 0,9043, phần bù rủi ro Việt Nam 8,13%',
+        en: 'FPT: 10-year government bond yield 4.57%, beta 0.9043, Vietnam risk premium 8.13%',
       },
       inputs: { riskFree: 4.57, beta: 0.9043, erp: 8.13 },
       expected: 11.922,
@@ -854,7 +854,7 @@ export const CAPM: FormulaModule = {
     },
     tests: [
       {
-        name: 'ca thường - 3,5 + 1,2 × 8',
+        name: 'ca thường: 3,5 + 1,2 × 8',
         inputs: { riskFree: 3.5, beta: 1.2, erp: 8 },
         expected: 13.1,
       },
@@ -864,7 +864,7 @@ export const CAPM: FormulaModule = {
         expected: 3.5,
       },
       {
-        name: 'beta âm sâu kéo suất sinh lợi yêu cầu xuống dưới 0 - vô nghĩa',
+        name: 'beta âm sâu kéo suất sinh lợi yêu cầu xuống dưới 0: vô nghĩa',
         inputs: { riskFree: 2, beta: -1.5, erp: 8 },
         expected: null,
         expectedWarning: 'MEANINGLESS',
@@ -1093,8 +1093,8 @@ export const WACC: FormulaModule = {
      */
     example: {
       title: {
-        vi: 'FPT - vốn hoá 124.631,5 tỷ ₫ phiên 11/09/2026, nợ vay 17.444 tỷ ngày 30/06/2026, Re 11,92%, Rd 4,2%, thuế 20%',
-        en: 'FPT - market cap 124,631.5 billion ₫ at the 2026-09-11 close, debt 17,444 billion at 2026-06-30, Re 11.92%, Rd 4.2%, tax 20%',
+        vi: 'FPT: vốn hoá 124.631,5 tỷ ₫ phiên 11/09/2026, nợ vay 17.444 tỷ ngày 30/06/2026, Re 11,92%, Rd 4,2%, thuế 20%',
+        en: 'FPT: market cap 124,631.5 billion ₫ at the 2026-09-11 close, debt 17,444 billion at 2026-06-30, Re 11.92%, Rd 4.2%, tax 20%',
       },
       inputs: { equity: 124_631.5, debt: 17_444, costEquity: 11.92, costDebt: 4.2, taxRate: 20 },
       expected: 10.869,
@@ -1109,7 +1109,7 @@ export const WACC: FormulaModule = {
     },
     tests: [
       {
-        name: 'ca thường - 60% vốn chủ, 40% nợ',
+        name: 'ca thường: 60% vốn chủ, 40% nợ',
         inputs: { equity: 600, debt: 400, costEquity: 13.1, costDebt: 9, taxRate: 20 },
         expected: 10.74,
       },
@@ -1344,14 +1344,14 @@ export const FCFF: FormulaModule = {
         en: 'Compared with net profit after tax for the same period: about equal or higher means the reported profit has turned into real cash, and much lower means much of it went into new assets or is tied up in inventory and unpaid customer bills. A negative figure means the company spent more this period than it brought in.',
       },
       commonMistakes: {
-        vi: 'Lấy lợi nhuận sau thuế thay cho EBIT × (1 − t) - làm vậy đã trừ lãi vay một lần rồi lại chiết khấu bằng WACC vốn đã chứa chi phí nợ, thành trừ hai lần.',
-        en: 'Using net income instead of EBIT × (1 − t) - that already deducts interest once, and then discounting by WACC, which already includes the cost of debt, deducts it a second time.',
+        vi: 'Lấy lợi nhuận sau thuế thay cho EBIT × (1 − t), vì làm vậy đã trừ lãi vay một lần rồi lại chiết khấu bằng WACC vốn đã chứa chi phí nợ, thành trừ hai lần.',
+        en: 'Using net income instead of EBIT × (1 − t), which already deducts interest once, and then discounting by WACC, which already includes the cost of debt, deducts it a second time.',
       },
     },
     example: {
       title: {
-        vi: 'FPT năm 2025 - EBIT 13.848,8 tỷ ₫, thuế 20%, khấu hao 2.795,9 tỷ, CapEx 5.097,9 tỷ, ΔNWC 3.608,7 tỷ',
-        en: 'FPT in 2025 - EBIT 13,848.8 billion ₫, tax 20%, depreciation 2,795.9 billion, CapEx 5,097.9 billion, ΔNWC 3,608.7 billion',
+        vi: 'FPT năm 2025: EBIT 13.848,8 tỷ ₫, thuế 20%, khấu hao 2.795,9 tỷ, CapEx 5.097,9 tỷ, ΔNWC 3.608,7 tỷ',
+        en: 'FPT in 2025: EBIT 13,848.8 billion ₫, tax 20%, depreciation 2,795.9 billion, CapEx 5,097.9 billion, ΔNWC 3,608.7 billion',
       },
       inputs: {
         ebit: 13_848.8,
@@ -1372,7 +1372,7 @@ export const FCFF: FormulaModule = {
     },
     tests: [
       {
-        name: 'ca thường - 500 × 0,8 + 120 − 180 − 40',
+        name: 'ca thường: 500 × 0,8 + 120 − 180 − 40',
         inputs: { ebit: 500, taxRate: 20, depreciation: 120, capex: 180, nwcChange: 40 },
         expected: 300,
       },
@@ -1589,14 +1589,14 @@ export const FCFE: FormulaModule = {
         en: 'Compared with total cash dividends paid in the same period: higher means the cash left for shareholders covers those dividends with some to spare, and lower means the excess dividend is coming out of savings. A negative figure means nothing is left for shareholders this period and the gap is covered from cash on hand.',
       },
       commonMistakes: {
-        vi: 'Chiết khấu FCFE bằng WACC - FCFE là dòng tiền của riêng cổ đông nên phải chiết khấu bằng chi phí vốn chủ.',
-        en: 'Discounting FCFE with WACC - FCFE is a cash flow belonging solely to shareholders, so it must be discounted with the cost of equity.',
+        vi: 'Chiết khấu FCFE bằng WACC, trong khi FCFE là dòng tiền của riêng cổ đông nên phải chiết khấu bằng chi phí vốn chủ.',
+        en: 'Discounting FCFE with WACC, when FCFE is a cash flow belonging solely to shareholders and so must be discounted with the cost of equity.',
       },
     },
     example: {
       title: {
-        vi: 'FPT năm 2025 - FCFF 5.168,34 tỷ ₫, lãi vay 809,8 tỷ, thuế 20%, vay ròng thêm 6.256,7 tỷ',
-        en: 'FPT in 2025 - FCFF 5,168.34 billion ₫, interest 809.8 billion, tax 20%, new net borrowing 6,256.7 billion',
+        vi: 'FPT năm 2025: FCFF 5.168,34 tỷ ₫, lãi vay 809,8 tỷ, thuế 20%, vay ròng thêm 6.256,7 tỷ',
+        en: 'FPT in 2025: FCFF 5,168.34 billion ₫, interest 809.8 billion, tax 20%, new net borrowing 6,256.7 billion',
       },
       inputs: { fcff: 5_168.34, interest: 809.8, taxRate: 20, netBorrowing: 6_256.7 },
       expected: 10_777.2,
@@ -1611,7 +1611,7 @@ export const FCFE: FormulaModule = {
     },
     tests: [
       {
-        name: 'ca thường - 300 − 48 + 30',
+        name: 'ca thường: 300 − 48 + 30',
         inputs: { fcff: 300, interest: 60, taxRate: 20, netBorrowing: 30 },
         expected: 282,
       },
@@ -1838,8 +1838,8 @@ export const GIA_TRI_NOI_TAI_FCFF: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'FPT - FCFF 5.168,34 tỷ ₫, tăng 5%/năm, WACC 10,87%, nợ vay ròng −11.527,6 tỷ, 1.714,33 triệu CP',
-        en: 'FPT - FCFF 5,168.34 billion ₫, growing 5%/year, WACC 10.87%, net debt −11,527.6 billion, 1,714.33 million shares',
+        vi: 'FPT: FCFF 5.168,34 tỷ ₫, tăng 5%/năm, WACC 10,87%, nợ vay ròng −11.527,6 tỷ, 1.714,33 triệu CP',
+        en: 'FPT: FCFF 5,168.34 billion ₫, growing 5%/year, WACC 10.87%, net debt −11,527.6 billion, 1,714.33 million shares',
       },
       // WACC là kết quả ví dụ của `wacc` (10,869%) làm tròn như màn hiện; từng là 9,37 khi ví dụ ấy
       // còn tính vốn chủ theo sổ sách (16/10/2026, xem ghi chú ở ví dụ `wacc`).
@@ -1858,7 +1858,7 @@ export const GIA_TRI_NOI_TAI_FCFF: FormulaModule = {
       {
         // Tính độc lập dạng đóng: 300 × 1,04 ÷ 0,067 = 4.656,7164 tỷ; − 300 = 4.356,7164;
         // ÷ 118 × 1.000 = 36.921,3256 ₫.
-        name: 'ca thường - FCFF 300, g 4%, WACC 10,7%, nợ ròng 300, 118 triệu CP',
+        name: 'ca thường: FCFF 300, g 4%, WACC 10,7%, nợ ròng 300, 118 triệu CP',
         inputs: { fcff: 300, growth: 4, wacc: 10.7, netDebt: 300, shares: 118 },
         expected: 36_921.33,
         tolerance: 1,
@@ -1965,8 +1965,8 @@ export const GIA_TRI_NOI_TAI_FCFF: FormulaModule = {
         '₫',
         meaningless(
           {
-            vi: 'Mô hình chỉ dùng được khi WACC lớn hơn tăng trưởng g - g vượt WACC cho ra giá trị âm vô nghĩa.',
-            en: 'The model only works when WACC is greater than the growth rate g - g exceeding WACC produces a meaningless negative value.',
+            vi: 'Mô hình chỉ dùng được khi WACC lớn hơn tăng trưởng g; nếu g vượt WACC, giá trị ra âm vô nghĩa.',
+            en: 'The model only works when WACC is greater than the growth rate g; if g exceeds WACC, the value comes out negative and meaningless.',
           },
           {
             vi: 'Giảm g về mức bền vững dài hạn (thường không vượt tăng trưởng GDP) hoặc xem lại WACC.',
@@ -2144,7 +2144,7 @@ export const GIA_TRI_HIEN_TAI: FormulaModule = {
     },
     tests: [
       {
-        name: 'ca thường - 1 tỷ sau 10 năm, chiết khấu 8%',
+        name: 'ca thường: 1 tỷ sau 10 năm, chiết khấu 8%',
         inputs: { futureValue: 1_000_000_000, rate: 8, years: 10 },
         expected: 463_193_488.08,
         tolerance: 1,
@@ -2377,7 +2377,7 @@ export const GIA_TRI_TUONG_LAI: FormulaModule = {
     },
     tests: [
       {
-        name: 'ca thường - 100 triệu, 10%/năm, 15 năm',
+        name: 'ca thường: 100 triệu, 10%/năm, 15 năm',
         inputs: { presentValue: 100_000_000, rate: 10, years: 15 },
         expected: 417_724_816.94,
         tolerance: 1,
@@ -2404,8 +2404,8 @@ export const GIA_TRI_TUONG_LAI: FormulaModule = {
         '₫',
         meaningless(
           {
-            vi: 'Tỷ suất sinh lợi dưới −100% mỗi năm không có ý nghĩa - không thể mất nhiều hơn toàn bộ số tiền.',
-            en: 'A rate of return below −100% per year makes no sense - you cannot lose more than the entire amount.',
+            vi: 'Tỷ suất sinh lợi dưới −100% mỗi năm không có ý nghĩa, vì không thể mất nhiều hơn toàn bộ số tiền.',
+            en: 'A rate of return below −100% per year makes no sense, since you cannot lose more than the entire amount.',
           },
           {
             vi: 'Nhập tỷ suất sinh lợi từ −100% trở lên.',
@@ -2555,8 +2555,8 @@ export const BIEN_AN_TOAN: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'FPT - thị giá 72.700 ₫ phiên 11/09/2026 so với giá trị nội tại 60.651,46 ₫ từ DCF',
-        en: 'FPT - market price 72,700 ₫ on 2026-09-11 against an intrinsic value of 60,651.46 ₫ from DCF',
+        vi: 'FPT: thị giá 72.700 ₫ phiên 11/09/2026 so với giá trị nội tại 60.651,46 ₫ từ DCF',
+        en: 'FPT: market price 72,700 ₫ on 2026-09-11 against an intrinsic value of 60,651.46 ₫ from DCF',
       },
       // Giá trị nội tại là kết quả ví dụ DCF; từng là 79.161 ₫ (biên +8,16%) khi WACC còn tính vốn chủ
       // theo sổ sách (16/10/2026, xem ghi chú ở ví dụ `wacc`).
@@ -2573,7 +2573,7 @@ export const BIEN_AN_TOAN: FormulaModule = {
     },
     tests: [
       {
-        name: 'ca thường - mua rẻ hơn ước tính 25%',
+        name: 'ca thường: mua rẻ hơn ước tính 25%',
         inputs: { intrinsic: 40_000, price: 30_000 },
         expected: 25,
       },

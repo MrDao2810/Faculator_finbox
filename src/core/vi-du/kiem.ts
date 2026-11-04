@@ -21,7 +21,8 @@ const CTX: CalcContext = { asOf: '2026-08-04', schedule: scheduleOrDefault(MARKE
 /** Mọi con số trong một chuỗi, giữ nguyên cách viết: "72.700", "0,15", "11", "2026". */
 export const soTrong = (text: string): string[] => text.match(/\d[\d.,]*\d|\d/g) ?? [];
 
-const GACH_DAI = /[—–]/;
+// Gạch dài, gạch vừa, và từ 02/11/2026 cả gạch nối cách hai bên " - " (dấu ngăn của chữ trên màn).
+const GACH_DAI = /[—–]|\s-\s/;
 
 /**
  * Công thức mà hình KHÔNG có phép tính nào để đặt số vào — được phép bỏ dòng "Áp vào công thức".
@@ -138,7 +139,8 @@ export function viDuProblems(formula: FormulaModule, giai: ViDuGiai): string[] {
     for (const ngon of ['vi', 'en'] as const) {
       const s = t?.[ngon];
       if (s === undefined || s.trim() === '') loi.push(`${ten}: thiếu bản ${ngon}`);
-      else if (GACH_DAI.test(s)) loi.push(`${ten}.${ngon}: có gạch ngang dài - hoặc –`);
+      else if (GACH_DAI.test(s))
+        loi.push(`${ten}.${ngon}: có gạch ngang (gạch dài, gạch vừa hoặc gạch nối cách hai bên)`);
     }
   }
 

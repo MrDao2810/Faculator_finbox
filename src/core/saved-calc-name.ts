@@ -39,8 +39,12 @@ const SEPARATOR = ' · ';
  * nguyên tên ấy rồi cất vào kho. Không nhận hai dạng là một thì mọi bản lưu cũ trượt khỏi bộ gợi ý:
  * `displayCalcName()` coi nó là tên tự gõ, in nguyên gạch dài và tách thành hai dòng ở màn Danh mục.
  * Hai ký tự cùng độ dài, nên chỗ cắt ở `MAX_SAVED_NAME` của hai dạng trùng nhau.
+ *
+ * Xuất ra vì còn hai chỗ phải so tên đúng luật này: hộp lưu chặn trùng tên (`SaveCalcSheet`) và màn
+ * Danh mục nhận ra tên gợi ý (`PortfolioScreen`). Mỗi chỗ từng giữ một bản chép riêng, và bản chép
+ * không được thêm vế gạch dài khi luật đổi.
  */
-function key(value: string): string {
+export function calcNameKey(value: string): string {
   return value.trim().toLowerCase().replace(/\s+/g, ' ').replace(/—/g, '-');
 }
 
@@ -87,12 +91,12 @@ function trim(name: string): string {
  * mất đúng thứ phân biệt hai mục.
  */
 function dedupe(name: string, taken: ReadonlySet<string>): string {
-  if (name === '' || !taken.has(key(name))) return name;
+  if (name === '' || !taken.has(calcNameKey(name))) return name;
 
   for (let counter = 2; counter <= MAX_SUFFIX_TRIES; counter += 1) {
     const suffix = ` (${counter})`;
     const candidate = `${name.slice(0, MAX_SAVED_NAME - suffix.length).trim()}${suffix}`;
-    if (!taken.has(key(candidate))) return candidate;
+    if (!taken.has(calcNameKey(candidate))) return candidate;
   }
   return name;
 }
@@ -169,7 +173,7 @@ export function displayCalcName(input: DisplayCalcNameInput): string {
     savedAt: input.savedAt,
   });
 
-  const at = viNames.findIndex((name) => key(name) === key(base));
+  const at = viNames.findIndex((name) => calcNameKey(name) === calcNameKey(base));
   if (at < 0) return input.stored;
 
   const localNames = suggestCalcNames({
@@ -205,7 +209,7 @@ export function suggestCalcNames(input: SuggestCalcNameInput): string[] {
     withDay,
   ];
 
-  const taken = new Set((input.existing ?? []).map(key));
+  const taken = new Set((input.existing ?? []).map(calcNameKey));
   /*
    * Hai gợi ý dựng ra y hệt nhau (thiếu mã thì gợi ý 1 và 3 cùng là 'tên · ngày') thì BỎ hẳn
    * cái sau, không đánh số. Hậu tố ' (2)' chỉ có nghĩa khi né một tên đã nằm trong kho —
@@ -217,13 +221,13 @@ export function suggestCalcNames(input: SuggestCalcNameInput): string[] {
 
   for (const candidate of raw) {
     const bare = trim(candidate);
-    if (bare === '' || produced.has(key(bare))) continue;
-    produced.add(key(bare));
+    if (bare === '' || produced.has(calcNameKey(bare))) continue;
+    produced.add(calcNameKey(bare));
 
     const name = dedupe(bare, taken);
     if (name === '') continue;
     names.push(name);
-    taken.add(key(name));
+    taken.add(calcNameKey(name));
   }
 
   return names;

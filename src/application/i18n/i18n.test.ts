@@ -457,14 +457,167 @@ describe('chữ trên màn không dùng cụm "nhập tay"', () => {
  * chỉ đọc CHUỖI, TEMPLATE và CHỮ JSX. Chú thích được dùng gạch dài, và regex cũng vậy, vì nhiều luật
  * viết chữ CẤM gạch dài bằng chính một regex chứa nó, còn ô nhập nhận "—4" là âm 4.
  *
- * Một miễn trừ: trong ngân hàng câu hỏi, gạch nằm giữa “…” là câu TRÍCH NGUYÊN VĂN của nguồn tiếng
- * Anh. Câu trích giữ đúng như nguồn viết để người đọc mở trang nguồn đối chiếu được.
+ * Một miễn trừ: gạch nằm giữa “…” trong LỜI GIẢI (`explain`) của ngân hàng câu hỏi là câu TRÍCH
+ * NGUYÊN VĂN của nguồn tiếng Anh, giữ đúng như nguồn viết để người đọc mở trang nguồn đối chiếu được.
+ * Chỉ `explain`: đề và đáp án cũng có ngoặc cong, nhưng đó là chữ của sản phẩm (đáp án "Hiện “— , —”"
+ * của câu P/E âm tả chính chỗ giữ số của màn, và lượt đổi suýt bỏ sót nó). Số gạch được miễn ghim ở 14,
+ * nên câu trích thứ 15 có gạch dài là một quyết định chứ không lọt cửa.
+ *
+ * Chuỗi đọc theo GIÁ TRỊ (`.text`), không theo mã nguồn: '—' trong mã vẫn in ra "—". Chữ JSX thì
+ * React giải thực thể HTML, nên `&mdash;` cũng bị bắt.
  */
 describe('chữ trên màn không dùng gạch dài "—"', () => {
   const GACH = '—';
+  const THUC_THE = /&mdash;|&#8212;|&#x2014;/gi;
+  const CO_THE_CO_GACH = /—|\\u2014|\\u\{2014\}|&mdash;|&#8212;|&#x2014;/i;
 
-  /** Mọi dấu gạch dài nằm trong chữ hiển thị của một file, kèm số dòng. */
-  function gachTrongChu(path: string, text: string): string[] {
+  /** Chuỗi có nằm dưới khoá `explain` không — chỗ duy nhất ngân hàng câu hỏi đặt câu trích nguồn. */
+  function duoiExplain(node: ts.Node, sf: ts.SourceFile): boolean {
+    for (let p = node.parent; p !== undefined; p = p.parent) {
+      if (ts.isPropertyAssignment(p) && p.name.getText(sf) === 'explain') return true;
+    }
+    return false;
+  }
+
+  /** Gạch dài trong chữ hiển thị của một file (`loi`), và những gạch được miễn (`trich`), kèm số dòng. */
+  function gachTrongChu(path: string, text: string): { loi: string[]; trich: string[] } {
+    const sf = ts.createSourceFile(
+      path,
+      text,
+      ts.ScriptTarget.Latest,
+      true,
+      path.endsWith('.tsx') ? ts.ScriptKind.TSX : ts.ScriptKind.TS,
+    );
+    const laCauHoi = path.includes(join('core', 'quiz', 'items'));
+    const loi: string[] = [];
+    const trich: string[] = [];
+    const soi = (node: ts.Node): void => {
+      if (
+        ts.isStringLiteral(node) ||
+        ts.isNoSubstitutionTemplateLiteral(node) ||
+        ts.isTemplateHead(node) ||
+        ts.isTemplateMiddle(node) ||
+        ts.isTemplateTail(node) ||
+        ts.isJsxText(node)
+      ) {
+        const giaTri = (ts.isJsxText(node) ? node.getText(sf) : node.text).replace(THUC_THE, GACH);
+        const dauNut = sf.getLineAndCharacterOfPosition(node.getStart(sf)).line + 1;
+        for (let i = giaTri.indexOf(GACH); i >= 0; i = giaTri.indexOf(GACH, i + 1)) {
+          const truoc = giaTri.slice(0, i);
+          const trongTrich =
+            laCauHoi &&
+            duoiExplain(node, sf) &&
+            (truoc.match(/“/g) ?? []).length > (truoc.match(/”/g) ?? []).length;
+          const dong = dauNut + (truoc.match(/\n/g) ?? []).length;
+          (trongTrich ? trich : loi).push(`${dong}: ${giaTri.slice(Math.max(0, i - 30), i + 20)}`);
+        }
+      }
+      ts.forEachChild(node, soi);
+    };
+    soi(sf);
+    return { loi, trich };
+  }
+
+  it('máy dò bắt chuỗi, chữ JSX, mã thoát và thực thể HTML; bỏ qua chú thích, regex và câu trích của lời giải', () => {
+    const loi = (path: string, text: string): number => gachTrongChu(path, text).loi.length;
+    expect(loi('a.ts', "const a = 'P/E — hệ số';")).toBe(1);
+    expect(loi('a.tsx', 'const a = <p>Bảng — {x}</p>;')).toBe(1);
+    expect(loi('a.ts', 'const a = `${x} — ${y}`;')).toBe(1);
+    expect(loi('a.ts', '/** P/E — hệ số */ const a = /[—–]/; // —')).toBe(0);
+    expect(loi('a.ts', "const a = 'P/E \\u2014 hệ số';")).toBe(1);
+    expect(loi('a.tsx', 'const a = <p title="a &mdash; b">Bảng &mdash; {x}</p>;')).toBe(2);
+    const cauHoi = join('core', 'quiz', 'items', 'x.ts');
+    // Lời giải: gạch trong câu trích được miễn, gạch ngoài ngoặc thì không.
+    const q = "const q = { explain: { vi: 'Nguồn ghi “a — b” — c' } };";
+    expect(loi(cauHoi, q)).toBe(1);
+    expect(gachTrongChu(cauHoi, q).trich).toHaveLength(1);
+    // Ngoặc cong ở đáp án và đề là chữ của sản phẩm: bắt hết.
+    expect(loi(cauHoi, "const q = { choices: { b: { vi: 'Hiện “— , —”' } } };")).toBe(2);
+    expect(loi(cauHoi, "const q = { prompt: { vi: 'Bấm “Lưu — Thoát”' } };")).toBe(1);
+  });
+
+  it('mọi chữ hiển thị trong src/core, src/application, src/ui, src/app, src/data không còn gạch dài', () => {
+    const files = ['core', 'application', 'ui', 'app', 'data']
+      .flatMap((tang) => walk(join(SRC, tang)))
+      .filter((path) => !path.includes('.test.'));
+    // Đường dẫn hỏng thì `files` rỗng và ca đỗ vì không có gì để soi — chặn kiểu đỗ giả đó.
+    expect(files.length, `không quét được src từ ${SRC}`).toBeGreaterThan(100);
+
+    const trich: string[] = [];
+    const viPham = files.flatMap((path) => {
+      const text = readFileSync(path, 'utf8');
+      if (!CO_THE_CO_GACH.test(text)) return [];
+      const ketQua = gachTrongChu(path, text);
+      trich.push(...ketQua.trich.map((cho) => `${path.slice(SRC.length)}:${cho}`));
+      return ketQua.loi.map((cho) => `${path.slice(SRC.length)}:${cho}`);
+    });
+    expect(viPham, viPham.join('\n')).toEqual([]);
+    // 14 gạch trong 5 câu trích nguồn tiếng Anh (fundamentals, personal, risk, technical,
+    // valuation-multiples). Đổi số này là quyết định giữ hay bỏ một câu trích, không phải nới cửa.
+    expect(trich, trich.join('\n')).toHaveLength(14);
+  }, 30_000);
+
+  it('manifest.webmanifest (tên, mô tả, lối tắt hiện khi cài ứng dụng) không có gạch dài', () => {
+    const chuoi: string[] = [];
+    const gom = (v: unknown): void => {
+      if (typeof v === 'string') chuoi.push(v);
+      else if (Array.isArray(v)) v.forEach(gom);
+      else if (typeof v === 'object' && v !== null) Object.values(v).forEach(gom);
+    };
+    gom(JSON.parse(readFileSync(join(SRC, '..', 'public', 'manifest.webmanifest'), 'utf8')));
+    expect(chuoi.length).toBeGreaterThan(5);
+    expect(chuoi.filter((s) => s.includes(GACH))).toEqual([]);
+  });
+
+  it('CSS không vẽ gạch dài bằng `content:`', () => {
+    const css = (dir: string): string[] =>
+      readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
+        const path = join(dir, entry.name);
+        if (entry.isDirectory()) return css(path);
+        return extname(path) === '.css' ? [path] : [];
+      });
+    const files = css(SRC);
+    expect(files.length).toBeGreaterThan(20);
+    const viPham = files.flatMap((path) => {
+      const text = readFileSync(path, 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
+      return [...text.matchAll(/content\s*:\s*([^;}]+)/g)]
+        .filter((m) => /—|\\0*2014/.test(m[1] ?? ''))
+        .map((m) => `${path.slice(SRC.length)}: ${m[0]}`);
+    });
+    expect(viPham).toEqual([]);
+  });
+});
+
+/**
+ * Gạch nối cách hai bên không đứng sát con số (03/11/2026).
+ *
+ * Lượt đổi "—" thành "-" tạo ra đúng loại lỗi chủ dự án đã hai lần bắt ở gạch dài cạnh công thức:
+ * gạch nối đứng ngay trước hay ngay sau một con số thì đọc thành dấu trừ. "” - 28.000 (giá sau điều
+ * chỉnh) + 2.000 = 30.000" thành −28.000, "FPT - 1.000 CP" thành âm 1.000 cổ phiếu, "ví dụ 1,1 -
+ * hoặc…" thành 1,1 trừ. Vòng soát đối kháng tìm ra khoảng 250 chỗ như vậy; tất cả viết lại bằng ":",
+ * ",", ", tức", ngoặc đơn hoặc tách câu, và tiêu đề Ví dụ thực tế đổi hẳn sang "FPT: …".
+ *
+ * Ca này giữ phần máy thấy được: một chữ số (kèm %, ₫ hay ngoặc đóng) ngay trước " - ", hoặc ngay sau
+ * (kèm dấu trừ, dấu cộng hay ngoặc mở). Gạch kẹp giữa hai ký hiệu ("g - r", "EPS - EPS") thì máy không
+ * phân biệt được với "P/E - hệ số…", nên vẫn phải đọc bằng mắt. Bỏ qua: tên khoá, chuỗi LaTeX (có `\`,
+ * `_{`, `^{`), mẩu mã dẫn chứng (`calcEvidence` và các mảng mã cùng loại), và câu trích “…” của ngân hàng
+ * câu hỏi, nơi công thức của nguồn viết "(V₀ - VD)" bằng dấu trừ thật.
+ */
+describe('chữ trên màn không để gạch nối đứng sát con số', () => {
+  const SAT_SO = /\d[%₫)]?\s-\s|\s-\s[(−+]?\d/;
+  const LATEX = /\\|_\{|\^\{/;
+  const MA = /\bconst\b|\breturn\b|=>|\.length\b|\bMath\.|[a-z]\([a-z]/;
+  /** Khoá mà giá trị là LaTeX hay mã, không phải chữ: "-" ở đó là dấu trừ thật. */
+  const KHOA_KHONG_PHAI_CHU = new Set(['latex', 'symbol', 'calcEvidence']);
+
+  function khoaGanNhat(node: ts.Node, sf: ts.SourceFile): string {
+    for (let p = node.parent; p !== undefined; p = p.parent) {
+      if (ts.isPropertyAssignment(p)) return p.name.getText(sf);
+    }
+    return '';
+  }
+
+  function satSo(path: string, text: string): string[] {
     const sf = ts.createSourceFile(
       path,
       text,
@@ -475,22 +628,21 @@ describe('chữ trên màn không dùng gạch dài "—"', () => {
     const laCauHoi = path.includes(join('core', 'quiz', 'items'));
     const out: string[] = [];
     const soi = (node: ts.Node): void => {
-      if (
+      const laChu =
         ts.isStringLiteral(node) ||
         ts.isNoSubstitutionTemplateLiteral(node) ||
         ts.isTemplateHead(node) ||
         ts.isTemplateMiddle(node) ||
         ts.isTemplateTail(node) ||
-        ts.isJsxText(node)
-      ) {
-        const raw = node.getText(sf);
-        for (let i = raw.indexOf(GACH); i >= 0; i = raw.indexOf(GACH, i + 1)) {
-          const truoc = raw.slice(0, i);
-          const trongTrich =
-            laCauHoi && (truoc.match(/“/g) ?? []).length > (truoc.match(/”/g) ?? []).length;
-          if (trongTrich) continue;
-          const dong = sf.getLineAndCharacterOfPosition(node.getStart(sf) + i).line + 1;
-          out.push(`${dong}: ${raw.slice(Math.max(0, i - 30), i + 20)}`);
+        ts.isJsxText(node);
+      const laTenKhoa = laChu && ts.isPropertyAssignment(node.parent) && node.parent.name === node;
+      if (laChu && !laTenKhoa && !KHOA_KHONG_PHAI_CHU.has(khoaGanNhat(node, sf))) {
+        let giaTri = ts.isJsxText(node) ? node.getText(sf) : node.text;
+        if (laCauHoi) giaTri = giaTri.replace(/“[^”]*”/g, '“”');
+        const m = SAT_SO.exec(giaTri);
+        if (m !== null && !LATEX.test(giaTri) && !MA.test(giaTri)) {
+          const dong = sf.getLineAndCharacterOfPosition(node.getStart(sf)).line + 1;
+          out.push(`${dong}: …${giaTri.slice(Math.max(0, m.index - 30), m.index + 30)}…`);
         }
       }
       ts.forEachChild(node, soi);
@@ -499,26 +651,34 @@ describe('chữ trên màn không dùng gạch dài "—"', () => {
     return out;
   }
 
-  it('máy dò bắt chuỗi và chữ JSX, bỏ qua chú thích, regex và câu trích', () => {
-    expect(gachTrongChu('a.ts', "const a = 'P/E — hệ số';")).toHaveLength(1);
-    expect(gachTrongChu('a.tsx', 'const a = <p>Bảng — {x}</p>;')).toHaveLength(1);
-    expect(gachTrongChu('a.ts', 'const a = `${x} — ${y}`;')).toHaveLength(1);
-    expect(gachTrongChu('a.ts', '/** P/E — hệ số */ const a = /[—–]/; // —')).toHaveLength(0);
-    const trich = "const a = 'Nguồn: “a — b” — c';";
-    expect(gachTrongChu(join('core', 'quiz', 'items', 'x.ts'), trich)).toHaveLength(1);
+  it('máy dò bắt số sát gạch ở cả hai phía, bỏ qua LaTeX, mã và câu trích', () => {
+    expect(satSo('a.ts', "const a = 'nắm giữ - 0,27 đồng';")).toHaveLength(1);
+    expect(satSo('a.ts', "const a = 'ví dụ 1,1 - hoặc để trống';")).toHaveLength(1);
+    expect(satSo('a.ts', "const a = 'đúng 5,77% - lệch càng lớn';")).toHaveLength(1);
+    expect(satSo('a.ts', "const a = 'P/E - hệ số giá trên lợi nhuận';")).toHaveLength(0);
+    expect(satSo('a.ts', "const a = 'VN-Index, 6-12 tháng';")).toHaveLength(0);
+    expect(satSo('a.ts', "const a = 'r_t = \\\\frac{P_t}{P_{t-1}} - 1';")).toHaveLength(0);
+    expect(satSo('a.ts', "const a = 'const h = (sorted.length - 1) * ratio';")).toHaveLength(0);
+    expect(satSo('a.ts', "const a = { latex: '(1+i)^n - 1', meaning: 'x' };")).toHaveLength(0);
+    const cauHoi = join('core', 'quiz', 'items', 'x.ts');
+    expect(
+      satSo(cauHoi, "const q = { explain: { vi: 'Nguồn ghi “(r - 5%)” rồi' } };"),
+    ).toHaveLength(0);
+    expect(satSo(cauHoi, "const q = { explain: { vi: 'Nguồn ghi “a” - 28.000' } };")).toHaveLength(
+      1,
+    );
   });
 
-  it('mọi chữ hiển thị trong src/core, src/application, src/ui, src/app, src/data không còn gạch dài', () => {
+  it('mọi chữ hiển thị trong src/core, src/application, src/ui, src/app, src/data', () => {
     const files = ['core', 'application', 'ui', 'app', 'data']
       .flatMap((tang) => walk(join(SRC, tang)))
       .filter((path) => !path.includes('.test.'));
-    // Đường dẫn hỏng thì `files` rỗng và ca đỗ vì không có gì để soi — chặn kiểu đỗ giả đó.
     expect(files.length, `không quét được src từ ${SRC}`).toBeGreaterThan(100);
 
     const viPham = files.flatMap((path) => {
       const text = readFileSync(path, 'utf8');
-      if (!text.includes(GACH)) return [];
-      return gachTrongChu(path, text).map((cho) => `${path.slice(SRC.length)}:${cho}`);
+      if (!/\s-\s/.test(text)) return [];
+      return satSo(path, text).map((cho) => `${path.slice(SRC.length)}:${cho}`);
     });
     expect(viPham, viPham.join('\n')).toEqual([]);
   }, 30_000);

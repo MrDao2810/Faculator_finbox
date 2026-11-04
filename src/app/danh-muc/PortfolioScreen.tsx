@@ -29,6 +29,7 @@ import {
   SAVED_CALCS_KEY,
   SAVED_SORT_KEY,
   addHolding,
+  calcNameKey,
   displayCalcName,
   effectiveHoldingSort,
   formatIsoDate,
@@ -1755,15 +1756,14 @@ export function PortfolioScreen() {
          * " (2)" do `dedupe()` gắn SAU khi ghép nên phải tách ra trước khi so.
          */
         const suffix = /\s\(\d+\)$/.exec(savedName);
-        const base = (suffix === null ? savedName : savedName.slice(0, suffix.index))
-          .trim()
-          .toLowerCase();
+        // So bằng `calcNameKey()`: bản lưu trước 02/11/2026 ghép tên công thức còn gạch dài "—".
+        const base = calcNameKey(suffix === null ? savedName : savedName.slice(0, suffix.index));
         const suggested = suggestCalcNames({
           formulaName,
           ...(saved.code === undefined ? {} : { code: saved.code }),
           ...(localResult === undefined ? {} : { resultText: localResult }),
           savedAt: saved.savedAt,
-        }).some((name) => name.trim().toLowerCase() === base);
+        }).some((name) => calcNameKey(name) === base);
 
         /*
          * Luật "cần nạp lại chuỗi" — đúng luật `seriesMismatch` của `FormulaDetail`, đọc cùng kho

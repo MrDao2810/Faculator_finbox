@@ -1062,7 +1062,7 @@ export const vi = {
    * hồi quy theo, và người dùng Việt Nam đọc tên ấy ra ngay.
    */
   'portfolio.betaHint':
-    'Beta đo mức mã này nhảy mạnh hay yếu hơn VN-Index - beta 1,5 nghĩa là chỉ số nhích 1% thì mã ' +
+    'Beta đo mức mã này nhảy mạnh hay yếu hơn VN-Index: beta 1,5 nghĩa là chỉ số nhích 1% thì mã ' +
     'thường nhích khoảng 1,5%, dưới 1 là nhẹ hơn thị trường. Sản phẩm chưa tự tính được vì cần ' +
     'chuỗi lợi suất của cả mã lẫn chỉ số; nếu đã có số, bạn nhập vào đây.',
   /*
@@ -1184,7 +1184,7 @@ export const vi = {
    */
   'portfolio.errBuyDateFormat':
     'Ngày mua chưa đọc được. Nhập theo ngày/tháng/năm, ví dụ 03/10/2026.',
-  'portfolio.errBeta': 'Beta phải là một số, ví dụ 1,1 - hoặc để trống nếu chưa biết.',
+  'portfolio.errBeta': 'Beta phải là một số (ví dụ 1,1), hoặc để trống nếu chưa biết.',
   'portfolio.errFull': 'Danh mục đã đủ 50 mã. Bỏ bớt một mã trước khi thêm mã mới.',
   /*
    * Lượt nhập mã từ ngoài chạm trần của bảng. Chỉ hiện khi CÓ mã bị bỏ lại, và nêu đích danh từng mã:
@@ -2379,6 +2379,16 @@ export const vi = {
    */
   'guide.chart.line': 'Dạng Đường',
   'guide.chart.bar': 'Dạng Cột',
+  /*
+   * Nhãn của sáu dạng còn lại (03/11/2026): mỗi dạng ô "Loại biểu đồ" mời nay có đoạn "Đọc biểu đồ"
+   * riêng — chủ dự án đổi dạng mà khung vẫn in "Dạng Đường". Chữ sau "Dạng" đúng tên mục ô chọn in.
+   */
+  'guide.chart.candle': 'Dạng Nến',
+  'guide.chart.dots': 'Dạng Điểm',
+  'guide.chart.step': 'Dạng Bậc thang',
+  'guide.chart.signArea': 'Dạng Lãi/lỗ',
+  'guide.chart.horizontalBars': 'Dạng Thanh ngang',
+  'guide.chart.donut': 'Dạng Vành khuyên',
   'guide.chart.when.seriesOnly': 'Chỉ vẽ sau khi đã nạp mã cổ phiếu hoặc chuỗi giá.',
 
   /*

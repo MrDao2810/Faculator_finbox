@@ -49,8 +49,8 @@ export const CACH_DOC_TOI_THIEU = 50;
 /** Luật 2: dấu kết câu đứng giữa đoạn. */
 const KET_CAU = /[.!?](?=\s)/;
 
-/** Luật 4. */
-const GACH_DAI = /[–—]/;
+/** Luật 4. Từ 02/11/2026 gạch nối cách hai bên " - " là dấu ngăn của chữ trên màn, nên chặn luôn. */
+const GACH_DAI = /[–—]|\s-\s/;
 
 /** Luật 5. */
 const TRO_VI_DU: Readonly<Record<'vi' | 'en', RegExp>> = {
@@ -185,7 +185,8 @@ export function howToReadProblems({ id, name, howToRead }: CachDocInput): string
     if (doan.length < CACH_DOC_TOI_THIEU) {
       loi.push(`${nhan}: ngắn ${String(doan.length)} ký tự, sàn ${String(CACH_DOC_TOI_THIEU)}`);
     }
-    if (GACH_DAI.test(doan)) loi.push(`${nhan}: có gạch ngang dài (- hoặc –)`);
+    if (GACH_DAI.test(doan))
+      loi.push(`${nhan}: có gạch ngang (gạch dài, gạch vừa hoặc gạch nối cách hai bên)`);
 
     const viDu = TRO_VI_DU[ngon].exec(doan);
     if (viDu !== null) loi.push(`${nhan}: trỏ vào ví dụ hay biểu đồ ("${viDu[0]}")`);

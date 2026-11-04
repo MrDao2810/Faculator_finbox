@@ -703,6 +703,48 @@ describe('WF-03 — chín khối đúng thứ tự wireframe', () => {
   });
 
   /*
+   * Lỗi chủ dự án báo ngày 03/11/2026: đổi "Loại biểu đồ" sang Điểm, Bậc thang, Lãi/lỗ, Nến mà khung
+   * "?" vẫn in "Dạng Đường" — _"khi chuyển dạng thì phần hướng dẫn sau đang chưa chuyển dạng hướng
+   * dẫn tương tự"_. Nay mỗi dạng một đoạn, và dạng nào chưa có chữ thì nút "?" ẩn hẳn.
+   */
+  it('đổi sang Điểm thì khung "?" in "Dạng Điểm" và đoạn chấm, không còn "Dạng Đường"', async () => {
+    const user = userEvent.setup();
+    render(<Man spec={specOf('pe')} bai={baiHuongDanFor('pe', AS_OF)} />);
+    await screen.findByRole('figure');
+
+    await user.selectOptions(screen.getByLabelText('Loại biểu đồ'), 'Điểm');
+    await user.click(screen.getByRole('link', { name: /Hướng dẫn: đọc biểu đồ/ }));
+    const khung = await screen.findByRole('dialog');
+
+    expect(within(khung).getByText('Dạng Điểm')).not.toBeNull();
+    expect(within(khung).queryByText('Dạng Đường')).toBeNull();
+    expect(khung.textContent).toContain('Mỗi chấm là P/E tính ở một mức của ô Giá thị trường');
+    expect(khung.textContent).not.toContain('Đường chạy từ trái sang phải');
+  });
+
+  it('dạng đang vẽ chưa có đoạn chữ thì nút "?" của biểu đồ ẩn, không in đoạn dạng khác', async () => {
+    const user = userEvent.setup();
+    const bai = baiHuongDanFor('pe', AS_OF);
+    if (bai?.bieuDo === undefined) throw new Error('pe phải có mục Đọc biểu đồ');
+    // Bỏ đoạn Điểm của trục Giá thị trường, như khi phép dò sót một dạng.
+    const thieuDiem = {
+      ...bai,
+      bieuDo: {
+        ...bai.bieuDo,
+        khoi: bai.bieuDo.khoi.map((khoi) =>
+          khoi.khoa === 'price' ? { ...khoi, diem: undefined } : khoi,
+        ),
+      },
+    };
+    render(<Man spec={specOf('pe')} bai={thieuDiem} />);
+    await screen.findByRole('figure');
+    expect(screen.getByRole('link', { name: /Hướng dẫn: đọc biểu đồ/ })).not.toBeNull();
+
+    await user.selectOptions(screen.getByLabelText('Loại biểu đồ'), 'Điểm');
+    expect(screen.queryByRole('link', { name: /Hướng dẫn: đọc biểu đồ/ })).toBeNull();
+  });
+
+  /*
    * Hai cảnh còn lại của khối Biểu đồ, mỗi cảnh một chỗ khung dễ nói sai:
    *
    *   · `ev` mở ra hình bóc tách — chỉ có thanh, nên khung không được in nhãn Đường/Cột; chọn một ô

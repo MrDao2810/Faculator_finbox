@@ -7,19 +7,22 @@ import { useT } from '@/application/preferences-context';
 import styles from './RecentSearches.module.css';
 
 /**
- * Bấm một chip làm gì — hai màn dùng khối này muốn hai chuyện khác hẳn nhau, và kiểu union ở đây
- * bắt phải chọn đúng MỘT, sai là lỗi typecheck chứ không phải lỗi lúc chạy.
+ * Bấm một chip làm gì, quyết TỪNG chip.
  *
- * `onPick` — gọi lại tại chỗ, chip chỉ lọc chính màn đang đứng (màn tìm WF-09, màn Công thức).
- * `hrefFor` — chip là `<a>` thật sang màn khác. Trang chủ cũ dùng dạng này; từ khi nó gộp vào màn
- * Công thức (15/09/2026) không màn nào dùng, nhưng hợp đồng giữ lại vì nó đúng cho bất cứ ô tìm nào
- * nằm ở màn khác danh sách. Phải là link chứ không phải nút gọi `router.push`: `useRouter` đòi app
- * router đã mount, nên component không còn `render()` trần được trong jsdom — 14 ca đỏ ngay khi thử.
- * Link thật còn mở được tab mới và điều hướng được cả khi JS chưa tải xong, đúng lẽ `FormulaCard` theo.
+ * `hrefFor` — chip là `<a>` thật tới đường dẫn nó trả về. Từ 03/11/2026 hai màn dùng khối này đều
+ * truyền nó: chip là một công thức đã chọn, bấm là MỞ công thức ấy (chủ dự án bấm "Giá vốn trung bình
+ * khi mua DCA" và chỉ thấy ô tìm điền lại chữ, ra một danh sách kết quả). Phải là link chứ không phải
+ * nút gọi `router.push`: `useRouter` đòi app router đã mount, nên component không còn `render()` trần
+ * được trong jsdom — 14 ca đỏ ngay khi thử. Link thật còn mở được tab mới và điều hướng được cả khi JS
+ * chưa tải xong, đúng lẽ `FormulaCard` theo.
+ *
+ * `onPick` — gọi lại tại chỗ, lọc chính màn đang đứng. Dùng cho chip mà `hrefFor` trả `null` (chuỗi
+ * không tra ra công thức nào), hoặc mọi chip khi không truyền `hrefFor`.
  */
-type RecentSearchesAction =
-  | { onPick: (term: string) => void; hrefFor?: never }
-  | { hrefFor: (term: string) => string; onPick?: never };
+type RecentSearchesAction = {
+  onPick: (term: string) => void;
+  hrefFor?: (term: string) => string | null;
+};
 
 export type RecentSearchesProps = {
   terms: ReadonlyArray<string>;
@@ -140,27 +143,30 @@ export function RecentSearches({
       </div>
 
       <ul className={styles.chips}>
-        {terms.map((term) => (
-          <li key={term} className={styles.item}>
-            {hrefFor !== undefined ? (
-              <Link className={styles.chip} href={hrefFor(term)}>
-                <ClockIcon />
-                {term}
-              </Link>
-            ) : (
-              <button
-                type="button"
-                className={styles.chip}
-                onClick={() => {
-                  onPick?.(term);
-                }}
-              >
-                <ClockIcon />
-                {term}
-              </button>
-            )}
-          </li>
-        ))}
+        {terms.map((term) => {
+          const href = hrefFor?.(term) ?? null;
+          return (
+            <li key={term} className={styles.item}>
+              {href !== null ? (
+                <Link className={styles.chip} href={href}>
+                  <ClockIcon />
+                  {term}
+                </Link>
+              ) : (
+                <button
+                  type="button"
+                  className={styles.chip}
+                  onClick={() => {
+                    onPick(term);
+                  }}
+                >
+                  <ClockIcon />
+                  {term}
+                </button>
+              )}
+            </li>
+          );
+        })}
       </ul>
     </section>
   );

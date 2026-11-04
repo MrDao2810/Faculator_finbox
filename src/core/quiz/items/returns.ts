@@ -614,8 +614,8 @@ export const LOI_SUAT: ReadonlyArray<QuizItem> = [
     },
     answer: 'b',
     explain: {
-      vi: 'Nguồn đặt đúng câu hỏi này và trả lời: “Không có dòng tiền mới nào được tạo ra, nó chỉ đơn thuần được chuyển từ sổ sách của công ty sang túi của cá nhân bạn” - 28.000 (giá sau điều chỉnh) + 2.000 (tiền mặt) = 30.000 như cũ.',
-      en: 'The source asks this exact question and answers: “Không có dòng tiền mới nào được tạo ra, nó chỉ đơn thuần được chuyển từ sổ sách của công ty sang túi của cá nhân bạn” - 28,000 (the adjusted price) + 2,000 (cash) = 30,000, same as before.',
+      vi: 'Nguồn đặt đúng câu hỏi này và trả lời: “Không có dòng tiền mới nào được tạo ra, nó chỉ đơn thuần được chuyển từ sổ sách của công ty sang túi của cá nhân bạn”: 28.000 (giá sau điều chỉnh) + 2.000 (tiền mặt) = 30.000 như cũ.',
+      en: 'The source asks this exact question and answers: “Không có dòng tiền mới nào được tạo ra, nó chỉ đơn thuần được chuyển từ sổ sách của công ty sang túi của cá nhân bạn”: 28,000 (the adjusted price) + 2,000 (cash) = 30,000, same as before.',
     },
     source: {
       url: 'https://fesacademy.com.vn/thu-vien-dau-tu/ngay-giao-dich-khong-huong-quyen-la-gi-tai-sao-nhan-co-tuc-xong-gia-co-phieu-lai-giam/',
@@ -644,8 +644,8 @@ export const LOI_SUAT: ReadonlyArray<QuizItem> = [
     },
     answer: 'c',
     explain: {
-      vi: '“Nếu giá cổ phiếu giảm xuống 25.000 đồng nhưng doanh nghiệp vẫn trả 2.500 đồng, tỷ suất cổ tức trên mức giá mới sẽ tăng lên 10%” - và nếu giá giảm vì kinh doanh suy yếu thì chính mức cổ tức đó cũng khó duy trì. “Dividend Yield cao đôi khi là tín hiệu cần tìm hiểu thêm, chứ không phải tín hiệu mặc nhiên để mua vào”.',
-      en: '“Nếu giá cổ phiếu giảm xuống 25.000 đồng nhưng doanh nghiệp vẫn trả 2.500 đồng, tỷ suất cổ tức trên mức giá mới sẽ tăng lên 10%” - and if the price fell because the business weakened, that same dividend may be hard to sustain. “Dividend Yield cao đôi khi là tín hiệu cần tìm hiểu thêm, chứ không phải tín hiệu mặc nhiên để mua vào”.',
+      vi: '“Nếu giá cổ phiếu giảm xuống 25.000 đồng nhưng doanh nghiệp vẫn trả 2.500 đồng, tỷ suất cổ tức trên mức giá mới sẽ tăng lên 10%”, và nếu giá giảm vì kinh doanh suy yếu thì chính mức cổ tức đó cũng khó duy trì. “Dividend Yield cao đôi khi là tín hiệu cần tìm hiểu thêm, chứ không phải tín hiệu mặc nhiên để mua vào”.',
+      en: '“Nếu giá cổ phiếu giảm xuống 25.000 đồng nhưng doanh nghiệp vẫn trả 2.500 đồng, tỷ suất cổ tức trên mức giá mới sẽ tăng lên 10%”, and if the price fell because the business weakened, that same dividend may be hard to sustain. “Dividend Yield cao đôi khi là tín hiệu cần tìm hiểu thêm, chứ không phải tín hiệu mặc nhiên để mua vào”.',
     },
     source: {
       url: 'https://kinhtechungkhoan.vn/chi-so-dividend-yield-co-tuc-cao-khong-dong-nghia-co-phieu-hap-dan',

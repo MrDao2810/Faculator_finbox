@@ -161,8 +161,8 @@ export const DIEM_HOA_VON: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'FPT quý 2/2026 - quy ước một "sản phẩm" là 1 triệu ₫ doanh thu',
-        en: 'FPT in Q2 2026 - taking one "unit" to mean 1 million ₫ of revenue',
+        vi: 'FPT quý 2/2026: quy ước một "sản phẩm" là 1 triệu ₫ doanh thu',
+        en: 'FPT in Q2 2026: taking one "unit" to mean 1 million ₫ of revenue',
       },
       inputs: { fixedCost: 2_431_800_000_000, unitPrice: 1_000_000, variableCost: 689_600 },
       expected: 7_834_407.22,
@@ -177,7 +177,7 @@ export const DIEM_HOA_VON: FormulaModule = {
     },
     tests: [
       {
-        name: 'ca thường - mỗi sản phẩm dư 20.000 ₫ đảm phí',
+        name: 'ca thường: mỗi sản phẩm dư 20.000 ₫ đảm phí',
         inputs: { fixedCost: 500_000_000, unitPrice: 50_000, variableCost: 30_000 },
         expected: 25_000,
       },
@@ -192,13 +192,13 @@ export const DIEM_HOA_VON: FormulaModule = {
         expected: 0,
       },
       {
-        name: 'giá bán bằng biến phí - mẫu số bằng 0, ca chia cho 0 của WF-15',
+        name: 'giá bán bằng biến phí: mẫu số bằng 0, ca chia cho 0 của WF-15',
         inputs: { fixedCost: 500_000_000, unitPrice: 30_000, variableCost: 30_000 },
         expected: null,
         expectedWarning: 'DIVIDE_BY_ZERO',
       },
       {
-        name: 'giá bán thấp hơn biến phí - bán càng nhiều càng lỗ',
+        name: 'giá bán thấp hơn biến phí: bán càng nhiều càng lỗ',
         inputs: { fixedCost: 500_000_000, unitPrice: 25_000, variableCost: 30_000 },
         expected: null,
         expectedWarning: 'MEANINGLESS',
@@ -415,8 +415,8 @@ export const DON_BAY_TONG_HOP: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'FPT quý 2/2026 - độ nhạy của lợi nhuận theo doanh thu',
-        en: 'FPT in Q2 2026 - how sensitive profit is to revenue',
+        vi: 'FPT quý 2/2026: độ nhạy của lợi nhuận theo doanh thu',
+        en: 'FPT in Q2 2026: how sensitive profit is to revenue',
       },
       inputs: {
         revenue: 13_788_500_000_000,
@@ -436,7 +436,7 @@ export const DON_BAY_TONG_HOP: FormulaModule = {
     },
     tests: [
       {
-        name: 'ca thường - DOL 2,67 nhân DFL 1,5 bằng 4',
+        name: 'ca thường: DOL 2,67 nhân DFL 1,5 bằng 4',
         inputs: {
           revenue: 2_000_000_000,
           variableCost: 1_200_000_000,
@@ -456,7 +456,7 @@ export const DON_BAY_TONG_HOP: FormulaModule = {
         expected: 2.6667,
       },
       {
-        name: 'EBIT vừa đủ trả lãi vay - mẫu số bằng 0, ca chia cho 0 của WF-15',
+        name: 'EBIT vừa đủ trả lãi vay: mẫu số bằng 0, ca chia cho 0 của WF-15',
         inputs: {
           revenue: 2_000_000_000,
           variableCost: 1_200_000_000,
@@ -467,7 +467,7 @@ export const DON_BAY_TONG_HOP: FormulaModule = {
         expectedWarning: 'DIVIDE_BY_ZERO',
       },
       {
-        name: 'EBIT âm - doanh nghiệp đang lỗ hoạt động, đòn bẩy không có ý nghĩa',
+        name: 'EBIT âm: doanh nghiệp đang lỗ hoạt động, đòn bẩy không có ý nghĩa',
         inputs: {
           revenue: 2_000_000_000,
           variableCost: 1_200_000_000,

@@ -370,7 +370,7 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'portfolio.formCancel': 'Cancel',
   /* Vế "beta là gì" thêm cùng bản tiếng Việt — xem lý do ở `vi.ts`. */
   'portfolio.betaHint':
-    'Beta measures how much harder or softer this stock swings than the VN-Index - a beta of 1.5 ' +
+    'Beta measures how much harder or softer this stock swings than the VN-Index: a beta of 1.5 ' +
     'means the index moving 1% usually moves this stock about 1.5%, and under 1 is milder than the ' +
     'market. It cannot be computed automatically yet because that needs return series for both the ' +
     'stock and the index; enter it by hand if you already have it.',
@@ -403,7 +403,7 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'portfolio.errBuyDate': 'Purchase date must be today or in the past.',
   'portfolio.errBuyDateFormat':
     'That purchase date cannot be read. Type it as day/month/year, for example 03/10/2026.',
-  'portfolio.errBeta': 'Beta must be a number, e.g. 1.1 - or leave it blank if unknown.',
+  'portfolio.errBeta': 'Beta must be a number (e.g. 1.1), or leave it blank if unknown.',
   'portfolio.errFull': 'The portfolio is full at 50 holdings. Remove one before adding another.',
   /* `{max}` và `{codes}` do màn thay — xem `vi.ts`. */
   'portfolio.importFull': 'The portfolio holds {max} tickers, so these were left out: {codes}.',
@@ -822,6 +822,12 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
    */
   'guide.chart.line': 'As a line',
   'guide.chart.bar': 'As bars',
+  'guide.chart.candle': 'As candles',
+  'guide.chart.dots': 'As dots',
+  'guide.chart.step': 'As steps',
+  'guide.chart.signArea': 'As gain/loss',
+  'guide.chart.horizontalBars': 'As horizontal bars',
+  'guide.chart.donut': 'As a donut',
   'guide.chart.when.seriesOnly': 'Drawn only after a ticker or a price series is loaded.',
 
   /*

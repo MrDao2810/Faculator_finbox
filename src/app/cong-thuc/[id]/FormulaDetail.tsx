@@ -136,7 +136,7 @@ import {
 import { FormulaChart, hasChart } from '@/ui/charts';
 import { holdOriginThrough } from '@/ui/layout/OriginTracker';
 import { DisclaimerBar, useBackTarget } from '@/ui/navigation';
-import { GuideHint } from '@/ui/guide';
+import { GuideHint, khoiDangXem } from '@/ui/guide';
 import { QuizPanel } from '@/ui/quiz';
 import { ExportSheet, PresetSheet, SaveCalcSheet } from '@/ui/sheets';
 import {
@@ -3707,8 +3707,14 @@ export function FormulaDetail({
                 Nút "?" ẩn khi hình đang hiện là một mục theo chuỗi giá ("Phân phối lợi suất",
                 "Đường sụt giảm", 21/10/2026): hai mục ấy chưa có chữ, và một khung mở ra trống
                 không nói gì tệ hơn không có nút. Xem `HinhDangXem.hinhChuoi`.
+
+                Từ 03/11/2026 nút còn ẩn khi DẠNG đang vẽ không có đoạn chữ (`khoiDangXem` trả
+                `undefined`): mỗi dạng một đoạn, và khung không bao giờ in đoạn của dạng khác.
               */}
-              {hinhBieuDo?.hinhChuoi === true ? null : (
+              {hinhBieuDo?.hinhChuoi === true ||
+              (bai?.bieuDo !== undefined &&
+                khoiDangXem(bai.bieuDo.khoi, hinhBieuDo, bai.bieuDo.khoiLap) ===
+                  undefined) ? null : (
                 <MemoGuideHint
                   className={styles.hintCanhTieuDe}
                   href={`${guidePath(spec.id)}#doc-bieu-do`}

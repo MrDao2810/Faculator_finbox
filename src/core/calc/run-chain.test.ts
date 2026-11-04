@@ -115,10 +115,18 @@ describe('chuỗi định giá CAPM → Gordon → Biên an toàn', () => {
     });
     const warning = chain.byId.get('mo-hinh-gordon')?.output.warning;
 
-    /* Câu chỉ lấy phần tên trước gạch nối có cách hai bên (REVIEW-4 L11-04). */
-    const ten = CAPM.spec.name.vi.split(' - ')[0] ?? '';
-    expect(warning?.message.vi).toContain(ten);
-    expect(warning?.fix?.vi).toContain(ten);
+    /*
+     * Câu chỉ lấy phần tên trước gạch nối có cách hai bên (REVIEW-4 L11-04). Đòi cả hai vế: có "CAPM"
+     * và KHÔNG có phần mô tả sau gạch. Chỉ đòi vế đầu thì phép cắt hỏng vẫn xanh, vì tên đầy đủ
+     * "CAPM - chi phí vốn chủ sở hữu" cũng chứa "CAPM".
+     */
+    const [ten = '', moTa = ''] = CAPM.spec.name.vi.split(' - ');
+    expect(ten).toBe('CAPM');
+    expect(moTa).not.toBe('');
+    for (const cau of [warning?.message.vi, warning?.fix?.vi]) {
+      expect(cau).toContain(ten);
+      expect(cau).not.toContain(moTa);
+    }
     expect(warning?.fix?.vi).toContain('Suất sinh lợi yêu cầu (r)');
   });
 

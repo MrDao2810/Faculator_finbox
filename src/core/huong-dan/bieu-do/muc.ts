@@ -12,7 +12,28 @@
 
 import { BREAKDOWN_KEY } from '../../chart/breakdown';
 import { HISTORY_KEY } from '../../chart/history';
-import type { BieuDoRieng, KeHoachBieuDo, KhoiBieuDoBai, KhoiLapBai, MucBieuDoBai } from './types';
+import type {
+  BieuDoRieng,
+  HaiDang,
+  KeHoachBieuDo,
+  KhoiBieuDoBai,
+  KhoiLapBai,
+  MucBieuDoBai,
+} from './types';
+
+/** Các dạng có chữ của một hình đường, chép sang khối — trường vắng thì không mang theo. */
+function cacDang(
+  chu: HaiDang,
+): Pick<KhoiBieuDoBai, 'duong' | 'cot' | 'diem' | 'bac' | 'laiLo' | 'nen'> {
+  return {
+    duong: chu.duong,
+    ...(chu.cot === undefined ? {} : { cot: chu.cot }),
+    ...(chu.diem === undefined ? {} : { diem: chu.diem }),
+    ...(chu.bac === undefined ? {} : { bac: chu.bac }),
+    ...(chu.laiLo === undefined ? {} : { laiLo: chu.laiLo }),
+    ...(chu.nen === undefined ? {} : { nen: chu.nen }),
+  };
+}
 
 export function mucBieuDo(
   keHoach: KeHoachBieuDo | undefined,
@@ -28,6 +49,7 @@ export function mucBieuDo(
       khoa: BREAKDOWN_KEY,
       ten: bocTach.ten,
       thanh: rieng.bocTach,
+      ...(rieng.vanhKhuyen === undefined ? {} : { vanhKhuyen: rieng.vanhKhuyen }),
       nangCao: false,
       canChuoi: false,
     });
@@ -37,8 +59,7 @@ export function mucBieuDo(
     khoi.push({
       khoa: HISTORY_KEY,
       ten: thoiGian.ten,
-      duong: rieng.thoiGian.duong,
-      ...(rieng.thoiGian.cot === undefined ? {} : { cot: rieng.thoiGian.cot }),
+      ...cacDang(rieng.thoiGian),
       nangCao: false,
       canChuoi: true,
     });
@@ -50,8 +71,7 @@ export function mucBieuDo(
     khoi.push({
       khoa: mot.khoa,
       ten: mot.ten,
-      duong: chu.duong,
-      ...(chu.cot === undefined ? {} : { cot: chu.cot }),
+      ...cacDang(chu),
       nangCao: mot.nangCao,
       canChuoi: mot.hinh === undefined,
     });
@@ -72,6 +92,9 @@ export function mucBieuDo(
       ten: mot.ten,
       duong: chu.duong,
       ...(chu.cot === undefined ? {} : { cot: chu.cot }),
+      ...(chu.diem === undefined ? {} : { diem: chu.diem }),
+      ...(chu.bac === undefined ? {} : { bac: chu.bac }),
+      ...(chu.laiLo === undefined ? {} : { laiLo: chu.laiLo }),
       nangCao: mot.nangCao,
     });
   }

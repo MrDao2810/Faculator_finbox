@@ -24,13 +24,18 @@ import {
   chartName,
   lineChartTitle,
 } from '../../chart/build';
+import { dangVeCuaHinh, laDonViDem } from '../../chart/dang-ve';
+import type { DangVe } from '../../chart/dang-ve';
 import { CLOSE_PRICE_LABEL, HISTORY_KEY, historyPlan } from '../../chart/history';
 import { isFlatSpan } from '../../chart/scale';
 import { sweepCandidates, sweepDomain } from '../../chart/sweep';
 import type { ChartModel } from '../../chart/types';
+import { FPT_BARS, STB_BARS, VNINDEX_BARS, VNINDEX_PHIEN } from '../../formulas/market-series-2026';
+import type { SeriesRow } from '../../price-series';
 import { defaultInputs } from '../../registry/build';
+import { repeatKey } from '../../registry/repeat';
 import type { Level, VariableSpec } from '../../types';
-import type { HinhDoDuoc, KeHoachBieuDo, KeHoachBocTach, KeHoachTruc } from './types';
+import type { DangCoThe, HinhDoDuoc, KeHoachBieuDo, KeHoachBocTach, KeHoachTruc } from './types';
 
 /** Sai số khi nhận ra dải "một nửa đến gấp rưỡi": bám bước (`step`) làm hai đầu lệch tới một bước. */
 const SAI_SO_DAI = 0.13;
@@ -72,7 +77,7 @@ export function doHinh(model: ChartModel, khoa: string): HinhDoDuoc | undefined 
  * Lưới thưa nên đây là phép DÒ chứ không phải phép chứng minh: nó thấy mọi ca đảo chiều do đổi dấu
  * hay đổi cỡ một ô, và không thấy ca phải đổi hai ô cùng lúc.
  */
-function luoiGoDuoc(bien: VariableSpec): ReadonlyArray<number> {
+export function luoiGoDuoc(bien: VariableSpec): ReadonlyArray<number> {
   const goc = bien.defaultValue;
   if (bien.options !== undefined) {
     return bien.options.map((option) => option.value).filter((value) => value !== goc);
@@ -101,41 +106,137 @@ function luoiGoDuoc(bien: VariableSpec): ReadonlyArray<number> {
   );
 }
 
+/** Những dạng ô "Loại biểu đồ" mời cho một mô hình — rỗng khi mô hình không vẽ được. */
+function dangCua(model: ChartModel, formula: FormulaModule): ReadonlySet<DangVe> {
+  return model.kind === 'unavailable' ? new Set() : new Set(dangVeCuaHinh(model, formula.spec));
+}
+
 /**
- * Có bộ số gõ được nào làm đường theo ô `bien` đi NGƯỢC chiều nó đang đi với bộ số mặc định không.
+ * Ba chuỗi giá THẬT (250 phiên, 12/09/2025 → 15/09/2026) để dò những dạng chỉ hiện khi đã có chuỗi:
+ * FPT đi xuống cả năm, STB đi lên, VN-Index đi lên rồi dao động. Không chuỗi nào tự chế — đúng những
+ * bảng `market-series-2026.ts` mà nút "Xem ví dụ minh hoạ" nạp. Chuỗi VN-Index luôn đi kèm làm
+ * `marketSeries`, như màn chi tiết luôn kèm: thiếu nó thì Beta không vẽ được hình nào.
+ */
+const CHUOI_THAT: ReadonlyArray<ReadonlyArray<SeriesRow>> = [FPT_BARS, STB_BARS, VNINDEX_BARS];
+
+/** Ngữ cảnh có chuỗi giá, dựng đúng cách `applyExample()` của màn chi tiết dựng. */
+function voiChuoi(
+  ctx: CalcContext,
+  bars: ReadonlyArray<SeriesRow>,
+  marketSeries: ReadonlyArray<number> = VNINDEX_PHIEN,
+): CalcContext {
+  return {
+    ...ctx,
+    bars,
+    series: bars
+      .map((bar) => bar.close)
+      .filter((close): close is number => typeof close === 'number' && close > 0),
+    marketSeries,
+  };
+}
+
+/**
+ * Những cặp (bộ số, chuỗi giá) dùng để dò hình CHỈ vẽ được khi có chuỗi: bộ số mặc định trên từng
+ * chuỗi thật, cộng chính ví dụ của công thức (bộ số và chuỗi của nút "Xem ví dụ minh hoạ").
+ */
+function boDoChuoi(
+  formula: FormulaModule,
+  inputs: CalcInputs,
+  ctx: CalcContext,
+): ReadonlyArray<{ inputs: CalcInputs; ctx: CalcContext }> {
+  const { example } = formula.spec;
+  const theoVidu =
+    example.dataset === undefined
+      ? []
+      : [
+          {
+            inputs: { ...inputs, ...example.inputs },
+            ctx: voiChuoi(ctx, example.dataset.rows, example.marketSeries ?? VNINDEX_PHIEN),
+          },
+        ];
+  return [...CHUOI_THAT.map((bars) => ({ inputs, ctx: voiChuoi(ctx, bars) })), ...theoVidu];
+}
+
+/**
+ * Dò một trục qua LƯỚI những bộ số gõ được: có bộ nào làm đường đi NGƯỢC chiều mặc định không, và
+ * ô "Loại biểu đồ" có bao giờ mời Bậc thang hay Lãi/lỗ không.
  *
  * Đổi từng ô một — kể cả chính ô đang nằm trên trục, vì dải vẽ là ±50% quanh con số đang nhập.
  * "Ngược" là lên thành xuống hoặc xuống thành lên. Đường thành nằm ngang thì KHÔNG tính: gần như mọi
  * trục đều phẳng ra khi một thừa số bằng 0 (giá bằng 0, lãi suất bằng 0), và lúc ấy chính kết quả
  * bằng 0 trên màn đã nói đủ.
+ *
+ * Không dừng sớm ở ca đảo chiều đầu tiên như bản cũ (13/10/2026): hai dạng phụ thuộc số liệu cũng
+ * cần đi hết lưới (03/11/2026).
  */
-function daoChieuDuoc(
+function doQuaLuoi(
   formula: FormulaModule,
   inputs: CalcInputs,
   ctx: CalcContext,
   bien: VariableSpec,
   chieu: HinhDoDuoc['chieu'],
-): boolean {
-  if (chieu === 'ngang') return false;
+): { daoChieu: boolean } & DangCoThe {
+  let daoChieu = false;
+  let bac = false;
+  let laiLo = false;
 
   for (const o of formula.spec.variables) {
     for (const value of luoiGoDuoc(o)) {
       const thu = { ...inputs, [o.key]: value };
-      const hinh = doHinh(
-        buildChartModel({
-          formula,
-          inputs: thu,
-          ctx,
-          output: runFormula(formula, thu, ctx),
-          level: 'advanced',
-          sweepKey: bien.key,
-        }),
-        bien.key,
-      );
-      if (hinh !== undefined && hinh.chieu !== 'ngang' && hinh.chieu !== chieu) return true;
+      const model = buildChartModel({
+        formula,
+        inputs: thu,
+        ctx,
+        output: runFormula(formula, thu, ctx),
+        level: 'advanced',
+        sweepKey: bien.key,
+      });
+      const dang = dangCua(model, formula);
+      bac ||= dang.has('step');
+      laiLo ||= dang.has('signArea');
+
+      const hinh = doHinh(model, bien.key);
+      if (
+        chieu !== 'ngang' &&
+        hinh !== undefined &&
+        hinh.chieu !== 'ngang' &&
+        hinh.chieu !== chieu
+      ) {
+        daoChieu = true;
+      }
     }
   }
-  return false;
+  return { daoChieu, bac, laiLo };
+}
+
+/**
+ * Hai dạng phụ thuộc số liệu của một trục CHỈ vẽ được trên chuỗi giá (51 trục): dò trên các chuỗi
+ * thật với bộ số mặc định và trên ví dụ của công thức. Không đổi từng ô như `doQuaLuoi()`: mỗi lần
+ * dựng là 41 lần tính trên 250 phiên, nhân cả lưới thì việc dựng trang chậm hẳn mà không thêm gì —
+ * Bậc thang của những trục này đã có luật tĩnh (ô đếm phiên), còn Lãi/lỗ do chuỗi quyết.
+ */
+function doTrenChuoi(
+  formula: FormulaModule,
+  inputs: CalcInputs,
+  ctx: CalcContext,
+  sweepKey: string,
+): DangCoThe {
+  let bac = false;
+  let laiLo = false;
+  for (const bo of boDoChuoi(formula, inputs, ctx)) {
+    const model = buildChartModel({
+      formula,
+      inputs: bo.inputs,
+      ctx: bo.ctx,
+      output: runFormula(formula, bo.inputs, bo.ctx),
+      level: 'advanced',
+      sweepKey,
+    });
+    const dang = dangCua(model, formula);
+    bac ||= dang.has('step');
+    laiLo ||= dang.has('signArea');
+  }
+  return { bac, laiLo };
 }
 
 /** Kế hoạch của một ô nhập khi nó nằm trên trục ngang. */
@@ -162,6 +263,18 @@ function trucTu(
   const truc = axisLabel(bien.label);
   const hinh = doHinh(model, bien.key);
 
+  /*
+   * Hai dạng phụ thuộc số liệu: dạng của chính bộ số mặc định, cộng mọi bộ số dò được. Bậc thang còn
+   * có luật tĩnh — ô ĐẾM kỳ (năm, tháng, kỳ, phiên, ngày) mời Bậc thang mỗi khi dải trên trục đủ hẹp
+   * để các mức cách nhau đúng một bước, mà người dùng gõ một con số nhỏ là dải hẹp lại.
+   */
+  const dangGoc = dangCua(model, formula);
+  const dem = laDonViDem(bien.unit);
+  const qua =
+    hinh === undefined
+      ? { daoChieu: false, ...doTrenChuoi(formula, inputs, ctx, bien.key) }
+      : doQuaLuoi(formula, inputs, ctx, bien, hinh.chieu);
+
   return {
     khoa: bien.key,
     // Dựng bằng chính hàm màn tính dùng, vì trục cần chuỗi giá thì chưa có mô hình nào để đọc tên.
@@ -170,11 +283,46 @@ function trucTu(
     nangCao: bien.level === 'advanced',
     dai: nuaGapRuoi ? 'nua-gap-ruoi' : 'khac',
     ...(hinh === undefined ? {} : { hinh }),
-    daoChieu: hinh !== undefined && daoChieuDuoc(formula, inputs, ctx, bien, hinh.chieu),
+    daoChieu: qua.daoChieu,
+    bac: dem || dangGoc.has('step') || qua.bac,
+    laiLo: dangGoc.has('signArea') || qua.laiLo,
   };
 }
 
-function bocTachTu(model: ChartModel, macDinh: boolean): KeHoachBocTach | undefined {
+/**
+ * Hình bóc tách có bao giờ vẽ được thành vành khuyên không: ở bộ số mặc định, hoặc ở một bộ số đổi
+ * từng ô một (cùng lưới `luoiGoDuoc`). Một phần TRỪ chỉ cho vành khuyên khi nó bằng đúng 0.
+ */
+function coVanhKhuyen(
+  formula: FormulaModule,
+  inputs: CalcInputs,
+  ctx: CalcContext,
+  level: Level,
+): boolean {
+  const thuBo = (bo: CalcInputs): boolean =>
+    dangCua(
+      buildChartModel({
+        formula,
+        inputs: bo,
+        ctx,
+        output: runFormula(formula, bo, ctx),
+        level,
+        sweepKey: BREAKDOWN_KEY,
+      }),
+      formula,
+    ).has('donut');
+
+  if (thuBo(inputs)) return true;
+  return formula.spec.variables.some((o) =>
+    luoiGoDuoc(o).some((value) => thuBo({ ...inputs, [o.key]: value })),
+  );
+}
+
+function bocTachTu(
+  model: ChartModel,
+  macDinh: boolean,
+  vanhKhuyen: boolean,
+): KeHoachBocTach | undefined {
   if (model.kind !== 'waterfall') return undefined;
 
   const tong = model.bars.find((bar) => bar.isTotal === true);
@@ -185,7 +333,28 @@ function bocTachTu(model: ChartModel, macDinh: boolean): KeHoachBocTach | undefi
     chang: model.bars.filter((bar) => bar.isTotal !== true).map((bar) => bar.label),
     tong: tong.label,
     macDinh,
+    vanhKhuyen,
   };
+}
+
+/**
+ * Hình theo thời gian có bao giờ mời dạng Lãi/lỗ không: dò trên các chuỗi thật và trên ví dụ của
+ * công thức. P/E dọc một năm giữ nguyên dấu của EPS nên không có; ROC, MACD đổi dấu ngay.
+ */
+function thoiGianCoLaiLo(formula: FormulaModule, inputs: CalcInputs, ctx: CalcContext): boolean {
+  return boDoChuoi(formula, inputs, ctx).some((bo) =>
+    dangCua(
+      buildChartModel({
+        formula,
+        inputs: bo.inputs,
+        ctx: bo.ctx,
+        output: runFormula(formula, bo.inputs, bo.ctx),
+        level: 'advanced',
+        sweepKey: HISTORY_KEY,
+      }),
+      formula,
+    ).has('signArea'),
+  );
 }
 
 /**
@@ -219,9 +388,11 @@ export function keHoachBieuDo(formula: FormulaModule, ctx: CalcContext): KeHoach
 
   const macDinh = ve(capThap);
   const coBocTach = canDrawBreakdown(spec, inputs, output);
+  const vanhKhuyen =
+    (macDinh.kind === 'waterfall' || coBocTach) && coVanhKhuyen(formula, inputs, ctx, capThap);
   const bocTach =
-    bocTachTu(macDinh, true) ??
-    (coBocTach ? bocTachTu(ve(capThap, BREAKDOWN_KEY), false) : undefined);
+    bocTachTu(macDinh, true, vanhKhuyen) ??
+    (coBocTach ? bocTachTu(ve(capThap, BREAKDOWN_KEY), false, vanhKhuyen) : undefined);
 
   const coThoiGian = historyPlan(formula, ctx.asOf) !== null;
   const thoiGian = coThoiGian
@@ -230,6 +401,9 @@ export function keHoachBieuDo(formula: FormulaModule, ctx: CalcContext): KeHoach
         coCot: spec.priceOverlay === undefined,
         moc: (spec.referenceLines ?? []).map((line) => ({ label: line.label, value: line.value })),
         chuoiPhu: spec.priceOverlay === undefined ? [] : [CLOSE_PRICE_LABEL],
+        // Lãi/lỗ đòi một chuỗi: hình có giá đóng cửa vẽ kèm thì không bao giờ mời (`dangVeCuaHinh`).
+        laiLo: spec.priceOverlay === undefined && thoiGianCoLaiLo(formula, inputs, ctx),
+        nen: spec.priceLevel === true,
       }
     : undefined;
 
@@ -259,11 +433,15 @@ export function keHoachBieuDo(formula: FormulaModule, ctx: CalcContext): KeHoach
     )
     .map((mau) => {
       const tenTruc = axisLabel(mau.label);
+      // Ô cùng mẫu của nhóm đầu — xem `KeHoachTrucLap.bac`.
+      const nhomDau = truc.find((mot) => mot.khoa === repeatKey(mau.key, 1));
       return {
         tienTo: mau.key,
         ten: lineChartTitle(chartName(spec), tenTruc, false),
         truc: tenTruc,
         nangCao: mau.level === 'advanced',
+        bac: nhomDau?.bac ?? laDonViDem(mau.unit),
+        laiLo: nhomDau?.laiLo ?? false,
       };
     });
 

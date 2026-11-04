@@ -4,6 +4,7 @@ import { useMemo } from 'react';
 
 import {
   CANDLE_RANGE_SESSIONS,
+  NO_VALUE,
   buildCandleModel,
   displaySeriesDate,
   formatNumber,
@@ -217,7 +218,7 @@ export function CandleChart({ rows, code, range, onRangeChange }: CandleChartPro
         <div className={styles.priceLine}>
           <div className={styles.priceRow}>
             <span className={styles.price}>
-              {model.last === null ? '-' : formatNumber(model.last, { maxDecimals: 2 })}
+              {model.last === null ? NO_VALUE : formatNumber(model.last, { maxDecimals: 2 })}
             </span>
             {model.changePct !== null && (
               <span className={model.changePct >= 0 ? styles.changeUp : styles.changeDown}>
@@ -264,7 +265,7 @@ export function CandleChart({ rows, code, range, onRangeChange }: CandleChartPro
           viewBox={`0 0 ${String(K.W)} ${String(K.H)}`}
           preserveAspectRatio="xMidYMid meet"
           role="img"
-          aria-label={`${t('series.chartLabel')} - ${formatNumber(model.drawnCount)} ${t('series.sessions')}`}
+          aria-label={`${t('series.chartLabel')}, ${formatNumber(model.drawnCount)} ${t('series.sessions')}`}
         >
           {/* Đường lưới ngang cộng nhãn giá bên phải. */}
           {priceAxis.ticks.map((value) => {

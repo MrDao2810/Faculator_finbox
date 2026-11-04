@@ -83,7 +83,18 @@ describe('exampleNoteProblems() — bắt đúng bốn lỗi của đoạn chủ
       },
     });
     expect(loi.some((l) => l.includes('phải mở đầu bằng "So với "'))).toBe(true);
-    expect(loi.some((l) => l.includes('gạch ngang dài'))).toBe(true);
+    expect(loi.some((l) => l.includes('có gạch ngang'))).toBe(true);
+  });
+
+  it('gạch nối cách hai bên cũng bị bắt: từ 02/11/2026 nó là dấu ngăn chung của chữ trên màn', () => {
+    const loi = exampleNoteProblems({
+      ...NEN,
+      note: {
+        vi: 'So với thị giá 72.700 ₫: giá trị nội tại thấp hơn - sai một điểm ở g làm kết quả xê dịch mạnh.',
+        en: 'Compared with the 72,700 ₫ price: the intrinsic value is lower - one point off in g moves it a lot.',
+      },
+    });
+    expect(loi.some((l) => l.includes('có gạch ngang'))).toBe(true);
   });
 
   it('mốc kết bằng chữ số bị bắt, vì "2026:" đọc thành ký hiệu tỷ lệ', () => {

@@ -67,16 +67,40 @@
 import type { Bilingual } from '../../types';
 
 /**
- * Hai dạng của MỘT biểu đồ đường — đúng hai nút "Đường" / "Cột" của dòng "Loại biểu đồ".
+ * Các dạng của MỘT biểu đồ đường — đúng các mục của ô chọn "Loại biểu đồ" (`dangVeCuaHinh()`).
  *
- * `cot` vắng khi màn KHÔNG bày hai nút ấy cho biểu đồ đó: `ChartBody` chỉ bật lối cột khi hình có
- * đúng một chuỗi, mà đường theo thời gian của `sma-n-phien` vẽ kèm đường giá đóng cửa. Tả một dạng
- * màn không có là đúng lỗi thư mục này đi sửa.
+ * Tên `HaiDang` còn từ thời ô ấy chỉ có hai nút "Đường" / "Cột". Từ 03/11/2026 mỗi dạng có đoạn
+ * riêng: chủ dự án đổi sang Điểm, Bậc thang, Lãi/lỗ, Nến mà khung "?" vẫn in "Dạng Đường" — *"khi
+ * chuyển dạng thì phần hướng dẫn sau đang chưa chuyển dạng hướng dẫn tương tự"* — và chọn viết riêng
+ * từng hình chứ không dùng một đoạn mẫu cho mỗi dạng.
+ *
+ * Trường nào có mặt là do HÌNH quyết định (`kiem.ts` đòi đúng tập dạng `keHoachBieuDo()` dò ra):
+ *
+ * - `cot` vắng khi màn KHÔNG bày dạng Cột cho biểu đồ đó: `ChartBody` chỉ bật lối cột khi hình có
+ *   đúng một chuỗi, mà đường theo thời gian của `sma-n-phien` vẽ kèm đường giá đóng cửa;
+ * - `diem` có ở MỌI biểu đồ đường: dạng Điểm không đòi điều kiện gì;
+ * - `bac` chỉ khi trục rời rạc (`laTrucRoiRac()`): trục thời gian, ô đếm kỳ, kết quả tự làm tròn;
+ * - `laiLo` chỉ khi một bộ số dò được làm kết quả đổi dấu trong dải vẽ (`coDoiDau()`);
+ * - `nen` chỉ ở hình thời gian của năm công thức khai `spec.priceLevel`.
+ *
+ * Tả một dạng màn không có là đúng lỗi thư mục này đi sửa.
  */
 export interface HaiDang {
   duong: Bilingual;
   cot?: Bilingual;
+  diem?: Bilingual;
+  bac?: Bilingual;
+  laiLo?: Bilingual;
+  nen?: Bilingual;
 }
+
+/**
+ * Dạng ĐANG VẼ, theo tên trường của kho chữ — thứ `ChartBody` báo lên khung "?".
+ *
+ * Một tên cho mỗi dạng của `DangVe` (tầng biểu đồ), trừ Thang đo: mục ấy chưa có chữ, khung im
+ * (`HinhDangXem.hinhChuoi`). `thanh` là dạng Thanh ngang của hình bóc tách.
+ */
+export type DangDoc = 'duong' | 'cot' | 'diem' | 'bac' | 'laiLo' | 'nen' | 'thanh' | 'vanhKhuyen';
 
 /**
  * Chữ "Đọc biểu đồ" của một công thức. Trường nào có mặt là do HÌNH quyết định, không do người viết:
@@ -107,6 +131,11 @@ export interface BieuDoRieng {
   thoiGian?: HaiDang;
   /** Các thanh bóc tách — mặc định ở 5 công thức, một mục trong ô chọn ở 6 công thức. */
   bocTach?: Bilingual;
+  /**
+   * Hình bóc tách vẽ thành VÀNH KHUYÊN — chỉ khi mọi phần đều cộng vào tổng (`vanhKhuyen()` của
+   * tầng biểu đồ), tức năm công thức `KeHoachBocTach.vanhKhuyen` dò ra.
+   */
+  vanhKhuyen?: Bilingual;
 }
 
 /**
@@ -160,6 +189,23 @@ export interface KeHoachTruc {
    * hứa một chiều (nếu có) đã được thử trên nhiều chuỗi dựng.
    */
   daoChieu: boolean;
+  /** Ô chọn "Loại biểu đồ" có thể mời dạng Bậc thang cho trục này — xem `DangCoThe`. */
+  bac: boolean;
+  /** Ô chọn "Loại biểu đồ" có thể mời dạng Lãi/lỗ cho trục này — xem `DangCoThe`. */
+  laiLo: boolean;
+}
+
+/**
+ * Hai dạng phụ thuộc SỐ LIỆU — dạng Điểm và Cột (một chuỗi) thì hình đường nào cũng có.
+ *
+ * "Có thể" là: ở một bộ số người dùng gõ được hoặc một chuỗi giá thật nạp vào, ô chọn bày dạng ấy.
+ * Hỏi bằng phép dò (`ke-hoach.ts`), nên đây là phát hiện chứ không phải chứng minh. Dò sót thì màn
+ * bày một dạng mà kho không có chữ: khung "?" IM và nút "?" ẩn (`khoiDangXem()`), không bao giờ in
+ * đoạn của dạng khác.
+ */
+export interface DangCoThe {
+  bac: boolean;
+  laiLo: boolean;
 }
 
 /**
@@ -176,6 +222,12 @@ export interface KeHoachTrucLap {
   /** Tên ô nhập, `{n}` ở chỗ số thứ tự nhóm: 'Tiền mua đợt {n}'. */
   truc: Bilingual;
   nangCao: boolean;
+  /**
+   * Dạng phụ thuộc số liệu, mượn từ ô CÙNG MẪU của nhóm đầu (`amount1` cho `amount`): ô nhóm thêm
+   * là bản sao của ô ấy, cùng đơn vị, cùng vai trong phép tính.
+   */
+  bac: boolean;
+  laiLo: boolean;
 }
 
 export interface KeHoachThoiGian {
@@ -183,6 +235,13 @@ export interface KeHoachThoiGian {
   ten: Bilingual;
   /** Màn có bày hai nút Đường/Cột cho hình này không — xem `HaiDang.cot`. */
   coCot: boolean;
+  /**
+   * Có chuỗi giá thật nào làm kết quả đổi dấu dọc trục không — điều kiện của dạng Lãi/lỗ. Bậc thang
+   * và Điểm thì hình thời gian nào cũng có (từng phiên một là trục rời rạc).
+   */
+  laiLo: boolean;
+  /** Hình vẽ nến của phiên dưới đường kết quả — năm công thức khai `spec.priceLevel`. */
+  nen: boolean;
   /** Mốc ngang công thức khai (`spec.referenceLines`): RSI có 30 và 70. */
   moc: ReadonlyArray<{ label: Bilingual; value: number }>;
   /** Tên các đường vẽ kèm; hiện chỉ có "Giá đóng cửa" của `sma-n-phien`. */
@@ -198,6 +257,8 @@ export interface KeHoachBocTach {
   tong: Bilingual;
   /** `true`: hình này mở ra mặc định. `false`: phải chọn "Bóc tách" trong ô chọn trục. */
   macDinh: boolean;
+  /** Ô "Loại biểu đồ" có thể mời Vành khuyên: mọi phần đều cộng vào tổng ở một bộ số dò được. */
+  vanhKhuyen: boolean;
 }
 
 /**
@@ -230,8 +291,14 @@ export interface KhoiBieuDoBai {
   ten: Bilingual;
   duong?: Bilingual;
   cot?: Bilingual;
-  /** Đoạn của hình bóc tách — một đoạn, không chia hai dạng: hình ấy chỉ có thanh. */
+  diem?: Bilingual;
+  bac?: Bilingual;
+  laiLo?: Bilingual;
+  nen?: Bilingual;
+  /** Đoạn của hình bóc tách ở dạng Thanh ngang. */
   thanh?: Bilingual;
+  /** Đoạn của hình bóc tách ở dạng Vành khuyên — chỉ năm công thức có. */
+  vanhKhuyen?: Bilingual;
   /** Mục này chỉ có trong ô chọn ở chế độ Nâng cao. */
   nangCao: boolean;
   /** Hình chỉ vẽ được sau khi đã nạp mã cổ phiếu hoặc chuỗi giá. */
@@ -263,6 +330,9 @@ export interface KhoiLapBai {
   ten: Bilingual;
   duong: Bilingual;
   cot?: Bilingual;
+  diem?: Bilingual;
+  bac?: Bilingual;
+  laiLo?: Bilingual;
   nangCao: boolean;
 }
 
@@ -276,8 +346,11 @@ export interface HinhDangXem {
    * hình VÀ người dùng chưa tự chọn mục nào — khi ấy khung nói về hình màn sẽ mở ra.
    */
   khoa: string | null;
-  /** Dạng đang vẽ thật sự, tức ý muốn của hai nút "Loại biểu đồ" đã lọc qua việc hình có cho vẽ cột. */
-  dang: 'duong' | 'cot';
+  /**
+   * Dạng đang hiện ở ô "Loại biểu đồ" — dạng vẽ thật sự, hoặc dạng người dùng giữ lại khi số liệu
+   * đổi làm nó hết vẽ được (khi ấy `daVe` là `false`).
+   */
+  dang: DangDoc;
   /** `false` khi khối Biểu đồ đang hiện cảnh báo thay cho hình. */
   daVe: boolean;
   /**

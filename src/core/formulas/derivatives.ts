@@ -558,8 +558,8 @@ export const LAI_LO_VI_THE_LONG: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'VN30F2005 - vị thế Long mở trong đợt ATC phiên đáo hạn bất thường 21/05/2020',
-        en: 'VN30F2005 - a long opened in the ATC auction of the unusual 2020-05-21 expiry session',
+        vi: 'VN30F2005: vị thế Long mở trong đợt ATC phiên đáo hạn bất thường 21/05/2020',
+        en: 'VN30F2005: a long opened in the ATC auction of the unusual 2020-05-21 expiry session',
       },
       inputs: { entryPoints: 864, exitPoints: 815.55, contracts: 1 },
       expected: -4_845_000,
@@ -734,8 +734,8 @@ export const LAI_LO_VI_THE_SHORT: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'VN30F2005 - mặt còn lại của phiên đáo hạn 21/05/2020, vị thế Short',
-        en: 'VN30F2005 - the other side of the 2020-05-21 expiry session, a short position',
+        vi: 'VN30F2005: mặt còn lại của phiên đáo hạn 21/05/2020, vị thế Short',
+        en: 'VN30F2005: the other side of the 2020-05-21 expiry session, a short position',
       },
       inputs: { entryPoints: 864, exitPoints: 815.55, contracts: 1 },
       expected: 4_845_000,

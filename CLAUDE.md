@@ -1609,7 +1609,8 @@ result changes with", "Over time").
 it fits** (21/10/2026). The owner: _"biểu đồ tôi đang muốn hướng đến nhiều dạng vẽ khác nhau … hiện tại
 đang chỉ là 2 dạng nên quá eo hẹp"_, then _"áp dụng cho toàn bộ công thức"_; asked, they chose all four
 groups below, a select over icon buttons, **no guide text for the new forms yet** ("hướng dẫn sử dụng thì
-chưa cần"), and Beta's fabricated VN-Index left for a separate job. `dangVeCuaHinh(model, spec)` in
+chưa cần"; reversed on 03/11/2026, every form now has its own "Đọc biểu đồ" paragraph, see "The '?' popover prints
+ONE chart" below), and Beta's fabricated VN-Index left for a separate job. `dangVeCuaHinh(model, spec)` in
 `src/core/chart/dang-ve.ts` is the ONE rule, and `ChartKindSelect` only prints its list (a form that would
 read wrong is never drawn: it is absent, not greyed out, except as the kept selection while the data stops fitting
 it on the same entry, see "The two chart selects never change on their own" below; one form left means no select
@@ -1888,8 +1889,9 @@ Measured over the Registry (`dang-ve.test.ts` pins it): with no series, 257 draw
 211 (Cột 224 with the 13 column charts that need no series), Bậc thang 23, Lãi/lỗ 27, Vành khuyên 27 (5
 breakdowns and 22 compositions); with FPT's 250 sessions and the real VN-Index 384 charts (Đường 321, Cột 340, Điểm
 316), Bậc thang 104 and Lãi/lỗ 46, Nến 5, Thang đo 3. The first form of every chart is the old default (a composition opens as Vành khuyên), so nothing changes until the user picks. The "?" popover
-is told `dang: 'duong'` for Nến, Điểm, Bậc thang and Lãi/lỗ (same points, same axes) and keeps the one
-breakdown paragraph for the donut. **Below 1024px the control row is ONE 30px line, label left, selects right**
+is told the form actually drawn (`DANG_DOC` in `ChartBody`) and prints that form's own paragraph since 03/11/2026;
+until then it was told `dang: 'duong'` for Nến, Điểm, Bậc thang and Lãi/lỗ and kept the breakdown paragraph for the
+donut, which the owner reported as a bug. **Below 1024px the control row is ONE 30px line, label left, selects right**
 (23/10/2026, owner circling the full-width "Xem theo" select under its label on a phone: _"đưa lên cùng hàng nằm bên
 phải của đoạn text bên trên … để tiết kiệm không gian"_; was label above, select below, ~56px). Each `.picker` is a
 flex ROW (the `Select` root is a column); the select grows from 7rem to its widest option (`max-width:
@@ -3869,8 +3871,9 @@ in this round; without them, picking "Khối lượng" would show either nothing
 - **While nothing is drawn and the user has picked nothing, `khoa` is `null`.** For the 35 formulas waiting on
   a series the chart that will appear is the time chart, not the first input the engine tried. (An
   `unavailable` model used to carry that input's `sweepKey`; since 23/10/2026 it carries one only for an entry
-  the user chose, and then the select keeps showing it.) `khoiDangXem()` in `GuideBody.tsx` falls back
-  to the first block (`moRa`) for `null`, for "not reported yet" and for a key with no text.
+  the user chose, and then the select keeps showing it.) `khoiDangXem()` (`src/ui/guide/khoi-dang-xem.ts`
+  since 03/11/2026, re-exported by `GuideBody.tsx` and the `@/ui/guide` barrel) falls back to the first block
+  (`moRa`) for `null`, for "not reported yet" and for a key with no text.
 - **One condition line is left: `guide.chart.when.seriesOnly`**, printed only when the chart being described
   needs a series AND is not on screen. `guide.chart.switchAxis`, `switchKind`, `when.advanced`, `when.series`
   and `when.breakdown` are gone (tombstone in `vi.ts`), and with the first three went the last `guide.*`
@@ -3891,6 +3894,35 @@ view types because `build-only-imports.test.ts` lets the `@/application` barrel 
 that one leaf file only. Do not rebuild a "chart type → paragraph" table, and do not rebuild the two pointer
 sentences: to know what the screen draws, call `keHoachBieuDo()`; when a picker entry has no text, write
 its text.
+
+**Every FORM of every chart has its own paragraph since 03/11/2026, not just Đường and Cột.** The owner switched
+"Loại biểu đồ" on EV/EBITDA and the popover still read "Dạng Đường": _"kiểm tra lại toàn bộ biểu đồ khi chuyển dạng
+thì phần hướng dẫn sau đang chưa chuyển dạng hướng dẫn tương tự"_; asked, they chose a paragraph written per chart
+over one template per form. `HaiDang` (name kept from the two-button days) gained `diem`, `bac`, `laiLo`, `nen`, and
+`BieuDoRieng` a `vanhKhuyen` beside `bocTach`; the popover labels each ("Dạng Điểm", `guide.chart.dots`…). What is
+easy to break:
+
+- **Which forms a chart CAN show depends on the data, so `keHoachBieuDo()` probes for it**: Điểm on every line chart;
+  Bậc thang on every time chart, on count-unit axes (`laDonViDem()`) and wherever a probe offers it (results that
+  round, like contract counts); Lãi/lỗ wherever a probe makes the result change sign; Nến on the five `priceLevel`
+  time charts; Vành khuyên wherever a probe makes every breakdown part ≥ 0. Probes: the `luoiGoDuoc()` grid of
+  typeable inputs (one field at a time, the same grid as `daoChieu`) for axes drawable at once, and the real FPT,
+  STB and VN-Index series plus the formula's own example for series charts. 111 formulas in about 2 s. Measured:
+  Điểm 298, Bậc thang 118, Lãi/lỗ 77, Nến 5, Vành khuyên 9 (507 paragraphs × 2 languages), pinned in
+  `bieu-do.test.ts`. A probe is a detector, not a proof.
+- **A drawn form with no paragraph is SILENT, never another form's text**: `khoiDangXem()` returns `undefined` and
+  `FormulaDetail` hides the chart's "?" button, the `hinhChuoi` pattern. Only a chart that is not drawn yet falls
+  back to the block's default form (`thanh` for a breakdown, `duong` otherwise).
+- **`kiem.ts` rules per form**: each paragraph must stand alone (the popover prints one), so Điểm, Bậc thang and
+  Lãi/lỗ of an axis obey the Đường rules (field named verbatim, "không phải diễn biến thị trường", range, first
+  direction, hatching, both directions on reversible axes), plus their own words: `chấm`/`dot`, `bậc`/`step`,
+  `xanh`·`đỏ`·`vạch 0` / `green`·`red`·`zero line`, `nến`·`phiên tăng`·`phiên giảm` / `candle`·`up session`·
+  `down session`, `múi`/`slice` and every part label for the donut. **Lãi/lỗ is exempt from the range rule**: a ±50% range
+  around a non-zero number never crosses 0, so on most axes the form only appears when that field itself is 0 and
+  the axis spans 20 steps either side; the paragraph says when it appears. The Nến paragraph of SMA must NOT mention
+  the close-price overlay: that form does not draw it.
+- A breakdown with only horizontal bars (no donut) still prints its paragraph without a form label: no "Loại biểu đồ"
+  select exists for it, so "Dạng Thanh ngang" would name a choice the screen does not offer.
 
 Five things this surfaced and did not fix, all outside the guide text: `eps-co-ban` in Advanced mode opens on
 "EPS cơ bản theo Cổ tức ưu đãi" swept across the field's whole 0 – 100.000 tỷ ₫ range (the default is 0, so
@@ -3960,20 +3992,44 @@ mỗi cổ phiếu`, chart titles, the quiz bank, both dictionaries), `summaries
   - **The gate is `chữ trên màn không dùng gạch dài "—"` in `i18n.test.ts`.** It parses every non-test `.ts`/`.tsx`
     of `src/{core,application,ui,app,data}` with the TypeScript API and reads only string, template and JSX text, so
     comments and REGEX literals may keep `—`: the writing rules ban it with `/[–—]/`, and `format.ts` /
-    `paste-import.ts` accept a typed `—4` as minus 4 (two tests pin that, keep them).
-  - **Two deliberate exceptions.** Inside a curly-quoted `“…”` run of the quiz bank the dash is the source's own
-    (14 dashes in 5 verbatim English quotes), so it stays, per the verbatim-quote rule. And `legalBasis` in
-    `schedules.ts` uses a colon instead of `-`, because its right side is a number: "Điều 13 khoản 2 - 0,1%" reads as
-    "two minus 0,1%", the minus misreading the owner has reported twice.
+    `paste-import.ts` accept a typed `—4` as minus 4 (two tests pin that, keep them). It reads a string's VALUE, so
+    `'—'` in source and `&mdash;` in JSX are caught too, and two more cases cover `public/manifest.webmanifest`
+    and CSS `content:`.
+  - **Two deliberate exceptions.** Inside a curly-quoted `“…”` run of a quiz EXPLANATION (`explain`, nowhere else) the
+    dash is the source's own (14 dashes in 5 verbatim English quotes), so it stays, per the verbatim-quote rule; the
+    gate pins the count at 14, so a 15th is a decision. Curly quotes in a prompt or a choice are product text (choice b
+    of the negative-P/E question described the screen's own placeholder as `“— , —”` and is now `“_ _”`). And `legalBasis`
+    in `schedules.ts` uses a colon instead of `-`, because its right side is a number: "Điều 13 khoản 2 - 0,1%" reads
+    as "two minus 0,1%", the minus misreading the owner has reported twice.
+  - **A spaced hyphen never touches a number, a formula symbol or a calculation** (03/11/2026). That colon was the
+    first case of a general rule the adversarial review of the sweep then found about 250 more times: "” - 28.000
+    (giá sau điều chỉnh) + 2.000 = 30.000" read as −28.000, "FPT - 1.000 CP" as minus 1.000 shares, "tăng trưởng g -
+    r nhỏ hơn g" as g − r, "ví dụ 1,1 - hoặc…" as 1,1 minus. Each was rewritten with ":", ",", ", tức" / ", i.e.",
+    parentheses or a full stop; mirrored in both languages; in a multiple-choice question the same separator went to
+    every choice that had one, so the right answer does not stand out. **Every "Ví dụ thực tế" title is now
+    "Subject: data"** (`FPT: EPS 5.867 ₫…`, `FPT năm 2025: EBIT…`) and a trailing date follows a comma (`…8,1%/năm,
+năm 2026`); 118 titles, one rule, so sibling titles agree. Spec `tests[].name` uses ": " too, like `UT-CI-01: …`.
+    Two formula names changed because a SYMBOL followed their dash: `PEG - hệ số P/E trên tăng trưởng` /
+    `PEG - ratio of P/E to growth` and `EV/Sales - hệ số EV trên doanh thu` / `EV/Sales - ratio of EV to sales`
+    (cost: a saved calculation or a recent search stored under the OLD wording of these two is shown as typed). MACD
+    signal's component-lines label became "Hai đường MACD và tín hiệu", or its chart title read "… MACD - MACD và …".
+    Gates: `chữ trên màn không để gạch nối đứng sát con số` in `i18n.test.ts` (a digit, `%`, `₫` or `)` right before
+    " - ", or a digit right after; skips LaTeX, `latex`/`symbol`/`calcEvidence` values, code snippets and quiz “…”
+    quotes, where a source's formula "(V₀ - VD)" is a real minus), and the near-formula rules (`DASHES` in
+    `expression-rules.ts`, `GACH_DAI` in the how-to-read, when-to-use, example-note and `vi-du` rules) now also reject
+    " - ": next to a formula only the true minus `−` may stand. **A dash between two symbols ("EPS - EPS", "WACC -
+    FCFE") is invisible to the gate**, because it looks like `P/E - hệ số…`: read new text next to a formula by eye.
   - **Six places cut a name at its separator to get the symbol** (`shortLabel` in `build.ts`, `shortTotalLabel` in
     `breakdown.ts`, `inheritedFrom` in `warnings.ts`, `shortName` in `notation-view.ts`, `kyHieuCuaNhan`/`chiaNhan` in
     `o-ky-hieu.ts`, `tenNgan` in `PresetSheet.tsx`). They cut at a SPACED hyphen `-` (the regex ones accept the old
     `—` too); no name or label carries a spaced hyphen for any other reason, keep it that way.
   - **Data saved on the customer's machine before 02/11/2026 still holds `—`.** A saved calculation's auto-name embeds
-    the formula name, and recent searches store it: `key()` in `saved-calc-name.ts` and `khoaMuc()` in
-    `recent-searches.ts` treat `—` as `-`, and `displayCalcName()` no longer returns early in Vietnamese while the
-    stored name still has `—`, so old auto-names are rebuilt with the new name instead of being shown as hand-typed
-    (two lines, old dash). A hand-typed name keeps its `—` verbatim.
+    the formula name, and recent searches store it: `calcNameKey()` in `saved-calc-name.ts` (exported, and used by
+    the save sheet's duplicate check and by `PortfolioScreen`'s "is this an auto-name" test, which each kept their
+    own copy until 03/11/2026 and missed the new branch) and `khoaMuc()` in `recent-searches.ts` treat `—` as `-`, and
+    `displayCalcName()` no longer returns early in Vietnamese while the stored name still has `—`, so old auto-names
+    are rebuilt with the new name instead of being shown as hand-typed (two lines, old dash). A hand-typed name keeps
+    its `—` verbatim. The data-table back link's `sessionStorage` name (`parseFormulaOrigin()`) maps `—` to `-` too.
 - **Settings is a gear icon in the header, not a nav item** (28/10/2026, owner: _"không cần phải có Cài đặt ở trên
   mainlayout mà chỉ cần icon setting ở bên trái cùng hàng với icon theme sáng tối"_; asked, they chose PC AND phone).
   `NAV_ITEMS` has three entries (Công thức · Danh mục · Về chúng tôi), so the desktop nav and the bottom tab bar
@@ -4227,6 +4283,13 @@ mỗi cổ phiếu`, chart titles, the quiz bank, both dictionaries), `summaries
     whatever the locale, and `localizeRecentSearches()` maps each stored string back to a formula (its `vi` OR `en`
     name, case-insensitive) and prints `pick(name)`; a string that matches no formula prints as stored. It also
     dedupes by the printed label, because older stores can hold one formula twice, once per language.
+    **And so tapping a chip OPENS that formula** (03/11/2026, owner: _"khi click vào lịch sử tìm kiếm thì lại vào lại
+    danh sách tìm kiếm trước đó … phải chuyển sang phần công thức đã lưu đó"_). Before, a chip refilled the search
+    box with the formula's name and showed the result list. `recentSearchChips()` keeps each chip's formula, both
+    screens (`/cong-thuc/` and `/tim-kiem/`) pass `hrefFor`, and `RecentSearches` renders a real `<Link>` to
+    `formulaPath(id)` (default prefetch, like the shelf tiles: at most 6). A chip whose string matches no formula
+    (the old PEG / EV/Sales names) has no page to open and stays a button that filters in place (`onPick`). Opening
+    a formula from a chip does not reorder the history.
   - **Search matches a PHRASE, in two tiers, and only the second tier is painted** (16/10/2026). The owner
     typed "%b" and got 96 cards: the old scorer dropped every symbol (`tokenize`), then let each word
     prefix-match ANY word of the name, tags or description in any order, so "b" matched "bao nhiêu",

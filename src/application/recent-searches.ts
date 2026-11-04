@@ -162,15 +162,37 @@ export function localizeRecentSearches(
   formulas: ReadonlyArray<{ readonly name: Bilingual }>,
   show: (name: Bilingual) => string,
 ): string[] {
-  const shown: string[] = [];
+  return recentSearchChips(terms, formulas, show).map((chip) => chip.label);
+}
+
+/** Một chip "Tìm gần đây": chữ in ra, và công thức nó trỏ tới (`null` nếu chuỗi không khớp công thức nào). */
+export interface RecentSearchChip<F> {
+  label: string;
+  formula: F | null;
+}
+
+/**
+ * Như `localizeRecentSearches()`, nhưng giữ luôn công thức của từng chip (03/11/2026).
+ *
+ * Chủ dự án bấm chip "Giá vốn trung bình khi mua DCA" và chỉ thấy ô tìm điền lại chữ ấy, ra một danh
+ * sách kết quả: _"khi bấm vào … thì phải chuyển sang phần công thức đã lưu đó"_. Chip là một CÔNG THỨC
+ * đã chọn, nên bấm nó là mở công thức ấy; màn gọi cần biết công thức nào để dựng đường dẫn. Chuỗi không
+ * tra ra công thức (`formula: null`, ví dụ tên PEG, EV/Sales ghi trước ngày đổi tên 03/11/2026) vẫn là
+ * chip lọc như cũ, vì không có trang nào để mở.
+ */
+export function recentSearchChips<F extends { readonly name: Bilingual }>(
+  terms: ReadonlyArray<string>,
+  formulas: ReadonlyArray<F>,
+  show: (name: Bilingual) => string,
+): RecentSearchChip<F>[] {
+  const shown: RecentSearchChip<F>[] = [];
   for (const term of terms) {
     const key = khoaMuc(term);
-    const formula = formulas.find(
-      ({ name }) => khoaMuc(name.vi) === key || khoaMuc(name.en) === key,
-    );
-    const label = formula === undefined ? term : show(formula.name);
-    if (shown.some((existing) => khoaMuc(existing) === khoaMuc(label))) continue;
-    shown.push(label);
+    const formula =
+      formulas.find(({ name }) => khoaMuc(name.vi) === key || khoaMuc(name.en) === key) ?? null;
+    const label = formula === null ? term : show(formula.name);
+    if (shown.some((existing) => khoaMuc(existing.label) === khoaMuc(label))) continue;
+    shown.push({ label, formula });
   }
   return shown;
 }

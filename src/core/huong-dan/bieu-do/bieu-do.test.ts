@@ -102,6 +102,9 @@ const CHUOI_THU: ReadonlyArray<CalcContext> = [
   ),
 ];
 
+/** Các dạng của một hình đường có đoạn riêng — `HaiDang` (03/11/2026). */
+const CAC_DANG = ['duong', 'cot', 'diem', 'bac', 'laiLo', 'nen'] as const;
+
 /** `FFB_BIEU_DO_IDS=pe,roe` thu hẹp các ca chữ về vài công thức trong lúc viết một nhóm. */
 const CHI = (process.env.FFB_BIEU_DO_IDS ?? '')
   .split(',')
@@ -150,18 +153,25 @@ describe('chữ "Đọc biểu đồ" nói đúng hình màn tính dựng', () =
         const chu = rieng?.truc?.[truc.khoa];
         if (truc.hinh !== undefined || chu === undefined) continue;
 
-        const hua = chieuDuyNhat(chu.duong.vi, 'vi');
-        if (hua !== chieuDuyNhat(chu.duong.en, 'en')) {
-          sai.push(`${truc.khoa}: bản vi và bản en hứa hai chiều khác nhau`);
-        }
-        if (hua === null) continue;
-
-        CHUOI_THU.forEach((ctx, i) => {
-          const hinh = doHinh(ve(formula, ctx, 'advanced', truc.khoa), truc.khoa);
-          if (hinh !== undefined && hinh.chieu !== 'ngang' && hinh.chieu !== hua) {
-            sai.push(`${truc.khoa}: chữ hứa "${hua}" mà chuỗi thử ${String(i)} ra "${hinh.chieu}"`);
+        // Mọi dạng vẽ cùng bộ điểm với Đường đều có thể hứa một chiều (03/11/2026).
+        for (const dang of ['duong', 'diem', 'bac', 'laiLo'] as const) {
+          const doan = chu[dang];
+          if (doan === undefined) continue;
+          const hua = chieuDuyNhat(doan.vi, 'vi');
+          if (hua !== chieuDuyNhat(doan.en, 'en')) {
+            sai.push(`${truc.khoa}.${dang}: bản vi và bản en hứa hai chiều khác nhau`);
           }
-        });
+          if (hua === null) continue;
+
+          CHUOI_THU.forEach((ctx, i) => {
+            const hinh = doHinh(ve(formula, ctx, 'advanced', truc.khoa), truc.khoa);
+            if (hinh !== undefined && hinh.chieu !== 'ngang' && hinh.chieu !== hua) {
+              sai.push(
+                `${truc.khoa}.${dang}: chữ hứa "${hua}" mà chuỗi thử ${String(i)} ra "${hinh.chieu}"`,
+              );
+            }
+          });
+        }
       }
 
       expect(sai).toEqual([]);
@@ -184,13 +194,15 @@ describe('chữ "Đọc biểu đồ" nói đúng hình màn tính dựng', () =
 
     for (const [id, rieng] of Object.entries(BIEU_DO_RIENG)) {
       const doan = [
-        ...Object.entries(rieng.truc ?? {}).flatMap(([khoa, hai]) => [
-          [`${id}.${khoa}`, hai.duong] as const,
-          [`${id}.${khoa}`, hai.cot] as const,
-        ]),
-        [`${id}.thoiGian`, rieng.thoiGian?.duong] as const,
-        [`${id}.thoiGian`, rieng.thoiGian?.cot] as const,
+        ...Object.entries(rieng.truc ?? {}).flatMap(([khoa, hai]) =>
+          CAC_DANG.map((dang) => [`${id}.${khoa}.${dang}`, hai[dang]] as const),
+        ),
+        ...Object.entries(rieng.trucLap ?? {}).flatMap(([tienTo, hai]) =>
+          CAC_DANG.map((dang) => [`${id}.lap.${tienTo}.${dang}`, hai[dang]] as const),
+        ),
+        ...CAC_DANG.map((dang) => [`${id}.thoiGian.${dang}`, rieng.thoiGian?.[dang]] as const),
         [`${id}.bocTach`, rieng.bocTach] as const,
+        [`${id}.vanhKhuyen`, rieng.vanhKhuyen] as const,
       ];
       for (const [cho, mot] of doan) {
         if (mot === undefined) continue;
@@ -230,6 +242,12 @@ describe.skipIf(CHI.length > 0)('kế hoạch đọc đúng thứ màn tính d�
       trucNangCao: 0,
       trucDaiKhac: 0,
       trucDaoChieu: 0,
+      trucBac: 0,
+      trucLaiLo: 0,
+      lapLaiLo: 0,
+      thoiGianLaiLo: 0,
+      thoiGianNen: 0,
+      bocTachVanhKhuyen: 0,
     };
 
     for (const [, keHoach] of KE_HOACH) {
@@ -242,7 +260,11 @@ describe.skipIf(CHI.length > 0)('kế hoạch đọc đúng thứ màn tính d�
       else dem.moRaTheoONhap += 1;
 
       if (keHoach.bocTach?.macDinh === false) dem.bocTachTrongOChon += 1;
+      if (keHoach.bocTach?.vanhKhuyen === true) dem.bocTachVanhKhuyen += 1;
       if (keHoach.thoiGian !== undefined) dem.thoiGian += 1;
+      if (keHoach.thoiGian?.laiLo === true) dem.thoiGianLaiLo += 1;
+      if (keHoach.thoiGian?.nen === true) dem.thoiGianNen += 1;
+      dem.lapLaiLo += keHoach.trucLap.filter((lap) => lap.laiLo).length;
 
       for (const truc of keHoach.truc) {
         dem.truc += 1;
@@ -251,6 +273,8 @@ describe.skipIf(CHI.length > 0)('kế hoạch đọc đúng thứ màn tính d�
         if (truc.nangCao) dem.trucNangCao += 1;
         if (truc.dai === 'khac') dem.trucDaiKhac += 1;
         if (truc.daoChieu) dem.trucDaoChieu += 1;
+        if (truc.bac) dem.trucBac += 1;
+        if (truc.laiLo) dem.trucLaiLo += 1;
       }
     }
 
@@ -267,6 +291,17 @@ describe.skipIf(CHI.length > 0)('kế hoạch đọc đúng thứ màn tính d�
       trucNangCao: 10,
       trucDaiKhac: 6,
       trucDaoChieu: 26,
+      /*
+       * Dạng phụ thuộc số liệu (03/11/2026): Bậc thang ở trục rời rạc, Lãi/lỗ khi một bộ số dò được
+       * làm kết quả đổi dấu, Nến ở năm hình mức giá, Vành khuyên khi mọi phần cộng vào tổng. Mỗi số
+       * ở đây là số đoạn phải viết; số đổi là có đoạn mới cần chữ, hoặc đoạn cũ thành thừa.
+       */
+      trucBac: 71,
+      trucLaiLo: 60,
+      lapLaiLo: 1,
+      thoiGianLaiLo: 16,
+      thoiGianNen: 5,
+      bocTachVanhKhuyen: 9,
     });
   });
 
@@ -496,8 +531,12 @@ describe.skipIf(CHI.length > 0)('trục đảo chiều được thì đoạn ch�
   const rieng = BIEU_DO_RIENG.roe;
   if (rieng?.truc === undefined) throw new Error('kho thiếu roe');
 
-  const voi = (equity: NonNullable<typeof rieng.truc>[string]) =>
-    bieuDoProblems(keHoach, { ...rieng, truc: { ...rieng.truc, equity } });
+  // Thay riêng hai đoạn Đường và Cột; các dạng khác (Điểm…, 03/11/2026) giữ đoạn đang có trong kho.
+  const voi = (equity: Pick<NonNullable<typeof rieng.truc>[string], 'duong' | 'cot'>) =>
+    bieuDoProblems(keHoach, {
+      ...rieng,
+      truc: { ...rieng.truc, equity: { ...rieng.truc?.equity, ...equity } },
+    });
 
   const DUONG_CU = {
     vi: 'Đường chạy theo ô Vốn chủ sở hữu, từ một nửa đến gấp rưỡi con số bạn đang nhập. Đây là phép thử, không phải diễn biến thị trường. Đường đi xuống và thoải dần: vốn chủ càng dày thì mỗi đồng vốn sinh lời càng ít.',

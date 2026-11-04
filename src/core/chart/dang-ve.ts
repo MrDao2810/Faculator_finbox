@@ -76,6 +76,11 @@ export function coDoiDau(points: ReadonlyArray<ChartPoint>): boolean {
  */
 const DON_VI_DEM: ReadonlySet<string> = new Set(['năm', 'tháng', 'kỳ', 'phiên', 'ngày']);
 
+/** Đơn vị này có phải một ô ĐẾM kỳ không — mục "Đọc biểu đồ" hỏi để biết trục nào có Bậc thang. */
+export function laDonViDem(unit: string): boolean {
+  return DON_VI_DEM.has(unit);
+}
+
 /**
  * Trục ngang có RỜI RẠC hay không — điều kiện để mời dạng bậc thang.
  *

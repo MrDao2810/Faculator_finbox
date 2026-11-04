@@ -176,8 +176,8 @@ export const PHI_GIAO_DICH_MUA: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'FPT - mua 1.000 CP giá 62.900 ₫ phiên 24/07/2026',
-        en: 'FPT - buying 1,000 shares at 62,900 ₫ at the 2026-07-24 close',
+        vi: 'FPT: mua 1.000 CP giá 62.900 ₫ phiên 24/07/2026',
+        en: 'FPT: buying 1,000 shares at 62,900 ₫ at the 2026-07-24 close',
       },
       inputs: { quantity: 1_000, buyPrice: 62_900 },
       expected: 94_350,
@@ -276,8 +276,8 @@ export const PHI_GIAO_DICH_BAN: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'FPT - bán 1.000 CP giá 72.700 ₫ phiên 11/09/2026',
-        en: 'FPT - selling 1,000 shares at 72,700 ₫ at the 2026-09-11 close',
+        vi: 'FPT: bán 1.000 CP giá 72.700 ₫ phiên 11/09/2026',
+        en: 'FPT: selling 1,000 shares at 72,700 ₫ at the 2026-09-11 close',
       },
       inputs: { quantity: 1_000, sellPrice: 72_700 },
       expected: 109_050,
@@ -371,8 +371,8 @@ export const THUE_CHUYEN_NHUONG: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'FPT - thuế trên lệnh bán 1.000 CP giá 72.700 ₫ phiên 11/09/2026',
-        en: 'FPT - tax on a sale of 1,000 shares at 72,700 ₫, 2026-09-11 close',
+        vi: 'FPT: thuế trên lệnh bán 1.000 CP giá 72.700 ₫ phiên 11/09/2026',
+        en: 'FPT: tax on a sale of 1,000 shares at 72,700 ₫, 2026-09-11 close',
       },
       inputs: { quantity: 1_000, sellPrice: 72_700 },
       expected: 72_700,
@@ -475,8 +475,8 @@ export const THUE_CO_TUC: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'FPT - 1.000 CP, cổ tức tiền mặt 1.000 ₫/CP chốt quyền 02/12/2025',
-        en: 'FPT - 1,000 shares, a 1,000 ₫/share cash dividend with a 2025-12-02 record date',
+        vi: 'FPT: 1.000 CP, cổ tức tiền mặt 1.000 ₫/CP chốt quyền 02/12/2025',
+        en: 'FPT: 1,000 shares, a 1,000 ₫/share cash dividend with a 2025-12-02 record date',
       },
       inputs: { quantity: 1_000, dividendPerShare: 1_000 },
       expected: 50_000,
@@ -583,8 +583,8 @@ export const PHI_LUU_KY: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'FPT - 1.000 CP nằm trong tài khoản 2 tháng, 24/07 đến 11/09/2026',
-        en: 'FPT - 1,000 shares sitting in the account for 2 months, 2026-07-24 to 2026-09-11',
+        vi: 'FPT: 1.000 CP nằm trong tài khoản 2 tháng, 24/07 đến 11/09/2026',
+        en: 'FPT: 1,000 shares sitting in the account for 2 months, 2026-07-24 to 2026-09-11',
       },
       inputs: { quantity: 1_000, months: 2 },
       expected: 540,
@@ -733,8 +733,8 @@ export const GIA_HOA_VON: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'FPT - mua 1.000 CP giá 62.900 ₫ ngày 24/07/2026, giữ 2 tháng',
-        en: 'FPT - buy 1,000 shares at 62,900 ₫ on 2026-07-24 and hold for 2 months',
+        vi: 'FPT: mua 1.000 CP giá 62.900 ₫ ngày 24/07/2026, giữ 2 tháng',
+        en: 'FPT: buy 1,000 shares at 62,900 ₫ on 2026-07-24 and hold for 2 months',
       },
       inputs: { quantity: 1_000, months: 2, buyPrice: 62_900 },
       expected: 63_152.77,
@@ -932,8 +932,8 @@ export const LOI_NHUAN_RONG: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'FPT - mua 1.000 CP giá 62.900 ₫ ngày 24/07/2026, bán 72.700 ₫ ngày 11/09/2026',
-        en: 'FPT - buy 1,000 shares at 62,900 ₫ on 2026-07-24, sell at 72,700 ₫ on 2026-09-11',
+        vi: 'FPT: mua 1.000 CP giá 62.900 ₫ ngày 24/07/2026, bán 72.700 ₫ ngày 11/09/2026',
+        en: 'FPT: buy 1,000 shares at 62,900 ₫ on 2026-07-24, sell at 72,700 ₫ on 2026-09-11',
       },
       inputs: { quantity: 1_000, months: 2, buyPrice: 62_900, sellPrice: 72_700 },
       expected: 9_523_360,
@@ -1086,8 +1086,8 @@ export const ROI_RONG: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'FPT - vòng mua 62.900 ₫ ngày 24/07/2026, bán 72.700 ₫ ngày 11/09/2026',
-        en: 'FPT - a round trip bought at 62,900 ₫ on 2026-07-24 and sold at 72,700 ₫ on 2026-09-11',
+        vi: 'FPT: vòng mua 62.900 ₫ ngày 24/07/2026, bán 72.700 ₫ ngày 11/09/2026',
+        en: 'FPT: a round trip bought at 62,900 ₫ on 2026-07-24 and sold at 72,700 ₫ on 2026-09-11',
       },
       inputs: { quantity: 1_000, months: 2, buyPrice: 62_900, sellPrice: 72_700 },
       expected: 15.1177,

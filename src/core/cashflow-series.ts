@@ -107,8 +107,8 @@ export function checkCashflowRow(row: CashflowRow): ReadonlyArray<CashflowRowIss
     issues.push({
       code: 'MISSING_AMOUNT',
       message: {
-        vi: 'Thiếu số tiền - âm là chi ra, dương là thu về.',
-        en: 'Missing amount - negative for money out, positive for money in.',
+        vi: 'Thiếu số tiền (âm là chi ra, dương là thu về).',
+        en: 'Missing amount (negative for money out, positive for money in).',
       },
     });
   } else if (row.amount === 0) {
@@ -153,8 +153,8 @@ export function checkCashflowSeries(rows: ReadonlyArray<CashflowRow>): CashflowS
         issues.push({
           code: 'DUPLICATE_DATE',
           message: {
-            vi: `Ngày ${ngay} đã có ở dòng ${String(first + 1)} - gộp hai dòng tiền cùng ngày lại thành một.`,
-            en: `The date ${ngay} already appears in row ${String(first + 1)} - merge the two cash flows on the same date into one.`,
+            vi: `Ngày ${ngay} đã có ở dòng ${String(first + 1)}. Gộp hai dòng tiền cùng ngày lại thành một.`,
+            en: `The date ${ngay} already appears in row ${String(first + 1)}. Merge the two cash flows on the same date into one.`,
           },
         });
       }

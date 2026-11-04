@@ -1600,7 +1600,7 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
       tolerance: 0.5,
     },
     explain: {
-      vi: 'Giá hoà vốn phải gánh cả bốn khoản: phí mua 75.000 ₫, phí lưu ký 12 tháng 3.240 ₫, rồi phí bán 0,15% và thuế bán 0,1% - hai khoản sau tính trên chính GIÁ BÁN chưa biết, nên phải giải ngược: vốn đã bỏ ra 50.078.240 ₫ chia cho (1 trừ 0,0025) bằng 50.203.749 ₫, tức 50.203,75 ₫ mỗi cổ phiếu. Kết quả 50.000 ₫ là bỏ hết chi phí. 50.078,24 ₫ chỉ cộng phí mua và phí lưu ký, quên phí và thuế lúc bán. 50.228,24 ₫ cộng thẳng tổng chi phí vào giá mua, tức tính phí bán trên giá MUA thay vì trên giá bán.',
+      vi: 'Giá hoà vốn phải gánh cả bốn khoản: phí mua 75.000 ₫, phí lưu ký 12 tháng 3.240 ₫, rồi phí bán 0,15% và thuế bán 0,1%: hai khoản sau tính trên chính GIÁ BÁN chưa biết, nên phải giải ngược: vốn đã bỏ ra 50.078.240 ₫ chia cho (1 trừ 0,0025) bằng 50.203.749 ₫, tức 50.203,75 ₫ mỗi cổ phiếu. Kết quả 50.000 ₫ là bỏ hết chi phí. 50.078,24 ₫ chỉ cộng phí mua và phí lưu ký, quên phí và thuế lúc bán. 50.228,24 ₫ cộng thẳng tổng chi phí vào giá mua, tức tính phí bán trên giá MUA thay vì trên giá bán.',
       en: 'The break-even price has to carry all four charges: a 75,000 ₫ buying fee, 3,240 ₫ of depository fees over 12 months, then the 0.15% selling fee and the 0.1% sale tax, both charged on the SALE price that is still unknown, so it has to be solved backwards: the 50,078,240 ₫ already committed divided by (1 minus 0.0025) gives 50,203,749 ₫, that is 50,203.75 ₫ per share. A result of 50,000 ₫ ignores costs entirely. 50,078.24 ₫ covers only the buying fee and custody, forgetting the selling charges. 50,228.24 ₫ adds total costs onto the purchase price, charging the selling fee against the BUY price instead of the sale price.',
     },
     giai: {
@@ -1669,7 +1669,7 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
       tolerance: 1,
     },
     explain: {
-      vi: 'Lãi gộp là 1.000 nhân (60.000 trừ 50.000) bằng 10.000.000 ₫. Trừ đủ bốn khoản: phí mua 75.000, phí bán 90.000, thuế bán 60.000, phí lưu ký 12 tháng 3.240 - tổng 228.240 ₫, còn lại 9.771.760 ₫. Kết quả 10.000.000 ₫ là lãi gộp, chưa trừ gì. 9.835.000 ₫ là chỉ trừ hai khoản phí giao dịch, quên thuế bán và phí lưu ký. 9.775.000 ₫ là quên riêng phí lưu ký, khoản nhỏ nhất nên cũng hay rơi nhất.',
+      vi: 'Lãi gộp là 1.000 nhân (60.000 trừ 50.000) bằng 10.000.000 ₫. Trừ đủ bốn khoản: phí mua 75.000, phí bán 90.000, thuế bán 60.000, phí lưu ký 12 tháng 3.240, tổng 228.240 ₫, còn lại 9.771.760 ₫. Kết quả 10.000.000 ₫ là lãi gộp, chưa trừ gì. 9.835.000 ₫ là chỉ trừ hai khoản phí giao dịch, quên thuế bán và phí lưu ký. 9.775.000 ₫ là quên riêng phí lưu ký, khoản nhỏ nhất nên cũng hay rơi nhất.',
       en: 'Gross profit is 1,000 times (60,000 minus 50,000), that is 10,000,000 ₫. Deduct all four charges: 75,000 buying fee, 90,000 selling fee, 60,000 sale tax and 3,240 of depository fees over 12 months, 228,240 ₫ in total, leaving 9,771,760 ₫. A result of 10,000,000 ₫ is gross profit before anything. 9,835,000 ₫ deducts the two trading fees only, missing the sale tax and custody. 9,775,000 ₫ drops the depository fee alone, the smallest item and therefore the one most often forgotten.',
     },
     giai: {
@@ -2284,7 +2284,7 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
       tolerance: 0.01,
     },
     explain: {
-      vi: 'IRR là mức chiết khấu làm cho bốn khoản 30 triệu, mỗi khoản chiết khấu về hiện tại theo kỳ của nó, cộng lại vừa đúng 100 triệu - ở đây là 7,71% mỗi kỳ. Không có công thức đóng, phải dò nghiệm, và đó là lý do con số không tròn. Kết quả 20,00% là tổng lãi 20 triệu chia vốn 100 triệu, bỏ qua hẳn thời điểm nhận tiền. 5,00% là chia tổng lãi ấy cho 4 kỳ rồi cho vốn. 30,00% là lấy khoản nhận chia vốn, tức nhầm dòng tiền hoàn vốn với tiền lãi.',
+      vi: 'IRR là mức chiết khấu làm cho bốn khoản 30 triệu, mỗi khoản chiết khấu về hiện tại theo kỳ của nó, cộng lại vừa đúng 100 triệu, ở đây là 7,71% mỗi kỳ. Không có công thức đóng, phải dò nghiệm, và đó là lý do con số không tròn. Kết quả 20,00% là tổng lãi 20 triệu chia vốn 100 triệu, bỏ qua hẳn thời điểm nhận tiền. 5,00% là chia tổng lãi ấy cho 4 kỳ rồi cho vốn. 30,00% là lấy khoản nhận chia vốn, tức nhầm dòng tiền hoàn vốn với tiền lãi.',
       en: 'IRR is the discount rate that makes the four 30-million payments, each discounted back over its own period, add up to exactly 100 million, which here is 7.71% a period. There is no closed form, it has to be solved numerically, which is why the figure is not round. A result of 20.00% divides the 20 million total gain by the 100 million invested, ignoring when the money arrives. 5.00% spreads that gain over four periods first. 30.00% divides the payment by the outlay, mistaking the return of capital for the return on it.',
     },
     giai: {
@@ -3371,7 +3371,7 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Mua ba lần, mỗi lần 12 triệu ₫, ở các mức giá 60.000 ₫, 40.000 ₫ và 30.000 ₫. Tiền mua mỗi đợt đã viết sẵn; hãy đặt ba mức giá vào vị trí.',
+      vi: 'Mua ba lần, mỗi lần 12 triệu ₫, ở các mức giá 60.000 ₫, 40.000 ₫ và 30.000 ₫. Tiền mua mỗi đợt đã viết sẵn; hãy đặt ba mức giá vào vị trí đúng.',
       en: 'Three purchases of 12 million ₫ each at 60000 ₫, 40000 ₫ and 30000 ₫. The amount of each purchase is already written in; put the three prices into the slots.',
     },
     facts: [

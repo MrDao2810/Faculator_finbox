@@ -58,7 +58,8 @@ const VIET_TAT_VI_DU: ReadonlySet<string> = new Set([
 ]);
 
 const KET_CAU = /[.!?](?=\s)/;
-const GACH_DAI = /[–—]/;
+/** Luật 4. Từ 02/11/2026 gạch nối cách hai bên " - " là dấu ngăn của chữ trên màn, nên chặn luôn. */
+const GACH_DAI = /[–—]|\s-\s/;
 
 const TU_TRO: Readonly<Record<'vi' | 'en', RegExp>> = {
   vi: /(ví dụ|trên màn|bên dưới|phía dưới|bên trên|phía trên|biểu đồ|thay số)/i,
@@ -118,7 +119,8 @@ export function exampleNoteProblems({ id, name, title, source, note }: DocViDuIn
     if (doan.length < DOC_VI_DU_TOI_THIEU) {
       loi.push(`${nhan}: ngắn ${String(doan.length)} ký tự, sàn ${String(DOC_VI_DU_TOI_THIEU)}`);
     }
-    if (GACH_DAI.test(doan)) loi.push(`${nhan}: có gạch ngang dài (- hoặc –)`);
+    if (GACH_DAI.test(doan))
+      loi.push(`${nhan}: có gạch ngang (gạch dài, gạch vừa hoặc gạch nối cách hai bên)`);
 
     const tro = TU_TRO[ngon].exec(doan);
     if (tro !== null)

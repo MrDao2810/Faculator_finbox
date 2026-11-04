@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 
-import { savedCalcsPath, suggestCalcNames } from '@/application';
+import { calcNameKey, savedCalcsPath, suggestCalcNames } from '@/application';
 import { useT } from '@/application/preferences-context';
 import { BottomSheet, Button, Input } from '@/ui/primitives';
 
@@ -28,11 +28,6 @@ export interface SaveCalcSheetProps {
   savedAt: number;
   /** Trả về `true` khi ghi thành công; `false` khi trình duyệt chặn localStorage. */
   onSave: (name: string) => boolean;
-}
-
-/** So tên không phân biệt hoa thường và khoảng trắng thừa — cùng luật `suggestCalcNames()`. */
-function key(value: string): string {
-  return value.trim().toLowerCase().replace(/\s+/g, ' ');
 }
 
 /**
@@ -114,7 +109,10 @@ export function SaveCalcSheet({
   }, [open]);
 
   const trimmed = name.trim();
-  const duplicate = existingNames.some((existing) => key(existing) === key(trimmed));
+  // Cùng khoá so trùng với `suggestCalcNames()`: tên lưu trước 02/11/2026 còn gạch dài vẫn là trùng.
+  const duplicate = existingNames.some(
+    (existing) => calcNameKey(existing) === calcNameKey(trimmed),
+  );
 
   /**
    * Lý do chặn, xét theo thứ tự nặng dần: kho đầy và kết quả lỗi chặn từ trước khi gõ tên.

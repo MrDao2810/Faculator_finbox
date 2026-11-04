@@ -440,8 +440,8 @@ export const DO_BIEN_DONG_NAM_HOA: FormulaModule = {
             en: 'The number of trading sessions per year must be greater than 0 to annualize the volatility.',
           },
           {
-            vi: 'Nhập khoảng 250 phiên - số phiên giao dịch thường thấy của một năm trên HOSE.',
-            en: 'Enter about 250 sessions - the typical number of trading sessions in a year on HOSE.',
+            vi: 'Nhập khoảng 250 phiên, tức số phiên giao dịch thường thấy của một năm trên HOSE.',
+            en: 'Enter about 250 sessions, the typical number of trading sessions in a year on HOSE.',
           },
         ),
       );

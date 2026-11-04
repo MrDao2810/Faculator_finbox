@@ -117,7 +117,20 @@ describe('SearchScreen — "Tìm gần đây" chỉ ghi khi CHỌN kết quả, 
     // Xoá chữ trong ô để quay về trạng thái nhàn — nơi khối "Tìm gần đây" hiện ra.
     fireEvent.change(oTim(), { target: { value: '' } });
 
-    expect(screen.getByRole('button', { name: PE.name.vi })).not.toBeNull();
+    expect(screen.getByRole('link', { name: PE.name.vi })).not.toBeNull();
+  });
+
+  /*
+   * 03/11/2026 — cùng khối chip, cùng kho với màn Công thức, nên cùng hành vi: chip là công thức đã
+   * chọn, bấm là mở công thức ấy, không đổ chữ lại vào ô tìm.
+   */
+  it('chip "Tìm gần đây" là link mở thẳng công thức, không phải nút điền ô tìm', () => {
+    window.localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify([PE.name.vi]));
+    moMan();
+
+    const chip = screen.getByRole('link', { name: PE.name.vi });
+    expect(chip.getAttribute('href')).toMatch(/^\/cong-thuc\/pe\/?$/);
+    expect(screen.queryByRole('button', { name: PE.name.vi })).toBeNull();
   });
 });
 
@@ -135,7 +148,7 @@ describe('SearchScreen — lịch sử dùng chung với màn Công thức', () 
 
     moMan();
 
-    expect(screen.getByRole('button', { name: PE.name.vi })).not.toBeNull();
+    expect(screen.getByRole('link', { name: PE.name.vi })).not.toBeNull();
   });
 });
 

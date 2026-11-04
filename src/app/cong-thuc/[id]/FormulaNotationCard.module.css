@@ -190,19 +190,27 @@
 }
 
 /*
- * Khung chú thích mở từ tên ô trong khung "Lấy số liệu ở đâu" (28/10/2026, `HowToPanel coDinh`).
+ * Khung chú thích mở từ CÂU trong khung "?" — tên ô ở mục "Lấy số liệu ở đâu" (28/10/2026) và, từ
+ * 04/11/2026, tên hình lẫn đoạn chữ của mục "Đọc biểu đồ" (`HowToPanel coDinh`).
  *
  * `fixed` theo toạ độ khung nhìn chứ không `absolute` theo thẻ: khung "?" tự cuộn (`overflow-y:
  * auto`), và một khung `absolute` bên trong khối cuộn bị cắt đúng ở mép khối ấy — khung chú thích
  * thì phải được thò ra ngoài khung "?". Phần tử `fixed` thoát phép cắt của mọi khối cha không mang
  * `transform`/`filter`/`contain`, và khung "?" lẫn các khối của thân bài không mang thứ nào.
  *
- * Nó đứng trong `<dt>` của tên ô, vốn in đậm, nên trả nét chữ về thường; tiêu đề khung vẫn
- * `--weight-medium` nhờ `.panelTitle`. Hai lớp: thắng `.panel` bất kể thứ tự nạp CSS.
+ * `fixed` KHÔNG thoát được KẾ THỪA chữ — toạ độ thoát khối cha, nhưng khung vẫn là con cháu của nó
+ * trong DOM, nên mọi nét chữ không tự đặt lại vẫn theo đúng tổ tiên. Tên ô (`<dt>`) in đậm, tên hình
+ * (`<h3 class="blockLabel">`) in đậm, VIẾT HOA và nhạt màu hơn — chủ dự án chụp hai khung cùng nói
+ * một điều mà một cái VIẾT HOA: *"sao chú thích 2 phần này giống nhau mà chỗ thì in đậm chỗ thì in
+ * thường?"*. Khung phải đọc giống nhau dù mở từ đâu, nên đặt lại CẢ BA ở đây một lần — tiêu đề khung
+ * vẫn `--weight-medium` nhờ `.panelTitle`, đứng sau nên vẫn thắng. Hai lớp: thắng `.panel` bất kể
+ * thứ tự nạp CSS.
  */
 .panel.panelCoDinh {
   position: fixed;
   font-weight: var(--weight-regular);
+  text-transform: none;
+  letter-spacing: normal;
 }
 
 /*

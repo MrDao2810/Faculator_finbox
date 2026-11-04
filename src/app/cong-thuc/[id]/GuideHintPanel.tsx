@@ -1,20 +1,21 @@
 'use client';
 
 import Link from 'next/link';
-import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react';
+import { Fragment, useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 
 import {
   guidePath,
   nhanCoKyHieu,
   type BaiHuongDan,
+  type Bilingual,
   type FormulaSpec,
   type HinhDangXem,
   type MucId,
   type ONhapHuongDan,
 } from '@/application';
 import { usePick, usePreferences, useT } from '@/application/preferences-context';
-import { GuideMuc } from '@/ui/guide/GuideBody';
+import { GuideMuc, khoiDangXem } from '@/ui/guide/GuideBody';
 
 import { HowToPanel } from './HowToPanel';
 import type { NotationView } from './notation-types';
@@ -153,10 +154,32 @@ export function GuideHintPanel({
     [oNhap, spec],
   );
   const hangCua = useMemo(() => new Map((oNhap ?? []).map((o, hang) => [o.key, hang])), [oNhap]);
-  const coDiemCham = useCallback((hang: number) => (diemCham[hang] ?? null) !== null, [diemCham]);
   const howToBySym = useMemo(
     () => new Map(notation.howTo.map((howTo) => [howTo.sym, howTo])),
     [notation.howTo],
+  );
+
+  /*
+   * Ký hiệu trong câu của mục "Đọc biểu đồ" — tiêu đề hình ('CAPM theo Hệ số beta (β)') và đoạn chữ
+   * của dạng đang vẽ đều nhắc đúng ký hiệu trục verbatim, nên cũng phải mở được khung chú thích như
+   * ký hiệu trong tên ô (04/11/2026). Tra MỘT lần cho cả hai câu, bằng đúng khối đang hiện —
+   * `khoiDangXem` là hàm thuần, không đụng DOM, nên gọi lại ở đây không lệch với `GuideBody`.
+   */
+  const khoiHienTai = useMemo(
+    () =>
+      bai.bieuDo === undefined ? undefined : khoiDangXem(bai.bieuDo.khoi, hinh, bai.bieuDo.khoiLap),
+    [bai.bieuDo, hinh],
+  );
+  const nhanHinh = useMemo(
+    () => (khoiHienTai === undefined ? null : nhanCoKyHieu(spec, khoiHienTai.khoi.khoa)),
+    [khoiHienTai, spec],
+  );
+  /* Điểm chạm của tên ô chiếm hàng 0..oNhap.length-1; ký hiệu trong câu biểu đồ dùng từ đây trở lên —
+     hai mục không bao giờ cùng mở, nhưng tách hẳn vùng số để không hàng nào mang hai nghĩa. */
+  const hangHinhDau = (oNhap ?? []).length;
+  const coDiemCham = useCallback(
+    (hang: number) => (hang >= hangHinhDau ? nhanHinh !== null : (diemCham[hang] ?? null) !== null),
+    [diemCham, hangHinhDau, nhanHinh],
   );
 
   const {
@@ -293,6 +316,81 @@ export function GuideHintPanel({
     );
   };
 
+  /* Đánh số hàng cho TỪNG lần ký hiệu xuất hiện trong câu của mục "Đọc biểu đồ" — khai ở ngoài
+     `inChuHinh` để tiêu đề và đoạn chữ của cùng một hình dùng chung một mạch số, không hàng nào
+     trùng giữa hai câu dù cả hai được dựng trong cùng một lượt. */
+  let hangHinhTiep = hangHinhDau;
+
+  /**
+   * In MỘT câu của mục "Đọc biểu đồ" — tên hình ('CAPM theo Hệ số beta (β)') hay đoạn chữ của một
+   * dạng — với MỌI lần xuất hiện của ký hiệu trục thành nút mở khung chú thích, phần còn lại chữ
+   * trơn (04/11/2026: chủ dự án khoanh '(B)' ở tiêu đề hình CAPM trong chính khung này và hỏi tại
+   * sao vẫn chưa bấm được — "tôi đã yêu cầu kiểm tra toàn bộ dự án ở phần này rồi mà"). Cùng nếp
+   * `nhanO` ở trên; khác một chỗ: câu ở đây có thể nhắc ký hiệu NHIỀU lần (đoạn tả dài hơn tên ô một
+   * hàng), nên mỗi lần xuất hiện một hàng riêng — dùng chung một hàng thì rê vào lần thứ hai sẽ mở cả
+   * hai khung chồng lên nhau ở cùng một chỗ đặt, vì cả hai đọc chung một `placePanel`.
+   *
+   * Ô không ứng với dòng nào của bảng ký hiệu (trục thời gian, hình bóc tách…) thì `nhanHinh` là
+   * `null` và câu in trơn như cũ — không khác gì trước ngày 04/11/2026.
+   */
+  const inChuHinh = (chu: Bilingual): ReactNode => {
+    const symbol = nhanHinh === null ? undefined : spec.symbols?.[nhanHinh.sym];
+    if (nhanHinh === null || symbol === undefined) return pick(chu);
+
+    const laEn = locale === 'en' && chu.en.trim() !== '';
+    const text = laEn ? chu.en : chu.vi;
+    const token = (laEn ? nhanHinh.en : nhanHinh.vi).kyHieu;
+    const khuc = token === '' ? [text] : text.split(token);
+    if (khuc.length === 1) return text;
+
+    // Một khối chữ: `<h3>`/`<dd>` ở đây là hàng flex (xem CSS của khối), tách các khúc ra làm con
+    // trực tiếp thì mỗi khúc thành một ô flex riêng, cách nhau bằng khe — đúng lỗi `nhanO` ở trên đã
+    // né bằng cách bọc một `<span>`. Ở đây câu có thể nhiều khúc hơn (ký hiệu lặp lại), nên vẫn một
+    // `<span>` DUY NHẤT bọc hết, không phải một `<span>` cho mỗi khúc.
+    return (
+      <span>
+        {khuc.map((doan, i) => {
+          if (i === khuc.length - 1) return <Fragment key={i}>{doan}</Fragment>;
+          const hang = hangHinhTiep;
+          hangHinhTiep += 1;
+          const mo = chuThich?.sym === hang;
+          const idChuThich = `${id}-hinh-ky-hieu-${String(hang)}`;
+          return (
+            <Fragment key={i}>
+              {doan}
+              <button
+                type="button"
+                className={styles.kyHieu}
+                data-sym={hang}
+                aria-expanded={mo}
+                {...(mo ? { 'aria-controls': idChuThich } : {})}
+              >
+                {token}
+              </button>
+              {mo && (
+                <HowToPanel
+                  id={idChuThich}
+                  howTo={
+                    howToBySym.get(nhanHinh.sym) ?? {
+                      sym: nhanHinh.sym,
+                      kind: 'defined',
+                      steps: [],
+                    }
+                  }
+                  symbolHtml={notation.symbolsHtml[nhanHinh.sym] ?? ''}
+                  meaning={pick(symbol.meaning)}
+                  placement={choChuThich}
+                  panelRef={chuThichRef}
+                  coDinh
+                />
+              )}
+            </Fragment>
+          );
+        })}
+      </span>
+    );
+  };
+
   return (
     <div
       ref={panelRef}
@@ -333,6 +431,7 @@ export function GuideHintPanel({
         hinh={hinh}
         giaTri={giaTri}
         nhanO={nhanO}
+        inChuHinh={inChuHinh}
       />
 
       {/*

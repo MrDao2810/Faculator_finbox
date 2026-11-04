@@ -301,9 +301,9 @@ describe.skipIf(CHI.length > 0)('kế hoạch đọc đúng thứ màn tính d�
        * ở đây là số đoạn phải viết; số đổi là có đoạn mới cần chữ, hoặc đoạn cũ thành thừa.
        */
       trucBac: 71,
-      trucLaiLo: 60,
+      trucLaiLo: 61,
       lapLaiLo: 1,
-      thoiGianLaiLo: 16,
+      thoiGianLaiLo: 17,
       thoiGianNen: 5,
       bocTachVanhKhuyen: 9,
       // Hình cơ cấu (04/11/2026) — `composition.test.ts` ghim đúng danh sách 22 id này.

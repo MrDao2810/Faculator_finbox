@@ -162,6 +162,7 @@ export function GuideMuc({
   hinh,
   giaTri,
   nhanO,
+  inChuHinh,
 }: {
   bai: BaiHuongDan;
   muc: MucId;
@@ -175,6 +176,14 @@ export function GuideMuc({
    * hàm này chạy ở nơi gọi, nên mọi hook nằm phía khung.
    */
   nhanO?: (o: ONhapHuongDan) => ReactNode;
+  /**
+   * In MỘT câu của mục "Đọc biểu đồ" (tên hình, hoặc đoạn chữ của dạng đang vẽ). Khung "?" của màn
+   * tính truyền vào để phần ký hiệu trong câu ấy ('(β)' của 'CAPM theo Hệ số beta (β)') thành điểm
+   * chạm mở khung chú thích của thẻ Công thức — cùng nếp `nhanO` ngay trên, bổ sung 04/11/2026 sau
+   * khi chủ dự án khoanh đúng ký hiệu này và hỏi vì sao chưa bấm được. Trang đầy đủ không truyền, vì
+   * ở đó không có thẻ Công thức nào để mượn khung.
+   */
+  inChuHinh?: (chu: Bilingual) => ReactNode;
 }) {
   const neo = `${idPrefix}${muc}`;
 
@@ -186,7 +195,7 @@ export function GuideMuc({
 
       {muc === 'nhap-so' && <KhoiNhapSo bai={bai} giaTri={giaTri} nhanO={nhanO} />}
       {muc === 'doc-ket-qua' && <KhoiDocKetQua bai={bai} />}
-      {muc === 'doc-bieu-do' && <KhoiBieuDo bai={bai} hinh={hinh} />}
+      {muc === 'doc-bieu-do' && <KhoiBieuDo bai={bai} hinh={hinh} inChuHinh={inChuHinh} />}
       {muc === 'ket-qua-trong' && <KhoiKetQuaTrong bai={bai} />}
     </section>
   );
@@ -386,7 +395,15 @@ export { khoiDangXem };
  * trong Registry (tới 12/10/2026, tiêu đề "Biểu đồ quét độ nhạy"…) → mọi hình thật in cùng lúc kèm
  * hai câu chỉ đường (sáng 13/10/2026) → từng hình, theo lựa chọn đang có trên màn.
  */
-function KhoiBieuDo({ bai, hinh }: { bai: BaiHuongDan; hinh: HinhDangXem | null | undefined }) {
+function KhoiBieuDo({
+  bai,
+  hinh,
+  inChuHinh,
+}: {
+  bai: BaiHuongDan;
+  hinh: HinhDangXem | null | undefined;
+  inChuHinh?: (chu: Bilingual) => ReactNode;
+}) {
   if (bai.bieuDo === undefined) return null;
   const { khoi, khoiLap } = bai.bieuDo;
 
@@ -397,9 +414,9 @@ function KhoiBieuDo({ bai, hinh }: { bai: BaiHuongDan; hinh: HinhDangXem | null 
     return (
       <div className={styles.noiDung}>
         <h3 className={styles.blockLabel}>
-          <Pick value={xem.khoi.ten} />
+          {inChuHinh === undefined ? <Pick value={xem.khoi.ten} /> : inChuHinh(xem.khoi.ten)}
         </h3>
-        <NoiDungHinh khoi={xem.khoi} dang={xem.dang} chuaVe={xem.chuaVe} />
+        <NoiDungHinh khoi={xem.khoi} dang={xem.dang} chuaVe={xem.chuaVe} inChuHinh={inChuHinh} />
       </div>
     );
   }
@@ -463,10 +480,12 @@ function NoiDungHinh({
   khoi,
   dang,
   chuaVe,
+  inChuHinh,
 }: {
   khoi: KhoiBieuDoBai;
   dang: DangDoc | undefined;
   chuaVe: boolean;
+  inChuHinh?: (chu: Bilingual) => ReactNode;
 }) {
   const motThanh = khoi.thanh !== undefined && khoi.vanhKhuyen === undefined;
   const cacDoan = DANG_IN.flatMap(({ dang: mot, nhan }) => {
@@ -495,7 +514,7 @@ function NoiDungHinh({
                   <T k={nhan} />
                 </dt>
                 <dd className={styles.fieldWhere}>
-                  <Pick value={doan} />
+                  {inChuHinh === undefined ? <Pick value={doan} /> : inChuHinh(doan)}
                 </dd>
               </div>
             ))}

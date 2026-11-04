@@ -100,8 +100,18 @@ export function formatNumber(value: number, options: FormatNumberOptions = {}): 
 
   const text = formatterFor(minDecimals, Math.max(minDecimals, maxDecimals)).format(value);
 
+  /*
+   * `Intl.NumberFormat` làm tròn một số ÂM rất nhỏ (ví dụ Beta = -0,0004) về 0 nhưng vẫn giữ dấu
+   * trừ trong chuỗi ra — `'-0'`, hay `'-0,00'` khi `minDecimals` buộc thêm số lẻ (xem `format.test.ts`,
+   * đã thử trên Node). Phát hiện khi chủ dự án chỉ vào nhãn "giá trị hiện tại" của biểu đồ Beta ở
+   * dạng Lãi/lỗ, ngay sát mốc 0: `-0 lần` đọc như lỗi hiển thị, không phải một số âm có nghĩa — cùng
+   * loại với NaN/Infinity mà FR-06 cấm, dù kỹ thuật không phải một trong ba trường hợp đó. Bỏ dấu trừ
+   * khi chuỗi đã tròn về đúng 0, giữ nguyên mọi số âm thật sự khác.
+   */
+  const khongAmGia = /^-0([.,]0+)?$/.test(text) ? text.slice(1) : text;
+
   // Chỉ thêm dấu + cho số dương; số 0 và số âm giữ nguyên (Intl đã có sẵn dấu trừ).
-  return signed && value > 0 ? `+${text}` : text;
+  return signed && value > 0 ? `+${khongAmGia}` : khongAmGia;
 }
 
 /**

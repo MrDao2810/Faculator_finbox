@@ -57,6 +57,20 @@ describe('formatNumber()', () => {
     expect(formatNumber(Number.POSITIVE_INFINITY)).toBe(NO_VALUE);
     expect(formatNumber(Number.NEGATIVE_INFINITY)).toBe(NO_VALUE);
   });
+
+  it('một số âm rất nhỏ làm tròn về 0 thì bỏ dấu trừ, không in "-0"', () => {
+    // Chủ dự án bắt gặp trên nhãn "giá trị hiện tại" của biểu đồ Beta: β ≈ -0,0004 làm tròn 2 chữ
+    // số lẻ (mặc định) lẽ ra in "-0 lần" — Intl.NumberFormat giữ dấu trừ của số âm dù đã tròn về 0.
+    expect(formatNumber(-0.0004)).toBe('0');
+    expect(formatNumber(-0.0023)).toBe('0');
+    // Buộc thêm chữ số lẻ (`minDecimals`) thì Intl in '-0,00' — cũng phải bỏ dấu trừ.
+    expect(formatNumber(-0.0004, { minDecimals: 2 })).toBe('0,00');
+    // Số âm THẬT SỰ làm tròn vẫn còn khác 0 thì giữ nguyên dấu trừ.
+    expect(formatNumber(-0.5)).toBe('-0,5');
+    expect(formatNumber(-5.01)).toBe('-5,01');
+    // `signed` không được biến "-0" đã lọc thành '+0': giá trị gốc vẫn âm (dù hiện gần 0).
+    expect(formatNumber(-0.0004, { signed: true })).toBe('0');
+  });
 });
 
 describe('formatValueWithUnit()', () => {

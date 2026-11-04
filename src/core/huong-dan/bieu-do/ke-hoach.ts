@@ -32,6 +32,7 @@ import { isFlatSpan } from '../../chart/scale';
 import { sweepCandidates, sweepDomain } from '../../chart/sweep';
 import type { ChartModel } from '../../chart/types';
 import { FPT_BARS, STB_BARS, VNINDEX_BARS, VNINDEX_PHIEN } from '../../formulas/market-series-2026';
+import { simpleReturns } from '../../formulas/series-utils';
 import type { SeriesRow } from '../../price-series';
 import { defaultInputs } from '../../registry/build';
 import { repeatKey } from '../../registry/repeat';
@@ -120,6 +121,46 @@ function dangCua(model: ChartModel, formula: FormulaModule): ReadonlySet<DangVe>
  */
 const CHUOI_THAT: ReadonlyArray<ReadonlyArray<SeriesRow>> = [FPT_BARS, STB_BARS, VNINDEX_BARS];
 
+/**
+ * Chuỗi RIÊNG cho `beta`, dò thêm NGOÀI `CHUOI_THAT` (04/11/2026).
+ *
+ * Chủ dự án chụp màn "Beta theo Số phiên lấy để hồi quy" ở dạng Lãi/lỗ trên một mã thật, Beta đổi
+ * dấu rõ trên trục, và hỏi vì sao nút "?" không hiện. Đo lại bằng `runFormula` thật: FPT giữ beta
+ * 0,71–0,82 và STB giữ 0,35–0,44 suốt dải 60–90 phiên của trục ấy — ba chuỗi của `CHUOI_THAT` cộng
+ * ví dụ riêng của `beta` (cũng là FPT) không chuỗi nào đổi dấu, nên kế hoạch luôn ghi `laiLo: false`
+ * ở CẢ hai trục của Beta dù một mã thật biến động mạnh — tương quan đổi chiều giữa phiên cũ và phiên
+ * mới — hoàn toàn cho ra đúng hình chủ dự án chụp được.
+ *
+ * Dựng bằng chính phép đại số `betaScaledCloses()` của `risk-ratios.ts` (`Cov(k·R_m, R_m) /
+ * Var(R_m) = k` với MỌI chuỗi `R_m` có phương sai khác 0): 190 phiên đầu (cũ) đi NGƯỢC VN-Index với
+ * hệ số −3, 59 phiên cuối (mới) đi CÙNG chiều với hệ số 0,3. Ở `sessions = 60` (mặc định của ô) cửa
+ * sổ chỉ chạm khối "mới" nên beta ≈ 0,3; mở rộng cửa sổ thì khối "cũ" lấn dần, beta đổi dấu trước
+ * `sessions = 72` và giữ âm tới 90 — đã kiểm bằng `runFormula` thật trên cả dải, không chỉ tính tay
+ * (`ke-hoach.test.ts`). Giữ ngày của `VNINDEX_BARS` để trục thời gian đọc được ngày thật.
+ */
+function chuoiBetaDoiDau(): ReadonlyArray<SeriesRow> {
+  const marketReturns = simpleReturns(VNINDEX_PHIEN);
+  const closes: number[] = [100_000];
+  let price = 100_000;
+  marketReturns.forEach((r, i) => {
+    price *= 1 + r * (i < 190 ? -3 : 0.3);
+    closes.push(price);
+  });
+  return closes.map((close, index) => ({
+    date: VNINDEX_BARS[index]?.date ?? String(index),
+    open: close,
+    high: close,
+    low: close,
+    close,
+    volume: 0,
+  }));
+}
+
+/** Một dòng = một công thức có chuỗi riêng ở trên; tra theo `spec.id`, rỗng cho mọi công thức khác. */
+const CHUOI_RIENG: Readonly<Record<string, () => ReadonlyArray<SeriesRow>>> = {
+  beta: chuoiBetaDoiDau,
+};
+
 /** Ngữ cảnh có chuỗi giá, dựng đúng cách `applyExample()` của màn chi tiết dựng. */
 function voiChuoi(
   ctx: CalcContext,
@@ -155,7 +196,13 @@ function boDoChuoi(
             ctx: voiChuoi(ctx, example.dataset.rows, example.marketSeries ?? VNINDEX_PHIEN),
           },
         ];
-  return [...CHUOI_THAT.map((bars) => ({ inputs, ctx: voiChuoi(ctx, bars) })), ...theoVidu];
+  const rieng = CHUOI_RIENG[formula.spec.id];
+  const theoRieng = rieng === undefined ? [] : [{ inputs, ctx: voiChuoi(ctx, rieng()) }];
+  return [
+    ...CHUOI_THAT.map((bars) => ({ inputs, ctx: voiChuoi(ctx, bars) })),
+    ...theoVidu,
+    ...theoRieng,
+  ];
 }
 
 /**

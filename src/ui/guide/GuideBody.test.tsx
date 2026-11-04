@@ -338,6 +338,45 @@ describe('mục "Đọc biểu đồ" trong khung chỉ in đúng một hình, �
   });
 
   /*
+   * Phần ký hiệu trong câu của mục "Đọc biểu đồ" — tên hình ('P/E theo Giá thị trường (P)') và đoạn
+   * chữ của dạng đang vẽ — mở khung chú thích của thẻ Công thức, giống tên ô ở mục "Lấy số liệu ở
+   * đâu" (04/11/2026, xem `GuideHintPanel`). Ở đây chỉ gác ĐƯỜNG ĐI: `inChuHinh` được gọi đúng chỗ,
+   * với đúng câu, cho CẢ tên hình lẫn đoạn chữ; nội dung khung chú thích thật (rê chuột, bấm, Esc)
+   * gác ở `FormulaDetail.test.tsx`, nơi có thẻ Công thức thật để so.
+   */
+  it('tên hình và đoạn chữ in trơn khi không có `inChuHinh`, dựng bằng `inChuHinh` khi khung "?" truyền vào', () => {
+    const { container } = dung([GIA, THOI_GIAN], hinh('price', 'cot'));
+    expect(container.querySelector('h3')?.textContent).toBe('P/E theo Giá thị trường');
+    expect(container.querySelector('button')).toBeNull();
+    cleanup();
+
+    const bai = {
+      id: 'thu',
+      ten: doan('Thử'),
+      moTaNgan: doan('Thử'),
+      nhomId: 'fundamentals',
+      muc: 'basic',
+      bieuDo: { khoi: [GIA, THOI_GIAN] },
+      ketQuaTrong: [],
+      thongSo: {},
+      mucCo: ['doc-bieu-do'],
+      lienQuan: [],
+    } satisfies BaiHuongDan;
+    const dung2 = render(
+      <GuideMuc
+        bai={bai}
+        muc="doc-bieu-do"
+        hinh={hinh('price', 'cot')}
+        inChuHinh={(chu) => <button type="button">{chu.vi}</button>}
+      />,
+    );
+    expect(dung2.container.querySelector('h3 button')?.textContent).toBe('P/E theo Giá thị trường');
+    expect(dung2.container.querySelector('dd button')?.textContent).toBe(
+      'Đoạn cột của hình theo giá.',
+    );
+  });
+
+  /*
    * Trang đầy đủ không truyền `hinh` — ở đó không có biểu đồ nào đang hiện — nên mọi hình đều có
    * mặt, mỗi hình một mục gập, và chỉ hình đầu (hình màn mở ra) mở sẵn.
    */

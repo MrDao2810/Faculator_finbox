@@ -4,6 +4,140 @@ Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 
 ---
 
+## Ký hiệu trong câu của mục "Đọc biểu đồ" (tên hình, đoạn chữ) không mở được khung chú thích (04/11/2026)
+
+**Trạng thái: CHƯA XONG — đã sửa qua ba vòng theo ảnh chụp của chủ dự án, chờ xác nhận lại.** Chủ dự
+án mở khung "?" của khối Biểu đồ (CAPM, trục Hệ số beta) và khoanh đỏ "(B)" (thật ra là "(β)" viết
+hoa — `.blockLabel` có `text-transform: uppercase`): _"còn rất nhiều phần mà không có chú thích cho
+ký hiệu khi bấm vào nằm trong phần hướng dẫn sử dụng. tôi đã yêu cầu bạn kiểm tra toàn bộ dự án ở
+phần này rồi mà? tại sao vẫn còn lỗi này."_
+
+**Gốc lỗi**: mục "Đọc biểu đồ" (`GuideBody.tsx`/`GuideHintPanel.tsx`) in tên hình
+("CAPM theo Hệ số beta (β)") và đoạn chữ của dạng đang vẽ bằng `<Pick value={...} />` trơn — không đi
+qua cơ chế "ký hiệu mở khung chú thích" mà mục "Lấy số liệu ở đâu" đã có từ 28/10/2026 (`nhanO`). Hai
+mục dùng chung một khung "?" nhưng chỉ một mục được nối dây.
+
+**Sửa (vòng 1 — thêm điểm chạm)**: thêm prop `inChuHinh?: (chu: Bilingual) => ReactNode` chạy dọc
+`GuideMuc` → `KhoiBieuDo` → `NoiDungHinh` (`src/ui/guide/GuideBody.tsx`), cùng nếp `nhanO`. Cài đặt
+thật ở `GuideHintPanel.tsx`: tra `nhanCoKyHieu(spec, khoi.khoa)` một lần cho cả tên hình lẫn đoạn chữ
+(qua `khoiDangXem` đã tách sẵn ở `@/ui/guide`), rồi `text.split(token)` quanh MỌI lần ký hiệu xuất
+hiện (đoạn chữ có thể nhắc lại, không chỉ một lần như tên hình) — mỗi lần một hàng riêng
+(`hangHinhDau = oNhap.length` trở lên) để không chung trạng thái mở/đóng với hàng khác.
+
+**Sửa (vòng 2 — ký hiệu rơi xuống dòng riêng)**: chủ dự án chụp lại ngay, ký hiệu "(β)" đứng một mình
+giữa đoạn chữ: _"nó đang nằm trong 1 câu mà, để yên đi"_. Nguyên nhân: `.fieldWhere` (`<dd>`) là
+`display: flex; flex-direction: column`, và các khúc chữ tách ra (`khuc.map(...)`) được trả thẳng làm
+CON TRỰC TIẾP của nó — mỗi khúc thành một ô flex riêng, xếp dọc. `nhanO` né đúng lỗi này bằng cách bọc
+MỘT `<span>` quanh cả cụm, và bản mới quên bọc. Sửa bằng cách bọc một `<span>` duy nhất quanh toàn bộ
+`khuc.map(...)`.
+
+**Sửa (vòng 3 — khung chú thích in hoa/in đậm sai)**: chủ dự án chụp hai khung chú thích cùng nói một
+điều (ký hiệu β) nhưng một cái VIẾT HOA: _"sao chú thích 2 phần này giống nhau mà chỗ thì in đậm chỗ
+thì in thường? sửa lỗi để in thường thôi"_. Khung `HowToPanel coDinh` tuy `position: fixed` (thoát bị
+cắt) nhưng KHÔNG thoát kế thừa CSS theo cây DOM — mở từ `<h3 class="blockLabel">` (in hoa, in đậm,
+nhạt màu) thì vẫn kế thừa `text-transform`/`letter-spacing` của nó. `.panel.panelCoDinh` trước đó chỉ
+đặt lại `font-weight` (viết cho trường hợp `<dt>` in đậm của mục kia, không in hoa) — nay thêm
+`text-transform: none; letter-spacing: normal;` (`FormulaNotationCard.module.css`).
+
+**Kiểm chứng**: hai ca mới trong `GuideBody.test.tsx` (tên hình/đoạn chữ in trơn khi không có
+`inChuHinh`, dựng đúng bằng `inChuHinh` khi truyền vào) và ba ca mới trong `FormulaDetail.test.tsx`
+(`pe`: ký hiệu "(P)" trong tên hình không rơi dòng riêng và mở đúng khung; ký hiệu giữa đoạn chữ cũng
+mở được, câu không tách dòng; hai điểm chạm cùng ký hiệu ở hai câu có `data-sym` khác nhau, không
+chung trạng thái) — toàn bộ dựa trên cấu trúc DOM thật (jsdom không có layout nên không tự bắt được
+lỗi vòng 2, phải đọc kỹ CSS). `tsc`, `eslint`, `prettier --check` sạch trên mọi file đã sửa;
+`npm test` toàn bộ 5160 xanh (2 ca timeout do tải máy khi chạy chung, chạy riêng từng file thì xanh,
+không liên quan). Vòng 3 (CSS) chưa có xác nhận lại từ chủ dự án.
+
+---
+
+## Đồng bộ cách đặt câu của 78 đoạn "Đọc biểu đồ" dạng Lãi/lỗ theo câu mẫu `beta` (04/11/2026)
+
+**Trạng thái: CHƯA XONG — đã sửa, chờ chủ dự án xem.** Sau khi câu `beta.thoiGian.laiLo` được viết lại
+theo đúng chữ chủ dự án đưa ("Dạng biểu đồ này chỉ hiện khi…", thêm "nằm" trước "bên trái/bên phải" và
+"trên/dưới vạch 0", rút "có cả đoạn trên lẫn đoạn dưới vạch 0" thành "trên dưới vạch 0"), chủ dự án hỏi
+lại có đúng chưa rồi mở rộng yêu cầu: _"ý là những công thức mà có biểu đồ hay mô tả tương tự thì cần
+thay đổi theo ấy. ngữ cảnh đặt từ ngữ cũng cần thay đổi cho hay như câu đó ấy"_ — tức áp đúng cách đặt
+câu ấy cho MỌI đoạn dạng Lãi/lỗ còn lại trong kho, không riêng `beta`.
+
+**Phạm vi đo trước khi sửa**: quét toàn bộ `src/core/huong-dan/bieu-do/noi-dung/*.ts` tìm mọi mục
+`laiLo: d(...)` — 79 mục (co-ban.ts 7, dinh-gia.ts 18, khac.ts 6, ky-thuat.ts 11, loi-suat.ts 28,
+rui-ro.ts 9), trừ 2 mục `beta` đã sửa tay trước đó. Cố ý KHÔNG đụng họ `vanhKhuyen` (cấu trúc câu khác
+hẳn) và không đụng bản `en` (chủ dự án chỉ đưa câu mẫu tiếng Việt).
+
+**Đã sửa bằng workflow 6 agent song song**, mỗi agent một file nội dung, áp đúng 4 phép sửa đã dùng ở
+câu `beta` — CHỈ chỗ khớp đúng khuôn câu, không ép những câu khác cấu trúc phải theo:
+
+- thêm "biểu đồ" vào "Dạng này" → "Dạng biểu đồ này"
+- chèn "nằm" trước "bên trái"/"bên phải" và trước "trên"/"dưới vạch 0"
+- rút gọn "có cả đoạn trên lẫn đoạn dưới vạch 0" → "trên dưới vạch 0"
+- "tới phiên ấy"/"nhịp ấy" → "tới phiên đấy"/"nhịp đấy" (như câu mẫu dùng "đấy" thay "ấy")
+
+Kết quả: 78/79 đổi, 1 giữ nguyên (`beta.thoiGian.laiLo` — chính câu mẫu, áp lại 4 quy tắc không còn
+gì để sửa).
+
+**Kiểm chứng**: `bieu-do.test.ts` xanh (không đổi số đếm phân bố nào — sửa chữ, không thêm/bớt đoạn);
+`tsc`, `eslint`, `prettier --check` sạch trên cả 6 file; `npm test` toàn bộ 5160 xanh (2 ca timeout do
+tải máy khi chạy chung, chạy riêng thì xanh, không liên quan tới sửa đổi này). Chưa đọc lại từng câu
+bằng mắt để bắt lỗi ngữ nghĩa tinh vi workflow có thể bỏ sót — nên coi là bản nháp chờ chủ dự án duyệt,
+đúng tinh thần "sửa ngữ cảnh đặt từ ngữ cho hay" là một đánh giá chủ quan.
+
+---
+
+## Nút "?" cho dạng Lãi/lỗ của `beta` — phép dò chữ hướng dẫn chưa thấy (04/11/2026)
+
+**Trạng thái: CHƯA XONG — đã sửa, chờ chủ dự án xem.** Tiếp nối việc sửa "-0" ở mục dưới, chủ dự án
+hỏi nút "?" của dạng Lãi/lỗ trên biểu đồ `beta` × "Số phiên lấy để hồi quy" đã thêm chưa, rồi: "nếu
+chưa có thì bổ sung vào cho tôi".
+
+**Đo bằng chính `keHoachBieuDo()`**: kế hoạch dựng lúc build ghi `laiLo: false` ở CẢ hai trục của
+`beta` (Số phiên lấy để hồi quy VÀ thời gian) — đúng, không phải lỗi gõ nhầm. Phép dò chữ hướng dẫn
+chỉ thử trên 3 chuỗi thật cố định (FPT, STB, VN-Index) cộng ví dụ riêng của `beta` (cũng là FPT); đo
+lại bằng `runFormula` thật, không chuỗi nào trong bốn chuỗi đó làm Beta đổi dấu trên dải 60–90 phiên
+(FPT giữ 0,71–0,82, STB giữ 0,35–0,44). Mã chủ dự án đang xem trên màn thật thì có, nên động cơ vẽ
+biểu đồ (chạy độc lập, đọc đúng chuỗi người dùng nạp) vẫn mời đúng dạng Lãi/lỗ — chỉ phần chữ hướng
+dẫn chưa từng được viết tới trường hợp này.
+
+**Đã sửa bằng một chuỗi dò THÊM, khoanh riêng cho `beta`** (`src/core/huong-dan/bieu-do/ke-hoach.ts`,
+hằng `CHUOI_RIENG`, tra theo `spec.id` — rỗng cho 110 công thức còn lại, không đụng bộ dò dùng chung
+`CHUOI_THAT`/`doTrenChuoi` của 50 trục phụ thuộc chuỗi khác): dựng bằng đúng phép đại số
+`betaScaledCloses()` của `risk-ratios.ts` đã dùng cho `spec.tests` — 190 phiên đầu đi ngược VN-Index
+hệ số −3, 59 phiên cuối đi cùng chiều hệ số 0,3, nên ở `sessions = 60` beta ≈ 0,3 và mở cửa sổ thì
+đổi dấu trước `sessions = 72`, giữ âm tới 90 (đã kiểm bằng `runFormula` thật trên cả dải). Viết hai
+đoạn "Đọc biểu đồ" mới (`truc.sessions.laiLo`, `thoiGian.laiLo`), cả vi lẫn en, theo đúng khuôn các
+đoạn Lãi/lỗ khác trong kho (nói "xanh"/"đỏ"/"vạch 0", gọi tên trục, nói "không phải diễn biến thị
+trường", nói cả hai chiều để không hứa một chiều cố định).
+
+**Kiểm chứng**: `bieu-do.test.ts` xanh cho `beta` (từng đỏ đúng hai mục thiếu chữ trước khi viết); hai
+số đếm phân bố toàn kho (`trucLaiLo` 60→61, `thoiGianLaiLo` 16→17) đã cập nhật theo kết quả đo thật,
+không chỉnh tay; `tsc`/`eslint`/`prettier --check` sạch; `npm test` toàn bộ 5160 xanh, không lỗi nào
+khác phát sinh ở 110 công thức còn lại — đúng như thiết kế (`CHUOI_RIENG` chỉ có một dòng `beta`).
+Chưa thử lại trên trình duyệt thật.
+
+---
+
+## `formatNumber()` in "-0" cho số âm rất nhỏ làm tròn về 0 (04/11/2026)
+
+**Trạng thái: CHƯA XONG — đã sửa, chờ chủ dự án xem.** Chủ dự án chụp biểu đồ `beta` ở trục "Số phiên
+lấy để hồi quy", dạng Lãi/lỗ, và hỏi "chuyển sang lãi lỗ cũng đang có lỗi không có ?" — nhãn "giá trị
+hiện tại" ngay cạnh chấm cam ở mép trái ghi **"-0 lần"**.
+
+**Nguyên nhân (đã xác nhận bằng Node)**: `Intl.NumberFormat('vi-VN', { maximumFractionDigits: 2 })`
+làm tròn một số ÂM rất nhỏ (β ≈ -0,0004 tại N = 60) về 0 nhưng VẪN giữ dấu trừ trong chuỗi ra — `'-0'`.
+Đây không phải lỗi riêng của dạng Lãi/lỗ: nhãn ấy đi qua `sweepPoints()` →
+`valueLabel: formatCalcOutput(out)` → `formatValueWithUnit()` → `formatNumber()` với `maxDecimals`
+mặc định (2), đúng đường mà MỌI nhãn trên biểu đồ, Kết quả block, Bảng biến và file xuất đều đi qua —
+dạng Lãi/lỗ chỉ là chỗ đầu tiên lộ ra, vì điểm đang xét nằm sát mốc 0 và trục đó đổi dấu.
+
+**Đã sửa ở gốc, `src/core/format.ts`**: `formatNumber()` nay bỏ dấu trừ khi chuỗi Intl trả về đã tròn
+đúng về 0 (`'-0'`, `'-0,00'`…), giữ nguyên mọi số âm thật sự khác. Sửa một chỗ, áp dụng tự động cho
+mọi nơi gọi `formatNumber`/`formatValueWithUnit`/`formatCalcOutput` — không riêng biểu đồ.
+
+**Kiểm chứng**: thêm ca `format.test.ts` ("một số âm rất nhỏ làm tròn về 0 thì bỏ dấu trừ"); `tsc`,
+`eslint`, `prettier --check` sạch; `npm test` toàn bộ 5157 xanh (2 lỗi timeout do tải máy, chạy riêng
+thì xanh, không liên quan tới sửa đổi này). Chưa thử lại trên biểu đồ thật ở trình duyệt.
+
+---
+
 ## Khung "cách tính" ở thẻ Công thức: chỉ ký hiệu có bước tính mới mở khung (04/11/2026)
 
 **Trạng thái: CHƯA XONG — đã sửa, chờ chủ dự án xem.** Chủ dự án gửi ảnh thẻ CAPM, bấm vào dòng `r_e`

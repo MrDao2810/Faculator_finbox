@@ -633,6 +633,79 @@ describe('WF-03 — chín khối đúng thứ tự wireframe', () => {
     });
   });
 
+  /*
+   * Ký hiệu trong câu của mục "Đọc biểu đồ" — tên hình và đoạn chữ — mở khung chú thích, cùng nếp
+   * tên ô ở mục "Lấy số liệu ở đâu" ngay trên (04/11/2026). Chủ dự án khoanh '(β)' ở tiêu đề hình
+   * CAPM trong chính khung này: _"còn rất nhiều phần mà không có chú thích cho ký hiệu khi bấm vào
+   * nằm trong phần hướng dẫn sử dụng … tại sao vẫn còn lỗi này"_. Bản đầu quên bọc một `<span>` quanh
+   * các khúc chữ tách ra quanh nút — `.fieldWhere` (đoạn chữ) là hàng flex DỌC, nên mỗi khúc rơi
+   * xuống một dòng riêng, và chủ dự án chụp lại ngay: _"nó đang nằm trong 1 câu mà, để yên đi"_. Ca
+   * dưới pin đúng cả hai: nút mở khung ĐÚNG, và câu không bị tách dòng quanh nó.
+   */
+  describe('khung "Đọc biểu đồ": ký hiệu trong tên hình và đoạn chữ mở khung chú thích', () => {
+    function reChuot(
+      type: 'pointerover' | 'pointerout',
+      target: Element,
+      relatedTarget: Element | null = null,
+    ) {
+      const event = new MouseEvent(type, { bubbles: true, relatedTarget });
+      Object.defineProperty(event, 'pointerType', { value: 'mouse' });
+      act(() => {
+        target.dispatchEvent(event);
+      });
+    }
+
+    async function moKhungBieuDo() {
+      const user = userEvent.setup();
+      const spec = specOf('pe');
+      render(<Man spec={spec} bai={baiHuongDanFor('pe', AS_OF)} />);
+      await screen.findByRole('figure');
+      await user.click(screen.getByRole('link', { name: /Hướng dẫn: đọc biểu đồ/ }));
+      const khung = await screen.findByRole('dialog');
+      return { user, spec, khung };
+    }
+
+    it('tên hình "P/E theo Giá thị trường (P)": ký hiệu (P) vẫn nằm TRONG câu, mở đúng khung chú thích của P', async () => {
+      const { khung, spec } = await moKhungBieuDo();
+      const tieuDe = within(khung).getByRole('heading', { level: 3 });
+      // Câu vẫn một khối — không tách thành nhiều con rời ở gốc, đúng lỗi vừa bắt (xem docblock).
+      expect(tieuDe.children).toHaveLength(1);
+      expect(tieuDe.textContent).toBe('P/E theo Giá thị trường (P)');
+      const nut = within(tieuDe).getByRole('button', { name: '(P)' });
+
+      reChuot('pointerover', nut);
+      const chuThich = await within(khung).findByRole('group');
+      const p = spec.symbols?.find((s) => s.latex === 'P');
+      expect(chuThich.textContent).toContain(p?.meaning.vi ?? '∅');
+      // P là ô nhập thẳng, không có bước tính — khung chỉ có "ký hiệu: nghĩa", như ở mục kia.
+      expect(chuThich.hasAttribute('data-title-only')).toBe(true);
+      expect(nut.getAttribute('aria-expanded')).toBe('true');
+
+      reChuot('pointerout', nut, khung);
+      await waitFor(() => {
+        expect(within(khung).queryByRole('group')).toBeNull();
+      });
+    });
+
+    it('đoạn chữ "Đường chạy … theo ô Giá thị trường (P) …": ký hiệu giữa câu cũng mở được, câu không tách dòng', async () => {
+      const { user, khung } = await moKhungBieuDo();
+      const doan = within(khung).getByText(/Đường chạy từ trái sang phải/);
+      expect(doan.children).toHaveLength(1);
+      expect(doan.textContent).toBe(
+        'Đường chạy từ trái sang phải theo ô Giá thị trường (P), từ một nửa đến gấp rưỡi mức giá bạn đang nhập; vạch đứt dọc có chấm tròn là đúng mức bạn nhập. Đây là phép thử nếu giá đổi thì P/E ra bao nhiêu, không phải diễn biến thị trường. Đường đi lên đều: EPS giữ nguyên, giá càng cao thì P/E càng cao, tức cổ phiếu càng đắt so với lợi nhuận nó làm ra.',
+      );
+
+      const nut = within(doan).getByRole('button', { name: '(P)' });
+      await user.click(nut);
+      expect(within(khung).getByRole('group').textContent).toContain('giá thị trường của một');
+
+      // Nút của tên hình và nút của đoạn chữ là hai điểm chạm riêng, không chung một hàng.
+      const tieuDe = within(khung).getByRole('heading', { level: 3 });
+      const nutTieuDe = within(tieuDe).getByRole('button', { name: '(P)' });
+      expect(nutTieuDe.getAttribute('data-sym')).not.toBe(nut.getAttribute('data-sym'));
+    });
+  });
+
   it('nút ở khối Biểu đồ mở mục của biểu đồ, không mở mục của ô nhập', async () => {
     const user = userEvent.setup();
     render(<Man spec={specOf('pe')} bai={baiHuongDanFor('pe', AS_OF)} />);

@@ -4,6 +4,41 @@ Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 
 ---
 
+## Hình "Cơ cấu …" cũng có "Đọc biểu đồ" riêng (04/11/2026)
+
+**Trạng thái: CHƯA XONG — đã sửa, chờ chủ dự án xem.** Chủ dự án hỏi "hướng dẫn sử dụng của biểu đồ này đâu ?" trước
+màn hình donut "Cơ cấu chi phí vốn chủ" của WACC. 22 hình "Cơ cấu" (22/10/2026) từng bị khoanh "chưa cần" hướng dẫn
+cùng lúc với lô 507 đoạn viết riêng từng dạng vẽ (03/11/2026). Hỏi lại ("sao lại ko cần") thì chủ dự án đảo quyết định
+đó: mọi hình đều cần có hướng dẫn, không trừ hình nào.
+
+- **Khung**: `types.ts` thêm `BieuDoRieng.coCau` và `KeHoachBieuDo.coCau`, dùng ĐÚNG kiểu `KeHoachBocTach` (tái dùng
+  `loiBocTach`/`loiVanhKhuyen` của bóc tách, vì cơ cấu luôn mời cả hai dạng Thanh ngang + Vành khuyên, không có ca chỉ
+  một dạng như bóc tách). `ke-hoach.ts` thêm `coCauTu()` (gọi `compositionBars()`, `macDinh` luôn `false`,
+  `vanhKhuyen` luôn `true`). `muc.ts` đẩy khối `COMPOSITION_KEY` vào đúng vị trí trong "Xem theo" (sau Bóc tách và
+  Thời gian, trước mọi ô nhập). `kiem.ts` thêm luật gác tương ứng. `ChartBody.tsx`: bỏ `COMPOSITION_KEY` khỏi danh
+  sách ép im `hinhChuoi` — để `khoiDangXem()` tự quyết theo khối chữ có hay không, như `BREAKDOWN_KEY` đã làm.
+- **Nội dung**: 44 đoạn (22 công thức × thanh + vành khuyên × vi/en) trong `co-ban.ts` (5 id, viết tay làm mẫu +
+  `ty-le-chi-tra-co-tuc`), `dinh-gia.ts` (4 id: capm, wacc, gia-tri-hien-tai, gia-tri-tuong-lai), `loi-suat.ts` (3 id:
+  hpr, loi-nhuan-rong, tong-loi-suat-tai-dau-tu) và `khac.ts` (10 id, đủ 3 nhóm công thức: derivatives, corporate,
+  personal, planning). Viết bằng 3 agent song song + 1 lô viết tay, mỗi agent tự đọc `spec.composition`/`calc` thật
+  rồi so tổng của hình với con số ở khối Kết quả — đúng cái bẫy brief cảnh báo ("đừng giả định mù quáng là tổng bằng
+  kết quả"), vì tổng của hình Cơ cấu là tổng CÁC PHẦN CỦA NÓ, không phải kết quả công thức (khác hẳn bóc tách).
+- **Lỗi bắt được, đã sửa**: 4 trong 5 "mẫu" viết tay ban đầu trong `co-ban.ts` (`no-tren-von-chu`, `bien-loi-nhuan-rong`,
+  `bien-loi-nhuan-gop`, `thanh-toan-nhanh`) mắc đúng lỗi "tổng = kết quả" dù hai số khác đơn vị hẳn (tổng là tiền tỷ ₫,
+  kết quả là tỷ số hoặc %) — 2 trong 3 agent độc lập đọc `calc` rồi tự bắt ra, báo lại dù không thuộc phạm vi file được
+  giao. Đã viết lại cả 4 đoạn, nói rõ tổng khác kết quả và vì sao.
+- **Lỗi phân công, đã sửa**: brief ghi sai `ty-le-chi-tra-co-tuc` thuộc `loi-suat.ts` (nhóm `returns`), nhưng
+  `categoryId` của nó là `fundamentals` nên công thức này nằm trong `co-ban.ts`. Agent phụ trách `loi-suat.ts` phát
+  hiện và báo lại đúng lúc, không tự sửa file ngoài phạm vi. Đã thêm đoạn `coCau` cho công thức này vào `co-ban.ts`.
+- **Kiểm** (tôi tự chạy lại, không chỉ tin báo cáo agent): cửa gác đăng ký toàn bộ `src/core/huong-dan/bieu-do/bieu-do.test.ts`
+  240/240 xanh (không lọc id, ghim `coCau: 22`); `src/ui/charts`, `src/ui/guide`, `FormulaDetail.test.tsx`,
+  `src/core/huong-dan` 745/745 xanh; `npm test` toàn bộ 5157 xanh, 2 lỗi timeout biết trước (CPU tranh chấp khi chạy
+  song song, không liên quan việc này — chạy riêng từng file thì xanh). `eslint`/`tsc --noEmit`/`prettier --check`
+  sạch trên mọi file đã sửa.
+- **Chưa thử trên trình duyệt thật.**
+
+---
+
 ## Chip "Tìm gần đây" mở thẳng công thức (03/11/2026)
 
 **Trạng thái: CHƯA XONG — đã sửa, chờ chủ dự án xem.** Chủ dự án bấm chip "Giá vốn trung bình khi mua DCA" ở màn Công

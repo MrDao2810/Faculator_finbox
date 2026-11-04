@@ -203,6 +203,8 @@ describe('chữ "Đọc biểu đồ" nói đúng hình màn tính dựng', () =
         ...CAC_DANG.map((dang) => [`${id}.thoiGian.${dang}`, rieng.thoiGian?.[dang]] as const),
         [`${id}.bocTach`, rieng.bocTach] as const,
         [`${id}.vanhKhuyen`, rieng.vanhKhuyen] as const,
+        [`${id}.coCau.thanh`, rieng.coCau?.thanh] as const,
+        [`${id}.coCau.vanhKhuyen`, rieng.coCau?.vanhKhuyen] as const,
       ];
       for (const [cho, mot] of doan) {
         if (mot === undefined) continue;
@@ -228,7 +230,7 @@ describe.skipIf(CHI.length > 0)('kế hoạch đọc đúng thứ màn tính d�
    * nhập, thêm hình mới) làm ca này đỏ ĐÚNG LÚC cần viết thêm chữ — chứ không lặng lẽ để một mục
    * của ô chọn thiếu đoạn.
    */
-  it('103 công thức có hình: 248 trục, 47 hình thời gian, 11 hình bóc tách', () => {
+  it('103 công thức có hình: 248 trục, 47 hình thời gian, 11 hình bóc tách, 22 hình cơ cấu', () => {
     const dem = {
       khongHinh: 0,
       moRaTheoONhap: 0,
@@ -248,6 +250,7 @@ describe.skipIf(CHI.length > 0)('kế hoạch đọc đúng thứ màn tính d�
       thoiGianLaiLo: 0,
       thoiGianNen: 0,
       bocTachVanhKhuyen: 0,
+      coCau: 0,
     };
 
     for (const [, keHoach] of KE_HOACH) {
@@ -261,6 +264,7 @@ describe.skipIf(CHI.length > 0)('kế hoạch đọc đúng thứ màn tính d�
 
       if (keHoach.bocTach?.macDinh === false) dem.bocTachTrongOChon += 1;
       if (keHoach.bocTach?.vanhKhuyen === true) dem.bocTachVanhKhuyen += 1;
+      if (keHoach.coCau !== undefined) dem.coCau += 1;
       if (keHoach.thoiGian !== undefined) dem.thoiGian += 1;
       if (keHoach.thoiGian?.laiLo === true) dem.thoiGianLaiLo += 1;
       if (keHoach.thoiGian?.nen === true) dem.thoiGianNen += 1;
@@ -302,6 +306,8 @@ describe.skipIf(CHI.length > 0)('kế hoạch đọc đúng thứ màn tính d�
       thoiGianLaiLo: 16,
       thoiGianNen: 5,
       bocTachVanhKhuyen: 9,
+      // Hình cơ cấu (04/11/2026) — `composition.test.ts` ghim đúng danh sách 22 id này.
+      coCau: 22,
     });
   });
 
@@ -458,17 +464,13 @@ describe.skipIf(CHI.length > 0)('mục của bài khớp ô chọn "Xem kết qu
             ...dangHien,
           ]) {
             /*
-             * Hai mục theo chuỗi giá (21/10/2026), mục "Cơ cấu …" (hình tròn, 22/10/2026), mục cột
-             * theo kỳ và mục thang đo (23/10/2026) chưa có chữ — chủ dự án chốt "hướng dẫn sử dụng thì chưa cần" — và khung "?" im với chúng
-             * (`HinhDangXem.hinhChuoi`), nên không đòi khối.
+             * Hai mục theo chuỗi giá (21/10/2026), mục cột theo kỳ và mục thang đo (23/10/2026) chưa
+             * có chữ — chủ dự án chốt "hướng dẫn sử dụng thì chưa cần" — và khung "?" im với chúng
+             * (`HinhDangXem.hinhChuoi`), nên không đòi khối. Mục "Cơ cấu …" (hình tròn, 22/10/2026)
+             * RỜI danh sách này ngày 04/11/2026 — chủ dự án: *"thì biểu đồ nào cũng cần phải có?"* —
+             * nên nay nó ĐÒI khối, như `BREAKDOWN_KEY`.
              */
-            if (
-              laHinhChuoiGia(khoa) ||
-              khoa === COMPOSITION_KEY ||
-              khoa === COLUMNS_KEY ||
-              khoa === GAUGE_KEY
-            )
-              continue;
+            if (laHinhChuoiGia(khoa) || khoa === COLUMNS_KEY || khoa === GAUGE_KEY) continue;
             if (khoa !== undefined && !khoaCo.has(khoa)) {
               thieu.push(`${formula.spec.id}: mục "${khoa}" không có khối chữ`);
             }
@@ -491,6 +493,8 @@ describe.skipIf(CHI.length > 0)('mục của bài khớp ô chọn "Xem kết qu
       const theoOChon = [
         ...(keHoach.bocTach === undefined ? [] : [BREAKDOWN_KEY]),
         ...(keHoach.thoiGian === undefined ? [] : [HISTORY_KEY]),
+        // Cơ cấu đứng ngay sau Bóc tách và Theo thời gian trong ô "Xem theo" thật, trước mọi ô nhập.
+        ...(keHoach.coCau === undefined ? [] : [COMPOSITION_KEY]),
         ...keHoach.truc.map((truc) => truc.khoa),
       ];
       expect(
@@ -502,8 +506,10 @@ describe.skipIf(CHI.length > 0)('mục của bài khớp ô chọn "Xem kết qu
         const cho = `${formula.spec.id} · ${khoi.ten.vi}`;
         // Khối nào cũng có ít nhất một đoạn để in — không có khối chỉ mang cái tên.
         expect(khoi.duong ?? khoi.thanh, cho).toBeDefined();
-        // Hình bóc tách chỉ có thanh; hình đường thì không bao giờ mang đoạn của thanh.
-        expect(khoi.thanh !== undefined, cho).toBe(khoi.khoa === BREAKDOWN_KEY);
+        // Hình bóc tách và hình cơ cấu có thanh; hình đường thì không bao giờ mang đoạn của thanh.
+        expect(khoi.thanh !== undefined, cho).toBe(
+          khoi.khoa === BREAKDOWN_KEY || khoi.khoa === COMPOSITION_KEY,
+        );
       }
 
       // Cờ "chỉ vẽ khi đã nạp chuỗi giá": hình thời gian luôn thế, trục thì theo số đo.

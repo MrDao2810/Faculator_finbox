@@ -147,6 +147,16 @@ export const BIEU_DO_LOI_SUAT: Readonly<Record<string, BieuDoRieng>> = {
         'This form appears when the loaded series has both sessions where selling would profit and sessions where it would lose. The line runs from the oldest session on the left to the most recent session on the right; the part above the zero line is shaded green, sessions where selling at the close leaves a profit after every fee and tax, and the part below is shaded red, sessions where selling means a loss. When the line rises the profit is growing; when it falls it is shrinking or the loss is deepening. Where it crosses the zero line the close passes the true break-even price of your purchase.',
       ),
     },
+    coCau: {
+      thanh: d(
+        'Mỗi thanh nằm ngang là một phần, đọc từ trên xuống: Lãi ròng (Lrong) rồi Tổng chi phí cộng lại thành thanh sẫm cuối cùng, Lãi gộp, tức khoản chênh giữa tiền bán và tiền mua trước khi trừ phí và thuế, lớn hơn con số ở khối Kết quả đúng bằng chiều dài thanh Tổng chi phí. Thanh Lãi ròng (Lrong) chính là con số in ở khối Kết quả, nên thanh Tổng chi phí càng dài thì phần lãi thật về túi càng bị phí và thuế ăn mòn nhiều so với khoản chênh giá ban đầu.',
+        'Each horizontal bar is one part, read from top to bottom: Net profit (Lrong) then Total cost add up to the dark bar at the end, Gross profit, the gap between the sale proceeds and the purchase cost before fees and tax are taken out, which sits above the figure in the Result block by exactly the length of the Total cost bar. The Net profit (Lrong) bar is itself the figure in the Result block, so the longer the Total cost bar, the more fees and tax have eaten into the profit that actually lands against that same price gap.',
+      ),
+      vanhKhuyen: d(
+        'Vòng tròn chia Lãi gộp thành hai múi, Lãi ròng (Lrong) và Tổng chi phí, mỗi múi to theo phần nó chiếm trong lãi gộp. Lỗ giữa in Lãi gộp cùng giá trị của nó; chú giải cạnh vòng in tên, giá trị và phần trăm mỗi múi chiếm, rê chuột hay chạm một múi thì hiện tên và giá trị múi ấy. Múi Tổng chi phí càng lớn thì múi Lãi ròng (Lrong), tức phần lãi thật về túi, càng mỏng so với cùng khoản chênh giá ấy.',
+        'The ring splits Gross profit into two slices, Net profit (Lrong) and Total cost, each sized by its share of gross profit. The hole shows Gross profit and its value; the legend beside the ring gives each slice’s name, value and percentage share, and hovering over or tapping a slice shows its name and value. The bigger the Total cost slice, the smaller the Net profit (Lrong) slice, the profit that actually lands, against that same price gap.',
+      ),
+    },
   },
 
   'roi-rong': {
@@ -358,6 +368,16 @@ export const BIEU_DO_LOI_SUAT: Readonly<Record<string, BieuDoRieng>> = {
       laiLo: d(
         'Dạng này hiện khi chuỗi đã nạp có cả phiên bạn đang lãi lẫn phiên đang lỗ so với giá đầu kỳ. Đường đi từ phiên cũ nhất bên trái tới phiên gần nhất bên phải; phần trên vạch 0 tô xanh là những phiên mà kết thúc kỳ ở giá đóng cửa ấy, cộng cả cổ tức, thì có lãi, phần dưới tô đỏ là những phiên vẫn lỗ dù đã tính cổ tức. Đường đi lên là lợi suất đang hồi lại hoặc tích luỹ thêm, đi xuống là lãi đang bị trả lại; đường cắt vạch 0 ở chỗ giá đóng cửa đi qua mức giá đầu kỳ trừ cổ tức.',
         'This form appears when the loaded series holds sessions both in profit and at a loss against your starting price. The line runs from the oldest session on the left to the most recent session on the right; the part above the zero line is shaded green, sessions where ending the period at that close, dividend included, makes money, and the part below is shaded red, sessions still at a loss after the dividend. When the line rises the return is recovering or building; when it falls gains are being handed back. It crosses the zero line where the close passes the starting price minus the dividend.',
+      ),
+    },
+    coCau: {
+      thanh: d(
+        'Mỗi thanh nằm ngang là một phần, đọc từ trên xuống: Lời từ chênh giá rồi Cổ tức (D) cộng lại thành thanh sẫm cuối cùng, Tổng lời mỗi CP, là khoản lời tuyệt đối trên một cổ phiếu trước khi chia cho giá đầu kỳ và đổi ra phần trăm ở khối Kết quả. Thanh Cổ tức (D) dài hơn thanh Lời từ chênh giá là phần cổ tức nhận được đang góp nhiều đồng hơn chính việc giá lên xuống vào khoản lời ấy.',
+        'Each horizontal bar is one part, read from top to bottom: Price gain then Dividend (D) add up to the dark bar at the end, Total gain/share, the absolute gain on one share before it is divided by the starting price and turned into the percentage in the Result block. A Dividend (D) bar longer than the Price gain bar means the dividend received is contributing more to that gain than the price move itself.',
+      ),
+      vanhKhuyen: d(
+        'Vòng tròn chia Tổng lời mỗi CP thành hai múi, Lời từ chênh giá và Cổ tức (D), mỗi múi to theo phần nó chiếm trong khoản lời mỗi cổ phiếu. Lỗ giữa in Tổng lời mỗi CP cùng giá trị của nó; chú giải cạnh vòng in tên, giá trị và phần trăm mỗi múi chiếm, rê chuột hay chạm một múi thì hiện tên và giá trị múi ấy. Múi Cổ tức (D) càng lớn thì phần lời nhờ cổ tức càng áp đảo phần lời nhờ giá lên xuống.',
+        'The ring splits Total gain/share into two slices, Price gain and Dividend (D), each sized by its share of the gain per share. The hole shows Total gain/share and its value; the legend beside the ring gives each slice’s name, value and percentage share, and hovering over or tapping a slice shows its name and value. The bigger the Dividend (D) slice, the more the dividend outweighs the price move in that gain.',
       ),
     },
   },
@@ -629,6 +649,16 @@ export const BIEU_DO_LOI_SUAT: Readonly<Record<string, BieuDoRieng>> = {
           'Each step is the total return after one number of years in the Years held (n) field, from about half to one and a half times the figure you have entered: a step stays level through that year and then jumps, because the formula counts whole years only. It is a what-if on holding a few years more or less, not market history. While price growth and dividends together stay positive each year, the staircase rises, each jump taller than the last: that is compounding, every year earning on all the gains before it. When the price drops by more than the dividends make up, it falls, each drop smaller.',
         ),
       },
+    },
+    coCau: {
+      thanh: d(
+        'Mỗi thanh nằm ngang là một phần, đọc từ trên xuống: Phần do giá tăng rồi Phần nhờ cổ tức cộng lại thành thanh sẫm cuối cùng, Tổng lợi suất (TR), bằng đúng con số ở khối Kết quả. Thanh Phần nhờ cổ tức càng dài thì cổ tức, kể cả phần lãi của số cổ phiếu mua thêm bằng cổ tức, càng góp nhiều vào tổng lợi suất so với riêng việc giá cổ phiếu đi lên.',
+        'Each horizontal bar is one part, read from top to bottom: From price growth then From dividends add up to the dark bar at the end, Total return (TR), matching the figure in the Result block exactly. The longer the From dividends bar, the more dividends, including the gains on shares bought with them, contribute to the total return next to the price rise alone.',
+      ),
+      vanhKhuyen: d(
+        'Vòng tròn chia Tổng lợi suất (TR) thành hai múi, Phần do giá tăng và Phần nhờ cổ tức, mỗi múi to theo phần nó chiếm trong tổng lợi suất. Lỗ giữa in Tổng lợi suất (TR) cùng giá trị của nó; chú giải cạnh vòng in tên, giá trị và phần trăm mỗi múi chiếm, rê chuột hay chạm một múi thì hiện tên và giá trị múi ấy. Múi Phần nhờ cổ tức càng lớn thì phần lãi nhờ cổ tức và lãi kép của nó càng vượt trội so với riêng phần giá lên.',
+        'The ring splits Total return (TR) into two slices, From price growth and From dividends, each sized by its share of the total return. The hole shows Total return (TR) and its value; the legend beside the ring gives each slice’s name, value and percentage share, and hovering over or tapping a slice shows its name and value. The bigger the From dividends slice, the more the dividends and their compounding outweigh the price rise alone.',
+      ),
     },
   },
 

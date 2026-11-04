@@ -4,7 +4,6 @@ import { type ReactNode, useEffect, useLayoutEffect, useMemo, useRef, useState }
 
 import {
   COLUMNS_KEY,
-  COMPOSITION_KEY,
   GAUGE_KEY,
   buildChartModel,
   dangVeCuaHinh,
@@ -324,16 +323,17 @@ export function ChartBody({
    */
   const dangDangVe = DANG_DOC[variant];
   /*
-   * Các mục chưa có chữ hướng dẫn — hai mục theo chuỗi giá, mục "Cơ cấu …" (hình tròn, 22/10/2026)
-   * và mục cột theo kỳ (23/10/2026) — khung "?" phải im (`HinhDangXem.hinhChuoi`) thay vì in đoạn
-   * của hình khác. Hỏi theo MỤC, kể cả khi mục ấy đang báo "chưa vẽ được": từ 23/10/2026 ô chọn giữ
-   * nguyên Thang đo chẳng hạn, và khung "?" không được rơi về đoạn của hình mở ra.
+   * Các mục chưa có chữ hướng dẫn — hai mục theo chuỗi giá và mục cột theo kỳ (23/10/2026) — khung
+   * "?" phải im (`HinhDangXem.hinhChuoi`) thay vì in đoạn của hình khác. Hỏi theo MỤC, kể cả khi mục
+   * ấy đang báo "chưa vẽ được": từ 23/10/2026 ô chọn giữ nguyên Thang đo chẳng hạn, và khung "?"
+   * không được rơi về đoạn của hình mở ra.
+   *
+   * Mục "Cơ cấu …" (hình tròn, 22/10/2026) RỜI danh sách này ngày 04/11/2026: nó không còn luôn im
+   * — `khoiDangXem()` tự quyết theo khối chữ có hay không (cùng lẽ `BREAKDOWN_KEY`, vốn chưa từng ở
+   * đây), nên chủ dự án bắt được "chưa chắc đã cần" cho mọi hình là lý do khiến nó bị hỏi lại.
    */
   const hinhChuoi =
-    laHinhChuoiGia(khoaDangHien) ||
-    khoaDangHien === COMPOSITION_KEY ||
-    khoaDangHien === COLUMNS_KEY ||
-    khoaDangHien === GAUGE_KEY;
+    laHinhChuoiGia(khoaDangHien) || khoaDangHien === COLUMNS_KEY || khoaDangHien === GAUGE_KEY;
   useEffect(() => {
     onViewChange?.({ khoa: khoaDangHien, dang: dangDangVe, daVe, hinhChuoi });
   }, [onViewChange, khoaDangHien, dangDangVe, daVe, hinhChuoi]);

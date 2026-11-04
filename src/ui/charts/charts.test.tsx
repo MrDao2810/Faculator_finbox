@@ -3053,7 +3053,8 @@ describe('Loại biểu đồ — ô chọn dạng vẽ', () => {
 
   /*
    * Hình CƠ CẤU (22/10/2026): mục "Cơ cấu …" của ô "Xem theo" mở thẳng bằng vành khuyên, thanh ngang
-   * là dạng thứ hai, và khung "?" im với nó (chưa có chữ hướng dẫn).
+   * là dạng thứ hai. Khung "?" từng im với nó (chưa có chữ hướng dẫn); từ 04/11/2026 nó có chữ như
+   * mọi hình khác, chủ dự án: *"thì biểu đồ nào cũng cần phải có? mà, sao lại ko cần"*.
    */
   it('mục Cơ cấu nguồn vốn của D/E mở bằng vành khuyên, hai múi là nợ và vốn chủ', async () => {
     const bao = vi.fn();
@@ -3082,8 +3083,8 @@ describe('Loại biểu đồ — ô chọn dạng vẽ', () => {
     expect(vanh?.textContent).toContain('Nợ phải trả (D)');
     expect(vanh?.textContent).toContain('Vốn chủ sở hữu (E)');
     expect(cacDang()).toEqual(['Vành khuyên', 'Thanh ngang']);
-    // Khung "?" im với mục này: nó chưa có đoạn hướng dẫn (`HinhDangXem.hinhChuoi`).
-    expect(bao.mock.calls.at(-1)?.[0]).toMatchObject({ khoa: '__composition', hinhChuoi: true });
+    // Khung "?" nay hiện với mục này: nó có đoạn hướng dẫn riêng (04/11/2026).
+    expect(bao.mock.calls.at(-1)?.[0]).toMatchObject({ khoa: '__composition', hinhChuoi: false });
 
     await chonDang('Thanh ngang');
     expect(container.querySelector('svg[data-donut]')).toBeNull();

@@ -642,6 +642,16 @@ export const BIEU_DO_DINH_GIA: Readonly<Record<string, BieuDoRieng>> = {
         ),
       },
     },
+    coCau: {
+      thanh: d(
+        'Mỗi thanh nằm ngang là một phần, đọc từ trên xuống: Lãi phi rủi ro (rf) rồi Phần bù (β × ERP) cộng lại thành thanh sẫm cuối cùng, Chi phí VCSH (re), bằng đúng con số ở khối Kết quả. Thanh Phần bù (β × ERP) càng dài thì cổ đông đang đòi phần thưởng cho rủi ro cổ phiếu lớn hơn hẳn mức sàn lãi phi rủi ro, chứ không chỉ là khoản bù cho việc giữ tiền theo thời gian.',
+        'Each horizontal bar is one part, read from top to bottom: Risk-free rate (rf) then Premium (β × ERP) add up to the dark bar at the end, Cost of equity (re), matching the figure in the Result block exactly. The longer the Premium (β × ERP) bar, the more that required return is a reward for stock risk rather than just the floor rate for holding money over time.',
+      ),
+      vanhKhuyen: d(
+        'Vòng tròn chia Chi phí VCSH (re) thành hai múi, Lãi phi rủi ro (rf) và Phần bù (β × ERP), mỗi múi to theo phần nó chiếm trong chi phí vốn chủ. Lỗ giữa in Chi phí VCSH (re) cùng giá trị của nó, bằng đúng con số ở khối Kết quả; chú giải cạnh vòng in tên, giá trị và phần trăm mỗi múi chiếm, rê chuột hay chạm một múi thì hiện tên và giá trị múi ấy. Múi Phần bù (β × ERP) càng lớn thì mức sinh lợi cổ đông đòi hỏi càng nằm nhiều ở phần thưởng cho rủi ro cổ phiếu, chứ không phải ở mức sàn lãi phi rủi ro.',
+        'The ring splits Cost of equity (re) into two slices, Risk-free rate (rf) and Premium (β × ERP), each sized by its share of the cost of equity. The hole shows Cost of equity (re) and its value, the figure in the Result block; the legend beside the ring gives each slice’s name, value and percentage share, and hovering over or tapping a slice shows its name and value. The bigger the Premium (β × ERP) slice, the more of that required return comes from a reward for stock risk rather than the risk-free floor.',
+      ),
+    },
   },
 
   wacc: {
@@ -725,6 +735,16 @@ export const BIEU_DO_DINH_GIA: Readonly<Record<string, BieuDoRieng>> = {
       'Vòng tròn chia WACC thành hai múi, Phần vốn chủ và Phần nợ vay, mỗi múi đã nhân sẵn tỷ trọng của nguồn vốn ấy và múi nợ đã trừ lá chắn thuế. Lỗ giữa in WACC cùng giá trị của nó, bằng đúng con số ở khối Kết quả; chú giải cạnh vòng in tên, giá trị và phần trăm mỗi múi chiếm, còn rê chuột hay chạm một múi thì hiện tên và giá trị của múi ấy. Múi to hơn là nguồn vốn gánh phần lớn chi phí vốn. Đừng đọc múi thành tỷ trọng vốn: khi nợ vay sau thuế rẻ hơn vốn chủ, múi Phần nợ vay nhỏ hơn phần nợ chiếm trong tổng vốn.',
       'The ring splits WACC into two slices, Equity portion and Debt portion, each already multiplied by that source’s weight, the debt one net of the tax shield. The hole shows WACC and its value, the figure in the Result block; the legend beside the ring gives each slice’s name, value and percentage share, and hovering over or tapping a slice shows its name and value. The larger slice is the source carrying most of the cost of capital. Do not read a slice as a weight in capital: when after-tax debt is cheaper than equity, the Debt portion slice is smaller than debt’s share of total capital.',
     ),
+    coCau: {
+      thanh: d(
+        'Mỗi thanh nằm ngang là một phần, đọc từ trên xuống: Vốn hoá (E) rồi Nợ vay (D) cộng lại thành thanh sẫm cuối cùng, Tổng vốn (E+D), bằng đúng số tiền hai ô Vốn hoá và Nợ vay cộng vào, không phải con số WACC ở khối Kết quả. Thanh nào dài hơn là nguồn vốn ấy đang chiếm phần lớn hơn trong tổng vốn công ty, bất kể chi phí huy động của nó cao hay thấp.',
+        'Each horizontal bar is one part, read from top to bottom: Market cap (E) then Debt (D) add up to the dark bar at the end, Total capital (E+D), the sum of the two amounts entered in those two fields, not the WACC percentage shown in the Result block. The longer bar is the funding source making up the larger share of total capital, whatever that source’s own cost of capital happens to be.',
+      ),
+      vanhKhuyen: d(
+        'Vòng tròn chia Tổng vốn (E+D) thành hai múi, Vốn hoá (E) và Nợ vay (D), mỗi múi to theo phần nó chiếm trong tổng vốn công ty đang dùng. Lỗ giữa in Tổng vốn (E+D) cùng giá trị của nó, bằng đúng số tiền hai ô Vốn hoá và Nợ vay cộng vào, không phải con số WACC ở khối Kết quả; chú giải cạnh vòng in tên, giá trị và phần trăm mỗi múi chiếm, rê chuột hay chạm một múi thì hiện tên và giá trị múi ấy. Múi Nợ vay (D) càng lớn thì công ty càng dùng nhiều vốn vay hơn vốn cổ đông để tài trợ cho tài sản của mình, bất kể lúc đó nguồn vốn nào đang rẻ hơn.',
+        'The ring splits Total capital (E+D) into two slices, Market cap (E) and Debt (D), each sized by its share of the capital the company uses. The hole shows Total capital (E+D) and its value, the sum of those two amounts, not the WACC percentage in the Result block; the legend beside the ring gives each slice’s name, value and percentage share, and hovering over or tapping a slice shows its name and value. The bigger the Debt (D) slice, the more the company funds itself with borrowed money rather than shareholders’ money.',
+      ),
+    },
   },
 
   fcff: {
@@ -1031,6 +1051,16 @@ export const BIEU_DO_DINH_GIA: Readonly<Record<string, BieuDoRieng>> = {
         ),
       },
     },
+    coCau: {
+      thanh: d(
+        'Mỗi thanh nằm ngang là một phần, đọc từ trên xuống: Giá trị hiện tại rồi Phần sinh lợi cộng lại thành thanh sẫm cuối cùng, Số tiền tương lai, bằng đúng con số bạn đã nhập vào ô Số tiền trong tương lai (FV), không phải con số ở khối Kết quả, vì khối đó in đúng thanh Giá trị hiện tại. Thanh Phần sinh lợi càng dài thì phải chờ lâu hơn, hoặc chịu mức chiết khấu cao hơn, mới đổi số tiền hiện tại thành đúng khoản tương lai đã nhập.',
+        'Each horizontal bar is one part, read from top to bottom: Present value (PV) then Return earned add up to the dark bar at the end, Future amount (FV), matching the amount you entered in the Future amount (FV) field, not the figure in the Result block, which prints the Present value (PV) bar instead. The longer the Return earned bar, the longer the wait, or the higher the discount rate, needed to turn that present value into the future amount you entered.',
+      ),
+      vanhKhuyen: d(
+        'Vòng tròn chia Số tiền tương lai thành hai múi, Giá trị hiện tại và Phần sinh lợi, mỗi múi to theo phần nó chiếm trong khoản tiền tương lai ấy. Lỗ giữa in Số tiền tương lai cùng giá trị của nó, bằng đúng con số bạn đã nhập vào ô Số tiền trong tương lai (FV), không phải con số ở khối Kết quả; chú giải cạnh vòng in tên, giá trị và phần trăm mỗi múi chiếm, rê chuột hay chạm một múi thì hiện tên và giá trị múi ấy. Múi Giá trị hiện tại mới là con số đúng bằng khối Kết quả; múi Phần sinh lợi càng lớn thì phần phải chờ lãi kép làm ra càng chiếm nhiều trong khoản tương lai ấy.',
+        'The ring splits Future amount (FV) into two slices, Present value (PV) and Return earned, each sized by its share of that future sum. The hole shows Future amount (FV) and its value, matching the amount you entered for it, not the figure in the Result block; the legend beside the ring gives each slice’s name, value and percentage share, and hovering over or tapping a slice shows its name and value. The Present value (PV) slice matches the Result block exactly; the bigger the Return earned slice, the more of that sum comes from compounding over the wait rather than from today’s amount.',
+      ),
+    },
   },
 
   'gia-tri-tuong-lai': {
@@ -1081,6 +1111,16 @@ export const BIEU_DO_DINH_GIA: Readonly<Record<string, BieuDoRieng>> = {
           'Each step is the future value for one whole number of years in the Years (n) field, from about half to about one and a half times the number you have entered: the step stays level through a year and then jumps to the next year’s value, because both the field and the calculation count whole years only. It is a what-if on how long the money stays invested, not market history. With a positive rate the staircase rises and each jump is taller than the one before, since next year’s return is earned on the earlier returns too. With a negative rate it falls, each drop smaller than the last.',
         ),
       },
+    },
+    coCau: {
+      thanh: d(
+        'Mỗi thanh nằm ngang là một phần, đọc từ trên xuống: Số tiền hiện tại rồi Phần sinh lợi cộng lại thành thanh sẫm cuối cùng, Giá trị tương lai, bằng đúng con số ở khối Kết quả. Thanh Phần sinh lợi càng dài thì lãi kép đã làm số tiền ban đầu lớn lên càng nhiều qua từng năm sinh lợi.',
+        'Each horizontal bar is one part, read from top to bottom: Present amount (PV) then Return earned add up to the dark bar at the end, Future value (FV), matching the figure in the Result block exactly. The longer the Return earned bar, the more compounding has grown that starting sum over the years it was invested.',
+      ),
+      vanhKhuyen: d(
+        'Vòng tròn chia Giá trị tương lai thành hai múi, Số tiền hiện tại và Phần sinh lợi, mỗi múi to theo phần nó chiếm trong khoản tiền cuối kỳ ấy. Lỗ giữa in Giá trị tương lai cùng giá trị của nó, bằng đúng con số ở khối Kết quả; chú giải cạnh vòng in tên, giá trị và phần trăm mỗi múi chiếm, rê chuột hay chạm một múi thì hiện tên và giá trị múi ấy. Múi Phần sinh lợi càng lớn thì phần tiền có được nhờ sinh lợi kép càng vượt xa số tiền hiện tại bỏ vào ban đầu.',
+        'The ring splits Future value (FV) into two slices, Present amount (PV) and Return earned, each sized by its share of that ending sum. The hole shows Future value (FV) and its value, the figure in the Result block; the legend beside the ring gives each slice’s name, value and percentage share, and hovering over or tapping a slice shows its name and value. The bigger the Return earned slice, the further the money made from compounding outgrows the present amount originally put in.',
+      ),
     },
   },
 

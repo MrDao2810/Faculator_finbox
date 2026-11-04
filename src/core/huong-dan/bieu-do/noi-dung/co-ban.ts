@@ -302,6 +302,16 @@ export const BIEU_DO_CO_BAN: Readonly<Record<string, BieuDoRieng>> = {
         ),
       },
     },
+    coCau: {
+      thanh: d(
+        'Mỗi thanh nằm ngang là một phần, đọc từ trên xuống: Lãi ròng (LNST) rồi Doanh thu còn lại cộng lại thành thanh sẫm cuối cùng, Doanh thu thuần, một số tiền khác với biên lợi nhuận ròng ở khối Kết quả vì khối ấy in tỷ lệ giữa thanh Lãi ròng (LNST) và thanh Doanh thu thuần, không phải tổng của hai thanh trên. Thanh Lãi ròng (LNST) càng dài thì phần doanh nghiệp giữ lại thành lãi trên mỗi đồng bán ra càng dày.',
+        'Each horizontal bar is one part, read from top to bottom: Net income (LNST) then Remaining revenue add up to the dark bar at the end, Net revenue, a money figure different from the net margin in the Result block, because that block prints the ratio between the Net income (LNST) bar and the Net revenue bar, not the sum of the two bars above. The longer the Net income (LNST) bar, the thicker the slice of each unit sold that ends up as profit.',
+      ),
+      vanhKhuyen: d(
+        'Vòng tròn chia Doanh thu thuần thành hai múi, Lãi ròng (LNST) và Doanh thu còn lại, mỗi múi to theo phần nó chiếm trong doanh thu. Lỗ giữa in Doanh thu thuần cùng giá trị của nó; chú giải cạnh vòng in tên, giá trị và phần trăm mỗi múi chiếm, rê chuột hay chạm một múi thì hiện tên và giá trị múi ấy. Múi Lãi ròng (LNST) càng lớn thì biên lợi nhuận ròng càng dày.',
+        'The ring splits Net revenue into two slices, Net income (LNST) and Remaining revenue, each sized by its share of revenue. The hole shows Net revenue and its value; the legend beside the ring gives each slice’s name, value and percentage share, and hovering over or tapping a slice shows its name and value. The bigger the Net income (LNST) slice, the thicker the net margin.',
+      ),
+    },
   },
 
   'bien-loi-nhuan-gop': {
@@ -343,6 +353,16 @@ export const BIEU_DO_CO_BAN: Readonly<Record<string, BieuDoRieng>> = {
         ),
       },
     },
+    coCau: {
+      thanh: d(
+        'Mỗi thanh nằm ngang là một phần, đọc từ trên xuống: Lợi nhuận gộp rồi Giá vốn hàng bán cộng lại thành thanh sẫm cuối cùng, Doanh thu thuần, một số tiền khác với biên lợi nhuận gộp ở khối Kết quả vì khối ấy in tỷ lệ giữa thanh Lợi nhuận gộp và thanh Doanh thu thuần, không phải tổng của hai thanh trên. Thanh Giá vốn hàng bán càng dài thì phần doanh nghiệp giữ lại trên mỗi đồng bán ra càng mỏng.',
+        'Each horizontal bar is one part, read from top to bottom: Gross profit then Cost of goods sold add up to the dark bar at the end, Net revenue, a money figure different from the gross margin in the Result block, because that block prints the ratio between the Gross profit bar and the Net revenue bar, not the sum of the two bars above. The longer the Cost of goods sold bar, the thinner the slice the company keeps on each unit it sells.',
+      ),
+      vanhKhuyen: d(
+        'Vòng tròn chia Doanh thu thuần thành hai múi, Lợi nhuận gộp và Giá vốn hàng bán, mỗi múi to theo phần nó chiếm trong doanh thu. Lỗ giữa in Doanh thu thuần cùng giá trị của nó; chú giải cạnh vòng in tên, giá trị và phần trăm mỗi múi chiếm, rê chuột hay chạm một múi thì hiện tên và giá trị múi ấy. Múi Giá vốn hàng bán càng lớn thì biên lợi nhuận gộp càng mỏng.',
+        'The ring splits Net revenue into two slices, Gross profit and Cost of goods sold, each sized by its share of revenue. The hole shows Net revenue and its value; the legend beside the ring gives each slice’s name, value and percentage share, and hovering over or tapping a slice shows its name and value. The bigger the Cost of goods sold slice, the thinner the gross margin.',
+      ),
+    },
   },
 
   'no-tren-von-chu': {
@@ -375,6 +395,16 @@ export const BIEU_DO_CO_BAN: Readonly<Record<string, BieuDoRieng>> = {
           'Each dot is D/E at one level of the Equity (E) field, from half to one and a half times the figure you have entered; the dot on the dashed vertical line is your own figure. It is a what-if on equity with debt held still, not market history. The row of dots falls, sparse on the left and dense on the right: once equity is thin, losing a little more of it sends D/E up very quickly, so the left-hand dots show how fast the risk builds for a company whose losses eat into its capital.',
         ),
       },
+    },
+    coCau: {
+      thanh: d(
+        'Mỗi thanh nằm ngang là một phần, đọc từ trên xuống: Nợ phải trả (D) rồi Vốn chủ sở hữu (E) cộng lại thành thanh sẫm cuối cùng, Tổng nguồn vốn, một số tiền khác với D/E ở khối Kết quả vì khối ấy in tỷ số giữa thanh Nợ phải trả (D) và thanh Vốn chủ sở hữu (E), không phải tổng của hai thanh trên. Thanh nào dài hơn là nguồn vốn ấy đang chiếm phần lớn hơn trong tổng tài sản doanh nghiệp đang dùng.',
+        'Each horizontal bar is one part, read from top to bottom: Liabilities (D) then Equity (E) add up to the dark bar at the end, Total capital, a money figure different from the D/E ratio in the Result block, because that block prints the ratio between the Liabilities (D) bar and the Equity (E) bar, not the sum of the two bars above. The longer bar is the funding source making up the larger share of the company’s total assets.',
+      ),
+      vanhKhuyen: d(
+        'Vòng tròn chia Tổng nguồn vốn thành hai múi, Nợ phải trả (D) và Vốn chủ sở hữu (E), mỗi múi to theo phần nó chiếm trong tổng nguồn vốn. Lỗ giữa in Tổng nguồn vốn cùng giá trị của nó; chú giải cạnh vòng in tên, giá trị và phần trăm mỗi múi chiếm, rê chuột hay chạm một múi thì hiện tên và giá trị múi ấy. Múi Nợ phải trả (D) càng lớn thì doanh nghiệp càng dựa nhiều vào vốn của người khác thay vì vốn tự có.',
+        'The ring splits Total capital into two slices, Liabilities (D) and Equity (E), each sized by its share of total capital. The hole shows Total capital and its value; the legend beside the ring gives each slice’s name, value and percentage share, and hovering over or tapping a slice shows its name and value. The bigger the Liabilities (D) slice, the more the company relies on other people’s money rather than its own capital.',
+      ),
     },
   },
 
@@ -456,6 +486,16 @@ export const BIEU_DO_CO_BAN: Readonly<Record<string, BieuDoRieng>> = {
         ),
       },
     },
+    coCau: {
+      thanh: d(
+        'Mỗi thanh nằm ngang là một phần, đọc từ trên xuống: Tài sản trừ tồn kho rồi Hàng tồn kho cộng lại thành thanh sẫm cuối cùng, Tài sản ngắn hạn, một số tiền khác với hệ số thanh toán nhanh ở khối Kết quả, vì khối ấy chia thanh Tài sản trừ tồn kho cho Nợ ngắn hạn, một ô không có trong vòng này. Thanh Hàng tồn kho càng dài thì hệ số thanh toán nhanh càng thấp so với hệ số thanh toán hiện hành.',
+        'Each horizontal bar is one part, read from top to bottom: Quick assets then Inventory add up to the dark bar at the end, Current assets, a money figure different from the quick ratio in the Result block, because that block divides the Quick assets bar by Current liabilities, a field this chart does not show. The longer the Inventory bar, the lower the quick ratio sits below the current ratio.',
+      ),
+      vanhKhuyen: d(
+        'Vòng tròn chia Tài sản ngắn hạn thành hai múi, Tài sản trừ tồn kho và Hàng tồn kho, mỗi múi to theo phần nó chiếm trong tài sản ngắn hạn. Lỗ giữa in Tài sản ngắn hạn cùng giá trị của nó; chú giải cạnh vòng in tên, giá trị và phần trăm mỗi múi chiếm, rê chuột hay chạm một múi thì hiện tên và giá trị múi ấy. Múi Hàng tồn kho càng lớn thì càng nhiều tài sản ngắn hạn đang nằm ở hàng khó bán gấp.',
+        'The ring splits Current assets into two slices, Quick assets and Inventory, each sized by its share of current assets. The hole shows Current assets and its value; the legend beside the ring gives each slice’s name, value and percentage share, and hovering over or tapping a slice shows its name and value. The bigger the Inventory slice, the more of current assets sits in stock that cannot be sold quickly.',
+      ),
+    },
   },
 
   'vong-quay-tong-tai-san': {
@@ -521,6 +561,16 @@ export const BIEU_DO_CO_BAN: Readonly<Record<string, BieuDoRieng>> = {
           'Each dot is the payout ratio at one level of the EPS field, from half to one and a half times the EPS you have entered; the dot on the dashed vertical line is your own figure. It is a what-if on EPS with the dividend held still, not market history. The row of dots falls, far apart on the left: when profit is already thin, a small further drop in EPS sends the payout share up sharply, a sign the dividend is hard to keep. Further right the dots close up, since each extra unit of EPS shifts the payout share less once profit is thick.',
         ),
       },
+    },
+    coCau: {
+      thanh: d(
+        'Mỗi thanh nằm ngang là một phần, đọc từ trên xuống: Cổ tức/CP (DPS) rồi Lợi nhuận giữ lại cộng lại thành thanh sẫm cuối cùng, Lợi nhuận/CP (EPS), một số tiền khác với hệ số chi trả ở khối Kết quả vì khối ấy in tỷ lệ giữa thanh Cổ tức/CP (DPS) và thanh Lợi nhuận/CP (EPS), không phải tổng của hai thanh trên. Thanh Cổ tức/CP (DPS) càng dài thì doanh nghiệp đem phần lớn hơn trong lợi nhuận mỗi cổ phiếu ra chia, càng ít giữ lại để tái đầu tư.',
+        'Each horizontal bar is one part, read from top to bottom: Dividend (DPS) then Retained earnings add up to the dark bar at the end, Earnings (EPS), a money figure different from the payout ratio in the Result block, because that block prints the ratio between the Dividend (DPS) bar and the Earnings (EPS) bar, not the sum of the two bars above. The longer the Dividend (DPS) bar, the larger the share of per-share profit the company pays out, leaving less to reinvest.',
+      ),
+      vanhKhuyen: d(
+        'Vòng tròn chia Lợi nhuận/CP (EPS) thành hai múi, Cổ tức/CP (DPS) và Lợi nhuận giữ lại, mỗi múi to theo phần nó chiếm trong lợi nhuận mỗi cổ phiếu. Lỗ giữa in Lợi nhuận/CP (EPS) cùng giá trị của nó; chú giải cạnh vòng in tên, giá trị và phần trăm mỗi múi chiếm, rê chuột hay chạm một múi thì hiện tên và giá trị múi ấy. Múi Cổ tức/CP (DPS) càng lớn thì hệ số chi trả cổ tức càng cao.',
+        'The ring splits Earnings (EPS) into two slices, Dividend (DPS) and Retained earnings, each sized by its share of earnings per share. The hole shows Earnings (EPS) and its value; the legend beside the ring gives each slice’s name, value and percentage share, and hovering over or tapping a slice shows its name and value. The bigger the Dividend (DPS) slice, the higher the dividend payout ratio.',
+      ),
     },
   },
 };

@@ -24,6 +24,7 @@ import {
   chartName,
   lineChartTitle,
 } from '../../chart/build';
+import { compositionBars } from '../../chart/composition';
 import { dangVeCuaHinh, laDonViDem } from '../../chart/dang-ve';
 import type { DangVe } from '../../chart/dang-ve';
 import { CLOSE_PRICE_LABEL, HISTORY_KEY, historyPlan } from '../../chart/history';
@@ -34,7 +35,7 @@ import { FPT_BARS, STB_BARS, VNINDEX_BARS, VNINDEX_PHIEN } from '../../formulas/
 import type { SeriesRow } from '../../price-series';
 import { defaultInputs } from '../../registry/build';
 import { repeatKey } from '../../registry/repeat';
-import type { Level, VariableSpec } from '../../types';
+import type { CalcOutput, Level, VariableSpec } from '../../types';
 import type { DangCoThe, HinhDoDuoc, KeHoachBieuDo, KeHoachBocTach, KeHoachTruc } from './types';
 
 /** Sai số khi nhận ra dải "một nửa đến gấp rưỡi": bám bước (`step`) làm hai đầu lệch tới một bước. */
@@ -338,6 +339,35 @@ function bocTachTu(
 }
 
 /**
+ * Kế hoạch của hình CƠ CẤU — xem `BieuDoRieng.coCau`. `undefined` khi công thức không khai
+ * `spec.composition` hoặc không vẽ được ở bộ số mặc định (`compositionBars()` trả `null`: một phần
+ * tra không ra số, một phần âm, hoặc tổng không dương — cùng điều kiện màn tính dùng để quyết mục
+ * "Cơ cấu …" có mặt trong ô "Xem theo" hay không).
+ *
+ * `vanhKhuyen` luôn `true`: `compositionBars()` đã bảo đảm 2–4 phần không âm và tổng dương, đúng
+ * hệt điều kiện `phanCong()` ở tầng biểu đồ cần để mời Vành khuyên — không cần dò lại bằng số.
+ */
+function coCauTu(
+  formula: FormulaModule,
+  inputs: CalcInputs,
+  output: CalcOutput,
+): KeHoachBocTach | undefined {
+  const view = formula.spec.composition;
+  if (view === undefined) return undefined;
+
+  const bars = compositionBars(formula.spec, inputs, output);
+  if (bars === null) return undefined;
+
+  return {
+    ten: view.title,
+    chang: bars.filter((bar) => bar.isTotal !== true).map((bar) => bar.label),
+    tong: view.total,
+    macDinh: false,
+    vanhKhuyen: true,
+  };
+}
+
+/**
  * Hình theo thời gian có bao giờ mời dạng Lãi/lỗ không: dò trên các chuỗi thật và trên ví dụ của
  * công thức. P/E dọc một năm giữ nguyên dấu của EPS nên không có; ROC, MACD đổi dấu ngay.
  */
@@ -445,11 +475,14 @@ export function keHoachBieuDo(formula: FormulaModule, ctx: CalcContext): KeHoach
       };
     });
 
+  const coCau = coCauTu(formula, inputs, output);
+
   return {
     truc,
     trucLap,
     ...(thoiGian === undefined ? {} : { thoiGian }),
     ...(bocTach === undefined ? {} : { bocTach }),
+    ...(coCau === undefined ? {} : { coCau }),
     moRa,
   };
 }

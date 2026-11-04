@@ -11,6 +11,7 @@
  */
 
 import { BREAKDOWN_KEY } from '../../chart/breakdown';
+import { COMPOSITION_KEY } from '../../chart/composition';
 import { HISTORY_KEY } from '../../chart/history';
 import type {
   BieuDoRieng,
@@ -62,6 +63,19 @@ export function mucBieuDo(
       ...cacDang(rieng.thoiGian),
       nangCao: false,
       canChuoi: true,
+    });
+  }
+
+  // Hình cơ cấu: ngay sau Bóc tách và Theo thời gian trong ô "Xem theo" thật (`build.ts`), trước
+  // mọi ô nhập. Không bao giờ là `moRa` nên khỏi lo bước sắp cuối hàm đụng tới nó.
+  if (keHoach.coCau !== undefined && rieng.coCau !== undefined) {
+    khoi.push({
+      khoa: COMPOSITION_KEY,
+      ten: keHoach.coCau.ten,
+      thanh: rieng.coCau.thanh,
+      vanhKhuyen: rieng.coCau.vanhKhuyen,
+      nangCao: false,
+      canChuoi: false,
     });
   }
 

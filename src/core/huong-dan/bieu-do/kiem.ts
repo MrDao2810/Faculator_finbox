@@ -555,5 +555,16 @@ export function bieuDoProblems(
     loi.push(...loiVanhKhuyen('vanhKhuyen', rieng.vanhKhuyen, keHoach.bocTach));
   }
 
+  /*
+   * Hình cơ cấu (04/11/2026) — dùng lại NGUYÊN hai hàm của bóc tách: `KeHoachBieuDo.coCau` cùng
+   * kiểu `KeHoachBocTach`, và luôn đòi cả hai dạng cùng lúc (`BieuDoRieng.coCau` không tách
+   * `thanh`/`vanhKhuyen` thành hai trường rời như bóc tách — xem docblock ở `types.ts`).
+   */
+  lechCap('coCau', keHoach.coCau !== undefined, rieng.coCau !== undefined);
+  if (keHoach.coCau !== undefined && rieng.coCau !== undefined) {
+    loi.push(...loiBocTach('coCau.thanh', rieng.coCau.thanh, keHoach.coCau));
+    loi.push(...loiVanhKhuyen('coCau.vanhKhuyen', rieng.coCau.vanhKhuyen, keHoach.coCau));
+  }
+
   return loi;
 }

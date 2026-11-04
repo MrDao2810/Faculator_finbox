@@ -136,6 +136,17 @@ export interface BieuDoRieng {
    * tầng biểu đồ), tức năm công thức `KeHoachBocTach.vanhKhuyen` dò ra.
    */
   vanhKhuyen?: Bilingual;
+  /**
+   * Hình CƠ CẤU (`COMPOSITION_KEY`, 22 công thức, 04/11/2026) — một vòng tròn khác hẳn bóc tách:
+   * tổng là tổng các phần của chính nó, không phải kết quả công thức (`compositionBars()`), và
+   * không bao giờ là hình mở ra (`KeHoachBieuDo.coCau.macDinh` luôn `false`). Luôn mời CẢ hai dạng
+   * cùng lúc, không có ca "chỉ Thanh ngang" như bóc tách: `compositionBars()` đã bảo đảm 2–4 phần
+   * không âm trước khi mục này tồn tại, đúng điều kiện `phanCong()` cần cho Vành khuyên.
+   */
+  coCau?: {
+    thanh: Bilingual;
+    vanhKhuyen: Bilingual;
+  };
 }
 
 /**
@@ -272,6 +283,11 @@ export interface KeHoachBieuDo {
   trucLap: ReadonlyArray<KeHoachTrucLap>;
   thoiGian?: KeHoachThoiGian;
   bocTach?: KeHoachBocTach;
+  /**
+   * Hình cơ cấu — xem `BieuDoRieng.coCau`. Dùng lại đúng kiểu `KeHoachBocTach`: `macDinh` luôn
+   * `false` (không bao giờ là hình mở ra), `vanhKhuyen` luôn `true` (xem `coCauTu()`).
+   */
+  coCau?: KeHoachBocTach;
   /**
    * Khoá của hình màn MỞ RA: một ô nhập (63 công thức), `BREAKDOWN_KEY` (5), hoặc `HISTORY_KEY`
    * với 35 công thức không vẽ gì cho tới khi có chuỗi giá — hình đầu tiên họ thấy là hình ấy.

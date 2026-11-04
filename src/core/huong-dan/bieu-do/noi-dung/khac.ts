@@ -298,6 +298,16 @@ export const BIEU_DO_KHAC: Readonly<Record<string, BieuDoRieng>> = {
         ),
       },
     },
+    coCau: {
+      thanh: d(
+        'Mỗi thanh nằm ngang là một phần, đọc từ trên xuống: Lỗ khi chạm cắt lỗ rồi Rủi ro còn dư cộng lại thành thanh sẫm cuối cùng, Tiền chấp nhận mất; thanh này không phải con số ở khối Kết quả, vì khối đó in số hợp đồng chứ không in số tiền. Thanh Rủi ro còn dư càng dài thì phần tiền rủi ro bạn đã dành sẵn đang bị bỏ phí càng nhiều, do số hợp đồng luôn làm tròn xuống số nguyên.',
+        'Each horizontal bar is one part, read from top to bottom: Loss at the stop then Unused risk add up to the dark bar at the end, Risk budget; that bar is not the figure in the Result block, since that block prints a number of contracts, not an amount of money. The longer the Unused risk bar, the more of the risk money you set aside is going to waste, because the contract count is always rounded down to a whole number.',
+      ),
+      vanhKhuyen: d(
+        'Vòng tròn chia Tiền chấp nhận mất thành hai múi, Lỗ khi chạm cắt lỗ và Rủi ro còn dư, mỗi múi to theo phần nó chiếm trong số tiền ấy. Lỗ giữa in Tiền chấp nhận mất cùng giá trị của nó; chú giải cạnh vòng in tên, giá trị và phần trăm mỗi múi chiếm, rê chuột hay chạm một múi thì hiện tên và giá trị múi ấy. Múi Rủi ro còn dư càng lớn thì phần ngân sách rủi ro bạn đã chừa ra đang nằm không càng nhiều, vì số hợp đồng được phép mở luôn làm tròn xuống.',
+        'The ring splits Risk budget into two slices, Loss at the stop and Unused risk, each sized by its share of that amount. The hole shows Risk budget and its value; the legend beside the ring gives each slice’s name, value and percentage share, and hovering over or tapping a slice shows its name and value. The bigger the Unused risk slice, the more of the risk budget you set aside is sitting idle, because the number of contracts allowed is always rounded down.',
+      ),
+    },
   },
 
   'don-bay-hieu-dung': {
@@ -344,6 +354,16 @@ export const BIEU_DO_KHAC: Readonly<Record<string, BieuDoRieng>> = {
           'Each dot is the effective leverage at one level of the Actual equity in the account (E) field, from half to one and a half times the figure you have entered; the dot on the dashed vertical line is your own figure. It is a what-if on more or less capital with the position unchanged, not market history. The row of dots falls, with the dots on the left much further apart than those on the right: the thinner the equity, the more the same loss of capital makes leverage jump. Read right to left, each dot is one more loss eating into equity, and each pushes leverage up more than the last.',
         ),
       },
+    },
+    coCau: {
+      thanh: d(
+        'Mỗi thanh nằm ngang là một phần, đọc từ trên xuống: Vốn thực có (E) rồi Phần vượt vốn cộng lại thành thanh sẫm cuối cùng, Giá trị danh nghĩa; con số ấy không phải khối Kết quả, vì khối đó in số lần đòn bẩy, không phải số tiền. Phần vượt vốn không phải một khoản vay, chỉ là phần giá trị hợp đồng lớn hơn vốn thật có; thanh ấy càng dài so với thanh Vốn thực có (E) thì mỗi phần trăm chỉ số đổi càng làm vốn của bạn biến động mạnh hơn.',
+        'Each horizontal bar is one part, read from top to bottom: Equity (E) then Above equity add up to the dark bar at the end, Notional value; that figure is not the Result block, since that block prints a multiple, not an amount of money. Above equity is not a loan, only the part of the contract value larger than your real equity; the longer that bar is next to the Equity (E) bar, the harder each percent move in the index swings your capital.',
+      ),
+      vanhKhuyen: d(
+        'Vòng tròn chia Giá trị danh nghĩa thành hai múi, Vốn thực có (E) và Phần vượt vốn, mỗi múi to theo phần nó chiếm trong giá trị hợp đồng đó. Lỗ giữa in Giá trị danh nghĩa cùng giá trị của nó; chú giải cạnh vòng in tên, giá trị và phần trăm mỗi múi chiếm, rê chuột hay chạm một múi thì hiện tên và giá trị múi ấy. Múi Vốn thực có (E) nhỏ đi so với múi Phần vượt vốn nghĩa là đòn bẩy đang cao hơn, vì múi vốn ấy chính là phần trăm giá đi ngược thì mất hết vốn; Phần vượt vốn không phải một khoản vay, chỉ là phần giá trị hợp đồng vượt khỏi số vốn thật có.',
+        'The ring splits Notional value into two slices, Equity (E) and Above equity, each sized by its share of that contract value. The hole shows Notional value and its value; the legend beside the ring gives each slice’s name, value and percentage share, and hovering over or tapping a slice shows its name and value. A smaller Equity (E) slice against the Above equity slice means leverage is higher, since that equity slice is exactly the percentage the price can move against you before your capital is wiped out; Above equity is not a loan, only the part of the contract value beyond your real equity.',
+      ),
     },
   },
 
@@ -405,6 +425,16 @@ export const BIEU_DO_KHAC: Readonly<Record<string, BieuDoRieng>> = {
       'Vòng chia khoản Trả kỳ đầu thành hai múi, mỗi múi to theo phần nó chiếm: múi Gốc kỳ đầu là phần trừ vào dư nợ, múi Lãi kỳ đầu là tiền lãi tháng đầu tính trên trọn số tiền vay. Chú giải cạnh vòng ghi giá trị và tỷ lệ phần trăm của từng múi, lỗ giữa in Trả kỳ đầu, đúng con số ở khối Kết quả. Số tiền vay không làm đổi tỷ lệ hai múi; kỳ hạn càng dài hay lãi suất càng cao thì múi Lãi kỳ đầu càng to so với múi Gốc kỳ đầu. Hình chỉ tả tháng đầu: các tháng sau khoản trả vẫn thế nhưng phần lãi nhỏ dần, phần gốc lớn dần.',
       'The ring splits Period-1 payment into two slices sized by their shares: the Period-1 principal slice is what comes off the balance, the Period-1 interest slice is the first month’s interest on the whole loan. The legend beside the ring gives each slice’s value and percentage; the hole shows Period-1 payment, the figure in the Result block. The loan amount does not change the split; a longer term or a higher rate makes the Period-1 interest slice bigger against the Period-1 principal slice. This is the first month only: later payments stay the same while interest shrinks and principal grows.',
     ),
+    coCau: {
+      thanh: d(
+        'Mỗi thanh nằm ngang là một phần, đọc từ trên xuống: Số tiền vay (P) rồi Tổng tiền lãi cộng lại thành thanh sẫm cuối cùng, Tổng phải trả; con số ấy không phải khối Kết quả, vì khối đó chỉ in khoản trả cố định mỗi tháng, không phải tổng cả kỳ hạn vay. Thanh Tổng tiền lãi càng dài so với thanh Số tiền vay (P) thì mức lãi suất hay số năm vay đã kéo tổng chi phí của khoản vay này lên cao hơn nhiều so với số tiền vay ban đầu.',
+        'Each horizontal bar is one part, read from top to bottom: Loan amount (P) then Total interest add up to the dark bar at the end, Total repaid; that figure is not the Result block, since that block prints only the fixed monthly payment, not the sum over the whole loan term. The longer the Total interest bar is against the Loan amount (P) bar, the more the rate or the length of the loan has pushed the total cost of borrowing above the amount originally borrowed.',
+      ),
+      vanhKhuyen: d(
+        'Vòng tròn chia Tổng phải trả thành hai múi, Số tiền vay (P) và Tổng tiền lãi, mỗi múi to theo phần nó chiếm trong tổng số tiền trả cả kỳ hạn đó. Lỗ giữa in Tổng phải trả cùng giá trị của nó; chú giải cạnh vòng in tên, giá trị và phần trăm mỗi múi chiếm, rê chuột hay chạm một múi thì hiện tên và giá trị múi ấy. Múi Tổng tiền lãi càng lớn thì vay theo cách trả đều hằng tháng này càng đắt, dù khoản trả mỗi tháng vẫn y như nhau suốt kỳ hạn.',
+        'The ring splits Total repaid into two slices, Loan amount (P) and Total interest, each sized by its share of that whole-term payment. The hole shows Total repaid and its value; the legend beside the ring gives each slice’s name, value and percentage share, and hovering over or tapping a slice shows its name and value. The bigger the Total interest slice, the more this equal-payment loan costs overall, even though the amount due stays exactly the same every month for the whole term.',
+      ),
+    },
   },
 
   'tra-gop-goc-deu': {
@@ -464,6 +494,16 @@ export const BIEU_DO_KHAC: Readonly<Record<string, BieuDoRieng>> = {
       'Hai múi của vòng cộng lại thành Trả kỳ đầu, con số in ở lỗ giữa và ở khối Kết quả. Múi Gốc mỗi kỳ là số tiền vay chia đều cho số tháng, tháng nào cũng đúng chừng ấy; múi Lãi kỳ đầu là tiền lãi tháng đầu trên trọn số vay, lớn nhất ở tháng này rồi nhỏ dần theo dư nợ. Mỗi múi to theo phần nó chiếm, chú giải cạnh vòng ghi giá trị và tỷ lệ phần trăm; rê chuột hay chạm một múi là hiện tên và giá trị của nó. Số tiền vay không đổi được tỷ lệ ấy, còn kỳ hạn dài hơn hay lãi suất cao hơn đều làm múi Lãi kỳ đầu to ra.',
       'The two slices of the ring add up to Period-1 payment, the figure shown in the hole and in the Result block. The Fixed principal slice is the loan split evenly across the months, the same every month; the Period-1 interest slice is the first month’s interest on the whole loan, at its largest now and shrinking with the balance. Each slice is sized by its share, and the legend beside the ring gives its value and percentage; hover or tap a slice to see its name and value. The loan amount cannot change the split, while a longer term or a higher rate makes the Period-1 interest slice bigger.',
     ),
+    coCau: {
+      thanh: d(
+        'Mỗi thanh nằm ngang là một phần, đọc từ trên xuống: Số tiền vay (P) rồi Tổng tiền lãi cộng lại thành thanh sẫm cuối cùng, Tổng phải trả; con số ấy không phải khối Kết quả, vì khối đó chỉ in khoản phải trả ở kỳ đầu tiên, không phải cả đời khoản vay. Thanh Tổng tiền lãi càng dài so với thanh Số tiền vay (P) thì vay theo cách trả gốc đều này càng tốn kém, dù từng kỳ trả giảm dần.',
+        'Each horizontal bar is one part, read from top to bottom: Loan amount (P) then Total interest add up to the dark bar at the end, Total repaid; that figure is not the Result block, since that block prints only the payment due in the first period, not the whole life of the loan. The longer the Total interest bar is against the Loan amount (P) bar, the more this equal-principal loan costs overall, even though each payment shrinks over time.',
+      ),
+      vanhKhuyen: d(
+        'Vòng tròn chia Tổng phải trả thành hai múi, Số tiền vay (P) và Tổng tiền lãi, mỗi múi to theo phần nó chiếm trong tổng số tiền trả cả kỳ hạn đó. Lỗ giữa in Tổng phải trả cùng giá trị của nó; chú giải cạnh vòng in tên, giá trị và phần trăm mỗi múi chiếm, rê chuột hay chạm một múi thì hiện tên và giá trị múi ấy. Múi Tổng tiền lãi càng lớn thì kỳ hạn vay càng dài hoặc lãi suất càng cao, vì lãi mỗi kỳ luôn tính trên dư nợ còn lại chứ không gộp dồn như lãi kép.',
+        'The ring splits Total repaid into two slices, Loan amount (P) and Total interest, each sized by its share of that whole-term payment. The hole shows Total repaid and its value; the legend beside the ring gives each slice’s name, value and percentage share, and hovering over or tapping a slice shows its name and value. The bigger the Total interest slice, the longer the loan term or the higher the rate, since interest each period is always charged on the remaining balance, not compounded the way compound interest is.',
+      ),
+    },
   },
 
   'lich-tra-no': {
@@ -571,6 +611,16 @@ export const BIEU_DO_KHAC: Readonly<Record<string, BieuDoRieng>> = {
         ),
       },
     },
+    coCau: {
+      thanh: d(
+        'Mỗi thanh nằm ngang là một phần, đọc từ trên xuống: Tiền gốc (P) rồi Tiền lãi cộng lại thành thanh sẫm cuối cùng, Số tiền cuối kỳ (A), bằng đúng con số ở khối Kết quả. Thanh Tiền lãi càng dài so với thanh Tiền gốc (P) thì phần tiền lãi sinh ra từ lãi, không chỉ từ gốc ban đầu, càng chiếm nhiều trong số dư cuối cùng.',
+        'Each horizontal bar is one part, read from top to bottom: Principal (P) then Interest add up to the dark bar at the end, Final amount (A), matching the figure in the Result block exactly. The longer the Interest bar is against the Principal (P) bar, the more of the final balance comes from interest earning interest rather than from the original deposit alone.',
+      ),
+      vanhKhuyen: d(
+        'Vòng tròn chia Số tiền cuối kỳ (A) thành hai múi, Tiền gốc (P) và Tiền lãi, mỗi múi to theo phần nó chiếm trong số dư cuối kỳ đó. Lỗ giữa in Số tiền cuối kỳ (A) cùng giá trị của nó; chú giải cạnh vòng in tên, giá trị và phần trăm mỗi múi chiếm, rê chuột hay chạm một múi thì hiện tên và giá trị múi ấy. Múi Tiền lãi càng lớn thì lãi kép đã làm việc càng nhiều năm, vì phần ấy gồm cả lãi sinh trên lãi, không chỉ lãi của riêng tiền gốc.',
+        'The ring splits Final amount (A) into two slices, Principal (P) and Interest, each sized by its share of that ending balance. The hole shows Final amount (A) and its value; the legend beside the ring gives each slice’s name, value and percentage share, and hovering over or tapping a slice shows its name and value. The bigger the Interest slice, the more years compounding has had to work, since that slice includes interest earned on interest, not just interest on the original principal.',
+      ),
+    },
   },
 
   'lai-tien-gui': {
@@ -622,6 +672,16 @@ export const BIEU_DO_KHAC: Readonly<Record<string, BieuDoRieng>> = {
         ),
       },
     },
+    coCau: {
+      thanh: d(
+        'Mỗi thanh nằm ngang là một phần, đọc từ trên xuống: Số tiền gửi (P) rồi Tiền lãi (I) cộng lại thành thanh sẫm cuối cùng, Nhận khi đáo hạn; con số ấy không phải khối Kết quả, vì khối đó chỉ in riêng phần Tiền lãi (I), chưa cộng tiền gốc gửi vào. Thanh Tiền lãi (I) càng ngắn so với thanh Số tiền gửi (P) thì phần sinh lời của kỳ hạn này càng mỏng so với số vốn đã bỏ ra.',
+        'Each horizontal bar is one part, read from top to bottom: Deposit amount (P) then Interest (I) add up to the dark bar at the end, Paid at maturity; that figure is not the Result block, since that block prints only the Interest (I) part, without the principal deposited. The shorter the Interest (I) bar is against the Deposit amount (P) bar, the thinner this term’s earnings are against the capital put in.',
+      ),
+      vanhKhuyen: d(
+        'Vòng tròn chia Nhận khi đáo hạn thành hai múi, Số tiền gửi (P) và Tiền lãi (I), mỗi múi to theo phần nó chiếm trong số tiền nhận về đó. Lỗ giữa in Nhận khi đáo hạn cùng giá trị của nó; chú giải cạnh vòng in tên, giá trị và phần trăm mỗi múi chiếm, rê chuột hay chạm một múi thì hiện tên và giá trị múi ấy. Múi Tiền lãi (I) càng lớn thì kỳ hạn gửi càng dài hoặc lãi suất càng cao, vì đây là lãi đơn, chỉ tính trên đúng số tiền gửi ban đầu.',
+        'The ring splits Paid at maturity into two slices, Deposit amount (P) and Interest (I), each sized by its share of that total payout. The hole shows Paid at maturity and its value; the legend beside the ring gives each slice’s name, value and percentage share, and hovering over or tapping a slice shows its name and value. The bigger the Interest (I) slice, the longer the term or the higher the rate, since this is simple interest, earned only on the original deposit.',
+      ),
+    },
   },
 
   'tiet-kiem-muc-tieu': {
@@ -672,6 +732,16 @@ export const BIEU_DO_KHAC: Readonly<Record<string, BieuDoRieng>> = {
           'This form appears when the Time (n) field holds few months, so the axis moves exactly one month at a time, from half to one and a half times the months you have entered. Each step is the monthly deposit for a plan exactly that many months long: it stays level until the next month and only then drops, because a plan counts whole months and there is no plan half a month long. It is a what-if, not market history. The staircase falls, with deep drops at first that grow shallower: adding a month to a short plan saves far more each month than adding one to a long plan.',
         ),
       },
+    },
+    coCau: {
+      thanh: d(
+        'Mỗi thanh nằm ngang là một phần, đọc từ trên xuống: Tổng tiền gửi rồi Tiền lãi tích luỹ cộng lại thành thanh sẫm cuối cùng, Tiền mục tiêu (FV); con số ấy không phải khối Kết quả, vì khối đó in khoản phải gửi mỗi tháng, không phải cả số tiền mục tiêu. Thanh Tiền lãi tích luỹ càng dài so với thanh Tổng tiền gửi thì lãi suất kỳ vọng đang gánh hộ phần càng lớn, nên mỗi tháng bạn cần tự gửi càng ít đi.',
+        'Each horizontal bar is one part, read from top to bottom: Total deposited then Interest earned add up to the dark bar at the end, Target amount (FV); that figure is not the Result block, since that block prints the amount due each month, not the whole target sum. The longer the Interest earned bar is against the Total deposited bar, the more the expected rate is carrying, so the less you need to deposit yourself each month.',
+      ),
+      vanhKhuyen: d(
+        'Vòng tròn chia Tiền mục tiêu (FV) thành hai múi, Tổng tiền gửi và Tiền lãi tích luỹ, mỗi múi to theo phần nó chiếm trong số tiền mục tiêu đó. Lỗ giữa in Tiền mục tiêu (FV) cùng giá trị của nó; chú giải cạnh vòng in tên, giá trị và phần trăm mỗi múi chiếm, rê chuột hay chạm một múi thì hiện tên và giá trị múi ấy. Múi Tiền lãi tích luỹ càng lớn thì thời gian gửi càng dài hay lãi suất kỳ vọng càng cao, vì lãi chỉ nhập dần vào số dư theo từng tháng gửi.',
+        'The ring splits Target amount (FV) into two slices, Total deposited and Interest earned, each sized by its share of that target sum. The hole shows Target amount (FV) and its value; the legend beside the ring gives each slice’s name, value and percentage share, and hovering over or tapping a slice shows its name and value. The bigger the Interest earned slice, the longer the saving period or the higher the expected rate, since interest only joins the balance gradually with each monthly deposit.',
+      ),
     },
   },
 
@@ -1035,6 +1105,16 @@ export const BIEU_DO_KHAC: Readonly<Record<string, BieuDoRieng>> = {
         ),
       },
     },
+    coCau: {
+      thanh: d(
+        'Mỗi thanh nằm ngang là một phần, đọc từ trên xuống: Tổng tiền góp rồi Lợi nhuận tích luỹ cộng lại thành thanh sẫm cuối cùng, Số dư đạt mục tiêu; con số ấy không phải khối Kết quả, vì khối đó in số tháng cần góp, không phải số tiền. Thanh Lợi nhuận tích luỹ càng dài so với thanh Tổng tiền góp thì lợi suất kỳ vọng đang gánh hộ phần lớn hơn trong số dư đạt được, thay vì chính khoản tiền bạn tự bỏ ra.',
+        'Each horizontal bar is one part, read from top to bottom: Total contributed then Accumulated return add up to the dark bar at the end, Balance at goal; that figure is not the Result block, since that block prints the number of months needed, not an amount of money. The longer the Accumulated return bar is against the Total contributed bar, the more of the final balance comes from the expected return rather than from the money you put in yourself.',
+      ),
+      vanhKhuyen: d(
+        'Vòng tròn chia Số dư đạt mục tiêu thành hai múi, Tổng tiền góp và Lợi nhuận tích luỹ, mỗi múi to theo phần nó chiếm trong số dư cuối cùng đó. Lỗ giữa in Số dư đạt mục tiêu cùng giá trị của nó; chú giải cạnh vòng in tên, giá trị và phần trăm mỗi múi chiếm, rê chuột hay chạm một múi thì hiện tên và giá trị múi ấy. Múi Lợi nhuận tích luỹ càng lớn thì kế hoạch càng kéo dài nhiều tháng hay lợi suất kỳ vọng càng cao, vì lãi chỉ tích luỹ dần theo từng kỳ góp.',
+        'The ring splits Balance at goal into two slices, Total contributed and Accumulated return, each sized by its share of that ending balance. The hole shows Balance at goal and its value; the legend beside the ring gives each slice’s name, value and percentage share, and hovering over or tapping a slice shows its name and value. The bigger the Accumulated return slice, the longer the plan runs or the higher the expected return, since the gains only build up gradually with each contribution.',
+      ),
+    },
   },
 
   // ── Thuế thu nhập cá nhân ──────────────────────────────────────────────────────────────────
@@ -1157,6 +1237,16 @@ export const BIEU_DO_KHAC: Readonly<Record<string, BieuDoRieng>> = {
         ),
       },
     },
+    coCau: {
+      thanh: d(
+        'Mỗi thanh nằm ngang là một phần, đọc từ trên xuống: Tổng biến phí rồi Định phí (FC) cộng lại thành thanh sẫm cuối cùng, Doanh thu hoà vốn; con số ấy không phải khối Kết quả, vì khối đó in số sản phẩm cần bán, không phải số tiền doanh thu. Thanh Định phí (FC) càng dài thì phải bán nhiều sản phẩm hơn chỉ để bù khoản chi phí không đổi theo sản lượng đó.',
+        'Each horizontal bar is one part, read from top to bottom: Variable cost then Fixed cost (FC) add up to the dark bar at the end, Break-even revenue; that figure is not the Result block, since that block prints the number of units to sell, not an amount of revenue. The longer the Fixed cost (FC) bar, the more units must be sold just to cover that cost, which does not change with output volume.',
+      ),
+      vanhKhuyen: d(
+        'Vòng tròn chia Doanh thu hoà vốn thành hai múi, Tổng biến phí và Định phí (FC), mỗi múi to theo phần nó chiếm trong doanh thu đó. Lỗ giữa in Doanh thu hoà vốn cùng giá trị của nó; chú giải cạnh vòng in tên, giá trị và phần trăm mỗi múi chiếm, rê chuột hay chạm một múi thì hiện tên và giá trị múi ấy. Múi Tổng biến phí chiếm phần lớn nghĩa là biến phí một sản phẩm đã gần bằng giá bán, số dư đảm phí mỗi sản phẩm góp được rất mỏng, nên phải bán rất nhiều sản phẩm mới đủ bù định phí.',
+        'The ring splits Break-even revenue into two slices, Variable cost and Fixed cost (FC), each sized by its share of that revenue. The hole shows Break-even revenue and its value; the legend beside the ring gives each slice’s name, value and percentage share, and hovering over or tapping a slice shows its name and value. A large Variable cost slice means the cost of making one unit is already close to its selling price, so the contribution each unit leaves is thin, and far more units must be sold to cover fixed cost.',
+      ),
+    },
   },
 
   'don-bay-tong-hop': {
@@ -1217,6 +1307,16 @@ export const BIEU_DO_KHAC: Readonly<Record<string, BieuDoRieng>> = {
           'Each dot is total leverage at one level of the Interest expense (I) field, from half to one and a half times the figure you have entered; the dot on the dashed vertical line is your own interest. It is a what-if on interest, not market history. The row of dots rises, the gap between neighbors widening to the right: interest is owed whatever the sales, so each extra slice of it thins the profit left for shareholders and makes EPS swing harder with revenue.',
         ),
       },
+    },
+    coCau: {
+      thanh: d(
+        'Mỗi thanh nằm ngang là một phần, đọc từ trên xuống: Tổng biến phí (BP), Định phí hoạt động, Lãi vay (I) và Lãi trước thuế cộng lại thành thanh sẫm cuối cùng, Doanh thu (DT); con số ấy không phải khối Kết quả, vì khối đó in số lần đòn bẩy, không phải số tiền doanh thu. Thanh Lãi trước thuế càng mỏng so với ba thanh phía trên thì doanh thu chỉ cần nhúc nhích một chút cũng đủ làm lãi mỗi cổ phiếu đổi rất mạnh.',
+        'Each horizontal bar is one part, read from top to bottom: Variable cost (BP), Fixed cost, Interest (I) and Pre-tax profit add up to the dark bar at the end, Revenue (DT); that figure is not the Result block, since that block prints a multiple, not an amount of revenue. The thinner the Pre-tax profit bar is against the three bars above it, the harder EPS swings for even a small move in revenue.',
+      ),
+      vanhKhuyen: d(
+        'Vòng tròn chia Doanh thu (DT) thành bốn múi, Tổng biến phí (BP), Định phí hoạt động, Lãi vay (I) và Lãi trước thuế, mỗi múi to theo phần nó chiếm trong doanh thu đó. Lỗ giữa in Doanh thu (DT) cùng giá trị của nó; chú giải cạnh vòng in tên, giá trị và phần trăm mỗi múi chiếm, rê chuột hay chạm một múi thì hiện tên và giá trị múi ấy. Múi Lãi trước thuế càng nhỏ so với ba múi kia thì đòn bẩy tổng hợp càng lớn, vì cùng một khoản doanh thu thay đổi giờ chỉ còn dồn vào một phần lợi nhuận mỏng hơn.',
+        'The ring splits Revenue (DT) into four slices, Variable cost (BP), Fixed cost, Interest (I) and Pre-tax profit, each sized by its share of that revenue. The hole shows Revenue (DT) and its value; the legend beside the ring gives each slice’s name, value and percentage share, and hovering over or tapping a slice shows its name and value. The smaller the Pre-tax profit slice is against the other three, the larger the degree of total leverage, because the same change in revenue now lands on a thinner slice of profit.',
+      ),
     },
   },
 };

@@ -516,7 +516,6 @@ describe.skipIf(CHI.length > 0)('mục của bài khớp ô chọn "Xem kết qu
       for (const truc of keHoach.truc) {
         const khoi = muc.khoi.find((mot) => mot.khoa === truc.khoa);
         expect(khoi?.canChuoi, `${formula.spec.id}.${truc.khoa}`).toBe(truc.hinh === undefined);
-        expect(khoi?.nangCao, `${formula.spec.id}.${truc.khoa}`).toBe(truc.nangCao);
       }
       expect(muc.khoi.find((khoi) => khoi.khoa === HISTORY_KEY)?.canChuoi ?? true).toBe(true);
     }

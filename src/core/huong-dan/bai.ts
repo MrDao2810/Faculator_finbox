@@ -164,7 +164,6 @@ function baiRiengCua(spec: FormulaSpec): BaiRiengDaChuan | undefined {
       nhan: bien.label,
       layODau: songNgu(o.layODau),
       ...(o.luuY === undefined ? {} : { luuY: songNgu(o.luuY) }),
-      nangCao: bien.level === 'advanced',
     });
   }
 

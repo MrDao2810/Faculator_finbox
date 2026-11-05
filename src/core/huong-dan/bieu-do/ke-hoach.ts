@@ -516,7 +516,6 @@ export function keHoachBieuDo(formula: FormulaModule, ctx: CalcContext): KeHoach
         tienTo: mau.key,
         ten: lineChartTitle(chartName(spec), tenTruc, false),
         truc: tenTruc,
-        nangCao: mau.level === 'advanced',
         bac: nhomDau?.bac ?? laDonViDem(mau.unit),
         laiLo: nhomDau?.laiLo ?? false,
       };

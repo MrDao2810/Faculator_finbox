@@ -113,7 +113,7 @@ export interface BaiRiengDaChuan {
 /**
  * Chữ "lấy số ở đâu" của MỘT ô nhập, đã ghép nhãn từ `spec.variables`.
  *
- * Ba điều về khuôn này là có lý do, không phải tiện tay:
+ * Hai điều về khuôn này là có lý do, không phải tiện tay:
  *
  * 1. **`nhan` lấy từ `spec.variables[].label`, kho chữ không khai lại.** Đổi nhãn một ô là bài đổi
  *    theo. Một bản sao ở kho chữ sẽ lệch ngay lần đầu ai đó sửa nhãn, và lint không thấy được —
@@ -121,10 +121,9 @@ export interface BaiRiengDaChuan {
  * 2. **Thứ tự theo `spec.variables`, không theo thứ tự gõ trong kho.** Bài liệt kê ô theo đúng thứ
  *    tự khối Số liệu bày chúng, nên mắt người đọc đi từ trên xuống là khớp với màn. `bai.ts` duyệt
  *    `spec.variables` rồi tra kho, chứ không duyệt kho.
- * 3. **`nangCao` phải có mặt.** 12 trong 269 ô chỉ hiện ở chế độ Nâng cao. Bài chỉ vào một ô mà
- *    người đọc không tìm thấy trên màn là đúng lỗi đợt 5 đã trả giá một lần: `duongNapSo` luôn kê
- *    "Nạp mẫu" trong khi 38 công thức không bày nút ấy. Một dấu nhỏ ở 12 ô ấy là cách rẻ nhất để
- *    không lặp lại.
+ *
+ * Mộ chí: điều thứ ba, cờ `nangCao` (ô chỉ hiện ở chế độ Nâng cao, để bài in dấu "Nâng cao" cạnh
+ * tên ô), bỏ ngày 05/11/2026 cùng dấu ấy — lý do ở `vi.ts`, khoá `guide.input.advancedField`.
  *
  * Đơn vị thì KHÔNG mang sang: ô nhập trên màn đã in đơn vị bên phải nó, và chỗ nào cái bẫy nằm ở
  * đơn vị thì `luuY` nói thẳng ("Nếu có {shares|coPhieu} cổ phiếu thì nhập {shares}" — từ 14/10/2026
@@ -138,8 +137,6 @@ export interface ONhapHuongDan {
   layODau: Bilingual;
   /** Một lưu ý khi điền ô ấy; 164/269 ô có. */
   luuY?: Bilingual;
-  /** Ô chỉ hiện ở chế độ Nâng cao — 12/269 ô. */
-  nangCao: boolean;
 }
 
 /**

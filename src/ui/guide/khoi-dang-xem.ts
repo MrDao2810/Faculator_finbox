@@ -32,7 +32,6 @@ function khoiTuMau(khoiLap: ReadonlyArray<KhoiLapBai>, khoa: string): KhoiBieuDo
       ...(mau.diem === undefined ? {} : { diem: fillRepeat(mau.diem, n) }),
       ...(mau.bac === undefined ? {} : { bac: fillRepeat(mau.bac, n) }),
       ...(mau.laiLo === undefined ? {} : { laiLo: fillRepeat(mau.laiLo, n) }),
-      nangCao: mau.nangCao,
       // Ô của nhóm thêm là ô số thường: hình của nó vẽ được ngay, không chờ chuỗi giá.
       canChuoi: false,
     };

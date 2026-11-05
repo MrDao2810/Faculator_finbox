@@ -4,6 +4,34 @@ Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 
 ---
 
+## Bỏ dấu "Nâng cao" trong hướng dẫn sử dụng (05/11/2026)
+
+**Trạng thái: CHƯA XONG — đã sửa, chờ chủ dự án xác nhận.** Chủ dự án khoanh dấu "Nâng cao" cạnh ô
+"Lãi vay (I)" trong khung "Lấy số liệu ở đâu" của `don-bay-tong-hop`: _"tại sao lại có chú thích nâng
+cao ở đây ? còn những chỗ khác thì sao ? đây là công thức nâng cao rồi sao lại có cái này ?"_, rồi sau
+khi nghe giải thích: _"bỏ cái chú thích nâng cao đó đi, tôi thấy nó vô ích vô dụng lắm"_.
+
+Đo trước khi sửa: dấu in cạnh 11 ô cấp Nâng cao trên 9 công thức; 8 ô thuộc 6 công thức tự nó đã là
+Nâng cao (danh sách và ô tìm ở chế độ Cơ bản không bày chúng), 3 ô thuộc công thức Cơ bản (`eps-co-ban`,
+`lai-kep`, `rut-truoc-han`). Ở chế độ Nâng cao ô nào cũng có trên màn, nên dấu không nói được gì. Trang
+hướng dẫn đầy đủ còn in cùng dấu cạnh tên hình của các ô ấy — bỏ luôn, cùng lý do.
+
+- `src/ui/guide/GuideBody.tsx`: bỏ hai chỗ in dấu (tên ô, tên hình); `GuideBody.module.css`: bỏ
+  `.fieldAdvanced`.
+- `src/application/i18n/vi.ts`, `en.ts`: bỏ khoá `guide.input.advancedField`, mộ chí ở `vi.ts`.
+- `src/core/huong-dan/types.ts`, `bai.ts`: bỏ cờ `ONhapHuongDan.nangCao` (không còn ai đọc).
+  `bieu-do/types.ts`, `muc.ts`, `ke-hoach.ts`, `src/ui/guide/khoi-dang-xem.ts`: bỏ `nangCao` của khối
+  chữ và của trục nhóm lặp. Giữ `KeHoachTruc.nangCao` — `bieu-do.test.ts` đếm 10 trục chỉ có ở Nâng cao.
+- Test: hai ca ở `GuideScreen.test.tsx` ĐẢO (không còn dấu ở tên ô — thử cả `don-bay-tong-hop` lẫn
+  `eps-co-ban` — và ở tên hình); `huong-dan.test.ts` bỏ ca "đúng 11 ô mang cờ Nâng cao" và vế cờ của ca
+  nhãn; `bieu-do.test.ts` bỏ một vế so cờ; `GuideBody.test.tsx` bỏ trường khỏi dữ liệu mẫu.
+- `CLAUDE.md`: thêm một gạch đầu dòng ở mục "Đọc biểu đồ".
+
+Kiểm: `tsc` sạch; 25 file test (guide, huong-dan, i18n, màn chi tiết) 755 ca xanh; eslint, prettier
+sạch. Chưa thử trên trình duyệt thật.
+
+---
+
 ## Ký hiệu trong câu của mục "Đọc biểu đồ" (tên hình, đoạn chữ) không mở được khung chú thích (04/11/2026)
 
 **Trạng thái: CHƯA XONG — đã sửa qua ba vòng theo ảnh chụp của chủ dự án, chờ xác nhận lại.** Chủ dự

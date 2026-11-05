@@ -217,22 +217,7 @@
   color: var(--color-ink);
 }
 
-/*
- * Dấu "Nâng cao" — chữ nhỏ viền mảnh, cùng bậc với thẻ cấp độ ở tiêu đề màn tính. Không dùng mặt
- * vàng cảnh báo: đây là một điều kiện để thấy ô, không phải một phép tính vừa hỏng, và
- * `warning-surface.test.ts` khoá đúng năm mặt vàng đang có.
- */
-.fieldAdvanced {
-  flex: none;
-  padding: 0 var(--space-2);
-
-  font-size: var(--text-xs);
-  font-weight: var(--weight-medium);
-  color: var(--color-muted);
-
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-}
+/* Mộ chí: `.fieldAdvanced` (dấu "Nâng cao" cạnh tên ô và tên hình) bỏ ngày 05/11/2026, xem `vi.ts`. */
 
 .fieldWhere {
   display: flex;

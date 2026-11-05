@@ -807,7 +807,7 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'guide.section.blank': 'When the result shows _ _',
 
   /* Mộ chí: `guide.input.whereHeading` bỏ 05/10/2026 — hai tiêu đề trùng nhau, lý do ở `vi.ts`. */
-  'guide.input.advancedField': 'Advanced',
+  /* Mộ chí: `guide.input.advancedField` bỏ 05/11/2026 — lý do ở `vi.ts`. */
   'guide.result.pitfall': 'Easy to get wrong:',
 
   /*

@@ -26,7 +26,6 @@ const THOI_GIAN: KhoiBieuDoBai = {
   khoa: '__time',
   ten: doan('SMA theo thời gian'),
   duong: doan('Đoạn đường của hình thời gian.'),
-  nangCao: false,
   canChuoi: true,
 };
 const SO_PHIEN: KhoiBieuDoBai = {
@@ -34,7 +33,6 @@ const SO_PHIEN: KhoiBieuDoBai = {
   ten: doan('SMA theo Số phiên'),
   duong: doan('Đoạn đường của hình theo số phiên.'),
   cot: doan('Đoạn cột của hình theo số phiên.'),
-  nangCao: false,
   canChuoi: true,
 };
 const GIA: KhoiBieuDoBai = {
@@ -42,14 +40,12 @@ const GIA: KhoiBieuDoBai = {
   ten: doan('P/E theo Giá thị trường'),
   duong: doan('Đoạn đường của hình theo giá.'),
   cot: doan('Đoạn cột của hình theo giá.'),
-  nangCao: false,
   canChuoi: false,
 };
 const BOC_TACH: KhoiBieuDoBai = {
   khoa: '__breakdown',
   ten: doan('EV - bóc tách'),
   thanh: doan('Đoạn của các thanh bóc tách.'),
-  nangCao: false,
   canChuoi: false,
 };
 
@@ -136,7 +132,6 @@ describe('khoiDangXem — khung "?" chọn khối của hình đang hiện', () 
       ten: doan('Giá vốn theo Giá mua đợt {n}'),
       duong: doan('Đường theo ô Giá mua đợt {n}.'),
       cot: doan('Cột của đợt mua thứ {n}.'),
-      nangCao: false,
     };
     const GIA_DOT_3: KhoiBieuDoBai = {
       ...GIA,
@@ -194,7 +189,6 @@ describe('mục "Lấy số liệu ở đâu": câu minh hoạ đi theo số đa
           nhan: doan('Số phiên trong kỳ'),
           layODau: doan('Độ dài kỳ quan sát tính bằng phiên.'),
           luuY: { vi: '{sessions} phiên là khoảng {sessions|thoiGian}.', en: '' },
-          nangCao: false,
         },
       ],
     },

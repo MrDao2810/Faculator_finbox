@@ -51,7 +51,6 @@ export function mucBieuDo(
       ten: bocTach.ten,
       thanh: rieng.bocTach,
       ...(rieng.vanhKhuyen === undefined ? {} : { vanhKhuyen: rieng.vanhKhuyen }),
-      nangCao: false,
       canChuoi: false,
     });
   }
@@ -61,7 +60,6 @@ export function mucBieuDo(
       khoa: HISTORY_KEY,
       ten: thoiGian.ten,
       ...cacDang(rieng.thoiGian),
-      nangCao: false,
       canChuoi: true,
     });
   }
@@ -74,7 +72,6 @@ export function mucBieuDo(
       ten: keHoach.coCau.ten,
       thanh: rieng.coCau.thanh,
       vanhKhuyen: rieng.coCau.vanhKhuyen,
-      nangCao: false,
       canChuoi: false,
     });
   }
@@ -86,7 +83,6 @@ export function mucBieuDo(
       khoa: mot.khoa,
       ten: mot.ten,
       ...cacDang(chu),
-      nangCao: mot.nangCao,
       canChuoi: mot.hinh === undefined,
     });
   }
@@ -109,7 +105,6 @@ export function mucBieuDo(
       ...(chu.diem === undefined ? {} : { diem: chu.diem }),
       ...(chu.bac === undefined ? {} : { bac: chu.bac }),
       ...(chu.laiLo === undefined ? {} : { laiLo: chu.laiLo }),
-      nangCao: mot.nangCao,
     });
   }
 

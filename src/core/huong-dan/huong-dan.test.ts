@@ -260,31 +260,20 @@ describe('chữ riêng của công thức đi vào bài, đủ và đúng ô', (
   });
 
   /*
-   * Nhãn và cờ Nâng cao lấy từ `spec`, kho chữ không khai lại — nên chúng không thể lệch. Ca này
-   * gác rằng phép ghép ấy không bị thay bằng một bản sao trong kho.
+   * Nhãn lấy từ `spec`, kho chữ không khai lại — nên nó không thể lệch. Ca này gác rằng phép ghép
+   * ấy không bị thay bằng một bản sao trong kho.
+   *
+   * Mộ chí: cờ Nâng cao của từng ô (và ca "đúng 11 ô mang cờ Nâng cao") bỏ ngày 05/11/2026 cùng
+   * dấu "Nâng cao" nó bật — lý do ở `vi.ts`, khoá `guide.input.advancedField`.
    */
-  it('nhãn ô và cờ Nâng cao là bản thật của Registry, không phải bản sao', () => {
+  it('nhãn ô là bản thật của Registry, không phải bản sao', () => {
     for (const formula of FORMULA_MODULES) {
       const bai = baiHuongDan(formula, CTX);
       for (const bien of formula.spec.variables) {
         if (isLaterRepeatSlot(formula.spec, bien.key)) continue;
         const o = bai.rieng?.oNhap.find((item) => item.key === bien.key);
         expect(o?.nhan, `${formula.spec.id}.${bien.key}`).toEqual(bien.label);
-        expect(o?.nangCao, `${formula.spec.id}.${bien.key}`).toBe(bien.level === 'advanced');
       }
     }
-  });
-
-  /*
-   * 11/268 ô chỉ hiện ở chế độ Nâng cao — con số này ghim để dấu trong bài không lặng lẽ lệch.
-   *
-   * Từ 12 xuống 11 ngày 06/10/2026: bỏ ô `guess` của `xirr`, một thanh trượt mức Nâng cao không
-   * đổi được kết quả ở bất kỳ giá trị nào.
-   */
-  it('đúng 11 ô mang cờ Nâng cao', () => {
-    const nangCao = BAI.flatMap((bai) =>
-      (bai.rieng?.oNhap ?? []).filter((o) => o.nangCao).map((o) => `${bai.id}.${o.key}`),
-    );
-    expect(nangCao).toHaveLength(11);
   });
 });

@@ -232,7 +232,6 @@ export interface KeHoachTrucLap {
   ten: Bilingual;
   /** Tên ô nhập, `{n}` ở chỗ số thứ tự nhóm: 'Tiền mua đợt {n}'. */
   truc: Bilingual;
-  nangCao: boolean;
   /**
    * Dạng phụ thuộc số liệu, mượn từ ô CÙNG MẪU của nhóm đầu (`amount1` cho `amount`): ô nhóm thêm
    * là bản sao của ô ấy, cùng đơn vị, cùng vai trong phép tính.
@@ -315,8 +314,7 @@ export interface KhoiBieuDoBai {
   thanh?: Bilingual;
   /** Đoạn của hình bóc tách ở dạng Vành khuyên — chỉ năm công thức có. */
   vanhKhuyen?: Bilingual;
-  /** Mục này chỉ có trong ô chọn ở chế độ Nâng cao. */
-  nangCao: boolean;
+  // Mộ chí: `nangCao` (in dấu "Nâng cao" cạnh tên hình) bỏ 05/11/2026 — lý do ở `vi.ts`.
   /** Hình chỉ vẽ được sau khi đã nạp mã cổ phiếu hoặc chuỗi giá. */
   canChuoi: boolean;
 }
@@ -349,7 +347,6 @@ export interface KhoiLapBai {
   diem?: Bilingual;
   bac?: Bilingual;
   laiLo?: Bilingual;
-  nangCao: boolean;
 }
 
 /**

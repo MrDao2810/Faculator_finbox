@@ -293,20 +293,8 @@ function HangONhap({
     <div className={styles.fieldRow}>
       <dt className={styles.fieldLabel}>
         {nhanO === undefined ? <Pick value={o.nhan} /> : nhanO(o)}
-        {/*
-          Dấu Nâng cao chỉ in ở 12/269 ô, và nó là NGOẠI LỆ DUY NHẤT của luật "chỉ chữ trong file":
-          hai chữ này không có trong `guide-111.json`.
-
-          Giữ nó có chủ ý, và lý do là một lỗi đã trả giá: thiếu dấu ấy thì bài kê một ô mà người
-          đọc ở chế độ Cơ bản không tìm thấy trên màn — đúng hình dạng của lỗi đợt 5 (bài dạy 38
-          công thức bấm nút "Nạp mẫu" không có trên màn của họ). Nó cũng không phải một CÂU: nó là
-          một nhãn trạng thái cạnh tên ô, cùng loại với thẻ "Cơ bản" ở tiêu đề màn tính.
-        */}
-        {o.nangCao && (
-          <span className={styles.fieldAdvanced}>
-            <T k="guide.input.advancedField" />
-          </span>
-        )}
+        {/* Mộ chí: dấu "Nâng cao" cạnh tên ô bỏ ngày 05/11/2026 — lý do ở `vi.ts`, khoá
+            `guide.input.advancedField`. */}
       </dt>
       <dd className={styles.fieldWhere}>
         <Pick value={dien(o.layODau)} />
@@ -429,13 +417,7 @@ function KhoiBieuDo({
             <h3 className={styles.blockLabel}>
               <Pick value={mot.ten} />
             </h3>
-            {/* Cùng dấu, cùng lý do với ô nhập ở mục "Lấy số liệu ở đâu": mục này của ô chọn chỉ
-                có ở chế độ Nâng cao, và bài không được kê một lựa chọn người đọc không tìm thấy. */}
-            {mot.nangCao && (
-              <span className={styles.fieldAdvanced}>
-                <T k="guide.input.advancedField" />
-              </span>
-            )}
+            {/* Mộ chí: dấu "Nâng cao" cạnh tên hình bỏ cùng dấu cạnh tên ô, 05/11/2026. */}
           </summary>
           <div className={styles.chartBody}>
             <NoiDungHinh khoi={mot} dang={undefined} chuaVe />

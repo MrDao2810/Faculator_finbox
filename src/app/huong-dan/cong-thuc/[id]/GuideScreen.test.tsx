@@ -173,28 +173,31 @@ describe('GuideScreen', () => {
   });
 
   /*
-   * 12 trong 269 ô chỉ hiện ở chế độ Nâng cao, và bài phải nói ra điều đó NGAY CẠNH tên ô.
+   * Dấu "Nâng cao" cạnh tên ô bỏ ngày 05/11/2026 (chủ dự án: _"bỏ cái chú thích nâng cao đó đi, tôi
+   * thấy nó vô ích vô dụng lắm"_, mộ chí `guide.input.advancedField` ở `vi.ts`). Ca ĐẢO chứ không
+   * xoá: dấu ấy quay lại phải là một quyết định, không phải một lần sơ ý.
    *
-   * Thiếu dấu ấy thì bài chỉ vào một ô mà người đọc ở chế độ Cơ bản không tìm thấy trên màn — đúng
-   * lỗi đợt 5 đã trả giá một lần với "Nạp mẫu" (bài kê nút ấy cho cả 111 công thức trong khi 38
-   * công thức không bày nó).
-   *
-   * Lấy `eps-co-ban` làm mẫu vì nó phân biệt được hai chiều trong MỘT màn: ba ô, và đúng một ô
-   * (`preferredDividend`) là Nâng cao. Một công thức mà cả hai ô đều Nâng cao, như
-   * `do-lech-chuan-ban-phan`, sẽ xanh cả khi dấu bị in cho mọi ô.
+   * Hai màn: `don-bay-tong-hop`, nơi chủ dự án khoanh nó (công thức Nâng cao, ô Lãi vay Nâng cao), và
+   * `eps-co-ban` (công thức Cơ bản, đúng một ô Nâng cao) — dấu không còn ở cả hai kiểu.
    */
-  it('ô chỉ hiện ở chế độ Nâng cao mang dấu riêng cạnh tên', () => {
-    dungMan('eps-co-ban');
+  it('tên ô không mang dấu "Nâng cao", kể cả ô chỉ hiện ở chế độ Nâng cao', () => {
+    for (const [id, soO, oNangCao] of [
+      ['don-bay-tong-hop', 4, 'Lãi vay (I)'],
+      ['eps-co-ban', 3, 'Cổ tức ưu đãi'],
+    ] as const) {
+      const { unmount } = dungMan(id);
 
-    const khoi = screen.getByRole('heading', { name: 'Lấy số liệu ở đâu' }).parentElement;
-    const ten = [...(khoi?.querySelectorAll('dt') ?? [])];
-    expect(ten).toHaveLength(3);
+      const khoi = screen.getByRole('heading', { name: 'Lấy số liệu ở đâu' }).parentElement;
+      const ten = [...(khoi?.querySelectorAll('dt') ?? [])].map((dt) => dt.textContent?.trim());
+      expect(ten, id).toHaveLength(soO);
+      expect(ten, id).toContain(oNangCao);
+      expect(
+        ten.filter((chu) => chu?.includes('Nâng cao') === true),
+        id,
+      ).toEqual([]);
 
-    const coDau = ten
-      .filter((dt) => dt.textContent?.includes('Nâng cao') === true)
-      .map((dt) => dt.textContent?.replace('Nâng cao', '').trim());
-
-    expect(coDau).toEqual(['Cổ tức ưu đãi']);
+      unmount();
+    }
   });
 
   /*
@@ -348,22 +351,21 @@ describe('GuideScreen', () => {
   });
 
   /*
-   * Ô nhập chỉ hiện ở chế độ Nâng cao thì mục của nó trong ô chọn cũng chỉ có ở chế độ ấy — hình ấy
-   * mang cùng dấu "Nâng cao" với ô nhập ở mục "Lấy số liệu ở đâu", vì cùng một lý do: bài không
-   * được kê một lựa chọn mà người đọc ở chế độ Cơ bản không tìm thấy trên màn.
+   * Dấu "Nâng cao" cạnh tên hình của ô nhập Nâng cao bỏ cùng dấu cạnh tên ô, 05/11/2026 (mộ chí
+   * `guide.input.advancedField` ở `vi.ts`). Ca ĐẢO: hình của ô Cổ tức ưu đãi vẫn được kê, chỉ không
+   * còn dấu.
    */
-  it('hình của ô nhập Nâng cao mang dấu Nâng cao cạnh tên', () => {
+  it('hình của ô nhập Nâng cao không mang dấu "Nâng cao" cạnh tên', () => {
     dungMan('eps-co-ban');
 
-    const muc = [...document.querySelectorAll('#doc-bieu-do details')].map((mot) => ({
-      ten: mot.querySelector('summary h3')?.textContent ?? '',
-      nangCao: mot.querySelector('summary')?.textContent?.includes('Nâng cao') ?? false,
-    }));
+    const muc = [...document.querySelectorAll('#doc-bieu-do details')].map(
+      (mot) => mot.querySelector('summary')?.textContent ?? '',
+    );
 
     expect(muc).toEqual([
-      { ten: 'EPS cơ bản theo Lợi nhuận sau thuế (LNST)', nangCao: false },
-      { ten: 'EPS cơ bản theo Cổ tức ưu đãi', nangCao: true },
-      { ten: 'EPS cơ bản theo Số cổ phiếu lưu hành', nangCao: false },
+      'EPS cơ bản theo Lợi nhuận sau thuế (LNST)',
+      'EPS cơ bản theo Cổ tức ưu đãi',
+      'EPS cơ bản theo Số cổ phiếu lưu hành',
     ]);
   });
 

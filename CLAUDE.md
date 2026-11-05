@@ -3880,9 +3880,19 @@ in this round; without them, picking "Khối lượng" would show either nothing
   values that quoted an on-screen label — so the i18n canary "có ít nhất một đoạn bài đang trích nhãn màn
   hình" was retired with a tombstone; the scan itself stays and currently has nothing to scan.
 - **The full page (`/huong-dan/cong-thuc/<id>/`) has no chart on screen to filter by**, so it lists every
-  chart as a `<details>`, name in the `<summary>` (still an `<h3>`), the opening chart open, an "Nâng cao"
-  tag on Advanced-only entries. Printing them all flat would rebuild the long box the owner had just
-  rejected, only longer — up to six charts a formula now.
+  chart as a `<details>`, name in the `<summary>` (still an `<h3>`), the opening chart open. Printing them
+  all flat would rebuild the long box the owner had just rejected, only longer — up to six charts a formula
+  now.
+- **The guide prints no "Nâng cao" tag anywhere** (05/11/2026). It stood beside the name of the 11
+  Advanced-level input fields in "Lấy số liệu ở đâu" (popover and full page) and beside their charts on the
+  full page, so a Basic-mode reader would know the field was not on their screen. The owner circled it on
+  `don-bay-tong-hop`'s Lãi vay (_"đây là công thức nâng cao rồi sao lại có cái này ?"_), then: _"bỏ cái chú
+  thích nâng cao đó đi, tôi thấy nó vô ích vô dụng lắm"_. Measured: 8 of the 11 fields belong to formulas
+  that are Advanced themselves (hidden from the list and search in Basic mode), and in Advanced mode every
+  field is on screen. Gone: `guide.input.advancedField`, `.fieldAdvanced`, `ONhapHuongDan.nangCao` and the
+  chart blocks' `nangCao` (tombstone in `vi.ts`). `KeHoachTruc.nangCao` stays: `bieu-do.test.ts` counts the
+  10 Advanced-only axes with it. Two cases in `GuideScreen.test.tsx` were inverted. Do not rebuild it without
+  asking.
 - Clicking the picker or the Line/Bars buttons closes the popover first (outside click), so the usual path
   is pick → reopen. A keyboard user can change the chart with the popover open; the placement effect lists
   `hinh` as a dependency for that, because new text is a new height.

@@ -2303,16 +2303,16 @@ export const vi = {
    * LOẠI hình công thức này đang vẽ. Đừng gộp cặp ấy theo.
    */
   /*
-   * Dấu in cạnh tên của 12/269 ô chỉ hiện ở chế độ Nâng cao — NGOẠI LỆ DUY NHẤT của luật "chỉ chữ
-   * trong file chủ dự án giao".
+   * Mộ chí: `guide.input.advancedField` ('Nâng cao') bỏ ngày 05/11/2026, cùng lớp `.fieldAdvanced`.
    *
-   * Hai chữ, không thành câu: nó là một THẺ cạnh tên ô, cùng loại với thẻ "Cơ bản" ở tiêu đề màn
-   * tính, không phải một lời giải thích. Giữ nó vì thiếu nó thì bài kê một ô mà người đọc ở chế độ
-   * Cơ bản không tìm thấy trên màn — đúng hình dạng lỗi đợt 5 đã trả giá với nút "Nạp mẫu".
-   *
-   * Câu giải thích dài (`guide.input.advanced`, kèm hai link đổi chế độ) đã bỏ cùng 35 khoá kia.
+   * Nó là thẻ in cạnh tên 11 ô nhập cấp Nâng cao trong khung "Lấy số liệu ở đâu", và cạnh tên hình
+   * của các ô ấy ở trang hướng dẫn đầy đủ, để người đọc ở chế độ Cơ bản biết ô đó không có trên màn
+   * của họ. Chủ dự án khoanh nó ở `don-bay-tong-hop`: _"tại sao lại có chú thích nâng cao ở đây ? …
+   * đây là công thức nâng cao rồi sao lại có cái này ?"_, rồi _"bỏ cái chú thích nâng cao đó đi, tôi
+   * thấy nó vô ích vô dụng lắm"_. Đo ngày ấy: 8 trong 11 ô thuộc công thức tự nó đã là Nâng cao, mà
+   * danh sách và ô tìm ở chế độ Cơ bản không bày công thức nâng cao; ở chế độ Nâng cao thì ô nào
+   * cũng có trên màn, nên thẻ không nói được gì. Đừng dựng lại khi chưa hỏi.
    */
-  'guide.input.advancedField': 'Nâng cao',
 
   /* Nhãn mở đầu dòng 'Dễ sai' — ĐÚNG MỘT lỗi, luật của chính tài liệu. */
   'guide.result.pitfall': 'Dễ sai:',

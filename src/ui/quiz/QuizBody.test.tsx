@@ -1357,6 +1357,28 @@ describe('đề bài và bảng số liệu chung một khối, đề trước b
     expect(nhom.querySelector('legend')).toBeNull();
   });
 
+  /*
+   * 06/11/2026, chủ dự án khoanh "4 / năm" trong bảng số liệu câu CAGR: đơn vị rơi xuống dòng dưới số.
+   * Giá trị ngắn mang `data-ngan` (CSS giữ ô không bị bóp), số và đơn vị nối bằng dấu cách không ngắt.
+   */
+  it('ô giá trị: giá trị ngắn mang data-ngan, số và đơn vị không có chỗ ngắt', () => {
+    const DAI = 'Nhân với căn bậc hai của số kỳ trong năm (ở đây là căn 12, vì dùng dữ liệu tháng)';
+    batDau([
+      {
+        ...cau('Q001'),
+        facts: [
+          { label: { vi: 'Số cột năm trong bảng' }, value: { vi: '4 năm' } },
+          { label: { vi: 'Cách quy năm' }, value: { vi: DAI } },
+        ],
+      },
+    ]);
+    const ngan = screen.getByText('Số cột năm trong bảng').nextElementSibling;
+    expect(ngan?.hasAttribute('data-ngan')).toBe(true);
+    expect(ngan?.textContent).toBe(`4${String.fromCharCode(0xa0)}năm`);
+    const dai = screen.getByText('Cách quy năm').nextElementSibling;
+    expect(dai?.hasAttribute('data-ngan')).toBe(false);
+  });
+
   it('câu không có bảng giữ nguyên: đề là legend của nhóm đáp án', () => {
     batDau([cau('Q001')]);
     const nhom = screen.getByRole('group', { name: 'Đề bài Q001' });

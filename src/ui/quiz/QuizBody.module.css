@@ -222,6 +222,23 @@ dialog.dialog > div {
 }
 
 /*
+ * Ô của giá trị NGẮN không bị bóp (06/11/2026). Chủ dự án khoanh "4 / năm" và "3 / năm" trong bảng số
+ * liệu câu CAGR trên điện thoại: _"điều chỉnh lại những phần như này sao cho Năm không bị xuống dòng và
+ * phải cùng dòng với số liệu bên trái"_. Hàng là flex `space-between`, nhãn dài thì trình duyệt co CẢ hai
+ * ô theo tỉ lệ, nên giá trị gãy ở dấu cách. Đổ cả kho 1.284 cặp nhãn và giá trị vào bảng thật trên
+ * Chrome: 382 giá trị ngắn gãy dòng ở 360px, 290 ở 390px, 236 ở 768px (bảng co vừa khít chữ cạnh đề).
+ *
+ * `data-ngan` (đặt từ dữ liệu, `laGiaTriNgan()`, tới 24 ký tự) giữ ô đúng bề ngang chữ, nhãn nhường chỗ
+ * và xuống dòng. Không `nowrap` mọi ô và không trần phần trăm: giá trị dài tới 100 ký tự phải được xuống
+ * dòng, và trần 60% của một hàng co vừa khít chữ (từ 768px) cắt mất chỗ của chính giá trị (đo: 11 giá trị
+ * gãy, ở hàng nhãn rất ngắn như "Debt"). Trong lưới từ 1024px `flex-shrink` không có tác dụng: hai cột
+ * `auto` ở đó vốn không bóp giá trị ngắn (đo: 0). Ở mọi khổ, `giuSoVoiDonVi()` nối số với đơn vị.
+ */
+.fact dd[data-ngan] {
+  flex-shrink: 0;
+}
+
+/*
  * Từ 1024px: bảng hai cột co theo chữ, giá trị đứng NGAY sau cột nhãn (26/10/2026). Chủ dự án khoanh
  * bảng số liệu của câu điền số trên `bien-an-toan` ở máy tính — "Giá trị nội tại ước tính" ở mép trái,
  * "50.000 ₫" ở mép phải, một khoảng trống cả nghìn pixel giữa hai thứ: _"không gian bị thừa quá

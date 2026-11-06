@@ -4,6 +4,61 @@ Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 
 ---
 
+## CAGR: ô Số năm thành ô nhập, nhận số năm lẻ (06/11/2026)
+
+**Trạng thái: CHƯA XONG — đã sửa, test xanh, chờ chủ dự án xác nhận.** Chủ dự án khoanh thanh trượt "Số năm (t)"
+(1–50, bước 1) cạnh ghi chú _"CAGR chỉ cho nhập số năm nguyên, trong khi ví dụ mẫu dùng 9,12 năm"_: _"không thể
+để thành thanh slide được, vì có thể năm là 9,12 hoặc tương tự … cần thay đổi thành ô nhập"_. Lối gõ số vào thanh
+trượt đã tắt từ trước (`GO_SO_TRUC_TIEP`), nên thanh trượt chỉ dừng ở nấc của nó.
+
+- `src/core/formulas/returns.ts`: `years` thành `numberVar` (min 0, max 100, `step: 0,01`), mô tả thêm câu "Chặng
+  không tròn năm thì nhập số lẻ: 9 năm 1 tháng 13 ngày là 9,12 năm". Câu sửa của cảnh báo "Nhập ít nhất 1 năm" thành
+  "Nhập số năm lớn hơn 0" (0,5 năm giờ hợp lệ). Thêm hai ca: 0,5 năm tăng 10% ra 21%/năm; 0 năm báo chia cho 0.
+- `formulas/shared.ts`: `NumberVarOptions` nhận `step`. Ô số không bám nấc; nấc chỉ báo cho biểu đồ biết ô không
+  đếm năm tròn.
+- `huong-dan/bieu-do/ke-hoach.ts`: luật tĩnh mời Bậc thang chỉ cho ô đếm có nấc NGUYÊN. Không có nó, gõ 40 năm
+  (trục 20–60, cách nhau đúng một năm) thì màn mời một cầu thang giả. Đã thử siết luật chung ở `dang-ve.ts` cho mọi
+  ô số không nấc, nhưng bỏ vì kéo theo 4 công thức không được hỏi, trong đó `do-bien-dong-nam-hoa` tự làm tròn số
+  phiên nên Bậc thang ở đó là đúng.
+- `huong-dan/bieu-do/noi-dung/loi-suat.ts`: bỏ đoạn Bậc thang của trục Số năm; đoạn Đường, Cột, Điểm bỏ "mỗi
+  điểm cách nhau một năm" / "ô này nhận số năm tròn".
+- `src/core/format.ts`: `'năm'` rời `WHOLE_COUNT_UNITS`, để `9,125` gõ ở giao diện EN là 9,125 năm. Thêm một ca.
+- Số ghim: `dang-ve.test.ts` Bậc thang 23 → 22, 104 → 103; `bieu-do.test.ts` trucBac 71 → 70.
+- Kiểm: toàn bộ test xanh (core, application, data, ui, app); typecheck, lint, prettier sạch;
+  `summaries.generated.ts` không đổi. Chrome thật trên dev :3000: gõ 10.000 / 33.913 / 9,12 ra 14,33%, khớp ví dụ
+  VESAF; ô cao bằng hai ô tiền ở 1440, trải hết hàng ở 390, không cuộn ngang. Trục mặc định của biểu đồ không đổi
+  (Giá trị cuối kỳ).
+
+**Còn lại, chờ chủ dự án quyết:** 14 ô thanh trượt ở 13 công thức có ví dụ của chính nó nằm lệch nấc, cùng loại lỗi
+này: lãi suất 4,57% / 8,13% / 10,87% / 11,92% trên nấc 0,1 (`capm` hai ô, `mo-hinh-gordon`, `ddm-hai-giai-doan`,
+`wacc`, `gia-tri-noi-tai-fcff`, `ty-so-sharpe`, `ty-so-sortino`, `ty-so-treynor`, `gia-ly-thuyet-vn30f`), và 55 / 71
+phiên trên nấc 10 phiên (`sut-giam-sau-nhat`, `sut-giam-hien-tai`, `var-lich-su`, `cvar-lich-su`). Các thanh trượt
+năm khác (`lai-kep`, PV, FV, ba công thức vay, tổng lợi suất tái đầu tư) chưa đổi. Ngoài phạm vi: cảnh báo hydration
+lệch `id` của ô nhập (`useId`) có trên mọi trang công thức ở dev, cả `pe`, có từ trước.
+
+---
+
+## Bảng số liệu của Bài tập: đơn vị không rơi xuống dòng dưới số (06/11/2026)
+
+**Trạng thái: CHƯA XONG — đã sửa, test xanh, chờ chủ dự án xác nhận.** Chủ dự án khoanh "4 / năm" và
+"3 / năm" trong bảng số liệu câu CAGR trên điện thoại: _"điều chỉnh lại những phần như này sao cho Năm không bị
+xuống dòng và phải cùng dòng với số liệu bên trái"_. Nguyên nhân: hàng là flex `space-between`, nhãn dài thì
+trình duyệt co cả hai ô theo tỉ lệ, giá trị gãy ở dấu cách.
+
+- `src/ui/quiz/giu-don-vi.ts` (mới): `laGiaTriNgan()` (tới 24 ký tự) và `giuSoVoiDonVi()` (nối số với đơn vị
+  bằng dấu cách không ngắt: "4 năm", "600.000.000 ₫", "71.150,89 tỷ đồng", "VND 71,150.89 billion").
+- `QuizQuestion.tsx`: ô giá trị mang `data-ngan` khi ngắn, chữ đi qua `giuSoVoiDonVi()`.
+- `QuizBody.module.css`: `.fact dd[data-ngan] { flex-shrink: 0 }`. Không `nowrap` mọi ô (giá trị dài tới 100 ký
+  tự phải xuống dòng), không trần phần trăm (thử trần 60%: từ 768px bảng co vừa khít chữ cạnh đề, trần cắt
+  mất chỗ của chính giá trị, 11 giá trị gãy).
+- Test: `giu-don-vi.test.ts` (mới), một ca trong `QuizBody.test.tsx`, một ca CSS trong `quiz-desktop-css.test.ts`.
+- Đo trên Chrome thật (dev :3000), đổ cả kho 1.284 cặp nhãn và giá trị vào bảng: giá trị ngắn gãy dòng trước
+  382 / 290 / 236 / 113 ở 360 / 390 / 768 / 900px, nay 0 ở cả 360, 390, 768, 900, 1024, 1440; không hàng nào
+  tràn khung. Câu CAGR trong ảnh: trên Chrome của script không tái hiện được lỗi (phông và khổ màn khác máy của
+  chủ dự án); cần chủ dự án xem lại trên máy mình.
+
+---
+
 ## Chế độ EN: dịch sát nghĩa cho người nước ngoài (06/11/2026)
 
 **Trạng thái: CHƯA XONG — đã sửa, test xanh, chờ chủ dự án xác nhận.** Chủ dự án, sau báo cáo của lượt 05/11:

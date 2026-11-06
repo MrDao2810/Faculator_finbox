@@ -315,9 +315,12 @@ function trucTu(
    * Hai dạng phụ thuộc số liệu: dạng của chính bộ số mặc định, cộng mọi bộ số dò được. Bậc thang còn
    * có luật tĩnh — ô ĐẾM kỳ (năm, tháng, kỳ, phiên, ngày) mời Bậc thang mỗi khi dải trên trục đủ hẹp
    * để các mức cách nhau đúng một bước, mà người dùng gõ một con số nhỏ là dải hẹp lại.
+   *
+   * Chỉ ô đếm theo đơn vị NGUYÊN: ô khai nấc lẻ (Số năm của CAGR, nấc 0,01 năm từ 06/11/2026) thì
+   * giữa hai mức luôn còn số để tính, và `laTrucRoiRac()` không bao giờ mời Bậc thang ở đó.
    */
   const dangGoc = dangCua(model, formula);
-  const dem = laDonViDem(bien.unit);
+  const dem = laDonViDem(bien.unit) && Number.isInteger(bien.step ?? 1);
   const qua =
     hinh === undefined
       ? { daoChieu: false, ...doTrenChuoi(formula, inputs, ctx, bien.key) }

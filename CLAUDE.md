@@ -1623,7 +1623,8 @@ at all):
 - **Đường, Cột** as before (Cột only for a single series). **Điểm**: one dot per computed level, no line,
   no area band; every line chart.
 - **Bậc thang** (`stepPath()`): only on a DISCRETE axis — the time axis; an input whose unit counts periods
-  (`năm`, `tháng`, `kỳ`, `phiên`, `ngày`) swept on its FULL step grid; or a result that rounds itself into
+  (`năm`, `tháng`, `kỳ`, `phiên`, `ngày`) swept on its FULL step grid, and only when that step is a whole unit (CAGR's
+  Số năm, a number field with a 0,01 step since 06/11/2026, never gets one); or a result that rounds itself into
   steps (`so-hop-dong-toi-da`, `co-vi-the-phai-sinh`, `so-ky-dca`). The first build asked "are the x values
   integers" and offered steps on P/E against a 46.000–138.000 ₫ price axis; never go back to that test.
 - **Candle colours** (22/10/2026): both candle bodies were softened at the owner's request ("nhạt dịu hơn", they found
@@ -1890,9 +1891,9 @@ trên"_. Two rules, all five chart kinds with a horizontal axis (line, columns, 
   sweep, columns, histogram, scatter, breakdown and drawdown charts: nothing clipped, no title touching a tick.
 
 Measured over the Registry (`dang-ve.test.ts` pins it): with no series, 257 drawable charts — Đường/Cột/Điểm
-211 (Cột 224 with the 13 column charts that need no series), Bậc thang 23, Lãi/lỗ 27, Vành khuyên 27 (5
+211 (Cột 224 with the 13 column charts that need no series), Bậc thang 22, Lãi/lỗ 27, Vành khuyên 27 (5
 breakdowns and 22 compositions); with FPT's 250 sessions and the real VN-Index 384 charts (Đường 321, Cột 340, Điểm
-316), Bậc thang 104 and Lãi/lỗ 46, Nến 5, Thang đo 3. The first form of every chart is the old default (a composition opens as Vành khuyên), so nothing changes until the user picks. The "?" popover
+316), Bậc thang 103 and Lãi/lỗ 46, Nến 5, Thang đo 3. The first form of every chart is the old default (a composition opens as Vành khuyên), so nothing changes until the user picks. The "?" popover
 is told the form actually drawn (`DANG_DOC` in `ChartBody`) and prints that form's own paragraph since 03/11/2026;
 until then it was told `dang: 'duong'` for Nến, Điểm, Bậc thang and Lãi/lỗ and kept the breakdown paragraph for the
 donut, which the owner reported as a bug. **Below 1024px the control row is ONE 30px line, label left, selects right**
@@ -2289,6 +2290,22 @@ legend _meaning_ grew a clause). The sweep also surfaced a gate the owner-facing
 `how-to.test.ts` requires **every** `spec.symbols` row, not just derived ones, to be classified — either an
 `entries[].symbol` or a `skipped` key — so a brand-new raw-input row needs a one-line
 `skipped: { n: 'nhap-tho' }` addition even though it will never carry a panel.
+
+**A span measured between two dates is a number field, not a slider** (06/11/2026). The owner circled CAGR's "Số năm
+(t)" slider (1 to 50, step 1) beside the note _"CAGR chỉ cho nhập số năm nguyên, trong khi ví dụ mẫu dùng 9,12 năm"_,
+then: _"slider thì làm sao mà thể hiện hết được. cần thay đổi thành ô nhập"_. Typing into a slider's figure has been
+off since the owner's own test (`GO_SO_TRUC_TIEP` in `SliderInput.tsx`), so a slider only stops on its grid, and the
+example's 9,12 years (VESAF, 18/04/2017 to 31/05/2026) could not be entered. `years` is now `numberVar` with min 0, max
+100 and `step: 0,01`. The step rounds nothing (only sliders snap); it tells the chart the field is not a whole count,
+because `ke-hoach.ts` invites Bậc thang only on count fields with an integer step, and without it 40 years (axis 20
+to 60, one year apart) made the screen offer a false staircase. Its Bậc thang paragraph went, the Đường / Cột / Điểm
+ones no longer say "one point per year". `calc`'s fix line now asks for more than 0 years, not at least 1. `'năm'`
+left `WHOLE_COUNT_UNITS` (`format.ts`), so `9,125` typed in English mode is 9,125 years, not 9.125. The default chart
+axis did not move (still the ending value). Not changed, listed to the owner instead: 14 slider fields in 13 formulas whose
+OWN example sits off the grid (rates such as 4,57 % or 11,92 % on 0,1 steps in `capm`, `mo-hinh-gordon`, `ddm-hai-giai-doan`,
+`wacc`, `gia-tri-noi-tai-fcff`, `ty-so-sharpe`, `ty-so-sortino`, `ty-so-treynor`, `gia-ly-thuyet-vn30f`, and 55 or 71
+sessions on 10-session steps in both drawdowns, VaR and CVaR), and the other year sliders (`lai-kep`, PV, FV, the
+loans, total return with reinvestment).
 
 **No input may be a control that cannot change anything** (06/10/2026). The owner dragged `xirr`'s
 "Suất sinh lợi khởi điểm" slider and asked why nothing around it moved. A sweep of all 269 inputs —
@@ -3187,7 +3204,15 @@ columns (`minmax(0, 1fr) fit-content(50%)`, top-aligned, the table never wider t
 stacked prompt-then-table. A multiple-choice question with `facts` therefore has NO `<legend>` (a legend
 cannot sit beside something outside its `<fieldset>`): the prompt is a `<p>` and the fieldset is named by
 `aria-labelledby`; questions without `facts` keep the legend. The id comes from `namePrefix`, never
-`useId()`. Pinned in `QuizBody.test.tsx` and `quiz-desktop-css.test.ts`.
+`useId()`. Pinned in `QuizBody.test.tsx` and `quiz-desktop-css.test.ts`. **A unit never drops below its number in
+that table** (06/11/2026, owner circling "4 / năm" on a phone): below 1024px a row is a flex `space-between`, and a long
+label made the browser shrink BOTH cells, so a value broke at its space (measured over the whole bank, 1.284 pairs, in
+Chrome: 382 short values broken at 360px, 236 at 768px, 113 at 900px). A value up to 24 characters carries `data-ngan`
+(`laGiaTriNgan()` in `src/ui/quiz/giu-don-vi.ts`, decided from the data so the static HTML matches) and its cell does
+not shrink (`flex-shrink: 0`); `giuSoVoiDonVi()` joins a number and its unit with a no-break space at every width. Not
+`nowrap` on every cell (values run to 100 characters) and not a percentage cap: a 60% cap was tried and, from 768px
+where the table shrink-wraps beside the prompt, it cut the value's own room (11 breaks on rows with a label like
+"Debt"). After: 0 breaks at 360–1440, no overflow.
 
 **A multi-select question prints no "Câu này có nhiều đáp án đúng — chọn đủ cả." line** (02/11/2026, owner:
 _"đang thừa và chiếm không gian"_; `quiz.pickAll` tombstoned in `vi.ts`). Drop the sentence, keep the behaviour:
@@ -3932,7 +3957,7 @@ easy to break:
   time charts; Vành khuyên wherever a probe makes every breakdown part ≥ 0. Probes: the `luoiGoDuoc()` grid of
   typeable inputs (one field at a time, the same grid as `daoChieu`) for axes drawable at once, and the real FPT,
   STB and VN-Index series plus the formula's own example for series charts. 111 formulas in about 2 s. Measured:
-  Điểm 298, Bậc thang 118, Lãi/lỗ 77, Nến 5, Vành khuyên 9 (507 paragraphs × 2 languages), pinned in
+  Điểm 298, Bậc thang 117, Lãi/lỗ 77, Nến 5, Vành khuyên 9 (506 paragraphs × 2 languages), pinned in
   `bieu-do.test.ts`. A probe is a detector, not a proof.
 - **A drawn form with no paragraph is SILENT, never another form's text**: `khoiDangXem()` returns `undefined` and
   `FormulaDetail` hides the chart's "?" button, the `hinhChuoi` pattern. Only a chart that is not drawn yet falls

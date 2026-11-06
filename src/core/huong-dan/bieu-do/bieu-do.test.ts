@@ -299,8 +299,11 @@ describe.skipIf(CHI.length > 0)('kế hoạch đọc đúng thứ màn tính d�
        * Dạng phụ thuộc số liệu (03/11/2026): Bậc thang ở trục rời rạc, Lãi/lỗ khi một bộ số dò được
        * làm kết quả đổi dấu, Nến ở năm hình mức giá, Vành khuyên khi mọi phần cộng vào tổng. Mỗi số
        * ở đây là số đoạn phải viết; số đổi là có đoạn mới cần chữ, hoặc đoạn cũ thành thừa.
+       *
+       * trucBac 71 → 70 ngày 06/11/2026: Số năm của CAGR thành ô số nấc 0,01 năm, đoạn Bậc thang của nó
+       * bỏ đi vì giữa hai mức luôn còn số năm lẻ để tính.
        */
-      trucBac: 71,
+      trucBac: 70,
       trucLaiLo: 61,
       lapLaiLo: 1,
       thoiGianLaiLo: 17,

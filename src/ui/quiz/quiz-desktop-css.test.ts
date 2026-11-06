@@ -80,6 +80,22 @@ describe('phần chấm điểm của Bài tập từ 1024px', () => {
     expect(CSS.indexOf('.block {')).toBeLessThan(khoi);
   });
 
+  /*
+   * 06/11/2026, chủ dự án khoanh "4 / năm" trong bảng số liệu câu CAGR trên điện thoại: đơn vị không được
+   * rơi xuống dòng dưới số. Ô của giá trị ngắn (`data-ngan`) không bị bóp, ở mọi khổ. Không `nowrap` và
+   * không trần phần trăm: giá trị dài tới 100 ký tự phải xuống dòng, và trần 60% của một hàng co vừa khít
+   * chữ (bảng cạnh đề bài, từ 768px) cắt mất chỗ của chính giá trị (đo trên Chrome: 11 giá trị gãy).
+   */
+  it('ô của giá trị ngắn trong bảng số liệu không bị bóp, ở mọi khổ', () => {
+    const goc = CSS.slice(0, CSS.indexOf('@media'));
+    const ngan = /(?:^|[{}])\s*\.fact dd\[data-ngan\]\s*\{([^}]*)\}/m.exec(goc)?.[1] ?? '';
+    expect(ngan).toMatch(/flex-shrink:\s*0;/);
+    expect(ngan).not.toMatch(/white-space:\s*nowrap/);
+    for (const o of [ngan, /(?:^|[{}])\s*\.fact dd\s*\{([^}]*)\}/m.exec(goc)?.[1] ?? '']) {
+      expect(o).not.toMatch(/max-width:\s*\d+%/);
+    }
+  });
+
   it('khối máy tính của bảng số liệu đứng sau luật gốc `.facts` / `.fact`', () => {
     const khoi = CSS.indexOf('.facts {', CSS.indexOf('.facts {') + 1);
     expect(CSS.indexOf('.facts {')).toBeLessThan(khoi);

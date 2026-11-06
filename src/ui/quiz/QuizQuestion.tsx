@@ -13,6 +13,7 @@ import type { LoiGiaiKyHieu } from '@/ui/result/LoiGiai';
 
 import { CongThucDien } from './CongThucDien';
 import { laDungCua, oDungChua } from './cham';
+import { giuSoVoiDonVi, laGiaTriNgan } from './giu-don-vi';
 import styles from './QuizBody.module.css';
 import { quoteParts } from './quote-parts';
 import { shortUrl } from './short-url';
@@ -240,7 +241,9 @@ export function QuizQuestion({
             {item.facts.map((fact) => (
               <div className={styles.fact} key={fact.label.vi}>
                 <dt>{chu(fact.label)}</dt>
-                <dd>{chu(fact.value)}</dd>
+                <dd {...(laGiaTriNgan(chu(fact.value)) ? { 'data-ngan': '' } : {})}>
+                  {giuSoVoiDonVi(chu(fact.value))}
+                </dd>
               </div>
             ))}
           </dl>

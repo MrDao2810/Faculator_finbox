@@ -284,7 +284,8 @@ describe('cả Registry', () => {
       line: 211,
       bar: 224,
       dots: 211,
-      step: 23,
+      // 23 → 22 ngày 06/11/2026: Số năm của CAGR thành ô số nhận năm lẻ, trục ấy hết Bậc thang.
+      step: 22,
       signArea: 27,
       waterfall: 33,
       donut: 27,
@@ -324,7 +325,7 @@ describe('cả Registry', () => {
       line: 321,
       bar: 340,
       dots: 316,
-      step: 104,
+      step: 103,
       signArea: 46,
       waterfall: 33,
       donut: 27,

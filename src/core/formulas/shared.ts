@@ -170,6 +170,11 @@ export const SOURCE_CORPORATE_FINANCE: FormulaSource = {
 export interface NumberVarOptions {
   min?: number;
   max?: number;
+  /**
+   * Nấc của ô số: KHÔNG làm tròn số gõ vào (chỉ thanh trượt bám nấc), mà nói cho biểu đồ biết ô đếm
+   * theo đơn vị nào. Ô đếm năm, tháng… có nấc lẻ thì trục của nó không mời Bậc thang (`cagr`).
+   */
+  step?: number;
   level?: Level;
   description?: Bilingual;
 }

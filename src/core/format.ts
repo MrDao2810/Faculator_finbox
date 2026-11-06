@@ -242,6 +242,9 @@ function isThousandGrouped(text: string): boolean {
  * ô mang đơn vị này — không ai nhập giá 92,000 ₫ với nghĩa 92 đồng, hay 1,500 cổ phiếu với nghĩa
  * một cổ phiếu rưỡi. `'tỷ ₫'`, `'%'`, `'lần'`, `'điểm'` KHÔNG có ở đây: `0,002 tỷ ₫` hay `1,234 lần`
  * là số lẻ thật.
+ *
+ * `'năm'` rời danh sách ngày 06/11/2026: ô Số năm của CAGR nhận số năm lẻ (9,12 năm), nên `9,125` ở
+ * ô ấy là chín năm và một phần tám, không phải 9.125 năm.
  */
 const WHOLE_COUNT_UNITS: ReadonlySet<string> = new Set([
   '₫',
@@ -252,7 +255,6 @@ const WHOLE_COUNT_UNITS: ReadonlySet<string> = new Set([
   'sản phẩm',
   'ngày',
   'tháng',
-  'năm',
   'kỳ',
   'mã',
   'vòng',

@@ -12,7 +12,7 @@ import { fail, ok } from '../calc-output';
 import type { FormulaModule } from '../calc/types';
 import { xirr, xirrDiem, xirrNotConverged } from '../xirr';
 import { divideByZero } from '../warnings';
-import { SOURCE_CFA, numberVar, sliderVar } from './shared';
+import { SOURCE_CFA, numberVar } from './shared';
 
 /*
  * ── 1. ROI ─────────────────────────────────────────────────────────────────────────────
@@ -382,10 +382,24 @@ export const CAGR: FormulaModule = {
           },
         },
       ),
-      sliderVar('years', { vi: 'Số năm (t)', en: 'Number of years (t)' }, 'năm', 5, 1, 50, 1, {
+      /*
+       * Ô SỐ, không phải thanh trượt (06/11/2026). Chủ dự án khoanh thanh trượt 1–50 bước 1 năm cạnh
+       * ghi chú "CAGR chỉ cho nhập số năm nguyên, trong khi ví dụ mẫu dùng 9,12 năm": chặng tính của
+       * CAGR đi từ ngày tới ngày (VESAF 18/04/2017 → 31/05/2026 là 9,12 năm), nên số năm lẻ là
+       * chuyện thường, và thanh trượt chỉ dừng được ở nấc của nó. `min: 0` để gõ được 0,5 năm; số
+       * 0 thì `calc` báo chia cho 0. Đơn vị 'năm' cũng rời `WHOLE_COUNT_UNITS` (`format.ts`).
+       *
+       * `step: 0,01` không làm tròn gì cả (ô số không bám nấc, chỉ thanh trượt mới bám): nó khai cho
+       * biểu đồ biết ô này KHÔNG đếm năm tròn, nên trục Số năm không bao giờ mời Bậc thang. Không có
+       * nó, gõ 40 năm cho dải 20–60 cách nhau đúng một năm và màn vẽ một cầu thang giả.
+       */
+      numberVar('years', { vi: 'Số năm (t)', en: 'Number of years (t)' }, 'năm', 5, {
+        min: 0,
+        max: 100,
+        step: 0.01,
         description: {
-          vi: 'Độ dài chặng tính, đếm bằng năm, từ mốc giá trị ban đầu tới mốc giá trị cuối kỳ.',
-          en: 'The length of the period measured, in years, from the starting value to the ending value.',
+          vi: 'Độ dài chặng tính, đếm bằng năm, từ mốc giá trị ban đầu tới mốc giá trị cuối kỳ. Chặng không tròn năm thì nhập số lẻ: 9 năm 1 tháng 13 ngày là 9,12 năm.',
+          en: 'The length of the period measured, in years, from the starting value to the ending value. For a period that is not a whole number of years, enter a fraction: 9 years, 1 month and 13 days is 9.12 years.',
         },
       }),
     ],
@@ -409,8 +423,8 @@ export const CAGR: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'Quỹ VESAF: NAV/CCQ từ 10.000 ₫ lên 33.913 ₫ sau 9,12 năm',
-        en: 'The VESAF fund: NAV per unit from 10,000 ₫ to 33,913 ₫ over 9.12 years',
+        vi: 'Quỹ VESAF: NAV/CCQ từ 10.000 ₫ lên 33.913 ₫ sau 9,12 năm (9 năm 1 tháng 13 ngày)',
+        en: 'The VESAF fund: NAV per unit from 10,000 ₫ to 33,913 ₫ over 9.12 years (9 years, 1 month, 13 days)',
       },
       inputs: { start: 10_000, end: 33_913, years: 9.12 },
       expected: 14.3284,
@@ -433,6 +447,18 @@ export const CAGR: FormulaModule = {
         name: 'giảm giá trị thì CAGR âm',
         inputs: { start: 100_000_000, end: 80_000_000, years: 5 },
         expected: -4.36,
+      },
+      {
+        // Chặng tính không tròn năm: nửa năm tăng 10% là 21% một năm, không làm tròn số năm.
+        name: 'số năm lẻ được tính đúng như nhập',
+        inputs: { start: 100_000_000, end: 110_000_000, years: 0.5 },
+        expected: 21,
+      },
+      {
+        name: 'số năm bằng 0 thì không chia đều được cho năm nào',
+        inputs: { start: 100_000_000, end: 200_000_000, years: 0 },
+        expected: null,
+        expectedWarning: 'DIVIDE_BY_ZERO',
       },
       {
         name: 'giá trị ban đầu bằng 0 thì không có tốc độ tăng trưởng',
@@ -473,7 +499,8 @@ export const CAGR: FormulaModule = {
         warning: divideByZero(
           { vi: 'CAGR', en: 'CAGR' },
           { vi: 'Số năm', en: 'number of years' },
-          { vi: 'Nhập ít nhất 1 năm.', en: 'Enter at least 1 year.' },
+          // Ô nhận số năm lẻ từ 06/11/2026, nên 0,5 năm là hợp lệ: chỉ 0 trở xuống mới bị chặn.
+          { vi: 'Nhập số năm lớn hơn 0.', en: 'Enter a number of years greater than 0.' },
         ),
       };
     }

@@ -114,7 +114,7 @@ export const CA_NHAN: ReadonlyArray<QuizItem> = [
     answer: 'd',
     explain: {
       vi: 'Bài trên Thời báo Ngân hàng: ngân hàng “chia đều số tiền cả lãi và gốc trong các năm để đảm bảo số tiền phải trả hàng tháng là khoản tương đối cố định”; có phương án 21 tháng đầu khách hàng “chỉ trả lãi cho khoản vay”, từ tháng 22 mới “trả cả lãi lẫn gốc”.',
-      en: 'A Thời báo Ngân hàng article explains that banks spread principal and interest evenly across the loan term so the monthly payment stays roughly fixed: “chia đều số tiền cả lãi và gốc trong các năm để đảm bảo số tiền phải trả hàng tháng là khoản tương đối cố định”. Under one plan, the customer pays interest only for the first 21 months (“chỉ trả lãi cho khoản vay”) and only starts paying both principal and interest from month 22 (“trả cả lãi lẫn gốc”).',
+      en: 'An article in Thoi bao Ngan hang (Banking Times) explains that banks spread principal and interest evenly across the loan term so the monthly payment stays roughly fixed: “chia đều số tiền cả lãi và gốc trong các năm để đảm bảo số tiền phải trả hàng tháng là khoản tương đối cố định”. Under one plan, the customer pays interest only for the first 21 months (“chỉ trả lãi cho khoản vay”) and only starts paying both principal and interest from month 22 (“trả cả lãi lẫn gốc”).',
     },
     source: {
       url: 'https://thoibaonganhang.vn/nien-kim-co-dinh-don-gian-hoa-bai-toan-tai-chinh-cho-nguoi-mua-nha-84990.html',
@@ -130,7 +130,7 @@ export const CA_NHAN: ReadonlyArray<QuizItem> = [
     evidence: 'ngo-nhan',
     prompt: {
       vi: 'Anh Khôi vay 353 triệu mua xe, năm đầu ưu đãi 8,2%/năm. Sau ưu đãi, lãi suất thả nổi là bao nhiêu?',
-      en: 'Mr. Khôi borrows 353 million to buy a car, with a first-year promotional rate of 8.2%/year. After the promotional period, what does the floating rate become?',
+      en: 'Mr. Khoi borrows 353 million to buy a car, with a first-year promotional rate of 8.2%/year. After the promotional period, what does the floating rate become?',
     },
     choices: {
       a: { vi: 'Khoảng 10%', en: 'About 10%' },
@@ -171,7 +171,7 @@ export const CA_NHAN: ReadonlyArray<QuizItem> = [
     answer: 'b',
     explain: {
       vi: 'Trường hợp chị Nguyễn Huyền (Hà Nội): “mỗi tháng chị phải gánh thêm khoảng 10 triệu đồng tiền lãi phát sinh, nâng tổng số tiền gốc và lãi phải trả hàng tháng từ 30 triệu lên gần 40 triệu đồng” - tăng khoảng một phần ba.',
-      en: 'The case of Ms. Nguyễn Huyền (Hanoi): she now bears an extra roughly 10 million dong of interest each month, raising her total monthly principal-and-interest payment from 30 million to nearly 40 million (“mỗi tháng chị phải gánh thêm khoảng 10 triệu đồng tiền lãi phát sinh, nâng tổng số tiền gốc và lãi phải trả hàng tháng từ 30 triệu lên gần 40 triệu đồng”), a rise of about a third.',
+      en: 'The case of Ms. Nguyen Huyen (Hanoi): she now bears an extra roughly 10 million dong of interest each month, raising her total monthly principal-and-interest payment from 30 million to nearly 40 million (“mỗi tháng chị phải gánh thêm khoảng 10 triệu đồng tiền lãi phát sinh, nâng tổng số tiền gốc và lãi phải trả hàng tháng từ 30 triệu lên gần 40 triệu đồng”), a rise of about a third.',
     },
     source: {
       url: 'https://docnhanh.vn/kinh-te/cu-soc-lai-suat-tha-noi-nguoi-mua-nha-ngop-tho-vi-chi-phi-tra-no-tang-them-ca-chuc-trieu-moi-thang-tintuc1033352',
@@ -281,7 +281,7 @@ export const CA_NHAN: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: { vi: 'Tất toán cả sổ', en: 'Close out the whole account' },
-      b: { vi: 'Vay cầm cố sổ', en: 'Take a loan against the passbook' },
+      b: { vi: 'Vay cầm cố sổ', en: 'Borrow against the deposit' },
       c: {
         vi: 'Rút một phần - phần rút chịu lãi không kỳ hạn, 500 triệu còn lại vẫn hưởng 6%',
         en: 'Make a partial withdrawal - the withdrawn portion earns the demand-deposit rate, while the remaining 500 million still earns 6%',
@@ -338,7 +338,7 @@ export const CA_NHAN: ReadonlyArray<QuizItem> = [
     evidence: 'quy-dinh',
     prompt: {
       vi: 'Bạn lấy lãi suất 12 tháng ngân hàng niêm yết điền vào ô Lãi suất kỳ vọng cho kế hoạch gửi đều hằng tháng. Khoản gửi mỗi tháng mà công thức trả về khi đó thế nào?',
-      en: "You take the bank's posted 12-month rate and type it into the Expected rate field for a plan of equal monthly deposits. What happens to the monthly deposit the formula returns?",
+      en: "You take the bank's posted 12-month rate and type it into the Expected interest rate field for a plan of equal monthly deposits. What happens to the monthly deposit the formula returns?",
     },
     choices: {
       a: {
@@ -361,7 +361,7 @@ export const CA_NHAN: ReadonlyArray<QuizItem> = [
     answer: 'd',
     explain: {
       vi: 'Bà Nguyễn Phương Huyền (Sacombank) nêu rõ chênh lệch này: “So với gửi tiết kiệm thông thường, tiết kiệm gửi góp thường có lãi suất thấp hơn khi gửi cùng kỳ hạn.” Lãi suất nằm ở mẫu số (1+i)^n − 1, nên điền lãi cao hơn thực tế làm mẫu số phình ra và khoản gửi hằng tháng nhỏ đi - kế hoạch trông nhẹ hơn khả năng thật và về đích hụt tiền.',
-      en: 'Nguyễn Phương Huyền of Sacombank states the gap plainly: “So với gửi tiết kiệm thông thường, tiết kiệm gửi góp thường có lãi suất thấp hơn khi gửi cùng kỳ hạn.” The rate sits in the denominator (1+i)^n − 1, so an overstated rate inflates the denominator and shrinks the monthly deposit - the plan looks easier than it is and lands short of the goal.',
+      en: 'Ms. Nguyen Phuong Huyen of Sacombank states the gap plainly: “So với gửi tiết kiệm thông thường, tiết kiệm gửi góp thường có lãi suất thấp hơn khi gửi cùng kỳ hạn.” The rate sits in the denominator (1+i)^n − 1, so an overstated rate inflates the denominator and shrinks the monthly deposit - the plan looks easier than it is and lands short of the goal.',
     },
     source: {
       url: 'https://vnexpress.net/nen-mo-tiet-kiem-gui-gop-hay-gui-thong-thuong-4276935.html',
@@ -377,7 +377,7 @@ export const CA_NHAN: ReadonlyArray<QuizItem> = [
     evidence: 'ngo-nhan',
     prompt: {
       vi: 'Kế hoạch 60 tháng, ô Lãi suất kỳ vọng điền 6%/năm. Giả định nào của công thức dễ hỏng nhất khi gửi tiết kiệm ở Việt Nam?',
-      en: 'A 60-month plan with 6%/year typed into the Expected rate field. Which assumption is the most likely to break for a Vietnamese bank deposit?',
+      en: 'A 60-month plan with 6%/year typed into the Expected interest rate field. Which assumption is the most likely to break for a Vietnamese bank deposit?',
     },
     choices: {
       a: {
@@ -478,7 +478,7 @@ export const CA_NHAN: ReadonlyArray<QuizItem> = [
     answer: 'd',
     explain: {
       vi: 'Số liệu Avison Young Việt Nam trên báo Dân Việt: “Theo phân tích của Avison Young Việt Nam, trong 5 năm qua, giá căn hộ tại Hà Nội tăng khoảng 72%, TP.HCM tăng 50% và Đà Nẵng tăng 34%, trong khi thu nhập bình quân chỉ tăng khoảng 6-10% mỗi năm.” Lãi 6%/năm trong ô Lãi suất kỳ vọng không đuổi kịp mức đó, nên kế hoạch tính đúng đến từng đồng vẫn có thể về đích mà vẫn thiếu tiền mua căn hộ đã nhắm. Muốn dùng công thức cho mục tiêu kiểu này thì phải nâng số tiền mục tiêu theo tốc độ tăng giá dự kiến, chứ không lấy giá hôm nay.',
-      en: "Avison Young Vietnam's figures, reported by Dân Việt: “Theo phân tích của Avison Young Việt Nam, trong 5 năm qua, giá căn hộ tại Hà Nội tăng khoảng 72%, TP.HCM tăng 50% và Đà Nẵng tăng 34%, trong khi thu nhập bình quân chỉ tăng khoảng 6-10% mỗi năm.” A 6%/year expected rate does not keep up with that, so a plan computed to the last dong can still finish short of the apartment it was aimed at. To use the formula for a goal like this, raise the target amount by the expected price growth instead of entering today's price.",
+      en: "Avison Young Vietnam's figures, reported by Dan Viet: “Theo phân tích của Avison Young Việt Nam, trong 5 năm qua, giá căn hộ tại Hà Nội tăng khoảng 72%, TP.HCM tăng 50% và Đà Nẵng tăng 34%, trong khi thu nhập bình quân chỉ tăng khoảng 6-10% mỗi năm.” A 6%/year expected rate does not keep up with that, so a plan computed to the last dong can still finish short of the apartment it was aimed at. To use the formula for a goal like this, raise the target amount by the expected price growth instead of entering today's price.",
     },
     source: {
       url: 'https://danviet.vn/giac-mo-mua-nha-cua-nguoi-tre-can-nhieu-hon-mot-khoan-vay-d1450299.html',
@@ -584,11 +584,11 @@ export const CA_NHAN: ReadonlyArray<QuizItem> = [
     evidence: 'ngo-nhan',
     prompt: {
       vi: 'Sổ tiết kiệm đáo hạn mà bạn không chỉ định gì. Rủi ro của tự động tái tục?',
-      en: 'A savings passbook matures and you give no instructions. What is the risk of automatic rollover?',
+      en: 'A term deposit matures and you give no instructions. What is the risk of automatic rollover?',
     },
     choices: {
       a: { vi: 'Không có rủi ro', en: 'There is no risk' },
-      b: { vi: 'Bị chuyển sang không kỳ hạn', en: 'It gets converted to a no-term deposit' },
+      b: { vi: 'Bị chuyển sang không kỳ hạn', en: 'It gets converted to a demand deposit' },
       c: {
         vi: 'Tiền bị khoá thêm một kỳ, và có nơi tái tục ở lãi suất thấp hơn kỳ ban đầu',
         en: 'The money gets locked up for another term, and some banks roll it over at a lower rate than the original term',

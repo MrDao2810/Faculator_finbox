@@ -1,13 +1,13 @@
 import { FORMULAS } from '@/application';
 import type { Bilingual, FormulaSpec } from '@/application';
-import { howToFor } from '@/application/how-to';
+import { howToFor, latexEn } from '@/application/how-to';
 import type { FormulaHowTo } from '@/application/how-to';
 
 import { segmentExpressionLines } from './expression-segments';
 import type { ExpressionPhrase } from './expression-segments';
 import { latexToInlineMathml, latexToMathml } from './latex-html';
 import { markSymbols } from './mathml-marks';
-import type { NotationHowToView, NotationView } from './notation-types';
+import type { NotationEnView, NotationHowToView, NotationView } from './notation-types';
 
 /**
  * Dựng mọi thứ thẻ Công thức cần, LÚC BUILD — gói WBS 2.4.3 cộng khung "cách tính" (17/09/2026).
@@ -67,6 +67,25 @@ export function buildNotationView(
   }
 
   /*
+   * Bản TIẾNG ANH của mọi hình (05/11/2026) — chữ Việt trong `	ext{}`, chỉ số dưới tiếng Việt
+   * (`P_{mua}`) dịch qua `latexEn()`. Đánh dấu điểm chạm bằng chính bảng ký hiệu đã dịch, nên cùng
+   * ký hiệu nào sáng ở bản Việt thì sáng ở bản Anh; thiếu một chỗ là lỗi dữ liệu, ném như trên.
+   */
+  const en = (latex: string, id: string = spec.id) => latexEn(latex, id);
+  const legendEn = symbols.map((symbol, index) => ({
+    index,
+    renderings: [latexToMathml(en(symbol.latex)), latexToInlineMathml(en(symbol.latex))],
+  }));
+  const markedEn = markSymbols(latexToMathml(en(spec.latex)), legendEn, targets);
+  for (const index of targets) {
+    if ((markedEn.hits.get(index) ?? 0) !== (marked.hits.get(index) ?? 0)) {
+      throw new Error(
+        `notation-view: ${spec.id} hình tiếng Anh không tìm được chỗ của "${symbols[index]?.latex ?? ''}" như hình tiếng Việt`,
+      );
+    }
+  }
+
+  /*
    * Chỉ cụm của dòng CÓ khung (`entries`) là điểm chạm ở dòng chữ — ĐẢO lại 04/11/2026, xem chú
    * thích ở `markSymbols()` trên. Dòng không có khung không còn `skippedPhrases` để khai nữa.
    */
@@ -113,11 +132,39 @@ export function buildNotationView(
     };
   });
 
+  /* HTML từng bước, cùng thứ tự `howToViews` — bước liên kết dịch theo công thức ĐÍCH. */
+  const stepsLatex: string[][] = entries.map((entry) =>
+    entry.kind === 'linked'
+      ? [en(formulaById(spec.id, entry.formulaId).latex, entry.formulaId)]
+      : entry.steps.map((step) => en(step.latex)),
+  );
+  const stepsLatexVi: string[][] = entries.map((entry) =>
+    entry.kind === 'linked'
+      ? [formulaById(spec.id, entry.formulaId).latex]
+      : entry.steps.map((step) => step.latex),
+  );
+  const khacTiengViet =
+    en(spec.latex) !== spec.latex ||
+    symbols.some((symbol) => en(symbol.latex) !== symbol.latex) ||
+    stepsLatex.some((steps, i) => steps.some((latex, j) => latex !== stepsLatexVi[i]?.[j]));
+  /*
+   * Chỉ công thức có chữ Việt trong hình mới mang thêm bản tiếng Anh (59 / 111) — 52 công thức kia
+   * giống hệt, không gửi trùng một lần MathML nữa xuống trang.
+   */
+  const enView: NotationEnView | undefined = khacTiengViet
+    ? {
+        latexHtml: markedEn.html,
+        symbolsHtml: symbols.map((symbol) => latexToInlineMathml(en(symbol.latex))),
+        stepsHtml: stepsLatex.map((steps) => steps.map((latex) => latexToMathml(latex))),
+      }
+    : undefined;
+
   return {
     latexHtml: marked.html,
     symbolsHtml: symbols.map((symbol) => latexToInlineMathml(symbol.latex)),
     expression: { vi: expressionOf('vi'), en: expressionOf('en') },
     howTo: howToViews,
+    ...(enView === undefined ? {} : { en: enView }),
   };
 }
 

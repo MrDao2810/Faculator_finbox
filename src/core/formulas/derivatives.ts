@@ -60,7 +60,7 @@ const indexValue = numberVar(
 
 const futuresPoints = numberVar(
   'futuresPoints',
-  { vi: 'Điểm hợp đồng tương lai', en: 'Futures contract points' },
+  { vi: 'Điểm hợp đồng tương lai', en: 'Futures price' },
   'điểm',
   1_280,
   {
@@ -182,7 +182,7 @@ export const GIA_LY_THUYET_VN30F: FormulaModule = {
           level: 'advanced',
           description: {
             vi: 'Cổ tức tiền mặt bình quân của rổ VN30, tính theo năm.',
-            en: 'Average annualized cash dividend of the VN30 basket.',
+            en: 'Average annual cash dividend yield of the VN30 basket.',
           },
         },
       ),
@@ -311,7 +311,7 @@ export const BASIS_VN30F: FormulaModule = {
   spec: {
     id: 'basis-vn30f',
     categoryId: 'derivatives',
-    name: { vi: 'Basis - chênh giá so với chỉ số', en: 'Futures basis' },
+    name: { vi: 'Basis - chênh giá so với chỉ số', en: 'Basis - futures price minus the index' },
     description: {
       vi: 'Khoảng chênh giữa giá hợp đồng VN30F và chỉ số VN30 cơ sở, tính bằng điểm.',
       en: 'The gap between the VN30F contract price and the underlying VN30 index, in points.',
@@ -319,7 +319,7 @@ export const BASIS_VN30F: FormulaModule = {
     latex: 'Basis = F - S',
     expression: {
       vi: 'Basis = Giá hợp đồng tương lai − Chỉ số cơ sở',
-      en: 'Basis = Futures contract price − Underlying index',
+      en: 'Basis = Futures price − Underlying index',
     },
     substitution: '{futuresPoints} − {indexValue}',
     symbols: [
@@ -327,19 +327,22 @@ export const BASIS_VN30F: FormulaModule = {
         latex: 'Basis',
         meaning: {
           vi: 'chênh giá hợp đồng so với chỉ số cơ sở, điểm',
-          en: 'gap between the contract price and the underlying index, in points',
+          en: 'futures price minus the underlying index, in points',
         },
       },
       {
         latex: 'F',
         meaning: {
           vi: 'giá hợp đồng tương lai đang khớp, điểm',
-          en: 'current matched futures contract price, in points',
+          en: 'latest traded futures price, in points',
         },
       },
       {
         latex: 'S',
-        meaning: { vi: 'chỉ số VN30 hiện tại, điểm', en: 'current VN30 index, in points' },
+        meaning: {
+          vi: 'chỉ số VN30 hiện tại, điểm',
+          en: 'current VN30 index, the underlying, in points',
+        },
       },
     ],
     /*
@@ -349,12 +352,12 @@ export const BASIS_VN30F: FormulaModule = {
      */
     chartType: 'none',
     level: 'basic',
-    tags: ['basis', 'vn30f', 'chenh gia', 'premium', 'discount', 'phai sinh'],
+    tags: ['basis', 'futures basis', 'vn30f', 'chenh gia', 'premium', 'discount', 'phai sinh'],
     resultUnit: 'điểm',
     variables: [
       numberVar(
         'futuresPoints',
-        { vi: 'Giá hợp đồng tương lai (F)', en: 'Futures contract price (F)' },
+        { vi: 'Giá hợp đồng tương lai (F)', en: 'Futures price (F)' },
         'điểm',
         1_285.5,
         {
@@ -362,7 +365,7 @@ export const BASIS_VN30F: FormulaModule = {
           max: 10_000,
           description: {
             vi: 'Giá VN30F đang khớp trên bảng điện.',
-            en: 'Current matched VN30F price on the board.',
+            en: 'Latest traded VN30F price on the price board.',
           },
         },
       ),
@@ -463,7 +466,7 @@ export const LAI_LO_VI_THE_LONG: FormulaModule = {
     latex: 'PnL_{long} = (P_{dong} - P_{mo}) \\times m \\times N',
     expression: {
       vi: 'Lãi/lỗ Long = (Điểm đóng vị thế − Điểm mở vị thế) × Hệ số nhân × Số hợp đồng',
-      en: 'Long P&L = (Closing points − Opening points) × Multiplier × Number of contracts',
+      en: 'Long P&L = (Exit price − Entry price) × Multiplier × Number of contracts',
     },
     /*
      * `{derivative.vn30f.multiplier}` là KHOÁ hằng số chứ không phải một ô nhập: màn tra hệ số nhân
@@ -483,12 +486,12 @@ export const LAI_LO_VI_THE_LONG: FormulaModule = {
         latex: 'P_{dong}',
         meaning: {
           vi: 'điểm đóng vị thế, hoặc giá hiện tại nếu chưa đóng, điểm',
-          en: 'closing points, or the current price if still open',
+          en: 'exit price, or the current price if still open, in points',
         },
       },
       {
         latex: 'P_{mo}',
-        meaning: { vi: 'điểm mở vị thế, điểm', en: 'opening points' },
+        meaning: { vi: 'điểm mở vị thế, điểm', en: 'entry price, in points' },
       },
       {
         latex: 'm',
@@ -510,7 +513,7 @@ export const LAI_LO_VI_THE_LONG: FormulaModule = {
     variables: [
       numberVar(
         'entryPoints',
-        { vi: 'Điểm mở vị thế (Pmo)', en: 'Opening points (Pmo)' },
+        { vi: 'Điểm mở vị thế (Pmo)', en: 'Entry price (Pentry)' },
         'điểm',
         1_280,
         {
@@ -524,7 +527,7 @@ export const LAI_LO_VI_THE_LONG: FormulaModule = {
       ),
       numberVar(
         'exitPoints',
-        { vi: 'Điểm đóng vị thế (Pdong)', en: 'Closing points (Pdong)' },
+        { vi: 'Điểm đóng vị thế (Pdong)', en: 'Exit price (Pexit)' },
         'điểm',
         1_288,
         {
@@ -549,7 +552,7 @@ export const LAI_LO_VI_THE_LONG: FormulaModule = {
       },
       howToRead: {
         vi: 'So với số tiền lãi bạn nhắm tới khi mở vị thế: lớn hơn nghĩa là đóng ở mức điểm ấy đã vượt mục tiêu, nhỏ hơn là chưa tới. Số âm là khoản lỗ, xảy ra khi điểm đóng thấp hơn điểm mở.',
-        en: 'Compared with the profit you were aiming for when you opened the position: larger means closing at that level already beats your target, smaller means it falls short. A negative figure is a loss, which happens when the closing level is below the opening level.',
+        en: 'Compared with the profit you were aiming for when you opened the position: larger means closing at that level already beats your target, smaller means it falls short. A negative figure is a loss, which happens when the exit price is below the entry price.',
       },
       commonMistakes: {
         vi: 'Quên rằng con số này chưa trừ phí giao dịch và thuế, và quên rằng lỗ chạm mức cảnh báo sẽ bị gọi ký quỹ bổ sung giữa chừng.',
@@ -559,7 +562,7 @@ export const LAI_LO_VI_THE_LONG: FormulaModule = {
     example: {
       title: {
         vi: 'VN30F2005: vị thế Long mở trong đợt ATC phiên đáo hạn bất thường 21/05/2020',
-        en: 'VN30F2005: a long opened in the ATC auction of the unusual 2020-05-21 expiry session',
+        en: 'VN30F2005: a long opened in the ATC closing auction of the unusual 2020-05-21 expiry session',
       },
       inputs: { entryPoints: 864, exitPoints: 815.55, contracts: 1 },
       expected: -4_845_000,
@@ -603,7 +606,7 @@ export const LAI_LO_VI_THE_LONG: FormulaModule = {
     if (multiplier === undefined)
       return missingConstant('₫', {
         vi: 'hệ số nhân hợp đồng VN30F',
-        en: 'the VN30F contract multiplier',
+        en: 'VN30F contract multiplier',
       });
 
     const n = v('contracts');
@@ -645,7 +648,7 @@ export const LAI_LO_VI_THE_SHORT: FormulaModule = {
     latex: 'PnL_{short} = (P_{mo} - P_{dong}) \\times m \\times N',
     expression: {
       vi: 'Lãi/lỗ Short = (Điểm mở vị thế − Điểm đóng vị thế) × Hệ số nhân × Số hợp đồng',
-      en: 'Short P&L = (Opening points − Closing points) × Multiplier × Number of contracts',
+      en: 'Short P&L = (Entry price − Exit price) × Multiplier × Number of contracts',
     },
     substitution: '({entryPoints} − {exitPoints}) × {derivative.vn30f.multiplier} × {contracts}',
     symbols: [
@@ -658,13 +661,13 @@ export const LAI_LO_VI_THE_SHORT: FormulaModule = {
       },
       {
         latex: 'P_{mo}',
-        meaning: { vi: 'điểm mở vị thế, điểm', en: 'opening points' },
+        meaning: { vi: 'điểm mở vị thế, điểm', en: 'entry price, in points' },
       },
       {
         latex: 'P_{dong}',
         meaning: {
           vi: 'điểm đóng vị thế, hoặc giá hiện tại nếu chưa đóng, điểm',
-          en: 'closing points, or the current price if still open',
+          en: 'exit price, or the current price if still open, in points',
         },
       },
       {
@@ -686,7 +689,7 @@ export const LAI_LO_VI_THE_SHORT: FormulaModule = {
     variables: [
       numberVar(
         'entryPoints',
-        { vi: 'Điểm mở vị thế (Pmo)', en: 'Opening points (Pmo)' },
+        { vi: 'Điểm mở vị thế (Pmo)', en: 'Entry price (Pentry)' },
         'điểm',
         1_280,
         {
@@ -700,7 +703,7 @@ export const LAI_LO_VI_THE_SHORT: FormulaModule = {
       ),
       numberVar(
         'exitPoints',
-        { vi: 'Điểm đóng vị thế (Pdong)', en: 'Closing points (Pdong)' },
+        { vi: 'Điểm đóng vị thế (Pdong)', en: 'Exit price (Pexit)' },
         'điểm',
         1_272,
         {
@@ -725,7 +728,7 @@ export const LAI_LO_VI_THE_SHORT: FormulaModule = {
       },
       howToRead: {
         vi: 'So với số tiền bạn chấp nhận mất cho vị thế này: khoản lỗ lớn hơn nghĩa là đóng ở mức điểm ấy bạn đã mất quá sức chịu, nhỏ hơn là còn trong mức đã định. Kết quả dương là lãi, có được khi điểm đóng thấp hơn điểm mở.',
-        en: 'Compared with the amount you accept losing on this position: a loss larger than that means closing at that level costs more than you can bear, a smaller one keeps it within your limit. A positive result is a profit, earned when the closing level is below the opening level.',
+        en: 'Compared with the amount you accept losing on this position: a loss larger than that means closing at that level costs more than you can bear, a smaller one keeps it within your limit. A positive result is a profit, earned when the exit price is below the entry price.',
       },
       commonMistakes: {
         vi: 'Nghĩ rằng lỗ của vị thế bán có giới hạn. Chỉ số tăng không có trần, nên lỗ của Short về lý thuyết không có đáy.',
@@ -774,7 +777,7 @@ export const LAI_LO_VI_THE_SHORT: FormulaModule = {
     if (multiplier === undefined)
       return missingConstant('₫', {
         vi: 'hệ số nhân hợp đồng VN30F',
-        en: 'the VN30F contract multiplier',
+        en: 'VN30F contract multiplier',
       });
 
     const n = v('contracts');
@@ -816,7 +819,7 @@ export const SO_HOP_DONG_TOI_DA: FormulaModule = {
     latex: 'N_{max} = \\left\\lfloor \\frac{V}{F \\times m \\times k} \\right\\rfloor',
     expression: {
       vi: 'Số hợp đồng tối đa = Vốn ký quỹ ÷ (Điểm hợp đồng × Hệ số nhân × Tỷ lệ ký quỹ), làm tròn xuống',
-      en: 'Maximum contracts = Margin capital ÷ (Contract points × Multiplier × Margin ratio), rounded down',
+      en: 'Maximum contracts = Margin deposit ÷ (Futures price × Multiplier × Initial margin ratio), rounded down',
     },
     substitutionDerived: { k: '{marginRatio} ÷ 100' },
     substitution: '⌊{capital} ÷ ({futuresPoints} × {derivative.vn30f.multiplier} × {k})⌋',
@@ -839,12 +842,12 @@ export const SO_HOP_DONG_TOI_DA: FormulaModule = {
         latex: 'V',
         meaning: {
           vi: 'vốn ký quỹ đã nộp vào tài khoản phái sinh, ₫',
-          en: 'margin capital deposited in the derivatives account, ₫',
+          en: 'margin deposited in the derivatives account, ₫',
         },
       },
       {
         latex: 'F',
-        meaning: { vi: 'điểm hợp đồng tương lai, điểm', en: 'futures contract points' },
+        meaning: { vi: 'điểm hợp đồng tương lai, điểm', en: 'futures price, in points' },
       },
       {
         latex: 'm',
@@ -857,7 +860,7 @@ export const SO_HOP_DONG_TOI_DA: FormulaModule = {
         latex: 'k',
         meaning: {
           vi: 'tỷ lệ ký quỹ ban đầu do công ty chứng khoán quy định, dạng thập phân, tức 1% là 0,01',
-          en: 'initial margin ratio set by the securities company, as a decimal, so 1% is 0.01',
+          en: 'initial margin ratio set by your broker, as a decimal, so 1% is 0.01',
         },
       },
     ],
@@ -875,7 +878,7 @@ export const SO_HOP_DONG_TOI_DA: FormulaModule = {
     tags: ['ky quy', 'so hop dong', 'margin', 'vn30f', 'ky quy ban dau', 'phai sinh'],
     resultUnit: 'HĐ',
     variables: [
-      numberVar('capital', { vi: 'Vốn ký quỹ (V)', en: 'Margin capital (V)' }, '₫', 200_000_000, {
+      numberVar('capital', { vi: 'Vốn ký quỹ (V)', en: 'Margin deposit (V)' }, '₫', 200_000_000, {
         min: 0,
         max: 100_000_000_000,
         description: {
@@ -894,7 +897,7 @@ export const SO_HOP_DONG_TOI_DA: FormulaModule = {
           max: 100,
           description: {
             vi: 'Do từng công ty chứng khoán quy định, thường quanh 17–25%. Kiểm tra mức áp dụng của công ty bạn.',
-            en: 'Set by each securities company, typically around 17–25%. Check the rate that applies to your broker.',
+            en: 'Set by each broker, typically around 17–25%. Check the rate your broker applies.',
           },
         },
       ),
@@ -902,7 +905,7 @@ export const SO_HOP_DONG_TOI_DA: FormulaModule = {
     explanation: {
       meaning: {
         vi: 'Mỗi hợp đồng đòi một khoản ký quỹ ban đầu bằng giá trị danh nghĩa (điểm hợp đồng nhân hệ số nhân) nhân tỷ lệ ký quỹ; vốn chia cho khoản đó là số hợp đồng mở được.',
-        en: 'Each contract requires initial margin equal to its notional value (contract points times the multiplier) times the margin ratio; capital divided by that amount gives the number of contracts you can open.',
+        en: 'Each contract requires initial margin equal to its notional value (futures price times the multiplier) times the margin ratio; the margin deposit divided by that amount gives the number of contracts you can open.',
       },
       whenToUse: {
         vi: 'Dùng khi bạn vừa nộp tiền vào tài khoản phái sinh và muốn biết số tiền đó đủ ký quỹ để mở nhiều nhất bao nhiêu hợp đồng VN30F.',
@@ -910,7 +913,7 @@ export const SO_HOP_DONG_TOI_DA: FormulaModule = {
       },
       howToRead: {
         vi: 'So với số hợp đồng bạn định mở: định mở nhiều hơn con số này thì tài khoản không đủ tiền ký quỹ ban đầu, ít hơn thì còn tiền dư ngoài phần ký quỹ. Kết quả đã làm tròn xuống, 0 nghĩa là vốn chưa đủ ký quỹ cho dù chỉ một hợp đồng.',
-        en: 'Compared with the number of contracts you plan to open: planning more than this means the account lacks the initial margin for them, planning fewer leaves spare cash beyond the margin. The result is rounded down, so 0 means the capital does not cover the margin for even one contract.',
+        en: 'Compared with the number of contracts you plan to open: planning more than this means the account lacks the initial margin for them, planning fewer leaves spare cash beyond the margin. The result is rounded down, so 0 means the deposit does not cover the margin for even one contract.',
       },
       commonMistakes: {
         vi: 'Coi số tối đa là số nên mở. Trần này chỉ nói tài khoản đủ tiền ký quỹ, không nói gì về mức rủi ro hợp lý - cỡ vị thế nên tính theo % rủi ro.',
@@ -930,7 +933,7 @@ export const SO_HOP_DONG_TOI_DA: FormulaModule = {
       },
       source: {
         vi: 'Thông báo tỷ lệ ký quỹ ban đầu của VSDC, hiệu lực 20/12/2024; giá VN30F1M phiên 14/09/2026.',
-        en: 'VSDC’s initial margin ratio notice, effective 2024-12-20; the VN30F1M price of the 2026-09-14 session.',
+        en: 'Initial margin ratio notice of VSDC, Vietnam’s securities depository and clearing house, effective 2024-12-20; the VN30F1M price of the 2026-09-14 session.',
       },
     },
     tests: [
@@ -965,7 +968,7 @@ export const SO_HOP_DONG_TOI_DA: FormulaModule = {
     if (multiplier === undefined)
       return missingConstant('HĐ', {
         vi: 'hệ số nhân hợp đồng VN30F',
-        en: 'the VN30F contract multiplier',
+        en: 'VN30F contract multiplier',
       });
 
     const points = v('futuresPoints');
@@ -975,7 +978,7 @@ export const SO_HOP_DONG_TOI_DA: FormulaModule = {
         unit: 'HĐ',
         warning: divideByZero(
           { vi: 'số hợp đồng tối đa', en: 'the maximum number of contracts' },
-          { vi: 'Điểm hợp đồng', en: 'Contract points' },
+          { vi: 'Điểm hợp đồng', en: 'Futures price' },
           {
             vi: 'Nhập giá VN30F đang giao dịch trên bảng điện.',
             en: 'Enter the current VN30F trading price from the board.',
@@ -994,7 +997,7 @@ export const SO_HOP_DONG_TOI_DA: FormulaModule = {
           { vi: 'Tỷ lệ ký quỹ ban đầu', en: 'Initial margin ratio' },
           {
             vi: 'Nhập tỷ lệ ký quỹ theo quy định của công ty chứng khoán, thường từ 17% trở lên.',
-            en: 'Enter the margin ratio set by your securities company, typically 17% or more.',
+            en: 'Enter the margin ratio set by your broker, typically 17% or more.',
           },
         ),
       };
@@ -1025,7 +1028,7 @@ export const CO_VI_THE_PHAI_SINH: FormulaModule = {
     latex: 'N = \\left\\lfloor \\frac{V \\times r}{\\Delta P \\times m} \\right\\rfloor',
     expression: {
       vi: 'Số hợp đồng = Vốn × Rủi ro mỗi lệnh ÷ (Khoảng cách cắt lỗ × Hệ số nhân), làm tròn xuống',
-      en: 'Number of contracts = Capital × Risk per trade ÷ (Stop-loss distance × Multiplier), rounded down',
+      en: 'Number of contracts = Derivatives account capital × Risk per trade ÷ (Stop-loss distance × Multiplier), rounded down',
     },
     substitutionDerived: { r: '{riskPercent} ÷ 100' },
     substitution: '⌊{capital} × {r} ÷ ({stopPoints} × {derivative.vn30f.multiplier})⌋',
@@ -1209,7 +1212,7 @@ export const CO_VI_THE_PHAI_SINH: FormulaModule = {
     if (multiplier === undefined)
       return missingConstant('HĐ', {
         vi: 'hệ số nhân hợp đồng VN30F',
-        en: 'the VN30F contract multiplier',
+        en: 'VN30F contract multiplier',
       });
 
     const stopPoints = v('stopPoints');
@@ -1281,7 +1284,7 @@ export const DON_BAY_HIEU_DUNG: FormulaModule = {
     latex: 'L = \\frac{F \\times m \\times N}{E}',
     expression: {
       vi: 'Đòn bẩy hiệu dụng = Điểm hợp đồng × Hệ số nhân × Số hợp đồng ÷ Vốn thực có',
-      en: 'Effective leverage = Contract points × Multiplier × Number of contracts ÷ Actual equity',
+      en: 'Effective leverage = Futures price × Multiplier × Number of contracts ÷ Actual equity',
     },
     substitution: '{futuresPoints} × {derivative.vn30f.multiplier} × {contracts} ÷ {equity}',
     symbols: [
@@ -1294,7 +1297,7 @@ export const DON_BAY_HIEU_DUNG: FormulaModule = {
       },
       {
         latex: 'F',
-        meaning: { vi: 'điểm hợp đồng tương lai, điểm', en: 'futures contract points' },
+        meaning: { vi: 'điểm hợp đồng tương lai, điểm', en: 'futures price, in points' },
       },
       {
         latex: 'm',
@@ -1384,7 +1387,7 @@ export const DON_BAY_HIEU_DUNG: FormulaModule = {
       expected: 5.7927,
       note: {
         vi: 'So với mức trần 5,88 lần mà ký quỹ ban đầu 17% của VSDC cho phép: 5,79 lần là đã sát trần, sáu hợp đồng dùng 196.951.800 ₫ trong 200 triệu ₫ vốn làm ký quỹ, và giá hợp đồng giảm 1% là tài khoản mất 5,79%, tức 11.585.400 ₫.',
-        en: 'Compared with the ceiling of 5.88 times that the 17% VSDC initial margin allows: 5.79 times is already close to that ceiling, the six contracts tie up 196,951,800 ₫ of the 200 million ₫ as margin, and a 1% drop in the contract price costs the account 5.79%, or 11,585,400 ₫.',
+        en: 'Compared with the ceiling of 5.88 times that the 17% initial margin set by VSDC, Vietnam’s clearing house, allows: 5.79 times is already close to that ceiling, the six contracts tie up 196,951,800 ₫ of the 200 million ₫ as margin, and a 1% drop in the contract price costs the account 5.79%, or 11,585,400 ₫.',
       },
       source: {
         vi: 'Bản quy định giao dịch hợp đồng tương lai chỉ số VN30 của MBS; giá VN30F1M phiên 14/09/2026.',
@@ -1423,7 +1426,7 @@ export const DON_BAY_HIEU_DUNG: FormulaModule = {
     if (multiplier === undefined)
       return missingConstant('lần', {
         vi: 'hệ số nhân hợp đồng VN30F',
-        en: 'the VN30F contract multiplier',
+        en: 'VN30F contract multiplier',
       });
 
     const n = v('contracts');

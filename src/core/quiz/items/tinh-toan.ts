@@ -1345,7 +1345,7 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
     evidence: 'tinh-toan',
     prompt: {
       vi: 'Với số liệu dưới đây, hãy đặt đúng hai số vào vị trí của công thức phí giao dịch mua. Biểu phí 0,15% lấy từ bảng hằng số của sản phẩm và đã viết sẵn trong công thức.',
-      en: 'With the figures below, put the right two numbers into the slots of the buy-side fee formula. The 0.15% rate comes from the product’s constants table and is already written in.',
+      en: 'With the figures below, put the right two numbers into the slots of the formula for the brokerage fee on a buy order. The 0.15% rate comes from the product’s constants table and is already written in.',
     },
     facts: [
       {
@@ -1367,7 +1367,7 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
       en: 'The order is 1,000 times 50,000, that is 50,000,000 ₫, times the 0.15% fee schedule gives 75,000 ₫. The 0.15% comes from the product constants table, printed right under the inputs block on screen, so it does not have to be memorised. A result of 50,000 ₫ uses 0.1%, which is the transfer tax on SELLING, not a buying fee. 7,500 ₫ and 750,000 ₫ are both a decimal place out, 0.015% and 1.5%.',
     },
     giai: {
-      tinh: { vi: 'Phí giao dịch mua', en: 'Buy-side brokerage fee' },
+      tinh: { vi: 'Phí giao dịch mua', en: 'Brokerage fee on a buy order' },
       thaySo: { vi: '1.000 × 50.000 × 0,15 ÷ 100', en: '1000 × 50000 × 0.15 ÷ 100' },
       ketQua: { vi: '75.000 ₫', en: '75000 ₫' },
       gan: [
@@ -1390,7 +1390,7 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
     evidence: 'tinh-toan',
     prompt: {
       vi: 'Với số liệu dưới đây, hãy đặt đúng hai số vào vị trí của công thức PHÍ giao dịch bán, chưa tính thuế. Biểu phí 0,15% đã viết sẵn trong công thức.',
-      en: 'With the figures below, put the right two numbers into the slots of the sell-side FEE formula, tax excluded. The 0.15% rate is already written in.',
+      en: 'With the figures below, put the right two numbers into the slots of the formula for the brokerage FEE on a sell order, tax excluded. The 0.15% rate is already written in.',
     },
     facts: [
       {
@@ -1412,7 +1412,7 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
       en: 'The order is 1,000 times 60,000, that is 60,000,000 ₫, times 0.15% gives 90,000 ₫. The selling fee is charged on the SALE price, not the purchase price, so a profitable trade pays more on the way out than on the way in. A result of 60,000 ₫ is the 0.1% transfer tax, a separate charge that travels with it but is not a fee. 150,000 ₫ adds fee and tax together, the correct total selling cost but not what was asked. 9,000 ₫ is a decimal place out.',
     },
     giai: {
-      tinh: { vi: 'Phí giao dịch bán', en: 'Sell-side brokerage fee' },
+      tinh: { vi: 'Phí giao dịch bán', en: 'Brokerage fee on a sell order' },
       thaySo: { vi: '1.000 × 60.000 × 0,15 ÷ 100', en: '1000 × 60000 × 0.15 ÷ 100' },
       ketQua: { vi: '90.000 ₫', en: '90000 ₫' },
       gan: [
@@ -1551,7 +1551,7 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
     verify: { inputs: { quantity: 1000, months: 12 }, expected: 3240, tolerance: 1 },
     explain: {
       vi: 'Phí lưu ký tính theo SỐ CỔ PHIẾU và theo THÁNG, không tính theo giá trị: 1.000 nhân 0,27 ₫ mỗi tháng bằng 270 ₫, nhân 12 tháng ra 3.240 ₫. Kết quả 270 ₫ là quên nhân số tháng. 3.240.000 ₫ là nhầm 0,27 ₫ mỗi cổ phiếu thành 0,27% trên giá trị. 0 ₫ là tin rằng tháng không giao dịch thì không bị trừ, trong khi phí này trả cho việc GIỮ chứng khoán, tách hẳn khỏi phí giao dịch.',
-      en: 'The depository fee is charged per SHARE and per MONTH, not on value: 1,000 times 0.27 ₫ a month is 270 ₫, times 12 months gives 3,240 ₫. A result of 270 ₫ forgets to multiply by the months. 3,240,000 ₫ mistakes 0.27 ₫ per share for 0.27% of value. 0 ₫ assumes a month without trades is free, whereas this fee pays for HOLDING the securities, entirely separate from trading fees.',
+      en: 'The custody fee is charged per SHARE and per MONTH, not on value: 1,000 times 0.27 ₫ a month is 270 ₫, times 12 months gives 3,240 ₫. A result of 270 ₫ forgets to multiply by the months. 3,240,000 ₫ mistakes 0.27 ₫ per share for 0.27% of value. 0 ₫ assumes a month without trades is free, whereas this fee pays for HOLDING the securities, entirely separate from trading fees.',
     },
     giai: {
       tinh: { vi: 'Phí lưu ký', en: 'Custody fee' },
@@ -1601,7 +1601,7 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
     },
     explain: {
       vi: 'Giá hoà vốn phải gánh cả bốn khoản: phí mua 75.000 ₫, phí lưu ký 12 tháng 3.240 ₫, rồi phí bán 0,15% và thuế bán 0,1%: hai khoản sau tính trên chính GIÁ BÁN chưa biết, nên phải giải ngược: vốn đã bỏ ra 50.078.240 ₫ chia cho (1 trừ 0,0025) bằng 50.203.749 ₫, tức 50.203,75 ₫ mỗi cổ phiếu. Kết quả 50.000 ₫ là bỏ hết chi phí. 50.078,24 ₫ chỉ cộng phí mua và phí lưu ký, quên phí và thuế lúc bán. 50.228,24 ₫ cộng thẳng tổng chi phí vào giá mua, tức tính phí bán trên giá MUA thay vì trên giá bán.',
-      en: 'The break-even price has to carry all four charges: a 75,000 ₫ buying fee, 3,240 ₫ of depository fees over 12 months, then the 0.15% selling fee and the 0.1% sale tax, both charged on the SALE price that is still unknown, so it has to be solved backwards: the 50,078,240 ₫ already committed divided by (1 minus 0.0025) gives 50,203,749 ₫, that is 50,203.75 ₫ per share. A result of 50,000 ₫ ignores costs entirely. 50,078.24 ₫ covers only the buying fee and custody, forgetting the selling charges. 50,228.24 ₫ adds total costs onto the purchase price, charging the selling fee against the BUY price instead of the sale price.',
+      en: 'The break-even price has to carry all four charges: a 75,000 ₫ buying fee, 3,240 ₫ of custody fees over 12 months, then the 0.15% selling fee and the 0.1% transfer tax, both charged on the SALE price that is still unknown, so it has to be solved backwards: the 50,078,240 ₫ already committed divided by (1 minus 0.0025) gives 50,203,749 ₫, that is 50,203.75 ₫ per share. A result of 50,000 ₫ ignores costs entirely. 50,078.24 ₫ covers only the buying fee and custody, forgetting the selling charges. 50,228.24 ₫ adds total costs onto the purchase price, charging the selling fee against the BUY price instead of the sale price.',
     },
     giai: {
       tinh: { vi: 'Giá hoà vốn thực', en: 'True break-even price' },
@@ -1670,7 +1670,7 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
     },
     explain: {
       vi: 'Lãi gộp là 1.000 nhân (60.000 trừ 50.000) bằng 10.000.000 ₫. Trừ đủ bốn khoản: phí mua 75.000, phí bán 90.000, thuế bán 60.000, phí lưu ký 12 tháng 3.240, tổng 228.240 ₫, còn lại 9.771.760 ₫. Kết quả 10.000.000 ₫ là lãi gộp, chưa trừ gì. 9.835.000 ₫ là chỉ trừ hai khoản phí giao dịch, quên thuế bán và phí lưu ký. 9.775.000 ₫ là quên riêng phí lưu ký, khoản nhỏ nhất nên cũng hay rơi nhất.',
-      en: 'Gross profit is 1,000 times (60,000 minus 50,000), that is 10,000,000 ₫. Deduct all four charges: 75,000 buying fee, 90,000 selling fee, 60,000 sale tax and 3,240 of depository fees over 12 months, 228,240 ₫ in total, leaving 9,771,760 ₫. A result of 10,000,000 ₫ is gross profit before anything. 9,835,000 ₫ deducts the two trading fees only, missing the sale tax and custody. 9,775,000 ₫ drops the depository fee alone, the smallest item and therefore the one most often forgotten.',
+      en: 'Gross profit is 1,000 times (60,000 minus 50,000), that is 10,000,000 ₫. Deduct all four charges: 75,000 buying fee, 90,000 selling fee, 60,000 transfer tax and 3,240 of custody fees over 12 months, 228,240 ₫ in total, leaving 9,771,760 ₫. A result of 10,000,000 ₫ is gross profit before anything. 9,835,000 ₫ deducts the two trading fees only, missing the transfer tax and custody fee. 9,775,000 ₫ drops the custody fee alone, the smallest item and therefore the one most often forgotten.',
     },
     giai: {
       tinh: { vi: 'Lợi nhuận ròng sau phí & thuế', en: 'Net profit after fees and taxes' },
@@ -2383,7 +2383,7 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
       en: 'The holding period return is 5,000 over 50,000, that is 10%. A year holds 365 over 73, five such periods, and annualizing means COMPOUNDING: 1.1 to the fifth is 1.61051, minus 1 gives 61.05%. A result of 50.00% multiplies 10% by 5, ignoring compounding. 10.00% leaves the holding period return unconverted. 2.00% divides 10% by 5. Note that the 61% figure is only a conversion, it does NOT mean the year will return 61%.',
     },
     giai: {
-      tinh: { vi: 'Lợi suất quy năm theo số ngày', en: 'Annualized holding period return' },
+      tinh: { vi: 'Lợi suất quy năm theo số ngày', en: 'Annualized return from days held' },
       thaySo: {
         vi: '((55.000 ÷ 50.000)^(365 ÷ 73) − 1) × 100',
         en: '((55000 ÷ 50000)^(365 ÷ 73) − 1) × 100',
@@ -2600,7 +2600,7 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
     verify: { inputs: { futuresPoints: 1206, indexValue: 1200 }, expected: 6, tolerance: 0.01 },
     explain: {
       vi: 'Basis là giá hợp đồng tương lai TRỪ chỉ số cơ sở: 1.206 trừ 1.200 bằng +6 điểm, tức thị trường phái sinh đang cao hơn cơ sở. Dấu mang thông tin nên không được đảo: basis dương là trạng thái thông thường khi lãi vay cao hơn cổ tức. Kết quả −6 điểm là trừ ngược. +0,5 điểm là con số phần trăm (6 chia 1.200) gắn nhầm đơn vị điểm. 1,005 lần là lấy tỷ lệ hai giá, quên trừ đi phần cơ sở.',
-      en: 'The basis is the futures price MINUS the spot index: 1,206 minus 1,200 is +6 points, meaning the derivative trades above the underlying. The sign carries information, so it must not be flipped: a positive basis is the normal state when financing costs exceed the dividend yield. A result of −6 subtracts the wrong way round. +0.5 is the percentage figure (6 over 1,200) mislabelled as points. 1.005x takes the ratio of the two prices, forgetting to net off the underlying.',
+      en: 'The basis is the futures price MINUS the spot index: 1,206 minus 1,200 is +6 points, meaning the derivative trades above the underlying. The sign carries information, so it must not be flipped: a positive basis is the normal state when financing costs exceed the dividend yield. A result of −6 subtracts the wrong way round. +0.5 is the percentage figure (6 over 1,200) mislabeled as points. 1.005x takes the ratio of the two prices, forgetting to net off the underlying.',
     },
     giai: {
       tinh: { vi: 'chênh giá so với chỉ số', en: 'Futures basis' },
@@ -2625,11 +2625,11 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
     },
     facts: [
       {
-        label: { vi: 'Điểm mở vị thế', en: 'Entry points' },
+        label: { vi: 'Điểm mở vị thế', en: 'Entry price' },
         value: { vi: '1.250 điểm', en: '1250 points' },
       },
       {
-        label: { vi: 'Điểm đóng vị thế', en: 'Exit points' },
+        label: { vi: 'Điểm đóng vị thế', en: 'Exit price' },
         value: { vi: '1.230 điểm', en: '1230 points' },
       },
       { label: { vi: 'Số hợp đồng', en: 'Contracts' }, value: { vi: '2 HĐ', en: '2 contracts' } },
@@ -2648,7 +2648,7 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
     },
     explain: {
       vi: 'Vị thế Short lãi khi chỉ số GIẢM, nên lấy điểm mở trừ điểm đóng: 1.250 trừ 1.230 bằng 20 điểm. Mỗi điểm của hợp đồng VN30F trị giá 100.000 ₫, nhân 2 hợp đồng ra 4.000.000 ₫ lãi. Kết quả lỗ 4.000.000 ₫ là tính theo chiều của vị thế Long, đúng con số nhưng ngược dấu. Lãi 2.000.000 ₫ là quên nhân số hợp đồng. Lãi 40 ₫ là quên hệ số nhân 100.000 ₫ mỗi điểm.',
-      en: 'A short position gains when the index FALLS, so take entry minus exit: 1,250 minus 1,230 is 20 points. Each VN30F point is worth 100,000 ₫, times 2 contracts gives a 4,000,000 ₫ profit. A result of loss applies the long direction, right number and wrong sign. A 2,000,000 ₫ profit forgets the contract count. A 40 ₫ profit forgets the 100,000 ₫ multiplier per point.',
+      en: 'A short position gains when the index FALLS, so take entry minus exit: 1,250 minus 1,230 is 20 points. Each VN30F point is worth 100,000 ₫, times 2 contracts gives a 4,000,000 ₫ profit. A 4,000,000 ₫ loss applies the long direction: the right number with the wrong sign. A 2,000,000 ₫ profit forgets the contract count. A 40 ₫ profit forgets the 100,000 ₫ multiplier per point.',
     },
     giai: {
       tinh: { vi: 'Lãi/lỗ vị thế Short', en: 'Short futures position P&L' },
@@ -2819,7 +2819,7 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
     },
     explain: {
       vi: 'Giá trị danh nghĩa là 1.250 nhân 100.000 nhân 2 hợp đồng bằng 250.000.000 ₫, chia cho vốn chủ 50.000.000 ₫ ra 5,0 lần: chỉ số nhích 1% thì tài khoản biến động 5%. Kết quả 2,5 lần là quên nhân số hợp đồng. 0,2 lần là chia ngược. 10,0 lần là dùng hệ số 200.000 ₫ mỗi điểm. Lưu ý đòn bẩy này tính trên VỐN CHỦ thực có, khác với tỷ lệ ký quỹ tối thiểu, và nó là con số quyết định tài khoản chịu được cú ngược chiều bao xa.',
-      en: 'The notional is 1,250 times 100,000 times 2 contracts, that is 250,000,000 ₫, divided by 50,000,000 ₫ of equity gives 5.0x: a 1% move in the index swings the account by 5%. A result of 2.5x forgets the contract count. 0.2x inverts the ratio. 10.0x uses a 200,000 ₫ multiplier per point. Note this leverage is measured against actual EQUITY, not against the minimum margin ratio, and it is the number that decides how far an adverse move the account can absorb.',
+      en: 'The notional is 1,250 times 100,000 times 2 contracts, that is 250,000,000 ₫, divided by 50,000,000 ₫ of equity gives 5.0x: a 1% move in the index swings the account by 5%. A result of 2.5x forgets the contract count. 0.2x inverts the ratio. 10.0x uses a 200,000 ₫ multiplier per point. Note this leverage is measured against actual EQUITY, not against the minimum margin ratio, and it is the number that decides how large an adverse move the account can absorb.',
     },
     giai: {
       tinh: { vi: 'Tỷ lệ đòn bẩy hiệu dụng', en: 'Effective leverage ratio' },
@@ -3251,7 +3251,7 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
       },
       { label: { vi: 'Đã gửi được', en: 'Months held' }, value: { vi: '6 tháng', en: '6 months' } },
       {
-        label: { vi: 'Lãi suất không kỳ hạn', en: 'Demand rate' },
+        label: { vi: 'Lãi suất không kỳ hạn', en: 'Demand-deposit rate' },
         value: { vi: '0,1%/năm', en: '0.1% a year' },
       },
     ],
@@ -3275,10 +3275,10 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
     },
     explain: {
       vi: 'Rút trước hạn thì TOÀN BỘ thời gian đã gửi bị tính lại theo lãi suất không kỳ hạn, chứ không phải chỉ phần còn thiếu: 200.000.000 nhân 0,1% nhân 6 chia 12 bằng 100.000 ₫. So với 6.000.000 ₫ lẽ ra nhận được nếu giữ đủ sáu tháng theo lãi hợp đồng, khoản mất đi là 5.900.000 ₫. Kết quả 6.000.000 ₫ là tin rằng vẫn được hưởng lãi hợp đồng cho phần đã gửi. 3.000.000 ₫ là cắt một nửa lãi như một khoản phạt. 200.000 ₫ là tính đủ 12 tháng theo lãi không kỳ hạn.',
-      en: 'On an early withdrawal the ENTIRE period held is repriced at the demand rate, not just the missing part: 200,000,000 times 0.1% times 6 over 12 gives 100,000 ₫. Against the 6,000,000 ₫ that six months at the contract rate would have paid, 5,900,000 ₫ is given up. A result of 6,000,000 ₫ assumes the contract rate still applies to the months held. 3,000,000 ₫ halves the interest as a penalty. 200,000 ₫ applies the demand rate for a full twelve months.',
+      en: 'On an early withdrawal the ENTIRE period held is repriced at the demand-deposit rate, not just the missing part: 200,000,000 times 0.1% times 6 over 12 gives 100,000 ₫. Against the 6,000,000 ₫ that six months at the contract rate would have paid, 5,900,000 ₫ is given up. A result of 6,000,000 ₫ assumes the contract rate still applies to the months held. 3,000,000 ₫ halves the interest as a penalty. 200,000 ₫ applies the demand-deposit rate for a full twelve months.',
     },
     giai: {
-      tinh: { vi: 'Lãi thực nhận khi rút trước hạn', en: 'Early withdrawal interest' },
+      tinh: { vi: 'Lãi thực nhận khi rút trước hạn', en: 'Interest received on early withdrawal' },
       thaySo: { vi: '200.000.000 × 0,1 ÷ 100 × 6 ÷ 12', en: '200000000 × 0.1 ÷ 100 × 6 ÷ 12' },
       ketQua: { vi: '100.000 ₫', en: '100000 ₫' },
       gan: [

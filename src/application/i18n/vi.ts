@@ -1455,7 +1455,7 @@ export const vi = {
    * hứa một việc mà nút không còn làm.
    */
   'ticker.loading': 'Đang tải danh sách mã…',
-  'ticker.noMatch': 'Không có mã nào khớp. Thử nhập mã ngắn hơn, ví dụ “fpt”.',
+  'ticker.noMatch': 'Không có mã nào khớp với từ khóa tìm kiếm.',
   /*
    * Hai lúc chờ có vòng xoay của sheet (13/10/2026): đang lọc theo từ khoá vừa gõ, và đang bày
    * thêm một lượt 20 mã khi cuộn tới đáy. Câu sau chỉ trình đọc màn hình nghe — trên màn là vòng

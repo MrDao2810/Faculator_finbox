@@ -72,6 +72,7 @@ npm run check:chrome   # 216 assertions in a real headless Chrome (360×780, 560
 npm run size           # measures out/, gates First Load JS at 180 kB (NFR-PER-04 budget is 200 kB)
 npm run gen:summaries  # regenerates src/core/formulas/summaries.generated.ts
 npm run gen:icons      # regenerates the PWA PNGs from the icon geometry
+npm run gen:ticker-names-en  # by hand, needs network: English company names for EN mode (VNDirect)
 ```
 
 Single test file / single case:
@@ -206,7 +207,10 @@ wireframe WF-15 (`DIVIDE_BY_ZERO`, `MEANINGLESS`, `MISSING_SERIES`, `MODEL_VIOLA
 `INCOMPLETE_INPUT`). Messages are plain-language Vietnamese explaining the cause, plus a one-line
 `fix` suggestion (NFR-USA-04) — except `INCOMPLETE_INPUT`, which since 15/10/2026 carries none: the
 owner had "↳ Nhập nốt các ô còn trống rồi kết quả hiện ngay." deleted, because "Còn thiếu: …" above it
-already names the field, so that message must always name what is missing. Downstream formulas
+already names the field, so that message must always name what is missing. `MISSING_SERIES` followed on
+05/11/2026: `missingSeries(needed, what?)` prints only "Cần ít nhất 60 phiên giá." (the owner cut ", hiện
+mới có 10." and the "↳ Thêm phiên giá (nút Nạp mẫu…)" line), and the chart's own `CHUA_CO_CHUOI` lost the
+same line. Reversed cases in `ErrorState.test.tsx`, `charts.test.tsx` and `FormulaDetail.test.tsx`. Downstream formulas
 whose upstream failed must use `inherited()` rather than silently producing a number (FR-15).
 
 **FR-15 runs for real since package 5.2.3.** All six `dependsOn` edges live in `valuation-dcf.ts`
@@ -2006,7 +2010,8 @@ symbol was in the picture but not on the label, and the owner chose the whole pr
 - **The symbol is written run together, exactly as the picture draws it**: `P_{mua}` → "(Pmua)", `V_{cuoi}` →
   "(Vcuoi)", `r_{danh\,nghia}` → "(rdanh nghia)", `\Delta B` → "(ΔB)", `\beta_p` → "(βp)", the old "(D0)", "(g1)" style.
   The old "(Re)", "(Rd)", "(Rf)", "(S)" became "(re)", "(rd)", "(rf)", "(Sps)" because the pictures draw `r_e`, `r_d`,
-  `r_f`, `S_{ps}`. The same symbol goes on the English label.
+  `r_f`, `S_{ps}`. The English label carried the same symbol until 05/11/2026; it now carries the
+  ENGLISH picture's symbol ("Buy price (Pbuy)"), see "Formula pictures in English" below.
 - **A field gets a symbol only when that symbol IS the number typed into it.** `r_f` of Sharpe is the yearly rate
   already turned into a per-session one, `i` of the loan formulas is the yearly rate ÷ 12, `n` of the standard
   deviation is sessions − 1, `F_{lk}` of break-even is derived from the months field: putting "(rf)", "(i)", "(n)",
@@ -2558,7 +2563,16 @@ action, one `.cause` block) at the right edge (owner, arrow on XIRR's card: _"ch
 phải … để không gian tối giản hơn"_). A wrapping flex row, baseline-aligned; the auto margin is on `.head`
 (`margin-right: auto`), NOT on `.cause`, so a cause too wide for the row drops below starting at the LEFT edge, as
 before, instead of hanging indented under `_ _`. XIRR's card 69 → 47px at 1440, 66 → 46,5px at 390; a long cause in
-the merged card's narrow column still drops. `error-state-css.test.ts` pins it. **XIRR's cash-flow rows are ~36,5px at every width** the same day (32px inputs and × button, 2px cell
+the merged card's narrow column still drops. `error-state-css.test.ts` pins it. **Below 1024px the card has no top
+padding and `.head` is pulled up 6px** (06/11/2026, owner circling the empty band above "`_ _` lần … Cần ít nhất 60
+phiên giá." on a phone): the `_ _` line is 32,5px tall with the underscores at its foot, so the ink gap was 20px on top
+against 8,5px below; now 8 / 8,5px, card 46,5 → 34,5px. Cost, told to the owner: below 1024px the error card is ~14px
+lower than the result card, so the page shifts that much when a result turns into an error. **The yellow
+`InlineWarning` follows the same one-row shape below 1024px** (05/11/2026, owner on the chart's "THIẾU CHUỖI GIÁ" card:
+_"phần khoanh đỏ cần chuyển sang bên phải như bên trên"_): message and ↳ line share a `.cause` span (`display:
+contents` from 1024px, so the grid there is unchanged), the label carries `margin-right: auto`, the icon is moved down
+2px with `position: relative` (a negative margin does nothing: an SVG's synthesized baseline is its border box).
+`inline-warning-css.test.ts` pins it. Neither was applied from 1024px; the owner was asked. **XIRR's cash-flow rows are ~36,5px at every width** the same day (32px inputs and × button, 2px cell
 padding; were 68,5px on PC, 44,5px on a phone). The × keeps NO `::after` tap overlay: rows under 44px would let it
 reach the next row, and × deletes in one tap. The calendar button's overlay is clamped to the row
 (`table.cashflow td button::after`), or the last row's overlay grew a 4px vertical scrollbar on the table. **From
@@ -3976,8 +3990,81 @@ English, the owner reviews it**. What that produced, and what is easy to break:
   placeholders `{key|thoiGian}` / `{key|coPhieu}` fill English units through `dienCau(…, 'en')`; numbers keep the
   Vietnamese format so the sentence matches the field beside it. `noi-dung.test.ts` gates completeness, no diacritics,
   no long dash, identical placeholders and identical digit-numbers per string, and the length caps.
-- **Deliberately still Vietnamese in EN:** company and industry names (source data, like proper nouns), SEO metadata,
-  and the text of exported files.
+- **Deliberately still Vietnamese in EN:** SEO metadata and the text of exported files. Company and industry names were
+  on this list until 05/11/2026 (see the next two bullets).
+- **Company and industry names are English in EN mode** (05/11/2026, owner, photographing "Load a sample dataset" and
+  "Pick a ticker": _"tại sao chuyển sang tiếng anh mà vẫn còn tiếng việt, lỗi nghiêm trọng"_). Finbox has Vietnamese
+  names only (measured: `/bp/codes`, `/data/symbols`, `getTickerDetail`), so `npm run gen:ticker-names-en` (by hand,
+  network) writes `src/data/ticker-names-en.generated.ts` from VNDirect's `shortNameEng`; at runtime no new origin is
+  called and `connect-src` is unchanged. A Finbox name with no diacritics ("Sacombank", "FPT Corp", ETFs) is kept: the
+  VNDirect name only added risk there (STB came out "Saigon Treasure Bank"). `TEN_VIET_TAY` in the script overrides
+  the rows the source gets wrong; a code missing from the table prints its Finbox name WITHOUT diacritics, never with.
+  Industries: `INDUSTRY_NAMES_EN` in `src/application/i18n/ten-tieng-anh.ts`, all 71 Finbox industries hand-translated;
+  an unknown one is dropped in EN rather than printed in Vietnamese. Both load with the English dictionary
+  (`loadLocale('en')`, one `Promise.all`), so Vietnamese users never download them and the screen never shows English
+  text beside a Vietnamese name. Read through `useCompanyName()` / `useIndustryName()`; used by `PresetSheet`,
+  `TickerPickerSheet` and the portfolio's add/edit dialog. Both searches also match the English name. Known: VNDirect
+  holds the CURRENT registered name, so a few renamed companies read differently in the two languages (VC7 "Xây dựng
+  Số 7" / "BGI Group"); the code beside the name is what identifies the row.
+- **Formula pictures are English in EN mode** (05/11/2026, owner, on the example's "Values" row and on `gia-muc-tieu`'s
+  `P_{mục tiêu}`: _"cần chuyển đổi sang tiếng anh, xát nghĩa nhất có thể để người dùng không bị hiểu lầm"_). The KaTeX
+  MathML is built at build time from one Vietnamese `latex`, so 66 of 111 detail pages drew Vietnamese under an English
+  expression line. `latexEn(latex, formulaId)` in `src/core/latex-en.ts` translates a LaTeX string: `\text{}` words
+  (`CHU_EN`, matching the `expression.en` wording: "Total liabilities", "Equity"), Vietnamese subscripts (`CHI_SO_EN`:
+  `P_{mua}` → `P_{buy}`, `F_{lk}` → `F_{custody}`, `_{hv}` → `_{BE}`, `r_{danh\,nghia}` → `r_{nominal}`), the three
+  Vietnamese accounting abbreviations (LNST → Net income, LNTT → EBT, TSNH → Current assets; see the next bullet) and
+  per-formula symbols (`KY_HIEU_RIENG_EN`: `DT`/`BP` → `Rev`/`TVC`, `D_k`/`G_k`/`L_k` → `B_k`/`P_k`/`I_k`, `EMI` →
+  `PMT`, `L_{rong}` → `\text{Net profit}`, `C` of the MA crossover → `\text{Difference}`, `DD` → `\sigma_d`, Gửi quay
+  vòng's `r_n`/`r_d` → `r_{short}`/`r_{long}`, per formula because WACC's `r_d` is the cost of debt and stays).
+  `notation-view.ts` builds a
+  second MathML set (`NotationView.en`: picture, legend rows, how-to steps, marked with the same `data-sym` hits or the
+  build throws) only when something differs; `FormulaDetail` picks it once with `notationForLocale()`, so the card, the
+  legend, the how-to panels, the example/quiz pictures, the "Values" row and the guide popover's symbol buttons all
+  follow. Keys (`spec.symbols[].latex`, `gan.kyHieu`, how-to `symbol`) stay Vietnamese. Input labels follow:
+  `labelWithSymbol()` maps the run-together symbol through `kyHieuPhangEn()` ("Buy price (Pbuy)", "Net debt (Dnet)"),
+  inline labels were edited, and ~95 "Đọc biểu đồ" EN paragraphs that quote an axis label verbatim moved with them.
+  Gates: `latex-en.test.ts` (every `\text{}` fragment classified, no diacritic / Vietnamese subscript / per-formula
+  symbol left in any EN picture, legend rows still substrings, no dead dictionary row), `input-symbols.test.ts` (the EN
+  label's symbol is in the EN picture), `notation-en.test.ts` (all 111 views) and two EN cases in
+  `FormulaDetail.test.tsx`. A NEW Vietnamese word in a picture turns `latex-en.test.ts` red until it is translated.
+  This reverses the 19/10/2026 "same symbol on the English label" rule; the 19/10 rule that a formula's NAME keeps its
+  symbols (P/E, EPS) still stands — those symbols were already English.
+- **English text is read as a foreigner would read it, and textbook terms beat abbreviations** (06/11/2026, owner:
+  _"dich phải xát nghĩa nhất có thể để người dùng công thức hiểu được. vì họ là người nước ngoài thì sao"_). A pass over
+  every English string of the 111 formulas (names, pictures, legends, labels, expression lines, how-to steps, guide,
+  chart paragraphs, examples, quiz), each group drafted and self-checked by an agent and applied centrally. The rules
+  it settled, and what is easy to break:
+  - **A picture symbol is a term an English finance reader already knows, or words.** NPAT/PBT/CA (an Australian
+    abbreviation and two that read as something else) became Net income, EBT (it stands beside EBIT) and Current
+    assets; Vietnamese "khấu hao" is depreciation AND amortization, so it is D&A; `EMI` (Indian banking) is `PMT`; a
+    loan schedule uses Kellison's `B_k`/`P_k`/`I_k`; futures use `P_{entry}`/`P_{exit}`, because `P_{close}` reads as
+    the session's closing price; a symbol that is a Vietnamese initial or reads as another quantity in English (`L` of
+    net profit reads "loss", `DD` reads "drawdown", `C` is the close on %B and %K) is written in words or as the
+    library's own symbol for that quantity. One quantity, one name across the product: the 0,1% transfer tax is
+    `r_{transfer}` on all three pictures that draw it.
+  - **When the English symbol IS the label's own words, the label carries no bracket**: `labelWithSymbol()` prints
+    "Net income", not "Net income (Net income)" (`kyHieuPhangEn(symbol) === label.en`). `input-symbols.test.ts` and
+    `o-ky-hieu.test.ts` follow the same rule.
+  - **A legend or label says what the Vietnamese says, not a looser English idiom**: "per share" when the field is
+    ₫/CP (`Cash dividend per share (D)`), "session" for "phiên" (never "period" or "daily"), "deposit" not "book" for
+    "sổ tiết kiệm", "Brokerage fee on a buy order" not "buy-side", "transfer tax" not "sell tax" / "sales tax", "broker"
+    not "securities company", "Net borrowing" (CFA) not "new net borrowing". A field is named by its REAL label in
+    every legend that points at it.
+  - **No Vietnamese diacritics in any English string**: `src/application/i18n/tieng-anh-khong-dau.test.ts` parses every
+    non-test file of `src/{core,application,ui,app,data}` and checks the `en` of every object literal that has both `vi`
+    and `en` (strings, templates, arrays), text inside “…” excepted. Policy for what used to leak: "đồng" is "dong" or
+    "VND"; proper nouns lose their diacritics (Nguyen, Tuoi Tre); legal codes are "QD-BTC", "ND-CP", "QD-HDTV"; a
+    Vietnamese label quoted from a source page stays inside “…” with an English gloss beside it.
+  - **Industry names are translated from the companies actually in the industry** (Finbox `/data/symbols`, measured
+    06/11/2026): "Hàng không" is Aviation because ACV (airports) is in it, "Chứng khoán" is Securities brokerage,
+    "Nước" Water supply. `industryNameEn()` looks up by `khoaNganh()` (NFC, trim, collapsed spaces,
+    `toLocaleLowerCase('vi')`), because `/data/symbols` writes one industry several ways ('ĐIện', 'Điện tử & thiết bị
+    điện', an NFD 'Bất động sản'), and an exact match dropped four tickers' industry in EN.
+  - **`TEN_VIET_TAY` also fixes names VNDirect misspells in `shortNameEng`** while its full name is right (DHT "Ha Tay
+    Pharmac" → "Ha Tay Pharmaceutical", plus DP2, MED, UMC, VNY). Regenerate, never hand-edit, the generated table.
+  - Cost, known: formulas whose English NAME changed (`tra-gop-nien-kim`, `rut-truoc-han`, `basis-vn30f`, `xirr`,
+    `loi-suat-vuot-chuan`, `loi-suat-quy-nam-theo-ngay`, the two brokerage fees, VaR, CVaR, Beta, %B, RSI, VWAP, the
+    return standard deviation, the closing price range) show an English-mode saved calculation that was auto-named before 06/11/2026 as a hand-typed name.
 - **A formula's English name keeps every symbol its Vietnamese name has, in the same place** (19/10/2026). The owner
   searched "p/e" in both languages: the top cards read "P/E — hệ số giá trên lợi nhuận" but "Price to earnings ratio",
   and _"tôi không nghĩ là nên dịch các ký tự khi dịch sang tiếng anh"_. Measured: 34 of 111 English names had dropped a

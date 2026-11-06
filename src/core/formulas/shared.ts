@@ -6,6 +6,7 @@
  */
 
 import { fail } from '../calc-output';
+import { kyHieuPhangEn } from '../latex-en';
 import type { MarketConstantKey, TypedMarketConstant } from '../market/types';
 import { resolveConstant, resolveRate } from '../market/resolve';
 import type { FormulaSource, FormulaSpec } from '../registry/types';
@@ -218,7 +219,14 @@ export function withSymbol(variable: VariableSpec, symbol: string): VariableSpec
  * nó còn đi vào câu cảnh báo ("Số phiên phải từ 1 trở lên"), nơi ký hiệu chỉ làm câu rối thêm.
  */
 export function labelWithSymbol(label: Bilingual, symbol: string): Bilingual {
-  return { vi: `${label.vi} (${symbol})`, en: `${label.en} (${symbol})` };
+  // Nhãn tiếng Anh mang ký hiệu của hình TIẾNG ANH (05/11/2026): 'Pmua' thành 'Pbuy' — xem `latex-en.ts`.
+  const en = kyHieuPhangEn(symbol);
+  /*
+   * Hình tiếng Anh viết đại lượng bằng CHỮ (LNST thành 'Net income', TSNH thành 'Current assets') thì nhãn
+   * tiếng Anh chính là chữ ấy, không kèm ngoặc: 'Net income (Net income)' là nói hai lần. Cùng kiểu nhãn
+   * 'Vốn chủ sở hữu' của hình `\text{Vốn chủ sở hữu}` ở bản tiếng Việt.
+   */
+  return { vi: `${label.vi} (${symbol})`, en: en === label.en ? label.en : `${label.en} (${en})` };
 }
 
 /*

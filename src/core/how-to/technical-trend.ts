@@ -34,7 +34,7 @@ const EMA_PHIEN_TRUOC: ReadonlyArray<HowToStep> = [
     latex: 'EMA_{t-1} = P_{t-1} \\times k + EMA_{t-2} \\times (1 - k)',
     expression: {
       vi: 'EMA phiên trước = Giá đóng cửa phiên trước × k + EMA hai phiên trước × (1 − k), tính lần lượt từ EMA đầu tiên',
-      en: "Previous period's EMA = Previous close × k + EMA two sessions back × (1 − k), worked forward from the first EMA",
+      en: "Previous session's EMA = Previous close × k + EMA two sessions back × (1 − k), worked forward from the first EMA",
     },
   },
 ];
@@ -44,7 +44,11 @@ const EMA_PHIEN_TRUOC: ReadonlyArray<HowToStep> = [
  * rồi trừ nhau. Hai bước EMA lấy từ công thức chung vì `emaSeries()` cùng thuật toán với `lastEma()`.
  */
 const CHUOI_MACD: ReadonlyArray<HowToStep> = [
-  ...emaGiaDongCua('EMA_t', { vi: 'EMA phiên t', en: 'EMA of session t' }),
+  ...emaGiaDongCua(
+    'EMA_t',
+    { vi: 'EMA phiên t', en: 'EMA of session t' },
+    { vi: 'Chu kỳ EMA nhanh hoặc chậm', en: 'Fast or Slow EMA period' },
+  ),
   {
     latex: 'MACD = EMA_{nhanh} - EMA_{cham}',
     expression: {
@@ -89,7 +93,7 @@ const TRUNG_BINH_TANG: ReadonlyArray<HowToStep> = [
     latex: '\\overline{Gain}_n = \\frac{G_2 + \\dots + G_{n+1}}{n}',
     expression: {
       vi: 'Trung bình tăng đầu tiên = Tổng n mức tăng đầu tiên của chuỗi, từ phiên thứ hai ÷ Số phiên n',
-      en: 'First average gain = Sum of the first n gains in the series, from the second session ÷ Number of periods n',
+      en: 'First average gain = Sum of the first n gains in the series, from the second session ÷ Number of sessions n',
     },
   },
   {
@@ -114,7 +118,7 @@ const TRUNG_BINH_GIAM: ReadonlyArray<HowToStep> = [
     latex: '\\overline{Loss}_n = \\frac{L_2 + \\dots + L_{n+1}}{n}',
     expression: {
       vi: 'Trung bình giảm đầu tiên = Tổng n mức giảm đầu tiên của chuỗi, từ phiên thứ hai ÷ Số phiên n',
-      en: 'First average loss = Sum of the first n losses in the series, from the second session ÷ Number of periods n',
+      en: 'First average loss = Sum of the first n losses in the series, from the second session ÷ Number of sessions n',
     },
   },
   {
@@ -145,7 +149,7 @@ export const HOW_TO_TECHNICAL_TREND: Readonly<Record<string, FormulaHowTo>> = {
       {
         kind: 'derived',
         symbol: 'EMA_{t-1}',
-        phrases: { vi: ['EMA phiên trước'], en: ["Previous period's EMA"] },
+        phrases: { vi: ['EMA phiên trước'], en: ["Previous session's EMA"] },
         steps: EMA_PHIEN_TRUOC,
         calcEvidence: ['lastEma(closes, period)'],
       },
@@ -165,7 +169,11 @@ export const HOW_TO_TECHNICAL_TREND: Readonly<Record<string, FormulaHowTo>> = {
         kind: 'derived',
         symbol: 'EMA_{nhanh}',
         phrases: { vi: ['EMA chu kỳ nhanh'], en: ['Fast-period EMA'] },
-        steps: emaGiaDongCua('EMA_{nhanh}', { vi: 'EMA chu kỳ nhanh', en: 'Fast-period EMA' }),
+        steps: emaGiaDongCua(
+          'EMA_{nhanh}',
+          { vi: 'EMA chu kỳ nhanh', en: 'Fast-period EMA' },
+          { vi: 'Chu kỳ EMA nhanh', en: 'Fast EMA period' },
+        ),
         calcEvidence: ['lastEma(closes, fast)'],
         formulaId: 'ema-n-phien',
       },
@@ -173,7 +181,11 @@ export const HOW_TO_TECHNICAL_TREND: Readonly<Record<string, FormulaHowTo>> = {
         kind: 'derived',
         symbol: 'EMA_{cham}',
         phrases: { vi: ['EMA chu kỳ chậm'], en: ['Slow-period EMA'] },
-        steps: emaGiaDongCua('EMA_{cham}', { vi: 'EMA chu kỳ chậm', en: 'Slow-period EMA' }),
+        steps: emaGiaDongCua(
+          'EMA_{cham}',
+          { vi: 'EMA chu kỳ chậm', en: 'Slow-period EMA' },
+          { vi: 'Chu kỳ EMA chậm', en: 'Slow EMA period' },
+        ),
         calcEvidence: ['lastEma(closes, slow)'],
         formulaId: 'ema-n-phien',
       },
@@ -274,8 +286,8 @@ export const HOW_TO_TECHNICAL_TREND: Readonly<Record<string, FormulaHowTo>> = {
       {
         kind: 'derived',
         symbol: 'SMA_n',
-        phrases: { vi: ['SMA n phiên'], en: ['n-period SMA'] },
-        steps: [smaGiaDongCua('SMA_n', { vi: 'SMA n phiên', en: 'n-period SMA' })],
+        phrases: { vi: ['SMA n phiên'], en: ['n-session SMA'] },
+        steps: [smaGiaDongCua('SMA_n', { vi: 'SMA n phiên', en: 'n-session SMA' })],
         calcEvidence: ['lastSma(closes, period)'],
         formulaId: 'sma-n-phien',
       },

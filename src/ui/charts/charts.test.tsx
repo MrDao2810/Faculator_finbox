@@ -967,7 +967,7 @@ describe('Biểu đồ độ nhạy — FR-06 ở tầng vẽ', () => {
     }
   });
 
-  it('công thức chờ chuỗi giá thì nói rõ thiếu gì kèm câu chỉ đường, không vẽ khung rỗng', () => {
+  it('công thức chờ chuỗi giá thì nói rõ cần bao nhiêu phiên, không vẽ khung rỗng', () => {
     draw('rsi-wilder');
 
     // Không dò `svg` — `InlineWarning` có biểu tượng SVG riêng. Dò đúng thứ vắng mặt: cái hình.
@@ -975,9 +975,13 @@ describe('Biểu đồ độ nhạy — FR-06 ở tầng vẽ', () => {
     expect(screen.queryByRole('table')).toBeNull();
 
     const warning = screen.getByRole('status').textContent ?? '';
-    expect(warning).toContain('phiên giá');
-    // Phải có câu chỉ đường, không được báo lỗi rồi bỏ mặc (NFR-USA-04).
-    expect(warning).toMatch(/Nạp mẫu|Sử dụng dữ liệu mẫu/i);
+    expect(warning).toMatch(/Cần ít nhất \d+ phiên giá\./);
+    /*
+     * Ca ĐẢO NGƯỢC (05/11/2026): câu chỉ đường "Thêm phiên giá (nút Nạp mẫu hoặc Sử dụng dữ liệu
+     * mẫu)…" và vế "hiện mới có N" bị chủ dự án bỏ; nút Nạp mẫu vẫn nằm ở khối Số liệu. Câu ấy quay
+     * lại là một quyết định.
+     */
+    expect(warning).not.toMatch(/Nạp mẫu|Sử dụng dữ liệu mẫu|hiện mới có/i);
   });
 
   /*

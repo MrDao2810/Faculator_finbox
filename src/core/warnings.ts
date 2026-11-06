@@ -71,20 +71,21 @@ export function meaningless(reason: Bilingual, fix?: Bilingual): CalcWarning {
  * Thiếu dữ liệu chuỗi.
  * Ví dụ WF-15: Beta cần ít nhất 60 phiên giá.
  *
+ * Câu chỉ nói CẦN bao nhiêu phiên, và không có dòng ↳ gợi ý sửa (05/11/2026, chủ dự án): vế
+ * "…, hiện mới có 10." và dòng "↳ Thêm phiên giá (nút Nạp mẫu hoặc Sử dụng dữ liệu mẫu), hoặc giảm
+ * số phiên hay chu kỳ ở khối Số liệu." đều bị bỏ. Cùng kiểu với `incompleteInput()`. Vì thế hàm
+ * không còn nhận số phiên đang có. Câu gợi ý quay lại là một quyết định, không phải sơ suất:
+ * `ErrorState.test.tsx` ghim chiều ngược lại.
+ *
  * @param needed số phiên tối thiểu
- * @param have   số phiên đang có
  */
-export function missingSeries(needed: number, have: number, what?: Bilingual): CalcWarning {
+export function missingSeries(needed: number, what?: Bilingual): CalcWarning {
   const label = what ?? { vi: 'phiên giá', en: 'price sessions' };
   return {
     code: 'MISSING_SERIES',
     message: {
-      vi: `Cần ít nhất ${needed} ${label.vi}, hiện mới có ${have}.`,
-      en: `Need at least ${needed} ${label.en}, currently only ${have}.`,
-    },
-    fix: {
-      vi: 'Thêm phiên giá (nút Nạp mẫu hoặc Sử dụng dữ liệu mẫu), hoặc giảm số phiên hay chu kỳ ở khối Số liệu.',
-      en: 'Add price sessions (the Load sample or Use sample data button), or lower the sessions or period in the Inputs block.',
+      vi: `Cần ít nhất ${needed} ${label.vi}.`,
+      en: `Need at least ${needed} ${label.en}.`,
     },
   };
 }

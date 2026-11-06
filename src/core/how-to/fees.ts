@@ -53,7 +53,7 @@ const PHI_LUU_KY: HowToStep = {
   latex: 'F_{lk} = Q \\times M \\times c',
   expression: {
     vi: 'Phí lưu ký = Khối lượng × Số tháng nắm giữ × Mức phí mỗi cổ phiếu mỗi tháng',
-    en: 'Custody fee = Quantity × Holding period × Rate per share per month',
+    en: 'Custody fee = Quantity × Holding period × Fee per share per month',
   },
 };
 

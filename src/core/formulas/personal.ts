@@ -74,7 +74,7 @@ const loanRate = sliderVar(
 const loanYears = sliderVar('years', { vi: 'Kỳ hạn', en: 'Term' }, 'năm', 20, 1, 30, 1, {
   description: {
     vi: 'Thời gian trả nợ. Mỗi năm 12 kỳ trả hằng tháng.',
-    en: 'The repayment period. Each year has 12 monthly instalments.',
+    en: 'The repayment period. Each year has 12 monthly installments.',
   },
 });
 
@@ -94,10 +94,10 @@ export const TRA_GOP_NIEN_KIM: FormulaModule = {
   spec: {
     id: 'tra-gop-nien-kim',
     categoryId: 'loans',
-    name: { vi: 'Trả góp niên kim', en: 'Annuity loan payment (EMI)' },
+    name: { vi: 'Trả góp niên kim', en: 'Annuity loan payment' },
     description: {
       vi: 'Số tiền như nhau phải trả mỗi tháng cho khoản vay trả góp đều, lãi tính trên dư nợ còn lại.',
-      en: 'The same amount due every month on a level-payment instalment loan, with interest charged on the remaining balance.',
+      en: 'The same amount due every month on a level-payment installment loan, with interest charged on the remaining balance.',
     },
     latex: 'EMI = \\frac{P \\cdot i \\,(1+i)^n}{(1+i)^n - 1}',
     expression: {
@@ -111,7 +111,7 @@ export const TRA_GOP_NIEN_KIM: FormulaModule = {
         latex: 'EMI',
         meaning: {
           vi: 'khoản trả cố định hằng tháng, ₫/tháng',
-          en: 'fixed monthly payment, ₫/month',
+          en: 'fixed monthly payment, ₫ per month',
         },
       },
       { latex: 'P', meaning: { vi: 'số tiền vay ban đầu, ₫', en: 'loan amount, ₫' } },
@@ -119,7 +119,7 @@ export const TRA_GOP_NIEN_KIM: FormulaModule = {
         latex: 'i',
         meaning: {
           vi: 'lãi suất kỳ, mỗi kỳ là một tháng, bằng ô Lãi suất / năm chia 12, dạng thập phân',
-          en: 'period rate, one period is one month, the Rate per year field ÷ 12, as a decimal',
+          en: 'monthly period rate, the Interest rate / year field ÷ 12, as a decimal',
         },
       },
       {
@@ -294,7 +294,7 @@ export const TRA_GOP_GOC_DEU: FormulaModule = {
     latex: 'A_1 = \\frac{P}{n} + P \\cdot i',
     expression: {
       vi: 'Kỳ đầu = Số tiền vay ÷ Số kỳ + Số tiền vay × Lãi suất kỳ',
-      en: 'First period = Loan amount ÷ Number of periods + Loan amount × Period rate',
+      en: 'First payment = Loan amount ÷ Number of periods + Loan amount × Period rate',
     },
     substitutionDerived: { i: '{rate} ÷ 100 ÷ 12', n: '{years} × 12' },
     substitution: '{amount} ÷ {n} + {amount} × {i}',
@@ -318,7 +318,7 @@ export const TRA_GOP_GOC_DEU: FormulaModule = {
         latex: 'i',
         meaning: {
           vi: 'lãi suất kỳ, mỗi kỳ là một tháng, bằng ô Lãi suất / năm chia 12, dạng thập phân',
-          en: 'period rate, one period is one month, the Rate per year field ÷ 12, as a decimal',
+          en: 'monthly period rate, the Interest rate / year field ÷ 12, as a decimal',
         },
       },
     ],
@@ -478,7 +478,7 @@ export const LICH_TRA_NO: FormulaModule = {
         latex: 'L_k',
         meaning: {
           vi: 'tiền lãi kỳ thứ k, tính trên dư nợ còn lại theo ô Phương thức trả, ₫',
-          en: 'interest of period k, on the balance left, per the Repayment method field, ₫',
+          en: 'interest of period k, on the outstanding balance, per the Repayment method field, ₫',
         },
       },
       {
@@ -848,14 +848,14 @@ export const LAI_KEP: FormulaModule = {
         latex: 'r',
         meaning: {
           vi: 'lãi suất / năm, dạng thập phân (8% là 0,08)',
-          en: 'annual interest rate as a decimal (8% is 0.08)',
+          en: 'annual interest rate as a decimal, so 8% is 0.08',
         },
       },
       {
         latex: 'n',
         meaning: {
           vi: 'số lần nhập lãi mỗi năm, lần',
-          en: 'compounding frequency per year, times',
+          en: 'number of times interest compounds per year',
         },
       },
       {
@@ -975,7 +975,7 @@ export const LAI_KEP: FormulaModule = {
       expected: 1_082_640_250,
       note: {
         vi: 'So với 1 tỷ ₫ gửi ban đầu: cuối năm có 1.082.640.250 ₫, tức lãi bằng 8,26% số gửi, cao hơn mức 8,1%/năm ghi trên sổ 0,16 điểm phần trăm vì lãi sáu tháng đầu được gửi tiếp và sinh thêm 1.640.250 ₫. Con số giả định lúc tái tục ngân hàng vẫn trả 8,1%/năm, lãi kỳ sau thấp hơn thì cuối năm nhận ít hơn.',
-        en: "Compared with the 1 billion VND deposited at the start: the year ends with 1,082,640,250 VND, interest of 8.26% of the deposit, 0.16 percentage points more than the 8.1%/year on the book because the first six months' interest is redeposited and earns 1,640,250 VND more. The figure assumes the bank still pays 8.1%/year at the rollover, and a lower rate for the second term means less at year end.",
+        en: "Compared with the 1 billion VND deposited at the start: the year ends with 1,082,640,250 VND, interest of 8.26% of the deposit, 0.16 percentage points more than the stated 8.1%/year rate because the first six months' interest is redeposited and earns 1,640,250 VND more. The figure assumes the bank still pays 8.1%/year at the rollover, and a lower rate for the second term means less at year end.",
       },
       source: {
         vi: 'Diễn đàn VOZ, thớt lãi suất tiết kiệm các ngân hàng năm 2026: kỳ hạn 6 tháng 8,1%/năm tại Cake by VPBank.',
@@ -1097,7 +1097,7 @@ export const LAI_TIEN_GUI: FormulaModule = {
         latex: 'r',
         meaning: {
           vi: 'lãi suất / năm, dạng thập phân (8% là 0,08)',
-          en: 'annual interest rate, as a decimal (8% is 0.08)',
+          en: 'annual interest rate, as a decimal, so 8% is 0.08',
         },
       },
       {
@@ -1179,7 +1179,7 @@ export const LAI_TIEN_GUI: FormulaModule = {
       },
       commonMistakes: {
         vi: 'Rút trước hạn thì phần lớn ngân hàng chỉ trả lãi không kỳ hạn, thấp hơn nhiều con số này.',
-        en: 'Withdrawing early: most banks then only pay the no-term rate, which is far lower than this figure.',
+        en: 'Withdrawing early: most banks then pay only demand-deposit interest, which is far less than this figure.',
       },
     },
     example: {
@@ -1237,14 +1237,17 @@ export const TIET_KIEM_MUC_TIEU: FormulaModule = {
     latex: 'PMT = \\frac{FV \\cdot i}{(1+i)^n - 1}',
     expression: {
       vi: 'Gửi hằng tháng = Mục tiêu × Lãi suất kỳ ÷ [(1 + Lãi suất kỳ)^Số tháng − 1]',
-      en: 'Monthly deposit = Goal × Period rate ÷ [(1 + Period rate)^Number of months − 1]',
+      en: 'Monthly deposit = Target amount × Period rate ÷ [(1 + Period rate)^Number of months − 1]',
     },
     substitutionDerived: { i: '{rate} ÷ 100 ÷ 12' },
     substitution: '{target} × {i} ÷ ((1 + {i})^{months} − 1)',
     symbols: [
       {
         latex: 'PMT',
-        meaning: { vi: 'khoản gửi đều hằng tháng, ₫/tháng', en: 'equal monthly deposit, ₫/month' },
+        meaning: {
+          vi: 'khoản gửi đều hằng tháng, ₫/tháng',
+          en: 'equal monthly deposit, ₫ per month',
+        },
       },
       {
         latex: 'FV',
@@ -1257,7 +1260,7 @@ export const TIET_KIEM_MUC_TIEU: FormulaModule = {
         latex: 'i',
         meaning: {
           vi: 'lãi suất kỳ, mỗi kỳ là một tháng, bằng ô Lãi suất kỳ vọng / năm chia 12, dạng thập phân',
-          en: 'period rate, one period is one month, the Expected rate per year field ÷ 12, as a decimal',
+          en: 'monthly period rate, the Expected interest rate / year field ÷ 12, as a decimal',
         },
       },
       {
@@ -1323,12 +1326,21 @@ export const TIET_KIEM_MUC_TIEU: FormulaModule = {
           },
         },
       ),
-      sliderVar('months', { vi: 'Thời gian (n)', en: 'Time (n)' }, 'tháng', 60, 1, 360, 1, {
-        description: {
-          vi: 'Số tháng góp tiền, mỗi tháng một khoản bằng nhau, tính tới lúc cần đủ số tiền mục tiêu.',
-          en: 'The number of months of equal monthly deposits, up to when the target amount is needed.',
+      sliderVar(
+        'months',
+        { vi: 'Thời gian (n)', en: 'Number of months (n)' },
+        'tháng',
+        60,
+        1,
+        360,
+        1,
+        {
+          description: {
+            vi: 'Số tháng góp tiền, mỗi tháng một khoản bằng nhau, tính tới lúc cần đủ số tiền mục tiêu.',
+            en: 'The number of months of equal monthly deposits, up to when the target amount is needed.',
+          },
         },
-      }),
+      ),
     ],
     explanation: {
       meaning: {
@@ -1394,8 +1406,8 @@ export const TIET_KIEM_MUC_TIEU: FormulaModule = {
         unit: '₫/tháng',
         warning: divideByZero(
           { vi: 'khoản gửi hằng tháng', en: 'the monthly deposit' },
-          { vi: 'Thời gian', en: 'Time' },
-          { vi: 'Nhập thời gian từ 1 tháng trở lên.', en: 'Enter a time of at least 1 month.' },
+          { vi: 'Thời gian', en: 'Number of months' },
+          { vi: 'Nhập thời gian từ 1 tháng trở lên.', en: 'Enter at least 1 month.' },
         ),
       };
     }

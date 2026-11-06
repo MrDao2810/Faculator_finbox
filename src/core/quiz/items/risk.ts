@@ -2053,7 +2053,7 @@ export const RUI_RO: ReadonlyArray<QuizItem> = [
     evidence: 'quy-dinh',
     prompt: {
       vi: 'Bài viết "Beta - công cụ đo lường rủi ro" trên Tin nhanh chứng khoán chỉ ra: khi dùng beta để tính CAPM, phần bù rủi ro tính ra chỉ đủ bù đắp loại rủi ro nào của một cổ phiếu, và bỏ sót loại rủi ro nào?',
-      en: 'The article "Beta - a risk measurement tool" on Tin nhanh chứng khoán points out: when beta is used to compute CAPM, the resulting risk premium only compensates for which type of a stock\'s risk, and leaves out which type?',
+      en: 'The article "Beta - a risk measurement tool" on Tin nhanh Chung khoan points out: when beta is used to compute CAPM, the resulting risk premium only compensates for which type of a stock\'s risk, and leaves out which type?',
     },
     choices: {
       a: {
@@ -2076,7 +2076,7 @@ export const RUI_RO: ReadonlyArray<QuizItem> = [
     answer: 'd',
     explain: {
       vi: 'Tin nhanh chứng khoán viết rõ: “kết quả được xác định từ CAPM chỉ đủ để bù đắp rủi ro hệ thống mà không tính đến rủi ro của từng công ty”. Vì beta chỉ là hệ số góc của đường hồi quy lợi suất cổ phiếu theo lợi suất thị trường, nó bỏ qua phần dư của hồi quy - chính là rủi ro phi hệ thống (rủi ro kinh doanh, rủi ro tài chính riêng của doanh nghiệp). Bài viết còn nêu cách bù thêm: cộng vào mức phí CAPM giá trị trung bình các sai số ngẫu nhiên khi hồi quy dữ liệu quá khứ.',
-      en: "The Vietnamese outlet Tin nhanh chứng khoán states it plainly: “kết quả được xác định từ CAPM chỉ đủ để bù đắp rủi ro hệ thống mà không tính đến rủi ro của từng công ty” (the result derived from CAPM is only enough to compensate systematic risk, without accounting for each company's own risk) - beta, being only the slope of the stock-return-on-market-return regression, ignores the regression's residual, which stands for unsystematic risk (a firm's own business and financial risk). The article adds a fix: add the average of the regression's random errors to the CAPM premium to cover that gap.",
+      en: "The Vietnamese outlet Tin nhanh Chung khoan states it plainly: “kết quả được xác định từ CAPM chỉ đủ để bù đắp rủi ro hệ thống mà không tính đến rủi ro của từng công ty” (the result derived from CAPM is only enough to compensate systematic risk, without accounting for each company's own risk) - beta, being only the slope of the stock-return-on-market-return regression, ignores the regression's residual, which stands for unsystematic risk (a firm's own business and financial risk). The article adds a fix: add the average of the regression's random errors to the CAPM premium to cover that gap.",
     },
     source: {
       url: 'https://www.tinnhanhchungkhoan.vn/beta-cong-cu-do-luong-rui-ro-post76647.html',
@@ -2509,7 +2509,7 @@ export const RUI_RO: ReadonlyArray<QuizItem> = [
     evidence: 'quy-dinh',
     prompt: {
       vi: 'Cổ phiếu XYZ có 12 phiên gần nhất với giá ĐÓNG CỬA cao nhất là 24.500 ₫ và giá đóng cửa thấp nhất là 21.800 ₫. Riêng một phiên trong số đó, giá từng chạm 25.200 ₫ trong lúc khớp lệnh nhưng cuối phiên lùi về đóng cửa ở 23.900 ₫. Biên độ dao động lớn nhất trong kỳ A chỉ tính theo giá ĐÓNG CỬA, như các chỉ số kiểu "52 tuần cao/thấp". Điền đúng hai mức giá ấy vào các vị trí.',
-      en: 'Stock XYZ\'s most recent 12 sessions have a highest CLOSING price of 24,500 VND and a lowest closing price of 21,800 VND. In one of those sessions the price touched 25,200 VND intraday but closed back down at 23,900 VND. The peak-to-trough price range A counts CLOSING prices only, as "52-week high/low" indicators do. Put the right two prices into the slots.',
+      en: 'Stock XYZ\'s most recent 12 sessions have a highest CLOSING price of 24,500 VND and a lowest closing price of 21,800 VND. In one of those sessions the price touched 25,200 VND intraday but closed back down at 23,900 VND. The high-low price range A counts CLOSING prices only, as "52-week high/low" indicators do. Put the right two prices into the slots.',
     },
     facts: [
       {
@@ -2553,7 +2553,7 @@ export const RUI_RO: ReadonlyArray<QuizItem> = [
       en: 'A = (P_max − P_min) ÷ P_min × 100 = (24,500 − 21,800) ÷ 21,800 × 100 ≈ 12.39%, using CLOSING prices only - matching how the formula\'s own spec defines P_max/P_min as "the highest/lowest closing price". The 25,200 VND print was only touched intraday and the session closed back down at 23,900 VND, so it does NOT count as P_max; using 25,200 VND by mistake would give 15.60%, which is wrong. The source states the same convention for the 52-week high/low: “Mức giá 52 tuần Cao/Thấp được tính dựa trên giá đóng cửa hàng ngày của chứng khoán. Thông thường, một cổ phiếu thực sự có thể vượt mức giá cao trong 52 tuần, nhưng cuối cùng lại đóng cửa dưới mức cao trước đó, cho nên giá sẽ không được công nhận.”',
     },
     giai: {
-      tinh: { vi: 'Biên độ dao động lớn nhất trong kỳ', en: 'Peak-to-trough price range' },
+      tinh: { vi: 'Biên độ dao động lớn nhất trong kỳ', en: 'Closing price range in the period' },
       thaySo: { vi: '(24.500 − 21.800) ÷ 21.800 × 100', en: '(24500 − 21800) ÷ 21800 × 100' },
       ketQua: { vi: '12,39 %', en: '12.39 %' },
       gan: [
@@ -2631,7 +2631,7 @@ export const RUI_RO: ReadonlyArray<QuizItem> = [
     answer: 'a',
     explain: {
       vi: 'Ông Nguyễn Tuấn Anh: “tôi quyết định tất tay - all in full margin vào cổ phiếu chứng khoán này”; “Ông bị cháy tài khoản và mất toàn bộ tài sản khi đó có được, khoảng 1 triệu USD”. Kết luận của ông: kiểu chơi này “về dài hạn gần như chắc chắn sẽ thua, bất kể trước đó họ đã thắng được bao nhiêu tiền”.',
-      en: 'Nguyễn Tuấn Anh: “tôi quyết định tất tay - all in full margin vào cổ phiếu chứng khoán này” (I decided to go all-in, full margin, into this stock); “Ông bị cháy tài khoản và mất toàn bộ tài sản khi đó có được, khoảng 1 triệu USD” (he blew up his account and lost all the assets he had at the time, about USD 1 million). His conclusion: this style of trading “về dài hạn gần như chắc chắn sẽ thua, bất kể trước đó họ đã thắng được bao nhiêu tiền” (over the long run is almost certain to lose, no matter how much was won before).',
+      en: 'Nguyen Tuan Anh: “tôi quyết định tất tay - all in full margin vào cổ phiếu chứng khoán này” (I decided to go all-in, full margin, into this stock); “Ông bị cháy tài khoản và mất toàn bộ tài sản khi đó có được, khoảng 1 triệu USD” (he blew up his account and lost all the assets he had at the time, about USD 1 million). His conclusion: this style of trading “về dài hạn gần như chắc chắn sẽ thua, bất kể trước đó họ đã thắng được bao nhiêu tiền” (over the long run is almost certain to lose, no matter how much was won before).',
     },
     source: {
       url: 'https://cafebiz.vn/tung-chay-tai-khoan-mat-1-trieu-usd-vi-all-in-full-margin-nha-sang-lap-finpeace-chia-se-bi-kip-giup-nha-dau-tu-ne-nhung-cu-sap-tren-thi-truong-176221117102257897.chn',
@@ -2700,7 +2700,7 @@ export const RUI_RO: ReadonlyArray<QuizItem> = [
     answer: 'b',
     explain: {
       vi: 'Ông Nguyễn Khoa (FinSuccess): “nhiều nhà đầu tư đang đa dạng hóa theo tên gọi tài sản thay vì bản chất rủi ro”. Bài chỉ ra khi thị trường suy giảm, sở hữu 10–20 mã vẫn không giúp giảm rủi ro đáng kể.',
-      en: 'Nguyễn Khoa (FinSuccess): “nhiều nhà đầu tư đang đa dạng hóa theo tên gọi tài sản thay vì bản chất rủi ro” (many investors diversify by asset name rather than by the actual nature of the risk). The article shows that during a broad market downturn, holding 10–20 stocks still does not meaningfully reduce risk.',
+      en: 'Nguyen Khoa (FinSuccess): “nhiều nhà đầu tư đang đa dạng hóa theo tên gọi tài sản thay vì bản chất rủi ro” (many investors diversify by asset name rather than by the actual nature of the risk). The article shows that during a broad market downturn, holding 10–20 stocks still does not meaningfully reduce risk.',
     },
     source: {
       url: 'https://tuoitre.vn/vi-sao-danh-muc-co-co-phieu-nhieu-nganh-nhung-van-rui-ro-100260810133658464.htm',
@@ -2799,7 +2799,10 @@ export const RUI_RO: ReadonlyArray<QuizItem> = [
       en: "Since the mean is 0%, each session's deviation equals its own return: the squares are 4, 1, 1, 4, 0 (%²), summing to 10. Because this is the SAMPLE standard deviation, divide by (n − 1) = 4, not by n = 5: variance = 10/4 = 2.5 (%²) → standard deviation = √2.5 ≈ 1.58%/session. Dividing by n instead would wrongly give 1.41%/session. The source confirms the n − 1 (Bessel's correction) convention for samples: “The key difference is the denominator: N for population (divide by total count) vs n−1 for samples (Bessel's correction to reduce bias).”",
     },
     giai: {
-      tinh: { vi: 'Độ lệch chuẩn lợi suất theo phiên', en: 'Daily return standard deviation' },
+      tinh: {
+        vi: 'Độ lệch chuẩn lợi suất theo phiên',
+        en: 'Per-session return standard deviation',
+      },
       thaySo: {
         vi: '√(((2 − 0)^2 + (−1 − 0)^2 + (1 − 0)^2 + (−2 − 0)^2 + (0 − 0)^2) ÷ (5 − 1))',
         en: '√(((2 − 0)^2 + (−1 − 0)^2 + (1 − 0)^2 + (−2 − 0)^2 + (0 − 0)^2) ÷ (5 − 1))',

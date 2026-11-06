@@ -50,4 +50,37 @@ export interface NotationView {
    */
   expression: Readonly<Record<'vi' | 'en', ReadonlyArray<ReadonlyArray<ExpressionSegment>>>>;
   howTo: ReadonlyArray<NotationHowToView>;
+  /**
+   * Bản tiếng Anh của mọi MathML trên (05/11/2026) — có khi và chỉ khi hình của công thức có chữ Việt
+   * (`	ext{Tổng nợ phải trả}`, `P_{mua}`, LNST…). Màn chọn bản theo ngôn ngữ qua
+   * `notationForLocale()`; vắng thì bản trên dùng cho cả hai thứ tiếng.
+   */
+  en?: NotationEnView;
+}
+
+/** MathML tiếng Anh, cùng hình dạng và thứ tự với các trường tương ứng của `NotationView`. */
+export interface NotationEnView {
+  latexHtml: string;
+  symbolsHtml: ReadonlyArray<string>;
+  /** `stepsHtml[i][j]` là `howTo[i].steps[j].html` bản tiếng Anh. */
+  stepsHtml: ReadonlyArray<ReadonlyArray<string>>;
+}
+
+/**
+ * Thẻ Công thức theo ngôn ngữ ĐANG HIỆN: ở tiếng Anh, thay mọi MathML bằng bản tiếng Anh nếu công thức
+ * có. Hàm thuần, không kéo `katex` — client gọi được. Trả CHÍNH `view` khi không có gì để thay, để
+ * `useMemo` của các khối bên dưới không dựng lại MathML vô cớ.
+ */
+export function notationForLocale(view: NotationView, locale: 'vi' | 'en'): NotationView {
+  const en = view.en;
+  if (locale === 'vi' || en === undefined) return view;
+  return {
+    ...view,
+    latexHtml: en.latexHtml,
+    symbolsHtml: en.symbolsHtml,
+    howTo: view.howTo.map((entry, i) => ({
+      ...entry,
+      steps: entry.steps.map((step, j) => ({ ...step, html: en.stepsHtml[i]?.[j] ?? step.html })),
+    })),
+  };
 }

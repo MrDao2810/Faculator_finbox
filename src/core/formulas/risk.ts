@@ -42,7 +42,7 @@ export const CO_LENH_RUI_RO: FormulaModule = {
         latex: 'r',
         meaning: {
           vi: 'rủi ro mỗi lệnh, tức phần vốn chấp nhận mất nếu chạm cắt lỗ, dạng thập phân, 2% là 0,02',
-          en: 'risk per trade, the capital share you accept losing at the stop, as a decimal, 2% is 0.02',
+          en: 'risk per trade, the fraction of capital you accept losing at the stop-loss, 2% is 0.02',
         },
       },
       {
@@ -99,7 +99,7 @@ export const CO_LENH_RUI_RO: FormulaModule = {
       ),
       numberVar(
         'entryPrice',
-        { vi: 'Giá vào lệnh (Pvao)', en: 'Entry price (Pvao)' },
+        { vi: 'Giá vào lệnh (Pvao)', en: 'Entry price (Pentry)' },
         '₫',
         92_000,
         {
@@ -113,7 +113,7 @@ export const CO_LENH_RUI_RO: FormulaModule = {
       ),
       numberVar(
         'stopPrice',
-        { vi: 'Giá cắt lỗ (Pcat)', en: 'Stop-loss price (Pcat)' },
+        { vi: 'Giá cắt lỗ (Pcat)', en: 'Stop-loss price (Pstop)' },
         '₫',
         86_000,
         {

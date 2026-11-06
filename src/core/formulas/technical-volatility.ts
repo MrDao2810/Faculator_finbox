@@ -132,7 +132,7 @@ function requireOhlc(ctx: CalcContext, min: number): OhlcBar[] | CalcWarning {
     usable.push({ high, low, close });
   }
 
-  return usable.length >= min ? usable : missingSeries(min, usable.length, WHAT_OHLC);
+  return usable.length >= min ? usable : missingSeries(min, WHAT_OHLC);
 }
 
 /** Như `requireOhlc` nhưng cho công thức cần khối lượng. Khối lượng âm là dòng hỏng, loại. */
@@ -147,7 +147,7 @@ function requireVolumeBars(ctx: CalcContext, min: number): VolumeBar[] | CalcWar
     usable.push({ date: bar.date, close, volume });
   }
 
-  return usable.length >= min ? usable : missingSeries(min, usable.length, WHAT_VOLUME);
+  return usable.length >= min ? usable : missingSeries(min, WHAT_VOLUME);
 }
 
 /** Chu kỳ người dùng nhập luôn quy về số nguyên — nửa phiên thì không có nghĩa gì. */
@@ -240,7 +240,7 @@ function bollingerParts(ctx: CalcContext, period: number, k: number): BollingerP
 
   const window = closes.slice(-period);
   const last = window[window.length - 1];
-  if (last === undefined) return missingSeries(period, window.length);
+  if (last === undefined) return missingSeries(period);
 
   return {
     middle: mean(window),
@@ -333,14 +333,14 @@ export const DAI_BOLLINGER_TREN: FormulaModule = {
         latex: 'BB_{tren}',
         meaning: {
           vi: 'dải Bollinger trên, ₫',
-          en: 'upper Bollinger band, in VND',
+          en: 'upper Bollinger band, ₫',
         },
       },
       {
         latex: 'SMA_{n}',
         meaning: {
           vi: 'trung bình cộng giá đóng cửa n phiên gần nhất, là đường giữa, ₫',
-          en: 'simple average of the last n closes, the middle line, in VND',
+          en: 'simple average of the last n closes, the middle line, ₫',
         },
       },
       {
@@ -361,7 +361,7 @@ export const DAI_BOLLINGER_TREN: FormulaModule = {
         latex: '\\sigma_{n}',
         meaning: {
           vi: 'độ lệch chuẩn của giá đóng cửa n phiên đó, chia cho n, ₫',
-          en: 'standard deviation of those n closes, divided by n, in VND',
+          en: 'population standard deviation of those n closes, squares divided by n, not n − 1, ₫',
         },
       },
     ],
@@ -484,14 +484,14 @@ export const DAI_BOLLINGER_DUOI: FormulaModule = {
         latex: 'BB_{duoi}',
         meaning: {
           vi: 'dải Bollinger dưới, ₫',
-          en: 'lower Bollinger band, in VND',
+          en: 'lower Bollinger band, ₫',
         },
       },
       {
         latex: 'SMA_{n}',
         meaning: {
           vi: 'trung bình cộng giá đóng cửa n phiên gần nhất, là đường giữa, ₫',
-          en: 'simple average of the last n closes, the middle line, in VND',
+          en: 'simple average of the last n closes, the middle line, ₫',
         },
       },
       {
@@ -512,7 +512,7 @@ export const DAI_BOLLINGER_DUOI: FormulaModule = {
         latex: '\\sigma_{n}',
         meaning: {
           vi: 'độ lệch chuẩn của giá đóng cửa n phiên đó, chia cho n, ₫',
-          en: 'standard deviation of those n closes, divided by n, in VND',
+          en: 'population standard deviation of those n closes, squares divided by n, not n − 1, ₫',
         },
       },
     ],
@@ -636,21 +636,21 @@ export const DO_RONG_DAI_BOLLINGER: FormulaModule = {
         latex: 'BB_{tren}',
         meaning: {
           vi: 'dải trên: đường giữa cộng hệ số nhân × độ lệch chuẩn của chu kỳ, ₫',
-          en: 'upper band: middle line plus multiplier × standard deviation of the period, in VND',
+          en: 'upper band: middle line plus multiplier × standard deviation of the period, ₫',
         },
       },
       {
         latex: 'BB_{duoi}',
         meaning: {
           vi: 'dải dưới: đường giữa trừ hệ số nhân × độ lệch chuẩn của chu kỳ, ₫',
-          en: 'lower band: middle line minus multiplier × standard deviation of the period, in VND',
+          en: 'lower band: middle line minus multiplier × standard deviation of the period, ₫',
         },
       },
       {
         latex: 'SMA_{n}',
         meaning: {
           vi: 'đường giữa, tức trung bình cộng giá đóng cửa n phiên gần nhất, ₫',
-          en: 'middle line, the simple average of the last n closes, in VND',
+          en: 'middle line, the simple average of the last n closes, ₫',
         },
       },
       {
@@ -770,7 +770,7 @@ export const ATR_DAO_DONG_THUC: FormulaModule = {
     name: { vi: 'ATR - dao động thực trung bình', en: 'ATR - average true range (Wilder)' },
     description: {
       vi: 'Biên độ một phiên thường đi được bao nhiêu đồng, đã tính cả khoảng nhảy giá so với phiên trước.',
-      en: 'How many VND a session typically moves, including any price gap versus the previous session.',
+      en: 'How many dong a session typically moves, including any price gap versus the previous session.',
     },
     latex:
       'TR_t = \\max(H_t - L_t,\\ |H_t - C_{t-1}|,\\ |L_t - C_{t-1}|), \\quad ATR_t = \\frac{(n-1) ATR_{t-1} + TR_t}{n}',
@@ -795,42 +795,42 @@ export const ATR_DAO_DONG_THUC: FormulaModule = {
         latex: 'ATR_t',
         meaning: {
           vi: 'ATR tại phiên t, tức dao động thực trung bình, ₫',
-          en: 'ATR at session t, the average true range, in VND',
+          en: 'ATR at session t, the average true range, ₫',
         },
       },
       {
         latex: 'TR_t',
         meaning: {
           vi: 'dao động thực của phiên t, lấy số lớn nhất trong ba khoảng cách, ₫',
-          en: 'true range of session t, the largest of three gaps, in VND',
+          en: 'true range of session t, the largest of three gaps, ₫',
         },
       },
       {
         latex: 'H_t',
         meaning: {
           vi: 'giá cao nhất trong phiên t, ₫',
-          en: 'high of session t, in VND',
+          en: 'high of session t, ₫',
         },
       },
       {
         latex: 'L_t',
         meaning: {
           vi: 'giá thấp nhất trong phiên t, ₫',
-          en: 'low of session t, in VND',
+          en: 'low of session t, ₫',
         },
       },
       {
         latex: 'C_{t-1}',
         meaning: {
           vi: 'giá đóng cửa phiên liền trước, ₫',
-          en: 'close of the previous session, in VND',
+          en: 'close of the previous session, ₫',
         },
       },
       {
         latex: 't',
         meaning: {
           vi: 'phiên đang xét',
-          en: 'the session in view',
+          en: 'the session being examined',
         },
       },
       {
@@ -869,7 +869,7 @@ export const ATR_DAO_DONG_THUC: FormulaModule = {
       unit: '₫',
       lines: [
         {
-          label: { vi: 'ATR {n} phiên', en: '{n}-period ATR' },
+          label: { vi: 'ATR {n} phiên', en: '{n}-session ATR' },
           periodKey: 'period',
           tone: 'primary',
         },
@@ -892,7 +892,7 @@ export const ATR_DAO_DONG_THUC: FormulaModule = {
     explanation: {
       meaning: {
         vi: 'Thước đo biên độ một phiên tính bằng đồng, cộng cả phần giá nhảy qua đêm - nên nó phản ánh rủi ro thật hơn là lấy giá cao trừ giá thấp.',
-        en: "A measure of a session's range in VND that also includes overnight price gaps - so it reflects real risk better than simply taking high minus low.",
+        en: "A measure of a session's range in dong that also includes overnight price gaps - so it reflects real risk better than simply taking high minus low.",
       },
       whenToUse: {
         vi: 'Dùng khi bạn sắp đặt lệnh cắt lỗ hay chốt lời cho một mã và muốn biết một phiên bình thường giá của nó lên xuống khoảng bao nhiêu đồng.',
@@ -904,7 +904,7 @@ export const ATR_DAO_DONG_THUC: FormulaModule = {
       },
       commonMistakes: {
         vi: 'So ATR giữa hai mã có thị giá khác xa nhau: 500 ₫ trên cổ phiếu 26.000 ₫ khác hẳn 500 ₫ trên cổ phiếu 200.000 ₫. Muốn so thì chia ATR cho giá.',
-        en: 'Comparing ATR across two stocks with very different prices: 500 VND on a 26,000 VND stock is nothing like 500 VND on a 200,000 VND stock. To compare, divide ATR by price.',
+        en: 'Comparing ATR across two stocks with very different prices: 500 ₫ on a 26,000 ₫ stock is nothing like 500 ₫ on a 200,000 ₫ stock. To compare, divide ATR by price.',
       },
     },
     example: {
@@ -985,7 +985,7 @@ export const ATR_DAO_DONG_THUC: FormulaModule = {
     }
 
     if (trueRanges.length < period) {
-      return fail(unit, missingSeries(period + 1, trueRanges.length + 1, WHAT_OHLC));
+      return fail(unit, missingSeries(period + 1, WHAT_OHLC));
     }
 
     // Wilder: mồi bằng trung bình cộng của `period` dao động đầu, rồi làm mượt dần về sau.
@@ -1029,7 +1029,10 @@ export const PHAN_TRAM_B_BOLLINGER: FormulaModule = {
   spec: {
     id: 'phan-tram-b-bollinger',
     categoryId: 'technical',
-    name: { vi: '%B - vị trí giá trong dải Bollinger', en: 'Bollinger %B' },
+    name: {
+      vi: '%B - vị trí giá trong dải Bollinger',
+      en: '%B - price position within the Bollinger bands',
+    },
     description: {
       vi: 'Giá đóng cửa đang nằm ở đâu giữa hai dải: 0% là dải dưới, 100% là dải trên.',
       en: 'Where the closing price sits between the two bands: 0% is the lower band, 100% is the upper band.',
@@ -1052,21 +1055,21 @@ export const PHAN_TRAM_B_BOLLINGER: FormulaModule = {
         latex: 'C',
         meaning: {
           vi: 'giá đóng cửa phiên gần nhất, ₫',
-          en: 'latest closing price, in VND',
+          en: 'latest closing price, ₫',
         },
       },
       {
         latex: 'BB_{duoi}',
         meaning: {
           vi: 'dải dưới, theo ô Chu kỳ dải Bollinger và ô Hệ số nhân độ lệch chuẩn, ₫',
-          en: 'lower band, from the Bollinger band period and multiplier fields, in VND',
+          en: 'lower band, from the Bollinger band period and Standard deviation multiplier fields, ₫',
         },
       },
       {
         latex: 'BB_{tren}',
         meaning: {
           vi: 'dải trên, theo ô Chu kỳ dải Bollinger và ô Hệ số nhân độ lệch chuẩn, ₫',
-          en: 'upper band, from the Bollinger band period and multiplier fields, in VND',
+          en: 'upper band, from the Bollinger band period and Standard deviation multiplier fields, ₫',
         },
       },
       {
@@ -1254,21 +1257,21 @@ export const STOCHASTIC_K: FormulaModule = {
         latex: 'C',
         meaning: {
           vi: 'giá đóng cửa phiên gần nhất, ₫',
-          en: 'latest closing price, in VND',
+          en: 'latest closing price, ₫',
         },
       },
       {
         latex: 'L_{n}',
         meaning: {
           vi: 'giá thấp nhất trong n phiên gần nhất, ₫',
-          en: 'lowest low of the last n sessions, in VND',
+          en: 'lowest low of the last n sessions, ₫',
         },
       },
       {
         latex: 'H_{n}',
         meaning: {
           vi: 'giá cao nhất trong n phiên gần nhất, ₫',
-          en: 'highest high of the last n sessions, in VND',
+          en: 'highest high of the last n sessions, ₫',
         },
       },
       {
@@ -1409,7 +1412,7 @@ export const STOCHASTIC_K: FormulaModule = {
 
     const window = bars.slice(-period);
     const last = window[window.length - 1];
-    if (last === undefined) return fail(unit, missingSeries(period, window.length, WHAT_OHLC));
+    if (last === undefined) return fail(unit, missingSeries(period, WHAT_OHLC));
 
     const highest = Math.max(...window.map((row) => row.high));
     const lowest = Math.min(...window.map((row) => row.low));
@@ -1445,7 +1448,7 @@ export const VWAP: FormulaModule = {
     categoryId: 'technical',
     name: {
       vi: 'VWAP - giá bình quân theo khối lượng',
-      en: 'VWAP - volume weighted average price',
+      en: 'VWAP - volume-weighted average price',
     },
     description: {
       vi: 'Giá trung bình của n phiên gần nhất, nhưng phiên khớp nhiều cổ phiếu được tính nặng hơn.',
@@ -1462,14 +1465,14 @@ export const VWAP: FormulaModule = {
         latex: 'VWAP',
         meaning: {
           vi: 'giá bình quân theo khối lượng của các phiên gộp, ₫',
-          en: 'volume-weighted average price over the pooled sessions, in VND',
+          en: 'volume-weighted average price over the last n sessions, ₫',
         },
       },
       {
         latex: 'C_i',
         meaning: {
           vi: 'giá đóng cửa phiên i, ₫',
-          en: 'closing price of session i, in VND',
+          en: 'closing price of session i, ₫',
         },
       },
       {
@@ -1483,14 +1486,14 @@ export const VWAP: FormulaModule = {
         latex: 'i',
         meaning: {
           vi: 'phiên đang xét, chạy qua số phiên gộp gần nhất',
-          en: 'the session in view, running over the pooled sessions',
+          en: 'the session being examined, running over the last n sessions',
         },
       },
       {
         latex: 'n',
         meaning: {
           vi: 'số phiên gộp gần nhất, phiên',
-          en: 'number of most recent pooled sessions',
+          en: 'number of most recent sessions in the average',
         },
       },
     ],
@@ -1503,7 +1506,7 @@ export const VWAP: FormulaModule = {
     variables: [
       sliderVar(
         'period',
-        { vi: 'Số phiên gộp (n)', en: 'Sessions to pool (n)' },
+        { vi: 'Số phiên gộp (n)', en: 'Number of sessions (n)' },
         'phiên',
         20,
         5,
@@ -1538,7 +1541,7 @@ export const VWAP: FormulaModule = {
     example: {
       title: {
         vi: 'VWAP của FPT trên chuỗi 250 phiên 12/09/2025–15/09/2026, gộp 20 phiên gần nhất',
-        en: 'FPT VWAP over the 250 sessions from 2025-09-12 to 2026-09-15, pooling the last 20 sessions',
+        en: 'FPT VWAP over the 250 sessions from 2025-09-12 to 2026-09-15, averaging the last 20 sessions',
       },
       inputs: { period: 20 },
       bars: FPT_BARS,
@@ -1638,7 +1641,7 @@ export const DO_BIEN_DONG_LICH_SU: FormulaModule = {
     name: { vi: 'Độ biến động lịch sử năm hoá', en: 'Annualized historical volatility' },
     description: {
       vi: 'Độ lệch chuẩn của lợi suất log hằng phiên, quy về mức tương đương cả năm bằng cách nhân với căn bậc hai của số phiên giao dịch một năm.',
-      en: 'The standard deviation of daily log returns, scaled to an annual-equivalent level by multiplying by the square root of the number of sessions in a year.',
+      en: 'The standard deviation of per-session log returns, scaled to an annual-equivalent level by multiplying by the square root of the number of sessions in a year.',
     },
     /*
      * Hai vế, viết bằng phép tính (30/10/2026). Hình cũ là `\sigma_{n}(\ln \frac{P_t}{P_{t-1}})`: một
@@ -1651,7 +1654,7 @@ export const DO_BIEN_DONG_LICH_SU: FormulaModule = {
       '\\sigma_{nam} = s \\times \\sqrt{N} \\times 100 \\qquad s = \\sqrt{\\frac{\\sum_{t=2}^{n}(u_t - \\bar{u})^2}{n - 2}}',
     expression: {
       vi: 'Độ biến động năm = Độ lệch chuẩn mẫu của lợi suất log × căn bậc hai của Số phiên một năm × 100\nĐộ lệch chuẩn mẫu của lợi suất log = căn bậc hai của [Tổng bình phương (Lợi suất log phiên t − Lợi suất log bình quân) ÷ (Số phiên giá lấy mẫu − 2)]',
-      en: 'Annual volatility = Sample standard deviation of log returns × square root of Sessions per year × 100\nSample standard deviation of log returns = square root of [Sum of squares (Log return of session t − Average log return) ÷ (Sample sessions − 2)]',
+      en: 'Annualized volatility = Sample standard deviation of log returns × square root of Trading sessions per year × 100\nSample standard deviation of log returns = square root of [Sum of squares (Log return of session t − Average log return) ÷ (Number of price sessions in the sample − 2)]',
     },
     substitution: '{@sigmaLog} × √{tradingDays} × 100',
     symbols: [
@@ -1687,14 +1690,14 @@ export const DO_BIEN_DONG_LICH_SU: FormulaModule = {
         latex: 't',
         meaning: {
           vi: 'phiên đang xét, đánh số từ 2 tới n vì phiên 1 chưa có phiên trước để so',
-          en: 'the session in view, numbered 2 to n since session 1 has no previous close',
+          en: 'the session being examined, numbered 2 to n since session 1 has no previous close',
         },
       },
       {
         latex: 'n',
         meaning: {
           vi: 'số phiên giá lấy mẫu',
-          en: 'number of sampled price sessions',
+          en: 'number of price sessions in the sample',
         },
       },
       {
@@ -1745,7 +1748,7 @@ export const DO_BIEN_DONG_LICH_SU: FormulaModule = {
     variables: [
       sliderVar(
         'sample',
-        { vi: 'Số phiên giá lấy mẫu (n)', en: 'Sample sessions (n)' },
+        { vi: 'Số phiên giá lấy mẫu (n)', en: 'Number of price sessions in the sample (n)' },
         'phiên',
         60,
         10,
@@ -1896,7 +1899,7 @@ export const TY_LE_KHOI_LUONG: FormulaModule = {
     latex: 'RVOL = \\frac{V_t}{\\frac{1}{n}\\sum_{i=1}^{n} V_{t-i}}',
     expression: {
       vi: 'Tỷ lệ khối lượng = Khối lượng phiên gần nhất ÷ Trung bình khối lượng n phiên liền trước',
-      en: "Volume ratio = Most recent session's volume ÷ Average volume of the preceding n sessions",
+      en: "Relative volume = Most recent session's volume ÷ Average volume of the preceding n sessions",
     },
     /* Mẫu số của hình là một ký hiệu có tên trong bảng ký hiệu (trung bình n phiên liền trước). */
     substitution: '{@khoiLuong} ÷ {@khoiLuongTrungBinh}',
@@ -1947,7 +1950,7 @@ export const TY_LE_KHOI_LUONG: FormulaModule = {
         latex: 'n',
         meaning: {
           vi: 'số phiên lấy trung bình, chỉ gồm các phiên liền trước',
-          en: 'sessions to average, only the preceding ones',
+          en: 'number of sessions to average, only the preceding ones',
         },
       },
     ],
@@ -1958,7 +1961,7 @@ export const TY_LE_KHOI_LUONG: FormulaModule = {
     variables: [
       sliderVar(
         'period',
-        { vi: 'Số phiên lấy trung bình (n)', en: 'Sessions to average (n)' },
+        { vi: 'Số phiên lấy trung bình (n)', en: 'Number of sessions to average (n)' },
         'phiên',
         20,
         5,
@@ -2053,7 +2056,7 @@ export const TY_LE_KHOI_LUONG: FormulaModule = {
     if (!Array.isArray(bars)) return fail(unit, bars);
 
     const last = bars[bars.length - 1];
-    if (last === undefined) return fail(unit, missingSeries(period + 1, 0, WHAT_VOLUME));
+    if (last === undefined) return fail(unit, missingSeries(period + 1, WHAT_VOLUME));
 
     const previous = bars.slice(-(period + 1), -1).map((row) => row.volume);
     const average = mean(previous);
@@ -2062,7 +2065,7 @@ export const TY_LE_KHOI_LUONG: FormulaModule = {
       return fail(
         unit,
         divideByZero(
-          { vi: 'tỷ lệ khối lượng', en: 'volume ratio' },
+          { vi: 'tỷ lệ khối lượng', en: 'relative volume' },
           { vi: 'khối lượng trung bình', en: 'average volume' },
           {
             vi: 'Các phiên làm mốc đều có khối lượng bằng 0. Kiểm tra lại cột khối lượng của bảng dữ liệu.',

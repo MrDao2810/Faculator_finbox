@@ -83,7 +83,7 @@ export const PHI_THUE: ReadonlyArray<QuizItem> = [
       },
       c: {
         vi: 'Được nếu cùng công ty chứng khoán',
-        en: 'Yes, if both trades are with the same securities company',
+        en: 'Yes, if both trades go through the same broker',
       },
       d: { vi: 'Được nếu cùng tháng', en: 'Yes, if both occur in the same month' },
     },
@@ -140,7 +140,7 @@ export const PHI_THUE: ReadonlyArray<QuizItem> = [
       a: { vi: 'Có, dưới 10 triệu được miễn', en: 'Yes, trades under VND 10 million are exempt' },
       b: { vi: 'Không có ngưỡng miễn nào', en: 'No, there is no exemption threshold' },
       c: { vi: 'Có với cổ phiếu lẻ', en: 'Yes, for odd-lot shares' },
-      d: { vi: 'Tuỳ công ty chứng khoán', en: 'It depends on the securities company' },
+      d: { vi: 'Tuỳ công ty chứng khoán', en: 'It depends on the broker' },
     },
     answer: 'b',
     explain: {
@@ -161,7 +161,7 @@ export const PHI_THUE: ReadonlyArray<QuizItem> = [
     evidence: 'quy-dinh',
     prompt: {
       vi: 'Phí giao dịch và thuế TNCN thu ở chiều nào?',
-      en: 'Which side of a trade are the transaction fee and personal income tax collected on?',
+      en: 'Which side of a trade are the brokerage fee and personal income tax collected on?',
     },
     choices: {
       a: { vi: 'Cả hai đều thu hai chiều', en: 'Both are collected on both sides' },
@@ -191,7 +191,7 @@ export const PHI_THUE: ReadonlyArray<QuizItem> = [
     evidence: 'quy-dinh',
     prompt: {
       vi: 'Trần phí giao dịch mà công ty chứng khoán được thu theo Thông tư 128 là bao nhiêu?',
-      en: 'Under Circular 128, what is the cap on the transaction fee a securities company may charge?',
+      en: 'Under Circular 128, what is the cap on the brokerage fee a broker may charge?',
     },
     choices: {
       a: { vi: '0,15%', en: '0.15%' },
@@ -219,7 +219,7 @@ export const PHI_THUE: ReadonlyArray<QuizItem> = [
     evidence: 'quy-dinh',
     prompt: {
       vi: 'Cùng lệnh 166,5 triệu đồng, chênh lệch phí giữa các công ty chứng khoán có đáng kể không?',
-      en: 'For the same VND 166.5 million order, is the fee difference between securities companies significant?',
+      en: 'For the same VND 166.5 million order, is the fee difference between brokers significant?',
     },
     choices: {
       a: { vi: 'Không đáng kể', en: 'Not significant' },
@@ -228,7 +228,7 @@ export const PHI_THUE: ReadonlyArray<QuizItem> = [
         en: "Very significant - a 0.2% fee is VND 333,000, while the market's published fee schedules span roughly 0.027% to 0.5%",
       },
       c: { vi: 'Chỉ chênh vài nghìn đồng', en: 'Only a few thousand dong of difference' },
-      d: { vi: 'Các công ty thu như nhau', en: 'All companies charge the same' },
+      d: { vi: 'Các công ty thu như nhau', en: 'All brokers charge the same' },
     },
     answer: 'b',
     explain: {
@@ -249,12 +249,12 @@ export const PHI_THUE: ReadonlyArray<QuizItem> = [
     evidence: 'quy-dinh',
     prompt: {
       vi: 'Mở tài khoản ở công ty “miễn phí giao dịch” thì giao dịch không tốn chi phí nào?',
-      en: 'If you open an account at a company advertising “free trading”, does that mean no cost on any trade?',
+      en: 'If you open an account at a broker advertising “free trading”, does that mean no cost on any trade?',
     },
     choices: {
       a: {
         vi: 'Sai - vẫn còn thuế 0,1% khi bán, phí lưu ký hằng tháng và lãi margin',
-        en: 'False - the 0.1% sale tax, the monthly depository fee and margin interest still apply',
+        en: 'False - the 0.1% transfer tax on sales, the monthly custody fee and margin interest still apply',
       },
       b: { vi: 'Đúng', en: 'True' },
       c: { vi: 'Đúng nếu giao dịch online', en: 'True, if trading online' },
@@ -263,7 +263,7 @@ export const PHI_THUE: ReadonlyArray<QuizItem> = [
     answer: 'a',
     explain: {
       vi: 'Nguồn nhấn mạnh “free trading” không loại bỏ chi phí: thuế, phí lưu ký và lãi margin vẫn áp dụng bất kể chọn công ty nào.',
-      en: 'The source stresses that “free trading” does not eliminate costs: taxes, the depository fee and margin interest still apply regardless of which company you choose.',
+      en: 'The source stresses that “free trading” does not eliminate costs: taxes, the custody fee and margin interest still apply whichever broker you choose.',
     },
     source: {
       url: 'https://www.vfs.com.vn/phi-giao-dich-chung-khoan-re-nhat',
@@ -279,7 +279,7 @@ export const PHI_THUE: ReadonlyArray<QuizItem> = [
     evidence: 'quy-dinh',
     prompt: {
       vi: 'Phí lưu ký chứng khoán tính trên cơ sở nào?',
-      en: 'What is the securities depository fee calculated on?',
+      en: 'What is the securities custody fee calculated on?',
     },
     choices: {
       a: { vi: 'Phần trăm giá trị danh mục', en: 'A percentage of portfolio value' },
@@ -293,7 +293,7 @@ export const PHI_THUE: ReadonlyArray<QuizItem> = [
     answer: 'c',
     explain: {
       vi: 'Theo Thông tư 127/2018/TT-BTC: cổ phiếu, chứng chỉ quỹ, chứng quyền 0,27 đồng/đơn vị/tháng. Nguồn ghi nhận nhà đầu tư thường nhầm phí lưu ký với phí giao dịch; phí này chỉ phụ thuộc SỐ LƯỢNG, không phụ thuộc giá trị danh mục. Đây cũng là chỗ rất dễ lập trình sai.',
-      en: 'Under Circular 127/2018/TT-BTC: stocks, fund certificates and covered warrants are charged VND 0.27/unit/month. The source notes that investors commonly confuse the depository fee with the transaction fee; this fee depends only on QUANTITY, not on portfolio value. This is also a place where the calculation is very easy to code wrong.',
+      en: 'Under Circular 127/2018/TT-BTC: stocks, fund certificates and covered warrants are charged VND 0.27/unit/month. The source notes that investors commonly confuse the custody fee with the brokerage fee; this fee depends only on QUANTITY, not on portfolio value. This is also a place where the calculation is very easy to code wrong.',
     },
     source: {
       url: 'https://thuvienchungkhoan.vn/phi-luu-ky-chung-khoan/',
@@ -309,7 +309,7 @@ export const PHI_THUE: ReadonlyArray<QuizItem> = [
     evidence: 'quy-dinh',
     prompt: {
       vi: 'Tháng này bạn không mua bán gì. Có bị trừ phí lưu ký không?',
-      en: "This month you didn't buy or sell anything. Is the depository fee still deducted?",
+      en: "This month you didn't buy or sell anything. Is the custody fee still deducted?",
     },
     choices: {
       a: { vi: 'Không', en: 'No' },
@@ -321,12 +321,12 @@ export const PHI_THUE: ReadonlyArray<QuizItem> = [
         vi: 'Có - phí tính theo số dư bình quân cuối mỗi ngày, gồm cả ngày nghỉ lễ',
         en: 'Yes - the fee is based on the average end-of-day balance, weekends and holidays included',
       },
-      d: { vi: 'Tuỳ công ty chứng khoán', en: 'It depends on the securities company' },
+      d: { vi: 'Tuỳ công ty chứng khoán', en: 'It depends on the broker' },
     },
     answer: 'c',
     explain: {
       vi: 'Có. Phí lưu ký trả cho việc giữ chứng khoán trên tài khoản, tách hẳn khỏi phí giao dịch, nên tháng không mua bán gì vẫn bị trừ. Nguyên văn: “Depository fees are separate from transaction fees and apply regardless of whether trading occurs”. ACBS minh hoạ mức “1.000 x 0,27 = 270 VNĐ” mỗi tháng cho 1.000 chứng khoán, và tính cả ngày nghỉ: “Calculations include weekends and holidays”.',
-      en: 'Yes. The depository fee pays for holding the securities in the account, entirely separate from trading fees, so a month with no trades is still charged. Verbatim: “Depository fees are separate from transaction fees and apply regardless of whether trading occurs”. ACBS works it through as “1.000 x 0,27 = 270 VNĐ” a month per 1,000 securities, weekends included: “Calculations include weekends and holidays”.',
+      en: 'Yes. The custody fee pays for holding the securities in the account, entirely separate from trading fees, so a month with no trades is still charged. Verbatim: “Depository fees are separate from transaction fees and apply regardless of whether trading occurs”. ACBS works it through as “1.000 x 0,27 = 270 VNĐ” a month per 1,000 securities, weekends included: “Calculations include weekends and holidays”.',
     },
     source: {
       url: 'https://acbs.com.vn/blog/phi-luu-ky-chung-khoan',
@@ -342,13 +342,13 @@ export const PHI_THUE: ReadonlyArray<QuizItem> = [
     evidence: 'quy-dinh',
     prompt: {
       vi: 'Chuyển sang công ty chứng khoán khác có được phí lưu ký rẻ hơn không?',
-      en: 'Does switching to a different securities company get you a cheaper depository fee?',
+      en: 'Does switching to a different broker get you a cheaper custody fee?',
     },
     choices: {
-      a: { vi: 'Có, mỗi công ty một mức', en: 'Yes, each company sets its own rate' },
+      a: { vi: 'Có, mỗi công ty một mức', en: 'Yes, each broker sets its own rate' },
       b: {
         vi: 'Không - phí trả cho VSDC, do Nhà nước quy định, giống nhau ở mọi công ty',
-        en: 'No - the fee goes to VSDC and is set by the State, so it is the same at every company',
+        en: 'No - the fee goes to VSDC, the securities depository, and is set by the State, so it is the same at every broker',
       },
       c: { vi: 'Có nếu danh mục lớn', en: 'Yes, if the portfolio is large' },
       d: { vi: 'Có với tài khoản mở mới', en: 'Yes, for newly opened accounts' },
@@ -386,7 +386,7 @@ export const PHI_THUE: ReadonlyArray<QuizItem> = [
     answer: 'c',
     explain: {
       vi: 'Theo Nghị định 126/2020/NĐ-CP, “nhà đầu tư bán chứng khoán được chia thưởng, được trả cổ tức sẽ bị khấu trừ 5% thuế thu nhập cá nhân”, cộng 0,1% trên giá trị giao dịch. Nghịch lý được nhà đầu tư nêu: cổ tức cổ phiếu không làm tăng tài sản nhưng vẫn phát sinh nghĩa vụ thuế.',
-      en: 'Under Decree 126/2020/NĐ-CP, “nhà đầu tư bán chứng khoán được chia thưởng, được trả cổ tức sẽ bị khấu trừ 5% thuế thu nhập cá nhân”, plus 0.1% on the transaction value. The paradox investors raise: a stock dividend does not increase actual wealth, yet it still creates a tax obligation.',
+      en: 'Under Decree 126/2020/ND-CP, “nhà đầu tư bán chứng khoán được chia thưởng, được trả cổ tức sẽ bị khấu trừ 5% thuế thu nhập cá nhân” (investors who sell shares received as a bonus or a dividend have 5% personal income tax withheld), plus 0.1% on the transaction value. The paradox investors raise: a stock dividend does not increase actual wealth, yet it still creates a tax obligation.',
     },
     source: {
       url: 'https://vneconomy.vn/thue-co-tuc-bang-co-phieu-nha-dau-tu-thiet-cong-ty-chung-khoan-roi-viec.htm',
@@ -507,7 +507,7 @@ export const PHI_THUE: ReadonlyArray<QuizItem> = [
     answer: 'a',
     explain: {
       vi: 'Vẫn phải nộp, và tổng thuế còn tăng theo số vòng giao dịch chứ không theo lãi lỗ: thuế bán 0,1% tính trên giá trị bán của từng lệnh, nên lỗ ròng cả năm vẫn nộp đủ. Bộ Tài chính thừa nhận cơ chế này tạo tình huống bất hợp lý, nguyên văn “active traders pay more total tax simply from higher transaction volume, even with net losses”. Mỗi vòng mua rồi bán gánh: phí mua, phí bán, thuế bán 0,1% và phí lưu ký hằng tháng.',
-      en: 'Tax is still owed, and the total rises with the number of round trips rather than with profit or loss: the 0.1% sale tax is charged on each sale value, so a year that ends in a net loss still pays in full. The Ministry of Finance acknowledges the outcome is unreasonable, verbatim: “active traders pay more total tax simply from higher transaction volume, even with net losses”. Every round trip carries buying fees, selling fees, the 0.1% sale tax and the monthly depository fee.',
+      en: 'Tax is still owed, and the total rises with the number of round trips rather than with profit or loss: the 0.1% transfer tax is charged on each sale value, so a year that ends in a net loss still pays in full. The Ministry of Finance acknowledges the outcome is unreasonable, verbatim: “active traders pay more total tax simply from higher transaction volume, even with net losses”. Every round trip carries buying fees, selling fees, the 0.1% transfer tax and the monthly custody fee.',
     },
     source: {
       url: 'https://vietstock.vn/2024/11/kien-nghi-cat-lo-chung-khoan-khong-can-dong-thue-143-1247891.htm',
@@ -553,7 +553,7 @@ export const PHI_THUE: ReadonlyArray<QuizItem> = [
     evidence: 'quy-dinh',
     prompt: {
       vi: 'Phí lưu ký bắt đầu tính từ thời điểm nào?',
-      en: 'From what point does the depository fee start accruing?',
+      en: 'From what point does the custody fee start accruing?',
     },
     choices: {
       a: { vi: 'Ngày khớp lệnh mua', en: 'The day the buy order is matched' },
@@ -567,7 +567,7 @@ export const PHI_THUE: ReadonlyArray<QuizItem> = [
     answer: 'd',
     explain: {
       vi: 'Phí lưu ký tính từ ngày chứng khoán về tài khoản, tức ngày thanh toán, chứ không phải ngày khớp lệnh mua; và chỉ dừng khi quyền sở hữu thực sự chuyển sang người mua lúc bán. Nguyên văn: “Fees begin accruing on settlement day, not purchase date. They end when ownership actually transfers to the buyer during sales”.',
-      en: 'The depository fee starts on the day the securities land in the account, the settlement day, not the day the buy order matched; and it stops only when ownership actually transfers to the buyer on a sale. Verbatim: “Fees begin accruing on settlement day, not purchase date. They end when ownership actually transfers to the buyer during sales”.',
+      en: 'The custody fee starts on the day the securities land in the account, the settlement day, not the day the buy order matched; and it stops only when ownership actually transfers to the buyer on a sale. Verbatim: “Fees begin accruing on settlement day, not purchase date. They end when ownership actually transfers to the buyer during sales”.',
     },
     source: {
       url: 'https://thuvienchungkhoan.vn/phi-luu-ky-chung-khoan/',

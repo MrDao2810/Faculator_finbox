@@ -53,10 +53,10 @@ export const RUT_TRUOC_HAN: FormulaModule = {
   spec: {
     id: 'rut-truoc-han',
     categoryId: 'savings',
-    name: { vi: 'Lãi thực nhận khi rút trước hạn', en: 'Early withdrawal interest' },
+    name: { vi: 'Lãi thực nhận khi rút trước hạn', en: 'Interest received on early withdrawal' },
     description: {
       vi: 'Tiền lãi thực nhận khi rút sổ tiết kiệm trước hạn - chỉ được trả theo lãi suất không kỳ hạn, mức cụ thể tuỳ từng ngân hàng.',
-      en: 'The interest actually received when withdrawing a savings book early - paid only at the demand-deposit rate, with the exact rate varying by bank.',
+      en: 'The interest actually received when a term deposit is withdrawn before maturity - paid only at the demand-deposit rate, with the exact rate varying by bank.',
     },
     latex: 'I = P \\times r_{kkh} \\times \\frac{t}{12}',
     expression: {
@@ -75,7 +75,7 @@ export const RUT_TRUOC_HAN: FormulaModule = {
       },
       {
         latex: 'P',
-        meaning: { vi: 'số tiền gửi trên sổ, ₫', en: 'deposit amount on the book, ₫' },
+        meaning: { vi: 'số tiền gửi trên sổ, ₫', en: 'deposit amount, ₫' },
       },
       {
         latex: 'r_{kkh}',
@@ -156,7 +156,7 @@ export const RUT_TRUOC_HAN: FormulaModule = {
           max: 100_000_000_000,
           description: {
             vi: 'Số tiền gốc trên sổ tiết kiệm.',
-            en: 'The principal amount on the savings book.',
+            en: 'The principal held in the term deposit.',
           },
         },
       ),
@@ -171,7 +171,7 @@ export const RUT_TRUOC_HAN: FormulaModule = {
         {
           description: {
             vi: 'Mức lãi ghi trên sổ - chỉ được hưởng nếu gửi đủ kỳ hạn.',
-            en: 'The rate stated on the book - only earned if held for the full term.',
+            en: 'The rate stated in the deposit contract - only earned if held for the full term.',
           },
         },
       ),
@@ -186,7 +186,7 @@ export const RUT_TRUOC_HAN: FormulaModule = {
         {
           description: {
             vi: 'Kỳ hạn ghi trên sổ tiết kiệm.',
-            en: 'The term stated on the savings book.',
+            en: 'The term stated in the deposit contract.',
           },
         },
       ),
@@ -207,7 +207,7 @@ export const RUT_TRUOC_HAN: FormulaModule = {
       ),
       numberVar(
         'demandRate',
-        { vi: 'Lãi suất không kỳ hạn / năm (rkkh)', en: 'Demand-deposit rate / year (rkkh)' },
+        { vi: 'Lãi suất không kỳ hạn / năm (rkkh)', en: 'Demand-deposit rate / year (rdemand)' },
         '%',
         0.1,
         {
@@ -232,7 +232,7 @@ export const RUT_TRUOC_HAN: FormulaModule = {
       },
       howToRead: {
         vi: 'So với tiền lãi tính theo lãi suất ghi trên sổ cho đúng số tháng đã gửi: con số này thấp hơn bao nhiêu thì bạn bỏ lại bấy nhiêu tiền lãi vì rút sớm. Kết quả 0 ₫ nghĩa là chưa gửi đủ tháng nào hoặc ngân hàng không trả lãi không kỳ hạn.',
-        en: 'Compared with the interest the rate on your deposit book would pay for the same months held: the gap between the two is the interest you give up by withdrawing early. A result of 0 ₫ means not a single full month has passed, or the bank pays no interest on demand deposits.',
+        en: 'Compared with the interest the contract rate of your deposit would pay for the same months held: the gap between the two is the interest you give up by withdrawing early. A result of 0 ₫ means not a single full month has passed, or the bank pays no interest on demand deposits.',
       },
       commonMistakes: {
         vi: 'Tưởng gửi được gần hết kỳ hạn thì lãi mất ít. Rút trước hạn dù chỉ một ngày, cả quãng đã gửi vẫn chỉ được trả lãi không kỳ hạn; ngân hàng còn tính theo số ngày thực gửi nên con số thực tế có thể lệch nhẹ so với ước tính theo tháng.',
@@ -242,7 +242,7 @@ export const RUT_TRUOC_HAN: FormulaModule = {
     example: {
       title: {
         vi: 'Sổ 1 tỷ ₫ kỳ hạn 6 tháng lãi 8,1%/năm, cần tiền gấp nên rút sau 3 tháng, năm 2026',
-        en: 'A 1 billion VND book with a 6-month term at 8.1%/year, withdrawn after 3 months for an urgent need, 2026',
+        en: 'A 1 billion VND deposit with a 6-month term at 8.1%/year, withdrawn after 3 months for an urgent need, 2026',
       },
       inputs: {
         principal: 1_000_000_000,
@@ -254,7 +254,7 @@ export const RUT_TRUOC_HAN: FormulaModule = {
       expected: 250_000,
       note: {
         vi: 'So với 20.250.000 ₫ tiền lãi ba tháng tính theo mức 8,1%/năm ghi trên sổ: rút sớm chỉ còn 250.000 ₫, tức bỏ lại 20.000.000 ₫, bằng 98,77% tiền lãi của ba tháng đã gửi.',
-        en: 'Compared with the 20,250,000 VND that three months would earn at the 8.1%/year on the book: withdrawing early leaves only 250,000 VND, giving up 20,000,000 VND, 98.77% of the interest for the three months held.',
+        en: 'Compared with the 20,250,000 VND that three months would earn at the contract rate of 8.1%/year: withdrawing early leaves only 250,000 VND, giving up 20,000,000 VND, 98.77% of the interest for the three months held.',
       },
       source: {
         vi: 'Thông tư 04/2022/TT-NHNN hiệu lực 01/08/2022; lãi suất không kỳ hạn 0,1%/năm niêm yết năm 2026.',
@@ -347,13 +347,13 @@ export const GUI_QUAY_VONG: FormulaModule = {
     },
     description: {
       vi: 'Chênh lệch tiền cuối kỳ giữa gửi kỳ ngắn quay vòng liên tục và gửi một sổ kỳ dài.',
-      en: 'The difference in ending balance between continuously rolling over short-term deposits and holding a single long-term book.',
+      en: 'The difference in ending balance between continuously rolling over short-term deposits and holding a single long-term deposit.',
     },
     latex:
       '\\Delta = P\\left(1 + \\frac{r_n \\, m}{12}\\right)^{k} - P\\left(1 + \\frac{r_d \\, T}{12}\\right)',
     expression: {
       vi: 'Chênh lệch = Tiền gửi × (1 + Lãi suất kỳ ngắn × Kỳ hạn ngắn ÷ 12)^Số vòng quay − Tiền gửi × (1 + Lãi suất kỳ dài × Tổng số tháng ÷ 12)',
-      en: 'Difference = Deposit × (1 + Short-term rate × Short term ÷ 12)^Number of rounds − Deposit × (1 + Long-term rate × Total months ÷ 12)',
+      en: 'Difference = Deposit × (1 + Short-term rate × Short deposit term ÷ 12)^Number of rounds − Deposit × (1 + Long-term rate × Total months ÷ 12)',
     },
     substitutionDerived: { rNgan: '{shortRate} ÷ 100', rDai: '{longRate} ÷ 100' },
     substitution:
@@ -363,7 +363,7 @@ export const GUI_QUAY_VONG: FormulaModule = {
         latex: '\\Delta',
         meaning: {
           vi: 'chênh lệch tiền cuối kỳ, quay vòng kỳ ngắn trừ gửi kỳ dài, ₫',
-          en: 'difference in ending balance, rolling short terms minus the long-term book, ₫',
+          en: 'difference in ending balance, rolling short terms minus the long-term deposit, ₫',
         },
       },
       { latex: 'P', meaning: { vi: 'số tiền gửi ban đầu, ₫', en: 'initial deposit amount, ₫' } },
@@ -374,7 +374,7 @@ export const GUI_QUAY_VONG: FormulaModule = {
           en: 'short-term rate per year, as a decimal, so 1% is 0.01',
         },
       },
-      { latex: 'm', meaning: { vi: 'kỳ hạn ngắn, tháng', en: 'short term, months' } },
+      { latex: 'm', meaning: { vi: 'kỳ hạn ngắn, tháng', en: 'short deposit term, months' } },
       {
         latex: '12',
         meaning: {
@@ -386,7 +386,7 @@ export const GUI_QUAY_VONG: FormulaModule = {
         latex: 'k',
         meaning: {
           vi: 'số vòng quay, bằng tổng thời gian chia cho kỳ hạn ngắn',
-          en: 'number of rollover rounds, the total time divided by the short term',
+          en: 'number of rollover rounds, the total time divided by the short deposit term',
         },
       },
       {
@@ -400,7 +400,7 @@ export const GUI_QUAY_VONG: FormulaModule = {
         latex: 'T',
         meaning: {
           vi: 'tổng thời gian so sánh, cũng là kỳ hạn của sổ dài, tháng',
-          en: 'total comparison time, also the term of the long-term book, months',
+          en: 'total comparison time, also the term of the long-term deposit, months',
         },
       },
     ],
@@ -425,7 +425,7 @@ export const GUI_QUAY_VONG: FormulaModule = {
       ),
       sliderVar(
         'shortRate',
-        { vi: 'Lãi suất kỳ ngắn / năm (rn)', en: 'Short-term rate / year (rn)' },
+        { vi: 'Lãi suất kỳ ngắn / năm (rn)', en: 'Short-term rate / year (rshort)' },
         '%',
         4.7,
         0,
@@ -434,13 +434,13 @@ export const GUI_QUAY_VONG: FormulaModule = {
         {
           description: {
             vi: 'Lãi suất của kỳ hạn ngắn định quay vòng.',
-            en: 'The rate of the short term intended to be rolled over.',
+            en: 'The rate of the short deposit term you intend to roll over.',
           },
         },
       ),
       sliderVar(
         'shortMonths',
-        { vi: 'Kỳ hạn ngắn (m)', en: 'Short term (m)' },
+        { vi: 'Kỳ hạn ngắn (m)', en: 'Short deposit term (m)' },
         'tháng',
         3,
         1,
@@ -449,13 +449,13 @@ export const GUI_QUAY_VONG: FormulaModule = {
         {
           description: {
             vi: 'Hết mỗi kỳ, cả gốc lẫn lãi được gửi tiếp kỳ mới.',
-            en: 'At the end of each period, both principal and interest are rolled into the next period.',
+            en: 'At the end of each short term, both principal and interest are redeposited for a new term.',
           },
         },
       ),
       sliderVar(
         'longRate',
-        { vi: 'Lãi suất kỳ dài / năm (rd)', en: 'Long-term rate / year (rd)' },
+        { vi: 'Lãi suất kỳ dài / năm (rd)', en: 'Long-term rate / year (rlong)' },
         '%',
         5.5,
         0,
@@ -464,7 +464,7 @@ export const GUI_QUAY_VONG: FormulaModule = {
         {
           description: {
             vi: 'Lãi suất của sổ kỳ dài gửi một lần tới đáo hạn.',
-            en: 'The rate of the long-term book, deposited once until maturity.',
+            en: 'The rate of the long-term deposit, placed once and held to maturity.',
           },
         },
       ),
@@ -479,7 +479,7 @@ export const GUI_QUAY_VONG: FormulaModule = {
         {
           description: {
             vi: 'Tổng thời gian so sánh - cũng là kỳ hạn của sổ dài.',
-            en: 'The total comparison period - also the term of the long-term book.',
+            en: 'The total comparison period - also the term of the long-term deposit.',
           },
         },
       ),
@@ -487,7 +487,7 @@ export const GUI_QUAY_VONG: FormulaModule = {
     explanation: {
       meaning: {
         vi: 'Quay vòng kỳ ngắn thì tiền lãi mỗi vòng được nhập gốc gửi tiếp, nên dù lãi suất thấp hơn vẫn có thể đuổi kịp sổ kỳ dài.',
-        en: "When rolling over short terms, each round's interest is folded back into the principal for the next round, so even a lower rate can catch up with a long-term book.",
+        en: "When rolling over short terms, each round's interest is folded back into the principal for the next round, so even a lower rate can catch up with a long-term deposit.",
       },
       whenToUse: {
         vi: 'Dùng khi bạn có khoản tiền chưa cần dùng tới trong một thời gian và phân vân giữa gửi kỳ ngắn, hết kỳ lại gửi tiếp, hay khoá luôn một sổ kỳ dài lãi cao hơn.',
@@ -505,7 +505,7 @@ export const GUI_QUAY_VONG: FormulaModule = {
     example: {
       title: {
         vi: '1 tỷ ₫: quay vòng hai kỳ 6 tháng lãi 6,6%/năm so với một sổ 12 tháng lãi 6,8%/năm, tháng 9/2026',
-        en: '1 billion VND: rolling two 6-month terms at 6.6%/year versus a single 12-month book at 6.8%/year, September 2026',
+        en: '1 billion VND: rolling two 6-month terms at 6.6%/year versus a single 12-month deposit at 6.8%/year, September 2026',
       },
       inputs: {
         principal: 1_000_000_000,
@@ -517,7 +517,7 @@ export const GUI_QUAY_VONG: FormulaModule = {
       expected: -911_000,
       note: {
         vi: 'So với mốc 0 đồng: âm 911.000 ₫ nghĩa là sau 12 tháng, sổ 12 tháng lãi 6,8%/năm cầm về nhiều hơn quay vòng hai sổ 6 tháng đúng số tiền ấy, không phải mất gốc. Lãi năm cao hơn 0,2 điểm phần trăm đáng 2.000.000 ₫, gửi tiếp lãi vòng đầu chỉ bù lại 1.089.000 ₫, và chỉ khi vòng hai vẫn được 6,6%/năm.',
-        en: "Compared with the 0 dong mark: minus 911,000 VND means that after 12 months the 12-month book at 6.8%/year returns exactly that much more than rolling two 6-month books, not that principal is lost. The 0.2 percentage-point higher annual rate is worth 2,000,000 VND, and redepositing the first round's interest wins back only 1,089,000 VND, if the second round still pays 6.6%/year.",
+        en: "Compared with the 0 dong mark: minus 911,000 VND means that after 12 months the 12-month deposit at 6.8%/year returns exactly that much more than rolling two 6-month deposits, not that principal is lost. The 0.2 percentage-point higher annual rate is worth 2,000,000 VND, and redepositing the first round's interest wins back only 1,089,000 VND, if the second round still pays 6.6%/year.",
       },
       source: {
         vi: 'Biểu lãi suất tiết kiệm trực tuyến nhóm Big4, VietNamNet 09/09/2026.',
@@ -584,10 +584,10 @@ export const GUI_QUAY_VONG: FormulaModule = {
         unit: '₫',
         warning: divideByZero(
           { vi: 'số vòng quay', en: 'number of rollover rounds' },
-          { vi: 'Kỳ hạn ngắn', en: 'Short term' },
+          { vi: 'Kỳ hạn ngắn', en: 'Short deposit term' },
           {
             vi: 'Nhập kỳ hạn ngắn từ 1 tháng trở lên.',
-            en: 'Enter a short term of 1 month or more.',
+            en: 'Enter a short deposit term of 1 month or more.',
           },
         ),
       };
@@ -938,7 +938,7 @@ export const GIA_VON_TRUNG_BINH_DCA: FormulaModule = {
       expected: 67_028.32,
       note: {
         vi: 'So với giá 72.000 ₫ của đợt mua cuối: giá vốn trung bình 67.028,32 ₫ thấp hơn 4.971,68 ₫, tức nếu bán hết ở giá ấy thì 30 triệu ₫ đã bỏ ra đang lãi 7,42%, chưa trừ phí và thuế. Tính cả phí mua, phí bán và thuế bán thì giá phải từ 67.297,11 ₫ trở lên mới thật sự hoà vốn.',
-        en: 'Compared with the 72,000 VND paid in the last round: the 67,028.32 VND average cost is 4,971.68 VND lower, so selling everything at that price would leave the 30 million VND invested 7.42% ahead, before fees and tax. Counting the buy fee, sell fee and sell tax, the price has to reach 67,297.11 VND before the position truly breaks even.',
+        en: 'Compared with the 72,000 VND paid in the last round: the 67,028.32 VND average cost is 4,971.68 VND lower, so selling everything at that price would leave the 30 million VND invested 7.42% ahead, before fees and tax. Counting the buy fee, sell fee and transfer tax, the price has to reach 67,297.11 VND before the position truly breaks even.',
       },
       source: {
         vi: 'Giá đóng cửa FPT các phiên 15/07, 24/07 và 21/08/2026, Investing.com.',
@@ -1192,7 +1192,7 @@ export const SO_KY_DCA: FormulaModule = {
     latex: 'n = \\left\\lceil \\frac{\\ln(1 + FV \\cdot i / C)}{\\ln(1 + i)} \\right\\rceil',
     expression: {
       vi: 'Số kỳ = ln(1 + Mục tiêu × Lợi suất kỳ ÷ Mức góp mỗi kỳ) ÷ ln(1 + Lợi suất kỳ), làm tròn lên',
-      en: 'Number of periods = ln(1 + Target × Period rate ÷ Contribution per period) ÷ ln(1 + Period rate), rounded up',
+      en: 'Number of periods = ln(1 + Target amount × Period rate ÷ Monthly contribution) ÷ ln(1 + Period rate), rounded up',
     },
     /*
      * `{rate}` nhập theo %/năm còn công thức chạy theo lợi suất MỖI THÁNG, nên nó xuất hiện hai
@@ -1461,7 +1461,7 @@ export const THUE_TNCN_DAU_TU: FormulaModule = {
     latex: 'T = Q \\cdot P_{ban} \\cdot r_{cn} + Q \\cdot D \\cdot r_{ct}',
     expression: {
       vi: 'Tổng thuế = Khối lượng × Giá bán × Thuế suất chuyển nhượng + Khối lượng × Cổ tức mỗi cổ phiếu × Thuế suất cổ tức',
-      en: 'Total tax = Quantity × Sale price × Transfer tax rate + Quantity × Dividend per share × Dividend tax rate',
+      en: 'Total tax = Quantity × Sell price × Transfer tax rate + Quantity × Dividend per share × Dividend tax rate',
     },
     // Hai thuế suất là KHOÁ hằng số, màn tra theo biểu phí đang chọn — xem `FormulaSpec.substitution`.
     substitution:
@@ -1480,7 +1480,7 @@ export const THUE_TNCN_DAU_TU: FormulaModule = {
       },
       {
         latex: 'P_{ban}',
-        meaning: { vi: 'giá bán một cổ phiếu, ₫', en: 'sale price per share, ₫' },
+        meaning: { vi: 'giá bán một cổ phiếu, ₫', en: 'sell price per share, ₫' },
       },
       {
         latex: 'r_{cn}',
@@ -1530,17 +1530,17 @@ export const THUE_TNCN_DAU_TU: FormulaModule = {
           en: 'The number of shares held, receiving dividends and then sold during the year.',
         },
       }),
-      numberVar('sellPrice', { vi: 'Giá bán (Pban)', en: 'Sale price (Pban)' }, '₫', 97_000, {
+      numberVar('sellPrice', { vi: 'Giá bán (Pban)', en: 'Sell price (Psell)' }, '₫', 97_000, {
         min: 0,
         max: 10_000_000,
         description: {
           vi: 'Giá khớp lệnh bán, tính cho một cổ phiếu. Nhập 0 nếu năm nay chưa bán.',
-          en: 'The matched sale price, per share. Enter 0 if no sale has happened this year.',
+          en: 'The matched sell price, per share. Enter 0 if no sale has happened this year.',
         },
       }),
       numberVar(
         'dividendPerShare',
-        { vi: 'Cổ tức tiền mặt (D)', en: 'Cash dividend (D)' },
+        { vi: 'Cổ tức tiền mặt (D)', en: 'Cash dividend per share (D)' },
         '₫/CP',
         2_000,
         {
@@ -1580,7 +1580,7 @@ export const THUE_TNCN_DAU_TU: FormulaModule = {
       expected: 122_700,
       note: {
         vi: 'So với 73,7 triệu ₫ tiền bán 1.000 CP cộng cổ tức, trước thuế: tổng thuế 122.700 ₫ chỉ bằng 0,17%, gồm 72.700 ₫ thuế khi bán và 50.000 ₫ thuế cổ tức. Cả hai khoản bị trừ thẳng trước khi tiền về tài khoản, và thuế khi bán vẫn bị trừ kể cả khi lần bán này lỗ.',
-        en: 'Compared with the 73.7 million ₫ from selling 1,000 shares plus the dividend, before tax: the 122,700 ₫ total tax is only 0.17%, made up of 72,700 ₫ on the sale and 50,000 ₫ on the dividend. Both amounts are withheld before the money reaches your account, and the sale tax is withheld even if this sale is at a loss.',
+        en: 'Compared with the 73.7 million ₫ from selling 1,000 shares plus the dividend, before tax: the 122,700 ₫ total tax is only 0.17%, made up of 72,700 ₫ on the sale and 50,000 ₫ on the dividend. Both amounts are withheld before the money reaches your account, and the transfer tax is withheld even if this sale is at a loss.',
       },
       source: {
         vi: 'Luật Thuế TNCN 2025 số 109/2025/QH15 hiệu lực 01/07/2026; giá FPT phiên 11/09/2026 và cổ tức đợt 02/12/2025.',
@@ -1637,7 +1637,7 @@ export const THUE_TNCN_DAU_TU: FormulaModule = {
           },
           {
             vi: 'Nhập giá bán hoặc cổ tức lớn hơn 0.',
-            en: 'Enter a sale price or dividend greater than 0.',
+            en: 'Enter a sell price or dividend greater than 0.',
           },
         ),
       };

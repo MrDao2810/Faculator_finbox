@@ -37,7 +37,7 @@ import { SOURCE_CFA, SOURCE_VAS, numberVar, withSymbol } from './shared';
 const SOURCE_PHAN_TICH_BCTC: FormulaSource = {
   label: {
     vi: 'Giáo trình Phân tích báo cáo tài chính - Nguyễn Năng Phúc (NXB Đại học Kinh tế Quốc dân)',
-    en: 'Financial Statement Analysis textbook - Nguyễn Năng Phúc (National Economics University Press)',
+    en: 'Financial Statement Analysis textbook - Nguyen Nang Phuc (National Economics University Press)',
   },
 };
 
@@ -49,7 +49,7 @@ const SOURCE_PHAN_TICH_BCTC: FormulaSource = {
 
 const netIncome = numberVar(
   'netIncome',
-  { vi: 'Lợi nhuận sau thuế', en: 'Net income after tax' },
+  { vi: 'Lợi nhuận sau thuế', en: 'Net income' },
   'tỷ ₫',
   8_894,
   {
@@ -57,7 +57,7 @@ const netIncome = numberVar(
     max: 1_000_000,
     description: {
       vi: 'Lợi nhuận sau thuế của cổ đông công ty mẹ trong kỳ. Đang lỗ thì nhập số âm.',
-      en: "Net income after tax attributable to the parent company's shareholders for the period. Enter a negative number if the company is running a loss.",
+      en: "Net income attributable to the parent company's shareholders for the period. Enter a negative number if the company is running a loss.",
     },
   },
 );
@@ -142,7 +142,7 @@ export const EPS_CO_BAN: FormulaModule = {
       'EPS = \\frac{\\text{LNST} - \\text{Cổ tức ưu đãi}}{\\text{Số CP lưu hành}} \\times 10^9',
     expression: {
       vi: 'EPS = (Lợi nhuận sau thuế − Cổ tức ưu đãi) ÷ Số cổ phiếu lưu hành × 10^9',
-      en: 'EPS = (Net income after tax − Preferred dividends) ÷ Shares outstanding × 10^9',
+      en: 'EPS = (Net income − Preferred dividends) ÷ Shares outstanding × 10^9',
     },
     substitution: '({netIncome} − {preferredDividend}) ÷ {sharesOutstanding} × 10^9',
     symbols: [
@@ -154,7 +154,7 @@ export const EPS_CO_BAN: FormulaModule = {
         latex: '\\text{LNST}',
         meaning: {
           vi: 'lợi nhuận sau thuế trong kỳ, tỷ ₫',
-          en: 'net income after tax for the period, billion ₫',
+          en: 'net income, i.e. profit after tax, for the period, billion ₫',
         },
       },
       {
@@ -432,7 +432,7 @@ export const ROE: FormulaModule = {
     latex: 'ROE = \\frac{\\text{LNST}}{\\text{Vốn chủ sở hữu}} \\times 100\\%',
     expression: {
       vi: 'ROE = Lợi nhuận sau thuế ÷ Vốn chủ sở hữu × 100',
-      en: 'ROE = Net income after tax ÷ Equity × 100',
+      en: 'ROE = Net income ÷ Equity × 100',
     },
     substitution: '{netIncome} ÷ {equity} × 100',
     symbols: [
@@ -444,7 +444,7 @@ export const ROE: FormulaModule = {
         latex: '\\text{LNST}',
         meaning: {
           vi: 'lợi nhuận sau thuế trong kỳ, tỷ ₫',
-          en: 'net income after tax for the period, billion ₫',
+          en: 'net income, i.e. profit after tax, for the period, billion ₫',
         },
       },
       {
@@ -567,7 +567,7 @@ export const ROA: FormulaModule = {
     latex: 'ROA = \\frac{\\text{LNST}}{\\text{Tổng tài sản}} \\times 100\\%',
     expression: {
       vi: 'ROA = Lợi nhuận sau thuế ÷ Tổng tài sản × 100',
-      en: 'ROA = Net income after tax ÷ Total assets × 100',
+      en: 'ROA = Net income ÷ Total assets × 100',
     },
     substitution: '{netIncome} ÷ {totalAssets} × 100',
     symbols: [
@@ -579,7 +579,7 @@ export const ROA: FormulaModule = {
         latex: '\\text{LNST}',
         meaning: {
           vi: 'lợi nhuận sau thuế trong kỳ, tỷ ₫',
-          en: 'net income after tax for the period, billion ₫',
+          en: 'net income, i.e. profit after tax, for the period, billion ₫',
         },
       },
       {
@@ -685,19 +685,22 @@ export const BIEN_LOI_NHUAN_RONG: FormulaModule = {
     latex: 'ROS = \\frac{\\text{LNST}}{\\text{Doanh thu thuần}} \\times 100\\%',
     expression: {
       vi: 'ROS = Lợi nhuận sau thuế ÷ Doanh thu thuần × 100',
-      en: 'ROS = Net income after tax ÷ Net revenue × 100',
+      en: 'ROS = Net income ÷ Net revenue × 100',
     },
     substitution: '{netIncome} ÷ {revenue} × 100',
     symbols: [
       {
         latex: 'ROS',
-        meaning: { vi: 'biên lợi nhuận ròng, tính bằng %', en: 'net profit margin, in %' },
+        meaning: {
+          vi: 'biên lợi nhuận ròng, tính bằng %',
+          en: 'return on sales, here the net profit margin, in %',
+        },
       },
       {
         latex: '\\text{LNST}',
         meaning: {
           vi: 'lợi nhuận sau thuế trong kỳ, tỷ ₫',
-          en: 'net income after tax for the period, billion ₫',
+          en: 'net income, i.e. profit after tax, for the period, billion ₫',
         },
       },
       {
@@ -731,7 +734,7 @@ export const BIEN_LOI_NHUAN_RONG: FormulaModule = {
        * phí (giá vốn, bán hàng, quản lý, tài chính) cùng thuế, nên phần ấy gọi đúng tên của nó.
        */
       parts: [
-        { key: 'netIncome', label: { vi: 'Lãi ròng (LNST)', en: 'Net income (LNST)' } },
+        { key: 'netIncome', label: { vi: 'Lãi ròng (LNST)', en: 'Net income' } },
         {
           key: 'revenueLessNetIncome',
           label: { vi: 'Doanh thu còn lại', en: 'Remaining revenue' },
@@ -1643,7 +1646,7 @@ export const TY_LE_CHI_TRA_CO_TUC: FormulaModule = {
           max: 1_000_000,
           description: {
             vi: 'Lợi nhuận sau thuế chia cho số cổ phiếu đang lưu hành.',
-            en: 'Net income after tax divided by shares outstanding.',
+            en: 'Net income divided by shares outstanding.',
           },
         },
       ),

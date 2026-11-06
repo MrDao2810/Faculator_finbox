@@ -79,7 +79,7 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
     evidence: 'ngo-nhan',
     prompt: {
       vi: 'Bạn tự tính RSI 14 bằng trung bình cộng đơn giản và ra số lệch bảng điện 5–10 điểm. Tại sao?',
-      en: "You compute a 14-period RSI by hand using a simple average and get a number that is off from the trading platform's by 5-10 points. Why?",
+      en: "You compute a 14-session RSI by hand using a simple average and get a number that is off from the trading platform's by 5-10 points. Why?",
     },
     choices: {
       a: { vi: 'Do thiếu dữ liệu', en: 'Due to insufficient data' },
@@ -202,7 +202,7 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
     evidence: 'ngo-nhan',
     prompt: {
       vi: 'Dải Bollinger trên = SMA 20 phiên + 2 × độ lệch chuẩn. Với đúng bộ tham số mặc định đó, thực tế bao nhiêu phần trăm dữ liệu giá nằm lọt trong hai dải?',
-      en: 'The upper Bollinger Band is the 20-period SMA plus 2 standard deviations. With exactly those default settings, what share of the price data actually falls inside the bands?',
+      en: 'The upper Bollinger Band is the 20-session SMA plus 2 standard deviations. With exactly those default settings, what share of the price data actually falls inside the bands?',
     },
     choices: {
       a: {
@@ -225,7 +225,7 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
     answer: 'c',
     explain: {
       vi: 'Quy tắc 14 trong bộ 22 quy tắc chính thức của John Bollinger nói thẳng là đừng gắn giả thiết thống kê nào vào con số 2 độ lệch chuẩn: “In practice we typically find 90%, not 95%, of the data inside Bollinger Bands with the default parameters”. Lý do quy tắc này nêu là phân phối giá chứng khoán không phải phân phối chuẩn, và mẫu 20 phiên quá nhỏ để có ý nghĩa thống kê. Con số 2 là một lựa chọn thực nghiệm để dải bao được phần lớn giá, không phải một ngưỡng xác suất.',
-      en: "Rule 14 of John Bollinger's own 22 rules says outright that no statistical assumption belongs on the 2-standard-deviation setting: “In practice we typically find 90%, not 95%, of the data inside Bollinger Bands with the default parameters”. The rule gives the reason: security prices are not normally distributed, and a 20-period sample is far too small for statistical significance. The 2 is an empirical choice that contains most of the price action, not a probability threshold.",
+      en: "Rule 14 of John Bollinger's own 22 rules says outright that no statistical assumption belongs on the 2-standard-deviation setting: “In practice we typically find 90%, not 95%, of the data inside Bollinger Bands with the default parameters”. The rule gives the reason: security prices are not normally distributed, and a 20-session sample is far too small for statistical significance. The 2 is an empirical choice that contains most of the price action, not a probability threshold.",
     },
     source: {
       url: 'https://www.bollingerbands.com/bollinger-band-rules',
@@ -280,7 +280,7 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
     evidence: 'quy-dinh',
     prompt: {
       vi: 'Bạn đổi đường trung bình ở giữa từ 20 phiên lên 50 phiên. Theo John Bollinger, hệ số độ lệch chuẩn dùng cho dải trên phải xử lý thế nào?',
-      en: 'You change the middle moving average from 20 periods to 50. According to John Bollinger, what must happen to the standard-deviation multiplier used for the upper band?',
+      en: 'You change the middle moving average from 20 sessions to 50. According to John Bollinger, what must happen to the standard-deviation multiplier used for the upper band?',
     },
     choices: {
       a: {
@@ -293,7 +293,7 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
       },
       c: {
         vi: 'Nâng lên 2,1; ngược lại nếu rút chu kỳ xuống 10 phiên thì hạ còn 1,9',
-        en: 'Raise it to 2.1; conversely, shortening the average to 10 periods means lowering it to 1.9',
+        en: 'Raise it to 2.1; conversely, shortening the average to 10 sessions means lowering it to 1.9',
       },
       d: {
         vi: 'Đổi trung bình sang EMA rồi giữ nguyên hệ số 2',
@@ -803,7 +803,10 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
       en: 'Fidelity defines %B on a percent scale, not a 0-to-1 decimal: “If the closing price is equal to the upper Bollinger Band value, Percent B would be 100 (percent).” And at the other end: “If the closing price is equal to the lower Bollinger Band, Percent B would be zero.” So 0 marks the lower band exactly and 100 marks the upper band exactly - the same scale this tool displays. With the figures above: %B = (27,200 − 24,400) ÷ (27,600 − 24,400) × 100 = 2,800 ÷ 3,200 × 100 = 87.5%. Common slips: forgetting the × 100 and entering 0.875 instead of 87.5, or swapping the numerator to (Upper band − Price), which gives 12.5%.',
     },
     giai: {
-      tinh: { vi: 'vị trí giá trong dải Bollinger', en: 'Bollinger %B' },
+      tinh: {
+        vi: 'vị trí giá trong dải Bollinger',
+        en: 'price position within the Bollinger bands',
+      },
       thaySo: {
         vi: '(27.200 − 24.400) ÷ (27.600 − 24.400) × 100',
         en: '(27200 − 24400) ÷ (27600 − 24400) × 100',
@@ -989,13 +992,13 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
       {
         label: {
           vi: 'Đường tín hiệu phiên trước (EMA9)',
-          en: 'Previous signal line (9-period EMA)',
+          en: "Previous session's signal line (9-session EMA)",
         },
         value: { vi: '0,661607209 điểm', en: '0.661607209 points' },
       },
       {
         label: { vi: 'Chu kỳ tín hiệu N', en: 'Signal period N' },
-        value: { vi: '9 phiên', en: '9 periods' },
+        value: { vi: '9 phiên', en: '9 sessions' },
       },
     ],
     expected: 0.673041,
@@ -1054,7 +1057,7 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
     evidence: 'quy-dinh',
     prompt: {
       vi: 'Khi chuỗi MACD vừa đủ 9 phiên để bắt đầu vẽ đường tín hiệu, GIÁ TRỊ ĐẦU TIÊN của đường tín hiệu (EMA9) được tính thế nào theo quy ước phổ biến?',
-      en: 'The moment the MACD series first has 9 sessions to start plotting the signal line, how is the FIRST value of that 9-period EMA computed, by common convention?',
+      en: 'The moment the MACD series first has 9 sessions to start plotting the signal line, how is the FIRST value of that 9-session EMA computed, by common convention?',
     },
     choices: {
       a: {
@@ -1077,7 +1080,7 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
     answer: 'a',
     explain: {
       vi: 'Fairmont Equities: “The first value of the 9 Day EMA of the MACD will be the averages of the first 9 MACD values.” Từ phiên thứ 10 trở đi mới dùng công thức EMA đệ quy dựa trên EMA phiên trước. Đối chiếu với hàm lastEma trong src/core/formulas/series-utils.ts của chính sản phẩm: công thức cũng mồi bằng SMA của N phiên đầu rồi mới đệ quy - đúng quy ước này, nên số ra khớp được với các bảng giá phổ thông.',
-      en: "Fairmont Equities: “The first value of the 9 Day EMA of the MACD will be the averages of the first 9 MACD values.” Only from the 10th session onward does the recursive EMA formula, built on the prior EMA, take over. This matches the product's own lastEma function in src/core/formulas/series-utils.ts, which also seeds with the SMA of the first N periods before recursing - the same convention that lets the figures line up with common price platforms.",
+      en: "Fairmont Equities: “The first value of the 9 Day EMA of the MACD will be the averages of the first 9 MACD values.” Only from the 10th session onward does the recursive EMA formula, built on the prior EMA, take over. This matches the product's own lastEma function in src/core/formulas/series-utils.ts, which also seeds with the SMA of the first N sessions before recursing - the same convention that lets the figures line up with common price platforms.",
     },
     source: {
       url: 'https://fairmontequities.com/how-to-calculate-the-macd/',
@@ -1300,19 +1303,19 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
     evidence: 'quy-dinh',
     prompt: {
       vi: 'EMA 10 phiên tính đúng theo ba bước StockCharts mô tả, với hệ số nhân (multiplier) = 2 ÷ (n + 1) và công thức EMA = (Giá đóng cửa − EMA phiên trước) × hệ số nhân + EMA phiên trước. Điền giá đóng cửa, EMA phiên trước và chu kỳ vào đúng vị trí.',
-      en: "A 10-period EMA follows StockCharts' own three-step method, with multiplier = 2 ÷ (n + 1) and EMA = (Close − Previous EMA) × multiplier + Previous EMA. Put the close, the previous EMA and the period into the right slots.",
+      en: "A 10-session EMA follows StockCharts' own three-step method, with multiplier = 2 ÷ (n + 1) and EMA = (Close − Previous EMA) × multiplier + Previous EMA. Put the close, the previous EMA and the period into the right slots.",
     },
     facts: [
       {
         label: { vi: 'Chu kỳ EMA (n)', en: 'EMA period (n)' },
-        value: { vi: '10 phiên', en: '10 periods' },
+        value: { vi: '10 phiên', en: '10 sessions' },
       },
       {
-        label: { vi: 'EMA phiên trước', en: "Previous period's EMA" },
+        label: { vi: 'EMA phiên trước', en: "Previous session's EMA" },
         value: { vi: '50.000 ₫', en: '50,000 ₫' },
       },
       {
-        label: { vi: 'Giá đóng cửa phiên này', en: "This period's closing price" },
+        label: { vi: 'Giá đóng cửa phiên này', en: "This session's closing price" },
         value: { vi: '60.000 ₫', en: '60,000 ₫' },
       },
     ],
@@ -1366,7 +1369,7 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
     evidence: 'quy-dinh',
     prompt: {
       vi: 'StockCharts viết rằng để một EMA chính xác 100% thì phải dùng mọi phiên giá mà cổ phiếu từng có, tính từ phiên niêm yết đầu tiên. Vậy một EMA 12 phiên chỉ tính trên đúng 12 phiên giá (không có phiên nào trước đó) thì như thế nào so với một EMA "chuẩn"?',
-      en: 'StockCharts states that a 100% accurate EMA requires every price data point a stock has ever had, starting from its first trading day. So how does a 12-period EMA computed on exactly 12 sessions (with nothing before that) compare to the "true" EMA?',
+      en: 'StockCharts states that a 100% accurate EMA requires every price data point a stock has ever had, starting from its first trading day. So how does a 12-session EMA computed on exactly 12 sessions (with nothing before that) compare to the "true" EMA?',
     },
     choices: {
       a: {
@@ -1389,7 +1392,7 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
     answer: 'd',
     explain: {
       vi: 'StockCharts nói rõ: “Ideally, for a 100% accurate EMA, you should use every data point the stock has ever had in calculating the EMA, starting your calculations from the first day the stock existed... the more data points you use, the more accurate your EMA will be”, và “Each previous EMA value accounts for a small portion of the current value.” Nghĩa là EMA 12 phiên tính đúng trên 12 phiên vẫn TÍNH ĐƯỢC bình thường (đáp án b sai - không có ngưỡng cứng 3×n để "tính được"), nhưng chỉ là một xấp xỉ vì bỏ qua lịch sử trước phiên đầu tiên; càng nạp thêm dữ liệu cũ, đường càng gần EMA lý tưởng.',
-      en: "StockCharts states: “Ideally, for a 100% accurate EMA, you should use every data point the stock has ever had in calculating the EMA, starting your calculations from the first day the stock existed... the more data points you use, the more accurate your EMA will be”, and “Each previous EMA value accounts for a small portion of the current value.” A 12-period EMA computed on exactly 12 sessions still computes fine (option b's hard 3×n threshold to compute it at all does not exist) - it is just an approximation, because the history before the first session is left out. The more prior data fed in, the closer the line gets to the ideal EMA.",
+      en: "StockCharts states: “Ideally, for a 100% accurate EMA, you should use every data point the stock has ever had in calculating the EMA, starting your calculations from the first day the stock existed... the more data points you use, the more accurate your EMA will be”, and “Each previous EMA value accounts for a small portion of the current value.” A 12-session EMA computed on exactly 12 sessions still computes fine (option b's hard 3×n threshold to compute it at all does not exist) - it is just an approximation, because the history before the first session is left out. The more prior data fed in, the closer the line gets to the ideal EMA.",
     },
     source: {
       url: 'https://chartschool.stockcharts.com/table-of-contents/technical-indicators-and-overlays/technical-overlays/moving-averages-simple-and-exponential',
@@ -1405,24 +1408,24 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
     evidence: 'tinh-toan',
     prompt: {
       vi: 'Theo Macroption, một chỉ báo làm mượt kiểu Wilder (hệ số làm mượt = 1/n, cách RSI và ATR trong thư viện này đang dùng) với n = 14 phiên có độ trễ gần tương đương với một EMA chuẩn (hệ số làm mượt = 2/(n+1)) bao nhiêu phiên, tính theo công thức chính xác 2n − 1?',
-      en: "According to Macroption, a Wilder-style smoothed indicator (smoothing factor = 1/n, the convention this library's RSI and ATR use) with n = 14 periods has a lag roughly equivalent to a standard EMA (smoothing factor = 2/(n+1)) of how many periods, using the precise formula 2n − 1?",
+      en: "According to Macroption, a Wilder-style smoothed indicator (smoothing factor = 1/n, the convention this library's RSI and ATR use) with n = 14 sessions has a lag roughly equivalent to a standard EMA (smoothing factor = 2/(n+1)) of how many sessions, using the precise formula 2n − 1?",
     },
     facts: [
       {
         label: { vi: 'Chu kỳ làm mượt kiểu Wilder (n)', en: "Wilder's smoothing period (n)" },
-        value: { vi: '14 phiên', en: '14 periods' },
+        value: { vi: '14 phiên', en: '14 sessions' },
       },
     ],
     choices: {
-      a: { vi: '14 phiên', en: '14 periods' },
-      b: { vi: '28 phiên', en: '28 periods' },
-      c: { vi: '27 phiên', en: '27 periods' },
-      d: { vi: '7 phiên', en: '7 periods' },
+      a: { vi: '14 phiên', en: '14 sessions' },
+      b: { vi: '28 phiên', en: '28 sessions' },
+      c: { vi: '27 phiên', en: '27 sessions' },
+      d: { vi: '7 phiên', en: '7 sessions' },
     },
     answer: 'c',
     explain: {
       vi: 'Macroption chỉ rõ hệ số làm mượt khác nhau giữa hai phương pháp - “The numerator in the formula for a is 2” (EMA) “but 1 under Wilder\'s method” - rồi kết luận: “Wilder ATR with a particular period (n) is approximately the same as EMA ATR with double the period (2n, or 2n - 1 to be precise).” Với n = 14, EMA tương đương là 2×14 − 1 = 27 phiên. Nhầm hai hệ số này với nhau (dùng 2/(n+1) khi lẽ ra là 1/n hoặc ngược lại) là lỗi khiến hai chỉ báo cùng "n phiên" nhưng phản ứng nhanh chậm khác hẳn nhau. Ba đáp án còn lại là ba lỗi hay gặp: 14 là tưởng hai lối làm mượt cùng chu kỳ thì cùng độ trễ; 28 là lấy 2n mà quên trừ 1; 7 là chia đôi, tức làm ngược chiều quy đổi.',
-      en: 'Macroption spells out the different smoothing factor between the two methods - “The numerator in the formula for a is 2” for EMA “but 1 under Wilder\'s method” - and concludes: “Wilder ATR with a particular period (n) is approximately the same as EMA ATR with double the period (2n, or 2n - 1 to be precise).” With n = 14, the equivalent EMA period is 2×14 − 1 = 27. Confusing the two smoothing factors (using 2/(n+1) where the convention calls for 1/n, or vice versa) is what makes two indicators with the same "n periods" respond at very different speeds. The other three are common slips: 14 assumes the two smoothing conventions have the same lag at the same period; 28 takes 2n and forgets the −1; 7 halves the period, converting in the wrong direction.',
+      en: 'Macroption spells out the different smoothing factor between the two methods - “The numerator in the formula for a is 2” for EMA “but 1 under Wilder\'s method” - and concludes: “Wilder ATR with a particular period (n) is approximately the same as EMA ATR with double the period (2n, or 2n - 1 to be precise).” With n = 14, the equivalent EMA period is 2×14 − 1 = 27. Confusing the two smoothing factors (using 2/(n+1) where the convention calls for 1/n, or vice versa) is what makes two indicators with the same "n sessions" respond at very different speeds. The other three are common slips: 14 assumes the two smoothing conventions have the same lag at the same period; 28 takes 2n and forgets the −1; 7 halves the period, converting in the wrong direction.',
     },
     source: {
       url: 'https://www.macroption.com/atr-calculation/',
@@ -1468,7 +1471,7 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
     evidence: 'quy-dinh',
     prompt: {
       vi: 'Một mã đang trong xu hướng tăng, mỗi nhịp chỉnh đều bật lên từ đường SMA 50 phiên. Rồi giá đóng cửa xuống dưới đường. Từ lúc đó SMA 50 đóng vai gì?',
-      en: 'A stock is in an uptrend and every pullback has bounced off its 50-period SMA. Then price closes below the line. What role does the 50-period SMA play from that point on?',
+      en: 'A stock is in an uptrend and every pullback has bounced off its 50-session SMA. Then price closes below the line. What role does the 50-session SMA play from that point on?',
     },
     choices: {
       a: {
@@ -1507,7 +1510,7 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
     evidence: 'ngo-nhan',
     prompt: {
       vi: 'Đường SMA 20 phiên của một mã đang nằm ngang, giá liên tục cắt lên rồi lại cắt xuống nó. Nên hiểu tình huống này thế nào?',
-      en: "A stock's 20-period SMA is flat and price keeps crossing above it and back below it. How should this be read?",
+      en: "A stock's 20-session SMA is flat and price keeps crossing above it and back below it. How should this be read?",
     },
     choices: {
       a: {
@@ -1520,7 +1523,7 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
       },
       c: {
         vi: 'Rút số phiên xuống 5 để bắt tín hiệu sớm hơn là xử lý được',
-        en: 'Shortening the window to 5 periods to catch signals earlier fixes it',
+        en: 'Shortening the window to 5 sessions to catch signals earlier fixes it',
       },
       d: {
         vi: 'Đổi sang EMA thì hết tín hiệu giả',
@@ -1546,7 +1549,7 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
     evidence: 'quy-dinh',
     prompt: {
       vi: 'Đổi ô Số phiên từ 20 lên 200 thì đường SMA được gì và mất gì?',
-      en: 'You change the Number of periods field from 20 to 200. What does the SMA gain, and what does it give up?',
+      en: 'You change the Number of sessions field from 20 to 200. What does the SMA gain, and what does it give up?',
     },
     choices: {
       a: {
@@ -1585,7 +1588,7 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
     evidence: 'quy-dinh',
     prompt: {
       vi: 'Trong SMA 200 phiên, giá đóng cửa của phiên cách đây 200 phiên có sức nặng thế nào so với giá đóng cửa phiên hôm qua?',
-      en: "In a 200-period SMA, how much weight does the closing price from 200 sessions ago carry compared with yesterday's close?",
+      en: "In a 200-session SMA, how much weight does the closing price from 200 sessions ago carry compared with yesterday's close?",
     },
     choices: {
       a: {
@@ -1951,7 +1954,7 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
       },
       c: {
         vi: 'Phần mềm còn làm mượt %K thêm một lần bằng trung bình 3 phiên (ô Smooth mặc định là 3); đặt Smooth = 1 mới ra đúng công thức gốc',
-        en: 'The platform smooths %K once more with a 3-period average (the Smooth input defaults to 3); set Smooth = 1 to get the raw formula',
+        en: 'The platform smooths %K once more with a 3-session average (the Smooth input defaults to 3); set Smooth = 1 to get the raw formula',
       },
       d: { vi: 'Chênh lệch do làm tròn số thập phân', en: 'It is just a rounding difference' },
     },
@@ -2332,7 +2335,7 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
     answer: 'c',
     explain: {
       vi: 'DSC (dịch StockCharts): "Có khoảng 250 ngày giao dịch trong một năm. Điều này có thể được chia thành 125 ngày mỗi nửa năm, 63 ngày mỗi quý và 21 ngày mỗi tháng." Chia đều 63 phiên của một quý cho 3 tháng: 63 / 3 = 21 phiên, đúng bằng chu kỳ tháng mà nguồn nêu, dùng khi muốn ROC bắt biến động theo khung tháng thay vì mặc định 12 phiên. Ba đáp án còn lại là ba lỗi hay gặp: 63 là giữ nguyên chu kỳ quý mà không chia; 12 là lấy số THÁNG trong năm chứ không phải số phiên trong tháng; 5 là số phiên một tuần.',
-      en: 'DSC (translating StockCharts) states: "Có khoảng 250 ngày giao dịch trong một năm. Điều này có thể được chia thành 125 ngày mỗi nửa năm, 63 ngày mỗi quý và 21 ngày mỗi tháng." ["There are roughly 250 trading days in a year. This can be split into 125 days per half-year, 63 days per quarter and 21 days per month."] Dividing a quarter\'s 63 sessions evenly across 3 months: 63 / 3 = 21 sessions, exactly the monthly period the source gives, used when ROC should track monthly moves instead of the default 12-session window. The other three are common slips: 63 keeps the quarterly period without dividing; 12 takes the number of MONTHS in a year rather than sessions in a month; 5 is the number of sessions in a week.',
+      en: "DSC (translating StockCharts) states: “Có khoảng 250 ngày giao dịch trong một năm. Điều này có thể được chia thành 125 ngày mỗi nửa năm, 63 ngày mỗi quý và 21 ngày mỗi tháng.” (There are roughly 250 trading days in a year. This can be split into 125 days per half-year, 63 days per quarter and 21 days per month.) Dividing a quarter's 63 sessions evenly across 3 months: 63 / 3 = 21 sessions, exactly the monthly period the source gives, used when ROC should track monthly moves instead of the default 12-session window. The other three are common slips: 63 keeps the quarterly period without dividing; 12 takes the number of MONTHS in a year rather than sessions in a month; 5 is the number of sessions in a week.",
     },
     source: {
       url: 'https://www.dsc.com.vn/kien-thuc/chi-bao-rate-of-change-roc-la-gi',
@@ -2540,10 +2543,10 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
     evidence: 'ngo-nhan',
     prompt: {
       vi: 'Giá đã lệch rất xa xuống dưới SMA200. Suy luận “thế nào cũng hồi về trung bình” sai ở đâu?',
-      en: 'Price has drifted very far below its 200-period SMA. Where does the reasoning “it has to revert to the average eventually” go wrong?',
+      en: 'Price has drifted very far below its 200-session SMA. Where does the reasoning “it has to revert to the average eventually” go wrong?',
     },
     choices: {
-      a: { vi: 'SMA200 quá dài', en: 'The 200-period SMA is too long a window' },
+      a: { vi: 'SMA200 quá dài', en: 'The 200-session SMA is too long a window' },
       b: {
         vi: 'Thị trường không có nghĩa vụ quay lại mức giá cũ - trong xu hướng giảm mạnh giá vẫn giảm tiếp dù đã rẻ',
         en: 'The market has no obligation to return to its old price - in a strong downtrend, price keeps falling even after it looks cheap',
@@ -2687,7 +2690,7 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
     evidence: 'quy-dinh',
     prompt: {
       vi: 'Năm giá đóng cửa gần nhất của một mã, từ cũ đến mới, là 19.500, 20.000, 20.500, 21.000 và 22.000 ₫. Công thức tính khoảng cách của giá phiên cuối so với SMA 5 phiên đã dựng sẵn dưới đây, viết dưới dạng nhân chéo: giá phiên cuối nhân số phiên, chia cho tổng năm giá. Điền giá phiên cuối và số phiên của đường trung bình vào đúng vị trí.',
-      en: "A stock's last five closing prices, oldest to newest, are 19,500, 20,000, 20,500, 21,000 and 22,000 ₫. The formula for the distance of the last close from the 5-session SMA is laid out below as a cross-multiplication: the last close times the period, over the sum of the five prices. Put the last close and the moving average's period into the right slots.",
+      en: "A stock's last five closing prices, oldest to newest, are 19,500, 20,000, 20,500, 21,000 and 22,000 ₫. The formula for the distance of the last close from the 5-session SMA is laid out below as a cross-multiplication: the last close times the number of sessions, over the sum of the five prices. Put the last close and the moving average's number of sessions into the right slots.",
     },
     facts: [
       {
@@ -2701,7 +2704,10 @@ export const KY_THUAT: ReadonlyArray<QuizItem> = [
         },
       },
       {
-        label: { vi: 'Số phiên của đường trung bình (n)', en: 'Moving average period (n)' },
+        label: {
+          vi: 'Số phiên của đường trung bình (n)',
+          en: 'Number of sessions in the moving average (n)',
+        },
         value: { vi: '5 phiên', en: '5 sessions' },
       },
       {

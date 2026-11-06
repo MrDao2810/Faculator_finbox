@@ -155,7 +155,7 @@ export const HOSE_2026: FeeSchedule = {
       effectiveFrom: '2022-08-29',
       legalBasis: {
         vi: 'Quy chế bù trừ và thanh toán của VSD: Quyết định 109/QĐ-VSD 19/08/2022 (hiện hành: Quyết định 39/QĐ-HĐTV 2025 của VSDC)',
-        en: 'VSD clearing and settlement regulation: Decision 109/QĐ-VSD dated 2022-08-19 (currently VSDC Decision 39/QĐ-HĐTV 2025)',
+        en: 'VSD clearing and settlement regulation: Decision 109/QD-VSD dated 2022-08-19 (currently VSDC Decision 39/QD-HDTV 2025)',
       },
     },
     {

@@ -45,6 +45,7 @@ import { FormulaDetail } from './FormulaDetail';
 import { baiHuongDanFor } from '@/application/huong-dan';
 
 import { substitutionShape } from '@/application/thay-so';
+import { viDuGiaiFor } from '@/application/vi-du';
 import { hasMergedCard } from '@/ui/screens';
 import { buildNotationView } from './notation-view';
 import type { NotationView } from './notation-types';
@@ -2353,7 +2354,13 @@ describe('WF-03 — không công thức nào lọt giá trị vô nghĩa ra màn
         expect(text, `${spec.id}: không nói thiếu gì`).toContain('Cần tối thiểu 2 dòng tiền');
         expect(text).not.toContain('Còn thiếu');
       } else {
-        expect(text, `${spec.id}: thiếu câu chỉ cách khắc phục`).toContain(t('result.fixPrefix'));
+        /*
+         * `MISSING_SERIES` chỉ đường bằng chính câu "Cần ít nhất N phiên giá." — dòng ↳ "Thêm phiên
+         * giá (nút Nạp mẫu…)" và vế "hiện mới có N" bỏ ngày 05/11/2026 theo yêu cầu của chủ dự án
+         * (xem `missingSeries()`); nút Nạp mẫu vẫn ở khối Số liệu.
+         */
+        expect(text, `${spec.id}: không nói cần bao nhiêu phiên`).toMatch(/Cần ít nhất \d+ /);
+        expect(text, `${spec.id}: dòng ↳ đã bỏ`).not.toContain(t('result.fixPrefix'));
       }
 
       unmount();
@@ -4832,5 +4839,61 @@ describe('Chia sẻ — dưới 1024px mở bảng chia sẻ của điện tho�
     await user.click(nutChiaSe());
 
     expect(await screen.findByText(t('detail.shareNoSeries'))).not.toBeNull();
+  });
+});
+
+/*
+ * Chế độ EN: hình công thức không còn chữ Việt (05/11/2026). Chủ dự án chuyển sang tiếng Anh, chụp dòng
+ * "Values" của khối Ví dụ ("Tổng nợ phải trả is FPT's total liabilities…") rồi hình Giá mục tiêu với
+ * `P_{mục tiêu}`. Đếm trên MỌI `<math>` của màn: thẻ Công thức, bảng ký hiệu, dòng Thay số của Ví dụ.
+ * `textContent` của một `<math>` gồm cả `<annotation>` chứa nguyên chuỗi LaTeX, nên chữ Việt KaTeX bẻ
+ * thành dấu chồng (`<mover>`) vẫn bị bắt ở đó.
+ */
+describe('chế độ EN: hình công thức và ký hiệu sang tiếng Anh', () => {
+  const DAU_VIET = /[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ]/i;
+
+  it.each([
+    ['no-tren-von-chu', 'Total liabilities'],
+    ['gia-muc-tieu', 'target'],
+    ['gia-hoa-von', 'buy'],
+  ])('%s: mọi <math> trên màn không còn chữ Việt, có "%s"', async (id, chuAnh) => {
+    window.localStorage.setItem('ffb.prefs.v1', JSON.stringify({ locale: 'en' }));
+    const spec = specOf(id);
+    const viDu = viDuGiaiFor(id);
+    render(
+      <PreferencesProvider>
+        <FormulaDetail
+          spec={spec}
+          modules={nhomCua(spec)}
+          asOf={AS_OF}
+          notation={buildNotationView(spec)}
+          {...(viDu === undefined ? {} : { viDu })}
+        />
+      </PreferencesProvider>,
+    );
+
+    await waitFor(() => {
+      const toan = [...document.querySelectorAll('math')].map((m) => m.textContent ?? '');
+      expect(toan.join(' ')).toContain(chuAnh);
+    });
+    const toan = [...document.querySelectorAll('math')].map((m) => m.textContent ?? '');
+    for (const chu of toan) expect(DAU_VIET.test(chu), chu).toBe(false);
+  });
+
+  it('chế độ VI vẫn in hình tiếng Việt', () => {
+    const spec = specOf('no-tren-von-chu');
+    render(
+      <PreferencesProvider>
+        <FormulaDetail
+          spec={spec}
+          modules={nhomCua(spec)}
+          asOf={AS_OF}
+          notation={buildNotationView(spec)}
+        />
+      </PreferencesProvider>,
+    );
+    const toan = [...document.querySelectorAll('math')].map((m) => m.textContent ?? '').join(' ');
+    expect(toan).toContain('Tổng nợ phải trả');
+    expect(toan).not.toContain('Total liabilities');
   });
 });

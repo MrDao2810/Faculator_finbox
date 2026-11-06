@@ -17,7 +17,16 @@ import {
   type ReactNode,
 } from 'react';
 
-import { isLocaleLoaded, loadLocale, pick, t, type Locale, type MessageKey } from './i18n';
+import {
+  companyName,
+  industryName,
+  isLocaleLoaded,
+  loadLocale,
+  pick,
+  t,
+  type Locale,
+  type MessageKey,
+} from './i18n';
 import type { Bilingual } from '@/core/types';
 import {
   DEFAULT_PREFERENCES,
@@ -250,4 +259,22 @@ export function useT(): (key: MessageKey) => string {
 export function usePick(): (value: Bilingual) => string {
   const { locale } = usePreferences();
   return useCallback((value: Bilingual) => pick(value, locale), [locale]);
+}
+
+/**
+ * Tên doanh nghiệp theo locale đang chọn (05/11/2026): `(mã, tên Finbox) => tên in ra`. Ở tiếng Anh
+ * là tên tiếng Anh của mã, không bao giờ là tên có dấu — xem `companyName()` ở `./i18n`.
+ */
+export function useCompanyName(): (code: string, name: string) => string {
+  const { locale } = usePreferences();
+  return useCallback((code: string, name: string) => companyName(code, name, locale), [locale]);
+}
+
+/**
+ * Tên ngành theo locale đang chọn. `undefined` ở tiếng Anh khi chưa có bản dịch — bên gọi bỏ tên
+ * ngành đi, không in tiếng Việt.
+ */
+export function useIndustryName(): (industry: string) => string | undefined {
+  const { locale } = usePreferences();
+  return useCallback((industry: string) => industryName(industry, locale), [locale]);
 }

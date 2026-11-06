@@ -95,7 +95,7 @@ export const MO_HINH_GORDON: FormulaModule = {
     latex: 'V_0 = \\frac{D_0 (1 + g)}{r - g}',
     expression: {
       vi: 'Giá trị cổ phiếu = Cổ tức vừa trả × (1 + g) ÷ (r − g)',
-      en: 'Share value = Most recent dividend × (1 + g) ÷ (r − g)',
+      en: 'Share value = Past year’s dividend × (1 + g) ÷ (r − g)',
     },
     substitutionDerived: { g: '{growth} ÷ 100', r: '{requiredReturn} ÷ 100' },
     substitution: '{dividend} × (1 + {g}) ÷ ({r} − {g})',
@@ -108,7 +108,7 @@ export const MO_HINH_GORDON: FormulaModule = {
         latex: 'D_0',
         meaning: {
           vi: 'cổ tức vừa trả trên mỗi cổ phiếu, ₫',
-          en: 'most recent dividend per share, ₫',
+          en: 'dividend per share paid over the last 12 months, all payments added, ₫',
         },
       },
       {
@@ -130,7 +130,7 @@ export const MO_HINH_GORDON: FormulaModule = {
     variables: [
       numberVar(
         'dividend',
-        { vi: 'Cổ tức vừa trả (D0)', en: 'Most recent dividend (D0)' },
+        { vi: 'Cổ tức vừa trả (D0)', en: 'Past year’s dividend (D0)' },
         '₫',
         2_000,
         {
@@ -264,7 +264,7 @@ export const MO_HINH_GORDON: FormulaModule = {
         meaningless(
           {
             vi: 'Cổ tức vừa trả bằng 0 thì không có dòng cổ tức nào để chiết khấu - cách này không định giá được doanh nghiệp chưa trả cổ tức.',
-            en: 'A most recent dividend of 0 leaves no dividend stream to discount - this method cannot value a company that pays no dividend.',
+            en: 'A dividend of 0 over the past year leaves no dividend stream to discount - this method cannot value a company that pays no dividend.',
           },
           {
             vi: 'Nhập cổ tức tiền mặt 12 tháng gần nhất, hoặc dùng một cách định giá dựa trên dòng tiền nếu doanh nghiệp chưa trả cổ tức.',
@@ -331,7 +331,7 @@ export const DDM_HAI_GIAI_DOAN: FormulaModule = {
       // nuốt cả hình. Dòng dài là cái giá phải trả: hình có hai phân số và sáu dấu cộng thì dòng
       // chữ cũng phải có bấy nhiêu.
       vi: 'Giá trị cổ phiếu = Tổng n năm đầu của [Cổ tức vừa trả × (1 + Tăng trưởng giai đoạn đầu)^t ÷ (1 + Suất sinh lợi yêu cầu)^t] + Cổ tức vừa trả × (1 + Tăng trưởng giai đoạn đầu)^n × (1 + Tăng trưởng dài hạn) ÷ [(Suất sinh lợi yêu cầu − Tăng trưởng dài hạn) × (1 + Suất sinh lợi yêu cầu)^n]',
-      en: 'Share value = Sum over the first n years of [Dividend just paid × (1 + First-stage growth)^t ÷ (1 + Required return)^t] + Dividend just paid × (1 + First-stage growth)^n × (1 + Long-run growth) ÷ [(Required return − Long-run growth) × (1 + Required return)^n]',
+      en: 'Share value = Sum over the first n years of [Past year’s dividend × (1 + First-stage growth)^t ÷ (1 + Required rate of return)^t] + Past year’s dividend × (1 + First-stage growth)^n × (1 + Long-term growth) ÷ [(Required rate of return − Long-term growth) × (1 + Required rate of return)^n]',
     },
     substitutionDerived: {
       g1: '{growthStage1} ÷ 100',
@@ -370,7 +370,7 @@ export const DDM_HAI_GIAI_DOAN: FormulaModule = {
         latex: 'D_0',
         meaning: {
           vi: 'cổ tức vừa trả trên mỗi cổ phiếu, ₫',
-          en: 'most recent dividend per share, ₫',
+          en: 'dividend per share paid over the last 12 months, all payments added, ₫',
         },
       },
       {
@@ -415,7 +415,7 @@ export const DDM_HAI_GIAI_DOAN: FormulaModule = {
     variables: [
       numberVar(
         'dividend',
-        { vi: 'Cổ tức vừa trả (D0)', en: 'Most recent dividend (D0)' },
+        { vi: 'Cổ tức vừa trả (D0)', en: 'Past year’s dividend (D0)' },
         '₫',
         2_000,
         {
@@ -607,7 +607,7 @@ export const DDM_HAI_GIAI_DOAN: FormulaModule = {
         meaningless(
           {
             vi: 'Cổ tức vừa trả bằng 0 thì không có dòng cổ tức nào để chiết khấu - cách này không định giá được doanh nghiệp chưa trả cổ tức.',
-            en: 'A most recent dividend of 0 leaves no dividend stream to discount - this method cannot value a company that pays no dividend.',
+            en: 'A dividend of 0 over the past year leaves no dividend stream to discount - this method cannot value a company that pays no dividend.',
           },
           {
             vi: 'Nhập cổ tức tiền mặt 12 tháng gần nhất, hoặc dùng một cách định giá dựa trên dòng tiền nếu doanh nghiệp chưa trả cổ tức.',
@@ -1186,7 +1186,7 @@ export const FCFF: FormulaModule = {
     latex: 'FCFF = EBIT \\, (1 - t) + Dep - CapEx - \\Delta NWC',
     expression: {
       vi: 'FCFF = EBIT × (1 − Thuế suất) + Khấu hao − Chi đầu tư − Tăng vốn lưu động ròng',
-      en: 'FCFF = EBIT × (1 − Tax rate) + Depreciation − CapEx − Increase in net working capital',
+      en: 'FCFF = EBIT × (1 − Tax rate) + Depreciation and amortization − CapEx − Increase in net working capital',
     },
     substitutionDerived: { t: '{taxRate} ÷ 100' },
     substitution: '{ebit} × (1 − {t}) + {depreciation} − {capex} − {nwcChange}',
@@ -1220,7 +1220,7 @@ export const FCFF: FormulaModule = {
         latex: 'Dep',
         meaning: {
           vi: 'khấu hao trong kỳ, chi phí không bằng tiền nên cộng lại, tỷ ₫',
-          en: 'depreciation for the period, a non-cash expense added back, billion ₫',
+          en: 'depreciation and amortization for the period, non-cash expenses added back, billion ₫',
         },
       },
       {
@@ -1252,7 +1252,7 @@ export const FCFF: FormulaModule = {
      */
     breakdown: [
       { key: 'ebitAfterTax', sign: 1, shortLabel: { vi: 'EBIT sau thuế', en: 'After-tax EBIT' } },
-      { key: 'depreciation', sign: 1, shortLabel: { vi: 'Khấu hao', en: 'Depreciation' } },
+      { key: 'depreciation', sign: 1, shortLabel: { vi: 'Khấu hao', en: 'D&A' } },
       { key: 'capex', sign: -1, shortLabel: { vi: 'Chi đầu tư', en: 'CapEx' } },
       { key: 'nwcChange', sign: -1, shortLabel: { vi: 'Tăng VLĐ ròng', en: 'Increase in net WC' } },
     ],
@@ -1293,14 +1293,20 @@ export const FCFF: FormulaModule = {
           },
         },
       ),
-      numberVar('depreciation', { vi: 'Khấu hao (Dep)', en: 'Depreciation (Dep)' }, 'tỷ ₫', 120, {
-        min: 0,
-        max: 10_000_000,
-        description: {
-          vi: 'Chi phí không bằng tiền, cộng ngược lại vào dòng tiền.',
-          en: 'A non-cash expense, added back into cash flow.',
+      numberVar(
+        'depreciation',
+        { vi: 'Khấu hao (Dep)', en: 'Depreciation and amortization (Dep)' },
+        'tỷ ₫',
+        120,
+        {
+          min: 0,
+          max: 10_000_000,
+          description: {
+            vi: 'Chi phí không bằng tiền, cộng ngược lại vào dòng tiền.',
+            en: 'A non-cash expense, added back into cash flow.',
+          },
         },
-      }),
+      ),
       numberVar(
         'capex',
         { vi: 'Chi đầu tư tài sản cố định (CapEx)', en: 'Capital expenditure (CapEx)' },
@@ -1351,7 +1357,7 @@ export const FCFF: FormulaModule = {
     example: {
       title: {
         vi: 'FPT năm 2025: EBIT 13.848,8 tỷ ₫, thuế 20%, khấu hao 2.795,9 tỷ, CapEx 5.097,9 tỷ, ΔNWC 3.608,7 tỷ',
-        en: 'FPT in 2025: EBIT 13,848.8 billion ₫, tax 20%, depreciation 2,795.9 billion, CapEx 5,097.9 billion, ΔNWC 3,608.7 billion',
+        en: 'FPT in 2025: EBIT 13,848.8 billion ₫, tax 20%, depreciation and amortization 2,795.9 billion, CapEx 5,097.9 billion, ΔNWC 3,608.7 billion',
       },
       inputs: {
         ebit: 13_848.8,
@@ -1445,7 +1451,7 @@ export const FCFE: FormulaModule = {
     latex: 'FCFE = FCFF - I \\, (1 - t) + \\Delta B',
     expression: {
       vi: 'FCFE = FCFF − Lãi vay sau thuế (Chi phí lãi vay × (1 − Thuế suất)) + Vay ròng mới',
-      en: 'FCFE = FCFF − After-tax interest (Interest expense × (1 − Tax rate)) + New net borrowing',
+      en: 'FCFE = FCFF − After-tax interest (Interest expense × (1 − Tax rate)) + Net borrowing',
     },
     /*
      * FCFE và FCFF KHÔNG ghi lại tên "dòng tiền tự do của …" (17/09/2026): hai dòng đứng sát nhau từng
@@ -1493,7 +1499,7 @@ export const FCFE: FormulaModule = {
         latex: '\\Delta B',
         meaning: {
           vi: 'vay ròng mới, tiền vay thêm trừ nợ gốc đã trả trong kỳ, tỷ ₫',
-          en: 'new net borrowing, new debt minus principal repaid in the period, billion ₫',
+          en: 'net borrowing, new debt minus principal repaid in the period, billion ₫',
         },
       },
       {
@@ -1517,7 +1523,7 @@ export const FCFE: FormulaModule = {
         sign: -1,
         shortLabel: { vi: 'Lãi vay sau thuế', en: 'After-tax interest' },
       },
-      { key: 'netBorrowing', sign: 1, shortLabel: { vi: 'Vay ròng mới', en: 'New net borrowing' } },
+      { key: 'netBorrowing', sign: 1, shortLabel: { vi: 'Vay ròng mới', en: 'Net borrowing' } },
     ],
     level: 'advanced',
     tags: ['fcfe', 'dong tien tu do co dong', 'dcf', 'free cash flow to equity'],
@@ -1560,20 +1566,14 @@ export const FCFE: FormulaModule = {
           },
         },
       ),
-      numberVar(
-        'netBorrowing',
-        { vi: 'Vay ròng mới (ΔB)', en: 'New net borrowing (ΔB)' },
-        'tỷ ₫',
-        30,
-        {
-          min: -1_000_000,
-          max: 1_000_000,
-          description: {
-            vi: 'Tiền vay mới trừ nợ gốc đã trả trong kỳ; âm nghĩa là trả nợ nhiều hơn vay.',
-            en: 'New borrowing minus principal repaid during the period; negative means repayments exceeded new borrowing.',
-          },
+      numberVar('netBorrowing', { vi: 'Vay ròng mới (ΔB)', en: 'Net borrowing (ΔB)' }, 'tỷ ₫', 30, {
+        min: -1_000_000,
+        max: 1_000_000,
+        description: {
+          vi: 'Tiền vay mới trừ nợ gốc đã trả trong kỳ; âm nghĩa là trả nợ nhiều hơn vay.',
+          en: 'New borrowing minus principal repaid during the period; negative means repayments exceeded new borrowing.',
         },
-      ),
+      }),
     ],
     explanation: {
       meaning: {
@@ -1596,13 +1596,13 @@ export const FCFE: FormulaModule = {
     example: {
       title: {
         vi: 'FPT năm 2025: FCFF 5.168,34 tỷ ₫, lãi vay 809,8 tỷ, thuế 20%, vay ròng thêm 6.256,7 tỷ',
-        en: 'FPT in 2025: FCFF 5,168.34 billion ₫, interest 809.8 billion, tax 20%, new net borrowing 6,256.7 billion',
+        en: 'FPT in 2025: FCFF 5,168.34 billion ₫, interest 809.8 billion, tax 20%, net borrowing 6,256.7 billion',
       },
       inputs: { fcff: 5_168.34, interest: 809.8, taxRate: 20, netBorrowing: 6_256.7 },
       expected: 10_777.2,
       note: {
         vi: 'So với dòng tiền tự do của doanh nghiệp 5.168,34 tỷ ₫: dòng tiền còn lại cho cổ đông FPT năm 2025 là 10.777,2 tỷ ₫, gấp 2,09 lần, vì được cộng thêm 6.256,7 tỷ ₫ vay ròng mới. Nếu vay ròng bằng 0 thì chỉ còn 4.520,5 tỷ ₫, nên 58,05% con số này là tiền đi vay chứ không do kinh doanh làm ra.',
-        en: 'Compared with the 5,168.34 billion ₫ of free cash flow to the firm: the cash left for FPT shareholders in 2025 is 10,777.2 billion ₫, 2.09 times as much, because 6,256.7 billion ₫ of new net borrowing is added on top. With net borrowing at zero only 4,520.5 billion ₫ would remain, so 58.05% of this figure is borrowed money rather than cash the business earned.',
+        en: 'Compared with the 5,168.34 billion ₫ of free cash flow to the firm: the cash left for FPT shareholders in 2025 is 10,777.2 billion ₫, 2.09 times as much, because 6,256.7 billion ₫ of net borrowing is added on top. With net borrowing at zero only 4,520.5 billion ₫ would remain, so 58.05% of this figure is borrowed money rather than cash the business earned.',
       },
       source: {
         vi: 'StockAnalysis, bảng cân đối kế toán và kết quả kinh doanh 2024–2025 của FPT Corp (mã FPT), chốt 15/09/2026.',
@@ -1795,7 +1795,7 @@ export const GIA_TRI_NOI_TAI_FCFF: FormulaModule = {
           },
         },
       ),
-      numberVar('netDebt', { vi: 'Nợ vay ròng (Dròng)', en: 'Net debt (Dròng)' }, 'tỷ ₫', 300, {
+      numberVar('netDebt', { vi: 'Nợ vay ròng (Dròng)', en: 'Net debt (Dnet)' }, 'tỷ ₫', 300, {
         min: -1_000_000,
         max: 10_000_000,
         description: {
@@ -2037,7 +2037,7 @@ export const GIA_TRI_HIEN_TAI: FormulaModule = {
           en: 'amount to be received in the future, ₫',
         },
       },
-      { latex: 'r', meaning: { vi: 'tỷ lệ chiết khấu, %/năm', en: 'discount rate, %/year' } },
+      { latex: 'r', meaning: { vi: 'tỷ lệ chiết khấu, %/năm', en: 'discount rate, % per year' } },
       {
         latex: 'n',
         meaning: {
@@ -2266,7 +2266,7 @@ export const GIA_TRI_TUONG_LAI: FormulaModule = {
       },
       {
         latex: 'r',
-        meaning: { vi: 'tỷ suất sinh lợi kép, %/năm', en: 'compound rate of return, %/year' },
+        meaning: { vi: 'tỷ suất sinh lợi kép, %/năm', en: 'compound rate of return, % per year' },
       },
       {
         latex: 'n',

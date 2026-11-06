@@ -988,7 +988,7 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
     evidence: 'tinh-toan',
     prompt: {
       vi: 'Một nhà đầu tư mua 1.000 cổ phiếu ở giá 50.000 ₫ rồi giữ 3 tháng trước khi bán. Công ty chứng khoán thu phí môi giới 0,15% mỗi chiều, thuế chuyển nhượng khi bán là 0,1% giá bán, phí lưu ký 0,27 ₫ một cổ phiếu một tháng. Ở mẫu số, phần còn lại của mỗi đồng bán ra đã điền sẵn 0,0015 cho phí bán và 0,001 cho thuế bán; khối lượng 1.000 cũng đã điền sẵn ở cả tử lẫn mẫu. Bảng số liệu còn có giá phiên gần nhất, phí bán ước tính và phí lưu ký một tháng. Hãy đặt đúng ba số vào vị trí của công thức giá hoà vốn.',
-      en: 'An investor buys 1,000 shares at 50,000 ₫ and holds them for 3 months before selling. The broker charges 0.15% brokerage on each side, the transfer tax on the sale is 0.1% of the sale value, and custody costs 0.27 ₫ per share per month. In the denominator, the share of each dong of proceeds that survives is already filled in: 0.0015 for the sell fee and 0.001 for the sell tax; the quantity 1000 is already filled in on both the top and the bottom. The table also lists the latest session price, an estimated sell fee and one month of custody. Put the right three figures into the slots of the break-even price formula.',
+      en: 'An investor buys 1,000 shares at 50,000 ₫ and holds them for 3 months before selling. The broker charges 0.15% brokerage on each side, the transfer tax on the sale is 0.1% of the sale value, and custody costs 0.27 ₫ per share per month. In the denominator, the share of each dong of proceeds that survives is already filled in: 0.0015 for the sell fee and 0.001 for the transfer tax; the quantity 1000 is already filled in on both the top and the bottom. The table also lists the latest session price, an estimated sell fee and one month of custody. Put the right three figures into the slots of the break-even price formula.',
     },
     facts: [
       {
@@ -1004,11 +1004,17 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
         value: { vi: '51.200 ₫', en: '51200 ₫' },
       },
       {
-        label: { vi: 'Phí giao dịch mua đã trả', en: 'Buy-side brokerage fee already paid' },
+        label: {
+          vi: 'Phí giao dịch mua đã trả',
+          en: 'Brokerage fee already paid on the buy order',
+        },
         value: { vi: '75.000 ₫', en: '75000 ₫' },
       },
       {
-        label: { vi: 'Phí giao dịch bán ước tính', en: 'Estimated sell-side brokerage fee' },
+        label: {
+          vi: 'Phí giao dịch bán ước tính',
+          en: 'Estimated brokerage fee on the sell order',
+        },
         value: { vi: '75.302 ₫', en: '75302 ₫' },
       },
       {
@@ -1032,7 +1038,7 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
     },
     explain: {
       vi: 'Tử số chỉ gom những đồng tiền đã thật sự rời tài khoản trước lúc bán: 1.000 × 50.000 = 50.000.000 ₫ tiền mua, cộng 75.000 ₫ phí mua và 810 ₫ phí lưu ký của cả ba tháng, thành 50.075.810 ₫. Con số 75.302 ₫ trong bảng là bẫy chính: phí bán có thật, nhưng nó tính trên chính giá bán còn chưa biết, nên công thức không cộng nó vào tử số mà trừ tỷ lệ 0,0015 của nó ở mẫu số, cùng thuế 0,001. Mỗi 1 ₫ bán ra chỉ còn lại 0,9975 ₫, nên 50.075.810 chia cho 997,5 ra 50.201,31 ₫. Bẫy thứ hai là 270 ₫: đó là phí lưu ký một tháng, đặt nó thay cho 810 ₫ của cả kỳ là tính thiếu chi phí. Bẫy thứ ba là 51.200 ₫, giá phiên gần nhất, không liên quan gì tới vốn đã bỏ ra. Bài học vỡ lòng của Casin dựng đúng tình huống này và ước lượng nhanh bằng tổng ma sát 0,4%, tức 0,15% phí mua nằm ở tử số cộng 0,15% phí bán và 0,1% thuế bán nằm ở mẫu số.',
-      en: "The numerator gathers only the money that has actually left the account before the sale: 1,000 × 50,000 = 50,000,000 ₫ of purchase value, plus the 75,000 ₫ buy fee and the 810 ₫ of custody for all three months, giving 50,075,810 ₫. The 75,302 ₫ in the table is the main trap: the sell fee is real, but it is charged on the very sale price that is still unknown, so the formula does not add it to the numerator and instead subtracts its 0.0015 rate in the denominator, alongside the 0.001 tax. Each 1 ₫ of proceeds leaves only 0.9975 ₫, so 50,075,810 divided by 997.5 gives 50,201.31 ₫. The second trap is 270 ₫: that is one month of custody, and using it in place of the 810 ₫ for the whole period understates the cost. The third is 51,200 ₫, the latest session price, which has nothing to do with the money already spent. Casin's primer builds this same scenario and estimates it quickly with a total friction of 0.4%, that is the 0.15% buy fee in the numerator plus the 0.15% sell fee and the 0.1% sell tax in the denominator.",
+      en: "The numerator gathers only the money that has actually left the account before the sale: 1,000 × 50,000 = 50,000,000 ₫ of purchase value, plus the 75,000 ₫ buy fee and the 810 ₫ of custody for all three months, giving 50,075,810 ₫. The 75,302 ₫ in the table is the main trap: the sell fee is real, but it is charged on the very sale price that is still unknown, so the formula does not add it to the numerator and instead subtracts its 0.0015 rate in the denominator, alongside the 0.001 tax. Each 1 ₫ of proceeds leaves only 0.9975 ₫, so 50,075,810 divided by 997.5 gives 50,201.31 ₫. The second trap is 270 ₫: that is one month of custody, and using it in place of the 810 ₫ for the whole period understates the cost. The third is 51,200 ₫, the latest session price, which has nothing to do with the money already spent. Casin's primer builds this same scenario and estimates it quickly with a total friction of 0.4%, that is the 0.15% buy fee in the numerator plus the 0.15% sell fee and the 0.1% transfer tax in the denominator.",
     },
     giai: {
       tinh: { vi: 'Giá hoà vốn thực', en: 'True break-even price' },
@@ -1547,7 +1553,7 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
     unit: { vi: '%', en: '%' },
     worked: {
       vi: 'Lợi suất năm = ((1 + [0,7] ÷ 100) ^ [12] − 1) × 100',
-      en: 'Annual return = ((1 + [0.7] ÷ 100) ^ [12] − 1) × 100',
+      en: 'Annualized return = ((1 + [0.7] ÷ 100) ^ [12] − 1) × 100',
     },
     explain: {
       vi: 'Quy một tháng về cả năm là đặt lợi suất MỘT KỲ (0,7%) vào ngoặc và số kỳ CÓ TRONG MỘT NĂM (12) vào số mũ; ÷ 100 và × 100 chỉ là đổi đơn vị giữa phần trăm và tỷ lệ nên giữ nguyên, không phải ô để điền. Nguồn viết thẳng phép tính: “If the monthly return is 0.7%, then the compound annual return is: Return_annual = (1.007)^12 - 1 = 0.0873 = 8.73%”. Hai dòng còn lại trong bảng là bẫy. 15 là số tháng ĐÃ nắm giữ, đặt vào số mũ thì ra mức lãi kép của 15 tháng chứ không còn là mức năm hoá. 16% là lợi suất LŨY KẾ của trọn 15 tháng ấy, đặt vào ngoặc thì thành nhân một mức tích luỹ lên mười hai lần nữa, ra con số vô lý. Số mũ luôn là số kỳ trong một năm: 12 nếu kỳ là tháng, 52 nếu kỳ là tuần.',
@@ -1927,7 +1933,7 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
     evidence: 'tinh-toan',
     prompt: {
       vi: 'Một nhà đầu tư bán 1.000 cổ phiếu ở giá khớp lệnh 90.000 ₫, tài khoản mở tại một công ty chứng khoán thu phí môi giới kênh trực tuyến 0,15% giá trị lệnh (mức các công ty thị phần lớn công bố hiện dao động quanh 0,12% đến 0,25%). Bảng số liệu ghi thêm giá mua trước đó và thuế suất chuyển nhượng, cả hai đều là số hợp lý nhưng không thuộc công thức này. Hãy đặt đúng ba số vào vị trí của công thức phí giao dịch bán.',
-      en: 'An investor sells 1,000 shares at a matched price of 90,000 ₫, through a brokerage that charges an online commission of 0.15% of the order value (published online rates at the largest brokers currently sit between 0.12% and 0.25%). The table also lists the earlier buy price and the transfer tax rate, both plausible figures that belong to neither slot of this formula. Put the right three numbers into the slots of the sell-side brokerage fee formula.',
+      en: 'An investor sells 1,000 shares at a matched price of 90,000 ₫, through a brokerage that charges an online commission of 0.15% of the order value (published online rates at the largest brokers currently sit between 0.12% and 0.25%). The table also lists the earlier buy price and the transfer tax rate, both plausible figures that belong to neither slot of this formula. Put the right three numbers into the slots of the formula for the brokerage fee on a sell order.',
     },
     facts: [
       {
@@ -1945,7 +1951,7 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
       {
         label: {
           vi: 'Tỷ lệ phí môi giới lệnh bán, kênh trực tuyến',
-          en: 'Online sell-side brokerage fee rate',
+          en: 'Online brokerage fee rate for sell orders',
         },
         value: { vi: '0,15 %', en: '0.15 %' },
       },
@@ -1963,10 +1969,10 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
     },
     explain: {
       vi: 'Phí môi giới chiều bán tính trên giá trị lệnh bán thực khớp: 1.000 × 90.000 ₫ ra 90.000.000 ₫, nhân tiếp 0,15% ra 135.000 ₫. Phép chia cho 100 để nguyên trong công thức vì nó chỉ đổi con số phần trăm của biểu phí thành hệ số nhân, nó thuộc về công thức chứ không phải số liệu của đề bài. Bảng số liệu cài sẵn hai cái bẫy. Thứ nhất là giá mua 82.000 ₫: đặt nó vào ô giá sẽ ra 123.000 ₫, sai vì người điền vẫn tính theo giá vốn, trong khi công ty chứng khoán thu trên số tiền lệnh bán vừa khớp, nên giá càng tăng thì phí bán càng cao hơn phí mua. Thứ hai là thuế suất chuyển nhượng 0,1%: đặt vào ô tỷ lệ sẽ ra 90.000 ₫, đó là khoản thuế nộp cho Nhà nước, một khoản khác cũng trừ vào tiền bán nhưng không phải phí môi giới. Lệnh bán này chịu cả hai khoản, cộng lại là 225.000 ₫.',
-      en: "The sell-side commission is charged on the value of the order that actually matched: 1,000 × 90,000 ₫ gives 90,000,000 ₫, and 0.15% of that is 135,000 ₫. The division by 100 stays visible in the formula because it only turns the schedule's percentage figure into a multiplier; it belongs to the formula, not to the data in the question. The table holds two traps. First, the buy price of 82,000 ₫: putting it into the price slot gives 123,000 ₫, wrong because it reasons from the cost basis, while the brokerage charges on the proceeds of the matched sell order, so a risen price means a bigger fee on the sell leg than on the buy leg. Second, the transfer tax rate of 0.1%: putting it into the rate slot gives 90,000 ₫, which is the tax paid to the State, a separate deduction from the sale proceeds and not the commission. This sell order carries both, 225,000 ₫ together.",
+      en: "The commission on a sell order is charged on the value of the order that actually matched: 1,000 × 90,000 ₫ gives 90,000,000 ₫, and 0.15% of that is 135,000 ₫. The division by 100 stays visible in the formula because it only turns the schedule's percentage figure into a multiplier; it belongs to the formula, not to the data in the question. The table holds two traps. First, the buy price of 82,000 ₫: putting it into the price slot gives 123,000 ₫, wrong because it reasons from the cost basis, while the brokerage charges on the proceeds of the matched sell order, so a risen price means a bigger fee on the sell leg than on the buy leg. Second, the transfer tax rate of 0.1%: putting it into the rate slot gives 90,000 ₫, which is the tax paid to the State, a separate deduction from the sale proceeds and not the commission. This sell order carries both, 225,000 ₫ together.",
     },
     giai: {
-      tinh: { vi: 'Phí giao dịch bán', en: 'Sell-side brokerage fee' },
+      tinh: { vi: 'Phí giao dịch bán', en: 'Brokerage fee on a sell order' },
       thaySo: { vi: '1.000 × 90.000 × 0,15 ÷ 100', en: '1000 × 90000 × 0.15 ÷ 100' },
       ketQua: { vi: '135.000 ₫', en: '135000 ₫' },
       gan: [
@@ -1989,7 +1995,7 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
     evidence: 'tinh-toan',
     prompt: {
       vi: 'Một nhà đầu tư mua 1.000 cổ phiếu ACB ở giá 25.000 ₫ qua công ty chứng khoán thu phí môi giới 0,3% giá trị lệnh. Cùng lô đó dự tính bán lại ở 30.000 ₫, và lúc bán còn chịu thuế thu nhập cá nhân 0,1%. Công thức phí giao dịch mua đã dựng sẵn dưới đây, chia thêm cho 100 để đưa tỷ lệ phí từ thang phần trăm về dạng tỷ lệ. Đặt đúng ba số vào vị trí của công thức Phí giao dịch mua.',
-      en: 'An investor buys 1,000 ACB shares at 25,000 ₫ through a broker charging a 0.3% commission on the order value. The same lot is meant to be sold later at 30,000 ₫, and selling also carries a 0.1% personal income tax. The buy-side fee formula is laid out below, with an extra division by 100 that turns the fee rate from a percentage into a plain ratio. Put the right three figures into the slots of the Buy-side brokerage fee formula.',
+      en: 'An investor buys 1,000 ACB shares at 25,000 ₫ through a broker charging a 0.3% commission on the order value. The same lot is meant to be sold later at 30,000 ₫, and selling also carries a 0.1% personal income tax. The formula for the brokerage fee on a buy order is laid out below, with an extra division by 100 that turns the fee rate from a percentage into a plain ratio. Put the right three figures into the slots of that formula.',
     },
     facts: [
       {
@@ -2025,10 +2031,10 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
     },
     explain: {
       vi: '1.000 × 25.000 ₫ ra giá trị lệnh 25.000.000 ₫; nhân tiếp 0,3% được 75.000 ₫, đúng con số nguồn KIS tự tính trong cùng ví dụ: “Phí mua (0,3%): 75.000đ”. Hai con số gài bẫy trong bảng đều là số thật của cùng vòng giao dịch ấy, nên rất dễ với nhầm. Đặt giá bán 30.000 ₫ vào ô giá sẽ ra 90.000 ₫, đó là phí BÁN của lệnh sau chứ không phải phí mua đang hỏi. Đặt 0,1% vào ô tỷ lệ sẽ ra 25.000 ₫, vì 0,1% là thuế thu nhập cá nhân, chỉ thu khi bán và thu trên giá bán, không dính gì tới lệnh mua. Phí mua luôn tính trên giá trị lệnh MUA đã khớp, nên chỉ khối lượng, giá mua và tỷ lệ phí môi giới được vào công thức; phần ÷ 100 để nguyên vì nó chỉ đổi 0,3% về dạng tỷ lệ 0,003.',
-      en: '1,000 × 25,000 ₫ gives an order value of 25,000,000 ₫; multiplying by 0.3% gives 75,000 ₫, exactly the figure the KIS source computes in the same example: “Phí mua (0,3%): 75.000đ”. Both distractors in the table are real numbers from that same round trip, which is what makes them easy to grab. Putting the 30,000 ₫ sell price into the price slot gives 90,000 ₫, which is the SELL-side fee of the later order, not the buy fee being asked for. Putting 0.1% into the rate slot gives 25,000 ₫, because 0.1% is the personal income tax, charged only on selling and levied on the sell price, with nothing to do with a buy order. The buy fee is always computed on the matched BUY order value, so only the quantity, the buy price and the commission rate belong in the formula; the ÷ 100 stays visible because it merely turns 0.3% into the ratio 0.003.',
+      en: '1,000 × 25,000 ₫ gives an order value of 25,000,000 ₫; multiplying by 0.3% gives 75,000 ₫, exactly the figure the KIS source computes in the same example: “Phí mua (0,3%): 75.000đ”. Both distractors in the table are real numbers from that same round trip, which is what makes them easy to grab. Putting the 30,000 ₫ sell price into the price slot gives 90,000 ₫, which is the SELL fee of the later order, not the buy fee being asked for. Putting 0.1% into the rate slot gives 25,000 ₫, because 0.1% is the personal income tax, charged only on selling and levied on the sell price, with nothing to do with a buy order. The buy fee is always computed on the matched BUY order value, so only the quantity, the buy price and the commission rate belong in the formula; the ÷ 100 stays visible because it merely turns 0.3% into the ratio 0.003.',
     },
     giai: {
-      tinh: { vi: 'Phí giao dịch mua', en: 'Buy-side brokerage fee' },
+      tinh: { vi: 'Phí giao dịch mua', en: 'Brokerage fee on a buy order' },
       thaySo: { vi: '1.000 × 25.000 × 0,3 ÷ 100', en: '1000 × 25000 × 0.3 ÷ 100' },
       ketQua: { vi: '75.000 ₫', en: '75000 ₫' },
       gan: [
@@ -2246,7 +2252,7 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
     evidence: 'tinh-toan',
     prompt: {
       vi: 'Theo ví dụ của VFS: mua 1.000 cổ phiếu VCI giá 100.000 ₫, giữ một tháng rồi bán ở 105.000 ₫. Bảng dưới đã bóc sẵn từng khoản phí và thuế của cả vòng mua rồi bán. Mẫu số của ROI ròng là vốn thực bỏ ra, tức chỉ gồm những khoản tiền đã chi ra TRƯỚC lúc bán; phí giao dịch bán và thuế chuyển nhượng phát sinh lúc bán nên đã nằm trong lợi nhuận ròng ở tử số rồi. Đặt đúng năm số vào vị trí của công thức ROI ròng.',
-      en: 'From the VFS worked example: buy 1,000 VCI shares at 100,000 ₫, hold for one month, then sell at 105,000 ₫. The table below already breaks out every fee and tax of the whole buy-then-sell round trip. The denominator of net ROI is the capital actually deployed, so it holds only the money paid out BEFORE the sale; the sell-side brokerage fee and the transfer tax arise at the sale and are already subtracted inside the net profit in the numerator. Put the right five figures into the slots of the net ROI formula.',
+      en: 'From the VFS worked example: buy 1,000 VCI shares at 100,000 ₫, hold for one month, then sell at 105,000 ₫. The table below already breaks out every fee and tax of the whole buy-then-sell round trip. The denominator of net ROI is the capital actually deployed, so it holds only the money paid out BEFORE the sale; the brokerage fee on the sell order and the transfer tax arise at the sale and are already subtracted inside the net profit in the numerator. Put the right five figures into the slots of the net ROI formula.',
     },
     facts: [
       {
@@ -2258,7 +2264,7 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
         value: { vi: '100.000 ₫', en: '100000 ₫' },
       },
       {
-        label: { vi: 'Phí giao dịch mua (0,15%)', en: 'Buy-side brokerage fee (0.15%)' },
+        label: { vi: 'Phí giao dịch mua (0,15%)', en: 'Brokerage fee on the buy order (0.15%)' },
         value: { vi: '150.000 ₫', en: '150000 ₫' },
       },
       {
@@ -2269,7 +2275,7 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
         value: { vi: '270 ₫', en: '270 ₫' },
       },
       {
-        label: { vi: 'Phí giao dịch bán (0,15%)', en: 'Sell-side brokerage fee (0.15%)' },
+        label: { vi: 'Phí giao dịch bán (0,15%)', en: 'Brokerage fee on the sell order (0.15%)' },
         value: { vi: '157.500 ₫', en: '157500 ₫' },
       },
       {
@@ -2300,7 +2306,7 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
     },
     explain: {
       vi: 'Vốn thực bỏ ra là 100.000.000 ₫ tiền mua cộng 150.000 ₫ phí mua và 270 ₫ phí lưu ký, thành 100.150.270 ₫; lấy 4.587.230 ₫ lãi ròng chia cho số ấy rồi nhân 100 ra 4,58%. Bảng số liệu cố ý để sẵn ba con số dễ đặt nhầm. Phí giao dịch bán 157.500 ₫ và thuế chuyển nhượng 105.000 ₫ chỉ phát sinh lúc bán, đã bị trừ trong lãi ròng ở tử số, nên cộng thêm vào mẫu số là tính hai lần cùng một khoản. Lãi gộp 5.000.000 ₫ đặt vào tử số sẽ ra 4,99%, cao hơn thực tế hơn bốn phần mười điểm phần trăm chỉ vì bỏ quên toàn bộ chi phí. Còn nếu chia lãi ròng cho riêng 100.000.000 ₫ tiền mua thì ra 4,59%, cũng đẹp hơn thực tế, vì mẫu số quên mất hai khoản đã chi trước khi bán.',
-      en: 'The capital actually deployed is 100,000,000 ₫ of purchase money plus the 150,000 ₫ buy fee and the 270 ₫ custody fee, for 100,150,270 ₫; dividing the 4,587,230 ₫ of net profit by that and multiplying by 100 gives 4.58%. The table deliberately holds three figures that are easy to misplace. The 157,500 ₫ sell-side fee and the 105,000 ₫ transfer tax arise only at the sale and are already subtracted inside the net profit in the numerator, so adding them to the denominator counts the same money twice. Putting the 5,000,000 ₫ gross profit in the numerator gives 4.99%, more than four tenths of a percentage point above reality, purely by forgetting every cost. And dividing net profit by the 100,000,000 ₫ of purchase money alone gives 4.59%, also flattering, because that denominator drops the two amounts already paid out before the sale.',
+      en: 'The capital actually deployed is 100,000,000 ₫ of purchase money plus the 150,000 ₫ buy fee and the 270 ₫ custody fee, for 100,150,270 ₫; dividing the 4,587,230 ₫ of net profit by that and multiplying by 100 gives 4.58%. The table deliberately holds three figures that are easy to misplace. The 157,500 ₫ fee on the sell order and the 105,000 ₫ transfer tax arise only at the sale and are already subtracted inside the net profit in the numerator, so adding them to the denominator counts the same money twice. Putting the 5,000,000 ₫ gross profit in the numerator gives 4.99%, more than four tenths of a percentage point above reality, purely by forgetting every cost. And dividing net profit by the 100,000,000 ₫ of purchase money alone gives 4.59%, also flattering, because that denominator drops the two amounts already paid out before the sale.',
     },
     giai: {
       tinh: { vi: 'ROI ròng sau phí & thuế', en: 'Net ROI after fees and taxes' },
@@ -2536,7 +2542,7 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
     evidence: 'tinh-toan',
     prompt: {
       vi: 'Một nhà đầu tư mua 1.000 cổ phiếu ở giá 28.000 ₫, ít lâu sau cắt lỗ trọn lô này với giá khớp lệnh 25.000 ₫. Thuế chuyển nhượng chứng khoán thu 0,1% trên giá trị bán từng lần, thu cả khi giao dịch lỗ, và mức 0,1% đã để sẵn trong công thức. Bảng số liệu có cả giá mua lẫn giá bán - đặt đúng hai số vào vị trí của công thức thuế chuyển nhượng.',
-      en: 'An investor buys 1,000 shares at 28,000 ₫, then cuts the whole lot at a matched sell price of 25,000 ₫. Securities transfer tax takes 0.1% of the sale value of each trade, collected even on a losing trade, and that 0.1% rate is already filled in. The table carries both the buy price and the sell price - put the right two numbers into the slots of the transfer tax formula.',
+      en: 'An investor buys 1,000 shares at 28,000 ₫, then sells the whole lot at a loss, at a matched sell price of 25,000 ₫. Securities transfer tax takes 0.1% of the sale value of each trade, collected even on a losing trade, and that 0.1% rate is already filled in. The table carries both the buy price and the sell price - put the right two numbers into the slots of the transfer tax formula.',
     },
     facts: [
       {
@@ -2651,7 +2657,7 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
           kyHieu: 'Q',
           moTa: {
             vi: 'gồm 1.500 cổ phiếu có từ trước và 500 cổ phiếu mua trước ngày giao dịch không hưởng quyền',
-            en: 'is the 1500 shares already held plus the 500 bought before the ex-rights date',
+            en: 'is the 1500 shares already held plus the 500 bought before the ex-dividend date',
           },
         },
         { kyHieu: 'D', giaTri: { vi: '1.850', en: '1850' } },
@@ -2747,7 +2753,7 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
         value: { vi: '10.000 ₫', en: '10000 ₫' },
       },
       {
-        label: { vi: 'Cổ tức tiền mặt cả năm quy ra tiền', en: 'Annual cash dividend in đồng' },
+        label: { vi: 'Cổ tức tiền mặt cả năm quy ra tiền', en: 'Annual cash dividend in dong' },
         value: { vi: '3.000 ₫/CP', en: '3000 ₫/share' },
       },
       {
@@ -3348,7 +3354,7 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
     unit: { vi: '%/phiên', en: '%/session' },
     worked: {
       vi: 'DD = √((([−0,24] − 0)^2 + ([−1,70] − 0)^2) ÷ ([10] − 1))',
-      en: 'DD = √((([−0.24] − 0)^2 + ([−1.70] − 0)^2) ÷ ([10] − 1))',
+      en: 'Downside deviation = √((([−0.24] − 0)^2 + ([−1.70] − 0)^2) ÷ ([10] − 1))',
     },
     explain: {
       vi: 'Chỉ hai phiên có lợi suất dưới ngưỡng 0%: 03/09 (−0,24%) và 07/09 (−1,70%). Phiên 28/08 chỉ tăng +0,03% nhưng vẫn không dưới ngưỡng nên không vào tổng. Tổng bình phương là (−0,24 − 0)² + (−1,70 − 0)² = 0,0576 + 2,89 = 2,9476. Mẫu số là n − 1 với n = 10, tổng số lợi suất của cả cửa sổ kể cả tám phiên tăng: 2,9476 ÷ 9 = 0,3275, căn bậc hai ra khoảng 0,57%/phiên. Bẫy thứ nhất là đặt số phiên giảm 2 vào ô n: mẫu số còn 1 và kết quả vọt lên 1,72%/phiên, gấp ba lần, đúng lỗi chia cho số phiên dưới ngưỡng mà trang này cảnh báo. Bẫy thứ hai là lấy 11 giá đóng cửa làm n, ra 0,54%/phiên: 11 giá chỉ cho 10 lợi suất, vì phiên đầu tiên không có phiên liền trước để so. Tính trên lợi suất chưa làm tròn thì ra 0,5712%/phiên, chênh nhau chỉ do làm tròn hai chữ số thập phân.',
@@ -3586,7 +3592,7 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
     },
     explain: {
       vi: 'Vị thế Long lãi khi điểm đóng cao hơn điểm mở, nên điểm đóng 1.975, tức mục tiêu của kịch bản, đứng trước dấu trừ; điểm mở 1.955, tức điểm vào lệnh, đứng sau; số hợp đồng 3 vào ô cuối. Hệ số nhân 100.000 ₫ mỗi điểm là quy cách của hợp đồng nên đã in sẵn: (1.975 − 1.955) × 100.000 × 3 ra 6.000.000 ₫. Bẫy thứ nhất là giá chốt phiên 1.949: kịch bản chỉ vào lệnh khi giá vượt 1.955, nên lấy 1.949 làm điểm mở sẽ ra 7.800.000 ₫, tính thêm 6 điểm mà vị thế chưa từng nắm. Bẫy thứ hai là đảo thứ tự: (1.955 − 1.975) biến khoản lãi 6.000.000 ₫ thành khoản lỗ cùng độ lớn. Hai mốc 1.940 và 1.915 thuộc kịch bản Short. Con số này cũng chưa trừ phí giao dịch và thuế.',
-      en: "A long position profits when the closing level is above the opening level, so the closing level 1975, the scenario's target, comes before the minus sign; the opening level 1955, the entry point, comes after it; and the 3 contracts go into the last slot. The multiplier of 100000 ₫ per point is part of the contract specification, so it is already printed: (1975 − 1955) × 100000 × 3 gives 6000000 ₫. The first trap is the 1949 session close: the scenario only enters once price breaks 1955, so using 1949 as the opening level gives 7800000 ₫, counting 6 points the position never held. The second trap is reversing the order: (1955 − 1975) turns the 6000000 ₫ profit into a loss of the same size. The 1940 and 1915 levels belong to the Short scenario. This figure also has not deducted trading fees and taxes.",
+      en: "A long position profits when the exit price is above the entry price, so the exit price 1975, the scenario's target, comes before the minus sign; the entry price 1955, the scenario's entry point, comes after it; and the 3 contracts go into the last slot. The multiplier of 100000 ₫ per point is part of the contract specification, so it is already printed: (1975 − 1955) × 100000 × 3 gives 6000000 ₫. The first trap is the 1949 session close: the scenario only enters once price breaks 1955, so using 1949 as the entry price gives 7800000 ₫, counting 6 points the position never held. The second trap is reversing the order: (1955 − 1975) turns the 6000000 ₫ profit into a loss of the same size. The 1940 and 1915 levels belong to the Short scenario. This figure also leaves out trading fees and taxes.",
     },
     giai: {
       tinh: {
@@ -4428,11 +4434,14 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
     evidence: 'tinh-toan',
     prompt: {
       vi: 'Từ giá đóng cửa cổ phiếu MWG trên lịch sử giá của CafeF, lợi suất sáu phiên gần nhất tính đến 24/09/2026 (giá đóng cửa chia giá đóng cửa phiên trước rồi trừ 1, làm tròn hai chữ số thập phân) được ghi ở bảng dưới. Ô Ngưỡng bỏ qua phiên đi ngang đặt h = 0,5%: phiên nào tăng hoặc giảm không quá 0,5% bị coi là đi ngang và không vào vế nào. Hãy đặt đúng năm lợi suất vào năm vị trí của công thức Tỷ số thắng/thua: tử số nhận các phiên tăng, mẫu số nhận các phiên giảm, trong mỗi vế xếp từ phiên mới đến phiên cũ như thứ tự trong bảng, và chép nguyên dấu cộng trừ.',
-      en: "From MWG closing prices on CafeF's price history, the returns of the six most recent sessions up to 2026-09-24 (the close divided by the previous close, minus 1, rounded to two decimals) are listed below. The flat-session threshold field is set to h = 0.5%: a session that rises or falls by no more than 0.5% counts as flat and goes into neither side. Put the right five returns into the five slots of the win/loss ratio formula: the numerator takes the rising sessions, the denominator takes the falling sessions, each side ordered from the newest session to the oldest as in the table, with the sign copied as shown.",
+      en: "From MWG closing prices on CafeF's price history, the returns of the six most recent sessions up to 2026-09-24 (the close divided by the previous close, minus 1, rounded to two decimals) are listed below. The Threshold to ignore flat sessions field is set to h = 0.5%: a session that rises or falls by no more than 0.5% counts as flat and goes into neither side. Put the right five returns into the five slots of the win/loss ratio formula: the numerator takes the rising sessions, the denominator takes the falling sessions, each side ordered from the newest session to the oldest as in the table, with the sign copied as shown.",
     },
     facts: [
       {
-        label: { vi: 'Ngưỡng bỏ qua phiên đi ngang (h)', en: 'Flat-session threshold (h)' },
+        label: {
+          vi: 'Ngưỡng bỏ qua phiên đi ngang (h)',
+          en: 'Threshold to ignore flat sessions (h)',
+        },
         value: { vi: '0,5%', en: '0.5%' },
       },
       {

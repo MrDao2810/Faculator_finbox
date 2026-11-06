@@ -89,7 +89,7 @@ import type {
   TickerRef,
   TickerSnapshot,
 } from '@/application';
-import { usePick, usePreferences, useT } from '@/application/preferences-context';
+import { useCompanyName, usePick, usePreferences, useT } from '@/application/preferences-context';
 import { SearchBox } from '@/ui/browse';
 import { useValueText } from '@/ui/i18n/units';
 import { DateField, filterTypedValue, guardFilteredDelete, resetFilteredDelete } from '@/ui/inputs';
@@ -586,6 +586,7 @@ function snapshotFromCache(quote: CachedQuote): TickerSnapshot {
 
 export function PortfolioScreen() {
   const t = useT();
+  const tenCongTy = useCompanyName();
   const pick = usePick();
   const valueText = useValueText();
 
@@ -1687,11 +1688,14 @@ export function PortfolioScreen() {
         : summary.rows.filter((row) => {
             const name = row.holding.name ?? quotes.get(row.holding.code)?.name ?? '';
             return (
-              normalizeVi(row.holding.code).includes(needle) || normalizeVi(name).includes(needle)
+              normalizeVi(row.holding.code).includes(needle) ||
+              normalizeVi(name).includes(needle) ||
+              // Ở tiếng Anh tìm được cả bằng tên tiếng Anh của mã (05/11/2026).
+              normalizeVi(tenCongTy(row.holding.code, name)).includes(needle)
             );
           });
     return sortHoldingRows(rows, shownSort);
-  }, [summary.rows, needle, quotes, shownSort]);
+  }, [summary.rows, needle, quotes, shownSort, tenCongTy]);
 
   /** Dòng chờ số liệu sau khi lọc — cùng ô tìm, cùng luật so khớp (mã, hoặc tên lấy từ `quotes`). */
   const visiblePending = useMemo(() => {
@@ -1700,11 +1704,15 @@ export function PortfolioScreen() {
         ? pending
         : pending.filter((code) => {
             const name = quotes.get(code)?.name ?? '';
-            return normalizeVi(code).includes(needle) || normalizeVi(name).includes(needle);
+            return (
+              normalizeVi(code).includes(needle) ||
+              normalizeVi(name).includes(needle) ||
+              normalizeVi(tenCongTy(code, name)).includes(needle)
+            );
           });
     // Dòng chờ vẫn đứng SAU dòng nắm giữ; trong khối của chúng thì sắp theo Mã hoặc Thị giá.
     return sortPendingCodes(codes, shownSort, (code) => quotes.get(code)?.priceVnd ?? null);
-  }, [pending, needle, quotes, shownSort]);
+  }, [pending, needle, quotes, shownSort, tenCongTy]);
 
   /*
    * Mọi dòng của bảng Phép tính đã lưu, dựng MỘT lượt — xem `SavedRowView`.
@@ -2688,7 +2696,9 @@ export function PortfolioScreen() {
                           ) : (
                             <>
                               <span className={styles.codeBadge}>{form.code}</span>
-                              <span className={styles.codeName}>{form.name}</span>
+                              <span className={styles.codeName}>
+                                {tenCongTy(form.code, form.name)}
+                              </span>
                             </>
                           )}
                         </button>

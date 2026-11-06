@@ -44,3 +44,27 @@ describe('thẻ lỗi một hàng, câu nguyên nhân dạt phải', () => {
     expect(CSS.slice(CSS.indexOf('@media'))).not.toMatch(/flex-direction:\s*column/);
   });
 });
+
+/*
+ * Dưới 1024px dải trống phía trên thẻ gọn lại (06/11/2026, chủ dự án khoanh nó trên điện thoại). Đo
+ * mực chữ trên Chrome ở 360 và 390: trên 20 → 8px, dưới 8,5px giữ nguyên, thẻ 46,5 → 34,5px.
+ */
+describe('thẻ lỗi dưới 1024px: dải trống phía trên gọn lại', () => {
+  const khoi = /@media \(max-width: 1023\.98px\)\s*\{([\s\S]*?)\n\}/.exec(CSS)?.[1] ?? '';
+  const trongKhoi = (lop: string): string =>
+    new RegExp(`\\.${lop}\\s*\\{([^}]*)\\}`).exec(khoi)?.[1] ?? '';
+
+  it('bỏ đệm trên của thẻ, kéo hàng `_ _` lên 6px', () => {
+    expect(trongKhoi('block')).toMatch(/padding-top:\s*0;/);
+    expect(trongKhoi('head')).toMatch(/margin-top:\s*-6px;/);
+  });
+
+  it('không hạ cỡ hay dòng của `_ _` để làm việc ấy', () => {
+    expect(trongKhoi('value')).not.toMatch(/line-height/);
+  });
+
+  it('từ 1024px luật gốc vẫn đệm 6px cả trên lẫn dưới', () => {
+    expect(luatGoc('block')).toMatch(/padding:\s*6px var\(--space-3\);/);
+    expect(luatGoc('head')).not.toMatch(/margin-top/);
+  });
+});

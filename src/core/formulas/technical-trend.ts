@@ -100,20 +100,23 @@ const GIA_8_PHIEN: ReadonlyArray<number> = [
  */
 
 /** Nhãn biến dùng lại nhiều lần trong các thông điệp lỗi dưới đây. */
-const NHAN_SO_PHIEN: Bilingual = { vi: 'Số phiên', en: 'Number of periods' };
+const NHAN_SO_PHIEN: Bilingual = { vi: 'Số phiên', en: 'Number of sessions' };
 const NHAN_CHU_KY_EMA_NHANH: Bilingual = { vi: 'Chu kỳ EMA nhanh', en: 'Fast EMA period' };
 const NHAN_CHU_KY_EMA_CHAM: Bilingual = { vi: 'Chu kỳ EMA chậm', en: 'Slow EMA period' };
 const NHAN_CHU_KY_TIN_HIEU: Bilingual = {
   vi: 'Chu kỳ đường tín hiệu',
   en: 'Signal line period',
 };
-const NHAN_SO_PHIEN_NHIN_LAI: Bilingual = { vi: 'Số phiên nhìn lại', en: 'Lookback periods' };
+const NHAN_SO_PHIEN_NHIN_LAI: Bilingual = {
+  vi: 'Số phiên nhìn lại',
+  en: 'Number of sessions to look back',
+};
 const NHAN_CHU_KY_TRUNG_BINH: Bilingual = {
   vi: 'Số phiên của đường trung bình',
-  en: 'Moving average period',
+  en: 'Number of sessions in the moving average',
 };
-const NHAN_CHU_KY_NGAN: Bilingual = { vi: 'Chu kỳ đường ngắn', en: 'Short period' };
-const NHAN_CHU_KY_DAI: Bilingual = { vi: 'Chu kỳ đường dài', en: 'Long period' };
+const NHAN_CHU_KY_NGAN: Bilingual = { vi: 'Chu kỳ đường ngắn', en: 'Short SMA period' };
+const NHAN_CHU_KY_DAI: Bilingual = { vi: 'Chu kỳ đường dài', en: 'Long SMA period' };
 
 /**
  * Chu kỳ không phải số phiên nguyên dương.
@@ -128,11 +131,11 @@ function chuKyKhongHopLe(unit: string, label: Bilingual): CalcOutput {
     meaningless(
       {
         vi: `${label.vi} phải là một số phiên nguyên dương thì mới có chỉ báo để tính.`,
-        en: `${label.en} must be a positive whole number of periods for the indicator to be calculated.`,
+        en: `The ${label.en} field must be a positive whole number of sessions for the indicator to be calculated.`,
       },
       {
         vi: `Nhập ${label.vi} từ 1 phiên trở lên.`,
-        en: `Enter ${label.en} of 1 period or more.`,
+        en: `Enter 1 session or more in the ${label.en} field.`,
       },
     ),
   );
@@ -159,7 +162,7 @@ function chuKyNguoc(
       },
       {
         vi: `Đặt ${ngan.vi} nhỏ hơn ${dai.vi}, ví dụ ${viDu.ngan} và ${viDu.dai} phiên.`,
-        en: `Set ${ngan.en} shorter than ${dai.en}, for example ${viDu.ngan} and ${viDu.dai} periods.`,
+        en: `Set ${ngan.en} shorter than ${dai.en}, for example ${viDu.ngan} and ${viDu.dai} sessions.`,
       },
     ),
   );
@@ -265,12 +268,12 @@ export const SMA_N_PHIEN: FormulaModule = {
     name: { vi: 'Trung bình động đơn giản (SMA)', en: 'Simple moving average (SMA)' },
     description: {
       vi: 'Giá đóng cửa bình quân của n phiên gần nhất - đường xu hướng cơ bản nhất.',
-      en: 'The average closing price over the most recent n periods - the most basic trend line.',
+      en: 'The average closing price over the most recent n sessions - the most basic trend line.',
     },
     latex: 'SMA_{n} = \\frac{1}{n}\\sum_{i=0}^{n-1} P_{t-i}',
     expression: {
       vi: 'SMA = Tổng giá đóng cửa của n phiên gần nhất ÷ n',
-      en: 'SMA = Sum of closing prices over the most recent n periods ÷ n',
+      en: 'SMA = Sum of closing prices over the most recent n sessions ÷ n',
     },
     substitution: '1 ÷ {period} × {@tong}',
     symbols: [
@@ -320,7 +323,7 @@ export const SMA_N_PHIEN: FormulaModule = {
       sliderVar('period', labelWithSymbol(NHAN_SO_PHIEN, 'n'), 'phiên', 20, 2, 200, 1, {
         description: {
           vi: 'Chuỗi giá phải có ít nhất đúng bằng số phiên này. Mốc phổ thông: 20 phiên cho xu hướng ngắn hạn, 50 và 200 phiên cho trung và dài hạn.',
-          en: 'The price series must have at least this many periods. Common benchmarks: 20 periods for a short-term trend, 50 and 200 periods for medium- and long-term.',
+          en: 'The price series must have at least this many sessions. Common benchmarks: 20 sessions for a short-term trend, 50 and 200 sessions for medium- and long-term.',
         },
       }),
     ],
@@ -337,7 +340,7 @@ export const SMA_N_PHIEN: FormulaModule = {
     explanation: {
       meaning: {
         vi: 'Mức giá bình quân mà thị trường đã trả trong n phiên vừa qua, làm phẳng các phiên nhiễu để lộ ra chiều đi của giá.',
-        en: 'The average price the market has paid over the last n periods, smoothing out noisy sessions to reveal the direction of price.',
+        en: 'The average price the market has paid over the last n sessions, smoothing out noisy sessions to reveal the direction of price.',
       },
       whenToUse: {
         vi: 'Dùng khi bạn mở biểu đồ một cổ phiếu đang giữ, thấy giá lên xuống lộn xộn từng phiên và muốn biết mấy tuần qua giá nhìn chung đang đi lên hay đi xuống.',
@@ -424,12 +427,12 @@ export const EMA_N_PHIEN: FormulaModule = {
     name: { vi: 'Trung bình động luỹ thừa (EMA)', en: 'Exponential moving average (EMA)' },
     description: {
       vi: 'Trung bình động đặt trọng số nặng hơn cho các phiên gần đây nên bám giá nhanh hơn SMA.',
-      en: 'A moving average that weights recent periods more heavily, so it tracks price faster than SMA.',
+      en: 'A moving average that weights recent sessions more heavily, so it tracks price faster than SMA.',
     },
     latex: 'EMA_t = P_t \\cdot k + EMA_{t-1} \\cdot (1 - k), \\quad k = \\frac{2}{n+1}',
     expression: {
       vi: 'EMA phiên này = Giá đóng cửa × Hệ số k + EMA phiên trước × (1 − k)\nHệ số k = 2 ÷ (Số phiên + 1)',
-      en: "This period's EMA = Closing price × Factor k + Previous period's EMA × (1 − k)\nFactor k = 2 ÷ (Number of periods + 1)",
+      en: "This session's EMA = Closing price × Factor k + Previous session's EMA × (1 − k)\nFactor k = 2 ÷ (Number of sessions + 1)",
     },
     substitution: '{@gia} × (2 ÷ ({period} + 1)) + {@emaTruoc} × (1 − 2 ÷ ({period} + 1))',
     symbols: [
@@ -469,7 +472,7 @@ export const EMA_N_PHIEN: FormulaModule = {
         latex: 'n',
         meaning: {
           vi: 'số phiên của đường EMA',
-          en: 'period of the EMA line',
+          en: 'EMA length, in sessions',
         },
       },
     ],
@@ -483,14 +486,14 @@ export const EMA_N_PHIEN: FormulaModule = {
       sliderVar('period', labelWithSymbol(NHAN_SO_PHIEN, 'n'), 'phiên', 12, 2, 200, 1, {
         description: {
           vi: 'Chuỗi giá cần ít nhất đúng bằng số phiên này để mồi đường bằng trung bình đơn. Nạp được gấp ba lần chu kỳ thì phần mồi gần như hết ảnh hưởng.',
-          en: 'The price series needs at least this many periods to seed the line with a simple average. Once about three times the period has been fed in, the seed effect has nearly worn off.',
+          en: 'The price series needs at least this many sessions to seed the line with a simple average. Once about three times the period has been fed in, the seed effect has nearly worn off.',
         },
       }),
     ],
     explanation: {
       meaning: {
         vi: 'Cũng là giá bình quân nhưng phiên càng mới càng nặng ký, nên đường phản ứng sớm hơn khi giá đổi chiều.',
-        en: 'Also an average price, but the more recent a period is, the more weight it carries, so the line reacts sooner when price changes direction.',
+        en: 'Also an average price, but the more recent a session is, the more weight it carries, so the line reacts sooner when price changes direction.',
       },
       whenToUse: {
         vi: 'Dùng khi bạn lướt sóng ngắn hạn và cần một đường giá bình quân bám sát những phiên mới nhất, để không phải chờ lâu mới thấy giá đã quay đầu.',
@@ -502,7 +505,7 @@ export const EMA_N_PHIEN: FormulaModule = {
       },
       commonMistakes: {
         vi: 'Đọc EMA tính trên chuỗi quá ngắn: khi chuỗi vừa đúng bằng chu kỳ, EMA rơi về đúng SMA vì mới chỉ có phần mồi, chưa có phiên nào được làm mượt.',
-        en: 'Reading an EMA computed on a series that is too short: when the series length exactly equals the period, the EMA falls back to the SMA because it only has the seed value - no period has been smoothed yet.',
+        en: 'Reading an EMA computed on a series that is too short: when the series length exactly equals the period, the EMA falls back to the SMA because it only has the seed value - no session has been smoothed yet.',
       },
     },
     example: {
@@ -644,13 +647,13 @@ export const MACD_DUONG_CHINH: FormulaModule = {
       lines: [
         {
           key: 'emaFast',
-          label: { vi: 'EMA {n} phiên', en: '{n}-period EMA' },
+          label: { vi: 'EMA {n} phiên', en: '{n}-session EMA' },
           periodKey: 'fastPeriod',
           tone: 'primary',
         },
         {
           key: 'emaSlow',
-          label: { vi: 'EMA {n} phiên', en: '{n}-period EMA' },
+          label: { vi: 'EMA {n} phiên', en: '{n}-session EMA' },
           periodKey: 'slowPeriod',
           tone: 'violet',
           dash: true,
@@ -662,13 +665,13 @@ export const MACD_DUONG_CHINH: FormulaModule = {
       sliderVar('fastPeriod', NHAN_CHU_KY_EMA_NHANH, 'phiên', 12, 2, 100, 1, {
         description: {
           vi: 'Đường bám giá. Bộ tham số kinh điển của Appel là 12 phiên.',
-          en: "The price-tracking line. Appel's classic parameter set uses 12 periods.",
+          en: "The price-tracking line. Appel's classic parameter set uses 12 sessions.",
         },
       }),
       sliderVar('slowPeriod', NHAN_CHU_KY_EMA_CHAM, 'phiên', 26, 3, 200, 1, {
         description: {
           vi: 'Đường nền, phải dài hơn chu kỳ nhanh. Chuỗi giá cần ít nhất đúng bằng số phiên này, tức 26 phiên với bộ mặc định.',
-          en: 'The baseline, must be longer than the fast period. The price series needs at least this many periods, i.e. 26 periods with the default set.',
+          en: 'The baseline, must be longer than the fast period. The price series needs at least this many sessions, i.e. 26 sessions with the default set.',
         },
       }),
     ],
@@ -687,7 +690,7 @@ export const MACD_DUONG_CHINH: FormulaModule = {
       },
       commonMistakes: {
         vi: 'So MACD của cổ phiếu 25.000 ₫ với cổ phiếu 200.000 ₫ rồi kết luận mã nào mạnh hơn - đơn vị là đồng nên độ lớn phụ thuộc thị giá.',
-        en: 'Comparing the MACD of a 25,000 VND stock with a 200,000 VND stock and concluding which one is stronger - since the unit is VND, its magnitude depends on the share price.',
+        en: 'Comparing the MACD of a 25,000 ₫ stock with a 200,000 ₫ stock and concluding which one is stronger - since the unit is the dong, its magnitude depends on the share price.',
       },
     },
     example: {
@@ -768,7 +771,7 @@ export const MACD_DUONG_TIN_HIEU: FormulaModule = {
     name: { vi: 'Đường tín hiệu MACD', en: 'MACD signal line' },
     description: {
       vi: 'EMA 9 phiên của chính đường MACD - mốc so sánh để bắt điểm cắt mua bán.',
-      en: 'A 9-period EMA of the MACD line itself - the reference used to catch buy/sell crossover points.',
+      en: 'A 9-session EMA of the MACD line itself - the reference used to catch buy/sell crossover points.',
     },
     // Cùng lẽ với latex của `macd-duong-chinh`: chu kỳ tín hiệu là thanh trượt 2–100 nên không
     // viết cứng 9.
@@ -814,7 +817,7 @@ export const MACD_DUONG_TIN_HIEU: FormulaModule = {
       lines: [
         { key: 'macd', label: { vi: 'Đường MACD', en: 'MACD line' }, tone: 'primary' },
         {
-          label: { vi: 'Đường tín hiệu {n} phiên', en: '{n}-period signal line' },
+          label: { vi: 'Đường tín hiệu {n} phiên', en: '{n}-session signal line' },
           periodKey: 'signalPeriod',
           tone: 'violet',
           dash: true,
@@ -825,7 +828,7 @@ export const MACD_DUONG_TIN_HIEU: FormulaModule = {
       sliderVar('fastPeriod', NHAN_CHU_KY_EMA_NHANH, 'phiên', 12, 2, 100, 1, {
         description: {
           vi: 'Chu kỳ đường nhanh của MACD, mặc định 12 phiên.',
-          en: 'The fast-line period of the MACD, defaulting to 12 periods.',
+          en: 'The fast-line period of the MACD, defaulting to 12 sessions.',
         },
       }),
       sliderVar('slowPeriod', NHAN_CHU_KY_EMA_CHAM, 'phiên', 26, 3, 200, 1, {
@@ -837,7 +840,7 @@ export const MACD_DUONG_TIN_HIEU: FormulaModule = {
       sliderVar('signalPeriod', NHAN_CHU_KY_TIN_HIEU, 'phiên', 9, 2, 100, 1, {
         description: {
           vi: 'EMA lấy trên chính chuỗi MACD. Chuỗi giá cần ít nhất Chu kỳ chậm + Chu kỳ tín hiệu − 1 phiên, tức 34 phiên với bộ mặc định 12/26/9.',
-          en: 'The EMA taken on the MACD series itself. The price series needs at least Slow period + Signal period − 1 periods, i.e. 34 periods with the default 12/26/9 set.',
+          en: 'The EMA taken on the MACD series itself. The price series needs at least Slow EMA period + Signal line period − 1 sessions, i.e. 34 sessions with the default 12/26/9 set.',
         },
       }),
     ],
@@ -947,7 +950,7 @@ export const RSI_WILDER: FormulaModule = {
   spec: {
     id: 'rsi-wilder',
     categoryId: 'technical',
-    name: { vi: 'RSI 14 phiên (Wilder)', en: '14-period RSI (Wilder)' },
+    name: { vi: 'RSI 14 phiên (Wilder)', en: '14-session RSI (Wilder)' },
     description: {
       vi: 'Chỉ số sức mạnh tương đối 0–100, đo tỷ lệ giữa đà tăng và đà giảm gần đây.',
       en: 'A 0–100 relative strength index that measures the ratio between recent upward and downward momentum.',
@@ -983,21 +986,21 @@ export const RSI_WILDER: FormulaModule = {
         latex: 'RS',
         meaning: {
           vi: 'sức mạnh tương đối, trung bình tăng chia trung bình giảm, lần',
-          en: 'relative strength, average gain divided by average loss, ratio',
+          en: 'relative strength, average gain divided by average loss, times',
         },
       },
       {
         latex: '\\overline{Gain}_n',
         meaning: {
           vi: 'trung bình mức tăng giá mỗi phiên, làm mượt theo Wilder với chu kỳ ô Số phiên, ₫',
-          en: 'average per-session price gain, Wilder-smoothed with the Sessions field as period, ₫',
+          en: 'average per-session price gain, Wilder-smoothed over the Number of sessions field, ₫',
         },
       },
       {
         latex: '\\overline{Loss}_n',
         meaning: {
           vi: 'trung bình mức giảm giá mỗi phiên, làm mượt theo Wilder với chu kỳ ô Số phiên, ₫',
-          en: 'average per-session price loss, Wilder-smoothed with the Sessions field as period, ₫',
+          en: 'average per-session price loss, Wilder-smoothed over the Number of sessions field, ₫',
         },
       },
     ],
@@ -1033,7 +1036,7 @@ export const RSI_WILDER: FormulaModule = {
       sliderVar('period', labelWithSymbol(NHAN_SO_PHIEN, 'n'), 'phiên', 14, 2, 100, 1, {
         description: {
           vi: 'Wilder dùng 14 phiên. Chuỗi giá phải có ít nhất số phiên này cộng thêm 1 để đủ lợi suất, tức 15 giá cho RSI 14. Cách làm mượt của Wilder còn kéo theo cả phần chuỗi phía trước, nên nạp chuỗi dài ngắn khác nhau thì con số cũng lệch nhau vài điểm.',
-          en: "Wilder used 14 periods. The price series must have at least this many periods plus 1 to have enough returns, i.e. 15 prices for a 14-period RSI. Wilder's smoothing also carries the earlier part of the series with it, so a longer or shorter series shifts the figure by a few points.",
+          en: "Wilder used 14 sessions. The price series must have at least this many sessions plus 1 to have enough returns, i.e. 15 prices for a 14-session RSI. Wilder's smoothing also carries the earlier part of the series with it, so a longer or shorter series shifts the figure by a few points.",
         },
       }),
     ],
@@ -1052,7 +1055,7 @@ export const RSI_WILDER: FormulaModule = {
       },
       commonMistakes: {
         vi: 'Bán ngay khi RSI vượt 70: trong một xu hướng tăng mạnh, RSI có thể nằm lì trên 70 hàng chục phiên. Sai thứ hai là làm mượt bằng EMA hệ số 2/(n+1) thay vì cách làm mượt của Wilder, khiến số lệch hẳn so với bảng giá.',
-        en: "Selling as soon as RSI crosses above 70: in a strong uptrend, RSI can stay above 70 for dozens of periods. The second mistake is smoothing with the EMA factor 2/(n+1) instead of Wilder's smoothing method, which makes the figure diverge noticeably from the price chart.",
+        en: "Selling as soon as RSI crosses above 70: in a strong uptrend, RSI can stay above 70 for dozens of sessions. The second mistake is smoothing with the EMA factor 2/(n+1) instead of Wilder's smoothing method, which makes the figure diverge noticeably from the price chart.",
       },
     },
     example: {
@@ -1162,12 +1165,12 @@ export const ROC_TOC_DO_THAY_DOI: FormulaModule = {
     name: { vi: 'Tốc độ thay đổi giá (ROC)', en: 'Rate of change (ROC)' },
     description: {
       vi: 'Giá phiên cuối của chuỗi cao hơn hay thấp hơn giá của n phiên trước bao nhiêu phần trăm.',
-      en: "How many percent the last session's price is above or below the price from n periods ago.",
+      en: "How many percent the last session's price is above or below the price from n sessions ago.",
     },
     latex: 'ROC = \\left(\\frac{P_t}{P_{t-n}} - 1\\right) \\times 100',
     expression: {
       vi: 'ROC = (Giá phiên cuối ÷ Giá của n phiên trước − 1) × 100',
-      en: 'ROC = (Last closing price ÷ Price from n periods ago − 1) × 100',
+      en: 'ROC = (Last closing price ÷ Price from n sessions ago − 1) × 100',
     },
     substitution: '({@giaNay} ÷ {@giaTruoc} − 1) × 100',
     symbols: [
@@ -1203,7 +1206,7 @@ export const ROC_TOC_DO_THAY_DOI: FormulaModule = {
         latex: 'n',
         meaning: {
           vi: 'số phiên nhìn lại',
-          en: 'look-back length',
+          en: 'number of sessions to look back',
         },
       },
       {
@@ -1219,14 +1222,14 @@ export const ROC_TOC_DO_THAY_DOI: FormulaModule = {
       sliderVar('period', labelWithSymbol(NHAN_SO_PHIEN_NHIN_LAI, 'n'), 'phiên', 12, 1, 250, 1, {
         description: {
           vi: 'So giá phiên cuối với giá của bấy nhiêu phiên trước. Chuỗi giá cần ít nhất số phiên này cộng 1.',
-          en: 'Compares the last closing price with the price that many periods earlier. The price series needs at least this many periods plus 1.',
+          en: 'Compares the last closing price with the price that many sessions earlier. The price series needs at least this many sessions plus 1.',
         },
       }),
     ],
     explanation: {
       meaning: {
         vi: 'Động lượng đo bằng phần trăm: giá đã chạy nhanh tới mức nào trong cửa sổ n phiên vừa qua.',
-        en: 'Momentum measured in percent: how fast price has moved within the last n-period window.',
+        en: 'Momentum measured in percent: how fast price has moved within the last n-session window.',
       },
       whenToUse: {
         vi: 'Dùng khi bạn đang cân vài mã có giá chênh nhau rất xa, như mã giá chục nghìn với mã giá vài trăm nghìn, và muốn biết mã nào đã chạy nhanh hơn trong cùng mấy tuần qua.',
@@ -1321,12 +1324,12 @@ export const DONG_LUONG_MOMENTUM: FormulaModule = {
     name: { vi: 'Động lượng (Momentum)', en: 'Momentum' },
     description: {
       vi: 'Chênh lệch tuyệt đối giữa giá phiên cuối và giá của n phiên trước, tính bằng đồng.',
-      en: 'The absolute difference between the last closing price and the price from n periods ago, denominated in VND.',
+      en: 'The absolute difference between the last closing price and the price from n sessions ago, measured in dong.',
     },
     latex: 'M = P_t - P_{t-n}',
     expression: {
       vi: 'Động lượng = Giá phiên cuối − Giá của n phiên trước',
-      en: 'Momentum = Last closing price − Price from n periods ago',
+      en: 'Momentum = Last closing price − Price from n sessions ago',
     },
     substitution: '{@giaNay} − {@giaTruoc}',
     symbols: [
@@ -1362,7 +1365,7 @@ export const DONG_LUONG_MOMENTUM: FormulaModule = {
         latex: 'n',
         meaning: {
           vi: 'số phiên nhìn lại',
-          en: 'look-back length',
+          en: 'number of sessions to look back',
         },
       },
     ],
@@ -1394,14 +1397,14 @@ export const DONG_LUONG_MOMENTUM: FormulaModule = {
       sliderVar('period', labelWithSymbol(NHAN_SO_PHIEN_NHIN_LAI, 'n'), 'phiên', 10, 1, 250, 1, {
         description: {
           vi: 'Khoảng cách tới phiên đem ra so sánh. Chuỗi giá cần ít nhất số phiên này cộng 1.',
-          en: 'The distance to the period being compared against. The price series needs at least this many periods plus 1.',
+          en: 'The distance to the session being compared against. The price series needs at least this many sessions plus 1.',
         },
       }),
     ],
     explanation: {
       meaning: {
         vi: 'Giá đã đi được bao nhiêu đồng trong n phiên - bản gốc, thô nhất của mọi chỉ báo động lượng.',
-        en: 'How many VND price has moved over n periods - the original, rawest form of every momentum indicator.',
+        en: 'How many dong the price has moved over n sessions - the original, rawest form of every momentum indicator.',
       },
       whenToUse: {
         vi: 'Dùng khi bạn theo dõi sát một mã quen và muốn biết giá mỗi cổ phiếu đã lên hay xuống bao nhiêu đồng so với vài tuần trước, tính thẳng bằng tiền chứ không quy ra tỷ lệ.',
@@ -1413,7 +1416,7 @@ export const DONG_LUONG_MOMENTUM: FormulaModule = {
       },
       commonMistakes: {
         vi: 'Đem động lượng của hai mã khác thị giá ra so: 1.000 ₫ trên cổ phiếu 25.000 ₫ mạnh hơn hẳn 1.000 ₫ trên cổ phiếu 200.000 ₫. Muốn so ngang thì dùng ROC.',
-        en: 'Comparing momentum between two stocks with different share prices: 1,000 VND on a 25,000 VND stock is far stronger than 1,000 VND on a 200,000 VND stock. Use ROC for an apples-to-apples comparison.',
+        en: 'Comparing momentum between two stocks with different share prices: 1,000 ₫ on a 25,000 ₫ stock is far stronger than 1,000 ₫ on a 200,000 ₫ stock. Use ROC for an apples-to-apples comparison.',
       },
     },
     example: {
@@ -1500,7 +1503,7 @@ export const KHOANG_CACH_GIA_SO_SMA: FormulaModule = {
     latex: 'D = \\left(\\frac{P_t}{SMA_n} - 1\\right) \\times 100',
     expression: {
       vi: 'Khoảng cách = (Giá phiên cuối ÷ SMA n phiên − 1) × 100',
-      en: 'Distance = (Last closing price ÷ n-period SMA − 1) × 100',
+      en: 'Distance = (Last closing price ÷ n-session SMA − 1) × 100',
     },
     substitution: '({@giaNay} ÷ {@sma} − 1) × 100',
     symbols: [
@@ -1536,7 +1539,7 @@ export const KHOANG_CACH_GIA_SO_SMA: FormulaModule = {
         latex: 'n',
         meaning: {
           vi: 'số phiên của đường trung bình đem ra so',
-          en: 'period of the moving average being compared',
+          en: 'number of sessions in the moving average being compared',
         },
       },
       {
@@ -1552,7 +1555,7 @@ export const KHOANG_CACH_GIA_SO_SMA: FormulaModule = {
       sliderVar('period', labelWithSymbol(NHAN_CHU_KY_TRUNG_BINH, 'n'), 'phiên', 20, 2, 200, 1, {
         description: {
           vi: 'Chu kỳ của SMA đem ra so. Chuỗi giá phải có ít nhất đúng bằng số phiên này. Mốc quen dùng là 20 và 50 phiên.',
-          en: 'The period of the SMA being compared against. The price series must have at least this many periods. Common benchmarks are 20 and 50 periods.',
+          en: 'The period of the SMA being compared against. The price series must have at least this many sessions. Common benchmarks are 20 and 50 sessions.',
         },
       }),
     ],
@@ -1667,21 +1670,21 @@ export const GIAO_CAT_HAI_DUONG_MA: FormulaModule = {
         latex: 'C',
         meaning: {
           vi: 'chênh lệch giữa hai đường trung bình, ₫',
-          en: 'gap between the two moving averages, ₫',
+          en: 'difference between the two moving averages, ₫',
         },
       },
       {
         latex: 'SMA_{ngan}',
         meaning: {
           vi: 'SMA tính theo ô Chu kỳ đường ngắn, đường bám giá, ₫',
-          en: 'SMA over the Short period field, the price-tracking line, ₫',
+          en: 'SMA over the Short SMA period field, the price-tracking line, ₫',
         },
       },
       {
         latex: 'SMA_{dai}',
         meaning: {
           vi: 'SMA tính theo ô Chu kỳ đường dài, đường nền, ₫',
-          en: 'SMA over the Long period field, the baseline, ₫',
+          en: 'SMA over the Long SMA period field, the baseline, ₫',
         },
       },
     ],
@@ -1700,13 +1703,13 @@ export const GIAO_CAT_HAI_DUONG_MA: FormulaModule = {
       lines: [
         {
           key: 'smaShort',
-          label: { vi: 'SMA {n} phiên', en: '{n}-period SMA' },
+          label: { vi: 'SMA {n} phiên', en: '{n}-session SMA' },
           periodKey: 'shortPeriod',
           tone: 'primary',
         },
         {
           key: 'smaLong',
-          label: { vi: 'SMA {n} phiên', en: '{n}-period SMA' },
+          label: { vi: 'SMA {n} phiên', en: '{n}-session SMA' },
           periodKey: 'longPeriod',
           tone: 'violet',
           dash: true,
@@ -1718,13 +1721,13 @@ export const GIAO_CAT_HAI_DUONG_MA: FormulaModule = {
       sliderVar('shortPeriod', NHAN_CHU_KY_NGAN, 'phiên', 10, 2, 100, 1, {
         description: {
           vi: 'Đường bám giá. Cặp quen dùng: 10 và 20 phiên cho ngắn hạn, 50 và 200 cho dài hạn.',
-          en: 'The price-tracking line. Common pairs: 10 and 20 periods for short-term, 50 and 200 for long-term.',
+          en: 'The price-tracking line. Common pairs: 10 and 20 sessions for short-term, 50 and 200 for long-term.',
         },
       }),
       sliderVar('longPeriod', NHAN_CHU_KY_DAI, 'phiên', 20, 3, 250, 1, {
         description: {
           vi: 'Đường nền, phải dài hơn đường ngắn. Chuỗi giá phải có ít nhất đúng bằng số phiên này.',
-          en: 'The baseline, must be longer than the short line. The price series must have at least this many periods.',
+          en: 'The baseline, must be longer than the short line. The price series must have at least this many sessions.',
         },
       }),
     ],
@@ -1743,7 +1746,7 @@ export const GIAO_CAT_HAI_DUONG_MA: FormulaModule = {
       },
       commonMistakes: {
         vi: 'Giao dịch mọi lần cắt trong thị trường đi ngang: cặp đường sẽ cắt qua cắt lại liên tục và phí giao dịch ăn hết phần lãi. Sai thứ hai là quên rằng tín hiệu chỉ chốt khi phiên đã đóng cửa.',
-        en: 'Trading every crossover in a sideways market: the pair of lines will cross back and forth repeatedly and transaction fees eat up all the profit. The second mistake is forgetting that the signal is only confirmed once the period has closed.',
+        en: 'Trading every crossover in a sideways market: the pair of lines will cross back and forth repeatedly and transaction fees eat up all the profit. The second mistake is forgetting that the signal is only confirmed once the session has closed.',
       },
     },
     example: {

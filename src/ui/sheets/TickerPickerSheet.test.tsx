@@ -6,6 +6,8 @@ import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vite
 
 import { TICKER_LIST_KEY, TICKER_LIST_TTL_MS, serializeCachedTickers } from '@/application';
 
+import { PreferencesProvider } from '@/application/preferences-context';
+
 import { TickerPickerSheet } from './TickerPickerSheet';
 
 /**
@@ -393,5 +395,56 @@ describe('TickerPickerSheet — bày dần và vòng xoay', () => {
     await moNhieuMa();
 
     expect(screen.queryByText(/\d+\s*\/\s*\d+/)).toBeNull();
+  });
+});
+
+/*
+ * Chế độ EN: tên doanh nghiệp in bằng tiếng Anh (05/11/2026). Chủ dự án chuyển sang tiếng Anh, mở
+ * "Pick a ticker" và thấy "Thủy sản Mekong", "An Phát Bioplastics": _"tại sao chuyển sang tiếng anh mà
+ * vẫn còn tiếng việt, lỗi nghiêm trọng"_. Tên lấy từ `ticker-names-en.generated.ts`.
+ */
+describe('chế độ EN: tên doanh nghiệp tiếng Anh', () => {
+  afterEach(() => {
+    window.localStorage.clear();
+  });
+
+  async function moSheetEN() {
+    window.localStorage.setItem('ffb.prefs.v1', JSON.stringify({ locale: 'en' }));
+    feed.listTickers.mockResolvedValue(DANH_SACH);
+    render(
+      <PreferencesProvider>
+        <TickerPickerSheet open onClose={() => undefined} onPick={() => undefined} />
+      </PreferencesProvider>,
+    );
+    await screen.findByText('FPT');
+    // Tên đổi khi PreferencesProvider đã chuyển sang tiếng Anh, sau lượt render đầu.
+    await screen.findByText('Hoa Phat Group');
+  }
+
+  it('dòng in tên tiếng Anh, không in tên tiếng Việt; tên không dấu ("FPT Corp") giữ nguyên', async () => {
+    await moSheetEN();
+
+    expect(within(dong('HPG')).queryByText('Tập đoàn Hoà Phát')).toBeNull();
+    expect(within(dong('FPT')).getByText('FPT Corp')).not.toBeNull();
+    expect(within(dong('E1VFVN30')).getByText('DCVFMVN30 ETF')).not.toBeNull();
+  });
+
+  it('tìm được bằng tên tiếng Anh đang in, và vẫn tìm được bằng tên tiếng Việt', async () => {
+    await moSheetEN();
+
+    await userEvent.type(screen.getByRole('searchbox'), 'phat group');
+    await waitFor(() => {
+      expect(screen.getAllByRole('listitem').map((li) => li.textContent)).toEqual([
+        expect.stringContaining('HPG'),
+      ]);
+    });
+
+    await userEvent.clear(screen.getByRole('searchbox'));
+    await userEvent.type(screen.getByRole('searchbox'), 'tap doan');
+    await waitFor(() => {
+      expect(screen.getAllByRole('listitem').map((li) => li.textContent)).toEqual([
+        expect.stringContaining('HPG'),
+      ]);
+    });
   });
 });

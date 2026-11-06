@@ -201,6 +201,11 @@ describe('Thẻ kết quả — một khuôn duy nhất', () => {
     }
   });
 
+  /*
+   * Ca này ghim CỠ và DÒNG của `_ _`, không ghim chiều cao thẻ. Dưới 1024px thẻ lỗi nay thấp hơn thẻ
+   * Kết quả chừng 14px (34,5 so với 48,5px), vì chủ dự án bảo bỏ dải trống phía trên nó (06/11/2026,
+   * xem `ErrorState.module.css`); trang nhích chừng ấy khi chuyển trạng thái, đã nói với chủ dự án.
+   */
   it('khối lỗi cao bằng khối kết quả, nên trang không xê dịch khi chuyển trạng thái', () => {
     const body = ruleBody(
       readFileSync(join(SRC_DIR, 'ui/result/ErrorState.module.css'), 'utf8'),

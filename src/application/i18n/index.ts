@@ -40,6 +40,12 @@ export function isLocaleLoaded(locale: Locale): boolean {
 let enDangNap: Promise<void> | null = null;
 
 /**
+ * Tên doanh nghiệp và tên ngành tiếng Anh (`./ten-tieng-anh`, 05/11/2026) — nạp CÙNG từ điển tiếng
+ * Anh, trong cùng một lời hứa, để màn không bao giờ ở tiếng Anh mà tên doanh nghiệp còn tiếng Việt.
+ */
+let TEN_EN: typeof import('./ten-tieng-anh') | undefined;
+
+/**
  * Nạp từ điển của một ngôn ngữ. Gọi nhiều lần vẫn chỉ tải một lần; tải hỏng (ngoại tuyến, chunk
  * chưa từng được service worker cất) thì lần sau thử lại, và màn ở lại tiếng Việt.
  *
@@ -48,8 +54,9 @@ let enDangNap: Promise<void> | null = null;
  */
 export function loadLocale(locale: Locale): Promise<void> {
   if (locale === 'vi' || DICTIONARIES.en !== undefined) return Promise.resolve();
-  enDangNap ??= import('./en').then(
-    (mod) => {
+  enDangNap ??= Promise.all([import('./en'), import('./ten-tieng-anh')]).then(
+    ([mod, ten]) => {
+      TEN_EN = ten;
       DICTIONARIES.en = mod.en;
     },
     (error: unknown) => {
@@ -63,6 +70,25 @@ export function loadLocale(locale: Locale): Promise<void> {
 /** Lấy câu chữ theo ngôn ngữ. Chưa dịch (hoặc từ điển chưa về) thì trả bản tiếng Việt. */
 export function t(key: MessageKey, locale: Locale = 'vi'): string {
   return DICTIONARIES[locale]?.[key] ?? vi[key];
+}
+
+/**
+ * Tên doanh nghiệp theo ngôn ngữ. Tiếng Việt: tên Finbox. Tiếng Anh: tên tiếng Anh của mã, xem
+ * `companyNameEn()`. Bảng chưa về (không xảy ra trên màn, `locale` chỉ thành `'en'` khi đã nạp) thì
+ * trả tên Finbox.
+ */
+export function companyName(code: string, name: string, locale: Locale): string {
+  if (locale === 'vi' || TEN_EN === undefined) return name;
+  return TEN_EN.companyNameEn(code, name);
+}
+
+/**
+ * Tên ngành theo ngôn ngữ. Ở tiếng Anh, ngành chưa có bản dịch trả `undefined` — bên gọi bỏ hẳn tên
+ * ngành, không in tiếng Việt (xem `industryNameEn()`).
+ */
+export function industryName(industry: string, locale: Locale): string | undefined {
+  if (locale === 'vi') return industry;
+  return TEN_EN?.industryNameEn(industry);
 }
 
 /** Kiểm chuỗi đọc từ localStorage hay URL có phải ngôn ngữ hợp lệ không. */

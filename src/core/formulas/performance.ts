@@ -60,7 +60,7 @@ export const LOI_SUAT_NAM_HOA: FormulaModule = {
     latex: 'r_{nam} = (1 + r_{ky})^{m} - 1',
     expression: {
       vi: 'Lợi suất năm = (1 + Lợi suất một kỳ)^Số kỳ trong năm − 1',
-      en: 'Annual return = (1 + Return per period)^Number of periods per year − 1',
+      en: 'Annualized return = (1 + Return per period)^Number of periods per year − 1',
     },
     substitutionDerived: { rKy: '{periodReturn} ÷ 100' },
     substitution: '((1 + {rKy})^{periodsPerYear} − 1) × 100',
@@ -91,7 +91,7 @@ export const LOI_SUAT_NAM_HOA: FormulaModule = {
     variables: [
       numberVar(
         'periodReturn',
-        { vi: 'Lợi suất một kỳ (rky)', en: 'Return per period (rky)' },
+        { vi: 'Lợi suất một kỳ (rky)', en: 'Return per period (rperiod)' },
         '%',
         2,
         {
@@ -150,7 +150,7 @@ export const LOI_SUAT_NAM_HOA: FormulaModule = {
       },
       source: {
         vi: 'Tạp chí Kinh tế Tài chính, VN-Index chốt tháng 8/2026 tại 1.832,12 điểm so với 1.735,78 điểm cuối tháng 7.',
-        en: 'Tạp chí Kinh tế Tài chính: the VN-Index closed August 2026 at 1,832.12 points against 1,735.78 at the end of July.',
+        en: 'Tap chi Kinh te Tai chinh, an economics and finance magazine: the VN-Index closed August 2026 at 1,832.12 points against 1,735.78 at the end of July.',
       },
     },
     tests: [
@@ -257,7 +257,7 @@ export const LOI_SUAT_THUC: FormulaModule = {
         'nominal',
         {
           vi: 'Lợi suất danh nghĩa / năm (rdanh nghia)',
-          en: 'Nominal return / year (rdanh nghia)',
+          en: 'Nominal return / year (rnominal)',
         },
         '%',
         10,
@@ -837,7 +837,7 @@ export const LOI_SUAT_TRUNG_BINH_HINH_HOC: FormulaModule = {
         latex: 'r_k',
         meaning: {
           vi: 'lợi suất kỳ thứ k, lấy ở ô Lợi suất kỳ mang số ấy, %',
-          en: 'return in period k, from the Return in period field with that number, %',
+          en: 'return in period k, from the matching Return in period k field, %',
         },
       },
       {
@@ -1081,7 +1081,7 @@ export const IRR_NIEN_KIM: FormulaModule = {
         latex: 'P',
         meaning: {
           vi: 'khoản một lần ở đầu kỳ 0, vốn bỏ ra hoặc tiền vay nhận về, ₫',
-          en: 'single sum at period 0, the capital put in or the loan received, ₫',
+          en: 'lump sum at period 0, the capital put in or the loan received, ₫',
         },
       },
       {
@@ -1099,7 +1099,7 @@ export const IRR_NIEN_KIM: FormulaModule = {
         latex: '1 - (1 + IRR)^{-n}',
         meaning: {
           vi: '1 trừ giá trị hôm nay của 1 đồng nhận ở cuối kỳ n, chiết khấu theo IRR',
-          en: "1 minus today's value of 1 đồng received at the end of period n, discounted at IRR",
+          en: "1 minus today's value of 1 unit received at the end of period n, discounted at IRR",
         },
       },
     ],
@@ -1188,7 +1188,7 @@ export const IRR_NIEN_KIM: FormulaModule = {
       },
       source: {
         vi: 'VietnamFinance ngày 28/03/2026, trường hợp vay 3 tỷ đồng kỳ hạn 20 năm, lãi ưu đãi 8%/năm trong 24 tháng đầu.',
-        en: 'VietnamFinance, 2026-03-28: a 3 billion đồng loan over 20 years at a promotional 8%/year for the first 24 months.',
+        en: 'VietnamFinance, 2026-03-28: a 3 billion VND loan over 20 years at a promotional 8%/year for the first 24 months.',
       },
     },
     tests: [
@@ -1446,7 +1446,7 @@ export const THOI_GIAN_NHAN_DOI: FormulaModule = {
       expected: 10.5361,
       note: {
         vi: 'So với số tiền gửi ban đầu: với lãi 6,8%/năm nhập gốc, phải mất 10,54 năm số tiền ấy mới thành gấp đôi. Sổ 12 tháng chỉ nhập lãi mỗi năm một lần, hết năm thứ 10 sổ ghi 1,93 lần, nên trên sổ phải hết năm thứ 11 mới qua mức gấp đôi.',
-        en: 'Compared with the amount first deposited: at 6.8%/year with interest added to the principal, it takes 10.54 years for that amount to double. A twelve-month deposit adds interest only once a year, and after year 10 the passbook shows 1.93 times, so on the passbook it passes double only at the end of year 11.',
+        en: 'Compared with the amount first deposited: at 6.8%/year with interest added to the principal, it takes 10.54 years for that amount to double. A twelve-month deposit adds interest only once a year, and after year 10 the deposit stands at 1.93 times, so it passes double only at the end of year 11.',
       },
       source: {
         vi: 'Lãi suất tiết kiệm trực tuyến 12 tháng nhóm Big4 tháng 9/2026 (VietNamNet).',
@@ -1514,7 +1514,7 @@ export const LOI_SUAT_QUY_NAM_THEO_NGAY: FormulaModule = {
   spec: {
     id: 'loi-suat-quy-nam-theo-ngay',
     categoryId: 'returns',
-    name: { vi: 'Lợi suất quy năm theo số ngày', en: 'Annualized holding period return' },
+    name: { vi: 'Lợi suất quy năm theo số ngày', en: 'Annualized return from days held' },
     description: {
       vi: 'Quy lợi suất của một lần mua bán ngắn ngày về mức tương đương cả năm.',
       en: 'Converts the return of a short-holding trade into its full-year equivalent.',
@@ -1552,7 +1552,7 @@ export const LOI_SUAT_QUY_NAM_THEO_NGAY: FormulaModule = {
     tags: ['quy nam', 'so ngay nam giu', 'annualized', 'hpr', 'luot song'],
     resultUnit: '%',
     variables: [
-      numberVar('buyPrice', { vi: 'Giá mua (Pmua)', en: 'Buy price (Pmua)' }, '₫', 80_000, {
+      numberVar('buyPrice', { vi: 'Giá mua (Pmua)', en: 'Buy price (Pbuy)' }, '₫', 80_000, {
         min: 0,
         max: 10_000_000,
         description: {
@@ -1560,7 +1560,7 @@ export const LOI_SUAT_QUY_NAM_THEO_NGAY: FormulaModule = {
           en: 'The matched buy price, per share.',
         },
       }),
-      numberVar('sellPrice', { vi: 'Giá bán (Pban)', en: 'Sell price (Pban)' }, '₫', 86_000, {
+      numberVar('sellPrice', { vi: 'Giá bán (Pban)', en: 'Sell price (Psell)' }, '₫', 86_000, {
         min: 0,
         max: 10_000_000,
         description: {
@@ -1715,7 +1715,7 @@ export const LOI_SUAT_VUOT_CHUAN: FormulaModule = {
   spec: {
     id: 'loi-suat-vuot-chuan',
     categoryId: 'returns',
-    name: { vi: 'Lợi suất vượt chuẩn', en: 'Excess return' },
+    name: { vi: 'Lợi suất vượt chuẩn', en: 'Excess return over the benchmark' },
     description: {
       vi: 'Danh mục làm tốt hơn hay kém hơn mốc so sánh bao nhiêu điểm phần trăm.',
       en: 'How many percentage points the portfolio outperformed or underperformed its benchmark.',

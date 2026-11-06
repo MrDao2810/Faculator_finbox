@@ -41,6 +41,11 @@
   display: contents;
 }
 
+/* Từ 1024px khối câu + dòng ↳ cũng tan vào lưới: hai dòng ấy vẫn trải hết hai cột như trước. */
+.cause {
+  display: contents;
+}
+
 .message,
 .fix {
   grid-column: 1 / -1;
@@ -65,4 +70,39 @@
 .fix {
   font-size: var(--text-xs);
   color: var(--color-ink-soft);
+}
+
+/*
+ * Dưới 1024px thẻ là MỘT hàng, như thẻ lỗi Kết quả ngay trên nó (05/11/2026). Chủ dự án khoanh câu
+ * "Cần ít nhất 60 phiên giá." dưới nhãn "THIẾU CHUỖI GIÁ" của biểu đồ, kẻ mũi tên sang phải: _"phần
+ * khoanh đỏ cần chuyển sang bên phải như bên trên"_. Ảnh là khổ điện thoại nên chỉ áp dưới 1024px.
+ *
+ * Cùng lối `ErrorState`: hàng flex xuống dòng được, `margin-right: auto` đặt ở NHÃN (không ở khối
+ * câu), nên câu vừa một dòng thì chạm mép phải, câu dài quá thì xuống hàng dưới và bắt đầu ở mép
+ * trái thẻ, thẳng với icon (luật 23/10/2026 vẫn giữ). Nhãn và câu thẳng chân chữ (`baseline`).
+ * Icon SVG không có chân chữ, nên trình duyệt lấy mép dưới KHUNG VIỀN của nó (lề âm không đổi được
+ * gì, đã đo): đứng như thế tâm icon cao hơn tâm dòng nhãn 2px. Dời nó xuống đúng 2px là tâm hai bên
+ * trùng nhau, chỗ lưới cũ (`align-items: center`) đặt icon.
+ */
+@media (max-width: 1023.98px) {
+  .warning {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+  }
+
+  .icon {
+    position: relative;
+    top: 2px;
+  }
+
+  .label {
+    margin-right: auto;
+  }
+
+  .cause {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
 }

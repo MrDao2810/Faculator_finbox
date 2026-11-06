@@ -1017,7 +1017,7 @@ function overlayPrimaryLabel(declared: PriceOverlaySpec, inputs: CalcInputs): Bi
   const n = String(Math.round(raw));
   return {
     vi: `${declared.shortName.vi} ${n} phiên`,
-    en: `${n}-period ${declared.shortName.en}`,
+    en: `${n}-session ${declared.shortName.en}`,
   };
 }
 
@@ -1077,17 +1077,14 @@ function khongDungCot(loi: LoiCot): CalcWarning {
 
 /**
  * Mục theo phiên (thời gian, phân phối, sụt giảm) đang chọn mà chưa nạp chuỗi, hay chuỗi ngắn quá
- * mức tối thiểu để vẽ (`MIN_SESSIONS`).
+ * mức tối thiểu để vẽ (`MIN_SESSIONS`). Không có dòng ↳ gợi ý sửa, cùng câu đã bỏ ở `missingSeries()`
+ * (05/11/2026): hai thẻ cùng mã không được nói hai lối.
  */
 const CHUA_CO_CHUOI: CalcWarning = {
   code: 'MISSING_SERIES',
   message: {
     vi: 'Chưa có chuỗi giá đủ phiên nên chưa vẽ được theo từng phiên.',
     en: 'There is no price series with enough sessions yet, so nothing can be drawn session by session.',
-  },
-  fix: {
-    vi: 'Thêm phiên giá (nút Nạp mẫu hoặc Sử dụng dữ liệu mẫu), hoặc giảm số phiên hay chu kỳ ở khối Số liệu.',
-    en: 'Add price sessions (the Load sample or Use sample data button), or lower the sessions or period in the Inputs block.',
   },
 };
 

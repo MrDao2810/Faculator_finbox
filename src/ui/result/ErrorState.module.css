@@ -140,7 +140,23 @@
     font-size: var(--text-xl);
   }
 
-  /* Đệm và khe của thẻ nay ở luật gốc, chung mọi khổ (27/10/2026) — xem trên `.block`. */
+  /*
+   * Đệm TRÊN bỏ hẳn, và hàng `_ _` kéo lên 6px (06/11/2026). Chủ dự án khoanh dải trống phía trên
+   * "_ _ lần … Cần ít nhất 60 phiên giá." trên điện thoại: _"giảm padding top phần khoanh đỏ cần giảm
+   * xuống"_. Dải ấy không chỉ là đệm 6px: dòng của `_ _` cao 26px × 1,25 mà dấu gạch dưới chỉ nằm ở
+   * chân dòng, nên phần đỉnh dòng để trống. Đo mực chữ trên Chrome ở 360 và 390: khoảng trống trên
+   * 20px, dưới 8,5px → nay trên 8px, dưới 8,5px, thẻ 46,5 → 34,5px. Kéo `.head` chứ không hạ
+   * line-height của `_ _`: cỡ và dòng của nó ghim bằng con số của thẻ Kết quả (`result-card.test.ts`).
+   * Cái giá: thẻ lỗi nay thấp hơn thẻ Kết quả (48,5px) chừng 14px, trang nhích chừng ấy khi phép tính
+   * chuyển giữa ra số và báo lỗi. Từ 1024px không đổi (ảnh là khổ điện thoại).
+   */
+  .block {
+    padding-top: 0;
+  }
+
+  .head {
+    margin-top: -6px;
+  }
 
   .unit {
     font-size: var(--text-sm);

@@ -738,7 +738,9 @@ describe('buildChartModel()', () => {
     expect(model.kind).toBe('unavailable');
     if (model.kind !== 'unavailable') return;
     expect(model.warning.code).toBe('MISSING_SERIES');
-    expect(model.warning.fix).toBeDefined();
+    // Câu của `missingSeries()`; không có dòng ↳ gợi ý sửa từ 05/11/2026.
+    expect(model.warning.message.vi).toMatch(/^Cần ít nhất \d+ phiên giá\.$/);
+    expect(model.warning.fix).toBeUndefined();
   });
 
   /*
@@ -1310,7 +1312,7 @@ describe('buildChartModel()', () => {
       const model = veSma();
       if (model.kind !== 'line') throw new Error('SMA phải ra đường quét');
 
-      expect(model.primaryLabel).toEqual({ vi: 'SMA 20 phiên', en: '20-period SMA' });
+      expect(model.primaryLabel).toEqual({ vi: 'SMA 20 phiên', en: '20-session SMA' });
       // `seriesOf()` đưa nhãn ấy cho chuỗi chính — đường dẫn thật mà legend sẽ đọc.
       expect(seriesOf(model)[0]?.label.vi).toBe('SMA 20 phiên');
 

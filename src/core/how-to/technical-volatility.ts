@@ -291,7 +291,7 @@ export const HOW_TO_TECHNICAL_VOLATILITY: Readonly<Record<string, FormulaHowTo>>
             latex: '\\bar{u} = \\frac{\\sum_{t=2}^{n} u_t}{n - 1}',
             expression: {
               vi: 'Lợi suất log bình quân = Tổng lợi suất log các phiên ÷ (Số phiên giá lấy mẫu − 1)',
-              en: 'Average log return = Sum of session log returns ÷ (Sample sessions − 1)',
+              en: 'Average log return = Sum of session log returns ÷ (Number of price sessions in the sample − 1)',
             },
           },
         ],

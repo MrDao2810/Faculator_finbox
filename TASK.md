@@ -4,6 +4,111 @@ Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 
 ---
 
+## Chế độ EN: dịch sát nghĩa cho người nước ngoài (06/11/2026)
+
+**Trạng thái: CHƯA XONG — đã sửa, test xanh, chờ chủ dự án xác nhận.** Chủ dự án, sau báo cáo của lượt 05/11:
+_"dich phải xát nghĩa nhất có thể để người dùng công thức hiểu được. vì họ là người nước ngoài thì sao"_. Rà toàn bộ
+chữ tiếng Anh của 111 công thức theo tám nhóm (kế toán, phí thuế, tiết kiệm vay, rủi ro kỹ thuật, phái sinh, định
+giá, chữ Việt lọt vào, tên ngành), mỗi nhóm một agent soạn và tự kiểm trên bản sao, sửa áp tập trung.
+
+**Hình công thức** (`src/core/latex-en.ts`): LNST → Net income, LNTT → EBT, TSNH → Current assets, "Khấu hao" →
+D&A, "Số CP" → Shares outstanding, "Trả nợ gốc" → Debt repaid, Payout → Payout ratio; lịch trả nợ `D_k`/`G_k` →
+`B_k`/`P_k`; EMI → PMT; `L_{rong}` → `\text{Net profit}`; phái sinh `P_{mo}`/`P_{dong}` → `P_{entry}`/`P_{exit}`;
+`C` của Giao cắt hai đường MA → `\text{Difference}`; `DD` của Độ lệch chuẩn bán phần → `\sigma_d`; `_{thue}` →
+`transfer` (một thuế suất chuyển nhượng, một tên trên ba hình). Nhãn ô không lặp ký hiệu trong ngoặc khi hình viết
+bằng chữ (`labelWithSymbol` trong `formulas/shared.ts`).
+
+**Nhãn, bảng ký hiệu, dòng chữ, tên** (các file trong `src/core/formulas/`, `how-to/`, `huong-dan/`, `vi-du/`,
+`quiz/items/`, `registry/categories.ts`, `chart/build.ts`): "session" cho "phiên" ở cả nhóm kỹ thuật; "per share"
+cho cổ tức ₫/CP; "deposit" thay "book"; "Brokerage fee on a buy/sell order"; "transfer tax"; "broker"; "Net
+borrowing"; "depreciation and amortization"; bảng ký hiệu gọi ô bằng đúng nhãn thật; tên đổi: Annuity loan
+payment, Interest received on early withdrawal, XIRR - internal rate of return on actual cash-flow dates, Excess
+return over the benchmark, Historical VaR (percentile method), CVaR - expected shortfall, Beta - systematic risk
+coefficient, %B - price position within the Bollinger bands, 14-session RSI (Wilder), VWAP - volume-weighted average
+price, Per-session return standard deviation, High-low price range in the period. ~110 câu trích nhãn trong
+"Đọc biểu đồ" đổi theo.
+
+**Chữ Việt lọt vào chuỗi tiếng Anh**: 35 chỗ, kèm luật mới `src/application/i18n/tieng-anh-khong-dau.test.ts`.
+
+**Lượt đọc độc lập** (một agent mới đọc lại đủ 111 công thức, không biết các quyết định trên; 13 điểm, đã sửa cả 13):
+Biên độ dao động lớn nhất là "Closing price range in the period" (`calc` dùng giá ĐÓNG CỬA, "high-low" là giá cao/thấp
+phiên); ô D0 của Gordon và DDM hai giai đoạn là "Past year’s dividend (D0)", bảng ký hiệu "dividend per share paid over
+the last 12 months, all payments added" (mô tả ô ghi tổng 12 tháng; "most recent dividend" khiến người đọc Mỹ gõ một
+đợt chia quý); Lợi suất quy năm theo số ngày là "Annualized return from days held" (không gồm cổ tức như HPR); σ của dải
+Bollinger là "population standard deviation…"; phí lưu ký "Fee per share per month" thay "Rate"; Graham "P/E cap of 15
+multiplied by his P/B cap of 1.5"; "Annualized return" ở dòng chữ Lợi suất năm hoá; "lump sum"; "number of times
+interest compounds per year"; "EMA length, in sessions"; "the session being examined" ở 5 bảng ký hiệu. Bước "hệ số
+làm mượt k" của MACD gọi đúng ô "Chu kỳ EMA nhanh / chậm" ở CẢ HAI thứ tiếng (`emaGiaDongCua()` trong
+`how-to/recipes.ts` nhận tên ô; trước đó cả bản Việt cũng viết "Số phiên", tên một ô thẻ MACD không có).
+
+**Build** (bản sao, dev giữ :3000): build qua, `verify:static` 56/56. `size` đỏ 112 trang, y như bản HEAD build cùng
+cách: First Load JS chênh −0,1 đến +0,2 kB một trang (`pe` 237,2 kB cả hai), nên lượt này không làm JS nặng thêm.
+
+**Tên ngành** (`src/application/i18n/ten-tieng-anh.ts`): 14 ngành dịch lại theo công ty thật trong ngành; tra cứu
+chuẩn hoá chữ hoa, Unicode, khoảng trắng (4 mã mất tên ngành ở EN vì Finbox viết khác kiểu). **Tên doanh nghiệp**:
+5 tên VNDirect viết sai thêm vào `TEN_VIET_TAY` (`scripts/gen-ticker-names-en.mjs`), sinh lại bảng.
+
+**Test**: 5.641 ca qua; `latex-en.test.ts`, `notation-en.test.ts` (66 → 68), `input-symbols.test.ts`,
+`o-ky-hieu.test.ts`, `ten-tieng-anh.test.ts` cập nhật. Lint, typecheck, prettier sạch. Hai ca `huong-dan.test.ts`
+quá 5 s khi cả bộ chạy cùng lúc, chạy riêng qua (4,3 s cho 12 ca).
+
+**Còn lại**: xem trên trình duyệt ở chế độ EN; chủ dự án đọc lại bản
+tiếng Anh. Phép tính đã lưu ở chế độ EN trước ngày này, của các công thức đổi tên, hiện như tên gõ tay. Câu cảnh
+báo trong `calc` ("sell tax" của Giá hoà vốn, "sale price" của Thuế TNCN đầu tư) và hai ghi chú ví dụ (`returns.ts`,
+DCA) cũng đã đổi sang "transfer tax" / "sell price".
+
+---
+
+## Chế độ EN: hình công thức, tên doanh nghiệp, tên ngành sang tiếng Anh (05/11/2026)
+
+**Trạng thái: CHƯA XONG — đã sửa, chờ chủ dự án xác nhận.** Ba ảnh của chủ dự án ở chế độ EN, cùng một lỗi
+"chuyển sang tiếng Anh mà vẫn còn tiếng Việt": dòng "Values" của khối Ví dụ in `Tổng nợ phải trả`,
+`Vốn chủ sở hữu`; khung "Load a sample dataset" / "Pick a ticker" in "Vàng Bạc Đá quý Phú Nhuận · Bán lẻ",
+"Thủy sản Mekong"; hình Giá mục tiêu in `P_{mục tiêu}` — _"cần chuyển đổi sang tiếng anh, xát nghĩa nhất có
+thể để người dùng không bị hiểu lầm"_.
+
+**Hình công thức.** `src/core/latex-en.ts` (mới): `latexEn()` dịch một chuỗi LaTeX — cụm `\text{}` (31 cụm, theo
+đúng chữ của `expression.en`), chỉ số dưới tiếng Việt (27, `P_{mua}` → `P_{buy}`, `F_{lk}` → `F_{custody}`…),
+LNST/LNTT/TSNH → NPAT/PBT/CA, và ký hiệu riêng từng công thức (`DT`/`BP` → `Rev`/`TVC`, `L_k` → `I_k`,
+`L_{rong}` → `Profit_{net}`, `r_n`/`r_d` của Gửi quay vòng → `r_{short}`/`r_{long}`; `r_d` của WACC giữ).
+`notation-view.ts` dựng thêm bộ MathML tiếng Anh (`NotationView.en`, 66/111 trang) cho hình, bảng ký hiệu và
+từng bước cách tính, đánh dấu điểm chạm y bản Việt; `notation-types.ts` thêm `notationForLocale()`;
+`FormulaDetail.tsx` chọn bản theo ngôn ngữ MỘT chỗ — thẻ Công thức, bảng ký hiệu, khung cách tính, hình trong
+Ví dụ/Bài tập, dòng Thay số và nút ký hiệu của khung "?" cùng đổi. `application/how-to.ts` xuất `latexEn`
+(cửa build-only).
+
+**Nhãn ô nhập tiếng Anh** mang ký hiệu của hình tiếng Anh ("Buy price (Pbuy)", "Net debt (Dnet)", "Revenue
+(Rev)"): `formulas/shared.ts` (`labelWithSymbol` qua `kyHieuPhangEn`), nhãn viết tay trong `corporate`,
+`derivatives`, `fundamentals`, `performance`, `planning`, `returns`, `risk`, `valuation-dcf`, `valuation-multiples`,
+`fees`; hai nghĩa tiếng Anh của DOL/EBIT ở `corporate.ts`. ~95 đoạn "Đọc biểu đồ" tiếng Anh trích nguyên nhãn
+trục đổi theo (`huong-dan/bieu-do/noi-dung/*.ts`), một đoạn rút 9 ký tự vì vượt 600.
+
+**Tên doanh nghiệp.** Finbox chỉ có tên tiếng Việt (đã gọi thử cả ba endpoint). `scripts/gen-ticker-names-en.mjs`
+(mới, `npm run gen:ticker-names-en`, chạy tay, cần mạng) sinh `src/data/ticker-names-en.generated.ts` từ
+`shortNameEng` của VNDirect: 1.353 mã có tên tiếng Anh, 233 mã giữ tên Finbox vì tên đã không dấu, 12 tên viết
+tay (`TEN_VIET_TAY`) cho dòng nguồn sai hoặc không có. Lúc chạy không gọi thêm máy chủ nào.
+**Tên ngành**: `INDUSTRY_NAMES_EN` viết tay, đủ 71 ngành của Finbox. Cả hai ở
+`src/application/i18n/ten-tieng-anh.ts` (mới), nạp cùng từ điển tiếng Anh trong `loadLocale('en')`; đọc qua
+`companyName()` / `industryName()` (`i18n/index.ts`) và `useCompanyName()` / `useIndustryName()`
+(`preferences-context.tsx`). Áp vào `PresetSheet.tsx`, `TickerPickerSheet.tsx` (cả ô tìm khớp tên tiếng Anh),
+hộp thêm/sửa và ô tìm của `PortfolioScreen.tsx`.
+
+**Test mới / sửa:** `latex-en.test.ts`, `notation-en.test.ts`, `ten-tieng-anh.test.ts`; hai ca EN ở
+`FormulaDetail.test.tsx` (mọi `<math>` trên màn không còn chữ Việt; chế độ VI vẫn tiếng Việt), hai ca EN ở
+`TickerPickerSheet.test.tsx`; `input-symbols.test.ts` (ký hiệu trên nhãn tiếng Anh có trong hình tiếng Anh) và
+`o-ky-hieu.test.ts` sửa theo luật mới.
+
+**Kiểm:** typecheck, lint, prettier sạch; 5.624 ca đạt. Hai ca quá 5 giây khi chạy cả bộ
+(`PortfolioScreen.test.tsx` "bảng đã đủ dòng nhờ mã chờ…", `huong-dan.test.ts`), chạy riêng đều đạt; ca Danh mục
+cũng quá thời gian y hệt trên bản HEAD chưa sửa (đã đo bằng worktree). Chưa build, chưa thử trên trình duyệt.
+
+**Còn lại / cần chủ dự án đọc:** bản dịch ký hiệu và 71 tên ngành là Claude soạn (chờ đọc lại); tên doanh nghiệp
+lấy từ VNDirect, không ai đọc lại được cả 1.353 tên, vài doanh nghiệp đổi tên nên hai thứ tiếng đọc khác nhau
+(VC7 "Xây dựng Số 7" / "BGI Group"). Câu trích nguyên văn nguồn tiếng Việt trong bài tập vẫn tiếng Việt (luật
+trích nguyên văn). Nhãn thẻ đã lưu bằng tên tiếng Việt cũ không đổi.
+
+---
+
 ## Bỏ dấu "Nâng cao" trong hướng dẫn sử dụng (05/11/2026)
 
 **Trạng thái: CHƯA XONG — đã sửa, chờ chủ dự án xác nhận.** Chủ dự án khoanh dấu "Nâng cao" cạnh ô
@@ -406,6 +511,54 @@ trong toàn bộ dự án và đổi lại ngắn hơn thành "-"_.
   này (112 trang vượt cửa 180 kB; đợt này chỉ làm nhẹ đi vì "—" 3 byte, "-" 1 byte).
 
 ---
+
+## Cảnh báo thiếu phiên giá: bỏ "hiện mới có N" và dòng ↳ gợi ý (05/11/2026)
+
+**Trạng thái: CHƯA XONG — đã sửa, chờ chủ dự án xem.** Chủ dự án: "Cần ít nhất 60 phiên giá, hiện mới có 10." →
+"Cần ít nhất 60 phiên giá.", rồi xoá dòng "↳ Thêm phiên giá (nút Nạp mẫu hoặc Sử dụng dữ liệu mẫu), hoặc giảm số
+phiên hay chu kỳ ở khối Số liệu."
+
+- `src/core/warnings.ts`: `missingSeries()` chỉ in "Cần ít nhất N <nhãn>." (en "Need at least N …."), không còn
+  `fix`; tham số số phiên đang có bị gỡ vì không còn chỗ dùng (`missingSeries(needed, what?)`). Đổi theo ở 9 chỗ
+  gọi trong `formulas/series-utils.ts` (3) và `formulas/technical-volatility.ts` (6). Câu này dùng chung cho mọi
+  công thức chuỗi giá, nên thẻ lỗi Kết quả của cả 35 công thức đều đổi, kể cả nhãn riêng ("… phiên giá VN-Index.").
+- `src/core/chart/build.ts`: `CHUA_CO_CHUOI` (thẻ báo của biểu đồ khi chuỗi ngắn quá để vẽ theo phiên) mang đúng
+  câu ↳ ấy, cũng bỏ, để hai thẻ cùng mã không nói hai lối.
+- Test đảo chiều: `warnings.test.ts`, `series-utils.test.ts`, `ErrorState.test.tsx` (ca riêng cho `MISSING_SERIES`
+  như `INCOMPLETE_INPUT`), `chart.test.ts`, `charts.test.tsx`, `FormulaDetail.test.tsx` (ca "không ngõ cụt" nay đòi
+  câu "Cần ít nhất N" và cấm dòng ↳). CLAUDE.md, đoạn FR-06, ghi thêm ngoại lệ.
+- Không đụng: `LinkedInput.test.tsx` (tự dựng một cảnh báo mẫu, không đọc `missingSeries()`), câu
+  `guide.warn.MISSING_SERIES` của trang hướng dẫn, các cảnh báo thiếu chuỗi riêng của `portfolio.ts` và `gauge.ts`.
+- Kiểm: tsc, prettier, eslint sạch; vitest 5.626 đạt. Còn 2 ca chỉ HẾT GIỜ 5 s khi chạy cả bộ
+  (`huong-dan.test.ts` "ô nhập trong bài đúng thứ tự…", `PortfolioScreen.test.tsx` "bảng đã đủ dòng nhờ mã chờ…"),
+  chạy riêng đều đạt và không đi qua phần vừa sửa.
+
+**Vòng 2 (05/11/2026): câu trong thẻ vàng của biểu đồ sang phải.** Chủ dự án khoanh "Cần ít nhất 60 phiên giá." dưới
+nhãn "THIẾU CHUỖI GIÁ", kẻ mũi tên sang phải: _"phần khoanh đỏ cần chuyển sang bên phải như bên trên"_ (như thẻ lỗi
+Kết quả). Ảnh khổ điện thoại nên **chỉ dưới 1024px**.
+
+- `src/ui/result/InlineWarning.tsx`: câu và dòng ↳ gói vào một khối `.cause` (như `ErrorState`).
+- `src/ui/result/InlineWarning.module.css`: từ 1024px `.cause` là `display: contents`, thẻ giữ dáng lưới cũ. Dưới
+  1024px thẻ là hàng flex xuống dòng được, thẳng chân chữ; `margin-right: auto` ở nhãn, nên câu vừa thì chạm mép
+  phải, dài quá thì xuống hàng từ mép trái; icon dời xuống 2px cho tâm trùng tâm nhãn (lề âm không có tác dụng với
+  SVG, đã đo). Component chung: thẻ vàng ở biểu đồ, bước chuỗi, ô nhận số tự động, bảng phí, trang hướng dẫn đều theo.
+- Đo trên Chrome (dev :3000, `rsi-wilder`): 360 và 390 câu cùng hàng nhãn, chạm mép phải, thẻ 59 → 39px; 320 câu
+  xuống hàng từ mép trái; 1440 không đổi; không cuộn ngang. `inline-warning-css.test.ts` ghim.
+
+**Vòng 3 (06/11/2026): thẻ lỗi Kết quả bớt dải trống phía trên.** Chủ dự án khoanh dải trên "`_ _` lần … Cần ít nhất
+60 phiên giá." trên điện thoại: _"giảm padding top phần khoanh đỏ cần giảm xuống"_. Chỉ dưới 1024px.
+
+- `src/ui/result/ErrorState.module.css`: `.block { padding-top: 0 }`, `.head { margin-top: -6px }`. Dải trống không
+  chỉ là đệm: dòng `_ _` cao 32,5px mà gạch dưới nằm ở chân dòng. Đo mực chữ (canvas + chân chữ thật): trên 20 →
+  8px, dưới 8,5px giữ nguyên, thẻ 46,5 → 34,5px ở 320, 360, 390 (cả XIRR); 1440 không đổi (trên 18, dưới 8,8px).
+  Không hạ line-height của `_ _` (ghim bằng thẻ Kết quả).
+- Cái giá, cần chủ dự án biết: dưới 1024px thẻ lỗi thấp hơn thẻ Kết quả (48,5px) chừng 14px, trang nhích chừng ấy
+  khi phép tính chuyển giữa ra số và báo lỗi. Ghi ở `result-card.test.ts`.
+- `error-state-css.test.ts` ghim hai khai báo và luật gốc 6px từ 1024px.
+- Chờ chủ dự án: có áp hai vòng này cho PC không (ở 1440 thẻ vàng vẫn hai dòng, thẻ lỗi vẫn trống trên 18px).
+- Test: các ca liên quan đạt. Đỏ không do vòng này: `notation-en.test.ts` (phiên dịch tiếng Anh đang sửa, đã báo
+  đừng đụng), `PortfolioScreen.test.tsx` "bảng đã đủ dòng nhờ mã chờ…" hết giờ 5 s cả khi chạy riêng (màn ấy không
+  dùng hai thẻ này; `PortfolioScreen.tsx` đang có thay đổi của phiên khác).
 
 ## CAPM: mô tả ô "Hệ số beta (β)" bỏ "Ô này không tự điền" (02/11/2026)
 

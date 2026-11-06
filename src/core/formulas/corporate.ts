@@ -288,7 +288,7 @@ export const DON_BAY_TONG_HOP: FormulaModule = {
         latex: 'DOL',
         meaning: {
           vi: 'đòn bẩy hoạt động: (DT − BP) ÷ EBIT, lần',
-          en: 'degree of operating leverage: (DT − BP) ÷ EBIT, times',
+          en: 'degree of operating leverage: (Rev − TVC) ÷ EBIT, times',
         },
       },
       {
@@ -310,7 +310,7 @@ export const DON_BAY_TONG_HOP: FormulaModule = {
         latex: 'EBIT',
         meaning: {
           vi: 'lợi nhuận trước lãi vay và thuế: DT − BP − ô Định phí hoạt động, ₫',
-          en: 'earnings before interest and tax: DT − BP − the Operating fixed cost field, ₫',
+          en: 'earnings before interest and tax: Rev − TVC − the Operating fixed cost field, ₫',
         },
       },
       {
@@ -337,14 +337,14 @@ export const DON_BAY_TONG_HOP: FormulaModule = {
      */
     composition: {
       title: { vi: 'Cơ cấu doanh thu', en: 'Revenue breakdown' },
-      total: { vi: 'Doanh thu (DT)', en: 'Revenue (DT)' },
+      total: { vi: 'Doanh thu (DT)', en: 'Revenue (Rev)' },
       unit: '₫',
       /*
        * Nhãn riêng ngắn thay cho nhãn ô nhập ở ba múi đầu, và nhãn múi cuối rút ngắn (26/10/2026): dài
        * hơn 19 ký tự là bị cắt trên hình thanh ngang.
        */
       parts: [
-        { key: 'variableCost', label: { vi: 'Tổng biến phí (BP)', en: 'Variable cost (BP)' } },
+        { key: 'variableCost', label: { vi: 'Tổng biến phí (BP)', en: 'Variable cost (TVC)' } },
         { key: 'fixedCost', label: { vi: 'Định phí hoạt động', en: 'Fixed cost' } },
         { key: 'interest', label: { vi: 'Lãi vay (I)', en: 'Interest (I)' } },
         { key: 'profitBeforeTax', label: { vi: 'Lãi trước thuế', en: 'Pre-tax profit' } },
@@ -352,14 +352,14 @@ export const DON_BAY_TONG_HOP: FormulaModule = {
     },
     resultUnit: 'lần',
     variables: [
-      numberVar('revenue', { vi: 'Doanh thu (DT)', en: 'Revenue (DT)' }, '₫', 2_000_000_000, {
+      numberVar('revenue', { vi: 'Doanh thu (DT)', en: 'Revenue (Rev)' }, '₫', 2_000_000_000, {
         min: 0,
         max: 100_000_000_000_000,
         description: { vi: 'Doanh thu thuần trong kỳ.', en: 'Net revenue for the period.' },
       }),
       numberVar(
         'variableCost',
-        { vi: 'Tổng biến phí (BP)', en: 'Total variable cost (BP)' },
+        { vi: 'Tổng biến phí (BP)', en: 'Total variable cost (TVC)' },
         '₫',
         1_200_000_000,
         {

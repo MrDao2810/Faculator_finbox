@@ -43,7 +43,7 @@ export function requireCloses(
   what: Bilingual = { vi: 'phiên giá', en: 'price sessions' },
 ): number[] | CalcWarning {
   const closes = usableCloses(ctx);
-  return closes.length >= min ? closes : missingSeries(min, closes.length, what);
+  return closes.length >= min ? closes : missingSeries(min, what);
 }
 
 /**
@@ -65,7 +65,7 @@ export function requireMarketCloses(
   what: Bilingual = { vi: 'phiên giá VN-Index', en: 'VN-Index price sessions' },
 ): number[] | CalcWarning {
   const closes = usableMarketCloses(ctx);
-  return closes.length >= min ? closes : missingSeries(min, closes.length, what);
+  return closes.length >= min ? closes : missingSeries(min, what);
 }
 
 /** Như `requireCloses` nhưng trả chuỗi phiên OHLCV đầy đủ — chỉ giữ phiên có giá đóng cửa. */
@@ -77,7 +77,7 @@ export function requireBars(
   const bars = (ctx.bars ?? []).filter(
     (bar): bar is SeriesRow & { close: number } => typeof bar.close === 'number' && bar.close > 0,
   );
-  return bars.length >= min ? bars : missingSeries(min, bars.length, what);
+  return bars.length >= min ? bars : missingSeries(min, what);
 }
 
 /**

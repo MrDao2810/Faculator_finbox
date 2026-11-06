@@ -89,7 +89,7 @@ const sellPrice = numberVar('sellPrice', { vi: 'Giá bán', en: 'Sell price' }, 
 
 const dividendPerShare = numberVar(
   'dividendPerShare',
-  { vi: 'Cổ tức tiền mặt', en: 'Cash dividend' },
+  { vi: 'Cổ tức tiền mặt', en: 'Cash dividend per share' },
   '₫/CP',
   2_000,
   {
@@ -113,10 +113,10 @@ export const PHI_GIAO_DICH_MUA: FormulaModule = {
   spec: {
     id: 'phi-giao-dich-mua',
     categoryId: 'fees-tax',
-    name: { vi: 'Phí giao dịch mua', en: 'Buy-side brokerage fee' },
+    name: { vi: 'Phí giao dịch mua', en: 'Brokerage fee on a buy order' },
     description: {
       vi: 'Phí công ty chứng khoán thu khi lệnh mua khớp.',
-      en: 'The fee the brokerage charges when a buy order is matched.',
+      en: 'The fee the broker charges when a buy order is matched.',
     },
     latex: 'F_{mua} = Q \\times P_{mua} \\times r_{mua}',
     expression: {
@@ -132,7 +132,7 @@ export const PHI_GIAO_DICH_MUA: FormulaModule = {
     symbols: [
       {
         latex: 'F_{mua}',
-        meaning: { vi: 'phí giao dịch mua, ₫', en: 'buy-side brokerage fee, ₫' },
+        meaning: { vi: 'phí giao dịch mua, ₫', en: 'brokerage fee on the buy order, ₫' },
       },
       {
         latex: 'Q',
@@ -146,7 +146,7 @@ export const PHI_GIAO_DICH_MUA: FormulaModule = {
         latex: 'r_{mua}',
         meaning: {
           vi: 'tỷ lệ phí môi giới lệnh mua, trên giá trị lệnh, dạng thập phân, 1% là 0,01',
-          en: 'buy-side brokerage fee rate on the order value, as a decimal, 1% is 0.01',
+          en: 'brokerage fee rate for a buy order, on the order value, as a decimal, 1% is 0.01',
         },
       },
     ],
@@ -159,11 +159,11 @@ export const PHI_GIAO_DICH_MUA: FormulaModule = {
     explanation: {
       meaning: {
         vi: 'Số tiền công ty chứng khoán thu trên giá trị lệnh mua đã khớp.',
-        en: 'The amount the brokerage collects on the value of a matched buy order.',
+        en: 'The amount the broker collects on the value of a matched buy order.',
       },
       whenToUse: {
         vi: 'Dùng khi bạn sắp đặt lệnh mua và muốn biết ngoài tiền cổ phiếu, công ty chứng khoán sẽ trừ thêm bao nhiêu tiền phí khỏi tài khoản của bạn.',
-        en: 'Use it when you are about to place a buy order and want to know how much the brokerage will take from your account in fees on top of the cost of the shares.',
+        en: 'Use it when you are about to place a buy order and want to know how much the broker will take from your account in fees on top of the cost of the shares.',
       },
       howToRead: {
         vi: 'So với tiền mua cổ phiếu của cả lệnh: con số này bị trừ thêm ngoài số tiền ấy, nên giá vốn thật của mỗi cổ phiếu cao hơn giá khớp đúng bằng con số này chia cho khối lượng mua.',
@@ -221,10 +221,10 @@ export const PHI_GIAO_DICH_BAN: FormulaModule = {
   spec: {
     id: 'phi-giao-dich-ban',
     categoryId: 'fees-tax',
-    name: { vi: 'Phí giao dịch bán', en: 'Sell-side brokerage fee' },
+    name: { vi: 'Phí giao dịch bán', en: 'Brokerage fee on a sell order' },
     description: {
       vi: 'Phí công ty chứng khoán thu khi lệnh bán khớp.',
-      en: 'The fee the brokerage charges when a sell order is matched.',
+      en: 'The fee the broker charges when a sell order is matched.',
     },
     latex: 'F_{ban} = Q \\times P_{ban} \\times r_{ban}',
     expression: {
@@ -235,7 +235,7 @@ export const PHI_GIAO_DICH_BAN: FormulaModule = {
     symbols: [
       {
         latex: 'F_{ban}',
-        meaning: { vi: 'phí giao dịch bán, ₫', en: 'sell-side brokerage fee, ₫' },
+        meaning: { vi: 'phí giao dịch bán, ₫', en: 'brokerage fee on the sell order, ₫' },
       },
       { latex: 'Q', meaning: { vi: 'khối lượng cổ phiếu bán, CP', en: 'quantity of shares sold' } },
       {
@@ -246,7 +246,7 @@ export const PHI_GIAO_DICH_BAN: FormulaModule = {
         latex: 'r_{ban}',
         meaning: {
           vi: 'tỷ lệ phí môi giới lệnh bán, trên giá trị lệnh, dạng thập phân, 1% là 0,01',
-          en: 'sell-side brokerage fee rate on the order value, as a decimal, 1% is 0.01',
+          en: 'brokerage fee rate for a sell order, on the order value, as a decimal, 1% is 0.01',
         },
       },
     ],
@@ -259,11 +259,11 @@ export const PHI_GIAO_DICH_BAN: FormulaModule = {
     explanation: {
       meaning: {
         vi: 'Số tiền công ty chứng khoán thu trên giá trị lệnh bán đã khớp.',
-        en: 'The amount the brokerage collects on the value of a matched sell order.',
+        en: 'The amount the broker collects on the value of a matched sell order.',
       },
       whenToUse: {
         vi: 'Dùng khi bạn sắp đặt lệnh bán một lô cổ phiếu và muốn biết công ty chứng khoán sẽ giữ lại bao nhiêu tiền phí trên số tiền bán ra.',
-        en: 'Use it when you are about to place a sell order for a block of shares and want to know how much of the proceeds the brokerage will keep as its fee.',
+        en: 'Use it when you are about to place a sell order for a block of shares and want to know how much of the proceeds the broker will keep as its fee.',
       },
       howToRead: {
         vi: 'So với khoản chênh giữa tiền bán và tiền mua của cả lô: phí bán nhỏ hơn khoản ấy thì lần bán vẫn còn lãi trước thuế và các phí khác, lớn hơn thì lần bán này đã lỗ ngay cả trước khi tính thuế.',
@@ -319,7 +319,7 @@ export const THUE_CHUYEN_NHUONG: FormulaModule = {
     name: { vi: 'Thuế chuyển nhượng chứng khoán', en: 'Securities transfer tax' },
     description: {
       vi: 'Thuế thu nhập cá nhân tính trên giá trị bán, thu cả khi giao dịch lỗ.',
-      en: 'Personal income tax charged on the sell value, collected even on a loss-making trade.',
+      en: 'Personal income tax charged on the sale value, collected even on a loss-making trade.',
     },
     latex: 'T = Q \\times P_{ban} \\times r_{thue}',
     expression: {
@@ -341,7 +341,7 @@ export const THUE_CHUYEN_NHUONG: FormulaModule = {
         latex: 'r_{thue}',
         meaning: {
           vi: 'thuế suất chuyển nhượng, trên giá trị bán chứ không trên lãi, dạng thập phân, 1% là 0,01',
-          en: 'transfer tax rate on the sell value rather than the gain, as a decimal, 1% is 0.01',
+          en: 'transfer tax rate on the sale value rather than the gain, as a decimal, 1% is 0.01',
         },
       },
     ],
@@ -354,7 +354,7 @@ export const THUE_CHUYEN_NHUONG: FormulaModule = {
     explanation: {
       meaning: {
         vi: 'Khoản thuế Nhà nước thu khi bán chứng khoán, tính trên giá trị bán.',
-        en: 'The tax the State collects when securities are sold, charged on the sell value.',
+        en: 'The tax the state collects when securities are sold, charged on the sale value.',
       },
       whenToUse: {
         vi: 'Dùng khi bạn sắp bán cổ phiếu, kể cả bán cắt lỗ, và muốn biết Nhà nước sẽ khấu trừ bao nhiêu tiền thuế trên số tiền bán trước khi tiền về tài khoản.',
@@ -366,7 +366,7 @@ export const THUE_CHUYEN_NHUONG: FormulaModule = {
       },
       commonMistakes: {
         vi: 'Tưởng lỗ thì được miễn thuế. Cách tính hiện hành thu theo giá trị bán, không theo lãi.',
-        en: 'Assuming a loss means the tax is waived. The current rule charges it on the sell value, not on profit.',
+        en: 'Assuming a loss means the tax is waived. The current rule charges it on the sale value, not on profit.',
       },
     },
     example: {
@@ -458,7 +458,7 @@ export const THUE_CO_TUC: FormulaModule = {
     explanation: {
       meaning: {
         vi: 'Phần cổ tức bị khấu trừ thuế trước khi chuyển về tài khoản nhà đầu tư.',
-        en: 'The portion of the dividend withheld as tax before it is transferred to the investor account.',
+        en: 'The portion of the dividend withheld as tax before it is transferred to the investor’s account.',
       },
       whenToUse: {
         vi: 'Dùng khi bạn đang giữ một cổ phiếu vừa báo chia cổ tức tiền mặt và muốn biết sẽ bị trừ bao nhiêu tiền thuế trước khi cổ tức về tài khoản.',
@@ -532,7 +532,7 @@ export const PHI_LUU_KY: FormulaModule = {
     latex: 'F_{lk} = Q \\times M \\times c',
     expression: {
       vi: 'Phí lưu ký = Khối lượng × Số tháng nắm giữ × Mức phí mỗi cổ phiếu mỗi tháng',
-      en: 'Custody fee = Quantity × Holding period × Rate per share per month',
+      en: 'Custody fee = Quantity × Holding period × Fee per share per month',
     },
     // Phí lưu ký tính bằng ₫/CP/tháng chứ không phải %, nên vào hình nguyên trị số (0,27).
     substitution: '{quantity} × {months} × {fee.custody}',
@@ -560,7 +560,7 @@ export const PHI_LUU_KY: FormulaModule = {
     // Đường quét là đoạn thẳng qua gốc — lý do đầy đủ ở docblock đầu file.
     chartType: 'none',
     level: 'basic',
-    tags: ['phi luu ky', 'vsd', 'custody'],
+    tags: ['phi luu ky', 'vsd', 'custody', 'depository fee'],
     resultUnit: '₫',
     variables: [withSymbol(quantity, 'Q'), withSymbol(months, 'M')],
     explanation: {
@@ -594,7 +594,7 @@ export const PHI_LUU_KY: FormulaModule = {
       },
       source: {
         vi: 'Quyết định 1541/QĐ-BTC về giá dịch vụ lưu ký, hiệu lực 07/05/2025; thời gian nắm giữ 24/07 đến 11/09/2026.',
-        en: 'Decision 1541/QĐ-BTC on custody service pricing, in force 2025-05-07; holding period 2026-07-24 to 2026-09-11.',
+        en: 'Decision 1541/QD-BTC on custody service pricing, in force 2025-05-07; holding period 2026-07-24 to 2026-09-11.',
       },
     },
     tests: [
@@ -642,7 +642,7 @@ export const GIA_HOA_VON: FormulaModule = {
       // `roi-rong` và `loi-nhuan-rong` gộp cũng gộp cụm, nhưng chúng KHAI cụm ấy thành một hàng
       // bảng ký hiệu, nên trang có gọi tên; `gia-hoa-von` thì không, và đó là chỗ khác nhau.
       vi: 'Giá hoà vốn = (Khối lượng × Giá mua + Phí mua + Phí lưu ký) ÷ [Khối lượng × (1 − Tỷ lệ phí bán − Thuế suất bán)]',
-      en: 'Break-even price = (Quantity × Buy price + Buy fee + Custody fee) ÷ [Quantity × (1 − Sell fee rate − Sell tax rate)]',
+      en: 'Break-even price = (Quantity × Buy price + Buy fee + Custody fee) ÷ [Quantity × (1 − Sell fee rate − Transfer tax rate)]',
     },
     /*
      * Hình viết `F_mua` và `F_lk` thành hai KÝ HIỆU, nên dải thay số đặt vào đó hai con số đã tính
@@ -676,7 +676,7 @@ export const GIA_HOA_VON: FormulaModule = {
       },
       {
         latex: 'F_{mua}',
-        meaning: { vi: 'phí giao dịch mua, ₫', en: 'buy-side brokerage fee, ₫' },
+        meaning: { vi: 'phí giao dịch mua, ₫', en: 'brokerage fee on the buy order, ₫' },
       },
       {
         latex: 'F_{lk}',
@@ -689,21 +689,21 @@ export const GIA_HOA_VON: FormulaModule = {
         latex: 'r_{ban}',
         meaning: {
           vi: 'tỷ lệ phí môi giới lệnh bán, trên giá trị bán, dạng thập phân, 1% là 0,01',
-          en: 'sell-side brokerage fee rate on the sell value, as a decimal, 1% is 0.01',
+          en: 'brokerage fee rate for a sell order, on the sale value, as a decimal, 1% is 0.01',
         },
       },
       {
         latex: 'r_{thue}',
         meaning: {
           vi: 'thuế suất chuyển nhượng, trên giá trị bán, dạng thập phân, 1% là 0,01',
-          en: 'transfer tax rate on the sell value, as a decimal, 1% is 0.01',
+          en: 'transfer tax rate on the sale value, as a decimal, 1% is 0.01',
         },
       },
       {
         latex: '1 - r_{ban} - r_{thue}',
         meaning: {
           vi: 'phần thực còn lại của mỗi 1 ₫ bán ra sau khi trừ phí bán và thuế',
-          en: 'the share of each 1 ₫ of sale proceeds left after the sell fee and tax',
+          en: 'the share of each 1 ₫ of sale proceeds left after the sell fee and transfer tax',
         },
       },
     ],
@@ -740,7 +740,7 @@ export const GIA_HOA_VON: FormulaModule = {
       expected: 63_152.77,
       note: {
         vi: 'So với giá mua 62.900 ₫: phải bán được từ 63.152,77 ₫ mỗi cổ phiếu mới hoà vốn, cao hơn giá mua 252,77 ₫, tức 0,4%, để bù phí mua, phí bán, thuế bán và phí lưu ký. Nếu bán đúng giá mua thì 1.000 cổ phiếu này vẫn lỗ 252.140 ₫ dù giá không hề giảm.',
-        en: 'Compared with the 62,900 ₫ buy price: each share has to sell for at least 63,152.77 ₫ to break even, 252.77 ₫ or 0.4% higher, to cover the buy fee, sell fee, sell tax and custody fee. Selling at exactly the buy price would still lose 252,140 ₫ on these 1,000 shares even though the price never fell.',
+        en: 'Compared with the 62,900 ₫ buy price: each share has to sell for at least 63,152.77 ₫ to break even, 252.77 ₫ or 0.4% higher, to cover the buy fee, sell fee, transfer tax and custody fee. Selling at exactly the buy price would still lose 252,140 ₫ on these 1,000 shares even though the price never fell.',
       },
       source: {
         vi: 'Biểu phí giao dịch trực tuyến SSI; giá mua FPT (mã FPT) phiên 24/07/2026.',
@@ -796,7 +796,7 @@ function breakEvenPrice(v: CalcValues, ctx: CalcContext): CalcOutput {
       warning: meaningless(
         {
           vi: 'Tổng phí bán và thuế bán từ 100% trở lên nên không có giá bán nào hoà vốn được.',
-          en: 'The combined sell fee and sell tax total 100% or more, so no sell price can break even.',
+          en: 'The sell fee and the transfer tax add up to 100% or more, so no sell price can break even.',
         },
         {
           vi: 'Kiểm tra lại biểu phí đang chọn.',
@@ -827,7 +827,7 @@ export const LOI_NHUAN_RONG: FormulaModule = {
     latex: 'L_{rong} = Q\\,(P_{ban} - P_{mua}) - (F_{mua} + F_{ban} + T + F_{lk})',
     expression: {
       vi: 'Lợi nhuận ròng = Khối lượng × (Giá bán − Giá mua) − Tổng chi phí',
-      en: 'Net profit = Quantity × (Sell price − Buy price) − Total costs',
+      en: 'Net profit = Quantity × (Sell price − Buy price) − Total cost',
     },
     substitutionDerived: {
       fMua: '{quantity} × {buyPrice} × {fee.brokerage.buy}',
@@ -861,11 +861,11 @@ export const LOI_NHUAN_RONG: FormulaModule = {
       },
       {
         latex: 'F_{mua}',
-        meaning: { vi: 'phí giao dịch mua, ₫', en: 'buy-side brokerage fee, ₫' },
+        meaning: { vi: 'phí giao dịch mua, ₫', en: 'brokerage fee on the buy order, ₫' },
       },
       {
         latex: 'F_{ban}',
-        meaning: { vi: 'phí giao dịch bán, ₫', en: 'sell-side brokerage fee, ₫' },
+        meaning: { vi: 'phí giao dịch bán, ₫', en: 'brokerage fee on the sell order, ₫' },
       },
       {
         latex: 'T',
@@ -901,7 +901,7 @@ export const LOI_NHUAN_RONG: FormulaModule = {
       unit: '₫',
       /* "Lợi nhuận ròng (Lrong)" → "Lãi ròng (Lrong)" 26/10/2026: quá 19 ký tự, bị cắt trên thanh ngang. */
       parts: [
-        { key: 'netProfit', label: { vi: 'Lãi ròng (Lrong)', en: 'Net profit (Lrong)' } },
+        { key: 'netProfit', label: { vi: 'Lãi ròng (Lrong)', en: 'Net profit' } },
         { key: 'totalCost', label: { vi: 'Tổng chi phí', en: 'Total cost' } },
       ],
     },
@@ -998,7 +998,7 @@ export const ROI_RONG: FormulaModule = {
     latex: 'ROI_{rong} = \\frac{L_{rong}}{Q \\cdot P_{mua} + F_{mua} + F_{lk}} \\times 100',
     expression: {
       vi: 'ROI ròng = Lợi nhuận ròng ÷ Vốn thực bỏ ra × 100',
-      en: 'Net ROI = Net profit ÷ Actual capital deployed × 100',
+      en: 'Net ROI = Net profit ÷ Capital actually deployed × 100',
     },
     /*
      * Chủ dự án mở `roi-rong`, thấy `cagr` có dải thay số còn màn này thì không, và hỏi vì sao
@@ -1043,7 +1043,7 @@ export const ROI_RONG: FormulaModule = {
       },
       {
         latex: 'F_{mua}',
-        meaning: { vi: 'phí giao dịch mua, ₫', en: 'buy-side brokerage fee, ₫' },
+        meaning: { vi: 'phí giao dịch mua, ₫', en: 'brokerage fee on the buy order, ₫' },
       },
       {
         latex: 'F_{lk}',
@@ -1069,7 +1069,7 @@ export const ROI_RONG: FormulaModule = {
     explanation: {
       meaning: {
         vi: 'Sau khi trừ hết phí và thuế, mỗi trăm đồng vốn thật sự bỏ ra mang về bao nhiêu đồng lãi.',
-        en: 'After every fee and tax, how many đồng of profit each hundred đồng of capital actually deployed brings back.',
+        en: 'After every fee and tax, how many dong of profit each hundred dong of capital actually deployed brings back.',
       },
       whenToUse: {
         vi: 'Dùng khi bạn tổng kết các lần mua rồi bán trong năm và muốn so một lần bỏ ít vốn với một lần bỏ nhiều vốn, xem lần nào tiền bỏ ra sinh lãi tốt hơn sau phí và thuế.',
@@ -1200,19 +1200,19 @@ export function buildFeeBreakdown(
   const rows: FeeBreakdownRow[] = [
     {
       key: 'fee.brokerage.buy',
-      label: { vi: 'Phí giao dịch mua', en: 'Buy transaction fee' },
+      label: { vi: 'Phí giao dịch mua', en: 'Brokerage fee on a buy order' },
       formula: percentTimes(rBuy, buyValue),
       output: runFormula(PHI_GIAO_DICH_MUA, inputs, ctx),
     },
     {
       key: 'fee.brokerage.sell',
-      label: { vi: 'Phí giao dịch bán', en: 'Sell transaction fee' },
+      label: { vi: 'Phí giao dịch bán', en: 'Brokerage fee on a sell order' },
       formula: percentTimes(rSell, sellValue),
       output: runFormula(PHI_GIAO_DICH_BAN, inputs, ctx),
     },
     {
       key: 'tax.transfer.sell',
-      label: { vi: 'Thuế CNCK (khi bán)', en: 'Securities transfer tax (on sell)' },
+      label: { vi: 'Thuế CNCK (khi bán)', en: 'Securities transfer tax (on the sale)' },
       formula: percentTimes(rTax, sellValue),
       output: runFormula(THUE_CHUYEN_NHUONG, inputs, ctx),
     },

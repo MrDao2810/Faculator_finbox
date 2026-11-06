@@ -470,7 +470,7 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
         url: 'https://cafef.vn/du-lieu/bao-cao-tai-chinh/fpt/bsheet/2026/2/0/0/bao-cao-tai-chinh-cong-ty-co-phan-fpt.chn',
         nhan: {
           vi: 'Bảng cân đối kế toán FPT, cột Quý 2- 2026; hàng tồn kho đọc ở dòng IV (đã trừ dự phòng)',
-          en: 'FPT balance sheet, Quý 2- 2026 column; inventory is the IV line (net of provisions)',
+          en: 'FPT balance sheet, the “Quý 2- 2026” (Q2 2026) column; inventory is the IV line (net of provisions)',
         },
       },
     ],
@@ -505,14 +505,14 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
         url: 'https://cafef.vn/du-lieu/bao-cao-tai-chinh/fpt/incsta/2026/2/0/0/ket-qua-hoat-dong-kinh-doanh-cong-ty-co-phan-fpt.chn',
         nhan: {
           vi: 'Doanh thu thuần FPT, cột Quý 1- 2026 và Quý 2- 2026',
-          en: 'FPT net revenue, Quý 1- 2026 and Quý 2- 2026 columns',
+          en: 'FPT net revenue, the “Quý 1- 2026” and “Quý 2- 2026” (Q1 and Q2 2026) columns',
         },
       },
       {
         url: 'https://cafef.vn/du-lieu/bao-cao-tai-chinh/fpt/bsheet/2026/2/0/0/bao-cao-tai-chinh-cong-ty-co-phan-fpt.chn',
         nhan: {
           vi: 'Tổng tài sản FPT 30/06/2026: đọc dòng Tổng cộng nguồn vốn, vì dòng Tổng cộng tài sản của trang đang ghi sai',
-          en: "FPT total assets at 30 June 2026: read the TỔNG CỘNG NGUỒN VỐN line, because the page's TỔNG CỘNG TÀI SẢN line is misprinted",
+          en: "FPT total assets at 30 June 2026: read the “TỔNG CỘNG NGUỒN VỐN” (total liabilities and equity) line, because the page's “TỔNG CỘNG TÀI SẢN” (total assets) line is misprinted",
         },
       },
     ],
@@ -666,7 +666,7 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
         url: 'https://cafef.vn/du-lieu/bao-cao-tai-chinh/fpt/bsheet/2026/2/0/0/bao-cao-tai-chinh-cong-ty-co-phan-fpt.chn',
         nhan: {
           vi: 'Tiền FPT 30/06/2026: dòng tiền mặt và tiền gửi (Tiền và các khoản tương đương tiền) cộng dòng Các khoản đầu tư tài chính ngắn hạn, cột Quý 2- 2026',
-          en: 'FPT cash at 2026-06-30: the cash and cash equivalents line plus the short-term investments line, Quý 2- 2026 column',
+          en: 'FPT cash at 2026-06-30: the cash and cash equivalents line plus the short-term investments line, the “Quý 2- 2026” (Q2 2026) column',
         },
       },
     ],
@@ -701,7 +701,7 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
         url: 'https://cafef.vn/du-lieu/bao-cao-tai-chinh/fpt/cashflow/2026/2/0/0/luu-chuyen-tien-te-gian-tiep-cong-ty-co-phan-fpt.chn',
         nhan: {
           vi: 'Lưu chuyển tiền tệ FPT, cột Quý 2- 2026 cộng dồn 6 tháng: lợi nhuận trước thuế, khấu hao, chi phí lãi vay',
-          en: 'FPT cash flow statement, the Quý 2- 2026 column is six months to date: pre-tax profit, depreciation, interest expense',
+          en: 'FPT cash flow statement, the “Quý 2- 2026” (Q2 2026) column is six months to date: pre-tax profit, depreciation, interest expense',
         },
       },
     ],
@@ -736,7 +736,7 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
         url: 'https://cafef.vn/du-lieu/bao-cao-tai-chinh/fpt/incsta/2026/2/0/0/ket-qua-hoat-dong-kinh-doanh-cong-ty-co-phan-fpt.chn',
         nhan: {
           vi: 'Doanh thu thuần FPT, cột Quý 1- 2026 và Quý 2- 2026',
-          en: 'FPT net revenue, Quý 1- 2026 and Quý 2- 2026 columns',
+          en: 'FPT net revenue, the “Quý 1- 2026” and “Quý 2- 2026” (Q1 and Q2 2026) columns',
         },
       },
     ],
@@ -869,7 +869,7 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
         url: 'https://cafef.vn/du-lieu/bao-cao-tai-chinh/fpt/bsheet/2026/2/0/0/bao-cao-tai-chinh-cong-ty-co-phan-fpt.chn',
         nhan: {
           vi: 'Vốn chủ sở hữu FPT 30/06/2026, trừ dòng Lợi ích cổ đông không kiểm soát',
-          en: 'FPT equity at 30 June 2026, less the Lợi ích cổ đông không kiểm soát (non-controlling interest) line',
+          en: 'FPT equity at 30 June 2026, less the “Lợi ích cổ đông không kiểm soát” (non-controlling interest) line',
         },
       },
     ],
@@ -1248,7 +1248,7 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
         kyHieu: 'Dep',
         moTa: {
           vi: 'là khấu hao FPT ghi nhận trong năm 2025: 2.795,9 tỷ ₫',
-          en: 'is the depreciation FPT booked in 2025: 2795.9 billion ₫',
+          en: 'is the depreciation and amortization FPT booked in 2025: 2795.9 billion ₫',
         },
       },
       {
@@ -1542,7 +1542,7 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
         kyHieu: 'r_{mua}',
         moTa: {
           vi: 'là phí đặt lệnh qua kênh trực tuyến theo biểu phí SSI, tính trên giá trị lệnh: 0,15%',
-          en: "is the online order fee in SSI's schedule, charged on the order value: 0.15%",
+          en: "is the brokerage fee rate for online orders in SSI's schedule, charged on the order value: 0.15%",
         },
       },
     ],
@@ -1591,7 +1591,7 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
         kyHieu: 'r_{ban}',
         moTa: {
           vi: 'là phí đặt lệnh qua kênh trực tuyến theo biểu phí SSI, cùng mức với lệnh mua, tính trên giá trị lệnh: 0,15%',
-          en: "is the online order fee in SSI's schedule, the same rate as a buy order, charged on the order value: 0.15%",
+          en: "is the brokerage fee rate for online orders in SSI's schedule, the same rate as a buy order, charged on the order value: 0.15%",
         },
       },
     ],
@@ -1738,7 +1738,7 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
         kyHieu: 'c',
         moTa: {
           vi: 'là phí lưu ký hằng tháng theo Quyết định 1541/QĐ-BTC: 0,27 ₫ mỗi cổ phiếu',
-          en: 'is the monthly custody fee under Decision 1541/QĐ-BTC: 0.27 ₫ per share',
+          en: 'is the monthly custody fee under Decision 1541/QD-BTC: 0.27 ₫ per share',
         },
       },
     ],
@@ -1751,7 +1751,7 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
         url: 'https://cafef.vn/bo-tai-chinh-ban-hanh-muc-gia-dich-vu-moi-trong-linh-vuc-chung-khoan-188250508111929712.chn',
         nhan: {
           vi: 'Quyết định 1541/QĐ-BTC, phí lưu ký 0,27 ₫ mỗi cổ phiếu mỗi tháng',
-          en: 'Decision 1541/QĐ-BTC, custody fee of 0.27 ₫ per share per month',
+          en: 'Decision 1541/QD-BTC, custody fee of 0.27 ₫ per share per month',
         },
       },
     ],
@@ -1794,7 +1794,7 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
         kyHieu: 'r_{ban}',
         moTa: {
           vi: 'là phí môi giới lệnh bán theo biểu phí trực tuyến SSI, tính trên giá trị bán: 0,15%',
-          en: "is the sell order brokerage fee in SSI's online schedule, charged on the sale value: 0.15%",
+          en: "is the brokerage fee rate for sell orders in SSI's online schedule, charged on the sale value: 0.15%",
         },
       },
       {
@@ -1835,7 +1835,7 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
         url: 'https://cafef.vn/bo-tai-chinh-ban-hanh-muc-gia-dich-vu-moi-trong-linh-vuc-chung-khoan-188250508111929712.chn',
         nhan: {
           vi: 'Quyết định 1541/QĐ-BTC, phí lưu ký 0,27 ₫ mỗi cổ phiếu mỗi tháng',
-          en: 'Decision 1541/QĐ-BTC, custody fee of 0.27 ₫ per share per month',
+          en: 'Decision 1541/QD-BTC, custody fee of 0.27 ₫ per share per month',
         },
       },
     ],
@@ -1933,7 +1933,7 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
         url: 'https://cafef.vn/bo-tai-chinh-ban-hanh-muc-gia-dich-vu-moi-trong-linh-vuc-chung-khoan-188250508111929712.chn',
         nhan: {
           vi: 'Quyết định 1541/QĐ-BTC, phí lưu ký 0,27 ₫ mỗi cổ phiếu mỗi tháng',
-          en: 'Decision 1541/QĐ-BTC, custody fee of 0.27 ₫ per share per month',
+          en: 'Decision 1541/QD-BTC, custody fee of 0.27 ₫ per share per month',
         },
       },
     ],
@@ -1948,7 +1948,7 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
         kyHieu: 'L_{rong}',
         moTa: {
           vi: 'là lãi sau khi bán ở 72.700 ₫ rồi trừ phí mua, phí bán, thuế bán và phí lưu ký: 9.523.360 ₫',
-          en: 'is the profit from selling at 72700 ₫ less the buy fee, sell fee, sales tax and custody fee: 9523360 ₫',
+          en: 'is the profit from selling at 72700 ₫ less the buy fee, sell fee, transfer tax and custody fee: 9523360 ₫',
         },
       },
       {
@@ -2550,7 +2550,7 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
         url: 'https://vietnamfinance.vn/moi-thang-tra-them-chuc-trieu-nguoi-vay-mua-nha-chat-vat-xoay-xo-d142201.html',
         nhan: {
           vi: 'Khoản vay 3 tỷ đồng, trả khoảng 28 triệu đồng mỗi tháng',
-          en: 'A 3 billion đồng loan repaid at about 28 million đồng a month',
+          en: 'A 3 billion VND loan repaid at about 28 million VND a month',
         },
       },
     ],
@@ -2934,7 +2934,7 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
   'do-lech-chuan-loi-suat-phien': {
     tinh: {
       vi: 'độ lệch chuẩn lợi suất theo phiên của FPT, 55 phiên tính tới 15/09/2026',
-      en: "FPT's daily return standard deviation over the 55 sessions through 2026-09-15",
+      en: "FPT's per-session return standard deviation over the 55 sessions through 2026-09-15",
     },
     gan: [
       {
@@ -4195,7 +4195,7 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
   vwap: {
     tinh: {
       vi: 'giá bình quân theo khối lượng của FPT, gộp 20 phiên đến 15/09/2026',
-      en: 'FPT’s volume weighted average price over the 20 sessions to 2026-09-15',
+      en: 'FPT’s volume-weighted average price over the 20 sessions to 2026-09-15',
     },
     gan: [
       {
@@ -4433,7 +4433,7 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
   'lai-lo-vi-the-long': {
     tinh: {
       vi: 'lãi lỗ của một hợp đồng VN30F2005 mua trong đợt ATC phiên đáo hạn 21/05/2020',
-      en: 'the P&L of one VN30F2005 long bought in the ATC auction of the 2020-05-21 expiry session',
+      en: 'the P&L of one VN30F2005 long bought in the ATC closing auction of the 2020-05-21 expiry session',
     },
     gan: [
       {
@@ -4447,7 +4447,7 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
         kyHieu: 'P_{mo}',
         moTa: {
           vi: 'là giá khớp đợt ATC cùng phiên, mức giá vị thế Long được mở: 864 điểm',
-          en: 'is the ATC auction price of the same session, the price the long was opened at: 864 points',
+          en: 'is the price matched in the ATC closing auction of the same session, the price the long was opened at: 864 points',
         },
       },
       {
@@ -4482,14 +4482,14 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
   'lai-lo-vi-the-short': {
     tinh: {
       vi: 'lãi lỗ của một hợp đồng VN30F2005 bán trong đợt ATC phiên đáo hạn 21/05/2020',
-      en: 'the P&L of one VN30F2005 short sold in the ATC auction of the 2020-05-21 expiry session',
+      en: 'the P&L of one VN30F2005 short sold in the ATC closing auction of the 2020-05-21 expiry session',
     },
     gan: [
       {
         kyHieu: 'P_{mo}',
         moTa: {
           vi: 'là giá khớp đợt ATC phiên 21/05/2020, mức giá bên Short bán ra: 864 điểm',
-          en: 'is the ATC auction price of the 2020-05-21 session, the price the short side sold at: 864 points',
+          en: 'is the price matched in the ATC closing auction of the 2020-05-21 session, the price the short side sold at: 864 points',
         },
       },
       {
@@ -4545,7 +4545,7 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
         kyHieu: 'V',
         moTa: {
           vi: 'là vốn ký quỹ đã nộp vào tài khoản phái sinh: 200.000.000 ₫',
-          en: 'is the margin capital deposited in the derivatives account: 200000000 ₫',
+          en: 'is the margin deposited in the derivatives account: 200000000 ₫',
         },
       },
       {
@@ -4810,7 +4810,7 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
         url: 'https://vietnamfinance.vn/moi-thang-tra-them-chuc-trieu-nguoi-vay-mua-nha-chat-vat-xoay-xo-d142201.html',
         nhan: {
           vi: 'Khoản vay 3 tỷ đồng trong 20 năm, lãi cố định 8%/năm trong 24 tháng đầu',
-          en: 'A 3 billion đồng loan over 20 years, fixed at 8% a year for the first 24 months',
+          en: 'A 3 billion VND loan over 20 years, fixed at 8% a year for the first 24 months',
         },
       },
     ],

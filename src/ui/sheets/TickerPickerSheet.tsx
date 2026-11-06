@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { normalizeVi, useTickerList } from '@/application';
 import type { TickerRef } from '@/application';
-import { useT } from '@/application/preferences-context';
+import { useCompanyName, useT } from '@/application/preferences-context';
 import type { TickerCoverage } from '@/application/ticker-coverage';
 import { Badge, BottomSheet, Button } from '@/ui/primitives';
 
@@ -129,6 +129,7 @@ export function TickerPickerSheet({
   markUnusableAsOf,
 }: TickerPickerSheetProps) {
   const t = useT();
+  const tenCongTy = useCompanyName();
   /** Chữ đang nằm trong ô tìm — đổi theo từng phím. */
   const [query, setQuery] = useState('');
   /**
@@ -228,12 +229,17 @@ export function TickerPickerSheet({
     for (const item of items) {
       const code = normalizeVi(item.code);
       if (code.startsWith(applied)) byCode.push(item);
-      else if (code.includes(applied) || normalizeVi(item.name).includes(applied))
+      else if (
+        code.includes(applied) ||
+        normalizeVi(item.name).includes(applied) ||
+        // Ở tiếng Anh tìm được bằng cả tên tiếng Anh đang in trên dòng (05/11/2026).
+        normalizeVi(tenCongTy(item.code, item.name)).includes(applied)
+      )
         byName.push(item);
     }
 
     return [...byCode, ...byName];
-  }, [items, applied]);
+  }, [items, applied, tenCongTy]);
 
   /**
    * Đang tìm: ô đã đổi mà danh sách chưa lọc theo.
@@ -424,7 +430,7 @@ export function TickerPickerSheet({
                     <Badge tone="code" className={styles.code}>
                       {ticker.code}
                     </Badge>
-                    <span className={styles.name}>{ticker.name}</span>
+                    <span className={styles.name}>{tenCongTy(ticker.code, ticker.name)}</span>
 
                     {/*
                     Mã đang giữ: nhãn này là LÝ DO nút bên cạnh xám, không còn là lời báo trước về

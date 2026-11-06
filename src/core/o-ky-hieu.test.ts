@@ -2,6 +2,13 @@ import { describe, expect, it } from 'vitest';
 
 import { ALL_FORMULAS } from './formulas';
 import { chuPhang, kyHieuCuaNhan, kyHieuCuaO, nhanCoKyHieu } from './o-ky-hieu';
+import { kyHieuPhangEn } from './latex-en';
+
+/** `rd` của Gửi quay vòng là lãi kỳ dài, không phải chi phí nợ của WACC — xem `input-symbols.test.ts`. */
+const KY_HIEU_EN_RIENG: Readonly<Record<string, string>> = {
+  'gui-quay-vong.shortRate': 'rshort',
+  'gui-quay-vong.longRate': 'rlong',
+};
 import type { FormulaSpec } from './registry/types';
 
 function spec(id: string): FormulaSpec {
@@ -82,7 +89,11 @@ describe('nhanCoKyHieu — phần nào của tên ô là ký hiệu', () => {
     expect(nhanCoKyHieu(s, 'currentAssets')).toEqual({
       sym: s.symbols?.findIndex((r) => r.latex === '\\text{TSNH}'),
       vi: { truoc: 'Tài sản ngắn hạn ', kyHieu: '(TSNH)', sau: '' },
-      en: { truoc: 'Current assets ', kyHieu: '(TSNH)', sau: '' },
+      /*
+       * Hình tiếng Anh viết TSNH bằng chữ 'Current assets' (05/11/2026, `latex-en.ts`), nên nhãn tiếng Anh
+       * là đúng cụm ấy, không ngoặc, và cả tên là điểm chạm — như 'Vốn chủ sở hữu' ở bản tiếng Việt.
+       */
+      en: { truoc: '', kyHieu: 'Current assets', sau: '' },
     });
     expect(nhanCoKyHieu(s, 'shares')?.vi.kyHieu).toBe('(N)');
     expect(nhanCoKyHieu(s, 'totalLiabilities')).toBeNull();
@@ -106,8 +117,9 @@ describe('nhanCoKyHieu — phần nào của tên ô là ký hiệu', () => {
 
   /*
    * Ba khúc ghép lại phải ra ĐÚNG tên ô, không thiếu không thừa một ký tự: khung "?" in ba khúc liền
-   * nhau thay cho tên. Và bản tiếng Anh phải cắt ra cùng ký hiệu — đổi ngôn ngữ mà nút đổi chữ thì
-   * nút ấy đang trỏ một ký hiệu khác.
+   * nhau thay cho tên. Và bản tiếng Anh phải cắt ra ĐÚNG BẢN TIẾNG ANH của ký hiệu ấy — từ 05/11/2026
+   * hình tiếng Anh dịch chỉ số tiếng Việt ('(Pmua)' thành '(Pbuy)'), nên "cùng một ký hiệu" nghĩa là cùng
+   * một dòng bảng ký hiệu đọc ở hai thứ tiếng, không còn là cùng chữ.
    */
   it('cả 111 công thức: ba khúc ghép ra đúng tên ô, hai ngôn ngữ cùng một ký hiệu', () => {
     let soO = 0;
@@ -123,7 +135,15 @@ describe('nhanCoKyHieu — phần nào của tên ô là ký hiệu', () => {
           expect(k.kyHieu.trim(), `${s.id}.${v.key} ${lang}`).not.toBe('');
         }
         if (nhan.vi.kyHieu !== v.label.vi) {
-          expect(nhan.en.kyHieu, `${s.id}.${v.key}`).toBe(nhan.vi.kyHieu);
+          const vi = /^\((.+)\)$/.exec(nhan.vi.kyHieu)?.[1];
+          const enKy =
+            vi === undefined
+              ? undefined
+              : (KY_HIEU_EN_RIENG[`${s.id}.${v.key}`] ?? kyHieuPhangEn(vi));
+          // Hình tiếng Anh viết bằng chữ ('Net income') thì nhãn tiếng Anh là chữ ấy, cả tên là điểm chạm.
+          const mongDoi =
+            vi === undefined ? nhan.vi.kyHieu : enKy === v.label.en ? v.label.en : `(${enKy})`;
+          expect(nhan.en.kyHieu, `${s.id}.${v.key}`).toBe(mongDoi);
         }
       }
     }

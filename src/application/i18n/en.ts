@@ -461,7 +461,7 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'ticker.noDataStale': 'May lack fundamentals',
   /* `ticker.pickHeld` ('Add more') đã xoá cùng bản Việt (10/10/2026) — xem bia mộ ở `vi.ts`. */
   'ticker.loading': 'Loading the ticker list…',
-  'ticker.noMatch': 'No ticker matches. Try a shorter code, e.g. “fpt”.',
+  'ticker.noMatch': 'No ticker matches your search.',
   'ticker.searching': 'Searching tickers…',
   'ticker.loadingMore': 'Loading more tickers…',
   /* `ticker.capped` ('tickers') đã xoá cùng bản Việt (13/10/2026) — xem bia mộ ở `vi.ts`. */

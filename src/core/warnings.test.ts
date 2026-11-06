@@ -55,12 +55,22 @@ describe('meaningless()', () => {
 });
 
 describe('missingSeries()', () => {
-  it('nêu cả số phiên cần và số phiên đang có', () => {
-    const w = missingSeries(60, 12);
+  /*
+   * Chủ dự án (05/11/2026): "Cần ít nhất 60 phiên giá, hiện mới có 10." → "Cần ít nhất 60 phiên giá.",
+   * và bỏ dòng "↳ Thêm phiên giá (nút Nạp mẫu…)". Ca đảo chiều: một trong hai quay lại là quyết định.
+   */
+  it('chỉ nêu số phiên cần, không nói đang có bao nhiêu, không có gợi ý sửa', () => {
+    const w = missingSeries(60);
     expect(w.code).toBe('MISSING_SERIES');
-    expect(w.message.vi).toContain('60');
-    expect(w.message.vi).toContain('12');
-    expect(w.fix).toBeTruthy();
+    expect(w.message.vi).toBe('Cần ít nhất 60 phiên giá.');
+    expect(w.message.en).toBe('Need at least 60 price sessions.');
+    expect(w.fix).toBeUndefined();
+  });
+
+  it('nhãn riêng của chuỗi đứng sau số phiên', () => {
+    const w = missingSeries(61, { vi: 'phiên giá VN-Index', en: 'VN-Index sessions' });
+    expect(w.message.vi).toBe('Cần ít nhất 61 phiên giá VN-Index.');
+    expect(w.message.en).toBe('Need at least 61 VN-Index sessions.');
   });
 });
 

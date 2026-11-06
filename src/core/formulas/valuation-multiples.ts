@@ -439,7 +439,7 @@ export const EV_EBITDA: FormulaModule = {
     name: { vi: 'EV/EBITDA', en: 'EV/EBITDA' },
     description: {
       vi: 'Giá mua trọn doanh nghiệp gấp bao nhiêu lần lợi nhuận trước lãi vay, thuế và khấu hao.',
-      en: 'How many times the price to buy the whole company sits above earnings before interest, tax, and depreciation.',
+      en: 'How many times the price to buy the whole company sits above earnings before interest, tax, depreciation and amortization.',
     },
     latex: 'EV/EBITDA = \\frac{EV}{EBITDA}',
     expression: {
@@ -476,14 +476,14 @@ export const EV_EBITDA: FormulaModule = {
         max: 10_000_000,
         description: {
           vi: 'Lợi nhuận trước lãi vay, thuế và khấu hao, bốn quý gần nhất.',
-          en: 'Earnings before interest, tax, and depreciation over the last four quarters.',
+          en: 'Earnings before interest, tax, depreciation and amortization over the last four quarters.',
         },
       }),
     ],
     explanation: {
       meaning: {
         vi: 'Giá mua trọn doanh nghiệp, đã tính nợ và tiền mặt, bằng bao nhiêu năm EBITDA, tức lợi nhuận trước lãi vay, thuế và khấu hao; đây không phải số năm hoàn vốn, vì EBITDA chưa trừ thuế, chi đầu tư và vốn lưu động.',
-        en: 'How many years of EBITDA, profit before interest, tax and depreciation, the price of the whole company equals; it is not a payback period, because EBITDA comes before tax, capital spending and working capital.',
+        en: 'How many years of EBITDA, profit before interest, tax, depreciation and amortization, the price of the whole company equals; it is not a payback period, because EBITDA comes before tax, capital spending and working capital.',
       },
       whenToUse: {
         vi: 'Dùng khi bạn so hai công ty cùng ngành mà một bên vay nợ nặng, một bên gần như không vay, và muốn biết bên nào đang đắt hơn so với khoản lãi làm ra từ kinh doanh chính.',
@@ -560,7 +560,7 @@ export const EV_EBITDA: FormulaModule = {
         warning: meaningless(
           {
             vi: 'EV/EBITDA không có ý nghĩa khi EBITDA âm - hoạt động kinh doanh đang lỗ trước cả khấu hao.',
-            en: 'EV/EBITDA is meaningless when EBITDA is negative - the business is losing money even before depreciation.',
+            en: 'EV/EBITDA is meaningless when EBITDA is negative - the business is losing money even before depreciation and amortization.',
           },
           {
             vi: 'Dùng EV/Sales hoặc P/B để thay thế.',
@@ -1081,7 +1081,7 @@ export const SO_GRAHAM: FormulaModule = {
         latex: '22{,}5',
         meaning: {
           vi: 'P/E tối đa 15 nhân P/B tối đa 1,5 mà Graham đặt ra',
-          en: 'Graham’s maximum P/E of 15 times his maximum P/B of 1.5',
+          en: 'Graham’s P/E cap of 15 multiplied by his P/B cap of 1.5',
         },
       },
       {
@@ -1310,7 +1310,7 @@ export const NCAV: FormulaModule = {
     variables: [
       numberVar(
         'currentAssets',
-        { vi: 'Tài sản ngắn hạn (TSNH)', en: 'Current assets (TSNH)' },
+        { vi: 'Tài sản ngắn hạn (TSNH)', en: 'Current assets' },
         'tỷ ₫',
         4_800,
         {

@@ -302,7 +302,7 @@ export const BETA: FormulaModule = {
   spec: {
     id: 'beta',
     categoryId: 'risk',
-    name: { vi: 'Beta - hệ số rủi ro hệ thống', en: 'Beta coefficient' },
+    name: { vi: 'Beta - hệ số rủi ro hệ thống', en: 'Beta - systematic risk coefficient' },
     description: {
       vi: 'Mức một cổ phiếu thường lên xuống theo nhịp thị trường chung, đo bằng VN-Index.',
       en: "How strongly a stock tends to move with the market's ups and downs, measured against the VN-Index.",
@@ -360,7 +360,7 @@ export const BETA: FormulaModule = {
     variables: [
       sliderVar(
         'sessions',
-        { vi: 'Số phiên lấy để hồi quy', en: 'Sessions used for the regression' },
+        { vi: 'Số phiên lấy để hồi quy', en: 'Number of sessions used for the regression' },
         'phiên',
         60,
         MIN_SESSIONS,
@@ -566,7 +566,7 @@ export const TY_SO_SHARPE: FormulaModule = {
         latex: 'r_f',
         meaning: {
           vi: 'lãi suất phi rủi ro / năm, quy về phiên theo lãi kép: (1 + năm)^(1/m) − 1',
-          en: 'risk-free rate / year, compounded to one session: (1 + annual)^(1/m) − 1',
+          en: 'per-session risk-free rate, which compounds to the Risk-free rate / year over m sessions',
         },
       },
       {
@@ -587,7 +587,7 @@ export const TY_SO_SHARPE: FormulaModule = {
         latex: 'm',
         meaning: {
           vi: 'số phiên trong một năm, phiên (250 cho chuỗi theo ngày)',
-          en: 'sessions per year (250 for a daily series)',
+          en: 'sessions per year, 250 for a daily series',
         },
       },
     ],
@@ -747,7 +747,7 @@ export const TY_SO_SORTINO: FormulaModule = {
         latex: 'r_f',
         meaning: {
           vi: 'lãi phi rủi ro / năm, quy về phiên theo lãi kép (1 + năm)^(1/m) − 1, làm ngưỡng',
-          en: 'risk-free rate / year, compounded to one session (1 + annual)^(1/m) − 1, the threshold',
+          en: 'per-session risk-free threshold, compounding to the Risk-free rate / year over m sessions',
         },
       },
       {
@@ -768,7 +768,7 @@ export const TY_SO_SORTINO: FormulaModule = {
         latex: 'm',
         meaning: {
           vi: 'số phiên trong một năm, phiên (250 cho chuỗi theo ngày)',
-          en: 'sessions per year (250 for a daily series)',
+          en: 'sessions per year, 250 for a daily series',
         },
       },
       {
@@ -956,7 +956,7 @@ export const TY_SO_TREYNOR: FormulaModule = {
         latex: 'r_f',
         meaning: {
           vi: 'lãi suất phi rủi ro / năm, quy về phiên theo lãi kép: (1 + năm)^(1/m) − 1',
-          en: 'risk-free rate / year, compounded to one session: (1 + annual)^(1/m) − 1',
+          en: 'per-session risk-free rate, which compounds to the Risk-free rate / year over m sessions',
         },
       },
       {
@@ -1164,7 +1164,7 @@ export const TY_SO_THONG_TIN: FormulaModule = {
         latex: '\\bar{r}_b',
         meaning: {
           vi: 'lợi suất chuẩn / năm đã nhập, quy về phiên theo lãi kép: (1 + năm)^(1/m) − 1',
-          en: 'benchmark return / year entered, compounded to one session: (1 + annual)^(1/m) − 1',
+          en: 'per-session benchmark return, compounding to the Benchmark return / year over m sessions',
         },
       },
       {
@@ -1185,7 +1185,7 @@ export const TY_SO_THONG_TIN: FormulaModule = {
         latex: 'm',
         meaning: {
           vi: 'số phiên trong một năm, phiên (250 cho chuỗi theo ngày)',
-          en: 'sessions per year (250 for a daily series)',
+          en: 'sessions per year, 250 for a daily series',
         },
       },
     ],
@@ -1344,7 +1344,7 @@ export const TY_SO_CALMAR: FormulaModule = {
         latex: 'r_{nam}',
         meaning: {
           vi: 'lợi suất năm hoá theo lãi kép, dạng thập phân, quy đổi theo ô Số phiên trong một năm',
-          en: 'compounded annual return, as a decimal, scaled by the Sessions per year field',
+          en: 'annualized compound return, as a decimal, converted using the Sessions per year field',
         },
       },
       {
@@ -1502,14 +1502,14 @@ export const TY_SO_THANG_THUA: FormulaModule = {
         latex: '\\overline{r^{+}}_h',
         meaning: {
           vi: 'mức tăng bình quân của các phiên tăng vượt ngưỡng h, tức ô Ngưỡng bỏ qua phiên đi ngang',
-          en: 'average gain of sessions rising past threshold h, the flat-session threshold field',
+          en: 'average gain of sessions rising more than h, h is the Threshold to ignore flat sessions',
         },
       },
       {
         latex: '\\overline{r^{-}}_h',
         meaning: {
           vi: 'mức giảm bình quân của các phiên giảm vượt ngưỡng h, tức ô Ngưỡng bỏ qua phiên đi ngang',
-          en: 'average loss of sessions falling past threshold h, the flat-session threshold field',
+          en: 'average loss of sessions falling more than h, h is the Threshold to ignore flat sessions',
         },
       },
       {
@@ -1649,7 +1649,7 @@ export const TY_SO_THANG_THUA: FormulaModule = {
           { vi: 'Trung bình mức giảm của các phiên giảm', en: 'average loss of falling sessions' },
           {
             vi: 'Chuỗi này không có phiên giảm nào vượt ngưỡng - hạ ngưỡng bỏ qua phiên đi ngang, hoặc kéo dài chuỗi giá.',
-            en: 'This series has no falling session past the threshold - lower the flat-session threshold, or extend the price series.',
+            en: 'This series has no falling session past the threshold - lower the Threshold to ignore flat sessions, or extend the price series.',
           },
         ),
       );
@@ -1664,7 +1664,7 @@ export const TY_SO_THANG_THUA: FormulaModule = {
           },
           {
             vi: 'Hạ ngưỡng bỏ qua phiên đi ngang, hoặc chọn giai đoạn có cả nhịp tăng.',
-            en: 'Lower the flat-session threshold, or choose a period that includes an uptrend.',
+            en: 'Lower the Threshold to ignore flat sessions, or choose a period that includes an uptrend.',
           },
         ),
       );

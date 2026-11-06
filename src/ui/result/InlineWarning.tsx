@@ -45,12 +45,18 @@ export function InlineWarning({ warning, className }: InlineWarningProps) {
 
       <div className={styles.body}>
         <span className={styles.label}>{pick(WARNING_LABELS[warning.code])}</span>
-        <span className={styles.message}>{pick(warning.message)}</span>
-        {warning.fix !== undefined && (
-          <span className={styles.fix}>
-            {t('result.fixPrefix')} {pick(warning.fix)}
-          </span>
-        )}
+        {/*
+         * Câu và dòng ↳ chung MỘT khối, như `.cause` của `ErrorState`: dưới 1024px khối này đứng
+         * bên phải nhãn, cùng hàng (xem CSS). Từ 1024px nó tan vào lưới, thẻ giữ dáng cũ.
+         */}
+        <span className={styles.cause}>
+          <span className={styles.message}>{pick(warning.message)}</span>
+          {warning.fix !== undefined && (
+            <span className={styles.fix}>
+              {t('result.fixPrefix')} {pick(warning.fix)}
+            </span>
+          )}
+        </span>
       </div>
     </div>
   );

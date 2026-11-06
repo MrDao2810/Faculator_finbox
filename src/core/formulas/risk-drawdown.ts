@@ -357,7 +357,7 @@ export const SUT_GIAM_SAU_NHAT: FormulaModule = {
         latex: 'N',
         meaning: {
           vi: 'số phiên trong cửa sổ, lớn nhất của 30 và ô Số phiên gần nhất, tối đa cả chuỗi',
-          en: 'window length, the larger of 30 and the Sessions to include field, at most the series',
+          en: 'window size, larger of 30 and Number of recent sessions to include, up to the full series',
         },
       },
       {
@@ -504,7 +504,7 @@ export const SUT_GIAM_HIEN_TAI: FormulaModule = {
         latex: 'P_{max}',
         meaning: {
           vi: 'đỉnh cao nhất trong cửa sổ, dài theo ô Số phiên gần nhất đưa vào tính, ₫',
-          en: 'highest peak in the window, as long as the Sessions to include field, ₫',
+          en: 'highest peak in the window set by Number of recent sessions to include, ₫',
         },
       },
       {
@@ -634,7 +634,7 @@ export const VAR_LICH_SU: FormulaModule = {
   spec: {
     id: 'var-lich-su',
     categoryId: 'risk',
-    name: { vi: 'VaR lịch sử theo phân vị', en: 'Historical Value at Risk' },
+    name: { vi: 'VaR lịch sử theo phân vị', en: 'Historical VaR (percentile method)' },
     description: {
       vi: 'Mức lỗ một phiên mà chỉ một tỷ lệ nhỏ số phiên trong quá khứ từng vượt qua, đọc thẳng từ phân vị chuỗi lợi suất.',
       en: 'The single-session loss level that only a small share of past sessions have ever exceeded, read directly off a percentile of the returns series.',
@@ -642,7 +642,7 @@ export const VAR_LICH_SU: FormulaModule = {
     latex: 'VaR_{\\alpha} = -Q_{1-\\alpha}(r_N) \\times 100',
     expression: {
       vi: 'VaR = − Phân vị mức (1 − Độ tin cậy) của chuỗi lợi suất phiên × 100',
-      en: 'VaR = − percentile at level (1 − confidence) of the session returns series × 100',
+      en: 'VaR = − percentile at level (1 − confidence level) of the series of session returns × 100',
     },
     /*
      * Phân vị Q viết bằng chính phép nội suy `calc` dùng: quan sát đứng trước, cộng trọng số nhân
@@ -682,7 +682,7 @@ export const VAR_LICH_SU: FormulaModule = {
         latex: 'N',
         meaning: {
           vi: 'số phiên trong cửa sổ, lớn nhất của 60 và ô Số phiên gần nhất, tối đa cả chuỗi',
-          en: 'window length, the larger of 60 and the Sessions to include field, at most the series',
+          en: 'window size, larger of 60 and Number of recent sessions to include, up to the full series',
         },
       },
       {
@@ -809,7 +809,7 @@ export const CVAR_LICH_SU: FormulaModule = {
   spec: {
     id: 'cvar-lich-su',
     categoryId: 'risk',
-    name: { vi: 'CVaR - tổn thất kỳ vọng phần đuôi', en: 'Conditional VaR (expected shortfall)' },
+    name: { vi: 'CVaR - tổn thất kỳ vọng phần đuôi', en: 'CVaR - expected shortfall' },
     description: {
       vi: 'Mức lỗ trung bình của riêng những phiên không tốt hơn ngưỡng VaR - trả lời câu "nếu ngày xấu thật sự xảy ra thì mất bao nhiêu".',
       en: 'The average loss of just the sessions no better than the VaR threshold - answering "if the bad day actually happens, how much do I lose".',
@@ -841,7 +841,7 @@ export const CVAR_LICH_SU: FormulaModule = {
         latex: 'E',
         meaning: {
           vi: 'trung bình (kỳ vọng) của các lợi suất thoả điều kiện, đổi dấu thành mức lỗ dương',
-          en: 'expected value (mean) of the returns passing the condition, flipped to a positive loss',
+          en: 'expected value, the average of returns meeting the condition, flipped to a positive loss',
         },
       },
       {
@@ -855,7 +855,7 @@ export const CVAR_LICH_SU: FormulaModule = {
         latex: 'N',
         meaning: {
           vi: 'số phiên trong cửa sổ, lớn nhất của 60 và ô Số phiên gần nhất, tối đa cả chuỗi',
-          en: 'window length, the larger of 60 and the Sessions to include field, at most the series',
+          en: 'window size, larger of 60 and Number of recent sessions to include, up to the full series',
         },
       },
       {

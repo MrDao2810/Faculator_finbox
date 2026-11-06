@@ -56,7 +56,7 @@ export const ROI: FormulaModule = {
     variables: [
       numberVar(
         'cost',
-        { vi: 'Vốn bỏ ra (Vdau)', en: 'Capital invested (Vdau)' },
+        { vi: 'Vốn bỏ ra (Vdau)', en: 'Capital invested (Vstart)' },
         '₫',
         100_000_000,
         {
@@ -70,7 +70,7 @@ export const ROI: FormulaModule = {
       ),
       numberVar(
         'current',
-        { vi: 'Giá trị hiện tại (Vcuoi)', en: 'Current value (Vcuoi)' },
+        { vi: 'Giá trị hiện tại (Vcuoi)', en: 'Current value (Vend)' },
         '₫',
         125_000_000,
         {
@@ -86,7 +86,7 @@ export const ROI: FormulaModule = {
     explanation: {
       meaning: {
         vi: 'Mỗi trăm đồng bỏ ra đang sinh ra bao nhiêu đồng lãi.',
-        en: 'How much profit each hundred đồng invested is generating.',
+        en: 'How much profit each hundred dong invested is generating.',
       },
       whenToUse: {
         vi: 'Dùng khi bạn xem tài khoản chứng khoán, thấy tổng tiền đã nạp vào và giá trị danh mục hôm nay, và muốn biết mình đang lãi hay lỗ bao nhiêu so với số vốn đó.',
@@ -110,7 +110,7 @@ export const ROI: FormulaModule = {
       expected: 15.5803,
       note: {
         vi: 'So với lãi gửi tiết kiệm trong cùng 49 ngày: dù tính theo mức 6,8%/năm của kỳ hạn 12 tháng, gửi tiền cũng chỉ được 0,91%, còn khoản FPT này lãi 15,58%, gấp 17,07 lần. Con số chưa trừ phí mua, phí bán, thuế bán và phí lưu ký, trừ hết thì còn 15,12%.',
-        en: 'Compared with savings interest over the same 49 days: even at the 6.8%/year rate of a 12-month deposit, the money would earn only 0.91%, while this FPT holding gained 15.58%, 17.07 times as much. The figure leaves out the buy fee, sell fee, sell tax and custody fee, and with all of them deducted it drops to 15.12%.',
+        en: 'Compared with savings interest over the same 49 days: even at the 6.8%/year rate of a 12-month deposit, the money would earn only 0.91%, while this FPT holding gained 15.58%, 17.07 times as much. The figure leaves out the buy fee, sell fee, transfer tax and custody fee, and with all of them deducted it drops to 15.12%.',
       },
       source: {
         vi: 'Giá đóng cửa FPT trên Investing.com, phiên 24/07/2026 và 11/09/2026.',
@@ -202,7 +202,7 @@ export const HPR: FormulaModule = {
     variables: [
       numberVar(
         'startPrice',
-        { vi: 'Giá đầu kỳ (Pdau)', en: 'Starting price (Pdau)' },
+        { vi: 'Giá đầu kỳ (Pdau)', en: 'Starting price (Pstart)' },
         '₫',
         78_000,
         {
@@ -214,20 +214,14 @@ export const HPR: FormulaModule = {
           },
         },
       ),
-      numberVar(
-        'endPrice',
-        { vi: 'Giá cuối kỳ (Pcuoi)', en: 'Ending price (Pcuoi)' },
-        '₫',
-        92_000,
-        {
-          min: 0,
-          max: 10_000_000,
-          description: {
-            vi: 'Giá một cổ phiếu ở cuối kỳ nắm giữ: giá bán ra, hoặc thị giá hiện tại nếu vẫn đang giữ.',
-            en: 'The share price at the end of the holding period: the sale price, or the current market price if you still hold it.',
-          },
+      numberVar('endPrice', { vi: 'Giá cuối kỳ (Pcuoi)', en: 'Ending price (Pend)' }, '₫', 92_000, {
+        min: 0,
+        max: 10_000_000,
+        description: {
+          vi: 'Giá một cổ phiếu ở cuối kỳ nắm giữ: giá bán ra, hoặc thị giá hiện tại nếu vẫn đang giữ.',
+          en: 'The share price at the end of the holding period: the sale price, or the current market price if you still hold it.',
         },
-      ),
+      }),
       numberVar(
         'dividend',
         { vi: 'Cổ tức nhận trong kỳ (D)', en: 'Dividends received during the period (D)' },
@@ -246,7 +240,7 @@ export const HPR: FormulaModule = {
     explanation: {
       meaning: {
         vi: 'Trong kỳ nắm giữ, mỗi trăm đồng bỏ ra mua cổ phiếu mang lại bao nhiêu đồng - tính cả phần giá lên xuống lẫn cổ tức đã nhận.',
-        en: 'Over the holding period, how many đồng each hundred đồng spent on the stock returns - counting both the price move and the dividends received.',
+        en: 'Over the holding period, how many dong each hundred dong spent on the stock returns - counting both the price move and the dividends received.',
       },
       whenToUse: {
         vi: 'Dùng khi bạn vừa bán một cổ phiếu đã giữ qua đợt chia cổ tức tiền mặt và muốn biết tính cả tiền chênh giá lẫn cổ tức thì mình lời được bao nhiêu so với giá mua.',
@@ -362,7 +356,7 @@ export const CAGR: FormulaModule = {
     variables: [
       numberVar(
         'start',
-        { vi: 'Giá trị ban đầu (Vdau)', en: 'Starting value (Vdau)' },
+        { vi: 'Giá trị ban đầu (Vdau)', en: 'Starting value (Vstart)' },
         '₫',
         100_000_000,
         {
@@ -376,7 +370,7 @@ export const CAGR: FormulaModule = {
       ),
       numberVar(
         'end',
-        { vi: 'Giá trị cuối kỳ (Vcuoi)', en: 'Ending value (Vcuoi)' },
+        { vi: 'Giá trị cuối kỳ (Vcuoi)', en: 'Ending value (Vend)' },
         '₫',
         200_000_000,
         {
@@ -568,7 +562,7 @@ export const TY_SUAT_CO_TUC: FormulaModule = {
     explanation: {
       meaning: {
         vi: 'Mỗi trăm đồng bỏ ra mua cổ phiếu thì nhận về bao nhiêu đồng cổ tức mỗi năm.',
-        en: 'How many đồng in dividends you receive each year for every hundred đồng spent buying the stock.',
+        en: 'How many dong in dividends you receive each year for every hundred dong spent buying the stock.',
       },
       whenToUse: {
         vi: 'Dùng khi bạn đang tìm cổ phiếu để giữ lâu nhận cổ tức và muốn biết nếu mua ở giá trên bảng hôm nay thì mỗi năm công ty trả cổ tức được bao nhiêu so với số tiền bỏ ra.',
@@ -682,7 +676,10 @@ export const XIRR: FormulaModule = {
   spec: {
     id: 'xirr',
     categoryId: 'returns',
-    name: { vi: 'XIRR - suất sinh lợi nội tại theo ngày thực', en: 'XIRR' },
+    name: {
+      vi: 'XIRR - suất sinh lợi nội tại theo ngày thực',
+      en: 'XIRR - internal rate of return on actual cash-flow dates',
+    },
     description: {
       vi: 'Suất sinh lợi năm hoá từ một chuỗi dòng tiền vào ra không đều kỳ, tính đúng theo ngày thực.',
       en: 'The annualized rate of return from a series of irregularly timed cash inflows and outflows, computed on actual dates.',

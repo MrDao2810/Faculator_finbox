@@ -135,7 +135,7 @@ export const DO_LECH_CHUAN_LOI_SUAT_PHIEN: FormulaModule = {
   spec: {
     id: 'do-lech-chuan-loi-suat-phien',
     categoryId: 'risk',
-    name: { vi: 'Độ lệch chuẩn lợi suất theo phiên', en: 'Daily return standard deviation' },
+    name: { vi: 'Độ lệch chuẩn lợi suất theo phiên', en: 'Per-session return standard deviation' },
     description: {
       vi: 'Mức dao động bình quân của lợi suất mỗi phiên quanh lợi suất trung bình.',
       en: "The average deviation of each session's return around the mean return.",
@@ -143,7 +143,7 @@ export const DO_LECH_CHUAN_LOI_SUAT_PHIEN: FormulaModule = {
     latex: 's = \\sqrt{\\frac{\\sum_{t=1}^{n}(r_t - \\bar{r})^2}{n - 1}}',
     expression: {
       vi: 'Độ lệch chuẩn phiên = căn bậc hai của [Tổng bình phương (Lợi suất từng phiên − Lợi suất bình quân) ÷ (Số lợi suất − 1)]',
-      en: "Session standard deviation = square root of [Sum of squares (each session's return − average return) ÷ (number of returns − 1)]",
+      en: "Per-session return standard deviation = square root of [Sum of squares (each session's return − average return) ÷ (number of returns − 1)]",
     },
     substitution: '√({@tongBp} ÷ ({@n} − 1))',
     symbols: [
@@ -172,14 +172,14 @@ export const DO_LECH_CHUAN_LOI_SUAT_PHIEN: FormulaModule = {
         latex: 't',
         meaning: {
           vi: 'phiên đang xét, đánh số từ 1 tới n',
-          en: 'the session in view, numbered 1 to n',
+          en: 'the session being examined, numbered 1 to n',
         },
       },
       {
         latex: 'n',
         meaning: {
           vi: 'số lợi suất trong cửa sổ, bằng số phiên lấy để tính trừ đi 1',
-          en: 'number of returns in the window, equal to the sessions used minus 1',
+          en: 'number of returns in the window, equal to the Number of sessions used minus 1',
         },
       },
       {
@@ -300,7 +300,7 @@ export const DO_BIEN_DONG_NAM_HOA: FormulaModule = {
     latex: '\\sigma_{nam} = s_{phien} \\times \\sqrt{D}',
     expression: {
       vi: 'Độ biến động năm = Độ lệch chuẩn lợi suất phiên × căn bậc hai của Số phiên giao dịch trong một năm',
-      en: 'Annualized volatility = per-session return standard deviation × square root of the number of trading sessions in a year',
+      en: 'Annualized volatility = per-session return standard deviation × square root of Trading sessions per year',
     },
     substitution: '{@s} × √{tradingDays}',
     symbols: [
@@ -315,7 +315,7 @@ export const DO_BIEN_DONG_NAM_HOA: FormulaModule = {
         latex: 's_{phien}',
         meaning: {
           vi: 'độ lệch chuẩn lợi suất theo phiên, %/phiên, theo ô Số phiên lấy để tính',
-          en: 'per-session return standard deviation, %/session, over the Sessions used field',
+          en: 'per-session return standard deviation, %/session, over the Number of sessions used',
         },
       },
       {
@@ -508,7 +508,7 @@ export const DO_LECH_CHUAN_BAN_PHAN: FormulaModule = {
         latex: 't',
         meaning: {
           vi: 'phiên đang xét trong cửa sổ',
-          en: 'the session in view within the window',
+          en: 'the session being examined within the window',
         },
       },
       {
@@ -674,7 +674,7 @@ export const HE_SO_BIEN_THIEN: FormulaModule = {
         latex: 's',
         meaning: {
           vi: 'độ lệch chuẩn lợi suất phiên trong cửa sổ, theo ô Số phiên lấy để tính, %/phiên',
-          en: 'per-session return standard deviation over the Sessions used field, %/session',
+          en: 'per-session return standard deviation over the Number of sessions used, %/session',
         },
       },
       {
@@ -787,7 +787,7 @@ export const HE_SO_BIEN_THIEN: FormulaModule = {
           { vi: 'Lợi suất bình quân mỗi phiên', en: 'Average return per session' },
           {
             vi: 'Đổi ô Số phiên lấy để tính sang một cửa sổ có giá thay đổi, hoặc dùng Độ lệch chuẩn lợi suất theo phiên để đo riêng mức dao động.',
-            en: 'Change the Number of sessions used field to a window where the price changes, or use the Daily return standard deviation to measure volatility on its own.',
+            en: 'Change the Number of sessions used field to a window where the price changes, or use the Per-session return standard deviation formula to measure volatility on its own.',
           },
         ),
       );
@@ -802,7 +802,7 @@ export const HE_SO_BIEN_THIEN: FormulaModule = {
           },
           {
             vi: 'Đổi ô Số phiên lấy để tính sang một cửa sổ có lợi suất bình quân dương, hoặc dùng Độ lệch chuẩn lợi suất theo phiên.',
-            en: 'Change the Number of sessions used field to a window with a positive average return, or use the Daily return standard deviation instead.',
+            en: 'Change the Number of sessions used field to a window with a positive average return, or use the Per-session return standard deviation formula instead.',
           },
         ),
       );
@@ -823,7 +823,7 @@ export const BIEN_DO_DAO_DONG_LON_NHAT: FormulaModule = {
   spec: {
     id: 'bien-do-dao-dong-lon-nhat',
     categoryId: 'risk',
-    name: { vi: 'Biên độ dao động lớn nhất trong kỳ', en: 'Peak-to-trough price range' },
+    name: { vi: 'Biên độ dao động lớn nhất trong kỳ', en: 'Closing price range in the period' },
     description: {
       vi: 'Giá đóng cửa cao nhất trong kỳ cao hơn giá đóng cửa thấp nhất bao nhiêu phần trăm.',
       en: 'How many percent the highest closing price in the period is above the lowest closing price.',
@@ -839,21 +839,21 @@ export const BIEN_DO_DAO_DONG_LON_NHAT: FormulaModule = {
         latex: 'A',
         meaning: {
           vi: 'biên độ dao động lớn nhất trong kỳ, %',
-          en: 'peak-to-trough price range over the period, in %',
+          en: 'closing price range in the period, in %',
         },
       },
       {
         latex: 'P_{max}',
         meaning: {
           vi: 'giá đóng cửa cao nhất trong kỳ, dài theo ô Số phiên trong kỳ, ₫',
-          en: 'highest closing price in the period, as long as the Sessions in period field, ₫',
+          en: 'highest closing price over the Number of sessions in the period, ₫',
         },
       },
       {
         latex: 'P_{min}',
         meaning: {
           vi: 'giá đóng cửa thấp nhất trong cùng kỳ, dùng làm gốc so sánh, ₫',
-          en: 'lowest closing price in the same period, used as the base, in VND',
+          en: 'lowest closing price in the same period, used as the base of comparison, ₫',
         },
       },
       {
@@ -1010,7 +1010,7 @@ export const CHUOI_PHIEN_GIAM_DAI_NHAT: FormulaModule = {
         latex: 'L',
         meaning: {
           vi: 'chuỗi giảm dài nhất trong kỳ, dài theo ô Số phiên trong kỳ, tính bằng phiên',
-          en: 'longest losing streak, over the Sessions in period field, in sessions',
+          en: 'longest losing streak over the Number of sessions in the period, in sessions',
         },
       },
       {

@@ -74,7 +74,7 @@ export const HOW_TO_VALUATION_MULTIPLES: Readonly<Record<string, FormulaHowTo>> 
             latex: 'EBIT = \\text{LNTT} + \\text{Lãi vay}',
             expression: {
               vi: 'Lợi nhuận trước lãi vay và thuế EBIT = Lợi nhuận trước thuế + Chi phí lãi vay',
-              en: 'Earnings before interest and tax EBIT = Profit before tax + Interest expense',
+              en: 'Earnings before interest and tax EBIT = Earnings before tax + Interest expense',
             },
           },
           {

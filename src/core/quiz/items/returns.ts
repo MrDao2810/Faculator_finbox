@@ -261,7 +261,7 @@ export const LOI_SUAT: ReadonlyArray<QuizItem> = [
     answer: 'c',
     explain: {
       vi: 'Phóng sự CafeF: “người vay phải chịu lãi suất gần gấp đôi, trong khi ít khách hàng biết được sự lắt léo này” - vì lãi vẫn tính trên toàn bộ vốn vay ban đầu dù mỗi tháng đã trả bớt gốc. Điều tra Tuổi Trẻ ghi nhận trường hợp lãi suất quy đổi lên tới 49,68%/năm.',
-      en: 'A CafeF report: “người vay phải chịu lãi suất gần gấp đôi, trong khi ít khách hàng biết được sự lắt léo này” - because interest is still charged on the entire original principal even though part of it has been repaid each month. A Tuổi Trẻ investigation found a case where the converted rate reached 49.68% a year.',
+      en: 'A CafeF report: “người vay phải chịu lãi suất gần gấp đôi, trong khi ít khách hàng biết được sự lắt léo này” (borrowers end up paying nearly double the interest, while few customers notice the catch) - because interest is still charged on the entire original principal even though part of it has been repaid each month. A Tuoi Tre investigation found a case where the converted rate reached 49.68% a year.',
     },
     source: {
       url: 'https://cafef.vn/tai-chinh-ngan-hang/vay-tieu-dung-tin-chap-nguoi-vay-tien-dang-bi-bop-co-200711269846808.chn',
@@ -378,7 +378,7 @@ export const LOI_SUAT: ReadonlyArray<QuizItem> = [
     answer: 'd',
     explain: {
       vi: 'VPBank: “Lãi suất thực = Lãi suất danh nghĩa – Tỷ lệ lạm phát”; Tạp chí Thị trường Tài chính Tiền tệ cũng dùng cùng công thức. Đây là trường hợp ngộ nhận được củng cố từ chính nguồn chính thống - app nên hiện cả hai cách tính.',
-      en: 'VPBank: “Lãi suất thực = Lãi suất danh nghĩa – Tỷ lệ lạm phát”; the Tạp chí Thị trường Tài chính Tiền tệ (Finance and Monetary Market magazine) also uses the same formula. This is a case where a misconception is reinforced by mainstream sources themselves - the app should show both methods.',
+      en: 'VPBank: “Lãi suất thực = Lãi suất danh nghĩa – Tỷ lệ lạm phát” (real interest rate = nominal interest rate minus the inflation rate); the Tap chi Thi truong Tai chinh Tien te (Finance and Monetary Market magazine) also uses the same formula. This is a case where a misconception is reinforced by mainstream sources themselves - the app should show both methods.',
     },
     source: {
       url: 'https://www.vpbank.com.vn/bi-kip-va-chia-se/corporate-story-and-tips/corporate-sat-category/lai-suat-danh-nghia',

@@ -2144,13 +2144,13 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
       },
       d: {
         vi: 'Đây là hành vi đăng báo cáo phân tích, khuyến nghị đầu tư khi chưa được cấp phép - cơ quan quản lý từng xử phạt một trường hợp tương tự (Công ty CP Đầu tư ITP)',
-        en: 'This is publishing an analysis report and investment recommendation without a license - regulators have already sanctioned a similar case (Đầu tư ITP JSC)',
+        en: 'This is publishing an analysis report and investment recommendation without a license - regulators have already sanctioned a similar case (ITP Investment JSC)',
       },
     },
     answer: 'd',
     explain: {
       vi: 'Theo bài trên Tin nhanh chứng khoán (đăng lại trên Tuổi Trẻ), cơ quan quản lý “đã xử phạt một trường hợp cụ thể là Công ty cổ phần Đầu tư ITP vì đăng tải báo cáo phân tích và khuyến nghị đầu tư khi chưa được cấp phép” - chỉ công ty chứng khoán hoặc công ty quản lý quỹ được cấp phép mới được công khai đưa ra giá mục tiêu và khuyến nghị mua/bán.',
-      en: 'According to the article on Tin nhanh chứng khoán (republished on Tuổi Trẻ), regulators “đã xử phạt một trường hợp cụ thể là Công ty cổ phần Đầu tư ITP vì đăng tải báo cáo phân tích và khuyến nghị đầu tư khi chưa được cấp phép” (sanctioned a specific case, Đầu tư ITP JSC, for publishing an analysis report and an investment recommendation without a license) - only a licensed securities company or fund manager may publicly issue a target price and a buy/sell recommendation.',
+      en: 'According to the article on Tin nhanh Chung khoan (republished on Tuoi Tre), regulators “đã xử phạt một trường hợp cụ thể là Công ty cổ phần Đầu tư ITP vì đăng tải báo cáo phân tích và khuyến nghị đầu tư khi chưa được cấp phép” (sanctioned a specific case, ITP Investment JSC, for publishing an analysis report and an investment recommendation without a license) - only a licensed securities company or fund manager may publicly issue a target price and a buy/sell recommendation.',
     },
     source: {
       /*

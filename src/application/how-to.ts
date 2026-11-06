@@ -21,3 +21,9 @@ export type {
   LinkedHowTo,
 } from '@/core/how-to';
 export { HOW_TO, HOW_TO_BY_FILE, howToFor } from '@/core/how-to';
+
+/**
+ * Bản tiếng Anh của hình công thức (05/11/2026) — cũng chỉ dùng lúc build, ở `notation-view.ts`, nên
+ * đi cùng cửa build-only này chứ không qua barrel. Xem docblock `src/core/latex-en.ts`.
+ */
+export { latexEn } from '@/core/latex-en';

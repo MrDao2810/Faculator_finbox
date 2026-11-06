@@ -163,7 +163,7 @@ export const HOW_TO_RISK_DRAWDOWN: Readonly<Record<string, FormulaHowTo>> = {
         symbol: 'Q_{1-\\alpha}(r_N)',
         phrases: {
           vi: ['Phân vị mức (1 − Độ tin cậy)'],
-          en: ['percentile at level (1 − confidence)'],
+          en: ['percentile at level (1 − confidence level)'],
         },
         steps: PHAN_VI_NOI_SUY,
         calcEvidence: MA_PHAN_VI,
@@ -171,7 +171,7 @@ export const HOW_TO_RISK_DRAWDOWN: Readonly<Record<string, FormulaHowTo>> = {
       {
         kind: 'derived',
         symbol: 'r',
-        phrases: { vi: ['chuỗi lợi suất phiên'], en: ['session returns series'] },
+        phrases: { vi: ['chuỗi lợi suất phiên'], en: ['series of session returns'] },
         steps: [cuaSoQuanSat('60'), LOI_SUAT_R],
         calcEvidence: MA_LOI_SUAT_CUA_SO,
       },

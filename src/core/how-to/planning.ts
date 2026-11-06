@@ -33,7 +33,7 @@ export const HOW_TO_PLANNING: Readonly<Record<string, FormulaHowTo>> = {
             latex: 'k = \\frac{T}{m}',
             expression: {
               vi: 'Số vòng quay = Tổng số tháng ÷ Kỳ hạn ngắn, chỉ tính khi chia hết',
-              en: 'Number of rounds = Total months ÷ Short term, only when it divides evenly',
+              en: 'Number of rounds = Total months ÷ Short deposit term, only when it divides evenly',
             },
           },
         ],

@@ -43,7 +43,7 @@ export const HOW_TO_VALUATION_DCF: Readonly<Record<string, FormulaHowTo>> = {
       {
         kind: 'linked',
         symbol: 'r',
-        phrases: { vi: ['Suất sinh lợi yêu cầu'], en: ['Required return'] },
+        phrases: { vi: ['Suất sinh lợi yêu cầu'], en: ['Required rate of return'] },
         formulaId: 'capm',
         variableKey: 'requiredReturn',
       },
@@ -147,7 +147,7 @@ export const HOW_TO_VALUATION_DCF: Readonly<Record<string, FormulaHowTo>> = {
             latex: 'EBIT = \\text{LNTT} + \\text{Lãi vay}',
             expression: {
               vi: 'EBIT = Lợi nhuận trước thuế + Chi phí lãi vay',
-              en: 'EBIT = Profit before tax + Interest expense',
+              en: 'EBIT = Earnings before tax + Interest expense',
             },
           },
         ],
@@ -202,13 +202,13 @@ export const HOW_TO_VALUATION_DCF: Readonly<Record<string, FormulaHowTo>> = {
       {
         kind: 'defined',
         symbol: '\\Delta B',
-        phrases: { vi: ['Vay ròng mới'], en: ['New net borrowing'] },
+        phrases: { vi: ['Vay ròng mới'], en: ['Net borrowing'] },
         steps: [
           {
             latex: '\\Delta B = \\text{Vay mới} - \\text{Trả nợ gốc}',
             expression: {
               vi: 'Vay ròng mới = Tiền thu từ đi vay − Tiền trả nợ gốc vay',
-              en: 'New net borrowing = Proceeds from borrowings − Repayments of borrowings',
+              en: 'Net borrowing = Proceeds from borrowings − Repayments of borrowings',
             },
           },
         ],

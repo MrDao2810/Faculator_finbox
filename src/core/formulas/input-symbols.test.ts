@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
+import { kyHieuPhangEn, latexEn } from '../latex-en';
 import { chuPhang, kyHieuCuaNhan } from '../o-ky-hieu';
 
 import { ALL_FORMULAS } from './index';
@@ -156,6 +157,31 @@ const KY_HIEU_O_NHAP: Readonly<Record<string, Readonly<Record<string, string>>>>
 
 /* `chuPhang` và `kyHieuCuaNhan` dời sang `../o-ky-hieu.ts` ngày 28/10/2026, dùng chung với khung "Lấy số liệu ở đâu". */
 
+/**
+ * Ký hiệu trên nhãn TIẾNG ANH (05/11/2026): nhãn tiếng Anh mang ký hiệu của hình tiếng Anh ('Pmua' thành
+ * 'Pbuy'), không còn chép y ký hiệu tiếng Việt như luật 19/10/2026 — chủ dự án chuyển sang tiếng Anh và
+ * bắt `P_{mục tiêu}` còn nằm trong hình. Bảng chung ở `kyHieuPhangEn()`; hai ô dưới đây ngoại lệ vì
+ * `rd` của WACC là chi phí nợ (giữ nguyên), còn `rd` của Gửi quay vòng là lãi kỳ dài.
+ */
+const KY_HIEU_EN_RIENG: Readonly<Record<string, Readonly<Record<string, string>>>> = {
+  'gui-quay-vong': { shortRate: 'rshort', longRate: 'rlong' },
+};
+
+function kyHieuEn(id: string, key: string, kyHieu: string | null): string | null {
+  if (kyHieu === null) return null;
+  return KY_HIEU_EN_RIENG[id]?.[key] ?? kyHieuPhangEn(kyHieu);
+}
+
+/**
+ * Ký hiệu trong NGOẶC ở cuối nhãn tiếng Anh. Hình tiếng Anh viết đại lượng bằng chữ (LNST thành 'Net income',
+ * TSNH thành 'Current assets') thì nhãn tiếng Anh chính là chữ ấy, không có ngoặc — `labelWithSymbol()` bỏ
+ * ngoặc, như nhãn 'Vốn chủ sở hữu' của hình `\text{Vốn chủ sở hữu}`.
+ */
+function ngoacEn(id: string, key: string, kyHieu: string | null, nhanEn: string): string | null {
+  const en = kyHieuEn(id, key, kyHieu);
+  return en !== null && en === nhanEn ? null : en;
+}
+
 describe('ô nhập mang ký hiệu của hình công thức', () => {
   it('mọi công thức có mặt trong bảng, không thừa id nào', () => {
     expect(Object.keys(KY_HIEU_O_NHAP).sort()).toEqual(ALL_FORMULAS.map((s) => s.id).sort());
@@ -168,7 +194,9 @@ describe('ô nhập mang ký hiệu của hình công thức', () => {
       for (const v of spec.variables) {
         const kyHieu = bang[v.key] ?? null;
         expect(kyHieuCuaNhan(v.label.vi), `${spec.id}.${v.key} [vi] "${v.label.vi}"`).toBe(kyHieu);
-        expect(kyHieuCuaNhan(v.label.en), `${spec.id}.${v.key} [en] "${v.label.en}"`).toBe(kyHieu);
+        expect(kyHieuCuaNhan(v.label.en), `${spec.id}.${v.key} [en] "${v.label.en}"`).toBe(
+          ngoacEn(spec.id, v.key, kyHieu, v.label.en),
+        );
       }
       for (const key of Object.keys(bang)) {
         expect(
@@ -187,6 +215,18 @@ describe('ô nhập mang ký hiệu của hình công thức', () => {
         // Ô của nhóm lặp mang số thứ tự ('C1', 'r2'); hình vẽ chỉ số chạy (`C_i`, `r_k`).
         const goc = spec.repeat === undefined ? kyHieu : kyHieu.replace(/\d+$/, '');
         expect(hinh, `${spec.id}.${key}: "${kyHieu}" không thấy trong "${hinh}"`).toContain(goc);
+      }
+    },
+  );
+
+  it.each(ALL_FORMULAS.map((s) => [s.id, s] as const))(
+    '%s: ký hiệu trên nhãn tiếng Anh có mặt trong hình TIẾNG ANH',
+    (_id, spec) => {
+      const hinh = chuPhang(latexEn(spec.latex, spec.id));
+      for (const [key, kyHieu] of Object.entries(KY_HIEU_O_NHAP[spec.id] ?? {})) {
+        const en = kyHieuEn(spec.id, key, kyHieu) ?? '';
+        const goc = spec.repeat === undefined ? en : en.replace(/\d+$/, '');
+        expect(hinh, `${spec.id}.${key}: "${en}" không thấy trong "${hinh}"`).toContain(goc);
       }
     },
   );

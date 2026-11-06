@@ -151,6 +151,7 @@ import {
 
 import { FormulaNotationCard } from './FormulaNotationCard';
 import { GuideHintPanel, type GuideHintPanelState } from './GuideHintPanel';
+import { notationForLocale } from './notation-types';
 import type { NotationView } from './notation-types';
 import { PasteImportPanel } from './PasteImportPanel';
 import { QuizFormulaPicture } from './QuizFormulaPicture';
@@ -463,7 +464,7 @@ export function FormulaDetail({
   spec,
   modules,
   asOf,
-  notation,
+  notation: notationGoc,
   quiz,
   viDu,
   viDuCay,
@@ -473,6 +474,13 @@ export function FormulaDetail({
   const { mode, feeScheduleId, locale } = usePreferences();
   const t = useT();
   const pick = usePick();
+  /*
+   * Thẻ Công thức theo ngôn ngữ đang hiện (05/11/2026): ở tiếng Anh, hình công thức, bảng ký hiệu, khung
+   * cách tính, hình trong lời giải Bài tập/Ví dụ và ký hiệu ở dòng Thay số đều in bản tiếng Anh — trước
+   * đó chúng giữ `	ext{Tổng nợ phải trả}`, `P_{mục tiêu}` dưới dòng chữ đã sang tiếng Anh. Đổi ở ĐÂY,
+   * một chỗ, nên mọi khối bên dưới nhận cùng một bản.
+   */
+  const notation = useMemo(() => notationForLocale(notationGoc, locale), [notationGoc, locale]);
   const calcText = useCalcText();
   const valueText = useValueText();
   const router = useRouter();

@@ -33,7 +33,7 @@ const WF15: Readonly<Record<WarningCode, CalcWarning>> = {
     },
     { vi: 'Gợi ý chuyển sang P/B', en: 'Suggest switching to P/B' },
   ),
-  MISSING_SERIES: missingSeries(60, 24),
+  MISSING_SERIES: missingSeries(60),
   MODEL_VIOLATION: modelViolation(
     { vi: 'g ≥ WACC', en: 'g ≥ WACC' },
     { vi: 'Giảm g xuống dưới 12,1%', en: 'Lower g below 12.1%' },
@@ -59,8 +59,9 @@ describe('sáu loại lỗi của WF-15', () => {
       expect(container.textContent).not.toContain(WARNING_LABELS[code].vi);
       expect(screen.getByRole('alert').getAttribute('data-ma-loi')).toBe(code);
 
-      // Dòng gợi ý sửa (NFR-USA-04). Năm mã phải có; `INCOMPLETE_INPUT` thì không — ca riêng dưới.
-      if (code === 'INCOMPLETE_INPUT') return;
+      // Dòng gợi ý sửa (NFR-USA-04). Bốn mã phải có; `INCOMPLETE_INPUT` và `MISSING_SERIES` thì không,
+      // hai ca riêng dưới.
+      if (code === 'INCOMPLETE_INPUT' || code === 'MISSING_SERIES') return;
       expect(warning.fix, `mã ${code} thiếu gợi ý sửa`).toBeDefined();
       if (warning.fix !== undefined) {
         expect(screen.getByText(warning.fix.vi, { exact: false })).not.toBeNull();
@@ -80,6 +81,21 @@ describe('sáu loại lỗi của WF-15', () => {
     expect(screen.getByText('Còn thiếu: Giá bán.')).not.toBeNull();
     expect(container.textContent).not.toContain('↳');
     expect(container.textContent).not.toContain('Nhập nốt các ô còn trống');
+  });
+
+  /*
+   * Ca ĐẢO NGƯỢC thứ hai (05/11/2026): chủ dự án bỏ vế "…, hiện mới có 10." và dòng "↳ Thêm phiên giá
+   * (nút Nạp mẫu hoặc Sử dụng dữ liệu mẫu), hoặc giảm số phiên hay chu kỳ ở khối Số liệu.".
+   */
+  it('MISSING_SERIES — chỉ nói cần bao nhiêu phiên, không có dòng ↳ gợi ý sửa', () => {
+    const warning = WF15.MISSING_SERIES;
+    const { container } = render(<ErrorState warning={warning} unit="lần" />);
+
+    expect(warning.fix).toBeUndefined();
+    expect(screen.getByText('Cần ít nhất 60 phiên giá.')).not.toBeNull();
+    expect(container.textContent).not.toContain('hiện mới có');
+    expect(container.textContent).not.toContain('↳');
+    expect(container.textContent).not.toContain('Thêm phiên giá');
   });
 });
 

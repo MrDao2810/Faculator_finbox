@@ -3,7 +3,13 @@
 import { Fragment, useEffect, useState } from 'react';
 
 import type { FormulaSpec, Preset, PresetPick } from '@/application';
-import { useT, usePick, usePreferences } from '@/application/preferences-context';
+import {
+  useCompanyName,
+  useIndustryName,
+  usePick,
+  usePreferences,
+  useT,
+} from '@/application/preferences-context';
 import type { TickerCoverage } from '@/application/ticker-coverage';
 import { Badge, BottomSheet, Button } from '@/ui/primitives';
 
@@ -130,6 +136,8 @@ export function PresetSheet({
   const { locale } = usePreferences();
   const calcText = useCalcText();
   const valueText = useValueText();
+  const tenCongTy = useCompanyName();
+  const tenNganh = useIndustryName();
 
   /**
    * Bảng mã có số liệu dùng được — nạp TRỄ khi sheet mở, đúng lối `TickerPickerSheet` đang nạp.
@@ -342,10 +350,16 @@ export function PresetSheet({
 
             <span className={styles.info}>
               <span className={styles.name}>
-                {preset.name}
-                {preset.industry !== undefined && (
-                  <span className={styles.industry}> · {preset.industry}</span>
-                )}
+                {tenCongTy(preset.code, preset.name)}
+                {(() => {
+                  /*
+                    Ở tiếng Anh, ngành chưa có bản dịch thì bỏ hẳn, không in tiếng Việt (05/11/2026,
+                    xem `industryName()`).
+                  */
+                  const nganh =
+                    preset.industry === undefined ? undefined : tenNganh(preset.industry);
+                  return nganh !== undefined && <span className={styles.industry}> · {nganh}</span>;
+                })()}
               </span>
 
               {/*

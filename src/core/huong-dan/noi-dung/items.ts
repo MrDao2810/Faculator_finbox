@@ -553,7 +553,7 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
       ebitda: {
         layODau: {
           vi: 'Lợi nhuận trước lãi vay, thuế và khấu hao. Lấy EBIT cộng khấu hao.',
-          en: 'Earnings before interest, taxes and depreciation. Take EBIT plus depreciation.',
+          en: 'Earnings before interest, taxes, depreciation and amortization: EBIT plus D&A.',
         },
         luuY: {
           vi: 'Cộng tất cả bốn quý khi tính cả năm.',
@@ -1130,7 +1130,7 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
     },
     deSai: {
       vi: 'Để vay ròng mới bằng 0 cho đơn giản; khoản này thường lớn và làm lệch kết quả nhiều.',
-      en: 'Setting new net borrowing to 0 for simplicity; this item is often large and skews the result a lot.',
+      en: 'Setting net borrowing to 0 for simplicity; this item is often large and skews the result a lot.',
     },
   },
 
@@ -2288,7 +2288,7 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
       beta: {
         layODau: {
           vi: 'Lấy từ công thức Beta, tính trên chính chuỗi giá của danh mục.',
-          en: "From the Beta coefficient formula, computed on the portfolio's own price series.",
+          en: "From the Beta formula, computed on the portfolio's own price series.",
         },
       },
     },
@@ -2533,7 +2533,7 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
       period: {
         layODau: {
           vi: 'Số phiên Wilder dùng để làm mượt mức tăng và mức giảm giá.',
-          en: 'The number of periods Wilder uses to smooth the gains and losses.',
+          en: 'The number of sessions Wilder uses to smooth the gains and losses.',
         },
         luuY: {
           vi: '14 phiên là mặc định của Wilder; số nhỏ hơn làm RSI chạm 70 và 30 thường hơn.',
@@ -2862,7 +2862,7 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
       period: {
         layODau: {
           vi: 'Số phiên gộp lại để tính giá bình quân theo khối lượng.',
-          en: 'The number of sessions pooled to compute the volume-weighted average price.',
+          en: 'The number of sessions combined to compute the volume-weighted average price.',
         },
         luuY: {
           vi: '{period} phiên là khoảng {period|thoiGian} giao dịch.',
@@ -3056,7 +3056,7 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
     },
     docKetQua: {
       vi: 'Điểm đóng cao hơn điểm mở là lãi, thấp hơn là lỗ.',
-      en: 'Closing points higher than opening points is a profit; lower is a loss.',
+      en: 'An exit price above the entry price is a profit; below it, a loss.',
     },
     deSai: {
       vi: 'Quên rằng lãi lỗ được thanh toán bù trừ hằng ngày, không đợi tới lúc đóng vị thế.',
@@ -3091,7 +3091,7 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
     },
     docKetQua: {
       vi: 'Điểm đóng thấp hơn điểm mở là lãi, cao hơn là lỗ, ngược chiều hoàn toàn với Long.',
-      en: 'Closing points lower than opening points is a profit; higher is a loss, the exact opposite of a long position.',
+      en: 'An exit price below the entry price is a profit; above it, a loss, the exact opposite of a long position.',
     },
     deSai: {
       vi: 'Dùng nhầm công thức Long cho vị thế bán, ra kết quả ngược dấu.',
@@ -3102,13 +3102,13 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
   'so-hop-dong-toi-da': {
     deLamGi: {
       vi: 'Biết với số vốn ký quỹ hiện có thì mở được tối đa bao nhiêu hợp đồng.',
-      en: 'Shows the maximum number of contracts you can open with the margin capital you have.',
+      en: 'Shows the maximum number of contracts you can open with the margin deposit you have.',
     },
     oNhap: {
       capital: {
         layODau: {
           vi: 'Số tiền ký quỹ đang có trong tài khoản phái sinh.',
-          en: 'The margin money currently in your derivatives account.',
+          en: 'The margin deposit currently in your derivatives account.',
         },
       },
       futuresPoints: {
@@ -3120,7 +3120,7 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
       marginRatio: {
         layODau: {
           vi: 'Quy định của công ty chứng khoán nơi bạn mở tài khoản phái sinh.',
-          en: 'Set by the securities company where you opened your derivatives account.',
+          en: 'Set by the broker where you opened your derivatives account.',
         },
         luuY: {
           vi: 'Thường từ 17% trở lên tuỳ công ty chứng khoán, có thể nâng khi biến động mạnh.',
@@ -3562,7 +3562,7 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
       rate: {
         layODau: {
           vi: 'Lãi suất ghi trên sổ tiết kiệm, hoặc mức sinh lời mỗi năm bạn kỳ vọng.',
-          en: 'The rate written on your savings book, or the yearly return you expect.',
+          en: 'The rate stated for your savings deposit, or the yearly return you expect.',
         },
         luuY: {
           vi: 'Lãi suất tiết kiệm đang niêm yết cho đúng kỳ hạn là mốc thận trọng.',
@@ -3611,7 +3611,7 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
       rate: {
         layODau: {
           vi: 'Biểu lãi suất tiền gửi của ngân hàng, đúng dòng kỳ hạn bạn gửi, hoặc mức ghi trên sổ.',
-          en: "The bank's deposit rate table, the row for your term, or the rate written on your savings book.",
+          en: "The bank's deposit rate table, the row for your term, or the rate stated for your deposit.",
         },
         luuY: {
           vi: 'Kỳ hạn khác nhau có lãi suất khác nhau, lấy đúng dòng kỳ hạn của sổ.',

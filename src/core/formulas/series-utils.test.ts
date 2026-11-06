@@ -43,13 +43,13 @@ describe('requireCloses / requireBars — cửa MISSING_SERIES (FR-06, FR-12)', 
     expect(Array.isArray(result)).toBe(true);
   });
 
-  it('thiếu phiên thì trả cảnh báo MISSING_SERIES nói rõ cần bao nhiêu, có bao nhiêu', () => {
+  // Câu không còn nói đang có bao nhiêu phiên (05/11/2026, xem `missingSeries()`).
+  it('thiếu phiên thì trả cảnh báo MISSING_SERIES nói rõ cần bao nhiêu phiên', () => {
     const result = requireCloses({ ...CTX_BASE, series: [1, 2] }, 60);
     expect(Array.isArray(result)).toBe(false);
     if (!Array.isArray(result)) {
       expect(result.code).toBe('MISSING_SERIES');
-      expect(result.message.vi).toContain('60');
-      expect(result.message.vi).toContain('2');
+      expect(result.message.vi).toBe('Cần ít nhất 60 phiên giá.');
     }
   });
 

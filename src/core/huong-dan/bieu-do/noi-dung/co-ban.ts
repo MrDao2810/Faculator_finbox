@@ -110,7 +110,7 @@ export const BIEU_DO_CO_BAN: Readonly<Record<string, BieuDoRieng>> = {
       netIncome: {
         duong: d(
           'Đường chạy từ trái sang phải theo ô Lợi nhuận sau thuế (LNST), từ một nửa đến gấp rưỡi con số bạn đang nhập; vạch đứt dọc có chấm tròn là đúng con số bạn nhập. Đây là phép thử nếu lợi nhuận đổi thì EPS ra bao nhiêu, không phải diễn biến thị trường. Đường đi lên đều: số cổ phiếu giữ nguyên, lợi nhuận tăng bao nhiêu phần thì EPS tăng bấy nhiêu phần.',
-          'The line runs left to right along the Net income after tax (LNST) field, from half to one and a half times the figure you have entered; the dashed vertical line with a dot marks your own figure. It is a what-if on profit, not market history. The line rises steadily: with the share count held still, EPS grows in exact proportion to profit.',
+          'The line runs left to right along the Net income field, from half to one and a half times the figure you have entered; the dashed vertical line with a dot marks your own figure. It is a what-if on profit, not market history. The line rises steadily: with the share count held still, EPS grows in exact proportion to profit.',
         ),
         cot: d(
           'Mỗi cột là EPS ở một mức lợi nhuận, cột cao dần về bên phải và cột tô đặc là mức bạn đang nhập. Chiều cao cột là số đồng lợi nhuận chia cho mỗi cổ phiếu: cột cao gấp rưỡi là mỗi cổ phiếu làm ra nhiều hơn một nửa.',
@@ -118,11 +118,11 @@ export const BIEU_DO_CO_BAN: Readonly<Record<string, BieuDoRieng>> = {
         ),
         diem: d(
           'Mỗi chấm là EPS tính ở một mức của ô Lợi nhuận sau thuế (LNST), từ một nửa đến gấp rưỡi con số bạn đang nhập; chấm nằm trên vạch đứt dọc là đúng con số bạn nhập. Đây là phép thử nếu lợi nhuận đổi mà số cổ phiếu đứng yên thì EPS ra bao nhiêu, không phải diễn biến thị trường. Dãy chấm đi lên đều, hai chấm kề nhau cách nhau đúng một khoảng: mỗi bước lợi nhuận bằng nhau chia cho cùng một số cổ phiếu, nên cộng vào EPS cùng một khoản.',
-          'Each dot is EPS at one level of the Net income after tax (LNST) field, from half to one and a half times the figure you have entered; the dot on the dashed vertical line is your own figure. It is a what-if on profit with the share count held still, not market history. The row of dots rises in even steps: each equal slice of extra profit, split over the same number of shares, adds the same amount to EPS.',
+          'Each dot is EPS at one level of the Net income field, from half to one and a half times the figure you have entered; the dot on the dashed vertical line is your own figure. It is a what-if on profit with the share count held still, not market history. The row of dots rises in even steps: each equal slice of extra profit, split over the same number of shares, adds the same amount to EPS.',
         ),
         laiLo: d(
           'Dạng biểu đồ này hiện khi trục ngang đi qua mức lợi nhuận vừa đủ trả cổ tức ưu đãi; không có cổ phiếu ưu đãi thì mức ấy là 0, nên dạng này hiện khi ô Lợi nhuận sau thuế (LNST) đang là 0, lúc trục trải hai phía quanh 0. Phần giữa đường và vạch 0 tô đỏ ở bên trái là EPS âm, tính trên mỗi cổ phiếu phổ thông là lỗ; phần tô xanh bên phải là EPS dương, mỗi cổ phiếu phổ thông có lãi. Đây là phép thử nếu lợi nhuận đổi thì EPS ra bao nhiêu, không phải diễn biến thị trường. Đường đi lên đều và cắt vạch 0 đúng ở mức lợi nhuận bằng cổ tức ưu đãi.',
-          'This form appears when the axis passes the profit that just covers preferred dividends; with no preferred shares that point is 0, so the form appears when the Net income after tax (LNST) field is 0 and the axis spreads on both sides of 0. Between the line and the zero line, the red part on the left is a negative EPS, a loss on each common share, and the green part on the right a positive one, a profit on each share. It is a what-if on profit, not market history. The line rises steadily and crosses the zero line exactly where profit equals preferred dividends.',
+          'This form appears when the axis passes the profit that just covers preferred dividends; with no preferred shares that point is 0, so the form appears when the Net income field is 0 and the axis spreads on both sides of 0. Between the line and the zero line, the red part on the left is a negative EPS, a loss on each common share, and the green part on the right a positive one, a profit on each share. It is a what-if on profit, not market history. The line rises steadily and crosses the zero line exactly where profit equals preferred dividends.',
         ),
       },
       preferredDividend: {
@@ -198,7 +198,7 @@ export const BIEU_DO_CO_BAN: Readonly<Record<string, BieuDoRieng>> = {
       netIncome: {
         duong: d(
           'Đường chạy từ trái sang phải theo ô Lợi nhuận sau thuế (LNST), từ một nửa đến gấp rưỡi con số bạn đang nhập; vạch đứt dọc có chấm tròn là đúng con số bạn nhập. Đây là phép thử nếu lợi nhuận đổi thì ROE ra bao nhiêu, không phải diễn biến thị trường. Đường đi lên đều: cùng một lượng vốn chủ, lợi nhuận càng cao thì mỗi đồng vốn của cổ đông sinh lời càng nhiều.',
-          'The line runs left to right along the Net income after tax (LNST) field, from half to one and a half times the figure you have entered; the dashed vertical line with a dot marks your own figure. It is a what-if on profit, not market history. The line rises steadily: on the same equity, more profit means every unit of shareholders’ capital earns more.',
+          'The line runs left to right along the Net income field, from half to one and a half times the figure you have entered; the dashed vertical line with a dot marks your own figure. It is a what-if on profit, not market history. The line rises steadily: on the same equity, more profit means every unit of shareholders’ capital earns more.',
         ),
         cot: d(
           'Mỗi cột là ROE ở một mức lợi nhuận, cột cao dần về bên phải và cột tô đặc là mức bạn đang nhập. Khoảng cách giữa hai cột cho biết lợi nhuận phải thêm bao nhiêu thì ROE mới nhích lên một bậc.',
@@ -206,11 +206,11 @@ export const BIEU_DO_CO_BAN: Readonly<Record<string, BieuDoRieng>> = {
         ),
         diem: d(
           'Mỗi chấm là ROE tính ở một mức của ô Lợi nhuận sau thuế (LNST), từ một nửa đến gấp rưỡi con số bạn đang nhập; chấm nằm trên vạch đứt dọc là đúng con số bạn nhập. Đây là phép thử nếu lợi nhuận đổi thì ROE ra bao nhiêu, không phải diễn biến thị trường. Dãy chấm đi lên đều, các chấm cách nhau đúng một khoảng: cùng một lượng vốn chủ, mỗi phần lợi nhuận thêm vào nâng ROE lên như nhau.',
-          'Each dot is ROE at one level of the Net income after tax (LNST) field, from half to one and a half times the figure you have entered; the dot on the dashed vertical line is your own figure. It is a what-if on profit, not market history. The row of dots rises steadily in even steps: on the same equity, each extra slice of profit lifts ROE by the same amount.',
+          'Each dot is ROE at one level of the Net income field, from half to one and a half times the figure you have entered; the dot on the dashed vertical line is your own figure. It is a what-if on profit, not market history. The row of dots rises steadily in even steps: on the same equity, each extra slice of profit lifts ROE by the same amount.',
         ),
         laiLo: d(
           'Dạng biểu đồ này hiện khi ô Lợi nhuận sau thuế (LNST) đang là 0: trục ngang khi ấy trải đều hai phía quanh 0, bên trái là lỗ, bên phải là lãi. Phần đường nằm trên vạch 0 tô xanh là ROE dương, doanh nghiệp có lãi; phần nằm dưới vạch 0 tô đỏ là ROE âm, doanh nghiệp đang lỗ. Đây là phép thử nếu lợi nhuận đổi thì ROE ra bao nhiêu, không phải diễn biến thị trường. Đường đi lên đều và cắt vạch 0 đúng ở mức lợi nhuận bằng 0.',
-          'This form appears when the Net income after tax (LNST) field is 0: the horizontal axis then spreads evenly on both sides of 0, losses on the left and profits on the right. The part of the line above the zero line is shaded green, a positive ROE from a profitable company; the part below is shaded red, a negative ROE from a loss. It is a what-if on profit, not market history. The line rises steadily and crosses the zero line exactly where profit is 0.',
+          'This form appears when the Net income field is 0: the horizontal axis then spreads evenly on both sides of 0, losses on the left and profits on the right. The part of the line above the zero line is shaded green, a positive ROE from a profitable company; the part below is shaded red, a negative ROE from a loss. It is a what-if on profit, not market history. The line rises steadily and crosses the zero line exactly where profit is 0.',
         ),
       },
       equity: {
@@ -235,7 +235,7 @@ export const BIEU_DO_CO_BAN: Readonly<Record<string, BieuDoRieng>> = {
       netIncome: {
         duong: d(
           'Đường chạy từ trái sang phải theo ô Lợi nhuận sau thuế (LNST), từ một nửa đến gấp rưỡi con số bạn đang nhập; vạch đứt dọc có chấm tròn là đúng con số bạn nhập. Đây là phép thử nếu lợi nhuận đổi thì ROA ra bao nhiêu, không phải diễn biến thị trường. Đường đi lên đều: cùng một khối tài sản, lợi nhuận càng cao thì mỗi đồng tài sản làm việc càng hiệu quả.',
-          'The line runs left to right along the Net income after tax (LNST) field, from half to one and a half times the figure you have entered; the dashed vertical line with a dot marks your own figure. It is a what-if on profit, not market history. The line rises steadily: on the same asset base, more profit means every unit of assets works harder.',
+          'The line runs left to right along the Net income field, from half to one and a half times the figure you have entered; the dashed vertical line with a dot marks your own figure. It is a what-if on profit, not market history. The line rises steadily: on the same asset base, more profit means every unit of assets works harder.',
         ),
         cot: d(
           'Mỗi cột là ROA ở một mức lợi nhuận, cột cao dần về bên phải và cột tô đặc là mức bạn đang nhập. Cột thấp không hẳn là xấu: ngành cần nhiều tài sản như ngân hàng hay điện có ROA thấp tự nhiên, nên hãy so với doanh nghiệp cùng ngành.',
@@ -243,11 +243,11 @@ export const BIEU_DO_CO_BAN: Readonly<Record<string, BieuDoRieng>> = {
         ),
         diem: d(
           'Mỗi chấm là ROA tính ở một mức của ô Lợi nhuận sau thuế (LNST), từ một nửa đến gấp rưỡi con số bạn đang nhập; chấm nằm trên vạch đứt dọc là đúng con số bạn nhập. Đây là phép thử nếu lợi nhuận đổi mà tổng tài sản đứng yên thì ROA ra bao nhiêu, không phải diễn biến thị trường. Dãy chấm đi lên đều, hai chấm kề nhau cách nhau một khoảng như nhau: mỗi phần lợi nhuận thêm vào đều được đem so với cùng một khối tài sản, nên ROA nhích lên từng nấc bằng nhau.',
-          'Each dot is ROA at one level of the Net income after tax (LNST) field, from half to one and a half times the figure you have entered; the dot on the dashed vertical line is your own figure. It is a what-if on profit with total assets held still, not market history. The row of dots rises in equal steps: every extra slice of profit is measured against the same asset base, so ROA climbs by the same notch each time.',
+          'Each dot is ROA at one level of the Net income field, from half to one and a half times the figure you have entered; the dot on the dashed vertical line is your own figure. It is a what-if on profit with total assets held still, not market history. The row of dots rises in equal steps: every extra slice of profit is measured against the same asset base, so ROA climbs by the same notch each time.',
         ),
         laiLo: d(
           'Dạng biểu đồ này hiện khi ô Lợi nhuận sau thuế (LNST) đang là 0: trục ngang khi ấy trải đều hai phía quanh 0, nửa trái là các mức lỗ, nửa phải là các mức lãi. Phần giữa đường và vạch 0 tô xanh là ROA dương, khối tài sản đang làm ra lãi; phần tô đỏ là ROA âm, cùng khối tài sản ấy đang làm ra lỗ. Đây là phép thử nếu lợi nhuận đổi thì ROA ra bao nhiêu, không phải diễn biến thị trường. Đường đi lên đều và cắt vạch 0 ngay giữa trục, đúng chỗ vạch đứt dọc đánh dấu con số 0 bạn đang nhập.',
-          'This form appears when the Net income after tax (LNST) field is 0: the horizontal axis then spreads evenly on both sides of 0, losses on the left half and profits on the right. The part between the line and the zero line is shaded green where ROA is positive, the assets earning a profit, and red where it is negative, the same assets producing a loss. It is a what-if on profit, not market history. The line rises steadily and crosses the zero line in the middle of the axis, right at the dashed vertical line marking the 0 you entered.',
+          'This form appears when the Net income field is 0: the horizontal axis then spreads evenly on both sides of 0, losses on the left half and profits on the right. The part between the line and the zero line is shaded green where ROA is positive, the assets earning a profit, and red where it is negative, the same assets producing a loss. It is a what-if on profit, not market history. The line rises steadily and crosses the zero line in the middle of the axis, right at the dashed vertical line marking the 0 you entered.',
         ),
       },
       totalAssets: {
@@ -272,7 +272,7 @@ export const BIEU_DO_CO_BAN: Readonly<Record<string, BieuDoRieng>> = {
       netIncome: {
         duong: d(
           'Đường chạy từ trái sang phải theo ô Lợi nhuận sau thuế (LNST), từ một nửa đến gấp rưỡi con số bạn đang nhập; vạch đứt dọc có chấm tròn là đúng con số bạn nhập. Đây là phép thử nếu lợi nhuận đổi thì ROS ra bao nhiêu, không phải diễn biến thị trường. Đường đi lên đều: doanh thu giữ nguyên, lợi nhuận càng cao thì phần doanh nghiệp giữ lại được trên mỗi đồng bán ra càng dày.',
-          'The line runs left to right along the Net income after tax (LNST) field, from half to one and a half times the figure you have entered; the dashed vertical line with a dot marks your own figure. It is a what-if on profit, not market history. The line rises steadily: with revenue held still, more profit means the company keeps a thicker slice of every unit it sells.',
+          'The line runs left to right along the Net income field, from half to one and a half times the figure you have entered; the dashed vertical line with a dot marks your own figure. It is a what-if on profit, not market history. The line rises steadily: with revenue held still, more profit means the company keeps a thicker slice of every unit it sells.',
         ),
         cot: d(
           'Mỗi cột là ROS ở một mức lợi nhuận, cột cao dần về bên phải và cột tô đặc là mức bạn đang nhập. Chiều cao cột là phần của doanh thu còn lại thành lãi ròng, nên cột càng thấp thì doanh nghiệp càng ít chỗ đỡ khi chi phí tăng.',
@@ -280,11 +280,11 @@ export const BIEU_DO_CO_BAN: Readonly<Record<string, BieuDoRieng>> = {
         ),
         diem: d(
           'Mỗi chấm là ROS tính ở một mức của ô Lợi nhuận sau thuế (LNST), từ một nửa đến gấp rưỡi con số bạn đang nhập; chấm nằm trên vạch đứt dọc là đúng con số bạn nhập. Đây là phép thử nếu lợi nhuận đổi mà doanh thu đứng yên thì ROS ra bao nhiêu, không phải diễn biến thị trường. Dãy chấm đi lên đều, các chấm cách nhau từng khoảng bằng nhau: cùng một doanh thu, mỗi phần lãi ròng thêm vào nâng biên lợi nhuận ròng lên một nấc như nhau, tức mỗi đồng bán ra giữ lại thêm một phần như nhau.',
-          'Each dot is ROS, the net margin, at one level of the Net income after tax (LNST) field, from half to one and a half times the figure you have entered; the dot on the dashed vertical line is your own figure. It is a what-if on profit with revenue held still, not market history. The row of dots rises in evenly spaced steps: against the same revenue, each extra slice of net profit lifts the margin by the same notch, so every unit sold keeps the same extra share.',
+          'Each dot is ROS, the net margin, at one level of the Net income field, from half to one and a half times the figure you have entered; the dot on the dashed vertical line is your own figure. It is a what-if on profit with revenue held still, not market history. The row of dots rises in evenly spaced steps: against the same revenue, each extra slice of net profit lifts the margin by the same notch, so every unit sold keeps the same extra share.',
         ),
         laiLo: d(
           'Dạng biểu đồ này hiện khi ô Lợi nhuận sau thuế (LNST) đang là 0: trục ngang khi ấy trải đều hai phía quanh 0, bên trái là lỗ ròng, bên phải là lãi ròng. Phần giữa đường và vạch 0 tô xanh là ROS dương, mỗi đồng doanh thu còn để lại lãi; phần tô đỏ là ROS âm, bán ra mà vẫn lỗ sau khi trừ hết chi phí và thuế. Đây là phép thử nếu lợi nhuận đổi thì ROS ra bao nhiêu, không phải diễn biến thị trường. Đường đi lên đều và cắt vạch 0 ngay tại vạch đứt dọc, nơi lãi ròng bằng 0.',
-          'This form appears when the Net income after tax (LNST) field is 0: the horizontal axis then spreads evenly on both sides of 0, net losses on the left and net profits on the right. Between the line and the zero line, green marks a positive ROS, each unit of revenue leaving some profit behind, and red a negative one, sales that still end in a loss once every cost and tax is paid. It is a what-if on profit, not market history. The line rises steadily and crosses the zero line right at the dashed vertical line, where net profit is 0.',
+          'This form appears when the Net income field is 0: the horizontal axis then spreads evenly on both sides of 0, net losses on the left and net profits on the right. Between the line and the zero line, green marks a positive ROS, each unit of revenue leaving some profit behind, and red a negative one, sales that still end in a loss once every cost and tax is paid. It is a what-if on profit, not market history. The line rises steadily and crosses the zero line right at the dashed vertical line, where net profit is 0.',
         ),
       },
       revenue: {
@@ -305,11 +305,11 @@ export const BIEU_DO_CO_BAN: Readonly<Record<string, BieuDoRieng>> = {
     coCau: {
       thanh: d(
         'Mỗi thanh nằm ngang là một phần, đọc từ trên xuống: Lãi ròng (LNST) rồi Doanh thu còn lại cộng lại thành thanh sẫm cuối cùng, Doanh thu thuần, một số tiền khác với biên lợi nhuận ròng ở khối Kết quả vì khối ấy in tỷ lệ giữa thanh Lãi ròng (LNST) và thanh Doanh thu thuần, không phải tổng của hai thanh trên. Thanh Lãi ròng (LNST) càng dài thì phần doanh nghiệp giữ lại thành lãi trên mỗi đồng bán ra càng dày.',
-        'Each horizontal bar is one part, read from top to bottom: Net income (LNST) then Remaining revenue add up to the dark bar at the end, Net revenue, a money figure different from the net margin in the Result block, because that block prints the ratio between the Net income (LNST) bar and the Net revenue bar, not the sum of the two bars above. The longer the Net income (LNST) bar, the thicker the slice of each unit sold that ends up as profit.',
+        'Each horizontal bar is one part, read from top to bottom: Net income then Remaining revenue add up to the dark bar at the end, Net revenue, a money figure different from the net margin in the Result block, because that block prints the ratio between the Net income bar and the Net revenue bar, not the sum of the two bars above. The longer the Net income bar, the thicker the slice of each unit sold that ends up as profit.',
       ),
       vanhKhuyen: d(
         'Vòng tròn chia Doanh thu thuần thành hai múi, Lãi ròng (LNST) và Doanh thu còn lại, mỗi múi to theo phần nó chiếm trong doanh thu. Lỗ giữa in Doanh thu thuần cùng giá trị của nó; chú giải cạnh vòng in tên, giá trị và phần trăm mỗi múi chiếm, rê chuột hay chạm một múi thì hiện tên và giá trị múi ấy. Múi Lãi ròng (LNST) càng lớn thì biên lợi nhuận ròng càng dày.',
-        'The ring splits Net revenue into two slices, Net income (LNST) and Remaining revenue, each sized by its share of revenue. The hole shows Net revenue and its value; the legend beside the ring gives each slice’s name, value and percentage share, and hovering over or tapping a slice shows its name and value. The bigger the Net income (LNST) slice, the thicker the net margin.',
+        'The ring splits Net revenue into two slices, Net income and Remaining revenue, each sized by its share of revenue. The hole shows Net revenue and its value; the legend beside the ring gives each slice’s name, value and percentage share, and hovering over or tapping a slice shows its name and value. The bigger the Net income slice, the thicker the net margin.',
       ),
     },
   },

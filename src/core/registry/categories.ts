@@ -142,7 +142,7 @@ export const CATEGORIES: ReadonlyArray<Category> = [
     shortName: { vi: 'Vay nợ', en: 'Loans' },
     description: {
       vi: 'Trả góp niên kim và gốc đều, lịch trả nợ từng kỳ, tổng lãi phải trả.',
-      en: 'Annuity and equal-principal instalments, the period-by-period repayment schedule, total interest owed.',
+      en: 'Annuity and equal-principal installments, the period-by-period repayment schedule, total interest owed.',
     },
     expectedCount: 3,
   },

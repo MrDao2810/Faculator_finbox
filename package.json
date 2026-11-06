@@ -28,6 +28,8 @@
     "gen:live-fundamentals": "node scripts/gen-live-fundamentals.mjs",
     "//gen:ticker-coverage": "Chạy TAY, cần mạng: quét cả 1.649 mã để biết mã nào có báo cáo dùng được. Danh sách cũ đi mỗi kỳ báo cáo — chạy lại sau mỗi mùa công bố.",
     "gen:ticker-coverage": "node scripts/gen-ticker-coverage.mjs",
+    "//gen:ticker-names-en": "Chạy TAY, cần mạng: tên tiếng Anh của mọi mã Finbox cho chế độ EN, lấy từ VNDirect (api-finfo). Không nằm trong npm run check/CI.",
+    "gen:ticker-names-en": "node scripts/gen-ticker-names-en.mjs",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "check": "npm run lint && npm run typecheck && npm run format:check && npm run test",

@@ -88,14 +88,21 @@ export function smaGiaDongCua(symbol: string, ten: Bilingual): HowToStep {
 /**
  * Hai bước của EMA — `lastEma()` ở `series-utils.ts` và `emaSeries()` ở `technical-trend.ts`:
  * hệ số k = 2 ÷ (n + 1), mồi bằng SMA của n phiên đầu, rồi mỗi phiên trộn giá mới với EMA cũ.
+ *
+ * `o` là tên ô cho ra n trên CHÍNH thẻ đang xem: "Số phiên" ở EMA n phiên, "Chu kỳ EMA nhanh" ở MACD.
+ * Trước 06/11/2026 bước này luôn viết "Số phiên", tên một ô thẻ MACD không có.
  */
-export function emaGiaDongCua(symbol: string, ten: Bilingual): ReadonlyArray<HowToStep> {
+export function emaGiaDongCua(
+  symbol: string,
+  ten: Bilingual,
+  o: Bilingual = { vi: 'Số phiên', en: 'Number of sessions' },
+): ReadonlyArray<HowToStep> {
   return [
     {
       latex: 'k = \\frac{2}{n + 1}',
       expression: {
-        vi: 'Hệ số làm mượt k = 2 ÷ (Số phiên n + 1)',
-        en: 'Smoothing factor k = 2 ÷ (Number of sessions n + 1)',
+        vi: `Hệ số làm mượt k = 2 ÷ (${o.vi} n + 1)`,
+        en: `Smoothing factor k = 2 ÷ (${o.en} n + 1)`,
       },
     },
     {

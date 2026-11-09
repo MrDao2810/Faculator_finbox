@@ -32,6 +32,7 @@ import {
   calcNameKey,
   displayCalcName,
   effectiveHoldingSort,
+  englishNumberToVi,
   formatIsoDate,
   formatNumber,
   formatValueWithUnit,
@@ -534,6 +535,18 @@ interface FormErrors {
   form?: string;
 }
 
+/**
+ * Ô số cổ phiếu có mang dấu thập phân của ngôn ngữ đang hiện không: `,` ở VI, `.` ở EN (09/11/2026).
+ *
+ * Chủ dự án: _"lúc nhập mà có dấu ',' là cần thông báo cho người dùng rồi"_, nên câu lỗi hiện NGAY lúc
+ * gõ, không đợi bấm lưu. Soi KÝ TỰ chứ không đọc số, vì hai lẽ: `5,` gõ dở đọc ra 5 nguyên nhưng
+ * người dùng đã bắt đầu gõ phần lẻ; và ở EN `1,500` đang gõ dở thành `1,5`, đọc số thì câu lỗi nháy
+ * lên hai phím rồi tắt. Dấu ngăn nghìn của mỗi ngôn ngữ (`.` ở VI, `,` ở EN) không bị bắt.
+ */
+function coDauThapPhan(text: string, en: boolean): boolean {
+  return text.includes(en ? '.' : ',');
+}
+
 /** Hai sheet của màn. Chỉ dựng khi người dùng mở lần đầu — cùng nếp `FormulaDetail`. */
 type SheetKind = 'ticker' | 'formulas';
 
@@ -591,7 +604,7 @@ export function PortfolioScreen() {
   const valueText = useValueText();
 
   const router = useRouter();
-  const { mode } = usePreferences();
+  const { mode, locale } = usePreferences();
   /** Chế độ Nâng cao mở thêm ô Beta, ô XIRR và ô nhập beta — FR-09. */
   const advanced = mode === 'advanced';
   const [holdings, setHoldings] = useState<ReadonlyArray<Holding>>([]);
@@ -1422,7 +1435,15 @@ export function PortfolioScreen() {
 
   const submit = useCallback(() => {
     const code = form.code.trim().toUpperCase();
-    const quantity = parseViNumber(form.quantity);
+    /*
+     * Ở EN đọc `1,500` là 1.500 cổ phiếu (`englishNumberToVi()`, đơn vị đếm nguyên 'CP'). Trước
+     * 09/11/2026 ô này đọc thẳng `parseViNumber()` nên `1,500` ra 1,5 cổ phiếu mà không báo gì; nay
+     * có luật số nguyên bên dưới thì nó sẽ thành câu lỗi "phải là số nguyên" cho một con số người
+     * dùng đã gõ nguyên.
+     */
+    const quantity = parseViNumber(
+      locale === 'en' ? englishNumberToVi(form.quantity, 'CP') : form.quantity,
+    );
     const costPrice = parseViNumber(form.costPrice);
     const betaTyped = form.beta.trim();
     const typedBeta = betaTyped === '' ? null : parseViNumber(betaTyped);
@@ -1452,7 +1473,16 @@ export function PortfolioScreen() {
 
     const next: FormErrors = {};
     if (code === '') next.code = t('portfolio.errCode');
+    /*
+     * Số cổ phiếu là số NGUYÊN (09/11/2026, chủ dự án): thị trường cổ phiếu Việt Nam không mua bán
+     * phần lẻ của một cổ phiếu, nên `5,35` là một khoản nắm giữ không thể có. Báo lỗi chứ không
+     * làm tròn: tự đổi 5,35 thành 5 là lưu một con số người dùng không gõ (FR-06 áp cho dữ liệu vào).
+     * Có dấu thập phân là lỗi kể cả `5,0`: lúc gõ ô đã báo lỗi ấy, lưu mà lại nhận thì hai lời trái nhau.
+     */
     if (quantity === null || quantity <= 0) next.quantity = t('portfolio.errQuantity');
+    else if (coDauThapPhan(form.quantity, locale === 'en') || !Number.isInteger(quantity)) {
+      next.quantity = t('portfolio.errQuantityWhole');
+    }
     if (costPrice === null || costPrice <= 0) next.costPrice = t('portfolio.errCostPrice');
     if (buyDate === null) next.buyDate = t('portfolio.errBuyDateFormat');
     else if (buyDate !== '' && buyDate > todayIso()) next.buyDate = t('portfolio.errBuyDate');
@@ -1534,7 +1564,7 @@ export function PortfolioScreen() {
     // Người dùng vừa giao cho máy một thứ đáng giữ — đúng lúc xin trình duyệt đừng dọn kho.
     requestPersistentStorage();
     closeForm();
-  }, [form, editing, holdings, pending, advanced, plannedFormula, t, closeForm, docLaiKho]);
+  }, [form, editing, holdings, pending, advanced, locale, plannedFormula, t, closeForm, docLaiKho]);
 
   /*
    * ── Trạng thái "cộng dồn" của form đã BỎ (10/10/2026) ──────────────────────────────────────
@@ -2733,11 +2763,20 @@ export function PortfolioScreen() {
                       <Input
                         label={t('portfolio.formQuantity')}
                         type="text"
-                        inputMode="decimal"
+                        /* Bàn phím điện thoại chỉ có chữ số: số cổ phiếu không có phần lẻ (09/11/2026). */
+                        inputMode="numeric"
                         value={form.quantity}
                         error={errors.quantity}
                         onChange={(event) => {
-                          setField('quantity', filterTypedValue(event, keepViNumberChars));
+                          const text = filterTypedValue(event, keepViNumberChars);
+                          setField('quantity', text);
+                          /* Báo ngay lúc gõ dấu thập phân; xoá dấu đi thì `setField` gỡ câu lỗi. */
+                          if (coDauThapPhan(text, locale === 'en')) {
+                            setErrors((current) => ({
+                              ...current,
+                              quantity: t('portfolio.errQuantityWhole'),
+                            }));
+                          }
                         }}
                         onKeyDown={guardFilteredDelete}
                         onBlur={(event) => {

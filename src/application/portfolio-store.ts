@@ -50,6 +50,11 @@ export function parseHoldings(raw: string | null | undefined): Holding[] {
     const quantity = numberOrNull(record.quantity);
     const costPrice = numberOrNull(record.costPrice);
 
+    /*
+     * Số lượng LẺ (5,35) vẫn đọc vào, cố ý: trước 09/11/2026 form nhận số lẻ, và bỏ dòng ấy lúc đọc
+     * là xoá mất khoản nắm giữ người dùng đã lưu. Mở Sửa thì form báo phải là số nguyên, người dùng
+     * tự chữa. Luật số nguyên chỉ chặn ở cửa GHI (`addHolding`, `updateHolding`).
+     */
     if (code === '' || quantity === null || quantity <= 0 || costPrice === null || costPrice <= 0) {
       continue;
     }
@@ -73,6 +78,15 @@ export function parseHoldings(raw: string | null | undefined): Holding[] {
   return clean;
 }
 
+/**
+ * Số cổ phiếu ghi xuống phải là số nguyên dương (09/11/2026): thị trường cổ phiếu Việt Nam không
+ * mua bán phần lẻ của một cổ phiếu. Form chặn trước và nói lý do (`portfolio.errQuantityWhole`);
+ * đây là lớp chắn thứ hai, từ chối im lặng như với số lượng không dương.
+ */
+function soLuongHopLe(quantity: number): boolean {
+  return Number.isInteger(quantity) && quantity > 0;
+}
+
 /** Chuỗi JSON để ghi vào localStorage. */
 export function serializeHoldings(holdings: ReadonlyArray<Holding>): string {
   return JSON.stringify(holdings.slice(0, MAX_HOLDINGS));
@@ -87,7 +101,7 @@ export function serializeHoldings(holdings: ReadonlyArray<Holding>): string {
  */
 export function addHolding(list: ReadonlyArray<Holding>, holding: Holding): Holding[] {
   const code = holding.code.trim().toUpperCase();
-  if (code === '' || holding.quantity <= 0 || holding.costPrice <= 0) return [...list];
+  if (code === '' || !soLuongHopLe(holding.quantity) || holding.costPrice <= 0) return [...list];
 
   const existing = list.find((item) => item.code === code);
   if (existing === undefined) {
@@ -136,7 +150,7 @@ export function updateHolding(
   next: Omit<Holding, 'code'>,
 ): Holding[] {
   const target = code.trim().toUpperCase();
-  if (next.quantity <= 0 || next.costPrice <= 0) return [...list];
+  if (!soLuongHopLe(next.quantity) || next.costPrice <= 0) return [...list];
 
   return list.map((item) => (item.code === target ? { ...next, code: target } : item));
 }

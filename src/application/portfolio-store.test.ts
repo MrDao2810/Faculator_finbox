@@ -50,6 +50,16 @@ describe('parseHoldings — đọc từ máy người dùng, không tin gì cả
     expect(parseHoldings(raw).map((h) => h.code)).toEqual(['FPT']);
   });
 
+  /*
+   * Luật số nguyên (09/11/2026) chỉ chặn ở cửa GHI. Khoản lẻ lưu từ trước vẫn phải đọc lại được:
+   * bỏ nó lúc đọc là xoá mất dữ liệu của người dùng.
+   */
+  it('số lượng lẻ lưu từ trước vẫn đọc lại, không bị bỏ', () => {
+    const raw = JSON.stringify([{ code: 'FPT', quantity: 5.35, costPrice: 78000 }]);
+
+    expect(parseHoldings(raw)[0]?.quantity).toBe(5.35);
+  });
+
   it('mã được viết hoa và cắt ngắn', () => {
     expect(parseHoldings('[{"code":" fpt ","quantity":1,"costPrice":1}]')[0]?.code).toBe('FPT');
   });
@@ -102,6 +112,12 @@ describe('addHolding', () => {
     expect(addHolding(list, holding({ code: '  ' }))).toEqual(list);
     expect(addHolding(list, holding({ code: 'HPG', quantity: 0 }))).toEqual(list);
     expect(addHolding(list, holding({ code: 'HPG', costPrice: -1 }))).toEqual(list);
+  });
+
+  it('từ chối số cổ phiếu lẻ, kể cả khi cộng dồn vào mã đang giữ', () => {
+    const list = [holding()];
+    expect(addHolding(list, holding({ code: 'HPG', quantity: 5.35 }))).toEqual(list);
+    expect(addHolding(list, holding({ quantity: 0.5 }))).toEqual(list);
   });
 
   it('không sửa mảng gốc', () => {
@@ -169,6 +185,12 @@ describe('updateHolding', () => {
 
     expect(updateHolding(list, 'FPT', { ...holding(), quantity: 0 })[0]?.quantity).toBe(500);
     expect(updateHolding(list, 'FPT', { ...holding(), costPrice: -1 })[0]?.quantity).toBe(500);
+  });
+
+  it('số cổ phiếu lẻ thì từ chối, giữ nguyên bản cũ', () => {
+    const list = [holding({ quantity: 500 })];
+
+    expect(updateHolding(list, 'FPT', { ...holding(), quantity: 5.35 })[0]?.quantity).toBe(500);
   });
 
   it('không sửa mảng gốc', () => {

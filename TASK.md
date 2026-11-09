@@ -4,6 +4,39 @@ Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 
 ---
 
+## Danh mục: số cổ phiếu phải là số nguyên (09/11/2026)
+
+**Trạng thái: CHƯA XONG — đã sửa, test xanh, chờ chủ dự án xác nhận.** Chủ dự án hỏi thị trường Việt Nam có mua được
+kiểu 5,35 cổ phiếu không (không: cổ phiếu niêm yết giao dịch theo đơn vị 1 cổ phiếu, lô lẻ 1–99 vẫn là số nguyên), rồi:
+_"cần sửa lại phần danh mục phần mã không cho nhập số cổ phiếu kiểu vậy"_. Trước đó ô "Số cổ phiếu nắm giữ" nhận mọi
+số dương.
+
+- `src/app/danh-muc/PortfolioScreen.tsx`: `submit()` báo `portfolio.errQuantityWhole` khi số lượng không nguyên, không
+  lưu, không tự làm tròn (ô giữ nguyên "5,35" để người dùng sửa). Ô mở bàn phím `numeric` (chỉ chữ số) thay vì
+  `decimal`. Ở EN, chuỗi gõ đi qua `englishNumberToVi(…, 'CP')`: trước đây `1,500` ở EN ra 1,5 cổ phiếu mà không báo
+  gì, nay là 1.500 (nếu không đổi, luật mới sẽ báo "phải là số nguyên" cho một số gõ nguyên).
+- `src/application/portfolio-store.ts`: `addHolding()` / `updateHolding()` từ chối số lẻ (lớp chắn thứ hai,
+  `soLuongHopLe`). `parseHoldings()` VẪN đọc khoản lẻ đã lưu từ trước: bỏ nó lúc đọc là xoá dữ liệu của khách; mở Sửa
+  thì form báo lỗi để khách tự chữa.
+- `src/application/i18n/vi.ts`, `en.ts`: thêm `portfolio.errQuantityWhole`.
+- Vòng 2, cùng ngày (chủ dự án chụp ô "1,2" chỉ báo lỗi sau khi bấm lưu): _"lúc nhập mà có dấu ',' là cần thông báo
+  cho người dùng rồi. xửa lại đoạn text luôn"_. Câu lỗi hiện NGAY khi gõ dấu thập phân (`coDauThapPhan`: `,` ở VI,
+  `.` ở EN; soi ký tự chứ không đọc số, để `5,` gõ dở cũng báo và `1,500` ở EN không nháy lỗi giữa chừng), xoá dấu
+  thì câu lỗi mất. Lúc lưu, có dấu thập phân là lỗi kể cả `5,0`, cho khớp lời báo lúc gõ. Câu mới: "Nhập lại, số cổ
+  phiếu phải là số nguyên." / "Re-enter: shares held must be a whole number."
+- Test: 4 ca mới ở `PortfolioScreen.test.tsx` (5,35 bị chặn rồi 1.000 lưu được; gõ phẩy báo ngay, xoá phẩy hết báo,
+  `5,0` bị chặn lúc lưu; `inputmode="numeric"`; EN `1,500` không báo và ra 90.000.000 ₫ vốn), 3 ca ở
+  `portfolio-store.test.ts`. Vòng 2: 273/273 test của Danh mục, kho, i18n, cửa gác ô số xanh; typecheck, eslint,
+  prettier sạch.
+- Kiểm: typecheck, eslint, prettier sạch. Cả bộ vitest: 5.652 xanh, 2 đỏ vì quá 5 s khi chạy cùng lúc
+  (`huong-dan.test.ts` "ô nhập trong bài đúng thứ tự…", `PortfolioScreen.test.tsx` "bảng đã đủ dòng nhờ mã chờ…", ca
+  này chạy riêng mất 2,8 s); chạy riêng hai file thì 203/203 xanh. Chưa đo trên Chrome thật.
+
+**Còn lại, chưa làm:** ô "Giá vốn" ở EN vẫn đọc `60,000` thành 60 ₫ (cùng lỗi với ô số lượng vừa sửa, chưa được hỏi).
+Công thức DCA vẫn tính số cổ phiếu = tiền ÷ giá ra số lẻ, theo sách giáo khoa; làm tròn xuống là quyết định của chủ dự án.
+
+---
+
 ## CAGR: ô Số năm thành ô nhập, nhận số năm lẻ (06/11/2026)
 
 **Trạng thái: CHƯA XONG — đã sửa, test xanh, chờ chủ dự án xác nhận.** Chủ dự án khoanh thanh trượt "Số năm (t)"

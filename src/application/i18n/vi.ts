@@ -1175,6 +1175,13 @@ export const vi = {
    */
   'portfolio.errCode': 'Chọn mã cổ phiếu trước đã.',
   'portfolio.errQuantity': 'Nhập số cổ phiếu nắm giữ, lớn hơn 0.',
+  /*
+   * 09/11/2026, chủ dự án: thị trường cổ phiếu Việt Nam không mua bán phần lẻ của một cổ phiếu, nên
+   * ô số lượng không nhận `5,35`. Hiện ngay khi gõ dấu phẩy, không đợi bấm lưu. Nguyên văn câu do chủ
+   * dự án đưa, thay bản đầu "Số cổ phiếu phải là số nguyên, vì không mua bán được phần lẻ của một cổ
+   * phiếu." cùng ngày.
+   */
+  'portfolio.errQuantityWhole': 'Nhập lại, số cổ phiếu phải là số nguyên.',
   'portfolio.errCostPrice': 'Nhập giá vốn một cổ phiếu, lớn hơn 0.',
   'portfolio.errBuyDate': 'Thời gian mua mã là ngày hiện tại hoặc ngày đã qua.',
   /*

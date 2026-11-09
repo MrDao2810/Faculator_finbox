@@ -1287,6 +1287,9 @@ describe('WF-06 — form không được hỏng trong im lặng', () => {
     await userEvent.click(await screen.findByRole('button', { name: 'Thêm mới' }));
   }
 
+  /** Câu lỗi số cổ phiếu lẻ, nguyên văn chủ dự án đưa ngày 09/11/2026. */
+  const LOI_SO_LE = 'Nhập lại, số cổ phiếu phải là số nguyên.';
+
   it('chưa chọn mã: nói lý do, và form KHÔNG đóng lại như đã thêm xong', async () => {
     await moForm();
     await userEvent.type(screen.getByLabelText('Số cổ phiếu nắm giữ'), '100');
@@ -1314,6 +1317,100 @@ describe('WF-06 — form không được hỏng trong im lặng', () => {
     expect(screen.getByText('Nhập số cổ phiếu nắm giữ, lớn hơn 0.')).toBeTruthy();
     // Một câu, không hai — vế chỉ đường bỏ 08/10/2026, xem `portfolio.empty` ở `vi.ts`.
     expect(screen.getByText('Chưa có mã nào.')).toBeTruthy();
+  });
+
+  /*
+   * 09/11/2026, chủ dự án: thị trường cổ phiếu Việt Nam không mua bán phần lẻ của một cổ phiếu.
+   * Báo lỗi, không lưu, và KHÔNG tự làm tròn thành 5 — đó là lưu một số người dùng không gõ.
+   */
+  it('số cổ phiếu lẻ như 5,35: báo phải là số nguyên, không lưu', async () => {
+    await moForm();
+    await userEvent.click(screen.getByRole('button', { name: 'Mã cổ phiếu' }));
+    const sheet = await tamTrenCung();
+    await userEvent.click(within(sheet).getAllByRole('button', { name: 'Chọn' })[0] as HTMLElement);
+
+    const o = screen.getByLabelText('Số cổ phiếu nắm giữ') as HTMLInputElement;
+    await userEvent.type(o, '5,35');
+    await userEvent.type(screen.getByLabelText('Giá vốn một cổ phiếu (₫)'), '60000');
+    await userEvent.click(screen.getByRole('button', { name: 'Thêm vào danh mục' }));
+
+    expect(screen.getByText(LOI_SO_LE)).toBeTruthy();
+    // Ô giữ nguyên thứ người dùng gõ để họ tự sửa; form không đóng, kho không có mã nào.
+    expect(o.value).toBe('5,35');
+    expect(screen.getByText('Chưa có mã nào.')).toBeTruthy();
+    expect(window.localStorage.getItem(PORTFOLIO_KEY) ?? '[]').toBe('[]');
+
+    // Sửa thành số nguyên (có dấu ngăn nghìn) thì lưu được: 1.000 × 60.000 ₫.
+    await userEvent.clear(o);
+    await userEvent.type(o, '1.000');
+    await userEvent.click(screen.getByRole('button', { name: 'Thêm vào danh mục' }));
+    const von = (await screen.findByText('Vốn đã bỏ ra')).parentElement;
+    expect(von?.textContent).toContain('60.000.000');
+  });
+
+  /*
+   * Chủ dự án, cùng ngày: _"lúc nhập mà có dấu ',' là cần thông báo cho người dùng rồi"_. Câu lỗi
+   * hiện ngay phím phẩy, chưa bấm lưu; xoá dấu phẩy thì câu lỗi đi theo. `5,0` vẫn bị chặn lúc lưu:
+   * ô đã báo lỗi lúc gõ thì lưu không được nhận, kẻo hai lời trái nhau.
+   */
+  it('gõ dấu phẩy là báo ngay, chưa cần bấm lưu; xoá dấu phẩy thì câu lỗi mất', async () => {
+    await moForm();
+    const o = screen.getByLabelText('Số cổ phiếu nắm giữ') as HTMLInputElement;
+
+    await userEvent.type(o, '1');
+    expect(screen.queryByText(LOI_SO_LE)).toBeNull();
+
+    await userEvent.type(o, ',');
+    expect(screen.getByText(LOI_SO_LE)).toBeTruthy();
+
+    await userEvent.type(o, '{Backspace}');
+    expect(o.value).toBe('1');
+    expect(screen.queryByText(LOI_SO_LE)).toBeNull();
+
+    // Dấu chấm là dấu ngăn nghìn ở VI, không phải phần lẻ.
+    await userEvent.type(o, '.000');
+    expect(screen.queryByText(LOI_SO_LE)).toBeNull();
+
+    await userEvent.clear(o);
+    await userEvent.type(o, '5,0');
+    await userEvent.click(screen.getByRole('button', { name: 'Thêm vào danh mục' }));
+    expect(screen.getByText(LOI_SO_LE)).toBeTruthy();
+  });
+
+  it('ô số lượng mở bàn phím chỉ có chữ số trên điện thoại', async () => {
+    await moForm();
+    expect(screen.getByLabelText('Số cổ phiếu nắm giữ').getAttribute('inputmode')).toBe('numeric');
+  });
+
+  /*
+   * Ở EN, `1,500` là một nghìn năm trăm cổ phiếu. Trước 09/11/2026 ô này đọc nó thành 1,5 cổ phiếu
+   * mà không báo gì; với luật số nguyên mà không đổi cách đọc thì nó thành câu lỗi oan.
+   */
+  it('tiếng Anh: gõ 1,500 là 1.500 cổ phiếu, không bị báo là số lẻ', async () => {
+    window.localStorage.setItem(
+      PREFERENCES_STORAGE_KEY,
+      JSON.stringify({ mode: 'basic', locale: 'en', theme: 'light' }),
+    );
+    render(
+      <PreferencesProvider>
+        <PortfolioScreen />
+      </PreferencesProvider>,
+    );
+    await userEvent.click(await screen.findByRole('button', { name: 'Add new' }));
+    const form = await tamTrenCung();
+    await userEvent.click(within(form).getByRole('button', { name: 'Ticker' }));
+    const sheet = await tamTrenCung();
+    await userEvent.click(within(sheet).getAllByRole('button', { name: 'Pick' })[0] as HTMLElement);
+
+    // Ở EN phẩy là dấu ngăn nghìn: gõ suốt `1,500` không hiện câu lỗi nào.
+    await userEvent.type(screen.getByLabelText('Shares held'), '1,500');
+    expect(screen.queryByText('Re-enter: shares held must be a whole number.')).toBeNull();
+    await userEvent.type(screen.getByLabelText('Cost per share (₫)'), '60000');
+    await userEvent.click(screen.getByRole('button', { name: 'Add to portfolio' }));
+
+    // 1.500 × 60.000 ₫ = 90.000.000 ₫.
+    const von = (await screen.findByText('Invested')).parentElement;
+    expect(von?.textContent).toContain('90.000.000');
   });
 
   /*

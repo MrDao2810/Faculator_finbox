@@ -399,6 +399,7 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
 
   'portfolio.errCode': 'Pick a ticker first.',
   'portfolio.errQuantity': 'Enter the number of shares held, above 0.',
+  'portfolio.errQuantityWhole': 'Re-enter: shares held must be a whole number.',
   'portfolio.errCostPrice': 'Enter the cost per share, above 0.',
   'portfolio.errBuyDate': 'Purchase date must be today or in the past.',
   'portfolio.errBuyDateFormat':

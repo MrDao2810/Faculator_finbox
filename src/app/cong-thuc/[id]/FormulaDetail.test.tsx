@@ -30,7 +30,7 @@ import {
   serializeStoredSeries,
   t,
 } from '@/application';
-import type { BaiHuongDan, FormulaSpec, QuizItem } from '@/application';
+import type { BaiHuongDan, CauHoiThuongGap, FormulaSpec, QuizItem } from '@/application';
 import { DEFAULT_PREFERENCES, PREFERENCES_STORAGE_KEY } from '@/application/preferences';
 import { PreferencesProvider } from '@/application/preferences-context';
 /*
@@ -147,7 +147,15 @@ function nhomCua(spec: FormulaSpec) {
  * được đưa — còn việc 111 chuỗi `latex` có dựng nổi hay không thì không ai kiểm. Đi qua hàm thật
  * thì mọi ca dùng `Man` đều là một lượt kiểm KaTeX và khung cách tính kèm theo, miễn phí.
  */
-function Man({ spec, bai }: { spec: FormulaSpec; bai?: BaiHuongDan }) {
+function Man({
+  spec,
+  bai,
+  hoiDap,
+}: {
+  spec: FormulaSpec;
+  bai?: BaiHuongDan;
+  hoiDap?: ReadonlyArray<CauHoiThuongGap>;
+}) {
   let notation = notationCache.get(spec);
   if (notation === undefined) {
     notation = buildNotationView(spec);
@@ -167,6 +175,7 @@ function Man({ spec, bai }: { spec: FormulaSpec; bai?: BaiHuongDan }) {
       notation={notation}
       {...(thaySoCay === null ? {} : { thaySoCay })}
       {...(bai === undefined ? {} : { bai })}
+      {...(hoiDap === undefined ? {} : { hoiDap })}
     />
   );
 }
@@ -1647,15 +1656,27 @@ describe('WF-03 — bottom sheet chỉ dựng khi người dùng mở', () => {
  * tác) hay ra ngoài các khối có phần tử cần thoát khỏi hộp cha.
  */
 describe('WF-03 — khối dưới nếp gấp mang lớp hoãn dựng hình', () => {
-  it('bốn khối cuối màn có lớp; khối Số liệu, khối Ví dụ và khối Bài tập thì không', () => {
-    const { container } = render(<Man spec={specOf('pe')} />);
+  it('năm khối cuối màn có lớp; khối Số liệu, khối Ví dụ và khối Bài tập thì không', () => {
+    const motCau: ReadonlyArray<CauHoiThuongGap> = [
+      {
+        hoi: { vi: 'P/E âm có ý nghĩa gì không?', en: 'Does a negative P/E mean anything?' },
+        nguyenVan: 'P/E âm có nghĩa là gì?',
+        nguon: {
+          url: 'https://example.com/questions/pe-am',
+          ten: 'Nguồn thử',
+          noi: 'hoi-dap',
+          vietnam: true,
+        },
+      },
+    ];
+    const { container } = render(<Man spec={specOf('pe')} hoiDap={motCau} />);
 
     const hoan = [...container.querySelectorAll('[class*="deferred"]')];
-    // Giải thích · Bảng biến · Nguồn tham khảo · Biểu đồ.
+    // Giải thích · Bảng biến · Câu hỏi thường gặp · Nguồn tham khảo · Biểu đồ.
     // Khối Bài tập vào danh sách 23/09/2026 rồi ra lại 25/09/2026: hình công thức trong lời giải
     // của nó bật khung "cách tính" lấn ra ngoài hộp, và `contain: paint` của lớp này cắt cụt khung.
     // Khối Ví dụ thực tế ra theo đúng lý do ấy ngày 29/09/2026, khi nó in cùng hình lời giải.
-    expect(hoan).toHaveLength(4);
+    expect(hoan).toHaveLength(5);
 
     const soLieu = screen.getByRole('region', { name: t('detail.inputs') });
     expect(String(soLieu.className)).not.toMatch(/deferred/);
@@ -1667,6 +1688,10 @@ describe('WF-03 — khối dưới nếp gấp mang lớp hoãn dựng hình', (
     const viDu = container.querySelector('#khoi-vi-du')?.closest('section');
     expect(viDu).not.toBeNull();
     expect(String(viDu?.className)).not.toMatch(/deferred/);
+
+    const hoiDap = screen.getByRole('heading', { name: t('faq.title') }).closest('section');
+    expect(hoiDap).not.toBeNull();
+    expect(String(hoiDap?.className)).toMatch(/deferred/);
   });
 });
 
@@ -4859,5 +4884,63 @@ describe('chế độ EN: hình công thức và ký hiệu sang tiếng Anh', (
     const toan = [...document.querySelectorAll('math')].map((m) => m.textContent ?? '').join(' ');
     expect(toan).toContain('Tổng nợ phải trả');
     expect(toan).not.toContain('Total liabilities');
+  });
+});
+
+/*
+ * Khối "Câu hỏi thường gặp" (10/11/2026): chủ dự án chọn đặt SAU "Ví dụ thực tế", TRƯỚC "Nguồn tham
+ * khảo", và công thức chưa có câu nào thì không có khối. Dữ liệu thật đọc lúc build ở `page.tsx`; ca
+ * này dựng màn với bộ câu giả để chốt chỗ đứng.
+ */
+describe('khối Câu hỏi thường gặp trên màn chi tiết', () => {
+  const HAI_CAU: ReadonlyArray<CauHoiThuongGap> = [
+    {
+      hoi: { vi: 'P/E âm có ý nghĩa gì không?', en: 'Does a negative P/E mean anything?' },
+      nguyenVan: 'cho em hỏi P/E âm',
+      nguon: { url: 'https://example.com/threads/1', ten: 'F319', noi: 'dien-dan', vietnam: true },
+    },
+    {
+      hoi: { vi: 'Nên dùng EPS quá khứ hay dự phóng?', en: 'Trailing or forward EPS?' },
+      nguyenVan: 'trailing or forward EPS for P/E',
+      nguon: {
+        url: 'https://example.com/q/2',
+        ten: 'Money StackExchange',
+        noi: 'hoi-dap',
+        vietnam: false,
+      },
+      traLoi: { vi: 'Tuỳ mục đích so sánh.', en: 'It depends on the comparison.' },
+    },
+  ];
+
+  it('đứng sau Ví dụ thực tế và trước Nguồn tham khảo', () => {
+    const spec = specOf('pe');
+    render(
+      <FormulaDetail
+        spec={spec}
+        modules={nhomCua(spec)}
+        asOf={AS_OF}
+        notation={buildNotationView(spec)}
+        hoiDap={HAI_CAU}
+      />,
+    );
+    const tieuDe = screen.getAllByRole('heading', { level: 2 }).map((h) => h.textContent ?? '');
+    const viTri = (chu: string) => tieuDe.findIndex((x) => x === chu);
+    expect(viTri(t('faq.title'))).toBeGreaterThan(viTri(t('example.title')));
+    expect(viTri(t('faq.title'))).toBeLessThan(viTri(t('source.title')));
+    expect(screen.getByText('P/E âm có ý nghĩa gì không?')).not.toBeNull();
+    expect(screen.getByText(t('faq.noAnswer'))).not.toBeNull();
+  });
+
+  it('không có câu nào thì không có khối', () => {
+    const spec = specOf('pe');
+    render(
+      <FormulaDetail
+        spec={spec}
+        modules={nhomCua(spec)}
+        asOf={AS_OF}
+        notation={buildNotationView(spec)}
+      />,
+    );
+    expect(screen.queryByRole('heading', { name: t('faq.title') })).toBeNull();
   });
 });

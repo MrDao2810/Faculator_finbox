@@ -112,6 +112,21 @@ const LUAT: ReadonlyArray<{ ten: string; khop: (spec: string) => boolean; duocPh
     duocPhep: ['application/vi-du.ts'],
   },
   {
+    // Câu hỏi thường gặp của 111 công thức (10/11/2026) — mỗi trang chỉ cần phần của mình, cùng lẽ
+    // với lời giải ví dụ ngay trên. Xem docblock `src/core/hoi-dap/types.ts`.
+    ten: '@/application/hoi-dap',
+    khop: (spec) => spec === '@/application/hoi-dap',
+    duocPhep: ['app/cong-thuc/[id]/page.tsx'],
+  },
+  {
+    // Trừ module LÁ `types`: barrel `@/application` xuất KIỂU từ đó.
+    ten: 'src/core/hoi-dap',
+    khop: (spec) =>
+      (spec === '@/core/hoi-dap' || spec.startsWith('@/core/hoi-dap/')) &&
+      spec !== '@/core/hoi-dap/types',
+    duocPhep: ['application/hoi-dap.ts'],
+  },
+  {
     // Bài "Hướng dẫn sử dụng" của 111 công thức (WF-21, 02/10/2026). Ranh giới này nặng hơn ba cái
     // trên: dựng một bài phải CHẠY `calc` hàng trăm lượt (dò số phiên tối thiểu, lấy lại câu cảnh
     // báo thật), nên nó kéo theo cả Registry lẫn hàm tính. Xem `src/core/huong-dan/index.ts`.

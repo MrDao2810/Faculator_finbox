@@ -616,6 +616,10 @@ export { hasChoices, isAccepted } from '@/core/quiz/types';
 // `@/core/vi-du/types`, không từ chỉ mục (chỉ mục kéo theo chữ của cả 111 ví dụ).
 export type { ViDuGiai, ViDuNguon } from '@/core/vi-du/types';
 
+// KIỂU câu hỏi thường gặp (10/11/2026) — cùng lẽ: dữ liệu chỉ có ở `@/application/hoi-dap`, đọc lúc
+// build; giao diện chỉ cần kiểu để nhận prop.
+export type { CauHoiThuongGap, NguonTraLoi, NoiHoiNguon } from '@/core/hoi-dap/types';
+
 export type { QuizProgress } from './quiz-progress';
 export {
   MAX_QUIZ_ENTRIES,

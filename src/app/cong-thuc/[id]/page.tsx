@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
 import { FORMULAS, findCategory, groupOfFormula } from '@/application';
+import { hoiDapFor } from '@/application/hoi-dap';
 import { baiHuongDanFor } from '@/application/huong-dan';
 import { expressionShape } from '@/application/quiz-math';
 import { substitutionShape } from '@/application/thay-so';
@@ -133,6 +134,11 @@ export default async function FormulaDetailPage({ params }: { params: Promise<{ 
   const thaySoCay = substitutionShape(formula);
   const bai = baiHuongDanFor(formula.id, AS_OF);
   /*
+   * Câu hỏi thường gặp (10/11/2026) — cùng khuôn `viDu`: chữ của cả thư viện chỉ đọc ở đây, trang
+   * này mang đúng phần của mình, đã sắp câu Việt Nam lên trước. Rỗng thì không truyền gì.
+   */
+  const hoiDap = hoiDapFor(formula.id);
+  /*
    * Nhóm của công thức (28/10/2026): vỏ `FormulaDetailHost` nạp động đúng một file nhóm thay vì cả
    * Registry, và lấy `spec` từ chính module ấy — nên `spec` không đi qua RSC nữa. Xem docblock của vỏ.
    */
@@ -152,6 +158,7 @@ export default async function FormulaDetailPage({ params }: { params: Promise<{ 
         {...(viDuCay === undefined ? {} : { viDuCay })}
         {...(thaySoCay === null ? {} : { thaySoCay })}
         {...(bai === undefined ? {} : { bai })}
+        {...(hoiDap.length === 0 ? {} : { hoiDap })}
       />
     </>
   );

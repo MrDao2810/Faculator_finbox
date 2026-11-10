@@ -511,6 +511,74 @@ check(
 );
 
 /*
+ * ── Câu hỏi thường gặp (10/11/2026) ──────────────────────────────────────
+ *
+ * Cùng bất biến với hai khối ngay trên: câu hỏi của cả thư viện chỉ đọc lúc build qua
+ * `@/application/hoi-dap`, mỗi trang mang phần của mình — xem docblock `src/core/hoi-dap/types.ts`.
+ * Mẫu là các câu hiển thị (`hoi.vi`) trong `src/core/hoi-dap/items/`.
+ */
+const DIR_HOI_DAP = 'src/core/hoi-dap/items';
+const fileHoiDap = existsSync(DIR_HOI_DAP)
+  ? readdirSync(DIR_HOI_DAP).filter((ten) => ten.endsWith('.ts') && ten !== 'index.ts')
+  : [];
+/** `id → câu hỏi (vi)` đọc từ mã nguồn: khối của mỗi id mở bằng `'id': [` hoặc `id: [`. */
+const hoiTheoId = new Map();
+/** Như trên nhưng chỉ câu ĐÃ có `traLoi`: câu chưa trả lời không ra màn nên không có trong HTML. */
+const hoiDaTraLoiTheoId = new Map();
+for (const ten of fileHoiDap) {
+  const nguon = readFileSync(join(DIR_HOI_DAP, ten), 'utf8');
+  const khoi = [...nguon.matchAll(/\n {2}'?([a-z0-9-]+)'?: \[/g)];
+  khoi.forEach((m, i) => {
+    const het = khoi[i + 1]?.index ?? nguon.length;
+    const doan = nguon.slice(m.index, het);
+    const cau = [...doan.matchAll(/hoi: \{\s*vi:\s*'((?:[^'\\]|\\.){15,}?)'/g)].map((x) =>
+      x[1].replace(/\\'/g, "'"),
+    );
+    if (cau.length > 0) hoiTheoId.set(m[1], cau);
+    const daTraLoi = doan
+      .split(/(?=\n {4}\{\n {6}hoi: )/)
+      .filter((muc) => muc.includes('traLoi:'))
+      .flatMap((muc) =>
+        [...muc.matchAll(/hoi: \{\s*vi:\s*'((?:[^'\\]|\\.){15,}?)'/g)].map((x) =>
+          x[1].replace(/\\'/g, "'"),
+        ),
+      );
+    if (daTraLoi.length > 0) hoiDaTraLoiTheoId.set(m[1], daTraLoi);
+  });
+}
+const tatCaHoi = [...hoiTheoId.values()].flat();
+const hoiRoVaoJs = existsSync('out/_next/static')
+  ? tatCaFile('out/_next/static', '.js').filter((file) => {
+      const noiDung = giaiMa(readFileSync(file, 'utf8'));
+      return tatCaHoi.some((cau) => noiDung.includes(cau));
+    })
+  : ['không thấy out/_next/static'];
+check(
+  'chữ câu hỏi thường gặp không lọt vào file JS nào',
+  tatCaHoi.length > 0 && hoiRoVaoJs.length === 0,
+  hoiRoVaoJs.length === 0 ? `${String(tatCaHoi.length)} câu, 0 file JS` : hoiRoVaoJs.join(', '),
+);
+
+/** React thoát `& < > " '` trong chữ của HTML. */
+const thoatHtml = (s) =>
+  s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#x27;');
+const hoiPe = hoiDaTraLoiTheoId.get('pe') ?? [];
+const hoiRoe = new Set(hoiDaTraLoiTheoId.get('roe') ?? []);
+check(
+  'câu hỏi thường gặp của một công thức chỉ nằm trong HTML trang của chính nó',
+  hoiPe.length > 0 &&
+    hoiPe.every((cau) => detailHtml.includes(thoatHtml(cau))) &&
+    roeHtml !== '' &&
+    !hoiPe.some((cau) => !hoiRoe.has(cau) && roeHtml.includes(thoatHtml(cau))),
+  `out/cong-thuc/pe/index.html (${String(hoiPe.length)} câu) · out/cong-thuc/roe/index.html`,
+);
+
+/*
  * ── Bài "Hướng dẫn sử dụng" từng công thức (WF-21, 02/10/2026) ───────────
  *
  * Khác ba khối ngay trên, phép kiểm ở đây KHÔNG đi tìm chữ rò vào gói JS — và đó là một điểm đáng

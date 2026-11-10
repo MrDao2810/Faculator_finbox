@@ -44,3 +44,6 @@ export type { MarkSource, SourceMarkProps } from './SourceMark';
 export { StatTile } from './StatTile';
 export type { StatTileProps } from './StatTile';
 export { coChoNgat } from './number-breaks';
+
+export { FaqBlock, FAQ_HIEN_TRUOC } from './FaqBlock';
+export type { FaqBlockProps } from './FaqBlock';

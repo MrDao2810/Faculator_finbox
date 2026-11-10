@@ -1,6 +1,92 @@
 # TASK — Nền tảng kỹ thuật & khung điều hướng
 
+**Rà song ngữ khối FAQ (10/11/2026):** đối chiếu 225 cặp VI/EN đã trả lời. Sửa 18 chỗ: bỏ mã nội bộ lộ ra màn (`DIVIDE_BY_ZERO`, `MEANINGLESS` ở `ev-sales`, `so-graham`) thành chữ thường; bỏ chữ "spec" (`ty-so-calmar`, `ty-so-thang-thua`); "reports meaningless" thành "reports a meaningless result"; 5 câu hỏi EN sai ngữ pháp; "hòa vốn" thành "hoà vốn" cho khớp sản phẩm. Chưa rà: chuỗi giao diện chung ngoài khối FAQ.
+
 Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
+
+---
+
+## Tiếng Anh: "Pick" → "Select" ở các nhãn chọn (10/11/2026)
+
+**Trạng thái: CHƯA XONG** (chờ chủ dự án xem). Chủ dự án chụp cột nút "Pick" của bảng chọn mã ở chế độ EN: _"khi chuyển
+sang tiếng anh thì không nhất thiết là chuyển "Chọn" thành "Pick" cả … nó là "Select" hoặc từ tiếng anh nào đó hay
+hơn"_. Bảy nhãn dịch từ "Chọn …" đổi sang "Select" cho đồng bộ một từ, không chỉ cái nút:
+
+- `src/application/i18n/en.ts`: `ticker.pick` "Select", `ticker.title` "Select a ticker", `portfolio.pickCode` "Select
+  a ticker", `portfolio.pickFormula` "Select a formula", `portfolio.pickCodeFirst` "Select a ticker first",
+  `portfolio.errCode` "Select a ticker first.", `date.openCalendar` "Select a date on the calendar". Tên khoá giữ.
+- `src/app/danh-muc/PortfolioScreen.test.tsx`: một ca tìm nút theo chữ `'Pick'` → `'Select'`.
+- Không đổi: các câu văn có "pick another ticker / pick another chart" trong lời cảnh báo (`en.ts` dòng ~188, ~202,
+  `chart/build.ts`, `chart/dang-ve.ts`); đó là câu hướng dẫn, tiếng Anh tự nhiên, không phải nhãn.
+- Đo trên dev :3000, EN, bảng chọn mã mở từ "Load sample" của `pe`: nút 50 × 28px ở 360 và 390, 65 × 36px ở 1440, chữ
+  không xuống dòng, hàng vẫn 40px ở điện thoại, không cuộn ngang.
+- Kiểm tra: vitest `PortfolioScreen`, `src/ui/sheets`, `src/application/i18n`, `FormulaDetail` — 605 ca xanh.
+
+## Khối "Câu hỏi thường gặp" cho 111 công thức (10/11/2026)
+
+**Trạng thái: ĐANG LÀM.** Chủ dự án: _"hiển thị câu hỏi thường gặp của từng công thức, câu hỏi phải là câu hỏi thật
+của công thức đó. hãy tìm cả ở việt nam lẫn nước ngoài, ưu tiên Việt Nam trước"_. Khi được hỏi, chốt: khối đặt sau
+"Ví dụ thực tế", trước "Nguồn tham khảo"; câu hỏi thật = câu người thật hỏi trên diễn đàn / hỏi đáp (ưu tiên), hoặc
+trong mục ghi rõ "Câu hỏi thường gặp" của trang tài chính; câu nào chưa có câu trả lời thì để trống, chủ dự án quyết
+sau, trên màn vẫn hiện và ghi "Chưa có trả lời"; tìm càng nhiều càng tốt, hiện 5 câu đầu + "Xem thêm N câu".
+
+Mã (xong, test xanh):
+
+- `src/core/hoi-dap/` (mới): `types.ts` (`CauHoiThuongGap`: `hoi` song ngữ, `nguyenVan` để mở lại link kiểm, `nguon`,
+  `traLoi?`, `nguonTraLoi?`), `kiem.ts` (`hoiDapProblems()`: https, không link dữ liệu thô, không trỏ trang chủ, đủ
+  hai thứ tiếng, "?", không gạch dài, EN không dấu, không khuyên mua/bán, không trùng câu), `index.ts` (`hoiDapFor()`
+  xếp câu Việt Nam trước), `items/` (một file mỗi nhóm công thức), `hoi-dap.test.ts` (dây báo số câu).
+- `src/application/hoi-dap.ts` (mới, build-only), `src/application/index.ts` (chỉ xuất kiểu).
+- `src/ui/result/FaqBlock.tsx` + `.module.css` + `.test.tsx` (mới): `<details>` gập sẵn cùng dáng "Giải thích cho
+  người mới", "Chưa có trả lời", link "Câu hỏi gốc", câu thứ 6 trở đi `hidden` sau nút "Xem thêm N câu" / "Thu gọn".
+- `src/app/cong-thuc/[id]/page.tsx`, `FormulaDetail.tsx`: prop `hoiDap`, khối đứng sau `ExampleBlock` trong `.aside`.
+- `src/application/i18n/vi.ts`, `en.ts`: sáu khoá `faq.*`.
+- Gác: `build-only-imports.test.ts` (hai luật mới), `scripts/verify-static.mjs` (hai phép kiểm: câu hỏi không lọt vào
+  JS, câu của `pe` chỉ ở HTML trang `pe`), hai ca mới trong `FormulaDetail.test.tsx` (chỗ đứng, không có câu thì
+  không có khối).
+
+**Câu TỰ SOẠN cho 29 công thức không tìm được câu thật (10/11/2026, chủ dự án):** _"bạn tự đọc công thức rồi nghĩ xem sẽ
+có các loại câu hỏi nào sẽ gặp"_ (đảo yêu cầu đầu "câu hỏi phải là câu hỏi thật", khi được hỏi chọn: không ghi nguồn ngoài,
+chỉ 29 công thức chưa có câu nào). `CauHoiThuongGap.tuSoan: true`: KHÔNG có `nguon` / `nguyenVan`, `traLoi` bắt buộc,
+màn không in dòng "Nguồn:", `hoiDapFor()` xếp sau câu thật. `kiem.ts` bắt đúng khuôn (câu thật phải có nguồn, câu tự soạn
+phải có trả lời và không nguồn). 4 agent soạn (đọc latex, calc, commonMistakes, ví dụ; câu trả lời bám calc, mọi con số kiểm
+bằng node) và 4 agent phản biện độc lập: soạn 123 câu, giữ 120 (sửa nhiều chỗ sai thật: Calmar "lợi suất năm không đặc biệt",
+`roi-rong` "giá mua 0 và phí 0", `loi-suat-vuot-chuan` báo lỗi hai ô, `gia-hoa-von` "gần như không đổi"; loại 3). Dữ liệu
+giờ **303 câu / 225 đã trả lời / 111 trên 111 công thức có câu**; **81 công thức hiện khối FAQ**, 30 công thức chỉ có câu
+thật chưa trả lời nên khối vẫn ẩn (chủ dự án không chọn soạn trả lời cho nhóm này). Câu tự soạn thay bằng câu thật khi
+tìm được. Chưa xem tận mắt; chưa có mục CLAUDE.md.
+
+**Câu chưa có trả lời bị ẨN khỏi màn (10/11/2026, chủ dự án đảo quyết định cũ):** _"ko có câu trả lời thì tạm thời ẩn
+đi, không cần hiển thị"_ (đã chọn hiện kèm "Chưa có trả lời", rồi thấy nó trên màn). `hoiDapFor()` chỉ trả câu có `traLoi`;
+câu chưa trả lời vẫn nằm trong `items/` và tự hiện khi điền `traLoi`. Công thức không còn câu đã trả lời thì không có
+khối. `FaqBlock` còn nhánh "Chưa có trả lời" nhưng không còn đường nào đưa câu như vậy tới nó (giữ để hồi lại nếu cần).
+`verify:static` chỉ đòi câu ĐÃ trả lời của `pe` nằm trong HTML. Đợt 3 (tìm sâu 53 công thức còn trống, 5 agent tìm + 3 phản
+biện): dữ liệu lên 183 câu / 105 đã trả lời / 82 công thức có câu; trên màn chỉ hiện 105 câu đã trả lời.
+
+Dữ liệu (đợt 1 và 2 xong, 10/11/2026): 148 câu / 92 đã có trả lời / 62 công thức, trong 14 file `items/`. Mỗi nhóm có agent
+tìm (chỉ nhận câu mở được trang và thấy chữ trên trang) và agent phản biện mở lại từng link, đối chiếu `calc`; JSON
+đã phản biện chuyển thành `items/*.ts` bằng script trong scratchpad (loại trùng theo câu hỏi và theo nguồn).
+
+- **Đợt 1** (mục FAQ tiếng Việt: Finhay, Taca, Thư Viện Chứng Khoán, DSC, SSI, MoMo, Techcombank, đầu thread Voz/Tinhte): 95 câu.
+- **Đợt 2** (sau khi tìm ra nguyên nhân bị chặn): +53 câu nước ngoài. Money và Quant StackExchange qua **API chính
+  thức** `api.stackexchange.com` (HTML 403 vì chặn bot, API 200); nguyenVan là đúng title API, link là trường `link`.
+  Phản biện cũng kiểm bằng API. Hạn mức ~300 yêu cầu/ngày/IP, dùng chung các agent.
+- **Vẫn không mở được:** f319.com, reddit.com, investopedia.com, forum.bogleheads.org (DNS nhà mạng không phân giải;
+  lỗi ở mạng, cách duy nhất là đổi DNS/VPN trên máy chủ dự án), help.tcbs và support.vndirect (403), luatminhkhue,
+  thuvienphapluat (403). Không giả User-Agent để qua kiểm tra bot (hệ thống đã chặn khi thử).
+- **Chưa có câu nào (49 công thức):** toàn bộ phí và thuế (`fees`: bài pháp lý dẫn Thông tư 111/2013, `schedules.ts` đã
+  sang Luật 109/2025 từ 01/07/2026; phí lưu ký nguồn nói 0,297 đồng, repo 0,27), `corporate`, `fcfe`, `gia-tri-hien-tai`,
+  `gia-tri-tuong-lai`, 7 công thức risk, 5 công thức returns, DCA, và vài công thức kỹ thuật.
+- **Chờ chủ dự án quyết:** 56 câu để trống `traLoi` (ngưỡng, ý kiến, lời khuyên bán, lệch với `calc`). Câu P/B "Tại
+  sao P/B quan trọng?" đang trống. Câu margin of safety (Money SE 142454) đã bỏ trả lời vì nguồn chỉ có đáp án 1 điểm chưa
+  được chấp nhận. Một câu terminal value (148546) dùng chung cho ba công thức DCF.
+- Nguyên văn nhiều câu Finhay/Taca là chuỗi WebFetch trả về (bản tóm tắt), chưa dò từng chữ trên HTML thô.
+
+Kiểm: vitest toàn bộ xanh (hai ca quá 5 giây khi chạy cả bộ, qua khi chạy riêng), tsc, eslint, prettier sạch; build
+trên bản sao: `verify:static` 58/58; `size` vẫn đỏ ở cổng 180 kB như trước khối này (`pe` 236,6 kB, `roe` 247,8 kB).
+Chưa xem tận mắt ở 390 và 1440.
+
+**Còn lại:** xem tận mắt; mục CLAUDE.md; chủ dự án quyết các câu để trống; tìm tiếp khi có DNS/VPN hoặc link thread.
 
 ---
 

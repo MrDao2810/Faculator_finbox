@@ -1,0 +1,172 @@
+/*
+ * Khối "Câu hỏi thường gặp" (10/11/2026). Hàng câu hỏi cùng dáng `ExplanationAccordion` — một khuôn
+ * cho mọi danh sách gập của màn chi tiết — chỉ khác ở chỗ GẬP SẴN: khối này có thể dài 10–20 câu,
+ * còn ba mục giải thích thì luôn mở.
+ */
+
+.block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+/* Cùng cỡ tiêu đề "Ví dụ thực tế" và "Giải thích cho người mới" ngay quanh nó. */
+.title {
+  font-size: var(--text-md);
+  font-weight: var(--weight-bold);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.item {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+/*
+ * `hidden` của trình duyệt là `display: none` ở tầng mặc định; ghi lại ở đây để không lớp nào của tác
+ * giả về sau lỡ tay thắng nó (bẫy `.list[hidden]` của `ConstantsNote`).
+ */
+.list > .item[hidden] {
+  display: none;
+}
+
+/* Vùng chạm tối thiểu 44px cho cả hàng câu hỏi — NFR-USA-01. */
+.summary {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+
+  min-height: var(--tap-min);
+  padding: var(--space-2) var(--space-4);
+
+  font-size: var(--text-base);
+  font-weight: var(--weight-medium);
+  color: var(--color-ink);
+  cursor: pointer;
+  list-style: none;
+}
+
+.summary::-webkit-details-marker {
+  display: none;
+}
+
+/* Dấu gập/mở bằng ký tự, như `ExplanationAccordion`: đổi hình theo trạng thái, không chỉ đổi màu. */
+.summary::after {
+  content: '＋';
+  flex-shrink: 0;
+  margin-left: auto;
+  font-size: var(--text-sm);
+  color: var(--color-accent);
+}
+
+.item[open] .summary::after {
+  content: '−';
+}
+
+.item[open] .summary {
+  font-weight: var(--weight-bold);
+  border-bottom: 1px solid var(--color-hairline);
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+}
+
+.answer,
+.noAnswer,
+.source {
+  margin: 0;
+}
+
+.answer {
+  font-size: var(--text-sm);
+  color: var(--color-ink-soft);
+}
+
+/* Câu chưa có trả lời: chữ nhạt nghiêng, đọc ra là một trạng thái chứ không phải câu trả lời. */
+.noAnswer {
+  font-size: var(--text-sm);
+  font-style: italic;
+  color: var(--color-muted);
+}
+
+.source {
+  min-width: 0;
+  font-size: var(--text-xs);
+  color: var(--color-muted);
+}
+
+.answerLabel {
+  font-weight: var(--weight-medium);
+}
+
+.sourceLabel {
+  font-weight: var(--weight-medium);
+}
+
+/* Link nguồn: một dòng, tự cắt bằng "…" ở mép chỗ trống thật (luật của `shortUrl`). */
+.source a {
+  display: inline-block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: bottom;
+  font-weight: var(--weight-medium);
+  color: var(--color-accent);
+}
+
+/* Nút chữ "Xem thêm N câu" / "Thu gọn", dạt trái theo mép danh sách. */
+.block > .more {
+  align-self: flex-start;
+  min-height: 32px;
+  font-size: var(--text-sm);
+}
+
+/* Dưới 1024px: cùng các số đã chốt cho `ExplanationAccordion` (19–20/10/2026). */
+@media (max-width: 1023.98px) {
+  .title {
+    font-size: var(--text-base);
+  }
+
+  .summary {
+    position: relative;
+    min-height: 36px;
+    padding: var(--space-1) var(--space-3);
+    font-size: var(--text-sm);
+  }
+
+  /* Vùng chạm vẫn 44px, lấn 4px lên và 4px xuống; giữa hai hàng gập có 10px nên không đè nhau. */
+  .summary::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: 0;
+    left: 0;
+    height: var(--tap-min);
+    transform: translateY(-50%);
+  }
+
+  .body {
+    padding: var(--space-2) var(--space-3);
+  }
+
+  .answer,
+  .noAnswer {
+    font-size: var(--text-xs);
+  }
+
+  .block > .more {
+    min-height: 28px;
+    font-size: var(--text-xs);
+  }
+}

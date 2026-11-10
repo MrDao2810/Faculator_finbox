@@ -97,6 +97,7 @@ import { CongThucDien } from '@/ui/quiz/CongThucDien';
 import type {
   BaiHuongDan,
   Bilingual,
+  CauHoiThuongGap,
   HinhDangXem,
   ThaySoCay,
   MucId,
@@ -126,6 +127,7 @@ import {
   ErrorState,
   ExampleBlock,
   ExplanationAccordion,
+  FaqBlock,
   ResultBlock,
   SourceBlock,
   SourceMark,
@@ -174,6 +176,7 @@ import styles from './FormulaDetail.module.css';
 const MemoExplanationAccordion = memo(ExplanationAccordion);
 const MemoVariableTable = memo(VariableTable);
 const MemoExampleBlock = memo(ExampleBlock);
+const MemoFaqBlock = memo(FaqBlock);
 const MemoSourceBlock = memo(SourceBlock);
 const MemoQuizPanel = memo(QuizPanel);
 const MemoConstantsNote = memo(ConstantsNote);
@@ -350,6 +353,12 @@ export interface FormulaDetailProps {
    * chỉ không mở được panel. Đó cũng đúng là hành vi khi JavaScript chưa tải xong.
    */
   bai?: BaiHuongDan;
+  /**
+   * Câu hỏi thường gặp của công thức này (10/11/2026), đã sắp Việt Nam trước — đọc lúc build ở
+   * `page.tsx` qua `@/application/hoi-dap`, cùng lý do với `viDu`. Vắng (công thức chưa có câu
+   * nào) thì khối không dựng. Xem docblock `src/core/hoi-dap/types.ts`.
+   */
+  hoiDap?: ReadonlyArray<CauHoiThuongGap>;
 }
 
 /* `'preset'` rời danh sách 09/11/2026: "Nạp mẫu" mở thẳng sheet chọn mã — xem `openTickerPicker()`. */
@@ -469,6 +478,7 @@ export function FormulaDetail({
   viDuCay,
   thaySoCay,
   bai,
+  hoiDap,
 }: FormulaDetailProps) {
   const { mode, feeScheduleId, locale } = usePreferences();
   const t = useT();
@@ -3741,6 +3751,16 @@ export function FormulaDetail({
             kyHieu={quizKyHieu}
             {...(viDuCay === undefined ? {} : { thaySoCay: viDuCay })}
           />
+
+          {/*
+            ── 9b. Câu hỏi thường gặp (10/11/2026) ─────────────────────────────────
+            Sau Ví dụ, trước Nguồn — chủ dự án chọn: đọc xong công thức và ví dụ rồi mới tới thắc mắc.
+            `hoiDap` đến từ server nên giữ nguyên tham chiếu giữa các lượt dựng; `memo` bỏ qua khối
+            này ở mỗi phím gõ. Công thức chưa có câu nào thì không dựng gì.
+          */}
+          {hoiDap !== undefined && hoiDap.length > 0 && (
+            <MemoFaqBlock items={hoiDap} formulaId={spec.id} className={styles.deferred} />
+          )}
         </div>
       </div>
 

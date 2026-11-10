@@ -333,6 +333,18 @@ export const vi = {
    * của bài tập. Xem `LoiGiai.tsx`.
    */
   'example.docKetQua': 'Đọc kết quả',
+  /*
+   * Khối "Câu hỏi thường gặp" (10/11/2026), giữa Ví dụ thực tế và Nguồn tham khảo — xem docblock
+   * `src/core/hoi-dap/types.ts`. `faq.noAnswer` là chữ của câu chưa có câu trả lời: chủ dự án chọn
+   * để câu ấy vẫn hiện cho khách, và quyết câu trả lời sau. `{n}` là số câu còn ẩn.
+   */
+  'faq.title': 'Câu hỏi thường gặp',
+  'faq.noAnswer': 'Chưa có trả lời',
+  'faq.answerLabel': 'Trả lời:',
+  'faq.askedAt': 'Nguồn:',
+  'faq.answerSource': 'Nguồn trả lời:',
+  'faq.more': 'Xem thêm {n} câu',
+  'faq.less': 'Thu gọn',
   'source.title': 'Nguồn tham khảo',
   /*
    * ── Cả nhóm `flow.*` đã BỎ ngày 16/09/2026 ─────────────────────────────────

@@ -157,6 +157,14 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   /* Label before `example.source` — see `vi.ts`. */
   'example.source': 'Source:',
   'example.docKetQua': 'Reading the result',
+  /* Khối "Câu hỏi thường gặp" — xem `vi.ts`. */
+  'faq.title': 'Frequently asked questions',
+  'faq.noAnswer': 'No answer yet',
+  'faq.answerLabel': 'Answer:',
+  'faq.askedAt': 'Source:',
+  'faq.answerSource': 'Answer source:',
+  'faq.more': 'Show {n} more',
+  'faq.less': 'Show less',
   'source.title': 'References',
   /* Cả nhóm `flow.*` và `chain.intro` đã bỏ cùng hình vẽ chuỗi — xem lý do ở `vi.ts`. */
 
@@ -371,7 +379,7 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
     'market. It cannot be computed automatically yet because that needs return series for both the ' +
     'stock and the index; enter it by hand if you already have it.',
   /* `portfolio.priceNote` đã bỏ cùng bản tiếng Việt — xem lý do ở `vi.ts`. */
-  'portfolio.pickCode': 'Pick a ticker',
+  'portfolio.pickCode': 'Select a ticker',
   'portfolio.priceLoading': 'Fetching market prices…',
   'portfolio.priceFailed': 'Could not fetch market prices from Finbox.',
   'portfolio.priceRetry': 'Try again',
@@ -393,7 +401,7 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
    * Nguyên văn ba câu và lý do ở bia mộ trong `vi.ts`.
    */
 
-  'portfolio.errCode': 'Pick a ticker first.',
+  'portfolio.errCode': 'Select a ticker first.',
   'portfolio.errQuantity': 'Enter the number of shares held, above 0.',
   'portfolio.errQuantityWhole': 'Re-enter: shares held must be a whole number.',
   'portfolio.errCostPrice': 'Enter the cost per share, above 0.',
@@ -415,9 +423,9 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'portfolio.priceNone': 'No market price found for any ticker yet.',
   /* "Add", không phải "Run": ô này CHỌN công thức để đính kèm, việc tính xảy ra sau khi lưu. */
   'portfolio.formulas': 'Add a formula',
-  'portfolio.pickFormula': 'Pick a formula',
+  'portfolio.pickFormula': 'Select a formula',
   /* `portfolio.formulaHint` đã xoá cùng bản Việt (14/09/2026) — xem lý do ở `vi.ts`. */
-  'portfolio.pickCodeFirst': 'Pick a ticker first',
+  'portfolio.pickCodeFirst': 'Select a ticker first',
   /* `portfolio.formulaNeedsCode` đã xoá cùng bản Việt (22/09/2026) — xem bia mộ ở `vi.ts`. */
   'portfolio.formSubmitOpen': 'Add and open the formula',
   'portfolio.formSaveOpen': 'Save and open the formula',
@@ -449,11 +457,11 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'portfolio.savedStatReload': 'Series to reload',
   'portfolio.savedStatLast': 'Last saved',
 
-  'ticker.title': 'Pick a ticker',
+  'ticker.title': 'Select a ticker',
   /* `ticker.subtitle` đã xoá cùng bản Việt (22/09/2026) — xem bia mộ ở `vi.ts`. */
   'ticker.searchLabel': 'Search by code or company name',
   'ticker.searchPlaceholder': 'Search…',
-  'ticker.pick': 'Pick',
+  'ticker.pick': 'Select',
   'ticker.held': 'Already held',
   'ticker.noData': 'No fundamentals',
   'ticker.noDataStale': 'May lack fundamentals',
@@ -531,7 +539,7 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'xirr.rowLabel': 'Row',
   /* `xirr.usable` bỏ 15/10/2026 cùng bản Việt — lý do ở `vi.ts`. */
 
-  'date.openCalendar': 'Pick a date on the calendar',
+  'date.openCalendar': 'Select a date on the calendar',
 
   'paste.title': 'Data table',
   'paste.sample': 'Sample data',

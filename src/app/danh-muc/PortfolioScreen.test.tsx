@@ -1400,7 +1400,9 @@ describe('WF-06 — form không được hỏng trong im lặng', () => {
     const form = await tamTrenCung();
     await userEvent.click(within(form).getByRole('button', { name: 'Ticker' }));
     const sheet = await tamTrenCung();
-    await userEvent.click(within(sheet).getAllByRole('button', { name: 'Pick' })[0] as HTMLElement);
+    await userEvent.click(
+      within(sheet).getAllByRole('button', { name: 'Select' })[0] as HTMLElement,
+    );
 
     // Ở EN phẩy là dấu ngăn nghìn: gõ suốt `1,500` không hiện câu lỗi nào.
     await userEvent.type(screen.getByLabelText('Shares held'), '1,500');

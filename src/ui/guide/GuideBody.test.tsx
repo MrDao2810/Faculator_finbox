@@ -49,23 +49,16 @@ const BOC_TACH: KhoiBieuDoBai = {
   canChuoi: false,
 };
 
-function hinh(
-  khoa: string | null,
-  dang: HinhDangXem['dang'] = 'duong',
-  daVe = true,
-  hinhChuoi = false,
-): HinhDangXem {
-  return { khoa, dang, daVe, hinhChuoi };
+function hinh(khoa: string | null, dang: HinhDangXem['dang'] = 'duong', daVe = true): HinhDangXem {
+  return { khoa, dang, daVe };
 }
 
 afterEach(cleanup);
 
 describe('khoiDangXem — khung "?" chọn khối của hình đang hiện', () => {
-  it('hình theo chuỗi giá (chưa có chữ) thì im lặng — không rơi về khối đầu', () => {
-    expect(
-      khoiDangXem([GIA, THOI_GIAN], hinh('__distribution', 'cot', true, true)),
-    ).toBeUndefined();
-    expect(khoiDangXem([GIA, THOI_GIAN], hinh('__drawdown', 'duong', true, true))).toBeUndefined();
+  it('mục đang hiện mà bài không có khối thì im lặng — không rơi về khối đầu', () => {
+    expect(khoiDangXem([GIA, THOI_GIAN], hinh('__distribution', 'cot'))).toBeUndefined();
+    expect(khoiDangXem([GIA, THOI_GIAN], hinh('__drawdown', 'duong'))).toBeUndefined();
   });
 
   it('tra đúng khối theo khoá của mục đang chọn ở ô chọn trục', () => {
@@ -91,8 +84,8 @@ describe('khoiDangXem — khung "?" chọn khối của hình đang hiện', () 
     expect(xem?.chuaVe).toBe(true);
   });
 
-  it('một khoá không có khối chữ thì rơi về khối đầu chứ không để khung trống', () => {
-    expect(khoiDangXem([GIA, THOI_GIAN], hinh('khong-co'))?.khoi).toBe(GIA);
+  it('một khoá không có khối chữ thì im, không in chữ của hình mở ra', () => {
+    expect(khoiDangXem([GIA, THOI_GIAN], hinh('khong-co'))).toBeUndefined();
   });
 
   /*
@@ -157,7 +150,8 @@ describe('khoiDangXem — khung "?" chọn khối của hình đang hiện', () 
 
     it('khoá không phải tiền tố cộng một số thì không khớp mẫu', () => {
       for (const khoa of ['price', 'priceX', 'price04', 'amount4']) {
-        expect(khoiDangXem([GIA_DOT_3], hinh(khoa), [MAU])?.khoi, khoa).toBe(GIA_DOT_3);
+        // Không khớp mẫu và không có khối cùng khoá thì im (10/11/2026), không rơi về khối đầu.
+        expect(khoiDangXem([GIA_DOT_3], hinh(khoa), [MAU]), khoa).toBeUndefined();
       }
     });
   });

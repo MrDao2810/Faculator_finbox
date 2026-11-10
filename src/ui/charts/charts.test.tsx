@@ -3088,7 +3088,7 @@ describe('Loại biểu đồ — ô chọn dạng vẽ', () => {
     expect(vanh?.textContent).toContain('Vốn chủ sở hữu (E)');
     expect(cacDang()).toEqual(['Vành khuyên', 'Thanh ngang']);
     // Khung "?" nay hiện với mục này: nó có đoạn hướng dẫn riêng (04/11/2026).
-    expect(bao.mock.calls.at(-1)?.[0]).toMatchObject({ khoa: '__composition', hinhChuoi: false });
+    expect(bao.mock.calls.at(-1)?.[0]).toMatchObject({ khoa: '__composition' });
 
     await chonDang('Thanh ngang');
     expect(container.querySelector('svg[data-donut]')).toBeNull();
@@ -3457,28 +3457,27 @@ describe('báo hình đang hiện lên màn chi tiết', () => {
     const { bao } = drawBao('pe');
 
     expect(bao).toHaveBeenCalledTimes(1);
-    expect(loiBaoCuoi(bao)).toEqual({ khoa: 'price', dang: 'duong', daVe: true, hinhChuoi: false });
+    expect(loiBaoCuoi(bao)).toEqual({ khoa: 'price', dang: 'duong', daVe: true });
   });
 
   it('chọn Cột rồi đổi mục ở ô chọn: mỗi lần đổi báo đúng hình mới', async () => {
     const { bao } = drawBao('pe');
 
     await userEvent.selectOptions(screen.getByLabelText('Loại biểu đồ'), 'Cột');
-    expect(loiBaoCuoi(bao)).toEqual({ khoa: 'price', dang: 'cot', daVe: true, hinhChuoi: false });
+    expect(loiBaoCuoi(bao)).toEqual({ khoa: 'price', dang: 'cot', daVe: true });
 
     await userEvent.selectOptions(screen.getByLabelText('Xem theo'), 'eps');
     // Lối vẽ là sở thích đọc của người dùng, không đặt lại khi đổi trục — lời báo cũng phải thế.
-    expect(loiBaoCuoi(bao)).toEqual({ khoa: 'eps', dang: 'cot', daVe: true, hinhChuoi: false });
+    expect(loiBaoCuoi(bao)).toEqual({ khoa: 'eps', dang: 'cot', daVe: true });
     expect(bao).toHaveBeenCalledTimes(3);
   });
 
-  it('hình theo chuỗi giá báo cờ hinhChuoi để khung "?" im và nút "?" ẩn', async () => {
+  it('mục phân phối báo khoá và dạng Cột của chính nó (có chữ riêng từ 10/11/2026)', async () => {
     const { bao } = drawBao('var-lich-su', WITH_BARS);
     expect(loiBaoCuoi(bao)).toEqual({
       khoa: '__time',
       dang: 'duong',
       daVe: true,
-      hinhChuoi: false,
     });
 
     await userEvent.selectOptions(screen.getByLabelText('Xem theo'), '__distribution');
@@ -3486,7 +3485,6 @@ describe('báo hình đang hiện lên màn chi tiết', () => {
       khoa: '__distribution',
       dang: 'cot',
       daVe: true,
-      hinhChuoi: true,
     });
   });
 
@@ -3497,7 +3495,6 @@ describe('báo hình đang hiện lên màn chi tiết', () => {
       khoa: '__breakdown',
       dang: 'thanh',
       daVe: true,
-      hinhChuoi: false,
     });
   });
 
@@ -3512,19 +3509,17 @@ describe('báo hình đang hiện lên màn chi tiết', () => {
       khoa: '__time',
       dang: 'duong',
       daVe: true,
-      hinhChuoi: false,
     });
 
     await userEvent.selectOptions(screen.getByLabelText('Xem theo'), 'period');
     await userEvent.selectOptions(screen.getByLabelText('Loại biểu đồ'), 'Cột');
-    expect(loiBaoCuoi(bao)).toEqual({ khoa: 'period', dang: 'cot', daVe: true, hinhChuoi: false });
+    expect(loiBaoCuoi(bao)).toEqual({ khoa: 'period', dang: 'cot', daVe: true });
 
     await userEvent.selectOptions(screen.getByLabelText('Xem theo'), '__time');
     expect(loiBaoCuoi(bao)).toEqual({
       khoa: '__time',
       dang: 'duong',
       daVe: true,
-      hinhChuoi: false,
     });
   });
 
@@ -3542,7 +3537,7 @@ describe('báo hình đang hiện lên màn chi tiết', () => {
     const { bao } = drawBao('pe');
 
     await userEvent.selectOptions(screen.getByLabelText('Loại biểu đồ'), 'Điểm');
-    expect(loiBaoCuoi(bao)).toEqual({ khoa: 'price', dang: 'diem', daVe: true, hinhChuoi: false });
+    expect(loiBaoCuoi(bao)).toEqual({ khoa: 'price', dang: 'diem', daVe: true });
   });
 
   /*
@@ -3554,7 +3549,7 @@ describe('báo hình đang hiện lên màn chi tiết', () => {
   it('chưa vẽ được và chưa ai chọn mục nào thì báo khoá null', () => {
     const { bao } = drawBao('sma-n-phien');
 
-    expect(loiBaoCuoi(bao)).toEqual({ khoa: null, dang: 'duong', daVe: false, hinhChuoi: false });
+    expect(loiBaoCuoi(bao)).toEqual({ khoa: null, dang: 'duong', daVe: false });
   });
 
   /* Lời báo đi theo HÌNH, không đi theo phím gõ: màn chi tiết dựng lại mỗi lần nhận lời báo. */

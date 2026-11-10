@@ -832,6 +832,7 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'guide.chart.dots': 'As dots',
   'guide.chart.step': 'As steps',
   'guide.chart.signArea': 'As gain/loss',
+  'guide.chart.gauge': 'As gauge',
   'guide.chart.horizontalBars': 'As horizontal bars',
   'guide.chart.donut': 'As a donut',
   'guide.chart.when.seriesOnly': 'Drawn only after a ticker or a price series is loaded.',

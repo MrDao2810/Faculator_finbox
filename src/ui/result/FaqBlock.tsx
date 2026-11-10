@@ -4,6 +4,7 @@ import { useState } from 'react';
 
 import type { CauHoiThuongGap } from '@/application';
 import { useT, usePick } from '@/application/preferences-context';
+import { useKhoMayTinh } from '@/ui/layout/use-kho-may-tinh';
 import { Button } from '@/ui/primitives';
 
 /*
@@ -38,6 +39,8 @@ export function FaqBlock({ items, formulaId, className }: FaqBlockProps) {
   const t = useT();
   const pick = usePick();
   const [moHet, setMoHet] = useState(false);
+  /* Từ 1024px mọi câu mở sẵn nhưng vẫn bật tắt được (chủ dự án, 10/11/2026); lượt dựng đầu vẫn gập để khớp HTML tĩnh. */
+  const luonMo = useKhoMayTinh();
 
   if (items.length === 0) return null;
 
@@ -61,6 +64,7 @@ export function FaqBlock({ items, formulaId, className }: FaqBlockProps) {
               key={`${cau.nguon?.url ?? 'tu-soan'}#${String(i)}`}
               className={styles.item}
               hidden={!moHet && i >= FAQ_HIEN_TRUOC}
+              open={luonMo ? true : undefined}
             >
               <summary className={styles.summary}>{pick(cau.hoi)}</summary>
               <div className={styles.body}>

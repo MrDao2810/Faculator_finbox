@@ -2,15 +2,7 @@
 
 import { type ReactNode, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 
-import {
-  COLUMNS_KEY,
-  GAUGE_KEY,
-  buildChartModel,
-  dangVeCuaHinh,
-  dangVeHieuLuc,
-  laHinhChuoiGia,
-  lyDoKhongVeDang,
-} from '@/application';
+import { buildChartModel, dangVeCuaHinh, dangVeHieuLuc, lyDoKhongVeDang } from '@/application';
 import type {
   Bilingual,
   CalcContext,
@@ -119,7 +111,7 @@ const PHONG_TO_BAT: boolean = false;
  *
  * Mỗi dạng một đoạn riêng từ 03/11/2026: trước đó Nến, Điểm, Bậc thang, Lãi/lỗ đều báo "duong" và
  * Vành khuyên dùng chung đoạn thanh ngang, nên chủ dự án đổi dạng mà khung vẫn in "Dạng Đường".
- * Thang đo không có chữ, khung im theo `hinhChuoi`; tên ở đây chỉ để bảng đủ khoá.
+ * Thang đo có đoạn riêng `thangDo` từ 10/11/2026.
  */
 const DANG_DOC: Readonly<Record<DangVe, DangDoc>> = {
   line: 'duong',
@@ -130,7 +122,7 @@ const DANG_DOC: Readonly<Record<DangVe, DangDoc>> = {
   signArea: 'laiLo',
   waterfall: 'thanh',
   donut: 'vanhKhuyen',
-  gauge: 'duong',
+  gauge: 'thangDo',
 };
 
 /** Thứ tự in của các dạng — cùng thứ tự `dangVeCuaHinh()` liệt kê, để dạng giữ lại đứng đúng chỗ. */
@@ -322,21 +314,10 @@ export function ChartBody({
    * về dạng ô chọn đang giữ, cạnh câu lý do.
    */
   const dangDangVe = DANG_DOC[variant];
-  /*
-   * Các mục chưa có chữ hướng dẫn — hai mục theo chuỗi giá và mục cột theo kỳ (23/10/2026) — khung
-   * "?" phải im (`HinhDangXem.hinhChuoi`) thay vì in đoạn của hình khác. Hỏi theo MỤC, kể cả khi mục
-   * ấy đang báo "chưa vẽ được": từ 23/10/2026 ô chọn giữ nguyên Thang đo chẳng hạn, và khung "?"
-   * không được rơi về đoạn của hình mở ra.
-   *
-   * Mục "Cơ cấu …" (hình tròn, 22/10/2026) RỜI danh sách này ngày 04/11/2026: nó không còn luôn im
-   * — `khoiDangXem()` tự quyết theo khối chữ có hay không (cùng lẽ `BREAKDOWN_KEY`, vốn chưa từng ở
-   * đây), nên chủ dự án bắt được "chưa chắc đã cần" cho mọi hình là lý do khiến nó bị hỏi lại.
-   */
-  const hinhChuoi =
-    laHinhChuoiGia(khoaDangHien) || khoaDangHien === COLUMNS_KEY || khoaDangHien === GAUGE_KEY;
+  /* Mọi mục đều có chữ từ 10/11/2026: không còn cờ im theo loại mục (`HinhDangXem`). */
   useEffect(() => {
-    onViewChange?.({ khoa: khoaDangHien, dang: dangDangVe, daVe, hinhChuoi });
-  }, [onViewChange, khoaDangHien, dangDangVe, daVe, hinhChuoi]);
+    onViewChange?.({ khoa: khoaDangHien, dang: dangDangVe, daVe });
+  }, [onViewChange, khoaDangHien, dangDangVe, daVe]);
 
   /* Gốc `id` của hai ô chọn — cùng một chuỗi ở thẻ hình lẫn thẻ thông báo. */
   const goc = `chart-${formula.spec.id}`;

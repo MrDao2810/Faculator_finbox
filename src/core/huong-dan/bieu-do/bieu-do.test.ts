@@ -4,11 +4,11 @@ import { resolveRepeat, runFormula } from '../../calc/run';
 import type { CalcContext, FormulaModule } from '../../calc/types';
 import { BREAKDOWN_KEY } from '../../chart/breakdown';
 import { buildChartModel } from '../../chart/build';
-import { HISTORY_KEY } from '../../chart/history';
+import { COMPONENTS_KEY, HISTORY_KEY } from '../../chart/history';
 import { COLUMNS_KEY } from '../../chart/columns';
 import { COMPOSITION_KEY } from '../../chart/composition';
 import { GAUGE_KEY } from '../../chart/gauge';
-import { laHinhChuoiGia } from '../../chart/series-view';
+import { DISTRIBUTION_KEY, DRAWDOWN_KEY, SCATTER_KEY } from '../../chart/series-view';
 import type { ChartModel } from '../../chart/types';
 import { FORMULA_MODULES } from '../../formulas';
 import { MARKET_CONFIG } from '../../market';
@@ -303,8 +303,8 @@ describe.skipIf(CHI.length > 0)('kế hoạch đọc đúng thứ màn tính d�
        * trucBac 71 → 70 ngày 06/11/2026: Số năm của CAGR thành ô số nấc 0,01 năm, đoạn Bậc thang của nó
        * bỏ đi vì giữa hai mức luôn còn số năm lẻ để tính.
        */
-      trucBac: 70,
-      trucLaiLo: 61,
+      trucBac: 71,
+      trucLaiLo: 64,
       lapLaiLo: 1,
       thoiGianLaiLo: 17,
       thoiGianNen: 5,
@@ -473,7 +473,6 @@ describe.skipIf(CHI.length > 0)('mục của bài khớp ô chọn "Xem kết qu
              * RỜI danh sách này ngày 04/11/2026 — chủ dự án: *"thì biểu đồ nào cũng cần phải có?"* —
              * nên nay nó ĐÒI khối, như `BREAKDOWN_KEY`.
              */
-            if (laHinhChuoiGia(khoa) || khoa === COLUMNS_KEY || khoa === GAUGE_KEY) continue;
             if (khoa !== undefined && !khoaCo.has(khoa)) {
               thieu.push(`${formula.spec.id}: mục "${khoa}" không có khối chữ`);
             }
@@ -496,8 +495,14 @@ describe.skipIf(CHI.length > 0)('mục của bài khớp ô chọn "Xem kết qu
       const theoOChon = [
         ...(keHoach.bocTach === undefined ? [] : [BREAKDOWN_KEY]),
         ...(keHoach.thoiGian === undefined ? [] : [HISTORY_KEY]),
-        // Cơ cấu đứng ngay sau Bóc tách và Theo thời gian trong ô "Xem theo" thật, trước mọi ô nhập.
+        // Thứ tự của `mucOChon()` (build.ts): ba hình theo chuỗi, đường thành phần, Cơ cấu, cột theo kỳ, thang đo.
+        ...(keHoach.phanPhoi === undefined ? [] : [DISTRIBUTION_KEY]),
+        ...(keHoach.sutGiam === undefined ? [] : [DRAWDOWN_KEY]),
+        ...(keHoach.phanTan === undefined ? [] : [SCATTER_KEY]),
+        ...(keHoach.thanhPhan === undefined ? [] : [COMPONENTS_KEY]),
         ...(keHoach.coCau === undefined ? [] : [COMPOSITION_KEY]),
+        ...(keHoach.cotTheoKy === undefined ? [] : [COLUMNS_KEY]),
+        ...(keHoach.thangDo === undefined ? [] : [GAUGE_KEY]),
         ...keHoach.truc.map((truc) => truc.khoa),
       ];
       expect(
@@ -508,7 +513,10 @@ describe.skipIf(CHI.length > 0)('mục của bài khớp ô chọn "Xem kết qu
       for (const khoi of muc.khoi) {
         const cho = `${formula.spec.id} · ${khoi.ten.vi}`;
         // Khối nào cũng có ít nhất một đoạn để in — không có khối chỉ mang cái tên.
-        expect(khoi.duong ?? khoi.thanh, cho).toBeDefined();
+        expect(
+          khoi.duong ?? khoi.thanh ?? khoi.cot ?? khoi.diem ?? khoi.thangDo,
+          cho,
+        ).toBeDefined();
         // Hình bóc tách và hình cơ cấu có thanh; hình đường thì không bao giờ mang đoạn của thanh.
         expect(khoi.thanh !== undefined, cho).toBe(
           khoi.khoa === BREAKDOWN_KEY || khoi.khoa === COMPOSITION_KEY,

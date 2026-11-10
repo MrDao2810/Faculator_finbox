@@ -41,6 +41,8 @@ const PAD = { top: 18, right: 10, bottom: 34, leftMin: 24, leftMax: 60 } as cons
 const TICK_FONT_SIZE = 10;
 const TICK_GAP = 5;
 const FLOAT_LABEL_SIZE = 11;
+/** Khổ điện thoại: ô dò 9 đơn vị (chép với `.hoverGon .hoverLabel`). */
+const HOVER_SIZE_GON = 9;
 
 /** Cách dòng giữa các nhãn vạch dọc — cũng là phần sàn nhãn dò phải hạ thêm để không đè lên chúng. */
 const HANG_NHAN = 12;
@@ -163,7 +165,7 @@ export function HistogramChart({
           hoverBar.x + hoverBar.w / 2,
           hoverBar.x + hoverBar.w / 2 > (plot.x0 + plot.x1) / 2 ? 'end' : 'start',
           hoverText,
-          FLOAT_LABEL_SIZE,
+          size === 'compact' ? HOVER_SIZE_GON : FLOAT_LABEL_SIZE,
           W,
         );
 
@@ -287,7 +289,10 @@ export function HistogramChart({
         />
 
         {hoverPlace !== null && hoverBar !== undefined && (
-          <g className={styles.hoverOverlay} data-testid={`${idBase}-hover`}>
+          <g
+            className={`${styles.hoverOverlay} ${size === 'compact' ? styles.hoverGon : ''}`}
+            data-testid={`${idBase}-hover`}
+          >
             <text
               className={styles.hoverLabel}
               x={hoverPlace.x}

@@ -22,13 +22,17 @@ import {
   axisLabel,
   buildChartModel,
   chartName,
+  componentsTitle,
   lineChartTitle,
 } from '../../chart/build';
+import { COLUMNS_KEY } from '../../chart/columns';
 import { compositionBars } from '../../chart/composition';
 import { dangVeCuaHinh, laDonViDem } from '../../chart/dang-ve';
 import type { DangVe } from '../../chart/dang-ve';
-import { CLOSE_PRICE_LABEL, HISTORY_KEY, historyPlan } from '../../chart/history';
+import { GAUGE_KEY } from '../../chart/gauge';
+import { CLOSE_PRICE_LABEL, COMPONENTS_KEY, HISTORY_KEY, historyPlan } from '../../chart/history';
 import { isFlatSpan } from '../../chart/scale';
+import { DISTRIBUTION_KEY, DRAWDOWN_KEY, SCATTER_KEY } from '../../chart/series-view';
 import { sweepCandidates, sweepDomain } from '../../chart/sweep';
 import type { ChartModel } from '../../chart/types';
 import { FPT_BARS, STB_BARS, VNINDEX_BARS, VNINDEX_PHIEN } from '../../formulas/market-series-2026';
@@ -37,7 +41,16 @@ import type { SeriesRow } from '../../price-series';
 import { defaultInputs } from '../../registry/build';
 import { repeatKey } from '../../registry/repeat';
 import type { CalcOutput, Level, VariableSpec } from '../../types';
-import type { DangCoThe, HinhDoDuoc, KeHoachBieuDo, KeHoachBocTach, KeHoachTruc } from './types';
+import type { Bilingual } from '../../types';
+import type {
+  DangCoThe,
+  HinhDoDuoc,
+  KeHoachBieuDo,
+  KeHoachBocTach,
+  KeHoachHinhMot,
+  KeHoachSutGiam,
+  KeHoachTruc,
+} from './types';
 
 /** Sai số khi nhận ra dải "một nửa đến gấp rưỡi": bám bước (`step`) làm hai đầu lệch tới một bước. */
 const SAI_SO_DAI = 0.13;
@@ -325,6 +338,17 @@ function trucTu(
     hinh === undefined
       ? { daoChieu: false, ...doTrenChuoi(formula, inputs, ctx, bien.key) }
       : doQuaLuoi(formula, inputs, ctx, bien, hinh.chieu);
+  /*
+   * Bộ số của chính ví dụ (nút "Xem ví dụ minh hoạ") cũng là bộ số người dùng gặp: có công thức chỉ
+   * đổi dấu ở đó (`gui-quay-vong` theo Tổng thời gian, dạng Lãi/lỗ). Chỉ lấy thêm hai dạng phụ thuộc
+   * số liệu; chiều đi vẫn đo trên bộ số mặc định.
+   */
+  const viDu = formula.spec.example.inputs;
+  if (hinh !== undefined && Object.keys(viDu).length > 0) {
+    const them = doQuaLuoi(formula, { ...inputs, ...viDu }, ctx, bien, hinh.chieu);
+    qua.bac ||= them.bac;
+    qua.laiLo ||= them.laiLo;
+  }
 
   return {
     khoa: bien.key,
@@ -415,6 +439,166 @@ function coCauTu(
     macDinh: false,
     vanhKhuyen: true,
   };
+}
+
+/**
+ * Mô hình ĐẦU TIÊN vẽ được của một mục, qua các cặp (bộ số, ngữ cảnh): bộ số mặc định không chuỗi
+ * giá (trạng thái màn mở ra), rồi các chuỗi thật và ví dụ của công thức (`boDoChuoi()`). Kèm cờ
+ * "phải có chuỗi mới vẽ được" — đúng khi cặp đầu không vẽ mà một cặp có chuỗi vẽ được.
+ */
+function moHinhDauTien(
+  formula: FormulaModule,
+  inputs: CalcInputs,
+  ctx: CalcContext,
+  sweepKey: string,
+): { model: ChartModel; canChuoi: boolean } | undefined {
+  const cap = [{ inputs, ctx }, ...boDoChuoi(formula, inputs, ctx)];
+  for (const [i, bo] of cap.entries()) {
+    const model = buildChartModel({
+      formula,
+      inputs: bo.inputs,
+      ctx: bo.ctx,
+      output: runFormula(formula, bo.inputs, bo.ctx),
+      level: 'advanced',
+      sweepKey,
+    });
+    if (model.kind !== 'unavailable' && model.sweepKey === sweepKey) {
+      return { model, canChuoi: i > 0 };
+    }
+  }
+  return undefined;
+}
+
+/** Nhãn mẫu của các đường thành phần — `{n}` để nguyên, `kiem.ts` chỉ đòi phần chữ của nó. */
+function nhanThanhPhan(formula: FormulaModule): ReadonlyArray<Bilingual> {
+  const view = formula.spec.componentLines;
+  if (view === undefined) return [];
+  return [
+    ...view.lines.map((line) => line.label),
+    ...(view.closePrice === true ? [CLOSE_PRICE_LABEL] : []),
+  ];
+}
+
+/**
+ * Kế hoạch của sáu mục riêng (10/11/2026) — xem `BieuDoRieng.thanhPhan`. Mỗi mục đọc từ chính mô
+ * hình bộ dựng trả về; mục không vẽ được ở cặp nào thì không có kế hoạch, và khung "?" im với nó.
+ */
+function hinhRieng(
+  formula: FormulaModule,
+  inputs: CalcInputs,
+  ctx: CalcContext,
+): Pick<KeHoachBieuDo, 'thanhPhan' | 'phanPhoi' | 'sutGiam' | 'phanTan' | 'cotTheoKy' | 'thangDo'> {
+  const { spec } = formula;
+  const ra: {
+    thanhPhan?: KeHoachHinhMot;
+    phanPhoi?: KeHoachHinhMot;
+    sutGiam?: KeHoachSutGiam;
+    phanTan?: KeHoachHinhMot;
+    cotTheoKy?: KeHoachHinhMot;
+    thangDo?: KeHoachHinhMot;
+  } = {};
+
+  const view = spec.componentLines;
+  if (view !== undefined && moHinhDauTien(formula, inputs, ctx, COMPONENTS_KEY) !== undefined) {
+    /*
+     * Tên hình viết số phiên là chữ "n" ('… giá n phiên trước'), cùng chữ màn in khi ô còn trống:
+     * bài dựng lúc build, chưa biết người dùng sẽ gõ số nào, và một số mặc định chép vào đây sẽ sai
+     * ngay lần gõ đầu. Chữ "n" không phải chữ số nên không vướng luật chữ số của `kiem.ts`.
+     */
+    const muc = {
+      vi: view.label.vi.replaceAll('{n}', 'n'),
+      en: view.label.en.replaceAll('{n}', 'n'),
+    };
+    ra.thanhPhan = {
+      ten: componentsTitle(spec, muc),
+      nhan: nhanThanhPhan(formula),
+      moc: [],
+      canChuoi: true,
+    };
+  }
+
+  if (spec.seriesView !== undefined) {
+    const dau = (khoa: string) => moHinhDauTien(formula, inputs, ctx, khoa);
+    const phanPhoi = dau(DISTRIBUTION_KEY);
+    if (phanPhoi?.model.kind === 'histogram') {
+      ra.phanPhoi = {
+        ten: phanPhoi.model.title,
+        nhan: phanPhoi.model.markers.map((marker) => marker.label),
+        moc: [],
+        canChuoi: true,
+      };
+    }
+    const phanTan = dau(SCATTER_KEY);
+    if (phanTan?.model.kind === 'scatter') {
+      ra.phanTan = {
+        ten: phanTan.model.title,
+        nhan: [
+          phanTan.model.pointLabel,
+          ...(phanTan.model.fit === undefined ? [] : [phanTan.model.fit.label]),
+        ],
+        moc: [],
+        canChuoi: true,
+      };
+    }
+    const sutGiam = dau(DRAWDOWN_KEY);
+    if (sutGiam !== undefined) {
+      // Dạng do số liệu quyết: gộp qua mọi chuỗi dò được, như trục chỉ vẽ trên chuỗi giá.
+      const dang = new Set<DangVe>();
+      for (const bo of boDoChuoi(formula, inputs, ctx)) {
+        const model = buildChartModel({
+          formula,
+          inputs: bo.inputs,
+          ctx: bo.ctx,
+          output: runFormula(formula, bo.inputs, bo.ctx),
+          level: 'advanced',
+          sweepKey: DRAWDOWN_KEY,
+        });
+        if (model.kind !== 'unavailable' && model.sweepKey === DRAWDOWN_KEY) {
+          for (const mot of dangCua(model, formula)) dang.add(mot);
+        }
+      }
+      ra.sutGiam = {
+        ten: sutGiam.model.title,
+        cot: dang.has('bar'),
+        bac: dang.has('step'),
+        laiLo: dang.has('signArea'),
+      };
+    }
+  }
+
+  if (formula.columns !== undefined) {
+    const cot = moHinhDauTien(formula, inputs, ctx, COLUMNS_KEY);
+    if (cot?.model.kind === 'columns') {
+      const { model } = cot;
+      ra.cotTheoKy = {
+        ten: model.title,
+        nhan: [
+          ...model.series.map((series) => series.label),
+          ...(model.lines ?? []).map((line) => line.label),
+          ...(model.paths ?? []).map((path) => path.label),
+          ...(model.mark === undefined ? [] : [model.mark.label]),
+        ],
+        moc: [],
+        canChuoi: cot.canChuoi,
+      };
+    }
+  }
+
+  if (spec.gauge !== undefined) {
+    const thang = moHinhDauTien(formula, inputs, ctx, GAUGE_KEY);
+    if (thang?.model.kind === 'gauge') {
+      const { model } = thang;
+      ra.thangDo = {
+        ten: model.title,
+        nhan: model.zones.map((zone) => zone.label),
+        // Biên GIỮA các vùng — đúng các mốc `spec.referenceLines` (`gauge.test.ts` gác điều ấy).
+        moc: model.zones.slice(1).map((zone) => zone.from),
+        canChuoi: thang.canChuoi,
+      };
+    }
+  }
+
+  return ra;
 }
 
 /**
@@ -532,6 +716,7 @@ export function keHoachBieuDo(formula: FormulaModule, ctx: CalcContext): KeHoach
     ...(thoiGian === undefined ? {} : { thoiGian }),
     ...(bocTach === undefined ? {} : { bocTach }),
     ...(coCau === undefined ? {} : { coCau }),
+    ...hinhRieng(formula, inputs, ctx),
     moRa,
   };
 }

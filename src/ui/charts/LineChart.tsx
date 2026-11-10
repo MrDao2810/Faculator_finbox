@@ -159,6 +159,14 @@ const FLOAT_LABEL_SIZE = 11;
 const HOVER_LINE_H = 13;
 
 /**
+ * Khổ `compact` (điện thoại): chữ ô dò 9 đơn vị, nhịp dòng 11 (chủ dự án, 10/11/2026, khoanh ô dò của hình
+ * các đường thành phần: "quá lớn"). Khung vẽ 320 đơn vị bị kéo ~1,3 lần lên màn nên 11 đơn vị thành ~14px.
+ * Chép với `.hoverGon .hoverLabel` trong `chart.module.css`.
+ */
+const HOVER_SIZE_GON = 9;
+const HOVER_LINE_H_GON = 11;
+
+/**
  * Vùng vẽ của khổ `compact` — mốc tĩnh cho `labelYFor()` và cho `CHART_GEOMETRY` mà test đọc.
  *
  * Chỉ đúng cho khổ `compact`. Thân component KHÔNG dùng hằng này mà gọi `plotOf()`, vì lề trái còn
@@ -742,7 +750,13 @@ export function LineChart({
   const hoverPlace =
     hoverX === null
       ? null
-      : floatingLabel(hoverX, hoverOnRight ? 'end' : 'start', dongDaiNhat, FLOAT_LABEL_SIZE, W);
+      : floatingLabel(
+          hoverX,
+          hoverOnRight ? 'end' : 'start',
+          dongDaiNhat,
+          size === 'compact' ? HOVER_SIZE_GON : FLOAT_LABEL_SIZE,
+          W,
+        );
 
   const markedText =
     marked === undefined ? '' : labelText(marked.shortValueLabel ?? marked.valueLabel);
@@ -1243,7 +1257,10 @@ export function LineChart({
           (CSS) để không tự chặn mất pointer event của chính vùng bắt bên trên nó.
         */}
           {hover !== null && hoverX !== null && hoverPlace !== null && (
-            <g className={styles.hoverOverlay} data-testid={`${idBase}-hover`}>
+            <g
+              className={`${styles.hoverOverlay} ${size === 'compact' ? styles.hoverGon : ''}`}
+              data-testid={`${idBase}-hover`}
+            >
               <line
                 className={styles.hoverLine}
                 x1={hoverX}
@@ -1288,7 +1305,11 @@ export function LineChart({
                   className={styles.hoverLabel}
                   data-dong-do={index}
                   x={hoverPlace.x}
-                  y={plot.y0 + 22 + HOVER_LINE_H * (index + 1)}
+                  y={
+                    plot.y0 +
+                    22 +
+                    (size === 'compact' ? HOVER_LINE_H_GON : HOVER_LINE_H) * (index + 1)
+                  }
                   textAnchor={hoverPlace.anchor}
                 >
                   {dong}

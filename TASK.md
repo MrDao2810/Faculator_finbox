@@ -4,6 +4,15 @@
 
 Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 
+## Khung "?" của khối Biểu đồ có chữ cho cả 40 hình còn im (10/11/2026)
+
+**Trạng thái: CHƯA XONG, chờ chủ dự án xác nhận.** Chủ dự án chụp "Đường MACD - hai đường EMA" và hỏi vì sao thiếu hướng dẫn; chọn viết cho cả 40 hình.
+
+- Trước: khung im theo cờ `HinhDangXem.hinhChuoi` với sáu loại mục (đường thành phần 6 công thức, phân phối lợi suất 12, đường sụt giảm 4, phân tán Beta, cột theo kỳ 14, thang đo 3). Cờ bỏ hẳn; luật im chung còn lại: mục đang hiện mà bài không có khối thì im (trước rơi về khối đầu, tức chữ của hình khác).
+- File: `noi-dung/hinh-rieng.ts` (mới, vi+en, 40 hình), `types.ts` (6 trường mới, `DangDoc` thêm `thangDo`), `ke-hoach.ts` (đọc tên/nhãn từ chính bộ dựng), `muc.ts`, `kiem.ts` (luật: gọi đúng nhãn, không chữ số, nói chuỗi "đã nạp"…), `build.ts` (xuất `componentsTitle`), `khoi-dang-xem.ts`, `GuideBody.tsx` + khoá `guide.chart.gauge`, `ChartBody.tsx`, `FormulaDetail.tsx`, các test liên quan.
+- Kiểm: tsc, eslint sạch; vitest 81 file, 1969 ca xanh. Chưa chạy check:chrome. Chữ chưa qua thẩm định, cần chủ dự án đọc.
+- Tên hình "đường thành phần" viết số phiên là chữ "n" ("Giá nay và giá n phiên trước"), vì bài dựng lúc build, chưa biết số người dùng gõ.
+
 ---
 
 ## Tiếng Anh: "Pick" → "Select" ở các nhãn chọn (10/11/2026)

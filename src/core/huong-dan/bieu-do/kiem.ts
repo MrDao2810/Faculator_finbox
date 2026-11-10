@@ -31,6 +31,8 @@ import type {
   HaiDang,
   KeHoachBieuDo,
   KeHoachBocTach,
+  KeHoachHinhMot,
+  KeHoachSutGiam,
   KeHoachThoiGian,
   KeHoachTruc,
   KeHoachTrucLap,
@@ -493,6 +495,119 @@ function loiVanhKhuyen(cho: string, doan: Bilingual, keHoach: KeHoachBocTach): s
 }
 
 /**
+ * Phần CHỮ của một nhãn mà đoạn phải gọi đúng (10/11/2026).
+ *
+ * Nhãn mang con số đổi theo ô nhập ('EMA 12 phiên', 'Trung bình 20 phiên trước', 'Gốc vượt lãi từ năm
+ * 12') hay theo kết quả ('Đường hồi quy, độ dốc β = 0,81') không thể chép nguyên: con số sai ngay lần
+ * gõ đầu, và luật chữ số cấm nó. Nên đoạn chỉ bị đòi khúc chữ ĐẦU TIÊN của nhãn, cắt ở chữ số, ở chỗ
+ * trống `{n}` và ở dấu phẩy: 'EMA', 'Trung bình', 'Gốc vượt lãi từ năm', 'Đường hồi quy'. Khúc đầu
+ * rỗng ('{n}-session EMA') thì lấy khúc kế ('session EMA').
+ */
+export function khucNhan(nhan: string): string {
+  const khuc = nhan
+    .split(/\{[^}]*\}|\d+(?:[.,]\d+)*|,/)
+    .map((mot) => mot.replace(/^[\s\-=]+|[\s\-=]+$/g, ''))
+    .filter((mot) => mot.length >= 2);
+  return khuc[0] ?? nhan;
+}
+
+/** Chữ riêng mà đoạn của từng hình một dạng PHẢI dùng — tả đúng thứ hình ấy vẽ. */
+const TU_HINH_MOT: Readonly<
+  Record<
+    'thanhPhan' | 'phanPhoi' | 'phanTan' | 'cotTheoKy' | 'thangDo',
+    Readonly<Record<Ngon, readonly string[]>>
+  >
+> = {
+  // Trục từng phiên, như hình thời gian.
+  thanhPhan: { vi: [TU.vi.phienDau, TU.vi.phienCuoi], en: [TU.en.phienDau, TU.en.phienCuoi] },
+  // Mỗi khoảng lợi suất một cột đếm số phiên.
+  phanPhoi: { vi: [TU.vi.cot], en: [TU.en.cot] },
+  // Một chấm mỗi phiên, trục ngang là lợi suất VN-Index.
+  phanTan: { vi: ['chấm', 'VN-Index'], en: ['dot', 'VN-Index'] },
+  cotTheoKy: { vi: [TU.vi.cot], en: [TU.en.cot] },
+  // Nửa vòng cung có kim chỉ vào kết quả.
+  thangDo: { vi: ['kim'], en: ['needle'] },
+};
+
+/**
+ * Luật của MỘT hình một dạng (10/11/2026): luật chung, chữ riêng của loại hình, gọi đúng phần chữ của
+ * mọi nhãn chú giải, nói "đã nạp" khi hình chỉ có sau khi nạp chuỗi, và nhắc mọi mốc số (thang đo).
+ */
+function loiHinhMot(
+  cho: string,
+  doan: Bilingual,
+  keHoach: KeHoachHinhMot,
+  loai: keyof typeof TU_HINH_MOT,
+): string[] {
+  const loi: string[] = [];
+
+  for (const ngon of NGON) {
+    const chu = doan[ngon];
+    const dau = `${cho} [${ngon}]`;
+    const ten = [keHoach.ten[ngon], ...keHoach.nhan.map((nhan) => nhan[ngon])];
+    const so = new Set(['0', ...keHoach.moc.map((moc) => String(Math.abs(moc)))]);
+    loi.push(...loiChung(cho, chu, ngon, ten, so));
+
+    for (const cum of TU_HINH_MOT[loai][ngon]) {
+      if (!co(chu, cum)) loi.push(`${dau}: thiếu "${cum}"`);
+    }
+    for (const nhan of keHoach.nhan) {
+      const khuc = khucNhan(nhan[ngon]);
+      if (!co(chu, khuc)) loi.push(`${dau}: không gọi tên "${khuc}" (nhãn "${nhan[ngon]}")`);
+    }
+    if (keHoach.canChuoi && !co(chu, TU[ngon].daNap)) {
+      loi.push(`${dau}: không nói hình này tính trên chuỗi "${TU[ngon].daNap}"`);
+    }
+    for (const moc of keHoach.moc) {
+      if (!new RegExp(`(^|\\D)${String(Math.abs(moc))}(\\D|$)`).test(chu)) {
+        loi.push(`${dau}: không nhắc mốc ${String(moc)}`);
+      }
+    }
+  }
+
+  return loi;
+}
+
+/**
+ * Luật của "Đường sụt giảm" (10/11/2026): một hình đường trên trục từng phiên, như hình thời gian —
+ * mỗi dạng ô "Loại biểu đồ" mời một đoạn, đoạn nào cũng tự đứng được: đi từ phiên cũ nhất tới phiên
+ * gần nhất, nói đường đi lên lẫn đi xuống nghĩa là gì (trục đứng là mức SỤT, nên đi lên là lún sâu
+ * thêm — chiều ngược với giá), và nói hình tính trên chuỗi đã nạp.
+ */
+function loiSutGiam(cho: string, rieng: HaiDang, keHoach: KeHoachSutGiam): string[] {
+  const loi: string[] = [];
+
+  loi.push(...lechDang(`${cho}.cot`, keHoach.cot, rieng.cot !== undefined));
+  loi.push(...lechDang(`${cho}.diem`, true, rieng.diem !== undefined));
+  loi.push(...lechDang(`${cho}.bac`, keHoach.bac, rieng.bac !== undefined));
+  loi.push(...lechDang(`${cho}.laiLo`, keHoach.laiLo, rieng.laiLo !== undefined));
+  loi.push(...lechDang(`${cho}.nen`, false, rieng.nen !== undefined));
+
+  for (const ngon of NGON) {
+    const tu = TU[ngon];
+    for (const dang of ['duong', 'cot', 'diem', 'bac', 'laiLo'] as const) {
+      const doan = rieng[dang]?.[ngon];
+      if (doan === undefined) continue;
+      const dau = `${cho}.${dang} [${ngon}]`;
+      loi.push(...loiChung(`${cho}.${dang}`, doan, ngon, [keHoach.ten[ngon]], new Set(['0'])));
+      if (dang === 'cot') {
+        if (!co(doan, tu.cot)) loi.push(`${dau}: không nói tới "${tu.cot}"`);
+      } else if (dang !== 'duong') {
+        loi.push(...loiTuDang(`${cho}.${dang}`, doan, ngon, dang));
+      }
+      for (const cum of [tu.phienDau, tu.phienCuoi, tu.daNap]) {
+        if (!co(doan, cum)) loi.push(`${dau}: thiếu "${cum}"`);
+      }
+      if (dang !== 'cot' && !(co(doan, tu.len) && co(doan, tu.xuong))) {
+        loi.push(`${dau}: phải nói cả "${tu.len}" lẫn "${tu.xuong}" nghĩa là gì`);
+      }
+    }
+  }
+
+  return loi;
+}
+
+/**
  * Mọi chỗ chữ của một công thức nói khác hình của nó. Mảng rỗng là đạt.
  *
  * @param keHoach `undefined` với công thức không có khối biểu đồ — khi ấy kho KHÔNG được có mục.
@@ -564,6 +679,20 @@ export function bieuDoProblems(
   if (keHoach.coCau !== undefined && rieng.coCau !== undefined) {
     loi.push(...loiBocTach('coCau.thanh', rieng.coCau.thanh, keHoach.coCau));
     loi.push(...loiVanhKhuyen('coCau.vanhKhuyen', rieng.coCau.vanhKhuyen, keHoach.coCau));
+  }
+
+  // Sáu mục riêng (10/11/2026): mục nào màn có thì kho phải có chữ, và ngược lại.
+  for (const loai of ['thanhPhan', 'phanPhoi', 'phanTan', 'cotTheoKy', 'thangDo'] as const) {
+    const keHoachMot = keHoach[loai];
+    const chu = rieng[loai];
+    lechCap(loai, keHoachMot !== undefined, chu !== undefined);
+    if (keHoachMot !== undefined && chu !== undefined) {
+      loi.push(...loiHinhMot(loai, chu, keHoachMot, loai));
+    }
+  }
+  lechCap('sutGiam', keHoach.sutGiam !== undefined, rieng.sutGiam !== undefined);
+  if (keHoach.sutGiam !== undefined && rieng.sutGiam !== undefined) {
+    loi.push(...loiSutGiam('sutGiam', rieng.sutGiam, keHoach.sutGiam));
   }
 
   return loi;

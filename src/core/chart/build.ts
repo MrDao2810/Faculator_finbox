@@ -197,6 +197,18 @@ export function axisLabel(label: Bilingual): Bilingual {
 /** Tên trục X của đường theo thời gian, viết thường vì nó đứng sau chữ "theo". */
 export const TIME_AXIS_NAME: Bilingual = { vi: 'thời gian', en: 'time' };
 
+/**
+ * Tiêu đề của hình "các đường thành phần": 'Đường MACD - hai đường EMA'.
+ *
+ * `muc` là nhãn mục đã điền số phiên. Xuất ra cho mục "Đọc biểu đồ" (10/11/2026): bài gọi hình
+ * bằng đúng tên này, nhưng với `{khoá ô}` ở chỗ số phiên để khung "?" điền số đang nhập — một hàm
+ * cho cả hai nơi thì tên trên màn và tên trong bài không thể viết hai kiểu.
+ */
+export function componentsTitle(spec: FormulaSpec, muc: Bilingual): Bilingual {
+  const name = chartName(spec);
+  return { vi: `${name.vi} - ${giuaCau(muc.vi)}`, en: `${name.en} - ${giuaCau(muc.en)}` };
+}
+
 /** Tiêu đề của biểu đồ ĐƯỜNG: 'P/E theo Giá thị trường', 'P/E theo thời gian'. */
 export function lineChartTitle(name: Bilingual, axisName: Bilingual, onTime: boolean): Bilingual {
   return {
@@ -922,11 +934,7 @@ function buildComponentsModel(
     }),
   };
 
-  const muc = dienSoPhien(view.label, view.periodKey, inputs);
-  const title: Bilingual = {
-    vi: `${name.vi} - ${giuaCau(muc.vi)}`,
-    en: `${name.en} - ${giuaCau(muc.en)}`,
-  };
+  const title = componentsTitle(formula.spec, dienSoPhien(view.label, view.periodKey, inputs));
   const dau = points[0];
   const cuoi = points.length - 1;
   const cau = (lang: 'vi' | 'en'): string => {

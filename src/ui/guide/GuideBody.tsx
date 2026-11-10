@@ -442,6 +442,7 @@ const DANG_IN: ReadonlyArray<{ dang: DangDoc; nhan: MessageKey }> = [
   { dang: 'diem', nhan: 'guide.chart.dots' },
   { dang: 'bac', nhan: 'guide.chart.step' },
   { dang: 'laiLo', nhan: 'guide.chart.signArea' },
+  { dang: 'thangDo', nhan: 'guide.chart.gauge' },
 ];
 
 /**

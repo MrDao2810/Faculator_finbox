@@ -14,9 +14,15 @@ export function doanCuaDang(khoi: KhoiBieuDoBai, dang: DangDoc): Bilingual | und
   return khoi[dang];
 }
 
-/** Dạng màn mở ra của một khối: hình bóc tách mở bằng thanh ngang, hình đường mở bằng Đường. */
+/**
+ * Dạng màn mở ra của một khối: hình bóc tách mở bằng thanh ngang, hình đường mở bằng Đường. Hình chỉ
+ * có MỘT dạng (10/11/2026: phân phối, cột theo kỳ mở bằng Cột; phân tán bằng Điểm; thang đo) mở bằng
+ * chính dạng ấy.
+ */
+const THU_TU_MAC_DINH: ReadonlyArray<DangDoc> = ['thanh', 'duong', 'cot', 'diem', 'thangDo'];
+
 function dangMacDinh(khoi: KhoiBieuDoBai): DangDoc {
-  return khoi.thanh !== undefined ? 'thanh' : 'duong';
+  return THU_TU_MAC_DINH.find((dang) => khoi[dang] !== undefined) ?? 'duong';
 }
 
 /** Khối chữ của một ô do người dùng thêm, dựng từ khối mẫu bằng cách điền số thứ tự nhóm. */
@@ -42,11 +48,16 @@ function khoiTuMau(khoiLap: ReadonlyArray<KhoiLapBai>, khoa: string): KhoiBieuDo
 /**
  * Khối của hình ĐANG HIỆN trên màn tính và dạng đang vẽ — thứ khung "?" in.
  *
- * Tra bằng `KhoiBieuDoBai.khoa`, tức chính `ChartModel.sweepKey` mà khối Biểu đồ báo lên. Ba ca rơi
+ * Tra bằng `KhoiBieuDoBai.khoa`, tức chính `ChartModel.sweepKey` mà khối Biểu đồ báo lên. Hai ca rơi
  * về khối ĐẦU (hình màn mở ra): khối Biểu đồ chưa kịp báo (`hinh === null` — chunk biểu đồ nạp trễ),
- * màn chưa vẽ gì và người dùng chưa chọn mục nào (`khoa === null`), và một khoá không có khối chữ.
- * Ca cuối không xảy ra trong thư viện hiện tại — `bieu-do.test.ts` đòi mọi mục của ô chọn đều có khối
- * — nên nó chỉ là lưới an toàn: thà nói về hình mặc định còn hơn để khung trống.
+ * và màn chưa vẽ gì mà người dùng chưa chọn mục nào (`khoa === null`).
+ *
+ * Một khoá KHÔNG có khối chữ thì im (10/11/2026). Trước ngày ấy ca này rơi về khối đầu "cho khỏi
+ * trống", và sáu loại mục chưa có chữ phải dựng riêng cờ `hinhChuoi` để né nó — vì rơi về khối đầu
+ * là in chữ của một hình khác cạnh hình đang vẽ. Khi cả sáu có chữ, luật ấy thành luật chung: mục
+ * nào màn đang hiện mà bài không có khối (một mục chỉ vẽ được ở bộ số khác bộ mặc định, chẳng hạn
+ * "Cơ cấu …" khi vốn chủ mặc định âm) thì khung im và nút "?" ẩn. `bieu-do.test.ts` đòi mọi mục ô
+ * chọn bày ra đều có khối, nên trong thư viện hiện tại ca này không xảy ra.
  *
  * `chuaVe` quyết định dòng "Chỉ vẽ sau khi đã nạp…": nó chỉ đáng in khi hình đang được tả CHƯA có
  * trên màn. Hình đã vẽ rồi mà còn in dòng ấy là nói một điều người đọc đang thấy là sai.
@@ -65,7 +76,7 @@ function khoiTuMau(khoiLap: ReadonlyArray<KhoiLapBai>, khoa: string): KhoiBieuDo
  * mỗi dạng ô "Loại biểu đồ" mời (`kiem.ts` đòi đủ), và phép chọn lấy đúng đoạn của dạng đang hiện.
  *
  * Hình ĐANG VẼ ở một dạng mà kho không có đoạn (phép dò ở `ke-hoach.ts` sót một bộ số) thì trả
- * `undefined`: khung im và nút "?" ẩn, cùng lối với `hinhChuoi`. Chỉ khi hình chưa vẽ (đang chờ chuỗi
+ * `undefined`: khung im và nút "?" ẩn, cùng lối im lặng chung. Chỉ khi hình chưa vẽ (đang chờ chuỗi
  * giá, hoặc khung đang tả hình mặc định thay cho một khoá lạ) mới rơi về dạng mặc định của khối.
  */
 export function khoiDangXem(
@@ -75,12 +86,12 @@ export function khoiDangXem(
 ): { khoi: KhoiBieuDoBai; dang: DangDoc; chuaVe: boolean } | undefined {
   const dau = khoi[0];
   if (dau === undefined) return undefined;
-  /* Hình theo chuỗi giá chưa có chữ: im lặng chứ không in đoạn của hình khác (xem `HinhDangXem.hinhChuoi`). */
-  if (hinh?.hinhChuoi === true) return undefined;
 
   const khoa = hinh?.khoa ?? null;
   const dangHien =
     khoa === null ? undefined : (khoi.find((mot) => mot.khoa === khoa) ?? khoiTuMau(khoiLap, khoa));
+  /* Mục đang hiện mà bài không có khối: im lặng chứ không in đoạn của hình khác. */
+  if (khoa !== null && dangHien === undefined) return undefined;
   const chon = dangHien ?? dau;
   const chuaVe = hinh === null || !hinh.daVe;
 

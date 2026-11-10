@@ -206,7 +206,9 @@ describe('mục "Đọc biểu đồ" chỉ có khi màn thật có khối biể
 
       expect(bai.bieuDo.khoi.length, bai.id).toBeGreaterThan(0);
       for (const khoi of bai.bieuDo.khoi) {
-        const chu = [khoi.ten, khoi.duong, khoi.cot, khoi.thanh].filter((mot) => mot !== undefined);
+        const chu = [khoi.ten, khoi.duong, khoi.cot, khoi.thanh, khoi.diem, khoi.thangDo].filter(
+          (mot) => mot !== undefined,
+        );
         // Tên, cộng ít nhất một đoạn.
         expect(chu.length, `${bai.id} · ${khoi.ten.vi}`).toBeGreaterThan(1);
         for (const mot of chu) {

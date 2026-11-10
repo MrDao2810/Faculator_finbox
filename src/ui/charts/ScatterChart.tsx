@@ -58,7 +58,9 @@ const LABEL_BUDGET = {
 } as const;
 
 /** Ô dò: cỡ chữ dòng ngày, dòng số, nhịp dòng và lề trong — cùng số với ô dò của hình cột. */
-const TIP = { title: 11, text: 10, line: 14, pad: 6 } as const;
+const TIP_WIDE = { title: 11, text: 10, line: 14, pad: 6 } as const;
+/** Khổ điện thoại (chủ dự án, 10/11/2026: ô dò "quá lớn"); chép với `.tipGon` trong `chart.module.css`. */
+const TIP_GON = { title: 9, text: 8, line: 11, pad: 5 } as const;
 
 /**
  * Đoạn của đường `y = a + b·x` nằm trong hộp — cắt theo cả bốn cạnh, trong hệ SỐ LIỆU. Không cắt
@@ -199,6 +201,7 @@ export function ScatterChart({ model, idBase, fill = false, size: sizeProp }: Sc
           `${tenTruc(pick(model.x.title))}: ${labelText(hoverPoint.xLabel)}`,
           `${tenTruc(pick(model.y.title))}: ${labelText(hoverPoint.yLabel)}`,
         ];
+  const TIP = size === 'compact' ? TIP_GON : TIP_WIDE;
   const oDo =
     hoverPoint === undefined || hoverDot === undefined
       ? null
@@ -367,7 +370,10 @@ export function ScatterChart({ model, idBase, fill = false, size: sizeProp }: Sc
         />
 
         {oDo !== null && hoverPoint !== undefined && (
-          <g className={styles.hoverOverlay} data-testid={`${idBase}-hover`}>
+          <g
+            className={`${styles.hoverOverlay} ${size === 'compact' ? styles.tipGon : ''}`}
+            data-testid={`${idBase}-hover`}
+          >
             <rect
               className={styles.columnTipBox}
               x={oDo.x}
@@ -376,7 +382,11 @@ export function ScatterChart({ model, idBase, fill = false, size: sizeProp }: Sc
               height={oDo.cao}
               rx={4}
             />
-            <text className={styles.columnTipTitle} x={oDo.x + TIP.pad} y={oDo.y + TIP.pad + 9}>
+            <text
+              className={styles.columnTipTitle}
+              x={oDo.x + TIP.pad}
+              y={oDo.y + TIP.pad + TIP.title - 2}
+            >
               {hoverPoint.label}
             </text>
             {dongDo.map((line, index) => (
@@ -384,7 +394,7 @@ export function ScatterChart({ model, idBase, fill = false, size: sizeProp }: Sc
                 key={`do-${String(index)}`}
                 className={styles.columnTipText}
                 x={oDo.x + TIP.pad}
-                y={oDo.y + TIP.pad + 9 + TIP.line * (index + 1)}
+                y={oDo.y + TIP.pad + TIP.title - 2 + TIP.line * (index + 1)}
               >
                 {line}
               </text>

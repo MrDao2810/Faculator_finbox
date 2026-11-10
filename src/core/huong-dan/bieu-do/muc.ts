@@ -11,8 +11,11 @@
  */
 
 import { BREAKDOWN_KEY } from '../../chart/breakdown';
+import { COLUMNS_KEY } from '../../chart/columns';
 import { COMPOSITION_KEY } from '../../chart/composition';
-import { HISTORY_KEY } from '../../chart/history';
+import { GAUGE_KEY } from '../../chart/gauge';
+import { COMPONENTS_KEY, HISTORY_KEY } from '../../chart/history';
+import { DISTRIBUTION_KEY, DRAWDOWN_KEY, SCATTER_KEY } from '../../chart/series-view';
 import type {
   BieuDoRieng,
   HaiDang,
@@ -64,6 +67,39 @@ export function mucBieuDo(
     });
   }
 
+  /*
+   * Sáu mục riêng (10/11/2026), đúng thứ tự `mucOChon()` của `build.ts` bày chúng: mục theo chuỗi
+   * (phân phối, sụt giảm, phân tán) và các đường thành phần trước Cơ cấu; cột theo kỳ và thang đo
+   * sau nó. Mục nào cũng chỉ vẽ được khi đã có chuỗi giá, trừ cột theo kỳ (theo kế hoạch).
+   */
+  if (keHoach.phanPhoi !== undefined && rieng.phanPhoi !== undefined) {
+    khoi.push({
+      khoa: DISTRIBUTION_KEY,
+      ten: keHoach.phanPhoi.ten,
+      cot: rieng.phanPhoi,
+      canChuoi: true,
+    });
+  }
+  if (keHoach.sutGiam !== undefined && rieng.sutGiam !== undefined) {
+    khoi.push({
+      khoa: DRAWDOWN_KEY,
+      ten: keHoach.sutGiam.ten,
+      ...cacDang(rieng.sutGiam),
+      canChuoi: true,
+    });
+  }
+  if (keHoach.phanTan !== undefined && rieng.phanTan !== undefined) {
+    khoi.push({ khoa: SCATTER_KEY, ten: keHoach.phanTan.ten, diem: rieng.phanTan, canChuoi: true });
+  }
+  if (keHoach.thanhPhan !== undefined && rieng.thanhPhan !== undefined) {
+    khoi.push({
+      khoa: COMPONENTS_KEY,
+      ten: keHoach.thanhPhan.ten,
+      duong: rieng.thanhPhan,
+      canChuoi: true,
+    });
+  }
+
   // Hình cơ cấu: ngay sau Bóc tách và Theo thời gian trong ô "Xem theo" thật (`build.ts`), trước
   // mọi ô nhập. Không bao giờ là `moRa` nên khỏi lo bước sắp cuối hàm đụng tới nó.
   if (keHoach.coCau !== undefined && rieng.coCau !== undefined) {
@@ -73,6 +109,23 @@ export function mucBieuDo(
       thanh: rieng.coCau.thanh,
       vanhKhuyen: rieng.coCau.vanhKhuyen,
       canChuoi: false,
+    });
+  }
+
+  if (keHoach.cotTheoKy !== undefined && rieng.cotTheoKy !== undefined) {
+    khoi.push({
+      khoa: COLUMNS_KEY,
+      ten: keHoach.cotTheoKy.ten,
+      cot: rieng.cotTheoKy,
+      canChuoi: keHoach.cotTheoKy.canChuoi,
+    });
+  }
+  if (keHoach.thangDo !== undefined && rieng.thangDo !== undefined) {
+    khoi.push({
+      khoa: GAUGE_KEY,
+      ten: keHoach.thangDo.ten,
+      thangDo: rieng.thangDo,
+      canChuoi: keHoach.thangDo.canChuoi,
     });
   }
 

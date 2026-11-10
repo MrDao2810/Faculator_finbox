@@ -885,6 +885,21 @@
   stroke-linejoin: round;
 }
 
+/* Khổ điện thoại: ô dò nhỏ hơn (xem `HOVER_SIZE_GON` trong LineChart.tsx). */
+.hoverGon .hoverLabel {
+  font-size: 9px;
+  stroke-width: 2.5px;
+}
+
+/* Khổ điện thoại của ô dò hình cột và hình phân tán (xem `TIP_GON`). */
+.tipGon .columnTipTitle {
+  font-size: 9px;
+}
+
+.tipGon .columnTipText {
+  font-size: 8px;
+}
+
 /* ── Thác nước bóc tách — WF-17 ─────────────────────────────────────────── */
 
 /*

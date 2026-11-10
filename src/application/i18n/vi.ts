@@ -2425,6 +2425,7 @@ export const vi = {
   'guide.chart.dots': 'Dạng Điểm',
   'guide.chart.step': 'Dạng Bậc thang',
   'guide.chart.signArea': 'Dạng Lãi/lỗ',
+  'guide.chart.gauge': 'Dạng Thang đo',
   'guide.chart.horizontalBars': 'Dạng Thanh ngang',
   'guide.chart.donut': 'Dạng Vành khuyên',
   'guide.chart.when.seriesOnly': 'Chỉ vẽ sau khi đã nạp mã cổ phiếu hoặc chuỗi giá.',

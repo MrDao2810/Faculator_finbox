@@ -63,7 +63,9 @@ const LABEL_BUDGET = {
 } as const;
 
 /** Ô dò: cỡ chữ dòng tên, dòng số, nhịp dòng và lề trong. */
-const TIP = { title: 11, text: 10, line: 14, pad: 6 } as const;
+const TIP_WIDE = { title: 11, text: 10, line: 14, pad: 6 } as const;
+/** Khổ điện thoại (chủ dự án, 10/11/2026: ô dò "quá lớn"); chép với `.tipGon` trong `chart.module.css`. */
+const TIP_GON = { title: 9, text: 8, line: 11, pad: 5 } as const;
 
 const TONE_CLASS: Readonly<Record<SeriesTone, string>> = {
   primary: styles.tonePrimary ?? '',
@@ -344,6 +346,7 @@ export function ColumnChart({ model, idBase, fill = false, size: sizeProp }: Col
           }),
         ];
   const tieuDeDo = hoverGroup === undefined ? '' : pick(hoverGroup.label);
+  const TIP = size === 'compact' ? TIP_GON : TIP_WIDE;
   const oDo =
     hoverCol === undefined
       ? null
@@ -620,7 +623,10 @@ export function ColumnChart({ model, idBase, fill = false, size: sizeProp }: Col
         />
 
         {oDo !== null && (
-          <g className={styles.hoverOverlay} data-testid={`${idBase}-hover`}>
+          <g
+            className={`${styles.hoverOverlay} ${size === 'compact' ? styles.tipGon : ''}`}
+            data-testid={`${idBase}-hover`}
+          >
             <rect
               className={styles.columnTipBox}
               x={oDo.x}
@@ -629,7 +635,11 @@ export function ColumnChart({ model, idBase, fill = false, size: sizeProp }: Col
               height={oDo.cao}
               rx={4}
             />
-            <text className={styles.columnTipTitle} x={oDo.x + TIP.pad} y={oDo.y + TIP.pad + 9}>
+            <text
+              className={styles.columnTipTitle}
+              x={oDo.x + TIP.pad}
+              y={oDo.y + TIP.pad + TIP.title - 2}
+            >
               {tieuDeDo}
             </text>
             {dongDo.map((line, index) => (
@@ -637,7 +647,7 @@ export function ColumnChart({ model, idBase, fill = false, size: sizeProp }: Col
                 key={`do-${String(index)}`}
                 className={styles.columnTipText}
                 x={oDo.x + TIP.pad}
-                y={oDo.y + TIP.pad + 9 + TIP.line * (index + 1)}
+                y={oDo.y + TIP.pad + TIP.title - 2 + TIP.line * (index + 1)}
               >
                 {line}
               </text>

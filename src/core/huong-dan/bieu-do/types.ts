@@ -97,10 +97,19 @@ export interface HaiDang {
 /**
  * Dạng ĐANG VẼ, theo tên trường của kho chữ — thứ `ChartBody` báo lên khung "?".
  *
- * Một tên cho mỗi dạng của `DangVe` (tầng biểu đồ), trừ Thang đo: mục ấy chưa có chữ, khung im
- * (`HinhDangXem.hinhChuoi`). `thanh` là dạng Thanh ngang của hình bóc tách.
+ * Một tên cho mỗi dạng của `DangVe` (tầng biểu đồ). `thanh` là dạng Thanh ngang của hình bóc tách,
+ * `thangDo` là dạng duy nhất của mục "Thang đo" (có chữ từ 10/11/2026).
  */
-export type DangDoc = 'duong' | 'cot' | 'diem' | 'bac' | 'laiLo' | 'nen' | 'thanh' | 'vanhKhuyen';
+export type DangDoc =
+  | 'duong'
+  | 'cot'
+  | 'diem'
+  | 'bac'
+  | 'laiLo'
+  | 'nen'
+  | 'thanh'
+  | 'vanhKhuyen'
+  | 'thangDo';
 
 /**
  * Chữ "Đọc biểu đồ" của một công thức. Trường nào có mặt là do HÌNH quyết định, không do người viết:
@@ -147,6 +156,30 @@ export interface BieuDoRieng {
     thanh: Bilingual;
     vanhKhuyen: Bilingual;
   };
+  /*
+   * ── Sáu mục chỉ có MỘT hình riêng của công thức (10/11/2026) ──────────────────────────────────
+   *
+   * Tới ngày này khung "?" IM với cả sáu: chủ dự án từng chốt "hướng dẫn sử dụng thì chưa cần" khi
+   * thêm chúng (21–26/10/2026). Rồi họ chụp hình "Đường MACD - hai đường EMA" và hỏi: _"biểu đồ này
+   * đang thiếu hướng dẫn sử dụng ? rà xoát lại và cập nhật hướng dẫn sử dụng (?) cho tôi"_, và chọn
+   * viết cho cả 40 hình chứ không riêng sáu hình thành phần. Từ đó mục nào của ô "Xem theo" cũng có
+   * chữ, và cờ `hinhChuoi` (khung im theo LOẠI mục) bỏ hẳn.
+   *
+   * Năm trường dưới là hình MỘT dạng — màn không bày ô "Loại biểu đồ" — nên mỗi trường một đoạn.
+   * `sutGiam` là hình đường thường, có đủ ô Loại biểu đồ, nên mang `HaiDang`.
+   */
+  /** "Các đường thành phần" (`COMPONENTS_KEY`, 6 công thức): mọi đường cùng một trục, chỉ dạng Đường. */
+  thanhPhan?: Bilingual;
+  /** "Phân phối lợi suất" (`DISTRIBUTION_KEY`, 12 công thức): cột đếm số phiên, chỉ dạng Cột. */
+  phanPhoi?: Bilingual;
+  /** "Đường sụt giảm" (`DRAWDOWN_KEY`, 4 công thức): Đường, Cột, Điểm, Bậc thang. */
+  sutGiam?: HaiDang;
+  /** "Phân tán lợi suất" (`SCATTER_KEY`, chỉ Beta): một chấm mỗi phiên, chỉ dạng Điểm. */
+  phanTan?: Bilingual;
+  /** "Cột theo kỳ" (`COLUMNS_KEY`, 14 công thức): một cột mỗi năm, kỳ, đợt hay phiên. */
+  cotTheoKy?: Bilingual;
+  /** "Thang đo" (`GAUGE_KEY`, RSI, Stochastic %K, %B): nửa vòng cung có kim. */
+  thangDo?: Bilingual;
 }
 
 /**
@@ -272,6 +305,36 @@ export interface KeHoachBocTach {
 }
 
 /**
+ * Kế hoạch của một hình MỘT dạng (thành phần, phân phối, phân tán, cột theo kỳ, thang đo).
+ *
+ * Đọc từ chính mô hình bộ dựng biểu đồ trả về (`ke-hoach.ts`), nên tên và nhãn là đúng chữ màn in.
+ */
+export interface KeHoachHinhMot {
+  /** Tên hình, đúng chữ màn in trên hình. Có thể mang `{khoá}` khi tên đổi theo một ô (số phiên). */
+  ten: Bilingual;
+  /**
+   * Nhãn chú giải của hình — tên từng đường, từng phần cột, từng vạch, từng vùng. Nhãn mang con số
+   * đổi theo ô nhập ("EMA 12 phiên") chỉ bị đòi phần chữ (`khucNhan()` ở `kiem.ts`).
+   */
+  nhan: ReadonlyArray<Bilingual>;
+  /** Mốc số đoạn chữ được phép (và phải) nhắc: biên giữa các vùng của thang đo. Rỗng ở hình khác. */
+  moc: ReadonlyArray<number>;
+  /** Hình chỉ có khi đã nạp chuỗi giá — đoạn chữ phải nói hình tính trên chuỗi "đã nạp". */
+  canChuoi: boolean;
+}
+
+/** Kế hoạch của "Đường sụt giảm": trục từng phiên, các dạng ô Loại biểu đồ mời. */
+export interface KeHoachSutGiam {
+  ten: Bilingual;
+  /** Dạng Cột: đường sụt giảm chỉ có một chuỗi nên luôn có, giữ thành cờ cho đúng phép dò. */
+  cot: boolean;
+  /** Bậc thang: trục từng phiên là trục rời rạc (`laTrucRoiRac()`). */
+  bac: boolean;
+  /** Lãi/lỗ: mức sụt không bao giờ âm, nên phép dò không bao giờ thấy. */
+  laiLo: boolean;
+}
+
+/**
  * Những hình mà màn tính của một công thức dựng được — `undefined` với 8 công thức không có khối
  * biểu đồ. Đây là "đề bài" của kho chữ: có hình nào ở đây thì phải có đoạn chữ cho hình ấy.
  */
@@ -287,6 +350,13 @@ export interface KeHoachBieuDo {
    * `false` (không bao giờ là hình mở ra), `vanhKhuyen` luôn `true` (xem `coCauTu()`).
    */
   coCau?: KeHoachBocTach;
+  /** Sáu mục riêng — xem `BieuDoRieng.thanhPhan` và các trường sau nó. */
+  thanhPhan?: KeHoachHinhMot;
+  phanPhoi?: KeHoachHinhMot;
+  sutGiam?: KeHoachSutGiam;
+  phanTan?: KeHoachHinhMot;
+  cotTheoKy?: KeHoachHinhMot;
+  thangDo?: KeHoachHinhMot;
   /**
    * Khoá của hình màn MỞ RA: một ô nhập (63 công thức), `BREAKDOWN_KEY` (5), hoặc `HISTORY_KEY`
    * với 35 công thức không vẽ gì cho tới khi có chuỗi giá — hình đầu tiên họ thấy là hình ấy.
@@ -314,6 +384,8 @@ export interface KhoiBieuDoBai {
   thanh?: Bilingual;
   /** Đoạn của hình bóc tách ở dạng Vành khuyên — chỉ năm công thức có. */
   vanhKhuyen?: Bilingual;
+  /** Đoạn của mục "Thang đo" — dạng duy nhất của nó. */
+  thangDo?: Bilingual;
   // Mộ chí: `nangCao` (in dấu "Nâng cao" cạnh tên hình) bỏ 05/11/2026 — lý do ở `vi.ts`.
   /** Hình chỉ vẽ được sau khi đã nạp mã cổ phiếu hoặc chuỗi giá. */
   canChuoi: boolean;
@@ -366,13 +438,10 @@ export interface HinhDangXem {
   dang: DangDoc;
   /** `false` khi khối Biểu đồ đang hiện cảnh báo thay cho hình. */
   daVe: boolean;
-  /**
-   * Hình đang hiện là một trong hai mục THEO CHUỖI GIÁ ("Phân phối lợi suất", "Đường sụt giảm",
-   * 21/10/2026). Hai mục ấy chưa có chữ — chủ dự án chốt "hướng dẫn sử dụng thì chưa cần" — nên
-   * khung "?" phải IM, không rơi về chữ của một hình khác; nút "?" của khối cũng ẩn khi cờ này bật.
-   *
-   * Từ 22/10/2026 cờ này còn bật cho mục "Cơ cấu …" (hình tròn), cùng lẽ chưa có chữ. Tên giữ
-   * nguyên; nghĩa thật là "hình đang hiện chưa có đoạn hướng dẫn".
+  /*
+   * Mộ chí: `hinhChuoi` (khung "?" im theo LOẠI mục — hai mục theo chuỗi giá, cột theo kỳ, thang
+   * đo, đường thành phần) bỏ ngày 10/11/2026, khi cả sáu mục ấy có chữ. Luật im còn lại là luật
+   * chung của `khoiDangXem()`: mục đang hiện mà kho không có khối, hay dạng đang vẽ mà khối không
+   * có đoạn, thì im — không bao giờ in chữ của một hình khác.
    */
-  hinhChuoi: boolean;
 }

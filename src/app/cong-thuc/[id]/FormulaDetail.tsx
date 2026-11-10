@@ -804,14 +804,6 @@ export function FormulaDetail({
    */
   const [hinhBieuDo, setHinhBieuDo] = useState<HinhDangXem | null>(null);
 
-  /*
-   * Khung "?" của khối Biểu đồ đang mở mà hình chuyển sang mục theo chuỗi giá (bàn phím đổi ô "Xem theo"
-   * khi khung còn mở): nút "?" bị gỡ và khung chỉ còn tiêu đề trơ — đóng nó cùng lúc.
-   */
-  useEffect(() => {
-    if (hinhBieuDo?.hinhChuoi === true) setGoiY((cu) => (cu?.muc === 'doc-bieu-do' ? null : cu));
-  }, [hinhBieuDo?.hinhChuoi]);
-
   const [pickerMounted, setPickerMounted] = useState(false);
   const [pickerOpen, setPickerOpen] = useState(false);
   /*
@@ -3684,15 +3676,13 @@ export function FormulaDetail({
               {/*
                 Nút "?" ẩn khi hình đang hiện là một mục theo chuỗi giá ("Phân phối lợi suất",
                 "Đường sụt giảm", 21/10/2026): hai mục ấy chưa có chữ, và một khung mở ra trống
-                không nói gì tệ hơn không có nút. Xem `HinhDangXem.hinhChuoi`.
+                không nói gì tệ hơn không có nút.
 
                 Từ 03/11/2026 nút còn ẩn khi DẠNG đang vẽ không có đoạn chữ (`khoiDangXem` trả
                 `undefined`): mỗi dạng một đoạn, và khung không bao giờ in đoạn của dạng khác.
               */}
-              {hinhBieuDo?.hinhChuoi === true ||
-              (bai?.bieuDo !== undefined &&
-                khoiDangXem(bai.bieuDo.khoi, hinhBieuDo, bai.bieuDo.khoiLap) ===
-                  undefined) ? null : (
+              {bai?.bieuDo !== undefined &&
+              khoiDangXem(bai.bieuDo.khoi, hinhBieuDo, bai.bieuDo.khoiLap) === undefined ? null : (
                 <MemoGuideHint
                   className={styles.hintCanhTieuDe}
                   href={`${guidePath(spec.id)}#doc-bieu-do`}

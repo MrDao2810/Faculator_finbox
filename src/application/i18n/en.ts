@@ -174,7 +174,7 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   /* `detail.fundamentalsSource` bỏ 14/09/2026 cùng `detail.tickerSticky` — xem `vi.ts`. */
   'detail.tickerLoading': 'fetching live data for this ticker…',
   'detail.tickerFailed':
-    'could not fetch data for this ticker - enter values by hand, or tap "Load sample" to use the bundled dataset.',
+    'could not fetch data for this ticker - enter values by hand, or try again later.',
   'detail.tickerNoData':
     'this ticker has no usable fundamentals yet (its reports lack four consecutive quarters, or the ' +
     'figures do not agree). Retrying will not help - pick another ticker, or enter values by hand.',
@@ -222,8 +222,7 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'detail.seriesLoaded': 'Price sessions loaded:',
   'detail.liveSeriesShort':
     'This ticker has a single price session - the live source provides no long history. This ' +
-    'formula needs many sessions: paste a price series, or tap “Load sample” and pick one of ' +
-    'the four sample tickers.',
+    'formula needs many sessions: paste a price series, or tap “Load illustrative example”.',
   /* Rút gọn theo bản tiếng Việt (23/09/2026) — lý do đầy đủ ghi ở `vi.ts`. */
   'detail.draftMarketSeries': 'These figures are illustrative only, not for real-world use.',
   'detail.openDataTable': 'Open the data table',
@@ -282,9 +281,6 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'preset.load': 'Load',
   'preset.noTickerNote':
     'None of the four tickers below changes a field of this formula, because it runs on your own numbers.',
-  'preset.noTickerXirr':
-    'Loading a ticker here replaces the cash-flow table with two rows built from its prices: ' +
-    '100.000.000 ₫ paid on the first session, its value received on the latest one.',
   'preset.cannotCompute': 'no result with this ticker',
   'preset.lastPrice': 'Latest session price',
   'preset.statements': 'Financial statements',
@@ -425,7 +421,8 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   /* `portfolio.formulaNeedsCode` đã xoá cùng bản Việt (22/09/2026) — xem bia mộ ở `vi.ts`. */
   'portfolio.formSubmitOpen': 'Add and open the formula',
   'portfolio.formSaveOpen': 'Save and open the formula',
-  'portfolio.formulasTitle': 'Formulas you can use with this ticker',
+  // Rút gọn 09/11/2026 cùng bản tiếng Việt: "· FUEVFVND" đo 237px, vừa một dòng ở 360px (241px).
+  'portfolio.formulasTitle': 'Formulas for this ticker',
   /* `portfolio.formulasSubtitle` đã xoá cùng bản Việt (14/09/2026) — xem lý do ở `vi.ts`. */
   'portfolio.formulasNoPrice':
     'No market price for this ticker, so formulas that need one are dropped or prefill fewer fields.',
@@ -455,7 +452,7 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'ticker.title': 'Pick a ticker',
   /* `ticker.subtitle` đã xoá cùng bản Việt (22/09/2026) — xem bia mộ ở `vi.ts`. */
   'ticker.searchLabel': 'Search by code or company name',
-  'ticker.searchPlaceholder': 'FPT, Hoa Phat…',
+  'ticker.searchPlaceholder': 'Search…',
   'ticker.pick': 'Pick',
   'ticker.held': 'Already held',
   'ticker.noData': 'No fundamentals',

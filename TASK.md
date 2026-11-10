@@ -4,6 +4,119 @@ Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 
 ---
 
+## Popup "Chọn mã cổ phiếu": chữ gợi ý ô tìm thành "Tìm kiếm…" (09/11/2026)
+
+**Trạng thái: CHƯA XONG — đã sửa, test xanh, chờ chủ dự án xác nhận.** Chủ dự án khoanh chữ "FPT, Hoà Phát…" trong ô
+tìm của popup chọn mã: _"đổi đoạn text sau thành 'Tìm kiếm ...'"_.
+
+- `src/application/i18n/vi.ts`, `en.ts`: `ticker.searchPlaceholder` "FPT, Hoà Phát…" → "Tìm kiếm…", EN "Search…". Dùng
+  dấu "…" một ký tự như mọi chữ gợi ý khác của sản phẩm. Khoá dùng chung nên cả hai popup chọn mã (màn công thức và
+  Danh mục) cùng đổi. Tên đọc của ô cho trình đọc màn hình vẫn là `ticker.searchLabel`, không đổi.
+- Kiểm: `TickerPickerSheet.test.tsx` và test i18n xanh (66 ca); không ca nào dò ô theo chữ gợi ý cũ.
+
+---
+
+## Màn công thức: "Nạp mẫu" mở thẳng popup "Chọn mã cổ phiếu" (09/11/2026)
+
+**Trạng thái: CHƯA XONG — đã sửa, test xanh, chờ chủ dự án xác nhận.** Chủ dự án chụp popup "Nạp bộ số liệu mẫu" (4 mã
+FPT/HPG/VNM/MWG + nút "Tìm mã khác trong toàn thị trường →"): _"đang thừa popup đầu tiên quá, cần gộp popup này với
+popup khi bấm vào 'Tìm mã khác…' … khi bấm vào Nạp Mẫu thì bật popup 'Chọn mã cổ phiếu' lên luôn"_. Khi được hỏi, chọn
+BỎ HẲN bốn mã mẫu ở màn công thức và GIỮ chữ "Nạp mẫu". Cùng lượt: _"xóa cả đoạn text này đi 'Nạp một mã ở đây sẽ thay
+bảng dòng tiền…'"_ (câu dẫn của XIRR trong popup cũ).
+
+- `src/app/cong-thuc/[id]/FormulaDetail.tsx`: nút "Nạp mẫu" gọi `openTickerPicker()`; bỏ `PresetSheet`, `presetPicks`,
+  `presetPickCtx`, `pickerFromPreset` (lùi về sheet mẫu khi bấm ×), loại sheet `'preset'`. File xuất ghi "số liệu
+  mẫu" theo `Preset.isDraft` của mã vừa nạp (`loadedDraft`) thay vì `hasDraftData()` (luôn đúng, sẽ dán nhãn bản thảo
+  lên số liệu thật của Finbox).
+- `src/application/i18n/vi.ts`, `en.ts`: bỏ `preset.noTickerXirr` (mộ chí); viết lại `detail.liveSeriesShort` (từng
+  bảo "chọn một trong bốn mã mẫu", nay trỏ nút "Nạp ví dụ minh hoạ") và `detail.tickerFailed` (từng bảo bấm "Nạp mẫu",
+  nay lại gọi đúng nguồn vừa hỏng; giờ là "thử lại sau").
+- `src/ui/sheets/PresetSheet.tsx`: XIRR không có câu dẫn nữa (không rơi về `noTickerNote`, câu ấy sai với XIRR).
+- `FormulaDetail.test.tsx`: helper `napMa()` thay `napDongDau()` (bấm "Nạp mẫu" → "Chọn" FPT, nguồn giả trả 10 phiên);
+  24 ca chuyển sang đường mới. Ca đổi nghĩa: Sharpe và SMA nạp mã xong vẫn chưa ra số (10 phiên), "Nạp ví dụ minh hoạ"
+  thì ra; P/E vẽ "qua 10 phiên"; ô "Giá mua" của mã thật đeo nhãn của mã. Bỏ hai ca lối rẽ/lùi về sheet mẫu, thêm ca
+  "đóng sheet chọn mã là thoát hẳn".
+- `scripts/chrome-check.mjs`: phép đo sheet Nạp mẫu chuyển sang `/du-lieu/` (chỗ duy nhất còn sheet ấy); phép đo sheet
+  chọn mã vào thẳng từ nút "Nạp mẫu".
+- `CLAUDE.md`: thêm mục mô tả thay đổi, sửa câu "× từ sheet chọn mã mở lại sheet mẫu".
+- Kiểm: 220 ca `FormulaDetail.test.tsx` xanh; cả bộ vitest 5.652 xanh, 2 đỏ vì quá 5 s khi chạy cùng lúc (hai ca cũ đã
+  ghi ở mục Danh mục bên dưới, không liên quan); typecheck, eslint, prettier sạch. **Chưa chạy `check:chrome`** (cần
+  build `out/`, dev server đang giữ :3000) và chưa thử trên Chrome thật.
+
+**Cái giá đã nói trước với chủ dự án:** Finbox chỉ có 10 phiên, nên 35 công thức chuỗi giá nạp mã xong vẫn báo thiếu
+phiên ở cửa sổ dài (RSI, SMA 20, Sharpe…); XIRR nạp mã chỉ tính trên khoảng hai tuần; mất mạng thì không nạp được.
+
+**Còn lại:** `PresetSheet` còn hai prop không ai truyền (`onBrowseMarket`, `marketAsOf`) và phần dựng nút rẽ; màn
+`/du-lieu/` vẫn mở sheet bốn mã mẫu như cũ (không có popup thứ hai để gộp). Chưa dọn, chờ quyết.
+
+---
+
+## Hướng dẫn sử dụng: bỏ câu "bảng giá ghi 66,8 nghĩa là 66.800 ₫" (09/11/2026)
+
+**Trạng thái: CHƯA XONG — đã sửa, test xanh, chờ chủ dự án xác nhận.** Chủ dự án khoanh câu lưu ý ở ô "Giá mua đợt 1
+(P1)" của DCA trong popover "Lấy số liệu ở đâu", ghi "Không thấy bảng giá ở đâu": _"xóa đoạn text khoanh đỏ đi, kiểm
+tra lại lỗi tương tự này ở phần hướng dẫn sử dụng"_.
+
+- `src/core/huong-dan/noi-dung/items.ts`: bỏ câu `luuY` "Tính bằng đồng: bảng giá ghi 66,8 nghĩa là 66.800 ₫." (và bản
+  EN) ở cả bảy ô mang nó: `price1` của `gia-von-trung-binh-dca`, `sellPrice` của sáu công thức phí/thuế. Câu này do
+  Claude thêm ngày 30/10/2026 (REVIEW-4 mục N3), không phải từ `guide-111.json`. Các ô ấy giờ chỉ còn câu `layODau`.
+- `noi-dung.test.ts`: số ô có lưu ý 166 → 159, số chuỗi 762 → 755, kèm lý do.
+- Kiểm: 355 test của `src/core/huong-dan`, `src/app/huong-dan`, `src/ui/guide` xanh.
+
+**Còn lại, chờ chủ dự án quyết:** 14 câu "Lấy số liệu ở đâu" khác còn chữ "bảng giá" (giá đóng cửa của `pe`, `pb`,
+`ty-le-chi-tra-co-tuc`, `von-hoa-thi-truong`, `ty-suat-loi-nhuan-tren-gia`, `bien-an-toan`, `ty-suat-co-tuc`; vốn hoá,
+P/E; VN30 và VN30F của bốn công thức phái sinh), một câu "Cách đọc kết quả" của `loi-nhuan-rong` và hai đoạn "Đọc biểu
+đồ" (CAPM, tỷ suất cổ tức). Ở đó "bảng giá" là nguồn bên ngoài (bảng giá của công ty chứng khoán), không phải câu đổi
+đơn vị; chưa sửa vì có thể là chữ của chủ dự án.
+
+---
+
+## Bài tập CAGR (Q417): sửa mốc thời gian, "đầu 2019 → cuối 2022" là 4 năm chứ không phải 3 (09/11/2026)
+
+**Trạng thái: CHƯA XONG — đã sửa, test xanh, chờ chủ dự án xác nhận.** Chủ dự án khoanh dòng "Thời gian nắm giữ từ
+đầu năm 2019 đến cuối năm 2022 · 3 năm" trong câu 4/4 của bài tập CAGR: _"đáp án sai số năm (đầu 2019 → cuối 2022 =
+'3 năm')"_. Đúng: từ đầu 2019 đến cuối 2022 là 4 năm, nên câu hỏi tự mâu thuẫn và "4 cột năm" (bẫy cố ý) lại thành
+đáp án đúng.
+
+- Nguồn (Pinetree, đọc lại 09/11/2026) chỉ viết "năm 2019 … 60.000 VNĐ … Sau ba năm, vào năm 2022 … 90.000 VNĐ",
+  "Số năm: 3". Cụm "đầu năm 2019" là do lúc soạn câu tự thêm vào, không có trong nguồn.
+- `src/core/quiz/items/thuc-hanh.ts` (Q417): mốc đầu đổi thành **cuối năm 2019** ở đề bài, ba nhãn bảng số liệu và
+  lời giải (vi, en), nên từ cuối 2019 đến cuối 2022 đúng 3 năm như nguồn; đáp án giữ nguyên (900.000.000 ÷
+  600.000.000, mũ 1 ÷ 3, 14,47%/năm). Đề bài nói rõ bảng "ghi giá trị cuối mỗi năm vào bốn cột", để bẫy "4 cột
+  nhưng 3 khoảng" vẫn đứng.
+- Vòng hai (cùng ngày): chủ dự án đọc dòng "Số cột năm trong bảng theo dõi danh mục (2019, 2020, 2021, 2022) · 4 năm"
+  cạnh "· 3 năm" như bảng tự mâu thuẫn, rồi: _"bỏ đoạn 'Số cột năm trong bảng theo dõi danh mục (2019, 2020, 2021,
+  2022)' đi"_. Dòng ấy là số gây nhiễu bịa ra (nguồn không có), ghi đơn vị "năm" cho một số đếm cột, và đề bài còn tự
+  giải thích cái bẫy ("t … chứ không phải số cột năm"), kiểu nhắc chủ dự án đã cho xoá ở 123 câu ngày 27/10. Đã bỏ
+  dòng đó, câu về bảng bốn cột trong đề bài, và đoạn "bẫy bốn cột" trong lời giải (vi, en). Số gây nhiễu còn lại
+  là giá 60.000 ₫ một cổ phiếu (có trong nguồn). Bảng còn 4 dòng; đáp án giữ nguyên.
+- Rà các câu hỏi và ví dụ khác có khoảng "từ năm X đến năm Y": chỉ còn ví dụ hình học của VN-Index (đầu 2024 tới hết
+  8/2026, ba kỳ 2024 · 2025 · 8 tháng 2026), đúng.
+- Kiểm: test của `src/core/quiz`, `src/ui/quiz`, `src/application/i18n` xanh (226); prettier, eslint sạch.
+
+---
+
+## Tấm "Công thức dùng được · mã" trên điện thoại: tiêu đề nhỏ lại, một dòng (09/11/2026)
+
+**Trạng thái: CHƯA XONG — đã sửa, test xanh, chờ chủ dự án xác nhận.** Chủ dự án khoanh tiêu đề "Công thức sử
+dụng được với mã này · ABS" của tấm chọn công thức (màn Danh mục, điện thoại): _"giảm size text này ở màn mobile
+web xuống. đang quá to và bị xuống dòng"_. Tiêu đề này đã hạ 20 → 16px ngày 19/10 mà vẫn hai dòng.
+
+- `src/ui/primitives/BottomSheet.module.css`: dưới 1024px tiêu đề hộp thoại nổi giữa 16 → 14px (tấm dán đáy giữ
+  16px). 14px là cỡ tấm Lưu, tấm Nạp mẫu, tấm chọn mã của màn chi tiết đã tự đặt, nên nay mọi hộp thoại nổi giữa
+  trên điện thoại cùng một cỡ. Đi theo: hộp Thêm/Sửa mã, tấm chọn mã của Danh mục, popup Bài tập (đo ở 360 và
+  390: hàng "Bài tập · Câu 1 / 4 · thanh tiến độ · ×" vẫn một hàng, 53px). Từ 1024px không đổi.
+- Đo trên Chrome: riêng 14px chưa đủ, câu cũ cần 278px mà chỗ có 269px (390) và 241px (360). Hỏi chủ dự án, chọn
+  rút gọn: `portfolio.formulasTitle` "Công thức dùng được" / "Formulas for this ticker" (`vi.ts`, `en.ts`). Lưu ý:
+  ngày 19/10 chủ dự án từng đổi "dùng được" thành "sử dụng được"; bản chọn hôm nay quay về "dùng được".
+- Sau khi sửa: một dòng ở 360 và 390, cả hai ngôn ngữ, cả mã 8 chữ (FUEVFVND: 228px VI, 236px EN); đầu tấm
+  73 → 53px; không cuộn ngang.
+- `BottomSheet.test.ts`: ca "tiêu đề nhỏ một bậc dưới 1024px" ghim 16px cho tấm dán đáy, 14px cho hộp nổi giữa.
+- Kiểm: test của primitives, sheets, quiz, danh-muc và ba cổng CSS toàn dự án (tokens, typography, hover) xanh;
+  prettier, eslint sạch.
+
+---
+
 ## Danh mục: số cổ phiếu phải là số nguyên (09/11/2026)
 
 **Trạng thái: CHƯA XONG — đã sửa, test xanh, chờ chủ dự án xác nhận.** Chủ dự án hỏi thị trường Việt Nam có mua được

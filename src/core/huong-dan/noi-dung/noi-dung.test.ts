@@ -146,16 +146,19 @@ describe('chữ của ô nhập gắn vào ĐÚNG ô, và phủ đủ mọi ô',
   });
 
   /*
-   * 166/263 ô có thêm một câu `luuY`. Con số này là một phép đếm, không phải một cái trần: thêm
+   * 159/263 ô có thêm một câu `luuY`. Con số này là một phép đếm, không phải một cái trần: thêm
    * lưu ý cho một ô là việc tốt. Ghim để thấy nó đi lên, và để không ai xoá bớt mà không ai biết.
    *
+   * Từ 166 về lại 159 ngày 09/11/2026: chủ dự án khoanh câu "Tính bằng đồng: bảng giá ghi 66,8 nghĩa
+   * là 66.800 ₫." ở ô giá đợt 1 của DCA, ghi "Không thấy bảng giá ở đâu", và bảo xoá; cả bảy ô mang
+   * câu ấy đều bỏ. Đừng thêm lại một câu đổi đơn vị trỏ vào "bảng giá" mà màn không có.
    * Từ 159 lên 166 ngày 30/10/2026: bảy ô giá (giá bán, giá đợt 1) có câu nói giá tính bằng đồng.
    * Từ 163 xuống 159 ngày 14/10/2026: bốn trong sáu ô nhóm lặp bị bỏ câu có lưu ý (giá đợt 2, 3 và
    * kỳ 2, 3).
    */
-  it('166 ô có thêm câu lưu ý', () => {
+  it('159 ô có thêm câu lưu ý', () => {
     const coLuuY = MOI_O.filter(({ o }) => (o?.luuY?.vi ?? '').trim() !== '');
-    expect(coLuuY).toHaveLength(166);
+    expect(coLuuY).toHaveLength(159);
   });
 
   /*
@@ -298,8 +301,9 @@ describe('bản tiếng Anh của kho', () => {
     ),
   ];
 
-  it('đủ 762 chuỗi, chuỗi nào cũng có bản tiếng Anh', () => {
-    expect(MOI_CAP).toHaveLength(762);
+  /* 762 → 755 ngày 09/11/2026: bỏ bảy câu `luuY` "bảng giá ghi 66,8" (xem ca 159 ô ở trên). */
+  it('đủ 755 chuỗi, chuỗi nào cũng có bản tiếng Anh', () => {
+    expect(MOI_CAP).toHaveLength(755);
     for (const { nhan, cau } of MOI_CAP) {
       expect((cau.en ?? '').trim(), nhan).not.toBe('');
     }

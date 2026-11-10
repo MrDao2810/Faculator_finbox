@@ -1738,10 +1738,6 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
           vi: 'Giá khớp lệnh bán, hoặc giá dự định bán.',
           en: 'The price your sell order was filled at, or the price you plan to sell at.',
         },
-        luuY: {
-          vi: 'Tính bằng đồng: bảng giá ghi 66,8 nghĩa là 66.800 ₫.',
-          en: 'In dong: a price board showing 66,8 means 66.800 ₫.',
-        },
       },
       days: {
         layODau: {
@@ -3276,10 +3272,6 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
           vi: 'Giá khớp lệnh bán, hoặc giá dự định bán.',
           en: 'The price your sell order was matched at, or the price you plan to sell at.',
         },
-        luuY: {
-          vi: 'Tính bằng đồng: bảng giá ghi 66,8 nghĩa là 66.800 ₫.',
-          en: 'In dong: a price board showing 66,8 means 66.800 ₫.',
-        },
       },
     },
     docKetQua: {
@@ -3312,10 +3304,6 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
         layODau: {
           vi: 'Giá khớp lệnh bán, hoặc giá dự định bán.',
           en: 'The price your sell order was matched at, or the price you plan to sell at.',
-        },
-        luuY: {
-          vi: 'Tính bằng đồng: bảng giá ghi 66,8 nghĩa là 66.800 ₫.',
-          en: 'In dong: a price board showing 66,8 means 66.800 ₫.',
         },
       },
     },
@@ -3479,10 +3467,6 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
           vi: 'Giá khớp lệnh bán, hoặc giá dự định bán.',
           en: 'The price your sell order was matched at, or the price you plan to sell at.',
         },
-        luuY: {
-          vi: 'Tính bằng đồng: bảng giá ghi 66,8 nghĩa là 66.800 ₫.',
-          en: 'In dong: a price board showing 66,8 means 66.800 ₫.',
-        },
       },
     },
     docKetQua: {
@@ -3531,10 +3515,6 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
         layODau: {
           vi: 'Giá khớp lệnh bán, hoặc giá dự định bán.',
           en: 'The price your sell order was matched at, or the price you plan to sell at.',
-        },
-        luuY: {
-          vi: 'Tính bằng đồng: bảng giá ghi 66,8 nghĩa là 66.800 ₫.',
-          en: 'In dong: a price board showing 66,8 means 66.800 ₫.',
         },
       },
     },
@@ -3948,10 +3928,6 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
           vi: 'Giá khớp của đợt mua đầu tiên.',
           en: 'The matched price of the first purchase round.',
         },
-        luuY: {
-          vi: 'Tính bằng đồng: bảng giá ghi 66,8 nghĩa là 66.800 ₫.',
-          en: 'In dong: a price board showing 66,8 means 66.800 ₫.',
-        },
       },
       // Đợt 2 và đợt 3 không còn câu riêng (14/10/2026). Chủ dự án chụp chúng trong khung "?": _"xóa
       // mấy kiểu giải thích tôi đưa như này đi"_. Chúng lặp lại câu của đợt 1, và "để 0 nếu chưa có
@@ -4118,10 +4094,6 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
         layODau: {
           vi: 'Giá khớp lệnh bán, hoặc giá dự định bán.',
           en: 'The price your sell order was matched at, or the price you plan to sell at.',
-        },
-        luuY: {
-          vi: 'Tính bằng đồng: bảng giá ghi 66,8 nghĩa là 66.800 ₫.',
-          en: 'In dong: a price board showing 66,8 means 66.800 ₫.',
         },
       },
       dividendPerShare: {

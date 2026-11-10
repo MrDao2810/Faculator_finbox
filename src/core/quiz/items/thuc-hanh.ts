@@ -334,14 +334,14 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Đầu năm 2019 một nhà đầu tư bỏ 600.000.000 ₫ mua cổ phiếu VCB ở giá 60.000 ₫ một cổ phiếu. Cuối năm 2022 giá lên 90.000 ₫ nên vẫn số cổ phiếu ấy đã thành 900.000.000 ₫. Bảng theo dõi danh mục của nhà đầu tư kẻ bốn cột năm là 2019, 2020, 2021 và 2022, nhưng t trong công thức CAGR là số năm đã trôi qua giữa hai mốc chứ không phải số cột năm trong bảng. Đặt đúng ba số của bảng vào vị trí của công thức CAGR.',
-      en: "At the start of 2019 an investor put 600,000,000 ₫ into VCB shares at 60,000 ₫ per share. By the end of 2022 the price had risen to 90,000 ₫, so the same shares were worth 900,000,000 ₫. The investor's portfolio sheet has four year columns, 2019, 2020, 2021 and 2022, but t in the CAGR formula is the number of years that elapsed between the two marks, not the number of year columns in the sheet. Put the right three figures from the table into the slots of the CAGR formula.",
+      vi: 'Cuối năm 2019 một nhà đầu tư bỏ 600.000.000 ₫ mua cổ phiếu VCB ở giá 60.000 ₫ một cổ phiếu. Cuối năm 2022 giá lên 90.000 ₫ nên vẫn số cổ phiếu ấy đã thành 900.000.000 ₫. Đặt đúng ba số của bảng vào vị trí của công thức CAGR.',
+      en: 'At the end of 2019 an investor put 600,000,000 ₫ into VCB shares at 60,000 ₫ per share. By the end of 2022 the price had risen to 90,000 ₫, so the same shares were worth 900,000,000 ₫. Put the right three figures from the table into the slots of the CAGR formula.',
     },
     facts: [
       {
         label: {
-          vi: 'Giá trị cả khoản đầu tư đầu năm 2019',
-          en: 'Value of the whole investment at the start of 2019',
+          vi: 'Giá trị cả khoản đầu tư cuối năm 2019',
+          en: 'Value of the whole investment at the end of 2019',
         },
         value: { vi: '600.000.000 ₫', en: '600000000 ₫' },
       },
@@ -354,22 +354,15 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
       },
       {
         label: {
-          vi: 'Giá một cổ phiếu VCB đầu năm 2019',
-          en: 'Price of one VCB share at the start of 2019',
+          vi: 'Giá một cổ phiếu VCB cuối năm 2019',
+          en: 'Price of one VCB share at the end of 2019',
         },
         value: { vi: '60.000 ₫', en: '60000 ₫' },
       },
       {
         label: {
-          vi: 'Số cột năm trong bảng theo dõi danh mục (2019, 2020, 2021, 2022)',
-          en: 'Year columns in the portfolio sheet (2019, 2020, 2021, 2022)',
-        },
-        value: { vi: '4 năm', en: '4 years' },
-      },
-      {
-        label: {
-          vi: 'Thời gian nắm giữ từ đầu năm 2019 đến cuối năm 2022',
-          en: 'Holding period from the start of 2019 to the end of 2022',
+          vi: 'Thời gian nắm giữ từ cuối năm 2019 đến cuối năm 2022',
+          en: 'Holding period from the end of 2019 to the end of 2022',
         },
         value: { vi: '3 năm', en: '3 years' },
       },
@@ -382,8 +375,8 @@ export const THUC_HANH: ReadonlyArray<QuizItem> = [
       en: 'CAGR = (([900000000] ÷ [600000000])^(1 ÷ [3]) − 1) × 100',
     },
     explain: {
-      vi: 'Tử số là giá trị cuối 900.000.000 ₫, mẫu số là giá trị đầu 600.000.000 ₫, số mũ là 1 chia cho 3 năm nắm giữ. Pinetree viết thẳng phép tính ấy: “[(900.000.000/ 600.000.000) ^ (1/3)] – 1 = 14%”, con số nguồn làm tròn xuống, còn tính đủ chữ số thì ra 14,47%/năm. Bẫy thứ nhất là bốn cột năm: bảng có 2019, 2020, 2021, 2022 nên rất dễ đặt 4 vào ô số năm, nhưng từ đầu 2019 đến cuối 2022 chỉ có 3 năm tăng trưởng, và đặt 4 sẽ kéo kết quả xuống 10,67%/năm, tức chia mức tăng cho một năm không hề tồn tại. Bẫy thứ hai là 60.000 ₫: đó là giá một cổ phiếu, ghép nó với 900.000.000 ₫ của cả khoản đầu tư thì hai vế của tỷ số không cùng đơn vị và kết quả vọt lên mấy nghìn phần trăm. Trừ 1 và nhân 100 là hằng số của công thức, một bước bóc phần vốn gốc ra khỏi hệ số nhân, một bước đổi tỷ lệ 0,1447 sang phần trăm, nên cả hai đều không phải ô trống.',
-      en: 'The numerator is the ending value of 900,000,000 ₫, the denominator the starting value of 600,000,000 ₫, and the exponent is 1 divided by the 3 years held. Pinetree writes the arithmetic out directly: “[(900.000.000/ 600.000.000) ^ (1/3)] – 1 = 14%”, a figure the source rounds down; carried to more digits it is 14.47%/year. The first trap is the four year columns: the sheet lists 2019, 2020, 2021 and 2022, so it is tempting to put 4 in the years slot, but only 3 years of growth elapsed between the start of 2019 and the end of 2022, and a 4 would drag the result down to 10.67%/year, spreading the gain over a year that never happened. The second trap is the 60,000 ₫: that is the price of one share, and pairing it with the 900,000,000 ₫ of the whole investment leaves the two sides of the ratio in different units, which sends the result into the thousands of percent. Subtracting 1 and multiplying by 100 are constants of the formula, one stripping the original capital out of the growth multiple and one turning the 0.1447 ratio into a percentage, so neither is a slot.',
+      vi: 'Tử số là giá trị cuối 900.000.000 ₫, mẫu số là giá trị đầu 600.000.000 ₫, số mũ là 1 chia cho 3 năm nắm giữ, từ cuối 2019 đến cuối 2022. Pinetree viết thẳng phép tính ấy: “[(900.000.000/ 600.000.000) ^ (1/3)] – 1 = 14%”, con số nguồn làm tròn xuống, còn tính đủ chữ số thì ra 14,47%/năm. Số gây nhiễu trong bảng là 60.000 ₫: đó là giá một cổ phiếu, ghép nó với 900.000.000 ₫ của cả khoản đầu tư thì hai vế của tỷ số không cùng đơn vị và kết quả vọt lên mấy nghìn phần trăm. Trừ 1 và nhân 100 là hằng số của công thức, một bước bóc phần vốn gốc ra khỏi hệ số nhân, một bước đổi tỷ lệ 0,1447 sang phần trăm, nên cả hai đều không phải ô trống.',
+      en: 'The numerator is the ending value of 900,000,000 ₫, the denominator the starting value of 600,000,000 ₫, and the exponent is 1 divided by the 3 years held, from the end of 2019 to the end of 2022. Pinetree writes the arithmetic out directly: “[(900.000.000/ 600.000.000) ^ (1/3)] – 1 = 14%”, a figure the source rounds down; carried to more digits it is 14.47%/year. The distractor in the table is the 60,000 ₫: that is the price of one share, and pairing it with the 900,000,000 ₫ of the whole investment leaves the two sides of the ratio in different units, which sends the result into the thousands of percent. Subtracting 1 and multiplying by 100 are constants of the formula, one stripping the original capital out of the growth multiple and one turning the 0.1447 ratio into a percentage, so neither is a slot.',
     },
     giai: {
       tinh: { vi: 'tăng trưởng kép hằng năm', en: 'Compound annual growth rate' },

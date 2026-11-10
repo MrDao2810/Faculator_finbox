@@ -54,7 +54,6 @@ import {
   guidePath,
   formatIsoDate,
   formatValueWithUnit,
-  hasDraftData,
   hasDraftMarketSeries,
   isTickerCode,
   needsPriceSeries,
@@ -67,7 +66,6 @@ import {
   parseSavedCalcs,
   parseStoredSeries,
   parseWorkingSeries,
-  pickPresetsFor,
   presetInputs,
   presetRealKeys,
   putDraft,
@@ -138,7 +136,7 @@ import { holdOriginThrough } from '@/ui/layout/OriginTracker';
 import { DisclaimerBar, useBackTarget } from '@/ui/navigation';
 import { GuideHint, khoiDangXem } from '@/ui/guide';
 import { QuizPanel } from '@/ui/quiz';
-import { ExportSheet, PresetSheet, SaveCalcSheet } from '@/ui/sheets';
+import { ExportSheet, SaveCalcSheet } from '@/ui/sheets';
 import {
   ChainPanel,
   DetailBody,
@@ -354,7 +352,8 @@ export interface FormulaDetailProps {
   bai?: BaiHuongDan;
 }
 
-type SheetKind = 'preset' | 'paste' | 'export' | 'save';
+/* `'preset'` rời danh sách 09/11/2026: "Nạp mẫu" mở thẳng sheet chọn mã — xem `openTickerPicker()`. */
+type SheetKind = 'paste' | 'export' | 'save';
 
 /** Thứ màn cần nhớ về một phép tính vừa mở lại từ `?luu=`. */
 interface RestoredCalc {
@@ -622,6 +621,15 @@ export function FormulaDetail({
   }, [inputs, activeSpec.variables, t, pick, spec.name]);
   const [loadedPreset, setLoadedPreset] = useState<string | null>(null);
   /**
+   * Mã vừa nạp có phải bộ mẫu BẢN THẢO không (`Preset.isDraft`) — để file xuất chỉ dán nhãn "số
+   * liệu mẫu" khi đúng là thế.
+   *
+   * Trước 09/11/2026 file xuất hỏi `hasDraftData()`, tức "kho mẫu CÓ bản thảo không", luôn đúng.
+   * Khi nút "Nạp mẫu" còn mở bốn mã mẫu thì câu ấy phần lớn trúng; nay nút mở thẳng kho mã thật
+   * của Finbox (`isDraft: false`), và hỏi kho là dán nhãn bản thảo lên số liệu thật.
+   */
+  const [loadedDraft, setLoadedDraft] = useState(false);
+  /**
    * Lượt nạp mẫu gần nhất: mã nào, và mã đó điền được ĐÚNG những ô nào.
    *
    * Giữ mã chứ không giữ cờ đúng/sai: câu báo phải gọi đúng tên mã người dùng vừa chọn, không thì
@@ -796,26 +804,11 @@ export function FormulaDetail({
 
   const [pickerMounted, setPickerMounted] = useState(false);
   const [pickerOpen, setPickerOpen] = useState(false);
-  /**
-   * Sheet chọn mã đang được mở TỪ sheet "Nạp mẫu" — đóng nó thì phải quay lại sheet ấy.
-   *
-   * Người dùng vào đây bằng hai đường khác nhau, và "đóng" ở hai đường ấy có nghĩa khác nhau:
-   * từ nút "Đổi mã" thì đóng là xong việc, còn từ lối rẽ trong sheet mẫu thì đóng nghĩa là
-   * "thôi, không tìm mã khác nữa" — trả họ về đúng chỗ vừa rời đi, không phải quăng thẳng ra
-   * màn hình. Chỉ áp dụng cho lối THOÁT: chọn được mã rồi thì cả hai sheet cùng đóng.
-   *
-   * `useRef` chứ không `useState`, và đó là phần cốt lõi: `TickerPickerSheet` gọi `onPick()`
-   * RỒI mới gọi `onClose()` trong cùng một lượt xử lý sự kiện, nên một biến state sẽ vẫn mang
-   * giá trị cũ (`true`) lúc `closeTickerPicker()` chạy và sheet mẫu bật lại ngay sau khi người
-   * dùng vừa chọn xong mã.
-   *
-   * Nút thoát KHÔNG đổi hình theo lối vào nữa (21/10/2026): trước đó vào từ sheet mẫu thì nút là
-   * mũi tên ‹ bên trái, có một bản state `pickerShowsBack` đi kèm để dựng nó. Chủ dự án khoanh mũi
-   * tên ấy: _"chuyển icon back này thành icon close và chuyển sang bên phải"_. Nay mọi lối vào đều là
-   * dấu × ở mép phải; còn HÀNH VI lùi về sheet mẫu thì giữ, vì chính chủ dự án đã báo việc thoát
-   * thẳng ra màn là lỗi.
+  /*
+   * `pickerFromPreset` đã BỎ (09/11/2026): cờ ấy nhớ sheet chọn mã được mở từ sheet "Nạp mẫu" để
+   * đóng thì lùi về đó. Nút "Nạp mẫu" nay mở thẳng sheet chọn mã và màn này không còn sheet mẫu,
+   * nên không còn chỗ nào để lùi về — xem `openTickerPicker()`.
    */
-  const pickerFromPreset = useRef(false);
   /**
    * Số thứ tự lượt chọn mã, và bộ huỷ của lượt đang chạy — chống đua trong `pickTicker()`.
    *
@@ -1133,8 +1126,7 @@ export function FormulaDetail({
    *      sai khi cùng mã, và chỗ chữa nằm ở nhánh `applyPresetRef` bên dưới, không ở đây.
    *
    * Ref giữ bản nháp cho nhánh ấy đọc: `TickerPickerSheet`/`loadLivePreset` đều bất đồng bộ, mà
-   * một biến state đọc trong callback bất đồng bộ sẽ mang giá trị của lượt render đã đóng gói —
-   * cùng bài học đã ghi ở `pickerFromPreset`.
+   * một biến state đọc trong callback bất đồng bộ sẽ mang giá trị của lượt render đã đóng gói.
    */
   const draftRef = useRef<{ inputs: Readonly<Record<string, number>>; code: string | null } | null>(
     null,
@@ -1631,39 +1623,10 @@ export function FormulaDetail({
     return mau !== undefined && Object.keys(presetInputs(mau, spec)).length > 0;
   }, [formula, wantsSeries, spec]);
 
-  /**
-   * Bốn mã mẫu đáng thử nhất cho công thức này, kèm kết quả của từng mã (xem `pickPresetsFor()`).
-   *
-   * ── Vì sao chờ sheet được dựng mới tính ─────────────────────────────────────────────────────
-   *
-   * Phép chọn chạy thật công thức với CẢ KHO mã, nên nó là 24 lượt `runFormula()`. Tính sẵn lúc
-   * gắn màn thì cả 111 trang chi tiết phải trả cái giá ấy, kể cả trang người dùng không hề mở
-   * sheet — mà sheet vốn đã nạp trễ đúng vì lý do đó. `mountedSheets` bật lên ở lần mở đầu tiên
-   * và không tắt lại, nên tính đúng một lần rồi nhớ.
-   *
-   * ── Vì sao KHÔNG dùng `ctx` của màn ────────────────────────────────────────────────────────
-   *
-   * `ctx` phụ thuộc `bars` và `cashflowRows`, tức đổi theo từng phím gõ — bám vào nó là 24 lượt
-   * chạy công thức cho mỗi ký tự. Bối cảnh riêng dưới đây chỉ giữ phần KHÔNG đổi theo thao tác
-   * (ngày tra hằng số, biểu phí, chuỗi VN-Index); chuỗi phiên thì `pickPresetsFor()` tự lắp của
-   * từng mã vào, nên không mất gì.
+  /*
+   * `presetPicks` (bốn mã mẫu xếp hạng cho công thức này qua `pickPresetsFor()`) đã BỎ ở màn này
+   * ngày 09/11/2026 cùng `PresetSheet` — xem `openTickerPicker()`.
    */
-  const presetPickCtx = useMemo<CalcContext>(
-    () => ({
-      asOf,
-      schedule: scheduleOrDefault(MARKET_CONFIG, feeScheduleId),
-      marketSeries: VN_INDEX_CLOSES,
-    }),
-    [asOf, feeScheduleId],
-  );
-
-  const presetPicks = useMemo(
-    () =>
-      formula === undefined || !mountedSheets.has('preset')
-        ? []
-        : pickPresetsFor(formula, SAMPLE_DATA.list(), presetPickCtx),
-    [formula, mountedSheets, presetPickCtx],
-  );
 
   /**
    * Công thức có hồi quy với chuỗi thị trường hay không.
@@ -2001,6 +1964,7 @@ export function FormulaDetail({
     if (napDuocGi) {
       setInputs((current) => ({ ...current, ...fromPreset }));
       setLoadedPreset(preset.code);
+      setLoadedDraft(preset.isDraft);
     }
     /*
      * Ca không nạp được gì: không đụng ô nhập, không dựng dải "đã nạp" — nhưng VẪN ghi mã vào kho
@@ -2427,29 +2391,27 @@ export function FormulaDetail({
   /**
    * Mở sheet chọn mã toàn thị trường.
    *
-   * Hai lối vào cùng gọi hàm này — nút "Đổi mã" ở thanh mã, và lối rẽ cuối `PresetSheet` — nên
+   * Mọi lối vào cùng gọi hàm này — nút "Nạp mẫu", chip mã, nút "Đổi mã" của dải `no-data` — nên
    * chúng không thể lệch nhau ở phần dựng sheet (`pickerMounted` là ranh giới `next/dynamic`,
-   * quên bật là sheet không bao giờ hiện). Chỉ khác nhau ở đường LÙI, xem `pickerFromPreset`.
+   * quên bật là sheet không bao giờ hiện).
+   *
+   * Nút "Nạp mẫu" mở THẲNG sheet này từ 09/11/2026. Trước đó nó mở `PresetSheet` (bốn mã mẫu
+   * FPT/HPG/VNM/MWG của `samples.ts`, chuỗi 248 phiên tự dựng), và sheet chọn mã chỉ là lối rẽ
+   * "Tìm mã khác trong toàn thị trường →" ở cuối sheet ấy. Chủ dự án: _"đang thừa popup đầu tiên
+   * quá … khi bấm vào Nạp Mẫu thì bật popup 'Chọn mã cổ phiếu' lên luôn"_, và chọn BỎ HẲN bốn mã
+   * mẫu ở màn này khi được hỏi. Cái giá, đã nói trước với chủ dự án: Finbox chỉ có 10 phiên giá
+   * (`tendays`), nên 35 công thức chuỗi giá nạp mã sẽ báo thiếu phiên (biểu đồ đủ dài thì dùng
+   * "Xem ví dụ minh hoạ"), XIRR nạp mã chỉ tính trên khoảng hai tuần, và mất mạng thì không nạp
+   * được. Màn `/du-lieu/` vẫn giữ `PresetSheet`: ở đó không có sheet thứ hai để gộp.
    */
-  function openTickerPicker(fromPreset = false): void {
-    pickerFromPreset.current = fromPreset;
+  function openTickerPicker(): void {
     setPickerMounted(true);
     setPickerOpen(true);
   }
 
-  /**
-   * Thoát sheet chọn mã mà KHÔNG chọn mã nào.
-   *
-   * Vào từ sheet mẫu thì lùi về đúng sheet đó — người dùng bấm "Tìm mã khác" rồi đổi ý, họ đang
-   * ở giữa việc chọn mã chứ không phải đã xong việc. Hai `<dialog>` là hai thẻ riêng nên đóng
-   * cái này mở cái kia trong cùng một lượt render là hợp lệ.
-   */
+  /** Thoát sheet chọn mã mà KHÔNG chọn mã nào: không còn sheet mẫu nào để lùi về. */
   function closeTickerPicker(): void {
     setPickerOpen(false);
-    if (pickerFromPreset.current) {
-      pickerFromPreset.current = false;
-      openSheet('preset');
-    }
   }
 
   /**
@@ -2474,8 +2436,6 @@ export function FormulaDetail({
     if (!isTickerCode(wanted)) return;
 
     setPickerOpen(false);
-    // Chọn xong là hết việc: đừng lùi về sheet mẫu ở lượt đóng này (xem `closeTickerPicker`).
-    pickerFromPreset.current = false;
     setLiveTicker({ code: wanted, status: 'loading' });
 
     pickAbort.current?.abort();
@@ -3009,8 +2969,9 @@ export function FormulaDetail({
                 <Button
                   variant="secondary"
                   size="sm"
+                  /* Mở thẳng sheet chọn mã từ 09/11/2026 — xem `openTickerPicker()`. */
                   onClick={() => {
-                    openSheet('preset');
+                    openTickerPicker();
                   }}
                 >
                   {t('detail.loadPreset')}
@@ -3029,11 +2990,9 @@ export function FormulaDetail({
                     className={styles.tickerPick}
                     aria-label={`${t('detail.tickerChange')} ${stickyTicker}`}
                     /*
-                      Mở thẳng kho mã toàn thị trường, đúng như nút "Đổi mã" của thanh cũ — nửa
-                      này KẾ THỪA nút ấy chứ không kế thừa nút "Nạp mẫu". Đã có mã rồi thì việc
-                      cần làm là tìm mã khác, mà sheet mẫu chỉ bày bốn mã; vào thẳng kho là bớt
-                      một lần bấm. Bọc trong hàm vì `onClick` truyền sự kiện chuột vào tham số
-                      `fromPreset`.
+                      Mở thẳng kho mã toàn thị trường, đúng như nút "Đổi mã" của thanh cũ. Từ
+                      09/11/2026 nút "Nạp mẫu" cũng mở đúng sheet này, nên hai nửa của chỗ này đi
+                      cùng một đường.
                     */
                     onClick={() => {
                       openTickerPicker();
@@ -3882,32 +3841,6 @@ export function FormulaDetail({
       <DisclaimerBar variant="notice" />
 
       {/* ── Ba bottom sheet của gói 2.5 — chỉ dựng từ lần mở đầu tiên ────── */}
-      {mountedSheets.has('preset') && (
-        <PresetSheet
-          open={sheet === 'preset'}
-          onClose={() => {
-            setSheet(null);
-          }}
-          onLoad={applyPreset}
-          picks={presetPicks}
-          spec={spec}
-          wantsSeries={wantsSeries}
-          /*
-            Lối rẽ sang kho mã lớn ngay trong sheet mẫu. Trước đợt này hai kho mã chỉ gặp nhau
-            ở thanh "Đổi mã", tức là người dùng phải NẠP một mã mẫu mới thấy được đường sang
-            1.649 mã kia — xem docblock `PresetSheet`.
-
-            `true` = vào từ sheet mẫu, nên đóng sheet chọn mã là LÙI về đây chứ không thoát hẳn.
-          */
-          onBrowseMarket={() => {
-            openTickerPicker(true);
-          }}
-          // Cùng ngày với `markUnusableAsOf` của sheet chọn mã phía dưới: con số trên nút và luật
-          // khoá nút "Chọn" ở sheet kia phải đọc một bảng, xét cũ/mới theo một mốc.
-          marketAsOf={asOf}
-        />
-      )}
-
       {mountedSheets.has('paste') && (
         <PasteImportPanel
           open={sheet === 'paste'}
@@ -3961,9 +3894,8 @@ export function FormulaDetail({
           // Bản xuất phải mang con số thật sự đã dùng để tính, kể cả số chảy từ bước trước sang.
           inputs={effectiveInputs}
           mode={mode}
-          // Người dùng vừa nạp bộ mẫu thì file xuất ra phải tự nói điều đó (bộ mẫu hiện toàn
-          // là bản thảo — xem src/data/samples.ts).
-          fromDraftData={loadedPreset !== null && hasDraftData()}
+          // Mã đang nạp là bộ mẫu bản thảo thì file xuất ra phải tự nói điều đó — xem `loadedDraft`.
+          fromDraftData={loadedPreset !== null && loadedDraft}
         />
       )}
 
@@ -3994,9 +3926,9 @@ export function FormulaDetail({
           open={pickerOpen}
           onClose={closeTickerPicker}
           /*
-            Nổi giữa màn ở mọi khổ và đầu tấm gọn dưới 1024px (21/10/2026), cùng dáng tấm Nạp mẫu mà nó
-            thay chỗ qua lối rẽ "Danh sách … mã khác →" — chủ dự án: _"chuyển sang màn mới là màn chọn mã
-            thì cũng là dialog giữa"_. Lý do ở docblock hai prop trong `TickerPickerSheet`.
+            Nổi giữa màn ở mọi khổ và đầu tấm gọn dưới 1024px (21/10/2026) — chủ dự án: _"chuyển sang
+            màn mới là màn chọn mã thì cũng là dialog giữa"_. Lý do ở docblock hai prop trong
+            `TickerPickerSheet`. Tấm Nạp mẫu cùng dáng từng đứng trước nó đã bỏ 09/11/2026.
           */
           placement="center"
           compact

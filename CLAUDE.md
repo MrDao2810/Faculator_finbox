@@ -855,8 +855,16 @@ Two rules about the form and the picker, unchanged by the redesign:
   - **Below 1024px a docked sheet's title is 16px, not 18px** (15/10/2026). The owner circled the
     save sheet's title, summary row and name field on a phone: _"size text đang quá lớn … giảm size
     text. chỉ áp dụng cho mobile"_. The title rule is in the primitive, inside a
-    `screen and (max-width: 1023.98px)` block, so every docked sheet follows; a centred dialog keeps
-    20px because `.panelCenter .title` has two classes. The save sheet's own text went one step down in
+    `screen and (max-width: 1023.98px)` block, so every docked sheet follows. A centred dialog kept
+    20px then; it went to 16px on 19/10/2026 and to **14px on 09/11/2026**, when the owner circled the
+    Danh mục formula sheet's title, still on two lines at 16px: _"giảm size text này ở màn mobile web
+    xuống. đang quá to và bị xuống dòng"_. So below 1024px every centred dialog's title is 14px (the
+    size the save, preset and detail-picker sheets had already set in their own CSS): the add/edit
+    dialog, the portfolio's ticker picker and the quiz popup followed. Size alone did not fit (the
+    old "Công thức sử dụng được với mã này · ABS" is 278px at 14px against 241px at 360 and 269px at
+    390), so the owner chose to shorten `portfolio.formulasTitle` to "Công thức dùng được" / "Formulas
+    for this ticker": measured one line at 360 and 390 in both languages, 8-character codes included
+    (228 / 236px), header 73 → 53px. Lengthen it again only after measuring at 360. The save sheet's own text went one step down in
     `SaveCalcSheet.module.css` (name 12px, result 14px, field label 12px, typed text 16px — the iOS
     no-zoom floor), through a `.nameField` class on its `Input`; the shared `Input` was not touched.
   - **The save sheet is a centred dialog at EVERY width since 21/10/2026**, the one exception to
@@ -899,9 +907,21 @@ Two rules about the form and the picker, unchanged by the redesign:
     files declaration by declaration. **Its close button is the × on the right on every route since the same
     day** (owner, circling the ‹ that the preset route used to show: _"chuyển icon back này thành icon close
     và chuyển sang bên phải"_). That reverses the old "the icon says where closing goes" rule for this one
-    route; the BEHAVIOUR stays — × from the preset route still reopens the preset sheet
-    (`closeTickerPicker()`), because dropping the user on the bare screen there was a bug the owner reported.
+    route; the BEHAVIOUR stayed — × from the preset route reopened the preset sheet — until 09/11/2026.
     `TickerPickerSheet` lost its `dismiss` prop; `BottomSheet` keeps `dismiss="back"` with no caller.
+  - **Since 09/11/2026 the detail screen has no preset sheet: "Nạp mẫu" opens the ticker picker
+    directly** (owner: _"đang thừa popup đầu tiên quá … khi bấm vào Nạp Mẫu thì bật popup 'Chọn mã cổ
+    phiếu' lên luôn"_; asked, they chose to DROP the four sample tickers there and to keep the label "Nạp
+    mẫu"). So the "Danh sách … mã khác →" route, the swap and the reopen-on-× above are gone from that
+    screen (`pickerFromPreset`, `presetPicks` and the `'preset'` sheet kind removed from `FormulaDetail`);
+    × now simply closes. The cost, told to the owner first: Finbox gives 10 sessions, so the 35 series
+    formulas load a ticker and still report too few sessions for long windows (RSI, SMA-20, Sharpe; the
+    "Nạp ví dụ minh hoạ" button is the full-length series), XIRR loads a two-week span, and offline nothing
+    loads. Two strings that sent the user back to the four samples were rewritten (`detail.liveSeriesShort`,
+    `detail.tickerFailed`), and exports now say "sample data" only when the loaded preset `isDraft`
+    (`loadedDraft`, was `hasDraftData()`, always true). `/du-lieu/` keeps `PresetSheet` unchanged (no second
+    sheet to merge there), which is now its only caller; `onBrowseMarket` / `marketAsOf` have no caller.
+    The XIRR lead line `preset.noTickerXirr` went the same day (tombstone in `vi.ts`).
   - **Below 1024px a picker row puts its "chưa có dữ liệu" / "đã có" label UNDER the name** (21/10/2026,
     owner circling an ETF row: _"màn mobile đang nhìn rất xấu và không ổn lắm"_; the labels read "Chưa có dữ liệu" / "Đã có", capitalised the
     same day). Measured at 390 before:

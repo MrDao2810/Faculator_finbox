@@ -5417,13 +5417,18 @@ window.__localeLog = [];
   );
 
   /*
-   * Sheet Nạp mẫu là tấm sát trần nhất: bốn dòng mã, mỗi dòng ba hàng chữ, cộng lối sang kho mã
-   * lớn — ước tính ~586px trên trần 600px của dạng nổi giữa. Lố một chút là thân tấm mọc thanh
+   * Sheet Nạp mẫu là tấm sát trần nhất: bốn dòng mã, mỗi dòng ba hàng chữ — ước tính ~586px trên
+   * trần 600px của dạng nổi giữa khi còn lối sang kho mã lớn. Lố một chút là thân tấm mọc thanh
    * cuộn để cuộn mươi pixel, một thứ không ai báo lỗi nhưng ai cũng thấy vướng.
+   *
+   * Đo ở `/du-lieu/` từ 09/11/2026: màn chi tiết không còn sheet này ("Nạp mẫu" ở đó mở thẳng sheet
+   * chọn mã, xem `openTickerPicker()`), chỉ màn bảng dữ liệu còn dùng nó.
    */
+  await open('/du-lieu/');
   const pcMau = await doTam('Nạp mẫu');
+  await open('/cong-thuc/pe/');
   check(
-    'PC 1440 · sheet Nạp mẫu nổi giữa màn, rộng 720px, thân vừa khít không phải cuộn',
+    'PC 1440 · /du-lieu/ · sheet Nạp mẫu nổi giữa màn, rộng 720px, thân vừa khít không phải cuộn',
     pcMau.thay === true &&
       pcMau.rong === 720 &&
       Math.abs(pcMau.leTrai - pcMau.lePhai) <= 1 &&
@@ -5450,7 +5455,8 @@ window.__localeLog = [];
    * phóng 4 lần cho thấy góc đã tròn. Một phép đo đỏ trên màn đúng thì tệ hơn không đo.
    *
    * Danh sách mã lấy từ cache 24 giờ gieo sẵn — script không có mạng tới Finbox, và cache còn hạn
-   * thì sheet không gọi mạng. Vào bằng lối rẽ trong sheet Nạp mẫu, đúng đường người dùng đi.
+   * thì sheet không gọi mạng. Vào bằng nút "Nạp mẫu", đúng đường người dùng đi: từ 09/11/2026 nút
+   * ấy mở THẲNG sheet chọn mã (trước đó qua lối rẽ cuối sheet bốn mã mẫu).
    */
   await evaluate(`localStorage.setItem('ffb.tickers.v1', JSON.stringify({
     fetchedAt: Date.now(),
@@ -5467,14 +5473,6 @@ window.__localeLog = [];
       .find((b) => /Nạp mẫu/.test(b.textContent ?? ''));
     if (moMau === undefined) return { thay: false, vi: 'không thấy nút Nạp mẫu' };
     moMau.click();
-
-    let re = undefined;
-    for (let i = 0; i < 40 && re === undefined; i += 1) {
-      re = [...document.querySelectorAll('dialog[open] button')].find((b) => /mã khác/.test(b.textContent ?? ''));
-      if (re === undefined) await cho(50);
-    }
-    if (re === undefined) return { thay: false, vi: 'sheet Nạp mẫu không có lối sang kho mã lớn' };
-    re.click();
 
     let hop = null;
     for (let i = 0; i < 80 && hop === null; i += 1) {
@@ -5502,12 +5500,8 @@ window.__localeLog = [];
       bong: kieuTam.boxShadow !== 'none',
     };
 
-    const lui = [...hop.querySelectorAll('button')].find((b) => /Đóng|Quay lại/.test(b.textContent ?? ''));
-    if (lui !== undefined) lui.click();
-    await cho(200);
-    // Lùi là về lại sheet Nạp mẫu — đóng nốt để phép đo sau thấy màn trống.
-    const con = document.querySelector('dialog[open]');
-    const dong = con === null ? undefined : [...con.querySelectorAll('button')].find((b) => /Đóng/.test(b.textContent ?? ''));
+    // Đóng là thoát hẳn: không còn sheet mẫu nào để lùi về (09/11/2026).
+    const dong = [...hop.querySelectorAll('button')].find((b) => /Đóng/.test(b.textContent ?? ''));
     if (dong !== undefined) dong.click();
     for (let i = 0; i < 40 && document.querySelector('dialog[open]') !== null; i += 1) await cho(50);
     return ket;

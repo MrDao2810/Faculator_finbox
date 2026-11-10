@@ -240,7 +240,9 @@ export function PresetSheet({
     if (spec === undefined) return null;
     if (ranked) return null;
     if (wantsSeries) return null;
-    return t(spec.id === 'xirr' ? 'preset.noTickerXirr' : 'preset.noTickerNote');
+    // XIRR không có câu dẫn từ 09/11/2026 — chủ dự án bảo xoá; mộ chí `preset.noTickerXirr` ở `vi.ts`.
+    if (spec.id === 'xirr') return null;
+    return t('preset.noTickerNote');
   }
 
   /** Tên và đơn vị của một ô — tra từ spec, không đoán từ khoá. */

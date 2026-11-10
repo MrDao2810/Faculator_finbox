@@ -227,15 +227,17 @@ describe('BottomSheet — khổ web tự nổi giữa màn', () => {
  * mục); từ 1024px nó vẫn 20px. Ca này giữ: cỡ 16px cho cả hai, có `screen` (dưới media in bề ngang là bề
  * ngang giấy), luật gốc 20px còn nguyên, và khối khổ hẹp đứng SAU luật gốc — cùng hạng ưu tiên, thứ tự
  * file quyết định.
+ *
+ * 09/11/2026: hộp thoại nổi giữa xuống tiếp 14px (chủ dự án khoanh lại tiêu đề tấm chọn công thức, vẫn hai
+ * dòng ở 16px), bằng cỡ tấm Lưu, tấm Nạp mẫu và tấm chọn mã của màn chi tiết đã tự đặt. Tấm dán đáy giữ 16px.
  */
 describe('BottomSheet — tiêu đề nhỏ một bậc dưới 1024px', () => {
-  it('tiêu đề tấm dán đáy lẫn hộp thoại nổi giữa 16px trong khối screen, max-width 1023.98px', () => {
+  it('tấm dán đáy 16px, hộp thoại nổi giữa 14px, trong khối screen, max-width 1023.98px', () => {
     const khoi = /@media screen and \(max-width: 1023\.98px\)\s*\{([\s\S]*?)\n\}/.exec(RULES)?.[1];
 
     expect(khoi, 'thiếu khối @media screen and (max-width: 1023.98px)').toBeDefined();
-    expect(khoi ?? '').toMatch(
-      /\.title,\s*\.panelCenter \.title\s*\{\s*font-size:\s*var\(--text-base\);\s*\}/,
-    );
+    expect(khoi ?? '').toMatch(/(?:^|\})\s*\.title\s*\{\s*font-size:\s*var\(--text-base\);\s*\}/);
+    expect(khoi ?? '').toMatch(/\.panelCenter \.title\s*\{\s*font-size:\s*var\(--text-sm\);\s*\}/);
     expect(RULES).toMatch(/\.panelCenter \.title\s*\{\s*font-size:\s*var\(--text-lg\);\s*\}/);
     expect(RULES.indexOf('@media screen and (max-width: 1023.98px)')).toBeGreaterThan(
       RULES.search(/\.panelCenter \.title\s*\{\s*font-size:\s*var\(--text-lg\)/),

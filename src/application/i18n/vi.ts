@@ -394,8 +394,12 @@ export const vi = {
    * thứ này. Chữ "Số liệu" ở những chỗ khác (tên khối nhập, "Nạp mẫu") chưa đổi.
    */
   'detail.tickerLoading': 'đang lấy dữ liệu thật của mã…',
-  'detail.tickerFailed':
-    'không lấy được dữ liệu của mã - tự nhập số liệu, hoặc bấm “Nạp mẫu” để dùng bộ dữ liệu sẵn có.',
+  /*
+   * Vế sau đổi 09/11/2026: nó từng là "hoặc bấm “Nạp mẫu” để dùng bộ dữ liệu sẵn có". Từ ngày ấy
+   * "Nạp mẫu" mở thẳng sheet chọn mã, tức lại gọi đúng nguồn vừa hỏng, nên lời khuyên ấy dẫn người
+   * dùng vào một vòng lặp.
+   */
+  'detail.tickerFailed': 'không lấy được dữ liệu của mã - tự nhập số liệu, hoặc thử lại sau.',
   'detail.tickerNoData':
     'mã này chưa có đủ dữ liệu cơ bản để nạp (báo cáo chưa đủ bốn quý liền nhau, hoặc các con số ' +
     'không khớp nhau). Thử lại cũng vậy - chọn mã khác, hoặc tự nhập số liệu.',
@@ -544,10 +548,14 @@ export const vi = {
    * Mã lấy từ kho toàn thị trường chỉ có ĐÚNG một phiên giá (`live-preset.ts`) — nguồn Finbox
    * không cấp chuỗi dài. Công thức cần nhiều phiên mà im lặng thì người dùng đọc ra "nạp mã
    * xong vẫn không tính được" và tưởng sản phẩm hỏng; phải nói cả nguyên nhân lẫn lối đi tiếp.
+   *
+   * Lối đi tiếp thứ hai đổi 09/11/2026: nó từng là "bấm “Nạp mẫu” và chọn một trong bốn mã mẫu",
+   * nhưng "Nạp mẫu" không còn bày bốn mã mẫu (xem `openTickerPicker()`). Chuỗi đủ dài còn lại trên
+   * màn là ví dụ minh hoạ, nên câu trỏ tới nút ấy bằng đúng nhãn của nó (`detail.loadExample`).
    */
   'detail.liveSeriesShort':
     'Mã này chỉ có một phiên giá - nguồn số liệu thật không cấp chuỗi dài. Công thức này cần ' +
-    'nhiều phiên: dán chuỗi giá, hoặc bấm “Nạp mẫu” và chọn một trong bốn mã mẫu.',
+    'nhiều phiên: dán chuỗi giá, hoặc bấm “Nạp ví dụ minh hoạ”.',
   /*
    * Chuỗi VN-Index trong bộ mẫu là PRNG (`samples.ts`), mà công thức hồi quy với thị trường thì
    * LUÔN đọc nó qua `ctx.marketSeries` — không ai bấm "Nạp mẫu" cho nó cả. Không có câu này thì
@@ -744,10 +752,15 @@ export const vi = {
    */
   'preset.noTickerNote':
     'Bốn mã dưới đây không đổi được ô nào của công thức này, vì nó chạy bằng số của chính bạn.',
-  /* XIRR là công thức duy nhất bật nút Nạp mà không có ô nào điền theo mã: Nạp thay bảng dòng tiền (REVIEW-4 L11-01). */
-  'preset.noTickerXirr':
-    'Nạp một mã ở đây sẽ thay bảng dòng tiền bằng hai dòng dựng từ giá của mã: chi 100.000.000 ₫ ở ' +
-    'phiên đầu, thu giá trị tương ứng ở phiên gần nhất.',
+  /*
+   * ── `preset.noTickerXirr` đã XOÁ (09/11/2026) ────────────────────────────────────────────────
+   *
+   * Câu dẫn riêng của XIRR ở đầu sheet nạp mẫu (thêm theo REVIEW-4 L11-01): "Nạp một mã ở đây sẽ thay
+   * bảng dòng tiền bằng hai dòng dựng từ giá của mã: chi 100.000.000 ₫ ở phiên đầu, thu giá trị tương
+   * ứng ở phiên gần nhất." Chủ dự án bảo xoá cả đoạn. Hành vi không đổi: nạp một mã vẫn thay bảng dòng
+   * tiền như câu ấy tả. XIRR không rơi về `noTickerNote` ("Bốn mã dưới đây không đổi được ô nào…"),
+   * vì với XIRR câu ấy sai: nạp mã CÓ đổi bảng dòng tiền.
+   */
   'preset.cannotCompute': 'không ra kết quả với mã này',
   /* Dòng phụ cho công thức chỉ ăn chuỗi giá: mức giá là thứ duy nhất khác nhau giữa các mã. */
   'preset.lastPrice': 'Giá phiên gần nhất',
@@ -1295,8 +1308,14 @@ export const vi = {
    */
   'portfolio.formSubmitOpen': 'Thêm và mở công thức',
   'portfolio.formSaveOpen': 'Lưu và mở công thức',
-  /* "dùng được" → "sử dụng được" (19/10/2026, chủ dự án). Mã vẫn nối sau dấu "·" ở chỗ dựng tiêu đề. */
-  'portfolio.formulasTitle': 'Công thức sử dụng được với mã này',
+  /*
+   * "Công thức dùng được" từ 09/11/2026. Mã vẫn nối sau dấu "·" ở chỗ dựng tiêu đề. Lịch sử: "dùng được"
+   * → "Công thức sử dụng được với mã này" (19/10/2026, chủ dự án), rồi chủ dự án khoanh câu ấy xuống hai
+   * dòng trên điện thoại ngay cả ở 14px (_"đang quá to và bị xuống dòng"_) và chọn bản rút gọn này khi được
+   * hỏi. Đo trên Chrome: "· ABS" 183px, "· FUEVFVND" 228px, vừa một dòng ở 360px (chỗ có 241px). "với mã
+   * này" bỏ đi vì mã đã đứng ngay sau dấu "·". Đừng nối dài lại mà không đo ở 360px.
+   */
+  'portfolio.formulasTitle': 'Công thức dùng được',
   /*
    * ── `portfolio.formulasSubtitle` đã XOÁ (14/09/2026) ──────────────────────────────────────
    *
@@ -1424,7 +1443,7 @@ export const vi = {
    * (`sheetChua(t('ticker.subtitle'))`), nay dò bằng `ticker.title`.
    */
   'ticker.searchLabel': 'Tìm mã hoặc tên doanh nghiệp',
-  'ticker.searchPlaceholder': 'FPT, Hoà Phát…',
+  'ticker.searchPlaceholder': 'Tìm kiếm…',
   'ticker.pick': 'Chọn',
   /*
    * Nhãn của mã ĐANG GIỮ, và từ 10/10/2026 nó là LỜI TỪ CHỐI chứ không còn là lời báo trước.

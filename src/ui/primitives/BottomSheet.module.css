@@ -207,12 +207,23 @@
  * của nó xuống 14px trong CSS riêng (`SaveCalcSheet.module.css`) — luật ở đây không đổi vì nó.
  * Luật hai lớp đứng SAU `.panelCenter .title` gốc nên thắng nhờ thứ tự file.
  *
+ * Hộp thoại nổi giữa xuống tiếp 16 → 14px từ 09/11/2026: chủ dự án khoanh lại đúng tiêu đề ấy, vẫn hai
+ * dòng ở 16px: _"giảm size text này ở màn mobile web xuống. đang quá to và bị xuống dòng"_. 14px là cỡ
+ * tiêu đề mà tấm Lưu, tấm Nạp mẫu và tấm chọn mã của màn chi tiết đã tự đặt ở khổ này, nên nay MỌI hộp
+ * thoại nổi giữa trên điện thoại cùng một cỡ; hộp Thêm/Sửa mã, tấm chọn mã của Danh mục và popup Bài
+ * tập đi theo. Tấm dán đáy giữ 16px. Đo trên Chrome: riêng cỡ chữ KHÔNG đủ cho câu "Công thức sử dụng
+ * được với mã này · ABS" (278px ở 14px, chỗ có 269px ở 390 và 241px ở 360), nên chủ dự án chọn rút câu
+ * thành "Công thức dùng được · ABS" (`portfolio.formulasTitle` trong `vi.ts`).
+ *
  * `screen and` vì cùng lý do với khối khổ web cuối file: dưới media in, bề ngang là bề ngang GIẤY.
  */
 @media screen and (max-width: 1023.98px) {
-  .title,
-  .panelCenter .title {
+  .title {
     font-size: var(--text-base);
+  }
+
+  .panelCenter .title {
+    font-size: var(--text-sm);
   }
 }
 

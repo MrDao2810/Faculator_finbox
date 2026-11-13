@@ -1152,7 +1152,7 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
       en: 'Intrinsic value = ([380] × (1 + [4] ÷ 100) ÷ (([12] − [4]) ÷ 100) − [400]) ÷ 150 × 1000',
     },
     verify: {
-      inputs: { fcff: 380, growth: 4, wacc: 12, netDebt: 400, shares: 150 },
+      inputs: { fcff: 380, growth: 4, wacc: 12, debt: 400, cash: 0, shortInvest: 0, shares: 150 },
       expected: 30266.67,
       tolerance: 1,
     },

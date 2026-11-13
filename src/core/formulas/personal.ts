@@ -99,13 +99,16 @@ export const TRA_GOP_NIEN_KIM: FormulaModule = {
       vi: 'Số tiền như nhau phải trả mỗi tháng cho khoản vay trả góp đều, lãi tính trên dư nợ còn lại.',
       en: 'The same amount due every month on a level-payment installment loan, with interest charged on the remaining balance.',
     },
-    latex: 'EMI = \\frac{P \\cdot i \\,(1+i)^n}{(1+i)^n - 1}',
+    // Hai nhánh (11/2026): tại i = 0 vế đầu là 0/0, `annuityPayment()` trả P ÷ n.
+    latex:
+      'EMI = \\frac{P \\cdot i \\,(1+i)^n}{(1+i)^n - 1}, \\ i \\ne 0 \\qquad EMI = \\frac{P}{n}, \\ i = 0',
     expression: {
-      vi: 'Trả hằng tháng = Số tiền vay × Lãi suất kỳ × (1 + Lãi suất kỳ)^Số kỳ ÷ [(1 + Lãi suất kỳ)^Số kỳ − 1]',
-      en: 'Monthly payment = Loan amount × Period rate × (1 + Period rate)^Number of periods ÷ [(1 + Period rate)^Number of periods − 1]',
+      vi: 'Trả hằng tháng = Số tiền vay × Lãi suất kỳ × (1 + Lãi suất kỳ)^Số kỳ ÷ [(1 + Lãi suất kỳ)^Số kỳ − 1], khi Lãi suất kỳ khác 0\nTrả hằng tháng = Số tiền vay ÷ Số kỳ, khi Lãi suất kỳ = 0',
+      en: 'Monthly payment = Loan amount × Period rate × (1 + Period rate)^Number of periods ÷ [(1 + Period rate)^Number of periods − 1], when the period rate is not 0\nMonthly payment = Loan amount ÷ Number of periods, when the period rate = 0',
     },
     substitutionDerived: { i: '{rate} ÷ 100 ÷ 12', n: '{years} × 12' },
     substitution: '{amount} × {i} × (1 + {i})^{n} ÷ ((1 + {i})^{n} − 1)',
+    substitutionCases: { key: 'rate', byValue: { 0: '{amount} ÷ {n}' } },
     symbols: [
       {
         latex: 'EMI',
@@ -1234,13 +1237,17 @@ export const TIET_KIEM_MUC_TIEU: FormulaModule = {
       vi: 'Số tiền cần gửi đều mỗi tháng để đạt một mục tiêu tài chính.',
       en: 'The equal monthly deposit needed to reach a financial goal.',
     },
-    latex: 'PMT = \\frac{FV \\cdot i}{(1+i)^n - 1}',
+    // Hai nhánh (11/2026): tại i = 0 vế đầu là 0/0 nên không tính được, đáp án là FV ÷ n (`calc`).
+    latex:
+      'PMT = \\frac{FV \\cdot i}{(1+i)^n - 1}, \\ i \\ne 0 \\qquad PMT = \\frac{FV}{n}, \\ i = 0',
     expression: {
-      vi: 'Gửi hằng tháng = Mục tiêu × Lãi suất kỳ ÷ [(1 + Lãi suất kỳ)^Số tháng − 1]',
-      en: 'Monthly deposit = Target amount × Period rate ÷ [(1 + Period rate)^Number of months − 1]',
+      vi: 'Gửi hằng tháng = Mục tiêu × Lãi suất kỳ ÷ [(1 + Lãi suất kỳ)^Số tháng − 1], khi Lãi suất kỳ khác 0\nGửi hằng tháng = Mục tiêu ÷ Số tháng, khi Lãi suất kỳ = 0',
+      en: 'Monthly deposit = Target amount × Period rate ÷ [(1 + Period rate)^Number of months − 1], when the period rate is not 0\nMonthly deposit = Target amount ÷ Number of months, when the period rate = 0',
     },
     substitutionDerived: { i: '{rate} ÷ 100 ÷ 12' },
     substitution: '{target} × {i} ÷ ((1 + {i})^{months} − 1)',
+    // Lãi 0%: dải thay số theo nhánh thứ hai của hình, không in 0/0.
+    substitutionCases: { key: 'rate', byValue: { 0: '{target} ÷ {months}' } },
     symbols: [
       {
         latex: 'PMT',

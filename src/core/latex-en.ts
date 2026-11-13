@@ -47,6 +47,8 @@ export const CHU_EN: Readonly<Record<string, string>> = {
   'Số CP': 'Shares outstanding',
   TSNH: 'Current assets',
   'Tiền mặt': 'Cash',
+  'Tiền và các khoản tương đương tiền': 'Cash and cash equivalents',
+  'Đầu tư tài chính ngắn hạn': 'Short-term financial investments',
   'Trả nợ gốc': 'Debt repaid',
   'Tài sản ngắn hạn': 'Current assets',
   'Tổng lãi': 'Total interest',

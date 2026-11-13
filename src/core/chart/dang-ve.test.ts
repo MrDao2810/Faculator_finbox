@@ -279,11 +279,12 @@ describe('cả Registry', () => {
   const coChuoi = quetRegistry(CTX_FPT);
 
   it('chưa nạp chuỗi giá: số hình mời từng dạng', () => {
-    expect(macDinh.hinhs).toHaveLength(257);
+    expect(macDinh.hinhs).toHaveLength(259);
     expect(macDinh.dem).toEqual({
-      line: 211,
-      bar: 224,
-      dots: 211,
+      // +1 mỗi dạng ngày 13/11/2026: `gia-tri-noi-tai-fcff` có ba ô (nợ vay, tiền, đầu tư ngắn hạn) thay cho một ô nợ ròng.
+      line: 213,
+      bar: 226,
+      dots: 213,
       // 23 → 22 ngày 06/11/2026: Số năm của CAGR thành ô số nhận năm lẻ, trục ấy hết Bậc thang.
       step: 22,
       signArea: 27,
@@ -320,11 +321,11 @@ describe('cả Registry', () => {
   });
 
   it('đã nạp chuỗi 250 phiên: số hình mời từng dạng', () => {
-    expect(coChuoi.hinhs).toHaveLength(384);
+    expect(coChuoi.hinhs).toHaveLength(386);
     expect(coChuoi.dem).toEqual({
-      line: 321,
-      bar: 340,
-      dots: 316,
+      line: 323,
+      bar: 342,
+      dots: 318,
       step: 103,
       signArea: 46,
       waterfall: 33,

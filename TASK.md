@@ -4,6 +4,13 @@
 
 Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 
+## `gia-tri-noi-tai-fcff`: nợ ròng tách thành ba ô (13/11/2026)
+
+**Trạng thái: CHƯA XONG, chờ chủ dự án xác nhận.** Chủ dự án hỏi "tiền là tiền gì" ở ô "Tiền và đầu tư ngắn hạn" (tên tự đặt, không khớp dòng nào của báo cáo) và chọn tách đôi. Nay ba ô: Nợ vay chịu lãi (D), "Tiền và các khoản tương đương tiền" (mã 110), "Đầu tư tài chính ngắn hạn" (mã 120); `calc` tính `debt − cash − shortInvest`. Ví dụ FPT 30/06/2026: 9.065,5 + 19.906,1 = 28.971,6 tỷ ₫ (nguồn stockanalysis.com, đọc 13/11/2026; CafeF nạp bảng bằng JS nên không đọc tự động được), kết quả 60.651,46 ₫ giữ nguyên.
+
+- File: `formulas/valuation-dcf.ts` (hình, dòng chữ, bảng ký hiệu thêm 1 dòng, ô `shortInvest`, calc, ví dụ, `tests[]`), `how-to/valuation-dcf.ts`, `vi-du/items.ts`, `huong-dan/noi-dung/items.ts`, `huong-dan/bieu-do/noi-dung/dinh-gia.ts`, `latex-en.ts`, `quiz/items/tinh-toan.ts`, các test ghim số (270→271 ô, 570→571 dòng bảng, 249→250 trục, live-preset total 7).
+- Còn lại: ô `ev` vẫn gọi "Tiền mặt và tiền gửi" (chờ duyệt đổi tương tự); bản lưu/nháp cũ mang khoá `netDebt`/`cash` cũ chưa xử lý.
+
 ## Khung "?" của khối Biểu đồ có chữ cho cả 40 hình còn im (10/11/2026)
 
 **Trạng thái: CHƯA XONG, chờ chủ dự án xác nhận.** Chủ dự án chụp "Đường MACD - hai đường EMA" và hỏi vì sao thiếu hướng dẫn; chọn viết cho cả 40 hình.

@@ -70,7 +70,8 @@ describe('buildNotationView() — hình chỉ gắn dấu ký hiệu có khung c
     }
     expect(sai, sai.join('\n')).toEqual([]);
     if (canKiem.length === FORMULAS.length) {
-      expect(tong).toBe(568);
+      // 568 → 570 ngày 13/11/2026: `gia-tri-noi-tai-fcff` thêm hai dòng bảng ký hiệu (D, Tiền mặt).
+      expect(tong).toBe(571);
       expect(coCho).toBe(113);
     }
   });

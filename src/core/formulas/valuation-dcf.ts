@@ -1687,13 +1687,14 @@ export const GIA_TRI_NOI_TAI_FCFF: FormulaModule = {
       en: "Discounting the firm's free cash flow by WACC, subtracting net debt, and dividing by the share count.",
     },
     latex:
-      'V_0 = \\frac{\\dfrac{FCFF \\, (1+g)}{WACC - g} - D_{\\text{ròng}}}{\\text{Số CP}} \\times 1000',
+      '\\begin{array}{l} V_0 = \\frac{\\dfrac{FCFF \\, (1+g)}{WACC - g} - D_{\\text{ròng}}}{\\text{Số CP}} \\times 1000 \\\\ D_{\\text{ròng}} = D - \\text{Tiền và các khoản tương đương tiền} - \\text{Đầu tư tài chính ngắn hạn} \\end{array}',
     expression: {
-      vi: 'Giá trị nội tại = (FCFF × (1 + g) ÷ (WACC − g) − Nợ vay ròng) ÷ Số cổ phiếu lưu hành × 1.000',
-      en: 'Intrinsic value = (FCFF × (1 + g) ÷ (WACC − g) − Net debt) ÷ Shares outstanding × 1,000',
+      vi: 'Giá trị nội tại = (FCFF × (1 + g) ÷ (WACC − g) − Nợ vay ròng) ÷ Số cổ phiếu lưu hành × 1.000\nNợ vay ròng = Nợ vay chịu lãi − Tiền và các khoản tương đương tiền − Đầu tư tài chính ngắn hạn',
+      en: 'Intrinsic value = (FCFF × (1 + g) ÷ (WACC − g) − Net debt) ÷ Shares outstanding × 1,000\nNet debt = Interest-bearing debt − Cash and cash equivalents − Short-term financial investments',
     },
     substitutionDerived: { g: '{growth} ÷ 100', w: '{wacc} ÷ 100' },
-    substitution: '({fcff} × (1 + {g}) ÷ ({w} − {g}) − {netDebt}) ÷ {shares} × 1000',
+    substitution:
+      '({fcff} × (1 + {g}) ÷ ({w} − {g}) − ({debt} − {cash} − {shortInvest})) ÷ {shares} × 1000',
     symbols: [
       {
         latex: 'V_0',
@@ -1730,8 +1731,29 @@ export const GIA_TRI_NOI_TAI_FCFF: FormulaModule = {
       {
         latex: 'D_{\\text{ròng}}',
         meaning: {
-          vi: 'nợ vay ròng, nợ vay chịu lãi trừ tiền mặt và tiền gửi, tỷ ₫',
-          en: 'net debt, interest-bearing debt minus cash and equivalents, billion ₫',
+          vi: 'nợ vay ròng, bằng nợ vay chịu lãi trừ tiền và trừ đầu tư ngắn hạn, tỷ ₫',
+          en: 'net debt, interest-bearing debt minus cash and minus short-term investments, billion ₫',
+        },
+      },
+      {
+        latex: 'D',
+        meaning: {
+          vi: 'nợ vay chịu lãi, các khoản đang vay phải trả lãi, ngắn và dài hạn, tỷ ₫',
+          en: 'interest-bearing debt, borrowings that carry interest, short and long term, billion ₫',
+        },
+      },
+      {
+        latex: '\\text{Tiền và các khoản tương đương tiền}',
+        meaning: {
+          vi: 'tiền mặt và tiền gửi ngân hàng rút ra dùng ngay hoặc trong vòng ba tháng, tỷ ₫',
+          en: 'cash and bank deposits that can be withdrawn at once or within three months, billion ₫',
+        },
+      },
+      {
+        latex: '\\text{Đầu tư tài chính ngắn hạn}',
+        meaning: {
+          vi: 'tiền gửi kỳ hạn trên ba tháng tới một năm, trái phiếu và chứng khoán ngắn hạn, tỷ ₫',
+          en: 'term deposits over three months up to a year, bonds and short-term securities, billion ₫',
         },
       },
       {
@@ -1795,14 +1817,60 @@ export const GIA_TRI_NOI_TAI_FCFF: FormulaModule = {
           },
         },
       ),
-      numberVar('netDebt', { vi: 'Nợ vay ròng (Dròng)', en: 'Net debt (Dnet)' }, 'tỷ ₫', 300, {
-        min: -1_000_000,
-        max: 10_000_000,
-        description: {
-          vi: 'Nợ vay chịu lãi trừ tiền mặt và tiền gửi ngân hàng; âm nghĩa là tiền nhiều hơn nợ.',
-          en: 'Interest-bearing debt minus cash and cash equivalents; negative means cash exceeds debt.',
+      /*
+       * Hai ô thay cho một ô "Nợ vay ròng" (13/11/2026). Chủ dự án chỉ vào "nợ vay − tiền mặt" trên
+       * bảng ký hiệu: _"nợ vay ví dụ là 10000000 thì tiền mặt là con số cụ thể nào?"_. Một ô duy nhất
+       * bắt người dùng tự lấy nợ vay, tự lấy tiền, tự trừ ở NGOÀI rồi gõ hiệu, mà trang không có chỗ nào
+       * cho hai con số ấy. Nay hai số vào thẳng đây và `calc` tự trừ; hình vẽ cả hai vế.
+       */
+      numberVar(
+        'debt',
+        { vi: 'Nợ vay chịu lãi (D)', en: 'Interest-bearing debt (D)' },
+        'tỷ ₫',
+        400,
+        {
+          min: 0,
+          max: 10_000_000,
+          description: {
+            vi: 'Tổng các khoản công ty đang vay và phải trả lãi, cả ngắn hạn lẫn dài hạn (vay ngân hàng, trái phiếu đã phát hành), tính bằng tỷ đồng. Không tính tiền còn nợ nhà cung cấp.',
+            en: 'All the borrowings the company is paying interest on, short-term and long-term (bank loans, bonds it has issued), in billion ₫. Do not include amounts owed to suppliers.',
+          },
         },
-      }),
+      ),
+      numberVar(
+        'cash',
+        {
+          vi: 'Tiền và các khoản tương đương tiền',
+          en: 'Cash and cash equivalents',
+        },
+        'tỷ ₫',
+        60,
+        {
+          min: 0,
+          max: 10_000_000,
+          description: {
+            vi: 'Lấy đúng dòng "Tiền và các khoản tương đương tiền" trong bảng cân đối kế toán (mã số 110), tính bằng tỷ đồng: tiền mặt, tiền gửi ngân hàng không kỳ hạn và tiền gửi kỳ hạn tới ba tháng. Bị trừ khỏi nợ vay chịu lãi để ra nợ vay ròng.',
+            en: 'Take the “Tiền và các khoản tương đương tiền” (cash and cash equivalents) line of the balance sheet (code 110), in billion ₫: cash on hand, demand deposits and term deposits of up to three months. It is subtracted from the debt to give net debt.',
+          },
+        },
+      ),
+      numberVar(
+        'shortInvest',
+        {
+          vi: 'Đầu tư tài chính ngắn hạn',
+          en: 'Short-term financial investments',
+        },
+        'tỷ ₫',
+        40,
+        {
+          min: 0,
+          max: 10_000_000,
+          description: {
+            vi: 'Lấy đúng dòng "Đầu tư tài chính ngắn hạn" trong bảng cân đối kế toán (mã số 120), tính bằng tỷ đồng: tiền gửi kỳ hạn trên ba tháng tới một năm, trái phiếu và chứng khoán nắm giữ ngắn hạn. Cũng bị trừ khỏi nợ vay chịu lãi.',
+            en: 'Take the “Đầu tư tài chính ngắn hạn” (short-term financial investments) line of the balance sheet (code 120), in billion ₫: term deposits over three months up to a year, bonds and short-term securities. It is also subtracted from the debt.',
+          },
+        },
+      ),
       numberVar(
         'shares',
         { vi: 'Số cổ phiếu lưu hành', en: 'Shares outstanding' },
@@ -1838,12 +1906,20 @@ export const GIA_TRI_NOI_TAI_FCFF: FormulaModule = {
     },
     example: {
       title: {
-        vi: 'FPT: FCFF 5.168,34 tỷ ₫, tăng 5%/năm, WACC 10,87%, nợ vay ròng −11.527,6 tỷ, 1.714,33 triệu CP',
-        en: 'FPT: FCFF 5,168.34 billion ₫, growing 5%/year, WACC 10.87%, net debt −11,527.6 billion, 1,714.33 million shares',
+        vi: 'FPT: FCFF 5.168,34 tỷ ₫, tăng 5%/năm, WACC 10,87%, nợ vay 17.444 tỷ, tiền 9.065,5 tỷ, đầu tư ngắn hạn 19.906,1 tỷ, 1.714,33 triệu CP',
+        en: 'FPT: FCFF 5,168.34 billion ₫, growing 5%/year, WACC 10.87%, debt 17,444 billion, cash 9,065.5 billion, short-term investments 19,906.1 billion, 1,714.33 million shares',
       },
       // WACC là kết quả ví dụ của `wacc` (10,869%) làm tròn như màn hiện; từng là 9,37 khi ví dụ ấy
       // còn tính vốn chủ theo sổ sách (16/10/2026, xem ghi chú ở ví dụ `wacc`).
-      inputs: { fcff: 5_168.34, growth: 5, wacc: 10.87, netDebt: -11_527.6, shares: 1_714.33 },
+      inputs: {
+        fcff: 5_168.34,
+        growth: 5,
+        wacc: 10.87,
+        debt: 17_444,
+        cash: 9_065.5,
+        shortInvest: 19_906.1,
+        shares: 1_714.33,
+      },
       expected: 60_651.46,
       note: {
         vi: 'So với thị giá FPT phiên 11/09/2026 là 72.700 ₫: giá trị nội tại 60.651,46 ₫ thấp hơn 16,57%, tức theo các giả định này, mỗi cổ phiếu đáng ít hơn giá đang bán. Con số rất nhạy với giả định dòng tiền tăng đều 5%/năm, hạ còn 4% thì chỉ 52.362,96 ₫, nâng lên 6% thì 72.343,86 ₫, vẫn thấp hơn thị giá.',
@@ -1858,44 +1934,100 @@ export const GIA_TRI_NOI_TAI_FCFF: FormulaModule = {
       {
         // Tính độc lập dạng đóng: 300 × 1,04 ÷ 0,067 = 4.656,7164 tỷ; − 300 = 4.356,7164;
         // ÷ 118 × 1.000 = 36.921,3256 ₫.
-        name: 'ca thường: FCFF 300, g 4%, WACC 10,7%, nợ ròng 300, 118 triệu CP',
-        inputs: { fcff: 300, growth: 4, wacc: 10.7, netDebt: 300, shares: 118 },
+        name: 'ca thường: FCFF 300, g 4%, WACC 10,7%, nợ vay 400, tiền 60, đầu tư ngắn hạn 40 (nợ ròng 300), 118 triệu CP',
+        inputs: {
+          fcff: 300,
+          growth: 4,
+          wacc: 10.7,
+          debt: 400,
+          cash: 60,
+          shortInvest: 40,
+          shares: 118,
+        },
         expected: 36_921.33,
         tolerance: 1,
       },
       {
-        name: 'không nợ ròng thì toàn bộ giá trị doanh nghiệp thuộc về cổ đông',
-        inputs: { fcff: 300, growth: 4, wacc: 10.7, netDebt: 0, shares: 118 },
+        name: 'tiền cộng đầu tư ngắn hạn bằng đúng nợ vay thì nợ ròng bằng 0 và toàn bộ giá trị doanh nghiệp thuộc về cổ đông',
+        inputs: {
+          fcff: 300,
+          growth: 4,
+          wacc: 10.7,
+          debt: 100,
+          cash: 60,
+          shortInvest: 40,
+          shares: 118,
+        },
         expected: 39_463.7,
         tolerance: 1,
       },
       {
         name: 'WACC đúng bằng g thì mẫu số WACC − g bằng 0',
-        inputs: { fcff: 300, growth: 4, wacc: 4, netDebt: 300, shares: 118 },
+        inputs: {
+          fcff: 300,
+          growth: 4,
+          wacc: 4,
+          debt: 400,
+          cash: 60,
+          shortInvest: 40,
+          shares: 118,
+        },
         expected: null,
         expectedWarning: 'DIVIDE_BY_ZERO',
       },
       {
         name: 'WACC nhỏ hơn g thì giá trị âm vô nghĩa, không phải chia cho 0',
-        inputs: { fcff: 300, growth: 6, wacc: 4, netDebt: 300, shares: 118 },
+        inputs: {
+          fcff: 300,
+          growth: 6,
+          wacc: 4,
+          debt: 400,
+          cash: 60,
+          shortInvest: 40,
+          shares: 118,
+        },
         expected: null,
         expectedWarning: 'MEANINGLESS',
       },
       {
         name: 'số cổ phiếu bằng 0 thì chia cho 0',
-        inputs: { fcff: 300, growth: 4, wacc: 10.7, netDebt: 300, shares: 0 },
+        inputs: {
+          fcff: 300,
+          growth: 4,
+          wacc: 10.7,
+          debt: 400,
+          cash: 60,
+          shortInvest: 40,
+          shares: 0,
+        },
         expected: null,
         expectedWarning: 'DIVIDE_BY_ZERO',
       },
       {
         name: 'FCFF âm thì mô hình tăng trưởng đều mất ý nghĩa',
-        inputs: { fcff: -100, growth: 4, wacc: 10.7, netDebt: 300, shares: 118 },
+        inputs: {
+          fcff: -100,
+          growth: 4,
+          wacc: 10.7,
+          debt: 400,
+          cash: 60,
+          shortInvest: 40,
+          shares: 118,
+        },
         expected: null,
         expectedWarning: 'MEANINGLESS',
       },
       {
-        name: 'nợ ròng vượt cả giá trị doanh nghiệp thì phần cổ đông âm',
-        inputs: { fcff: 300, growth: 4, wacc: 10.7, netDebt: 6_000, shares: 118 },
+        name: 'nợ vay trừ tiền vượt cả giá trị doanh nghiệp thì phần cổ đông âm',
+        inputs: {
+          fcff: 300,
+          growth: 4,
+          wacc: 10.7,
+          debt: 6_000,
+          cash: 0,
+          shortInvest: 0,
+          shares: 118,
+        },
         expected: null,
         expectedWarning: 'MEANINGLESS',
       },
@@ -1977,19 +2109,21 @@ export const GIA_TRI_NOI_TAI_FCFF: FormulaModule = {
     }
 
     const enterpriseValue = (fcff * (1 + growth / 100)) / ((wacc - growth) / 100);
-    const equityValue = enterpriseValue - v('netDebt');
+    // Nợ vay ròng = nợ vay chịu lãi trừ số tiền công ty đang có; âm khi tiền nhiều hơn nợ.
+    const netDebt = v('debt') - v('cash') - v('shortInvest');
+    const equityValue = enterpriseValue - netDebt;
 
     if (equityValue <= 0) {
       return fail(
         '₫',
         meaningless(
           {
-            vi: 'Nợ vay ròng lớn hơn cả giá trị doanh nghiệp, nên phần còn lại cho cổ đông là số âm.',
-            en: 'Net debt exceeds the enterprise value itself, so the remainder for shareholders is negative.',
+            vi: 'Nợ vay trừ số tiền công ty đang có (nợ vay ròng) lớn hơn cả giá trị doanh nghiệp, nên phần còn lại cho cổ đông là số âm.',
+            en: 'Debt minus the cash the company holds (net debt) exceeds the enterprise value itself, so the remainder for shareholders is negative.',
           },
           {
-            vi: 'Kiểm tra lại nợ vay ròng, hoặc xem lại giả định tăng trưởng và WACC.',
-            en: 'Double-check net debt, or review the growth and WACC assumptions.',
+            vi: 'Kiểm tra lại nợ vay và số tiền công ty đang có, hoặc xem lại giả định tăng trưởng và WACC.',
+            en: 'Double-check the debt and the cash the company holds, or review the growth and WACC assumptions.',
           },
         ),
       );

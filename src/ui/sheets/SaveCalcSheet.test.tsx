@@ -196,13 +196,11 @@ describe('SaveCalcSheet', () => {
     expect(screen.queryByText(/Đã lưu vào Danh mục/)).toBeNull();
   });
 
-  it('bày kết quả ngay trong sheet — sheet che mất khối Kết quả ở màn ngoài', () => {
+  it('không còn khối tóm tắt: không in tên công thức hay kết quả ngoài ô tên', () => {
     renderSheet({ code: 'HPG' });
 
-    expect(screen.getByText('12,3 lần')).not.toBeNull();
-    // 'HPG · P/E' nay chỉ còn ở khối tóm tắt (ô tên giữ nó trong `value`, không phải chữ trên màn):
-    // `getByText` ném lỗi nếu khớp hơn một chỗ, nên nó gác luôn việc hàng chip không quay lại.
-    expect(screen.getByText('HPG · P/E').closest('button')).toBeNull();
+    expect(screen.queryByText('12,3 lần')).toBeNull();
+    expect(screen.queryByText('HPG · P/E')).toBeNull();
   });
 });
 
@@ -212,7 +210,7 @@ describe('SaveCalcSheet', () => {
  * chạm vào ô — ca này chặn ai đó hạ thêm một bậc.
  */
 describe('SaveCalcSheet — chữ nhỏ một bậc trên điện thoại', () => {
-  it('tên 12px, kết quả 14px, nhãn 12px, chữ trong ô 16px — chỉ dưới 1024px', () => {
+  it('nhãn 12px, chữ trong ô 16px — chỉ dưới 1024px', () => {
     // `process.cwd()` chứ không `import.meta.url`: ở môi trường jsdom đó không phải một URL `file:`.
     const css = readFileSync(
       join(process.cwd(), 'src/ui/sheets/SaveCalcSheet.module.css'),
@@ -224,9 +222,6 @@ describe('SaveCalcSheet — chữ nhỏ một bậc trên điện thoại', () =
       return dau === -1 ? undefined : /font-size:\s*([^;]+);/.exec(khoi.slice(dau))?.[1];
     };
 
-    expect(co('.formula')).toBe('var(--text-xs)');
-    // 14 → 12px ngày 21/10/2026, cùng đợt hộp thoại nổi giữa (khối dưới).
-    expect(co('.result')).toBe('var(--text-xs)');
     expect(co('.nameField label')).toBe('var(--text-xs)');
     expect(co('.nameField input')).toBe('var(--text-base)');
   });
@@ -287,7 +282,6 @@ describe('SaveCalcSheet — hộp thoại nổi giữa, gọn trên điện tho�
     const nut = luat('dialog.sheet > div > footer:last-child > button');
     expect(nut).toMatch(/min-height:\s*32px;/);
     expect(nut).toMatch(/font-size:\s*var\(--text-xs\);/);
-    expect(luat('.summary')).toMatch(/padding:\s*var\(--space-2\) var\(--space-3\);/);
     expect(luat('.nameField div:has(> input)')).toMatch(/min-height:\s*36px;/);
   });
 });

@@ -121,8 +121,9 @@ describe('chữ của ô nhập gắn vào ĐÚNG ô, và phủ đủ mọi ô',
    * Kho xuống 263 ngày 14/10/2026: bỏ câu của sáu ô nhóm lặp thứ hai, thứ ba (đợt 2, 3 của
    * `gia-von-trung-binh-dca`, kỳ 2, 3 của `loi-suat-trung-binh-hinh-hoc`). Registry vẫn 269 ô.
    */
-  it('Registry có 269 ô nhập; bài kể 263 ô, và kho có đúng 263 câu', () => {
-    expect(MOI_O_REGISTRY).toHaveLength(269);
+  /* 13/11/2026: `gia-tri-noi-tai-fcff` tách ô Nợ vay ròng thành hai ô (nợ vay, tiền): 269 → 270 ô, 263 → 264 câu. */
+  it('Registry có 271 ô nhập; bài kể 265 ô, và kho có đúng 265 câu', () => {
+    expect(MOI_O_REGISTRY).toHaveLength(271);
     const sauNhom1 = MOI_O_REGISTRY.filter((o) => o.sauNhom1).map(({ id, key }) => `${id}.${key}`);
     expect(sauNhom1.sort()).toEqual(
       [
@@ -134,9 +135,9 @@ describe('chữ của ô nhập gắn vào ĐÚNG ô, và phủ đủ mọi ô',
         'loi-suat-trung-binh-hinh-hoc.r3',
       ].sort(),
     );
-    expect(MOI_O).toHaveLength(263);
+    expect(MOI_O).toHaveLength(265);
     const soMucTrongKho = MUC.reduce((n, [, bai]) => n + Object.keys(bai.oNhap).length, 0);
-    expect(soMucTrongKho).toBe(263);
+    expect(soMucTrongKho).toBe(265);
   });
 
   it('mọi ô đều có câu "lấy số ở đâu", không câu nào rỗng', () => {
@@ -156,9 +157,10 @@ describe('chữ của ô nhập gắn vào ĐÚNG ô, và phủ đủ mọi ô',
    * Từ 163 xuống 159 ngày 14/10/2026: bốn trong sáu ô nhóm lặp bị bỏ câu có lưu ý (giá đợt 2, 3 và
    * kỳ 2, 3).
    */
-  it('159 ô có thêm câu lưu ý', () => {
+  /* 159 → 160 ngày 13/11/2026: hai ô nợ vay và tiền mới đều có câu lưu ý, ô nợ vay ròng cũ có một. */
+  it('161 ô có thêm câu lưu ý', () => {
     const coLuuY = MOI_O.filter(({ o }) => (o?.luuY?.vi ?? '').trim() !== '');
-    expect(coLuuY).toHaveLength(159);
+    expect(coLuuY).toHaveLength(161);
   });
 
   /*
@@ -211,7 +213,7 @@ describe('giữ đúng khuôn của tài liệu', () => {
     const tran: Record<(typeof BA_DONG)[number], number> = {
       deLamGi: 130,
       docKetQua: 190,
-      deSai: 160,
+      deSai: 161,
     };
     for (const [id, bai] of MUC) {
       for (const khoa of BA_DONG) {
@@ -302,8 +304,9 @@ describe('bản tiếng Anh của kho', () => {
   ];
 
   /* 762 → 755 ngày 09/11/2026: bỏ bảy câu `luuY` "bảng giá ghi 66,8" (xem ca 159 ô ở trên). */
-  it('đủ 755 chuỗi, chuỗi nào cũng có bản tiếng Anh', () => {
-    expect(MOI_CAP).toHaveLength(755);
+  /* 755 → 759 ngày 13/11/2026: ô Nợ vay ròng tách thành hai ô (xem ca 160 ô ở trên). */
+  it('đủ 759 chuỗi, chuỗi nào cũng có bản tiếng Anh', () => {
+    expect(MOI_CAP).toHaveLength(759);
     for (const { nhan, cau } of MOI_CAP) {
       expect((cau.en ?? '').trim(), nhan).not.toBe('');
     }

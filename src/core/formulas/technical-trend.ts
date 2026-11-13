@@ -956,15 +956,15 @@ export const RSI_WILDER: FormulaModule = {
       en: 'A 0–100 relative strength index that measures the ratio between recent upward and downward momentum.',
     },
     latex:
-      'RSI = 100 - \\frac{100}{1 + RS}, \\quad RS = \\frac{\\overline{Gain}_n}{\\overline{Loss}_n}',
+      'RSI = 100 - \\frac{100}{1 + RS}, \\quad RS = \\frac{\\overline{Gain}_n}{\\overline{Loss}_n} \\qquad RSI = 100, \\ \\overline{Loss}_n = 0',
     /*
      * Hình hai vế thì dòng chữ hai DÒNG (luật 6). Bản đầu gộp vế RS vào trong ngoặc của vế đầu;
      * bản vá nối bằng ", với" và bị bác (18/09/2026). Mệnh đề "hai trung bình làm mượt theo Wilder"
      * bám dòng của vế nó bổ nghĩa, không đứng riêng một dòng: nó không phải một vế.
      */
     expression: {
-      vi: 'RSI = 100 − 100 ÷ (1 + Sức mạnh tương đối)\nSức mạnh tương đối = Trung bình tăng ÷ Trung bình giảm, hai trung bình làm mượt theo Wilder',
-      en: 'RSI = 100 − 100 ÷ (1 + Relative strength)\nRelative strength = Average gain ÷ Average loss, both averages smoothed the Wilder way',
+      vi: 'RSI = 100 − 100 ÷ (1 + Sức mạnh tương đối)\nSức mạnh tương đối = Trung bình tăng ÷ Trung bình giảm, hai trung bình làm mượt theo Wilder\nRSI = 100, khi Trung bình giảm = 0',
+      en: 'RSI = 100 − 100 ÷ (1 + Relative strength)\nRelative strength = Average gain ÷ Average loss, both averages smoothed the Wilder way\nRSI = 100, when Average loss = 0',
     },
     substitution: '100 − 100 ÷ (1 + {@avgGain} ÷ {@avgLoss})',
     symbols: [

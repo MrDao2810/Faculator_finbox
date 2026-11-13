@@ -173,13 +173,12 @@ export function SaveCalcSheet({
         Tóm tắt thứ sắp được cất. Kết quả nằm ở đây chứ không chỉ ở màn ngoài: sheet che mất
         khối Kết quả, và người ta đặt tên theo con số họ vừa thấy.
       */}
-      <div className={styles.summary}>
-        <span className={styles.formula}>
-          {code === undefined || code === '' ? formulaName : `${code} · ${formulaName}`}
-        </span>
-        <span className={styles.result}>{resultText}</span>
-      </div>
-
+      {/*
+        Không còn khối tóm tắt (11/2026). Báo lỗi của người thử: hộp có "hai nội dung tên công thức"
+        mà dòng tên công thức không bấm được; bỏ dòng tên thì con số đứng một mình trong khung và chủ
+        dự án hỏi tiếp "lại không có ý nghĩa?". Tên công thức đã nằm trong ô tên điền sẵn ngay dưới,
+        còn kết quả chỉ làm tên gợi ý (`resultText`), không cần in thêm ở đây.
+      */}
       {saved ? (
         <p className={styles.done} role="status">
           {t('save.done')}{' '}

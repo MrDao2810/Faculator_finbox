@@ -17,7 +17,7 @@ import type { SeriesRow } from './price-series';
 /** Một phiên hợp lệ, dùng làm khuôn rồi ghi đè từng mảnh trong các ca lỗi. */
 function row(patch: Partial<SeriesRow> = {}): SeriesRow {
   return {
-    date: '15/07',
+    date: '15/07/2026',
     open: 25.1,
     high: 25.7,
     low: 25.05,
@@ -97,7 +97,7 @@ describe('checkRow — một phiên', () => {
 
 describe('checkSeries — cả bảng', () => {
   it('đếm đúng số dòng dùng được', () => {
-    const check = checkSeries([row({ date: '15/07' }), row({ date: '16/07' })]);
+    const check = checkSeries([row({ date: '15/07/2026' }), row({ date: '16/07/2026' })]);
     expect(check.usableCount).toBe(2);
     expect(check.total).toBe(2);
     expect(check.rows).toEqual([]);
@@ -105,9 +105,9 @@ describe('checkSeries — cả bảng', () => {
 
   it('bắt ngày trùng và chỉ đúng dòng đầu tiên đã dùng ngày đó', () => {
     const check = checkSeries([
-      row({ date: '15/07' }),
-      row({ date: '16/07' }),
-      row({ date: '15/07' }),
+      row({ date: '15/07/2026' }),
+      row({ date: '16/07/2026' }),
+      row({ date: '15/07/2026' }),
     ]);
 
     expect(check.usableCount).toBe(2);
@@ -122,7 +122,7 @@ describe('checkSeries — cả bảng', () => {
      * câu không chỉ chỗ nào, vì họ sẽ đi sửa nhầm dòng. `first` vẫn còn trong `checkSeries()` để
      * bảng tra biết dòng đầu tiên dùng ngày đó, nó chỉ thôi đi vào câu chữ.
      */
-    expect(check.rows[0]?.issues[0]?.message).toContain('15/07');
+    expect(check.rows[0]?.issues[0]?.message).toContain('15/07/2026');
     expect(check.rows[0]?.issues[0]?.message).not.toMatch(/dòng \d/);
   });
 
@@ -144,13 +144,22 @@ describe('checkSeries — cả bảng', () => {
     expect(check.rows[0]?.issues[0]?.message).toContain('03/10/2026');
   });
 
-  it('ngày thiếu năm và ngày đủ năm không bị coi là trùng nhau', () => {
+  it('ngày chỉ có ngày/tháng bị báo thiếu năm, không đoán năm', () => {
     const check = checkSeries([row({ date: '03/10' }), row({ date: '03/10/2026' })]);
-    expect(check.rows).toEqual([]);
+    expect(check.rows.map((r) => r.index)).toEqual([0]);
+    expect(check.rows[0]?.issues.map((i) => i.code)).toEqual(['MISSING_YEAR']);
+  });
+
+  it('hai ngày/tháng giống nhau cũng báo trùng ngày', () => {
+    const check = checkSeries([row({ date: '3/10' }), row({ date: '03/10' })]);
+    expect(check.rows[1]?.issues.map((i) => i.code)).toContain('DUPLICATE_DATE');
   });
 
   it('một dòng hỏng không làm hỏng cả bảng', () => {
-    const check = checkSeries([row({ date: '15/07' }), row({ date: '16/07', high: 1, low: 9 })]);
+    const check = checkSeries([
+      row({ date: '15/07/2026' }),
+      row({ date: '16/07/2026', high: 1, low: 9 }),
+    ]);
     expect(check.usableCount).toBe(1);
     expect(check.rows).toHaveLength(1);
   });
@@ -163,17 +172,20 @@ describe('checkSeries — cả bảng', () => {
 describe('closesOf — chuỗi đưa vào CalcContext', () => {
   it('lấy giá đóng cửa theo đúng thứ tự bảng', () => {
     expect(
-      closesOf([row({ date: '15/07', close: 25.4 }), row({ date: '16/07', close: 25.6 })]),
+      closesOf([
+        row({ date: '15/07/2026', close: 25.4 }),
+        row({ date: '16/07/2026', close: 25.6 }),
+      ]),
     ).toEqual([25.4, 25.6]);
   });
 
   it('bỏ dòng có vấn đề chứ không tính trên dữ liệu mâu thuẫn', () => {
     const rows = [
-      row({ date: '15/07', close: 25.4 }),
-      row({ date: '16/07', high: 1, low: 9, close: 5 }),
+      row({ date: '15/07/2026', close: 25.4 }),
+      row({ date: '16/07/2026', high: 1, low: 9, close: 5 }),
       // Giá đóng cửa phải nằm trong khoảng cao–thấp của chính phiên, nếu không dòng này
       // cũng bị loại — đúng luật, và soạn ca kiểm này lần đầu tôi đã vi phạm nó.
-      row({ date: '17/07', close: 25.6 }),
+      row({ date: '17/07/2026', close: 25.6 }),
     ];
     expect(closesOf(rows)).toEqual([25.4, 25.6]);
   });

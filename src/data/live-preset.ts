@@ -187,6 +187,6 @@ export const LIVE_PRESET_FORMULAS: ReadonlyArray<LivePresetFormula> = [
   { id: 'loi-nhuan-rong', filled: 1, total: 4, priceFields: 1 },
   { id: 'roi-rong', filled: 1, total: 4, priceFields: 1 },
   { id: 'ddm-hai-giai-doan', filled: 1, total: 5, priceFields: 0 },
-  { id: 'gia-tri-noi-tai-fcff', filled: 1, total: 5, priceFields: 0 },
   { id: 'wacc', filled: 1, total: 5, priceFields: 0 },
+  { id: 'gia-tri-noi-tai-fcff', filled: 1, total: 7, priceFields: 0 },
 ];

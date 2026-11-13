@@ -74,8 +74,9 @@ describe('ô nhập → dòng bảng ký hiệu', () => {
         );
       }
     }
-    // Đo ngày 28/10/2026: 215 trên 269 ô ứng với một dòng của bảng ký hiệu.
-    expect(soO).toBe(215);
+    // Đo ngày 28/10/2026: 215 trên 269 ô ứng với một dòng của bảng ký hiệu. 216 ngày 13/11/2026: ô
+    // Tiền và đầu tư ngắn hạn của `gia-tri-noi-tai-fcff` ứng với dòng cùng tên (và 270 ô, vì ô nợ ròng tách đôi).
+    expect(soO).toBe(217);
   });
 });
 
@@ -147,6 +148,6 @@ describe('nhanCoKyHieu — phần nào của tên ô là ký hiệu', () => {
         }
       }
     }
-    expect(soO).toBe(215);
+    expect(soO).toBe(217);
   });
 });

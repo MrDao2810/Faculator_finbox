@@ -971,18 +971,46 @@ export const BIEU_DO_DINH_GIA: Readonly<Record<string, BieuDoRieng>> = {
           'Each dot is the intrinsic value at one level of the Weighted average cost of capital (WACC) field, from half to one and a half times the figure you have entered; the dot on the dashed vertical line is your own figure. It is a what-if on WACC, not market history. The row of dots falls, with the dots on the left much further apart than those on the right: the further left, the closer WACC sits to long-term growth and the harder each step in WACC moves the value; further right, capital is dearer and each step moves it less.',
         ),
       },
-      netDebt: {
+      debt: {
         duong: d(
-          'Đường chạy từ trái sang phải theo ô Nợ vay ròng (Dròng), từ một nửa đến gấp rưỡi con số bạn đang nhập; vạch đứt dọc có chấm tròn là đúng con số bạn nhập. Đây là phép thử nếu nợ ròng đổi thì giá trị nội tại ra bao nhiêu, không phải diễn biến thị trường. Đường đi xuống đều: giá trị cả doanh nghiệp phải trả cho chủ nợ trước, nên mỗi đồng nợ ròng thêm vào bớt đi đúng một đồng khỏi phần của cổ đông.',
-          'The line runs left to right along the Net debt (Dnet) field, from half to one and a half times the figure you have entered; the dashed vertical line with a dot marks your own figure. It is a what-if on net debt, not market history. The line falls steadily: the value of the whole firm goes to lenders first, so every extra unit of net debt takes exactly one unit from the shareholders’ part.',
+          'Đường chạy từ trái sang phải theo ô Nợ vay chịu lãi (D), từ một nửa đến gấp rưỡi con số bạn đang nhập; vạch đứt dọc có chấm tròn là đúng con số bạn nhập. Đây là phép thử nếu nợ vay đổi mà số tiền công ty đang có đứng yên thì giá trị nội tại ra bao nhiêu, không phải diễn biến thị trường. Đường đi xuống đều: giá trị cả doanh nghiệp phải trả cho chủ nợ trước, nên mỗi đồng nợ vay thêm vào bớt đi đúng một đồng khỏi phần của cổ đông.',
+          'The line runs left to right along the Interest-bearing debt (D) field, from half to one and a half times the figure you have entered; the dashed vertical line with a dot marks your own figure. It is a what-if on debt with the cash the company holds kept still, not market history. The line falls steadily: the value of the whole firm goes to lenders first, so every extra unit of debt takes exactly one unit from the shareholders’ part.',
         ),
         cot: d(
-          'Mỗi cột là giá trị nội tại ở một mức nợ ròng, cột thấp dần về bên phải và cột tô đặc là mức bạn đang nhập. Nợ ròng âm, tức tiền mặt nhiều hơn nợ vay, thì cộng thêm vào giá trị thay vì trừ đi.',
-          'Each bar is the intrinsic value at one level of net debt; bars shrink to the right and the solid one is the level you have entered. Negative net debt, meaning more cash than borrowings, adds to the value instead of taking from it.',
+          'Mỗi cột là giá trị nội tại ở một mức nợ vay, cột thấp dần về bên phải và cột tô đặc là mức bạn đang nhập. Số tiền công ty đang có giữ nguyên, nên nợ vay càng lớn thì nợ vay ròng càng lớn và phần còn lại cho cổ đông càng nhỏ.',
+          'Each bar is the intrinsic value at one level of debt; bars shrink to the right and the solid one is the level you have entered. The cash the company holds stays put, so the larger the debt the larger the net debt and the smaller what is left for shareholders.',
         ),
         diem: d(
-          'Mỗi chấm là giá trị nội tại tính ở một mức của ô Nợ vay ròng (Dròng), từ một nửa đến gấp rưỡi con số bạn đang nhập; chấm nằm trên vạch đứt dọc là đúng con số bạn nhập. Đây là phép thử nếu nợ ròng đổi thì giá trị nội tại ra bao nhiêu, không phải diễn biến thị trường. Dãy chấm đi xuống thành hàng thẳng, các chấm cách đều nhau: giá trị doanh nghiệp trả chủ nợ trước, nên mỗi phần nợ ròng thêm vào bớt đúng phần ấy khỏi vốn của cổ đông, rồi chia đều cho mọi cổ phiếu.',
-          'Each dot is the intrinsic value at one level of the Net debt (Dnet) field, from half to one and a half times the figure you have entered; the dot on the dashed vertical line is your own figure. It is a what-if on net debt, not market history. The row of dots falls in a straight, evenly spaced line: the firm’s value goes to lenders first, so each extra unit of net debt comes straight off the shareholders’ equity, spread evenly over every share.',
+          'Mỗi chấm là giá trị nội tại tính ở một mức của ô Nợ vay chịu lãi (D), từ một nửa đến gấp rưỡi con số bạn đang nhập; chấm nằm trên vạch đứt dọc là đúng con số bạn nhập. Đây là phép thử nếu nợ vay đổi thì giá trị nội tại ra bao nhiêu, không phải diễn biến thị trường. Dãy chấm đi xuống thành hàng thẳng, các chấm cách đều nhau: mỗi phần nợ vay thêm vào bớt đúng phần ấy khỏi vốn của cổ đông, rồi chia đều cho mọi cổ phiếu.',
+          'Each dot is the intrinsic value at one level of the Interest-bearing debt (D) field, from half to one and a half times the figure you have entered; the dot on the dashed vertical line is your own figure. It is a what-if on debt, not market history. The row of dots falls in a straight, evenly spaced line: each extra unit of debt comes straight off the shareholders’ equity, spread evenly over every share.',
+        ),
+      },
+      cash: {
+        duong: d(
+          'Đường chạy từ trái sang phải theo ô Tiền và các khoản tương đương tiền, từ một nửa đến gấp rưỡi con số bạn đang nhập; vạch đứt dọc có chấm tròn là đúng con số bạn nhập. Đây là phép thử nếu số tiền công ty đang có đổi mà nợ vay đứng yên thì giá trị nội tại ra bao nhiêu, không phải diễn biến thị trường. Đường đi lên đều: tiền công ty đang có được trừ khỏi nợ vay, nên mỗi đồng tiền thêm vào cộng đúng một đồng vào phần của cổ đông.',
+          'The line runs left to right along the Cash and cash equivalents field, from half to one and a half times the figure you have entered; the dashed vertical line with a dot marks your own figure. It is a what-if on the cash the company holds with debt kept still, not market history. The line rises steadily: the cash is subtracted from the debt, so every extra unit of cash adds exactly one unit to the shareholders’ part.',
+        ),
+        cot: d(
+          'Mỗi cột là giá trị nội tại ở một mức tiền và các khoản tương đương tiền, cột cao dần về bên phải và cột tô đặc là mức bạn đang nhập. Tiền vượt nợ vay thì nợ vay ròng âm, và phần tiền dư ấy cộng thêm vào giá trị của cổ đông.',
+          'Each bar is the intrinsic value at one level of cash and cash equivalents; bars grow taller to the right and the solid one is the level you have entered. When cash exceeds debt, net debt turns negative and the surplus cash adds to the shareholders’ value.',
+        ),
+        diem: d(
+          'Mỗi chấm là giá trị nội tại tính ở một mức của ô Tiền và các khoản tương đương tiền, từ một nửa đến gấp rưỡi con số bạn đang nhập; chấm nằm trên vạch đứt dọc là đúng con số bạn nhập. Đây là phép thử nếu số tiền công ty đang có đổi thì giá trị nội tại ra bao nhiêu, không phải diễn biến thị trường. Dãy chấm đi lên thành hàng thẳng, các chấm cách đều nhau: mỗi phần tiền thêm vào làm nợ vay ròng nhỏ đi đúng phần ấy, cộng thẳng vào vốn của cổ đông rồi chia đều cho mọi cổ phiếu.',
+          'Each dot is the intrinsic value at one level of the Cash and cash equivalents field, from half to one and a half times the figure you have entered; the dot on the dashed vertical line is your own figure. It is a what-if on the cash the company holds, not market history. The row of dots rises in a straight, evenly spaced line: each extra unit of cash shrinks net debt by that unit, adding straight to the shareholders’ equity, spread evenly over every share.',
+        ),
+      },
+      shortInvest: {
+        duong: d(
+          'Đường chạy từ trái sang phải theo ô Đầu tư tài chính ngắn hạn, từ một nửa đến gấp rưỡi con số bạn đang nhập; vạch đứt dọc có chấm tròn là đúng con số bạn nhập. Đây là phép thử nếu số tiền công ty đang có đổi mà nợ vay đứng yên thì giá trị nội tại ra bao nhiêu, không phải diễn biến thị trường. Đường đi lên đều: tiền công ty đang có được trừ khỏi nợ vay, nên mỗi đồng tiền thêm vào cộng đúng một đồng vào phần của cổ đông.',
+          'The line runs left to right along the Short-term financial investments field, from half to one and a half times the figure you have entered; the dashed vertical line with a dot marks your own figure. It is a what-if on the cash the company holds with debt kept still, not market history. The line rises steadily: the cash is subtracted from the debt, so every extra unit of cash adds exactly one unit to the shareholders’ part.',
+        ),
+        cot: d(
+          'Mỗi cột là giá trị nội tại ở một mức đầu tư tài chính ngắn hạn, cột cao dần về bên phải và cột tô đặc là mức bạn đang nhập. Tiền vượt nợ vay thì nợ vay ròng âm, và phần tiền dư ấy cộng thêm vào giá trị của cổ đông.',
+          'Each bar is the intrinsic value at one level of short-term financial investments; bars grow taller to the right and the solid one is the level you have entered. When cash exceeds debt, net debt turns negative and the surplus cash adds to the shareholders’ value.',
+        ),
+        diem: d(
+          'Mỗi chấm là giá trị nội tại tính ở một mức của ô Đầu tư tài chính ngắn hạn, từ một nửa đến gấp rưỡi con số bạn đang nhập; chấm nằm trên vạch đứt dọc là đúng con số bạn nhập. Đây là phép thử nếu số tiền công ty đang có đổi thì giá trị nội tại ra bao nhiêu, không phải diễn biến thị trường. Dãy chấm đi lên thành hàng thẳng, các chấm cách đều nhau: mỗi phần tiền thêm vào làm nợ vay ròng nhỏ đi đúng phần ấy, cộng thẳng vào vốn của cổ đông rồi chia đều cho mọi cổ phiếu.',
+          'Each dot is the intrinsic value at one level of the Short-term financial investments field, from half to one and a half times the figure you have entered; the dot on the dashed vertical line is your own figure. It is a what-if on the cash the company holds, not market history. The row of dots rises in a straight, evenly spaced line: each extra unit of cash shrinks net debt by that unit, adding straight to the shareholders’ equity, spread evenly over every share.',
         ),
       },
       shares: {

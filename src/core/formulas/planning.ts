@@ -1189,10 +1189,12 @@ export const SO_KY_DCA: FormulaModule = {
       vi: 'Cần góp đều bao nhiêu tháng để khoản đầu tư định kỳ đạt số tiền mục tiêu, với lợi suất kỳ vọng cho trước.',
       en: 'How many months of equal contributions are needed for a periodic investment to reach a target amount, given an expected rate of return.',
     },
-    latex: 'n = \\left\\lceil \\frac{\\ln(1 + FV \\cdot i / C)}{\\ln(1 + i)} \\right\\rceil',
+    // Hai nhánh (11/2026): tại i = 0 vế đầu là 0/0, `calc` trả ⌈FV ÷ C⌉.
+    latex:
+      'n = \\left\\lceil \\frac{\\ln(1 + FV \\cdot i / C)}{\\ln(1 + i)} \\right\\rceil, \\ i \\ne 0 \\qquad n = \\left\\lceil \\frac{FV}{C} \\right\\rceil, \\ i = 0',
     expression: {
-      vi: 'Số kỳ = ln(1 + Mục tiêu × Lợi suất kỳ ÷ Mức góp mỗi kỳ) ÷ ln(1 + Lợi suất kỳ), làm tròn lên',
-      en: 'Number of periods = ln(1 + Target amount × Period rate ÷ Monthly contribution) ÷ ln(1 + Period rate), rounded up',
+      vi: 'Số kỳ = ln(1 + Mục tiêu × Lợi suất kỳ ÷ Mức góp mỗi kỳ) ÷ ln(1 + Lợi suất kỳ), làm tròn lên, khi Lợi suất kỳ khác 0\nSố kỳ = Mục tiêu ÷ Mức góp mỗi kỳ, làm tròn lên, khi Lợi suất kỳ = 0',
+      en: 'Number of periods = ln(1 + Target amount × Period rate ÷ Monthly contribution) ÷ ln(1 + Period rate), rounded up, when the period rate is not 0\nNumber of periods = Target amount ÷ Monthly contribution, rounded up, when the period rate = 0',
     },
     /*
      * `{rate}` nhập theo %/năm còn công thức chạy theo lợi suất MỖI THÁNG, nên nó xuất hiện hai
@@ -1201,6 +1203,7 @@ export const SO_KY_DCA: FormulaModule = {
      */
     substitutionDerived: { i: '{rate} ÷ 100 ÷ 12' },
     substitution: '⌈ln(1 + {target} × {i} ÷ {contribution}) ÷ ln(1 + {i})⌉',
+    substitutionCases: { key: 'rate', byValue: { 0: '⌈{target} ÷ {contribution}⌉' } },
     symbols: [
       {
         latex: 'n',

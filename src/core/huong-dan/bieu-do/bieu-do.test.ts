@@ -230,7 +230,8 @@ describe.skipIf(CHI.length > 0)('kế hoạch đọc đúng thứ màn tính d�
    * nhập, thêm hình mới) làm ca này đỏ ĐÚNG LÚC cần viết thêm chữ — chứ không lặng lẽ để một mục
    * của ô chọn thiếu đoạn.
    */
-  it('103 công thức có hình: 248 trục, 47 hình thời gian, 11 hình bóc tách, 22 hình cơ cấu', () => {
+  /* 248 → 249 trục ngày 13/11/2026: `gia-tri-noi-tai-fcff` tách ô Nợ vay ròng thành hai ô (nợ vay, tiền). */
+  it('103 công thức có hình: 250 trục, 47 hình thời gian, 11 hình bóc tách, 22 hình cơ cấu', () => {
     const dem = {
       khongHinh: 0,
       moRaTheoONhap: 0,
@@ -289,7 +290,7 @@ describe.skipIf(CHI.length > 0)('kế hoạch đọc đúng thứ màn tính d�
       moRaChoChuoi: 35,
       bocTachTrongOChon: 6,
       thoiGian: 47,
-      truc: 248,
+      truc: 250,
       trucChoChuoi: 51,
       trucNamNgang: 4,
       trucNangCao: 10,

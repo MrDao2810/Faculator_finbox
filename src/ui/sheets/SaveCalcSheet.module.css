@@ -1,39 +1,6 @@
 /*
- * Tóm tắt thứ sắp được cất: công thức (kèm mã nếu có) bên trái, kết quả bên phải.
- *
- * Xếp ngang chứ không xếp dọc để khối này chỉ chiếm một dòng — sheet còn phải chứa ô tên, mà
- * bàn phím ảo đã ăn mất nửa màn hình lúc người dùng gõ tên.
+ * Khối tóm tắt (tên công thức + kết quả) đã bỏ 11/2026: xem docblock của `SaveCalcSheet`.
  */
-.summary {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: var(--space-3);
-
-  margin-bottom: var(--space-4);
-  padding: var(--space-3);
-
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-}
-
-.formula {
-  min-width: 0;
-  font-size: var(--text-sm);
-  font-weight: var(--weight-medium);
-  color: var(--color-ink);
-  /* Tên công thức dài hơn chỗ trống thì xuống dòng, không đẩy kết quả ra khỏi khung. */
-  overflow-wrap: anywhere;
-}
-
-.result {
-  flex-shrink: 0;
-  font-family: var(--font-mono);
-  font-size: var(--text-base);
-  font-weight: var(--weight-bold);
-  color: var(--color-accent);
-}
 
 /*
  * Dưới 1024px dòng tóm tắt và ô tên hạ một bậc (15/10/2026). Chủ dự án khoanh cả hai trên điện
@@ -48,14 +15,6 @@
  * nạp trước. Không sửa `Input` chung: ô ấy còn ở màn chi tiết và form Danh mục, ngoài lời giao.
  */
 @media (max-width: 1023.98px) {
-  .formula {
-    font-size: var(--text-xs);
-  }
-
-  .result {
-    font-size: var(--text-xs);
-  }
-
   .nameField label {
     font-size: var(--text-xs);
   }
@@ -118,11 +77,6 @@
   dialog.sheet > div > footer:last-child > button {
     min-height: 32px;
     font-size: var(--text-xs);
-  }
-
-  .summary {
-    margin-bottom: var(--space-3);
-    padding: var(--space-2) var(--space-3);
   }
 
   .nameField div:has(> input) {

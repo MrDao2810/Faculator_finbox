@@ -49,12 +49,30 @@ describe('khối Câu hỏi thường gặp', () => {
     expect(container.innerHTML).toBe('');
   });
 
-  it('có tiêu đề cấp 2 và mọi câu gập sẵn', () => {
+  it('có tiêu đề cấp 2; HTML tĩnh gập sẵn, sau khi dựng mọi câu mở sẵn ở mọi độ rộng', () => {
+    const html = renderToStaticMarkup(<FaqBlock items={BAY_CAU} formulaId="pe" />);
+    expect((html.match(/<details[^>]*open/g) ?? []).length).toBe(0);
+
     render(<FaqBlock items={BAY_CAU} formulaId="pe" />);
     expect(screen.getByRole('heading', { level: 2, name: t('faq.title') })).not.toBeNull();
     const details = document.querySelectorAll('details');
     expect(details).toHaveLength(7);
-    for (const d of details) expect(d.open).toBe(false);
+    for (const d of details) expect(d.open).toBe(true);
+  });
+
+  it('bấm dấu − gập một câu lại, và dựng lại không tự mở nó ra (11/11/2026)', () => {
+    const { rerender } = render(<FaqBlock items={BAY_CAU} formulaId="pe" />);
+    const dau = document.querySelectorAll('details')[0] as HTMLDetailsElement;
+    dau.open = false;
+    fireEvent(dau, new Event('toggle'));
+    expect(dau.open).toBe(false);
+    rerender(<FaqBlock items={BAY_CAU} formulaId="pe" />);
+    expect(dau.open).toBe(false);
+    expect((document.querySelectorAll('details')[1] as HTMLDetailsElement).open).toBe(true);
+
+    dau.open = true;
+    fireEvent(dau, new Event('toggle'));
+    expect(dau.open).toBe(true);
   });
 
   it(`hiện ${String(FAQ_HIEN_TRUOC)} câu đầu, phần còn lại ẩn sau nút Xem thêm`, () => {
@@ -106,8 +124,9 @@ describe('khối Câu hỏi thường gặp', () => {
 
   it('HTML tĩnh khớp lượt dựng đầu của máy khách (câu thứ 6 trở đi mang hidden)', () => {
     const html = renderToStaticMarkup(<FaqBlock items={BAY_CAU} formulaId="pe" />);
+    /* Lượt dựng đầu (trước effect) phải bằng HTML tĩnh; effect rồi mới mở các câu. */
     const { container } = render(<FaqBlock items={BAY_CAU} formulaId="pe" />);
-    expect(container.innerHTML).toBe(html);
+    expect(container.innerHTML.replaceAll(' open=""', '')).toBe(html);
     expect((html.match(/<details[^>]*hidden/g) ?? []).length).toBe(2);
   });
 

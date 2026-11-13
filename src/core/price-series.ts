@@ -40,6 +40,7 @@ export interface SeriesRow {
 /** Mã lỗi của một dòng. Dùng mã chứ không dùng câu chữ để giao diện tự chọn cách hiện. */
 export type RowIssueCode =
   | 'MISSING_DATE'
+  | 'MISSING_YEAR'
   | 'MISSING_CLOSE'
   | 'NON_POSITIVE_PRICE'
   | 'HIGH_BELOW_LOW'
@@ -102,6 +103,18 @@ export function checkRow(row: SeriesRow): ReadonlyArray<RowIssue> {
 
   if (row.date.trim() === '') {
     issues.push({ code: 'MISSING_DATE', message: 'Thiếu ngày của phiên này.' });
+  }
+
+  /*
+   * Ngày chỉ có ngày/tháng ('15/07') không xác định được năm, nên không xếp được vào trục thời gian
+   * và không so trùng được với các phiên có năm (13/11/2026). Chặn ở đây thay vì đoán năm (FR-06).
+   */
+  const ngay = parseSeriesDate(row.date);
+  if (ngay !== null && ngay.year === null) {
+    issues.push({
+      code: 'MISSING_YEAR',
+      message: 'Ngày cần ghi đủ năm (dd/mm/yyyy), ngày/tháng thôi thì không biết thuộc năm nào.',
+    });
   }
 
   if (row.close === null) {
@@ -183,7 +196,11 @@ export function checkSeries(rows: ReadonlyArray<SeriesRow>): SeriesCheck {
      * dòng mà cột kiểm tra không nói gì. `displaySeriesDate()` đưa mọi lối viết CÓ năm về một
      * dạng, còn ô không đọc ra ngày (số thứ tự phiên, '15/07' thiếu năm) vẫn so theo chữ như cũ.
      */
-    const key = displaySeriesDate(row.date);
+    const ngay = parseSeriesDate(row.date);
+    const key =
+      ngay !== null && ngay.year === null
+        ? `${String(ngay.day).padStart(2, '0')}/${String(ngay.month).padStart(2, '0')}`
+        : displaySeriesDate(row.date);
     if (key !== '') {
       const first = seen.get(key);
       if (first === undefined) {

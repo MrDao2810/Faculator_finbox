@@ -58,7 +58,7 @@ const KY_HIEU_O_NHAP: Readonly<Record<string, Readonly<Record<string, string>>>>
   wacc: { equity: 'E', debt: 'D', costEquity: 're', costDebt: 'rd', taxRate: 't' },
   fcff: { ebit: 'EBIT', taxRate: 't', depreciation: 'Dep', capex: 'CapEx', nwcChange: 'ΔNWC' },
   fcfe: { fcff: 'FCFF', interest: 'I', taxRate: 't', netBorrowing: 'ΔB' },
-  'gia-tri-noi-tai-fcff': { fcff: 'FCFF', growth: 'g', wacc: 'WACC', netDebt: 'Dròng' },
+  'gia-tri-noi-tai-fcff': { fcff: 'FCFF', growth: 'g', wacc: 'WACC', debt: 'D' },
   'gia-tri-hien-tai': { futureValue: 'FV', rate: 'r', years: 'n' },
   'gia-tri-tuong-lai': { presentValue: 'PV', rate: 'r', years: 'n' },
   'bien-an-toan': { intrinsic: 'V', price: 'P' },

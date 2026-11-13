@@ -1166,14 +1166,34 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
           en: 'Must be greater than long-term growth g, otherwise the model is meaningless.',
         },
       },
-      netDebt: {
+      debt: {
         layODau: {
-          vi: 'Nợ vay trừ tiền mặt và tiền gửi ngân hàng.',
-          en: 'Debt minus cash and cash equivalents.',
+          vi: 'Bảng cân đối kế toán: cộng các dòng vay ngắn hạn và vay dài hạn phải trả lãi.',
+          en: 'Balance sheet: add the short-term and long-term borrowing lines that carry interest.',
         },
         luuY: {
-          vi: 'Với doanh nghiệp nhiều tiền mặt, số này có thể là số âm, nhập đúng dấu âm.',
-          en: 'For cash-rich companies this can be negative; enter it with the minus sign.',
+          vi: 'Chỉ lấy khoản vay có lãi, không lấy tiền còn nợ nhà cung cấp.',
+          en: 'Only count borrowings that carry interest, not amounts owed to suppliers.',
+        },
+      },
+      cash: {
+        layODau: {
+          vi: 'Bảng cân đối kế toán: dòng "Tiền và các khoản tương đương tiền" (mã số 110).',
+          en: 'Balance sheet: the cash and cash equivalents line, code 110.',
+        },
+        luuY: {
+          vi: 'Bị trừ khỏi nợ vay; tiền gửi trên ba tháng tính ở ô dưới.',
+          en: 'Subtracted from debt; deposits over three months go in the next field.',
+        },
+      },
+      shortInvest: {
+        layODau: {
+          vi: 'Bảng cân đối kế toán: dòng "Đầu tư tài chính ngắn hạn" (mã số 120).',
+          en: 'Balance sheet: the short-term financial investments line, code 120.',
+        },
+        luuY: {
+          vi: 'Cũng bị trừ khỏi nợ vay; hai ô cộng lại lớn hơn nợ thì nợ vay ròng âm.',
+          en: 'Also subtracted from debt; if the two fields together exceed debt, net debt is negative.',
         },
       },
       shares: {

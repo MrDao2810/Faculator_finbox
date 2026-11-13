@@ -798,6 +798,26 @@ button.iconButton::after {
 }
 
 /*
+ * Hình xếp nhiều dòng (`\begin{array}`, hiện là `gia-tri-noi-tai-fcff`) căn TRÁI: chủ dự án
+ * (13/11/2026) thấy hai dòng căn giữa "xấu". `<math display="block">` tự canh giữa, nên đổi về
+ * `display: math` (nội tuyến) để nó bám mép trái như dòng chữ bên dưới.
+ */
+.formula:has(mtable) {
+  text-align: left;
+}
+
+.formula:has(mtable) :global(math) {
+  display: math;
+}
+
+/* Chrome bỏ qua `columnalign="left"` của KaTeX; ô của bảng mặc định canh giữa. */
+.formula:has(mtable) :global(mtd) {
+  text-align: left;
+  /* Chrome cũng bỏ `rowspacing`: hai dòng dính nhau, mẫu số "Số CP" chạm dòng dưới. */
+  padding-block: 0.7em;
+}
+
+/*
  * Vế thứ hai của khối Công thức, ngăn với ký hiệu toán bằng một đường kẻ.
  *
  * ── Dòng này XUỐNG DÒNG, không cuộn ngang ────────────────────────────────────
@@ -1843,6 +1863,41 @@ button.iconButton::after {
   }
 
   /*
+   * Công thức chỉ có MỘT ô nhập (hiện là `thoi-gian-nhan-doi`): hai khối đứng giữa thẻ, không dính
+   * mép trái (12/11/2026, chủ dự án chỉ vào thẻ kết quả và ô Lợi suất: _"căn giữa 2 cái này ở màn khi
+   * chỉ có 1 ô thay đổi thông số"_). Hai cột 7fr / 13fr trải hết thẻ nên một ô đơn nằm sát trái cột
+   * phải và để trống nửa thẻ bên phải. Nay mỗi cột rộng 24rem (384px, xấp xỉ ô cũ ở 1440) và cả cặp
+   * dồn vào giữa; ô độc nhất đầy cột của nó thay vì bị cắt còn nửa bề ngang (`:only-child` ở khối
+   * `.fields.tileGrid`). Chọn theo cấu trúc vì lớp bị băm tên; nhiều ô thì luật này không chạm.
+   */
+  .merged:has(.fields.tileGrid > :only-child) {
+    grid-template-columns: minmax(220px, 24rem) minmax(0, 24rem);
+    justify-content: center;
+  }
+
+  .merged:has(.fields.tileGrid > :only-child) .fields.tileGrid > :only-child {
+    max-width: none;
+  }
+
+  /*
+   * Nút "?" của khối Số liệu vẫn ở GÓC PHẢI TRÊN của thẻ (chủ dự án kẻ mũi tên tới mép phải, cùng
+   * ngày): dồn cặp vào giữa kéo nó theo cột phải, về sát mép ô nhập. Nay nó neo vào `.merged`, cách mép
+   * trên và mép phải `--space-2` đúng như ở mọi công thức khác. Hàng `.blockHead` vẫn giữ chỗ cao
+   * `--space-6` nên phép căn giữa theo chiều dọc bên dưới không đổi; lề phải âm của luật gốc phải về 0,
+   * vì `right` đã tính từ mép thẻ.
+   */
+  .merged:has(.fields.tileGrid > :only-child) {
+    position: relative;
+  }
+
+  .merged:has(.fields.tileGrid > :only-child) .hintSoLieu {
+    position: absolute;
+    top: var(--space-2);
+    right: var(--space-2);
+    margin-right: 0;
+  }
+
+  /*
    * Kết quả bên TRÁI dù trong DOM nó đứng sau Số liệu. Thứ tự DOM ấy là của khổ hẹp (Số liệu rồi
    * mới tới Kết quả, đúng mạch đọc), còn ở đây hai khối đứng cạnh nhau nên trái phải là chuyện của
    * mắt, không phải của mạch đọc. Khai cột tường minh cho cả hai, không trông vào tự xếp.
@@ -1881,6 +1936,23 @@ button.iconButton::after {
     align-self: stretch;
     justify-content: center;
     padding-top: calc(var(--space-6) + var(--space-2));
+  }
+
+  /*
+   * Thẻ LỖI trong thẻ gộp cao bằng vùng ô nhập bên phải và cách nó thêm một chút (12/11/2026, chủ dự
+   * án khoanh thẻ "_ _ năm · Lợi suất lớn hơn 0." cạnh ô Lợi suất: _"điều chỉnh cho viền ngoài bằng với
+   * viền bên phải và cho trái phải 2 ô này cách nhau ra thêm 1 chút"_). Thẻ lỗi một hàng chỉ cao ~48px
+   * còn ô nhập 71px, nên mép trên và mép dưới hai bên lệch nhau 11px. `flex: 1` kéo thẻ lấp phần cao còn
+   * lại của `.result` (đã trừ hàng nút "?" ở đệm trên), `align-content: center` giữ chữ ở giữa thẻ
+   * (thẻ là flex xuống dòng, nên `align-items` không đủ), `margin-right` mở thêm khe với ô nhập (`--space-7`, cộng khe cột sẵn có; vòng hai cùng ngày, chủ dự án vẫn thấy hai ô sát nhau).
+   * Câu trong thẻ là câu cũ của `divideByZero()` (chủ dự án bảo trả lại sau khi thử câu một dòng).
+   * Thẻ lỗi dài nhiều dòng vẫn tự cao hơn vùng ô, như cũ. Chọn theo `data-ma-loi` vì lớp của
+   * `ErrorState` bị băm tên.
+   */
+  .merged .result > [data-ma-loi] {
+    flex: 1 1 auto;
+    align-content: center;
+    margin-right: var(--space-7);
   }
 
   /* Vế còn lại của phép căn giữa ngay trên: hàng nút "?" cao đúng `--space-6`, không ít hơn. */

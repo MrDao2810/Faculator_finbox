@@ -1477,11 +1477,13 @@ export const THOI_GIAN_NHAN_DOI: FormulaModule = {
       return {
         value: null,
         unit: 'năm',
-        warning: divideByZero(
-          { vi: 'thời gian nhân đôi', en: 'the doubling time' },
-          { vi: 'Lợi suất kép / năm', en: 'Compound return / year' },
-          { vi: 'Nhập lợi suất lớn hơn 0.', en: 'Enter a return greater than 0.' },
-        ),
+        // Chủ dự án (12/11/2026), chốt sau hai lượt đổi qua lại: thẻ chỉ có MỘT câu "Lợi suất lớn hơn 0.",
+        // không câu "Chưa tính được … vì … bằng 0", không dòng ↳. Mã vẫn DIVIDE_BY_ZERO vì lãi 0% đúng
+        // là mẫu số ln(1 + r) bằng 0. Đừng trả câu dài về nếu chưa hỏi.
+        warning: {
+          code: 'DIVIDE_BY_ZERO',
+          message: { vi: 'Lợi suất lớn hơn 0.', en: 'The return must be greater than 0.' },
+        },
       };
     }
     if (r < 0) {

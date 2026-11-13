@@ -294,8 +294,8 @@ export const EV: FormulaModule = {
       {
         latex: '\\text{Tiền mặt}',
         meaning: {
-          vi: 'tiền mặt và tiền gửi ngân hàng rút ra được ngay, tỷ ₫',
-          en: 'cash and cash equivalents, billion ₫',
+          vi: 'số tiền công ty đang có: tiền mặt, tiền gửi và đầu tư ngắn hạn, tỷ ₫',
+          en: 'the cash the company holds: cash, deposits and short-term investments, billion ₫',
         },
       },
     ],
@@ -335,8 +335,8 @@ export const EV: FormulaModule = {
           min: 0,
           max: 10_000_000,
           description: {
-            vi: 'Tiền mặt cộng tiền gửi ngân hàng rút ra được ngay hoặc có kỳ hạn không quá 3 tháng.',
-            en: 'Cash on hand plus bank deposits that can be withdrawn at once or mature within 3 months.',
+            vi: 'Số tiền công ty đang có, tính bằng tỷ đồng: tiền mặt, tiền gửi ngân hàng và đầu tư tài chính ngắn hạn dễ bán thành tiền.',
+            en: 'The cash the company holds, in billion ₫: cash on hand, bank deposits and short-term financial investments that can be sold quickly for cash.',
           },
         },
       ),

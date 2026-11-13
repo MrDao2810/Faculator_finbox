@@ -114,6 +114,9 @@ export function latexSymbolTokens(latex: string): ReadonlyArray<string> {
     return ' ';
   });
 
+  // 1b. Khung xếp dòng `\begin{array}{l} … \end{array}` chỉ là cách xếp hình, không phải ký hiệu.
+  rest = rest.replace(/\\begin\{[a-z]+\}(?:\{[^{}]*\})?/g, ' ').replace(/\\end\{[a-z]+\}/g, ' ');
+
   // 3. Ký hiệu trang trí — lấy cả cụm rồi tách tiếp phần trong.
   for (const cmd of DECORATOR_COMMANDS) {
     const re = new RegExp(`\\\\${cmd}\\{`, 'g');

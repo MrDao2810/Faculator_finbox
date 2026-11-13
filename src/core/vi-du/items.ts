@@ -1359,8 +1359,29 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
       {
         kyHieu: 'D_{\\text{ròng}}',
         moTa: {
-          vi: 'là nợ vay của FPT trừ tiền và đầu tư tài chính ngắn hạn ngày 30/06/2026, âm vì tiền nhiều hơn nợ: −11.527,6 tỷ ₫',
-          en: "is FPT's borrowings minus cash and short-term investments at 2026-06-30, negative because cash exceeds debt: −11527.6 billion ₫",
+          vi: 'là nợ vay ròng của FPT, bằng nợ vay chịu lãi trừ số tiền FPT đang có, và âm vì tiền nhiều hơn nợ vay',
+          en: "is FPT's net debt, interest-bearing debt minus the cash FPT holds, and negative because the cash exceeds the debt",
+        },
+      },
+      {
+        kyHieu: 'D',
+        moTa: {
+          vi: 'là nợ vay chịu lãi của FPT ngày 30/06/2026, ngắn hạn và dài hạn cộng lại: 17.444 tỷ ₫',
+          en: "is FPT's interest-bearing debt at 2026-06-30, short-term and long-term together: 17444 billion ₫",
+        },
+      },
+      {
+        kyHieu: '\\text{Tiền và các khoản tương đương tiền}',
+        moTa: {
+          vi: 'là dòng tiền FPT ghi trên bảng cân đối kế toán 30/06/2026, gồm tiền mặt và tiền gửi rút ra dùng ngay: 9.065,5 tỷ ₫',
+          en: "is the cash line on FPT's balance sheet at 2026-06-30, cash and deposits available at once: 9065.5 billion ₫",
+        },
+      },
+      {
+        kyHieu: '\\text{Đầu tư tài chính ngắn hạn}',
+        moTa: {
+          vi: 'là dòng đầu tư ngắn hạn FPT ghi cùng ngày, gồm tiền gửi kỳ hạn dài, trái phiếu và chứng khoán ngắn hạn: 19.906,1 tỷ ₫',
+          en: 'is the short-term investments line FPT reports on the same date, long term deposits, bonds and short-term securities: 19906.1 billion ₫',
         },
       },
       {
@@ -1372,8 +1393,8 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
       },
     ],
     thaySo: {
-      vi: '(5.168,34 × (1 + 5 ÷ 100) ÷ ((10,87 − 5) ÷ 100) − (−11.527,6)) ÷ 1.714,33 × 1.000',
-      en: '(5168.34 × (1 + 5 ÷ 100) ÷ ((10.87 − 5) ÷ 100) − (−11527.6)) ÷ 1714.33 × 1000',
+      vi: '(5.168,34 × (1 + 5 ÷ 100) ÷ ((10,87 − 5) ÷ 100) − (17.444 − 9.065,5 − 19.906,1)) ÷ 1.714,33 × 1.000',
+      en: '(5168.34 × (1 + 5 ÷ 100) ÷ ((10.87 − 5) ÷ 100) − (17444 − 9065.5 − 19906.1)) ÷ 1714.33 × 1000',
     },
     nguon: [
       {

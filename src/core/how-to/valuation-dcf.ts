@@ -9,8 +9,9 @@
  * Khung `linked` gồm đủ sáu cạnh `dependsOn` của Registry, cộng ba ô gõ tay mà thư viện có công thức
  * ra cùng đơn vị: r của DDM hai giai đoạn (CAPM), β của CAPM (Beta) và E của WACC (Vốn hoá).
  *
- * Khung `defined` là năm chỉ số không nằm sẵn trên một dòng báo cáo nào: ERP, EBIT, ΔNWC, vay ròng
- * mới ΔB và nợ vay ròng.
+ * Khung `defined` là bốn chỉ số không nằm sẵn trên một dòng báo cáo nào: ERP, EBIT, ΔNWC và vay ròng
+ * mới ΔB. Nợ vay ròng của `gia-tri-noi-tai-fcff` không còn là `defined` từ 13/11/2026: trang có hai ô
+ * nợ vay và tiền, `calc` tự trừ, nên nó là `derived`.
  */
 
 import type { FormulaHowTo } from './types';
@@ -225,8 +226,8 @@ export const HOW_TO_VALUATION_DCF: Readonly<Record<string, FormulaHowTo>> = {
 
   /*
    * Hai cạnh `dependsOn`, hai khung `linked`. Giá trị doanh nghiệp là phân số con đã hiện trọn trong
-   * hình. Nợ vay ròng không có dòng riêng trên bảng cân đối, nên `defined`, dựng từ đúng hai dòng mà
-   * `ev` nhận làm ô nhập (nợ vay, tiền mặt và tiền gửi).
+   * hình. Nợ vay ròng không có dòng riêng trên bảng cân đối, nên trang nhận HAI ô (nợ vay chịu lãi và tiền
+   * công ty đang có, đúng hai ô mà `ev` cũng nhận) và `calc` tự trừ: khung `derived`.
    */
   'gia-tri-noi-tai-fcff': {
     entries: [
@@ -245,22 +246,27 @@ export const HOW_TO_VALUATION_DCF: Readonly<Record<string, FormulaHowTo>> = {
         variableKey: 'wacc',
       },
       {
-        kind: 'defined',
+        kind: 'derived',
         symbol: 'D_{\\text{ròng}}',
         phrases: { vi: ['Nợ vay ròng'], en: ['Net debt'] },
         steps: [
           {
-            latex: 'D_{\\text{ròng}} = \\text{Nợ vay} - \\text{Tiền mặt}',
+            latex:
+              'D_{\\text{ròng}} = D - \\text{Tiền và các khoản tương đương tiền} - \\text{Đầu tư tài chính ngắn hạn}',
             expression: {
-              vi: 'Nợ vay ròng = Nợ vay chịu lãi − Tiền mặt và tiền gửi',
-              en: 'Net debt = Interest-bearing debt − Cash and cash equivalents',
+              vi: 'Nợ vay ròng = Nợ vay chịu lãi − Tiền và các khoản tương đương tiền − Đầu tư tài chính ngắn hạn',
+              en: 'Net debt = Interest-bearing debt − Cash and cash equivalents − Short-term financial investments',
             },
           },
         ],
+        calcEvidence: ["const netDebt = v('debt') - v('cash') - v('shortInvest')"],
       },
     ],
     skipped: {
       V_0: 'ket-qua',
+      D: 'nhap-tho',
+      '\\text{Tiền và các khoản tương đương tiền}': 'nhap-tho',
+      '\\text{Đầu tư tài chính ngắn hạn}': 'nhap-tho',
       g: 'nhap-tho',
       '\\dfrac{FCFF \\, (1+g)}{WACC - g}': 'da-hien-trong-hinh',
       '\\text{Số CP}': 'nhap-tho',

@@ -108,30 +108,25 @@ describe('ChainBody — lưới ô nhập của thẻ bước', () => {
    * nút hội tụ hai nhánh (chuỗi dài nhất Registry có), `bien-an-toan` là đuôi nhánh Gordon.
    */
   for (const id of ['wacc', 'gia-tri-noi-tai-fcff', 'bien-an-toan']) {
-    it(`${id}: mọi thanh trượt trong thẻ bước chiếm trọn hàng, không nằm chung cột với ô khác`, () => {
+    it(`${id}: không còn thanh trượt, mọi ô có khoảng là ô số gõ được (16/11/2026)`, () => {
       const { container, unmount } = dungKhoi(id);
 
-      const truot = [...container.querySelectorAll('input[type="range"]')];
-      expect(truot.length, 'phải có thanh trượt để mà kiểm').toBeGreaterThan(0);
-
-      const hep = truot
-        .map((s) => oLuoiCua(s))
-        .filter((o) => o !== null && !/fieldWide/.test(String(o.className)))
-        .map((o) => String(o?.className));
-
-      expect(hep, `thanh trượt bị nhét vào ô hẹp: ${hep.join(' · ')}`).toEqual([]);
+      expect(container.querySelectorAll('input[type="range"]')).toHaveLength(0);
+      expect(container.querySelectorAll('input[inputmode="decimal"]').length).toBeGreaterThan(0);
       unmount();
     });
   }
 
-  it('ô số đứng lẻ giữa hai thanh trượt mang lớp chiếm trọn hàng, như khối Số liệu', () => {
-    // Bước CAPM của `bien-an-toan`: Rf (trượt) · beta (ô số) · ERP (trượt) — beta đứng một mình.
+  it('ô số đứng lẻ cuối một dải ô hẹp mang lớp chiếm trọn hàng, như khối Số liệu', () => {
+    // Bước CAPM của `bien-an-toan`: Rf · beta · ERP, ba ô số từ 16/11/2026 (hai thanh trượt cũ
+    // thành ô số). Dải lẻ nên ô CUỐI, ERP, đứng một mình.
     const { container } = dungKhoi('bien-an-toan');
 
     const le = [...container.querySelectorAll('[class*="fieldLone"]')].map(
       (o) => o.querySelector('label')?.textContent,
     );
-    expect(le).toContain('Hệ số beta (β)');
+    expect(le).toContain('Phần bù rủi ro thị trường (ERP)');
+    expect(le).not.toContain('Hệ số beta (β)');
   });
 
   it('ô số thì KHÔNG chiếm trọn hàng — nếu không lưới hai cột thành một cột', () => {

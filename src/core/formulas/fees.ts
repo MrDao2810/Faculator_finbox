@@ -52,6 +52,7 @@ import {
  */
 
 const quantity = numberVar('quantity', { vi: 'Khối lượng', en: 'Quantity' }, 'CP', 1_000, {
+  integer: true,
   min: 0,
   max: 50_000_000,
   description: {

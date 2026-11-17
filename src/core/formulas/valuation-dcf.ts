@@ -147,8 +147,8 @@ export const MO_HINH_GORDON: FormulaModule = {
         { vi: 'Tăng trưởng cổ tức dài hạn (g)', en: 'Long-term dividend growth (g)' },
         '%',
         5,
-        -5,
-        15,
+        -100,
+        50,
         0.1,
         {
           description: {
@@ -163,7 +163,7 @@ export const MO_HINH_GORDON: FormulaModule = {
         '%',
         12,
         0,
-        30,
+        100,
         0.1,
         {
           description: {
@@ -432,8 +432,8 @@ export const DDM_HAI_GIAI_DOAN: FormulaModule = {
         { vi: 'Tăng trưởng giai đoạn đầu (g1)', en: 'First-stage growth (g1)' },
         '%',
         15,
-        0,
-        30,
+        -100,
+        100,
         0.5,
         {
           description: {
@@ -448,9 +448,10 @@ export const DDM_HAI_GIAI_DOAN: FormulaModule = {
         'năm',
         5,
         1,
-        20,
+        100,
         1,
         {
+          integer: true,
           description: {
             vi: 'Doanh nghiệp giữ được tăng trưởng nhanh trong bao nhiêu năm.',
             en: 'How many years the company can sustain fast growth.',
@@ -462,8 +463,8 @@ export const DDM_HAI_GIAI_DOAN: FormulaModule = {
         { vi: 'Tăng trưởng dài hạn (g2)', en: 'Long-term growth (g2)' },
         '%',
         4,
-        0,
-        10,
+        -100,
+        50,
         0.1,
         {
           description: {
@@ -478,7 +479,7 @@ export const DDM_HAI_GIAI_DOAN: FormulaModule = {
         '%',
         12,
         0,
-        30,
+        100,
         0.1,
         {
           description: {
@@ -785,7 +786,7 @@ export const CAPM: FormulaModule = {
         '%',
         3.5,
         0,
-        10,
+        100,
         0.1,
         {
           description: {
@@ -795,8 +796,8 @@ export const CAPM: FormulaModule = {
         },
       ),
       numberVar('beta', { vi: 'Hệ số beta (β)', en: 'Beta coefficient (β)' }, 'lần', 1.2, {
-        min: -3,
-        max: 4,
+        min: -10,
+        max: 10,
         description: {
           vi: 'Độ nhạy của cổ phiếu so với thị trường. Số liệu được nhập có thể tính bằng công thức Beta của thư viện này (nhóm Rủi ro), hoặc sử dụng từ dữ liệu bên ngoài.',
           en: "The stock's sensitivity relative to the market. The figure you enter can be computed with this library's Beta formula (Risk group), or taken from external data.",
@@ -808,7 +809,7 @@ export const CAPM: FormulaModule = {
         '%',
         8,
         0,
-        15,
+        100,
         0.1,
         {
           description: {
@@ -1024,7 +1025,7 @@ export const WACC: FormulaModule = {
         '%',
         13.1,
         0,
-        30,
+        100,
         0.1,
         {
           description: {
@@ -1039,7 +1040,7 @@ export const WACC: FormulaModule = {
         '%',
         9,
         0,
-        25,
+        100,
         0.1,
         {
           description: {
@@ -1054,7 +1055,7 @@ export const WACC: FormulaModule = {
         '%',
         20,
         0,
-        50,
+        100,
         0.5,
         {
           description: {
@@ -1284,7 +1285,7 @@ export const FCFF: FormulaModule = {
         '%',
         20,
         0,
-        50,
+        100,
         0.5,
         {
           description: {
@@ -1557,7 +1558,7 @@ export const FCFE: FormulaModule = {
         '%',
         20,
         0,
-        50,
+        100,
         0.5,
         {
           description: {
@@ -1792,8 +1793,8 @@ export const GIA_TRI_NOI_TAI_FCFF: FormulaModule = {
         { vi: 'Tăng trưởng FCFF dài hạn (g)', en: 'Long-term FCFF growth (g)' },
         '%',
         4,
-        0,
-        10,
+        -100,
+        50,
         0.1,
         {
           description: {
@@ -1808,7 +1809,7 @@ export const GIA_TRI_NOI_TAI_FCFF: FormulaModule = {
         '%',
         10.7,
         0,
-        30,
+        100,
         0.1,
         {
           description: {
@@ -2226,7 +2227,7 @@ export const GIA_TRI_HIEN_TAI: FormulaModule = {
         '%',
         8,
         0,
-        30,
+        100,
         0.1,
         {
           description: {
@@ -2235,7 +2236,8 @@ export const GIA_TRI_HIEN_TAI: FormulaModule = {
           },
         },
       ),
-      sliderVar('years', { vi: 'Số năm (n)', en: 'Years (n)' }, 'năm', 10, 1, 50, 1, {
+      sliderVar('years', { vi: 'Số năm (n)', en: 'Years (n)' }, 'năm', 10, 1, 100, 1, {
+        integer: true,
         description: {
           vi: 'Khoảng cách từ hôm nay tới lúc nhận tiền.',
           en: 'The time from today until the money is received.',
@@ -2458,8 +2460,8 @@ export const GIA_TRI_TUONG_LAI: FormulaModule = {
         { vi: 'Tỷ suất sinh lợi / năm (r)', en: 'Rate of return / year (r)' },
         '%',
         10,
-        -10,
-        30,
+        -100,
+        100,
         0.1,
         {
           description: {
@@ -2468,7 +2470,8 @@ export const GIA_TRI_TUONG_LAI: FormulaModule = {
           },
         },
       ),
-      sliderVar('years', { vi: 'Số năm (n)', en: 'Years (n)' }, 'năm', 15, 1, 50, 1, {
+      sliderVar('years', { vi: 'Số năm (n)', en: 'Years (n)' }, 'năm', 15, 1, 100, 1, {
+        integer: true,
         description: {
           vi: 'Thời gian để khoản tiền sinh lợi.',
           en: 'The length of time the money is invested.',

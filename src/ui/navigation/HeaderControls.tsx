@@ -2,7 +2,7 @@
 
 import { usePathname } from 'next/navigation';
 
-import { headerHasScreenActions } from '@/application';
+import { SETTINGS_ENABLED, headerHasScreenActions } from '@/application';
 
 import styles from './AppHeader.module.css';
 import { LangSwitch } from './LangSwitch';
@@ -45,7 +45,8 @@ export function HeaderControls() {
         nằm trong ô trống phía trên: ô ấy là chỗ của màn (cổng đặt nút vào đó), và đứng trong nó thì
         icon thoát luật nhường chỗ `.controlsScreen > :not(.screenActions)` ở màn Danh mục.
       */}
-      <SettingsLink />
+      {/* Ẩn tạm từ 16/11/2026 — công tắc `SETTINGS_ENABLED` trong `routes.ts`. */}
+      {SETTINGS_ENABLED ? <SettingsLink /> : null}
       {/*
         Nút đổi giao diện — đứng ở đúng chỗ nút tìm kiếm từng đứng (đợt đổi icon tìm kiếm thành icon
         đổi theme). Hiện ở MỌI khổ màn, trừ màn nhường chỗ ở khổ dưới 1024px (xem trên).

@@ -122,7 +122,7 @@ describe('checkSeries — cả bảng', () => {
      * câu không chỉ chỗ nào, vì họ sẽ đi sửa nhầm dòng. `first` vẫn còn trong `checkSeries()` để
      * bảng tra biết dòng đầu tiên dùng ngày đó, nó chỉ thôi đi vào câu chữ.
      */
-    expect(check.rows[0]?.issues[0]?.message).toContain('15/07/2026');
+    expect(check.rows[0]?.issues[0]?.message).toBe('Dữ liệu đang bị trùng lặp');
     expect(check.rows[0]?.issues[0]?.message).not.toMatch(/dòng \d/);
   });
 
@@ -141,7 +141,7 @@ describe('checkSeries — cả bảng', () => {
     expect(check.rows).toHaveLength(1);
     expect(check.rows[0]?.index).toBe(2);
     expect(check.rows[0]?.issues[0]?.code).toBe('DUPLICATE_DATE');
-    expect(check.rows[0]?.issues[0]?.message).toContain('03/10/2026');
+    expect(check.rows[0]?.issues[0]?.message).toBe('Dữ liệu đang bị trùng lặp');
   });
 
   it('ngày chỉ có ngày/tháng bị báo thiếu năm, không đoán năm', () => {

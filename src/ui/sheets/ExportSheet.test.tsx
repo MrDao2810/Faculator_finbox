@@ -164,6 +164,67 @@ describe('ExportSheet — FR-24', () => {
   });
 });
 
+/*
+ * Công tắc nào không có gì để kèm thì tắt và khoá (16/11/2026) — báo lỗi của người kiểm thử trên
+ * `basis-vn30f`: công tắc vẫn bật mà file tải về không có phần ấy.
+ */
+describe('ExportSheet — công tắc không có gì để kèm thì khoá', () => {
+  const congTac = (ten: string) => screen.getByRole('switch', { name: ten }) as HTMLButtonElement;
+
+  function moSheet(props: { formula?: FormulaSpec; hasChart?: boolean } = {}) {
+    const { container } = render(
+      <ExportSheet
+        open
+        onClose={vi.fn()}
+        formula={props.formula ?? PE}
+        output={ok(15.2, 'lần')}
+        inputs={{ price: 92_000 }}
+        {...(props.hasChart === undefined ? {} : { hasChart: props.hasChart })}
+      />,
+    );
+    return container;
+  }
+
+  it('màn không vẽ hình thì "Kèm biểu đồ" tắt, khoá, và vùng in không chừa chỗ hình', () => {
+    const container = moSheet({ hasChart: false });
+
+    expect(congTac('Kèm biểu đồ').disabled).toBe(true);
+    expect(congTac('Kèm biểu đồ').getAttribute('aria-checked')).toBe('false');
+    expect(container.querySelector('.print-chart')).toBeNull();
+  });
+
+  it('công thức khai chartType none thì mặc định cũng khoá', () => {
+    moSheet({ formula: { ...PE, chartType: 'none' } });
+
+    expect(congTac('Kèm biểu đồ').disabled).toBe(true);
+  });
+
+  it('chọn PNG thì "Kèm bảng biến & giải thích" tắt và khoá; về PDF thì như cũ', async () => {
+    const container = moSheet();
+    const chiTiet = () => congTac('Kèm bảng biến & giải thích');
+
+    await userEvent.click(screen.getByRole('button', { name: /PNG/ }));
+    expect(chiTiet().disabled).toBe(true);
+    expect(chiTiet().getAttribute('aria-checked')).toBe('false');
+    expect(container.querySelector('.print-region h2')).toBeNull();
+
+    await userEvent.click(screen.getByRole('button', { name: /PDF/ }));
+    expect(chiTiet().disabled).toBe(false);
+    expect(chiTiet().getAttribute('aria-checked')).toBe('true');
+  });
+
+  it('người dùng đã tắt bảng biến ở PDF thì qua PNG rồi về vẫn tắt', async () => {
+    moSheet();
+    const chiTiet = () => congTac('Kèm bảng biến & giải thích');
+
+    await userEvent.click(chiTiet());
+    await userEvent.click(screen.getByRole('button', { name: /PNG/ }));
+    await userEvent.click(screen.getByRole('button', { name: /PDF/ }));
+
+    expect(chiTiet().getAttribute('aria-checked')).toBe('false');
+  });
+});
+
 /**
  * Biểu đồ trong file xuất — lỗi 8️⃣ của đợt kiểm thử.
  *

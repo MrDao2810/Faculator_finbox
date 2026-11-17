@@ -64,9 +64,10 @@ function stdDevWindowVar(): VariableSpec {
     'phiên',
     60,
     MIN_SESSIONS_STDDEV,
-    500,
+    5000,
     1,
     {
+      integer: true,
       level: 'advanced',
       description: {
         vi: 'Lấy bao nhiêu phiên gần nhất trong chuỗi giá. Tối thiểu 30 phiên; dưới 60 phiên thì ước lượng còn yếu vì mẫu quá mỏng.',
@@ -84,9 +85,9 @@ function countWindowVar(description: Bilingual): VariableSpec {
     'phiên',
     60,
     MIN_SESSIONS_COUNT,
-    500,
+    5000,
     1,
-    { description },
+    { integer: true, description },
   );
 }
 
@@ -352,6 +353,7 @@ export const DO_BIEN_DONG_NAM_HOA: FormulaModule = {
         'phiên',
         250,
         {
+          integer: true,
           min: 1,
           max: 366,
           level: 'advanced',
@@ -545,8 +547,8 @@ export const DO_LECH_CHUAN_BAN_PHAN: FormulaModule = {
         '%',
         0,
         {
-          min: -5,
-          max: 5,
+          min: -100,
+          max: 100,
           level: 'advanced',
           description: {
             vi: 'Mức lợi suất coi là chấp nhận được. Để 0 nghĩa là chỉ tính các phiên giảm giá.',

@@ -499,8 +499,13 @@ const GridRow = memo(function GridRow({
               }}
               onKeyDown={(event) => {
                 // Enter đi xuống ô dưới như bảng tính; Tab sang ngang là sẵn của trình duyệt.
-                if (event.key !== 'Enter' || below === undefined) return;
+                if (event.key !== 'Enter') return;
                 event.preventDefault();
+                // Dòng cuối: không có ô dưới thì bỏ tiêu điểm, coi như xác nhận ô vừa gõ.
+                if (below === undefined) {
+                  event.currentTarget.blur();
+                  return;
+                }
                 const next = document.getElementById(cellId(base, below, column));
                 if (next instanceof HTMLInputElement) next.focus();
               }}

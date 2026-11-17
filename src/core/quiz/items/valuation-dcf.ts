@@ -19,13 +19,22 @@ export const DCF: ReadonlyArray<QuizItem> = [
       en: 'In the Gordon growth model, why must g not exceed the growth rate of the economy?',
     },
     choices: {
-      a: { vi: 'Vì quy định kế toán', en: 'Because of an accounting rule' },
-      b: {
-        vi: 'Vì đó là ràng buộc toán học, không phải giả định kinh tế để tranh luận',
-        en: 'Because it is a mathematical constraint, not an economic assumption open to debate',
+      a: {
+        vi: 'Vì chuẩn mực kế toán cấm dự phóng tăng trưởng quá cao',
+        en: 'Because accounting standards forbid projecting very high growth',
       },
-      c: { vi: 'Vì g cao làm tăng rủi ro', en: 'Because a high g increases risk' },
-      d: { vi: 'Vì nhà đầu tư không tin g cao', en: 'Because investors do not believe a high g' },
+      b: {
+        vi: 'Vì đó là ràng buộc toán học, không phải quan điểm kinh tế',
+        en: 'Because it is a mathematical constraint, not an economic view',
+      },
+      c: {
+        vi: 'Vì đó là quy ước thận trọng, không phải ràng buộc toán học',
+        en: 'Because it is a cautious convention, not a mathematical constraint',
+      },
+      d: {
+        vi: 'Vì nhà đầu tư không tin tăng trưởng cao kéo dài được lâu',
+        en: 'Because investors do not believe high growth can last long',
+      },
     },
     answer: 'b',
     explain: {
@@ -50,14 +59,20 @@ export const DCF: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'Không sai, đó là phân tích độ nhạy',
-        en: 'Nothing is wrong, that is just sensitivity analysis',
+        vi: 'Không sai, đó chỉ là một phép phân tích độ nhạy thông thường',
+        en: 'Nothing is wrong, it is just a routine sensitivity analysis',
       },
-      b: { vi: 'g phải là số nguyên', en: 'g must be a whole number' },
-      c: { vi: 'Phải đổi cả lãi suất phi rủi ro', en: 'The risk-free rate must also be changed' },
+      b: {
+        vi: 'Dòng tiền năm cuối phải tăng lên cho tương xứng với g mới',
+        en: 'The final-year cash flow should rise to match the new g',
+      },
+      c: {
+        vi: 'Phải đổi cả lãi suất phi rủi ro cho khớp với mức g mới',
+        en: 'The risk-free rate must also change to match the new g',
+      },
       d: {
-        vi: 'Tăng trưởng phải trả giá bằng tái đầu tư nên dòng tiền không thể giữ nguyên',
-        en: 'Growth has to be paid for with reinvestment, so the cash flow cannot stay the same',
+        vi: 'Tăng trưởng cần thêm tái đầu tư nên dòng tiền phải giảm',
+        en: 'Growth needs more reinvestment, so the cash flow must fall',
       },
     },
     answer: 'd',
@@ -83,12 +98,21 @@ export const DCF: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'Tỷ lệ tái đầu tư thành 0 mà doanh nghiệp vẫn tăng trưởng mãi - giả định vô lý',
-        en: 'The reinvestment rate becomes 0 while the company keeps growing forever - an absurd assumption',
+        vi: 'Tỷ lệ tái đầu tư bằng 0 mà doanh nghiệp vẫn tăng trưởng mãi',
+        en: 'The reinvestment rate is 0 while the firm keeps growing forever',
       },
-      b: { vi: 'Mô hình chính xác hơn', en: 'The model becomes more accurate' },
-      c: { vi: 'Giá trị cuối kỳ bằng 0', en: 'Terminal value becomes 0' },
-      d: { vi: 'Không ảnh hưởng gì', en: 'It has no effect at all' },
+      b: {
+        vi: 'Mô hình sát thực tế hơn vì doanh nghiệp đã ổn định',
+        en: 'The model gets more realistic since the firm is now stable',
+      },
+      c: {
+        vi: 'Giá trị cuối kỳ bị kéo thấp xuống vì bỏ qua vốn lưu động',
+        en: 'Terminal value is pulled down because working capital is ignored',
+      },
+      d: {
+        vi: 'Không ảnh hưởng gì vì hai khoản ấy bù trừ cho nhau',
+        en: 'No effect, because the two items offset each other',
+      },
     },
     answer: 'a',
     explain: {
@@ -112,15 +136,21 @@ export const DCF: ReadonlyArray<QuizItem> = [
       en: 'A model has a company growing 30% a year for 5 years, then dropping to 6% forever from year 6. How does Damodaran assess this?',
     },
     choices: {
-      a: { vi: 'Đây là chuẩn mực ngành', en: 'This is an industry standard' },
-      b: { vi: 'Chỉ đúng với công ty công nghệ', en: 'This only holds for technology companies' },
+      a: {
+        vi: 'Đây là cách làm chuẩn mực của ngành định giá',
+        en: 'This is standard practice in valuation',
+      },
+      b: {
+        vi: 'Hợp lý với công ty công nghệ đang tăng trưởng nhanh',
+        en: 'Reasonable for a fast-growing tech company',
+      },
       c: {
-        vi: 'Bước chuyển đột ngột này gần như chắc chắn không thực tế',
-        en: 'This sudden jump is almost certainly unrealistic',
+        vi: 'Bước rơi đột ngột ấy không sát với thực tế',
+        en: 'That sudden drop does not match reality',
       },
       d: {
-        vi: 'Cần kéo dài giai đoạn 1 lên 10 năm là đủ',
-        en: 'It is enough to just extend stage 1 to 10 years',
+        vi: 'Chỉ cần kéo giai đoạn đầu lên 10 năm là ổn',
+        en: 'Just extending stage 1 to 10 years fixes it',
       },
     },
     answer: 'c',
@@ -146,14 +176,20 @@ export const DCF: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'Doanh nghiệp trả cổ tức đều nhiều năm',
-        en: 'A company that has paid steady dividends for many years',
+        vi: 'Doanh nghiệp trả cổ tức tiền mặt đều đặn nhiều năm',
+        en: 'A company that has paid steady cash dividends for years',
       },
-      b: { vi: 'Doanh nghiệp tăng trưởng chậm', en: 'A slow-growing company' },
-      c: { vi: 'Doanh nghiệp ngành tiện ích', en: 'A utility-sector company' },
+      b: {
+        vi: 'Doanh nghiệp đã trưởng thành, tăng trưởng chậm',
+        en: 'A mature company with slow growth',
+      },
+      c: {
+        vi: 'Doanh nghiệp ngành tiện ích như điện, nước',
+        en: 'A utility company such as power or water',
+      },
       d: {
-        vi: 'Doanh nghiệp không trả cổ tức hoặc tỷ lệ chi trả thất thường',
-        en: 'A company that pays no dividends or has an erratic payout ratio',
+        vi: 'Doanh nghiệp chưa chia cổ tức hoặc chia thất thường',
+        en: 'A company that pays no dividends or pays erratically',
       },
     },
     answer: 'd',
@@ -178,13 +214,22 @@ export const DCF: ReadonlyArray<QuizItem> = [
       en: 'You look up the beta of the same stock on three financial websites and get three different numbers. Why?',
     },
     choices: {
-      a: { vi: 'Một trong ba trang bị lỗi', en: 'One of the three sites has an error' },
-      b: { vi: 'Beta thay đổi theo giờ giao dịch', en: 'Beta changes by the hour during trading' },
-      c: {
-        vi: 'Các trang dùng mốc thời gian và chỉ số tham chiếu khác nhau',
-        en: 'The sites use different time windows and different reference indexes',
+      a: {
+        vi: 'Ít nhất một trong ba trang đã tính sai beta',
+        en: 'At least one of the three sites miscalculated beta',
       },
-      d: { vi: 'Do làm tròn', en: 'It is just rounding' },
+      b: {
+        vi: 'Beta cập nhật theo từng giờ trong phiên giao dịch',
+        en: 'Beta updates hour by hour during the trading session',
+      },
+      c: {
+        vi: 'Mỗi trang dùng khung thời gian và chỉ số khác nhau',
+        en: 'Each site uses a different time window and index',
+      },
+      d: {
+        vi: 'Mỗi trang làm tròn số liệu theo cách khác nhau',
+        en: 'Each site rounds the figures in a different way',
+      },
     },
     answer: 'c',
     explain: {
@@ -209,12 +254,21 @@ export const DCF: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'Theo nơi doanh nghiệp hoạt động, không theo nơi đăng ký',
-        en: 'Based on where the company operates, not where it is registered',
+        vi: 'Tính theo nơi doanh nghiệp thật sự hoạt động',
+        en: 'Base it on where the company actually operates',
       },
-      b: { vi: 'Cộng nguyên phần bù rủi ro Việt Nam', en: 'Add the full Vietnam risk premium' },
-      c: { vi: 'Bỏ qua vì đã có beta', en: 'Ignore it, since beta already covers that' },
-      d: { vi: 'Lấy trung bình các nước', en: 'Take the average across countries' },
+      b: {
+        vi: 'Cộng nguyên phần bù rủi ro Việt Nam vì đăng ký ở đây',
+        en: 'Add the full Vietnam premium, since it is registered there',
+      },
+      c: {
+        vi: 'Bỏ qua phần bù quốc gia vì beta đã phản ánh đủ',
+        en: 'Skip it, because beta already captures country risk',
+      },
+      d: {
+        vi: 'Lấy trung bình cộng phần bù của tất cả các nước',
+        en: "Use a simple average of every country's premium",
+      },
     },
     answer: 'a',
     explain: {
@@ -239,12 +293,21 @@ export const DCF: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'Không hẳn - danh mục beta cao vượt danh mục beta thấp hơn 5 điểm phần trăm/năm, và 2010–2020 CAPM đúng 10/11 năm',
-        en: 'Not quite - a high-beta portfolio beat a low-beta one by more than 5 percentage points a year, and CAPM was right 10 of 11 years from 2010 to 2020',
+        vi: 'Quá lời, vì beta dự báo lợi suất không tệ như tiếng đồn',
+        en: 'Overstated, beta predicts returns better than thought',
       },
-      b: { vi: 'Hoàn toàn đúng', en: 'Completely true' },
-      c: { vi: 'Beta chỉ sai ở thị trường mới nổi', en: 'Beta is only wrong in emerging markets' },
-      d: { vi: 'Chưa ai kiểm chứng', en: 'No one has verified it yet' },
+      b: {
+        vi: 'Đúng, vì danh mục beta cao không còn sinh lời hơn',
+        en: 'True, since high-beta portfolios no longer earn more',
+      },
+      c: {
+        vi: 'Đúng, vì CAPM sai ở phần lớn các năm 2010 đến 2020',
+        en: 'True, since CAPM was wrong in most years from 2010 to 2020',
+      },
+      d: {
+        vi: 'Chưa thể nói, vì chưa có nghiên cứu nào kiểm chứng',
+        en: 'Too early to say, since no study has tested it yet',
+      },
     },
     answer: 'a',
     explain: {
@@ -269,15 +332,21 @@ export const DCF: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'Mức lợi nhuận bạn muốn không phải là chi phí vốn của bạn',
-        en: 'The return you want is not your cost of capital',
+        vi: 'Sai, vì mức lãi bạn muốn không phải là chi phí vốn',
+        en: 'Wrong, the return you want is not your cost of capital',
       },
       b: {
-        vi: 'Hợp lý nếu đó là mục tiêu đầu tư',
-        en: 'Reasonable if that is your investment target',
+        vi: 'Hợp lý, vì đó chính là mục tiêu đầu tư của bạn',
+        en: 'Reasonable, since that is your investment target',
       },
-      c: { vi: 'Chỉ sai khi lãi suất thấp', en: 'Only wrong when interest rates are low' },
-      d: { vi: 'Đúng với nhà đầu tư cá nhân', en: 'True for individual investors' },
+      c: {
+        vi: 'Chỉ sai khi lãi suất thị trường đang ở mức thấp',
+        en: 'Wrong only when market interest rates are low',
+      },
+      d: {
+        vi: 'Phù hợp với nhà đầu tư cá nhân vì họ tự chọn mức lãi',
+        en: 'Fine for individual investors, who pick their own return',
+      },
     },
     answer: 'a',
     explain: {
@@ -302,14 +371,20 @@ export const DCF: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'Mảng an toàn đi trợ giá cho mảng rủi ro',
-        en: 'The safe division ends up subsidizing the risky one',
+        vi: 'Dự án an toàn phải trợ giá cho dự án rủi ro',
+        en: 'Safe projects end up subsidizing risky ones',
       },
-      b: { vi: 'Tiết kiệm thời gian, không hại gì', en: 'It saves time and does no harm' },
-      c: { vi: 'WACC bị tính thấp đi', en: 'WACC ends up understated' },
+      b: {
+        vi: 'Gọn và nhất quán, giúp so sánh các dự án công bằng hơn',
+        en: 'Simple and consistent, making project comparisons fairer',
+      },
+      c: {
+        vi: 'Dự án an toàn bị đòi hỏi quá thấp nên dễ được duyệt',
+        en: 'Safe projects face too low a bar, so they pass easily',
+      },
       d: {
-        vi: 'Chỉ ảnh hưởng báo cáo, không ảnh hưởng quyết định',
-        en: 'It only affects reporting, not decisions',
+        vi: 'Lệch số trên báo cáo nhưng không làm lệch quyết định',
+        en: 'It skews reported figures but not the decisions',
       },
     },
     answer: 'a',
@@ -334,13 +409,22 @@ export const DCF: ReadonlyArray<QuizItem> = [
       en: 'You calculate a WACC of 9% but it feels "too low", so you tack on another 3% just to be safe. How do you assess this?',
     },
     choices: {
-      a: { vi: 'Thận trọng là tốt', en: 'Being cautious is good' },
-      b: {
-        vi: 'Đây là cộng phần bù không căn cứ, chỉ vì con số trông không vừa mắt',
-        en: 'This is adding an unfounded premium just because the number does not look right',
+      a: {
+        vi: 'Hợp lý, vì định giá càng thận trọng càng tốt',
+        en: 'Reasonable, the more cautious a valuation the better',
       },
-      c: { vi: 'Đúng nếu thị trường biến động', en: 'Correct if the market is volatile' },
-      d: { vi: 'Chỉ sai khi cộng quá 5%', en: 'Only wrong if you add more than 5%' },
+      b: {
+        vi: 'Không hợp lý, vì tỷ lệ chiết khấu bị đặt theo cảm giác',
+        en: 'Not reasonable, since the rate is being set by feel',
+      },
+      c: {
+        vi: 'Hợp lý nếu thị trường đang biến động mạnh hơn bình thường',
+        en: 'Reasonable if the market is more volatile than usual',
+      },
+      d: {
+        vi: 'Chấp nhận được miễn phần cộng thêm không quá 5%',
+        en: 'Acceptable as long as the add-on stays under 5%',
+      },
     },
     answer: 'b',
     explain: {
@@ -365,17 +449,20 @@ export const DCF: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'Chi phí vốn chủ - ra giá trị vốn chủ',
-        en: 'Cost of equity - produces equity value',
+        vi: 'Chi phí vốn chủ, ra giá trị vốn chủ sau khi trừ nợ',
+        en: 'Cost of equity, giving equity value after debt',
       },
       b: {
-        vi: 'Lãi suất phi rủi ro - ra giá trị doanh nghiệp',
-        en: 'Risk-free rate - produces firm value',
+        vi: 'Lãi suất phi rủi ro, ra giá trị toàn doanh nghiệp',
+        en: 'Risk-free rate, giving the value of the whole firm',
       },
-      c: { vi: 'WACC - ra thẳng giá trị vốn chủ', en: 'WACC - produces equity value directly' },
+      c: {
+        vi: 'WACC, ra thẳng giá trị vốn chủ, không cần trừ nợ',
+        en: 'WACC, giving equity value directly with no debt step',
+      },
       d: {
-        vi: 'WACC - ra giá trị doanh nghiệp, còn phải trừ nợ',
-        en: 'WACC - produces firm value, from which debt must still be subtracted',
+        vi: 'WACC, ra giá trị doanh nghiệp, còn phải trừ nợ',
+        en: 'WACC, giving firm value before debt is subtracted',
       },
     },
     answer: 'd',
@@ -400,13 +487,22 @@ export const DCF: ReadonlyArray<QuizItem> = [
       en: 'Does adding depreciation back into earnings already give you free cash flow?',
     },
     choices: {
-      a: { vi: 'Rồi', en: 'Yes, it does' },
-      b: { vi: 'Chỉ đúng với doanh nghiệp sản xuất', en: 'Only true for manufacturing companies' },
-      c: {
-        vi: 'Chưa - đó chỉ là một điểm dừng trung gian',
-        en: 'Not yet - that is only an intermediate stop',
+      a: {
+        vi: 'Rồi, vì khấu hao không phải khoản chi bằng tiền',
+        en: 'Yes, because depreciation is not a cash expense',
       },
-      d: { vi: 'Chỉ đúng nếu không có nợ', en: 'Only true if there is no debt' },
+      b: {
+        vi: 'Chỉ đúng với doanh nghiệp sản xuất nhiều máy móc',
+        en: 'Only for manufacturers with heavy machinery',
+      },
+      c: {
+        vi: 'Chưa, đó mới là một điểm dừng trung gian',
+        en: 'Not yet, that is only an intermediate stop',
+      },
+      d: {
+        vi: 'Rồi, nếu doanh nghiệp không có khoản vay',
+        en: 'Yes, if the company carries no borrowing',
+      },
     },
     answer: 'c',
     explain: {
@@ -431,14 +527,20 @@ export const DCF: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'Loại ngay vì dòng tiền âm',
-        en: 'Reject it immediately because the cash flow is negative',
+        vi: 'Nên loại ngay vì dòng tiền âm là làm ăn thua lỗ',
+        en: 'Drop it at once, negative cash flow means losses',
       },
-      b: { vi: 'Doanh nghiệp đang gian lận', en: 'The company is committing fraud' },
-      c: { vi: 'FCFE âm là lỗi tính toán', en: 'Negative FCFE is a calculation error' },
+      b: {
+        vi: 'Doanh nghiệp nhiều khả năng đang gian lận số liệu',
+        en: 'The company is likely falsifying its figures',
+      },
+      c: {
+        vi: 'FCFE âm nhiều năm là dấu hiệu tính toán sai',
+        en: 'Years of negative FCFE point to a calculation error',
+      },
       d: {
-        vi: 'Có thể do tái đầu tư nhiều hơn số kiếm được - một năm FCF còn nhiễu hơn một năm lợi nhuận',
-        en: 'It may simply be reinvesting more than it earns - a single year of FCF is even noisier than a single year of earnings',
+        vi: 'Có thể đang tái đầu tư nhiều hơn số tiền làm ra',
+        en: 'It may be reinvesting more than it earns',
       },
     },
     answer: 'd',
@@ -464,12 +566,21 @@ export const DCF: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'FCFE chiết khấu bằng chi phí vốn chủ và ra thẳng giá trị vốn chủ',
-        en: 'FCFE is discounted at the cost of equity and produces equity value directly',
+        vi: 'FCFE dùng chi phí vốn chủ và ra thẳng giá trị vốn chủ',
+        en: 'FCFE uses the cost of equity, giving equity value directly',
       },
-      b: { vi: 'FCFE cũng dùng WACC', en: 'FCFE also uses WACC' },
-      c: { vi: 'FCFE dùng lãi suất trái phiếu', en: 'FCFE uses the bond interest rate' },
-      d: { vi: 'Hai cái giống nhau', en: 'The two are the same' },
+      b: {
+        vi: 'FCFE cũng chiết khấu bằng WACC, ra giá trị doanh nghiệp',
+        en: 'FCFE is also discounted at WACC, giving firm value',
+      },
+      c: {
+        vi: 'FCFE chiết khấu bằng lãi suất trái phiếu của doanh nghiệp',
+        en: "FCFE is discounted at the yield on the company's bonds",
+      },
+      d: {
+        vi: 'Không khác, cả hai cùng một tỷ lệ và cùng ra một giá trị',
+        en: 'No difference, both use one rate and give one value',
+      },
     },
     answer: 'a',
     explain: {
@@ -494,17 +605,20 @@ export const DCF: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'Mô hình không đáng tin, phải kéo dài dự báo',
-        en: 'The model is not trustworthy; the forecast period must be extended',
+        vi: 'Mô hình không đáng tin, phải kéo dài thời gian dự báo',
+        en: 'The model is unreliable, the forecast must be extended',
       },
-      b: { vi: 'Phải giảm xuống dưới 50%', en: 'It must be brought down below 50%' },
+      b: {
+        vi: 'Phải hạ tỷ trọng ấy xuống dưới một nửa tổng giá trị',
+        en: 'That share must be cut below half of total value',
+      },
       c: {
-        vi: 'Đáng lo là khi terminal value KHÔNG chiếm phần lớn giá trị',
-        en: 'What should worry you is when terminal value does NOT account for most of the value',
+        vi: 'Đáng lo là khi giá trị cuối kỳ không chiếm phần lớn',
+        en: 'The worry is when terminal value is not most of it',
       },
       d: {
-        vi: 'Phải đổi sang phương pháp bội số',
-        en: 'You must switch to a multiples-based method',
+        vi: 'Nên bỏ DCF và chuyển sang định giá bằng bội số',
+        en: 'Drop the DCF and switch to a multiples method',
       },
     },
     answer: 'c',
@@ -559,13 +673,22 @@ export const DCF: ReadonlyArray<QuizItem> = [
       en: 'What does Damodaran call a model that mixes equity cash flow with a firm-wide discount rate?',
     },
     choices: {
-      a: { vi: 'Mô hình bảo thủ', en: 'A conservative model' },
-      b: {
-        vi: 'Chimera DCF - trộn các đơn vị không tương thích',
-        en: 'A Chimera DCF - mixing incompatible units',
+      a: {
+        vi: 'Mô hình thận trọng, chiết khấu cao cho an toàn',
+        en: 'A conservative model, using a high rate to be safe',
       },
-      c: { vi: 'Mô hình hai giai đoạn', en: 'A two-stage model' },
-      d: { vi: 'Mô hình rút gọn', en: 'A simplified model' },
+      b: {
+        vi: 'Chimera DCF, ghép những phần không tương thích',
+        en: 'A Chimera DCF, stitching incompatible parts together',
+      },
+      c: {
+        vi: 'Mô hình hai giai đoạn, mỗi giai đoạn một tỷ lệ',
+        en: 'A two-stage model, with one rate for each stage',
+      },
+      d: {
+        vi: 'Mô hình rút gọn, bỏ bớt bước tính nợ vay',
+        en: 'A shortcut model that skips the debt step',
+      },
     },
     answer: 'b',
     explain: {
@@ -590,12 +713,21 @@ export const DCF: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'Lạm phát của đúng một năm quyết định giá trị tài sản dùng hai ba mươi năm',
-        en: 'The inflation of a single year ends up determining the value of an asset that is used for twenty or thirty years',
+        vi: 'Lạm phát của một năm quyết định giá tài sản dùng hai ba mươi năm',
+        en: "One year's inflation sets the value of an asset used for decades",
       },
-      b: { vi: 'Không có bất cập', en: 'There is no shortcoming' },
-      c: { vi: 'Lãi suất ngân hàng quá cao', en: 'The bank interest rate is too high' },
-      d: { vi: 'Không áp dụng được cho bất động sản', en: 'It cannot be applied to real estate' },
+      b: {
+        vi: 'Không có bất cập vì lãi suất ngân hàng phản ánh đúng thị trường',
+        en: 'None, since the bank rate accurately reflects the market',
+      },
+      c: {
+        vi: 'Lãi suất ngân hàng quá cao nên giá trị bị kéo xuống',
+        en: 'The bank rate is too high, so values get pushed down',
+      },
+      d: {
+        vi: 'Cách này không dùng được cho đất đai và bất động sản',
+        en: 'It cannot be used for land and other real estate',
+      },
     },
     answer: 'a',
     explain: {
@@ -620,12 +752,21 @@ export const DCF: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'Trung bình cộng phóng đại vì không phản ánh tính tích luỹ - phải dùng CAGR 5,80%',
-        en: 'The arithmetic average overstates it because it ignores compounding - the 5.80% CAGR should be used instead',
+        vi: 'Do trung bình cộng bỏ qua tính tích luỹ nên chiếu quá cao',
+        en: 'The arithmetic mean ignores compounding and overshoots',
       },
-      b: { vi: 'Do làm tròn', en: 'It is just rounding' },
-      c: { vi: 'Do thiếu một năm dữ liệu', en: "It is missing a year's data" },
-      d: { vi: 'Do lạm phát', en: 'It is due to inflation' },
+      b: {
+        vi: 'Do sai số làm tròn cộng dồn qua từng năm',
+        en: 'Rounding errors pile up across the years',
+      },
+      c: {
+        vi: 'Do chuỗi dữ liệu bị thiếu mất một năm ở giữa',
+        en: 'The data series is missing one year in the middle',
+      },
+      d: {
+        vi: 'Do lạm phát làm lợi nhuận thực thấp hơn danh nghĩa',
+        en: 'Inflation makes real profit lower than nominal',
+      },
     },
     answer: 'a',
     explain: {
@@ -650,12 +791,21 @@ export const DCF: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'Giảm sai lầm loại 1 nhưng tăng sai lầm loại 2 (bỏ lỡ cơ hội)',
-        en: 'It reduces type 1 errors but increases type 2 errors (missed opportunities)',
+        vi: 'Ít mua đắt hơn nhưng bỏ lỡ nhiều cơ hội hơn',
+        en: 'Fewer overpriced buys, but more missed opportunities',
       },
-      b: { vi: 'Không có giá nào', en: 'There is no cost at all' },
-      c: { vi: 'Phải trả phí giao dịch cao hơn', en: 'You have to pay higher transaction fees' },
-      d: { vi: 'Mất quyền nhận cổ tức', en: 'You lose the right to receive dividends' },
+      b: {
+        vi: 'Không mất gì, biên càng rộng thì càng an toàn',
+        en: 'Nothing, a wider margin is simply safer',
+      },
+      c: {
+        vi: 'Ít bỏ lỡ cơ hội hơn nhưng dễ mua phải giá đắt',
+        en: 'Fewer missed opportunities, but more overpriced buys',
+      },
+      d: {
+        vi: 'Giảm được cả lỗi mua đắt lẫn lỗi bỏ lỡ cơ hội',
+        en: 'Fewer overpriced buys and fewer missed chances too',
+      },
     },
     answer: 'a',
     explain: {
@@ -680,15 +830,21 @@ export const DCF: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'Có, đó là mục đích của biên an toàn',
-        en: 'Yes, that is exactly what a margin of safety is for',
+        vi: 'Có, che chắn sai sót định giá chính là việc của nó',
+        en: 'Yes, covering valuation errors is exactly its job',
       },
       b: {
-        vi: 'Gần như không - biên an toàn trên một định giá sai chỉ gây hại',
-        en: 'Almost not at all - a margin of safety on a flawed valuation only does harm',
+        vi: 'Không, biên an toàn trên định giá sai chỉ gây hại',
+        en: 'No, a margin on a flawed valuation only does harm',
       },
-      c: { vi: 'Có nếu doanh nghiệp trả cổ tức', en: 'Yes, if the company pays dividends' },
-      d: { vi: 'Có nếu nắm giữ trên 5 năm', en: 'Yes, if held for more than 5 years' },
+      c: {
+        vi: 'Có, nhưng cần nới biên an toàn lên trên 50%',
+        en: 'Yes, but the margin must be widened past 50%',
+      },
+      d: {
+        vi: 'Có, miễn là bạn nắm giữ cổ phiếu trên 5 năm',
+        en: 'Yes, as long as you hold the stock over 5 years',
+      },
     },
     answer: 'b',
     explain: {
@@ -713,17 +869,20 @@ export const DCF: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'Rồi, vì mua dưới giá trị tài sản',
-        en: 'Yes, because you are buying below asset value',
+        vi: 'Rồi, vì mua dưới giá trị tài sản là đã có lớp đệm',
+        en: 'Yes, buying below asset value already gives a cushion',
       },
       b: {
-        vi: 'Chỉ đủ với doanh nghiệp bất động sản',
-        en: 'Only enough for real estate companies',
+        vi: 'Đủ, nếu là doanh nghiệp bất động sản nhiều đất',
+        en: 'Yes, if it is a real estate firm with a big land bank',
       },
-      c: { vi: 'Chỉ đủ khi kèm ROE trên 15%', en: 'Only enough when paired with an ROE above 15%' },
+      c: {
+        vi: 'Đủ, vì cổ phiếu rẻ thì sớm muộn giá cũng hồi lại',
+        en: 'Yes, a cheap stock will recover sooner or later',
+      },
       d: {
-        vi: 'Chưa - báo cáo ghi nhận tài sản, còn thị trường định giá khả năng tài sản đó tạo tiền',
-        en: 'Not yet - the financial statements record the assets, while the market prices the ability of those assets to generate cash',
+        vi: 'Chưa, giá trị nằm ở khả năng tài sản tạo ra tiền',
+        en: "Not yet, value lies in the assets' ability to make cash",
       },
     },
     answer: 'd',

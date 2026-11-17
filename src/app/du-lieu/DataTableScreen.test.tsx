@@ -238,7 +238,7 @@ describe('DataTableScreen — cột Ngày chỉ in ngày/tháng/năm', () => {
     await userEvent.type(oNgay, '2026-10-03');
     expect(oNgay.value).toBe('2026-10-03');
 
-    expect(await screen.findByText(/Ngày 03\/10\/2026 xuất hiện ở hơn một dòng/)).toBeTruthy();
+    expect(await screen.findByText(/Dữ liệu đang bị trùng lặp/)).toBeTruthy();
   });
 });
 
@@ -385,6 +385,24 @@ describe('DataTableScreen — dòng mới thêm nằm trên đầu, xếp lại 
     // Hai phiên cùng ngày 02/01 nằm cạnh nhau, và phiên mới nhất vẫn trên cùng.
     expect(ngayTrenMan()).toEqual(['03/01', '02/01', '02/01', '01/01']);
     expect(ngayDaLuu()).toEqual(['01/01/2025', '02/01/2025', '02/01/2025', '03/01/2025']);
+  });
+
+  it('bấm Enter trong ô thì xác nhận ngay, không cần bấm ra ngoài', async () => {
+    napBang(BA_PHIEN);
+    moMan();
+    await screen.findByLabelText('Dòng 1 · Ngày');
+
+    fireEvent.click(screen.getByRole('button', { name: /Thêm dòng/ }));
+    const oNgay = screen.getByLabelText('Dòng 1 · Ngày') as HTMLInputElement;
+    oNgay.focus();
+    fireEvent.change(oNgay, { target: { value: '2025-01-02' } });
+    expect(document.activeElement).toBe(oNgay);
+
+    fireEvent.keyDown(oNgay, { key: 'Enter' });
+
+    // Enter bỏ tiêu điểm khỏi ô: ngày về một lối viết và dòng được xếp vào đúng chỗ.
+    expect(document.activeElement).not.toBe(oNgay);
+    expect(ngayTrenMan()).toEqual(['03/01', '02/01', '02/01', '01/01']);
   });
 
   it('dòng mới chưa có ngày thì ở nguyên đầu bảng kể cả sau khi rời tiêu điểm', async () => {
@@ -649,7 +667,7 @@ describe('DataTableScreen — dán và "Thêm dòng" cùng một luật ngày tr
     await userEvent.click(screen.getByRole('button', { name: /Thêm dòng/ }));
     await userEvent.type(await screen.findByLabelText('Dòng 1 · Ngày'), '15/09/2026');
 
-    expect(await screen.findByText(/Ngày 15\/09\/2026 xuất hiện ở hơn một dòng/)).toBeTruthy();
+    expect(await screen.findByText(/Dữ liệu đang bị trùng lặp/)).toBeTruthy();
   });
 });
 

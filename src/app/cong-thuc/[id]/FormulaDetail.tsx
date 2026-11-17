@@ -3906,6 +3906,9 @@ export function FormulaDetail({
           mode={mode}
           // Mã đang nạp là bộ mẫu bản thảo thì file xuất ra phải tự nói điều đó — xem `loadedDraft`.
           fromDraftData={loadedPreset !== null && loadedDraft}
+          // Khối Biểu đồ đang VẼ một hình — không thì công tắc "Kèm biểu đồ" khoá (16/11/2026).
+          // `chartType` chặn trạng thái cũ của công thức trước: màn `none` không có khối nào báo lên.
+          hasChart={activeSpec.chartType !== 'none' && hinhBieuDo?.daVe === true}
         />
       )}
 

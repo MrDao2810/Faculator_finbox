@@ -101,6 +101,7 @@ const sharesOutstanding = numberVar(
   'CP',
   1_470_000_000,
   {
+    integer: true,
     min: 0,
     max: 50_000_000_000,
     description: {

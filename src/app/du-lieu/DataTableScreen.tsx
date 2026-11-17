@@ -346,6 +346,16 @@ const SeriesRowFields = memo(function SeriesRowFields({
         if (event.currentTarget.parentElement?.contains(event.relatedTarget)) return;
         onLeave();
       }}
+      /*
+       * Enter (bàn phím máy tính, hoặc phím Xong/Enter của bàn phím điện thoại) là xác nhận ô đang gõ:
+       * bỏ tiêu điểm khỏi ô, để chạy đúng đường rời ô — ghép dấu ngày, đưa về dd/mm/yyyy, sắp lại
+       * thứ tự, kiểm trùng. Trước đây phải bấm ra ngoài mới xong.
+       */
+      onKeyDown={(event) => {
+        if (event.key !== 'Enter' || !(event.target instanceof HTMLInputElement)) return;
+        event.preventDefault();
+        event.target.blur();
+      }}
     >
       {/*
         Số thứ tự trên màn. Dòng lỗi thì con số đậm và đỏ, như lưới popup — không viên tròn nào quanh

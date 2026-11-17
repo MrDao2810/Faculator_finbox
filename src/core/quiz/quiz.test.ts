@@ -7,6 +7,7 @@ import { FORMULA_SUMMARIES } from '../formulas/summaries.generated';
 import { MARKET_CONFIG } from '../market';
 import { scheduleOrDefault } from '../market/resolve';
 import { laKhoangCafefQuaDai, laLinkDuLieuTho } from '../source-link';
+import { canBangProblems, tyLeDaiNhat } from './can-bang';
 import { arithmeticOf, blanksOf, evaluateWorked, workedProblems } from './worked-line';
 import {
   QUIZ_CHOICE_KEYS,
@@ -598,6 +599,23 @@ describe('ngân hàng câu hỏi kiểm tra hiểu bài', () => {
     const haiDapAn = cn.filter((item) => item.answers.length === 2).length;
     const lienNhau = ['ab', 'bc', 'cd'].reduce((tong, bo) => tong + (boDem.get(bo) ?? 0), 0);
     expect(lienNhau / haiDapAn, `${lienNhau}/${haiDapAn} cặp liền nhau`).toBeLessThanOrEqual(0.6);
+  });
+
+  /*
+   * Độ dài không được lộ đáp án (16/11/2026). Chủ dự án: _"cứ chọn đáp án dài là đúng"_. Đo lúc ấy:
+   * 81% câu một đáp án có đáp án đúng dài nhất hẳn, dài gấp 2,6 lần phương án sai, 95 câu chỉ riêng
+   * đáp án đúng kèm lời giải sau " - ". Luật từng câu và lý do ở `can-bang.ts`; ca thứ hai giữ cả
+   * ngân hàng gần mức chia ngẫu nhiên (25%), theo cả hai chiều, để không chữa lệch thành lệch ngược.
+   */
+  it('độ dài bốn phương án không tự lộ đáp án', () => {
+    const loi = QUIZ_ITEMS.flatMap((item) => canBangProblems(item).map((p) => `${item.id} ${p}`));
+    expect(loi).toEqual([]);
+  });
+
+  it('cả ngân hàng: đáp án đúng dài nhất hay ngắn nhất đều quanh mức ngẫu nhiên', () => {
+    const { daiNhat, nganNhat } = tyLeDaiNhat(QUIZ_ITEMS);
+    expect(daiNhat, `dài nhất ${(daiNhat * 100).toFixed(1)}%`).toBeLessThanOrEqual(0.35);
+    expect(nganNhat, `ngắn nhất ${(nganNhat * 100).toFixed(1)}%`).toBeLessThanOrEqual(0.35);
   });
 
   /*

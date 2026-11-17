@@ -335,7 +335,7 @@ export function CandleChart({ rows, code, range, onRangeChange }: CandleChartPro
               chieu.bac += `M${String(x)} ${String(toY(cao))}V${String(toY(thap))}`;
               chieu.than += `M${String(x - bodyW / 2)} ${String(top)}h${String(bodyW)}v${String(caoThan)}h${String(-bodyW)}Z`;
             });
-            /* Chiều phiên tăng/giảm của cột khối lượng chỉ đổi màu ở bảng TỐI (`.volume.up`/`.down`). */
+            /* Cột khối lượng một màu ở cả hai bảng (`.volume`); tách hai path theo chiều chỉ vì vòng lặp gom chung với nến. */
             return (
               <>
                 {net.up.cot !== '' && (

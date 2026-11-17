@@ -31,23 +31,23 @@ import {
  */
 
 /*
- * Trần 10 tỷ ₫, nới từ 2 tỷ ngày 16/09/2026.
- *
- * Ví dụ của ba công thức vay là một khoản vay mua nhà 3 tỷ ₫ có thật (báo VietnamFinance, xem
- * `example.source`). Để trần ở 2 tỷ thì `clampToSpec()` hạ con số ấy xuống 2 tỷ ngay khi người dùng
- * chạm vào ô, và màn hình hiện một kết quả KHÁC kết quả in ngay bên cạnh trong khối Ví dụ — đúng
- * kiểu sai lệch âm thầm mà FR-02 tồn tại để chặn. Bước nhảy giữ 10 triệu ₫, nên thanh trượt dài hơn
- * chứ không thô hơn.
+ * Lớn hơn 0, tới 1.000.000 tỷ ₫ (16/11/2026). Điều kiện của công thức chỉ là khoản vay lớn hơn 0:
+ * chia cho số kỳ, nhân lãi suất kỳ, không có ngưỡng nào khác. Khoảng cũ (100 triệu tới 10 tỷ, nới từ
+ * 2 tỷ ngày 16/09/2026 vì ví dụ là khoản vay 3 tỷ có thật) là khoảng cho tay kéo; lượt đầu bỏ thanh
+ * trượt từng đặt min 1 triệu và chủ dự án hỏi ngay _"tại sao lại phải cố định nhỏ nhất là 1 triệu ?"_,
+ * rồi chốt câu báo _"Số tiền vay lớn hơn 0"_ — nên min 0 kèm `positive`, không phải min 1 ₫.
+ * Trần chỉ để con số còn in được trong ô. `step` (10 triệu) chỉ còn là việc của biểu đồ.
  */
 const loanAmount = sliderVar(
   'amount',
   { vi: 'Số tiền vay', en: 'Loan amount' },
   '₫',
   800_000_000,
-  100_000_000,
-  10_000_000_000,
+  0,
+  1_000_000_000_000,
   10_000_000,
   {
+    positive: true,
     description: {
       vi: 'Dư nợ gốc ban đầu của khoản vay.',
       en: 'The initial principal balance of the loan.',
@@ -61,7 +61,7 @@ const loanRate = sliderVar(
   '%',
   9.5,
   0,
-  18,
+  100,
   0.1,
   {
     description: {
@@ -71,7 +71,8 @@ const loanRate = sliderVar(
   },
 );
 
-const loanYears = sliderVar('years', { vi: 'Kỳ hạn', en: 'Term' }, 'năm', 20, 1, 30, 1, {
+const loanYears = sliderVar('years', { vi: 'Kỳ hạn', en: 'Term' }, 'năm', 20, 1, 50, 1, {
+  integer: true,
   description: {
     vi: 'Thời gian trả nợ. Mỗi năm 12 kỳ trả hằng tháng.',
     en: 'The repayment period. Each year has 12 monthly installments.',
@@ -909,7 +910,7 @@ export const LAI_KEP: FormulaModule = {
         '%',
         8,
         0,
-        20,
+        100,
         0.1,
         {
           description: {
@@ -918,7 +919,7 @@ export const LAI_KEP: FormulaModule = {
           },
         },
       ),
-      sliderVar('years', { vi: 'Thời gian (t)', en: 'Time (t)' }, 'năm', 10, 1, 50, 1, {
+      sliderVar('years', { vi: 'Thời gian (t)', en: 'Time (t)' }, 'năm', 10, 1, 100, 1, {
         description: {
           vi: 'Số năm để tiền sinh lãi.',
           en: 'The number of years the money earns interest.',
@@ -1151,7 +1152,7 @@ export const LAI_TIEN_GUI: FormulaModule = {
         '%',
         5.5,
         0,
-        15,
+        100,
         0.1,
         {
           description: {
@@ -1160,7 +1161,8 @@ export const LAI_TIEN_GUI: FormulaModule = {
           },
         },
       ),
-      sliderVar('months', { vi: 'Kỳ hạn (T)', en: 'Term (T)' }, 'tháng', 12, 1, 60, 1, {
+      sliderVar('months', { vi: 'Kỳ hạn (T)', en: 'Term (T)' }, 'tháng', 12, 1, 360, 1, {
+        integer: true,
         description: {
           vi: 'Số tháng của kỳ hạn, từ ngày gửi tới ngày đáo hạn.',
           en: 'The number of months in the term, from the deposit date to maturity.',
@@ -1324,7 +1326,7 @@ export const TIET_KIEM_MUC_TIEU: FormulaModule = {
         '%',
         6,
         0,
-        20,
+        100,
         0.1,
         {
           description: {
@@ -1339,9 +1341,10 @@ export const TIET_KIEM_MUC_TIEU: FormulaModule = {
         'tháng',
         60,
         1,
-        360,
+        600,
         1,
         {
+          integer: true,
           description: {
             vi: 'Số tháng góp tiền, mỗi tháng một khoản bằng nhau, tính tới lúc cần đủ số tiền mục tiêu.',
             en: 'The number of months of equal monthly deposits, up to when the target amount is needed.',

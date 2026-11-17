@@ -19,10 +19,13 @@ export const PHI_THUE: ReadonlyArray<QuizItem> = [
       en: 'You cut your losses, selling VND 100 million of stock bought for VND 130 million. What personal income tax is due?',
     },
     choices: {
-      a: { vi: 'Không nộp vì lỗ', en: "None, because it's a loss" },
-      b: { vi: '100.000 đồng (0,1% trên giá bán)', en: 'VND 100,000 (0.1% of the sale value)' },
-      c: { vi: 'Nộp trên phần lỗ', en: 'Tax on the loss amount' },
-      d: { vi: 'Nộp khi quyết toán cuối năm', en: 'Paid at year-end tax finalization' },
+      a: { vi: 'Không nộp, vì bán lỗ', en: 'None, since it is a loss' },
+      b: { vi: '100.000 đồng, tính trên giá bán', en: 'VND 100,000, charged on the sale value' },
+      c: { vi: '30.000 đồng, tính trên phần lỗ', en: 'VND 30,000, charged on the loss' },
+      d: {
+        vi: 'Tính gộp khi quyết toán cuối năm',
+        en: 'Computed in total at year-end tax finalization',
+      },
     },
     answer: 'b',
     explain: {
@@ -46,13 +49,13 @@ export const PHI_THUE: ReadonlyArray<QuizItem> = [
       en: 'Your portfolio is at a loss at year-end. Can you get the 0.1% tax already withheld refunded?',
     },
     choices: {
-      a: { vi: 'Được, khi quyết toán', en: 'Yes, at year-end tax finalization' },
-      b: { vi: 'Được 50%', en: 'Yes, 50% of it' },
-      c: {
-        vi: 'Không - đây là thuế khấu trừ tại nguồn, mang tính thuế cuối cùng',
-        en: 'No - this is a withholding tax and is final',
+      a: { vi: 'Được, khi quyết toán cuối năm', en: 'Yes, at year-end tax finalization' },
+      b: {
+        vi: 'Không, nhưng được trừ vào thuế năm sau',
+        en: "No, but it is offset against next year's tax",
       },
-      d: { vi: 'Được nếu lỗ trên 100 triệu', en: 'Yes, if the loss exceeds VND 100 million' },
+      c: { vi: 'Không, đây là thuế cuối cùng', en: 'No, this is a final tax' },
+      d: { vi: 'Được, nếu lỗ trên 100 triệu đồng', en: 'Yes, if the loss exceeds VND 100 million' },
     },
     answer: 'c',
     explain: {
@@ -76,16 +79,16 @@ export const PHI_THUE: ReadonlyArray<QuizItem> = [
       en: 'A loss on stock A and a gain on stock B in the same period. Can they be offset when calculating tax?',
     },
     choices: {
-      a: { vi: 'Được', en: 'Yes' },
-      b: {
-        vi: 'Không - thuế tính trên giá trị bán từng lần, từng mã riêng biệt',
-        en: 'No - tax is calculated on the sale value of each trade, ticker by ticker',
-      },
+      a: { vi: 'Được, nếu cùng một năm tính thuế', en: 'Yes, if within the same tax year' },
+      b: { vi: 'Không, mỗi lệnh bán chịu thuế riêng', en: 'No, each sale is taxed on its own' },
       c: {
-        vi: 'Được nếu cùng công ty chứng khoán',
-        en: 'Yes, if both trades go through the same broker',
+        vi: 'Được, nếu cùng công ty chứng khoán',
+        en: 'Yes, if both go through the same broker',
       },
-      d: { vi: 'Được nếu cùng tháng', en: 'Yes, if both occur in the same month' },
+      d: {
+        vi: 'Không, chỉ bù trừ được trong cùng một mã',
+        en: 'No, offsetting only works within one ticker',
+      },
     },
     answer: 'b',
     explain: {
@@ -109,10 +112,10 @@ export const PHI_THUE: ReadonlyArray<QuizItem> = [
       en: 'Under Personal Income Tax Law No. 109/2025/QH15 (effective July 1, 2026), how are LISTED securities taxed?',
     },
     choices: {
-      a: { vi: '20% trên phần lãi', en: '20% on the gain' },
-      b: { vi: 'Giữ 0,1% trên giá chuyển nhượng', en: 'Kept at 0.1% of the transfer value' },
-      c: { vi: 'Miễn thuế', en: 'Tax-exempt' },
-      d: { vi: '2% trên giá bán', en: '2% on the sale price' },
+      a: { vi: '20% trên phần lãi mỗi lần bán', en: '20% on the gain from each sale' },
+      b: { vi: '0,1% trên giá chuyển nhượng', en: '0.1% of the transfer value' },
+      c: { vi: 'Miễn thuế với chứng khoán niêm yết', en: 'Exempt for listed securities' },
+      d: { vi: 'Thuế 2% trên giá chuyển nhượng', en: 'A 2% tax on the transfer value' },
     },
     answer: 'b',
     explain: {
@@ -164,12 +167,21 @@ export const PHI_THUE: ReadonlyArray<QuizItem> = [
       en: 'Which side of a trade are the brokerage fee and personal income tax collected on?',
     },
     choices: {
-      a: { vi: 'Cả hai đều thu hai chiều', en: 'Both are collected on both sides' },
-      b: { vi: 'Cả hai chỉ thu chiều bán', en: 'Both are collected only on the sell side' },
-      c: { vi: 'Phí chỉ thu chiều mua', en: 'The fee is collected only on the buy side' },
+      a: {
+        vi: 'Phí và thuế đều thu ở cả hai chiều',
+        en: 'Fee and tax are both charged on both sides',
+      },
+      b: {
+        vi: 'Phí và thuế đều chỉ thu khi bán',
+        en: 'Fee and tax are both charged only on sales',
+      },
+      c: {
+        vi: 'Phí chỉ thu khi mua, thuế chỉ thu khi bán',
+        en: 'Fee only on buys, tax only on sales',
+      },
       d: {
-        vi: 'Phí thu cả chiều mua lẫn bán; thuế 0,1% chỉ thu chiều bán',
-        en: 'The fee is collected on both buy and sell sides; the 0.1% tax only on the sell side',
+        vi: 'Phí thu hai chiều, thuế chỉ thu khi bán',
+        en: 'Fee on both sides, tax only on sales',
       },
     },
     answer: 'd',
@@ -222,13 +234,13 @@ export const PHI_THUE: ReadonlyArray<QuizItem> = [
       en: 'For the same VND 166.5 million order, is the fee difference between brokers significant?',
     },
     choices: {
-      a: { vi: 'Không đáng kể', en: 'Not significant' },
+      a: { vi: 'Có, chênh tới vài triệu đồng', en: 'Yes, up to several million dong' },
       b: {
-        vi: 'Rất đáng kể - phí 0,2% là 333.000 đồng, trong khi biểu phí thị trường trải từ khoảng 0,027% tới 0,5%',
-        en: "Very significant - a 0.2% fee is VND 333,000, while the market's published fee schedules span roughly 0.027% to 0.5%",
+        vi: 'Có, chênh tới vài trăm nghìn đồng',
+        en: 'Yes, up to several hundred thousand dong',
       },
-      c: { vi: 'Chỉ chênh vài nghìn đồng', en: 'Only a few thousand dong of difference' },
-      d: { vi: 'Các công ty thu như nhau', en: 'All brokers charge the same' },
+      c: { vi: 'Không, chỉ chênh vài nghìn đồng', en: 'No, the gap is only a few thousand dong' },
+      d: { vi: 'Không, các công ty thu như nhau', en: 'No, the brokers charge the same' },
     },
     answer: 'b',
     explain: {
@@ -252,13 +264,10 @@ export const PHI_THUE: ReadonlyArray<QuizItem> = [
       en: 'If you open an account at a broker advertising “free trading”, does that mean no cost on any trade?',
     },
     choices: {
-      a: {
-        vi: 'Sai - vẫn còn thuế 0,1% khi bán, phí lưu ký hằng tháng và lãi margin',
-        en: 'False - the 0.1% transfer tax on sales, the monthly custody fee and margin interest still apply',
-      },
-      b: { vi: 'Đúng', en: 'True' },
-      c: { vi: 'Đúng nếu giao dịch online', en: 'True, if trading online' },
-      d: { vi: 'Đúng trong 6 tháng đầu', en: 'True, for the first 6 months' },
+      a: { vi: 'Vẫn tốn thuế bán và phí lưu ký', en: 'Transfer tax and custody fees still apply' },
+      b: { vi: 'Không tốn gì, phí và thuế đều miễn', en: 'Nothing, both fees and tax are waived' },
+      c: { vi: 'Không tốn gì nếu chỉ giao dịch online', en: 'Nothing, if you trade only online' },
+      d: { vi: 'Chỉ tốn lãi margin nếu có vay', en: 'Only margin interest, if you borrow' },
     },
     answer: 'a',
     explain: {
@@ -282,13 +291,10 @@ export const PHI_THUE: ReadonlyArray<QuizItem> = [
       en: 'What is the securities custody fee calculated on?',
     },
     choices: {
-      a: { vi: 'Phần trăm giá trị danh mục', en: 'A percentage of portfolio value' },
-      b: { vi: 'Số lần giao dịch', en: 'The number of trades' },
-      c: {
-        vi: 'Số lượng chứng khoán nắm giữ (0,27 đồng/cổ phiếu/tháng)',
-        en: 'The number of securities held (VND 0.27/share/month)',
-      },
-      d: { vi: 'Số dư tiền mặt', en: 'The cash balance' },
+      a: { vi: 'Phần trăm trên giá trị danh mục', en: 'A percentage of portfolio value' },
+      b: { vi: 'Giá trị lệnh khớp trong tháng', en: 'The value of orders matched that month' },
+      c: { vi: 'Số lượng chứng khoán nắm giữ', en: 'The number of securities held' },
+      d: { vi: 'Số dư tiền mặt trên tài khoản', en: 'The cash balance in the account' },
     },
     answer: 'c',
     explain: {
@@ -312,16 +318,22 @@ export const PHI_THUE: ReadonlyArray<QuizItem> = [
       en: "This month you didn't buy or sell anything. Is the custody fee still deducted?",
     },
     choices: {
-      a: { vi: 'Không', en: 'No' },
+      a: {
+        vi: 'Không, phí chỉ tính khi có giao dịch',
+        en: 'No, it is charged only when you trade',
+      },
       b: {
         vi: 'Chỉ khi danh mục trên 100 triệu',
         en: 'Only if the portfolio exceeds VND 100 million',
       },
       c: {
-        vi: 'Có - phí tính theo số dư bình quân cuối mỗi ngày, gồm cả ngày nghỉ lễ',
-        en: 'Yes - the fee is based on the average end-of-day balance, weekends and holidays included',
+        vi: 'Có, tính theo số chứng khoán đang giữ',
+        en: 'Yes, it is based on the securities you hold',
       },
-      d: { vi: 'Tuỳ công ty chứng khoán', en: 'It depends on the broker' },
+      d: {
+        vi: 'Tuỳ chính sách từng công ty chứng khoán',
+        en: "It depends on each broker's policy",
+      },
     },
     answer: 'c',
     explain: {
@@ -345,13 +357,10 @@ export const PHI_THUE: ReadonlyArray<QuizItem> = [
       en: 'Does switching to a different broker get you a cheaper custody fee?',
     },
     choices: {
-      a: { vi: 'Có, mỗi công ty một mức', en: 'Yes, each broker sets its own rate' },
-      b: {
-        vi: 'Không - phí trả cho VSDC, do Nhà nước quy định, giống nhau ở mọi công ty',
-        en: 'No - the fee goes to VSDC, the securities depository, and is set by the State, so it is the same at every broker',
-      },
-      c: { vi: 'Có nếu danh mục lớn', en: 'Yes, if the portfolio is large' },
-      d: { vi: 'Có với tài khoản mở mới', en: 'Yes, for newly opened accounts' },
+      a: { vi: 'Có, mỗi công ty tự đặt mức riêng', en: 'Yes, each broker sets its own rate' },
+      b: { vi: 'Không, mọi công ty cùng một mức', en: 'No, every broker charges the same rate' },
+      c: { vi: 'Không, trừ khi danh mục rất lớn', en: 'No, unless the portfolio is very large' },
+      d: { vi: 'Có, với tài khoản vừa mở mới', en: 'Yes, for a newly opened account' },
     },
     answer: 'b',
     explain: {
@@ -375,13 +384,13 @@ export const PHI_THUE: ReadonlyArray<QuizItem> = [
       en: 'You receive a stock dividend. How does the tax obligation arise?',
     },
     choices: {
-      a: { vi: 'Miễn thuế vì không nhận tiền', en: 'Tax-exempt, since no cash is received' },
-      b: { vi: 'Nộp 5% ngay khi nhận', en: 'Pay 5% immediately on receipt' },
+      a: { vi: 'Miễn thuế, vì không nhận tiền mặt', en: 'Exempt, since no cash is received' },
+      b: { vi: 'Khi bán, chỉ nộp 0,1% giá bán', en: 'On sale, only 0.1% of the price' },
       c: {
-        vi: 'Khi bán, chịu 5% trên mệnh giá cộng 0,1% trên giá trị giao dịch',
-        en: 'When sold, 5% on par value plus 0.1% on the transaction value',
+        vi: 'Khi bán, 5% mệnh giá và 0,1% giá bán',
+        en: 'On sale, 5% of par and 0.1% of the price',
       },
-      d: { vi: 'Nộp 20% trên phần lãi', en: 'Pay 20% on the gain' },
+      d: { vi: 'Nộp 20% trên phần lãi khi bán', en: '20% on the capital gain, paid when sold' },
     },
     answer: 'c',
     explain: {
@@ -405,13 +414,13 @@ export const PHI_THUE: ReadonlyArray<QuizItem> = [
       en: 'The company already paid corporate income tax before distributing the dividend. Does the individual shareholder still have to pay more?',
     },
     choices: {
-      a: { vi: 'Không, vì đã nộp một lần', en: 'No, because it was already paid once' },
-      b: { vi: 'Chỉ nộp nếu trên 10 triệu', en: 'Only if it exceeds VND 10 million' },
-      c: { vi: 'Chỉ nộp với cổ phiếu chưa niêm yết', en: 'Only for unlisted shares' },
-      d: {
-        vi: 'Có - cổ tức tiền mặt vẫn chịu thuế TNCN 5% khấu trừ tại nguồn',
-        en: 'Yes - cash dividends are still subject to a 5% personal income tax withheld at source',
+      a: { vi: 'Không, vì doanh nghiệp đã nộp thuế', en: 'No, the company already paid the tax' },
+      b: {
+        vi: 'Chỉ nộp nếu cổ tức trên 10 triệu',
+        en: 'Only if the dividend exceeds VND 10 million',
       },
+      c: { vi: 'Chỉ nộp với cổ phiếu chưa niêm yết', en: 'Only on shares that are not listed' },
+      d: { vi: 'Có, vẫn nộp 5% trên cổ tức', en: 'Yes, 5% is still due on the dividend' },
     },
     answer: 'd',
     explain: {
@@ -439,9 +448,12 @@ export const PHI_THUE: ReadonlyArray<QuizItem> = [
         vi: 'Lãi tiền gửi tại tổ chức tín dụng',
         en: 'Interest on deposits at credit institutions',
       },
-      b: { vi: 'Cổ tức tiền mặt', en: 'Cash dividends' },
-      c: { vi: 'Lãi trái phiếu doanh nghiệp', en: 'Corporate bond interest' },
-      d: { vi: 'Cổ tức bằng cổ phiếu khi bán', en: 'Stock dividends, when sold' },
+      b: {
+        vi: 'Cổ tức tiền mặt nhận từ doanh nghiệp',
+        en: 'Cash dividends received from a company',
+      },
+      c: { vi: 'Lãi trái phiếu doanh nghiệp', en: 'Interest on corporate bonds' },
+      d: { vi: 'Cổ tức bằng cổ phiếu khi bán', en: 'Stock dividends, once those shares are sold' },
     },
     answer: 'a',
     explain: {
@@ -466,12 +478,21 @@ export const PHI_THUE: ReadonlyArray<QuizItem> = [
       en: 'What does the break-even price of a stock purchase order include?',
     },
     choices: {
-      a: { vi: 'Chỉ giá mua', en: 'Only the purchase price' },
-      b: { vi: 'Giá mua + phí mua', en: 'Purchase price + buying fee' },
-      c: { vi: 'Giá mua + thuế', en: 'Purchase price + tax' },
+      a: {
+        vi: 'Giá mua + phí mua + thuế 0,1% giá mua',
+        en: 'Purchase price + buying fee + 0.1% tax on the purchase',
+      },
+      b: {
+        vi: 'Giá mua + phí mua + thuế trên phần lãi',
+        en: 'Purchase price + buying fee + tax on the gain',
+      },
+      c: {
+        vi: 'Giá mua + phí hai chiều + thuế trên phần lãi',
+        en: 'Purchase price + both fees + tax on the gain',
+      },
       d: {
-        vi: 'Giá mua + phí mua + phí bán + thuế 0,1% trên giá bán',
-        en: 'Purchase price + buying fee + selling fee + 0.1% tax on the sale value',
+        vi: 'Giá mua + phí hai chiều + thuế 0,1% giá bán',
+        en: 'Purchase price + both fees + 0.1% tax on the sale',
       },
     },
     answer: 'd',
@@ -497,12 +518,12 @@ export const PHI_THUE: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'Lớn hơn người ít giao dịch, chỉ vì khối lượng giao dịch cao',
-        en: 'More than someone who trades less, purely because of the higher trading volume',
+        vi: 'Tăng theo số lần bán, dù lỗ ròng',
+        en: 'It rises with each sale, despite a net loss',
       },
-      b: { vi: 'Bằng 0 vì lỗ', en: 'Zero, because of the loss' },
-      c: { vi: 'Được giảm 50%', en: 'Reduced by 50%' },
-      d: { vi: 'Tính trên phần lỗ', en: 'Calculated on the loss amount' },
+      b: { vi: 'Bằng 0, vì cả năm lỗ ròng', en: 'Zero, since the year ends at a net loss' },
+      c: { vi: 'Được hoàn lại khi quyết toán năm', en: 'Refunded at year-end tax finalization' },
+      d: { vi: 'Tính trên phần lỗ ròng cả năm', en: "Charged on the year's net loss" },
     },
     answer: 'a',
     explain: {
@@ -526,12 +547,18 @@ export const PHI_THUE: ReadonlyArray<QuizItem> = [
       en: 'You want to use the proceeds right away, before the T+2 settlement cycle completes. What cost does that incur?',
     },
     choices: {
-      a: { vi: 'Không có', en: 'None' },
-      b: { vi: 'Phí cố định 50.000 đồng', en: 'A flat fee of VND 50,000' },
-      c: { vi: 'Lãi suất margin', en: 'Margin interest' },
+      a: {
+        vi: 'Không tốn gì, tiền bán đã là của bạn',
+        en: 'Nothing, the proceeds are already yours',
+      },
+      b: { vi: 'Phí cố định 50.000 đồng mỗi lần ứng', en: 'A flat VND 50,000 fee per advance' },
+      c: {
+        vi: 'Lãi margin, như khi vay mua cổ phiếu',
+        en: 'Margin interest, as when borrowing to buy stock',
+      },
       d: {
-        vi: 'Phí ứng trước tiền bán khoảng 0,03–0,04%/ngày',
-        en: 'An advance-payment fee of roughly 0.03–0.04%/day',
+        vi: 'Phí ứng trước tiền bán, tính theo ngày',
+        en: 'A daily fee for advancing the proceeds',
       },
     },
     answer: 'd',
@@ -556,13 +583,10 @@ export const PHI_THUE: ReadonlyArray<QuizItem> = [
       en: 'From what point does the custody fee start accruing?',
     },
     choices: {
-      a: { vi: 'Ngày khớp lệnh mua', en: 'The day the buy order is matched' },
-      b: { vi: 'Ngày đặt lệnh', en: 'The day the order is placed' },
-      c: { vi: 'Đầu tháng kế tiếp', en: 'The start of the following month' },
-      d: {
-        vi: 'Ngày chứng khoán về tài khoản (ngày thanh toán)',
-        en: 'The day the securities land in the account (settlement day)',
-      },
+      a: { vi: 'Ngày lệnh mua được khớp', en: 'The day the buy order is matched' },
+      b: { vi: 'Ngày bạn đặt lệnh mua', en: 'The day you place the buy order' },
+      c: { vi: 'Ngày đầu tiên của tháng kế tiếp', en: 'The first day of the following month' },
+      d: { vi: 'Ngày chứng khoán về tài khoản', en: 'The day the securities reach the account' },
     },
     answer: 'd',
     explain: {

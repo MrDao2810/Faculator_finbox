@@ -58,7 +58,9 @@ export function inherited(
  */
 export function clampToSpec(raw: number, spec: VariableSpec): number {
   if (!Number.isFinite(raw)) return spec.defaultValue;
-  let v = raw;
+  // Ô phải lớn hơn 0 (`spec.positive`): không có số dương nhỏ nhất để kẹp về, nên về mặc định.
+  if (spec.positive === true && raw <= 0) return spec.defaultValue;
+  let v = spec.integer === true ? Math.round(raw) : raw;
   if (spec.min !== undefined && v < spec.min) v = spec.min;
   if (spec.max !== undefined && v > spec.max) v = spec.max;
   return v;

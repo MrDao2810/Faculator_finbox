@@ -81,6 +81,12 @@ export interface ExportSheetProps {
    * nào khác để biết. Xem `ExportOptions.fromDraftData`.
    */
   fromDraftData?: boolean;
+  /**
+   * Khối Biểu đồ trên màn ĐANG vẽ một hình (16/11/2026). Không có hình thì công tắc "Kèm biểu đồ"
+   * tắt và khoá: file chép đúng hình đang hiện, nên không có hình là không có gì để kèm. Mặc định
+   * theo `chartType` cho nơi gọi không biết màn đang vẽ gì.
+   */
+  hasChart?: boolean;
 }
 
 /**
@@ -101,6 +107,13 @@ export interface ExportSheetProps {
  * người mới") bỏ cùng một lượt — chủ dự án khoanh cả ba: _"xóa các phần khoanh đỏ đi"_. Bỏ câu, giữ
  * hành vi: file xuất ra vẫn mang miễn trừ, `ExportSheet.test.tsx` vẫn ghim nó trong vùng in. Đừng
  * dựng lại ô vàng mà không hỏi — thiếu câu báo trông như sơ suất, nhưng không phải.
+ *
+ * **Công tắc nào không có gì để kèm thì tắt và khoá** (16/11/2026, báo lỗi của người kiểm thử trên
+ * `basis-vn30f`: công tắc vẫn bật, tải về không có biểu đồ). "Kèm biểu đồ" khoá khi màn không vẽ hình
+ * nào (8 công thức `none`, công thức chuỗi chưa nạp chuỗi, hình đang báo lỗi); "Kèm bảng biến & giải
+ * thích" khoá khi chọn PNG, vì tấm thẻ PNG không bao giờ vẽ hai phần ấy (`draw-card.ts`). Lựa chọn
+ * của người dùng vẫn được nhớ: đổi lại PDF, hoặc màn vẽ được hình, là công tắc về đúng như trước.
+ * Không có dòng giải thích dưới công tắc khoá — hai dòng mô tả cũ đã bị chủ dự án bỏ ngày 28/10.
  */
 export function ExportSheet({
   open,
@@ -111,11 +124,16 @@ export function ExportSheet({
   interpretation,
   mode = 'advanced',
   fromDraftData = false,
+  hasChart = formula.chartType !== 'none',
 }: ExportSheetProps) {
   const t = useT();
   const [format, setFormat] = useState<ExportFormat>('pdf');
+  /* Ý của người dùng; thứ thật sự đi vào file là bản đã trừ những gì không có (`kemBieuDo`…). */
   const [includeChart, setIncludeChart] = useState(true);
   const [includeDetails, setIncludeDetails] = useState(true);
+  const coChiTiet = format === 'pdf';
+  const kemBieuDo = includeChart && hasChart;
+  const kemChiTiet = includeDetails && coChiTiet;
   /*
    * Giữ CỜ chứ không giữ chuỗi đã dịch: nhét `t('export.failed')` vào state là đóng băng câu
    * lỗi ở ngôn ngữ lúc nó xảy ra, nên đổi sang EN rồi mở lại sheet vẫn thấy câu tiếng Việt cũ
@@ -127,7 +145,7 @@ export function ExportSheet({
     formula,
     output,
     inputs,
-    { format, includeChart, includeDetails, mode, fromDraftData },
+    { format, includeChart: kemBieuDo, includeDetails: kemChiTiet, mode, fromDraftData },
     interpretation,
   );
 
@@ -160,7 +178,7 @@ export function ExportSheet({
    * `run()`.
    */
   useEffect(() => {
-    if (!open || !includeChart) return;
+    if (!open || !kemBieuDo) return;
 
     let huy = false;
     void import('./chart-snapshot')
@@ -176,7 +194,7 @@ export function ExportSheet({
     return () => {
       huy = true;
     };
-  }, [open, includeChart, fillChart]);
+  }, [open, kemBieuDo, fillChart]);
 
   /**
    * Hình biểu đồ cho tấm thẻ PNG, hoặc `null` khi không có gì để vẽ.
@@ -189,7 +207,7 @@ export function ExportSheet({
    * vì câu sai duy nhất nó gây ra là về SỰ TỒN TẠI của hình, không phải về con số nào.
    */
   async function chartForCard(): Promise<HTMLImageElement | null> {
-    if (!includeChart) return null;
+    if (!kemBieuDo) return null;
 
     try {
       const { chartImage, chartSvgUrl, cloneChartSvg } = await import('./chart-snapshot');
@@ -276,10 +294,16 @@ export function ExportSheet({
       {/* Hai công tắc không có dòng mô tả, và sau chúng không còn ô "Miễn trừ tự động đính kèm" —
           cả ba bỏ ngày 28/10/2026, xem docblock. Miễn trừ vẫn ở cuối vùng in bên dưới (FR-24). */}
       <div className={styles.options}>
-        <Switch checked={includeChart} onChange={setIncludeChart} label={t('export.withChart')} />
         <Switch
-          checked={includeDetails}
+          checked={kemBieuDo}
+          onChange={setIncludeChart}
+          disabled={!hasChart}
+          label={t('export.withChart')}
+        />
+        <Switch
+          checked={kemChiTiet}
           onChange={setIncludeDetails}
+          disabled={!coChiTiet}
           label={t('export.withDetails')}
         />
       </div>

@@ -722,6 +722,14 @@ button.iconButton::after {
    * trên.
    */
   overflow-y: hidden;
+  /*
+   * Chừa chỗ cho nét chữ trên và dưới (16/11/2026). Chrome dàn MathML bằng hộp SÁT NÉT chữ: đo cả 111
+   * hình, nét cao nhất chạm đúng mép trên khung và nét thấp nhất chạm đúng mép dưới (hở 0px). Khung
+   * cắt ở mép hộp đệm, nên chỉ cần Windows làm nét lệch một pixel (hinting, màn chia tỷ lệ 125%) là mất
+   * đỉnh chữ — chủ dự án chụp chữ D của tử số `DY = D / P × 100` bị cụt đầu. Đệm nằm TRONG vùng không
+   * bị cắt, nên nét lệch vẫn hiện đủ. Cùng luật ở `.stepMath`, `.quizPictureMath`, `.substitutionHinh`.
+   */
+  padding-block: 0.25em;
 }
 
 /*
@@ -1191,7 +1199,13 @@ button.iconButton::after {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
   column-gap: var(--space-4);
-  row-gap: var(--space-1);
+  /*
+   * 6px (16/11/2026, 4px trước đó). Chủ dự án khoanh nhãn "Số tiền vay (P)" và dòng "Số liệu không
+   * được âm." dính sát khung nhập: _"sửa lại luôn padding của các loại text trên sao cho không bị quá
+   * xát với ô nhập"_. Khe này là khe GIỮA nhãn, khung và dòng phụ của một ô (xem trên), nên nới nó là
+   * nới đúng hai chỗ được khoanh. `ChainBody.module.css` mang bản sao.
+   */
+  row-gap: calc(var(--space-1) + 2px);
   min-width: 0;
 }
 
@@ -2093,6 +2107,16 @@ button.iconButton::after {
   }
 
   /*
+   * Đáy ô số chừa sẵn một dòng báo (16/11/2026) — xem `--dong-phu` ở `.compact` của
+   * `Input.module.css`. Phải ghi lại ở đây vì `.fields > .field` (hai lớp) đè `padding-bottom` của
+   * `.compact` (một lớp), và bản đầu bị đè đúng như thế: dòng "Số tiền vay lớn hơn 0." tràn ra ngoài
+   * đáy ô. Ô chọn và nhóm nút không khai `--dong-phu` nên phần thêm là 0.
+   */
+  .fields.tileGrid > .field {
+    padding-bottom: calc(var(--space-2) + var(--dong-phu, 0px));
+  }
+
+  /*
    * Công thức CHỈ CÓ MỘT ô nhập: chặn ô ấy nuốt trọn bề ngang.
    *
    * `auto-fit` xoá rãnh rỗng (đó là lý do nó được chọn — công thức hai ô chia đôi hàng thay vì bỏ
@@ -2185,6 +2209,8 @@ button.iconButton::after {
     min-width: 0;
     overflow-x: auto;
     overflow-y: hidden;
+    /* Chỗ cho nét chữ sát mép khung cắt — lý do ở `.formula` phía trên. */
+    padding-block: 0.25em;
   }
 
   .substitutionRa {

@@ -32,6 +32,18 @@ const growth: VariableSpec = {
   level: 'advanced',
 };
 
+/** Ô nhận số âm (min âm) — chỗ dấu trừ vẫn phải gõ được. */
+const signed: VariableSpec = {
+  key: 'r',
+  label: { vi: 'Lợi suất', en: 'Return' },
+  unit: '%',
+  type: 'number',
+  defaultValue: 4,
+  min: -100,
+  max: 10_000,
+  level: 'basic',
+};
+
 function box(): HTMLInputElement {
   return screen.getByLabelText('Giá thị trường') as HTMLInputElement;
 }
@@ -66,18 +78,22 @@ describe('gõ và chốt giá trị', () => {
     render(<NumberInput spec={price} value={92_000} onChange={vi.fn()} />);
 
     await userEvent.clear(box());
-    await userEvent.type(box(), '-4');
+    await userEvent.type(box(), '2000000');
 
-    expect(box().value).toBe('-4');
+    expect(box().value).toBe('2000000');
   });
 
-  it('gõ ngoài miền thì hiện ngay dòng nhắc “! min 0”, không đợi rời ô', async () => {
+  /* 16/11/2026: "! max 1.000.000" thay bằng câu đọc được — chủ dự án hỏi "! min 0" là gì. */
+  it('gõ vượt max thì hiện ngay câu "<tên ô> không được vượt quá …", không đợi rời ô', async () => {
     render(<NumberInput spec={price} value={92_000} onChange={vi.fn()} />);
 
     await userEvent.clear(box());
-    await userEvent.type(box(), '-4');
+    await userEvent.type(box(), '2000000');
 
-    expect(screen.getByText('! min 0')).not.toBeNull();
+    expect(screen.getByRole('alert').textContent).toBe(
+      'Giá thị trường không được vượt quá 1.000.000 ₫.',
+    );
+    expect(screen.queryByText(/! (min|max)/)).toBeNull();
     expect(box().getAttribute('aria-invalid')).toBe('true');
   });
 
@@ -86,12 +102,11 @@ describe('gõ và chốt giá trị', () => {
     render(<NumberInput spec={price} value={92_000} onChange={onChange} />);
 
     await userEvent.clear(box());
-    await userEvent.type(box(), '-4');
+    await userEvent.type(box(), '2000000');
     await userEvent.tab();
 
-    // Lượt CUỐI mới là lượt chốt: trong lúc gõ ô vẫn đẩy `-4` thô lên (xem khối dưới), việc kẹp
-    // chỉ xảy ra ở đây.
-    expect(onChange).toHaveBeenLastCalledWith(0);
+    expect(onChange).toHaveBeenLastCalledWith(1_000_000);
+    expect(screen.queryByRole('alert')).toBeNull();
   });
 
   it('bấm Enter cũng chốt giá trị', async () => {
@@ -206,31 +221,32 @@ describe('đẩy giá trị lên ngay trong lúc gõ', () => {
   });
 
   /*
-   * "Không kẹp trong lúc gõ" nói về việc KHÔNG SỬA thứ người dùng đang gõ, không phải giữ giá trị
-   * lại không cho ra ngoài. Gõ '-4' vào ô min 0 thì ô hiện '-4', dòng '! min 0' hiện ngay, và
-   * phần còn lại của màn cũng biết đang là -4 — kẹp để dành cho lúc chốt.
+   * Đảo 16/11/2026. Trước đó số ngoài miền cũng được đẩy thô lên, nên gõ -10000000 vào "Số tiền
+   * gốc (P)" của `lai-kep` là khối Kết quả in -22.196.402,35 ₫ — chủ dự án chụp màn báo lỗi. Nay số
+   * ngoài miền ở yên trong ô (kèm dòng đỏ) và chỉ đi lên lúc chốt, đã kẹp.
    */
-  it('đẩy giá trị THÔ, chưa kẹp, đúng thứ người dùng đang gõ', async () => {
+  it('số ngoài miền KHÔNG được báo lên trong lúc gõ', async () => {
     const onChange = vi.fn();
     render(<NumberInput spec={price} value={92_000} onChange={onChange} />);
 
     await userEvent.clear(box());
-    await userEvent.type(box(), '-4');
+    await userEvent.type(box(), '2000000');
 
-    expect(onChange).toHaveBeenLastCalledWith(-4);
+    expect(onChange.mock.calls.map((c) => c[0])).toEqual([2, 20, 200, 2_000, 20_000, 200_000]);
   });
 
   it('chuỗi chưa ra số thì KHÔNG báo lên — không đẩy NaN hay 0 (FR-06)', async () => {
     const onChange = vi.fn();
-    render(<NumberInput spec={price} value={92_000} onChange={onChange} />);
+    render(<NumberInput spec={signed} value={4} onChange={onChange} />);
+    const g = () => screen.getByLabelText('Lợi suất') as HTMLInputElement;
 
-    await userEvent.clear(box());
+    await userEvent.clear(g());
 
     // Ô trắng và mỗi dấu trừ đều chưa phải một con số. Đẩy lên lúc này thì bên nhận buộc phải quy
     // thành 0 hoặc NaN — đúng hai thứ FR-06 cấm. Giữ nguyên giá trị cũ, chờ tới lúc chốt.
     expect(onChange).not.toHaveBeenCalled();
 
-    await userEvent.type(box(), '-');
+    await userEvent.type(g(), '-');
     expect(onChange).not.toHaveBeenCalled();
   });
 
@@ -306,8 +322,8 @@ describe('chỉ nhận ký tự của một con số', () => {
   });
 
   it('vẫn gõ được đủ lối viết số Việt Nam — dấu phẩy, dấu chấm và bốn kiểu dấu trừ', async () => {
-    render(<NumberInput spec={growth} value={0} onChange={vi.fn()} />);
-    const g = () => screen.getByLabelText('Tăng trưởng g') as HTMLInputElement;
+    render(<NumberInput spec={signed} value={0} onChange={vi.fn()} />);
+    const g = () => screen.getByLabelText('Lợi suất') as HTMLInputElement;
 
     for (const chuoi of ['14,3', '1.234,5', '-4', '−4', '–4', '—4']) {
       await userEvent.clear(g());
@@ -424,6 +440,99 @@ describe('chỉ nhận ký tự của một con số', () => {
     // '92' + '4' + '000', con trỏ ngay sau số 4 vừa gõ chứ không nhảy ra đuôi.
     expect(box().value).toBe('924000');
     expect(box().selectionStart).toBe(3);
+  });
+});
+
+/*
+ * Lỗi chủ dự án chụp 16/11/2026 trên `lai-kep`: gõ "-10000000" vào "Số tiền gốc (P)" (min 0) thì
+ * dưới ô ghi "! min 0" (_"không hiểu nói gì ?"_) còn khối Kết quả in -22.196.402,35 ₫. Chủ dự án
+ * chọn: ô không nhận số âm thì chặn luôn dấu trừ và nói "Số liệu không được âm.".
+ */
+describe('ô không nhận số âm (min ≥ 0)', () => {
+  it('gõ dấu trừ: ô không đổi, hiện "<tên ô> không được âm.", không báo lên', async () => {
+    const onChange = vi.fn();
+    render(<NumberInput spec={price} value={92_000} onChange={onChange} />);
+
+    await userEvent.click(box());
+    await userEvent.type(box(), '-', { initialSelectionStart: 0, initialSelectionEnd: 0 });
+
+    expect(box().value).toBe('92000');
+    expect(screen.getByRole('alert').textContent).toBe('Giá thị trường không được âm.');
+    expect(box().getAttribute('aria-invalid')).toBe('true');
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
+  it('gõ cả chuỗi "-10000000": không con số âm nào đi lên màn', async () => {
+    const onChange = vi.fn();
+    render(<NumberInput spec={price} value={92_000} onChange={onChange} />);
+
+    await userEvent.clear(box());
+    await userEvent.type(box(), '-10000000');
+
+    for (const [v] of onChange.mock.calls) expect(v).toBeGreaterThanOrEqual(0);
+    expect(box().value).not.toContain('-');
+  });
+
+  it('dán "-100" bị từ chối NGUYÊN chuỗi — không bóc thành 100', async () => {
+    const onChange = vi.fn();
+    render(<NumberInput spec={price} value={92_000} onChange={onChange} />);
+
+    await userEvent.click(box());
+    await userEvent.clear(box());
+    await userEvent.paste('-100');
+
+    expect(box().value).toBe('');
+    expect(screen.getByRole('alert').textContent).toBe('Giá thị trường không được âm.');
+    expect(onChange).not.toHaveBeenCalledWith(100);
+    expect(onChange).not.toHaveBeenCalledWith(-100);
+  });
+
+  it('gõ tiếp một chữ số hợp lệ thì dòng đỏ tắt', async () => {
+    render(<NumberInput spec={price} value={92_000} onChange={vi.fn()} />);
+
+    await userEvent.click(box());
+    await userEvent.type(box(), '-');
+    expect(screen.queryByRole('alert')).not.toBeNull();
+
+    await userEvent.type(box(), '1');
+    expect(screen.queryByRole('alert')).toBeNull();
+  });
+
+  it('rời ô thì dòng đỏ tắt, không có lượt chốt nào vì ô chưa đổi', async () => {
+    const onChange = vi.fn();
+    render(<NumberInput spec={price} value={92_000} onChange={onChange} />);
+
+    await userEvent.click(box());
+    await userEvent.type(box(), '-');
+    await userEvent.tab();
+
+    expect(screen.queryByRole('alert')).toBeNull();
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
+  it('bấm xoá ngay sau dấu trừ bị chặn: phím xoá không ăn chữ số thật', async () => {
+    render(<NumberInput spec={price} value={92_000} onChange={vi.fn()} />);
+
+    await userEvent.click(box());
+    await userEvent.clear(box());
+    await userEvent.type(box(), '100-');
+    await userEvent.type(box(), '{Backspace}');
+
+    expect(box().value).toBe('100');
+  });
+
+  it('số âm tới từ chỗ khác (một mã nạp vào) cũng được gọi đúng tên', () => {
+    render(<NumberInput spec={price} value={-5} onChange={vi.fn()} />);
+    expect(screen.getByRole('alert').textContent).toBe('Giá thị trường không được âm.');
+  });
+
+  it('min dương: "Số liệu nhỏ nhất là …"', async () => {
+    render(<NumberInput spec={{ ...price, min: 2 }} value={5} onChange={vi.fn()} />);
+
+    await userEvent.clear(box());
+    await userEvent.type(box(), '1');
+
+    expect(screen.getByRole('alert').textContent).toBe('Giá thị trường nhỏ nhất phải là 2 ₫.');
   });
 });
 

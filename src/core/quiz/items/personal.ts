@@ -21,7 +21,7 @@ export const CA_NHAN: ReadonlyArray<QuizItem> = [
     choices: {
       a: { vi: '14,4 triệu cả hai', en: '14.4 million for both' },
       b: { vi: '7,8 triệu và 14,4 triệu', en: '7.8 million and 14.4 million' },
-      c: { vi: 'Bằng nhau', en: 'The same' },
+      c: { vi: '7,8 triệu cả hai', en: '7.8 million for both' },
       d: { vi: '14,4 triệu và 7,8 triệu', en: '14.4 million and 7.8 million' },
     },
     answer: 'd',
@@ -46,13 +46,19 @@ export const CA_NHAN: ReadonlyArray<QuizItem> = [
       en: 'Package A states 2.2%/month on the original balance, package B states 3.75%/month on the declining balance. Which package is more expensive?',
     },
     choices: {
-      a: { vi: 'Gói B vì con số lớn hơn', en: 'Package B, because the figure is bigger' },
-      b: { vi: 'Gói A', en: 'Package A' },
-      c: { vi: 'Không so được', en: 'They cannot be compared' },
-      d: {
-        vi: 'Số tiền phải trả như nhau - hai con số chỉ là hai cách diễn đạt',
-        en: 'The amount payable is the same - the two figures are just two ways of expressing it',
+      a: {
+        vi: 'Gói B, vì con số lãi suất lớn hơn',
+        en: 'Package B, because its rate figure is bigger',
       },
+      b: {
+        vi: 'Gói A, vì lãi tính trên gốc ban đầu',
+        en: 'Package A, because interest is on the original balance',
+      },
+      c: {
+        vi: 'Không so được khi chưa biết số tiền vay',
+        en: 'They cannot be compared without the loan amount',
+      },
+      d: { vi: 'Hai gói phải trả số tiền như nhau', en: 'Both packages cost the same amount' },
     },
     answer: 'd',
     explain: {
@@ -103,12 +109,21 @@ export const CA_NHAN: ReadonlyArray<QuizItem> = [
       en: 'Does a fixed monthly payment mean the principal is also paid off evenly?',
     },
     choices: {
-      a: { vi: 'Có', en: 'Yes' },
-      b: { vi: 'Có nếu lãi suất cố định', en: 'Yes, if the interest rate is fixed' },
-      c: { vi: 'Có với khoản vay dưới 5 năm', en: 'Yes, for loans under 5 years' },
+      a: {
+        vi: 'Có, mỗi tháng trả một phần gốc như nhau',
+        en: 'Yes, the same amount of principal is repaid each month',
+      },
+      b: {
+        vi: 'Có, nếu lãi suất cố định suốt kỳ vay',
+        en: 'Yes, if the interest rate is fixed for the whole term',
+      },
+      c: {
+        vi: 'Không, phần gốc trả mỗi tháng nhỏ dần',
+        en: 'No, the principal part of each payment shrinks over time',
+      },
       d: {
-        vi: 'Không - tổng tiền giữ nguyên nhưng giai đoạn đầu phần lãi lớn hơn phần gốc',
-        en: 'No - the total payment stays the same, but early on the interest portion is larger than the principal portion',
+        vi: 'Không, lúc đầu phần lãi lớn hơn phần gốc',
+        en: 'No, early on the interest exceeds the principal',
       },
     },
     answer: 'd',
@@ -133,13 +148,10 @@ export const CA_NHAN: ReadonlyArray<QuizItem> = [
       en: 'Mr. Khoi borrows 353 million to buy a car, with a first-year promotional rate of 8.2%/year. After the promotional period, what does the floating rate become?',
     },
     choices: {
-      a: { vi: 'Khoảng 10%', en: 'About 10%' },
-      b: { vi: '12%', en: '12%' },
-      c: {
-        vi: '18%/năm, và biên độ tăng từ 3,6% lên 6,6%',
-        en: '18%/year, with the margin rising from 3.6% to 6.6%',
-      },
-      d: { vi: 'Giữ nguyên 8,2%', en: 'Stays at 8.2%' },
+      a: { vi: 'Khoảng 10%/năm', en: 'About 10%/year' },
+      b: { vi: '21%/năm', en: '21%/year' },
+      c: { vi: '18%/năm', en: '18%/year' },
+      d: { vi: 'Giữ nguyên 8,2%/năm', en: 'Stays at 8.2%/year' },
     },
     answer: 'c',
     explain: {
@@ -163,10 +175,10 @@ export const CA_NHAN: ReadonlyArray<QuizItem> = [
       en: 'A 3 billion dong loan, with the interest rate rising 4 percentage points. How does the monthly payment change?',
     },
     choices: {
-      a: { vi: 'Tăng khoảng 2 triệu', en: 'Rises by about 2 million' },
+      a: { vi: 'Từ 30 triệu lên khoảng 32 triệu', en: 'From 30 million to about 32 million' },
       b: { vi: 'Từ 30 triệu lên gần 40 triệu', en: 'From 30 million to nearly 40 million' },
-      c: { vi: 'Không đổi, chỉ kéo dài kỳ hạn', en: 'Unchanged - only the term is extended' },
-      d: { vi: 'Tăng khoảng 5%', en: 'Rises by about 5%' },
+      c: { vi: 'Không đổi, chỉ kéo dài kỳ hạn', en: 'Unchanged, only the term is extended' },
+      d: { vi: 'Từ 30 triệu lên khoảng 60 triệu', en: 'From 30 million to about 60 million' },
     },
     answer: 'b',
     explain: {
@@ -190,13 +202,10 @@ export const CA_NHAN: ReadonlyArray<QuizItem> = [
       en: 'In Vietnam, how long does a promotional home-loan interest rate typically last?',
     },
     choices: {
-      a: { vi: '3–5 năm', en: '3–5 years' },
+      a: { vi: '3 đến 5 năm', en: '3 to 5 years' },
       b: { vi: 'Toàn bộ kỳ hạn', en: 'The entire loan term' },
-      c: {
-        vi: '6–12 tháng, sau đó lãi thực tế phổ biến 13–15%/năm',
-        en: '6–12 months, after which the actual rate is typically 13–15%/year',
-      },
-      d: { vi: '24–36 tháng', en: '24–36 months' },
+      c: { vi: '6 đến 12 tháng', en: '6 to 12 months' },
+      d: { vi: '24 đến 36 tháng', en: '24 to 36 months' },
     },
     answer: 'c',
     explain: {
@@ -220,13 +229,22 @@ export const CA_NHAN: ReadonlyArray<QuizItem> = [
       en: 'You have the money and want to close out the loan early. What cost does that trigger?',
     },
     choices: {
-      a: { vi: 'Không có', en: 'None' },
-      b: {
-        vi: 'Phí trả nợ trước hạn tính bằng tỷ lệ % nhân số tiền trả trước, giảm dần theo số năm đã vay',
-        en: 'An early-repayment fee, calculated as a percentage of the prepaid amount, that decreases the longer the loan has run',
+      a: {
+        vi: 'Không mất phí, chỉ cần trả hết số gốc còn lại',
+        en: 'No fee, you just repay the remaining principal',
       },
-      c: { vi: 'Phí cố định theo hợp đồng', en: 'A fixed fee set by the contract' },
-      d: { vi: 'Chỉ mất phần lãi còn lại', en: 'Only the remaining interest is lost' },
+      b: {
+        vi: 'Phí theo % số tiền trả trước, giảm dần theo số năm đã vay',
+        en: 'A % fee on the prepaid sum, falling as the loan ages',
+      },
+      c: {
+        vi: 'Phí cố định theo hợp đồng, như nhau dù trả trước bao nhiêu',
+        en: 'A fixed fee set by the contract, whatever amount you prepay',
+      },
+      d: {
+        vi: 'Phải trả nốt toàn bộ tiền lãi của các kỳ còn lại',
+        en: 'You still owe all the interest for the remaining periods',
+      },
     },
     answer: 'b',
     explain: {
@@ -250,13 +268,13 @@ export const CA_NHAN: ReadonlyArray<QuizItem> = [
       en: 'You deposit 100 million for a 12-month term at 5.5%/year, then withdraw the whole amount in month 6. How much interest do you get?',
     },
     choices: {
-      a: { vi: 'Khoảng 2,75 triệu (một nửa)', en: 'About 2.75 million (half)' },
-      b: { vi: 'Mất trắng toàn bộ lãi', en: 'You lose all the interest entirely' },
-      c: {
-        vi: 'Vài chục nghìn đồng - toàn bộ thời gian gửi tính lại theo lãi không kỳ hạn 0,1–0,2%/năm',
-        en: 'A few tens of thousands of dong - the whole deposit period is recalculated at the demand-deposit rate of 0.1–0.2%/year',
+      a: {
+        vi: 'Khoảng 2,75 triệu, tức một nửa tiền lãi',
+        en: 'About 2.75 million, half the interest',
       },
-      d: { vi: 'Lãi theo kỳ hạn 6 tháng', en: 'Interest at the 6-month term rate' },
+      b: { vi: 'Mất trắng, không được đồng lãi nào', en: 'Nothing, all the interest is lost' },
+      c: { vi: 'Vài chục nghìn đồng tiền lãi', en: 'A few tens of thousands of dong' },
+      d: { vi: 'Lãi tính theo mức của kỳ hạn 6 tháng', en: 'Interest at the 6-month term rate' },
     },
     answer: 'c',
     explain: {
@@ -280,13 +298,22 @@ export const CA_NHAN: ReadonlyArray<QuizItem> = [
       en: 'You have 1 billion on deposit at 6%/year and urgently need 500 million. Under Circular 04/2022 (effective 01/08/2022), what should you do?',
     },
     choices: {
-      a: { vi: 'Tất toán cả sổ', en: 'Close out the whole account' },
-      b: { vi: 'Vay cầm cố sổ', en: 'Borrow against the deposit' },
-      c: {
-        vi: 'Rút một phần - phần rút chịu lãi không kỳ hạn, 500 triệu còn lại vẫn hưởng 6%',
-        en: 'Make a partial withdrawal - the withdrawn portion earns the demand-deposit rate, while the remaining 500 million still earns 6%',
+      a: {
+        vi: 'Tất toán cả sổ rồi gửi lại phần còn lại',
+        en: 'Close out the account and redeposit the rest',
       },
-      d: { vi: 'Không rút được trước hạn', en: 'You cannot withdraw early at all' },
+      b: {
+        vi: 'Vay cầm cố sổ, vì rút một phần mất lãi cả sổ',
+        en: 'Take a pledge loan, as partial withdrawal voids all interest',
+      },
+      c: {
+        vi: 'Rút trước hạn riêng 500 triệu cần dùng',
+        en: 'Withdraw early only the 500 million you need',
+      },
+      d: {
+        vi: 'Chờ đáo hạn vì không được rút trước',
+        en: 'Wait for maturity, as early withdrawal is barred',
+      },
     },
     answer: 'c',
     explain: {
@@ -312,12 +339,21 @@ export const CA_NHAN: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: '365 ngày và số ngày sử dụng thực tế',
-        en: '365 days, with the actual number of days used',
+        vi: '365 ngày, nhân số ngày sử dụng thực tế',
+        en: '365 days, times the actual number of days used',
       },
-      b: { vi: '360 ngày', en: '360 days' },
-      c: { vi: '12 tháng tròn', en: '12 whole months' },
-      d: { vi: '30 ngày mỗi tháng', en: '30 days per month' },
+      b: {
+        vi: '360 ngày, nhân số ngày sử dụng thực tế',
+        en: '360 days, times the actual number of days used',
+      },
+      c: {
+        vi: '12 tháng, lãi tháng bằng lãi năm chia 12',
+        en: '12 months, the monthly rate being the annual rate over 12',
+      },
+      d: {
+        vi: '360 ngày, mỗi tháng tính tròn 30 ngày',
+        en: '360 days, with every month counted as 30 days',
+      },
     },
     answer: 'a',
     explain: {
@@ -342,20 +378,20 @@ export const CA_NHAN: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'Cao hơn mức thật sự cần, vì gửi góp được cộng thêm lãi ưu đãi cho khách gửi đều',
-        en: 'It comes out higher than what is really needed, because monthly-contribution accounts carry a bonus rate for regular savers',
+        vi: 'Cao hơn mức thật sự cần, vì gửi góp thường được cộng thêm lãi ưu đãi cho khách gửi đều',
+        en: 'It is higher than really needed, because contribution accounts usually earn a bonus rate for regular savers',
       },
       b: {
-        vi: 'Đúng bằng mức cần, vì mọi hình thức tiết kiệm cùng kỳ hạn đều áp chung một lãi suất niêm yết',
-        en: 'It is exactly right, because every savings product of the same term carries the one posted rate',
+        vi: 'Đúng bằng mức cần, vì các hình thức tiết kiệm cùng kỳ hạn áp chung một lãi suất niêm yết',
+        en: 'It is exactly right, because savings products of the same term share the one posted rate',
       },
       c: {
         vi: 'Không đổi, vì lãi suất chỉ tác động tới số tiền mục tiêu chứ không tới khoản gửi hằng tháng',
         en: 'It is unchanged, because the rate affects only the target amount, not the monthly deposit',
       },
       d: {
-        vi: 'Thấp hơn mức thật sự cần, vì sản phẩm gửi góp thường trả lãi thấp hơn gửi thông thường cùng kỳ hạn',
-        en: 'It comes out lower than what is really needed, because monthly-contribution accounts usually pay less than a standard deposit of the same term',
+        vi: 'Thấp hơn mức thật sự cần, vì gửi góp thường trả lãi thấp hơn gửi thông thường cùng kỳ hạn',
+        en: 'It is lower than really needed, because contribution accounts usually pay less than a standard deposit of the same term',
       },
     },
     answer: 'd',
@@ -382,19 +418,19 @@ export const CA_NHAN: ReadonlyArray<QuizItem> = [
     choices: {
       a: {
         vi: 'Không có giả định nào bị hỏng, vì ngân hàng cam kết mức lãi suất cho tới khi đạt mục tiêu',
-        en: 'Nothing breaks: the bank commits to the rate until the goal is reached',
+        en: 'Nothing breaks, because the bank commits to the rate until the goal is reached',
       },
       b: {
-        vi: 'Công thức giữ nguyên một mức lãi suất suốt 60 tháng, trong khi lãi chỉ cố định trong một kỳ hạn rồi đổi lúc tái tục',
-        en: 'The formula holds one rate across all 60 months, whereas the rate is fixed only within a term and is reset on rollover',
+        vi: 'Công thức giữ một mức lãi suốt 60 tháng, trong khi lãi chỉ cố định trong từng kỳ hạn',
+        en: 'The formula keeps one rate for all 60 months, while the rate is fixed only within each term',
       },
       c: {
         vi: 'Công thức quá thận trọng, vì lãi suất tiết kiệm tăng dần theo thời gian gửi',
         en: 'The formula is too conservative, because savings rates climb the longer the money stays deposited',
       },
       d: {
-        vi: 'Lãi suất chỉ thay đổi khi Ngân hàng Nhà nước điều chỉnh trần lãi suất huy động',
-        en: 'The rate moves only when the State Bank changes the deposit rate ceiling',
+        vi: 'Công thức chỉ sai lệch khi Ngân hàng Nhà nước đổi trần lãi suất huy động',
+        en: 'The formula only goes off when the State Bank changes the deposit rate ceiling',
       },
     },
     answer: 'b',
@@ -460,19 +496,19 @@ export const CA_NHAN: ReadonlyArray<QuizItem> = [
     choices: {
       a: {
         vi: 'Không hỏng ở đâu, vì giá căn hộ đã được chốt tại thời điểm đặt mục tiêu',
-        en: 'It does not break: the apartment price is locked in when the goal is set',
+        en: 'It does not break, since the apartment price is locked in when the goal is set',
       },
       b: {
         vi: 'Hỏng vì tiền gửi mất giá do lạm phát, còn giá căn hộ thì đứng yên',
         en: 'It breaks because inflation erodes the deposit, while apartment prices stand still',
       },
       c: {
-        vi: 'Hỏng vì ngân hàng thu phí quản lý tài khoản tiết kiệm, ăn dần vào số dư',
-        en: 'It breaks because account maintenance fees eat into the balance',
+        vi: 'Hỏng vì giá căn hộ sẽ giảm dần, nên số tiền mục tiêu bị đặt thừa',
+        en: 'It breaks because apartment prices will drift down, so the target is set too high',
       },
       d: {
-        vi: 'Giá căn hộ chạy nhanh hơn tốc độ tích luỹ: 5 năm qua Hà Nội tăng khoảng 72% trong khi thu nhập bình quân chỉ tăng 6–10% mỗi năm',
-        en: 'Apartment prices outrun the pace of saving: over the past five years Hanoi rose about 72% while average income grew only 6–10% a year',
+        vi: 'Hỏng vì giá căn hộ tăng nhanh hơn nhiều so với tốc độ tích luỹ',
+        en: 'It breaks because apartment prices rise much faster than savings build up',
       },
     },
     answer: 'd',
@@ -497,12 +533,21 @@ export const CA_NHAN: ReadonlyArray<QuizItem> = [
       en: 'Is the ending balance produced by compound interest a real increase in wealth?',
     },
     choices: {
-      a: { vi: 'Phải', en: 'Yes' },
-      b: { vi: 'Phải nếu gửi trên 10 năm', en: 'Yes, if deposited for more than 10 years' },
-      c: { vi: 'Phải với lãi suất trên 8%', en: 'Yes, if the rate is above 8%' },
+      a: {
+        vi: 'Phải, tiền tăng bao nhiêu là giàu lên bấy nhiêu',
+        en: 'Yes, you are richer by exactly the amount it grew',
+      },
+      b: {
+        vi: 'Phải, nếu gửi liên tục trên 10 năm',
+        en: 'Yes, if deposited for more than 10 years',
+      },
+      c: {
+        vi: 'Không, chỉ khi rút ra mới tính là giàu lên',
+        en: 'No, it only counts once the money is withdrawn',
+      },
       d: {
-        vi: 'Không - phải trừ lạm phát; nếu giá cả tăng nhanh hơn thì vẫn lỗ sức mua',
-        en: 'No - inflation must be subtracted; if prices rise faster, you still lose purchasing power',
+        vi: 'Không, phải tính sức mua sau lạm phát',
+        en: 'No, measure purchasing power after inflation',
       },
     },
     answer: 'd',
@@ -527,13 +572,13 @@ export const CA_NHAN: ReadonlyArray<QuizItem> = [
       en: 'What bias does financial-behavior research find people have toward compound growth?',
     },
     choices: {
-      a: { vi: 'Đánh giá quá cao', en: 'They overestimate it' },
-      b: { vi: 'Ước lượng chính xác', en: 'They estimate it accurately' },
-      c: {
-        vi: 'Đánh giá thấp (exponential growth bias)',
-        en: 'They underestimate it (exponential growth bias)',
+      a: { vi: 'Đánh giá quá cao tăng trưởng kép', en: 'They overestimate compound growth' },
+      b: { vi: 'Ước lượng đúng tăng trưởng kép', en: 'They estimate compound growth accurately' },
+      c: { vi: 'Đánh giá thấp tăng trưởng kép', en: 'They underestimate compound growth' },
+      d: {
+        vi: 'Đánh giá cao khi gửi tiết kiệm, thấp khi đi vay',
+        en: 'They overestimate it when saving, underestimate it when borrowing',
       },
-      d: { vi: 'Không có thiên lệch nào', en: 'There is no bias at all' },
     },
     answer: 'c',
     explain: {
@@ -557,12 +602,21 @@ export const CA_NHAN: ReadonlyArray<QuizItem> = [
       en: 'Does putting money in a savings account automatically mean compound interest? True or false?',
     },
     choices: {
-      a: { vi: 'Đúng', en: 'True' },
-      b: { vi: 'Đúng với kỳ hạn trên 12 tháng', en: 'True, for terms over 12 months' },
-      c: { vi: 'Đúng nếu lãi suất trên 6%', en: 'True, if the rate is above 6%' },
+      a: {
+        vi: 'Đúng, gửi tiết kiệm là tự có lãi kép',
+        en: 'True, any savings deposit compounds automatically',
+      },
+      b: {
+        vi: 'Đúng, nếu chọn kỳ hạn trên 12 tháng',
+        en: 'True, if the term is longer than 12 months',
+      },
+      c: {
+        vi: 'Không, chỉ quỹ đầu tư mới có lãi kép',
+        en: 'False, only investment funds can compound',
+      },
       d: {
-        vi: 'Không - phải nhập lãi vào gốc và tái tục đều đặn thì mới thành lãi chồng lãi',
-        en: 'False - the interest must be added back into the principal and rolled over regularly for it to actually compound',
+        vi: 'Không, phải cộng lãi vào gốc và tái tục',
+        en: 'False, interest must be rolled into the principal',
       },
     },
     answer: 'd',
@@ -587,13 +641,22 @@ export const CA_NHAN: ReadonlyArray<QuizItem> = [
       en: 'A term deposit matures and you give no instructions. What is the risk of automatic rollover?',
     },
     choices: {
-      a: { vi: 'Không có rủi ro', en: 'There is no risk' },
-      b: { vi: 'Bị chuyển sang không kỳ hạn', en: 'It gets converted to a demand deposit' },
-      c: {
-        vi: 'Tiền bị khoá thêm một kỳ, và có nơi tái tục ở lãi suất thấp hơn kỳ ban đầu',
-        en: 'The money gets locked up for another term, and some banks roll it over at a lower rate than the original term',
+      a: {
+        vi: 'Không có rủi ro gì, lãi suất kỳ mới giữ như kỳ cũ',
+        en: 'No risk, since the new term keeps the old rate',
       },
-      d: { vi: 'Mất lãi kỳ trước', en: 'You lose the interest from the previous term' },
+      b: {
+        vi: 'Tiền có thể bị chuyển sang gửi không kỳ hạn',
+        en: 'The money may be moved into a demand deposit',
+      },
+      c: {
+        vi: 'Tiền bị khoá thêm một kỳ, lãi có thể thấp hơn',
+        en: 'The money is locked in again, maybe at a lower rate',
+      },
+      d: {
+        vi: 'Mất phần lãi của kỳ vừa đáo hạn',
+        en: 'You lose the interest of the term that just matured',
+      },
     },
     answer: 'c',
     explain: {
@@ -619,11 +682,17 @@ export const CA_NHAN: ReadonlyArray<QuizItem> = [
     choices: {
       a: {
         vi: 'Bỏ một lần thắng khoảng hai phần ba số lần',
-        en: 'Investing it all at once wins about two-thirds of the time',
+        en: 'A lump sum wins about two-thirds of the time',
       },
-      b: { vi: 'DCA thắng đa số', en: 'DCA wins the majority of the time' },
-      c: { vi: 'Hai cách như nhau', en: 'The two approaches are the same' },
-      d: { vi: 'Chưa có nghiên cứu', en: 'No research exists on this' },
+      b: { vi: 'DCA thắng khoảng hai phần ba số lần', en: 'DCA wins about two-thirds of the time' },
+      c: {
+        vi: 'Hai cách thắng ngang nhau, mỗi cách nửa số lần',
+        en: 'Each approach wins about half the time',
+      },
+      d: {
+        vi: 'Chưa có nghiên cứu nào đủ dài để kết luận',
+        en: 'No study is long enough to draw a conclusion',
+      },
     },
     answer: 'a',
     explain: {
@@ -647,13 +716,13 @@ export const CA_NHAN: ReadonlyArray<QuizItem> = [
       en: 'So when is DCA still a reasonable choice?',
     },
     choices: {
-      a: { vi: 'Khi muốn lợi nhuận cao nhất', en: 'When you want the highest possible return' },
-      b: { vi: 'Khi thị trường đang tăng', en: 'When the market is rising' },
-      c: {
-        vi: 'Khi nhà đầu tư sợ lỗ - đổi lợi nhuận kỳ vọng lấy giảm rủi ro',
-        en: 'When the investor is loss-averse - trading expected return for lower risk',
+      a: {
+        vi: 'Khi muốn lợi nhuận kỳ vọng cao nhất',
+        en: 'When you want the highest expected return',
       },
-      d: { vi: 'Không bao giờ', en: 'Never' },
+      b: { vi: 'Khi thị trường đang trong xu hướng tăng', en: 'When the market is in an uptrend' },
+      c: { vi: 'Khi nhà đầu tư rất sợ thua lỗ', en: 'When the investor is strongly loss-averse' },
+      d: { vi: 'Khi muốn tiết kiệm phí giao dịch', en: 'When you want to save on trading fees' },
     },
     answer: 'c',
     explain: {
@@ -678,12 +747,18 @@ export const CA_NHAN: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'Không - thời gian rải càng dài thì chi phí cơ hội càng lớn',
-        en: 'False - the longer the phase-in period, the greater the opportunity cost',
+        vi: 'Không, rải càng lâu chi phí cơ hội càng lớn',
+        en: 'False, a longer phase-in raises the opportunity cost',
       },
-      b: { vi: 'Đúng', en: 'True' },
-      c: { vi: 'Đúng nếu trên 12 kỳ', en: 'True, if spread over more than 12 periods' },
-      d: { vi: 'Đúng với danh mục 60/40', en: 'True, for a 60/40 portfolio' },
+      b: {
+        vi: 'Đúng, rải càng lâu thì giá vốn càng thấp',
+        en: 'True, the longer the phase-in, the lower the average cost',
+      },
+      c: {
+        vi: 'Không, rải lâu lợi hơn nhưng kém an toàn',
+        en: 'False, a longer phase-in earns more but is less safe',
+      },
+      d: { vi: 'Đúng, với danh mục cân bằng 60/40', en: 'True, for a balanced 60/40 portfolio' },
     },
     answer: 'a',
     explain: {
@@ -708,15 +783,18 @@ export const CA_NHAN: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'Rải một khoản tiền lớn bất ngờ (thừa kế, tiền bảo hiểm)',
-        en: 'Phasing in a large windfall (an inheritance, an insurance payout)',
+        vi: 'Giải ngân dần một khoản tiền lớn có sẵn',
+        en: 'Phasing in a large lump sum already in hand',
       },
       b: {
         vi: 'Đầu tư đều đặn từ thu nhập hằng tháng',
         en: 'Investing steadily out of monthly income',
       },
-      c: { vi: 'Mua bình quân giá xuống', en: 'Averaging down on a falling price' },
-      d: { vi: 'Đầu tư vào quỹ chỉ số', en: 'Investing in an index fund' },
+      c: {
+        vi: 'Mua thêm khi giá giảm để hạ giá vốn',
+        en: 'Buying more as the price falls to lower the cost',
+      },
+      d: { vi: 'Đầu tư dài hạn vào một quỹ chỉ số', en: 'Investing long-term in an index fund' },
     },
     answer: 'a',
     explain: {

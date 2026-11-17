@@ -88,7 +88,7 @@ export const CO_LENH_RUI_RO: FormulaModule = {
         '%',
         2,
         0.1,
-        10,
+        100,
         0.1,
         {
           description: {

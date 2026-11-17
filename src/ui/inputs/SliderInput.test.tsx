@@ -283,14 +283,27 @@ describe('SliderInput — ô khoá ở chế độ Cơ bản', () => {
  * khi kéo KHÔNG BAO GIỜ dài hơn chỗ giữ (dài hơn là hàng nhích lúc đang kéo), và chỗ giữ tới được ô.
  */
 describe('SliderInput — chỗ giữ của con số theo miền của chính thanh trượt', () => {
-  /** Mọi thanh trượt của Registry, kể cả khuôn nhóm lặp (DCA, lợi suất hình học). */
-  const THANH_TRUOT = FORMULAS.flatMap((spec) => [
-    ...spec.variables,
-    ...(spec.repeat?.fields ?? []),
-  ]).filter((bien) => bien.type === 'slider');
+  /*
+   * Từ 16/11/2026 Registry không còn thanh trượt nào (mọi ô thành ô số — xem `sliderVar` ở
+   * `formulas/shared.ts`), nên ca dưới đi trên các dạng miền thanh trượt từng có, dựng tay: lãi suất
+   * bước 0,1, khoản vay bước 10 triệu, số phiên bước 1 và bước 10, hệ số bước 0,5, miền có số âm.
+   * Thành phần vẫn giữ để có thể dùng lại.
+   */
+  const THANH_TRUOT: VariableSpec[] = [
+    RATE,
+    AMOUNT,
+    { ...RATE, key: 'g', min: -5, max: 15 },
+    { ...RATE, key: 'n', unit: 'phiên', min: 2, max: 200, step: 1, defaultValue: 20 },
+    { ...RATE, key: 'N', unit: 'phiên', min: 60, max: 750, step: 10, defaultValue: 250 },
+    { ...RATE, key: 'k', unit: 'lần', min: 0.5, max: 4, step: 0.5, defaultValue: 2 },
+  ];
 
-  it('Registry có đủ thanh trượt để ca dưới không xanh vì rỗng', () => {
-    expect(THANH_TRUOT.length).toBeGreaterThan(80);
+  it('Registry không còn thanh trượt nào — mọi ô có khoảng là ô số', () => {
+    const conLai = FORMULAS.flatMap((spec) => [
+      ...spec.variables,
+      ...(spec.repeat?.fields ?? []),
+    ]).filter((bien) => bien.type === 'slider');
+    expect(conLai).toEqual([]);
   });
 
   it('mọi điểm kéo được của mọi thanh trượt in ra không dài hơn chỗ giữ', () => {

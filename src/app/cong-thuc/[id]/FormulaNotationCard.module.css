@@ -244,6 +244,8 @@
 .stepMath {
   overflow-x: auto;
   overflow-y: hidden;
+  /* Chỗ cho nét chữ sát mép khung cắt — lý do ở `.formula` (`FormulaDetail.module.css`). */
+  padding-block: 0.25em;
 }
 
 .stepText {
@@ -293,6 +295,8 @@
 .quizPictureMath {
   overflow-x: auto;
   overflow-y: hidden;
+  /* Chỗ cho nét chữ sát mép khung cắt — lý do ở `.formula` (`FormulaDetail.module.css`). */
+  padding-block: 0.25em;
   scrollbar-width: thin;
 }
 

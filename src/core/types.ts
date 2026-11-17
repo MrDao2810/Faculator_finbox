@@ -62,6 +62,18 @@ export interface VariableSpec {
   min?: number;
   max?: number;
   step?: number;
+  /**
+   * Ô chỉ nhận số NGUYÊN — số phiên, số kỳ, số tháng (16/11/2026). Đặt cho ô mà `calc` dùng làm số
+   * đếm (cắt chuỗi giá, lặp từng kỳ); gõ số lẻ thì ô báo đỏ và số ấy không đi lên màn, rời ô thì làm
+   * tròn (`clampToSpec()`). Không suy ra từ `step`: `step` chỉ còn là việc của biểu đồ.
+   */
+  integer?: boolean;
+  /**
+   * Ô phải LỚN HƠN 0 — `min` (0) không được nhận (16/11/2026). Chủ dự án trên ô "Số tiền vay": câu
+   * báo phải là "Số tiền vay lớn hơn 0", tức điều kiện là > 0, không phải ≥ 0 hay ≥ một mức tự đặt.
+   * Gõ 0 hay số âm là ngoài miền; rời ô thì về `defaultValue` (không có "số dương nhỏ nhất" nào để kẹp).
+   */
+  positive?: boolean;
   level: Level;
   /** Mô tả ngắn, dùng cho cột MÔ TẢ của bảng biến (FR-02). */
   description?: Bilingual;

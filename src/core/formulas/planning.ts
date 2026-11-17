@@ -166,7 +166,7 @@ export const RUT_TRUOC_HAN: FormulaModule = {
         '%',
         5.5,
         0,
-        15,
+        100,
         0.1,
         {
           description: {
@@ -181,9 +181,10 @@ export const RUT_TRUOC_HAN: FormulaModule = {
         'tháng',
         12,
         1,
-        36,
+        360,
         1,
         {
+          integer: true,
           description: {
             vi: 'Kỳ hạn ghi trên sổ tiết kiệm.',
             en: 'The term stated in the deposit contract.',
@@ -196,9 +197,10 @@ export const RUT_TRUOC_HAN: FormulaModule = {
         'tháng',
         5,
         0,
-        36,
+        360,
         1,
         {
+          integer: true,
           description: {
             vi: 'Số tháng đã gửi tính tới ngày rút.',
             en: 'The number of months held up to the withdrawal date.',
@@ -212,7 +214,7 @@ export const RUT_TRUOC_HAN: FormulaModule = {
         0.1,
         {
           min: 0,
-          max: 5,
+          max: 100,
           level: 'advanced',
           description: {
             vi: 'Mỗi ngân hàng một mức, thường rất thấp - xem biểu lãi suất không kỳ hạn của ngân hàng bạn rồi nhập vào đây.',
@@ -429,7 +431,7 @@ export const GUI_QUAY_VONG: FormulaModule = {
         '%',
         4.7,
         0,
-        15,
+        100,
         0.1,
         {
           description: {
@@ -444,9 +446,10 @@ export const GUI_QUAY_VONG: FormulaModule = {
         'tháng',
         3,
         1,
-        12,
+        60,
         1,
         {
+          integer: true,
           description: {
             vi: 'Hết mỗi kỳ, cả gốc lẫn lãi được gửi tiếp kỳ mới.',
             en: 'At the end of each short term, both principal and interest are redeposited for a new term.',
@@ -459,7 +462,7 @@ export const GUI_QUAY_VONG: FormulaModule = {
         '%',
         5.5,
         0,
-        15,
+        100,
         0.1,
         {
           description: {
@@ -474,9 +477,10 @@ export const GUI_QUAY_VONG: FormulaModule = {
         'tháng',
         12,
         1,
-        60,
+        360,
         1,
         {
+          integer: true,
           description: {
             vi: 'Tổng thời gian so sánh - cũng là kỳ hạn của sổ dài.',
             en: 'The total comparison period - also the term of the long-term deposit.',
@@ -1293,7 +1297,7 @@ export const SO_KY_DCA: FormulaModule = {
         '%',
         8,
         0,
-        20,
+        100,
         0.1,
         {
           description: {
@@ -1526,6 +1530,7 @@ export const THUE_TNCN_DAU_TU: FormulaModule = {
     resultUnit: '₫',
     variables: [
       numberVar('quantity', { vi: 'Khối lượng (Q)', en: 'Quantity (Q)' }, 'CP', 1_000, {
+        integer: true,
         min: 0,
         max: 50_000_000,
         description: {

@@ -79,6 +79,7 @@ const contracts = numberVar(
   'HĐ',
   1,
   {
+    integer: true,
     min: 0,
     max: 5_000,
     description: {
@@ -161,7 +162,7 @@ export const GIA_LY_THUYET_VN30F: FormulaModule = {
         '%',
         4.5,
         0,
-        15,
+        100,
         0.1,
         {
           description: {
@@ -176,7 +177,7 @@ export const GIA_LY_THUYET_VN30F: FormulaModule = {
         '%',
         1.8,
         0,
-        15,
+        100,
         0.1,
         {
           level: 'advanced',
@@ -187,6 +188,7 @@ export const GIA_LY_THUYET_VN30F: FormulaModule = {
         },
       ),
       numberVar('days', { vi: 'Số ngày đến đáo hạn (d)', en: 'Days to expiry (d)' }, 'ngày', 30, {
+        integer: true,
         min: 0,
         max: 365,
         description: {
@@ -1122,7 +1124,7 @@ export const CO_VI_THE_PHAI_SINH: FormulaModule = {
         '%',
         2,
         0.1,
-        10,
+        100,
         0.1,
         {
           description: {
@@ -1138,7 +1140,7 @@ export const CO_VI_THE_PHAI_SINH: FormulaModule = {
         15,
         {
           min: 0,
-          max: 200,
+          max: 10_000,
           description: {
             vi: 'Số điểm chênh giữa điểm vào lệnh và điểm cắt lỗ - dùng được cho cả vị thế Long và Short.',
             en: 'The point gap between the entry level and the stop-loss level - applies to both Long and Short positions.',

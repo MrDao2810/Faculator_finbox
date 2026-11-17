@@ -4,6 +4,108 @@
 
 Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 
+## Hình công thức không còn bị cắt đỉnh/đáy chữ (16/11/2026)
+
+**Trạng thái: chờ chủ dự án xác nhận.** Chủ dự án chụp chữ D ở tử số `DY = D / P × 100` (`ty-suat-co-tuc`) bị cụt đầu: _"sửa lại lỗi này ở toàn bộ công thức, không được có lỗi này"_.
+
+- Nguyên nhân: Chrome dàn MathML bằng hộp sát nét chữ, và khung chứa hình cắt tràn (`overflow-x: auto` + `overflow-y: hidden`, không đệm). Đo trên Chrome cả 111 trang ở 1440px: nét cao nhất chạm đúng mép trên khung, nét thấp nhất chạm đúng mép dưới, hở 0px ở 111/111 hình chính và 99/111 hình của khối Ví dụ. Lệch một pixel do hinting của Windows là mất nét.
+- Sửa: `padding-block: 0.25em` cho cả bốn khung cắt tràn chứa hình: `.formula`, `.substitutionHinh` (`FormulaDetail.module.css`), `.stepMath`, `.quizPictureMath` (`FormulaNotationCard.module.css`). Đệm nằm trong vùng không bị cắt.
+- Đo lại: hở 3–4px ở cả 111 hình chính và 111 hình Ví dụ, ở 1440 và 390; khung "cách tính" (fcff, bien-an-toan, ty-so-sharpe, ddm-hai-giai-doan) 3,6px; dải thay số ≥ 4px. Thẻ Công thức cao thêm khoảng 8px.
+- Test mới `math-clip-css.test.ts` khoá đệm của bốn khung.
+
+## Sheet xuất file: công tắc không có gì để kèm thì tắt và khoá (16/11/2026)
+
+**Trạng thái: chờ chủ dự án xác nhận.** Báo lỗi của người kiểm thử trên `basis-vn30f`: "Kèm biểu đồ" và "Kèm bảng giá trị" vẫn bật được với công thức không có dữ liệu tương ứng. Chủ dự án: _"sửa theo hướng dễ hiểu nhất cho người dùng"_.
+
+- Đối chiếu mã: "Kèm biểu đồ" đúng là lỗi (8 công thức `none` bật sẵn công tắc mà file không có hình); "Kèm bảng giá trị" thật ra là "Kèm bảng biến & giải thích", với PDF thì có tác dụng ở cả 111 công thức, nhưng với PNG thì vô tác dụng ở cả 111 (`draw-card.ts` không vẽ hai phần ấy). Thêm một lỗi gần đó: công thức chuỗi chưa nạp chuỗi (hay hình đang báo lỗi) xuất ra câu "Công thức này không có biểu đồ.", sai.
+- `ExportSheet.tsx`: prop mới `hasChart` (mặc định theo `chartType`). "Kèm biểu đồ" tắt và khoá khi `!hasChart`; "Kèm bảng biến & giải thích" tắt và khoá khi chọn PNG. Lựa chọn của người dùng vẫn được nhớ: về PDF, hay màn vẽ được hình, là công tắc trở lại như trước. Không thêm dòng giải thích dưới công tắc (hai dòng cũ chủ dự án bỏ ngày 28/10).
+- `FormulaDetail.tsx`: truyền `hasChart` = khối Biểu đồ đang VẼ hình (`hinhBieuDo.daVe`), chặn thêm bằng `chartType !== 'none'`.
+- Test: 4 ca ở `ExportSheet.test.tsx`, 1 ca ở `FormulaDetail.test.tsx` (Basis, SMA chưa nạp chuỗi, P/E có hình).
+- Chưa kiểm bằng mắt trên Chrome.
+
+## Bài tập lý thuyết: độ dài phương án không còn lộ đáp án (16/11/2026)
+
+**Trạng thái: chờ chủ dự án xác nhận.** Chủ dự án: _"tất cả các câu hỏi lý thuyết đang quá dễ chọn đáp án đúng, cứ chọn đáp án dài là đúng"_.
+
+- Đo trước: 246/305 câu một đáp án (81%) có đáp án đúng dài nhất hẳn, dài gấp 2,6 lần phương án sai; 95 câu chỉ riêng đáp án đúng kèm lời giải sau " - "; 10/18 câu chọn nhiều có mọi đáp án đúng dài hơn mọi phương án sai.
+- Đo sau: đáp án đúng dài nhất hẳn 59/305 (19,3%), ngắn nhất hẳn 20%, tỷ lệ độ dài trung bình 1,00; 0 câu chỉ đáp án đúng có lời giải; 0 câu chọn nhiều lệch.
+- Cách làm (chủ dự án chọn "cân hai phía" và cho chạy workflow): 265 câu chưa đạt được viết lại phần `choices`, gồm vi và cả en ở phương án vốn có en. Đáp án đúng gọn lại, lời giải vẫn nằm trong `explain`. Phương án sai thành ngộ nhận có thật, cùng dạng câu. Không đổi khoá đáp án, đề, lời giải hay nguồn. Có 12 agent soạn và 12 agent kiểm đối kháng: soát nghĩa đáp án đúng, phương án sai có sai rõ không, mẹo đoán theo dạng câu hoặc từ tuyệt đối, en sát vi, chuỗi nguyên văn của `CHU_CAI_TRONG_LOI_GIAI`. Áp vào file bằng cây cú pháp TS.
+- Mới: `src/core/quiz/can-bang.ts` (luật từng câu + tỷ lệ cả ngân hàng); 2 ca trong `quiz.test.ts`.
+- Kiểm: lint, typecheck, format sạch; toàn bộ test xanh trừ 2 ca `huong-dan.test.ts` của việc bỏ thanh trượt (không liên quan).
+- Câu gốc có lỗi nội dung, đã sửa theo đường viết lại phương án: Q054 (phương án "trả cổ tức tiền mặt" cũng làm ROE tăng, nên câu có hai đáp án đúng), Q019 ("công ty công nghệ" đúng là hạn chế của Số Graham), Q007, Q013, Q319, Q197, Q252, Q270, Q339.
+- **Cần chủ dự án quyết** (chưa sửa vì phải đổi đề hoặc khoá đáp án):
+  - Q181: đáp án theo Nghị định 126/2020 cần soát lại theo Luật 109/2025, hiệu lực 01/7/2026.
+  - Q191: đáp án "lúc đầu phần lãi lớn hơn phần gốc" chỉ đúng với khoản vay dài hoặc lãi cao.
+  - Q028: nguồn nói "khó" dùng DDM, đề lại hỏi "không dùng được".
+  - Q259: phương án b "danh nghĩa" bị xếp sai chỉ vì nguồn không nhắc, có thể cãi là đúng.
+  - Q012: phương án d đúng một phần, nhưng không phải lý do mà đề hỏi.
+
+## Ô nhỏ thẻ gộp: vòng focus 1px, ô thấp hơn (16/11/2026)
+
+Chủ dự án: _"to quá, quá xấu. cho border bên ngoài mỏng lại … giảm height của các ô xuống"_.
+
+- `src/ui/primitives/Input.module.css`: trong ô nhỏ (từ 1280px) vòng focus 3px → 1px; đệm trên dưới 12 → 8px;
+  khe nhãn · khung · dòng báo 6 → 4px; dòng báo chừa sẵn vẫn giữ (ô không nhảy khi báo lỗi).
+- `Select.module.css`, `ButtonGroup.module.css`, `SliderInput.module.css`: đệm trên dưới 8px cho thẳng hàng nhãn.
+- `FormulaDetail.module.css`: đáy ô `space-2 + --dong-phu`.
+- Con trỏ gõ dính mép trái vòng focus: khung trong ô nhỏ đệm 2px · 8px, bù bằng lề âm (con số vẫn thẳng
+  mép nhãn, ô không cao thêm).
+- Ước tính ô số ~96 → ~82px. Trạng thái: chờ xác nhận, chưa đo trên Chrome thật. `src/ui` + `src/app/cong-thuc` xanh.
+
+## Bỏ thanh trượt: mọi ô thành ô nhập số, chặn theo điều kiện công thức (16/11/2026)
+
+**Trạng thái: chờ chủ dự án xác nhận.** Ảnh `tra-gop-goc-deu`: _"sửa đổi tất cả công thức có phần kéo thanh slide chuyển về dạng nhập số liệu trực tiếp … check lại điều kiện của công thức … ô nhập cần nhỏ gọn"_, rồi thêm: nhãn và dòng lỗi quá sát khung, dòng "Số liệu không được âm." in nghiêng thay vì đậm.
+
+- `sliderVar()` (`formulas/shared.ts`) trả `type: 'number'`: 100 ô trong 12 file nhóm thành ô số hẹp (lưới 2 cột ở điện thoại, ô 71px trong thẻ gộp). `min/max/step` giữ; biểu đồ đọc chúng nên không đổi hình (trừ trục k Bollinger, xem dưới).
+- Khoảng min–max cũ là khoảng cho tay kéo, nay nới theo điều kiện công thức (script AST, 113 chỗ): lãi suất, thuế, WACC, ERP… trần 100%; tăng trưởng 50%; khoản vay 1 triệu tới 1.000.000 tỷ; kỳ hạn vay tới 50 năm; năm của PV/FV/DDM/tổng lợi suất tới 100; tháng gửi tiết kiệm tới 360–600; số phiên lookback/mẫu tới 5000; chu kỳ chỉ báo tới 500–1000; ngưỡng thắng/thua tới 20%; rủi ro mỗi lệnh tới 100%; Bollinger k 0,1–10 (bước 0,5 → 0,1 để lưới biểu đồ qua đúng 1, 2, 3). Min giữ nguyên (đã duyệt ở `o-so-mien.test.ts`), trừ k.
+- Mới: `VariableSpec.integer` cho mọi ô đếm (phiên, kỳ, ngày, tháng, năm của PV/FV/DDM/vay/tổng lợi suất) vì `calc` tự làm tròn âm thầm (gõ 20,5 phiên thành 21). Gõ số lẻ: viền đỏ "Số liệu phải là số nguyên." (`input.errInteger`), số không lên Kết quả; rời ô thì làm tròn (`clampToSpec`). `lai-kep` năm không bắt nguyên (calc dùng số mũ thật).
+- Giao diện: khe nhãn · khung · dòng lỗi trong lưới Số liệu 4 → 6px (`.fields` row-gap, bản sao ở `ChainBody.module.css`); dòng lỗi của `Input` nét thường, in nghiêng.
+- Chữ "Đọc biểu đồ" của 4 trục (sụt giảm ×2, VaR, CVaR) bỏ câu "thanh trượt nhích theo từng nấc".
+- Test: `SliderInput.test.tsx` (nguồn dựng tay + ca "Registry không còn thanh trượt"), `ChainBody.test.tsx`, `FormulaDetail.test.tsx` (ô lẻ của CAPM nay là ERP), `input-state.test.ts` (+3 ca số nguyên).
+- Kiểm: lint, typecheck, format sạch; test xanh trừ `huong-dan.test.ts` hết giờ chập chờn (4,4–4,9 s / 5 s, có trước); `verify:static` 58/58; `check:chrome` 200/212, đúng 12 ca đỏ cũ.
+- Chưa làm: `SliderInput` và CSS thanh trượt còn trong mã, không nơi dùng; `step` không còn chặn gì trên ô (chỉ cho biểu đồ).
+- Lượt hai (ảnh `tra-gop-nien-kim`, gõ 9 vào "Số tiền vay"): _"tại sao lại phải cố định nhỏ nhất là 1 triệu ? … linh động hơn đi … thông báo về tiền thì phải ghi là 'Số tiền nhỏ nhất phải là ....'"_. Min 1 triệu là tôi tự đặt, không phải điều kiện công thức: hạ về 1 ₫ (khoản vay chỉ cần > 0), cả ba công thức vay. Câu báo nay gọi tên theo đơn vị của ô (`tenCuaO()` ở `mien-nhap.ts`, khoá `input.name.*`) và in số kèm đơn vị: "Số tiền nhỏ nhất phải là 1 ₫.", "Số phiên không được vượt quá 5.000 phiên.", "Tỷ lệ không được âm.", "Số phiên phải là số nguyên."; đơn vị không khớp loại nào thì "Số liệu …". EN: "The amount must be at least 1 ₫." File: `mien-nhap.ts` (+ `mien-nhap.test.ts` mới, 15 ca), `NumberInput.tsx`, `InlineNumber.tsx`, `vi.ts`/`en.ts`, `personal.ts`, hai test cũ đổi chuỗi mong đợi.
+- Lượt ba: _"cần điều chỉnh lại toàn bộ công thức theo hướng này để không gặp phải lỗi"_. Rà cả 269 ô số (không riêng thanh trượt cũ), 25 chỗ sửa bằng script AST:
+  - Mức dưới tự đặt hạ về điều kiện công thức (> −100%): tăng trưởng Gordon (−5 → −100), DDM g1 và g2, FCFF g (0 → −100), tỷ suất sinh lợi của FV (−10 → −100), lạm phát (−50 → −100). `o-so-mien.test.ts` thêm 3 ô được âm.
+  - Trần tự đặt nới: beta CAPM (−3…4) và Treynor (−5…5) thành −10…10; ngưỡng bán phân −5…5% thành −100…100%; lãi không kỳ hạn 5% thành 100%; khoảng cắt lỗ phái sinh 200 thành 10.000 điểm; tỷ suất cổ tức 50% thành 100%; lợi suất một kỳ, danh nghĩa, tăng giá, lợi suất từng kỳ (hình học, cả r1–r3) thành 1.000%.
+  - Thêm `integer`: khối lượng CP (nhóm phí, thuế, TNCN), số cổ phiếu lưu hành, số hợp đồng, số ngày đến đáo hạn, số phiên một năm (độ biến động năm hoá). `NumberVarOptions` nhận `integer`.
+  - Gate mới `o-so-nguyen.test.ts`: ô có đơn vị đếm (phiên, kỳ, ngày, CP, HĐ, tháng) phải `integer`, trừ 4 ô "Thời gian nắm giữ" của nhóm phí (phí lưu ký theo ngày thực giữ, 1,5 tháng hợp lệ); mọi ô có min và max, mặc định trong miền.
+  - Giữ nguyên, đã đúng điều kiện: min 0 cho giá, tiền, khối lượng, tài sản (không âm); min âm sẵn có cho lợi nhuận, EPS, vốn chủ, EBIT…; trần rộng của các ô tiền. Lãi suất tiền gửi/vay vẫn từ 0 (lãi âm chưa có ở VN).
+  - Kiểm: lint, typecheck, format sạch; test xanh trừ 2 ca hết giờ quen thuộc ở `huong-dan.test.ts`. Chưa build lại, chưa chạy `verify:static` / `check:chrome` sau lượt này.
+- Lượt bốn (ảnh thẻ gộp ≥1280px, ô "Số tiền vay" đang lỗi): _"vẫn chưa sửa padding của 2 đoạn text khoanh đỏ … vẫn xát vào border xám đang hiển thị. dãn ra"_. Lượt trước chỉ nới khe của lưới (`.fields` row-gap), mà ô nhỏ của thẻ gộp có `gap: 0` riêng (`.compact`, `Input.module.css`), nên vòng focus dính sát nhãn và dòng lỗi. Nay `.compact .label` cách dưới 6px, `.compact .hint` / `.error` cách trên 6px, đặt cố định (không chỉ lúc focus, để hàng ô không nhảy). Đo trên dev :3000 ở 1440, cả hai giao diện: khe 6px trên và dưới. Ô nhỏ cao thêm 6px.
+- Lượt năm (hai ảnh cùng thẻ, có và không có dòng báo): _"1 bên to 1 bên nhỏ … giãn ra cao lên 1 chút làm xấu giao diện và giao diện bập bềnh … sửa lại đoạn text 'số tiền không được âm' thành 'Số tiền vay lớn hơn 0'"_.
+  - Ô nhỏ chừa sẵn một dòng báo: `--dong-phu` (khe 6px + một dòng 11px × 1,4) đệm ở đáy, dòng báo trả lại bằng lề âm (`Input.module.css`). Phải ghi lại ở `.fields.tileGrid > .field` (`FormulaDetail.module.css`) vì `.fields > .field` đè `padding-bottom` của `.compact`; bản đầu bị đè, dòng báo tràn ra ngoài ô. Đo trên dev :3000 ở 1440: ô cao 99,8px cả lúc nghỉ lẫn lúc báo, hai giao diện. Dòng báo dài hai dòng vẫn làm ô cao thêm một dòng (hiếm). `--dong-phu` khai trong `LOCAL_VARIABLES` của `tokens.test.ts`.
+  - Mới: `VariableSpec.positive` (ô phải > 0; `clampToSpec` về mặc định khi ≤ 0). Ô khoản vay của ba công thức vay: min 0 + `positive`, thay min 1 ₫.
+  - Câu báo gọi đúng NHÃN ô, bỏ ký hiệu trong ngoặc ở cuối (`tenTrongCau()`), thay cho tên theo đơn vị của lượt hai: "Số tiền vay lớn hơn 0.", "Giá thị trường không được âm.", "Số phiên không được vượt quá 5.000 phiên.". Khoá `input.errPositive` mới; `input.name.*` theo đơn vị bỏ, chỉ còn `input.name.value` làm chỗ rơi. `mien-nhap.test.ts` viết lại; `NumberInput.test.tsx`, `InlineNumber.test.tsx` đổi chuỗi mong đợi.
+  - Chưa làm: dưới 1280px (lưới không viền) dòng báo vẫn đẩy hàng ô bên dưới xuống khi hiện ra.
+
+## Ô số không nhận số âm: chặn dấu trừ, câu báo đọc được (16/11/2026)
+
+**Trạng thái: chờ chủ dự án xác nhận.** Ảnh `lai-kep`: gõ `-10000000` vào "Số tiền gốc (P)" (min 0) thì dưới ô ghi "! min 0" và Kết quả in -22.196.402,35 ₫. Nguyên nhân: `NumberInput` đẩy số THÔ lên theo từng phím kể cả khi ngoài miền, chỉ kẹp lúc rời ô.
+
+- Ô có `min ≥ 0`: dấu trừ (4 kiểu) không vào ô; dán chuỗi có dấu trừ bị từ chối nguyên chuỗi (không bóc `-100` thành `100`); dòng đỏ "Số liệu không được âm." tới phím hợp lệ kế tiếp hoặc lúc rời ô. Backspace ngay sau dấu trừ bị chặn không ăn chữ số.
+- Ngoài miền khác (vượt max, dưới min dương): ô vẫn hiện số đang gõ, dòng đỏ "Số liệu lớn nhất là 100." / "Số liệu nhỏ nhất là 2.", số ấy KHÔNG lên Kết quả; rời ô / Enter thì kẹp như cũ. Số âm tới từ mã nạp vào cũng hiện "Số liệu không được âm.".
+- `InlineNumber` theo cùng luật.
+- Rà 111 công thức: mọi ô số đều khai `min`; 40 ô cho âm, đều có nghĩa (EPS, lợi nhuận, vốn chủ, EBIT, FCFF, lợi suất, tăng trưởng, beta…; doanh thu âm để `calc` tự báo "số liệu sai"). Không đổi spec. Ghim ở `src/core/formulas/o-so-mien.test.ts`.
+- File: `ui/inputs/NumberInput.tsx`, `InlineNumber.tsx`, `filtered-change.ts` (+`rejectTypedValue`), `mien-nhap.ts` (mới), `application/i18n/vi.ts`/`en.ts` (3 khoá `input.err*`), test: `NumberInput.test.tsx`, `InlineNumber.test.tsx`, `FormulaDetail.test.tsx` (+1 ca `lai-kep`), `o-so-mien.test.ts` (mới).
+- Kiểm: lint, typecheck sạch; test của phần này xanh. Ca đỏ còn lại (`huong-dan.test.ts`, lưới ô nhập ở `FormulaDetail.test.tsx`, `SliderInput.test.tsx`) thuộc việc đổi thanh trượt thành ô số đang làm song song (`shared.ts`), không do phần này. `core/input-state.ts` vẫn trả "! min 0" cho trạng thái nhưng màn không in chữ ấy nữa.
+
+## Ẩn tạm chức năng Cài đặt (16/11/2026)
+
+**Trạng thái: chờ chủ dự án xác nhận.** Yêu cầu: _"ẩn tạm chức năng cài đặt trong dự án đi, ẩn cả icon trên thanh công cụ"_. Một công tắc `SETTINGS_ENABLED = false` ở `src/application/routes.ts`; bật lại = đổi về `true`.
+
+- Tắt thì: không còn icon bánh răng trên thanh trên (mọi màn, mọi khổ); `/cai-dat/` không vào `sitemap.xml`; trang `/cai-dat/` chỉ chuyển về `/cong-thuc/` (`noindex`, như `/`). Mã `SettingsScreen` và test của nó giữ nguyên.
+- File: `routes.ts`, `application/index.ts`, `ui/navigation/HeaderControls.tsx`, `app/sitemap.ts`, `app/cai-dat/page.tsx`, `AppHeader.test.tsx` (describe icon bỏ qua khi tắt + describe mới "đang ẩn tạm"), `scripts/verify-static.mjs`, `scripts/chrome-check.mjs` (đọc công tắc bằng regex từ `routes.ts`).
+- Kiểm: lint, typecheck, test (3 ca hết giờ 5 s chập chờn ở `huong-dan.test.ts`/`PortfolioScreen.test.tsx`, chạy riêng xanh), `verify:static` 58/58, `check:chrome` mọi ca Cài đặt đạt (12 ca đỏ khác có từ trước, không liên quan).
+- Hệ quả: người dùng không còn chỗ xoá dữ liệu cục bộ / xem biểu phí; Sáng/Tối và VI vẫn ở thanh trên. CLAUDE.md chưa cập nhật (đoạn "Settings is a gear icon…" vẫn tả lúc bật).
+
+## `/du-lieu/` bảng tối: cột khối lượng một màu xanh dương (16/11/2026)
+
+**Trạng thái: chờ chủ dự án xác nhận.** Ảnh chụp: cột khối lượng xanh/đỏ theo phiên trong khi ô chú thích "Khối lượng" đen (`--color-sunken`). Nay bảng tối: cột `--color-accent-vivid` (#5b9bff) `fill-opacity` 0,45, ô chú thích `color-mix` 45% cùng token trên nền thẻ. Bảng sáng không đổi.
+
+- File: `src/ui/series/CandleChart.module.css`, `CandleChart.tsx` (chỉ comment), `candle-head-css.test.ts` (+2 ca).
+- Chưa đo trên Chrome thật.
+
 ## `gia-tri-noi-tai-fcff`: nợ ròng tách thành ba ô (13/11/2026)
 
 **Trạng thái: CHƯA XONG, chờ chủ dự án xác nhận.** Chủ dự án hỏi "tiền là tiền gì" ở ô "Tiền và đầu tư ngắn hạn" (tên tự đặt, không khớp dòng nào của báo cáo) và chọn tách đôi. Nay ba ô: Nợ vay chịu lãi (D), "Tiền và các khoản tương đương tiền" (mã 110), "Đầu tư tài chính ngắn hạn" (mã 120); `calc` tính `debt − cash − shortInvest`. Ví dụ FPT 30/06/2026: 9.065,5 + 19.906,1 = 28.971,6 tỷ ₫ (nguồn stockanalysis.com, đọc 13/11/2026; CafeF nạp bảng bằng JS nên không đọc tự động được), kết quả 60.651,46 ₫ giữ nguyên.

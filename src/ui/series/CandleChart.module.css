@@ -240,22 +240,17 @@
 }
 
 /*
- * Bảng TỐI: nhuộm cột khối lượng theo chiều phiên tăng/giảm thay vì xám phẳng.
+ * Bảng TỐI: cột khối lượng là MỘT màu xanh dương của Finbox (`--color-accent-vivid`), hạ độ đậm
+ * bằng `fill-opacity` để vẫn đọc ra là NỀN.
  *
- * Đo trên Chrome thật trước khi sửa: `--color-sunken` bảng tối là #0a0f1a, gần trùng hệt nền
- * trang #111827 — cột khối lượng gần như vô hình. Chủ dự án xin "cột bên dưới cũng tương tự" khi
- * gửi ảnh nến nhạt tham chiếu, nên đây là cùng cặp `--color-candle-up`/`--color-candle-down` của nến,
- * chỉ hạ độ đậm bằng `fill-opacity` để nó vẫn đọc ra là NỀN chứ không tranh mắt với thân nến phía
- * trên. Bảng SÁNG không đổi: `--color-sunken` sáng vẫn đủ tương phản với nền, không có gì phải vá.
+ * `--color-sunken` tối (#0a0f1a) gần trùng nền trang, cột gần như vô hình, nên bảng tối phải tô
+ * màu. Từng nhuộm xanh/đỏ theo chiều phiên (cặp màu nến); 16/11/2026 chủ dự án chụp màn: cột
+ * xanh đỏ trong khi ô chú thích "Khối lượng" đen, và cột lẫn với nến. Nay một màu, và `.dotVolume`
+ * bảng tối tô đúng màu đó. Bảng SÁNG không đổi.
  */
-[data-theme='dark'] .volume.up {
-  fill: var(--color-candle-up);
-  fill-opacity: 0.4;
-}
-
-[data-theme='dark'] .volume.down {
-  fill: var(--color-candle-down);
-  fill-opacity: 0.4;
+[data-theme='dark'] .volume {
+  fill: var(--color-accent-vivid);
+  fill-opacity: 0.45;
 }
 
 /* Vệt đánh dấu phiên lỗi: cùng vàng với dòng bị tô ở bảng dưới, để mắt nối được hai chỗ. */
@@ -322,6 +317,12 @@
 .dotVolume {
   background: var(--color-sunken);
   border: 1px solid var(--color-border);
+}
+
+/* Cùng màu cột khối lượng bảng tối: 45% xanh trên nền thẻ, đúng như `fill-opacity` ở trên. */
+[data-theme='dark'] .dotVolume {
+  background: color-mix(in srgb, var(--color-accent-vivid) 45%, var(--color-surface));
+  border-color: transparent;
 }
 
 .dotLast {

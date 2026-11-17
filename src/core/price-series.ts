@@ -219,7 +219,7 @@ export function checkSeries(rows: ReadonlyArray<SeriesRow>): SeriesCheck {
          */
         issues.push({
           code: 'DUPLICATE_DATE',
-          message: `Ngày ${key} xuất hiện ở hơn một dòng - mỗi phiên chỉ được ghi một lần.`,
+          message: 'Dữ liệu đang bị trùng lặp',
         });
       }
     }

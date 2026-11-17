@@ -73,12 +73,18 @@ export const LOI_SUAT: ReadonlyArray<QuizItem> = [
       en: 'An advisor says a fund has an "average return of 10% a year." What question should you ask?',
     },
     choices: {
-      a: { vi: 'Quỹ có bao nhiêu tài sản', en: 'How many assets the fund holds' },
-      b: { vi: 'Phí quản lý bao nhiêu', en: 'What the management fee is' },
-      c: { vi: 'Ai là người quản lý', en: 'Who manages the fund' },
+      a: {
+        vi: 'Mức 10% ấy tính theo tháng hay theo năm',
+        en: 'Whether that 10% is per month or per year',
+      },
+      b: { vi: 'Quỹ đang quản lý bao nhiêu tài sản', en: 'How much the fund has under management' },
+      c: {
+        vi: 'Ai là người trực tiếp điều hành quỹ',
+        en: 'Who is personally in charge of running the fund',
+      },
       d: {
-        vi: 'Đó là trung bình cộng hay CAGR - hai con số có thể chênh nhau vài điểm phần trăm',
-        en: 'Whether that is an arithmetic mean or a CAGR - the two figures can differ by several percentage points',
+        vi: 'Đó là trung bình cộng hay CAGR',
+        en: 'Whether that is an arithmetic mean or a CAGR',
       },
     },
     answer: 'd',
@@ -103,12 +109,18 @@ export const LOI_SUAT: ReadonlyArray<QuizItem> = [
       en: 'A fund has a CAGR of 12% a year over 10 years. What does this NOT tell you?',
     },
     choices: {
-      a: { vi: 'Tốc độ tăng trưởng gộp đều', en: 'The smoothed compound growth rate' },
-      b: { vi: 'Giá trị đầu và cuối kỳ', en: 'The starting and ending values' },
-      c: { vi: 'Số năm nắm giữ', en: 'The number of years held' },
+      a: {
+        vi: 'Tốc độ tăng trưởng gộp bình quân mỗi năm',
+        en: 'The average compound growth rate per year',
+      },
+      b: {
+        vi: 'Giá trị cuối kỳ gấp mấy lần giá trị đầu kỳ',
+        en: 'The ratio of the ending value to the starting value',
+      },
+      c: { vi: 'Kỳ đo kéo dài bao nhiêu năm', en: 'How many years the measurement covers' },
       d: {
-        vi: 'Biến động giữa kỳ và giai đoạn gần đây có kém không',
-        en: 'Whether the path in between was volatile or the recent period was weak',
+        vi: 'Diễn biến giữa kỳ và giai đoạn gần đây',
+        en: 'The path in between and how the recent stretch went',
       },
     },
     answer: 'd',
@@ -133,16 +145,22 @@ export const LOI_SUAT: ReadonlyArray<QuizItem> = [
       en: 'You contribute 10 million a month into an open-ended fund for 12 months. Is CAGR the right way to measure performance?',
     },
     choices: {
-      a: { vi: 'Đúng', en: 'Yes' },
+      a: {
+        vi: 'Không, chỉ cần lấy lãi chia cho tổng tiền đã nộp',
+        en: 'No, just divide the gain by total contributions',
+      },
       b: {
-        vi: 'Không - CAGR giả định một khoản vốn cố định đầu kỳ; với dòng tiền rải rác phải dùng XIRR',
-        en: 'No - CAGR assumes one fixed lump sum at the start; scattered cash flows need XIRR',
+        vi: 'Không, dòng tiền nộp rải rác phải dùng XIRR',
+        en: 'No, scattered contributions call for XIRR',
       },
       c: {
-        vi: 'Đúng nếu số tiền mỗi tháng bằng nhau',
-        en: 'Yes, if the monthly amount stays the same',
+        vi: 'Đúng, nếu số tiền nộp mỗi tháng bằng nhau',
+        en: 'Yes, if each monthly amount stays the same',
       },
-      d: { vi: 'Đúng nếu nắm trên 3 năm', en: 'Yes, if held for more than 3 years' },
+      d: {
+        vi: 'Đúng, nếu khoản đầu tư được giữ trên ba năm',
+        en: 'Yes, if the investment is held over three years',
+      },
     },
     answer: 'b',
     explain: {
@@ -166,7 +184,7 @@ export const LOI_SUAT: ReadonlyArray<QuizItem> = [
       en: 'You contribute 10 million a month for 12 months (120 million total), ending the year with 132 million. You calculate "a 10% annual gain." What is the actual XIRR roughly?',
     },
     choices: {
-      a: { vi: '10%', en: '10%' },
+      a: { vi: 'Vẫn là 10%', en: 'Still 10%' },
       b: { vi: 'Khoảng 5%', en: 'About 5%' },
       c: { vi: 'Khoảng 12%', en: 'About 12%' },
       d: { vi: 'Khoảng 19%', en: 'About 19%' },
@@ -193,13 +211,22 @@ export const LOI_SUAT: ReadonlyArray<QuizItem> = [
       en: 'A cash flow series changes sign more than once (+ + − − − +). What happens to the IRR?',
     },
     choices: {
-      a: { vi: 'Luôn có đúng một nghiệm', en: 'It always has exactly one solution' },
-      b: { vi: 'Không tính được', en: 'It cannot be calculated at all' },
-      c: {
-        vi: 'Có thể có nhiều nghiệm thực, ví dụ vừa 0% vừa 10%',
-        en: 'It can have several real solutions, for example both 0% and 10%',
+      a: {
+        vi: 'Vẫn chỉ một nghiệm, như dòng tiền thông thường',
+        en: 'Still a single root, as with ordinary cash flows',
       },
-      d: { vi: 'Bằng trung bình các dòng tiền', en: 'It equals the average of the cash flows' },
+      b: {
+        vi: 'Phương trình vô nghiệm, không tính được',
+        en: 'The equation has no root and cannot be solved',
+      },
+      c: {
+        vi: 'Có thể có nhiều nghiệm thực, như 0% và 10%',
+        en: 'It can have several real roots, such as 0% and 10%',
+      },
+      d: {
+        vi: 'Nghiệm nhỏ nhất chính là IRR cần tìm',
+        en: 'The smallest root is the IRR you are looking for',
+      },
     },
     answer: 'c',
     explain: {
@@ -224,12 +251,21 @@ export const LOI_SUAT: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'Mọi dòng tiền dương được tái đầu tư ở chính mức 25%',
-        en: 'All positive cash flows are reinvested at that same 25% rate',
+        vi: 'Dòng tiền dương được tái đầu tư ở mức 25%',
+        en: 'Positive cash flows are reinvested at that same 25%',
       },
-      b: { vi: 'Lạm phát bằng 0', en: 'Inflation is zero' },
-      c: { vi: 'Dự án không có rủi ro', en: 'The project carries no risk' },
-      d: { vi: 'Thuế suất bằng 0', en: 'The tax rate is zero' },
+      b: {
+        vi: 'Chi phí vốn của dự án cũng đúng bằng 25%',
+        en: "The project's cost of capital is also exactly 25%",
+      },
+      c: {
+        vi: 'Dự án không có rủi ro và lạm phát bằng 0',
+        en: 'The project carries no risk and inflation is zero',
+      },
+      d: {
+        vi: 'Thuế suất bằng 0 suốt vòng đời dự án',
+        en: "The tax rate is zero over the project's whole life",
+      },
     },
     answer: 'a',
     explain: {
@@ -253,10 +289,13 @@ export const LOI_SUAT: ReadonlyArray<QuizItem> = [
       en: 'A 100 million consumer loan has a contract rate of 0.83% a month on the original principal, repaid over 12 installments. How does the actual effective interest rate compare with the rate printed in the contract?',
     },
     choices: {
-      a: { vi: 'Bằng nhau', en: 'The same' },
-      b: { vi: 'Thấp hơn', en: 'Lower' },
-      c: { vi: 'Cao gần gấp đôi', en: 'Almost double' },
-      d: { vi: 'Chênh khoảng 10%', en: 'About 10% apart' },
+      a: { vi: 'Bằng đúng con số trên hợp đồng', en: 'Exactly the rate in the contract' },
+      b: { vi: 'Thấp hơn con số trên hợp đồng', en: 'Lower than the rate in the contract' },
+      c: { vi: 'Gần gấp đôi con số trên hợp đồng', en: 'Nearly double the rate in the contract' },
+      d: {
+        vi: 'Chỉ nhỉnh hơn khoảng một phần mười',
+        en: 'Only about a tenth above the contract rate',
+      },
     },
     answer: 'c',
     explain: {
@@ -307,15 +346,21 @@ export const LOI_SUAT: ReadonlyArray<QuizItem> = [
       en: 'A loan is quoted with an "APR." Does the word "annual" guarantee that figure is the real cost of borrowing for a full year?',
     },
     choices: {
-      a: { vi: 'Có', en: 'Yes' },
-      b: { vi: 'Có nếu vay trên 12 tháng', en: 'Yes, if the loan runs more than 12 months' },
+      a: {
+        vi: 'Có, đó chính là chi phí vay thực của năm',
+        en: 'Yes, it is the real yearly cost of borrowing',
+      },
+      b: {
+        vi: 'Có, miễn là khoản vay kéo dài trên 12 tháng',
+        en: 'Yes, as long as the loan runs over 12 months',
+      },
       c: {
-        vi: 'Không - APR danh nghĩa là lãi đơn; APR hiệu dụng gồm phí cộng lãi kép, một khoản phí nhỏ có thể đẩy nó lên rất cao',
-        en: 'No - a nominal APR is simple interest; an effective APR includes fees plus compounding, and a small fee can push it very high',
+        vi: 'Không, APR danh nghĩa chưa gồm phí và lãi kép',
+        en: 'No, a nominal APR leaves out fees and compounding',
       },
       d: {
-        vi: 'Có với ngân hàng, không với công ty tài chính',
-        en: 'Yes for banks, but not for finance companies',
+        vi: 'Có, nếu bên cho vay là một ngân hàng thương mại',
+        en: 'Yes, if the lender is a commercial bank',
       },
     },
     answer: 'c',
@@ -367,12 +412,21 @@ export const LOI_SUAT: ReadonlyArray<QuizItem> = [
       en: 'What formula for the real interest rate is common among mainstream Vietnamese sources (banks, industry publications)?',
     },
     choices: {
-      a: { vi: 'Công thức Fisher chính xác', en: 'The exact Fisher formula' },
-      b: { vi: 'Chia cho chỉ số CPI', en: 'Dividing by the CPI index' },
-      c: { vi: 'Nhân với hệ số điều chỉnh', en: 'Multiplying by an adjustment factor' },
+      a: {
+        vi: 'Công thức Fisher chính xác, dạng phép chia',
+        en: 'The exact Fisher formula, written as a division',
+      },
+      b: {
+        vi: 'Lãi suất danh nghĩa chia cho chỉ số CPI',
+        en: 'Nominal interest rate divided by the CPI index',
+      },
+      c: {
+        vi: 'Lãi suất danh nghĩa cộng tỷ lệ lạm phát',
+        en: 'Nominal interest rate plus the inflation rate',
+      },
       d: {
-        vi: 'Phép trừ: lãi suất danh nghĩa − tỷ lệ lạm phát',
-        en: 'Subtraction: nominal interest rate − inflation rate',
+        vi: 'Lãi suất danh nghĩa trừ tỷ lệ lạm phát',
+        en: 'Nominal interest rate minus the inflation rate',
       },
     },
     answer: 'd',
@@ -397,10 +451,10 @@ export const LOI_SUAT: ReadonlyArray<QuizItem> = [
       en: 'At what range of interest rates is the rule of 72 most accurate?',
     },
     choices: {
-      a: { vi: 'Khoảng 6–10%, chuẩn nhất quanh 8%', en: 'Roughly 6–10%, most accurate around 8%' },
-      b: { vi: 'Mọi mức lãi suất', en: 'Any interest rate' },
-      c: { vi: 'Dưới 3%', en: 'Below 3%' },
-      d: { vi: 'Trên 20%', en: 'Above 20%' },
+      a: { vi: 'Quanh mức 8% mỗi kỳ', en: 'Around 8% per period' },
+      b: { vi: 'Quanh mức 2% mỗi kỳ', en: 'Around 2% per period' },
+      c: { vi: 'Quanh mức 15% mỗi kỳ', en: 'Around 15% per period' },
+      d: { vi: 'Quanh mức 25% mỗi kỳ', en: 'Around 25% per period' },
     },
     answer: 'a',
     explain: {
@@ -424,13 +478,10 @@ export const LOI_SUAT: ReadonlyArray<QuizItem> = [
       en: 'Two investments both have a 25% ROI. What information is missing?',
     },
     choices: {
-      a: { vi: 'Số tiền đầu tư', en: 'The amount invested' },
-      b: {
-        vi: 'Thời gian nắm giữ - ROI không chứa yếu tố thời gian',
-        en: 'The holding period - ROI contains no time element',
-      },
-      c: { vi: 'Ngành nghề', en: 'The industry' },
-      d: { vi: 'Phí giao dịch', en: 'The transaction fees' },
+      a: { vi: 'Mỗi khoản thuộc về ngành nghề nào', en: 'Which industry each one is in' },
+      b: { vi: 'Mỗi khoản được nắm giữ bao lâu', en: 'How long each one was held' },
+      c: { vi: 'Mỗi khoản lãi bao nhiêu phần trăm', en: 'What percentage each one gained' },
+      d: { vi: 'Mỗi khoản do ai đứng tên sở hữu', en: 'Whose name each one is held in' },
     },
     answer: 'b',
     explain: {
@@ -454,12 +505,21 @@ export const LOI_SUAT: ReadonlyArray<QuizItem> = [
       en: 'A portfolio gains 8% in one quarter. Should it be reported as "more than 36% a year"?',
     },
     choices: {
-      a: { vi: 'Nên, đó là cách quy chuẩn', en: 'Yes, that is the standard way to scale it' },
-      b: { vi: 'Nên nếu ghi chú rõ', en: 'Yes, as long as it is clearly footnoted' },
-      c: { vi: 'Nên với quỹ mở', en: 'Yes, for open-ended funds' },
+      a: {
+        vi: 'Nên, gộp lãi bốn quý là cách quy chuẩn theo năm',
+        en: 'Yes, compounding four quarters is the standard method',
+      },
+      b: {
+        vi: 'Nên, miễn là có ghi chú rõ cách tính',
+        en: 'Yes, as long as the method is clearly footnoted',
+      },
+      c: {
+        vi: 'Không, nên báo 32%/năm vì không tính lãi gộp',
+        en: 'No, report 32% a year, since gains are not compounded',
+      },
       d: {
-        vi: 'Không - chuẩn mực đo hiệu quả khuyến cáo không năm hoá kỳ dưới một năm',
-        en: 'No - performance measurement standards advise against annualizing a period under one year',
+        vi: 'Không, kỳ dưới một năm không được năm hoá',
+        en: 'No, periods under a year must not be annualized',
       },
     },
     answer: 'd',
@@ -485,12 +545,21 @@ export const LOI_SUAT: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'Vì phép năm hoá nhân chồng, ngầm giả định phần còn lại của năm cũng sinh lời như thế',
-        en: 'Because annualizing compounds the figure, implicitly assuming the rest of the year performs the same way',
+        vi: 'Vì phép nhân chồng coi cả năm đều lãi như vậy',
+        en: 'Because compounding assumes the whole year earns at that pace',
       },
-      b: { vi: 'Do làm tròn', en: 'Because of rounding' },
-      c: { vi: 'Do phí giao dịch', en: 'Because of transaction fees' },
-      d: { vi: 'Do thuế', en: 'Because of taxes' },
+      b: {
+        vi: 'Vì sai số làm tròn lớn dần khi lợi suất cao',
+        en: 'Because rounding errors grow larger as the return gets higher',
+      },
+      c: {
+        vi: 'Vì phí giao dịch tăng theo mức lợi suất',
+        en: 'Because transaction fees rise along with the return',
+      },
+      d: {
+        vi: 'Vì thuế trên khoản lãi lớn bị bỏ sót',
+        en: 'Because taxes on a large gain get left out',
+      },
     },
     answer: 'a',
     explain: {
@@ -514,13 +583,22 @@ export const LOI_SUAT: ReadonlyArray<QuizItem> = [
       en: 'How does the Actual/360 day-count convention affect a borrower compared with 30/360?',
     },
     choices: {
-      a: { vi: 'Không khác gì', en: 'No difference at all' },
-      b: {
-        vi: 'Trả thêm lãi của 5–6 ngày mỗi năm, và gốc giảm chậm hơn',
-        en: 'Pays interest for an extra 5–6 days each year, and principal amortizes more slowly',
+      a: {
+        vi: 'Không khác gì, vì cả hai đều chia cho 360',
+        en: 'No difference, since both divide by 360',
       },
-      c: { vi: 'Trả ít lãi hơn', en: 'Pays less interest' },
-      d: { vi: 'Chỉ ảnh hưởng năm nhuận', en: 'Only affects leap years' },
+      b: {
+        vi: 'Thêm 5 đến 6 ngày lãi mỗi năm, gốc giảm chậm hơn',
+        en: '5 to 6 extra days of interest a year, slower amortization',
+      },
+      c: {
+        vi: 'Trả ít lãi hơn vì một năm chỉ tính 360 ngày',
+        en: 'Pays less interest, since a year counts only 360 days',
+      },
+      d: {
+        vi: 'Chỉ khác nhau vào năm nhuận, lệch một ngày',
+        en: 'Differs only in leap years, by one day',
+      },
     },
     answer: 'b',
     explain: {
@@ -544,13 +622,22 @@ export const LOI_SUAT: ReadonlyArray<QuizItem> = [
       en: "You calculate a fund's return using the percentage change in price. What is the error?",
     },
     choices: {
-      a: { vi: 'Quên trừ phí', en: 'Forgetting to subtract fees' },
-      b: { vi: 'Quên điều chỉnh lạm phát', en: 'Forgetting to adjust for inflation' },
-      c: {
-        vi: 'Bỏ qua cổ tức và lãi được tái đầu tư nên khai thiếu lợi suất',
-        en: 'Ignoring reinvested dividends and interest, which understates the return',
+      a: {
+        vi: 'Tính trùng cổ tức đã nhận nên ra cao hơn',
+        en: 'Double-counts dividends received, so it reads high',
       },
-      d: { vi: 'Quên thuế', en: 'Forgetting taxes' },
+      b: {
+        vi: 'Quên trừ phí quản lý nên ra cao hơn thực tế',
+        en: 'Forgets to deduct the management fee, so it reads high',
+      },
+      c: {
+        vi: 'Bỏ sót cổ tức và lãi tái đầu tư nên ra thấp hơn',
+        en: 'Leaves out reinvested dividends and interest, so it reads low',
+      },
+      d: {
+        vi: 'Không sai gì, tổng lợi suất cũng chỉ đo giá',
+        en: 'No error, total return also measures price alone',
+      },
     },
     answer: 'c',
     explain: {
@@ -574,13 +661,22 @@ export const LOI_SUAT: ReadonlyArray<QuizItem> = [
       en: 'A portfolio gains 20% while its benchmark gains 15%. Which conclusion is correct?',
     },
     choices: {
-      a: { vi: 'Chắc chắn có alpha dương', en: 'It definitely has positive alpha' },
-      b: {
-        vi: 'Chưa chắc - phải điều chỉnh rủi ro; vị thế quá rủi ro vẫn có thể cho alpha âm',
-        en: 'Not necessarily - risk must be adjusted for; an overly risky position can still produce negative alpha',
+      a: {
+        vi: 'Danh mục đã tạo ra alpha dương 5 điểm phần trăm',
+        en: 'The portfolio generated positive alpha of 5 percentage points',
       },
-      c: { vi: 'Nhà quản lý giỏi', en: 'The manager is skilled' },
-      d: { vi: 'Nên tăng tỷ trọng', en: 'The weighting should be increased' },
+      b: {
+        vi: 'Chưa kết luận được khi chưa điều chỉnh rủi ro',
+        en: 'No conclusion until risk is adjusted for',
+      },
+      c: {
+        vi: 'Nhà quản lý đã chứng minh được năng lực',
+        en: 'The manager has proven their skill',
+      },
+      d: {
+        vi: 'Lợi suất điều chỉnh rủi ro cũng cao hơn',
+        en: 'Its risk-adjusted return is also higher',
+      },
     },
     answer: 'b',
     explain: {
@@ -604,13 +700,22 @@ export const LOI_SUAT: ReadonlyArray<QuizItem> = [
       en: 'You buy a stock the day before the ex-dividend record date, receive a 2,000 VND/share dividend the next day, then sell. Is a profit guaranteed?',
     },
     choices: {
-      a: { vi: 'Có', en: 'Yes' },
-      b: {
-        vi: 'Không - giá tham chiếu bị điều chỉnh giảm đúng bằng cổ tức, tổng tài sản không đổi',
-        en: 'No - the reference price is adjusted down by exactly the dividend amount, so total wealth is unchanged',
+      a: {
+        vi: 'Có, lời đúng bằng 2.000 đồng mỗi cổ phiếu',
+        en: 'Yes, a 2,000 VND gain on every share',
       },
-      c: { vi: 'Có nếu bán ngay trong phiên', en: 'Yes, if sold the same session' },
-      d: { vi: 'Có với cổ phiếu vốn hoá lớn', en: 'Yes, for large-cap stocks' },
+      b: {
+        vi: 'Không, giá tham chiếu giảm bằng cổ tức',
+        en: 'No, the reference price drops by the dividend',
+      },
+      c: {
+        vi: 'Có, nếu bán ngay trong phiên giao dịch đó',
+        en: 'Yes, if sold within that same trading session',
+      },
+      d: {
+        vi: 'Có, nếu đó là cổ phiếu có vốn hoá lớn',
+        en: 'Yes, as long as it is a large-cap stock',
+      },
     },
     answer: 'b',
     explain: {
@@ -634,13 +739,13 @@ export const LOI_SUAT: ReadonlyArray<QuizItem> = [
       en: "A stock's dividend yield rises from 5% to 10% while the company keeps its dividend unchanged. What happened?",
     },
     choices: {
-      a: { vi: 'Doanh nghiệp làm ăn tốt hơn', en: 'The company is performing better' },
-      b: { vi: 'Doanh nghiệp tăng cổ tức', en: 'The company raised its dividend' },
-      c: {
-        vi: 'Giá cổ phiếu đã giảm một nửa - tỷ suất tăng “ảo”',
-        en: 'The stock price has halved - the yield increase is an illusion',
+      a: {
+        vi: 'Doanh nghiệp làm ăn hiệu quả gấp đôi',
+        en: 'The company became twice as profitable',
       },
-      d: { vi: 'Số cổ phiếu lưu hành giảm', en: 'The number of shares outstanding decreased' },
+      b: { vi: 'Cổ phiếu trở nên hấp dẫn gấp đôi', en: 'The stock became twice as attractive' },
+      c: { vi: 'Giá cổ phiếu đã giảm một nửa', en: 'The share price has halved' },
+      d: { vi: 'Số cổ phiếu lưu hành đã giảm đi', en: 'Fewer shares are now outstanding' },
     },
     answer: 'c',
     explain: {

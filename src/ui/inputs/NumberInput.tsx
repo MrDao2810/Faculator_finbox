@@ -17,7 +17,13 @@ import type { InputState, Level, VariableSpec } from '@/application';
 import { useT, usePick, usePreferences } from '@/application/preferences-context';
 import { Input, type InputTone } from '@/ui/primitives';
 
-import { filterTypedValue, guardFilteredDelete, resetFilteredDelete } from './filtered-change';
+import {
+  filterTypedValue,
+  guardFilteredDelete,
+  rejectTypedValue,
+  resetFilteredDelete,
+} from './filtered-change';
+import { cauLoiMien, cauSoAm, coDauTru, dayLenDuoc, khongNhanSoAm } from './mien-nhap';
 
 export interface NumberInputProps {
   spec: VariableSpec;
@@ -75,15 +81,16 @@ const TONE_BY_STATE: Readonly<Record<InputState, InputTone>> = {
  *
  * Năm điều dễ làm sai, đã xử ở đây:
  *
- * 1. **Không kẹp giá trị trong lúc gõ.** Người dùng gõ '−4' thì ô hiện '−4' kèm '! min 0',
- *    chứ không tự nhảy về 0 ngay giữa chừng — sửa giá trị dưới tay người đang gõ là cách
- *    nhanh nhất làm họ mất phương hướng. Kẹp chỉ xảy ra lúc chốt, qua `commitValue()`.
+ * 1. **Không kẹp giá trị trong lúc gõ, nhưng số ngoài miền không đi lên màn.** Gõ 150 vào ô tối
+ *    đa 100 thì ô hiện '150' kèm dòng đỏ "Số liệu lớn nhất là 100.", chứ không tự nhảy về 100
+ *    giữa chừng — sửa giá trị dưới tay người đang gõ là cách nhanh nhất làm họ mất phương hướng.
+ *    Kẹp chỉ xảy ra lúc chốt (rời ô, Enter, Enter của bàn phím ảo), qua `commitValue()`.
  *
- *    Lưu ý điều này KHÔNG có nghĩa là giữ giá trị lại không cho ra ngoài. Bản đầu chỉ gọi
- *    `onChange` lúc rời ô, nên gõ xong cả một con số mà khối Kết quả vẫn đứng im cho tới khi
- *    người dùng bấm ra chỗ khác — trông y như màn bị treo. Nay mỗi phím gõ đều đẩy giá trị thô
- *    lên, còn việc kẹp thì vẫn để dành cho lúc chốt. Hai chuyện khác nhau: một đằng là ĐỔI thứ
- *    người dùng đang gõ, một đằng là cho phần còn lại của màn biết họ đang gõ gì.
+ *    Mỗi phím gõ TRONG miền vẫn đẩy lên ngay (bản đầu chỉ gọi `onChange` lúc rời ô, trông y như
+ *    màn bị treo). Từ 16/11/2026 số NGOÀI miền thì không: trước đó gõ -10000000 vào "Số tiền gốc
+ *    (P)" là khối Kết quả in -22.196.402,35 ₫ — chủ dự án chụp màn báo lỗi. Ô có min ≥ 0 còn chặt
+ *    hơn: dấu trừ không vào ô được (`rejectTypedValue`), dán '-100' bị từ chối nguyên chuỗi chứ
+ *    không bóc thành '100', và dòng đỏ ghi "Số liệu không được âm." (`mien-nhap.ts`).
  * 2. **Ô giữ chuỗi thô khi đang gõ, giữ chuỗi đã định dạng khi rời ra.** Nếu định dạng ngay
  *    từng phím thì gõ '92000' sẽ bị chèn dấu chấm giữa chừng và con trỏ nhảy lung tung.
  * 3. **Dòng phụ đi qua `hint`/`error` của primitive** chứ không tự vẽ thẻ riêng — nhờ vậy nó
@@ -135,6 +142,12 @@ export function NumberInput({
    * dựng thừa. Đặt lại ở `onFocus` chứ không ở `onBlur`, để mỗi lần chạm vào ô là một lượt mới.
    */
   const edited = useRef(false);
+  /**
+   * Vừa có một lượt gõ hay dán mang dấu trừ bị chặn (ô có min ≥ 0) — giữ dòng "Số liệu không được
+   * âm." trên màn tới lượt gõ hợp lệ kế tiếp hoặc tới lúc rời ô. Ô không đổi chữ số nào nên không có
+   * giá trị nào khác để suy ra lỗi này.
+   */
+  const [chanAm, setChanAm] = useState(false);
   const t = useT();
   const pick = usePick();
   const { locale } = usePreferences();
@@ -147,7 +160,11 @@ export function NumberInput({
    */
   const docDuoc = (text: string): string =>
     locale === 'en' ? englishNumberToVi(text, spec.unit) : text;
-  const { state, note } = resolveInputState({
+  const {
+    state,
+    note,
+    value: soDangGo,
+  } = resolveInputState({
     raw: docDuoc(raw),
     spec,
     focused,
@@ -181,14 +198,26 @@ export function NumberInput({
    */
   // Ngoài miền là lỗi thật sự nên đi đường `error` (có role="alert"); các dòng phụ khác
   // chỉ là thông tin nên đi đường `hint`.
-  const error = state === 'outOfRange' ? note : undefined;
+  const donVi = pick(unitLabel(spec.unit));
+  /* Câu gọi đúng tên ô: "Số tiền vay lớn hơn 0." (`mien-nhap.ts`). */
+  const nhanCau = { ten: pick(spec.label), donVi };
+  const error =
+    !locked && chanAm
+      ? cauSoAm(spec, t, nhanCau)
+      : state === 'outOfRange'
+        ? (cauLoiMien(soDangGo, spec, t, nhanCau) ?? note)
+        : undefined;
   /*
    * Ô khoá theo chế độ: Domain trả dòng phụ `'nâng cao'` viết cứng (CON-02 cấm `src/core` đọc
    * i18n), nên ở đây thay bằng khoá dịch — cùng khoá `SliderInput`, `Toggle`, `RadioGroup` đang
    * dùng. Thiếu nó thì ở EN chế độ Cơ bản ô số khoá vẫn ghi "nâng cao".
    */
   const hint =
-    state === 'outOfRange' ? undefined : locked && !lockedByTicker ? t('input.lockedBadge') : note;
+    error !== undefined || state === 'outOfRange'
+      ? undefined
+      : locked && !lockedByTicker
+        ? t('input.lockedBadge')
+        : note;
 
   return (
     <Input
@@ -198,8 +227,8 @@ export function NumberInput({
       compact={compact}
       sourceMark={sourceMark}
       // `Input` là primitive nhận chuỗi đã sẵn sàng hiển thị, nên đơn vị dịch ở đây.
-      unit={pick(unitLabel(spec.unit))}
-      tone={TONE_BY_STATE[state]}
+      unit={donVi}
+      tone={error !== undefined ? 'invalid' : TONE_BY_STATE[state]}
       hint={hint}
       error={error}
       // Bàn phím số trên điện thoại — WF-03 ghi 'bàn phím số · HW-02'.
@@ -224,7 +253,15 @@ export function NumberInput({
       }}
       onChange={(event) => {
         /* Chữ cái rụng ngay tại đây, con trỏ giữ nguyên chỗ — quy tắc 4 ở docblock. */
-        const next = filterTypedValue(event, keepViNumberChars);
+        const loc = filterTypedValue(event, keepViNumberChars);
+        /*
+         * Ô không nhận số âm: lượt gõ hay dán có dấu trừ bị từ chối NGUYÊN, ô giữ chuỗi cũ và nói
+         * vì sao. Không bóc dấu trừ ra rồi giữ phần số — dán '-100' thành '100' là đổi dấu âm thầm.
+         */
+        const biChan = khongNhanSoAm(spec) && coDauTru(loc);
+        const next = biChan ? rejectTypedValue(event, raw) : loc;
+        if (biChan) setChanAm(true);
+        else if (next !== raw) setChanAm(false);
         /*
          * Chỉ tính là ĐÃ GÕ khi chuỗi thật sự đổi — không phải mỗi lần sự kiện `onChange` nổ ra.
          *
@@ -254,12 +291,14 @@ export function NumberInput({
          * mọi phím gõ thật đều cho ra số khác nó.
          */
         const parsed = parseViNumber(docDuoc(next));
-        if (parsed !== null && parsed !== value) onChange(parsed);
+        /* Ngoài miền thì không đẩy lên — quy tắc 1: khối Kết quả không được tính bằng số sai. */
+        if (parsed !== null && parsed !== value && dayLenDuoc(parsed, spec)) onChange(parsed);
       }}
       onBlur={(event) => {
         resetFilteredDelete(event.currentTarget);
         setFocused(false);
         setDraft(null);
+        setChanAm(false);
         /*
          * Chỉ chốt khi người dùng THẬT SỰ có gõ — quy tắc 5 ở docblock.
          *

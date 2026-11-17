@@ -42,10 +42,27 @@ describe('InlineNumber — ngoài miền thì nói ra trước khi kẹp', () =>
     ve(92_000);
 
     await userEvent.clear(box());
-    await userEvent.type(box(), '-4');
+    await userEvent.type(box(), '2000000');
 
     expect(box().getAttribute('aria-invalid')).toBe('true');
-    expect(screen.getByRole('alert').textContent).toContain('min 0');
+    expect(screen.getByRole('alert').textContent).toBe(
+      'Giá thị trường không được vượt quá 1.000.000 ₫.',
+    );
+  });
+
+  /* 16/11/2026 — cùng luật `NumberInput`: ô min 0 không nhận dấu trừ, số ngoài miền không đi lên. */
+  it('ô min 0 không nhận dấu trừ; số vượt max không báo lên trong lúc gõ', async () => {
+    const onChange = ve(92_000);
+
+    await userEvent.clear(box());
+    await userEvent.type(box(), '-4');
+    expect(box().value).toBe('4');
+    expect(onChange).not.toHaveBeenCalledWith(-4);
+
+    onChange.mockClear();
+    await userEvent.clear(box());
+    await userEvent.type(box(), '2000000');
+    expect(onChange).not.toHaveBeenCalledWith(2_000_000);
   });
 
   it('dấu hiệu không chỉ là màu — có ký tự chữ đi kèm (NFR-USA-06)', async () => {
@@ -60,19 +77,19 @@ describe('InlineNumber — ngoài miền thì nói ra trước khi kẹp', () =>
     ve(92_000);
 
     await userEvent.clear(box());
-    await userEvent.type(box(), '-4');
+    await userEvent.type(box(), '2000000');
 
-    expect(box().value).toBe('-4');
+    expect(box().value).toBe('2000000');
   });
 
   it('rời ô mới kẹp, và đó là chỗ DUY NHẤT kẹp', async () => {
     const onChange = ve(92_000);
 
     await userEvent.clear(box());
-    await userEvent.type(box(), '-4');
+    await userEvent.type(box(), '2000000');
     await userEvent.tab();
 
-    expect(onChange).toHaveBeenLastCalledWith(0);
+    expect(onChange).toHaveBeenLastCalledWith(1_000_000);
   });
 
   it('số trong miền thì không có dấu báo nào', async () => {
@@ -105,13 +122,22 @@ describe('InlineNumber — ngoài miền thì nói ra trước khi kẹp', () =>
     expect(box().value).toBe('92.000');
   });
 
-  it('vẫn gõ được dấu phẩy thập phân và dấu trừ', async () => {
+  it('vẫn gõ được dấu phẩy thập phân, và dấu trừ ở ô nhận số âm', async () => {
     ve(92_000);
 
     await userEvent.clear(box());
     await userEvent.type(box(), '14,3');
     expect(box().value).toBe('14,3');
 
+    cleanup();
+    render(
+      <InlineNumber
+        spec={{ ...price, min: -50 }}
+        value={0}
+        onChange={vi.fn()}
+        ariaLabel="Giá thị trường"
+      />,
+    );
     await userEvent.clear(box());
     await userEvent.type(box(), '-4');
     expect(box().value).toBe('-4');

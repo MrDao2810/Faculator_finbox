@@ -1084,8 +1084,9 @@ describe('WF-03 — chín khối đúng thứ tự wireframe', () => {
 });
 
 describe('WF-03 — lưới ô nhập', () => {
-  it('ô số xếp hai cột, thanh trượt chiếm trọn hàng', () => {
-    // P/E toàn ô số; lịch trả nợ có ba thanh trượt và một nhóm nút.
+  it('ô số xếp hai cột, chỉ nhóm nút chiếm trọn hàng', () => {
+    // P/E toàn ô số. Lịch trả nợ: ba ô số (thanh trượt cũ, thành ô số ngày 16/11/2026) và một nhóm
+    // nút "Phương thức trả" — chỉ nhóm nút chiếm trọn hàng.
     const narrow = render(<Man spec={specOf('pe')} />);
     const narrowFields = [...narrow.container.querySelectorAll('[class*="fields"] > div')];
 
@@ -1093,21 +1094,25 @@ describe('WF-03 — lưới ô nhập', () => {
     expect(narrowFields.every((el) => !el.className.includes('fieldWide'))).toBe(true);
     cleanup();
 
-    const wide = render(<Man spec={specOf('lich-tra-no')} />);
-    const wideFields = [...wide.container.querySelectorAll('[class*="fields"] > div')];
+    const loan = render(<Man spec={specOf('lich-tra-no')} />);
+    const loanFields = [...loan.container.querySelectorAll('[class*="fields"] > div')];
 
-    expect(wideFields.length).toBeGreaterThan(0);
-    expect(wideFields.every((el) => el.className.includes('fieldWide'))).toBe(true);
+    expect(loan.container.querySelectorAll('input[type="range"]')).toHaveLength(0);
+    expect(loanFields.filter((el) => el.className.includes('fieldWide'))).toHaveLength(1);
+    expect(loanFields.filter((el) => !el.className.includes('fieldWide'))).toHaveLength(3);
   });
 
   it('ô hẹp đứng lẻ trên hàng mang lớp chiếm trọn hàng; ô ghép đủ cặp thì không', () => {
-    // CAPM: thanh trượt · ô số · thanh trượt — ô beta đứng một mình (chủ dự án, 15/10/2026).
+    // CAPM: ba ô số (Rf, beta, ERP) từ 16/11/2026 — dải lẻ nên ô CUỐI đứng một mình. Trước đó Rf và
+    // ERP là thanh trượt và ô beta đứng lẻ (chủ dự án, 15/10/2026).
     const capm = render(<Man spec={specOf('capm')} />);
     const le = [...capm.container.querySelectorAll('[class*="fields"] > div')].filter((el) =>
       el.className.includes('fieldLone'),
     );
 
-    expect(le.map((el) => el.querySelector('label')?.textContent)).toEqual(['Hệ số beta (β)']);
+    expect(le.map((el) => el.querySelector('label')?.textContent)).toEqual([
+      'Phần bù rủi ro thị trường (ERP)',
+    ]);
     // Vẫn là ô hẹp: lớp mới cộng THÊM vào `field`, không thay nó.
     expect(le.every((el) => /\bfield\b|_field_/.test(el.className))).toBe(true);
     cleanup();
@@ -1437,6 +1442,23 @@ describe('WF-03 — kết quả cập nhật tức thì', () => {
     expect(screen.getByTestId('result-text').textContent).toContain('_ _');
     expect(container.textContent).toContain('P/B');
   });
+
+  /*
+   * Lỗi chủ dự án chụp 16/11/2026: gõ "-10000000" vào "Số tiền gốc (P)" của Lãi kép thì dưới ô ghi
+   * "! min 0" và khối Kết quả in -22.196.402,35 ₫. Ô min 0 nay chặn hẳn dấu trừ.
+   */
+  it('Lãi kép: gõ "-10000000" vào Số tiền gốc thì không con số âm nào lên Kết quả', async () => {
+    const { container } = render(<Man spec={specOf('lai-kep')} />);
+
+    const goc = oNhap(/Số tiền gốc/);
+    await userEvent.clear(goc);
+    await userEvent.type(goc, '-10000000');
+
+    expect(screen.getByTestId('result-text').textContent).not.toContain('-');
+    expect(container.textContent).not.toContain('-22.196.402,35');
+    expect(container.textContent).not.toContain('! min');
+    expect((goc as HTMLInputElement).value).toBe('10000000');
+  });
 });
 
 describe('WF-03 — nối ba bottom sheet của gói 2.5', () => {
@@ -1620,6 +1642,41 @@ describe('WF-03 — nối ba bottom sheet của gói 2.5', () => {
     expect(container.querySelector('.print-region .print-disclaimer')?.textContent).toBe(
       DISCLAIMER_VI,
     );
+  });
+
+  /*
+   * Báo lỗi của người kiểm thử trên Basis (16/11/2026): công thức không có biểu đồ mà công tắc "Kèm
+   * biểu đồ" vẫn bật, tải về không thấy hình. Màn không vẽ hình thì công tắc tắt và khoá; màn vẽ hình
+   * thì mở khoá, bật sẵn như trước.
+   */
+  it('màn không vẽ biểu đồ thì "Kèm biểu đồ" tắt và khoá; có hình thì mở khoá', async () => {
+    render(<Man spec={specOf('basis-vn30f')} />);
+    await userEvent.click(screen.getByRole('button', { name: t('detail.download') }));
+
+    const tat = screen.getByRole('switch', { name: t('export.withChart') }) as HTMLButtonElement;
+    expect(tat.disabled).toBe(true);
+    expect(tat.getAttribute('aria-checked')).toBe('false');
+    cleanup();
+
+    // Công thức CÓ khai biểu đồ nhưng chưa nạp chuỗi giá: màn chưa vẽ gì, nên cũng khoá.
+    render(<Man spec={specOf('sma-n-phien')} />);
+    // Khối Biểu đồ đã nạp xong và đang báo thiếu phiên — chờ nó để chắc màn đã nhận lời báo của khối.
+    expect((await screen.findByRole('status')).textContent).toContain('phiên giá');
+    await userEvent.click(screen.getByRole('button', { name: t('detail.download') }));
+    expect(
+      (screen.getByRole('switch', { name: t('export.withChart') }) as HTMLButtonElement).disabled,
+    ).toBe(true);
+    cleanup();
+
+    render(<Man spec={specOf('pe')} />);
+    await screen.findByRole('figure');
+    await userEvent.click(screen.getByRole('button', { name: t('detail.download') }));
+
+    const bat = screen.getByRole('switch', { name: t('export.withChart') }) as HTMLButtonElement;
+    await waitFor(() => {
+      expect(bat.disabled).toBe(false);
+    });
+    expect(bat.getAttribute('aria-checked')).toBe('true');
   });
 });
 

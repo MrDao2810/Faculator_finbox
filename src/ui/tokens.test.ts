@@ -253,6 +253,9 @@ const LOCAL_VARIABLES = new Set([
   '--paste-row-h',
   '--bang-dong-h',
   '--o-moi-nhom',
+  /* Chỗ chừa sẵn cho một dòng báo dưới khung của ô nhỏ (16/11/2026), khai và dùng trong `.compact`
+     của `Input.module.css`, để ô không cao lên khi câu báo hiện ra. */
+  '--dong-phu',
 ]);
 
 /**

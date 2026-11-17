@@ -19,13 +19,22 @@ export const PHAI_SINH: ReadonlyArray<QuizItem> = [
       en: 'A derivatives position is running a loss but you have not closed it. When is the loss recognized?',
     },
     choices: {
-      a: { vi: 'Chỉ khi đóng vị thế', en: 'Only when the position is closed' },
-      b: {
-        vi: 'Cuối mỗi phiên, và phải thanh toán bằng tiền trước 9 giờ sáng hôm sau',
-        en: 'At the end of every session, and it must be settled in cash before 9am the next morning',
+      a: {
+        vi: 'Khi bạn đóng vị thế, giống như bán cổ phiếu cơ sở',
+        en: 'When you close it, just like selling the underlying stock',
       },
-      c: { vi: 'Cuối tháng', en: 'At month end' },
-      d: { vi: 'Ngày đáo hạn', en: 'On the expiry date' },
+      b: {
+        vi: 'Cuối mỗi phiên, nộp đủ số lỗ trước 9 giờ sáng hôm sau',
+        en: 'At each session close, paid in full before 9am the next day',
+      },
+      c: {
+        vi: 'Cuối tháng, khi công ty chứng khoán chốt sổ',
+        en: 'At month end, when the broker closes its books',
+      },
+      d: {
+        vi: 'Vào ngày đáo hạn, khi hợp đồng được thanh toán',
+        en: 'On the expiry date, when the contract is settled',
+      },
     },
     answer: 'b',
     explain: {
@@ -94,15 +103,21 @@ export const PHAI_SINH: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'Lỗ nặng vì giá tăng kịch trần',
-        en: 'A heavy loss, since the price rose to its ceiling',
+        vi: 'Lỗ nặng, vì giá hợp đồng đã tăng kịch giá trần',
+        en: 'A heavy loss, since the contract price hit its ceiling',
       },
-      b: { vi: 'Hoà vốn', en: 'Broke even' },
+      b: {
+        vi: 'Hoà vốn, vì thanh toán theo đúng giá đã bán',
+        en: 'Broke even, since settlement used the price sold at',
+      },
       c: {
-        vi: 'Lãi đúng phần chênh 48,45 điểm khi thanh toán về VN30',
-        en: 'Gained exactly the 48.45-point gap once settlement was pegged to VN30',
+        vi: 'Lãi đúng phần chênh 48,45 điểm so với VN30',
+        en: 'Gained exactly the 48.45-point gap to VN30',
       },
-      d: { vi: 'Bị huỷ lệnh', en: 'Had the order canceled' },
+      d: {
+        vi: 'Bị huỷ lệnh vì giá chạm trần trong phiên ATC',
+        en: 'Had the order canceled for hitting the ceiling in ATC',
+      },
     },
     answer: 'c',
     explain: {
@@ -126,13 +141,16 @@ export const PHAI_SINH: ReadonlyArray<QuizItem> = [
       en: 'Margin of nearly VND 14 million is posted for one VN30F contract. What is the notional size of the position?',
     },
     choices: {
-      a: { vi: '14 triệu', en: 'VND 14 million' },
-      b: {
-        vi: '80,75 triệu đồng (tại mức 807,5 điểm)',
-        en: 'VND 80.75 million (at the 807.5-point level)',
+      a: {
+        vi: '14 triệu đồng, đúng bằng tiền ký quỹ',
+        en: 'VND 14 million, exactly equal to the margin posted',
       },
-      c: { vi: '28 triệu', en: 'VND 28 million' },
-      d: { vi: 'Bằng số dư tài khoản', en: 'Equal to the account balance' },
+      b: {
+        vi: '80,75 triệu đồng, ở mức 807,5 điểm',
+        en: 'VND 80.75 million, at the 807.5-point level',
+      },
+      c: { vi: '28 triệu đồng, gấp đôi tiền ký quỹ', en: 'VND 28 million, twice the margin' },
+      d: { vi: 'Bằng toàn bộ số dư trong tài khoản', en: 'The whole balance in the account' },
     },
     answer: 'b',
     explain: {
@@ -183,13 +201,16 @@ export const PHAI_SINH: ReadonlyArray<QuizItem> = [
       en: 'What is personal income tax on a derivatives trade levied on?',
     },
     choices: {
-      a: {
-        vi: 'Giá chuyển nhượng từng lần - lỗ vẫn phải nộp',
-        en: 'The transfer value of each trade - it is owed even on a losing trade',
+      a: { vi: 'Giá chuyển nhượng từng lần', en: 'The transfer value of each trade' },
+      b: {
+        vi: 'Phần lãi ròng của từng lần đóng vị thế',
+        en: 'The net gain each time a position is closed',
       },
-      b: { vi: 'Phần lãi', en: 'The gain portion' },
-      c: { vi: 'Số hợp đồng', en: 'The number of contracts' },
-      d: { vi: 'Tiền ký quỹ', en: 'The margin amount' },
+      c: {
+        vi: 'Số hợp đồng mở trong mỗi lần giao dịch',
+        en: 'The number of contracts opened in each trade',
+      },
+      d: { vi: 'Số tiền ký quỹ đã nộp cho vị thế', en: 'The margin posted for the position' },
     },
     answer: 'a',
     explain: {
@@ -214,12 +235,21 @@ export const PHAI_SINH: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'Không - đó là tài sản đảm bảo thanh toán, không chịu lãi vay nhưng phải thanh toán lãi/lỗ hằng ngày',
-        en: 'No - it is collateral securing settlement, it carries no loan interest, but daily gains/losses must still be settled',
+        vi: 'Không, đó là tài sản đảm bảo thanh toán, không chịu lãi vay',
+        en: 'No, it is settlement collateral and carries no loan interest',
       },
-      b: { vi: 'Phải, và phải trả lãi vay', en: 'Yes, and loan interest is owed on it' },
-      c: { vi: 'Phải, nhưng lãi suất thấp hơn', en: 'Yes, but at a lower interest rate' },
-      d: { vi: 'Tuỳ công ty chứng khoán', en: 'It depends on the brokerage' },
+      b: {
+        vi: 'Có, đó là khoản vay của công ty chứng khoán, tính lãi theo ngày',
+        en: 'Yes, it is a loan from the broker, with interest charged daily',
+      },
+      c: {
+        vi: 'Có, nhưng lãi suất thấp hơn vay margin cổ phiếu cơ sở',
+        en: 'Yes, but at a lower rate than a margin loan on stocks',
+      },
+      d: {
+        vi: 'Không, đó là khoản trả trước để sở hữu tài sản cơ sở',
+        en: 'No, it is a down payment that buys you the underlying asset',
+      },
     },
     answer: 'a',
     explain: {
@@ -243,12 +273,18 @@ export const PHAI_SINH: ReadonlyArray<QuizItem> = [
       en: 'Is the maximum possible loss on a derivatives trade capped at the margin posted?',
     },
     choices: {
-      a: { vi: 'Có, đó là toàn bộ rủi ro', en: 'Yes, that is the entire risk' },
-      b: { vi: 'Có nếu đặt lệnh dừng lỗ', en: 'Yes, if a stop-loss order is placed' },
-      c: { vi: 'Có với hợp đồng tháng gần', en: 'Yes, for the near-month contract' },
+      a: {
+        vi: 'Có, về cơ bản ký quỹ là toàn bộ rủi ro của bạn',
+        en: 'Yes, the margin is basically your entire risk',
+      },
+      b: {
+        vi: 'Có, phần lỗ vượt ký quỹ sẽ được công ty chứng khoán xoá',
+        en: 'Yes, any loss beyond the margin is written off by the broker',
+      },
+      c: { vi: 'Có, với hợp đồng tháng gần nhất', en: 'Yes, for the nearest-month contract' },
       d: {
-        vi: 'Không - có thể lỗ vượt 100% vốn khi giá gap qua điểm cắt lỗ',
-        en: 'No - the loss can exceed 100% of capital when the price gaps through the stop-loss level',
+        vi: 'Không, có thể mất hơn 100% vốn đã bỏ ra',
+        en: 'No, you can lose more than 100% of your capital',
       },
     },
     answer: 'd',
@@ -273,13 +309,22 @@ export const PHAI_SINH: ReadonlyArray<QuizItem> = [
       en: 'Your position is currently PROFITABLE. Can you still get a margin call?',
     },
     choices: {
-      a: { vi: 'Không bao giờ', en: 'Never' },
-      b: { vi: 'Chỉ khi giữ qua đêm', en: 'Only if the position is held overnight' },
-      c: {
-        vi: 'Có - khi giá trị tài sản tăng thì quy mô giao dịch tăng, yêu cầu ký quỹ tăng theo',
-        en: 'Yes - as the asset value rises the position size grows with it, so the margin requirement rises too',
+      a: {
+        vi: 'Không, ký quỹ yêu cầu cố định theo giá lúc mở vị thế',
+        en: 'No, the required margin stays fixed at the opening price',
       },
-      d: { vi: 'Chỉ với vị thế bán', en: 'Only on a short position' },
+      b: {
+        vi: 'Không, gọi ký quỹ xảy ra khi vị thế đang lỗ',
+        en: 'No, margin calls happen when a position is losing',
+      },
+      c: {
+        vi: 'Có, giá trị vị thế tăng thì ký quỹ yêu cầu tăng theo',
+        en: "Yes, the required margin rises with the position's value",
+      },
+      d: {
+        vi: 'Có, nhưng chỉ với vị thế bán, không với vị thế mua',
+        en: 'Yes, but only on a short position, not on a long one',
+      },
     },
     answer: 'c',
     explain: {
@@ -303,13 +348,19 @@ export const PHAI_SINH: ReadonlyArray<QuizItem> = [
       en: 'Derivatives leverage is often quoted as “about 6 times”. Is that figure fixed?',
     },
     choices: {
-      a: { vi: 'Cố định theo luật', en: 'Fixed by law' },
-      b: { vi: 'Cố định 10 lần', en: 'Fixed at 10 times' },
-      c: {
-        vi: 'Không - phụ thuộc tỷ lệ ký quỹ do VSDC/CTCK áp dụng và mức điểm chỉ số; các nguồn ghi 13%, 15%, 17%, 15–20% ở những thời điểm khác nhau',
-        en: 'No - it depends on the margin rate set by VSDC/the broker and on the index level; sources cite 13%, 15%, 17%, 15–20% at different points in time',
+      a: { vi: 'Có, luật quy định cố định ở mức 6 lần', en: 'Yes, the law fixes it at 6 times' },
+      b: {
+        vi: 'Có, cố định 10 lần, còn 6 lần là mức cũ',
+        en: 'Yes, fixed at 10 times, and 6 was the old level',
       },
-      d: { vi: 'Do nhà đầu tư tự chọn', en: 'The investor chooses it' },
+      c: {
+        vi: 'Không, phụ thuộc tỷ lệ ký quỹ và mức điểm chỉ số',
+        en: 'No, it depends on the margin rate and the index level',
+      },
+      d: {
+        vi: 'Không, sở giao dịch ấn định đòn bẩy mỗi phiên',
+        en: 'No, the exchange sets the leverage each session',
+      },
     },
     answer: 'c',
     explain: {
@@ -333,7 +384,7 @@ export const PHAI_SINH: ReadonlyArray<QuizItem> = [
       en: 'What is the VN30 futures position limit for an individual investor?',
     },
     choices: {
-      a: { vi: 'Không giới hạn', en: 'No limit' },
+      a: { vi: 'Không có giới hạn nào', en: 'There is no position limit' },
       b: { vi: 'Dưới 5.000 hợp đồng', en: 'Under 5,000 contracts' },
       c: { vi: 'Dưới 500 hợp đồng', en: 'Under 500 contracts' },
       d: { vi: 'Dưới 20.000 hợp đồng', en: 'Under 20,000 contracts' },
@@ -361,15 +412,21 @@ export const PHAI_SINH: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'Không sai nếu có lệnh dừng lỗ',
+        vi: 'Không sai gì, miễn là có đặt lệnh dừng lỗ',
         en: 'Nothing, as long as a stop-loss order is placed',
       },
-      b: { vi: 'Phải chia cho 2', en: 'You must divide by 2' },
-      c: {
-        vi: 'Phải chừa tiền cho ký quỹ biến đổi và call margin - khuyến nghị giữ dự phòng tiền mặt bằng 200% ký quỹ ban đầu',
-        en: 'You must leave room for variation margin and margin calls - the recommendation is to hold cash reserves equal to 200% of the initial margin',
+      b: {
+        vi: 'Phải chia cho 2 vì ký quỹ thu cả lúc mở lẫn lúc đóng',
+        en: 'Divide by 2, since margin is charged on opening and closing',
       },
-      d: { vi: 'Chỉ sai với vị thế bán', en: 'It is only wrong for a short position' },
+      c: {
+        vi: 'Phải chừa tiền cho ký quỹ biến đổi và gọi ký quỹ',
+        en: 'You must keep cash for variation margin and margin calls',
+      },
+      d: {
+        vi: 'Sai với vị thế bán, còn vị thế mua thì ổn',
+        en: 'It is wrong for a short, but fine for a long',
+      },
     },
     answer: 'c',
     explain: {
@@ -393,13 +450,22 @@ export const PHAI_SINH: ReadonlyArray<QuizItem> = [
       en: 'The margin utilization ratio hits 100%. What happens?',
     },
     choices: {
-      a: { vi: 'Vẫn giao dịch bình thường', en: 'Trading continues as normal' },
-      b: { vi: 'Tài khoản bị đóng', en: 'The account is closed' },
-      c: {
-        vi: 'VSD đề nghị tạm ngừng giao dịch; CTCK còn đặt ngưỡng xử lý thấp hơn nhiều',
-        en: 'VSD proposes a trading suspension; the broker sets its own action threshold well below that',
+      a: {
+        vi: 'Vẫn được giao dịch bình thường cho tới cuối phiên',
+        en: 'Trading carries on as normal until the session ends',
       },
-      d: { vi: 'Được tự động nạp thêm', en: 'Funds are automatically topped up' },
+      b: {
+        vi: 'Tài khoản bị thu hồi và không dùng lại được nữa',
+        en: 'The account is revoked and cannot be reused later',
+      },
+      c: {
+        vi: 'VSD đề nghị sở giao dịch tạm ngừng giao dịch',
+        en: 'VSD asks the exchange to suspend trading',
+      },
+      d: {
+        vi: 'Công ty chứng khoán tự động nạp thêm tiền ký quỹ',
+        en: 'The broker automatically tops up the margin for you',
+      },
     },
     answer: 'c',
     explain: {
@@ -424,12 +490,21 @@ export const PHAI_SINH: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'Hai quy ước dấu ngược nhau: giáo khoa quốc tế dùng Spot − Futures, bản tin VN dùng Futures − Spot',
-        en: 'The two use opposite sign conventions: international textbooks use Spot − Futures, Vietnamese market reports use Futures − Spot',
+        vi: 'Hai nguồn dùng hai quy ước tính dấu khác nhau',
+        en: 'The two sources define the sign differently',
       },
-      b: { vi: 'Một nguồn sai', en: 'One of the sources is simply wrong' },
-      c: { vi: 'Do làm tròn', en: 'It is a rounding artifact' },
-      d: { vi: 'Do khác hợp đồng tháng', en: 'They refer to different contract months' },
+      b: {
+        vi: 'Một trong hai nguồn đã tính sai con số',
+        en: 'One of the two sources got the figure wrong',
+      },
+      c: {
+        vi: 'Hai nguồn làm tròn số điểm theo cách khác nhau',
+        en: 'The two sources round the points differently',
+      },
+      d: {
+        vi: 'Hai nguồn nói về hai hợp đồng tháng khác nhau',
+        en: 'The two sources refer to different contract months',
+      },
     },
     answer: 'a',
     explain: {
@@ -453,13 +528,16 @@ export const PHAI_SINH: ReadonlyArray<QuizItem> = [
       en: 'The basis has widened sharply. Is that an easy profit opportunity?',
     },
     choices: {
-      a: { vi: 'Có, chênh lệch sẽ thu hẹp', en: 'Yes, the gap will narrow' },
-      b: { vi: 'Có nếu basis dương', en: 'Yes, if the basis is positive' },
+      a: { vi: 'Có, chênh lệch sẽ sớm thu hẹp lại', en: 'Yes, the gap will soon narrow again' },
+      b: { vi: 'Có, miễn là basis đang dương', en: 'Yes, as long as the basis is positive' },
       c: {
-        vi: 'Bản tin phái sinh ghi ngược lại: basis nới rộng khiến hoạt động trading khó khăn hơn',
-        en: 'The derivatives bulletin says the opposite: a widened basis makes trading harder',
+        vi: 'Không, basis nới rộng khiến trading khó hơn',
+        en: 'No, a widened basis makes trading harder',
       },
-      d: { vi: 'Có với hợp đồng tháng xa', en: 'Yes, for a far-month contract' },
+      d: {
+        vi: 'Không, độ rộng của basis không tác động tới trading',
+        en: 'No, the width of the basis has no effect on trading',
+      },
     },
     answer: 'c',
     explain: {
@@ -484,12 +562,21 @@ export const PHAI_SINH: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'Không - phiên ATC ngày đáo hạn có thể bật ra basis rất lớn, như +48,45 điểm ngày 21/05/2020',
-        en: 'No - the ATC closing auction on expiry day can throw up a very large basis, such as +48.45 points on 21/05/2020',
+        vi: 'Không, basis từng vọt rất lớn ngay phiên đáo hạn',
+        en: 'No, the basis has spiked sharply in an expiry session',
       },
-      b: { vi: 'Đúng, đó là quy luật', en: 'True, that is the rule' },
-      c: { vi: 'Đúng với hợp đồng tháng gần', en: 'True for the near-month contract' },
-      d: { vi: 'Đúng nếu thanh khoản cao', en: 'True if liquidity is high' },
+      b: {
+        vi: 'Đúng, đó là quy luật hội tụ của giá tương lai',
+        en: 'True, that is the convergence rule of futures prices',
+      },
+      c: {
+        vi: 'Không, basis giữ nguyên độ lớn tới ngày đáo hạn',
+        en: 'No, the basis keeps the same size until expiry',
+      },
+      d: {
+        vi: 'Đúng, miễn là thanh khoản của hợp đồng đủ cao',
+        en: 'True, as long as the contract is liquid enough',
+      },
     },
     answer: 'a',
     explain: {
@@ -514,14 +601,20 @@ export const PHAI_SINH: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'Dự báo VN30 sẽ ở đâu khi đáo hạn',
-        en: 'A forecast of where VN30 will be at expiry',
+        vi: 'Mức VN30 mà thị trường dự báo vào ngày đáo hạn',
+        en: 'The VN30 level the market forecasts for expiry',
       },
-      b: { vi: 'Trung bình giá 30 phiên', en: 'The 30-session average price' },
-      c: { vi: 'Giá do sở giao dịch công bố', en: 'A price published by the exchange' },
+      b: {
+        vi: 'Giá trung bình của hợp đồng trong 30 phiên gần nhất',
+        en: "The contract's average price over the last 30 sessions",
+      },
+      c: {
+        vi: 'Mức giá sở giao dịch công bố đầu mỗi phiên',
+        en: "The price the exchange publishes at each session's open",
+      },
       d: {
-        vi: 'Giá cân bằng theo chi phí nắm giữ: giá cơ sở cộng lãi vay trừ cổ tức',
-        en: 'The cost-of-carry equilibrium price: the underlying price plus borrowing cost minus dividends',
+        vi: 'Giá cơ sở cộng lãi vay trừ cổ tức trong kỳ nắm giữ',
+        en: 'Spot plus borrowing cost minus dividends while held',
       },
     },
     answer: 'd',
@@ -546,12 +639,21 @@ export const PHAI_SINH: ReadonlyArray<QuizItem> = [
       en: 'The actual price deviates from the theoretical price. Is risk-free arbitrage available in the Vietnamese market?',
     },
     choices: {
-      a: { vi: 'Có, rất dễ', en: 'Yes, quite easily' },
-      b: { vi: 'Có nếu chênh trên 1 điểm', en: 'Yes, if the gap exceeds 1 point' },
-      c: { vi: 'Chỉ tổ chức nước ngoài làm được', en: 'Only foreign institutions can do it' },
+      a: {
+        vi: 'Có, và làm được khá dễ dàng hằng ngày',
+        en: 'Yes, and quite easily, day after day',
+      },
+      b: {
+        vi: 'Có, mỗi khi giá thực tế lệch trên 1 điểm',
+        en: 'Yes, whenever the actual gap exceeds 1 point',
+      },
+      c: {
+        vi: 'Chỉ tổ chức nước ngoài mới được phép làm',
+        en: 'Only foreign institutions are allowed to do it',
+      },
       d: {
-        vi: 'Rất khó - khó dựng rổ chỉ số chính xác, bị hạn chế bán khống cơ sở, chi phí có thể triệt tiêu lợi nhuận',
-        en: 'Very hard - an accurate index basket is difficult to build, short-selling the underlying is restricted, and costs can wipe out the profit',
+        vi: 'Rất khó làm được trên thực tế ở VN',
+        en: 'Very hard to pull off in practice in Vietnam',
       },
     },
     answer: 'd',
@@ -577,15 +679,21 @@ export const PHAI_SINH: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'Giá đóng cửa VN30 ngày giao dịch cuối',
-        en: 'The VN30 closing price on the last trading day',
+        vi: 'Giá đóng cửa của chỉ số VN30 ngày giao dịch cuối',
+        en: 'The VN30 index close on the last trading day',
       },
       b: {
-        vi: 'Trung bình số học chỉ số trong 30 phút cuối, sau khi loại 3 giá trị cao nhất và 3 giá trị thấp nhất',
-        en: 'The arithmetic average of the index over the last 30 minutes, after discarding the 3 highest and 3 lowest values',
+        vi: 'Trung bình chỉ số 30 phút cuối, bỏ các mức cực trị',
+        en: 'The last-30-minute index average, extremes excluded',
       },
-      c: { vi: 'Giá khớp cuối của HĐTL', en: 'The last matched price of the futures contract' },
-      d: { vi: 'Trung bình cả phiên', en: 'The average over the whole session' },
+      c: {
+        vi: 'Giá khớp lệnh cuối cùng của hợp đồng tương lai',
+        en: 'The last matched price of the futures contract',
+      },
+      d: {
+        vi: 'Trung bình VN30 của cả phiên giao dịch cuối',
+        en: 'The VN30 average over the whole final session',
+      },
     },
     answer: 'b',
     explain: {

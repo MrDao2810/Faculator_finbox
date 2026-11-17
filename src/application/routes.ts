@@ -69,6 +69,17 @@ export const ROUTES = {
   guide: '/huong-dan/',
 } as const;
 
+/**
+ * Công tắc TẠM của chức năng Cài đặt (16/11/2026). Chủ dự án: _"ẩn tạm chức năng cài đặt trong dự án
+ * đi, ẩn cả icon trên thanh công cụ"_.
+ *
+ * `false` thì: icon bánh răng `SettingsLink` không dựng trên thanh trên (mọi màn, mọi khổ),
+ * `/cai-dat/` không vào `sitemap.xml`, và trang `/cai-dat/` chỉ còn chuyển về `/cong-thuc/` (`noindex`)
+ * như `/`. Mã của màn (`SettingsScreen`) và các test của nó giữ nguyên, nên bật lại chỉ là đổi về `true`.
+ * `verify:static` và `check:chrome` đọc giá trị này từ chính file này (regex), nên đổi một chỗ là đủ.
+ */
+export const SETTINGS_ENABLED: boolean = false;
+
 export type RouteKey = keyof typeof ROUTES;
 
 /**

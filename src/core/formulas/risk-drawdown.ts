@@ -238,9 +238,10 @@ function drawdownLookback(): VariableSpec {
     'phiên',
     250,
     30,
-    500,
+    5000,
     10,
     {
+      integer: true,
       description: {
         vi: 'Chuỗi dài hơn thì chỉ lấy phần cuối. Tối thiểu 30 phiên, tức khoảng một tháng rưỡi giao dịch - ngắn hơn thì chưa đủ một nhịp lên xuống để nói về sụt giảm.',
         en: 'A longer series only uses its most recent portion. Minimum 30 sessions, roughly a month and a half of trading - anything shorter is not enough for a full up-down swing to talk about drawdown.',
@@ -257,9 +258,10 @@ function varLookback(): VariableSpec {
     'phiên',
     250,
     60,
-    750,
+    5000,
     10,
     {
+      integer: true,
       description: {
         vi: 'Tối thiểu 60 phiên: dưới mức đó phân vị 5% chỉ dựa vào một hai phiên xấu, con số nhảy loạn mỗi khi thêm bớt một phiên.',
         en: 'Minimum 60 sessions: below that, the 5% percentile rests on just one or two bad sessions, and the number swings wildly with every session added or removed.',

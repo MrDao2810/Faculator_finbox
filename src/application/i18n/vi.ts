@@ -233,6 +233,24 @@ export const vi = {
   'input.sliderMin': 'min',
   'input.sliderMax': 'max',
   'input.sliderStep': 'step',
+  /*
+   * Dòng đỏ dưới ô số khi giá trị ra ngoài miền (16/11/2026). Thay "! min 0" / "! max 100" của
+   * WF-16: chủ dự án chụp ô "Số tiền gốc (P)" đang ghi "! min 0" và hỏi "không hiểu nói gì?".
+   * Ô có min ≥ 0 chặn hẳn dấu trừ và hiện câu đầu; hai câu sau cho vượt max hay dưới một min dương.
+   */
+  /*
+   * Cùng ngày, lượt hai và ba: `{ten}` là NHÃN của ô bỏ ký hiệu cuối ("Số tiền vay", xem
+   * `tenTrongCau()` ở `src/ui/inputs/mien-nhap.ts`), `{n}` là con số KÈM đơn vị. Chủ dự án trên ô
+   * "Số tiền vay": _"Số tiền vay lớn hơn 0"_ — đúng chữ, không thêm "phải". `input.name.value` chỉ
+   * còn là chỗ rơi khi ô không có nhãn.
+   */
+  'input.errPositive': '{ten} lớn hơn 0.',
+  'input.errNegative': '{ten} không được âm.',
+  'input.errMin': '{ten} nhỏ nhất phải là {n}.',
+  'input.errMax': '{ten} không được vượt quá {n}.',
+  /** Ô đếm (số phiên, số kỳ, số tháng) gõ số lẻ — `VariableSpec.integer`, 16/11/2026. */
+  'input.errInteger': '{ten} phải là số nguyên.',
+  'input.name.value': 'Số liệu',
   'input.unitLabel': 'Đơn vị hiển thị',
   /*
    * Nhãn bốn bậc đơn vị tiền ('nghìn' thêm 27/10/2026). Bản gốc là `UNIT_SCALES[].label` ở Domain

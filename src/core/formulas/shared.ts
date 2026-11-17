@@ -170,6 +170,10 @@ export const SOURCE_CORPORATE_FINANCE: FormulaSource = {
 export interface NumberVarOptions {
   min?: number;
   max?: number;
+  /** Ô đếm chỉ nhận số nguyên — xem `VariableSpec.integer` (16/11/2026). */
+  integer?: boolean;
+  /** Ô phải lớn hơn 0 — xem `VariableSpec.positive` (16/11/2026). */
+  positive?: boolean;
   /**
    * Nấc của ô số: KHÔNG làm tròn số gõ vào (chỉ thanh trượt bám nấc), mà nói cho biểu đồ biết ô đếm
    * theo đơn vị nào. Ô đếm năm, tháng… có nấc lẻ thì trục của nó không mời Bậc thang (`cagr`).
@@ -191,7 +195,15 @@ export function numberVar(
   return { key, label, unit, type: 'number', defaultValue, level, ...rest };
 }
 
-/** Thanh trượt. Validator bắt buộc đủ min, max và step nên ba tham số này không tuỳ chọn. */
+/**
+ * Ô số có khoảng (min, max) và bước (step). Tên giữ từ thời thanh trượt.
+ *
+ * Từ 16/11/2026 hàm này KHÔNG còn vẽ thanh trượt: chủ dự án khoanh hai thanh trượt của
+ * `tra-gop-goc-deu` — _"sửa đổi tất cả công thức có phần kéo thanh slide chuyển về dạng nhập số liệu
+ * trực tiếp … khi người dùng nhập cần check lại điều kiện của công thức"_. Kiểu ô nay là `'number'`;
+ * `min`/`max` là điều kiện của công thức (ô số báo đỏ khi gõ ra ngoài), còn `step` chỉ còn báo cho biểu
+ * đồ biết ô nào là số đếm (Bậc thang) — ô số không làm tròn theo bước.
+ */
 export function sliderVar(
   key: string,
   label: Bilingual,
@@ -200,10 +212,25 @@ export function sliderVar(
   min: number,
   max: number,
   step: number,
-  options: { level?: Level; description?: Bilingual } = {},
+  options: { level?: Level; description?: Bilingual; integer?: boolean; positive?: boolean } = {},
 ): VariableSpec {
-  const { level = 'basic', description } = options;
-  return { key, label, unit, type: 'slider', defaultValue, min, max, step, level, description };
+  const { level = 'basic', description, integer, positive } = options;
+  const variable: VariableSpec = {
+    key,
+    label,
+    unit,
+    type: 'number',
+    defaultValue,
+    min,
+    max,
+    step,
+    level,
+    description,
+  };
+  // Chỉ gắn khi bật, để spec của ô không đếm vẫn đúng như cũ (so sánh sâu trong test).
+  if (integer === true) variable.integer = true;
+  if (positive === true) variable.positive = true;
+  return variable;
 }
 
 /**

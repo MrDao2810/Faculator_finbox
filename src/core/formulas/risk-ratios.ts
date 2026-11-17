@@ -119,7 +119,7 @@ const RISK_FREE_VAR = sliderVar(
   '%',
   4.5,
   0,
-  15,
+  100,
   0.1,
   {
     description: {
@@ -139,6 +139,7 @@ const SESSIONS_VAR = sliderVar(
   365,
   1,
   {
+    integer: true,
     description: {
       vi: `Chuỗi theo ngày giao dịch thì để 250, theo tuần để 52, theo tháng để 12. ${SESSIONS_NOTE}`,
       en: `Use 250 for a daily-trading series, 52 for weekly, 12 for monthly. ${SESSIONS_NOTE_EN}`,
@@ -364,9 +365,10 @@ export const BETA: FormulaModule = {
         'phiên',
         60,
         MIN_SESSIONS,
-        500,
+        5000,
         1,
         {
+          integer: true,
           description: {
             vi: `Lấy bao nhiêu phiên gần nhất của CẢ HAI chuỗi giá - cổ phiếu và VN-Index - để hồi quy. ${SESSIONS_NOTE}`,
             en: `How many of the most recent sessions of BOTH price series - the stock and the VN-Index - to use for the regression. ${SESSIONS_NOTE_EN}`,
@@ -989,8 +991,8 @@ export const TY_SO_TREYNOR: FormulaModule = {
         'lần',
         1.2,
         {
-          min: -5,
-          max: 5,
+          min: -10,
+          max: 10,
           // Trước gói này câu mô tả cố ý KHÔNG nhắc "công thức Beta" vì thư viện chưa có — nay
           // đã đăng ký (`BETA` phía trên), nên nêu lại làm một nguồn thật.
           description: {
@@ -1540,7 +1542,7 @@ export const TY_SO_THANG_THUA: FormulaModule = {
         '%',
         0,
         0,
-        3,
+        20,
         0.1,
         {
           description: {

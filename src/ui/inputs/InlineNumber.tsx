@@ -16,8 +16,14 @@ import {
 import type { VariableSpec } from '@/application';
 import { useT, usePick, usePreferences } from '@/application/preferences-context';
 
-import { filterTypedValue, guardFilteredDelete, resetFilteredDelete } from './filtered-change';
+import {
+  filterTypedValue,
+  guardFilteredDelete,
+  rejectTypedValue,
+  resetFilteredDelete,
+} from './filtered-change';
 import styles from './InlineNumber.module.css';
+import { cauLoiMien, coDauTru, dayLenDuoc, khongNhanSoAm } from './mien-nhap';
 
 export interface InlineNumberProps {
   spec: VariableSpec;
@@ -122,12 +128,18 @@ export function InlineNumber({
    * viền thường trực để đổi) và việc khoá theo chế độ đã do prop `readOnly` của nơi gọi quyết —
    * truyền `mode` thật vào sẽ sinh ra một đường khoá thứ hai, lệch với đường thứ nhất.
    */
-  const { state, note } = resolveInputState({
+  const {
+    state,
+    note: noteMien,
+    value: soDangGo,
+  } = resolveInputState({
     raw: docDuoc(raw),
     spec,
     focused: false,
     mode: 'advanced',
   });
+  /* Cùng câu với `NumberInput` (`mien-nhap.ts`), không phải "! min 0" của Domain (16/11/2026). */
+  const note = cauLoiMien(soDangGo, spec, t, { ten: pick(spec.label), donVi }) ?? noteMien;
   const outOfRange = editable && !readOnly && state === 'outOfRange';
 
   const classes = [
@@ -223,7 +235,9 @@ export function InlineNumber({
         }}
         onChange={(event) => {
           /* Quy tắc 6 — chữ cái rụng tại đây, con trỏ giữ nguyên chỗ. */
-          const next = filterTypedValue(event, keepViNumberChars);
+          const loc = filterTypedValue(event, keepViNumberChars);
+          /* Ô không nhận số âm: chặn nguyên lượt có dấu trừ — cùng luật `NumberInput`. */
+          const next = khongNhanSoAm(spec) && coDauTru(loc) ? rejectTypedValue(event, raw) : loc;
           /*
            * Chỉ tính là ĐÃ GÕ khi chuỗi thật sự đổi — cùng luật với `NumberInput`, xem chú thích
            * ở đó. Một ký tự bị lọc sạch trả `next` giống hệt `raw`; đặt `edited` vô điều kiện
@@ -235,7 +249,7 @@ export function InlineNumber({
           // Quy tắc 0 — xem docblock. Chuỗi chưa ra số (`''`, `'-'`, `'1,'`) thì giữ nguyên giá
           // trị cũ chứ không đẩy `null` lên, vì nơi nhận chỉ biết nhận số (FR-06).
           const parsed = parseViNumber(docDuoc(next));
-          if (parsed !== null && parsed !== value) onChange(parsed);
+          if (parsed !== null && parsed !== value && dayLenDuoc(parsed, spec)) onChange(parsed);
         }}
         onBlur={(event) => {
           resetFilteredDelete(event.currentTarget);

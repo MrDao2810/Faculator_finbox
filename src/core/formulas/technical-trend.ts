@@ -320,7 +320,8 @@ export const SMA_N_PHIEN: FormulaModule = {
     tags: ['sma', 'trung binh dong', 'moving average', 'ma20', 'ma50', 'duong xu huong'],
     resultUnit: '₫',
     variables: [
-      sliderVar('period', labelWithSymbol(NHAN_SO_PHIEN, 'n'), 'phiên', 20, 2, 200, 1, {
+      sliderVar('period', labelWithSymbol(NHAN_SO_PHIEN, 'n'), 'phiên', 20, 2, 1000, 1, {
+        integer: true,
         description: {
           vi: 'Chuỗi giá phải có ít nhất đúng bằng số phiên này. Mốc phổ thông: 20 phiên cho xu hướng ngắn hạn, 50 và 200 phiên cho trung và dài hạn.',
           en: 'The price series must have at least this many sessions. Common benchmarks: 20 sessions for a short-term trend, 50 and 200 sessions for medium- and long-term.',
@@ -483,7 +484,8 @@ export const EMA_N_PHIEN: FormulaModule = {
     tags: ['ema', 'trung binh luy thua', 'exponential moving average', 'ema12', 'ema26'],
     resultUnit: '₫',
     variables: [
-      sliderVar('period', labelWithSymbol(NHAN_SO_PHIEN, 'n'), 'phiên', 12, 2, 200, 1, {
+      sliderVar('period', labelWithSymbol(NHAN_SO_PHIEN, 'n'), 'phiên', 12, 2, 1000, 1, {
+        integer: true,
         description: {
           vi: 'Chuỗi giá cần ít nhất đúng bằng số phiên này để mồi đường bằng trung bình đơn. Nạp được gấp ba lần chu kỳ thì phần mồi gần như hết ảnh hưởng.',
           en: 'The price series needs at least this many sessions to seed the line with a simple average. Once about three times the period has been fed in, the seed effect has nearly worn off.',
@@ -662,13 +664,15 @@ export const MACD_DUONG_CHINH: FormulaModule = {
       closePrice: true,
     },
     variables: [
-      sliderVar('fastPeriod', NHAN_CHU_KY_EMA_NHANH, 'phiên', 12, 2, 100, 1, {
+      sliderVar('fastPeriod', NHAN_CHU_KY_EMA_NHANH, 'phiên', 12, 2, 500, 1, {
+        integer: true,
         description: {
           vi: 'Đường bám giá. Bộ tham số kinh điển của Appel là 12 phiên.',
           en: "The price-tracking line. Appel's classic parameter set uses 12 sessions.",
         },
       }),
-      sliderVar('slowPeriod', NHAN_CHU_KY_EMA_CHAM, 'phiên', 26, 3, 200, 1, {
+      sliderVar('slowPeriod', NHAN_CHU_KY_EMA_CHAM, 'phiên', 26, 3, 1000, 1, {
+        integer: true,
         description: {
           vi: 'Đường nền, phải dài hơn chu kỳ nhanh. Chuỗi giá cần ít nhất đúng bằng số phiên này, tức 26 phiên với bộ mặc định.',
           en: 'The baseline, must be longer than the fast period. The price series needs at least this many sessions, i.e. 26 sessions with the default set.',
@@ -825,19 +829,22 @@ export const MACD_DUONG_TIN_HIEU: FormulaModule = {
       ],
     },
     variables: [
-      sliderVar('fastPeriod', NHAN_CHU_KY_EMA_NHANH, 'phiên', 12, 2, 100, 1, {
+      sliderVar('fastPeriod', NHAN_CHU_KY_EMA_NHANH, 'phiên', 12, 2, 500, 1, {
+        integer: true,
         description: {
           vi: 'Chu kỳ đường nhanh của MACD, mặc định 12 phiên.',
           en: 'The fast-line period of the MACD, defaulting to 12 sessions.',
         },
       }),
-      sliderVar('slowPeriod', NHAN_CHU_KY_EMA_CHAM, 'phiên', 26, 3, 200, 1, {
+      sliderVar('slowPeriod', NHAN_CHU_KY_EMA_CHAM, 'phiên', 26, 3, 1000, 1, {
+        integer: true,
         description: {
           vi: 'Chu kỳ đường chậm của MACD, phải dài hơn chu kỳ nhanh.',
           en: 'The slow-line period of the MACD, must be longer than the fast period.',
         },
       }),
-      sliderVar('signalPeriod', NHAN_CHU_KY_TIN_HIEU, 'phiên', 9, 2, 100, 1, {
+      sliderVar('signalPeriod', NHAN_CHU_KY_TIN_HIEU, 'phiên', 9, 2, 500, 1, {
+        integer: true,
         description: {
           vi: 'EMA lấy trên chính chuỗi MACD. Chuỗi giá cần ít nhất Chu kỳ chậm + Chu kỳ tín hiệu − 1 phiên, tức 34 phiên với bộ mặc định 12/26/9.',
           en: 'The EMA taken on the MACD series itself. The price series needs at least Slow EMA period + Signal line period − 1 sessions, i.e. 34 sessions with the default 12/26/9 set.',
@@ -1033,7 +1040,8 @@ export const RSI_WILDER: FormulaModule = {
       ],
     },
     variables: [
-      sliderVar('period', labelWithSymbol(NHAN_SO_PHIEN, 'n'), 'phiên', 14, 2, 100, 1, {
+      sliderVar('period', labelWithSymbol(NHAN_SO_PHIEN, 'n'), 'phiên', 14, 2, 1000, 1, {
+        integer: true,
         description: {
           vi: 'Wilder dùng 14 phiên. Chuỗi giá phải có ít nhất số phiên này cộng thêm 1 để đủ lợi suất, tức 15 giá cho RSI 14. Cách làm mượt của Wilder còn kéo theo cả phần chuỗi phía trước, nên nạp chuỗi dài ngắn khác nhau thì con số cũng lệch nhau vài điểm.',
           en: "Wilder used 14 sessions. The price series must have at least this many sessions plus 1 to have enough returns, i.e. 15 prices for a 14-session RSI. Wilder's smoothing also carries the earlier part of the series with it, so a longer or shorter series shifts the figure by a few points.",
@@ -1219,7 +1227,8 @@ export const ROC_TOC_DO_THAY_DOI: FormulaModule = {
     tags: ['roc', 'toc do thay doi', 'rate of change', 'dong luong', 'phan tram'],
     resultUnit: '%',
     variables: [
-      sliderVar('period', labelWithSymbol(NHAN_SO_PHIEN_NHIN_LAI, 'n'), 'phiên', 12, 1, 250, 1, {
+      sliderVar('period', labelWithSymbol(NHAN_SO_PHIEN_NHIN_LAI, 'n'), 'phiên', 12, 1, 1000, 1, {
+        integer: true,
         description: {
           vi: 'So giá phiên cuối với giá của bấy nhiêu phiên trước. Chuỗi giá cần ít nhất số phiên này cộng 1.',
           en: 'Compares the last closing price with the price that many sessions earlier. The price series needs at least this many sessions plus 1.',
@@ -1394,7 +1403,8 @@ export const DONG_LUONG_MOMENTUM: FormulaModule = {
       ],
     },
     variables: [
-      sliderVar('period', labelWithSymbol(NHAN_SO_PHIEN_NHIN_LAI, 'n'), 'phiên', 10, 1, 250, 1, {
+      sliderVar('period', labelWithSymbol(NHAN_SO_PHIEN_NHIN_LAI, 'n'), 'phiên', 10, 1, 1000, 1, {
+        integer: true,
         description: {
           vi: 'Khoảng cách tới phiên đem ra so sánh. Chuỗi giá cần ít nhất số phiên này cộng 1.',
           en: 'The distance to the session being compared against. The price series needs at least this many sessions plus 1.',
@@ -1552,7 +1562,8 @@ export const KHOANG_CACH_GIA_SO_SMA: FormulaModule = {
     tags: ['khoang cach sma', 'do lech gia', 'price deviation', 'ma20', 'qua xa duong trung binh'],
     resultUnit: '%',
     variables: [
-      sliderVar('period', labelWithSymbol(NHAN_CHU_KY_TRUNG_BINH, 'n'), 'phiên', 20, 2, 200, 1, {
+      sliderVar('period', labelWithSymbol(NHAN_CHU_KY_TRUNG_BINH, 'n'), 'phiên', 20, 2, 1000, 1, {
+        integer: true,
         description: {
           vi: 'Chu kỳ của SMA đem ra so. Chuỗi giá phải có ít nhất đúng bằng số phiên này. Mốc quen dùng là 20 và 50 phiên.',
           en: 'The period of the SMA being compared against. The price series must have at least this many sessions. Common benchmarks are 20 and 50 sessions.',
@@ -1718,13 +1729,15 @@ export const GIAO_CAT_HAI_DUONG_MA: FormulaModule = {
       closePrice: true,
     },
     variables: [
-      sliderVar('shortPeriod', NHAN_CHU_KY_NGAN, 'phiên', 10, 2, 100, 1, {
+      sliderVar('shortPeriod', NHAN_CHU_KY_NGAN, 'phiên', 10, 2, 500, 1, {
+        integer: true,
         description: {
           vi: 'Đường bám giá. Cặp quen dùng: 10 và 20 phiên cho ngắn hạn, 50 và 200 cho dài hạn.',
           en: 'The price-tracking line. Common pairs: 10 and 20 sessions for short-term, 50 and 200 for long-term.',
         },
       }),
-      sliderVar('longPeriod', NHAN_CHU_KY_DAI, 'phiên', 20, 3, 250, 1, {
+      sliderVar('longPeriod', NHAN_CHU_KY_DAI, 'phiên', 20, 3, 1000, 1, {
+        integer: true,
         description: {
           vi: 'Đường nền, phải dài hơn đường ngắn. Chuỗi giá phải có ít nhất đúng bằng số phiên này.',
           en: 'The baseline, must be longer than the short line. The price series must have at least this many sessions.',

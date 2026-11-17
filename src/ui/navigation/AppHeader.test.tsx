@@ -3,7 +3,7 @@
 import { cleanup, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { PREFERENCES_STORAGE_KEY, ROUTES } from '@/application';
+import { PREFERENCES_STORAGE_KEY, ROUTES, SETTINGS_ENABLED } from '@/application';
 import { PreferencesProvider } from '@/application/preferences-context';
 
 import { AppHeader } from './AppHeader';
@@ -69,7 +69,7 @@ describe('AppHeader', () => {
 
     await screen.findByRole('button', { name: 'Chuyển sang giao diện tối' });
     expect(screen.getByRole('button', { name: 'Chuyển sang tiếng Anh' })).toBeTruthy();
-    expect(screen.getByRole('link', { name: 'Cài đặt' })).toBeTruthy();
+    if (SETTINGS_ENABLED) expect(screen.getByRole('link', { name: 'Cài đặt' })).toBeTruthy();
   });
 });
 
@@ -201,7 +201,9 @@ describe('AppHeader — ô trống cho nút của màn', () => {
     // Ẩn bằng CSS dưới 1024px, không gỡ khỏi DOM: từ 1024px ba nút vẫn phải có ở màn này.
     expect(await screen.findByRole('button', { name: 'Chuyển sang giao diện tối' })).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Chuyển sang tiếng Anh' })).toBeTruthy();
-    expect(screen.getByRole('link', { name: 'Cài đặt' }).parentElement).toBe(cum);
+    if (SETTINGS_ENABLED) {
+      expect(screen.getByRole('link', { name: 'Cài đặt' }).parentElement).toBe(cum);
+    }
   });
 
   it.each([ROUTES.formulas, ROUTES.settings, ROUTES.about, '/cong-thuc/wacc/'])(
@@ -224,7 +226,7 @@ describe('AppHeader — ô trống cho nút của màn', () => {
  * ngay TRƯỚC nút Sáng/Tối trong DOM (thứ tự DOM là thứ tự trên màn của hàng flex), và nằm NGOÀI thanh
  * nav. Phần nhìn thấy được (bên trái, cùng hàng, cùng cỡ) do `check:chrome` đo.
  */
-describe('AppHeader — icon Cài đặt', () => {
+describe.skipIf(!SETTINGS_ENABLED)('AppHeader — icon Cài đặt', () => {
   it.each([
     ROUTES.formulas,
     ROUTES.portfolio,
@@ -280,4 +282,22 @@ describe('AppHeader — icon Cài đặt', () => {
     expect(await screen.findByRole('link', { name: 'Settings' })).toBeTruthy();
     expect(screen.queryByRole('link', { name: 'Cài đặt' })).toBeNull();
   });
+});
+
+/*
+ * Ẩn tạm chức năng Cài đặt (16/11/2026) — chủ dự án: "ẩn tạm chức năng cài đặt trong dự án đi, ẩn cả
+ * icon trên thanh công cụ". Khi công tắc SETTINGS_ENABLED tắt, không màn nào còn lối vào /cai-dat/
+ * trên thanh trên; describe "icon Cài đặt" ở trên bỏ qua và chạy lại khi bật công tắc.
+ */
+describe.skipIf(SETTINGS_ENABLED)('AppHeader — Cài đặt đang ẩn tạm', () => {
+  it.each([ROUTES.formulas, ROUTES.portfolio, ROUTES.about, '/cong-thuc/wacc/'])(
+    'màn %s không có icon hay link nào tới /cai-dat/',
+    async (path) => {
+      dungThanh(path);
+
+      await screen.findByRole('button', { name: 'Chuyển sang giao diện tối' });
+      expect(screen.queryByRole('link', { name: 'Cài đặt' })).toBeNull();
+      expect(document.querySelector('a[href^="/cai-dat"]')).toBeNull();
+    },
+  );
 });

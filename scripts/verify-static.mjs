@@ -957,17 +957,29 @@ const trangCoIcon = [
   'out/cai-dat/index.html',
   'out/ve-chung-toi/index.html',
 ];
+/*
+ * Ẩn tạm Cài đặt (16/11/2026, `SETTINGS_ENABLED` trong `routes.ts`, đọc bằng regex để không sửa hai
+ * nơi): tắt thì mọi trang phải có KHÔNG link nào tới /cai-dat/, và /cai-dat/ chỉ còn chuyển hướng.
+ */
+const SETTINGS_ENABLED = /SETTINGS_ENABLED: boolean = true/.test(
+  readFileSync('src/application/routes.ts', 'utf8'),
+);
 const loiIcon = trangCoIcon.flatMap((page) => {
   if (!existsSync(page)) return [`${page}: không có`];
   const html = readFileSync(page, 'utf8');
   const soLink = (html.match(/href="\/cai-dat\/"/g) ?? []).length;
+  if (!SETTINGS_ENABLED) {
+    return soLink === 0 ? [] : [`${page}: còn ${String(soLink)} link tới /cai-dat/`];
+  }
   if (soLink !== 1) return [`${page}: ${String(soLink)} link tới /cai-dat/`];
   if (!ICON_CAI_DAT.test(html)) return [`${page}: link không đứng ngay trước nút Sáng/Tối`];
   return [];
 });
 
 check(
-  'mỗi trang đúng MỘT link Cài đặt — icon ngay trước nút Sáng/Tối, không còn mục nav',
+  SETTINGS_ENABLED
+    ? 'mỗi trang đúng MỘT link Cài đặt — icon ngay trước nút Sáng/Tối, không còn mục nav'
+    : 'Cài đặt đang ẩn tạm — không trang nào còn link tới /cai-dat/',
   loiIcon.length === 0,
   loiIcon.length === 0 ? `${String(trangCoIcon.length)} trang` : loiIcon.join(' · '),
 );
@@ -982,8 +994,12 @@ const iconDangMo = /<a(?=[^>]*href="\/cai-dat\/")(?=[^>]*aria-current="page")[^>
 );
 
 check(
-  'trang Cài đặt dựng sẵn aria-current trên icon, không mục nav nào sáng',
-  iconDangMo && soDangMo === 1,
+  SETTINGS_ENABLED
+    ? 'trang Cài đặt dựng sẵn aria-current trên icon, không mục nav nào sáng'
+    : 'trang Cài đặt đang ẩn tạm chỉ chuyển về /cong-thuc/',
+  SETTINGS_ENABLED
+    ? iconDangMo && soDangMo === 1
+    : /http-equiv="refresh"[^>]*url=\/cong-thuc\//.test(htmlCaiDat),
   `icon ${iconDangMo ? 'có' : 'KHÔNG có'} aria-current · ${String(soDangMo)} thuộc tính trong trang`,
 );
 

@@ -2311,6 +2311,15 @@ legend _meaning_ grew a clause). The sweep also surfaced a gate the owner-facing
 `entries[].symbol` or a `skipped` key — so a brand-new raw-input row needs a one-line
 `skipped: { n: 'nhap-tho' }` addition even though it will never carry a panel.
 
+**There are no sliders any more: every `sliderVar` is a number field** (16/11/2026, owner on `tra-gop-goc-deu`:
+_"sửa đổi tất cả công thức có phần kéo thanh slide chuyển về dạng nhập số liệu trực tiếp … khi người dùng nhập cần check
+lại điều kiện của công thức"_). `sliderVar()` keeps its name and signature but returns `type: 'number'`; every paragraph
+in this file about slider layout, thumbs, tracks or `SliderInput` is history (the component and its CSS stay, unused).
+`min`/`max` are now the FORMULA's conditions, not a drag range (rates to 100%, sessions to 5000…); `step` no longer
+constrains typing and only tells the chart which fields are counts. Fields `calc` uses as counts carry
+`VariableSpec.integer`: a fractional value is out of range ("Số liệu phải là số nguyên."), `clampToSpec()` rounds it.
+A new count field needs `integer: true`, or `calc`'s `Math.round` silently changes what the user typed.
+
 **A span measured between two dates is a number field, not a slider** (06/11/2026). The owner circled CAGR's "Số năm
 (t)" slider (1 to 50, step 1) beside the note _"CAGR chỉ cho nhập số năm nguyên, trong khi ví dụ mẫu dùng 9,12 năm"_,
 then: _"slider thì làm sao mà thể hiện hết được. cần thay đổi thành ô nhập"_. Typing into a slider's figure has been
@@ -2849,6 +2858,17 @@ hidden above (`khungCuon()` finds the scroller by `overflow`, since the primitiv
 The header-row notes below describe the card before this change; `.scoreLine`, `.step` and `.bars` now live
 on the dialog's title row, and `.bars` is `flex: 1 1 0` capped at 14rem (its 14rem basis dropped it to a
 second line at 390px).
+
+**The length of the four choices must not give the answer away** (16/11/2026, owner: _"cứ chọn đáp án dài là đúng"_).
+Measured: 81% of the 305 single-answer questions had the correct answer strictly longest, 2,6 times the distractors'
+length, and 95 carried an explanation after " - " that only the correct answer had. 265 questions had their `choices`
+rewritten (answer keys, prompts, explanations and sources untouched): the correct answer is short, its reasoning stays
+in `explain`; each distractor is a real misconception of the same shape. `src/core/quiz/can-bang.ts` holds the rules,
+and two cases in `quiz.test.ts` gate them: per question, the answer is at most 1,15 × the longest and 1,35 × the mean
+distractor, no distractor is under half the answer, and a " - "/": " explanation on the answer needs at least two
+distractors with one; across the bank, the answer is strictly longest, or strictly shortest, in at most 35% of
+questions (19% and 20% after the rewrite). The rules cannot see a distractor that is arguably right: a new question
+still needs its four choices read against `explain` by hand.
 
 **Every question must come from a real source, and the bank is uneven because the material is.**
 `QuizItem` requires `source.url`; `quiz.test.ts` re-checks it. The floor across the library is now
@@ -4124,6 +4144,16 @@ English, the owner reviews it**. What that produced, and what is easy to break:
 
 ## Notes
 
+- **An input field with `min ≥ 0` refuses the minus sign, and an out-of-range figure never reaches the result**
+  (16/11/2026). The owner typed `-10000000` into `lai-kep`'s "Số tiền gốc (P)": under it read "! min 0" (_"không
+  hiểu nói gì ?"_) while Kết quả printed -22.196.402,35 ₫, because `NumberInput` pushed the RAW figure up on every
+  keystroke and only clamped on blur. Now (`src/ui/inputs/mien-nhap.ts`, shared by `NumberInput` and `InlineNumber`):
+  a typed `-` (any of the four dashes) is refused through `rejectTypedValue()` and a paste containing one is refused
+  WHOLE — never stripped, `-100` becoming `100` is a silent sign flip — with the red line "Số liệu không được âm."
+  until the next valid keystroke or blur; any other out-of-range figure stays in the box with "Số liệu lớn nhất là
+  100." / "Số liệu nhỏ nhất là 2." and is NOT pushed up, and blur/Enter clamps it as before. The "! min 0" string of
+  `outOfRangeNote()` still drives the state but is no longer printed. Every number field declares `min`; the fields
+  allowed to go negative are a pinned, reviewed list in `src/core/formulas/o-so-mien.test.ts`, so a new one is a decision.
 - **On-screen text uses a hyphen `-`, never the em dash `—`** (02/11/2026, owner: _"đoạn ký hiệu này "— " đang quá
   dài. rà xoát lại trong toàn bộ dự án và đổi lại ngắn hơn thành "-"_). One AST-driven pass changed 1.333 dashes in
   the display text of 58 files (formula names `P/E - hệ số giá trên lợi nhuận`, field labels `EPS - lợi nhuận trên
@@ -4271,6 +4301,14 @@ năm 2026`); 118 titles, one rule, so sibling titles agree. Spec `tests[].name` 
   `vi.ts`). Drop the sentence, keep the behaviour, the `quiz.localOnly` pattern: `buildExportContent()` still always
   fills `disclaimer`, every PDF/PNG still carries it, and no switch exists for it; `ExportSheet.test.tsx` pins both
   the absence on the sheet and the disclaimer in the print region. Do not rebuild the box without asking.
+- **An export switch with nothing to include is off and locked** (16/11/2026, a tester's report on `basis-vn30f`).
+  "Kèm biểu đồ" is disabled whenever the chart block is not DRAWING a chart: `FormulaDetail` passes `hasChart` =
+  `hinhBieuDo.daVe` (guarded by `chartType !== 'none'`, so a stale report from the previous formula cannot leak), which
+  covers the 8 `none` formulas, a series formula with no series and a chart showing its warning; the export copies the
+  live `<svg>`, so no drawn chart means nothing to attach. "Kèm bảng biến & giải thích" is disabled while PNG is
+  picked, because the PNG card (`draw-card.ts`) never draws those two parts. The user's own choice is kept in state and
+  comes back when PDF is picked again or a chart appears; what goes into the file is the effective value. No hint line
+  explains the lock (the owner removed the switches' hint lines on 28/10/2026).
 - **Exported files stay light, always.** `draw-card.ts` used to read live tokens through
   `getComputedStyle` so the PNG matched the UI; with two palettes that turns every share card
   dark, disclaimer box included. It now pins `CARD_COLORS` to the light palette, and
@@ -4302,6 +4340,14 @@ năm 2026`); 118 titles, one rule, so sibling titles agree. Spec `tests[].name` 
   a spec without a calculator is a typecheck error. `runFormula()` in `src/core/calc/` is the only
   way to call one; it turns a blank field into an "incomplete input" warning rather than a zero,
   and catches throws. The `tests[]` each spec declares are executed by `formulas.test.ts`.
+- **A box that clips a formula picture needs vertical padding** (16/11/2026, the owner photographed the D of
+  `DY = D / P × 100` with its top cut off). Chrome lays MathML out with boxes tight to the ink: measured on all 111
+  pages, the highest stroke touched the top edge of `.formula` and the lowest the bottom edge (0px gap on 111/111 main
+  pictures and 99/111 example pictures), and the box clips at its padding edge (`overflow-x: auto` forces
+  `overflow-y` off `visible`), so one pixel of Windows hinting loses a stroke. `.formula`, `.substitutionHinh`,
+  `.stepMath` and `.quizPictureMath` carry `padding-block: 0.25em` (3–4px measured at 390 and 1440);
+  `math-clip-css.test.ts` pins the four. A new clipping box around a formula picture gets the same padding and a row
+  there.
 - **KaTeX runs at build time only.** `src/app/cong-thuc/[id]/latex-html.ts` is imported solely by
   `page.tsx`, which is a server component, so with `output: 'export'` the maths notation is baked
   into the static HTML of all 111 pages and the browser downloads **zero** bytes of KaTeX

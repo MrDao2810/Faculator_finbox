@@ -184,9 +184,15 @@
   color: var(--color-muted);
 }
 
+/*
+ * Chữ nghiêng, nét thường (16/11/2026). Chủ dự án: _"text 'Số liệu không được âm' sửa lại cho thành
+ * in nghiêng thay vì in đậm"_ — `--weight-medium` vẽ thành 600 trên Windows nên dòng lỗi đọc như chữ
+ * đậm. Cùng kiểu dòng cảnh báo vàng của khối Số liệu (chữ nghiêng, không khung).
+ */
 .error {
   font-size: calc(11px + var(--font-bump));
-  font-weight: var(--weight-medium);
+  font-weight: var(--weight-regular);
+  font-style: italic;
   color: var(--color-danger);
 }
 
@@ -209,7 +215,8 @@
   .compact {
     position: relative;
     gap: 0;
-    padding: var(--space-3);
+    /* Trên dưới 8px, hai bên 12px (16/11/2026, chủ dự án: _"giảm height của các ô xuống"_). */
+    padding: var(--space-2) var(--space-3);
     background: var(--color-surface);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
@@ -228,6 +235,51 @@
     font-size: var(--text-xs);
     font-weight: var(--weight-regular);
     color: var(--color-muted);
+  }
+
+  /*
+   * Khe 4px giữa nhãn · khung trong · dòng phụ (16/11/2026; 6px vài giờ, hạ khi vòng focus còn 1px
+   * và chủ dự án chê ô quá cao). Chủ dự án khoanh nhãn "Số tiền vay (P)"
+   * và dòng "Số tiền không được âm." của thẻ gộp: _"vẫn xát vào border xám đang hiển thị. dãn ra"_.
+   * Viền xám là vòng focus (`box-shadow` của `.control:focus-within`), mà `gap: 0` ở trên để nó dính
+   * sát cả hai dòng chữ. Khe đặt CỐ ĐỊNH chứ không chỉ lúc focus hay lỗi: chỉ nới khi focus thì ô cao
+   * thêm đúng lúc bấm vào và cả hàng ô nhảy theo. Cái giá: ô nhỏ cao thêm 6px.
+   */
+  .compact .label {
+    margin-bottom: var(--space-1);
+  }
+
+  /*
+   * Vòng focus 1px trong ô nhỏ (16/11/2026). Vòng 3px chung của sản phẩm vẽ quanh khung trong không
+   * đệm, nên ở thẻ gộp nó thành một khung dày lồng trong viền thẻ; chủ dự án: _"cho border bên ngoài
+   * mỏng lại, đang quá dày"_. Vẫn còn một dấu hiệu đang gõ ở ô nào, chỉ mảnh hơn.
+   */
+  .compact .control:focus-within {
+    box-shadow: 0 0 0 1px var(--color-focus);
+  }
+
+  /*
+   * Ô nhỏ CHỪA SẴN chỗ cho một dòng báo, hiện hay không (16/11/2026). Chủ dự án chụp cùng thẻ hai lần,
+   * có và không có dòng "Số tiền không được âm.": _"đang 1 bên to 1 bên nhỏ … khi hiển thị cảnh báo …
+   * bị giãn ra cao lên 1 chút làm xấu giao diện và giao diện bập bềnh"_. Cả hàng ô nhảy theo vì lưới
+   * kéo mọi ô cùng hàng bằng ô cao nhất.
+   *
+   * Cách giữ: đáy ô đệm thêm đúng một dòng (`--dong-phu` = khe 6px + một dòng chữ), và dòng báo trả lại
+   * đúng chừng ấy bằng lề âm, nên một dòng báo nằm gọn trong phần đệm sẵn. Dòng báo dài tới hai dòng
+   * (câu vượt trần của một số tiền lớn ở ô hẹp) thì ô vẫn cao thêm một dòng — hiếm, và đúng hơn là cắt
+   * mất nửa câu báo. Cái giá: lúc không có báo, đáy ô có một dải trống bằng một dòng chữ.
+   */
+  .compact {
+    --dong-phu: calc(var(--space-1) + (11px + var(--font-bump)) * 1.4);
+    padding-bottom: calc(var(--space-2) + var(--dong-phu));
+  }
+
+  .compact .hint,
+  .compact .error {
+    margin-top: var(--space-1);
+    margin-bottom: calc(var(--dong-phu) * -1);
+    font-size: calc(11px + var(--font-bump));
+    line-height: 1.4;
   }
 
   /*
@@ -251,7 +303,13 @@
   .compact.tone-derived .control,
   .compact.tone-locked .control {
     min-height: 0;
-    padding: 0;
+    /*
+     * Đệm 2px · 8px bù bằng lề âm đúng chừng ấy (16/11/2026). Chủ dự án khoanh con trỏ gõ dính sát mép
+     * trái vòng focus: _"dấu cách trong ô nhập đang ko có padding trái"_. Lề âm giữ con số thẳng mép với
+     * nhãn và ô không cao thêm; chỉ vòng focus lùi ra ngoài chữ. 8px nằm gọn trong đệm 12px của thẻ.
+     */
+    padding: 2px var(--space-2);
+    margin: -2px calc(-1 * var(--space-2));
     background: none;
     border: none;
     border-radius: var(--radius-sm);

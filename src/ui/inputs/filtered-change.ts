@@ -76,6 +76,29 @@ export function filterTypedValue(
 }
 
 /**
+ * Từ chối NGUYÊN một lượt nhập: ô trở về đúng chuỗi trước đó, con trỏ đứng ở chỗ lượt nhập bắt đầu.
+ *
+ * Khác `filterTypedValue()` ở chỗ không giữ lại phần nào của thứ vừa gõ hay vừa dán. Dùng cho dấu
+ * trừ ở ô không nhận số âm (16/11/2026): dán '-100' mà chỉ bóc dấu trừ thì ô thành '100' — đổi dấu
+ * âm thầm dưới tay người dùng, đúng loại "số sai trông như số đúng" FR-06 cấm. Gõ một phím '-' cũng
+ * đi đường này; khi ấy bộ đếm phím xoá được cộng như một ký tự bị lọc, để Backspace kế tiếp (xoá dấu
+ * trừ người dùng tưởng đã vào ô) không ăn vào chữ số thật — cùng lý do với `guardFilteredDelete()`.
+ */
+export function rejectTypedValue(event: ChangeEvent<HTMLInputElement>, previous: string): string {
+  const el = event.currentTarget;
+  const typed = el.value;
+  const them = typed.length - previous.length;
+  const truoc = choXoaBu.get(el) ?? 0;
+  choXoaBu.set(el, them === 1 ? Math.min(truoc + 1, TRAN_BU) : 0);
+
+  const caret = el.selectionStart ?? typed.length;
+  const viTri = Math.max(0, Math.min(previous.length, caret - Math.max(them, 0)));
+  el.value = previous;
+  el.setSelectionRange(viTri, viTri);
+  return previous;
+}
+
+/**
  * Nuốt đúng bấy nhiêu phím XOÁ LÙI ứng với số ký tự vừa bị `filterTypedValue()` loại đi.
  *
  * ── Lỗi mà hàm này sinh ra để chữa ───────────────────────────────────────────────────────────

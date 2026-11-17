@@ -200,3 +200,41 @@ describe('commitValue() — chốt giá trị khi rời ô', () => {
     expect(commitValue('0', price)).toBe(0);
   });
 });
+
+/*
+ * Ô đếm — `VariableSpec.integer` (16/11/2026). Chủ dự án đổi mọi thanh trượt thành ô số và muốn ô
+ * "check lại điều kiện của công thức": số phiên, số kỳ, số tháng là số nguyên, mà trước đây `calc` tự
+ * làm tròn âm thầm (gõ 20,5 phiên thành 21). Nay số lẻ là ngoài miền: ô báo, số không đi lên màn.
+ */
+describe('ô chỉ nhận số nguyên', () => {
+  const sessions: VariableSpec = {
+    key: 'period',
+    label: { vi: 'Số phiên (n)', en: 'Sessions (n)' },
+    unit: 'phiên',
+    type: 'number',
+    defaultValue: 20,
+    min: 2,
+    max: 1000,
+    step: 1,
+    integer: true,
+    level: 'basic',
+  };
+
+  it('số lẻ là ngoài miền, số nguyên thì không', () => {
+    expect(isOutOfRange(20.5, sessions)).toBe(true);
+    expect(isOutOfRange(20, sessions)).toBe(false);
+    expect(outOfRangeNote(20.5, sessions)).toBe('! số nguyên');
+    expect(
+      resolveInputState({ raw: '20,5', spec: sessions, focused: true, mode: 'advanced' }).state,
+    ).toBe('outOfRange');
+  });
+
+  it('rời ô thì làm tròn về số nguyên gần nhất, rồi mới kẹp', () => {
+    expect(commitValue('20,5', sessions)).toBe(21);
+    expect(commitValue('1,2', sessions)).toBe(2);
+  });
+
+  it('ô không khai `integer` vẫn nhận số lẻ như cũ', () => {
+    expect(isOutOfRange(5.37, growth)).toBe(false);
+  });
+});

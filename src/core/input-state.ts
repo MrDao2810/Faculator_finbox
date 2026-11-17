@@ -103,13 +103,21 @@ export function isOutOfRange(value: number | null, spec: VariableSpec): boolean 
   if (value === null) return false;
   if (spec.min !== undefined && value < spec.min) return true;
   if (spec.max !== undefined && value > spec.max) return true;
-  return false;
+  if (spec.positive === true && value <= 0) return true;
+  return laSoLeOOSoNguyen(value, spec);
+}
+
+/** Ô chỉ nhận số nguyên (`spec.integer`) mà giá trị có phần lẻ. */
+export function laSoLeOOSoNguyen(value: number, spec: VariableSpec): boolean {
+  return spec.integer === true && !Number.isInteger(value);
 }
 
 /** Dòng nhắc miền, đúng khuôn '! min 0' của WF-16. */
 export function outOfRangeNote(value: number, spec: VariableSpec): string | undefined {
   if (spec.min !== undefined && value < spec.min) return `! min ${formatNumber(spec.min)}`;
   if (spec.max !== undefined && value > spec.max) return `! max ${formatNumber(spec.max)}`;
+  if (spec.positive === true && value <= 0) return '! > 0';
+  if (laSoLeOOSoNguyen(value, spec)) return '! số nguyên';
   return undefined;
 }
 

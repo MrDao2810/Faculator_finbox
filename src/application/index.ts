@@ -519,6 +519,7 @@ export {
   headerHasScreenActions,
   headerTitleKey,
   isSettingsPath,
+  SETTINGS_ENABLED,
   showsFooterDisclaimer,
 } from './routes';
 

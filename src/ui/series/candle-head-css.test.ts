@@ -51,3 +51,22 @@ describe('đầu thẻ nến — thanh chọn khoảng cạnh giá', () => {
     expect(dt.includes('.priceRow')).toBe(false);
   });
 });
+
+/*
+ * Bảng tối (16/11/2026): cột khối lượng MỘT màu xanh dương Finbox, ô chú thích "Khối lượng" cùng
+ * màu đó. Trước đó cột xanh/đỏ theo phiên mà ô chú thích đen.
+ */
+describe('cột khối lượng bảng tối', () => {
+  it('cột tô --color-accent-vivid, không còn nhuộm theo màu nến', () => {
+    expect(luat("[data-theme='dark'] .volume")).toMatch(/fill:\s*var\(--color-accent-vivid\);/);
+    expect(CSS).not.toMatch(/\.volume\.(up|down)/);
+  });
+
+  it('ô chú thích cùng token và cùng độ đậm với cột', () => {
+    const doDam = /fill-opacity:\s*([\d.]+);/.exec(luat("[data-theme='dark'] .volume"))?.[1];
+    const o = luat("[data-theme='dark'] .dotVolume");
+    expect(o).toMatch(/var\(--color-accent-vivid\)/);
+    expect(doDam).toBeDefined();
+    expect(o).toContain(`${String(Number(doDam) * 100)}%`);
+  });
+});

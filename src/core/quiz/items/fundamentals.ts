@@ -19,16 +19,10 @@ export const CHI_SO_DN: ReadonlyArray<QuizItem> = [
       en: 'After a stock dividend, your account goes from 1,000 to 1,200 shares. What happens to your wealth?',
     },
     choices: {
-      a: { vi: 'Tăng 20%', en: 'It increases by 20%' },
-      b: {
-        vi: 'Không đổi - giá điều chỉnh từ 40.000 xuống khoảng 33.333 đồng',
-        en: 'Unchanged - the price adjusts from VND 40,000 down to about VND 33,333',
-      },
-      c: { vi: 'Giảm vì bị pha loãng', en: 'It decreases due to dilution' },
-      d: {
-        vi: 'Tăng nhưng phải chờ ngày về',
-        en: 'It increases, but you have to wait for the shares to be delivered',
-      },
+      a: { vi: 'Tăng thêm 20% giá trị', en: 'It grows by 20%' },
+      b: { vi: 'Giữ nguyên giá trị', en: 'It stays the same' },
+      c: { vi: 'Giảm vì bị pha loãng', en: 'It shrinks due to dilution' },
+      d: { vi: 'Tăng sau ngày cổ phiếu về', en: 'It grows once the shares arrive' },
     },
     answer: 'b',
     explain: {
@@ -53,12 +47,15 @@ export const CHI_SO_DN: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'Mẫu số tăng do pha loãng, lợi nhuận có thể không đổi',
-        en: 'The denominator rose due to dilution; profit may be unchanged',
+        vi: 'Số cổ phiếu tăng nên EPS bị pha loãng',
+        en: 'More shares outstanding have diluted EPS',
       },
-      b: { vi: 'Lợi nhuận suy giảm', en: 'Profit has declined' },
-      c: { vi: 'Sai sót kế toán', en: 'An accounting error' },
-      d: { vi: 'Doanh nghiệp giấu lãi', en: 'The company is hiding profit' },
+      b: { vi: 'Lợi nhuận của doanh nghiệp đã suy giảm', en: "The company's profit has declined" },
+      c: { vi: 'Có sai sót trong báo cáo kế toán', en: 'The accounting report contains an error' },
+      d: {
+        vi: 'Doanh nghiệp đang giấu bớt lợi nhuận',
+        en: 'The company is hiding part of its profit',
+      },
     },
     answer: 'a',
     explain: {
@@ -82,13 +79,16 @@ export const CHI_SO_DN: ReadonlyArray<QuizItem> = [
       en: 'Quarterly EPS has jumped sharply. What is the first thing to check?',
     },
     choices: {
-      a: { vi: 'Giá cổ phiếu đã tăng chưa', en: 'Whether the share price has already risen' },
-      b: { vi: 'Khối lượng giao dịch', en: 'Trading volume' },
-      c: {
-        vi: 'Lợi nhuận đến từ đâu - có khoản một lần như bán tài sản, thoái vốn, hoàn nhập dự phòng không',
-        en: 'Where the profit came from - whether it includes one-off items such as an asset sale, a divestment, or a provision reversal',
+      a: {
+        vi: 'Giá cổ phiếu đã tăng theo hay chưa',
+        en: 'Whether the share price has already risen',
       },
-      d: { vi: 'Ý kiến của môi giới', en: "A broker's opinion" },
+      b: { vi: 'Khối lượng giao dịch có tăng vọt không', en: 'Whether trading volume has spiked' },
+      c: {
+        vi: 'Lợi nhuận có đến từ khoản một lần không',
+        en: 'Whether the profit includes one-off items',
+      },
+      d: { vi: 'Môi giới đang nhận định ra sao', en: 'What brokers are saying about the stock' },
     },
     answer: 'c',
     explain: {
@@ -112,12 +112,21 @@ export const CHI_SO_DN: ReadonlyArray<QuizItem> = [
       en: 'You are valuing a company using the EPS on the self-prepared financial statements it just released. What is the risk?',
     },
     choices: {
-      a: { vi: 'Không có rủi ro, số liệu là số liệu', en: 'No risk - a number is a number' },
-      b: { vi: 'Chỉ lệch vài phần trăm', en: 'It is off by only a few percent, at most' },
-      c: { vi: 'Chỉ ảnh hưởng doanh nghiệp nhỏ', en: 'It only affects small companies' },
+      a: {
+        vi: 'Không đáng lo vì số liệu đã được công bố',
+        en: 'No need to worry, since the figures are published',
+      },
+      b: {
+        vi: 'Kiểm toán có thể chỉnh nhưng không đáng kể',
+        en: 'An audit may adjust it, but not by much',
+      },
+      c: {
+        vi: 'Rủi ro này chỉ gặp ở doanh nghiệp nhỏ',
+        en: 'The risk only applies to small companies',
+      },
       d: {
-        vi: 'Con số có thể đảo chiều sau kiểm toán - đã có trường hợp từ lãi 39 tỷ thành lỗ 86,5 tỷ',
-        en: 'The number can flip after the audit - there have been real cases going from a VND 39 billion profit to a VND 86.5 billion loss',
+        vi: 'Lãi có thể đảo thành lỗ sau kiểm toán',
+        en: 'Profit can turn into a loss after the audit',
       },
     },
     answer: 'd',
@@ -142,13 +151,10 @@ export const CHI_SO_DN: ReadonlyArray<QuizItem> = [
       en: 'A company issues a 2:1 bonus share. How does BVPS change?',
     },
     choices: {
-      a: {
-        vi: 'Giảm tương ứng vì vốn chủ không đổi mà số cổ phiếu tăng',
-        en: 'It falls proportionally, since equity is unchanged but the share count rises',
-      },
-      b: { vi: 'Giữ nguyên', en: 'It stays the same' },
-      c: { vi: 'Tăng gấp đôi', en: 'It doubles' },
-      d: { vi: 'Phụ thuộc giá thị trường', en: 'It depends on the market price' },
+      a: { vi: 'Giảm theo tỷ lệ chia thưởng', en: 'It falls by the bonus ratio' },
+      b: { vi: 'Giữ nguyên như trước khi chia', en: 'It stays the same as before' },
+      c: { vi: 'Tăng gấp đôi theo số cổ phiếu', en: 'It doubles with the new shares' },
+      d: { vi: 'Biến động theo giá thị trường', en: 'It moves with the market price' },
     },
     answer: 'a',
     explain: {
@@ -172,13 +178,13 @@ export const CHI_SO_DN: ReadonlyArray<QuizItem> = [
       en: 'For a company with losses stretching over many years, what state can BVPS end up in?',
     },
     choices: {
-      a: {
-        vi: 'Âm, khiến P/B âm và mất ý nghĩa',
-        en: 'Negative, making P/B negative and meaningless',
+      a: { vi: 'Âm, khiến P/B mất ý nghĩa', en: 'Negative, so P/B loses its meaning' },
+      b: { vi: 'Dừng ở 0, không thể âm', en: 'Zero, since it cannot go below that' },
+      c: {
+        vi: 'Không đổi vì vốn góp giữ nguyên',
+        en: 'Unchanged, since paid-in capital stays put',
       },
-      b: { vi: 'Bằng 0', en: 'Zero' },
-      c: { vi: 'Không đổi', en: 'Unchanged' },
-      d: { vi: 'Bằng mệnh giá', en: 'Equal to par value' },
+      d: { vi: 'Rơi về đúng mệnh giá cổ phiếu', en: 'Back down to par value per share' },
     },
     answer: 'a',
     explain: {
@@ -203,12 +209,21 @@ export const CHI_SO_DN: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'B đáng giá hơn - ROE của A chủ yếu đến từ đòn bẩy',
-        en: "B is worth more - A's ROE mostly comes from leverage",
+        vi: 'B đáng giá hơn, vì ROE của A dựa nhiều vào nợ',
+        en: "B is worth more, since A's ROE leans on debt",
       },
-      b: { vi: 'A tốt hơn vì ROE cao hơn', en: 'A is better, since its ROE is higher' },
-      c: { vi: 'Hai bên tương đương', en: 'The two are equivalent' },
-      d: { vi: 'Không so sánh được', en: 'They cannot be compared' },
+      b: {
+        vi: 'A tốt hơn, vì ROE mới là lãi của cổ đông',
+        en: 'A is better, since ROE is what shareholders earn',
+      },
+      c: {
+        vi: 'Ngang nhau, vì trung bình hai chỉ số đều 17,5%',
+        en: 'They are equal, since both ratios average 17.5%',
+      },
+      d: {
+        vi: 'Không so được, vì ROE và ROA đo hai thứ khác',
+        en: 'Not comparable, since ROE and ROA measure different things',
+      },
     },
     answer: 'a',
     explain: {
@@ -232,13 +247,10 @@ export const CHI_SO_DN: ReadonlyArray<QuizItem> = [
       en: 'Which corporate action raises ROE while profit stays unchanged?',
     },
     choices: {
-      a: { vi: 'Tăng doanh thu', en: 'Increasing revenue' },
-      b: { vi: 'Trả cổ tức tiền mặt', en: 'Paying a cash dividend' },
-      c: { vi: 'Phát hành thêm cổ phiếu', en: 'Issuing more shares' },
-      d: {
-        vi: 'Mua lại cổ phiếu quỹ làm giảm vốn chủ sở hữu',
-        en: 'Buying back treasury shares, which shrinks equity',
-      },
+      a: { vi: 'Đẩy mạnh doanh thu bán hàng', en: 'Growing sales revenue' },
+      b: { vi: 'Giữ lại toàn bộ lợi nhuận', en: 'Retaining all of its profit' },
+      c: { vi: 'Phát hành thêm cổ phiếu mới', en: 'Issuing new shares' },
+      d: { vi: 'Mua lại cổ phiếu quỹ', en: 'Buying back its own shares' },
     },
     answer: 'd',
     explain: {
@@ -262,13 +274,10 @@ export const CHI_SO_DN: ReadonlyArray<QuizItem> = [
       en: 'A company holds a great deal of cash but operates very profitably. What happens to ROE?',
     },
     choices: {
-      a: {
-        vi: 'Thấp đi vì tiền mặt dư thừa nằm trong vốn chủ sở hữu',
-        en: 'It falls, since the excess cash sits inside equity',
-      },
-      b: { vi: 'Cao hơn bình thường', en: 'It is higher than normal' },
-      c: { vi: 'Không ảnh hưởng', en: 'No effect' },
-      d: { vi: 'Bằng ROA', en: 'It equals ROA' },
+      a: { vi: 'Bị kéo thấp xuống', en: 'It gets dragged down' },
+      b: { vi: 'Cao hơn mức bình thường', en: 'Higher than normal' },
+      c: { vi: 'Không bị ảnh hưởng gì', en: 'Not affected at all' },
+      d: { vi: 'Tăng thêm nhờ lãi tiền gửi', en: 'Higher, thanks to deposit interest' },
     },
     answer: 'a',
     explain: {
@@ -292,13 +301,10 @@ export const CHI_SO_DN: ReadonlyArray<QuizItem> = [
       en: 'A steel company has a lower ROA than a software company. Which conclusion is correct?',
     },
     choices: {
-      a: { vi: 'Thép làm ăn kém hơn', en: 'The steel company is performing worse' },
-      b: {
-        vi: 'Ngành công nghiệp nặng buộc phải có tài sản cố định lớn nên ROA thấp là đặc thù cơ cấu',
-        en: 'Heavy industry requires large fixed assets, so a low ROA is a structural feature',
-      },
-      c: { vi: 'Số liệu thép bị sai', en: "The steel company's figures are wrong" },
-      d: { vi: 'Phải so ROE thay vì ROA', en: 'ROE should be compared instead of ROA' },
+      a: { vi: 'Doanh nghiệp thép làm ăn kém hơn', en: 'The steel company is performing worse' },
+      b: { vi: 'ROA thấp là đặc thù ngành thép', en: 'A low ROA is typical of steel' },
+      c: { vi: 'Số liệu doanh nghiệp thép bị sai', en: "The steel company's figures are wrong" },
+      d: { vi: 'Phải so bằng ROE chứ không phải ROA', en: 'ROE must be compared instead of ROA' },
     },
     answer: 'b',
     explain: {
@@ -322,15 +328,12 @@ export const CHI_SO_DN: ReadonlyArray<QuizItem> = [
       en: 'ROA is usually presented as a pure measure of asset efficiency. Where does that fall short?',
     },
     choices: {
-      a: { vi: 'ROA không tính tài sản vô hình', en: 'ROA does not count intangible assets' },
-      b: { vi: 'ROA tính theo quý', en: 'ROA is computed quarterly' },
-      c: {
-        vi: 'Tử số là lợi nhuận sau thuế - đã trừ lãi vay, nên vẫn dính cơ cấu vốn',
-        en: 'The numerator is after-tax profit - already net of interest expense - so it still carries capital structure',
-      },
+      a: { vi: 'Mẫu số bỏ qua tài sản ngắn hạn', en: 'The denominator leaves out current assets' },
+      b: { vi: 'Tử số là lợi nhuận trước thuế', en: 'The numerator is pre-tax profit' },
+      c: { vi: 'Tử số đã trừ đi chi phí lãi vay', en: 'The numerator is already net of interest' },
       d: {
-        vi: 'ROA không so sánh được trong cùng ngành',
-        en: 'ROA cannot be compared within the same industry',
+        vi: 'Không so được trong cùng một ngành',
+        en: 'It cannot be compared within one industry',
       },
     },
     answer: 'c',
@@ -355,13 +358,10 @@ export const CHI_SO_DN: ReadonlyArray<QuizItem> = [
       en: 'QCG reported quarterly revenue of VND 11.5 billion (down 91.2%) but after-tax profit of VND 167.1 billion, up 93.4-fold. What about gross profit?',
     },
     choices: {
-      a: { vi: 'Tăng tương ứng', en: 'It rose correspondingly' },
-      b: { vi: 'Bằng 0', en: 'It was zero' },
-      c: {
-        vi: 'Âm gần 1 tỷ, toàn bộ lãi đến từ thu nhập khác',
-        en: 'It was negative by almost VND 1 billion; the entire profit came from other income',
-      },
-      d: { vi: 'Không công bố', en: 'It was not disclosed' },
+      a: { vi: 'Tăng theo cùng tỷ lệ', en: 'It rose by the same proportion' },
+      b: { vi: 'Đúng bằng 0 đồng', en: 'It came to exactly zero' },
+      c: { vi: 'Âm gần 1 tỷ đồng', en: 'A loss of nearly VND 1 billion' },
+      d: { vi: 'Không được công bố', en: 'It was not disclosed' },
     },
     answer: 'c',
     explain: {
@@ -386,13 +386,19 @@ export const CHI_SO_DN: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'Vì nó hứng trọn mọi tác động của nghiệp vụ kế toán, thuế và chi phí tài chính',
-        en: 'Because it absorbs the full impact of accounting choices, tax, and financial expenses',
+        vi: 'Vì mọi nghiệp vụ kế toán đều dồn vào nó',
+        en: 'Because every accounting choice flows into it',
       },
-      b: { vi: 'Vì nó nhỏ nhất', en: 'Because it is the smallest figure' },
-      c: { vi: 'Vì nó tính theo năm', en: 'Because it is computed annually' },
+      b: {
+        vi: 'Vì nó là con số nhỏ nhất trên báo cáo',
+        en: 'Because it is the smallest figure in the report',
+      },
+      c: {
+        vi: 'Vì nó chỉ được tính một lần mỗi năm',
+        en: 'Because it is only computed once a year',
+      },
       d: {
-        vi: 'Vì doanh nghiệp không phải công bố',
+        vi: 'Vì doanh nghiệp không bắt buộc phải công bố',
         en: 'Because companies are not required to disclose it',
       },
     },
@@ -418,12 +424,18 @@ export const CHI_SO_DN: ReadonlyArray<QuizItem> = [
       en: 'Does a high gross margin guarantee that a company is solidly profitable?',
     },
     choices: {
-      a: { vi: 'Có', en: 'Yes' },
-      b: { vi: 'Có nếu doanh thu tăng', en: 'Yes, if revenue is growing' },
-      c: { vi: 'Có với doanh nghiệp sản xuất', en: 'Yes, for manufacturing companies' },
+      a: {
+        vi: 'Có, vì giá vốn đã được trừ hết rồi',
+        en: 'Yes, since cost of goods is already deducted',
+      },
+      b: { vi: 'Có, miễn là doanh thu vẫn đang tăng', en: 'Yes, as long as revenue keeps growing' },
+      c: {
+        vi: 'Không, biên gộp chưa trừ giá vốn',
+        en: 'No, gross margin ignores cost of goods sold',
+      },
       d: {
-        vi: 'Không - chi phí bán hàng và quản lý có thể ăn hết phần lãi đó',
-        en: 'No - selling and administrative expenses can eat up that entire margin',
+        vi: 'Không, còn chi phí bán hàng, quản lý',
+        en: 'No, selling and admin costs still follow',
       },
     },
     answer: 'd',
@@ -448,13 +460,19 @@ export const CHI_SO_DN: ReadonlyArray<QuizItem> = [
       en: 'How does academic research find that managers manipulate gross margin?',
     },
     choices: {
-      a: { vi: 'Ghi nhận doanh thu sớm', en: 'By recognizing revenue early' },
-      b: {
-        vi: 'Chuyển chi phí từ giá vốn sang chi phí hoạt động',
-        en: 'By shifting costs from cost of goods sold into operating expenses',
+      a: {
+        vi: 'Ghi nhận doanh thu sớm hơn thực tế',
+        en: 'Recognizing revenue earlier than it is earned',
       },
-      c: { vi: 'Hoãn khấu hao', en: 'By deferring depreciation' },
-      d: { vi: 'Tăng hàng tồn kho', en: 'By inflating inventory' },
+      b: { vi: 'Dời giá vốn sang chi phí hoạt động', en: 'Moving COGS into operating expenses' },
+      c: {
+        vi: 'Cắt giảm chi phí bán hàng trong kỳ',
+        en: 'Cutting selling expenses for the period',
+      },
+      d: {
+        vi: 'Hoãn trả lãi vay sang kỳ sau',
+        en: 'Pushing interest payments into the next period',
+      },
     },
     answer: 'b',
     explain: {
@@ -479,12 +497,18 @@ export const CHI_SO_DN: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'So với đặc thù ngành, và tách nợ ngắn hạn với nợ dài hạn',
-        en: 'Compare it against industry norms, and separate short-term debt from long-term debt',
+        vi: 'So với ngành, tách nợ ngắn và dài hạn',
+        en: 'Compare with the industry, split debt by term',
       },
-      b: { vi: 'Loại ngay vì trên 1', en: 'Rule it out immediately, since it is above 1' },
-      c: { vi: 'Chấp nhận vì nợ là đòn bẩy tốt', en: 'Accept it, since debt is good leverage' },
-      d: { vi: 'Chỉ xem nếu ROE trên 20%', en: 'Only consider it if ROE is above 20%' },
+      b: {
+        vi: 'Loại bỏ ngay vì D/E đã vượt mức 1',
+        en: 'Rule it out at once, since D/E is above 1',
+      },
+      c: {
+        vi: 'Chấp nhận vì nợ vay là đòn bẩy tốt',
+        en: 'Accept it, since borrowing is good leverage',
+      },
+      d: { vi: 'Chỉ xem xét nếu ROE trên mức 20%', en: 'Consider it only if ROE is above 20%' },
     },
     answer: 'a',
     explain: {
@@ -509,21 +533,15 @@ export const CHI_SO_DN: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'Doanh nghiệp không còn nợ nữa nên hệ số quay về số âm',
-        en: 'The company has no debt left, so the ratio flips negative',
+        vi: 'Doanh nghiệp đã trả hết nợ phải trả',
+        en: 'The company has paid off all its liabilities',
       },
       b: {
-        vi: 'Lỗi hiển thị, nên lấy trị tuyệt đối 3,2 lần rồi đem so sánh',
-        en: 'It is a display error, so take the absolute value of 3.2 times and compare with that',
+        vi: 'Lỗi hiển thị, nên lấy trị tuyệt đối',
+        en: 'A display error, so take the absolute value',
       },
-      c: {
-        vi: 'Doanh nghiệp đang giữ nhiều tiền mặt hơn số nợ',
-        en: 'The company holds more cash than debt',
-      },
-      d: {
-        vi: 'Vốn chủ sở hữu đã âm: nợ phải trả vượt quá tài sản, đây là cảnh báo nặng chứ không phải điểm cộng',
-        en: 'Equity has gone negative: liabilities now exceed assets, which is a severe warning rather than a plus',
-      },
+      c: { vi: 'Tiền mặt đang nhiều hơn tổng nợ', en: 'It holds more cash than total debt' },
+      d: { vi: 'Vốn chủ sở hữu đã xuống dưới 0', en: "Shareholders' equity has fallen below zero" },
     },
     answer: 'd',
     explain: {
@@ -548,20 +566,20 @@ export const CHI_SO_DN: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'Rủi ro tài chính như nhau, vì con số D/E bằng nhau',
-        en: 'Their financial risk is the same, since the D/E figures match',
+        vi: 'Rủi ro như nhau, vì hai con số D/E bằng nhau',
+        en: 'Same risk, since the two D/E figures are identical',
       },
       b: {
         vi: 'B rủi ro hơn, vì đang bị đối tác chiếm dụng vốn',
-        en: 'B is riskier, because its partners are tying up its capital',
+        en: 'B is riskier, since partners are tying up its capital',
       },
       c: {
-        vi: 'Phải bỏ hết khoản phải trả ra khỏi tử số thì D/E mới có nghĩa',
-        en: 'Payables must be stripped out of the numerator before D/E means anything',
+        vi: 'Phải bỏ hết khoản phải trả khỏi tử số mới so được',
+        en: 'All payables must come out of the numerator first',
       },
       d: {
-        vi: 'B nhẹ gánh hơn, vì các khoản chiếm dụng đó không phải trả lãi, khác hẳn nợ vay',
-        en: 'B carries the lighter burden, because that kind of occupied capital bears no interest, unlike borrowing',
+        vi: 'B nhẹ gánh hơn, vì phần lớn nợ không chịu lãi',
+        en: 'B is less burdened, as most of it bears no interest',
       },
     },
     answer: 'd',
@@ -587,20 +605,20 @@ export const CHI_SO_DN: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'Đủ, vì 4,7 lần vẫn dưới trần 5 lần',
+        vi: 'Đủ, vì 4,7 lần vẫn nằm dưới trần 5 lần',
         en: 'Yes, because 4.7 times is still under the 5-times cap',
       },
       b: {
-        vi: 'Đủ, vì trần 5 lần chỉ tính nợ vay ngân hàng chứ không tính toàn bộ nợ phải trả',
-        en: 'Yes, because the 5-times cap counts only bank borrowings, not all liabilities',
+        vi: 'Chưa biết, phải chờ báo cáo năm nay kiểm toán xong',
+        en: "Too early to tell, this year's audit must come first",
       },
       c: {
-        vi: 'Không đủ, vì phải cộng cả lô trái phiếu dự kiến phát hành vào nợ phải trả, thành 5,2 lần',
-        en: 'No, because the planned bond issue must be added to total liabilities first, bringing it to 5.2 times',
+        vi: 'Không đủ, vì cộng cả lô trái phiếu thì thành 5,2 lần',
+        en: 'No, because adding the bond issue brings it to 5.2 times',
       },
       d: {
-        vi: 'Đủ, nếu báo cáo tài chính quý gần nhất cho thấy tỷ lệ đã lùi xuống dưới 5 lần',
-        en: 'Yes, provided the most recent quarterly statements show the ratio back below 5 times',
+        vi: 'Đủ, nếu báo cáo quý gần nhất đã dưới 5 lần',
+        en: 'Yes, if the latest quarterly report shows under 5 times',
       },
     },
     answer: 'c',
@@ -628,19 +646,19 @@ export const CHI_SO_DN: ReadonlyArray<QuizItem> = [
     choices: {
       a: {
         vi: 'Không ảnh hưởng, vì trái chủ được trả trước cổ đông',
-        en: 'It changes nothing, since bondholders rank ahead of shareholders',
+        en: 'No effect, since bondholders rank ahead of shareholders',
       },
       b: {
-        vi: 'Là điểm tốt, vì doanh nghiệp đang tận dụng đòn bẩy để sinh lời cao hơn',
-        en: 'It is a good sign, since the company is using leverage to earn a higher return',
+        vi: 'Là điểm tốt, vì doanh nghiệp tận dụng đòn bẩy',
+        en: 'A good sign, since the company is using leverage',
       },
       c: {
-        vi: 'Vốn chủ là lớp đệm hứng lỗ đầu tiên; đệm chỉ bằng khoảng một phần chín số nợ thì dự án lỗ nhẹ đã ăn sang tiền của trái chủ',
-        en: "Equity is the first cushion to absorb losses; at roughly one-ninth of debt, even a modest project loss already reaches bondholders' money",
+        vi: 'Rủi ro cao, vì lỗ nhẹ cũng ăn vào tiền trái chủ',
+        en: 'High risk, as even a small loss reaches bondholders',
       },
       d: {
-        vi: 'Chỉ cần lãi suất 13% đủ bù rủi ro là mua được',
-        en: 'A 13% coupon is compensation enough for the risk on its own',
+        vi: 'Chỉ cần lãi 13% đủ bù rủi ro là mua được',
+        en: 'A 13% coupon alone is enough to cover the risk',
       },
     },
     answer: 'c',
@@ -665,13 +683,22 @@ export const CHI_SO_DN: ReadonlyArray<QuizItem> = [
       en: 'The current ratio is 3.2 times, and inventory makes up most of current assets. How should this be assessed?',
     },
     choices: {
-      a: { vi: 'Rất an toàn', en: 'Very safe' },
-      b: { vi: 'Doanh nghiệp thiếu vốn', en: 'The company is short of capital' },
-      c: {
-        vi: 'Chưa chắc - tồn kho ứ đọng khó chuyển thành tiền, và vốn đang bị chôn',
-        en: 'Not necessarily - stagnant inventory is hard to convert into cash, and capital is tied up',
+      a: {
+        vi: 'Rất an toàn, thừa sức trả nợ ngắn hạn',
+        en: 'Very safe, with ample room to pay short-term debt',
       },
-      d: { vi: 'Tỷ số này không có ý nghĩa', en: 'This ratio is meaningless' },
+      b: {
+        vi: 'Doanh nghiệp đang thiếu vốn lưu động',
+        en: 'The company is short of working capital',
+      },
+      c: {
+        vi: 'Chưa chắc an toàn vì tồn kho khó bán',
+        en: 'Not necessarily safe, as inventory may not sell',
+      },
+      d: {
+        vi: 'Yên tâm được, tồn kho cũng là tài sản',
+        en: 'Reassuring, since inventory is an asset too',
+      },
     },
     answer: 'c',
     explain: {
@@ -695,13 +722,16 @@ export const CHI_SO_DN: ReadonlyArray<QuizItem> = [
       en: 'Inventory has already been excluded - why can the quick ratio still be misleading?',
     },
     choices: {
-      a: { vi: 'Vì còn tiền mặt', en: 'Because cash is still included' },
-      b: { vi: 'Vì công thức sai', en: 'Because the formula is wrong' },
-      c: {
-        vi: 'Vì khoản phải thu còn lại có thể kém chất lượng hoặc không đòi được',
-        en: 'Because the remaining receivables can be low quality or uncollectible',
+      a: { vi: 'Vì tử số vẫn tính cả tiền mặt', en: 'Because the numerator still includes cash' },
+      b: {
+        vi: 'Vì công thức thanh toán nhanh bị sai',
+        en: 'Because the quick-ratio formula is wrong',
       },
-      d: { vi: 'Vì chưa trừ nợ dài hạn', en: 'Because long-term debt has not been subtracted' },
+      c: {
+        vi: 'Vì tử số vẫn tính cả phải thu khó đòi',
+        en: 'Because doubtful receivables are still counted',
+      },
+      d: { vi: 'Vì mẫu số chưa tính nợ dài hạn', en: 'Because long-term debt is left out' },
     },
     answer: 'c',
     explain: {
@@ -730,11 +760,11 @@ export const CHI_SO_DN: ReadonlyArray<QuizItem> = [
         en: 'The business genuinely became more efficient',
       },
       b: {
-        vi: 'Tỷ lệ tăng do mẫu số giảm - có thể không lãi hơn chút nào',
-        en: 'The ratio rose because the denominator shrank - profitability may not have improved at all',
+        vi: 'Tỷ số tăng do tổng tài sản giảm đi',
+        en: 'The ratio rose because total assets shrank',
       },
-      c: { vi: 'Doanh thu đã tăng', en: 'Revenue has increased' },
-      d: { vi: 'Biên lợi nhuận đã cải thiện', en: 'The profit margin has improved' },
+      c: { vi: 'Doanh thu bán hàng đã tăng lên', en: 'Sales revenue has gone up' },
+      d: { vi: 'Biên lợi nhuận đã được cải thiện', en: 'The profit margin has improved' },
     },
     answer: 'b',
     explain: {
@@ -759,17 +789,20 @@ export const CHI_SO_DN: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'Có thể đang vắt kiệt lợi nhuận, không còn tiền tái đầu tư - cần xem nguồn tiền trả cổ tức',
-        en: 'It may be squeezing out every last bit of profit with no cash left to reinvest - check where the dividend money comes from',
+        vi: 'Cần xem tiền chia cổ tức được lấy từ đâu',
+        en: 'Check where the dividend money comes from',
       },
       b: {
         vi: 'Rất khoẻ, chia nhiều cho cổ đông',
-        en: 'Very healthy - paying shareholders generously',
+        en: 'Very healthy, paying shareholders generously',
       },
-      c: { vi: 'Sắp phá sản', en: 'About to go bankrupt' },
+      c: {
+        vi: 'Doanh nghiệp sắp lâm vào cảnh phá sản',
+        en: 'The company is heading for bankruptcy',
+      },
       d: {
-        vi: 'Payout cao luôn tốt cho cổ đông dài hạn',
-        en: 'A high payout is always good for long-term shareholders',
+        vi: 'Payout càng cao càng lợi cho cổ đông',
+        en: 'The higher the payout, the better for holders',
       },
     },
     answer: 'a',
@@ -794,12 +827,15 @@ export const CHI_SO_DN: ReadonlyArray<QuizItem> = [
       en: 'A company retains VND 840 billion of profit for a new project instead of paying it out as dividends. What does that say?',
     },
     choices: {
-      a: { vi: 'Ban lãnh đạo bạc đãi cổ đông', en: 'Management is mistreating shareholders' },
-      b: { vi: 'Doanh nghiệp thiếu tiền mặt', en: 'The company is short of cash' },
-      c: { vi: 'Sắp phát hành thêm cổ phiếu', en: 'It is about to issue more shares' },
+      a: { vi: 'Ban lãnh đạo đang bạc đãi cổ đông', en: 'Management is mistreating shareholders' },
+      b: { vi: 'Doanh nghiệp đang thiếu tiền mặt', en: 'The company is running short of cash' },
+      c: {
+        vi: 'Doanh nghiệp sắp phát hành thêm cổ phiếu',
+        en: 'The company is about to issue new shares',
+      },
       d: {
-        vi: 'Payout hợp lý phụ thuộc cơ hội đầu tư - payout cao thường là dấu hiệu hết cơ hội hấp dẫn',
-        en: 'A sensible payout depends on investment opportunities - a high payout is often a sign that attractive opportunities have run out',
+        vi: 'Mức chia hợp lý tuỳ vào cơ hội đầu tư',
+        en: 'A sensible payout depends on opportunities',
       },
     },
     answer: 'd',
@@ -860,13 +896,10 @@ export const CHI_SO_DN: ReadonlyArray<QuizItem> = [
       en: 'A company has a high degree of total leverage. When EBIT falls 10%, what happens?',
     },
     choices: {
-      a: { vi: 'EPS giảm khoảng 10%', en: 'EPS falls by about 10%' },
-      b: { vi: 'EPS không đổi', en: 'EPS stays unchanged' },
-      c: { vi: 'EPS tăng do tiết kiệm thuế', en: 'EPS rises due to tax savings' },
-      d: {
-        vi: 'EPS giảm mạnh hơn nhiều, và nguy cơ mất khả năng thanh toán tăng',
-        en: 'EPS falls much more sharply, and the risk of insolvency rises',
-      },
+      a: { vi: 'EPS cũng chỉ giảm khoảng 10%', en: 'EPS also falls by only about 10%' },
+      b: { vi: 'EPS giữ nguyên không đổi', en: 'EPS stays exactly the same' },
+      c: { vi: 'EPS tăng nhờ tiết kiệm thuế', en: 'EPS rises thanks to tax savings' },
+      d: { vi: 'EPS giảm mạnh hơn hẳn 10%', en: 'EPS falls far more than 10%' },
     },
     answer: 'd',
     explain: {

@@ -188,7 +188,8 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
   column-gap: var(--space-4);
-  row-gap: var(--space-1);
+  /* 6px, bản sao của `.fields` ở `FormulaDetail.module.css` (16/11/2026) — lý do ghi ở đó. */
+  row-gap: calc(var(--space-1) + 2px);
   min-width: 0;
 }
 

@@ -38,6 +38,15 @@ import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { extname, join, normalize, resolve, sep } from 'node:path';
 
+/*
+ * Công tắc ẩn tạm Cài đặt (16/11/2026) — đọc thẳng từ `routes.ts` để không phải sửa hai nơi. Tắt thì
+ * các phép đo trên màn Cài đặt và icon bánh răng bỏ qua, thay bằng phép kiểm "không có icon".
+ */
+const SETTINGS_ENABLED = /SETTINGS_ENABLED: boolean = true/.test(
+  readFileSync(new URL('../src/application/routes.ts', import.meta.url), 'utf8'),
+);
+const MAN_CO_TEN_PC = SETTINGS_ENABLED ? '/cai-dat/' : '/danh-muc/';
+
 const ROOT = 'out';
 
 if (!existsSync(ROOT)) {
@@ -1835,7 +1844,7 @@ window.__localeLog = [];
     '/cong-thuc/lich-tra-no/',
     '/danh-muc/',
     '/du-lieu/',
-    '/cai-dat/',
+    ...(SETTINGS_ENABLED ? ['/cai-dat/'] : []),
     // Thêm 15/10/2026 cùng đợt dịch kho hướng dẫn và trả nợ đơn vị trên biểu đồ.
     '/cong-thuc/fcfe/',
     '/huong-dan/cong-thuc/pe/',
@@ -3779,34 +3788,46 @@ window.__localeLog = [];
   })()`;
 
   const rang360 = await evaluate(DOC_BANH_RANG);
-  check(
-    'Điện thoại 360 · icon Cài đặt đứng sát bên trái Sáng/Tối, cùng hàng cùng cỡ; thanh dưới còn ba tab',
-    rang360.hien === true &&
-      rang360.ten === 'Cài đặt' &&
-      rang360.khe !== null &&
-      rang360.khe >= 0 &&
-      rang360.khe <= 8 &&
-      Math.abs(rang360.lechTam ?? 99) <= 1 &&
-      rang360.cao === rang360.caoTheme &&
-      rang360.dangMo === null &&
-      rang360.navDuoi === 'Công thức|Danh mục|Giới thiệu' &&
-      rang360.tran === false &&
-      rang360.thanhTran === false,
-    JSON.stringify(rang360),
-  );
+  if (!SETTINGS_ENABLED) {
+    check(
+      'Điện thoại 360 · Cài đặt đang ẩn tạm: không icon bánh răng; thanh dưới còn ba tab',
+      rang360.hien === false &&
+        rang360.navDuoi === 'Công thức|Danh mục|Giới thiệu' &&
+        rang360.tran === false &&
+        rang360.thanhTran === false,
+      JSON.stringify(rang360),
+    );
+  } else
+    check(
+      'Điện thoại 360 · icon Cài đặt đứng sát bên trái Sáng/Tối, cùng hàng cùng cỡ; thanh dưới còn ba tab',
+      rang360.hien === true &&
+        rang360.ten === 'Cài đặt' &&
+        rang360.khe !== null &&
+        rang360.khe >= 0 &&
+        rang360.khe <= 8 &&
+        Math.abs(rang360.lechTam ?? 99) <= 1 &&
+        rang360.cao === rang360.caoTheme &&
+        rang360.dangMo === null &&
+        rang360.navDuoi === 'Công thức|Danh mục|Giới thiệu' &&
+        rang360.tran === false &&
+        rang360.thanhTran === false,
+      JSON.stringify(rang360),
+    );
 
-  await open('/cai-dat/');
-  const rang360CaiDat = await evaluate(DOC_BANH_RANG);
-  check(
-    'Điện thoại 360 · ở màn Cài đặt icon mang aria-current, viền 2px, lõi đặc, khung không nở; không tab nào sáng',
-    rang360CaiDat.dangMo === 'page' &&
-      rang360CaiDat.vien === '2px' &&
-      rang360CaiDat.loiDac === true &&
-      rang360CaiDat.rong === rang360.rong &&
-      rang360CaiDat.cao === rang360.cao &&
-      rang360CaiDat.mucDangMo === 0,
-    JSON.stringify(rang360CaiDat),
-  );
+  if (SETTINGS_ENABLED) {
+    await open('/cai-dat/');
+    const rang360CaiDat = await evaluate(DOC_BANH_RANG);
+    check(
+      'Điện thoại 360 · ở màn Cài đặt icon mang aria-current, viền 2px, lõi đặc, khung không nở; không tab nào sáng',
+      rang360CaiDat.dangMo === 'page' &&
+        rang360CaiDat.vien === '2px' &&
+        rang360CaiDat.loiDac === true &&
+        rang360CaiDat.rong === rang360.rong &&
+        rang360CaiDat.cao === rang360.cao &&
+        rang360CaiDat.mucDangMo === 0,
+      JSON.stringify(rang360CaiDat),
+    );
+  }
 
   await send('Emulation.setDeviceMetricsOverride', {
     width: 560,
@@ -3831,8 +3852,9 @@ window.__localeLog = [];
     mobile: false,
   });
 
-  await open('/cai-dat/');
-  const pcCaiDat = await evaluate(`(() => {
+  if (SETTINGS_ENABLED) {
+    await open('/cai-dat/');
+    const pcCaiDat = await evaluate(`(() => {
     const khoi = [...document.querySelectorAll('main section')].map((el) => {
       const b = el.getBoundingClientRect();
       return { top: Math.round(b.top), left: Math.round(b.left), right: Math.round(b.right) };
@@ -3845,28 +3867,29 @@ window.__localeLog = [];
     };
   })()`);
 
-  /*
-   * Khối 1 ("Chế độ hiển thị") và khối đầu của cột phải là đỉnh của hai cột, nên chúng phải cùng
-   * mép trên và khối kia phải nằm hẳn bên phải khối 1. Đây cũng là phép kiểm bắt được lỗi ngược
-   * lại: nếu ai gỡ hai bọc `.col` để về lưới phẳng, khối thứ ba vẫn bên phải nhưng khối 2 sẽ bị
-   * đẩy xuống đáy — thứ mà phép so mép trên này không thấy, nên đo thêm số khối cho chắc.
-   *
-   * ĐÚNG BA khối từ 27/10/2026, khi chủ dự án bỏ khối thứ tư "Về sản phẩm" (cuối cột phải). Khối
-   * Dữ liệu vẫn là khối thứ ba và là đỉnh cột phải, kể cả khi bản kiểm kê chín kho đang ẩn sau cờ
-   * `HIEN_KHOI_DU_LIEU` (14/09/2026): khối ấy lúc đó rút xuống còn tiêu đề và một nút xoá sạch, nhưng
-   * KHÔNG biến mất — nếu mất thì cột phải trống và phép so mép trên dưới đây đo sang thứ khác.
-   */
-  check(
-    'PC 1440 · Cài đặt xếp hai cột — khối Chế độ và khối Dữ liệu cùng mép trên',
-    pcCaiDat.so === 3 &&
-      pcCaiDat.dau !== null &&
-      pcCaiDat.thuBa !== null &&
-      Math.abs(pcCaiDat.dau.top - pcCaiDat.thuBa.top) <= 1 &&
-      pcCaiDat.thuBa.left >= pcCaiDat.dau.right,
-    `${String(pcCaiDat.so)} khối · mép trên ${String(pcCaiDat.dau?.top)} / ${String(pcCaiDat.thuBa?.top)}`,
-  );
+    /*
+     * Khối 1 ("Chế độ hiển thị") và khối đầu của cột phải là đỉnh của hai cột, nên chúng phải cùng
+     * mép trên và khối kia phải nằm hẳn bên phải khối 1. Đây cũng là phép kiểm bắt được lỗi ngược
+     * lại: nếu ai gỡ hai bọc `.col` để về lưới phẳng, khối thứ ba vẫn bên phải nhưng khối 2 sẽ bị
+     * đẩy xuống đáy — thứ mà phép so mép trên này không thấy, nên đo thêm số khối cho chắc.
+     *
+     * ĐÚNG BA khối từ 27/10/2026, khi chủ dự án bỏ khối thứ tư "Về sản phẩm" (cuối cột phải). Khối
+     * Dữ liệu vẫn là khối thứ ba và là đỉnh cột phải, kể cả khi bản kiểm kê chín kho đang ẩn sau cờ
+     * `HIEN_KHOI_DU_LIEU` (14/09/2026): khối ấy lúc đó rút xuống còn tiêu đề và một nút xoá sạch, nhưng
+     * KHÔNG biến mất — nếu mất thì cột phải trống và phép so mép trên dưới đây đo sang thứ khác.
+     */
+    check(
+      'PC 1440 · Cài đặt xếp hai cột — khối Chế độ và khối Dữ liệu cùng mép trên',
+      pcCaiDat.so === 3 &&
+        pcCaiDat.dau !== null &&
+        pcCaiDat.thuBa !== null &&
+        Math.abs(pcCaiDat.dau.top - pcCaiDat.thuBa.top) <= 1 &&
+        pcCaiDat.thuBa.left >= pcCaiDat.dau.right,
+      `${String(pcCaiDat.so)} khối · mép trên ${String(pcCaiDat.dau?.top)} / ${String(pcCaiDat.thuBa?.top)}`,
+    );
 
-  check('PC 1440 · Cài đặt không tràn ngang', pcCaiDat.tran === false);
+    check('PC 1440 · Cài đặt không tràn ngang', pcCaiDat.tran === false);
+  }
 
   /*
    * ── Thanh điều hướng đứng YÊN khi đổi màn ────────────────────────────────
@@ -3903,8 +3926,11 @@ window.__localeLog = [];
 
   await open('/cong-thuc/');
   const navCongThuc = await evaluate(DOC_NAV);
-  /* Về lại '/cai-dat/' — phép kiểm danh tính ngay dưới đo trên chính màn ấy. */
-  await open('/cai-dat/');
+  /*
+   * Về lại '/cai-dat/' — phép kiểm danh tính ngay dưới đo trên chính màn ấy. Khi Cài đặt ẩn tạm
+   * (`SETTINGS_ENABLED`), '/cai-dat/' chỉ chuyển hướng, nên đo trên '/danh-muc/' — cũng là màn có tên.
+   */
+  await open(MAN_CO_TEN_PC);
   const navCaiDat = await evaluate(DOC_NAV);
 
   check(
@@ -3928,7 +3954,7 @@ window.__localeLog = [];
   const pcDanhTinh = await evaluate(DOC_DANH_TINH);
 
   check(
-    'PC 1440 · màn Cài đặt bày TÊN SẢN PHẨM, tên màn ẩn khỏi mắt nhưng vẫn là <h1> của trang',
+    `PC 1440 · màn ${MAN_CO_TEN_PC} bày TÊN SẢN PHẨM, tên màn ẩn khỏi mắt nhưng vẫn là <h1> của trang`,
     pcDanhTinh !== null &&
       pcDanhTinh.coH1 === true &&
       pcDanhTinh.h1Hien === false &&
@@ -3943,21 +3969,22 @@ window.__localeLog = [];
    * mục Cài đặt đã rời thanh nav, nên ở đây icon đang mở là thứ DUY NHẤT nói "đang ở màn Cài đặt".
    */
   const rangPc = await evaluate(DOC_BANH_RANG);
-  check(
-    'PC 1440 · màn Cài đặt: nav ba mục không mục nào sáng; icon bên trái Sáng/Tối mang viền 2px và lõi đặc',
-    rangPc.hien === true &&
-      rangPc.navTren === 'Công thức|Danh mục|Về chúng tôi' &&
-      rangPc.mucDangMo === 0 &&
-      rangPc.dangMo === 'page' &&
-      rangPc.vien === '2px' &&
-      rangPc.loiDac === true &&
-      rangPc.khe !== null &&
-      rangPc.khe >= 0 &&
-      rangPc.khe <= 8 &&
-      Math.abs(rangPc.lechTam ?? 99) <= 1 &&
-      rangPc.tran === false,
-    JSON.stringify(rangPc),
-  );
+  if (SETTINGS_ENABLED)
+    check(
+      'PC 1440 · màn Cài đặt: nav ba mục không mục nào sáng; icon bên trái Sáng/Tối mang viền 2px và lõi đặc',
+      rangPc.hien === true &&
+        rangPc.navTren === 'Công thức|Danh mục|Về chúng tôi' &&
+        rangPc.mucDangMo === 0 &&
+        rangPc.dangMo === 'page' &&
+        rangPc.vien === '2px' &&
+        rangPc.loiDac === true &&
+        rangPc.khe !== null &&
+        rangPc.khe >= 0 &&
+        rangPc.khe <= 8 &&
+        Math.abs(rangPc.lechTam ?? 99) <= 1 &&
+        rangPc.tran === false,
+      JSON.stringify(rangPc),
+    );
 
   /*
    * ── Form thêm mã của màn Danh mục xếp hai cột, hàng nút dạt phải ─────────
@@ -3989,8 +4016,10 @@ window.__localeLog = [];
     };
   })()`);
   check(
-    'PC 1440 · Danh mục: thanh trên vẫn có đủ Cài đặt, Sáng/Tối và VI',
-    cumPcDanhMuc.caiDat === true && cumPcDanhMuc.sangToi === true && cumPcDanhMuc.ngonNgu === true,
+    'PC 1440 · Danh mục: thanh trên vẫn có đủ Cài đặt (khi bật), Sáng/Tối và VI',
+    cumPcDanhMuc.caiDat === SETTINGS_ENABLED &&
+      cumPcDanhMuc.sangToi === true &&
+      cumPcDanhMuc.ngonNgu === true,
     JSON.stringify(cumPcDanhMuc),
   );
 

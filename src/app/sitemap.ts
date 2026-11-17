@@ -1,6 +1,6 @@
 import type { MetadataRoute } from 'next';
 
-import { FORMULA_SUMMARIES, ROUTES, formulaPath, guidePath } from '@/application';
+import { FORMULA_SUMMARIES, ROUTES, SETTINGS_ENABLED, formulaPath, guidePath } from '@/application';
 
 import { absoluteUrl } from './site-url';
 
@@ -28,7 +28,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: absoluteUrl(ROUTES.portfolio), priority: 0.5 },
     /* Trang nội dung thật, không phải màn công cụ — vì thế nó xếp trên Cài đặt. */
     { url: absoluteUrl(ROUTES.about), priority: 0.4 },
-    { url: absoluteUrl(ROUTES.settings), priority: 0.3 },
+    /* Cài đặt đang ẩn tạm (`SETTINGS_ENABLED`): trang chỉ còn chuyển hướng, không khai ở đây. */
+    ...(SETTINGS_ENABLED ? [{ url: absoluteUrl(ROUTES.settings), priority: 0.3 }] : []),
   ];
 
   const formulaPages: MetadataRoute.Sitemap = FORMULA_SUMMARIES.map((formula) => ({

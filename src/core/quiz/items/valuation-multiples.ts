@@ -20,17 +20,20 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'Cổ phiếu đang rẻ hơn ngành, nên mua vào',
+        vi: 'Cổ phiếu đang rẻ hơn mặt bằng ngành, nên mua vào',
         en: 'The stock is cheaper than the sector, so it should be bought',
       },
       b: {
-        vi: 'Doanh nghiệp làm ăn kém hơn trung bình ngành',
+        vi: 'Doanh nghiệp đang làm ăn kém hiệu quả hơn trung bình ngành',
         en: 'The company is performing worse than the industry average',
       },
-      c: { vi: 'P/E thấp nghĩa là EPS đang âm', en: 'A low P/E means EPS is negative' },
+      c: {
+        vi: 'P/E thấp như vậy thường là do EPS đang âm',
+        en: 'A P/E this low usually comes from negative EPS',
+      },
       d: {
-        vi: 'Chưa kết luận được - thép là ngành chu kỳ, P/E thấp thường rơi vào đỉnh lợi nhuận',
-        en: 'No conclusion yet - steel is a cyclical sector, and a low P/E usually falls right at a profit peak',
+        vi: 'Đây là ngành chu kỳ, P/E thấp thường trùng đỉnh lợi nhuận',
+        en: 'In a cyclical sector, a low P/E often marks peak profit',
       },
     },
     answer: 'd',
@@ -86,17 +89,20 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'P/E âm, càng âm sâu càng rẻ',
-        en: 'A negative P/E, and the more negative, the cheaper',
+        vi: 'Hiện P/E âm, và P/E càng âm sâu thì cổ phiếu càng rẻ',
+        en: 'Show a negative P/E; the more negative, the cheaper the stock',
       },
       b: {
-        vi: 'Hiện “_ _” kèm cảnh báo kết quả không có ý nghĩa',
-        en: 'Show “_ _” with a warning that the result is meaningless',
+        vi: 'Hiện “_ _” kèm cảnh báo P/E không có ý nghĩa',
+        en: 'Show “_ _” with a warning that P/E is meaningless',
       },
-      c: { vi: 'P/E = 0 vì không tính được', en: 'P/E = 0 because it cannot be calculated' },
+      c: {
+        vi: 'Hiện P/E bằng 0 vì EPS âm thì không tính được',
+        en: 'Show P/E as 0, since it cannot be computed from a negative EPS',
+      },
       d: {
-        vi: 'Lấy trị tuyệt đối của EPS rồi tính bình thường',
-        en: 'Take the absolute value of EPS and calculate as normal',
+        vi: 'Lấy trị tuyệt đối của EPS rồi tính P/E như thường',
+        en: 'Take the absolute value of EPS and compute P/E as usual',
       },
     },
     answer: 'b',
@@ -176,14 +182,20 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'Chắc chắn rẻ vì mua tài sản dưới giá sổ sách',
-        en: 'Definitely cheap, since you are buying assets below book value',
+        vi: 'Cổ phiếu rẻ vì đang mua được tài sản dưới giá sổ sách',
+        en: 'The stock is cheap, since you buy assets below book value',
       },
-      b: { vi: 'Ngân hàng sắp phá sản', en: 'The bank is about to go bankrupt' },
-      c: { vi: 'P/B dưới 1 là lỗi dữ liệu', en: 'A P/B below 1 is a data error' },
+      b: {
+        vi: 'Ngân hàng sắp phá sản, vì thế P/B mới rơi xuống dưới 1',
+        en: 'The bank is about to go bankrupt, hence a P/B below 1',
+      },
+      c: {
+        vi: 'P/B dưới 1 là do dữ liệu kế toán bị nhập sai',
+        en: 'A P/B below 1 means the accounting data was entered wrong',
+      },
       d: {
-        vi: 'Thị trường đang chiết khấu rủi ro chất lượng tài sản, cần soi nợ xấu',
-        en: 'The market is discounting asset-quality risk; bad debt needs to be checked',
+        vi: 'Thị trường đang chiết khấu rủi ro nợ xấu',
+        en: 'The market is discounting the risk of bad debt',
       },
     },
     answer: 'd',
@@ -209,18 +221,21 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'Vì giá trị sổ sách luôn bị khai thấp',
-        en: 'Because book value is always understated',
+        vi: 'Vì giá trị sổ sách thường bị doanh nghiệp khai thấp đi',
+        en: 'Because companies usually understate the book value they report',
       },
       b: {
-        vi: 'Vì giá trị sổ sách là một ý kiến kế toán, không phải giá trị thanh lý',
-        en: 'Because book value is an accounting opinion, not a liquidation value',
+        vi: 'Vì giá trị sổ sách là ý kiến kế toán, không phải giá thanh lý',
+        en: 'Because book value is an accounting opinion, not liquidation value',
       },
       c: {
-        vi: 'Vì P/B chỉ dùng được cho công ty Mỹ',
-        en: 'Because P/B can only be used for U.S. companies',
+        vi: 'Vì P/B chỉ áp dụng được cho doanh nghiệp tại Mỹ',
+        en: 'Because P/B can only be applied to companies in the United States',
       },
-      d: { vi: 'Vì thị trường luôn đúng', en: 'Because the market is always right' },
+      d: {
+        vi: 'Vì công ty có P/B dưới 1 sẽ sớm bị huỷ niêm yết',
+        en: 'Because a company with a P/B below 1 will soon be delisted',
+      },
     },
     answer: 'b',
     explain: {
@@ -244,13 +259,16 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
       en: 'What type of company makes P/B look deceptively expensive?',
     },
     choices: {
-      a: { vi: 'Doanh nghiệp thép', en: 'Steel companies' },
-      b: { vi: 'Công ty bất động sản', en: 'Real estate companies' },
-      c: { vi: 'Ngân hàng', en: 'Banks' },
-      d: {
-        vi: 'Công ty phần mềm và thương hiệu mạnh',
-        en: 'Software companies and strong-brand companies',
+      a: {
+        vi: 'Doanh nghiệp thép có nhiều nhà máy lớn',
+        en: 'Steel makers with many large plants',
       },
+      b: { vi: 'Ngân hàng có dư nợ cho vay rất lớn', en: 'Banks with a very large loan book' },
+      c: {
+        vi: 'Công ty có nhiều tiền mặt gửi ngân hàng',
+        en: 'Companies holding a lot of cash in banks',
+      },
+      d: { vi: 'Công ty phần mềm và thương hiệu mạnh', en: 'Software and strong-brand companies' },
     },
     answer: 'd',
     explain: {
@@ -274,13 +292,22 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
       en: "A company's P/S is much lower than its rivals'. Which conclusion is correct?",
     },
     choices: {
-      a: { vi: 'Cổ phiếu rẻ hơn', en: 'The stock is cheaper' },
-      b: {
-        vi: 'Chỉ biết trả ít hơn cho mỗi đồng doanh thu, chưa biết gì về biên lợi nhuận và nợ',
-        en: 'It only tells you that you pay less per dong of revenue - it says nothing yet about profit margin or debt',
+      a: {
+        vi: 'Cổ phiếu đang rẻ hơn hẳn so với các đối thủ cùng ngành',
+        en: 'The stock is much cheaper than its industry rivals',
       },
-      c: { vi: 'Doanh thu đang giảm', en: 'Revenue is declining' },
-      d: { vi: 'Doanh nghiệp sắp có lãi', en: 'The company is about to turn a profit' },
+      b: {
+        vi: 'Nhà đầu tư đang trả ít hơn cho mỗi đồng doanh thu',
+        en: 'Investors are paying less for each dong of revenue',
+      },
+      c: {
+        vi: 'Doanh thu của doanh nghiệp đang sụt giảm',
+        en: "The company's revenue is declining",
+      },
+      d: {
+        vi: 'Doanh nghiệp sắp chuyển từ lỗ sang có lãi',
+        en: 'The company is about to swing from loss to profit',
+      },
     },
     answer: 'b',
     explain: {
@@ -305,20 +332,20 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'Doanh nghiệp mới niêm yết trên sàn chứng khoán trong năm đó',
+        vi: 'Doanh nghiệp vừa mới niêm yết trên sàn trong năm đó',
         en: 'The company just listed on the stock exchange that year',
       },
       b: {
-        vi: 'Các doanh nghiệp so sánh có biên lợi nhuận gộp chênh lệch lớn (ví dụ Amazon và Yahoo trong bài viết)',
-        en: 'The companies being compared have very different gross margins (e.g., Amazon and Yahoo in the article)',
+        vi: 'Các doanh nghiệp có biên lợi nhuận gộp chênh nhau lớn',
+        en: 'The companies have very different gross margins',
       },
       c: {
-        vi: 'Doanh nghiệp đang trả cổ tức bằng tiền mặt hàng quý',
-        en: 'The company pays quarterly cash dividends',
+        vi: 'Doanh nghiệp đang trả cổ tức tiền mặt đều đặn hằng quý',
+        en: 'The company pays steady cash dividends every quarter',
       },
       d: {
-        vi: 'Một doanh nghiệp gộp chung doanh thu từ các mảng kinh doanh có bản chất khác nhau, như AOL với mảng truy cập dial-up và mảng quảng cáo/thương mại',
-        en: "A company lumps revenue from businesses with very different natures into one figure, as with AOL's dialup-access and advertising/commerce segments",
+        vi: 'Một doanh nghiệp gộp doanh thu từ hai mảng khác hẳn nhau',
+        en: 'One company lumps revenue from two very different businesses',
       },
     },
     answers: ['b', 'd'],
@@ -344,20 +371,20 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'Giá vốn hàng bán tăng cùng tỷ lệ với doanh thu',
-        en: 'Cost of goods sold is growing at the same rate as revenue',
+        vi: 'Giá vốn hàng bán tăng cùng tỷ lệ với doanh thu thuần',
+        en: 'Cost of goods sold is growing at the same rate as net revenue',
       },
       b: {
-        vi: 'Khoản phải thu tăng nhanh hơn rất nhiều so với doanh số',
-        en: 'Accounts receivable are growing much faster than sales',
+        vi: 'Khoản phải thu tăng nhanh hơn nhiều so với doanh số',
+        en: 'Receivables are growing much faster than sales',
       },
       c: {
-        vi: 'Số cổ phiếu lưu hành giữ nguyên trong kỳ',
-        en: 'The number of shares outstanding stayed the same during the period',
+        vi: 'Số cổ phiếu đang lưu hành giữ nguyên suốt cả kỳ báo cáo',
+        en: 'Shares outstanding stayed the same for the whole reporting period',
       },
       d: {
-        vi: 'Vốn hóa thị trường cao hơn tổng doanh thu năm',
-        en: 'Market capitalization is higher than annual revenue',
+        vi: 'Vốn hóa thị trường đã cao hơn tổng doanh thu cả năm',
+        en: 'Market capitalization has risen above full-year revenue',
       },
     },
     answer: 'b',
@@ -454,12 +481,21 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'Vì bên mua nhận luôn số tiền đó nên nó bù trừ vào giá phải trả',
-        en: 'Because the buyer also receives that cash, which offsets the price to be paid',
+        vi: 'Vì người mua nhận luôn số tiền đó, bù vào giá phải trả',
+        en: 'Because the buyer gets that cash too, offsetting the price',
       },
-      b: { vi: 'Vì tiền mặt không sinh lời', en: 'Because cash does not generate returns' },
-      c: { vi: 'Vì tiền mặt đã tính vào nợ', en: 'Because cash is already counted in debt' },
-      d: { vi: 'Vì chuẩn kế toán yêu cầu', en: 'Because accounting standards require it' },
+      b: {
+        vi: 'Vì tiền mặt nằm yên trong doanh nghiệp không tạo ra lợi nhuận',
+        en: 'Because cash sitting idle in the company earns no profit',
+      },
+      c: {
+        vi: 'Vì tiền mặt đã được tính một lần trong khoản nợ vay',
+        en: 'Because cash has already been counted once inside debt',
+      },
+      d: {
+        vi: 'Vì chuẩn mực kế toán bắt buộc trừ tiền mặt khỏi EV',
+        en: 'Because accounting standards require cash to be subtracted from EV',
+      },
     },
     answer: 'a',
     explain: {
@@ -483,10 +519,10 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
       en: 'Which of the following multiples pairs the wrong numerator with its denominator?',
     },
     choices: {
-      a: { vi: 'P/E', en: 'P/E' },
-      b: { vi: 'EV/EBITDA', en: 'EV/EBITDA' },
-      c: { vi: 'P/B', en: 'P/B' },
-      d: { vi: 'P/EBITDA', en: 'P/EBITDA' },
+      a: { vi: 'Vốn hoá trên lợi nhuận sau thuế', en: 'Market cap over net income' },
+      b: { vi: 'EV trên EBITDA', en: 'EV over EBITDA' },
+      c: { vi: 'Vốn hoá trên vốn chủ sở hữu', en: "Market cap over shareholders' equity" },
+      d: { vi: 'Vốn hoá trên EBITDA', en: 'Market cap over EBITDA' },
     },
     answer: 'd',
     explain: {
@@ -511,20 +547,20 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'Kết luận đó luôn đúng vì tiền mặt là tài sản chắc chắn nhất nên chỉ cần mua vào là có lời',
-        en: 'The conclusion is always true because cash is the safest asset, so buying in guarantees a profit',
+        vi: 'Tiền mặt ròng vượt cả vốn hoá, nên giá cổ phiếu sẽ sớm tăng cho bằng số tiền đó',
+        en: 'Net cash exceeds market cap, so the share price will soon rise to match that cash',
       },
       b: {
-        vi: 'EV âm chỉ là lỗi làm tròn số liệu, không mang ý nghĩa kinh tế nào',
-        en: 'A negative EV is just a rounding error and carries no economic meaning',
+        vi: 'EV âm chỉ là sai số do làm tròn dữ liệu, không mang ý nghĩa kinh tế nào cả',
+        en: 'A negative EV is just a rounding error in the data and has no economic meaning at all',
       },
       c: {
-        vi: 'Kết luận đó chưa chắc đúng: cổ đông thiểu số không có quyền buộc công ty chia số tiền mặt đó ra, và thị trường có thể đang định giá rằng mảng kinh doanh cốt lõi sẽ đốt tiền trong tương lai',
-        en: 'The conclusion is not necessarily true: a minority shareholder has no right to force the company to distribute that cash, and the market may be pricing in that the core business will burn cash going forward',
+        vi: 'Cổ đông nhỏ không buộc được công ty chia tiền, và thị trường lo mảng cốt lõi sẽ đốt tiền',
+        en: 'Minority holders cannot force a payout, and the market expects the core business to burn cash',
       },
       d: {
-        vi: 'EV âm nghĩa là công ty chắc chắn sắp bị huỷ niêm yết',
-        en: 'A negative EV means the company is certain to be delisted soon',
+        vi: 'EV âm cho thấy công ty đang vi phạm quy định niêm yết và sắp bị huỷ niêm yết',
+        en: 'A negative EV shows the company is breaching listing rules and will soon be delisted',
       },
     },
     answer: 'c',
@@ -550,20 +586,20 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'Coi toàn bộ nợ trên sổ sách như một trái phiếu coupon duy nhất, lãi suất bằng chi phí lãi vay của công ty, kỳ hạn bằng kỳ hạn bình quân theo mệnh giá, rồi định giá lại trái phiếu đó theo chi phí nợ hiện hành',
-        en: "Treat the entire debt on the books as one coupon bond, with the coupon equal to the company's interest expense and the maturity equal to the face-value weighted average maturity, then reprice that bond at the current cost of debt",
+        vi: 'Coi nợ là một trái phiếu, coupon bằng lãi vay, chiết khấu theo chi phí nợ hiện hành',
+        en: "Treat the debt as one bond with interest as coupon, priced at today's cost of debt",
       },
       b: {
         vi: 'Cộng thêm một khoản phụ trội cố định 20% vào giá trị sổ sách để bù rủi ro thanh khoản',
-        en: 'Add a fixed 20% premium to the book value to compensate for illiquidity risk',
+        en: 'Add a fixed 20% premium to the book value to compensate for the illiquidity risk',
       },
       c: {
-        vi: 'Loại hẳn phần nợ vay ngân hàng ra khỏi công thức EV vì không định giá được',
-        en: 'Drop bank debt out of the EV formula entirely because it cannot be valued',
+        vi: 'Loại hẳn phần nợ vay ngân hàng ra khỏi công thức EV vì không có giá thị trường để tra',
+        en: 'Drop bank debt from the EV formula entirely, since it has no market price to look up',
       },
       d: {
-        vi: 'Giữ nguyên giá trị sổ sách vì nợ vay ngân hàng không bao giờ chênh lệch với giá trị thị trường',
-        en: 'Keep the book value as is, since bank debt never differs from its market value',
+        vi: 'Giữ nguyên giá trị sổ sách vì nợ vay ngân hàng không chênh với giá trị thị trường',
+        en: 'Keep the book value as is, since bank debt does not differ from its market value',
       },
     },
     answer: 'a',
@@ -588,18 +624,21 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
       en: 'Why do Buffett and Munger object to using EBITDA as a cash-flow measure?',
     },
     choices: {
-      a: { vi: 'Vì EBITDA khó tính', en: 'Because EBITDA is hard to calculate' },
+      a: {
+        vi: 'Vì EBITDA rất khó tính khi doanh nghiệp có nhiều mảng',
+        en: 'Because EBITDA is hard to calculate for multi-segment firms',
+      },
       b: {
-        vi: 'Vì EBITDA chỉ dùng cho công ty niêm yết',
-        en: 'Because EBITDA can only be used for listed companies',
+        vi: 'Vì EBITDA không dùng được cho công ty chưa niêm yết',
+        en: 'Because EBITDA cannot be used for unlisted companies',
       },
       c: {
-        vi: 'Vì EBITDA bỏ qua lãi vay, thuế và capex duy trì - đều là chi phí thật',
-        en: 'Because EBITDA ignores interest, tax, and maintenance capex - all of which are real costs',
+        vi: 'Vì EBITDA bỏ qua lãi vay, thuế và capex duy trì',
+        en: 'Because EBITDA ignores interest, tax and maintenance capex',
       },
       d: {
-        vi: 'Vì EBITDA thay đổi theo chuẩn kế toán',
-        en: 'Because EBITDA changes depending on the accounting standard',
+        vi: 'Vì EBITDA mỗi nước một khác do chuẩn mực kế toán',
+        en: 'Because EBITDA differs by country under accounting standards',
       },
     },
     answer: 'c',
@@ -624,13 +663,22 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
       en: 'What does EBITDA leave out that keeps it from substituting for cash flow?',
     },
     choices: {
-      a: { vi: 'Doanh thu tài chính', en: 'Financial income' },
-      b: {
-        vi: 'Thay đổi vốn lưu động và dòng tiền đầu tư',
-        en: 'Changes in working capital and investing cash flow',
+      a: {
+        vi: 'Giá vốn hàng bán của các sản phẩm đã bán ra',
+        en: 'Cost of goods sold for the products sold in the period',
       },
-      c: { vi: 'Lợi nhuận gộp', en: 'Gross profit' },
-      d: { vi: 'Chi phí bán hàng', en: 'Selling expenses' },
+      b: {
+        vi: 'Thay đổi vốn lưu động và khoản chi đầu tư',
+        en: 'Changes in working capital and investment spending',
+      },
+      c: {
+        vi: 'Lợi nhuận gộp từ hoạt động kinh doanh chính',
+        en: 'Gross profit earned from the core business operations',
+      },
+      d: {
+        vi: 'Chi phí bán hàng và chi phí quản lý doanh nghiệp',
+        en: 'Selling expenses and general administrative expenses',
+      },
     },
     answer: 'b',
     explain: {
@@ -655,20 +703,20 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'Vì doanh nghiệp thâm dụng tài sản cố định luôn vay nợ nhiều hơn nên EV luôn thấp hơn',
-        en: 'Because asset-heavy companies always carry more debt, so their EV is always lower',
+        vi: 'Vì doanh nghiệp nặng tài sản cố định vay nợ nhiều hơn nên EV thấp hơn',
+        en: 'Because asset-heavy firms borrow more, which makes their EV lower',
       },
       b: {
-        vi: 'Vì EBITDA không trừ khấu hao, khoản gần đúng cho chi phí duy trì và thay thế tài sản cố định, nên bội số của doanh nghiệp thâm dụng tài sản bị kéo xuống thấp một cách máy móc chứ không hẳn vì rẻ hơn',
-        en: "Because EBITDA does not deduct depreciation, a rough proxy for the ongoing cost of maintaining and replacing fixed assets, so an asset-heavy company's multiple gets mechanically pulled down, not because it is actually cheaper",
+        vi: 'Vì EBITDA chưa trừ khấu hao, tức chi phí thay thế tài sản cố định',
+        en: 'Because EBITDA skips depreciation, the cost of replacing fixed assets',
       },
       c: {
-        vi: 'Vì EBITDA của doanh nghiệp thâm dụng tài sản bị tính hai lần trong công thức',
-        en: "Because an asset-heavy company's EBITDA gets double-counted in the formula",
+        vi: 'Vì EBITDA của doanh nghiệp nặng tài sản bị tính hai lần trong công thức',
+        en: "Because an asset-heavy company's EBITDA is counted twice in the formula",
       },
       d: {
-        vi: 'Vì thị trường luôn định giá cổ phiếu ngành sản xuất thấp hơn ngành dịch vụ',
-        en: 'Because the market always prices manufacturing stocks lower than service stocks',
+        vi: 'Vì doanh nghiệp nặng tài sản được giảm thuế nên EBITDA cao hơn',
+        en: 'Because asset-heavy firms get tax breaks that lift their EBITDA',
       },
     },
     answer: 'b',
@@ -694,20 +742,20 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'Nợ (tiền gửi, khoản vay) chính là nguyên liệu đầu vào cho hoạt động kinh doanh cốt lõi là cho vay, không phải một quyết định tài trợ tách rời như ở doanh nghiệp sản xuất',
-        en: 'Debt (deposits, borrowings) is the raw material for the core lending business itself, not a financing decision separate from operations the way it is for a manufacturer',
+        vi: 'Nợ như tiền gửi là nguyên liệu của hoạt động cho vay, không phải quyết định tài trợ riêng',
+        en: 'Debt such as deposits is the raw material of lending, not a separate financing choice',
       },
       b: {
-        vi: 'Ngân hàng và công ty bảo hiểm không có khấu hao tài sản cố định nên EBITDA luôn bằng doanh thu',
-        en: 'Banks and insurers have no fixed-asset depreciation, so EBITDA always equals revenue',
+        vi: 'Ngân hàng không có khấu hao tài sản cố định nên EBITDA của nó bằng đúng doanh thu',
+        en: 'Banks carry no depreciation on fixed assets, so their EBITDA is exactly equal to revenue',
       },
       c: {
-        vi: 'Vốn hóa thị trường của ngân hàng luôn lớn hơn giá trị sổ sách nên không tính được EV',
-        en: "A bank's market capitalization is always larger than its book value, so EV cannot be calculated",
+        vi: 'Vốn hóa thị trường của ngân hàng vượt giá trị sổ sách nên không tính được EV',
+        en: "A bank's market capitalization exceeds its book value, so EV cannot be calculated",
       },
       d: {
-        vi: 'Lãi vay là cấu phần cốt lõi của cả doanh thu lẫn chi phí hoạt động, nên loại lãi vay ra để tính EBITDA sẽ xóa mất đúng phần quan trọng nhất',
-        en: 'Interest is a core component of both revenue and operating expenses, so stripping it out to compute EBITDA removes exactly the most important piece',
+        vi: 'Lãi vay nằm trong cả doanh thu lẫn chi phí, loại ra là mất phần quan trọng nhất',
+        en: 'Interest sits in both revenue and expenses, so removing it strips out the key piece',
       },
     },
     answers: ['a', 'd'],
@@ -803,12 +851,21 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'Ngầm tin rằng mọi đồng doanh thu đều có khả năng sinh lời như nhau',
-        en: 'Implicitly assuming that every dollar of revenue has the same profit-generating potential',
+        vi: 'Ngầm coi mọi đồng doanh thu sinh lời như nhau',
+        en: 'Assuming every dollar of revenue is equally profitable',
       },
-      b: { vi: 'Quên trừ tiền mặt', en: 'Forgetting to subtract cash' },
-      c: { vi: 'Dùng doanh thu năm cũ', en: 'Using stale, prior-year revenue' },
-      d: { vi: 'Không điều chỉnh lạm phát', en: 'Not adjusting for inflation' },
+      b: {
+        vi: 'Quên trừ tiền mặt khỏi giá trị doanh nghiệp',
+        en: 'Forgetting to subtract cash when computing enterprise value',
+      },
+      c: {
+        vi: 'Dùng doanh thu của năm tài chính đã cũ',
+        en: 'Using revenue from an outdated, prior fiscal year',
+      },
+      d: {
+        vi: 'Không điều chỉnh doanh thu theo lạm phát',
+        en: 'Not adjusting the revenue figures for inflation',
+      },
     },
     answer: 'a',
     explain: {
@@ -833,20 +890,20 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'X chắc chắn đang bị định giá thấp so với thị trường nên nên mua ngay',
-        en: 'X is definitely undervalued relative to the market, so it should be bought right away',
+        vi: 'X đang bị định giá thấp hơn mặt bằng thị trường, nên mua vào',
+        en: 'X is undervalued against the broad market, so it should be bought',
       },
       b: {
-        vi: '1,2 lần vẫn có thể là mức cao trong chính ngành hẹp của X, nên chưa chắc là khoản đầu tư hấp dẫn',
-        en: "1.2x could still be high within X's own niche industry, so it is not necessarily an attractive investment",
+        vi: 'Cần so với đối thủ trong ngành hẹp của X mới biết đắt hay rẻ',
+        en: 'X must be compared with niche peers to tell if it is cheap or expensive',
       },
       c: {
-        vi: 'EV/Sales dưới 2 lần luôn là tín hiệu bán khống',
-        en: 'An EV/Sales below 2x is always a short-sell signal',
+        vi: 'EV/Sales dưới 2 lần là tín hiệu để bán khống cổ phiếu X',
+        en: 'An EV/Sales below 2x is a signal to short-sell stock X',
       },
       d: {
-        vi: 'Phải quy đổi EV/Sales sang lãi suất tiết kiệm ngân hàng mới so sánh được',
-        en: 'EV/Sales must be converted into a bank deposit rate before it can be compared at all',
+        vi: 'Phải quy EV/Sales sang lãi suất tiết kiệm thì mới so sánh được',
+        en: 'EV/Sales must be converted into a deposit rate before comparing',
       },
     },
     answer: 'b',
@@ -872,20 +929,20 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'Bội số cao luôn đồng nghĩa cổ phiếu đang bị định giá quá cao (overvalued)',
-        en: 'A high multiple always means the stock is overvalued',
+        vi: 'Bội số cao hơn hẳn trung bình ngành cho thấy cổ phiếu đang bị định giá quá cao',
+        en: 'A multiple far above the industry average shows the stock is overvalued',
       },
       b: {
-        vi: 'Bội số cao chỉ xảy ra khi doanh nghiệp gian lận báo cáo tài chính',
-        en: 'A high multiple only happens when a company commits accounting fraud',
+        vi: 'Bội số cao chỉ xuất hiện khi doanh nghiệp gian lận báo cáo tài chính',
+        en: 'A high multiple only appears when a company has falsified its financial statements',
       },
       c: {
-        vi: 'Trả giá cho tăng trưởng là một lựa chọn mang tính chủ quan, nên bội số cao chưa chắc là bằng chứng định giá quá cao',
-        en: 'Paying for growth is a subjective decision, so a high multiple does not necessarily prove the stock is overvalued',
+        vi: 'Bội số cao là giá chủ quan trả cho tăng trưởng, không chứng minh cổ phiếu đắt',
+        en: 'A high multiple is a subjective price for growth, not proof the stock is expensive',
       },
       d: {
-        vi: 'Tesla và Amazon là hai ví dụ về cổ phiếu bị thị trường định giá sai vĩnh viễn',
-        en: 'Tesla and Amazon are two stocks the market has permanently mispriced',
+        vi: 'Tesla và Amazon là hai cổ phiếu bị thị trường định giá sai trong nhiều năm',
+        en: 'Tesla and Amazon are two stocks the market mispriced for many years',
       },
     },
     answer: 'c',
@@ -950,20 +1007,20 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'Vì P/Sales chỉ tính được cho công ty niêm yết, còn EV/Sales tính được cho cả công ty tư nhân',
-        en: 'P/Sales can only be computed for listed companies, while EV/Sales also works for private companies',
+        vi: 'Vì P/Sales chỉ tính được cho công ty niêm yết, còn EV/Sales thì không bị giới hạn',
+        en: 'Because P/Sales only works for listed firms, while EV/Sales has no such limit',
       },
       b: {
-        vi: 'Vì doanh thu dùng cho P/Sales lấy theo quý còn EV/Sales lấy theo năm tài chính',
-        en: 'P/Sales uses quarterly revenue while EV/Sales uses fiscal-year revenue',
+        vi: 'Vì doanh thu của P/Sales lấy theo quý, còn của EV/Sales lấy theo năm tài chính',
+        en: 'Because P/Sales uses quarterly revenue, while EV/Sales uses fiscal-year revenue',
       },
       c: {
-        vi: 'Tử số P/Sales (vốn hoá) chỉ thuộc về cổ đông, còn mẫu số (doanh thu) được tạo ra từ cả vốn nợ lẫn vốn chủ - lệch đối tượng sở hữu, còn EV ở tử số EV/Sales đại diện cho cả hai',
-        en: "P/Sales' numerator (market cap) belongs only to shareholders while its denominator (revenue) is generated by both debt and equity capital - a claimholder mismatch; EV/Sales' numerator (EV) represents both",
+        vi: 'Vì vốn hoá chỉ thuộc cổ đông, còn doanh thu do cả vốn nợ lẫn vốn chủ tạo ra',
+        en: 'Because market cap belongs only to shareholders, but revenue comes from debt and equity',
       },
       d: {
-        vi: 'Vì P/Sales không được các chuẩn kế toán quốc tế công nhận',
-        en: 'P/Sales is not recognized under international accounting standards',
+        vi: 'Vì P/Sales chưa được chuẩn mực kế toán quốc tế công nhận là một chỉ số',
+        en: 'Because international accounting standards do not recognize P/Sales as a valid ratio',
       },
     },
     answer: 'c',
@@ -989,17 +1046,20 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'Vì PEG chỉ dùng cho công ty Mỹ',
+        vi: 'Vì PEG chỉ dùng được cho doanh nghiệp tại Mỹ',
         en: 'Because PEG can only be used for U.S. companies',
       },
-      b: { vi: 'Vì PEG luôn nhỏ hơn 1', en: 'Because PEG is always below 1' },
+      b: {
+        vi: 'Vì PEG phải lớn hơn 2 thì mới tính là rẻ',
+        en: 'Because PEG must exceed 2 to count as cheap',
+      },
       c: {
-        vi: 'Vì PEG cần P/E trên 20 mới có nghĩa',
-        en: 'Because PEG is only meaningful when P/E is above 20',
+        vi: 'Vì PEG mất ý nghĩa khi P/E dưới 20 lần',
+        en: 'Because PEG loses meaning when P/E is below 20',
       },
       d: {
-        vi: 'Vì PEG không tính giá trị thời gian của tiền và không giả định gì về tái đầu tư',
-        en: 'Because PEG ignores the time value of money and makes no assumption about reinvestment',
+        vi: 'Vì PEG không tính tới giá trị thời gian của tiền',
+        en: 'Because PEG ignores the time value of money',
       },
     },
     answer: 'd',
@@ -1025,15 +1085,21 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'G quá khứ luôn thấp hơn thực tế',
-        en: 'Historical G is always understated relative to reality',
+        vi: 'G quá khứ khiến P/E trong PEG bị tính sai',
+        en: 'Historical G makes the P/E inside PEG wrong',
       },
-      b: { vi: 'G phải tính theo quý', en: 'G must be calculated quarterly' },
+      b: {
+        vi: 'G phải tính theo quý cho khớp kỳ với P/E',
+        en: "G must be quarterly to match the P/E's period",
+      },
       c: {
-        vi: 'PEG thừa hưởng toàn bộ sai số của một con số không ai dự báo nổi',
-        en: 'PEG inherits the full error of a number nobody can reliably forecast',
+        vi: 'PEG gánh trọn sai số của G khó dự báo',
+        en: 'PEG inherits the full error of a hard-to-forecast G',
       },
-      d: { vi: 'G không được vượt 10%', en: 'G cannot exceed 10%' },
+      d: {
+        vi: 'G vượt 10% thì PEG không còn dùng được',
+        en: 'PEG is no longer usable once G goes above 10%',
+      },
     },
     answer: 'c',
     explain: {
@@ -1081,20 +1147,20 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
     ],
     choices: {
       a: {
-        vi: 'Có, PEG thấp nhất luôn là cổ phiếu bị định giá thấp nhất',
-        en: 'Yes, the lowest PEG is always the most undervalued stock',
+        vi: 'Có, PEG thấp nhất nhóm là mã bị định giá thấp nhất',
+        en: 'Yes, the lowest PEG in a group is the most undervalued stock',
       },
       b: {
-        vi: 'Không chắc - công ty rủi ro cao thường có PEG thấp hơn hẳn công ty rủi ro thấp dù tăng trưởng bằng nhau, nên PEG thấp nhất nhóm có thể chính là cổ phiếu rủi ro nhất',
-        en: 'Not necessarily - high-risk companies trade at much lower PEG ratios than low-risk companies with the same growth rate, so the lowest PEG in a group could belong to its riskiest firm',
+        vi: 'Không chắc, đó có thể là mã rủi ro nhất nhóm',
+        en: 'Not necessarily, it may be the riskiest firm in the group',
       },
       c: {
-        vi: 'Không, vì PEG chỉ áp dụng được cho ngành công nghệ',
-        en: 'No, because PEG only applies to the technology sector',
+        vi: 'Không, vì PEG chỉ dùng cho ngành công nghệ',
+        en: 'No, because PEG only applies to tech stocks',
       },
       d: {
-        vi: 'Có, miễn là tăng trưởng trên 15%/năm',
-        en: 'Yes, as long as growth exceeds 15% per year',
+        vi: 'Có, miễn là tăng trưởng EPS có thể giữ trên 15%/năm',
+        en: 'Yes, as long as EPS growth can stay above 15% a year',
       },
     },
     answer: 'b',
@@ -1124,16 +1190,16 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
         en: 'P/E is negative because the company is posting a loss',
       },
       b: {
-        vi: 'Tốc độ tăng trưởng G dự phóng âm, tức tăng trưởng tương lai được dự đoán thấp hơn hiện tại và quá khứ',
-        en: 'The projected growth rate G is negative, meaning future growth is expected to be lower than both current and past growth',
+        vi: 'Tốc độ tăng trưởng G dự phóng cho tương lai bị âm',
+        en: 'The projected future growth rate G is negative',
       },
       c: {
         vi: 'P/E của doanh nghiệp đang cao hơn trung bình ngành',
         en: "The company's P/E is higher than the industry average",
       },
       d: {
-        vi: 'Cổ phiếu vừa thực hiện chia tách (stock split) làm tăng số lượng cổ phiếu lưu hành',
-        en: 'The stock just went through a split, increasing the number of shares outstanding',
+        vi: 'Cổ phiếu vừa chia tách làm tăng số cổ phiếu lưu hành',
+        en: 'The stock just split, increasing the shares outstanding',
       },
     },
     answers: ['a', 'b'],
@@ -1158,13 +1224,22 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
       en: 'Stock A trades at VND 8,000, stock B at VND 120,000. Which conclusion is correct?',
     },
     choices: {
-      a: { vi: 'A rẻ hơn B', en: 'A is cheaper than B' },
-      b: {
-        vi: 'Không kết luận được gì - thị giá phụ thuộc số cổ phiếu lưu hành',
-        en: 'No conclusion can be drawn - share price depends on the number of shares outstanding',
+      a: {
+        vi: 'A rẻ hơn B vì thị giá thấp hơn',
+        en: 'A is cheaper than B since its price is lower',
       },
-      c: { vi: 'B là doanh nghiệp lớn hơn', en: 'B is the larger company' },
-      d: { vi: 'A có thanh khoản tốt hơn', en: 'A has better liquidity' },
+      b: {
+        vi: 'Chưa kết luận được gì từ thị giá',
+        en: 'No conclusion can be drawn from price alone',
+      },
+      c: {
+        vi: 'B là doanh nghiệp lớn hơn vì giá cao hơn',
+        en: 'B is the bigger company since its price is higher',
+      },
+      d: {
+        vi: 'A thanh khoản tốt hơn vì giá thấp hơn',
+        en: 'A is more liquid because its price is lower',
+      },
     },
     answer: 'b',
     explain: {
@@ -1188,12 +1263,21 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
       en: 'You receive a 20% stock bonus. How does your wealth change at that exact moment?',
     },
     choices: {
-      a: { vi: 'Tăng 20%', en: 'Increases 20%' },
-      b: { vi: 'Giảm 20%', en: 'Decreases 20%' },
-      c: { vi: 'Tăng 20% nhưng phải nộp thuế 5%', en: 'Increases 20% but a 5% tax applies' },
+      a: {
+        vi: 'Tăng 20% theo số cổ phiếu được nhận thêm',
+        en: 'Up 20%, in line with the extra shares received',
+      },
+      b: {
+        vi: 'Giảm 20% vì cổ phiếu của bạn bị pha loãng',
+        en: 'Down 20% because your holding is diluted',
+      },
+      c: {
+        vi: 'Tăng 20% nhưng phải nộp thuế thu nhập 5%',
+        en: 'Up 20%, but a 5% income tax is due on it',
+      },
       d: {
-        vi: 'Không đổi - giá tham chiếu bị điều chỉnh tương ứng',
-        en: 'Unchanged - the reference price is adjusted accordingly',
+        vi: 'Không đổi vì giá tham chiếu bị điều chỉnh',
+        en: 'Unchanged, as the reference price is adjusted',
       },
     },
     answer: 'd',
@@ -1223,16 +1307,16 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
         en: 'A and B have equal enterprise value (EV)',
       },
       b: {
-        vi: 'B đang bị thị trường định giá rẻ hơn A',
-        en: 'B is priced cheaper by the market than A',
+        vi: 'B đang được thị trường định giá rẻ hơn A',
+        en: 'The market prices B cheaper than A',
       },
       c: {
-        vi: 'Vốn hóa thị trường đã cộng cả nợ vay, nên A và B thực chất giống hệt nhau',
-        en: 'Market cap already includes debt, so A and B are effectively identical',
+        vi: 'Vốn hóa đã gồm nợ vay nên A và B tương đương nhau',
+        en: 'Market cap already includes debt, so A and B are equivalent',
       },
       d: {
-        vi: 'Thị trường chỉ đang định giá phần vốn cổ phần của A và B bằng nhau; số tiền phải bỏ ra để mua trọn cả doanh nghiệp, gồm cả nợ, có thể rất khác nhau',
-        en: "The market is pricing only A and B's equity at the same level; the amount needed to buy each business outright, debt included, can differ greatly",
+        vi: 'A và B chỉ bằng nhau ở giá trị vốn cổ phần',
+        en: 'A and B are equal only in the value of their equity',
       },
     },
     answer: 'd',
@@ -1332,13 +1416,22 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
       en: 'What is the most criticized way the Graham Number gets used?',
     },
     choices: {
-      a: { vi: 'Dùng cho công ty công nghệ', en: 'Using it for technology companies' },
-      b: {
-        vi: 'Dùng một mình, tách khỏi các tiêu chí phòng thủ còn lại',
-        en: 'Using it alone, detached from the other defensive criteria',
+      a: {
+        vi: 'Dùng cho doanh nghiệp sản xuất, công nghiệp',
+        en: 'Applying it to industrial and manufacturing firms',
       },
-      c: { vi: 'Dùng hệ số 22,5', en: 'Using the 22.5 coefficient' },
-      d: { vi: 'Dùng EPS thay vì EBIT', en: 'Using EPS instead of EBIT' },
+      b: {
+        vi: 'Dùng một mình, bỏ qua tiêu chí phòng thủ khác',
+        en: 'Using it alone, ignoring the other defensive criteria',
+      },
+      c: {
+        vi: 'Dùng nguyên hệ số 22,5 do Graham đặt ra',
+        en: 'Using the 22.5 coefficient Graham set',
+      },
+      d: {
+        vi: 'Dùng EPS thay vì EBIT trong công thức',
+        en: 'Using EPS rather than EBIT in the formula',
+      },
     },
     answer: 'b',
     explain: {
@@ -1363,16 +1456,16 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'Cổ phiếu tăng trưởng cao, nhất là ngành công nghệ, nơi phần lớn giá trị đến từ lợi nhuận tương lai',
-        en: 'High-growth stocks, especially in technology, where much of the value comes from expected future earnings',
+        vi: 'Cổ phiếu tăng trưởng cao, như ngành công nghệ',
+        en: 'High-growth stocks, such as those in technology',
       },
       b: {
-        vi: 'Cổ phiếu có vốn hoá dưới 1.000 tỷ đồng',
-        en: 'Stocks with a market capitalization below VND 1,000 billion',
+        vi: 'Cổ phiếu của doanh nghiệp có vốn hoá dưới 1.000 tỷ đồng',
+        en: 'Shares of companies with a market cap below VND 1,000 billion',
       },
       c: {
-        vi: 'Tổ chức tài chính, quỹ đầu tư bất động sản (REIT) và doanh nghiệp ít tài sản hữu hình, nơi giá trị sổ sách không phản ánh đúng giá trị kinh tế thực',
-        en: 'Financial institutions, REITs, and asset-light businesses, where book value does not reflect true economic value',
+        vi: 'Tổ chức tài chính, REIT và doanh nghiệp ít tài sản hữu hình',
+        en: 'Financial institutions, REITs and asset-light businesses',
       },
       d: {
         vi: 'EPS hoặc giá trị sổ sách mỗi cổ phiếu (BVPS) bị âm',
@@ -1515,20 +1608,20 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'Số Graham chỉ cho ra MỘT con số duy nhất, không thể hiện khoảng giá trị hợp lý như các phương pháp phức tạp hơn (ví dụ chiết khấu dòng tiền) có thể cho ra',
-        en: 'The Graham number produces only a SINGLE value; it cannot show a range of fair values the way more sophisticated methods (e.g. discounted cash flow) can',
+        vi: 'Số Graham chỉ là một con số, không phải khoảng giá hợp lý',
+        en: 'The Graham number is a single value, not a range of fair values',
       },
       b: {
-        vi: 'Không sai - Số Graham vốn được thiết kế để cho ra một mức giá trị hợp lý chính xác duy nhất',
-        en: 'Nothing is wrong - the Graham number is designed to produce one single precise fair value',
+        vi: 'Không sai, Số Graham được thiết kế để cho giá trị chính xác',
+        en: 'Nothing, the Graham number is built to give one precise fair value',
       },
       c: {
-        vi: 'Sai vì phải nhân thêm hệ số lạm phát vào Số Graham',
-        en: "It's wrong because an inflation factor must be multiplied into the Graham number",
+        vi: 'Quên nhân thêm hệ số điều chỉnh lạm phát vào Số Graham',
+        en: 'The inflation adjustment factor was not multiplied in',
       },
       d: {
-        vi: 'Sai vì Số Graham chỉ áp dụng được cho cổ phiếu ngân hàng',
-        en: "It's wrong because the Graham number only applies to bank stocks",
+        vi: 'Số Graham chỉ dùng được cho cổ phiếu ngành ngân hàng',
+        en: 'The Graham number only works for bank stocks',
       },
     },
     answer: 'a',
@@ -1553,13 +1646,22 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
       en: 'You find 2 stocks trading below NCAV per share and plan to concentrate your money into them. What is the problem?',
     },
     choices: {
-      a: { vi: 'NCAV chỉ dùng cho công ty lớn', en: 'NCAV can only be used for large companies' },
-      b: {
-        vi: 'Phương pháp chỉ cho kết quả thống kê khi phân tán ít nhất khoảng 20 mã',
-        en: 'The method only delivers a statistical edge when spread across at least about 20 names',
+      a: {
+        vi: 'NCAV chỉ dùng được cho các doanh nghiệp vốn hoá lớn',
+        en: 'NCAV can only be used for large-cap companies',
       },
-      c: { vi: 'NCAV phải tính theo quý', en: 'NCAV must be calculated quarterly' },
-      d: { vi: 'Không có vấn đề gì', en: 'There is no problem at all' },
+      b: {
+        vi: 'Cần từ 20 mã trở lên mới có lợi thế thống kê',
+        en: 'The statistical edge needs at least 20 names',
+      },
+      c: {
+        vi: 'NCAV phải tính theo quý mới cho kết quả đúng',
+        en: 'NCAV must be computed quarterly to be accurate',
+      },
+      d: {
+        vi: 'Không có vấn đề gì vì giá đã dưới NCAV',
+        en: 'No problem, since the price is already below NCAV',
+      },
     },
     answer: 'b',
     explain: {
@@ -1583,16 +1685,10 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
       en: 'Under the conservative standard Graham set for buying net-net stocks, the purchase price should be at most what percentage of NCAV per share to leave an adequate margin of safety?',
     },
     choices: {
-      a: {
-        vi: '100% NCAV - bằng đúng NCAV là đủ',
-        en: '100% of NCAV - matching NCAV exactly is enough',
-      },
-      b: { vi: '90% NCAV', en: '90% of NCAV' },
-      c: {
-        vi: 'Khoảng 66,7% NCAV (tức 2/3), để có biên an toàn tối thiểu khoảng 33%',
-        en: 'About 66.7% of NCAV (i.e., two-thirds), leaving a margin of safety of at least about 33%',
-      },
-      d: { vi: '50% NCAV', en: '50% of NCAV' },
+      a: { vi: '100% NCAV, tức bằng đúng NCAV', en: '100% of NCAV, i.e. exactly NCAV' },
+      b: { vi: '90% NCAV, tức rẻ hơn NCAV 10%', en: '90% of NCAV, i.e. 10% below NCAV' },
+      c: { vi: '66,7% NCAV, tức 2/3 NCAV', en: '66.7% of NCAV, i.e. two-thirds' },
+      d: { vi: '50% NCAV, tức một nửa NCAV', en: '50% of NCAV, i.e. one half of NCAV' },
     },
     answer: 'c',
     explain: {
@@ -1717,20 +1813,20 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'Các mô hình kinh doanh và hoạt động quản trị hiện đại như thâu tóm khiến chiến lược này kém hấp dẫn hơn',
-        en: 'Modern business models and management activity such as takeovers have made the strategy less lucrative',
+        vi: 'Mô hình kinh doanh mới và thâu tóm làm chiến lược kém hấp dẫn',
+        en: 'New business models and takeovers have made it less lucrative',
       },
       b: {
-        vi: 'Khi một doanh nghiệp đóng cửa ngày nay, chi phí thanh lý phát sinh nhiều hơn, ăn vào phần vốn lưu động đáng lẽ còn lại cho cổ đông',
-        en: 'When a business closes today, liquidation costs are higher and eat into the working capital that would otherwise be left for shareholders',
+        vi: 'Đóng cửa doanh nghiệp nay tốn nhiều chi phí, ăn vào vốn lưu động',
+        en: 'Closing a business now costs more and eats into working capital',
       },
       c: {
-        vi: 'Cổ phiếu net-net càng khó tìm hơn khi thị trường đang trong xu hướng tăng giá',
-        en: 'Net-net stocks are even harder to find when the market is in an uptrend',
+        vi: 'Net-net càng khó tìm khi thị trường đang tăng giá',
+        en: 'Net-nets are even harder to find in a bull market',
       },
       d: {
-        vi: 'NCAV chỉ có thể tính được cho công ty niêm yết sau năm 2000',
-        en: 'NCAV can only be calculated for companies listed after the year 2000',
+        vi: 'NCAV chỉ tính được cho doanh nghiệp niêm yết sau năm 2000',
+        en: 'NCAV can only be computed for firms listed after the year 2000',
       },
     },
     answers: ['a', 'b', 'c'],
@@ -1756,15 +1852,21 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'Kết luận chứng khoán VN rẻ hơn',
-        en: 'Conclude that Vietnamese stocks are cheaper',
+        vi: 'Kết luận chứng khoán Việt Nam đang rẻ hơn hai nước kia',
+        en: 'Conclude Vietnamese stocks are cheaper than the other two',
       },
-      b: { vi: 'So thêm P/B', en: 'Also compare P/B' },
+      b: {
+        vi: 'So thêm P/B của ba thị trường rồi lấy bình quân',
+        en: "Also compare the three markets' P/B and average them",
+      },
       c: {
-        vi: 'Đổi sang E/P rồi đặt cạnh lãi suất phi rủi ro của chính nước đó',
-        en: "Convert to E/P and set it against that same country's own risk-free rate",
+        vi: 'Đổi sang E/P rồi so với lãi suất phi rủi ro của từng nước',
+        en: "Convert to E/P and compare it with each country's risk-free rate",
       },
-      d: { vi: 'So theo vốn hoá thị trường', en: 'Compare by market capitalization' },
+      d: {
+        vi: 'So vốn hoá thị trường của ba nước với nhau',
+        en: "Compare the three countries' market capitalizations",
+      },
     },
     answer: 'c',
     explain: {
@@ -1789,20 +1891,20 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'Không vấn đề gì, cứ xếp theo P/E từ thấp đến cao là đúng',
-        en: 'No problem at all - ranking by P/E from low to high is still correct',
+        vi: 'Không vấn đề gì, cứ xếp theo P/E từ thấp đến cao',
+        en: 'No problem, just rank by P/E from low to high',
       },
       b: {
-        vi: 'Nên loại hẳn các mã đang lỗ ra khỏi bảng xếp hạng trước khi so P/E',
-        en: 'Loss-making stocks should be dropped from the ranking before comparing P/E',
+        vi: 'Xếp mã lỗ lên đầu bảng vì đó là mã rẻ nhất',
+        en: 'Put loss-makers at the top, since they are the cheapest',
       },
       c: {
-        vi: 'Nên lấy trị tuyệt đối của P/E âm rồi xếp bình thường như các mã còn lại',
-        en: 'Take the absolute value of the negative P/E and rank it normally with the rest',
+        vi: 'Lấy trị tuyệt đối của P/E âm rồi xếp như mã khác',
+        en: 'Take the absolute value of negative P/Es and rank as usual',
       },
       d: {
-        vi: 'P/E âm hoặc không xác định bị xếp xuống đáy như thể rẻ nhất, trong khi đó lại là mã đắt nhất; nên xếp theo E/P (tỷ suất lợi nhuận trên giá) từ cao xuống thấp thay vì P/E',
-        en: 'A negative or undefined P/E gets ranked at the bottom as if it were the cheapest, when it is actually the most expensive; rank by E/P (earnings yield) from highest to lowest instead',
+        vi: 'Mã lỗ bị xếp nhầm là rẻ nhất, nên xếp theo E/P',
+        en: 'Loss-makers wrongly rank as cheapest; rank by E/P instead',
       },
     },
     answer: 'd',
@@ -1886,20 +1988,20 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'Đúng, chỉ là cách gọi khác của cùng một phép tính EPS chia giá',
-        en: "Yes, it's just another name for the same EPS-divided-by-price calculation",
+        vi: 'Đúng, chỉ là tên khác của cùng phép tính EPS chia giá',
+        en: "Yes, it's just another name for the same EPS-over-price ratio",
       },
       b: {
-        vi: 'Không - Greenblatt tính earnings yield bằng EBIT chia Giá trị doanh nghiệp (EV), khác cả tử số lẫn mẫu số so với EPS chia giá cổ phiếu',
-        en: "No - Greenblatt's earnings yield is EBIT divided by enterprise value (EV), a different numerator and denominator from EPS divided by share price",
+        vi: 'Không, Greenblatt lấy EBIT chia giá trị doanh nghiệp (EV)',
+        en: 'No, Greenblatt divides EBIT by enterprise value (EV)',
       },
       c: {
-        vi: 'Đúng, chỉ khác ở chỗ Greenblatt dùng lợi nhuận sau thuế thay vì EPS',
-        en: 'Yes, the only difference is that Greenblatt uses after-tax net income instead of EPS',
+        vi: 'Đúng, chỉ khác là Greenblatt dùng lợi nhuận sau thuế thay EPS',
+        en: 'Yes, except Greenblatt uses after-tax net income instead of EPS',
       },
       d: {
-        vi: 'Không thể so sánh vì Greenblatt không đưa ra công thức cụ thể',
-        en: "They can't be compared because Greenblatt never gives an explicit formula",
+        vi: 'Không so được vì Greenblatt không nêu công thức cụ thể',
+        en: "They can't be compared; Greenblatt gives no explicit formula",
       },
     },
     answer: 'b',
@@ -1926,19 +2028,19 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
     choices: {
       a: {
         vi: 'Đúng, Fed đã chính thức công bố và khuyến nghị mô hình này',
-        en: 'Yes, the Fed officially published and recommends this model',
+        en: 'Yes, the Fed officially published and recommends it',
       },
       b: {
-        vi: 'Đúng, nhưng chỉ áp dụng cho chỉ số S&P 500 chứ không áp dụng cho cổ phiếu lẻ',
-        en: 'Yes, but it only applies to the S&P 500 index, not to individual stocks',
+        vi: 'Đúng, nhưng chỉ áp dụng cho chỉ số S&P 500',
+        en: 'Yes, but it only applies to the S&P 500 index',
       },
       c: {
-        vi: 'Sai, vì thực chất mô hình này so sánh cổ tức chứ không phải lợi nhuận',
-        en: 'No, because the model actually compares dividends, not earnings',
+        vi: 'Sai, vì mô hình này thực ra so sánh cổ tức',
+        en: 'No, because the model really compares dividends',
       },
       d: {
-        vi: 'Sai - cái tên chỉ gắn với ý tưởng so sánh lợi suất, Fed chưa từng chính thức xác nhận mô hình này dù nó đã trở thành công cụ định giá phổ biến',
-        en: 'No - the name is just attached to the comparison idea; the Fed never actually endorsed the model even though it became a popular valuation tool',
+        vi: 'Sai, Fed chưa từng chính thức xác nhận mô hình này',
+        en: 'No, the Fed never officially endorsed this model',
       },
     },
     answer: 'd',
@@ -1964,18 +2066,21 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'Cổ phiếu sẽ đạt 73.000 trong 12 tháng',
-        en: 'The stock will reach VND 73,000 within 12 months',
+        vi: 'Cổ phiếu sẽ lên tới 73.000 đồng trong vòng 12 tháng tới',
+        en: 'The stock will rise to VND 73,000 within the next 12 months',
       },
       b: {
-        vi: 'Đây là ước lượng có điều kiện, và chính CTCK từ chối trách nhiệm trong phần miễn trừ',
-        en: 'This is a conditional estimate, and the brokerage itself disclaims responsibility for it in its fine print',
+        vi: 'Đây là ước lượng có điều kiện, CTCK miễn trừ trách nhiệm',
+        en: "It's a conditional estimate; the brokerage disclaims liability",
       },
       c: {
-        vi: 'Công ty chứng khoán cam kết mức giá đó',
-        en: 'The brokerage guarantees that price',
+        vi: 'Công ty chứng khoán cam kết cổ phiếu sẽ chạm mức giá đó',
+        en: 'The brokerage guarantees the stock will reach that price',
       },
-      d: { vi: 'Nên mua vì chênh lệch 40%', en: 'It should be bought because of the 40% gap' },
+      d: {
+        vi: 'Nên mua ngay vì còn dư địa tăng giá khoảng 40%',
+        en: 'Buy now, since there is about 40% upside left',
+      },
     },
     answer: 'b',
     explain: {
@@ -1999,13 +2104,19 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
       en: "A brokerage raises a stock's target price. Which reason is NOT related to the company's own fundamentals?",
     },
     choices: {
-      a: { vi: 'Lợi nhuận quý vượt dự báo', en: 'Quarterly profit beat forecasts' },
-      b: {
-        vi: 'Giảm lãi suất chiết khấu trong mô hình',
-        en: 'Lowering the discount rate used in the model',
+      a: {
+        vi: 'Lợi nhuận quý vừa công bố vượt xa dự báo',
+        en: 'Just-reported quarterly profit beat forecasts',
       },
-      c: { vi: 'Ký được hợp đồng lớn', en: 'Signing a large contract' },
-      d: { vi: 'Biên lợi nhuận cải thiện', en: 'Improved profit margin' },
+      b: {
+        vi: 'Lãi suất chiết khấu trong mô hình giảm',
+        en: "The model's discount rate was lowered",
+      },
+      c: {
+        vi: 'Doanh nghiệp vừa ký được một hợp đồng lớn',
+        en: 'The company just signed a large contract',
+      },
+      d: { vi: 'Biên lợi nhuận gộp cải thiện rõ rệt', en: 'The gross margin improved markedly' },
     },
     answer: 'b',
     explain: {
@@ -2030,20 +2141,20 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'Chọn bội số có R-squared cao nhất khi hồi quy với các biến nền tảng của ngành',
-        en: 'Pick the multiple with the highest R-squared when regressed against sector fundamentals',
+        vi: 'Chọn bội số có R-squared cao nhất theo biến nền tảng',
+        en: 'Pick the multiple with the highest R-squared on fundamentals',
       },
       b: {
-        vi: 'Chọn bội số phù hợp nhất với cách ngành đó đo lường và tạo ra giá trị',
-        en: 'Pick the multiple that best fits how that sector measures and creates value',
+        vi: 'Chọn bội số hợp với cách ngành đó tạo ra giá trị',
+        en: 'Pick the multiple that fits how the sector creates value',
       },
       c: {
-        vi: 'Chọn bội số nào cho ra đúng kết luận mình đã muốn có sẵn - ví dụ muốn nói cổ phiếu đang rẻ thì chọn bội số cho giá mục tiêu cao nhất',
-        en: 'Pick whichever multiple confirms the conclusion you already wanted - e.g., picking the one with the highest target price to argue the stock is cheap',
+        vi: 'Chọn bội số cho ra kết luận mình muốn từ trước',
+        en: 'Pick the multiple that confirms the conclusion you wanted',
       },
       d: {
-        vi: 'Chọn bội số cho ra kết quả gần với mức trung bình của cả ba bội số',
-        en: 'Pick the multiple whose result sits closest to the average of all three',
+        vi: 'Chọn bội số cho kết quả gần trung bình của cả ba',
+        en: 'Pick the multiple closest to the average of all three',
       },
     },
     answer: 'c',
@@ -2131,20 +2242,20 @@ export const BOI_SO: ReadonlyArray<QuizItem> = [
     },
     choices: {
       a: {
-        vi: 'Không sao cả, vì đây chỉ là quan điểm cá nhân nên ai cũng được đăng',
-        en: 'It is fine, since this is just a personal opinion that anyone may post',
+        vi: 'Không sao, đây chỉ là quan điểm cá nhân ai cũng được đăng',
+        en: 'It is fine; it is just a personal opinion anyone may post',
       },
       b: {
-        vi: 'Chỉ sai nếu sau này giá mục tiêu đó chênh lệch quá xa so với giá thực tế',
-        en: 'It is only wrong if that target price later turns out far off from the actual price',
+        vi: 'Chỉ sai nếu giá mục tiêu sau này lệch xa giá thực tế',
+        en: 'It is only wrong if the target later proves far off the price',
       },
       c: {
-        vi: 'Chỉ vi phạm nếu tài khoản đó thu phí người xem',
-        en: 'It only breaks the rules if that account charges viewers a fee',
+        vi: 'Chỉ vi phạm nếu tài khoản đó có thu phí người xem',
+        en: 'It only breaks the rules if the account charges viewers',
       },
       d: {
-        vi: 'Đây là hành vi đăng báo cáo phân tích, khuyến nghị đầu tư khi chưa được cấp phép - cơ quan quản lý từng xử phạt một trường hợp tương tự (Công ty CP Đầu tư ITP)',
-        en: 'This is publishing an analysis report and investment recommendation without a license - regulators have already sanctioned a similar case (ITP Investment JSC)',
+        vi: 'Đó là đăng khuyến nghị đầu tư khi chưa được cấp phép',
+        en: 'It is publishing investment recommendations without a license',
       },
     },
     answer: 'd',

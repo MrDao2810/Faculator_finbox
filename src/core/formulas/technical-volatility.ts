@@ -185,9 +185,10 @@ const BOLLINGER_PERIOD: VariableSpec = sliderVar(
   'phiên',
   20,
   5,
-  60,
+  500,
   1,
   {
+    integer: true,
     description: {
       vi: 'Số phiên tính đường giữa và độ lệch chuẩn. Bollinger dùng 20 phiên; chuỗi giá phải có ít nhất bấy nhiêu phiên mới tính được.',
       en: 'Number of sessions used for the middle line and standard deviation. Bollinger uses 20 sessions; the price series must have at least that many sessions to compute it.',
@@ -200,9 +201,13 @@ const BOLLINGER_K: VariableSpec = sliderVar(
   { vi: 'Hệ số nhân độ lệch chuẩn', en: 'Standard deviation multiplier' },
   'lần',
   2,
-  0.5,
-  4,
-  0.5,
+  /*
+   * 0,1 tới 10, bước 0,1 (16/11/2026): điều kiện của công thức chỉ là k > 0; 0,5 – 4 cũ là khoảng
+   * cho tay kéo. Bước 0,1 để lưới của biểu đồ (tính từ min) còn đi qua đúng 1, 2, 3.
+   */
+  0.1,
+  10,
+  0.1,
   {
     description: {
       vi: 'Bollinger dùng 2. Độ lệch chuẩn ở đây chia cho n, đúng cách Bollinger tính; bảng giá nào chia cho n − 1 sẽ ra dải rộng hơn một chút.',
@@ -882,7 +887,8 @@ export const ATR_DAO_DONG_THUC: FormulaModule = {
       ],
     },
     variables: [
-      sliderVar('period', { vi: 'Chu kỳ ATR (n)', en: 'ATR period (n)' }, 'phiên', 14, 5, 50, 1, {
+      sliderVar('period', { vi: 'Chu kỳ ATR (n)', en: 'ATR period (n)' }, 'phiên', 14, 5, 500, 1, {
+        integer: true,
         description: {
           vi: 'Wilder dùng 14 phiên. Chuỗi phải có ít nhất chu kỳ + 1 phiên, vì phiên đầu tiên chưa có giá đóng cửa hôm trước để tính dao động thực.',
           en: 'Wilder uses 14 sessions. The series must have at least period + 1 sessions, since the first session has no prior close from which to compute a true range.',
@@ -1320,9 +1326,10 @@ export const STOCHASTIC_K: FormulaModule = {
         'phiên',
         14,
         5,
-        50,
+        500,
         1,
         {
+          integer: true,
           description: {
             vi: 'Số phiên lấy đỉnh và đáy để so. Thông lệ là 14 phiên; chuỗi phải có ít nhất bấy nhiêu phiên đủ giá cao – thấp – đóng cửa.',
             en: 'The number of sessions used to take the high and low for comparison. The convention is 14 sessions; the series must have at least that many sessions with high, low and close prices.',
@@ -1510,9 +1517,10 @@ export const VWAP: FormulaModule = {
         'phiên',
         20,
         5,
-        120,
+        500,
         1,
         {
+          integer: true,
           description: {
             vi: 'Số phiên gần nhất đưa vào bình quân. Mỗi phiên phải có đủ giá đóng cửa và khối lượng.',
             en: 'The number of most recent sessions included in the average. Each session must have both a closing price and volume.',
@@ -1752,9 +1760,10 @@ export const DO_BIEN_DONG_LICH_SU: FormulaModule = {
         'phiên',
         60,
         10,
-        250,
+        5000,
         1,
         {
+          integer: true,
           description: {
             vi: 'n phiên giá cho n − 1 lợi suất. Giáo trình khuyên lấy ít nhất 60 phiên; dưới 20 phiên con số nhảy rất mạnh theo vài phiên cá biệt.',
             en: 'n price sessions yield n − 1 returns. Textbooks recommend at least 60 sessions; below 20 sessions the number swings wildly based on a handful of outlier sessions.',
@@ -1770,6 +1779,7 @@ export const DO_BIEN_DONG_LICH_SU: FormulaModule = {
         366,
         1,
         {
+          integer: true,
           description: {
             vi: 'Thông lệ quốc tế là 252 phiên. HOSE thường có khoảng 248–250 phiên mỗi năm sau khi trừ nghỉ lễ.',
             en: 'The international convention is 252 sessions. HOSE typically has around 248–250 sessions per year after excluding holidays.',
@@ -1965,9 +1975,10 @@ export const TY_LE_KHOI_LUONG: FormulaModule = {
         'phiên',
         20,
         5,
-        120,
+        500,
         1,
         {
+          integer: true,
           description: {
             vi: 'Số phiên LIỀN TRƯỚC phiên gần nhất dùng làm mốc so sánh. Chuỗi phải có ít nhất số phiên đó cộng thêm phiên gần nhất.',
             en: 'The number of sessions IMMEDIATELY BEFORE the most recent one, used as the comparison baseline. The series must have at least that many sessions plus the most recent one.',

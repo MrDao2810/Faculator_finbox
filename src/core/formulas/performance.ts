@@ -96,7 +96,7 @@ export const LOI_SUAT_NAM_HOA: FormulaModule = {
         2,
         {
           min: -100,
-          max: 100,
+          max: 1000,
           description: {
             vi: 'Lợi suất của một kỳ ngắn, ví dụ 2 nghĩa là 2%/tháng.',
             en: 'The return for one short period, e.g. 2 means 2% per month.',
@@ -112,6 +112,7 @@ export const LOI_SUAT_NAM_HOA: FormulaModule = {
         365,
         1,
         {
+          integer: true,
           description: {
             vi: 'Tháng là 12, tuần là 52, ngày giao dịch khoảng 250.',
             en: 'Monthly is 12, weekly is 52, trading days are roughly 250.',
@@ -263,7 +264,7 @@ export const LOI_SUAT_THUC: FormulaModule = {
         10,
         {
           min: -100,
-          max: 100,
+          max: 1000,
           description: {
             vi: 'Mức lãi nhìn thấy trên sao kê, chưa trừ lạm phát.',
             en: 'The rate shown on the statement, before subtracting inflation.',
@@ -271,7 +272,7 @@ export const LOI_SUAT_THUC: FormulaModule = {
         },
       ),
       numberVar('inflation', { vi: 'Lạm phát / năm (π)', en: 'Inflation / year (π)' }, '%', 4, {
-        min: -50,
+        min: -100,
         max: 100,
         description: {
           vi: 'Mức tăng giá chung của hàng hoá trong cùng kỳ.',
@@ -424,7 +425,7 @@ export const LAI_SUAT_HIEU_DUNG: FormulaModule = {
         '%',
         12,
         0,
-        30,
+        100,
         0.1,
         {
           description: {
@@ -602,7 +603,7 @@ export const TONG_LOI_SUAT_TAI_DAU_TU: FormulaModule = {
         8,
         {
           min: -100,
-          max: 100,
+          max: 1000,
           description: {
             vi: 'Tốc độ tăng của thị giá cổ phiếu, bình quân mỗi năm.',
             en: 'The average annual rate at which the stock price rises.',
@@ -616,14 +617,15 @@ export const TONG_LOI_SUAT_TAI_DAU_TU: FormulaModule = {
         3,
         {
           min: 0,
-          max: 50,
+          max: 100,
           description: {
             vi: 'Cổ tức tiền mặt cả năm chia cho thị giá, đem tái đầu tư toàn bộ.',
             en: 'Annual cash dividend divided by the share price, fully reinvested.',
           },
         },
       ),
-      sliderVar('years', { vi: 'Số năm nắm giữ (n)', en: 'Years held (n)' }, 'năm', 5, 1, 50, 1, {
+      sliderVar('years', { vi: 'Số năm nắm giữ (n)', en: 'Years held (n)' }, 'năm', 5, 1, 100, 1, {
+        integer: true,
         description: {
           vi: 'Số năm giữ cổ phiếu. Mỗi năm, cổ tức nhận được đem mua thêm chính cổ phiếu ấy.',
           en: 'How many years the stock is held. Each year, the dividends received buy more of the same stock.',
@@ -867,7 +869,7 @@ export const LOI_SUAT_TRUNG_BINH_HINH_HOC: FormulaModule = {
       geoPeriodCount,
       numberVar('r1', { vi: 'Lợi suất kỳ 1 (r1)', en: 'Return in period 1 (r1)' }, '%', 10, {
         min: -100,
-        max: 200,
+        max: 1000,
         description: {
           vi: 'Lợi suất của kỳ thứ nhất. Kỳ lỗ thì nhập số âm.',
           en: 'The return of the first period. Enter a negative number for a losing period.',
@@ -875,7 +877,7 @@ export const LOI_SUAT_TRUNG_BINH_HINH_HOC: FormulaModule = {
       }),
       numberVar('r2', { vi: 'Lợi suất kỳ 2 (r2)', en: 'Return in period 2 (r2)' }, '%', -5, {
         min: -100,
-        max: 200,
+        max: 1000,
         description: {
           vi: 'Lợi suất của kỳ thứ hai. Kỳ lỗ thì nhập số âm.',
           en: 'The return of the second period. Enter a negative number for a losing period.',
@@ -883,7 +885,7 @@ export const LOI_SUAT_TRUNG_BINH_HINH_HOC: FormulaModule = {
       }),
       numberVar('r3', { vi: 'Lợi suất kỳ 3 (r3)', en: 'Return in period 3 (r3)' }, '%', 20, {
         min: -100,
-        max: 200,
+        max: 1000,
         description: {
           vi: 'Lợi suất của kỳ thứ ba. Kỳ lỗ thì nhập số âm.',
           en: 'The return of the third period. Enter a negative number for a losing period.',
@@ -906,7 +908,7 @@ export const LOI_SUAT_TRUNG_BINH_HINH_HOC: FormulaModule = {
           0,
           {
             min: -100,
-            max: 200,
+            max: 1000,
             description: {
               vi: 'Lợi suất của kỳ thứ {n}. Kỳ lỗ thì nhập số âm.',
               en: 'The return of period {n}. Enter a negative number for a losing period.',
@@ -1150,6 +1152,7 @@ export const IRR_NIEN_KIM: FormulaModule = {
         360,
         1,
         {
+          integer: true,
           description: {
             vi: 'Có bao nhiêu kỳ nhận khoản thu đều. Kết quả là lợi suất của một kỳ, cùng độ dài với kỳ ở đây.',
             en: 'How many periods the equal payment is received for. The result is the return for one period of that same length.',
@@ -1409,7 +1412,7 @@ export const THOI_GIAN_NHAN_DOI: FormulaModule = {
         '%',
         8,
         0,
-        30,
+        100,
         0.1,
         {
           description: {
@@ -1576,9 +1579,10 @@ export const LOI_SUAT_QUY_NAM_THEO_NGAY: FormulaModule = {
         'ngày',
         90,
         1,
-        1095,
+        3650,
         1,
         {
+          integer: true,
           description: {
             vi: 'Tính theo ngày lịch, từ ngày mua tới ngày bán.',
             en: 'Counted in calendar days, from the buy date to the sell date.',

@@ -380,8 +380,8 @@
  *
  * Đây đúng bằng khuôn thẻ TRƯỚC đợt đổi màu, nên bản in không đổi gì so với trước.
  *
- * Chỉ chạm tới khi người dùng bấm Ctrl+P thẳng trên trang. Đi qua sheet Xuất thì `.print-region`
- * đã ẩn hết phần còn lại, thẻ này không có mặt trong bản in.
+ * Chỉ chạm tới khi người dùng bấm Ctrl+P thẳng trên trang. Sheet Xuất dựng file PDF riêng bằng
+ * pdf-lib (17/11/2026), không đi qua bản in.
  */
 @media print {
   .block {

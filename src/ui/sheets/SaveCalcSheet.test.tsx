@@ -11,7 +11,7 @@ import { SaveCalcSheet } from './SaveCalcSheet';
 import styles from './SaveCalcSheet.module.css';
 
 /**
- * jsdom chưa cài đặt <dialog>.showModal() — cùng bản vá của `ExportSheet.test.tsx`.
+ * jsdom chưa cài đặt <dialog>.showModal() — cùng bản vá của `PresetPasteSheet.test.tsx`.
  */
 beforeAll(() => {
   HTMLDialogElement.prototype.showModal = function showModal(this: HTMLDialogElement) {

@@ -1202,7 +1202,7 @@ export function PasteImportSheet({
   /**
    * Nạp bộ dữ liệu mẫu.
    *
-   * `import()` trần chứ không phải import tĩnh, cùng lối với `draw-card` và `chart-snapshot` và
+   * `import()` trần chứ không phải import tĩnh, cùng lối với bộ dựng PDF và `chart-snapshot` và
    * cùng một lý do: `FormulaDetail` nạp sheet này TĨNH, nên 64 phiên số liệu thật (~3 KB) sẽ đi
    * theo gói đầu tiên của cả 111 trang chi tiết dù gần như không ai bấm nút này.
    */
@@ -1524,10 +1524,6 @@ export function PasteImportSheet({
           ))}
 
           {result.reordered && <p className={styles.note}>{t('paste.reordered')}</p>}
-
-          {result.rows.length > 0 && result.order === 'unknown' && (
-            <p className={styles.note}>{t('paste.orderUnknown')}</p>
-          )}
 
           {result.preamble > 0 && (
             <p className={styles.note}>

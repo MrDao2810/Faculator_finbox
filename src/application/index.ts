@@ -201,8 +201,16 @@ export {
 } from '@/core/paste-import';
 
 // ── Nội dung file xuất — WF-12 (gói 2.5.3) ──────────────────────────────────
-export type { ExportContent, ExportFormat, ExportLine, ExportOptions } from '@/core/export-content';
-export { DISCLAIMER_VI, buildExportContent, exportFileName } from '@/core/export-content';
+// Chỉ KIỂU qua barrel: bộ dựng nội dung kéo theo hai file nhóm công thức, nên chỉ chunk PDF nạp trễ
+// được lấy nó, qua `@/application/export-document` (17/11/2026).
+export type {
+  ExportBlock,
+  ExportColumn,
+  ExportData,
+  ExportDocument,
+  ExportOptions,
+} from '@/core/export-content';
+export { DISCLAIMER_VI } from '@/core/disclaimer';
 
 // ── Bộ số liệu mẫu qua DataProvider — WF-10 (gói 2.5.1, FR-17) ──────────────
 export type { DailyBar, DataProvider, Fundamentals, Preset, PresetPick } from '@/data';

@@ -9,7 +9,7 @@
  *
  * Từ điển này (và mọi field `Bilingual` ở Domain) nay đã dịch **đủ**: `missingKeys('en')` rỗng.
  * Vài khối vẫn cố định tiếng Việt theo thiết kế, KHÔNG phải nợ dịch: metadata SEO build-time
- * (`page.tsx`), file PDF/PNG xuất ra (`draw-card.ts`, `ExportSheet.tsx` — tài liệu xuất luôn là
+ * (`page.tsx`), file PDF xuất ra (`export-content.ts` — tài liệu xuất luôn là
  * văn bản tiếng Việt trọn vẹn, kể cả câu miễn trừ đính kèm vẫn lấy `DISCLAIMER_VI`), và tên công
  * ty mẫu trong `samples.ts`.
  *
@@ -192,7 +192,7 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'detail.tickerNoData':
     'this ticker has no usable fundamentals yet (its reports lack four consecutive quarters, or the ' +
     'figures do not agree). Retrying will not help - pick another ticker, or enter values by hand.',
-  'detail.download': 'Download',
+  'detail.download': 'Export',
   'detail.shareLink': 'Share',
   'detail.shareCopied': 'Link copied',
   'detail.shareNoSeries':
@@ -225,9 +225,8 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'detail.constantSince': 'in effect since',
   'detail.constantsCollapse': 'Collapse',
   'detail.constantsExpand': 'Expand',
-  'detail.pasteSeries': 'Use sample data',
-  'detail.loadExample': 'Load illustrative example',
-  'detail.exampleLoaded': 'Illustrative example loaded ✓',
+  'detail.loadExample': 'Use sample data',
+  'detail.exampleLoaded': 'Sample data loaded ✓',
   /* `detail.exampleSeriesNote` đã bỏ cùng bản tiếng Việt — câu ấy nói sai về số liệu thật đứng
      cạnh nó; lý do đầy đủ ghi ở `FormulaDetail.tsx`. */
   /* `detail.exampleSeriesLabel` đã BỎ — câu biểu đồ giờ dùng `dataset.name` ('FPT', 'VN-Index').
@@ -236,7 +235,7 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'detail.seriesLoaded': 'Price sessions loaded:',
   'detail.liveSeriesShort':
     'This ticker has a single price session - the live source provides no long history. This ' +
-    'formula needs many sessions: paste a price series, or tap “Load illustrative example”.',
+    'formula needs many sessions: tap “Use sample data”, or open the data table to paste a price series.',
   /* Rút gọn theo bản tiếng Việt (23/09/2026) — lý do đầy đủ ghi ở `vi.ts`. */
   'detail.draftMarketSeries': 'These figures are illustrative only, not for real-world use.',
   'detail.openDataTable': 'Open the data table',
@@ -488,10 +487,14 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'series.codeLabel': 'Ticker',
   'series.loadPreset': 'Load sample',
   'series.addRow': 'Add row',
+  'series.use': 'Use',
   'series.paste': 'Paste Excel/CSV',
   'series.downloadCsv': 'Download CSV',
   'series.clear': 'Clear',
-  'series.clearConfirm': 'Clear the whole table? This cannot be undone.',
+  'series.clearTitle': 'Clear the whole table?',
+  'series.clearConfirm': 'This cannot be undone.',
+  'series.clearCancel': 'Cancel',
+  'series.clearDo': 'Clear table',
   'series.removeRow': 'Delete row',
   'series.colDate': 'Date',
   'series.colOpen': 'Open',
@@ -578,8 +581,6 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'paste.yearRange': 'From {tu} to {den}',
   'paste.reordered':
     'The data is newest first. It has been flipped so the series runs oldest to newest.',
-  'paste.orderUnknown':
-    'The session order could not be read. Make sure the oldest session is at the top, or the result will be wrong.',
   'paste.styleAsk': 'How should this number be read?',
   'paste.preamble': 'Dropped the leading lines that are not data:',
   'paste.skippedRows': 'row(s) skipped',
@@ -588,17 +589,6 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'paste.cancel': 'Cancel',
   'paste.import': 'Import',
 
-  'export.title': 'Export the result',
-  'export.formatLabel': 'File format',
-  'export.pdf': 'PDF A4',
-  'export.pdfHint': 'printable',
-  'export.png': 'PNG',
-  'export.pngHint': 'quick to share',
-  'export.withChart': 'Include the chart',
-  'export.chartNone': 'This formula has no chart.',
-  'export.withDetails': 'Include variables & explanation',
-  'export.doPdf': 'Export PDF',
-  'export.doPng': 'Export PNG',
   'export.failed': 'Could not export the file. Your browser may be blocking downloads.',
 
   'save.title': 'Save to portfolio',

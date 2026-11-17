@@ -4,6 +4,30 @@
 
 Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 
+## Nút Export xuất PDF ngay, bỏ sheet "Xuất kết quả" (17/11/2026, lượt hai)
+
+**Trạng thái: chờ chủ dự án xác nhận.** Chủ dự án (ảnh sheet với hai công tắc): _"phần tải về bây giờ ko cần cái này nữa. bấm tải về thì tự động trả về pdf luôn. và sửa text 'Tải về' thành 'Export'"_.
+
+- `FormulaDetail.tsx`: nút gọi `xuatPdfNgay()`, không mở sheet. File luôn kèm biểu đồ khi màn đang vẽ hình, luôn kèm bảng biến và giải thích. Nút khoá (`aria-busy`) trong lúc dựng; hỏng thì dải thông báo đáy màn báo `export.failed` (`role="alert"`, cùng khuôn thông báo "Đã sao chép link").
+- Mới `src/ui/sheets/export-pdf.ts` (cửa `import()` trần, barrel xuất hàm này). Xoá `ExportSheet.tsx` + CSS; file test cũ đổi tên `PresetPasteSheet.test.tsx` (giữ hai bộ PresetSheet/PasteImportSheet).
+- i18n: `detail.download` thành "Export" (cả VI và EN). Bỏ `export.title/withChart/withDetails/doPdf/working` (mộ chí ở `vi.ts`), giữ `export.failed`.
+- Test: 3 ca mới trong `FormulaDetail.test.tsx` (bấm Export gọi bộ dựng ngay, không hộp thoại; chỉ kèm biểu đồ khi màn vẽ hình; lỗi hiện dải `alert`). `check:chrome`: bấm Export không mở hộp thoại và ra file `%PDF-`; bỏ ba phép đo sheet "Tải về" (cùng sheet). Hệ quả: không còn phép đo Chrome nào cho một tấm DÁN ĐÁY dưới 1024px.
+- Đã kiểm: lint, typecheck, format sạch; 746 ca liên quan xanh; `verify:static` 58/58; `check:chrome` 193/205, 12 ca hỏng y hệt lượt trước (đỏ sẵn).
+
+## Xuất kết quả: file PDF thật bằng pdf-lib, bỏ PNG (17/11/2026)
+
+**Trạng thái: chờ chủ dự án xác nhận, cần thử trên iPhone/Android thật.** Người kiểm thử báo PDF trên điện thoại "không xem được hoặc lỗi" (hộp in của hệ điều hành) và PNG "không có số liệu gì". Chủ dự án: bỏ PNG, PDF tải thẳng về trên iOS/Android/PC, mang tên · ý nghĩa · công thức + chú thích · các bảng dữ liệu (vẽ sẵn khung) · giải thích cho người mới · bài tập. Đã chọn khi được hỏi: pdf-lib + font nhúng (phụ thuộc mới), đủ bốn loại bảng, đáp án ở cuối file.
+
+- Phụ thuộc mới: `pdf-lib`, `@pdf-lib/fontkit`. Font `public/fonts/` (Noto Sans thường/đậm, Noto Sans Math, `OFL.txt`), tải cùng nguồn, CSP không đổi.
+- `src/core/export-content.ts` viết lại thành `buildExportDocument()` (dãy khối thuần dữ liệu, luôn kết thúc bằng miễn trừ); `src/core/latex-chu.ts` mới (LaTeX thành chữ cho cột ký hiệu và phương án dự phòng); `src/application/export-document.ts` mới (cửa riêng, barrel chỉ xuất kiểu).
+- `src/ui/sheets/pdf/ve-pdf.ts` (vẽ, không đụng DOM) và `xuat-pdf.ts` (chụp hình công thức qua SVG `foreignObject`, chụp biểu đồ, tải font, lưu file; ứng dụng cài trên iOS dùng `navigator.share`). Nạp bằng `import()` trần: chunk pdf-lib không có trong HTML trang nào.
+- `ExportSheet.tsx`: bỏ hai thẻ định dạng và vùng in; còn hai công tắc + "Xuất PDF" (khoá, nhãn "Đang tạo PDF…" khi đang dựng). `FormulaDetail.tsx` truyền thêm MathML, chuỗi giá, dòng tiền, `ctx`, câu hỏi.
+- Bỏ: `draw-card.ts` + test, `.print-region` và các luật in của nó trong `globals.css`, khối test token vùng in, 7 khoá i18n (mộ chí ở `vi.ts`), 2 mục allowlist ở `i18n.test.ts`. Chú thích nhắc tới chúng ở ~15 file được sửa theo.
+- Hai lỗi gặp khi kiểm bằng mắt, đã sửa: (1) chữ trong file copy/tìm kiếm ra ký tự loạn ("vốn" thành "vઌn") do bước ghép glyph của fontkit; tắt `ccmp/mark/liga…` thì đúng, và nhúng subset được, file 60–120 kB thay vì ~700 kB. (2) Tiêu đề "Biểu đồ" đứng trơ cuối trang, hình sang trang sau; nay tiêu đề giữ chỗ bằng chiều cao hình.
+- Test: `export-content.test.ts` viết lại (thứ tự mục, bảng riêng của `lich-tra-no`/`loi-nhuan-rong`/`xirr`, chuỗi giá, bài tập + đáp án, cả 111 công thức), `latex-chu.test.ts`, `pdf/ve-pdf.test.ts` (font thật), `ExportSheet.test.tsx` và 3 ca `FormulaDetail.test.tsx` sửa theo. `check:chrome` 0c/0d thay phép kiểm vùng in và thẻ PNG bằng: Ctrl+P vẫn in trang, "Xuất PDF" ra file `%PDF-` có 2 ảnh (công thức + biểu đồ) ở giao diện tối.
+- Đã kiểm: lint, typecheck, format sạch; `verify:static` 58/58; `check:chrome` 196/208 và `npm test` hỏng 3 ca hết giờ, cả hai trùng từng ca với bản HEAD gốc build riêng (đỏ sẵn, không thuộc đợt này); cổng `size` vẫn đỏ như trước (trang chi tiết ~209–263 kB). Xem tận mắt file Chrome dựng cho `capm`, `lich-tra-no`, `rsi-wilder` ở khổ 390px.
+- Còn lại: thử trên iPhone (Safari và app cài lên màn hình chính) và Android thật; trên Safari hình công thức có thể rơi về dòng chữ nếu canvas bị khoá.
+
 ## Hình công thức không còn bị cắt đỉnh/đáy chữ (16/11/2026)
 
 **Trạng thái: chờ chủ dự án xác nhận.** Chủ dự án chụp chữ D ở tử số `DY = D / P × 100` (`ty-suat-co-tuc`) bị cụt đầu: _"sửa lại lỗi này ở toàn bộ công thức, không được có lỗi này"_.

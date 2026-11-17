@@ -138,7 +138,7 @@ import { holdOriginThrough } from '@/ui/layout/OriginTracker';
 import { DisclaimerBar, useBackTarget } from '@/ui/navigation';
 import { GuideHint, khoiDangXem } from '@/ui/guide';
 import { QuizPanel } from '@/ui/quiz';
-import { ExportSheet, SaveCalcSheet } from '@/ui/sheets';
+import { SaveCalcSheet, exportPdf } from '@/ui/sheets';
 import {
   ChainPanel,
   DetailBody,
@@ -235,6 +235,47 @@ function isoDayOf(ms: number): string {
   const month = String(date.getMonth() + 1).padStart(2, '0');
   const day = String(date.getDate()).padStart(2, '0');
   return `${String(date.getFullYear())}-${month}-${day}`;
+}
+
+/**
+ * Bảng WF-05 (`/du-lieu/`) có đang giữ MỘT chuỗi KHÁC `rows` không — trả chuỗi của bảng nếu có,
+ * `null` nếu bảng trống hoặc trùng. Dùng lúc quay lại từ bảng dữ liệu (17/11/2026): chuỗi cất ở
+ * kho phiên (mã đã nạp, ví dụ, chuỗi dán) là chuỗi của TRƯỚC khi sang bảng, còn bảng là nơi người
+ * dùng vừa nạp mẫu hoặc sửa số. Hai bên khác nhau thì bảng thắng, vì cú bàn giao
+ * `handOverToDataTable()` đã ghi chuỗi cũ sang bảng nên mọi khác biệt đều do người dùng làm bên đó.
+ *
+ * So số, không so ngày: ngày được chuẩn hoá khi đọc kho nên so chuỗi ngày dễ báo khác oan, và cú
+ * báo oan làm rơi nhãn mã hay chuỗi VN-Index của Beta. Số thì ra khác khi và chỉ khi có ô bị sửa.
+ */
+function bangDaDoi(
+  rows: ReadonlyArray<{
+    open: number | null;
+    high: number | null;
+    low: number | null;
+    close: number | null;
+    volume: number | null;
+  }>,
+): ReadonlyArray<SeriesRow> | null {
+  try {
+    const bang = parseStoredSeries(window.localStorage.getItem(PRICE_SERIES_KEY)).rows;
+    if (bang.length === 0) return null;
+    const giong =
+      bang.length === rows.length &&
+      bang.every((row, i) => {
+        const kia = rows[i];
+        return (
+          kia !== undefined &&
+          (row.open ?? null) === (kia.open ?? null) &&
+          (row.high ?? null) === (kia.high ?? null) &&
+          (row.low ?? null) === (kia.low ?? null) &&
+          (row.close ?? null) === (kia.close ?? null) &&
+          (row.volume ?? null) === (kia.volume ?? null)
+        );
+      });
+    return giong ? null : bang;
+  } catch {
+    return null;
+  }
 }
 
 /**
@@ -362,7 +403,8 @@ export interface FormulaDetailProps {
 }
 
 /* `'preset'` rời danh sách 09/11/2026: "Nạp mẫu" mở thẳng sheet chọn mã — xem `openTickerPicker()`. */
-type SheetKind = 'paste' | 'export' | 'save';
+// 'export' rời danh sách ngày 17/11/2026: nút Export xuất PDF ngay, không mở sheet (`xuatPdfNgay`).
+type SheetKind = 'paste' | 'save';
 
 /** Thứ màn cần nhớ về một phép tính vừa mở lại từ `?luu=`. */
 interface RestoredCalc {
@@ -387,7 +429,7 @@ interface RestoredCalc {
 }
 
 /*
- * Hai icon của cặp nút Tải về / Chia sẻ — vẽ tay, không thêm thư viện (NFR-PER-04), cùng nếp
+ * Hai icon của cặp nút Export / Chia sẻ — vẽ tay, không thêm thư viện (NFR-PER-04), cùng nếp
  * `TabIcon` và `CategoryIcon`.
  *
  * `aria-hidden` cả hai: chữ ngay cạnh đã là tên của nút, nên icon lọt vào cây trợ năng chỉ khiến
@@ -526,8 +568,8 @@ export function FormulaDetail({
    * Ba bottom sheet chỉ được DỰNG khi người dùng mở lần đầu, rồi giữ lại.
    *
    * Trước đợt này cả ba luôn nằm trong DOM (chỉ đóng bằng thuộc tính `open` của `<dialog>`), nên
-   * mỗi lần vào màn chi tiết là dựng thừa ~150 nút — riêng `ExportSheet` còn gọi
-   * `buildExportContent()` ở MỖI lượt dựng, tức mỗi phím gõ, để dựng một tài liệu không ai xem.
+   * mỗi lần vào màn chi tiết là dựng thừa ~150 nút — riêng sheet Xuất (bỏ 17/11/2026) từng dựng lại nội dung
+   * file ở MỖI lượt dựng, tức mỗi phím gõ, cho một tài liệu không ai xem.
    *
    * Giữ lại sau khi đã mở chứ không tháo lúc đóng: bên trong sheet có lựa chọn của người dùng
    * (định dạng xuất, các ô tick) mà tháo đi là mất.
@@ -551,6 +593,19 @@ export function FormulaDetail({
    *
    * Tự tắt sau vài giây chứ không để mãi. Hẹn giờ dọn trong effect ngay dưới.
    */
+  /** Đang dựng file PDF (khoá nút Export) và lần xuất vừa rồi hỏng (bật dải báo lỗi) — `xuatPdfNgay`. */
+  const [dangXuat, setDangXuat] = useState(false);
+  const [xuatLoi, setXuatLoi] = useState(false);
+  useEffect(() => {
+    if (!xuatLoi) return;
+    const timer = window.setTimeout(() => {
+      setXuatLoi(false);
+    }, THONG_BAO_MS);
+    return () => {
+      window.clearTimeout(timer);
+    };
+  }, [xuatLoi]);
+
   const [shareDone, setShareDone] = useState<'copied' | 'shared' | null>(null);
   const copied = shareDone === 'copied';
   useEffect(() => {
@@ -1581,6 +1636,46 @@ export function FormulaDetail({
   );
 
   /**
+   * Nút Export: dựng và tải file PDF NGAY, không qua sheet nào (17/11/2026, chủ dự án: _"phần tải về
+   * bây giờ ko cần cái này nữa. bấm tải về thì tự động trả về pdf luôn"_). Không còn công tắc nên file
+   * luôn mang đủ: biểu đồ khi khối Biểu đồ đang VẼ một hình (`hinhBieuDo.daVe`, chặn thêm bằng
+   * `chartType` để trạng thái cũ của công thức trước không lọt sang), bảng biến và giải thích luôn có.
+   * File luôn tiếng Việt, nên hình công thức lấy bản gốc `notationGoc`, không theo ngôn ngữ đang xem.
+   */
+  async function xuatPdfNgay(): Promise<void> {
+    if (dangXuat) return;
+    setXuatLoi(false);
+    setDangXuat(true);
+    try {
+      await exportPdf({
+        // `activeSpec`: file kê đủ mọi đợt mua đang có trên màn.
+        formula: activeSpec,
+        output,
+        // Con số thật sự đã dùng để tính, kể cả số chảy từ bước trước sang.
+        inputs: effectiveInputs,
+        options: {
+          includeChart: activeSpec.chartType !== 'none' && hinhBieuDo?.daVe === true,
+          includeDetails: true,
+          mode,
+          // Mã đang nạp là bộ mẫu bản thảo thì file phải tự nói điều đó — xem `loadedDraft`.
+          fromDraftData: loadedPreset !== null && loadedDraft,
+        },
+        data: {
+          bars: wantsSeries ? bars : null,
+          cashflows: cashflowRows,
+          ctx,
+          quiz: quiz?.items ?? null,
+        },
+        formulaMathml: notationGoc.latexHtml,
+      });
+    } catch {
+      setXuatLoi(true);
+    } finally {
+      setDangXuat(false);
+    }
+  }
+
+  /**
    * Nạp một mã có đổi được gì trên màn này không — thuộc tính TĨNH của công thức.
    *
    * Đo trên toàn Registry: 37 công thức điền được ô từ số liệu mã, 36 công thức nữa không điền ô
@@ -2097,7 +2192,17 @@ export function FormulaDetail({
 
     try {
       const active = parseActiveTicker(window.sessionStorage.getItem(ACTIVE_TICKER_KEY));
-      if (active !== null) applyPresetRef.current(active.preset, true);
+      if (active !== null) {
+        // Bảng dữ liệu vừa được nạp mẫu hoặc sửa bên `/du-lieu/` thì bảng thắng: mã cũ không còn
+        // là nguồn của chuỗi trên màn, và đè nó lên là đúng lỗi "nạp rồi quay lại không có gì".
+        const bang = bangDaDoi(active.preset.bars);
+        if (bang !== null) {
+          window.sessionStorage.removeItem(ACTIVE_TICKER_KEY);
+          setSeriesCount(bang.length);
+        } else {
+          applyPresetRef.current(active.preset, true);
+        }
+      }
     } catch {
       // sessionStorage bị chặn — màn chạy như trước đợt này, với bộ số mặc định.
     }
@@ -2128,6 +2233,19 @@ export function FormulaDetail({
     }
 
     if (record === null || record.id !== spec.id) return;
+
+    // Bảng dữ liệu đã khác chuỗi cất (nạp mẫu hoặc sửa số bên `/du-lieu/`) thì bảng thắng — xem
+    // `bangDaDoi()`. Bản ghi cũ bỏ đi, nếu không nó đè lại bảng ở mọi lần mở sau.
+    const bang = bangDaDoi(record.rows);
+    if (bang !== null) {
+      try {
+        window.sessionStorage.removeItem(WORKING_SERIES_KEY);
+      } catch {
+        // sessionStorage bị chặn — không có gì để xoá.
+      }
+      setSeriesCount(bang.length);
+      return;
+    }
 
     // Giữ cho nhánh `?ma=` bất đồng bộ đọc lại, vì `applyPreset()` sẽ xoá bản ghi trong kho.
     workingSeriesRef.current = record;
@@ -2751,8 +2869,10 @@ export function FormulaDetail({
               size="sm"
               className={styles.iconButton}
               onClick={() => {
-                openSheet('export');
+                void xuatPdfNgay();
               }}
+              disabled={dangXuat}
+              aria-busy={dangXuat}
             >
               <DownloadIcon />
               <span className={styles.iconLabel}>{t('detail.download')}</span>
@@ -2791,6 +2911,15 @@ export function FormulaDetail({
           createPortal(
             <div className={styles.thongBao} role="status">
               {t('detail.shareCopied')}
+            </div>,
+            document.body,
+          )}
+        {/* Xuất PDF hỏng (không tải được font, trình duyệt chặn tải xuống…): cùng dải thông báo, vì
+            không còn sheet nào để đặt câu báo lỗi (17/11/2026). */}
+        {xuatLoi &&
+          createPortal(
+            <div className={styles.thongBao} role="alert">
+              {t('export.failed')}
             </div>,
             document.body,
           )}
@@ -3385,20 +3514,13 @@ export function FormulaDetail({
 
               {wantsSeries && (
                 <div className={`${styles.actions} ${styles.dataActions}`}>
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    onClick={() => {
-                      openSheet('paste');
-                    }}
-                  >
-                    {t('detail.pasteSeries')}
-                  </Button>
-
                   {/*
-              Lối thứ ba cho người chưa có chuỗi giá thật để dán VÀ không hiểu bộ mẫu 4 công ty —
-              xem docblock `applyExample()`. Ẩn hẳn với công thức không khai
-              `example.series`/`example.bars` thay vì hiện một nút bấm không ra gì.
+              "Sử dụng dữ liệu mẫu" (17/11/2026, chủ dự án: "đã là nạp mẫu thì phải là dạng dữ liệu
+              thực tế có tác dụng"): bấm là nạp ngay chuỗi thật của ví dụ (xem docblock
+              `applyExample()`), kết quả và biểu đồ đổi tức thì. Nút "Dán chuỗi giá" cũ (mở bảng dán,
+              điền sẵn chính chuỗi đang dùng nên Nạp không đổi gì) và nút "Nạp ví dụ minh hoạ" trùng
+              việc đã gộp làm một; muốn dán số riêng thì sang "Mở bảng dữ liệu". Ẩn hẳn với công thức
+              không khai `example.series`/`example.bars` thay vì hiện một nút bấm không ra gì.
             */}
                   {(spec.example.series !== undefined || spec.example.bars !== undefined) && (
                     <Button variant="secondary" size="sm" onClick={applyExample}>
@@ -3889,26 +4011,6 @@ export function FormulaDetail({
               })),
             );
           }}
-        />
-      )}
-
-      {mountedSheets.has('export') && (
-        <ExportSheet
-          open={sheet === 'export'}
-          onClose={() => {
-            setSheet(null);
-          }}
-          // `activeSpec`: file xuất kê đủ mọi đợt mua đang có trên màn.
-          formula={activeSpec}
-          output={output}
-          // Bản xuất phải mang con số thật sự đã dùng để tính, kể cả số chảy từ bước trước sang.
-          inputs={effectiveInputs}
-          mode={mode}
-          // Mã đang nạp là bộ mẫu bản thảo thì file xuất ra phải tự nói điều đó — xem `loadedDraft`.
-          fromDraftData={loadedPreset !== null && loadedDraft}
-          // Khối Biểu đồ đang VẼ một hình — không thì công tắc "Kèm biểu đồ" khoá (16/11/2026).
-          // `chartType` chặn trạng thái cũ của công thức trước: màn `none` không có khối nào báo lên.
-          hasChart={activeSpec.chartType !== 'none' && hinhBieuDo?.daVe === true}
         />
       )}
 

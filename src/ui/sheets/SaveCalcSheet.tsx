@@ -77,7 +77,7 @@ export function SaveCalcSheet({
   /** Đã chạm vào ô tên chưa — chưa chạm thì không mắng người dùng vì một ô họ chưa gõ. */
   const [touched, setTouched] = useState(false);
   const [saved, setSaved] = useState(false);
-  /** Giữ CỜ chứ không giữ câu lỗi đã dịch: đổi ngôn ngữ sẽ đóng băng bản dịch cũ (xem ExportSheet). */
+  /** Giữ CỜ chứ không giữ câu lỗi đã dịch: đổi ngôn ngữ sẽ đóng băng bản dịch cũ (sheet Xuất cũ từng giữ cờ `failed` y như vậy). */
   const [failed, setFailed] = useState(false);
 
   /** Cái tên điền sẵn vào ô — gợi ý ĐẦU TIÊN, đã né tên đang có. Xem docblock về hàng chip đã bỏ. */

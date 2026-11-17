@@ -443,7 +443,8 @@ export const vi = {
    *
    * `detail.export` cũ ('↓ Xuất') bỏ: mũi tên nay là icon thật, không còn phải vẽ bằng ký tự.
    */
-  'detail.download': 'Tải về',
+  // "Tải về" thành "Export" ngày 17/11/2026, theo chữ của chủ dự án; bấm là xuất PDF ngay, không mở sheet.
+  'detail.download': 'Export',
   'detail.shareLink': 'Chia sẻ',
   'detail.shareCopied': 'Đã sao chép link',
   /*
@@ -563,9 +564,12 @@ export const vi = {
    * KHÔNG phải dựng lại khối này: hình đã nói tên và trị số rồi, thứ còn thiếu là "tính ra sao" —
    * mà đó đúng là việc của khung "cách tính" khi rê chuột vào ký hiệu (`src/core/how-to/`).
    */
-  'detail.pasteSeries': 'Sử dụng dữ liệu mẫu',
-  'detail.loadExample': 'Nạp ví dụ minh hoạ',
-  'detail.exampleLoaded': 'Đã nạp ví dụ minh hoạ ✓',
+  /*
+   * Mộ chí: `detail.pasteSeries` (nút "Sử dụng dữ liệu mẫu" mở bảng dán) — gộp vào `detail.loadExample`
+   * ngày 17/11/2026: nút ấy mở bảng điền sẵn chuỗi đang dùng nên bấm Nạp không đổi gì.
+   */
+  'detail.loadExample': 'Sử dụng dữ liệu mẫu',
+  'detail.exampleLoaded': 'Đã dùng dữ liệu mẫu ✓',
   /* `detail.exampleSeriesLabel` đã BỎ — câu biểu đồ giờ dùng `dataset.name` ('FPT', 'VN-Index')
      thay vì chuỗi i18n cố định; xem `chartSeriesLabel` ở `FormulaDetail.tsx`. Bỏ: 29/09/2026. */
   /*
@@ -585,7 +589,7 @@ export const vi = {
    */
   'detail.liveSeriesShort':
     'Mã này chỉ có một phiên giá - nguồn số liệu thật không cấp chuỗi dài. Công thức này cần ' +
-    'nhiều phiên: dán chuỗi giá, hoặc bấm “Nạp ví dụ minh hoạ”.',
+    'nhiều phiên: bấm “Sử dụng dữ liệu mẫu”, hoặc mở bảng dữ liệu để dán chuỗi giá.',
   /*
    * Chuỗi VN-Index trong bộ mẫu là PRNG (`samples.ts`), mà công thức hồi quy với thị trường thì
    * LUÔN đọc nó qua `ctx.marketSeries` — không ai bấm "Nạp mẫu" cho nó cả. Không có câu này thì
@@ -1554,10 +1558,14 @@ export const vi = {
   'series.codeLabel': 'Mã cổ phiếu',
   'series.loadPreset': 'Nạp mẫu',
   'series.addRow': 'Thêm dòng',
+  'series.use': 'Sử dụng',
   'series.paste': 'Dán Excel/CSV',
   'series.downloadCsv': 'Tải CSV',
   'series.clear': 'Xoá',
-  'series.clearConfirm': 'Xoá toàn bộ bảng? Thao tác này không hoàn tác được.',
+  'series.clearTitle': 'Xoá toàn bộ bảng?',
+  'series.clearConfirm': 'Thao tác này không hoàn tác được.',
+  'series.clearCancel': 'Huỷ',
+  'series.clearDo': 'Xoá bảng',
   'series.removeRow': 'Xoá dòng',
   'series.colDate': 'Ngày',
   'series.colOpen': 'Mở',
@@ -1737,8 +1745,11 @@ export const vi = {
    * 20/10/2026. Số phiên còn trên nút Nạp, khoảng năm còn ở dòng năm trên lưới.
    */
   'paste.reordered': 'Dữ liệu xếp phiên mới trước. Đã đảo lại cho chuỗi chạy từ cũ tới mới.',
-  'paste.orderUnknown':
-    'Không đọc được thứ tự phiên. Hãy chắc phiên cũ nhất nằm trên cùng, nếu ngược thì kết quả sẽ sai.',
+  /*
+   * Mộ chí: `paste.orderUnknown` ("Không đọc được thứ tự phiên. Hãy chắc phiên cũ nhất nằm trên cùng,
+   * nếu ngược thì kết quả sẽ sai.") — chủ dự án bảo xoá ngày 17/11/2026. Bỏ câu, giữ hành vi: khối
+   * dán không có cột ngày vẫn đọc là `order: 'unknown'`, chỉ không còn dòng nhắc.
+   */
   'paste.styleAsk': 'Số này đọc là bao nhiêu?',
   'paste.preamble': 'Đã bỏ phần đầu không phải dữ liệu:',
   'paste.skippedRows': 'dòng bỏ qua',
@@ -1747,31 +1758,32 @@ export const vi = {
   'paste.cancel': 'Huỷ',
   'paste.import': 'Nạp',
 
-  // Xuất PDF / PNG — WF-12, gói 2.5.3
-  'export.title': 'Xuất kết quả',
-  'export.formatLabel': 'Định dạng file',
-  'export.pdf': 'PDF A4',
-  'export.pdfHint': 'in được',
-  'export.png': 'PNG',
-  'export.pngHint': 'chia sẻ nhanh',
-  'export.withChart': 'Kèm biểu đồ',
+  // Xuất PDF — WF-12, gói 2.5.3
+  /*
+   * Mộ chí (17/11/2026, lượt hai): cả sheet "Xuất kết quả" bỏ — `export.title` ("Xuất kết quả"),
+   * `export.withChart` ("Kèm biểu đồ"), `export.withDetails` ("Kèm bảng biến & giải thích"),
+   * `export.doPdf` ("Xuất PDF") và `export.working` ("Đang tạo PDF…"). Chủ dự án: _"phần tải về bây giờ
+   * ko cần cái này nữa. bấm tải về thì tự động trả về pdf luôn"_. Nút Export trên màn chi tiết xuất
+   * PDF ngay, file luôn kèm biểu đồ (khi màn đang vẽ hình), bảng biến và giải thích. Chỉ còn câu lỗi.
+   */
+  /*
+   * Mộ chí (17/11/2026): `export.formatLabel` ("Định dạng file"), `export.pdf` ("PDF A4"),
+   * `export.pdfHint` ("in được"), `export.png` ("PNG"), `export.pngHint` ("chia sẻ nhanh"),
+   * `export.doPng` ("Xuất PNG") và `export.chartNone` ("Công thức này không có biểu đồ."). Chủ dự án bỏ
+   * định dạng PNG (_"bỏ dạng png đi. chỉ cho xuất file pdf"_), nên không còn thẻ định dạng nào để chọn;
+   * PDF nay là file thật dựng bằng pdf-lib chứ không đi qua hộp in. Câu dự phòng biểu đồ không còn
+   * chỗ dùng: công tắc "Kèm biểu đồ" đã khoá khi màn không vẽ hình (16/11/2026).
+   */
   /*
    * Mộ chí: `export.withChartHint` ("Ảnh biểu đồ của công thức, nếu công thức đó có vẽ"),
    * `export.withDetailsHint` ("Ý nghĩa từng biến và phần giải thích cho người mới"),
    * `export.disclaimerLocked` ("Miễn trừ tự động đính kèm") và `export.disclaimerLockedDetail`
    * ("Không thể tắt — mọi file xuất ra đều mang tuyên bố miễn trừ."). Chủ dự án khoanh cả ba chỗ trên
    * sheet Xuất kết quả: _"xóa các phần khoanh đỏ đi"_ (28/10/2026). Bỏ câu, giữ hành vi: miễn trừ vẫn
-   * gắn vào mọi file xuất (`buildExportContent()` luôn điền `disclaimer`), chỉ là sheet không nói ra
+   * gắn vào mọi file xuất (`buildExportDocument()` luôn kết thúc bằng khối miễn trừ), chỉ là sheet không nói ra
    * nữa — cùng lối `quiz.localOnly`. Đừng dựng lại mà không hỏi.
    */
-  /* Câu dự phòng của vùng in và của tấm PNG: người dùng bật "Kèm biểu đồ" nhưng công thức này
-     không vẽ hình nào (11 công thức khai `chartType: 'none'`), hoặc hình chưa nạp xong. Nói ĐÚNG
-     lý do chứ không để một khung rỗng — người mở file không có cách nào khác để biết vì sao chỗ
-     ấy trống. Thay cho `export.chartPending` cũ, câu hẹn "sẽ có ở bản sau" nay đã sai. */
-  'export.chartNone': 'Công thức này không có biểu đồ.',
-  'export.withDetails': 'Kèm bảng biến & giải thích',
-  'export.doPdf': 'Xuất PDF',
-  'export.doPng': 'Xuất PNG',
+  // Dải thông báo ở đáy màn khi nút Export không dựng được file (không tải được font, chặn tải xuống).
   'export.failed': 'Chưa xuất được file. Trình duyệt có thể đang chặn tải xuống.',
 
   /*
@@ -1856,8 +1868,8 @@ export const vi = {
   /*
    * `settings.theme.hint` và `settings.units.scaleHint` đã xoá — chủ dự án chốt 09/09/2026.
    *
-   * Câu theme mang một vế KHÔNG suy ra được từ nhãn: file PNG và bản in luôn nền sáng dù giao diện
-   * đang tối. Vế ấy nay chỉ còn trong mã (`draw-card.ts`), người dùng không được báo trước.
+   * Câu theme mang một vế KHÔNG suy ra được từ nhãn: file xuất luôn nền sáng dù giao diện đang tối.
+   * Vế ấy nay chỉ còn trong mã (`src/ui/sheets/pdf/ve-pdf.ts`), người dùng không được báo trước.
    */
   'settings.units.schedule': 'Biểu phí giao dịch',
   /*

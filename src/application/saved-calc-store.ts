@@ -13,7 +13,7 @@
  * Cất `inputs` (để mở lại đúng bộ số) và kết quả THÔ lúc lưu (`resultValue` + `resultUnit`).
  *
  * KHÔNG cất chuỗi kết quả đã định dạng: đó là chữ đã dịch, mà ngôn ngữ đổi được lúc chạy —
- * cùng bài học `ExportSheet` giữ **cờ** `failed` chứ không giữ câu lỗi đã dịch. Tab Danh mục
+ * cùng bài học sheet Xuất cũ (bỏ 17/11/2026) giữ **cờ** `failed` chứ không giữ câu lỗi đã dịch. Tab Danh mục
  * định dạng lại từ số thô mỗi lần hiện.
  *
  * KHÔNG cất chuỗi giá (`bars`): 248 phiên × 6 trường × 30 mục là đủ để phình localStorage

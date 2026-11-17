@@ -122,8 +122,8 @@
  * `currentcolor` nên mỗi vai tự lấy màu chữ của mình làm viền — đúng bằng khuôn viền của bản TRƯỚC
  * đợt đổ nền. Chữ thì không cần đặt lại: cả hai màu chữ vốn đã đủ tương phản trên giấy trắng.
  *
- * Chỉ chạm tới khi người dùng bấm Ctrl+P thẳng trên trang; đi qua sheet Xuất thì `.print-region`
- * đã ẩn hết phần còn lại.
+ * Chỉ chạm tới khi người dùng bấm Ctrl+P thẳng trên trang; nút Export dựng file PDF riêng bằng
+ * pdf-lib (17/11/2026), không đi qua bản in.
  */
 @media print {
   .basic,

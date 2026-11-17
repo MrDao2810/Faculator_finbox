@@ -45,7 +45,7 @@
 }
 
 /*
- * Cặp nút Tải về / Chia sẻ, dạt về mép phải của hàng tiêu đề.
+ * Cặp nút Export / Chia sẻ, dạt về mép phải của hàng tiêu đề.
  *
  * `margin-left: auto` chứ không `justify-content: space-between` trên `.titleRow`: hàng ấy có BA
  * phần tử (tên · huy hiệu cấp độ · cặp nút), nên `space-between` sẽ đẩy cả huy hiệu ra giữa, tách
@@ -98,11 +98,11 @@ button.iconButton::after {
 }
 
 /*
- * Dưới 1024px cặp nút Tải về / Chia sẻ chỉ còn icon (19/10/2026). Chủ dự án khoanh hai nút trên
+ * Dưới 1024px cặp nút Export / Chia sẻ chỉ còn icon (19/10/2026). Chủ dự án khoanh hai nút trên
  * điện thoại: _"bản mobile thì chuyển thành icon bỏ text đi"_.
  *
  * Chữ bị ẩn bằng đúng bộ khai báo của `.visually-hidden` trong `globals.css`, KHÔNG bằng
- * `display: none` và không bỏ khỏi DOM: nó vẫn là tên đọc được của nút ("Tải về", "Chia sẻ"), và
+ * `display: none` và không bỏ khỏi DOM: nó vẫn là tên đọc được của nút ("Export", "Chia sẻ"), và
  * mọi test lẫn `check:chrome` vẫn tìm nút theo chữ ấy. Không dùng thẳng lớp toàn cục vì từ 1024px
  * chữ phải hiện; CSS quyết theo khổ nên HTML tĩnh vẫn khớp lần dựng đầu.
  *
@@ -1141,7 +1141,7 @@ button.iconButton::after {
  * ví dụ thực tế ↓" trên điện thoại: _"giảm size button xuống cho gọn hơn"_.
  *
  * Từ cỡ `sm` (cao 36px, chữ 14px, đệm ngang 12px) xuống cao 32px, chữ 12px, đệm ngang 8px — cùng
- * chiều cao với cặp nút icon Tải về / Chia sẻ ở đầu màn. Lớp phủ chạm 44px của `.sm::after` vẫn
+ * chiều cao với cặp nút icon Export / Chia sẻ ở đầu màn. Lớp phủ chạm 44px của `.sm::after` vẫn
  * giữ nguyên.
  *
  * Con chip mã đứng đúng chỗ nút "Nạp mẫu" khi đã nạp mã, nên nhỏ theo: 30px + 2px viền = 32px,

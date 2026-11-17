@@ -1,23 +1,11 @@
 // @vitest-environment jsdom
 
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
-
 import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 
-import {
-  DISCLAIMER_VI,
-  SAMPLE_DATA,
-  defaultPresetPicks,
-  findFormulaModule,
-  ok,
-  pickPresetsFor,
-} from '@/application';
-import type { FormulaSpec } from '@/application';
+import { SAMPLE_DATA, defaultPresetPicks, findFormulaModule, pickPresetsFor } from '@/application';
 
-import { ExportSheet } from './ExportSheet';
 import { PasteImportSheet } from './PasteImportSheet';
 import { PresetSheet } from './PresetSheet';
 
@@ -54,249 +42,6 @@ beforeAll(() => {
 });
 
 afterEach(cleanup);
-
-const PE: FormulaSpec = {
-  id: 'pe',
-  categoryId: 'fundamentals',
-  name: { vi: 'Hệ số giá trên lợi nhuận (P/E)', en: 'Price to Earnings' },
-  description: {
-    vi: 'Trả bao nhiêu đồng cho mỗi đồng lợi nhuận.',
-    en: 'How much is paid per unit of profit.',
-  },
-  latex: 'x',
-  chartType: 'sensitivity',
-  level: 'basic',
-  tags: [],
-  resultUnit: 'lần',
-  variables: [
-    {
-      key: 'price',
-      label: { vi: 'Giá thị trường', en: 'Market price' },
-      unit: '₫',
-      type: 'number',
-      defaultValue: 0,
-      level: 'basic',
-    },
-  ],
-  explanation: {
-    meaning: { vi: 'a', en: 'a' },
-    whenToUse: { vi: 'b', en: 'b' },
-    howToRead: { vi: 'c', en: 'c' },
-    commonMistakes: { vi: 'd', en: 'd' },
-  },
-  example: { title: { vi: 'x', en: 'x' }, inputs: {}, expected: 1 },
-  tests: [],
-  source: [{ label: { vi: 'CFA Institute', en: 'CFA Institute' } }],
-};
-
-describe('ExportSheet — FR-24', () => {
-  function open() {
-    render(
-      <ExportSheet
-        open
-        onClose={vi.fn()}
-        formula={PE}
-        output={ok(15.2, 'lần')}
-        inputs={{ price: 92_000 }}
-      />,
-    );
-  }
-
-  /*
-   * Ca ĐẢO NGƯỢC (28/10/2026). Ca cũ đòi ô "Miễn trừ tự động đính kèm · Không thể tắt…" của WF-12 phải
-   * hiện; chủ dự án khoanh ô ấy cùng hai dòng mô tả dưới hai công tắc: _"xóa các phần khoanh đỏ đi"_.
-   * Câu được viết thẳng ra vì khoá i18n đã bỏ. Miễn trừ vẫn vào file — ca "câu miễn trừ nằm sẵn trong
-   * vùng in" ngay dưới gác phần ấy. Câu quay lại phải là một quyết định, không phải sơ suất.
-   */
-  it('sheet không còn ô báo miễn trừ, cũng không còn dòng mô tả dưới hai công tắc', () => {
-    open();
-    // Phần sheet người dùng thấy — bỏ vùng in, thứ chỉ ra giấy.
-    const sheet = document.querySelector('dialog')?.cloneNode(true) as HTMLElement;
-    sheet.querySelector('.print-region')?.remove();
-
-    for (const cau of [
-      'Miễn trừ tự động đính kèm',
-      'Không thể tắt',
-      'Ảnh biểu đồ của công thức',
-      'Ý nghĩa từng biến',
-    ]) {
-      expect(sheet.textContent, cau).not.toContain(cau);
-    }
-    expect(sheet.querySelector('[role="note"]')).toBeNull();
-    // Công tắc không còn câu mô tả nào để trỏ tới.
-    for (const box of screen.getAllByRole('switch')) {
-      expect(box.hasAttribute('aria-describedby')).toBe(false);
-    }
-  });
-
-  /*
-   * Từ đợt 11b hai tuỳ chọn là CÔNG TẮC chứ không phải ô tick, nên vai trò cần tìm là 'switch'.
-   * Điều phải chặn thì không đổi: không được có bất kỳ điều khiển bật/tắt nào cho miễn trừ.
-   */
-  it('KHÔNG có công tắc nào cho miễn trừ — chỉ hai tuỳ chọn kèm theo', () => {
-    open();
-
-    expect(screen.getAllByRole('switch')).toHaveLength(2);
-    expect(screen.queryByRole('switch', { name: /miễn trừ/i })).toBeNull();
-    // Và cũng không được lén quay lại dạng ô tick.
-    expect(screen.queryAllByRole('checkbox')).toHaveLength(0);
-  });
-
-  it('câu miễn trừ nằm sẵn trong vùng in, kể cả khi tắt hết tuỳ chọn', async () => {
-    open();
-
-    for (const box of screen.getAllByRole('switch')) {
-      await userEvent.click(box);
-      expect(box.getAttribute('aria-checked')).toBe('false');
-    }
-
-    expect(screen.getByText(DISCLAIMER_VI)).not.toBeNull();
-  });
-
-  it('đổi định dạng thì đổi nhãn nút, và trạng thái chọn báo bằng aria-pressed', async () => {
-    open();
-
-    expect(screen.getByRole('button', { name: 'Xuất PDF' })).not.toBeNull();
-
-    await userEvent.click(screen.getByRole('button', { name: /PNG/ }));
-
-    expect(screen.getByRole('button', { name: 'Xuất PNG' })).not.toBeNull();
-  });
-});
-
-/*
- * Công tắc nào không có gì để kèm thì tắt và khoá (16/11/2026) — báo lỗi của người kiểm thử trên
- * `basis-vn30f`: công tắc vẫn bật mà file tải về không có phần ấy.
- */
-describe('ExportSheet — công tắc không có gì để kèm thì khoá', () => {
-  const congTac = (ten: string) => screen.getByRole('switch', { name: ten }) as HTMLButtonElement;
-
-  function moSheet(props: { formula?: FormulaSpec; hasChart?: boolean } = {}) {
-    const { container } = render(
-      <ExportSheet
-        open
-        onClose={vi.fn()}
-        formula={props.formula ?? PE}
-        output={ok(15.2, 'lần')}
-        inputs={{ price: 92_000 }}
-        {...(props.hasChart === undefined ? {} : { hasChart: props.hasChart })}
-      />,
-    );
-    return container;
-  }
-
-  it('màn không vẽ hình thì "Kèm biểu đồ" tắt, khoá, và vùng in không chừa chỗ hình', () => {
-    const container = moSheet({ hasChart: false });
-
-    expect(congTac('Kèm biểu đồ').disabled).toBe(true);
-    expect(congTac('Kèm biểu đồ').getAttribute('aria-checked')).toBe('false');
-    expect(container.querySelector('.print-chart')).toBeNull();
-  });
-
-  it('công thức khai chartType none thì mặc định cũng khoá', () => {
-    moSheet({ formula: { ...PE, chartType: 'none' } });
-
-    expect(congTac('Kèm biểu đồ').disabled).toBe(true);
-  });
-
-  it('chọn PNG thì "Kèm bảng biến & giải thích" tắt và khoá; về PDF thì như cũ', async () => {
-    const container = moSheet();
-    const chiTiet = () => congTac('Kèm bảng biến & giải thích');
-
-    await userEvent.click(screen.getByRole('button', { name: /PNG/ }));
-    expect(chiTiet().disabled).toBe(true);
-    expect(chiTiet().getAttribute('aria-checked')).toBe('false');
-    expect(container.querySelector('.print-region h2')).toBeNull();
-
-    await userEvent.click(screen.getByRole('button', { name: /PDF/ }));
-    expect(chiTiet().disabled).toBe(false);
-    expect(chiTiet().getAttribute('aria-checked')).toBe('true');
-  });
-
-  it('người dùng đã tắt bảng biến ở PDF thì qua PNG rồi về vẫn tắt', async () => {
-    moSheet();
-    const chiTiet = () => congTac('Kèm bảng biến & giải thích');
-
-    await userEvent.click(chiTiet());
-    await userEvent.click(screen.getByRole('button', { name: /PNG/ }));
-    await userEvent.click(screen.getByRole('button', { name: /PDF/ }));
-
-    expect(chiTiet().getAttribute('aria-checked')).toBe('false');
-  });
-});
-
-/**
- * Biểu đồ trong file xuất — lỗi 8️⃣ của đợt kiểm thử.
- *
- * Trước đợt này cả bản in lẫn tấm PNG đều in ra một khung nét đứt kèm câu hẹn "sẽ có ở bản sau",
- * dù màn hình ngay phía sau đang vẽ hình. Nay vùng in nhận BẢN CHÉP của chính hình ấy.
- */
-describe('ExportSheet — biểu đồ trong vùng in', () => {
-  /** Dựng một hình biểu đồ trên trang, đúng dấu mà `cloneChartSvg` đi tìm. */
-  function dungHinh(idBase: string): void {
-    const holder = document.createElement('div');
-    holder.dataset.hinhGia = 'true';
-    holder.innerHTML = `<svg data-chart-svg="${idBase}" viewBox="0 0 320 200"><path class="line" d="M0 0" /></svg>`;
-    document.body.append(holder);
-  }
-
-  afterEach(() => {
-    for (const node of document.querySelectorAll('[data-hinh-gia]')) node.remove();
-  });
-
-  function moSheet(formula: FormulaSpec = PE) {
-    render(
-      <ExportSheet
-        open
-        onClose={vi.fn()}
-        formula={formula}
-        output={ok(15.2, 'lần')}
-        inputs={{ price: 92_000 }}
-      />,
-    );
-  }
-
-  it('đổ bản chép của hình đang hiện vào vùng in', async () => {
-    dungHinh('chart-pe');
-    moSheet();
-
-    // Bộ chụp nạp bằng `import()` nên phải chờ một nhịp — đó chính là cái giá của chunk riêng.
-    await waitFor(() => {
-      expect(document.querySelector('.print-chart-plot > svg')).not.toBeNull();
-    });
-  });
-
-  it('công thức không có biểu đồ thì khe để trống, không dựng hình rỗng', async () => {
-    // Không dựng hình nào — đúng cảnh 11 công thức khai `chartType: 'none'`.
-    moSheet();
-
-    await waitFor(() => {
-      expect(screen.getByText('Công thức này không có biểu đồ.')).not.toBeNull();
-    });
-    expect(document.querySelector('.print-chart-plot > svg')).toBeNull();
-  });
-
-  it('không lấy nhầm hình của công thức khác đang nằm trong DOM', async () => {
-    dungHinh('chart-roe');
-    moSheet();
-
-    await waitFor(() => {
-      expect(screen.getByText('Công thức này không có biểu đồ.')).not.toBeNull();
-    });
-    expect(document.querySelector('.print-chart-plot > svg')).toBeNull();
-  });
-
-  /*
-   * Việc ẩn câu dự phòng do CSS lo, không do React — `window.print()` chặn luồng ngay tại chỗ nên
-   * một `setState` gọi ngay trước đó chưa kịp ra tới DOM. jsdom không áp CSS Module hay globals.css
-   * nên ca kiểm phải soi thẳng file nguồn; đó là cách duy nhất chốt được ràng buộc này.
-   */
-  it('globals.css có luật ẩn câu dự phòng khi khe đã có hình', () => {
-    const css = readFileSync(join(process.cwd(), 'src/app/globals.css'), 'utf8');
-
-    expect(css).toContain('.print-chart:has(.print-chart-plot > svg) .print-chart-note');
-  });
-});
 
 describe('PresetSheet — WF-10', () => {
   /** Hình dạng "không có công thức nào" — đúng thứ màn bảng dữ liệu WF-05 truyền vào. */
@@ -1374,12 +1119,12 @@ describe('PasteImportSheet — WF-11', () => {
     ]);
   });
 
-  it('không có cột ngày thì nói thẳng là không đọc được thứ tự phiên', async () => {
+  it('không có cột ngày thì không in câu nhắc thứ tự phiên (đã xoá 17/11/2026)', async () => {
     render(<PasteImportSheet open onClose={vi.fn()} onImport={vi.fn()} />);
 
     await paste('25,40\n25,70\n25,30');
 
-    expect(screen.getByText(/Không đọc được thứ tự phiên/)).not.toBeNull();
+    expect(screen.queryByText(/Không đọc được thứ tự phiên/)).toBeNull();
   });
 
   it('quy ước số mập mờ thì hỏi lại bằng chính con số ấy, chọn xong đọc lại ngay', async () => {

@@ -407,9 +407,9 @@ export function SettingsScreen() {
         */}
           {/*
           Dòng phụ đã bỏ (chủ dự án chốt). Nó từng nói thêm một vế KHÔNG suy ra được từ nhãn: file
-          PNG và bản in xuất ra luôn nền sáng bất kể giao diện đang tối. Vế ấy nay chỉ còn sống
-          trong mã (`draw-card.ts` ghim `CARD_COLORS` vào bảng sáng, `draw-card.test.ts` gác) —
-          người dùng chọn giao diện Tối rồi xuất ảnh sẽ gặp nền sáng mà không được báo trước.
+          xuất ra luôn nền sáng bất kể giao diện đang tối. Vế ấy nay chỉ còn sống trong mã
+          (`src/ui/sheets/pdf/ve-pdf.ts` ghim bảng màu sáng) — người dùng chọn giao diện Tối rồi
+          xuất PDF sẽ gặp nền sáng mà không được báo trước.
         */}
           <div className={styles.row}>
             <span className={styles.rowText}>

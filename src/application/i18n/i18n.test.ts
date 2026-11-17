@@ -245,14 +245,10 @@ describe('chữ trên màn không được đóng băng lúc build', () => {
       duoi: join('app', 'layout.tsx'),
       viSao: 'metadata dựng lúc build (tiêu đề tài liệu, manifest) — không phải chữ trên màn',
     },
-    {
-      duoi: join('sheets', 'draw-card.ts'),
-      viSao: 'thẻ PNG là file xuất — tài liệu tiếng Việt trọn vẹn',
-    },
-    {
-      duoi: join('sheets', 'ExportSheet.tsx'),
-      viSao: 'vùng in PDF, cùng lý do với draw-card — giữ bản build-time dưới tên `tVi`',
-    },
+    /*
+     * `sheets/draw-card.ts` và `sheets/ExportSheet.tsx` rời danh sách ngày 17/11/2026: thẻ PNG bị bỏ,
+     * và file PDF nay lấy chữ tiếng Việt thẳng từ tầng Domain (`buildExportDocument`), không qua `t`.
+     */
   ];
 
   it('không file nào ngoài danh sách miễn trừ import t tĩnh từ barrel', () => {

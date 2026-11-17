@@ -68,7 +68,7 @@ npm run format         # prettier --write .
 npm run format:check   # prettier --check .
 npm run check          # lint + typecheck + format:check + test — run before pushing
 npm run verify:static  # 56 assertions against a built out/ — run after build
-npm run check:chrome   # 216 assertions in a real headless Chrome (360×780, 560 and 1440) — needs out/ + Chrome
+npm run check:chrome   # 205 assertions in a real headless Chrome (360×780, 560 and 1440) — needs out/ + Chrome
 npm run size           # measures out/, gates First Load JS at 180 kB (NFR-PER-04 budget is 200 kB)
 npm run gen:summaries  # regenerates src/core/formulas/summaries.generated.ts
 npm run gen:icons      # regenerates the PWA PNGs from the icon geometry
@@ -824,7 +824,8 @@ Two rules about the form and the picker, unchanged by the redesign:
   `/du-lieu/` has its `<dialog>` in the static HTML: reading the viewport during render mismatches
   on hydrate, and reading it in an effect makes the sheet jump from the bottom to the middle. Five
   things are easy to break, and one was left alone:
-  - **`screen and` is load-bearing.** `ExportSheet`'s `.print-region` sits inside this `<dialog>`
+  - **`screen and` is load-bearing** (the `.print-region` named below is gone since 17/11/2026, see the Notes;
+    an open dialog under Ctrl+P still obeys the same rule). `ExportSheet`'s `.print-region` sat inside this `<dialog>`
     and is positioned against it, and under print media the query's width is the PAPER's: A4
     landscape is 1123px. Measured with `Page.printToPDF`: without `screen` the landscape PDF changes
     outright (73 kB to 172 kB, print region 720px to 560px and relocated) while portrait does not.
@@ -836,7 +837,7 @@ Two rules about the form and the picker, unchanged by the redesign:
     `BottomSheet.test.ts` compares the two copies declaration by declaration and requires the block
     to be the last thing in the file, since `.header` / `.body` / `.footer` / `.title` share its
     specificity and only order decides.
-  - **`width="narrow"` (560px) is for sheets with a few controls** — Export and Save. Sheets that
+  - **`width="narrow"` (560px) is for sheets with a few controls** — Save (and Export, until that sheet went on 17/11/2026). Sheets that
     hold a LIST keep 720px: the ticker picker so it matches itself on the portfolio screen, and
     the preset sheet because "Tìm mã khác" swaps the two back and forth. The prop does nothing
     below 1024px.
@@ -1521,7 +1522,7 @@ printed, and the "Đọc biểu đồ" paragraphs of the round-2 axes.
 **The Bảng biến and the export's variable table follow the same rule since 20/10/2026.** The owner pressed "+ Thêm
 đợt mua" on DCA and the table grew two rows each time, all reading "Nhập 0 nếu không có đợt này.": _"chỉ cần mô tả
 đợt 1 là được rồi. không cần cứ tạo 1 cái là lại mô tả 1 cái mới. kiểm tra lại toàn bộ những công thức mà có phần
-tạo thêm"_. `VariableTable` and `buildExportContent()`'s `variables` both drop `isLaterRepeatSlot()` fields, so for
+tạo thêm"_. `VariableTable` and the export's Bảng biến (`buildExportDocument()`, was `buildExportContent()`) both drop `isLaterRepeatSlot()` fields, so for
 both repeat formulas the table is the counter plus group 1, however many groups are on screen (rounds 2–3 of the
 declared defaults included). The export's INPUT table still lists every group: those are the user's numbers. The
 round-2+ `description` texts now print nowhere on screen or in files; they were left in the data. A case in `FormulaDetail.test.tsx` (inverted from "Bảng biến kê cả ô của đợt vừa thêm")
@@ -1651,8 +1652,7 @@ at all):
   #006837 / #dd0010 harsh, the red louder than the green), in the chart AND in `CandleChart` on /du-lieu/. Light palette:
   `--color-candle-up` #3d9b69, `--color-candle-down` #d8606a (new; the down candle no longer reads `--color-danger`,
   which stays the red of TEXT and must keep 4.5:1). Dark palette unchanged. `contrast.test.ts` holds 3:1 on the card.
-- **Lãi/lỗ**: green above 0, red below (`--color-success` / `--color-danger`, now also in the
-  `.print-region` token copy), a 0 rule between them; single series only, and only when the computed
+- **Lãi/lỗ**: green above 0, red below (`--color-success` / `--color-danger`), a 0 rule between them; single series only, and only when the computed
   points have both signs. Named "Lãi/lỗ" / "Gain/loss" at the owner's choice (22/10/2026; first "Vùng
   âm/dương", then "Trên/dưới 0" and "Xanh đỏ theo dấu" were offered); it paints the SIGN of the result, not
   whether the line rises, and it also serves MACD, ratios and returns, where "lãi/lỗ" is the owner's reading
@@ -1663,7 +1663,7 @@ at all):
   (the tone count) — 5 breakdowns today (`ddm-hai-giai-doan`, `wacc`,
   the two `tra-gop-*`, `thue-tncn-dau-tu`); a SUBTRACTED stage (EV's cash, FCFF's CapEx) has no place on a
   circle. Shares use largest-remainder rounding so they print exactly 100,0 %; value and "chiếm 73,2 %" never
-  share a line (on WACC both are percentages). The legend is INSIDE the `<svg>` so PDF/PNG exports carry it;
+  share a line (on WACC both are percentages). The legend is INSIDE the `<svg>` so PDF exports carry it;
   a `visually-hidden` line gives screen readers the shares. **Two layouts, by `useChartSize()`** (22/10/2026,
   owner on the D/E composition, three rounds): below 768px (`compact`) text one step smaller (`.donutGon`,
   9/10/13), the legend exactly as wide as its text and flush with the right edge, the ring taking the rest
@@ -1686,7 +1686,7 @@ at all):
   nhiêu % đi, bỏ cả ký hiệu màu nữa. vì bên ngoài có chú thích rồi"_): the swatch and the "chiếm …" line live in
   the legend beside the ring. Mouse: shown while the pointer is on it. Touch/click:
   stays until the same slice is tapped again, a tap outside the frame, or Esc. The popup is HTML OUTSIDE the
-  `<svg>` (so PDF/PNG exports never carry it) and `aria-hidden` (the hidden line and the data table already
+  `<svg>` (so PDF exports never carry it) and `aria-hidden` (the hidden line and the data table already
   give the numbers). It is placed by MEASURING after the interaction (`useLayoutEffect`), through the pure
   `datPopup()` in `donut-popup.ts` (26/10/2026, owner, on a 10 % slice at the top of "Cơ cấu số tiền chấp nhận
   mất": _"popup bật lên bị đè lên chuột gây lỗi"_ — the outward spot had no room above the ring, and the clamp
@@ -1710,7 +1710,7 @@ at all):
   candle bodies carry those closes) but stays in the model and the data table, so the form list does not
   change when Nến is picked; the area band under the result goes; a legend always shows (result line ·
   "Phiên tăng" · "Phiên giảm", `primaryLabel` = the formula's short name); colours are `CandleChart`'s
-  (`--color-candle-up`, now in the `.print-region` copy, and `--color-danger`); candles are four `<path>`s,
+  (`--color-candle-up` and `--color-danger`); candles are four `<path>`s,
   not three nodes per session, because exports copy the SVG; the screen-reader summary gains a sentence.
 - **"Phân phối lợi suất" and "Đường sụt giảm"** (third round, same day) are not forms but two ENTRIES of the
   "Xem theo" select, right after "Thời gian", for the formulas declaring `spec.seriesView` (17 since
@@ -4294,47 +4294,57 @@ năm 2026`); 118 titles, one rule, so sibling titles agree. Spec `tests[].name` 
   CSS pick by `data-theme` rather than letting React pick one: first render is always `light` so
   that it matches the static HTML, so a React-picked icon would show a sun on a dark page until
   hydration — the exact flash the boot script exists to prevent.
-- **The export sheet ("Xuất kết quả") no longer says the disclaimer is attached** (28/10/2026, owner circling three
-  things: _"xóa các phần khoanh đỏ đi"_). Gone: WF-12's yellow box "! Miễn trừ tự động đính kèm · Không thể tắt — mọi
-  file xuất ra đều mang tuyên bố miễn trừ." and the two hint lines under the "Kèm biểu đồ" / "Kèm bảng biến & giải
-  thích" switches (keys `export.withChartHint`, `export.withDetailsHint`, `export.disclaimerLocked*`, tombstone in
-  `vi.ts`). Drop the sentence, keep the behaviour, the `quiz.localOnly` pattern: `buildExportContent()` still always
-  fills `disclaimer`, every PDF/PNG still carries it, and no switch exists for it; `ExportSheet.test.tsx` pins both
-  the absence on the sheet and the disclaimer in the print region. Do not rebuild the box without asking.
-- **An export switch with nothing to include is off and locked** (16/11/2026, a tester's report on `basis-vn30f`).
-  "Kèm biểu đồ" is disabled whenever the chart block is not DRAWING a chart: `FormulaDetail` passes `hasChart` =
-  `hinhBieuDo.daVe` (guarded by `chartType !== 'none'`, so a stale report from the previous formula cannot leak), which
-  covers the 8 `none` formulas, a series formula with no series and a chart showing its warning; the export copies the
-  live `<svg>`, so no drawn chart means nothing to attach. "Kèm bảng biến & giải thích" is disabled while PNG is
-  picked, because the PNG card (`draw-card.ts`) never draws those two parts. The user's own choice is kept in state and
-  comes back when PDF is picked again or a chart appears; what goes into the file is the effective value. No hint line
-  explains the lock (the owner removed the switches' hint lines on 28/10/2026).
-- **Exported files stay light, always.** `draw-card.ts` used to read live tokens through
-  `getComputedStyle` so the PNG matched the UI; with two palettes that turns every share card
-  dark, disclaimer box included. It now pins `CARD_COLORS` to the light palette, and
-  `draw-card.test.ts` both blocks `getComputedStyle` from returning and diffs all eight hex codes
-  against `globals.css`. Same reasoning as exports always being Vietnamese while the UI can be
-  English: an exported file is a standalone document. `@media print` already hard-coded
-  `#000`/`#fff`, so PDF and PNG now agree.
-- **Both export paths now carry the chart, and both do it by _copying the live `<svg>`_** — never by
-  rebuilding one. `src/ui/sheets/chart-snapshot.ts` finds it via the `data-chart-svg={idBase}`
-  attribute that `LineChart`/`WaterfallChart` stamp on their `<svg>` (keyed to `idBase`, so it can
-  never grab the `-full` copy the fullscreen overlay renders), strips the pointer-capture rect and
-  hover trace, and suffixes every `id` with `-xuat` because the copy is the **third** instance in one
-  document and `url(#…)` resolves to the first match. It is loaded through a bare `import()`, exactly
-  like `draw-card` and for the same reason — measured: 0 HTML pages reference its chunk, so First
-  Load JS is untouched. Rebuilding the chart instead would mean importing `@/core/chart` from
-  `ExportSheet`, which `FormulaDetail` imports **statically** — that is the invariant `FormulaChart.tsx`
-  states in capitals. Keeping both copies light follows the bullet above but by two different routes:
-  PDF leans on a 15-token light copy declared on `.print-region` in `globals.css` (pinned by four
-  cases in `tokens.test.ts`, one of which fails when `chart.module.css` starts using a colour the copy
-  lacks), while PNG is light _by construction_ — `chartSvgUrl()` harvests rules from
-  `document.styleSheets` and only ever takes `:root`, never `[data-theme='dark']`. It has to inline
-  them at all because an SVG loaded through `<img>` is a separate document that cannot see the page's
-  stylesheet. Four assertions in `check:chrome` hold the whole chain, and two of them exist because
-  the naive measurement lies: `content-visibility` lets Chrome skip style recalc for the below-the-fold
-  chart (so `getComputedStyle` returns a fresh custom property beside a stale `stroke` — scroll it into
-  view first), and Chrome under `print` media reports the light palette even for the on-page chart.
+- **The detail screen's "Export" button makes a real PDF FILE with pdf-lib, at once, with no sheet** (17/11/2026, two
+  rounds the same day). A tester reported the PDF "không xem được hoặc lỗi" on phones (iOS/Android open their print
+  dialog, no proper file) and the PNG card "không có số liệu gì"; the owner: _"bỏ dạng png đi. chỉ cho xuất file
+  pdf"_, and listed the content: name, meaning, formula + legend, every data table the formula has (drawn as ruled
+  tables), the beginners' explanation and the quiz. Asked, they chose pdf-lib + an embedded font (a new dependency,
+  signed off), all four kinds of table (inputs + result, Bảng biến, the formula's own table, the loaded price series)
+  and quiz answers at the END of the file. Second round: _"phần tải về bây giờ ko cần cái này nữa. bấm tải về thì tự
+  động trả về pdf luôn. và sửa text 'Tải về' thành 'Export'"_ — so the WF-12 sheet ("Xuất kết quả", its two
+  switches and its "Xuất PDF" button) is GONE, and `detail.download` reads "Export" in both languages. How it is
+  built, and what is easy to break:
+  - **The button calls `xuatPdfNgay()` in `FormulaDetail`**, which calls `exportPdf()` (`src/ui/sheets/export-pdf.ts`,
+    a two-line bare-`import()` door, the only thing the `@/ui/sheets` barrel exports for it). With no switches the file
+    always carries: the chart when the chart block is DRAWING one (`chartType !== 'none' && hinhBieuDo.daVe`, the
+    16/11/2026 rule that used to lock "Kèm biểu đồ"), the Bảng biến and the explanation always. The button is disabled
+    with `aria-busy` while the file is built (the first export fetches the fonts); a failure shows `export.failed` in
+    the screen's bottom toast (`.thongBao`, `role="alert"`, `THONG_BAO_MS`), the share toast's mould.
+  - **Content is Domain, drawing is UI.** `buildExportDocument()` (`src/core/export-content.ts`) returns a list of
+    plain blocks (`heading`, `paragraph`, `formula`, `table`, `choice`, `chart`, `result`, `disclaimer`…), always
+    Vietnamese, always ending with the `disclaimer` block (FR-24: no parameter can drop it; the 28/10/2026 removal of
+    WF-12's "Miễn trừ tự động đính kèm" box stands — do not rebuild it). Order: name · Ý nghĩa · Công thức (picture,
+    expression line, symbol legend) · Số liệu và kết quả · Biểu đồ · the formula's own table (`lich-tra-no` every
+    period via `amortisationFor`, `loi-nhuan-rong` via `buildFeeBreakdown(inputs, ctx)`, `xirr` the cash-flow rows) ·
+    Chuỗi giá đã nạp (newest first, only when `wantsSeries` and loaded) · Bảng biến · Giải thích cho người mới ·
+    Bài tập · Đáp án · Nguồn · draft note · disclaimer. A fill-in question prints its `worked` line with every `[…]`
+    as `______`; its answer is the line with the brackets stripped (`arithmeticOf`) plus `giai`.
+  - **That module pulls in two formula group files and the worked-line parser**, so it is reached only through
+    `@/application/export-document`, imported only by the lazy chunk `src/ui/sheets/pdf/`. The barrel exports its
+    TYPES only. Measured after build: the pdf-lib chunks (~420 kB raw) are referenced by 0 HTML pages.
+  - **`ve-pdf.ts` draws without the DOM** (A4, its own line breaking, ruled tables whose header row repeats on each
+    new page, page footers, a heading never left alone at a page's foot — the one before the chart reserves the
+    chart's height). **Fonts:** Noto Sans Regular + Bold and Noto Sans Math (OFL, `public/fonts/`, fetched same-origin,
+    `font-src 'self'` unchanged); the math font is fetched only when a character is missing from Noto Sans
+    (√ ≈ ≤ Σ ⌊ ⌋ →) and each line is split into runs by the font that has the glyph. **Every font is embedded with
+    `subset: true` AND the OpenType features `ccmp/mark/mkmk/liga/…` OFF (`KHONG_GHEP`)**: with features on, the text
+    DRAWS right but copy/search of the file gives garbage ("Nắm" → "NBm", "vốn" → "vઌn", even with the full font),
+    measured 17/11/2026. Vietnamese here is always NFC, one precomposed glyph, so nothing needs shaping. File ~60–120 kB.
+  - **`xuat-pdf.ts` (browser) captures two pictures.** The formula: the build-time MathML (`notationGoc.latexHtml`,
+    Vietnamese) is measured off-screen, wrapped in an SVG `foreignObject`, drawn on a canvas ×3; if the canvas refuses
+    (Safari may taint it) the file prints `latexThanhChu(spec.latex)` (`src/core/latex-chu.ts`) instead. The legend's
+    symbol column always uses `latexThanhChu`. The chart: `chart-snapshot.ts` as before (light palette by
+    construction — it harvests `:root` only). Saving: `<a download>` with a blob; an iOS home-screen app (standalone,
+    where `download` is ignored) opens `navigator.share` with the file.
+  - **Gone:** `ExportSheet.tsx` and its CSS (its old test file kept the Preset/Paste suites as
+    `PresetPasteSheet.test.tsx`), `draw-card.ts` and its test, the `.print-region` JSX and every `.print-*` rule plus
+    the light token copy in `globals.css` (only `@page` and the Ctrl+P basics remain), the `tokens.test.ts` block that
+    pinned that copy, and the keys `export.title/formatLabel/pdf/pdfHint/png/pngHint/withChart/withDetails/doPdf/doPng/
+working/chartNone` (tombstones in `vi.ts`); only `export.failed` remains. `check:chrome` 0c/0d: Ctrl+P on a detail
+    page still prints the page; pressing "Export" opens no dialog and yields a `%PDF-` blob ending `%%EOF` with ≥ 2
+    embedded images (formula + chart), in dark mode. The three sheet measurements ("Tải về" centred and 560px at 1440,
+    docked at 360) went with the sheet — nothing in Chrome measures a DOCKED sheet below 1024px any more. Not tested
+    on a real iPhone/Android device — ask the owner.
 - TypeScript is strict with `noUncheckedIndexedAccess` — indexing an array yields `T | undefined`.
 - Every formula is a `FormulaModule` — `spec` (metadata) and `calc` (the maths) in one object, so
   a spec without a calculator is a typecheck error. `runFormula()` in `src/core/calc/` is the only
@@ -4552,16 +4562,15 @@ năm 2026`); 118 titles, one rule, so sibling titles agree. Spec `tests[].name` 
   client `FormulaListScreen` and the server-rendered `DailyShelf`, so a hook would crash the server
   pass). The static `t()` import from `@/application` is frozen to Vietnamese at build time, so
   a gate in `i18n.test.ts` scans **all of `src/ui` + `src/app`** and fails any file importing it
-  that is not on a three-entry allowlist, each entry carrying its reason: `layout.tsx` metadata,
-  and the print/PNG regions of `ExportSheet`/`draw-card`
-  (exported files are all-Vietnamese documents, including the disclaimer they carry — see next
-  point). The gate scans by directory on purpose: an earlier version keyed off the `'use client'`
+  that is not on the allowlist, each entry carrying its reason: today only `layout.tsx` metadata (the
+  `ExportSheet`/`draw-card` entries left on 17/11/2026: the PDF takes its Vietnamese straight from
+  `buildExportDocument()` in the Domain, not through `t`). The gate scans by directory on purpose: an earlier version keyed off the `'use client'`
   directive and missed three shared modules that carry no directive but land in the client bundle
   anyway. A second case fails any allowlist entry that no longer needs to be there.
 - The English dictionary is complete (`missingKeys('en')` is empty) — `disclaimer.text` (FR-24)
   was the last holdout and is now translated too, read through `DisclaimerBar.tsx`'s `<T>` leaf.
-  It stays a deliberate paraphrase, not a literal translation pair: `buildExportContent()` never
-  reads this i18n key — every export (PDF/PNG) always attaches `DISCLAIMER_VI` verbatim regardless
+  It stays a deliberate paraphrase, not a literal translation pair: `buildExportDocument()` never
+  reads this i18n key — every exported PDF always attaches `DISCLAIMER_VI` verbatim regardless
   of the on-screen locale, because exported files are intentionally all-Vietnamese documents (see
   next point). So the on-screen disclaimer now follows locale like everything else, while the one
   inside an exported file stays fixed in Vietnamese — the same split every other piece of content

@@ -27,8 +27,11 @@ import { DataTableScreen } from './DataTableScreen';
  * chờ thay vì trắng trơn.
  */
 
+const { pushMock } = vi.hoisted(() => ({ pushMock: vi.fn() }));
+
 vi.mock('next/navigation', () => ({
   useSearchParams: () => new URLSearchParams(''),
+  useRouter: () => ({ push: pushMock }),
 }));
 
 /** Hai sheet WF-10/WF-11 dựng sẵn trong cây; jsdom chưa cài đặt <dialog>.showModal(). */
@@ -68,7 +71,11 @@ beforeEach(() => {
   window.sessionStorage.clear();
 });
 
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  pushMock.mockClear();
+  window.history.replaceState({}, '', '/du-lieu/');
+});
 
 describe('DataTableScreen — bảng phải đọc ra là bảng nhập được', () => {
   it('mỗi ô của bảng là một <input> sửa được, không phải chữ chỉ để đọc', async () => {
@@ -341,6 +348,40 @@ describe('DataTableScreen — ngày mới nhất lên đầu, nhưng chỉ ở p
   });
 });
 
+/*
+ * 17/11/2026: "Sử dụng" thay chỗ "Thêm dòng" trên thanh nút, đưa người dùng về công thức đã mở bảng
+ * này; "Thêm dòng" xuống đầu khối Bảng số liệu.
+ */
+describe('DataTableScreen — nút "Sử dụng" đưa số liệu về công thức', () => {
+  it('vào từ một công thức (?from=) thì bấm "Sử dụng" quay về đúng công thức ấy', async () => {
+    window.history.replaceState({}, '', '/du-lieu/?from=phan-tram-b-bollinger');
+    napBang(BA_PHIEN);
+    moMan();
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Sử dụng' }));
+
+    expect(pushMock).toHaveBeenCalledWith('/cong-thuc/phan-tram-b-bollinger/');
+  });
+
+  it('vào từ thanh nav, không có công thức nào thì không bày nút "Sử dụng"', async () => {
+    napBang(BA_PHIEN);
+    moMan();
+    await screen.findByLabelText('Dòng 1 · Ngày');
+
+    expect(screen.queryByRole('button', { name: 'Sử dụng' })).toBeNull();
+  });
+
+  it('"Thêm dòng" nằm trong khối Bảng số liệu, không còn trên thanh nút đầu màn', async () => {
+    napBang(BA_PHIEN);
+    moMan();
+    await screen.findByLabelText('Dòng 1 · Ngày');
+
+    const khoi = screen.getByRole('region', { name: /Bảng số liệu/i });
+    expect(within(khoi).getByRole('button', { name: /Thêm dòng/ })).not.toBeNull();
+    expect(screen.getAllByRole('button', { name: /Thêm dòng/ })).toHaveLength(1);
+  });
+});
+
 describe('DataTableScreen — dòng mới thêm nằm trên đầu, xếp lại sau khi nhập xong', () => {
   it('bấm "Thêm dòng" thì dòng trống hiện ở ĐẦU bảng', async () => {
     napBang(BA_PHIEN);
@@ -594,11 +635,11 @@ describe('DataTableScreen — dán đè hay xoá bảng thì mã cũ không còn
 
   it('xoá cả bảng rồi gõ dòng mới thì dòng ấy không mang mã cũ', async () => {
     napBangCoMa();
-    vi.spyOn(window, 'confirm').mockReturnValue(true);
     moMan();
     await screen.findByLabelText('Dòng 1 · Đóng');
 
     await userEvent.click(screen.getByRole('button', { name: 'Xoá' }));
+    await userEvent.click(await screen.findByRole('button', { name: 'Xoá bảng' }));
     await userEvent.click(screen.getByRole('button', { name: /Thêm dòng/ }));
 
     await screen.findByLabelText('Dòng 1 · Ngày');
@@ -872,16 +913,11 @@ describe('DataTableScreen — bảng theo khuôn lưới "Bảng dữ liệu"', 
     expect(ngayDaLuu()).toEqual(['31/12/2025', '02/01/2026', '05/01/2026']);
   });
 
-  it('năm in một lần trên bảng: một năm, khoảng năm, hay không gì khi chuỗi không ghi năm', async () => {
+  it('bảng không in dòng năm (đã bỏ 17/11/2026), dù chuỗi có hay không ghi năm', async () => {
     await moBonPhien();
-    expect(bang().getByText('Từ năm 2025 tới 2026')).not.toBeNull();
+    expect(bang().queryByText(/^Năm |^Từ năm /)).toBeNull();
     cleanup();
 
-    await moBonPhien(BA_PHIEN);
-    expect(bang().getByText('Năm 2025')).not.toBeNull();
-    cleanup();
-
-    // Chuỗi minh hoạ trang Beta đánh số phiên '1', '2' — không có năm nào để in.
     napBang();
     moMan();
     await screen.findByLabelText('Dòng 1 · Ngày');

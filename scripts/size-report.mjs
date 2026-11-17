@@ -318,7 +318,7 @@ if (remaining > 0) {
  * Vì vậy phần này phải có số riêng: nó là ngân sách mà từng khối nặng được tiêu, và là chỗ duy
  * nhất để biết một khối mới đắt bao nhiêu trước khi nó đẩy trang nào qua cửa kiểm.
  *
- * Lưu ý phân biệt: `import()` TRẦN (như `ExportSheet` gọi bộ vẽ PNG lúc bấm nút) thì chunk KHÔNG
+ * Lưu ý phân biệt: `import()` TRẦN (như `exportPdf()` gọi bộ dựng PDF lúc bấm nút Export) thì chunk KHÔNG
  * vào HTML, nên nó không hiện ở đây và cũng không tính vào cửa kiểm — đó mới là cách rời hẳn.
  */
 const onEveryDetailPage = (asset) => detailPages.every((p) => p.assets.includes(asset));

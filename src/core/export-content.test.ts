@@ -3,14 +3,22 @@ import { describe, expect, it } from 'vitest';
 import { fail, ok } from './calc-output';
 import {
   DISCLAIMER_VI,
-  buildExportContent,
+  O_TRONG_IN,
+  buildExportDocument,
+  dongDeBai,
   exportFileName,
+  type ExportBlock,
+  type ExportDocument,
   type ExportOptions,
 } from './export-content';
-import { findFormulaModule } from './formulas';
+import { DRAFT_DATA_NOTE_VI } from './disclaimer';
+import { FORMULA_MODULES, amortisationFor, findFormulaModule } from './formulas';
+import { quizFor } from './quiz';
+import type { QuizItem } from './quiz/types';
 import { defaultInputs } from './registry/build';
 import { resolveRepeatSpec } from './registry/repeat';
 import type { FormulaSpec } from './registry/types';
+import { runFormula } from './calc/run';
 import { divideByZero } from './warnings';
 
 const PE: FormulaSpec = {
@@ -22,6 +30,14 @@ const PE: FormulaSpec = {
     en: 'How much you pay for each unit of earnings.',
   },
   latex: 'P/E = \\frac{P}{EPS}',
+  expression: { vi: 'P/E = Giá thị trường ÷ EPS', en: 'P/E = Market price ÷ EPS' },
+  symbols: [
+    { latex: 'P', meaning: { vi: 'giá thị trường, ₫', en: 'market price, ₫' } },
+    {
+      latex: 'EPS',
+      meaning: { vi: 'lợi nhuận trên mỗi cổ phiếu, ₫', en: 'earnings per share, ₫' },
+    },
+  ],
   chartType: 'sensitivity',
   level: 'basic',
   tags: [],
@@ -78,23 +94,43 @@ const PE: FormulaSpec = {
 const INPUTS = { price: 92_000, g: 4 };
 
 function options(patch: Partial<ExportOptions> = {}): ExportOptions {
-  return { format: 'pdf', includeChart: true, includeDetails: true, ...patch };
+  return { includeChart: true, includeDetails: true, ...patch };
+}
+
+function khoi<K extends ExportBlock['kind']>(
+  doc: ExportDocument,
+  kind: K,
+): Array<Extract<ExportBlock, { kind: K }>> {
+  return doc.blocks.filter((b): b is Extract<ExportBlock, { kind: K }> => b.kind === kind);
+}
+
+function tieuDe(doc: ExportDocument): string[] {
+  return khoi(doc, 'heading').map((b) => b.text);
+}
+
+/** Bảng ngay sau tiêu đề mục `ten`. */
+function bangSau(doc: ExportDocument, ten: string): Extract<ExportBlock, { kind: 'table' }> {
+  const i = doc.blocks.findIndex((b) => b.kind === 'heading' && b.text.startsWith(ten));
+  const bang = doc.blocks.slice(i + 1).find((b) => b.kind === 'table');
+  if (i < 0 || bang === undefined || bang.kind !== 'table') throw new Error(`không có bảng ${ten}`);
+  return bang;
 }
 
 describe('FR-24 — miễn trừ không thể tắt', () => {
-  it('luôn có mặt ở mọi tổ hợp tuỳ chọn', () => {
+  it('luôn là khối CUỐI ở mọi tổ hợp tuỳ chọn', () => {
     const combos: ExportOptions[] = [
       options(),
       options({ includeChart: false }),
       options({ includeDetails: false }),
-      options({ includeChart: false, includeDetails: false }),
-      options({ format: 'png' }),
-      options({ format: 'png', includeChart: false, includeDetails: false, mode: 'basic' }),
+      options({ includeChart: false, includeDetails: false, mode: 'basic' }),
+      options({ fromDraftData: true }),
     ];
-
     for (const combo of combos) {
-      const content = buildExportContent(PE, ok(15.2, 'lần'), INPUTS, combo);
-      expect(content.disclaimer, JSON.stringify(combo)).toBe(DISCLAIMER_VI);
+      const doc = buildExportDocument(PE, ok(15.2, 'lần'), INPUTS, combo);
+      expect(doc.blocks.at(-1), JSON.stringify(combo)).toEqual({
+        kind: 'disclaimer',
+        text: DISCLAIMER_VI,
+      });
     }
   });
 
@@ -104,52 +140,75 @@ describe('FR-24 — miễn trừ không thể tắt', () => {
   });
 
   it('vẫn đính kèm cả khi phép tính đang lỗi', () => {
-    const content = buildExportContent(
+    const doc = buildExportDocument(
       PE,
       fail('lần', divideByZero({ vi: 'P/E', en: 'P/E' }, { vi: 'EPS', en: 'EPS' })),
       INPUTS,
       options(),
     );
-    expect(content.disclaimer).toBe(DISCLAIMER_VI);
+    expect(khoi(doc, 'disclaimer')).toHaveLength(1);
+  });
+
+  it('số liệu bản thảo thì ghi rõ, ngay trên miễn trừ', () => {
+    const doc = buildExportDocument(PE, ok(15.2, 'lần'), INPUTS, options({ fromDraftData: true }));
+    expect(doc.blocks.at(-2)).toMatchObject({ kind: 'paragraph', text: DRAFT_DATA_NOTE_VI });
+    const thuong = buildExportDocument(PE, ok(15.2, 'lần'), INPUTS, options());
+    expect(JSON.stringify(thuong)).not.toContain(DRAFT_DATA_NOTE_VI);
   });
 });
 
-describe('nội dung file xuất', () => {
-  it('lấy tên và mô tả từ Registry', () => {
-    const content = buildExportContent(PE, ok(15.2, 'lần'), INPUTS, options());
-
-    expect(content.title).toBe('Hệ số giá trên lợi nhuận (P/E)');
-    expect(content.subtitle).toContain('mỗi đồng lợi nhuận');
+describe('nội dung file — đủ các mục chủ dự án kê, đúng thứ tự', () => {
+  it('tên · ý nghĩa · công thức · số liệu · biểu đồ · bảng biến · giải thích · nguồn', () => {
+    const doc = buildExportDocument(PE, ok(15.21, 'lần'), INPUTS, options());
+    expect(doc.title).toBe('Hệ số giá trên lợi nhuận (P/E)');
+    expect(khoi(doc, 'title')[0]?.text).toBe(doc.title);
+    expect(tieuDe(doc)).toEqual([
+      'Ý nghĩa',
+      'Công thức',
+      'Số liệu và kết quả',
+      'Biểu đồ',
+      'Bảng biến',
+      'Giải thích cho người mới',
+      'Nguồn tham khảo',
+    ]);
   });
 
-  it('kết quả đã định dạng theo quy ước Việt Nam', () => {
-    expect(buildExportContent(PE, ok(15.21, 'lần'), INPUTS, options()).result).toBe('15,21 lần');
+  it('công thức in dạng chữ dự phòng, dòng diễn giải và bảng chú thích ký hiệu', () => {
+    const doc = buildExportDocument(PE, ok(15.2, 'lần'), INPUTS, options());
+    expect(khoi(doc, 'formula')[0]).toEqual({
+      kind: 'formula',
+      fallback: 'P/E = P/EPS',
+      expression: ['P/E = Giá thị trường ÷ EPS'],
+    });
+    expect(bangSau(doc, 'Công thức').rows).toEqual([
+      ['P', 'giá thị trường, ₫'],
+      ['EPS', 'lợi nhuận trên mỗi cổ phiếu, ₫'],
+    ]);
   });
 
-  it('không tính được thì ghi “_ _”, tuyệt đối không ghi 0 (FR-06)', () => {
-    const content = buildExportContent(
+  it('kết quả định dạng kiểu Việt Nam; không tính được thì “_ _” kèm lý do (FR-06)', () => {
+    const doc = buildExportDocument(PE, ok(15.21, 'lần'), INPUTS, options());
+    expect(khoi(doc, 'result')[0]?.value).toBe('15,21 lần');
+
+    const loi = buildExportDocument(
       PE,
       fail('lần', divideByZero({ vi: 'P/E', en: 'P/E' }, { vi: 'EPS', en: 'EPS' })),
       INPUTS,
       options(),
     );
-
-    expect(content.result).toContain('_ _');
-    expect(content.result).not.toContain('NaN');
+    expect(khoi(loi, 'result')[0]?.value).toContain('_ _');
+    expect(JSON.stringify(loi)).not.toContain('NaN');
   });
 
-  it('liệt kê giá trị đầu vào kèm đơn vị', () => {
-    const content = buildExportContent(PE, ok(15.2, 'lần'), INPUTS, options());
-
-    expect(content.inputs).toEqual([
-      { label: 'Giá thị trường', value: '92.000 ₫' },
-      { label: 'Tăng trưởng g', value: '4 %' },
+  it('bảng số liệu mang đơn vị; ô chưa nhập là “_ _” chứ không phải 0', () => {
+    expect(
+      bangSau(buildExportDocument(PE, ok(1, 'lần'), INPUTS, options()), 'Số liệu').rows,
+    ).toEqual([
+      ['Giá thị trường', '92.000 ₫'],
+      ['Tăng trưởng g', '4 %'],
     ]);
-  });
-
-  it('ô chưa nhập thì ghi “_ _” chứ không ghi 0', () => {
-    const content = buildExportContent(PE, ok(15.2, 'lần'), { price: 92_000 }, options());
-    expect(content.inputs[1]?.value).toContain('_ _');
+    const thieu = buildExportDocument(PE, ok(1, 'lần'), { price: 92_000 }, options());
+    expect(bangSau(thieu, 'Số liệu').rows[1]?.[1]).toContain('_ _');
   });
 
   it('biến kiểu chọn xuất ra NHÃN chứ không xuất con số', () => {
@@ -166,121 +225,199 @@ describe('nội dung file xuất', () => {
           options: [
             { value: 1, label: { vi: 'Quý', en: 'Quarter' } },
             { value: 2, label: { vi: 'Năm', en: 'Year' } },
-            { value: 3, label: { vi: 'TTM', en: 'TTM' } },
           ],
         },
       ],
     };
-
-    const content = buildExportContent(withChoice, ok(15.2, 'lần'), { period: 2 }, options());
-
-    // 'Kỳ số liệu: 2' thì người nhận file không hiểu gì.
-    expect(content.inputs[0]?.value).toBe('Năm');
-  });
-
-  it('giá trị không khớp lựa chọn nào thì vẫn hiện số, không hiện chuỗi rỗng', () => {
-    const withChoice: FormulaSpec = {
-      ...PE,
-      variables: [
-        {
-          key: 'period',
-          label: { vi: 'Kỳ số liệu', en: 'Period' },
-          unit: '',
-          type: 'buttonGroup',
-          defaultValue: 1,
-          level: 'basic',
-          options: [{ value: 1, label: { vi: 'Quý', en: 'Quarter' } }],
-        },
-      ],
-    };
-
-    expect(
-      buildExportContent(withChoice, ok(1, 'lần'), { period: 9 }, options()).inputs[0]?.value,
-    ).toBe('9');
+    const doc = buildExportDocument(withChoice, ok(1, 'lần'), { period: 2 }, options());
+    expect(bangSau(doc, 'Số liệu').rows[0]).toEqual(['Kỳ số liệu', 'Năm']);
   });
 
   it('chế độ Cơ bản chỉ xuất biến cơ bản (FR-09)', () => {
-    const content = buildExportContent(PE, ok(15.2, 'lần'), INPUTS, options({ mode: 'basic' }));
-
-    expect(content.inputs).toHaveLength(1);
-    expect(content.inputs[0]?.label).toBe('Giá thị trường');
+    const doc = buildExportDocument(PE, ok(1, 'lần'), INPUTS, options({ mode: 'basic' }));
+    expect(bangSau(doc, 'Số liệu').rows).toEqual([['Giá thị trường', '92.000 ₫']]);
   });
 
-  it('luôn ghi nguồn tham khảo (FR-04)', () => {
-    expect(buildExportContent(PE, ok(15.2, 'lần'), INPUTS, options()).sources).toEqual([
-      'Giáo trình phân tích đầu tư (CFA Institute)',
-    ]);
+  it('giải thích cho người mới có đủ ba mục của màn', () => {
+    const doc = buildExportDocument(PE, ok(1, 'lần'), INPUTS, options());
+    expect(khoi(doc, 'subheading').map((b) => b.text)).toEqual(
+      expect.arrayContaining(['Khi nào dùng', 'Cách đọc kết quả', 'Sai lầm thường gặp']),
+    );
+  });
+
+  it('tắt "Kèm bảng biến & giải thích" thì bỏ hẳn hai mục đó, giữ bảng số liệu', () => {
+    const doc = buildExportDocument(PE, ok(1, 'lần'), INPUTS, options({ includeDetails: false }));
+    expect(tieuDe(doc)).not.toContain('Bảng biến');
+    expect(tieuDe(doc)).not.toContain('Giải thích cho người mới');
+    expect(tieuDe(doc)).toContain('Số liệu và kết quả');
+  });
+
+  it('không kèm biểu đồ khi tắt, hoặc khi công thức không có biểu đồ', () => {
+    expect(
+      khoi(
+        buildExportDocument(PE, ok(1, 'lần'), INPUTS, options({ includeChart: false })),
+        'chart',
+      ),
+    ).toEqual([]);
+    const none: FormulaSpec = { ...PE, chartType: 'none' };
+    expect(khoi(buildExportDocument(none, ok(1, 'lần'), INPUTS, options()), 'chart')).toEqual([]);
+  });
+
+  it('nhóm lặp: bảng biến chỉ mô tả đợt 1, bảng số liệu vẫn đủ mọi đợt', () => {
+    const dca = findFormulaModule('gia-von-trung-binh-dca');
+    if (dca === undefined) throw new Error('thiếu DCA');
+    const inputs = { ...defaultInputs(dca.spec), lots: 4, amount4: 1_000_000, price4: 20_000 };
+    const spec = resolveRepeatSpec(dca.spec, inputs);
+    const doc = buildExportDocument(spec, ok(30_000, '₫'), inputs, options());
+
+    expect(bangSau(doc, 'Số liệu').rows.map((r) => r[0])).toContain('Giá mua đợt 4 (P4)');
+    const nhan = bangSau(doc, 'Bảng biến').rows.map((r) => r[0]);
+    expect(nhan).toHaveLength(3);
+    expect(nhan[1]).toMatch(/^Tiền mua đợt 1 \(C1\)/);
+  });
+
+  it('cả 111 công thức đều dựng được, không chữ NaN/undefined nào lọt vào file', () => {
+    for (const mod of FORMULA_MODULES) {
+      const inputs = defaultInputs(mod.spec);
+      const ctx = { asOf: '2026-11-17' };
+      const doc = buildExportDocument(mod.spec, runFormula(mod, inputs, ctx), inputs, options(), {
+        quiz: quizFor(mod.spec.id),
+        ctx,
+      });
+      // Trừ lời giải và câu trích của bài tập: nguồn của `so-graham` viết thật "an undefined result".
+      const chu = JSON.stringify(
+        doc.blocks.filter(
+          (b) => !(b.kind === 'paragraph' && (b.tone === 'muted' || b.tone === 'quote')),
+        ),
+      );
+      expect(chu, mod.spec.id).not.toMatch(/NaN|undefined|Infinity/);
+      expect(doc.blocks.at(-1)?.kind, mod.spec.id).toBe('disclaimer');
+    }
   });
 });
 
-describe('tuỳ chọn kèm theo', () => {
-  it('tắt bảng biến & giải thích thì bỏ hẳn hai phần đó', () => {
-    const content = buildExportContent(
-      PE,
-      ok(15.2, 'lần'),
-      INPUTS,
-      options({ includeDetails: false }),
+describe('bảng riêng của công thức', () => {
+  function docCua(
+    id: string,
+    data: Parameters<typeof buildExportDocument>[4] = {},
+  ): ExportDocument {
+    const mod = findFormulaModule(id);
+    if (mod === undefined) throw new Error(id);
+    const inputs = defaultInputs(mod.spec);
+    const ctx = { asOf: '2026-11-17' };
+    return buildExportDocument(mod.spec, runFormula(mod, inputs, ctx), inputs, options(), {
+      ctx,
+      ...data,
+    });
+  }
+
+  it('lịch trả nợ in ĐỦ mọi kỳ, không bỏ bớt kỳ giữa như trên màn', () => {
+    const mod = findFormulaModule('lich-tra-no');
+    if (mod === undefined) throw new Error('lich-tra-no');
+    const rows = amortisationFor(defaultInputs(mod.spec)) ?? [];
+    const bang = bangSau(docCua('lich-tra-no'), 'Lịch trả nợ');
+    expect(bang.rows).toHaveLength(rows.length);
+    expect(bang.rows[0]?.[0]).toBe('1');
+    expect(bang.columns.map((c) => c.title)).toEqual(['Kỳ', 'Phải trả', 'Gốc', 'Lãi', 'Còn lại']);
+  });
+
+  it('lợi nhuận ròng in bảng bóc tách chi phí, dòng tổng in đậm', () => {
+    const bang = bangSau(docCua('loi-nhuan-rong'), 'Bóc tách chi phí');
+    expect(bang.rows.map((r) => r[0])).toContain('Tổng chi phí');
+    expect(bang.boldLast).toBe(5);
+  });
+
+  it('XIRR in bảng dòng tiền, ngày theo dd/mm/yyyy, ô trống là “_ _”', () => {
+    const doc = docCua('xirr', {
+      cashflows: [
+        { date: '2026-01-15', amount: -100_000_000 },
+        { date: '2026-12-15', amount: null },
+        { date: '', amount: null },
+      ],
+    });
+    expect(bangSau(doc, 'Dòng tiền').rows).toEqual([
+      ['15/01/2026', '-100.000.000'],
+      ['15/12/2026', '_ _'],
+    ]);
+  });
+
+  it('xirr không khai ô nhập: mục số liệu không có bảng rỗng, đi thẳng vào kết quả', () => {
+    const doc = docCua('xirr');
+    const i = doc.blocks.findIndex((b) => b.kind === 'heading' && b.text === 'Số liệu và kết quả');
+    expect(doc.blocks[i + 1]?.kind).toBe('result');
+  });
+
+  it('chuỗi giá đã nạp in đủ sáu cột, phiên mới nhất trước', () => {
+    const doc = docCua('rsi-wilder', {
+      bars: [
+        { date: '2026-09-14', open: 1, high: 2, low: 0.5, close: 1.5, volume: 1000 },
+        { date: '2026-09-15', open: 1.5, high: 2, low: 1, close: null, volume: null },
+      ],
+    });
+    const bang = bangSau(doc, 'Chuỗi giá đã nạp');
+    expect(bang.columns).toHaveLength(6);
+    expect(bang.rows[0]).toEqual(['15/09/2026', '1,5', '2', '1', '_ _', '_ _']);
+    expect(bang.rows[1]?.[0]).toBe('14/09/2026');
+  });
+
+  it('chưa nạp chuỗi thì không có mục chuỗi giá', () => {
+    expect(tieuDe(docCua('rsi-wilder', { bars: null })).join()).not.toContain('Chuỗi giá');
+  });
+});
+
+describe('bài tập — đề trước, đáp án ở cuối file', () => {
+  const items = quizFor('capm');
+  const mod = findFormulaModule('capm');
+  if (mod === undefined) throw new Error('capm');
+  const doc = buildExportDocument(mod.spec, ok(13.1, '%'), defaultInputs(mod.spec), options(), {
+    quiz: items,
+  });
+
+  it('mục Bài tập rồi mục Đáp án, cả hai trước Nguồn tham khảo', () => {
+    const t = tieuDe(doc);
+    expect(t.indexOf('Bài tập')).toBeGreaterThan(-1);
+    expect(t.indexOf('Đáp án')).toBe(t.indexOf('Bài tập') + 1);
+    expect(t.indexOf('Nguồn tham khảo')).toBe(t.indexOf('Đáp án') + 1);
+  });
+
+  it('mỗi câu một tiêu đề "Câu n" ở cả đề lẫn đáp án', () => {
+    const cau = khoi(doc, 'subheading').filter((b) => /^Câu \d+$/.test(b.text));
+    expect(cau).toHaveLength(items.length * 2);
+  });
+
+  it('câu trắc nghiệm in đủ bốn lựa chọn, đáp án ghi đúng chữ cái', () => {
+    const tn = items.find(
+      (q): q is Extract<QuizItem, { format: 'trac-nghiem' }> => q.format === 'trac-nghiem',
     );
-
-    expect(content.variables).toEqual([]);
-    expect(content.explanation).toEqual([]);
-    // Giá trị đầu vào thì vẫn giữ — thiếu nó thì con số kết quả không kiểm chứng lại được.
-    expect(content.inputs.length).toBeGreaterThan(0);
+    if (tn === undefined) throw new Error('capm thiếu câu trắc nghiệm');
+    expect(khoi(doc, 'choice').filter((c) => c.text === tn.choices.a.vi)).toHaveLength(1);
+    expect(JSON.stringify(doc)).toContain(`${tn.answer}) ${tn.choices[tn.answer].vi}`);
   });
 
-  it('bật thì có đủ bốn mục diễn giải của FR-03', () => {
-    const content = buildExportContent(PE, ok(15.2, 'lần'), INPUTS, options());
-    expect(content.explanation).toHaveLength(4);
-  });
-
-  it('công thức không có biểu đồ thì không chừa chỗ, dù người dùng bật', () => {
-    const noChart: FormulaSpec = { ...PE, chartType: 'none' };
-    const content = buildExportContent(noChart, ok(15.2, 'lần'), INPUTS, options());
-
-    expect(content.includeChart).toBe(false);
-  });
-
-  it('tắt biểu đồ thì không chừa chỗ', () => {
-    const content = buildExportContent(
-      PE,
-      ok(15.2, 'lần'),
-      INPUTS,
-      options({ includeChart: false }),
+  it('câu điền số in ô trống thay cho đáp án trong ngoặc vuông', () => {
+    const ds = items.find(
+      (q): q is Extract<QuizItem, { format: 'dien-so' }> => q.format === 'dien-so',
     );
-    expect(content.includeChart).toBe(false);
+    if (ds === undefined) throw new Error('capm thiếu câu điền số');
+    const de = dongDeBai(ds.worked.vi);
+    expect(de).not.toMatch(/\[|\]/);
+    expect(de).toContain(O_TRONG_IN);
+    expect(khoi(doc, 'paragraph').some((p) => p.text === de)).toBe(true);
   });
 
-  /*
-   * 20/10/2026, cùng lần sửa Bảng biến trên màn: đợt 2, 3, 4… của nhóm lặp lặp lại đúng câu mô tả
-   * của đợt 1 (_"chỉ cần mô tả đợt 1 là được rồi"_). Bảng biến của file chỉ mô tả nhóm 1; bảng SỐ
-   * LIỆU vẫn đủ mọi đợt vì đó là con số người dùng đã nhập.
-   */
-  it('nhóm lặp: bảng biến chỉ mô tả đợt 1, bảng số liệu vẫn đủ mọi đợt', () => {
-    const dca = findFormulaModule('gia-von-trung-binh-dca');
-    expect(dca).toBeDefined();
-    if (dca === undefined) return;
-    const inputs = { ...defaultInputs(dca.spec), lots: 4, amount4: 1_000_000, price4: 20_000 };
-    const spec = resolveRepeatSpec(dca.spec, inputs);
-
-    const content = buildExportContent(spec, ok(30_000, '₫'), inputs, options());
-
-    expect(content.inputs.map((d) => d.label)).toContain('Giá mua đợt 4 (P4)');
-    const nhan = content.variables.map((d) => d.label);
-    expect(nhan).toHaveLength(3);
-    expect(nhan[0]).toMatch(/^Số đợt mua/);
-    expect(nhan[1]).toMatch(/^Tiền mua đợt 1 \(C1\)/);
-    expect(nhan[2]).toMatch(/^Giá mua đợt 1 \(P1\)/);
+  it('không có câu hỏi thì không có hai mục ấy', () => {
+    const rong = buildExportDocument(PE, ok(1, 'lần'), INPUTS, options(), { quiz: [] });
+    expect(tieuDe(rong)).not.toContain('Bài tập');
+    expect(tieuDe(rong)).not.toContain('Đáp án');
   });
 });
 
 describe('exportFileName()', () => {
-  it('ghép tên theo id công thức và định dạng', () => {
-    expect(exportFileName(PE, 'pdf')).toBe('faculator-pe.pdf');
-    expect(exportFileName(PE, 'png')).toBe('faculator-pe.png');
+  it('ghép tên theo id công thức, đuôi .pdf', () => {
+    expect(exportFileName(PE)).toBe('faculator-pe.pdf');
   });
 
   it('bỏ ký tự lạ để tên file an toàn trên mọi hệ điều hành', () => {
-    const odd: FormulaSpec = { ...PE, id: 'p/e ratio' };
-    expect(exportFileName(odd, 'png')).toBe('faculator-p-e-ratio.png');
+    expect(exportFileName({ id: 'p/e ratio' })).toBe('faculator-p-e-ratio.pdf');
   });
 });

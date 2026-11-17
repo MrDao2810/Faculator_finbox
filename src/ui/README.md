@@ -25,8 +25,8 @@
   công thức, còn ở đây là bố cục riêng của đúng một màn trong wireframe.
 - `result/` — gói 2.4: `ResultBlock`, `ErrorState`, `InlineWarning`, `ExplanationAccordion`,
   `VariableTable`, `ExampleBlock`, `SourceBlock`, `StatTile`.
-- `sheets/` — gói 2.5: `PresetSheet` (WF-10), `PasteImportSheet` (WF-11), `ExportSheet` (WF-12)
-  kèm `draw-card.ts` vẽ thẻ PNG bằng Canvas.
+- `sheets/` — gói 2.5: `PresetSheet` (WF-10), `PasteImportSheet` (WF-11)
+  kèm `export-pdf.ts` + `pdf/` dựng file PDF thật bằng pdf-lib cho nút Export (nạp trễ lúc bấm; sheet WF-12 đã bỏ 17/11/2026).
 - `contrast.ts` — công cụ tính tỉ số tương phản WCAG. `contrast.test.ts` đọc thẳng
   `globals.css` và chặn CI nếu đổi màu làm tụt dưới ngưỡng AA (NFR-USA-06).
 

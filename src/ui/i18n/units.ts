@@ -20,7 +20,7 @@ import { usePick, usePreferences } from '@/application/preferences-context';
  *
  * Vì `formatCalcOutput()` còn phục vụ **bản in và file xuất**, mà theo quyết định đã chốt thì
  * tài liệu xuất ra luôn là văn bản tiếng Việt trọn vẹn — kể cả khi giao diện đang chạy tiếng Anh
- * (xem `draw-card.ts`, `export-content.ts`). Nếu hàm Domain tự dịch theo locale thì file xuất
+ * (xem `export-content.ts`). Nếu hàm Domain tự dịch theo locale thì file xuất
  * cũng đổi theo, tức phá đúng lời hứa ấy. Nên chỗ dịch phải là tầng UI, và chỉ những nơi vẽ ra
  * MÀN HÌNH mới gọi hai hook này. Domain giữ nguyên mặc định tiếng Việt.
  */

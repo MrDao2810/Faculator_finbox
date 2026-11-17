@@ -338,11 +338,11 @@
  * tiên với luật ở đây (`@media` không cộng thêm gì), nên thứ tự khai là thứ duy nhất quyết định —
  * cùng cái bẫy đã ghi ở `.panelCenter`. Ca kiểm gác luôn thứ tự này.
  *
- * `screen and` là BẮT BUỘC, không phải cẩn thận thừa. Vùng in của sheet Tải về (`.print-region`)
- * nằm TRONG `<dialog>` này và định vị theo nó, mà dưới media in bề ngang của `@media` là bề ngang
- * tờ giấy: A4 ngang rộng 1123px, tức vượt mốc. Đo 13/10/2026 bằng `Page.printToPDF`: thiếu `screen`
- * thì bản in A4 ngang đổi hẳn (file 73 kB thành 172 kB, vùng in từ 720px xuống 560px và dời chỗ),
- * còn A4 dọc thì không. Có `screen` thì mọi khổ giấy in ra đúng từng byte như trước đợt này.
+ * `screen and` là BẮT BUỘC, không phải cẩn thận thừa. Dưới media in, bề ngang của `@media` là bề
+ * ngang tờ giấy: A4 ngang rộng 1123px, tức vượt mốc. Đo 13/10/2026 bằng `Page.printToPDF`: thiếu
+ * `screen` thì vùng in của sheet Tải về (bỏ 17/11/2026) (nằm trong `<dialog>` này) đổi hẳn khi in A4 ngang. Vùng in
+ * ấy đã bỏ ngày 17/11/2026 (file PDF nay dựng bằng pdf-lib), nhưng một hộp thoại đang mở lúc người
+ * dùng bấm Ctrl+P vẫn chịu đúng luật này, nên `screen` ở lại.
  */
 @media screen and (min-width: 1024px) {
   .sheet {
@@ -356,7 +356,7 @@
   }
 
   /*
-   * Tấm hẹp — `width="narrow"`. Dành cho tấm chỉ có vài điều khiển (Tải về, Lưu vào danh mục):
+   * Tấm hẹp — `width="narrow"`. Dành cho tấm chỉ có vài điều khiển (Lưu vào danh mục):
    * ở 720px hai thẻ định dạng và một ô tên trải ra thành những dải dài không ai cần.
    *
    * Chỉ có nghĩa ở khổ này: dưới 1024 tấm dán đáy và rộng hết màn, hẹp lại ở đó là để hở hai mép.

@@ -308,7 +308,7 @@ describe('Hàng nút cuối màn — ghim đáy ở khổ điện thoại', () =
 });
 
 /*
- * Hai hàng nút đầu màn gọn lại dưới 1024px (chủ dự án, 19/10/2026): Tải về / Chia sẻ chỉ còn icon,
+ * Hai hàng nút đầu màn gọn lại dưới 1024px (chủ dự án, 19/10/2026): Export / Chia sẻ chỉ còn icon,
  * "Nạp mẫu · Xem ví dụ thực tế ↓" nhỏ đi. Test React dựng cả chữ lẫn icon ở mọi khổ, nên chỉ đọc CSS
  * mới thấy được chữ có ẩn hay không.
  */
@@ -319,7 +319,7 @@ describe('Hai hàng nút đầu màn — gọn ở khổ điện thoại', () =>
       .map((k) => new RegExp(`^\\s*${boChon}\\s*\\{([^}]*)\\}`, 'm').exec(k.than)?.[1])
       .find((than) => than !== undefined);
 
-  it('chữ của Tải về / Chia sẻ ẩn bằng bộ visually-hidden, KHÔNG display: none — vẫn là tên nút', () => {
+  it('chữ của Export / Chia sẻ ẩn bằng bộ visually-hidden, KHÔNG display: none — vẫn là tên nút', () => {
     const nhan = luat('\\.iconLabel');
     expect(nhan, 'thiếu luật .iconLabel trong @media (max-width: 1023.98px)').toBeDefined();
     expect(nhan).toMatch(/position:\s*absolute;/);

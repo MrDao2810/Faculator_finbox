@@ -22,6 +22,7 @@ import {
   displaySeriesDate,
   emptyRow,
   formatNumber,
+  formulaPath,
   keepSeriesDateChars,
   parseSeriesDate,
   parseStoredSeries,
@@ -35,6 +36,7 @@ import {
 } from '@/application';
 import type { CandleRange, PasteResult, Preset, SeriesRow } from '@/application';
 import { useT } from '@/application/preferences-context';
+import { useRouter } from 'next/navigation';
 import {
   NumberCell,
   filterTypedValue,
@@ -42,7 +44,7 @@ import {
   resetFilteredDelete,
 } from '@/ui/inputs';
 import { useKhoMayTinh } from '@/ui/layout/use-kho-may-tinh';
-import { Button } from '@/ui/primitives';
+import { BottomSheet, Button } from '@/ui/primitives';
 import { CandleChart } from '@/ui/series';
 import { beNgangTenCot, PasteImportSheet, PresetSheet } from '@/ui/sheets';
 
@@ -476,6 +478,8 @@ export function DataTableScreen() {
   const [code, setCode] = useState('');
   const [rows, setRows] = useState<ReadonlyArray<SeriesRow>>([]);
   const [sheet, setSheet] = useState<'preset' | 'paste' | null>(null);
+  // Hỏi xoá bảng bằng hộp thoại của sản phẩm, không dùng window.confirm của trình duyệt (17/11/2026).
+  const [hoiXoa, setHoiXoa] = useState(false);
   const [range, setRange] = useState<CandleRange>('all');
   /**
    * Bảng hiện tại dựng từ một bộ số liệu mẫu BẢN THẢO.
@@ -485,6 +489,17 @@ export function DataTableScreen() {
    * tay thì tắt — nó chỉ dùng để đính ghi chú vào file CSV tải về.
    */
   const [fromDraft, setFromDraft] = useState(false);
+  const router = useRouter();
+  /**
+   * Công thức đã mở bảng này (`?from=<id>`), để nút "Sử dụng" biết đường đưa số liệu về. Đọc trong
+   * effect từ `window.location.search` chứ không `useSearchParams()`: hook ấy kéo cả màn vào
+   * `<Suspense>` và Next bỏ nó khỏi HTML tĩnh. `null` khi vào bảng từ thanh nav, không có công thức nào.
+   */
+  const [fromId, setFromId] = useState<string | null>(null);
+  useEffect(() => {
+    const id = (new URLSearchParams(window.location.search).get('from') ?? '').trim();
+    setFromId(/^[a-z0-9-]+$/.test(id) ? id : null);
+  }, []);
   const [loaded, setLoaded] = useState(false);
   /** Cột đang sắp xếp — mặc định Ngày giảm dần, tức phiên mới nhất lên đầu. */
   const [sapXep, setSapXep] = useState<SapXep>(SAP_MAC_DINH);
@@ -779,31 +794,12 @@ export function DataTableScreen() {
   }, [rows, code, fromDraft, t]);
 
   const clearAll = useCallback(() => {
-    if (!window.confirm(t('series.clearConfirm'))) return;
     setRows([]);
     setSapXep(SAP_MAC_DINH);
-  }, [t]);
+    setHoiXoa(false);
+  }, []);
 
-  /**
-   * Năm của chuỗi, in một lần trên bảng thay cho phần năm của từng ô ngày — cùng luật với lưới popup.
-   * Chỉ đọc các dòng KHÔNG lỗi, nên một ô gõ nhầm năm 2062 không kéo dãn khoảng năm. Không phiên nào
-   * ghi đủ năm (chuỗi minh hoạ đánh số phiên '1', '2') thì không in gì.
-   */
-  const yearNote = useMemo(() => {
-    let tu = Number.POSITIVE_INFINITY;
-    let den = Number.NEGATIVE_INFINITY;
-    rowsHoan.forEach((row, index) => {
-      if (issueHoanByIndex.has(index)) return;
-      const ngay = parseSeriesDate(row.date);
-      if (ngay === null || ngay.year === null) return;
-      tu = Math.min(tu, ngay.year);
-      den = Math.max(den, ngay.year);
-    });
-    if (!Number.isFinite(tu)) return null;
-    return tu === den
-      ? t('paste.yearOne').replace('{nam}', String(tu))
-      : t('paste.yearRange').replace('{tu}', String(tu)).replace('{den}', String(den));
-  }, [rowsHoan, issueHoanByIndex, t]);
+  // Dòng "Từ năm … tới …" trên đầu bảng đã bỏ (17/11/2026); mộ chí `paste.yearOne/yearRange` vẫn dùng ở popup.
 
   /**
    * Bề ngang từng cột, tính bằng `ch` theo chữ DÀI NHẤT cột ấy đang in — cùng cách với lưới popup.
@@ -909,9 +905,22 @@ export function DataTableScreen() {
         </header>
 
         <div className={styles.actions}>
-          <Button size="sm" onClick={addRow}>
-            + {t('series.addRow')}
-          </Button>
+          {/*
+            "Sử dụng" (17/11/2026, chủ dự án): đứng đúng chỗ "Thêm dòng" cũ, và đưa người dùng về
+            công thức đang mở bảng này để áp số liệu ngay. Bảng đã tự lưu sau mỗi lần đổi, còn màn
+            công thức quay lại thì lấy bảng khi bảng khác chuỗi nó đang giữ (`bangDaDoi()`). Không có
+            `?from=` thì không có công thức nào để áp vào, nên không bày nút.
+          */}
+          {fromId !== null && rows.length > 0 && (
+            <Button
+              size="sm"
+              onClick={() => {
+                router.push(formulaPath(fromId));
+              }}
+            >
+              {t('series.use')}
+            </Button>
+          )}
           <Button
             variant="secondary"
             size="sm"
@@ -933,14 +942,27 @@ export function DataTableScreen() {
           <Button variant="ghost" size="sm" onClick={downloadCsv} disabled={rows.length === 0}>
             ↓ {t('series.downloadCsv')}
           </Button>
-          <Button variant="ghost" size="sm" onClick={clearAll} disabled={rows.length === 0}>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              setHoiXoa(true);
+            }}
+            disabled={rows.length === 0}
+          >
             {t('series.clear')}
           </Button>
         </div>
       </div>
 
       {rows.length === 0 ? (
-        <p className={styles.empty}>{t('series.empty')}</p>
+        <>
+          <p className={styles.empty}>{t('series.empty')}</p>
+          {/* Bảng trống thì không có khối bảng để đặt nút "Thêm dòng" vào đầu — đặt nó ngay dưới câu này. */}
+          <Button variant="secondary" size="sm" onClick={addRow}>
+            + {t('series.addRow')}
+          </Button>
+        </>
       ) : (
         <>
           <MemoCandleChart rows={rowsHoan} code={code} range={range} onRangeChange={setRange} />
@@ -952,8 +974,11 @@ export function DataTableScreen() {
                   {t('series.tableTitle')}
                 </h2>
                 {/* Dòng "Mới → cũ · sửa trực tiếp trong ô" đã bỏ — mộ chí `series.tableHint` ở vi.ts. */}
-                {/* Năm của chuỗi, thay cho phần năm của từng ô ngày (20/10/2026). */}
-                {yearNote !== null && <p className={styles.yearNote}>{yearNote}</p>}
+                <div className={styles.cardTools}>
+                  <Button variant="secondary" size="sm" onClick={addRow}>
+                    + {t('series.addRow')}
+                  </Button>
+                </div>
               </div>
 
               {/* Khung cuộn ngang riêng — bảng 6 cột không thể vừa 360px, và cả trang thì
@@ -1166,6 +1191,35 @@ export function DataTableScreen() {
         */
         picks={defaultPresetPicks()}
       />
+
+      <BottomSheet
+        open={hoiXoa}
+        onClose={() => {
+          setHoiXoa(false);
+        }}
+        title={t('series.clearTitle')}
+        placement="center"
+        width="narrow"
+        className={styles.hoiXoa}
+        footer={
+          <>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                setHoiXoa(false);
+              }}
+            >
+              {t('series.clearCancel')}
+            </Button>
+            <Button variant="danger" size="sm" onClick={clearAll}>
+              {t('series.clearDo')}
+            </Button>
+          </>
+        }
+      >
+        <p>{t('series.clearConfirm')}</p>
+      </BottomSheet>
 
       <PasteImportSheet
         open={sheet === 'paste'}

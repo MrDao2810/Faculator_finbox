@@ -1006,186 +1006,65 @@ window.__localeLog = [];
     hoan === null ? '' : `cao: ${hoan.caoMuc.join(' · ')}`,
   );
 
-  /* ── 0c. Bản in vẫn đúng sau khi sheet Xuất chuyển sang dựng-khi-mở ──────── */
+  /* ── 0c. Ctrl+P thẳng trên trang vẫn in ra trang ──────────────────────────── */
 
   /*
-   * `@media print` trong `globals.css` ẩn TOÀN BỘ trang rồi bật lại đúng `.print-region`. Vùng in
-   * ấy nằm trong `ExportSheet`, mà sheet nay chỉ dựng từ lần mở đầu tiên — nên luật ẩn phải kèm
-   * điều kiện `:has(.print-region)`, và điều kiện ấy phải bọc `:where()` để không cộng độ ưu tiên.
-   *
-   * Cả hai chiều đều đã hỏng thật trong lúc làm gói này, nên cả hai đều phải có phép kiểm: thiếu
-   * điều kiện thì Ctrl+P lúc chưa mở sheet in ra tờ trắng; thiếu `:where()` thì Ctrl+P lúc ĐÃ mở
-   * sheet cũng in ra tờ trắng. Không cửa kiểm nào khác thấy được — jsdom không có `@media print`,
-   * còn `verify:static` chỉ đọc file chứ không tính style.
+   * Từ 17/11/2026 nút Export không còn đi qua `window.print()` (file PDF thật dựng bằng pdf-lib, xem
+   * 0d), nên `.print-region` và luật ẩn-cả-trang của nó đã bỏ. Còn lại một điều phải giữ: Ctrl+P thẳng
+   * trên màn chi tiết không ra tờ trắng.
    */
   await open('/cong-thuc/pe/');
 
   await send('Emulation.setEmulatedMedia', { media: 'print' });
-  const inKhiChuaMo = await evaluate(
+  const inThang = await evaluate(
     `({ vungIn: Boolean(document.querySelector('.print-region')), tieuDe: getComputedStyle(document.querySelector('h1')).visibility })`,
   );
   check(
-    'chưa mở sheet Xuất mà bấm in thì trang vẫn in ra được, không phải tờ trắng',
-    inKhiChuaMo.vungIn === false && inKhiChuaMo.tieuDe === 'visible',
-    `vùng in: ${String(inKhiChuaMo.vungIn)} · tiêu đề: ${inKhiChuaMo.tieuDe}`,
+    'bấm in thẳng trên màn chi tiết thì trang vẫn in ra được, không phải tờ trắng',
+    inThang.vungIn === false && inThang.tieuDe === 'visible',
+    `vùng in: ${String(inThang.vungIn)} · tiêu đề: ${inThang.tieuDe}`,
   );
-
   await send('Emulation.setEmulatedMedia', { media: 'screen' });
-  /*
-   * Nút mở sheet là `detail.download` — "Tải về". KHÔNG dò theo /Xuất/ nữa: nhãn nút đổi từ
-   * '↓ Xuất' sang 'Tải về' ở commit d93d480 (mũi tên nay là icon thật), và chuỗi "Xuất" chỉ còn
-   * nằm trên hai nút BÊN TRONG sheet ('Xuất PDF' / 'Xuất PNG') cùng tiêu đề sheet — tức phép dò cũ
-   * không tìm thấy gì, `waitFor` dưới đây hết giờ và cả script chết đứng, bỏ luôn mọi phép kiểm
-   * phía sau. Dò đúng nhãn nút mở, và báo lỗi ngay tại chỗ nếu không thấy.
-   */
-  const moSheetXuat = await evaluate(
-    `(() => { const b = [...document.querySelectorAll('button')].find((x) => /Tải về/.test(x.textContent ?? '')); if (!b) return false; b.click(); return true; })()`,
-  );
-  check(
-    'màn chi tiết có nút mở sheet Xuất',
-    moSheetXuat === true,
-    `tìm thấy nút: ${String(moSheetXuat)}`,
-  );
-  await waitFor("document.querySelector('.print-region')");
-  await send('Emulation.setEmulatedMedia', { media: 'print' });
-  const inKhiDaMo = await evaluate(
-    `({ vungIn: getComputedStyle(document.querySelector('.print-region')).visibility, tieuDe: getComputedStyle(document.querySelector('h1')).visibility })`,
-  );
-  check(
-    'mở sheet Xuất rồi in thì ra đúng thẻ kết quả, phần còn lại của trang bị ẩn',
-    inKhiDaMo.vungIn === 'visible' && inKhiDaMo.tieuDe === 'hidden',
-    `vùng in: ${inKhiDaMo.vungIn} · tiêu đề trang: ${inKhiDaMo.tieuDe}`,
-  );
 
-  /* ── 0d. Biểu đồ đi vào bản in, và đi kèm bảng màu SÁNG ──────────────────── */
+  /* ── 0d. Xuất PDF ra một file PDF thật, có hình công thức và hình biểu đồ ───── */
 
   /*
-   * Trước đợt này bản in ra một khung nét đứt kèm câu "biểu đồ sẽ được bổ sung ở bản sau", dù
-   * màn hình ngay sau lưng đang vẽ hình. Nay `chart-snapshot.ts` chép hình ấy vào vùng in.
+   * Chủ dự án 17/11/2026: PDF qua hộp in "không xem được hoặc lỗi" trên điện thoại; nay file dựng
+   * ngay trong trình duyệt bằng pdf-lib rồi tải thẳng xuống. Ba điều chỉ Chrome thật kiểm được:
    *
-   * Ba điều chỉ Chrome thật mới kiểm được, và cả ba đều là chỗ từng sai:
+   * 1. Font nạp được từ `/fonts/` dưới CSP thật của trang, và pdf-lib chạy được trong chunk nạp trễ.
+   * 2. Hình công thức chụp được: MathML gói vào SVG `foreignObject` rồi vẽ lên canvas. Trình duyệt
+   *    khoá canvas thì `toBlob` hỏng và file rơi về dòng chữ — người dùng không thấy lỗi nào, chỉ
+   *    thấy file thiếu hình. Đếm ảnh nhúng trong file là cách duy nhất bắt được.
+   * 3. Hình biểu đồ chụp được ở giao diện TỐI mà vẫn là bảng sáng (`chart-snapshot.ts` chỉ bốc `:root`).
    *
-   * 1. **Bản chép có tới nơi không.** Nó đi qua một `import()` trần rồi một lượt `replaceChildren`
-   *    ngoài tầm React — jsdom chạy được phần ấy, nhưng không chứng minh được nó sống sót cùng
-   *    `next/dynamic` thật của `FormulaChart`.
-   * 2. **Màu.** Đây là lý do phải bật giao diện TỐI trước khi in. Mọi màu trong `chart.module.css`
-   *    đi qua token, mà ở bảng tối `--color-ink` là `#e8edf6` — chữ trắng trên giấy trắng. Khối
-   *    token chép lại ở `.print-region` là thứ chặn điều đó, và không cửa kiểm nào khác thấy nó:
-   *    jsdom không áp CSS, `tokens.test.ts` chỉ đối chiếu được mã màu trong file nguồn.
-   * 3. **Luật `:has()` ẩn câu dự phòng.** Cùng lý do — nó là CSS thuần.
-   *
-   * Hai bản hình đo ở HAI media khác nhau, và đó không phải tiện tay: hình TRÊN TRANG đo ở
-   * `screen`, vì lời khẳng định về nó là lời khẳng định về màn hình; hình TRONG BẢN IN đo ở
-   * `print`, vì đó mới là lúc luật in có hiệu lực. Đo cả hai ở `print` là điều đã làm lần đầu và
-   * nó cho kết quả đánh lừa — Chrome ở chế độ in trả về bảng sáng cho cả hình trên trang, nên
-   * phép so "trang vẫn tối" đỏ dù không có gì sai.
+   * File được bắt ở `URL.createObjectURL` — nơi blob đi qua trước khi thành liên kết tải xuống.
    */
-  const MAU_CUA = `(goc) => {
-    const ra = new Set();
-    for (const el of goc.querySelectorAll('*')) {
-      const cs = getComputedStyle(el);
-      ra.add(cs.stroke);
-      ra.add(cs.fill);
-    }
-    return [...ra];
-  }`;
-
-  await send('Emulation.setEmulatedMedia', { media: 'screen' });
   await evaluate(`(() => { document.documentElement.dataset.theme = 'dark'; return true; })()`);
-  await waitFor("document.querySelector('.print-chart-plot > svg')");
-
-  /*
-   * Kéo hình vào tầm nhìn TRƯỚC khi đo, và đây là một cái bẫy đã mất công mới thấy: khối biểu đồ
-   * nằm dưới nếp gấp và mang `content-visibility`, nên Chrome BỎ QUA việc tính lại style cho cả
-   * cây con ấy. `getComputedStyle` lúc đó vẫn trả về `--color-border` mới (biến thừa kế từ `<html>`
-   * nên nó tươi), nhưng `stroke` thì còn là giá trị đã giải cũ — hai con số mâu thuẫn nhau trên
-   * cùng một node. Không kéo vào tầm nhìn thì phép đo này nói dối.
-   */
+  await waitFor("document.querySelector('svg[data-chart-svg]')");
   await evaluate(
     `(() => { document.querySelector('svg[data-chart-svg]')?.scrollIntoView(); return true; })()`,
   );
   await new Promise((r) => setTimeout(r, 400));
 
-  const tren = await evaluate(`(() => {
-  const el = document.querySelector('svg[data-chart-svg]');
-  return { co: Boolean(el), mau: el ? (${MAU_CUA})(el) : [] };
-})()`);
-
-  await send('Emulation.setEmulatedMedia', { media: 'print' });
-
-  const hinhIn = await evaluate(`(() => {
-  const inRa = document.querySelector('.print-chart-plot > svg');
-  const note = document.querySelector('.print-chart-note');
-
-  return {
-    co: Boolean(inRa),
-    mau: inRa ? (${MAU_CUA})(inRa) : [],
-    cauDuPhong: note ? getComputedStyle(note).display : null,
-    tuongTac: inRa ? inRa.querySelectorAll('[data-testid$="-hover-capture"]').length : -1,
-  };
-})()`);
-
-  /*
-   * Mã màu của globals.css, dạng Chrome trả về. `--color-accent-vivid` là màu nét đường quét, nên
-   * nó là thứ chắc chắn có mặt trong mọi biểu đồ đường; ba màu tối kia là mực, nét nhấn và chữ mờ.
-   */
-  const SANG_NET = 'rgb(59, 123, 240)'; // --color-accent-vivid bảng sáng (#3b7bf0)
-  const TOI = [
-    'rgb(91, 155, 255)', // --color-accent-vivid (#5b9bff)
-    'rgb(232, 237, 246)', // --color-ink (#e8edf6)
-    'rgb(147, 161, 184)', // --color-muted (#93a1b8)
-    'rgb(49, 61, 82)', // --color-border (#313d52)
-  ];
-
-  check(
-    'bản in mang được hình biểu đồ đang hiện trên trang',
-    hinhIn.co === true,
-    hinhIn.co === true ? 'có <svg> trong vùng in' : 'vùng in vẫn rỗng',
-  );
-
-  const dinhMauToi = TOI.filter((mau) => hinhIn.mau.includes(mau));
-  check(
-    'hình trong bản in dùng bảng SÁNG, dù màn hình đang ở giao diện tối',
-    hinhIn.co === true && dinhMauToi.length === 0 && hinhIn.mau.includes(SANG_NET),
-    dinhMauToi.length > 0
-      ? `dính màu bảng tối: ${dinhMauToi.join(' · ')}`
-      : `${String(hinhIn.mau.length)} màu · nét ${SANG_NET}: ${String(hinhIn.mau.includes(SANG_NET))}`,
-  );
-
-  check(
-    'và hình TRÊN TRANG vẫn theo bảng tối — khối token của vùng in không rò ra ngoài',
-    tren.co === true && TOI.some((mau) => tren.mau.includes(mau)),
-    `màu trên trang: ${tren.mau.filter((m) => m !== 'none' && !m.startsWith('url')).join(' · ')}`,
-  );
-
-  check(
-    'câu dự phòng tự ẩn khi khe đã có hình, và bản chép không mang theo vùng bắt sự kiện',
-    hinhIn.cauDuPhong === 'none' && hinhIn.tuongTac === 0,
-    `câu dự phòng: ${String(hinhIn.cauDuPhong)} · node tương tác còn lại: ${String(hinhIn.tuongTac)}`,
-  );
-
-  await send('Emulation.setEmulatedMedia', { media: 'screen' });
-
-  /* ── 0e. Tấm PNG cũng mang hình, không chỉ bản in ────────────────────────── */
-
-  /*
-   * Đường PNG khác đường in ở chỗ khó nhất: ảnh nạp qua `<img>` là một tài liệu RIÊNG, không thấy
-   * stylesheet của trang, nên `chartSvgUrl()` phải tự gói CSS vào trong file. Nếu bước ấy hỏng thì
-   * `chartImage()` reject, `chartForCard()` nuốt lỗi, và tấm thẻ lặng lẽ quay về khung nét đứt như
-   * cũ — người dùng không thấy lỗi nào, mà cũng không có biểu đồ. Đúng kiểu hỏng mà chỉ số đo bắt
-   * được.
-   *
-   * Cách đo: rình `toBlob` để lấy CHIỀU CAO canvas, rồi xuất hai lần — một lần bật "Kèm biểu đồ",
-   * một lần tắt. Có hình thật thì khung hình cao 420 (trần `CHART_MAX_HEIGHT`), hình hỏng thì rơi
-   * về khung dự phòng cao 260, còn tắt hẳn thì 0. Ba mức cách nhau đủ xa để một ngưỡng phân biệt
-   * được, và không cần giải mã một pixel nào.
-   */
   await evaluate(`(() => {
-  window.__caoThe = [];
-  const goc = HTMLCanvasElement.prototype.toBlob;
-  HTMLCanvasElement.prototype.toBlob = function (...doiSo) {
-    window.__caoThe.push(this.height);
-    return goc.apply(this, doiSo);
+  window.__fileXuat = null;
+  const goc = URL.createObjectURL;
+  URL.createObjectURL = function (obj) {
+    if (obj instanceof Blob && obj.type === 'application/pdf') {
+      obj.arrayBuffer().then((buf) => {
+        const chu = new TextDecoder('latin1').decode(new Uint8Array(buf));
+        // Không đếm trang bằng chuỗi: pdf-lib nén các đối tượng trang vào object stream. Số trang
+        // đã có \`ve-pdf.test.ts\` gác; ở đây chỉ cần biết file trọn vẹn và mang font nhúng.
+        window.__fileXuat = {
+          dau: chu.slice(0, 5),
+          cuoi: chu.trimEnd().endsWith('%%EOF'),
+          coKb: Math.round(buf.byteLength / 1024),
+          anh: (chu.match(/\\/Subtype \\/Image/g) ?? []).length,
+        };
+      });
+    }
+    return goc.call(URL, obj);
   };
   return true;
 })()`);
@@ -1201,29 +1080,33 @@ window.__localeLog = [];
   return true;
 })()`);
 
-  await bam('^PNG$|PNG');
-  await bam('Xuất PNG');
-  await waitFor('window.__caoThe.length >= 1');
-
-  // Sheet tự đóng sau khi xuất xong — mở lại rồi tắt "Kèm biểu đồ" để có mốc so sánh.
-  await bam('Xuất', false);
-  await evaluate(`(() => {
-  const congTac = [...document.querySelectorAll('[role="switch"]')][0];
-  if (!congTac) return false;
-  congTac.click();
-  return true;
-})()`);
-  await bam('Xuất PNG');
-  await waitFor('window.__caoThe.length >= 2');
-
-  const caoThe = await evaluate('window.__caoThe');
-  const chenh = (caoThe[0] ?? 0) - (caoThe[1] ?? 0);
+  /*
+   * Nút `detail.download` — "Export" từ 17/11/2026 (trước là "Tải về") — xuất PDF NGAY, không còn
+   * sheet nào ở giữa. Dò đúng nhãn ấy và báo lỗi ngay tại chỗ nếu không thấy, không thì `waitFor`
+   * dưới hết giờ và cả script chết đứng.
+   */
+  const bamExport = await bam('^Export$', false);
+  check(
+    'màn chi tiết có nút Export, bấm là xuất ngay không mở hộp thoại',
+    bamExport === true &&
+      (await evaluate(`Boolean(document.querySelector('dialog[open]'))`)) === false,
+    `tìm thấy nút: ${String(bamExport)}`,
+  );
+  await waitFor('window.__fileXuat !== null', 30_000);
+  const fileXuat = await evaluate('window.__fileXuat');
 
   check(
-    'tấm PNG nhúng được hình thật, không rơi về khung nét đứt',
-    chenh > 380,
-    `cao khi có hình ${String(caoThe[0])} · khi tắt ${String(caoThe[1])} · chênh ${String(chenh)} (khung dự phòng chỉ chênh ~292)`,
+    'bấm Xuất PDF ra một file PDF thật',
+    // > 20 kB: font nhúng subset cộng hai ảnh — một file thiếu font hay thiếu nội dung nhỏ hơn hẳn.
+    fileXuat.dau === '%PDF-' && fileXuat.cuoi === true && fileXuat.coKb > 20,
+    `đầu file ${fileXuat.dau} · kết thúc %%EOF: ${String(fileXuat.cuoi)} · ${String(fileXuat.coKb)} kB`,
   );
+  check(
+    'file mang cả hình công thức lẫn hình biểu đồ (canvas không bị khoá)',
+    fileXuat.anh >= 2,
+    `${String(fileXuat.anh)} ảnh nhúng`,
+  );
+  await evaluate(`(() => { document.documentElement.dataset.theme = 'light'; return true; })()`);
 
   /* ── 1. Thác nước bóc tách trên màn 360px ────────────────────────────────── */
 
@@ -1922,7 +1805,6 @@ window.__localeLog = [];
         const t = (w.currentNode.textContent ?? '').trim();
         const el = w.currentNode.parentElement;
         if (!t || !VN.test(t) || !el) continue;
-        if (el.closest('.print-region')) continue;
         if (!hien(el)) continue;
         ra.push({ loai: el.closest('math') ? 'mathml' : 'chữ', tag: el.tagName.toLowerCase(), cls: (el.getAttribute('class') ?? '').slice(0, 34), t: t.slice(0, 300) });
       }
@@ -3138,11 +3020,11 @@ window.__localeLog = [];
    */
   await open('/cong-thuc/ema-n-phien/');
   await waitFor(
-    "[...document.querySelectorAll('button')].some((b) => /Nạp ví dụ minh hoạ/.test(b.textContent ?? ''))",
+    "[...document.querySelectorAll('button')].some((b) => /Sử dụng dữ liệu mẫu/.test(b.textContent ?? ''))",
   );
   const nenPc = await evaluate(`(async () => {
     const { chon, cho } = await ${DOI_DANG}();
-    const nut = [...document.querySelectorAll('button')].find((b) => /Nạp ví dụ minh hoạ/.test(b.textContent ?? ''));
+    const nut = [...document.querySelectorAll('button')].find((b) => /Sử dụng dữ liệu mẫu/.test(b.textContent ?? ''));
     if (!nut) return { loi: 'không thấy nút Xem ví dụ minh hoạ' };
     /* Bấm lại mỗi giây: cú bấm trước khi hydrate xong thì không có trình xử lý nào nhận. */
     for (let i = 0; i < 40 && !document.querySelector('figure path[data-points]'); i += 1) {
@@ -3181,11 +3063,11 @@ window.__localeLog = [];
    */
   await open('/cong-thuc/var-lich-su/');
   await waitFor(
-    "[...document.querySelectorAll('button')].some((b) => /Nạp ví dụ minh hoạ/.test(b.textContent ?? ''))",
+    "[...document.querySelectorAll('button')].some((b) => /Sử dụng dữ liệu mẫu/.test(b.textContent ?? ''))",
   );
   const phanPhoiPc = await evaluate(`(async () => {
     const { chon, cho } = await ${DOI_DANG}();
-    const nut = [...document.querySelectorAll('button')].find((b) => /Nạp ví dụ minh hoạ/.test(b.textContent ?? ''));
+    const nut = [...document.querySelectorAll('button')].find((b) => /Sử dụng dữ liệu mẫu/.test(b.textContent ?? ''));
     if (!nut) return { loi: 'không thấy nút Xem ví dụ minh hoạ' };
     for (let i = 0; i < 40 && !document.querySelector('figure path[data-points]'); i += 1) {
       if (i % 10 === 0) nut.click();
@@ -5425,25 +5307,10 @@ window.__localeLog = [];
   });
   await open('/cong-thuc/pe/');
 
-  const pcXuat = await doTam('Tải về');
-  check(
-    'PC 1440 · sheet Tải về nổi giữa màn, không dán đáy',
-    pcXuat.thay === true && Math.abs(pcXuat.leTrai - pcXuat.lePhai) <= 1 && pcXuat.leDuoi > 0,
-    pcXuat.thay !== true
-      ? String(pcXuat.vi)
-      : `lề ${String(pcXuat.leTrai)}/${String(pcXuat.lePhai)} · đáy ${String(pcXuat.leDuoi)}px`,
-  );
-  check(
-    'PC 1440 · sheet Tải về là tấm HẸP 560px, bốn góc bo đều, không còn vạch kéo',
-    pcXuat.thay === true &&
-      pcXuat.rong === 560 &&
-      pcXuat.goc.every((v) => v >= 8) &&
-      new Set(pcXuat.goc).size === 1 &&
-      pcXuat.vachHien === false,
-    pcXuat.thay !== true
-      ? String(pcXuat.vi)
-      : `rộng ${String(pcXuat.rong)}px · góc ${pcXuat.goc.join('/')}px · vạch kéo hiện: ${String(pcXuat.vachHien)}`,
-  );
+  /*
+   * Hai phép đo sheet "Tải về" (nổi giữa, tấm hẹp 560px) đã bỏ ngày 17/11/2026 cùng chính sheet ấy:
+   * nút Export xuất PDF ngay. Tấm hẹp vẫn còn ở sheet Lưu vào danh mục.
+   */
 
   /*
    * Sheet Nạp mẫu là tấm sát trần nhất: bốn dòng mã, mỗi dòng ba hàng chữ — ước tính ~586px trên
@@ -5561,29 +5428,11 @@ window.__localeLog = [];
       : `thân cuộn: ${String(pcChonMa.thanCuon)} · overflow của tấm: ${String(pcChonMa.catCon)} · góc dưới phải ${String(pcChonMa.gocDuoiPhai)}px · overflow của dialog: ${String(pcChonMa.catBong)} · có bóng: ${String(pcChonMa.bong)}`,
   );
 
-  await send('Emulation.setDeviceMetricsOverride', {
-    width: 360,
-    height: 780,
-    deviceScaleFactor: 1,
-    mobile: true,
-  });
-  await open('/cong-thuc/pe/');
-
-  const dtXuat = await doTam('Tải về');
-  check(
-    'Điện thoại 360 · sheet Tải về VẪN dán đáy: rộng hết màn, hai góc dưới vuông, còn vạch kéo',
-    dtXuat.thay === true &&
-      dtXuat.leDuoi === 0 &&
-      dtXuat.rong === dtXuat.manRong &&
-      dtXuat.goc[0] >= 8 &&
-      dtXuat.goc[1] >= 8 &&
-      dtXuat.goc[2] === 0 &&
-      dtXuat.goc[3] === 0 &&
-      dtXuat.vachHien === true,
-    dtXuat.thay !== true
-      ? String(dtXuat.vi)
-      : `rộng ${String(dtXuat.rong)}/${String(dtXuat.manRong)}px · đáy ${String(dtXuat.leDuoi)}px · góc ${dtXuat.goc.join('/')}px · vạch kéo hiện: ${String(dtXuat.vachHien)}`,
-  );
+  /*
+   * Phép đo "Điện thoại 360 · sheet Tải về VẪN dán đáy" đã bỏ ngày 17/11/2026 cùng sheet ấy (nút
+   * Export xuất PDF ngay). Nó là ca duy nhất đo một tấm DÁN ĐÁY dưới 1024px trên Chrome thật; luật CSS
+   * của dạng dán đáy vẫn có `BottomSheet.test.ts` gác, chưa có phép đo Chrome thay thế.
+   */
 
   /*
    * ── Vào lại công thức thì về mặc định; F5 giữa chừng thì giữ số (13/10/2026) ────────────────

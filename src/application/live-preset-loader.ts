@@ -11,8 +11,8 @@
  *
  * ⚠ Đừng re-export hàm này từ `src/application/index.ts`. Barrel đó được import tĩnh ở khắp nơi,
  * nên một dòng re-export sẽ kéo `finbox/client.ts` + `finbox/map.ts` + `live-preset.ts` về lại gói
- * chung ngay lập tức — đúng thứ file này sinh ra để tránh. Cùng lý do `draw-card` không nằm trong
- * barrel `@/ui/sheets`.
+ * chung ngay lập tức — đúng thứ file này sinh ra để tránh. Cùng lý do bộ dựng PDF (`sheets/pdf/`)
+ * không nằm trong barrel `@/ui/sheets`.
  */
 
 import { MARKET_FEED, isAbortError, presetFromSnapshot } from '@/data';

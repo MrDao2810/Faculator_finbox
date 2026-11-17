@@ -82,6 +82,10 @@ const router = vi.hoisted(() => ({ push: vi.fn(), replace: vi.fn(), back: vi.fn(
 
 vi.mock('next/navigation', () => ({ useRouter: () => router }));
 
+/** Bộ dựng file PDF thật nạp font và chụp canvas — ngoài tầm jsdom; nút Export chỉ cần gọi đúng nó. */
+const xuatPdf = vi.hoisted(() => vi.fn((_args: unknown) => Promise.resolve()));
+vi.mock('@/ui/sheets/pdf/xuat-pdf', () => ({ xuatPdf }));
+
 /** jsdom chưa cài đặt <dialog>.showModal(); ba bottom sheet cần hai hàm này để mở ra được. */
 beforeAll(() => {
   HTMLDialogElement.prototype.showModal = function showModal(this: HTMLDialogElement) {
@@ -101,6 +105,8 @@ beforeAll(() => {
  */
 beforeEach(() => {
   feed.priceHistory.mockResolvedValue([]);
+  xuatPdf.mockReset();
+  xuatPdf.mockResolvedValue(undefined);
 });
 
 afterEach(() => {
@@ -265,7 +271,7 @@ const NHAN_GIAI_THICH = [
 /**
  * Ba mục của khối Giải thích, dưới dạng thẻ `<details>` để đọc được thuộc tính `open`.
  *
- * Lọc theo thẻ chứ không lấy phần tử đầu tiên: vùng in của `ExportSheet` dựng cùng bốn nhãn ấy
+ * Lọc theo thẻ chứ không lấy phần tử đầu tiên: vùng in của `ExportSheet` (đã bỏ) từng dựng cùng bốn nhãn ấy
  * thành `<h2>`, nên một truy vấn theo chữ trần khớp hai phần tử ngay khi sheet đã mở. (Từ đợt vá
  * hiệu năng, sheet chỉ được dựng từ lần mở đầu tiên — nhưng chỗ lọc này vẫn phải giữ: nó là thứ
  * nói rằng ta đang dò đúng thẻ `<summary>` của khối gập, không phải một tiêu đề trùng chữ.)
@@ -1628,81 +1634,91 @@ describe('WF-03 — nối ba bottom sheet của gói 2.5', () => {
   });
 
   /*
-   * Sheet không còn ô "Miễn trừ tự động đính kèm" từ 28/10/2026 (xem `ExportSheet.tsx`), nên ca này
-   * nhận sheet qua công tắc "Kèm biểu đồ" và giữ FR-24 bằng hành vi: không công tắc nào cho miễn trừ,
-   * và câu miễn trừ nằm sẵn trong vùng in.
+   * Nút Export xuất PDF NGAY, không mở sheet nào (17/11/2026, chủ dự án: _"phần tải về bây giờ ko cần
+   * cái này nữa. bấm tải về thì tự động trả về pdf luôn"_, nhãn "Tải về" thành "Export"). Không còn
+   * công tắc nào, kể cả cho miễn trừ (FR-24): khối miễn trừ cuối file do `export-content.test.ts` gác.
    */
-  it('bấm Xuất thì mở sheet xuất file, và miễn trừ không tắt được (FR-24)', async () => {
-    const { container } = render(<Man spec={specOf('pe')} />);
+  it('bấm Export thì xuất PDF ngay, không mở hộp thoại hay công tắc nào', async () => {
+    render(<Man spec={specOf('pe')} />);
 
-    await userEvent.click(screen.getByRole('button', { name: t('detail.download') }));
+    const nut = screen.getByRole('button', { name: 'Export' });
+    await userEvent.click(nut);
 
-    expect(screen.getByRole('switch', { name: t('export.withChart') })).not.toBeNull();
-    expect(screen.queryByRole('switch', { name: /miễn trừ/i })).toBeNull();
-    expect(container.querySelector('.print-region .print-disclaimer')?.textContent).toBe(
-      DISCLAIMER_VI,
-    );
+    await waitFor(() => {
+      expect(xuatPdf).toHaveBeenCalledTimes(1);
+    });
+    expect(screen.queryAllByRole('switch', { hidden: true })).toHaveLength(0);
+    expect(document.querySelector('dialog[open]')).toBeNull();
+    const args = xuatPdf.mock.calls[0]?.[0] as {
+      formula: { id: string };
+      options: { includeDetails: boolean };
+      formulaMathml: string;
+    };
+    expect(args.formula.id).toBe('pe');
+    expect(args.options.includeDetails).toBe(true);
+    expect(args.formulaMathml).toContain('<math');
   });
 
   /*
-   * Báo lỗi của người kiểm thử trên Basis (16/11/2026): công thức không có biểu đồ mà công tắc "Kèm
-   * biểu đồ" vẫn bật, tải về không thấy hình. Màn không vẽ hình thì công tắc tắt và khoá; màn vẽ hình
-   * thì mở khoá, bật sẵn như trước.
+   * Báo lỗi của người kiểm thử trên Basis (16/11/2026): công thức không có biểu đồ mà file vẫn hứa
+   * kèm biểu đồ. Không còn công tắc, nên luật ấy sống trong lời gọi: chỉ kèm biểu đồ khi khối Biểu đồ
+   * đang VẼ một hình.
    */
-  it('màn không vẽ biểu đồ thì "Kèm biểu đồ" tắt và khoá; có hình thì mở khoá', async () => {
-    render(<Man spec={specOf('basis-vn30f')} />);
-    await userEvent.click(screen.getByRole('button', { name: t('detail.download') }));
+  it('chỉ kèm biểu đồ khi màn đang vẽ hình', async () => {
+    const kemBieuDo = () =>
+      (xuatPdf.mock.calls.at(-1)?.[0] as { options: { includeChart: boolean } }).options
+        .includeChart;
 
-    const tat = screen.getByRole('switch', { name: t('export.withChart') }) as HTMLButtonElement;
-    expect(tat.disabled).toBe(true);
-    expect(tat.getAttribute('aria-checked')).toBe('false');
+    render(<Man spec={specOf('basis-vn30f')} />);
+    await userEvent.click(screen.getByRole('button', { name: 'Export' }));
+    await waitFor(() => {
+      expect(xuatPdf).toHaveBeenCalledTimes(1);
+    });
+    expect(kemBieuDo()).toBe(false);
     cleanup();
 
-    // Công thức CÓ khai biểu đồ nhưng chưa nạp chuỗi giá: màn chưa vẽ gì, nên cũng khoá.
+    // Công thức CÓ khai biểu đồ nhưng chưa nạp chuỗi giá: màn chưa vẽ gì, nên không kèm.
     render(<Man spec={specOf('sma-n-phien')} />);
-    // Khối Biểu đồ đã nạp xong và đang báo thiếu phiên — chờ nó để chắc màn đã nhận lời báo của khối.
     expect((await screen.findByRole('status')).textContent).toContain('phiên giá');
-    await userEvent.click(screen.getByRole('button', { name: t('detail.download') }));
-    expect(
-      (screen.getByRole('switch', { name: t('export.withChart') }) as HTMLButtonElement).disabled,
-    ).toBe(true);
+    await userEvent.click(screen.getByRole('button', { name: 'Export' }));
+    await waitFor(() => {
+      expect(xuatPdf).toHaveBeenCalledTimes(2);
+    });
+    expect(kemBieuDo()).toBe(false);
     cleanup();
 
     render(<Man spec={specOf('pe')} />);
     await screen.findByRole('figure');
-    await userEvent.click(screen.getByRole('button', { name: t('detail.download') }));
-
-    const bat = screen.getByRole('switch', { name: t('export.withChart') }) as HTMLButtonElement;
-    await waitFor(() => {
-      expect(bat.disabled).toBe(false);
+    await waitFor(async () => {
+      await userEvent.click(screen.getByRole('button', { name: 'Export' }));
+      expect(kemBieuDo()).toBe(true);
     });
-    expect(bat.getAttribute('aria-checked')).toBe('true');
+  });
+
+  it('xuất hỏng thì báo bằng dải thông báo role="alert", nút bấm lại được', async () => {
+    xuatPdf.mockRejectedValueOnce(new Error('font'));
+    render(<Man spec={specOf('pe')} />);
+
+    await userEvent.click(screen.getByRole('button', { name: 'Export' }));
+
+    expect((await screen.findByRole('alert')).textContent).toBe(t('export.failed'));
+    expect((screen.getByRole('button', { name: 'Export' }) as HTMLButtonElement).disabled).toBe(
+      false,
+    );
   });
 });
 
 /*
  * Ba bottom sheet từng luôn nằm trong DOM, chỉ đóng bằng thuộc tính `open` của `<dialog>`. Cái giá
- * đo được: mỗi lượt vào màn chi tiết dựng thừa ~150 nút, và riêng `ExportSheet` gọi
- * `buildExportContent()` ở MỖI lượt dựng — tức mỗi phím gõ — để dựng một tài liệu chưa ai mở.
+ * đo được: mỗi lượt vào màn chi tiết dựng thừa ~150 nút. Sheet Xuất đã bỏ hẳn (17/11/2026); hai sheet
+ * còn lại vẫn chỉ dựng khi mở.
  */
 describe('WF-03 — bottom sheet chỉ dựng khi người dùng mở', () => {
-  it('chưa bấm nút nào thì cả ba sheet đều vắng mặt', () => {
-    const { container } = render(<Man spec={specOf('pe')} />);
+  it('chưa bấm nút nào thì không sheet nào có mặt', () => {
+    render(<Man spec={specOf('pe')} />);
 
-    // Vùng in của ExportSheet đi theo sheet, nên nó cũng chưa có mặt.
-    expect(container.querySelector('.print-region')).toBeNull();
-    expect(screen.queryByRole('switch', { name: t('export.withChart') })).toBeNull();
     expect(screen.queryByRole('button', { name: 'Nạp' })).toBeNull();
-  });
-
-  it('mở rồi đóng thì sheet vẫn còn trong DOM — không mất lựa chọn bên trong', async () => {
-    const { container } = render(<Man spec={specOf('pe')} />);
-
-    await userEvent.click(screen.getByRole('button', { name: t('detail.download') }));
-    expect(container.querySelector('.print-region')).not.toBeNull();
-
-    await userEvent.click(screen.getByRole('button', { name: 'Đóng' }));
-    expect(container.querySelector('.print-region')).not.toBeNull();
+    expect(document.querySelector('dialog')).toBeNull();
   });
 });
 
@@ -1807,15 +1823,11 @@ describe('WF-19 — thẻ Bài tập ở trạng thái nghỉ', () => {
 describe('WF-03 — Bảng biến rỗng thì không dựng', () => {
   const bangBien = () => screen.queryByRole('table', { name: t('variable.tableCaption') });
 
-  it('xirr không khai ô nhập: không Bảng biến, và bản in không có bảng "Giá trị đầu vào" rỗng', async () => {
-    const { container } = render(<Man spec={specOf('xirr')} />);
-
+  // Nửa "file xuất không có bảng số liệu rỗng" chuyển sang `export-content.test.ts` (17/11/2026):
+  // file PDF không còn là vùng in trong DOM.
+  it('xirr không khai ô nhập: không Bảng biến', () => {
+    render(<Man spec={specOf('xirr')} />);
     expect(bangBien()).toBeNull();
-
-    await userEvent.click(screen.getByRole('button', { name: t('detail.download') }));
-    const banIn = container.querySelector('.print-region');
-    expect(banIn).not.toBeNull();
-    expect(banIn?.textContent).not.toContain('Giá trị đầu vào');
   });
 
   it('công thức chỉ có ô Nâng cao: ở Cơ bản không có bảng, sang Nâng cao thì bảng hiện đủ hàng', async () => {
@@ -1840,7 +1852,7 @@ describe('WF-03 — lối nạp chuỗi giá cho công thức ăn chuỗi (FR-12
 
     for (const spec of FORMULAS) {
       const { unmount } = render(<Man spec={spec} />);
-      if (screen.queryByRole('button', { name: t('detail.pasteSeries') }) !== null) {
+      if (screen.queryByRole('button', { name: t('detail.loadExample') }) !== null) {
         coNut.push(spec.id);
       }
       unmount();
@@ -1868,7 +1880,7 @@ describe('WF-03 — lối nạp chuỗi giá cho công thức ăn chuỗi (FR-12
   it('công thức vô hướng không có nút nào — đừng bày thứ họ không dùng', () => {
     render(<Man spec={specOf('pe')} />);
 
-    expect(screen.queryByRole('button', { name: t('detail.pasteSeries') })).toBeNull();
+    expect(screen.queryByRole('button', { name: t('detail.loadExample') })).toBeNull();
     expect(screen.queryByRole('link', { name: t('detail.openDataTable') })).toBeNull();
   });
 
@@ -4089,6 +4101,48 @@ describe('WF-03 — giữ chuỗi đã thay tại chỗ khi rời màn rồi qua
     );
   });
 
+  /*
+   * 17/11/2026, chủ dự án: nạp mẫu hoặc dùng dữ liệu mẫu bên `/du-lieu/` rồi quay lại thì "không có
+   * chuyện gì xảy ra". Chuỗi ví dụ cất ở kho phiên được đặt lại SAU khi bảng đã nạp, nên đè mất bảng.
+   * Giờ bảng khác chuỗi cất thì bảng thắng.
+   */
+  it('bảng dữ liệu bị đổi bên /du-lieu/ thì quay lại, chuỗi trên màn là chuỗi của bảng', async () => {
+    render(<Man spec={specOf('ty-so-sharpe')} />);
+    await userEvent.click(screen.getByRole('button', { name: t('detail.loadExample') }));
+    expect(screen.getByRole('button', { name: t('detail.exampleLoaded') })).not.toBeNull();
+    cleanup();
+
+    // Bên /du-lieu/: người dùng nạp một chuỗi ngắn khác vào bảng.
+    window.localStorage.setItem(
+      PRICE_SERIES_KEY,
+      serializeStoredSeries({
+        code: '',
+        rows: [
+          { date: '2026-01-02', open: 1, high: 2, low: 1, close: 70_000, volume: 10 },
+          { date: '2026-01-03', open: 1, high: 2, low: 1, close: 71_000, volume: 10 },
+          { date: '2026-01-04', open: 1, high: 2, low: 1, close: 72_000, volume: 10 },
+        ],
+      }),
+    );
+
+    render(<Man spec={specOf('ty-so-sharpe')} />);
+    // Bảng thắng: không còn "đã dùng dữ liệu mẫu", và số phiên là 3 của bảng, không phải 250.
+    expect(screen.queryByRole('button', { name: t('detail.exampleLoaded') })).toBeNull();
+    expect(screen.getByText(`${t('detail.seriesLoaded')} 3`)).not.toBeNull();
+    expect(window.sessionStorage.getItem(WORKING_SERIES_KEY)).toBeNull();
+  });
+
+  it('bảng dữ liệu y nguyên chuỗi đã bàn giao thì chuỗi cất vẫn được khôi phục đủ nhãn', async () => {
+    render(<Man spec={specOf('ty-so-sharpe')} />);
+    await userEvent.click(screen.getByRole('button', { name: t('detail.loadExample') }));
+    // Cú bàn giao ghi đúng chuỗi đang xem sang bảng.
+    await userEvent.click(screen.getByRole('link', { name: t('detail.openDataTable') }));
+    cleanup();
+
+    render(<Man spec={specOf('ty-so-sharpe')} />);
+    expect(screen.getByRole('button', { name: t('detail.exampleLoaded') })).not.toBeNull();
+  });
+
   it('chuỗi của công thức này không chảy sang công thức khác', async () => {
     render(<Man spec={specOf('ty-so-sharpe')} />);
     await userEvent.click(screen.getByRole('button', { name: t('detail.loadExample') }));
@@ -4162,24 +4216,6 @@ describe('WF-03 — giữ chuỗi đã thay tại chỗ khi rời màn rồi qua
     render(<Man spec={specOf('ty-so-sharpe')} />);
     await screen.findByRole('button', { name: t('detail.exampleLoaded') });
     expect(screen.queryByRole('button', { name: /Đổi mã/ })).toBeNull();
-  });
-
-  it('dán chuỗi của mình khi đang có mã thì chip mã tắt', async () => {
-    seedActiveTicker('ty-so-sharpe');
-    render(<Man spec={specOf('ty-so-sharpe')} />);
-    await screen.findByRole('button', { name: /Đổi mã FPT/ });
-
-    await userEvent.click(screen.getByRole('button', { name: t('detail.pasteSeries') }));
-    // Tấm mở ra là thấy sẵn chuỗi đang dùng (một phiên của FPT), nên phải xoá trước.
-    await userEvent.click(await screen.findByRole('button', { name: 'Xoá hết' }));
-    await userEvent.click(screen.getByRole('button', { name: 'Dữ liệu mẫu' }));
-    await userEvent.click(await screen.findByRole('button', { name: 'Nạp 64 dòng' }));
-
-    await waitFor(() => {
-      expect(screen.queryByRole('button', { name: /Đổi mã/ })).toBeNull();
-    });
-    expect(screen.getByRole('button', { name: t('detail.loadPreset') })).not.toBeNull();
-    expect(screen.getByTestId('result-text').textContent).not.toContain(NO_VALUE);
   });
 
   it('cùng mã trên `?ma=` thì chuỗi đã thay thắng VÀ chip vẫn tắt sau khi mã nạp xong', async () => {

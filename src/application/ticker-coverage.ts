@@ -10,7 +10,7 @@
  * ⚠ Đừng re-export từ `src/application/index.ts`. Barrel đó được import TĨNH ở khắp nơi (kể cả
  * `PortfolioScreen`, vốn cũng import `TickerPickerSheet` tĩnh qua `@/ui/sheets`), nên một dòng
  * re-export sẽ kéo bảng mã về gói chung ngay lập tức — đúng thứ file này sinh ra để tránh. Cùng lý
- * do `draw-card` không nằm trong barrel `@/ui/sheets`.
+ * do bộ dựng PDF (`sheets/pdf/`) không nằm trong barrel `@/ui/sheets`.
  *
  * ── Vì sao KHÔNG hỏi API lúc chạy ───────────────────────────────────────────────────────────
  *

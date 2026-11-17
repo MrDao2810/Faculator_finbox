@@ -175,6 +175,15 @@
  * từng ô ngày (20/10/2026) — cùng chữ, cùng cỡ với dòng năm trên lưới popup. Chú thích cho cột Ngày,
  * không phải điều khiển, nên nhỏ và mờ.
  */
+.cardTools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
 .yearNote {
   margin: 0;
   font-size: var(--text-xs);
@@ -671,3 +680,23 @@ td[data-xu-huong='giam'] .cell {
  * câu nhắc 60 phiên, danh sách lỗi) nay nằm trong cột "Kiểm tra dữ liệu" bên phải bảng, xem
  * `.checkCard` ở trên. Đừng dựng lại: hai chỗ cùng in một con số là hai chỗ sẽ có ngày lệch nhau.
  */
+
+/*
+ * Hộp hỏi xoá bảng (17/11/2026): gọn ở mọi độ rộng — chủ dự án khoanh phần thân và chân thấy dư
+ * padding. Selector cấu trúc (hai lớp + phần tử) để thắng `.panelCenter .body/.footer` của primitive.
+ */
+dialog.hoiXoa > div > header:first-child {
+  padding: var(--space-3) var(--space-4);
+}
+
+dialog.hoiXoa > div > div:nth-child(2) {
+  padding: var(--space-2) var(--space-4);
+}
+
+dialog.hoiXoa > div > div:nth-child(2) > p {
+  margin: 0;
+}
+
+dialog.hoiXoa > div > footer:last-child {
+  padding: var(--space-2) var(--space-4);
+}

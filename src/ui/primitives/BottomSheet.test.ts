@@ -121,7 +121,7 @@ describe('BottomSheet — dạng cao cố định', () => {
  *
  * Các ca dưới gác đúng những chỗ bản chép có thể hỏng mà không trình duyệt nào kêu.
  *
- * Hằng `MOC_WEB` ghim luôn chữ `screen`: vùng in của sheet Tải về nằm trong `<dialog>` này, và A4
+ * Hằng `MOC_WEB` ghim luôn chữ `screen`: vùng in của sheet Tải về (bỏ 17/11/2026) từng nằm trong `<dialog>` này, và A4
  * ngang rộng 1123px. Bỏ `screen` đi thì ca kiểm ném "Không thấy khối" — đúng lúc bản in ngang sắp
  * đổi hình mà không ai hay (đo bằng `Page.printToPDF`: file 73 kB thành 172 kB).
  */

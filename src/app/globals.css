@@ -193,8 +193,7 @@
    * chọn của các cặp Cơ bản/Nâng cao · Sáng/Tối · đơn vị, nút thêm mã, vạch giá trị hiện tại trên
    * biểu đồ). Một màn chỉ nên có một chỗ cam — thấy hai nút cam cạnh nhau là dùng sai.
    *
-   * Cố ý KHÔNG đổi `--color-accent` sang cam: `draw-card.ts` ghim tám mã màu của bảng sáng cho
-   * ảnh chia sẻ, và mảng màu logo (`--color-brand-*`) là xanh, đổi màu nhấn thì cả sản phẩm lệch
+   * Cố ý KHÔNG đổi `--color-accent` sang cam: mảng màu logo (`--color-brand-*`) là xanh, đổi màu nhấn thì cả sản phẩm lệch
    * tông với chính dấu hiệu của nó.
    *
    * Cam bảng sáng phải THẪM (5,48:1 trên nền trang) vì nó cũng làm màu chữ — cam tươi như bản vẽ
@@ -1023,58 +1022,13 @@ select option:disabled {
 }
 
 /*
- * Xuất PDF — gói WBS 2.5.3, màn WF-12.
+ * In thẳng trang bằng Ctrl+P.
  *
- * Không thêm thư viện sinh PDF: `window.print()` cộng khổ A4 đặt bằng @page là đủ, và trình
- * duyệt nào cũng có sẵn mục "Lưu thành PDF". Đổi lại thì phần in phải khai ở đây chứ không
- * nằm trong CSS Module, vì nó cần chạm tới toàn trang.
- *
- * `.print-region` là vùng duy nhất được in; trên màn hình nó ẩn hẳn.
+ * Từ 17/11/2026 sheet "Xuất kết quả" không còn đi qua `window.print()`: nó dựng một file PDF thật
+ * bằng pdf-lib (`src/ui/sheets/pdf/`), vì hộp in của iOS/Android không cho ra một file đàng hoàng.
+ * Vùng in `.print-region`, bản chép token của nó và mọi luật `.print-*` bỏ theo. Phần dưới chỉ còn
+ * lo cho người tự bấm Ctrl+P trên một màn bất kỳ.
  */
-.print-region {
-  display: none;
-
-  /*
-   * Bản in luôn dùng BẢNG SÁNG, kể cả khi màn hình đang ở giao diện tối.
-   *
-   * Cần từ khi vùng in mang bản chép của hình biểu đồ (`chart-snapshot.ts`): mọi màu trong
-   * `chart.module.css` đi qua token, mà ở bảng tối `--color-ink` là `#e8edf6` — chữ trắng trên
-   * giấy trắng. Phần chữ của vùng in vốn đã ghim `#000`/`#fff` ở `@media print`, nên trước đợt
-   * này chưa có gì lộ ra.
-   *
-   * Cùng một lẽ với `CARD_COLORS` của `draw-card.ts` và với việc file xuất luôn là tài liệu
-   * tiếng Việt dù giao diện đang tiếng Anh: file rời khỏi màn hình và sống tiếp một mình.
-   *
-   * Đặt Ở ĐÂY chứ không trong `@media print`: vùng này `display: none` trên màn hình nên khai
-   * ngoài không ảnh hưởng gì, và một chỗ khai thì không có hai bản để lệch. Không dùng
-   * `[data-theme='light']` để khỏi phải dựng thêm khối token thứ ba — `contrast.test.ts` bóc
-   * token theo TÊN BỘ CHỌN, và một khối nữa trùng tên là nó bóc nhầm khối.
-   *
-   * Đây là bản CHÉP từ `:root` ngay đầu file; `tokens.test.ts` đối chiếu từng dòng để nó không
-   * lệch âm thầm.
-   */
-  --color-paper: #f8fafc;
-  --color-surface: #ffffff;
-  --color-ink: #1a2233;
-  --color-ink-soft: #46536b;
-  --color-muted: #58657a;
-  --color-hairline: #f2f2f2;
-  --color-border: #d7dee9;
-  --color-border-strong: #78859a;
-  --color-accent: #1b447e;
-  --color-accent-soft: #e3ebfd;
-  --color-accent-vivid: #3b7bf0;
-  --color-focus: #1b447e;
-  --color-highlight: #b23c00;
-  --color-warning: #7a5f14;
-  --color-tint-teal: #0f6b6b;
-  --color-tint-violet: #6b3fbf;
-  --color-success: #146b3a;
-  --color-danger: #b3202f;
-  --color-candle-up: #3d9b69;
-  --color-candle-down: #d8606a;
-}
-
 @page {
   size: A4;
   margin: 16mm;
@@ -1082,9 +1036,7 @@ select option:disabled {
 
 @media print {
   /*
-   * Bản in luôn là giấy trắng mực đen, kể cả khi màn hình đang ở giao diện tối — cùng lẽ với
-   * việc file xuất luôn là tài liệu tiếng Việt dù giao diện đang tiếng Anh: nó rời khỏi màn
-   * hình và sống tiếp một mình.
+   * Bản in luôn là giấy trắng mực đen, kể cả khi màn hình đang ở giao diện tối.
    *
    * Bộ chọn phải là `[data-theme]`, không phải `html` hay `:root`. `@media` KHÔNG cộng độ ưu tiên,
    * nên `html` (0,0,1) thua `[data-theme='dark']` (0,1,0) ở trên và luật này im lặng không ăn —
@@ -1098,155 +1050,10 @@ select option:disabled {
     color-scheme: light;
   }
 
-  /*
-   * Dùng visibility chứ không display:none cho phần còn lại — display:none trên tổ tiên sẽ
-   * kéo theo cả .print-region dù nó được bật lại.
-   *
-   * `:has(.print-region)` là điều kiện MỚI, và nó cần thiết từ khi ba bottom sheet chỉ được dựng
-   * lúc người dùng mở lần đầu (xem `FormulaDetail.tsx`): vùng in nằm trong `ExportSheet`, nên
-   * trang chưa mở sheet lần nào thì trong DOM không có `.print-region`. Không có điều kiện này,
-   * bấm Ctrl+P ở màn chi tiết sẽ ẩn sạch mọi thứ và in ra một tờ trắng. Có nó thì trang in ra
-   * bình thường như mọi màn khác, còn khi sheet đã mở thì vẫn in đúng thẻ kết quả như trước.
-   *
-   * Bọc trong `:where()` để điều kiện ấy KHÔNG cộng thêm độ ưu tiên. `:has(.print-region)` mang
-   * độ ưu tiên của một lớp, nên viết trần thì luật ẩn này (0,1,1) sẽ thắng luật hiện `.print-region`
-   * (0,1,0) ngay bên dưới — đo trên Chrome thật: mở sheet Xuất rồi in ra tờ trắng, đúng cái lỗi
-   * dòng `:has()` sinh ra để tránh. `:where()` giữ nguyên độ ưu tiên (0,0,1) như bản `body *` cũ.
-   */
-  :where(body:has(.print-region)) * {
-    visibility: hidden;
-  }
-
-  .print-region,
-  .print-region * {
-    visibility: visible;
-  }
-
-  .print-region {
-    display: block;
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    padding: 0;
-    color: #000;
-    background: #fff;
-  }
-
-  /* Thanh trên, thanh dưới và dải miễn trừ trên màn không đi vào bản in — bản in có
-     câu miễn trừ riêng ở cuối, xem .print-disclaimer. */
+  /* Thanh trên, thanh dưới và nền mờ của hộp thoại không đi vào bản in. */
   header,
   nav,
   dialog::backdrop {
     display: none !important;
-  }
-
-  .print-region h1 {
-    font-size: 20pt;
-    margin-bottom: 4pt;
-  }
-
-  .print-region h2 {
-    font-size: 11pt;
-    margin: 8pt 0 2pt;
-  }
-
-  .print-region p {
-    font-size: 10pt;
-    margin: 0 0 6pt;
-  }
-
-  .print-region .print-result {
-    font-size: 28pt;
-    font-weight: 700;
-    margin: 8pt 0;
-  }
-
-  /*
-   * Khung biểu đồ trong bản in — từ đợt này nó chứa BẢN CHÉP của hình đang hiện trên trang
-   * (`chart-snapshot.ts`), không còn là một ô trống mang câu hẹn.
-   *
-   * `height` cố định đổi thành `max-height` trên chính `<svg>`: hình giữ tỉ lệ theo `viewBox`,
-   * nên ép chiều cao là ép méo. Thác nước bốn chặng cao gần gấp rưỡi đường quét (đo ở
-   * `check:chrome`: 164 so với 112 đơn vị), nên một con số cứng vừa hình này là cắt cụt hình kia.
-   */
-  .print-region .print-chart {
-    margin: 6pt 0;
-    break-inside: avoid;
-  }
-
-  .print-region .print-chart-plot svg {
-    width: 100%;
-    max-height: 70mm;
-  }
-
-  .print-region .print-chart-note {
-    display: block;
-    padding: 4pt;
-    font-size: 9pt;
-    border: 1px dashed #999;
-  }
-
-  /*
-   * Câu dự phòng chỉ hiện khi khe bên cạnh KHÔNG có hình — công thức khai `chartType: 'none'`,
-   * hoặc khối biểu đồ chưa nạp xong. Để CSS quyết định thay vì một state React là có chủ đích:
-   * `window.print()` chặn luồng ngay tại chỗ nên một `setState` gọi ngay trước đó chưa kịp ra
-   * tới DOM. Xem chú thích ở `ExportSheet.tsx`.
-   */
-  .print-region .print-chart:has(.print-chart-plot > svg) .print-chart-note {
-    display: none;
-  }
-
-  .print-region table {
-    width: 100%;
-    margin: 6pt 0;
-    font-size: 10pt;
-    border-collapse: collapse;
-  }
-
-  .print-region caption {
-    font-size: 9pt;
-    font-weight: 700;
-    text-align: left;
-    padding-bottom: 2pt;
-  }
-
-  .print-region th,
-  .print-region td {
-    padding: 3pt 0;
-    text-align: left;
-    border-bottom: 1px solid #ddd;
-  }
-
-  .print-region td {
-    text-align: right;
-  }
-
-  .print-region .print-sources {
-    font-size: 9pt;
-    color: #444;
-  }
-
-  /*
-   * Câu "số liệu đầu vào là bản thảo" — chỉ có khi người dùng nạp bộ mẫu. Đặt NGAY TRÊN câu
-   * miễn trừ để hai câu đọc liền một mạch: đầu vào chưa đối chiếu, và kết quả chỉ để tham khảo.
-   */
-  .print-region .print-draft-note {
-    margin-top: 10pt;
-    padding: 5pt 6pt;
-    font-size: 9.5pt;
-    font-style: italic;
-    border: 1pt dashed #666;
-    break-inside: avoid;
-  }
-
-  /* Miễn trừ trong file xuất là bắt buộc — FR-24. Ép sang trang cùng nội dung, không tách rời. */
-  .print-region .print-disclaimer {
-    margin-top: 10pt;
-    padding: 6pt;
-    font-size: 10pt;
-    font-weight: 600;
-    border: 1pt solid #000;
-    break-inside: avoid;
   }
 }

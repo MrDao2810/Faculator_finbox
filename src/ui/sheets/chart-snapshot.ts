@@ -5,15 +5,15 @@
  *
  * 1. **Không tốn thêm một byte nào của động cơ biểu đồ.** Toàn bộ mã vẽ (`buildChartModel`, hai
  *    renderer SVG, bộ chia vạch) nằm sau ranh giới `next/dynamic` của `FormulaChart` — xem bất
- *    biến viết hoa ở đầu file ấy. `ExportSheet` thì được import TĨNH bởi màn chi tiết, nên một
- *    dòng import chạm `@/core/chart` từ đây là kéo cả động cơ vào gói cơ sở của 111 trang.
- *    Chép node thì chỗ này chỉ biết tới DOM, không biết biểu đồ là gì.
+ *    biến viết hoa ở đầu file ấy. Chép node thì chỗ này chỉ biết tới DOM, không biết biểu đồ là
+ *    gì, và chunk xuất PDF không phải mang theo cả động cơ biểu đồ.
  * 2. **Đúng hình người dùng đang nhìn.** Trục X họ vừa chọn, mã họ vừa nạp, dấu "giá trị hiện
  *    tại" ở đúng chỗ. Dựng lại từ model là dựng lại cả cây quyết định ấy, và hai bản sẽ lệch
  *    nhau vào ngày ai đó đổi mặc định ở một bên.
  *
- * Module này KHÔNG được import tĩnh từ `ExportSheet` — nạp bằng `import()` trần đúng như
- * `draw-card`, để chunk sinh ra không bị Next ghi vào HTML và không tính vào cửa kiểm NFR-PER-04.
+ * Module này KHÔNG được import tĩnh — bộ dựng PDF (`pdf/xuat-pdf.ts`, chính nó cũng nạp trễ) gọi nó
+ * bằng `import()` trần, để chunk sinh ra không bị Next ghi vào HTML và không tính vào cửa kiểm
+ * NFR-PER-04.
  */
 
 /** Thuộc tính đánh dấu hình trên trang. Cùng chuỗi với `LineChart` và `WaterfallChart`. */
@@ -96,7 +96,7 @@ const SCALE = 3;
  *
  * - **Luôn là bảng SÁNG, theo cấu tạo.** Khối `[data-theme='dark']` không phải `:root` nên không
  *   được bốc; không có cờ nào để quên bật, không có bản chép mã màu nào để lệch. Cùng lời hứa mà
- *   `CARD_COLORS` của `draw-card.ts` và `.print-region` của globals.css đang giữ.
+ *   bảng màu ghim của `pdf/ve-pdf.ts` giữ cho phần còn lại của file PDF.
  * - **Luôn là bản gốc của luật, không phải bản chép tay.** Đổi màu đường quét trong
  *   `chart.module.css` là ảnh PNG đổi theo, không cần ai nhớ sửa chỗ thứ hai.
  *
@@ -205,9 +205,9 @@ function harvestCss(copy: SVGSVGElement): string {
  *
  * Bắt buộc, không phải dọn dẹp cho gọn: `<pattern>` (vùng gạch chéo) và `<linearGradient>` (dải
  * tô dưới đường) được tham chiếu bằng `url(#id)`, mà `id` phải duy nhất trong CẢ tài liệu. Bản
- * chép nằm trong vùng in của cùng trang ấy, nên không đổi tên là hai node trùng `id`; trình duyệt
- * lấy node ĐẦU trong thứ tự tài liệu — bản trên trang. Trên màn hình không thấy gì sai, nhưng
- * `.print-region` ẩn hẳn phần còn lại lúc in, nên node được trỏ tới lại là node đang bị ẩn.
+ * chép từng nằm trong vùng in của cùng trang ấy (trước 17/11/2026), nên không đổi tên là hai node
+ * trùng `id` và trình duyệt lấy node ĐẦU trong thứ tự tài liệu. Nay bản chép thành ảnh riêng, nhưng
+ * đổi tên vẫn vô hại và giữ cho bản chép tự đủ nếu lại được đặt vào trang.
  *
  * Đây đúng là lý do `ChartBody` gắn hậu tố `-full` cho bản phóng to; bản chép là bản THỨ BA.
  *

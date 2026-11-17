@@ -340,65 +340,11 @@ describe('bảng tối đè đủ token màu của bảng sáng', () => {
   });
 });
 
-/**
- * Vùng in chép lại bảng SÁNG, để bản in không bao giờ ra chữ trắng trên giấy trắng — xem docblock
- * của `.print-region` trong globals.css.
- *
- * Bản chép nào cũng cần người canh, và ca kiểm này canh hai đầu:
- *
- * 1. Mã màu chép có đúng bằng `:root` không — đúng cách `draw-card.test.ts` canh `CARD_COLORS`.
- * 2. Có SÓT token nào biểu đồ đang dùng không. Đây mới là nửa quan trọng: bản chép đủ hôm nay
- *    không có nghĩa là đủ vào ngày ai đó thêm một màu mới vào `chart.module.css`, và thứ lộ ra
- *    lúc ấy là một tờ giấy in ra thiếu nét — không ai thấy trong lúc phát triển.
+/*
+ * Khối "vùng in chép đúng bảng sáng" — BỎ ngày 17/11/2026 cùng `.print-region` trong globals.css.
+ * File PDF nay dựng bằng pdf-lib với màu ghim sẵn ở `src/ui/sheets/pdf/ve-pdf.ts`; ảnh biểu đồ chụp
+ * vào file vẫn luôn sáng theo cấu tạo của `chart-snapshot.ts` (chỉ bốc khối `:root`).
  */
-describe('vùng in chép đúng bảng sáng', () => {
-  /** Tên biến kèm giá trị, khai trong một khối luật. */
-  function declaredValues(block: string | null): Map<string, string> {
-    if (block === null) return new Map();
-    return new Map(
-      [...block.matchAll(/(--[a-z0-9-]+)\s*:\s*([^;]+);/g)].map((match) => [
-        match[1] as string,
-        (match[2] as string).trim(),
-      ]),
-    );
-  }
-
-  const light = declaredValues(cssBlock(GLOBALS_CSS, ':root'));
-  const print = declaredValues(cssBlock(GLOBALS_CSS, '.print-region'));
-
-  const CHART_CSS = readFileSync(
-    fileURLToPath(new URL('./charts/chart.module.css', import.meta.url)),
-    'utf8',
-  );
-
-  it('có khối .print-region khai token trong globals.css', () => {
-    expect(print.size).toBeGreaterThan(0);
-  });
-
-  it('mọi token vùng in chép đều đúng bằng giá trị bảng sáng', () => {
-    const lech = [...print]
-      .filter(([name]) => light.has(name))
-      .filter(([name, value]) => light.get(name) !== value)
-      .map(([name, value]) => `${name}: vùng in ${value}, :root ${String(light.get(name))}`);
-
-    expect(lech, 'chép lại từ :root của globals.css').toEqual([]);
-  });
-
-  it('vùng in không khai token nào bảng sáng không có', () => {
-    expect([...print.keys()].filter((name) => !light.has(name))).toEqual([]);
-  });
-
-  it('mọi token màu chart.module.css dùng đều có trong bản chép của vùng in', () => {
-    const missing = [...usedNames(CHART_CSS)]
-      .filter((name) => name.startsWith('--color-'))
-      .filter((name) => !print.has(name));
-
-    expect(
-      missing,
-      'thêm vào khối .print-region của globals.css, nếu không biểu đồ in ra sẽ mang màu bảng tối',
-    ).toEqual([]);
-  });
-});
 
 describe('chữ trong SVG không dùng màu chỉ đạt 3:1', () => {
   for (const name of SVG_TEXT_CLASSES) {

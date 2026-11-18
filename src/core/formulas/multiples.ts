@@ -15,28 +15,46 @@
 import { ok } from '../calc-output';
 import type { FormulaModule } from '../calc/types';
 import type { CalcOutput } from '../types';
-import { divideByZero, meaningless } from '../warnings';
+import { atField, divideByZero, meaningless } from '../warnings';
 import { SOURCE_CFA, SOURCE_VAS, numberVar } from './shared';
+
+/**
+ * Câu dưới ô "Giá thị trường (P)" khi giá không dương (atField, 18/11/2026). Một câu cho mọi công
+ * thức có ô ấy — P/E, P/B, P/S, vốn hoá, E/P — nên `valuation-multiples.ts` nhập lại từ đây.
+ */
+export const GIA_THI_TRUONG_LON_HON_0 = {
+  vi: 'Giá thị trường lớn hơn 0.',
+  en: 'Market price must be greater than 0.',
+};
+
+/** Câu dưới ô "EPS - lợi nhuận trên mỗi cổ phiếu" khi EPS không dương — cùng lý do với câu trên. */
+export const EPS_LON_HON_0 = { vi: 'EPS lớn hơn 0.', en: 'EPS must be greater than 0.' };
 
 /**
  * Giá thị trường bằng 0 thì bội số giá ra "0 lần" — một con số trông hợp lệ nhưng không nói gì về
  * doanh nghiệp nào (FR-06). Ô giá cho gõ 0 (`min: 0`), nên P/E, P/B và P/S phải tự chặn, như
  * `von-hoa-thi-truong` và E/P đã chặn. Thêm 16/10/2026, lượt rà công thức. Trả `null` khi giá dùng được.
+ *
+ * Cảnh báo gắn vào ô `price`: cả ba công thức gọi hàm này đều đặt khoá ấy cho ô giá.
  */
 export function chanGiaKhongDuong(price: number, boiSo: string): CalcOutput | null {
   if (price > 0) return null;
   return {
     value: null,
     unit: 'lần',
-    warning: meaningless(
-      {
-        vi: `Giá thị trường bằng 0 thì ${boiSo} không phản ánh giá trị nào.`,
-        en: `A market price of zero means ${boiSo} does not reflect any real value.`,
-      },
-      {
-        vi: 'Nhập giá đóng cửa gần nhất của cổ phiếu.',
-        en: 'Enter the most recent closing price of the share.',
-      },
+    warning: atField(
+      meaningless(
+        {
+          vi: `Giá thị trường bằng 0 thì ${boiSo} không phản ánh giá trị nào.`,
+          en: `A market price of zero means ${boiSo} does not reflect any real value.`,
+        },
+        {
+          vi: 'Nhập giá đóng cửa gần nhất của cổ phiếu.',
+          en: 'Enter the most recent closing price of the share.',
+        },
+      ),
+      'price',
+      GIA_THI_TRUONG_LON_HON_0,
     ),
   };
 }
@@ -170,13 +188,17 @@ export const PE: FormulaModule = {
       return {
         value: null,
         unit: 'lần',
-        warning: divideByZero(
-          { vi: 'P/E', en: 'P/E' },
-          { vi: 'EPS', en: 'EPS' },
-          {
-            vi: 'EPS bằng 0 nghĩa là bốn quý gần nhất công ty hoà vốn nên P/E không tính được; dùng P/B hoặc P/S thay thế.',
-            en: 'An EPS of 0 means the company broke even over the last four quarters, so P/E cannot be worked out; use P/B or P/S instead.',
-          },
+        warning: atField(
+          divideByZero(
+            { vi: 'P/E', en: 'P/E' },
+            { vi: 'EPS', en: 'EPS' },
+            {
+              vi: 'EPS bằng 0 nghĩa là bốn quý gần nhất công ty hoà vốn nên P/E không tính được; dùng P/B hoặc P/S thay thế.',
+              en: 'An EPS of 0 means the company broke even over the last four quarters, so P/E cannot be worked out; use P/B or P/S instead.',
+            },
+          ),
+          'eps',
+          EPS_LON_HON_0,
         ),
       };
     }
@@ -185,15 +207,19 @@ export const PE: FormulaModule = {
       return {
         value: null,
         unit: 'lần',
-        warning: meaningless(
-          {
-            vi: 'P/E không có ý nghĩa khi doanh nghiệp đang lỗ.',
-            en: 'P/E is not meaningful when the company is posting a loss.',
-          },
-          {
-            vi: 'Dùng P/B hoặc P/S để thay thế.',
-            en: 'Use P/B or P/S instead.',
-          },
+        warning: atField(
+          meaningless(
+            {
+              vi: 'P/E không có ý nghĩa khi doanh nghiệp đang lỗ.',
+              en: 'P/E is not meaningful when the company is posting a loss.',
+            },
+            {
+              vi: 'Dùng P/B hoặc P/S để thay thế.',
+              en: 'Use P/B or P/S instead.',
+            },
+          ),
+          'eps',
+          EPS_LON_HON_0,
         ),
       };
     }
@@ -330,6 +356,11 @@ export const PB: FormulaModule = {
   },
   calc: (v) => {
     const bvps = v('bookValuePerShare');
+    /* Câu dưới ô Giá trị sổ sách / CP, chung cho hai nhánh bên dưới. */
+    const bvpsLonHon0 = {
+      vi: 'Giá trị sổ sách / CP lớn hơn 0.',
+      en: 'Book value / share must be greater than 0.',
+    };
 
     const giaKhongDuong = chanGiaKhongDuong(v('price'), 'P/B');
     if (giaKhongDuong !== null) return giaKhongDuong;
@@ -338,10 +369,14 @@ export const PB: FormulaModule = {
       return {
         value: null,
         unit: 'lần',
-        warning: divideByZero(
-          { vi: 'P/B', en: 'P/B' },
-          { vi: 'Giá trị sổ sách / CP', en: 'Book value / share' },
-          { vi: 'Nhập giá trị sổ sách khác 0.', en: 'Enter a non-zero book value.' },
+        warning: atField(
+          divideByZero(
+            { vi: 'P/B', en: 'P/B' },
+            { vi: 'Giá trị sổ sách / CP', en: 'Book value / share' },
+            { vi: 'Nhập giá trị sổ sách khác 0.', en: 'Enter a non-zero book value.' },
+          ),
+          'bookValuePerShare',
+          bvpsLonHon0,
         ),
       };
     }
@@ -350,15 +385,19 @@ export const PB: FormulaModule = {
       return {
         value: null,
         unit: 'lần',
-        warning: meaningless(
-          {
-            vi: 'P/B không có ý nghĩa khi vốn chủ sở hữu đang âm.',
-            en: "P/B is not meaningful when shareholders' equity is negative.",
-          },
-          {
-            vi: 'Doanh nghiệp đang lỗ luỹ kế vượt vốn góp. Xem lại báo cáo tài chính trước khi định giá.',
-            en: 'The company has accumulated losses exceeding contributed capital. Review the financial statements before valuing it.',
-          },
+        warning: atField(
+          meaningless(
+            {
+              vi: 'P/B không có ý nghĩa khi vốn chủ sở hữu đang âm.',
+              en: "P/B is not meaningful when shareholders' equity is negative.",
+            },
+            {
+              vi: 'Doanh nghiệp đang lỗ luỹ kế vượt vốn góp. Xem lại báo cáo tài chính trước khi định giá.',
+              en: 'The company has accumulated losses exceeding contributed capital. Review the financial statements before valuing it.',
+            },
+          ),
+          'bookValuePerShare',
+          bvpsLonHon0,
         ),
       };
     }

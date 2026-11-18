@@ -42,6 +42,10 @@ export const HOI_DAP_DERIVATIVES: Readonly<Record<string, ReadonlyArray<CauHoiTh
         noi: 'dien-dan',
         vietnam: true,
       },
+      traLoi: {
+        vi: 'Ít nhất bằng ký quỹ ban đầu của một hợp đồng, tức điểm hợp đồng × 100.000 ₫ × tỷ lệ ký quỹ, để công thức ra 1 thay vì 0. Ở giá 1.930,9 điểm và ký quỹ 17%, mức đó là 32.825.300 ₫; thiếu dù một đồng thì kết quả là 0. Con số tăng theo giá hợp đồng và theo tỷ lệ ký quỹ công ty chứng khoán đòi, và chưa gồm phí giao dịch.',
+        en: 'At least the initial margin for one contract, i.e. futures price × 100,000 ₫ × margin ratio, so that the formula gives 1 instead of 0. At 1,930.9 points and 17% margin that is 32,825,300 ₫; a single dong less gives 0. The figure rises with the futures price and with the margin ratio your broker requires, and it does not include trading fees.',
+      },
     },
     {
       hoi: {
@@ -55,6 +59,16 @@ export const HOI_DAP_DERIVATIVES: Readonly<Record<string, ReadonlyArray<CauHoiTh
         noi: 'faq',
         vietnam: true,
       },
+      traLoi: {
+        vi: 'Theo nguồn, tùy giá VN30F1M và tỷ lệ ký quỹ của công ty chứng khoán; ở 1.300 điểm với tỷ lệ 24%, nguồn ước khoảng 31 đến 35 triệu đồng một hợp đồng, đã gồm vùng đệm an toàn. Công thức tính phần ký quỹ chưa có vùng đệm: 1.300 × 100.000 ₫ × 24% = 31.200.000 ₫ là vừa đủ 1 hợp đồng.',
+        en: "According to the source, it depends on the VN30F1M price and your broker's margin ratio; at 1,300 points and 24%, the source estimates about 31 to 35 million dong per contract, including a safety buffer. The formula computes the margin without a buffer: 1,300 × 100,000 ₫ × 24% = 31,200,000 ₫ is exactly enough for 1 contract.",
+      },
+      nguonTraLoi: [
+        {
+          url: 'https://thuvienchungkhoan.vn/chi-phi-giao-dich-hop-dong-tuong-lai-vn30/',
+          ten: 'Thư viện chứng khoán FAQ',
+        },
+      ],
     },
     {
       hoi: {
@@ -68,6 +82,16 @@ export const HOI_DAP_DERIVATIVES: Readonly<Record<string, ReadonlyArray<CauHoiTh
         noi: 'hoi-dap',
         vietnam: true,
       },
+      traLoi: {
+        vi: 'Theo nguồn, hiện số tiền ký quỹ cho một hợp đồng chưa đổi so với hệ thống cũ, và công ty chứng khoán sẽ báo khi có điều chỉnh. Trong công thức, ký quỹ mỗi hợp đồng là điểm hợp đồng × hệ số nhân × tỷ lệ ký quỹ, nên khi tỷ lệ đổi chỉ cần sửa ô Tỷ lệ ký quỹ ban đầu: vốn 200 triệu ₫ ở 1.930,9 điểm mở được 6 hợp đồng với 17%, còn 5 với 20%.',
+        en: 'According to the source, the margin per contract is currently unchanged from the old system, and the broker will announce any adjustment. In the formula the margin per contract is futures price × multiplier × margin ratio, so when the ratio changes just edit the Initial margin ratio field: 200 million ₫ at 1,930.9 points opens 6 contracts at 17% and 5 at 20%.',
+      },
+      nguonTraLoi: [
+        {
+          url: 'https://www.ssi.com.vn/khach-hang-ca-nhan/krx-thi-truong-phai-sinh-faq',
+          ten: 'SSI hỗ trợ',
+        },
+      ],
     },
   ],
   'don-bay-hieu-dung': [
@@ -83,6 +107,16 @@ export const HOI_DAP_DERIVATIVES: Readonly<Record<string, ReadonlyArray<CauHoiTh
         noi: 'dien-dan',
         vietnam: true,
       },
+      traLoi: {
+        vi: 'Câu trả lời trong chủ đề: lời nhiều hơn 5%, tùy tỷ lệ ký quỹ. Theo công thức, giá đi 5% tính từ điểm hợp đồng đã nhập thì vốn thực có đổi 5% × đòn bẩy hiệu dụng: 6 hợp đồng ở 1.930,9 điểm trên 200 triệu ₫ là 5,79 lần, nên giá giảm 5% đem về cho vị thế Short 57.927.000 ₫, tức 28,96% vốn. Đòn bẩy dưới 1 lần thì lời ít hơn 5%; giá đi ngược chiều thì lỗ đúng chừng ấy.',
+        en: 'The answer in the thread: more than 5%, depending on the margin ratio. By the formula, a 5% move from the futures price you entered changes actual equity by 5% × effective leverage: 6 contracts at 1,930.9 points on 200 million ₫ is 5.79 times, so a 5% fall earns a short position 57,927,000 ₫, or 28.96% of equity. Below 1 times the gain is less than 5%; a move the other way loses the same.',
+      },
+      nguonTraLoi: [
+        {
+          url: 'https://voz.vn/t/long-short-trong-chung-khoan-la-gi-cac-fen.318836/',
+          ten: 'Voz',
+        },
+      ],
     },
     {
       hoi: {
@@ -145,6 +179,16 @@ export const HOI_DAP_DERIVATIVES: Readonly<Record<string, ReadonlyArray<CauHoiTh
         noi: 'dien-dan',
         vietnam: true,
       },
+      traLoi: {
+        vi: 'Không. Câu trả lời trong chủ đề: đóng vị thế được ngay trong ngày, bằng lệnh mua lại đúng số hợp đồng đang bán. Khoản lãi là điểm mở trừ điểm đóng, nhân 100.000 ₫ mỗi điểm và số hợp đồng: bán ở 864 điểm, đóng ở 815,55 điểm thì lãi 4.845.000 ₫ một hợp đồng.',
+        en: 'No. The answer in the thread: you can close the position the same day by buying back the number of contracts you sold. The profit is entry minus exit points, times 100,000 ₫ per point and the number of contracts: selling at 864 points and closing at 815.55 earns 4,845,000 ₫ per contract.',
+      },
+      nguonTraLoi: [
+        {
+          url: 'https://voz.vn/t/long-short-trong-chung-khoan-la-gi-cac-fen.318836/',
+          ten: 'Voz',
+        },
+      ],
     },
     {
       hoi: {
@@ -157,6 +201,27 @@ export const HOI_DAP_DERIVATIVES: Readonly<Record<string, ReadonlyArray<CauHoiTh
         ten: 'Thư viện chứng khoán FAQ',
         noi: 'faq',
         vietnam: true,
+      },
+      traLoi: {
+        vi: 'Theo nguồn: có thể, khi thị trường biến động mạnh mà số dư ký quỹ không đủ bù lỗ. Công thức cũng không chặn lỗ ở mức ký quỹ: với vị thế Short, mỗi điểm giá tăng mất 100.000 ₫ một hợp đồng và về lý thuyết giá có thể tăng không giới hạn, ví dụ bán ở 1.280 rồi giá lên 1.288 điểm là lỗ 800.000 ₫ một hợp đồng.',
+        en: 'According to the source: it can, when the market moves sharply and the margin balance cannot cover the loss. The formula does not cap the loss at the margin either: on a short, every point the price rises costs 100,000 ₫ per contract and in theory the price can rise without limit; selling at 1,280 with the price moving to 1,288 points loses 800,000 ₫ per contract.',
+      },
+      nguonTraLoi: [
+        {
+          url: 'https://thuvienchungkhoan.vn/chi-phi-giao-dich-hop-dong-tuong-lai-vn30/',
+          ten: 'Thư viện chứng khoán FAQ',
+        },
+      ],
+    },
+    {
+      hoi: {
+        vi: 'Lãi/lỗ Short trên màn đã trừ phí giao dịch và thuế chưa?',
+        en: 'Has the Short P&L on screen already deducted trading fees and taxes?',
+      },
+      tuSoan: true,
+      traLoi: {
+        vi: 'Chưa. Công thức chỉ lấy điểm mở trừ điểm đóng, nhân hệ số nhân và số hợp đồng; phí giao dịch và thuế không có trong phép tính, nên tiền thật về tài khoản thấp hơn con số này.',
+        en: 'No. The formula only takes entry minus exit points times the multiplier and the number of contracts; trading fees and taxes are not in the calculation, so the cash that actually reaches the account is lower than this figure.',
       },
     },
   ],
@@ -172,6 +237,38 @@ export const HOI_DAP_DERIVATIVES: Readonly<Record<string, ReadonlyArray<CauHoiTh
         ten: 'Thư viện chứng khoán FAQ',
         noi: 'faq',
         vietnam: true,
+      },
+      traLoi: {
+        vi: 'Theo nguồn: có thể, khi thị trường biến động mạnh mà số dư ký quỹ không đủ bù lỗ. Công thức cũng không chặn lỗ ở mức ký quỹ đã nộp: với vị thế Long, mỗi điểm giá giảm mất 100.000 ₫ một hợp đồng, ví dụ mua ở 864 điểm rồi thanh toán ở 815,55 điểm là lỗ 4.845.000 ₫ một hợp đồng.',
+        en: 'According to the source: it can, when the market moves sharply and the margin balance cannot cover the loss. The formula does not cap the loss at the margin deposited either: on a long, every point the price falls costs 100,000 ₫ per contract; buying at 864 points and settling at 815.55 loses 4,845,000 ₫ per contract.',
+      },
+      nguonTraLoi: [
+        {
+          url: 'https://thuvienchungkhoan.vn/chi-phi-giao-dich-hop-dong-tuong-lai-vn30/',
+          ten: 'Thư viện chứng khoán FAQ',
+        },
+      ],
+    },
+    {
+      hoi: {
+        vi: 'Mỗi điểm VN30F đi lên thì một hợp đồng Long lãi bao nhiêu tiền?',
+        en: 'How much does one long contract gain for each point the VN30F price rises?',
+      },
+      tuSoan: true,
+      traLoi: {
+        vi: '100.000 ₫, đúng bằng hệ số nhân theo biểu phí đang dùng, rồi nhân thêm với số hợp đồng: mở ở 1.280, đóng ở 1.288 điểm với 2 hợp đồng là 8 × 100.000 × 2 = 1.600.000 ₫.',
+        en: '100,000 ₫, equal to the multiplier in the schedule in use, then times the number of contracts: opening at 1,280 and closing at 1,288 points with 2 contracts gives 8 × 100,000 × 2 = 1,600,000 ₫.',
+      },
+    },
+    {
+      hoi: {
+        vi: 'Chưa đóng vị thế thì nhập gì vào ô Điểm đóng vị thế?',
+        en: 'If I have not closed the position yet, what goes in the Exit price field?',
+      },
+      tuSoan: true,
+      traLoi: {
+        vi: 'Nhập giá VN30F đang giao dịch: kết quả là lãi/lỗ của cả vị thế tính từ điểm mở, nếu đóng ngay ở giá ấy. Ví dụ 2 hợp đồng mở ở 1.280 điểm, giá hiện tại 1.272 điểm thì đang lỗ 1.600.000 ₫.',
+        en: 'Enter the current VN30F trading price: the result is the P&L of the whole position measured from the entry price, as if closed right at that price. For example, 2 contracts opened at 1,280 points with the price now at 1,272 points are down 1,600,000 ₫.',
       },
     },
   ],
@@ -216,8 +313,8 @@ export const HOI_DAP_DERIVATIVES: Readonly<Record<string, ReadonlyArray<CauHoiTh
       },
       tuSoan: true,
       traLoi: {
-        vi: 'Hai trường hợp: chỉ số cơ sở bằng hoặc nhỏ hơn 0, và số ngày đến đáo hạn âm. Cả hai đều báo vô nghĩa, không trả về một con số giả.',
-        en: 'In two cases: the underlying index is 0 or less, and the days to expiry are negative. Both are reported as meaningless instead of returning a placeholder number.',
+        vi: 'Khi chỉ số cơ sở bằng 0: công thức báo kết quả không có ý nghĩa và nhắc nhập chỉ số VN30 hiện tại, không trả về một con số giả. Các ô không nhận số âm; số ngày đến đáo hạn bằng 0 thì giá lý thuyết bằng đúng chỉ số.',
+        en: 'When the underlying index is 0: the formula reports a meaningless result and asks for the current VN30 index instead of returning a placeholder number. The fields do not accept negative numbers; with 0 days to expiry the theoretical price equals the index.',
       },
     },
   ],
@@ -262,8 +359,8 @@ export const HOI_DAP_DERIVATIVES: Readonly<Record<string, ReadonlyArray<CauHoiTh
       },
       tuSoan: true,
       traLoi: {
-        vi: 'Khi chỉ số cơ sở bằng hoặc nhỏ hơn 0, vì không có mốc để so sánh. Lúc đó công thức báo vô nghĩa và nhắc nhập chỉ số VN30 hiện tại.',
-        en: 'When the underlying index is 0 or less, since there is no reference point. The formula then reports a meaningless result and asks for the current VN30 index.',
+        vi: 'Khi chỉ số cơ sở bằng 0, vì không có mốc để so sánh. Lúc đó công thức báo kết quả không có ý nghĩa và nhắc nhập chỉ số VN30 hiện tại; ô chỉ số không nhận số âm.',
+        en: 'When the underlying index is 0, since there is no reference point. The formula then reports a meaningless result and asks for the current VN30 index; the index field does not accept negative numbers.',
       },
     },
   ],
@@ -314,13 +411,13 @@ export const HOI_DAP_DERIVATIVES: Readonly<Record<string, ReadonlyArray<CauHoiTh
     },
     {
       hoi: {
-        vi: 'Khoảng cách cắt lỗ bằng 0 hoặc âm thì công thức báo gì?',
-        en: 'What does the formula report if the stop distance is 0 or negative?',
+        vi: 'Khoảng cách cắt lỗ bằng 0 thì công thức báo gì?',
+        en: 'What does the formula report if the stop distance is 0?',
       },
       tuSoan: true,
       traLoi: {
-        vi: 'Bằng 0 thì báo chia cho 0 và nhắc đặt cắt lỗ cách điểm vào ít nhất 1 điểm. Âm thì báo vô nghĩa, vì khoảng cách luôn dương, dùng chung cho cả Long và Short.',
-        en: 'Zero reports a divide by zero and asks for a stop at least 1 point from entry. Negative reports a meaningless result, since a distance is always positive and applies to both Long and Short.',
+        vi: 'Báo chia cho 0 và nhắc đặt cắt lỗ cách điểm vào ít nhất 1 điểm. Ô này không nhận số âm, vì khoảng cách luôn là số dương, dùng chung cho cả Long và Short.',
+        en: 'It reports a divide by zero and asks for a stop at least 1 point from entry. The field does not accept negative numbers, since a distance is always positive and applies to both Long and Short.',
       },
     },
   ],

@@ -31,6 +31,28 @@ export const HOI_DAP_PLANNING: Readonly<Record<string, ReadonlyArray<CauHoiThuon
         },
       ],
     },
+    {
+      hoi: {
+        vi: 'Tại sao một đợt có tiền mua mà giá mua bằng 0 thì công thức báo chia cho 0?',
+        en: 'Why does the formula report a divide by zero when a round has an amount but a purchase price of 0?',
+      },
+      tuSoan: true,
+      traLoi: {
+        vi: 'Số cổ phiếu mua được mỗi đợt là tiền mua chia giá mua, nên giá bằng 0 thì không chia được. Hãy nhập giá mua đợt đó lớn hơn 0, hoặc đưa cả tiền mua đợt đó về 0 để công thức bỏ qua đợt này.',
+        en: 'The shares bought in each round are the amount divided by the price, so a price of 0 cannot be divided. Enter a purchase price above 0 for that round, or set its amount to 0 as well so the formula skips the round.',
+      },
+    },
+    {
+      hoi: {
+        vi: 'Cộng phí mua vào ô Tiền mua thì giá vốn trung bình có tính luôn phí không?',
+        en: 'If I add the buy fee into the Amount invested field, does the average cost include the fee?',
+      },
+      tuSoan: true,
+      traLoi: {
+        vi: 'Không. Công thức tính số cổ phiếu bằng tiền mua chia giá mua, nên cộng cùng một tỷ lệ phí vào mọi đợt thì số cổ phiếu cũng đội theo đúng tỷ lệ ấy và giá vốn không đổi: ba đợt FPT 10.000.000 ₫ hay 10.015.000 ₫ đều cho 67.028,32 ₫. Muốn có giá hoà vốn tính cả phí và thuế, dùng công thức Giá hoà vốn thực.',
+        en: 'No. The formula counts shares as the amount divided by the price, so adding the same fee rate to every round inflates the share count by that same ratio and the average cost stays put: three FPT rounds of 10,000,000 ₫ or 10,015,000 ₫ both give 67,028.32 ₫. For a break-even price that includes fees and tax, use the True break-even price formula.',
+      },
+    },
   ],
   'rut-truoc-han': [
     {
@@ -115,6 +137,16 @@ export const HOI_DAP_PLANNING: Readonly<Record<string, ReadonlyArray<CauHoiThuon
         noi: 'dien-dan',
         vietnam: true,
       },
+      traLoi: {
+        vi: 'Câu trả lời trong chủ đề: dù chỉ còn 2 đến 3 tháng, cả quãng đã gửi vẫn tính theo lãi suất không kỳ hạn, gần như mất hết lãi. Công thức tính đúng như vậy: sổ 100 triệu ₫ kỳ hạn 12 tháng lãi 5,5%/năm, rút sau 9 tháng với lãi không kỳ hạn 0,1%/năm, nhận 75.000 ₫ thay vì 4.125.000 ₫ theo lãi trên sổ cho 9 tháng ấy.',
+        en: 'The answer in the thread: even with only 2 to 3 months left, the whole period held earns only the demand-deposit rate, so nearly all the interest is lost. The formula works the same way: a 100 million ₫ 12-month deposit at 5.5%/year withdrawn after 9 months, with a 0.1%/year demand rate, earns 75,000 ₫ instead of the 4,125,000 ₫ the contract rate pays for those 9 months.',
+      },
+      nguonTraLoi: [
+        {
+          url: 'https://voz.vn/t/rut-tien-truoc-han-ngan-hang-tinh-lai-ntn-cac-thim.243021/',
+          ten: 'Voz',
+        },
+      ],
     },
     {
       hoi: {
@@ -127,6 +159,10 @@ export const HOI_DAP_PLANNING: Readonly<Record<string, ReadonlyArray<CauHoiThuon
         ten: 'Voz',
         noi: 'dien-dan',
         vietnam: true,
+      },
+      traLoi: {
+        vi: 'Khi rút trước hạn, cả quãng đã gửi chỉ được hưởng lãi không kỳ hạn, tức con số công thức trả về: sổ 1 tỷ ₫ lãi 8,1%/năm rút sau 3 tháng chỉ được hưởng 250.000 ₫ trên 20.250.000 ₫ lãi theo sổ. Nếu sổ đã trả lãi hằng tháng theo mức ghi trên sổ, phần đã nhận vượt con số ấy được tính lại khi tất toán theo điều khoản của sổ; công thức không mô phỏng bước này.',
+        en: 'On early withdrawal the whole period held earns only the demand-deposit rate, which is the figure the formula returns: 1 billion ₫ at 8.1%/year withdrawn after 3 months is entitled to 250,000 ₫ out of 20,250,000 ₫ of contract interest. If the deposit has already paid monthly interest at the contract rate, what you received above that figure is settled at closing under the deposit terms; the formula does not model that step.',
       },
     },
   ],
@@ -143,6 +179,32 @@ export const HOI_DAP_PLANNING: Readonly<Record<string, ReadonlyArray<CauHoiThuon
         noi: 'dien-dan',
         vietnam: true,
       },
+      traLoi: {
+        vi: 'Có khác, nhưng ít: cùng lãi suất thì quay vòng cầm về nhiều hơn một chút, vì lãi mỗi vòng được gửi tiếp. 100 triệu ₫ cùng 5%/năm trong 12 tháng: hai vòng 6 tháng hơn sổ 12 tháng 62.500 ₫, bốn vòng 3 tháng hơn 94.533,69 ₫. Khi sổ kỳ dài trả lãi cao hơn thì kết quả có thể thành âm.',
+        en: 'Yes, slightly: at the same rate rolling over ends a little ahead, because each round’s interest is redeposited. 100 million ₫ at 5%/year for 12 months: two 6-month rounds beat the 12-month deposit by 62,500 ₫, and four 3-month rounds by 94,533.69 ₫. When the long deposit pays a higher rate the result can turn negative.',
+      },
+    },
+    {
+      hoi: {
+        vi: 'Tại sao tổng thời gian không chia hết cho kỳ hạn ngắn thì công thức báo kết quả không có ý nghĩa?',
+        en: 'Why does the formula report a meaningless result when the total time is not a multiple of the short term?',
+      },
+      tuSoan: true,
+      traLoi: {
+        vi: 'Vì vòng cuối bị dở dang, chẳng hạn kỳ 5 tháng trong 12 tháng, nên hai cách gửi không kết thúc cùng lúc để so. Hãy chọn tổng thời gian là bội số của kỳ hạn ngắn: kỳ 3 tháng thì so ở mốc 6, 9 hay 12 tháng.',
+        en: 'Because the last round would be cut short, for example 5-month terms over 12 months, so the two options do not end at the same time. Pick a total time that is a multiple of the short term: with 3-month terms compare at 6, 9 or 12 months.',
+      },
+    },
+    {
+      hoi: {
+        vi: 'Nếu cần tiền giữa chừng mà rút sổ kỳ dài trước hạn thì phép so sánh còn đúng không?',
+        en: 'If I need the money midway and break the long deposit early, does the comparison still hold?',
+      },
+      tuSoan: true,
+      traLoi: {
+        vi: 'Không. Công thức so ở mốc đáo hạn của sổ kỳ dài; rút trước hạn thì sổ ấy chỉ được lãi không kỳ hạn. Ví dụ sổ 1 tỷ ₫ kỳ hạn 12 tháng lãi 6,8%/năm rút sau 6 tháng, lãi không kỳ hạn 0,1%/năm, chỉ nhận 500.000 ₫; xem công thức Lãi thực nhận khi rút trước hạn.',
+        en: 'No. The formula compares at the maturity of the long deposit; withdrawn early, that deposit earns only the demand-deposit rate. For example, 1 billion ₫ in a 12-month deposit at 6.8%/year withdrawn after 6 months, with a 0.1%/year demand rate, earns just 500,000 ₫; see the Interest received on early withdrawal formula.',
+      },
     },
   ],
   'thue-tncn-dau-tu': [
@@ -157,6 +219,38 @@ export const HOI_DAP_PLANNING: Readonly<Record<string, ReadonlyArray<CauHoiThuon
         ten: 'Voz',
         noi: 'dien-dan',
         vietnam: true,
+      },
+      traLoi: {
+        vi: 'Câu trả lời trong chủ đề: lệnh bán nào cũng bị trừ thuế, lỗ hay lãi như nhau. Đúng với biểu phí đang dùng: thuế chuyển nhượng 0,1% tính trên giá trị bán từng lần (Luật 109/2025/QH15, Điều 13 khoản 2), nên khoản lỗ không làm giảm thuế; bán lỗ 1.000 CP ở giá 55.000 ₫ vẫn chịu 55.000 ₫ thuế chuyển nhượng.',
+        en: 'The answer in the thread: every sale is taxed, at a loss or a gain alike. That matches the schedule in use: the 0.1% transfer tax is charged on the sale value of each trade (Law 109/2025/QH15, Article 13 clause 2), so a loss does not reduce it; selling 1,000 shares at a loss at 55,000 ₫ still costs 55,000 ₫ in transfer tax.',
+      },
+      nguonTraLoi: [
+        {
+          url: 'https://voz.vn/t/dong-thue-tncn-tu-thu-nhap-chung-khoan.434037/',
+          ten: 'Voz',
+        },
+      ],
+    },
+    {
+      hoi: {
+        vi: 'Năm nay chưa bán cổ phiếu thì nhập ô Giá bán thế nào?',
+        en: 'If I have not sold the shares this year, what goes in the Sell price field?',
+      },
+      tuSoan: true,
+      traLoi: {
+        vi: 'Nhập 0. Khi đó phần thuế chuyển nhượng bằng 0 và tổng thuế chỉ còn thuế cổ tức: 1.000 CP nhận cổ tức 2.000 ₫ mỗi cổ phiếu chịu 100.000 ₫.',
+        en: 'Enter 0. The transfer tax part is then 0 and the total is just the dividend tax: 1,000 shares receiving a 2,000 ₫ dividend per share owe 100,000 ₫.',
+      },
+    },
+    {
+      hoi: {
+        vi: 'Tại sao Giá bán và Cổ tức tiền mặt cùng bằng 0 thì công thức báo kết quả không có ý nghĩa?',
+        en: 'Why does the formula report a meaningless result when both the Sell price and the Cash dividend per share are 0?',
+      },
+      tuSoan: true,
+      traLoi: {
+        vi: 'Vì trong năm chưa có giá trị bán hay cổ tức nào nên không có căn cứ tính thuế; in ra 0 ₫ sẽ trông như đã tính xong. Hãy nhập giá bán hoặc cổ tức lớn hơn 0.',
+        en: 'Because there is no sale value or dividend in the year, there is no basis for a tax; printing 0 ₫ would look like a finished calculation. Enter a sell price or a dividend above 0.',
       },
     },
   ],

@@ -1587,6 +1587,18 @@ export function FormulaDetail({
    */
   const output: CalcOutput = chainStep?.output ?? soloOutput;
 
+  /**
+   * Ô đang vi phạm điều kiện của công thức, và câu in đỏ dưới ô ấy (18/11/2026, xem `atField()`).
+   *
+   * Đọc từ chính kết quả đang bày ra màn, nên câu dưới ô và thẻ kết quả không thể nói hai điều khác
+   * nhau. Chỉ ô có khoá trùng mới nhận một chuỗi; mọi ô khác nhận `undefined` — prop nguyên thuỷ, nên
+   * `MemoVariableField` vẫn bỏ qua những ô không đổi.
+   */
+  const dieuKienO = output.warning?.field;
+  const cauDieuKien = dieuKienO === undefined ? undefined : pick(dieuKienO.message);
+  const cauDieuKienCua = (key: string): string | undefined =>
+    dieuKienO?.key === key ? cauDieuKien : undefined;
+
   /** Giá trị mà các ô móc nối của công thức đang xem đang thật sự mang. */
   const linkedValues = useMemo<Record<string, number>>(() => {
     const values: Record<string, number> = {};
@@ -3463,6 +3475,7 @@ export function FormulaDetail({
                       {...(merged && maCapSo !== undefined
                         ? { sourceMark: <SourceMark source={{ kind: 'ticker', code: maCapSo }} /> }
                         : {})}
+                      conditionError={cauDieuKienCua(variable.key)}
                       className={className}
                     />
                   ) : (
@@ -3481,6 +3494,7 @@ export function FormulaDetail({
                         setOverride(spec.id, variable.key, value);
                       }}
                       mode={mode}
+                      conditionError={cauDieuKienCua(variable.key)}
                       className={className}
                     />
                   );

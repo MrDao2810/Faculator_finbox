@@ -89,6 +89,16 @@ export const HOI_DAP_RETURNS: Readonly<Record<string, ReadonlyArray<CauHoiThuong
         noi: 'hoi-dap',
         vietnam: false,
       },
+      traLoi: {
+        vi: 'Hai câu trả lời điểm cao nhất (người hỏi chưa chọn đáp án) đều nói không cần tên riêng: CAGR là thuật ngữ chuẩn, dùng được cả khi âm, và dấu trừ trước con số đã cho biết giá trị đã giảm. Ở đây CAGR âm khi giá trị cuối nhỏ hơn giá trị đầu, ví dụ 100 triệu ₫ còn 80 triệu ₫ sau 5 năm là −4,36% mỗi năm.',
+        en: 'The two top-voted answers (the asker accepted none) both say no special name is needed: CAGR is a standard term that works when negative too, and the minus sign in front of the number already says the value shrank. Here CAGR is negative when the ending value is below the starting value, for example 100 million ₫ falling to 80 million ₫ over 5 years is −4.36% a year.',
+      },
+      nguonTraLoi: [
+        {
+          url: 'https://money.stackexchange.com/questions/22326/is-there-a-term-that-better-describes-a-compound-annual-growth-rate-cagr-when',
+          ten: 'Money StackExchange',
+        },
+      ],
     },
   ],
   'ty-suat-co-tuc': [
@@ -138,6 +148,17 @@ export const HOI_DAP_RETURNS: Readonly<Record<string, ReadonlyArray<CauHoiThuong
           ten: 'Money StackExchange',
         },
       ],
+    },
+    {
+      hoi: {
+        vi: 'Tỷ suất cổ tức tính trên giá tôi đã mua hay trên thị giá hôm nay?',
+        en: "Is dividend yield based on the price I paid or on today's market price?",
+      },
+      tuSoan: true,
+      traLoi: {
+        vi: 'Ô Thị giá là giá đóng cửa gần nhất, nên kết quả là tỷ suất cho người mua ở giá hôm nay. Nhập giá bạn đã mua thì con số thành cổ tức so với vốn bạn bỏ ra: cổ tức 2.000 ₫ trên giá mua 50.000 ₫ là 4%, còn trên thị giá 72.700 ₫ là 2,75%.',
+        en: "The Market price field is the latest closing price, so the result is the yield for someone buying at today's price. Enter the price you paid and the figure becomes the dividend relative to the money you put in: a 2,000 ₫ dividend on a 50,000 ₫ purchase price is 4%, while on a 72,700 ₫ market price it is 2.75%.",
+      },
     },
   ],
   xirr: [
@@ -269,6 +290,10 @@ export const HOI_DAP_RETURNS: Readonly<Record<string, ReadonlyArray<CauHoiThuong
         ten: 'Money StackExchange',
         noi: 'hoi-dap',
         vietnam: false,
+      },
+      traLoi: {
+        vi: 'ROI ở đây chỉ có hai ô, vốn bỏ ra và giá trị hiện tại, nên không xét thời điểm từng lần nạp, rút. Có thể lấy tổng tiền nạp trừ tổng tiền rút làm vốn bỏ ra để ra ROI tổng, nhưng con số ấy coi mọi khoản như bỏ vào cùng một ngày. Muốn tính theo đúng ngày, hãy dùng XIRR: nhập từng khoản kèm ngày của nó, khoản chi ra mang dấu âm, giá trị hiện tại ở dòng cuối.',
+        en: 'ROI here has only two fields, capital invested and current value, so it ignores when each deposit or withdrawal happened. You can use total deposits minus total withdrawals as the capital to get an overall ROI, but that treats every amount as if it went in on the same day. To account for dates, use XIRR: enter each amount with its date, outflows as negative, and the current value in the last row.',
       },
     },
   ],

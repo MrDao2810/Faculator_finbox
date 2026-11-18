@@ -4,6 +4,63 @@
 
 Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 
+## Câu đỏ dưới ô khi số nhập vào vi phạm điều kiện của công thức (18/11/2026)
+
+**Trạng thái: chờ chủ dự án xác nhận.** Chủ dự án (ảnh điểm hoà vốn, giá bán 1.222 ₫ dưới biến phí 30.000 ₫): _"khi nhập số liệu sai hoặc không đáp ứng điều kiện của công thức … cần thông báo đỏ ở bên dưới ô nhập là 'Giá bán phải lớn hơn Biến phí một sản phẩm'. sửa tương tự với những công thức"_. Khi được hỏi, chọn: thẻ lỗi bên trái giữ nguyên; điều kiện giữa hai ô chỉ in dưới MỘT ô cố định; câu hiện ngay theo từng phím.
+
+- Đo trước: đổi từng ô của 111 công thức trong miền gõ được, 59 công thức · 92 điều kiện làm kết quả thành `_ _` mà dưới ô không nói gì.
+- Khung: `CalcWarning.field` (`types.ts`) + `atField()` (`warnings.ts`); `NumberInput` / `VariableField` / `LinkedInput` nhận `conditionError` và in qua đường `error` sẵn có (lỗi miền của chính ô đứng trước); `FormulaDetail` và `ChainBody` lấy câu từ kết quả đang bày ra màn.
+- Nội dung: 16 file công thức, mọi nhánh lỗi trong `calc` đã đọc (145 chỗ), nhánh nào do số nhập vào thì bọc `atField` với một câu song ngữ. Khuôn: một ô "EPS lớn hơn 0." / "… không được âm." (giống câu báo miền 16/11); hai ô "Giá cắt lỗ phải nhỏ hơn Giá vào lệnh.". Câu điểm hoà vốn đúng nguyên văn chủ dự án.
+- Cửa gác `field-condition.test.ts`: phép đo trên chạy trong vitest; mọi lần hỏng do số nhập vào phải gắn một ô số có thật, câu đủ hai thứ tiếng, ngắn, không gạch, mở đầu bằng tên ô. Ba ngoại lệ ghi lý do (IRR ngoài dải nghiệm, tỷ số thắng/thua do chuỗi giá, nợ vay ròng lớn hơn giá trị doanh nghiệp tính ra).
+- Test giao diện: 4 ca `NumberInput.test.tsx`, 1 ca luồng thật ở `FormulaDetail.test.tsx` (gõ 1222 → câu đỏ dưới Giá bán, ô Biến phí không đỏ, thẻ lỗi giữ câu cũ; gõ 50000 → câu tắt).
+- Xem trên Chrome thật (dev :3000, 1440 và 390): `diem-hoa-von`, `pe` (EPS âm), `co-lenh-rui-ro` (giá cắt lỗ cao hơn giá vào), câu hiện đúng chỗ, không tràn ngang.
+- Biết mà chưa làm: phép đo chỉ đổi một ô mỗi lần, nhánh chỉ tới được khi đổi hai ô đã bọc theo đọc code; ô kiểu chọn (select) không nhận câu (hiện không điều kiện nào cần).
+
+## Khối "Câu hỏi thường gặp": mọi công thức hiện ít nhất 3 câu (18/11/2026)
+
+**Trạng thái: chờ chủ dự án xác nhận.** Chủ dự án: _"hoàn thiện nốt chức năng câu hỏi thường gặp của các công thức còn
+thiếu"_. Đo trước: 303 câu, 225 đã trả lời; 30 công thức không hiện khối (42 câu thật của chúng đều chưa trả lời), 24
+công thức có khối còn 36 câu ẩn, 55 công thức dù trả lời hết vẫn dưới 3 câu. Khi được hỏi, chọn: trả lời cả 78 câu ẩn,
+rồi bù câu tự soạn cho công thức nào còn dưới 3 câu.
+
+- Dữ liệu (`src/core/hoi-dap/items/*.ts`, 17 file): 78 câu thật có `traLoi` (tóm từ đáp án ở nguồn khi đúng với `calc`,
+  gắn `nguonTraLoi`; nguồn không trả lời, chỉ ý kiến, khuyên mua bán hay lệch `calc` thì viết từ `calc`, không gắn
+  nguồn), 89 câu tự soạn mới. Nay **392 câu, cả 392 đã trả lời (209 tự soạn, 146 có nguồn trả lời), 111/111 công thức
+  hiện khối, ít nhất 3 câu mỗi công thức** (71 công thức 3 câu, 25 có 4, 13 có 5, 2 có 7).
+- Cách làm: 5 agent soạn (chia theo nhóm file) rồi 5 agent phản biện độc lập. Mọi con số chạy lại bằng `runFormula`;
+  StackExchange đọc qua API chính thức (~25 lượt); phản biện mở lại mọi `nguonTraLoi`. Phản biện sửa 47 câu: gọi nhầm
+  câu điểm cao là "đáp án được chấp nhận", tóm lệch nguồn (giá mục tiêu, tổng lợi suất, TACA "bình quân đầu và cuối
+  kỳ"), câu sai với `calc` (SMA ngày không giao dịch, CVaR "lãi bình quân" với chuỗi đứng yên, DCA cộng phí), câu
+  khẳng định pháp lý chưa kiểm (`rut-truoc-han` thu hồi lãi đã trả: Thông tư 04/2022 không có điều khoản ấy, nay chỉ
+  nói "theo điều khoản của sổ"), VN30F "giá tăng không có trần", hai câu tự soạn gượng ép bị thay (dải dưới âm với
+  k = 10; Long nhập số hợp đồng âm, ô đã chặn).
+- Tôi đọc lại cả 168 câu đổi; sửa thêm 5 câu CŨ còn nhắc số âm mà ô đã chặn từ 16/11/2026
+  (`gia-ly-thuyet-vn30f`, `basis-vn30f`, `co-vi-the-phai-sinh`, `phan-tram-b-bollinger` hệ số nhân 0, `peg` P/E âm) và
+  câu mới `gia-muc-tieu` (P/E mục tiêu âm).
+- Cổng: `hoi-dap.test.ts` dây báo 392 / 392, ca mới "mọi công thức trong Registry hiện ít nhất 3 câu đã có trả lời"
+  (`HIEN_TOI_THIEU = 3`). Tài liệu: docblock `types.ts` (hai đường của `traLoi`, quyết định ≥3 câu), chú thích
+  `FaqBlock.tsx`, mục mới "The FAQ block" trong `CLAUDE.md`.
+- Kiểm: `src/core/hoi-dap` 22/22, i18n (EN không dấu, gạch dài, gạch sát số) và `build-only-imports` xanh; typecheck,
+  eslint, prettier sạch; cả bộ vitest 5.745 xanh, 3 ca hết giờ 5 s (`huong-dan.test.ts`, `PortfolioScreen.test.tsx`)
+  chạy riêng đều xanh; build trên bản sao: `verify:static` 58/58, 111/111 trang HTML có khối FAQ. Chưa xem tận mắt.
+- **Cần chủ dự án quyết (nội dung FAQ):**
+  - `bien-loi-nhuan-rong`: trang TACA dẫn mức 5–15% (khảo sát NYU Stern); câu trả lời KHÔNG chép số, chỉ nói trang có
+    dẫn mức trung bình và nhấn xu hướng. Muốn dẫn số thì báo.
+  - `dai-bollinger-duoi`: giữ "khoảng 90% dữ liệu" vì đáp án SE ghi đúng vậy (dẫn sách Bollinger), đã ghi rõ là của
+    đáp án.
+  - Bốn câu dùng câu trả lời của thành viên Voz làm `nguonTraLoi` (đòn bẩy 5%, short chốt lời trước đáo hạn, số lần ghép
+    lãi, bán lỗ vẫn chịu thuế); nội dung đã đối chiếu với `calc` / `schedules.ts`.
+  - `loi-suat-nam-hoa`: câu tự soạn "lỗ 2%/tháng ra −21,53%" gần ý câu thật "4 × 9% = 36%?"; giữ vì nó thêm chiều lỗ.
+  - ROA và vòng quay tài sản dùng tổng tài sản CUỐI kỳ, nguồn (TACA, giáo trình) dùng bình quân; câu trả lời đã nói rõ.
+- **Lỗi ngoài khối FAQ phát hiện khi soạn, CHƯA sửa:**
+  - `cvar-lich-su`: câu báo của `calc` viết "ngay cả nhóm phiên tệ nhất cũng lãi bình quân", sai với chuỗi đứng yên
+    (trung bình bằng 0).
+  - `ty-so-thong-tin`: ô chuẩn so sánh nhận −100 → chuẩn mỗi phiên −100%, kết quả 1.210,98 lần (vô nghĩa nhưng hợp lệ).
+  - `he-so-bien-thien`: chuỗi đứng yên thì gợi ý sửa trỏ sang Độ lệch chuẩn lợi suất theo phiên, nơi ấy chỉ ra 0.
+  - `irr-nien-kim`: ghi chú ví dụ viết "0,79% mỗi tháng, nhân 12 ra 9,52%" (0,79 × 12 = 9,48; đủ số là 0,7932%).
+  - `basis-vn30f`: Giá hợp đồng = 0 cho −1.280 điểm, không cảnh báo.
+  - `phan-tram-b-bollinger`: dòng gợi ý sửa khi chuỗi phẳng có " - " ("…trùng nhau - nạp chuỗi…").
+
 ## Nút Export hiện vòng xoay trong lúc dựng file (18/11/2026)
 
 **Trạng thái: chờ chủ dự án xác nhận.** Chủ dự án (ảnh nút Export ở hàng tiêu đề): _"điều chỉnh lại hiệu ứng khi click vào chức năng export, sẽ hiển thị loading xoay tròn trong quá trình export dữ liệu"_.
@@ -258,7 +315,8 @@ Kiểm: vitest toàn bộ xanh (hai ca quá 5 giây khi chạy cả bộ, qua kh
 trên bản sao: `verify:static` 58/58; `size` vẫn đỏ ở cổng 180 kB như trước khối này (`pe` 236,6 kB, `roe` 247,8 kB).
 Chưa xem tận mắt ở 390 và 1440.
 
-**Còn lại:** xem tận mắt; mục CLAUDE.md; chủ dự án quyết các câu để trống; tìm tiếp khi có DNS/VPN hoặc link thread.
+**Còn lại:** xem tận mắt; tìm tiếp câu thật khi có DNS/VPN hoặc link thread. (Mục CLAUDE.md và các câu để trống đã xong
+ở đợt 18/11/2026, xem mục đầu file.)
 
 ---
 

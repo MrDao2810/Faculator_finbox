@@ -37,6 +37,23 @@ export const WARNING_LABELS: Readonly<Record<WarningCode, Bilingual>> = {
 };
 
 /**
+ * Gắn một cảnh báo vào ô nhập gây ra nó — câu `message` in đỏ ngay dưới ô `key` (18/11/2026).
+ *
+ * Chủ dự án chụp điểm hoà vốn với giá bán 1.222 ₫ dưới biến phí 30.000 ₫: thẻ kết quả bên trái báo
+ * lỗi, còn ô vừa gõ thì không có gì — _"khi nhập số liệu sai hoặc không đáp ứng điều kiện của công
+ * thức … cần thông báo đỏ ở bên dưới ô nhập là 'Giá bán phải lớn hơn Biến phí một sản phẩm'. sửa
+ * tương tự với những công thức"_. Chủ dự án chốt: thẻ kết quả giữ nguyên câu nguyên nhân và dòng ↳;
+ * điều kiện giữa hai ô chỉ in dưới MỘT ô cố định (ô đứng đầu câu); câu hiện ngay theo từng phím.
+ *
+ * Điều kiện nằm ở đây, trong chính nhánh lỗi của `calc`, chứ không chép sang giao diện: một luật
+ * viết hai nơi là hai nơi có thể nói khác nhau. `field-condition.test.ts` đổi từng ô của mọi công
+ * thức và đòi mọi lần hỏng do số nhập vào phải chỉ ra một ô có thật.
+ */
+export function atField(warning: CalcWarning, key: string, message: Bilingual): CalcWarning {
+  return { ...warning, field: { key, message } };
+}
+
+/**
  * Chia cho 0.
  * Ví dụ WF-15: P/E khi EPS bằng 0.
  *

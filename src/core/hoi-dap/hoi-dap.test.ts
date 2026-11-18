@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { findFormulaModule } from '../formulas/index';
+import { FORMULA_MODULES, findFormulaModule } from '../formulas/index';
 import { HOI_DAP, hoiDapFor } from './index';
 import { chuanHoaHoi, hoiDapProblems } from './kiem';
 import type { CauHoiThuongGap } from './types';
@@ -14,12 +14,18 @@ import type { CauHoiThuongGap } from './types';
  */
 
 /**
- * Dây báo — GHIM. Chỉ được đổi khi thêm (hoặc bỏ) câu hỏi CÓ NGUỒN đã mở lại kiểm, không bao giờ để hợp
- * với một con số. `DA_TRA_LOI` tăng khi chủ dự án quyết câu trả lời cho câu đang để trống.
+ * Dây báo — GHIM. Chỉ được đổi khi thêm (hoặc bỏ) câu hỏi đã qua lượt phản biện (câu thật: mở lại link;
+ * câu tự soạn: đối chiếu `calc`), không bao giờ để hợp với một con số. 18/11/2026: 303 → 392 câu (89 câu tự
+ * soạn), 225 → 392 đã trả lời (78 câu thật đang ẩn được trả lời), nên không còn câu nào ẩn.
  */
-const TONG_SO_CAU = 303;
-const DA_TRA_LOI = 225;
+const TONG_SO_CAU = 392;
+const DA_TRA_LOI = 392;
 const SO_CONG_THUC_CO_CAU = 111;
+/**
+ * Số câu tối thiểu MỖI công thức hiện trên màn (chủ dự án, 18/11/2026). Câu thật chưa trả lời được thì
+ * bù câu tự soạn, không hạ số này.
+ */
+const HIEN_TOI_THIEU = 3;
 
 const tatCa = (): Array<[string, ReadonlyArray<CauHoiThuongGap>]> => Object.entries(HOI_DAP);
 
@@ -49,6 +55,14 @@ describe('câu hỏi thường gặp', () => {
       daTraLoi: items.filter((c) => c.traLoi !== undefined).length,
       congThuc: tatCa().length,
     }).toEqual({ tong: TONG_SO_CAU, daTraLoi: DA_TRA_LOI, congThuc: SO_CONG_THUC_CO_CAU });
+  });
+
+  it('mọi công thức trong Registry hiện ít nhất 3 câu đã có trả lời', () => {
+    const thieu = FORMULA_MODULES.map((m) => m.spec.id)
+      .map((id) => [id, hoiDapFor(id).length] as const)
+      .filter(([, n]) => n < HIEN_TOI_THIEU)
+      .map(([id, n]) => `${id}: ${String(n)}`);
+    expect(thieu).toEqual([]);
   });
 
   it('hoiDapFor chỉ trả câu đã có trả lời; câu chưa có thì ẩn nhưng vẫn nằm trong dữ liệu', () => {

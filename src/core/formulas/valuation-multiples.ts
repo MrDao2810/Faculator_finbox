@@ -20,8 +20,8 @@
 import { ok } from '../calc-output';
 import type { FormulaModule } from '../calc/types';
 import type { FormulaSource } from '../registry/types';
-import { divideByZero, meaningless } from '../warnings';
-import { chanGiaKhongDuong } from './multiples';
+import { atField, divideByZero, meaningless } from '../warnings';
+import { EPS_LON_HON_0, GIA_THI_TRUONG_LON_HON_0, chanGiaKhongDuong } from './multiples';
 import { SOURCE_CFA, numberVar } from './shared';
 
 /*
@@ -83,6 +83,12 @@ const sharesOutstanding = numberVar(
     },
   },
 );
+
+/** Câu dưới ô `shares` khi số cổ phiếu không dương (atField, 18/11/2026): vốn hoá và NCAV dùng chung. */
+const SO_CP_LON_HON_0 = {
+  vi: 'Số cổ phiếu lưu hành lớn hơn 0.',
+  en: 'Shares outstanding must be greater than 0.',
+};
 
 const enterpriseValueInput = numberVar(
   'ev',
@@ -216,6 +222,11 @@ export const PS: FormulaModule = {
   },
   calc: (v) => {
     const sales = v('salesPerShare');
+    /* Câu dưới ô Doanh thu trên mỗi cổ phiếu, chung cho hai nhánh bên dưới. */
+    const doanhThuCpLonHon0 = {
+      vi: 'Doanh thu trên mỗi cổ phiếu lớn hơn 0.',
+      en: 'Revenue per share must be greater than 0.',
+    };
 
     const giaKhongDuong = chanGiaKhongDuong(v('price'), 'P/S');
     if (giaKhongDuong !== null) return giaKhongDuong;
@@ -224,13 +235,17 @@ export const PS: FormulaModule = {
       return {
         value: null,
         unit: 'lần',
-        warning: divideByZero(
-          { vi: 'P/S', en: 'P/S' },
-          { vi: 'Doanh thu trên mỗi cổ phiếu', en: 'revenue per share' },
-          {
-            vi: 'Doanh thu bằng 0 thì bội số không tính được; kiểm tra lại số đã nhập, hoặc dùng P/B.',
-            en: 'A revenue of 0 gives no multiple; check the figure you entered, or use P/B.',
-          },
+        warning: atField(
+          divideByZero(
+            { vi: 'P/S', en: 'P/S' },
+            { vi: 'Doanh thu trên mỗi cổ phiếu', en: 'revenue per share' },
+            {
+              vi: 'Doanh thu bằng 0 thì bội số không tính được; kiểm tra lại số đã nhập, hoặc dùng P/B.',
+              en: 'A revenue of 0 gives no multiple; check the figure you entered, or use P/B.',
+            },
+          ),
+          'salesPerShare',
+          doanhThuCpLonHon0,
         ),
       };
     }
@@ -239,15 +254,19 @@ export const PS: FormulaModule = {
       return {
         value: null,
         unit: 'lần',
-        warning: meaningless(
-          {
-            vi: 'Doanh thu trên mỗi cổ phiếu không thể âm - số liệu đang nhập sai.',
-            en: 'Revenue per share cannot be negative - the entered figure is wrong.',
-          },
-          {
-            vi: 'Kiểm tra lại báo cáo kết quả kinh doanh, doanh thu thuần luôn từ 0 trở lên.',
-            en: 'Check the income statement again - net revenue is always zero or positive.',
-          },
+        warning: atField(
+          meaningless(
+            {
+              vi: 'Doanh thu trên mỗi cổ phiếu không thể âm - số liệu đang nhập sai.',
+              en: 'Revenue per share cannot be negative - the entered figure is wrong.',
+            },
+            {
+              vi: 'Kiểm tra lại báo cáo kết quả kinh doanh, doanh thu thuần luôn từ 0 trở lên.',
+              en: 'Check the income statement again - net revenue is always zero or positive.',
+            },
+          ),
+          'salesPerShare',
+          doanhThuCpLonHon0,
         ),
       };
     }
@@ -411,14 +430,21 @@ export const EV: FormulaModule = {
       return {
         value: null,
         unit: 'tỷ ₫',
-        warning: meaningless(
+        warning: atField(
+          meaningless(
+            {
+              vi: 'Vốn hoá bằng 0 nghĩa là chưa có giá thị trường để tính giá trị doanh nghiệp.',
+              en: 'Zero market cap means there is no market price yet to calculate enterprise value.',
+            },
+            {
+              vi: 'Tính vốn hoá trước bằng công thức Vốn hoá thị trường trong nhóm này.',
+              en: 'Calculate market cap first, using the Market capitalization formula in this group.',
+            },
+          ),
+          'marketCap',
           {
-            vi: 'Vốn hoá bằng 0 nghĩa là chưa có giá thị trường để tính giá trị doanh nghiệp.',
-            en: 'Zero market cap means there is no market price yet to calculate enterprise value.',
-          },
-          {
-            vi: 'Tính vốn hoá trước bằng công thức Vốn hoá thị trường trong nhóm này.',
-            en: 'Calculate market cap first, using the Market capitalization formula in this group.',
+            vi: 'Vốn hoá thị trường lớn hơn 0.',
+            en: 'Market capitalization must be greater than 0.',
           },
         ),
       };
@@ -537,12 +563,18 @@ export const EV_EBITDA: FormulaModule = {
   },
   calc: (v) => {
     const ebitda = v('ebitda');
+    /* Câu dưới ô EBITDA, chung cho hai nhánh bên dưới. */
+    const ebitdaLonHon0 = { vi: 'EBITDA lớn hơn 0.', en: 'EBITDA must be greater than 0.' };
 
     if (ebitda === 0) {
       return {
         value: null,
         unit: 'lần',
-        warning: divideByZero({ vi: 'EV/EBITDA', en: 'EV/EBITDA' }, { vi: 'EBITDA', en: 'EBITDA' }),
+        warning: atField(
+          divideByZero({ vi: 'EV/EBITDA', en: 'EV/EBITDA' }, { vi: 'EBITDA', en: 'EBITDA' }),
+          'ebitda',
+          ebitdaLonHon0,
+        ),
       };
     }
 
@@ -550,15 +582,19 @@ export const EV_EBITDA: FormulaModule = {
       return {
         value: null,
         unit: 'lần',
-        warning: meaningless(
-          {
-            vi: 'EV/EBITDA không có ý nghĩa khi EBITDA âm - hoạt động kinh doanh đang lỗ trước cả khấu hao.',
-            en: 'EV/EBITDA is meaningless when EBITDA is negative - the business is losing money even before depreciation and amortization.',
-          },
-          {
-            vi: 'Dùng EV/Sales hoặc P/B để thay thế.',
-            en: 'Use EV/Sales or P/B instead.',
-          },
+        warning: atField(
+          meaningless(
+            {
+              vi: 'EV/EBITDA không có ý nghĩa khi EBITDA âm - hoạt động kinh doanh đang lỗ trước cả khấu hao.',
+              en: 'EV/EBITDA is meaningless when EBITDA is negative - the business is losing money even before depreciation and amortization.',
+            },
+            {
+              vi: 'Dùng EV/Sales hoặc P/B để thay thế.',
+              en: 'Use EV/Sales or P/B instead.',
+            },
+          ),
+          'ebitda',
+          ebitdaLonHon0,
         ),
       };
     }
@@ -675,18 +711,27 @@ export const EV_SALES: FormulaModule = {
   },
   calc: (v) => {
     const revenue = v('revenue');
+    /* Câu dưới ô Doanh thu thuần, chung cho hai nhánh bên dưới. */
+    const doanhThuLonHon0 = {
+      vi: 'Doanh thu thuần lớn hơn 0.',
+      en: 'Net revenue must be greater than 0.',
+    };
 
     if (revenue === 0) {
       return {
         value: null,
         unit: 'lần',
-        warning: divideByZero(
-          { vi: 'EV/Sales', en: 'EV/Sales' },
-          { vi: 'Doanh thu thuần', en: 'net revenue' },
-          {
-            vi: 'Doanh thu bằng 0 thì bội số không tính được; kiểm tra lại số đã nhập, hoặc dùng P/B.',
-            en: 'A revenue of 0 gives no multiple; check the figure you entered, or use P/B.',
-          },
+        warning: atField(
+          divideByZero(
+            { vi: 'EV/Sales', en: 'EV/Sales' },
+            { vi: 'Doanh thu thuần', en: 'net revenue' },
+            {
+              vi: 'Doanh thu bằng 0 thì bội số không tính được; kiểm tra lại số đã nhập, hoặc dùng P/B.',
+              en: 'A revenue of 0 gives no multiple; check the figure you entered, or use P/B.',
+            },
+          ),
+          'revenue',
+          doanhThuLonHon0,
         ),
       };
     }
@@ -695,15 +740,19 @@ export const EV_SALES: FormulaModule = {
       return {
         value: null,
         unit: 'lần',
-        warning: meaningless(
-          {
-            vi: 'Doanh thu thuần không thể âm - số liệu đang nhập sai.',
-            en: 'Net revenue cannot be negative - the entered figure is wrong.',
-          },
-          {
-            vi: 'Kiểm tra lại báo cáo kết quả kinh doanh, doanh thu thuần luôn từ 0 trở lên.',
-            en: 'Check the income statement again - net revenue is always zero or positive.',
-          },
+        warning: atField(
+          meaningless(
+            {
+              vi: 'Doanh thu thuần không thể âm - số liệu đang nhập sai.',
+              en: 'Net revenue cannot be negative - the entered figure is wrong.',
+            },
+            {
+              vi: 'Kiểm tra lại báo cáo kết quả kinh doanh, doanh thu thuần luôn từ 0 trở lên.',
+              en: 'Check the income statement again - net revenue is always zero or positive.',
+            },
+          ),
+          'revenue',
+          doanhThuLonHon0,
         ),
       };
     }
@@ -843,20 +892,29 @@ export const PEG: FormulaModule = {
   calc: (v) => {
     const pe = v('pe');
     const growth = v('growth');
+    /* Câu dưới ô Tăng trưởng lợi nhuận kỳ vọng, chung cho hai nhánh "bằng 0" và "âm". */
+    const tangTruongLonHon0 = {
+      vi: 'Tăng trưởng lợi nhuận kỳ vọng lớn hơn 0.',
+      en: 'Expected earnings growth must be greater than 0.',
+    };
 
     if (pe <= 0) {
       return {
         value: null,
         unit: 'lần',
-        warning: meaningless(
-          {
-            vi: 'PEG cần một P/E dương; P/E bằng 0 hoặc âm nghĩa là chính P/E đang không dùng được.',
-            en: 'PEG needs a positive P/E; a P/E of zero or negative means P/E itself is unusable.',
-          },
-          {
-            vi: 'Tính lại P/E trước; doanh nghiệp đang lỗ thì dùng P/B hoặc P/S.',
-            en: 'Recalculate P/E first; for a loss-making company use P/B or P/S instead.',
-          },
+        warning: atField(
+          meaningless(
+            {
+              vi: 'PEG cần một P/E dương; P/E bằng 0 hoặc âm nghĩa là chính P/E đang không dùng được.',
+              en: 'PEG needs a positive P/E; a P/E of zero or negative means P/E itself is unusable.',
+            },
+            {
+              vi: 'Tính lại P/E trước; doanh nghiệp đang lỗ thì dùng P/B hoặc P/S.',
+              en: 'Recalculate P/E first; for a loss-making company use P/B or P/S instead.',
+            },
+          ),
+          'pe',
+          { vi: 'P/E hiện tại lớn hơn 0.', en: 'Current P/E must be greater than 0.' },
         ),
       };
     }
@@ -865,13 +923,17 @@ export const PEG: FormulaModule = {
       return {
         value: null,
         unit: 'lần',
-        warning: divideByZero(
-          { vi: 'PEG', en: 'PEG' },
-          { vi: 'Tăng trưởng lợi nhuận kỳ vọng', en: 'expected earnings growth' },
-          {
-            vi: 'PEG chỉ dành cho doanh nghiệp có tăng trưởng. Không tăng trưởng thì so thẳng P/E với ngành.',
-            en: 'PEG is only for growing companies. Without growth, compare P/E directly with the industry instead.',
-          },
+        warning: atField(
+          divideByZero(
+            { vi: 'PEG', en: 'PEG' },
+            { vi: 'Tăng trưởng lợi nhuận kỳ vọng', en: 'expected earnings growth' },
+            {
+              vi: 'PEG chỉ dành cho doanh nghiệp có tăng trưởng. Không tăng trưởng thì so thẳng P/E với ngành.',
+              en: 'PEG is only for growing companies. Without growth, compare P/E directly with the industry instead.',
+            },
+          ),
+          'growth',
+          tangTruongLonHon0,
         ),
       };
     }
@@ -880,15 +942,19 @@ export const PEG: FormulaModule = {
       return {
         value: null,
         unit: 'lần',
-        warning: meaningless(
-          {
-            vi: 'PEG không có ý nghĩa khi lợi nhuận dự kiến đi lùi - chia cho tăng trưởng âm cho ra số âm không diễn giải được.',
-            en: 'PEG is meaningless when earnings are expected to decline - dividing by negative growth gives a negative number with no sensible interpretation.',
-          },
-          {
-            vi: 'Với doanh nghiệp suy giảm, so thẳng P/E với ngành hoặc dùng P/B.',
-            en: 'For a declining company, compare P/E directly with the industry or use P/B instead.',
-          },
+        warning: atField(
+          meaningless(
+            {
+              vi: 'PEG không có ý nghĩa khi lợi nhuận dự kiến đi lùi - chia cho tăng trưởng âm cho ra số âm không diễn giải được.',
+              en: 'PEG is meaningless when earnings are expected to decline - dividing by negative growth gives a negative number with no sensible interpretation.',
+            },
+            {
+              vi: 'Với doanh nghiệp suy giảm, so thẳng P/E với ngành hoặc dùng P/B.',
+              en: 'For a declining company, compare P/E directly with the industry or use P/B instead.',
+            },
+          ),
+          'growth',
+          tangTruongLonHon0,
         ),
       };
     }
@@ -1008,15 +1074,19 @@ export const VON_HOA: FormulaModule = {
       return {
         value: null,
         unit: 'tỷ ₫',
-        warning: meaningless(
-          {
-            vi: 'Số cổ phiếu lưu hành bằng 0 nghĩa là chưa có doanh nghiệp để tính vốn hoá.',
-            en: 'Zero shares outstanding means there is no company to calculate a market cap for.',
-          },
-          {
-            vi: 'Nhập số cổ phiếu đang lưu hành, xem ở báo cáo thường niên hoặc trang công bố thông tin.',
-            en: 'Enter the number of shares outstanding, found in the annual report or disclosure filings.',
-          },
+        warning: atField(
+          meaningless(
+            {
+              vi: 'Số cổ phiếu lưu hành bằng 0 nghĩa là chưa có doanh nghiệp để tính vốn hoá.',
+              en: 'Zero shares outstanding means there is no company to calculate a market cap for.',
+            },
+            {
+              vi: 'Nhập số cổ phiếu đang lưu hành, xem ở báo cáo thường niên hoặc trang công bố thông tin.',
+              en: 'Enter the number of shares outstanding, found in the annual report or disclosure filings.',
+            },
+          ),
+          'shares',
+          SO_CP_LON_HON_0,
         ),
       };
     }
@@ -1025,15 +1095,19 @@ export const VON_HOA: FormulaModule = {
       return {
         value: null,
         unit: 'tỷ ₫',
-        warning: meaningless(
-          {
-            vi: 'Giá thị trường bằng 0 thì vốn hoá không phản ánh giá trị nào.',
-            en: 'A market price of zero means market cap does not reflect any real value.',
-          },
-          {
-            vi: 'Nhập giá đóng cửa gần nhất của cổ phiếu.',
-            en: 'Enter the most recent closing price of the share.',
-          },
+        warning: atField(
+          meaningless(
+            {
+              vi: 'Giá thị trường bằng 0 thì vốn hoá không phản ánh giá trị nào.',
+              en: 'A market price of zero means market cap does not reflect any real value.',
+            },
+            {
+              vi: 'Nhập giá đóng cửa gần nhất của cổ phiếu.',
+              en: 'Enter the most recent closing price of the share.',
+            },
+          ),
+          'price',
+          GIA_THI_TRUONG_LON_HON_0,
         ),
       };
     }
@@ -1190,15 +1264,19 @@ export const SO_GRAHAM: FormulaModule = {
       return {
         value: null,
         unit: '₫',
-        warning: meaningless(
-          {
-            vi: 'Số Graham cần EPS dương - doanh nghiệp đang lỗ hoặc không có lợi nhuận thì căn bậc hai không có nghĩa.',
-            en: 'The Graham number needs a positive EPS - for a loss-making or unprofitable company, the square root has no meaning.',
-          },
-          {
-            vi: 'Dùng NCAV trên cổ phiếu hoặc P/B để đánh giá doanh nghiệp đang lỗ.',
-            en: 'Use net current asset value per share or P/B to assess a loss-making company.',
-          },
+        warning: atField(
+          meaningless(
+            {
+              vi: 'Số Graham cần EPS dương - doanh nghiệp đang lỗ hoặc không có lợi nhuận thì căn bậc hai không có nghĩa.',
+              en: 'The Graham number needs a positive EPS - for a loss-making or unprofitable company, the square root has no meaning.',
+            },
+            {
+              vi: 'Dùng NCAV trên cổ phiếu hoặc P/B để đánh giá doanh nghiệp đang lỗ.',
+              en: 'Use net current asset value per share or P/B to assess a loss-making company.',
+            },
+          ),
+          'eps',
+          EPS_LON_HON_0,
         ),
       };
     }
@@ -1207,14 +1285,21 @@ export const SO_GRAHAM: FormulaModule = {
       return {
         value: null,
         unit: '₫',
-        warning: meaningless(
+        warning: atField(
+          meaningless(
+            {
+              vi: 'Số Graham cần giá trị sổ sách dương - vốn chủ sở hữu đang âm hoặc bằng 0.',
+              en: 'The Graham number needs a positive book value - shareholders’ equity is negative or zero.',
+            },
+            {
+              vi: 'Xem lại bảng cân đối kế toán trước khi định giá theo trường phái giá trị.',
+              en: 'Review the balance sheet before applying value-investing valuation.',
+            },
+          ),
+          'bvps',
           {
-            vi: 'Số Graham cần giá trị sổ sách dương - vốn chủ sở hữu đang âm hoặc bằng 0.',
-            en: 'The Graham number needs a positive book value - shareholders’ equity is negative or zero.',
-          },
-          {
-            vi: 'Xem lại bảng cân đối kế toán trước khi định giá theo trường phái giá trị.',
-            en: 'Review the balance sheet before applying value-investing valuation.',
+            vi: 'Giá trị sổ sách / CP lớn hơn 0.',
+            en: 'Book value / share must be greater than 0.',
           },
         ),
       };
@@ -1394,13 +1479,17 @@ export const NCAV: FormulaModule = {
       return {
         value: null,
         unit: '₫',
-        warning: divideByZero(
-          { vi: 'NCAV trên cổ phiếu', en: 'NCAV per share' },
-          { vi: 'Số cổ phiếu lưu hành', en: 'shares outstanding' },
-          {
-            vi: 'Nhập số cổ phiếu đang lưu hành lớn hơn 0.',
-            en: 'Enter a number of shares outstanding greater than 0.',
-          },
+        warning: atField(
+          divideByZero(
+            { vi: 'NCAV trên cổ phiếu', en: 'NCAV per share' },
+            { vi: 'Số cổ phiếu lưu hành', en: 'shares outstanding' },
+            {
+              vi: 'Nhập số cổ phiếu đang lưu hành lớn hơn 0.',
+              en: 'Enter a number of shares outstanding greater than 0.',
+            },
+          ),
+          'shares',
+          SO_CP_LON_HON_0,
         ),
       };
     }
@@ -1542,16 +1631,21 @@ export const TY_SUAT_LOI_NHUAN_TREN_GIA: FormulaModule = {
     const eps = v('eps');
 
     if (price === 0) {
+      /* Ô giá có `min: 0`, nên "lớn hơn 0" đúng trọn với nhánh `=== 0` này. */
       return {
         value: null,
         unit: '%',
-        warning: divideByZero(
-          { vi: 'tỷ suất lợi nhuận trên giá', en: 'earnings yield' },
-          { vi: 'Giá thị trường', en: 'market price' },
-          {
-            vi: 'Nhập giá đóng cửa gần nhất của cổ phiếu.',
-            en: 'Enter the most recent closing price of the share.',
-          },
+        warning: atField(
+          divideByZero(
+            { vi: 'tỷ suất lợi nhuận trên giá', en: 'earnings yield' },
+            { vi: 'Giá thị trường', en: 'market price' },
+            {
+              vi: 'Nhập giá đóng cửa gần nhất của cổ phiếu.',
+              en: 'Enter the most recent closing price of the share.',
+            },
+          ),
+          'price',
+          GIA_THI_TRUONG_LON_HON_0,
         ),
       };
     }
@@ -1708,15 +1802,19 @@ export const GIA_MUC_TIEU: FormulaModule = {
       return {
         value: null,
         unit: '₫',
-        warning: meaningless(
-          {
-            vi: 'Giá mục tiêu cần EPS dương; nhân P/E mục tiêu với lợi nhuận âm hoặc bằng 0 không cho ra một mức giá có nghĩa.',
-            en: 'Target price needs a positive EPS; multiplying the target P/E by zero or negative earnings does not give a meaningful price.',
-          },
-          {
-            vi: 'Dùng NCAV trên cổ phiếu hoặc P/B để định giá doanh nghiệp đang lỗ.',
-            en: 'Use net current asset value per share or P/B to value a loss-making company.',
-          },
+        warning: atField(
+          meaningless(
+            {
+              vi: 'Giá mục tiêu cần EPS dương; nhân P/E mục tiêu với lợi nhuận âm hoặc bằng 0 không cho ra một mức giá có nghĩa.',
+              en: 'Target price needs a positive EPS; multiplying the target P/E by zero or negative earnings does not give a meaningful price.',
+            },
+            {
+              vi: 'Dùng NCAV trên cổ phiếu hoặc P/B để định giá doanh nghiệp đang lỗ.',
+              en: 'Use net current asset value per share or P/B to value a loss-making company.',
+            },
+          ),
+          'eps',
+          EPS_LON_HON_0,
         ),
       };
     }
@@ -1725,15 +1823,19 @@ export const GIA_MUC_TIEU: FormulaModule = {
       return {
         value: null,
         unit: '₫',
-        warning: meaningless(
-          {
-            vi: 'P/E mục tiêu phải dương - một mức bội số bằng 0 hoặc âm không phải là kỳ vọng định giá hợp lý.',
-            en: 'The target P/E must be positive - a multiple of zero or negative is not a reasonable valuation expectation.',
-          },
-          {
-            vi: 'Nhập một P/E mục tiêu dương, ví dụ P/E trung bình ngành hoặc P/E lịch sử của chính cổ phiếu.',
-            en: 'Enter a positive target P/E, for example the industry average P/E or the stock’s own historical P/E.',
-          },
+        warning: atField(
+          meaningless(
+            {
+              vi: 'P/E mục tiêu phải dương - một mức bội số bằng 0 hoặc âm không phải là kỳ vọng định giá hợp lý.',
+              en: 'The target P/E must be positive - a multiple of zero or negative is not a reasonable valuation expectation.',
+            },
+            {
+              vi: 'Nhập một P/E mục tiêu dương, ví dụ P/E trung bình ngành hoặc P/E lịch sử của chính cổ phiếu.',
+              en: 'Enter a positive target P/E, for example the industry average P/E or the stock’s own historical P/E.',
+            },
+          ),
+          'targetPe',
+          { vi: 'P/E mục tiêu lớn hơn 0.', en: 'Target P/E must be greater than 0.' },
         ),
       };
     }

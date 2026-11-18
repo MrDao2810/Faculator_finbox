@@ -34,7 +34,7 @@
 import { fail, ok } from '../calc-output';
 import type { FormulaModule } from '../calc/types';
 import type { FormulaSource } from '../registry/types';
-import { divideByZero, meaningless } from '../warnings';
+import { atField, divideByZero, meaningless } from '../warnings';
 import {
   SOURCE_CFA,
   SOURCE_CORPORATE_FINANCE,
@@ -250,6 +250,11 @@ export const MO_HINH_GORDON: FormulaModule = {
   calc: (v) => {
     const r = v('requiredReturn');
     const g = v('growth');
+    /* Câu dưới ô Suất sinh lợi yêu cầu (18/11/2026), chung cho hai nhánh r = g và r < g. */
+    const rPhaiLonHonG = {
+      vi: 'Suất sinh lợi yêu cầu phải lớn hơn Tăng trưởng cổ tức dài hạn.',
+      en: 'Required rate of return must be greater than long-term dividend growth.',
+    };
 
     /*
      * D0 = 0 là giá trị hợp lệ của ô nhập (min 0) và rất thường gặp — cổ phiếu tăng trưởng chưa
@@ -261,15 +266,19 @@ export const MO_HINH_GORDON: FormulaModule = {
     if (v('dividend') === 0) {
       return fail(
         '₫',
-        meaningless(
-          {
-            vi: 'Cổ tức vừa trả bằng 0 thì không có dòng cổ tức nào để chiết khấu - cách này không định giá được doanh nghiệp chưa trả cổ tức.',
-            en: 'A dividend of 0 over the past year leaves no dividend stream to discount - this method cannot value a company that pays no dividend.',
-          },
-          {
-            vi: 'Nhập cổ tức tiền mặt 12 tháng gần nhất, hoặc dùng một cách định giá dựa trên dòng tiền nếu doanh nghiệp chưa trả cổ tức.',
-            en: 'Enter the cash dividend of the last 12 months, or use a cash-flow based method if the company pays no dividend.',
-          },
+        atField(
+          meaningless(
+            {
+              vi: 'Cổ tức vừa trả bằng 0 thì không có dòng cổ tức nào để chiết khấu - cách này không định giá được doanh nghiệp chưa trả cổ tức.',
+              en: 'A dividend of 0 over the past year leaves no dividend stream to discount - this method cannot value a company that pays no dividend.',
+            },
+            {
+              vi: 'Nhập cổ tức tiền mặt 12 tháng gần nhất, hoặc dùng một cách định giá dựa trên dòng tiền nếu doanh nghiệp chưa trả cổ tức.',
+              en: 'Enter the cash dividend of the last 12 months, or use a cash-flow based method if the company pays no dividend.',
+            },
+          ),
+          'dividend',
+          { vi: 'Cổ tức vừa trả lớn hơn 0.', en: 'Past year’s dividend must be greater than 0.' },
         ),
       );
     }
@@ -277,13 +286,17 @@ export const MO_HINH_GORDON: FormulaModule = {
     if (r === g) {
       return fail(
         '₫',
-        divideByZero(
-          { vi: 'giá trị cổ phiếu', en: 'share value' },
-          { vi: 'hiệu r − g', en: 'the r − g spread' },
-          {
-            vi: 'Nhập suất sinh lợi yêu cầu r lớn hơn tăng trưởng g.',
-            en: 'Enter a required return r greater than the growth rate g.',
-          },
+        atField(
+          divideByZero(
+            { vi: 'giá trị cổ phiếu', en: 'share value' },
+            { vi: 'hiệu r − g', en: 'the r − g spread' },
+            {
+              vi: 'Nhập suất sinh lợi yêu cầu r lớn hơn tăng trưởng g.',
+              en: 'Enter a required return r greater than the growth rate g.',
+            },
+          ),
+          'requiredReturn',
+          rPhaiLonHonG,
         ),
       );
     }
@@ -291,15 +304,19 @@ export const MO_HINH_GORDON: FormulaModule = {
     if (r < g) {
       return fail(
         '₫',
-        meaningless(
-          {
-            vi: 'Mô hình Gordon chỉ dùng được khi suất sinh lợi yêu cầu r lớn hơn tăng trưởng g; nếu r nhỏ hơn g, giá trị ra âm vô nghĩa.',
-            en: 'The Gordon model only works when the required return r is greater than the growth rate g; if r is below g, the value comes out negative and meaningless.',
-          },
-          {
-            vi: 'Giảm g về mức bền vững dài hạn, hoặc dùng DDM hai giai đoạn cho thời kỳ tăng trưởng nhanh.',
-            en: 'Lower g to a sustainable long-term level, or use the two-stage DDM for a period of fast growth.',
-          },
+        atField(
+          meaningless(
+            {
+              vi: 'Mô hình Gordon chỉ dùng được khi suất sinh lợi yêu cầu r lớn hơn tăng trưởng g; nếu r nhỏ hơn g, giá trị ra âm vô nghĩa.',
+              en: 'The Gordon model only works when the required return r is greater than the growth rate g; if r is below g, the value comes out negative and meaningless.',
+            },
+            {
+              vi: 'Giảm g về mức bền vững dài hạn, hoặc dùng DDM hai giai đoạn cho thời kỳ tăng trưởng nhanh.',
+              en: 'Lower g to a sustainable long-term level, or use the two-stage DDM for a period of fast growth.',
+            },
+          ),
+          'requiredReturn',
+          rPhaiLonHonG,
         ),
       );
     }
@@ -596,6 +613,11 @@ export const DDM_HAI_GIAI_DOAN: FormulaModule = {
   calc: (v) => {
     const r = v('requiredReturn');
     const g2 = v('growthTerminal');
+    /* Câu dưới ô Suất sinh lợi yêu cầu (18/11/2026), chung cho hai nhánh r = g2 và r < g2. */
+    const rPhaiLonHonG2 = {
+      vi: 'Suất sinh lợi yêu cầu phải lớn hơn Tăng trưởng dài hạn.',
+      en: 'Required rate of return must be greater than long-term growth.',
+    };
 
     /*
      * Cùng chặn như `mo-hinh-gordon` (16/10/2026, lượt rà công thức): cổ tức 0 nhân qua mọi giai đoạn
@@ -605,15 +627,19 @@ export const DDM_HAI_GIAI_DOAN: FormulaModule = {
     if (v('dividend') === 0) {
       return fail(
         '₫',
-        meaningless(
-          {
-            vi: 'Cổ tức vừa trả bằng 0 thì không có dòng cổ tức nào để chiết khấu - cách này không định giá được doanh nghiệp chưa trả cổ tức.',
-            en: 'A dividend of 0 over the past year leaves no dividend stream to discount - this method cannot value a company that pays no dividend.',
-          },
-          {
-            vi: 'Nhập cổ tức tiền mặt 12 tháng gần nhất, hoặc dùng một cách định giá dựa trên dòng tiền nếu doanh nghiệp chưa trả cổ tức.',
-            en: 'Enter the cash dividend of the last 12 months, or use a cash-flow based method if the company pays no dividend.',
-          },
+        atField(
+          meaningless(
+            {
+              vi: 'Cổ tức vừa trả bằng 0 thì không có dòng cổ tức nào để chiết khấu - cách này không định giá được doanh nghiệp chưa trả cổ tức.',
+              en: 'A dividend of 0 over the past year leaves no dividend stream to discount - this method cannot value a company that pays no dividend.',
+            },
+            {
+              vi: 'Nhập cổ tức tiền mặt 12 tháng gần nhất, hoặc dùng một cách định giá dựa trên dòng tiền nếu doanh nghiệp chưa trả cổ tức.',
+              en: 'Enter the cash dividend of the last 12 months, or use a cash-flow based method if the company pays no dividend.',
+            },
+          ),
+          'dividend',
+          { vi: 'Cổ tức vừa trả lớn hơn 0.', en: 'Past year’s dividend must be greater than 0.' },
         ),
       );
     }
@@ -621,13 +647,17 @@ export const DDM_HAI_GIAI_DOAN: FormulaModule = {
     if (r === g2) {
       return fail(
         '₫',
-        divideByZero(
-          { vi: 'giá trị cổ phiếu', en: 'share value' },
-          { vi: 'hiệu r − g2', en: 'the r − g2 spread' },
-          {
-            vi: 'Nhập suất sinh lợi yêu cầu r lớn hơn tăng trưởng dài hạn g2.',
-            en: 'Enter a required return r greater than the long-term growth rate g2.',
-          },
+        atField(
+          divideByZero(
+            { vi: 'giá trị cổ phiếu', en: 'share value' },
+            { vi: 'hiệu r − g2', en: 'the r − g2 spread' },
+            {
+              vi: 'Nhập suất sinh lợi yêu cầu r lớn hơn tăng trưởng dài hạn g2.',
+              en: 'Enter a required return r greater than the long-term growth rate g2.',
+            },
+          ),
+          'requiredReturn',
+          rPhaiLonHonG2,
         ),
       );
     }
@@ -635,15 +665,19 @@ export const DDM_HAI_GIAI_DOAN: FormulaModule = {
     if (r < g2) {
       return fail(
         '₫',
-        meaningless(
-          {
-            vi: 'Giá trị cuối kỳ chỉ có nghĩa khi suất sinh lợi yêu cầu r lớn hơn tăng trưởng dài hạn g2; nếu r nhỏ hơn g2, giá trị ra âm.',
-            en: 'The terminal value is only meaningful when the required return r is greater than the long-term growth rate g2; if r is below g2, the value comes out negative.',
-          },
-          {
-            vi: 'Giảm g2 về mức bền vững dài hạn (thường không vượt tăng trưởng GDP) hoặc nâng r.',
-            en: 'Lower g2 to a sustainable long-term level (usually not above GDP growth) or raise r.',
-          },
+        atField(
+          meaningless(
+            {
+              vi: 'Giá trị cuối kỳ chỉ có nghĩa khi suất sinh lợi yêu cầu r lớn hơn tăng trưởng dài hạn g2; nếu r nhỏ hơn g2, giá trị ra âm.',
+              en: 'The terminal value is only meaningful when the required return r is greater than the long-term growth rate g2; if r is below g2, the value comes out negative.',
+            },
+            {
+              vi: 'Giảm g2 về mức bền vững dài hạn (thường không vượt tăng trưởng GDP) hoặc nâng r.',
+              en: 'Lower g2 to a sustainable long-term level (usually not above GDP growth) or raise r.',
+            },
+          ),
+          'requiredReturn',
+          rPhaiLonHonG2,
         ),
       );
     }
@@ -878,17 +912,28 @@ export const CAPM: FormulaModule = {
     const riskPremium = v('beta') * v('erp');
     const costOfEquity = v('riskFree') + riskPremium;
 
+    /*
+     * Ô Lãi suất phi rủi ro và ô Phần bù rủi ro thị trường không nhận số âm, nên chỉ beta âm mới kéo
+     * được tổng xuống dưới 0: câu dưới ô beta viết đúng phép cộng của công thức (18/11/2026).
+     */
     if (costOfEquity < 0) {
       return fail(
         '%',
-        meaningless(
+        atField(
+          meaningless(
+            {
+              vi: 'Chi phí vốn chủ tính ra âm - beta âm sâu kéo suất sinh lợi yêu cầu xuống dưới 0, không dùng làm suất chiết khấu được.',
+              en: 'The cost of equity comes out negative - a deeply negative beta pulls the required return below 0, which cannot be used as a discount rate.',
+            },
+            {
+              vi: 'Kiểm tra lại hệ số beta; cổ phiếu thường có beta trong khoảng 0,5–1,5.',
+              en: 'Double-check the beta coefficient; stocks typically have a beta between 0.5 and 1.5.',
+            },
+          ),
+          'beta',
           {
-            vi: 'Chi phí vốn chủ tính ra âm - beta âm sâu kéo suất sinh lợi yêu cầu xuống dưới 0, không dùng làm suất chiết khấu được.',
-            en: 'The cost of equity comes out negative - a deeply negative beta pulls the required return below 0, which cannot be used as a discount rate.',
-          },
-          {
-            vi: 'Kiểm tra lại hệ số beta; cổ phiếu thường có beta trong khoảng 0,5–1,5.',
-            en: 'Double-check the beta coefficient; stocks typically have a beta between 0.5 and 1.5.',
+            vi: 'Hệ số beta nhân Phần bù rủi ro thị trường, cộng Lãi suất phi rủi ro, không được âm.',
+            en: 'Beta coefficient times equity risk premium, plus the risk-free rate, cannot be negative.',
           },
         ),
       );
@@ -1137,29 +1182,46 @@ export const WACC: FormulaModule = {
     if (total === 0) {
       return fail(
         '%',
-        divideByZero(
-          { vi: 'WACC', en: 'WACC' },
-          { vi: 'tổng nguồn vốn E + D', en: 'total capital E + D' },
+        atField(
+          divideByZero(
+            { vi: 'WACC', en: 'WACC' },
+            { vi: 'tổng nguồn vốn E + D', en: 'total capital E + D' },
+            {
+              vi: 'Nhập vốn chủ sở hữu hoặc nợ vay lớn hơn 0.',
+              en: 'Enter equity or debt greater than 0.',
+            },
+          ),
+          'equity',
           {
-            vi: 'Nhập vốn chủ sở hữu hoặc nợ vay lớn hơn 0.',
-            en: 'Enter equity or debt greater than 0.',
+            vi: 'Vốn hoá thị trường và Nợ vay không được cùng bằng 0.',
+            en: 'Market capitalization and debt cannot both be 0.',
           },
         ),
       );
     }
 
+    /* Hai ô đều không nhận số âm, nên nhánh này chỉ tới được khi số đi vòng qua miền nhập. */
     if (equity < 0 || debt < 0) {
       return fail(
         '%',
-        meaningless(
-          {
-            vi: 'Vốn chủ sở hữu hoặc nợ vay âm làm tỷ trọng vốn mất ý nghĩa.',
-            en: 'Negative equity or debt makes the capital weights meaningless.',
-          },
-          {
-            vi: 'Nhập cả hai cấu phần vốn từ 0 trở lên.',
-            en: 'Enter both capital components as 0 or greater.',
-          },
+        atField(
+          meaningless(
+            {
+              vi: 'Vốn chủ sở hữu hoặc nợ vay âm làm tỷ trọng vốn mất ý nghĩa.',
+              en: 'Negative equity or debt makes the capital weights meaningless.',
+            },
+            {
+              vi: 'Nhập cả hai cấu phần vốn từ 0 trở lên.',
+              en: 'Enter both capital components as 0 or greater.',
+            },
+          ),
+          equity < 0 ? 'equity' : 'debt',
+          equity < 0
+            ? {
+                vi: 'Vốn hoá thị trường không được âm.',
+                en: 'Market capitalization cannot be negative.',
+              }
+            : { vi: 'Nợ vay không được âm.', en: 'Debt cannot be negative.' },
         ),
       );
     }
@@ -1417,14 +1479,22 @@ export const FCFF: FormulaModule = {
     if (ebit < 0 && v('taxRate') > 0) {
       return fail(
         'tỷ ₫',
-        meaningless(
+        atField(
+          meaningless(
+            {
+              vi: 'EBIT âm làm khoản EBIT × (1 − thuế suất) hàm ý một khoản hoàn thuế không có thật, kết quả mất ý nghĩa.',
+              en: 'Negative EBIT makes EBIT × (1 − tax rate) imply a tax refund that does not exist, so the result is meaningless.',
+            },
+            {
+              vi: 'Dùng kỳ có EBIT dương, hoặc ước tính FCFF từ dòng tiền hoạt động trên báo cáo lưu chuyển tiền tệ.',
+              en: 'Use a period with positive EBIT, or estimate FCFF from operating cash flow on the cash flow statement.',
+            },
+          ),
+          'ebit',
+          /* Đúng điều kiện của nhánh: ở thuế suất 0% EBIT âm vẫn tính được (18/11/2026). */
           {
-            vi: 'EBIT âm làm khoản EBIT × (1 − thuế suất) hàm ý một khoản hoàn thuế không có thật, kết quả mất ý nghĩa.',
-            en: 'Negative EBIT makes EBIT × (1 − tax rate) imply a tax refund that does not exist, so the result is meaningless.',
-          },
-          {
-            vi: 'Dùng kỳ có EBIT dương, hoặc ước tính FCFF từ dòng tiền hoạt động trên báo cáo lưu chuyển tiền tệ.',
-            en: 'Use a period with positive EBIT, or estimate FCFF from operating cash flow on the cash flow statement.',
+            vi: 'Lợi nhuận trước lãi vay và thuế không được âm khi Thuế suất thuế TNDN lớn hơn 0.',
+            en: 'Earnings before interest and tax cannot be negative while the tax rate is above 0.',
           },
         ),
       );
@@ -1637,15 +1707,19 @@ export const FCFE: FormulaModule = {
     if (interest < 0) {
       return fail(
         'tỷ ₫',
-        meaningless(
-          {
-            vi: 'Chi phí lãi vay âm không có ý nghĩa - doanh nghiệp không được chủ nợ trả lãi.',
-            en: 'A negative interest expense makes no sense - a company is not paid interest by its creditors.',
-          },
-          {
-            vi: 'Nhập chi phí lãi vay từ 0 trở lên; thu nhập lãi ghi ở dòng khác của báo cáo.',
-            en: 'Enter interest expense as 0 or greater; interest income is recorded on a different line of the statement.',
-          },
+        atField(
+          meaningless(
+            {
+              vi: 'Chi phí lãi vay âm không có ý nghĩa - doanh nghiệp không được chủ nợ trả lãi.',
+              en: 'A negative interest expense makes no sense - a company is not paid interest by its creditors.',
+            },
+            {
+              vi: 'Nhập chi phí lãi vay từ 0 trở lên; thu nhập lãi ghi ở dòng khác của báo cáo.',
+              en: 'Enter interest expense as 0 or greater; interest income is recorded on a different line of the statement.',
+            },
+          ),
+          'interest',
+          { vi: 'Chi phí lãi vay không được âm.', en: 'Interest expense cannot be negative.' },
         ),
       );
     }
@@ -2048,16 +2122,28 @@ export const GIA_TRI_NOI_TAI_FCFF: FormulaModule = {
     const growth = v('growth');
     const wacc = v('wacc');
     const shares = v('shares');
+    /* Câu dưới ô WACC (18/11/2026), chung cho hai nhánh WACC = g và WACC < g. */
+    const waccPhaiLonHonG = {
+      vi: 'Chi phí vốn bình quân phải lớn hơn Tăng trưởng FCFF dài hạn.',
+      en: 'Weighted average cost of capital must be greater than long-term FCFF growth.',
+    };
 
     if (shares <= 0) {
       return fail(
         '₫',
-        divideByZero(
-          { vi: 'giá trị nội tại', en: 'intrinsic value' },
-          { vi: 'Số cổ phiếu lưu hành', en: 'shares outstanding' },
+        atField(
+          divideByZero(
+            { vi: 'giá trị nội tại', en: 'intrinsic value' },
+            { vi: 'Số cổ phiếu lưu hành', en: 'shares outstanding' },
+            {
+              vi: 'Nhập số cổ phiếu đang lưu hành lớn hơn 0.',
+              en: 'Enter a share count greater than 0.',
+            },
+          ),
+          'shares',
           {
-            vi: 'Nhập số cổ phiếu đang lưu hành lớn hơn 0.',
-            en: 'Enter a share count greater than 0.',
+            vi: 'Số cổ phiếu lưu hành lớn hơn 0.',
+            en: 'Shares outstanding must be greater than 0.',
           },
         ),
       );
@@ -2066,14 +2152,21 @@ export const GIA_TRI_NOI_TAI_FCFF: FormulaModule = {
     if (fcff <= 0) {
       return fail(
         '₫',
-        meaningless(
+        atField(
+          meaningless(
+            {
+              vi: 'FCFF bằng 0 hoặc âm thì mô hình tăng trưởng đều cho ra giá trị doanh nghiệp bằng 0 hoặc âm - không còn gì để chia cho cổ đông, nên cách này không định giá được.',
+              en: 'A zero or negative FCFF makes the steady-growth model produce a negative enterprise value - this method cannot value the company.',
+            },
+            {
+              vi: 'Dùng kỳ có dòng tiền dương, hoặc ước tính FCFF bình thường hoá của vài năm gần nhất.',
+              en: 'Use a period with positive cash flow, or estimate a normalized FCFF from recent years.',
+            },
+          ),
+          'fcff',
           {
-            vi: 'FCFF bằng 0 hoặc âm thì mô hình tăng trưởng đều cho ra giá trị doanh nghiệp bằng 0 hoặc âm - không còn gì để chia cho cổ đông, nên cách này không định giá được.',
-            en: 'A zero or negative FCFF makes the steady-growth model produce a negative enterprise value - this method cannot value the company.',
-          },
-          {
-            vi: 'Dùng kỳ có dòng tiền dương, hoặc ước tính FCFF bình thường hoá của vài năm gần nhất.',
-            en: 'Use a period with positive cash flow, or estimate a normalized FCFF from recent years.',
+            vi: 'Dòng tiền tự do của doanh nghiệp lớn hơn 0.',
+            en: 'Free cash flow to firm must be greater than 0.',
           },
         ),
       );
@@ -2082,13 +2175,17 @@ export const GIA_TRI_NOI_TAI_FCFF: FormulaModule = {
     if (wacc === growth) {
       return fail(
         '₫',
-        divideByZero(
-          { vi: 'giá trị doanh nghiệp', en: 'enterprise value' },
-          { vi: 'hiệu WACC − g', en: 'the WACC − g spread' },
-          {
-            vi: 'Nhập WACC lớn hơn tăng trưởng dài hạn g.',
-            en: 'Enter a WACC greater than the long-term growth rate g.',
-          },
+        atField(
+          divideByZero(
+            { vi: 'giá trị doanh nghiệp', en: 'enterprise value' },
+            { vi: 'hiệu WACC − g', en: 'the WACC − g spread' },
+            {
+              vi: 'Nhập WACC lớn hơn tăng trưởng dài hạn g.',
+              en: 'Enter a WACC greater than the long-term growth rate g.',
+            },
+          ),
+          'wacc',
+          waccPhaiLonHonG,
         ),
       );
     }
@@ -2096,15 +2193,19 @@ export const GIA_TRI_NOI_TAI_FCFF: FormulaModule = {
     if (wacc < growth) {
       return fail(
         '₫',
-        meaningless(
-          {
-            vi: 'Mô hình chỉ dùng được khi WACC lớn hơn tăng trưởng g; nếu g vượt WACC, giá trị ra âm vô nghĩa.',
-            en: 'The model only works when WACC is greater than the growth rate g; if g exceeds WACC, the value comes out negative and meaningless.',
-          },
-          {
-            vi: 'Giảm g về mức bền vững dài hạn (thường không vượt tăng trưởng GDP) hoặc xem lại WACC.',
-            en: 'Lower g to a sustainable long-term level (usually not above GDP growth) or review WACC.',
-          },
+        atField(
+          meaningless(
+            {
+              vi: 'Mô hình chỉ dùng được khi WACC lớn hơn tăng trưởng g; nếu g vượt WACC, giá trị ra âm vô nghĩa.',
+              en: 'The model only works when WACC is greater than the growth rate g; if g exceeds WACC, the value comes out negative and meaningless.',
+            },
+            {
+              vi: 'Giảm g về mức bền vững dài hạn (thường không vượt tăng trưởng GDP) hoặc xem lại WACC.',
+              en: 'Lower g to a sustainable long-term level (usually not above GDP growth) or review WACC.',
+            },
+          ),
+          'wacc',
+          waccPhaiLonHonG,
         ),
       );
     }
@@ -2301,17 +2402,29 @@ export const GIA_TRI_HIEN_TAI: FormulaModule = {
   },
   calc: (v) => {
     const base = 1 + v('rate') / 100;
+    /*
+     * Câu dưới ô Tỷ lệ chiết khấu (18/11/2026), chung cho hai nhánh dưới. Ô không nhận số âm nên hai
+     * nhánh chỉ tới được khi số đi vòng qua miền nhập; vẫn gắn để điều kiện nằm cạnh phép tính.
+     */
+    const rateLonHonAm100 = {
+      vi: 'Tỷ lệ chiết khấu / năm phải lớn hơn −100%.',
+      en: 'Discount rate / year must be greater than −100%.',
+    };
 
     if (base === 0) {
       return fail(
         '₫',
-        divideByZero(
-          { vi: 'giá trị hiện tại', en: 'present value' },
-          { vi: 'mẫu số (1 + r) lũy thừa n', en: 'the (1 + r)^n denominator' },
-          {
-            vi: 'Nhập tỷ lệ chiết khấu lớn hơn −100%.',
-            en: 'Enter a discount rate greater than −100%.',
-          },
+        atField(
+          divideByZero(
+            { vi: 'giá trị hiện tại', en: 'present value' },
+            { vi: 'mẫu số (1 + r) lũy thừa n', en: 'the (1 + r)^n denominator' },
+            {
+              vi: 'Nhập tỷ lệ chiết khấu lớn hơn −100%.',
+              en: 'Enter a discount rate greater than −100%.',
+            },
+          ),
+          'rate',
+          rateLonHonAm100,
         ),
       );
     }
@@ -2319,15 +2432,19 @@ export const GIA_TRI_HIEN_TAI: FormulaModule = {
     if (base < 0) {
       return fail(
         '₫',
-        meaningless(
-          {
-            vi: 'Tỷ lệ chiết khấu dưới −100% mỗi năm không có ý nghĩa kinh tế.',
-            en: 'A discount rate below −100% per year has no economic meaning.',
-          },
-          {
-            vi: 'Nhập tỷ lệ chiết khấu lớn hơn −100%.',
-            en: 'Enter a discount rate greater than −100%.',
-          },
+        atField(
+          meaningless(
+            {
+              vi: 'Tỷ lệ chiết khấu dưới −100% mỗi năm không có ý nghĩa kinh tế.',
+              en: 'A discount rate below −100% per year has no economic meaning.',
+            },
+            {
+              vi: 'Nhập tỷ lệ chiết khấu lớn hơn −100%.',
+              en: 'Enter a discount rate greater than −100%.',
+            },
+          ),
+          'rate',
+          rateLonHonAm100,
         ),
       );
     }
@@ -2536,17 +2653,25 @@ export const GIA_TRI_TUONG_LAI: FormulaModule = {
   calc: (v) => {
     const base = 1 + v('rate') / 100;
 
+    /* Ô có min −100% nên nhánh này chỉ tới được khi số đi vòng qua miền nhập (18/11/2026). */
     if (base < 0) {
       return fail(
         '₫',
-        meaningless(
+        atField(
+          meaningless(
+            {
+              vi: 'Tỷ suất sinh lợi dưới −100% mỗi năm không có ý nghĩa, vì không thể mất nhiều hơn toàn bộ số tiền.',
+              en: 'A rate of return below −100% per year makes no sense, since you cannot lose more than the entire amount.',
+            },
+            {
+              vi: 'Nhập tỷ suất sinh lợi từ −100% trở lên.',
+              en: 'Enter a rate of return of −100% or greater.',
+            },
+          ),
+          'rate',
           {
-            vi: 'Tỷ suất sinh lợi dưới −100% mỗi năm không có ý nghĩa, vì không thể mất nhiều hơn toàn bộ số tiền.',
-            en: 'A rate of return below −100% per year makes no sense, since you cannot lose more than the entire amount.',
-          },
-          {
-            vi: 'Nhập tỷ suất sinh lợi từ −100% trở lên.',
-            en: 'Enter a rate of return of −100% or greater.',
+            vi: 'Tỷ suất sinh lợi / năm không được nhỏ hơn −100%.',
+            en: 'Rate of return / year cannot be below −100%.',
           },
         ),
       );
@@ -2747,17 +2872,26 @@ export const BIEN_AN_TOAN: FormulaModule = {
   },
   calc: (v) => {
     const intrinsic = v('intrinsic');
+    /* Câu dưới ô Giá trị nội tại (18/11/2026), chung cho hai nhánh bằng 0 và âm. */
+    const intrinsicDuong = {
+      vi: 'Giá trị nội tại ước tính lớn hơn 0.',
+      en: 'Estimated intrinsic value must be greater than 0.',
+    };
 
     if (intrinsic === 0) {
       return fail(
         '%',
-        divideByZero(
-          { vi: 'biên an toàn', en: 'margin of safety' },
-          { vi: 'giá trị nội tại', en: 'intrinsic value' },
-          {
-            vi: 'Ước tính giá trị nội tại bằng một mô hình định giá trước.',
-            en: 'Estimate the intrinsic value with a valuation model first.',
-          },
+        atField(
+          divideByZero(
+            { vi: 'biên an toàn', en: 'margin of safety' },
+            { vi: 'giá trị nội tại', en: 'intrinsic value' },
+            {
+              vi: 'Ước tính giá trị nội tại bằng một mô hình định giá trước.',
+              en: 'Estimate the intrinsic value with a valuation model first.',
+            },
+          ),
+          'intrinsic',
+          intrinsicDuong,
         ),
       );
     }
@@ -2765,15 +2899,19 @@ export const BIEN_AN_TOAN: FormulaModule = {
     if (intrinsic < 0) {
       return fail(
         '%',
-        meaningless(
-          {
-            vi: 'Giá trị nội tại âm làm biên an toàn mất ý nghĩa.',
-            en: 'A negative intrinsic value makes the margin of safety meaningless.',
-          },
-          {
-            vi: 'Xem lại mô hình định giá - bộ giả định đầu vào đang cho ra giá trị âm.',
-            en: 'Review the valuation model - the current input assumptions are producing a negative value.',
-          },
+        atField(
+          meaningless(
+            {
+              vi: 'Giá trị nội tại âm làm biên an toàn mất ý nghĩa.',
+              en: 'A negative intrinsic value makes the margin of safety meaningless.',
+            },
+            {
+              vi: 'Xem lại mô hình định giá - bộ giả định đầu vào đang cho ra giá trị âm.',
+              en: 'Review the valuation model - the current input assumptions are producing a negative value.',
+            },
+          ),
+          'intrinsic',
+          intrinsicDuong,
         ),
       );
     }

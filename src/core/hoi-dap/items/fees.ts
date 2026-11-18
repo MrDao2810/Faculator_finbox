@@ -53,6 +53,17 @@ export const HOI_DAP_FEES: Readonly<Record<string, ReadonlyArray<CauHoiThuongGap
         },
       ],
     },
+    {
+      hoi: {
+        vi: 'Thuế chuyển nhượng tính trên tiền bán trước hay sau khi trừ phí bán?',
+        en: 'Is the transfer tax charged on the sale proceeds before or after the sell fee is deducted?',
+      },
+      tuSoan: true,
+      traLoi: {
+        vi: 'Trên tiền bán chưa trừ phí: công thức lấy khối lượng × giá bán × 0,1%, rồi thuế và phí bán cùng bị trừ khỏi tiền bán. Bán 1.000 CP giá 72.700 ₫: thuế 72.700 ₫, phí bán 109.050 ₫ theo biểu phí đang dùng, tiền về tài khoản 72.518.250 ₫.',
+        en: 'On the proceeds before any fee: the formula takes quantity × sell price × 0.1%, and the tax and the sell fee then both come out of the proceeds. Selling 1,000 shares at 72,700 ₫: tax 72,700 ₫, sell fee 109,050 ₫ under the schedule in use, and 72,518,250 ₫ reaches the account.',
+      },
+    },
   ],
   'thue-co-tuc': [
     {
@@ -78,6 +89,28 @@ export const HOI_DAP_FEES: Readonly<Record<string, ReadonlyArray<CauHoiThuongGap
         },
       ],
     },
+    {
+      hoi: {
+        vi: 'Cổ tức công bố theo tỷ lệ phần trăm thì nhập vào ô Cổ tức tiền mặt thế nào?',
+        en: 'If the dividend is announced as a percentage, what do I enter in the Cash dividend per share field?',
+      },
+      tuSoan: true,
+      traLoi: {
+        vi: 'Nhân tỷ lệ với mệnh giá 10.000 ₫ để ra số đồng mỗi cổ phiếu: cổ tức 15% là 1.500 ₫. Với 1.000 CP, thuế là 1.000 × 1.500 × 5% = 75.000 ₫. Nhập 15 vào ô sẽ thành 15 ₫ mỗi cổ phiếu.',
+        en: 'Multiply the percentage by the 10,000 ₫ par value to get dong per share: a 15% dividend is 1,500 ₫. For 1,000 shares the tax is 1,000 × 1,500 × 5% = 75,000 ₫. Entering 15 would mean 15 ₫ per share.',
+      },
+    },
+    {
+      hoi: {
+        vi: 'Luật thuế thu nhập cá nhân mới từ 01/07/2026 có đổi thuế suất cổ tức tiền mặt không?',
+        en: 'Does the new personal income tax law from 2026-07-01 change the cash dividend tax rate?',
+      },
+      tuSoan: true,
+      traLoi: {
+        vi: 'Theo biểu phí đang dùng thì không: trước 01/07/2026 là 5% theo Luật 04/2007/QH12, từ ngày ấy vẫn 5% theo Luật 109/2025/QH15, Điều 12. Luật mới giảm 50% thuế cho lợi tức từ quỹ đầu tư chứng khoán hay quỹ bất động sản, phần này công thức không tính.',
+        en: 'Not under the schedule in use: before 2026-07-01 it was 5% under Law 04/2007/QH12, and from that date it is still 5% under Law 109/2025/QH15, Article 12. The new law halves the tax on income from securities or real estate investment funds, which this formula does not cover.',
+      },
+    },
   ],
   'loi-nhuan-rong': [
     {
@@ -102,6 +135,28 @@ export const HOI_DAP_FEES: Readonly<Record<string, ReadonlyArray<CauHoiThuongGap
           ten: 'KIS Việt Nam FAQ',
         },
       ],
+    },
+    {
+      hoi: {
+        vi: 'Bán đúng giá mua thì lợi nhuận ròng có bằng 0 không?',
+        en: 'If I sell at exactly my buy price, is the net profit 0?',
+      },
+      tuSoan: true,
+      traLoi: {
+        vi: 'Không, mà âm đúng bằng tổng chi phí. Mua và bán 1.000 CP cùng giá 92.000 ₫, giữ 5 tháng: lỗ 369.350 ₫, gồm phí mua 138.000 ₫, phí bán 138.000 ₫, thuế 92.000 ₫ và phí lưu ký 1.350 ₫ theo biểu phí đang dùng.',
+        en: 'No, it is negative by exactly the total cost. Buying and selling 1,000 shares at 92,000 ₫, held 5 months: a loss of 369,350 ₫, made up of a 138,000 ₫ buy fee, a 138,000 ₫ sell fee, 92,000 ₫ tax and a 1,350 ₫ custody fee under the schedule in use.',
+      },
+    },
+    {
+      hoi: {
+        vi: 'Cổ tức nhận được trong thời gian giữ có được cộng vào lợi nhuận ròng không?',
+        en: 'Are dividends received while holding added to the net profit?',
+      },
+      tuSoan: true,
+      traLoi: {
+        vi: 'Không. Công thức chỉ lấy khối lượng × (giá bán − giá mua) rồi trừ phí mua, phí bán, thuế bán và phí lưu ký; không có ô cổ tức. Muốn biết phần cổ tức bị trừ thuế bao nhiêu, dùng công thức Thuế cổ tức tiền mặt rồi tự cộng phần còn lại.',
+        en: 'No. The formula only takes quantity × (sell price − buy price) minus the buy fee, sell fee, sale tax and custody fee; there is no dividend field. To see how much tax a dividend bears, use the Cash dividend tax formula and add the remainder yourself.',
+      },
     },
   ],
   'phi-giao-dich-mua': [

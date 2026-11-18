@@ -99,6 +99,25 @@ export interface CalcWarning {
   message: Bilingual;
   /** Dòng gợi ý sửa, hiện sau mũi tên ↳ trên giao diện. Cả hai ngôn ngữ. */
   fix?: Bilingual;
+  /**
+   * Ô nhập phải sửa, và câu ngắn in đỏ ngay dưới ô ấy — xem `atField()` (18/11/2026).
+   *
+   * Chỉ có khi lỗi sinh ra từ số người dùng nhập vào một ô cụ thể (EPS ≤ 0 của P/E, giá bán ≤
+   * biến phí của điểm hoà vốn). Lỗi do chuỗi giá, do thiếu ô, do bước trước, hay do một đại lượng
+   * tính ra không thuộc ô nào thì không có.
+   */
+  field?: FieldCondition;
+}
+
+/** Điều kiện của công thức vừa bị một ô nhập vi phạm — xem `CalcWarning.field`. */
+export interface FieldCondition {
+  /** Khoá của ô (`VariableSpec.key`) nhận câu báo. Điều kiện giữa hai ô vẫn chỉ gắn MỘT ô. */
+  key: string;
+  /**
+   * Một câu nêu điều kiện, gọi ô bằng nhãn bỏ ký hiệu trong ngoặc: "EPS phải lớn hơn 0.", "Giá bán
+   * phải lớn hơn Biến phí một sản phẩm.". Không giải thích vì sao — thẻ kết quả đã làm việc đó.
+   */
+  message: Bilingual;
 }
 
 /**

@@ -27,7 +27,7 @@
 import { fail, ok } from '../calc-output';
 import type { FormulaModule } from '../calc/types';
 import type { FormulaSource } from '../registry/types';
-import { divideByZero, meaningless } from '../warnings';
+import { atField, divideByZero, meaningless } from '../warnings';
 import { SOURCE_CFA, SOURCE_VAS, numberVar, withSymbol } from './shared';
 
 /*
@@ -125,6 +125,38 @@ const currentLiabilities = numberVar(
     },
   },
 );
+
+/*
+ * ── Câu dưới ô (atField, 18/11/2026) ───────────────────────────────────────────────────
+ * Một điều kiện trên một ô thì một câu, dù nhiều nhánh lỗi hay nhiều công thức cùng chạm tới nó
+ * (nhánh "bằng 0" và nhánh "âm" của ROE in đúng một câu). Ô có `min: 0` mà 0 làm hỏng thì viết
+ * "lớn hơn 0": số âm vốn không gõ được, nên câu ấy đúng trọn với `calc`.
+ */
+
+const SO_CP_LON_HON_0 = {
+  vi: 'Số cổ phiếu lưu hành lớn hơn 0.',
+  en: 'Shares outstanding must be greater than 0.',
+};
+
+const VON_CHU_LON_HON_0 = {
+  vi: 'Vốn chủ sở hữu lớn hơn 0.',
+  en: 'Equity must be greater than 0.',
+};
+
+const TONG_TAI_SAN_LON_HON_0 = {
+  vi: 'Tổng tài sản lớn hơn 0.',
+  en: 'Total assets must be greater than 0.',
+};
+
+const DOANH_THU_THUAN_LON_HON_0 = {
+  vi: 'Doanh thu thuần lớn hơn 0.',
+  en: 'Net revenue must be greater than 0.',
+};
+
+const NO_NGAN_HAN_LON_HON_0 = {
+  vi: 'Nợ ngắn hạn lớn hơn 0.',
+  en: 'Current liabilities must be greater than 0.',
+};
 
 /*
  * ── 1. EPS cơ bản ──────────────────────────────────────────────────────────────────────
@@ -264,13 +296,17 @@ export const EPS_CO_BAN: FormulaModule = {
     if (shares === 0) {
       return fail(
         '₫',
-        divideByZero(
-          { vi: 'EPS', en: 'EPS' },
-          { vi: 'Số cổ phiếu lưu hành', en: 'Shares outstanding' },
-          {
-            vi: 'Nhập số cổ phiếu đang lưu hành của doanh nghiệp.',
-            en: "Enter the company's shares outstanding.",
-          },
+        atField(
+          divideByZero(
+            { vi: 'EPS', en: 'EPS' },
+            { vi: 'Số cổ phiếu lưu hành', en: 'Shares outstanding' },
+            {
+              vi: 'Nhập số cổ phiếu đang lưu hành của doanh nghiệp.',
+              en: "Enter the company's shares outstanding.",
+            },
+          ),
+          'sharesOutstanding',
+          SO_CP_LON_HON_0,
         ),
       );
     }
@@ -387,29 +423,38 @@ export const BVPS: FormulaModule = {
     if (shares === 0) {
       return fail(
         '₫',
-        divideByZero(
-          { vi: 'BVPS', en: 'BVPS' },
-          { vi: 'Số cổ phiếu lưu hành', en: 'Shares outstanding' },
-          {
-            vi: 'Nhập số cổ phiếu đang lưu hành của doanh nghiệp.',
-            en: "Enter the company's shares outstanding.",
-          },
+        atField(
+          divideByZero(
+            { vi: 'BVPS', en: 'BVPS' },
+            { vi: 'Số cổ phiếu lưu hành', en: 'Shares outstanding' },
+            {
+              vi: 'Nhập số cổ phiếu đang lưu hành của doanh nghiệp.',
+              en: "Enter the company's shares outstanding.",
+            },
+          ),
+          'sharesOutstanding',
+          SO_CP_LON_HON_0,
         ),
       );
     }
     const eq = v('equity');
     if (eq < 0) {
+      /* Chỉ vốn chủ âm mới hỏng: vốn chủ bằng 0 vẫn ra BVPS 0 ₫, một con số có nghĩa. */
       return fail(
         '₫',
-        meaningless(
-          {
-            vi: 'BVPS không có ý nghĩa khi vốn chủ sở hữu đang âm.',
-            en: 'BVPS is not meaningful when equity is negative.',
-          },
-          {
-            vi: 'Doanh nghiệp lỗ luỹ kế vượt vốn góp. Xem lại báo cáo tài chính trước khi định giá.',
-            en: 'Accumulated losses exceed contributed capital. Review the financial statements before valuing the company.',
-          },
+        atField(
+          meaningless(
+            {
+              vi: 'BVPS không có ý nghĩa khi vốn chủ sở hữu đang âm.',
+              en: 'BVPS is not meaningful when equity is negative.',
+            },
+            {
+              vi: 'Doanh nghiệp lỗ luỹ kế vượt vốn góp. Xem lại báo cáo tài chính trước khi định giá.',
+              en: 'Accumulated losses exceed contributed capital. Review the financial statements before valuing the company.',
+            },
+          ),
+          'equity',
+          { vi: 'Vốn chủ sở hữu không được âm.', en: 'Equity cannot be negative.' },
         ),
       );
     }
@@ -526,25 +571,33 @@ export const ROE: FormulaModule = {
     if (eq === 0) {
       return fail(
         '%',
-        divideByZero(
-          { vi: 'ROE', en: 'ROE' },
-          { vi: 'Vốn chủ sở hữu', en: 'Equity' },
-          { vi: 'Nhập vốn chủ sở hữu khác 0.', en: 'Enter a non-zero equity value.' },
+        atField(
+          divideByZero(
+            { vi: 'ROE', en: 'ROE' },
+            { vi: 'Vốn chủ sở hữu', en: 'Equity' },
+            { vi: 'Nhập vốn chủ sở hữu khác 0.', en: 'Enter a non-zero equity value.' },
+          ),
+          'equity',
+          VON_CHU_LON_HON_0,
         ),
       );
     }
     if (eq < 0) {
       return fail(
         '%',
-        meaningless(
-          {
-            vi: 'ROE không có ý nghĩa khi vốn chủ sở hữu đang âm: lãi chia cho vốn âm cho ra một con số gây hiểu lầm.',
-            en: 'ROE is not meaningful when equity is negative: profit divided by negative capital produces a misleading number.',
-          },
-          {
-            vi: 'Xem lỗ luỹ kế trên báo cáo tài chính, hoặc dùng ROA để thay thế.',
-            en: 'Check accumulated losses on the financial statements, or use ROA instead.',
-          },
+        atField(
+          meaningless(
+            {
+              vi: 'ROE không có ý nghĩa khi vốn chủ sở hữu đang âm: lãi chia cho vốn âm cho ra một con số gây hiểu lầm.',
+              en: 'ROE is not meaningful when equity is negative: profit divided by negative capital produces a misleading number.',
+            },
+            {
+              vi: 'Xem lỗ luỹ kế trên báo cáo tài chính, hoặc dùng ROA để thay thế.',
+              en: 'Check accumulated losses on the financial statements, or use ROA instead.',
+            },
+          ),
+          'equity',
+          VON_CHU_LON_HON_0,
         ),
       );
     }
@@ -659,10 +712,14 @@ export const ROA: FormulaModule = {
     if (assets === 0) {
       return fail(
         '%',
-        divideByZero(
-          { vi: 'ROA', en: 'ROA' },
-          { vi: 'Tổng tài sản', en: 'Total assets' },
-          { vi: 'Nhập tổng tài sản khác 0.', en: 'Enter a non-zero total assets value.' },
+        atField(
+          divideByZero(
+            { vi: 'ROA', en: 'ROA' },
+            { vi: 'Tổng tài sản', en: 'Total assets' },
+            { vi: 'Nhập tổng tài sản khác 0.', en: 'Enter a non-zero total assets value.' },
+          ),
+          'totalAssets',
+          TONG_TAI_SAN_LON_HON_0,
         ),
       );
     }
@@ -799,13 +856,17 @@ export const BIEN_LOI_NHUAN_RONG: FormulaModule = {
     if (rev === 0) {
       return fail(
         '%',
-        divideByZero(
-          { vi: 'ROS', en: 'ROS' },
-          { vi: 'Doanh thu thuần', en: 'Net revenue' },
-          {
-            vi: 'Nhập doanh thu thuần khác 0 để tính biên lợi nhuận.',
-            en: 'Enter a non-zero net revenue to work out the margin.',
-          },
+        atField(
+          divideByZero(
+            { vi: 'ROS', en: 'ROS' },
+            { vi: 'Doanh thu thuần', en: 'Net revenue' },
+            {
+              vi: 'Nhập doanh thu thuần khác 0 để tính biên lợi nhuận.',
+              en: 'Enter a non-zero net revenue to work out the margin.',
+            },
+          ),
+          'revenue',
+          DOANH_THU_THUAN_LON_HON_0,
         ),
       );
     }
@@ -942,10 +1003,14 @@ export const BIEN_LOI_NHUAN_GOP: FormulaModule = {
     if (rev === 0) {
       return fail(
         '%',
-        divideByZero(
-          { vi: 'biên lợi nhuận gộp', en: 'gross profit margin' },
-          { vi: 'Doanh thu thuần', en: 'Net revenue' },
-          { vi: 'Nhập doanh thu thuần khác 0.', en: 'Enter a non-zero net revenue.' },
+        atField(
+          divideByZero(
+            { vi: 'biên lợi nhuận gộp', en: 'gross profit margin' },
+            { vi: 'Doanh thu thuần', en: 'Net revenue' },
+            { vi: 'Nhập doanh thu thuần khác 0.', en: 'Enter a non-zero net revenue.' },
+          ),
+          'revenue',
+          DOANH_THU_THUAN_LON_HON_0,
         ),
       );
     }
@@ -1116,25 +1181,33 @@ export const NO_TREN_VON_CHU: FormulaModule = {
     if (eq === 0) {
       return fail(
         'lần',
-        divideByZero(
-          { vi: 'D/E', en: 'D/E' },
-          { vi: 'Vốn chủ sở hữu', en: 'Equity' },
-          { vi: 'Nhập vốn chủ sở hữu khác 0.', en: 'Enter a non-zero equity value.' },
+        atField(
+          divideByZero(
+            { vi: 'D/E', en: 'D/E' },
+            { vi: 'Vốn chủ sở hữu', en: 'Equity' },
+            { vi: 'Nhập vốn chủ sở hữu khác 0.', en: 'Enter a non-zero equity value.' },
+          ),
+          'equity',
+          VON_CHU_LON_HON_0,
         ),
       );
     }
     if (eq < 0) {
       return fail(
         'lần',
-        meaningless(
-          {
-            vi: 'D/E không có ý nghĩa khi vốn chủ sở hữu đang âm: hệ số ra âm dù doanh nghiệp ngập trong nợ.',
-            en: 'D/E is not meaningful when equity is negative: the ratio comes out negative even though the company is drowning in debt.',
-          },
-          {
-            vi: 'Vốn chủ âm tự nó đã là tín hiệu rủi ro nặng. Xem lỗ luỹ kế trên báo cáo tài chính.',
-            en: 'Negative equity is itself a serious risk signal. Check accumulated losses on the financial statements.',
-          },
+        atField(
+          meaningless(
+            {
+              vi: 'D/E không có ý nghĩa khi vốn chủ sở hữu đang âm: hệ số ra âm dù doanh nghiệp ngập trong nợ.',
+              en: 'D/E is not meaningful when equity is negative: the ratio comes out negative even though the company is drowning in debt.',
+            },
+            {
+              vi: 'Vốn chủ âm tự nó đã là tín hiệu rủi ro nặng. Xem lỗ luỹ kế trên báo cáo tài chính.',
+              en: 'Negative equity is itself a serious risk signal. Check accumulated losses on the financial statements.',
+            },
+          ),
+          'equity',
+          VON_CHU_LON_HON_0,
         ),
       );
     }
@@ -1255,13 +1328,17 @@ export const THANH_TOAN_HIEN_HANH: FormulaModule = {
     if (liabilities === 0) {
       return fail(
         'lần',
-        divideByZero(
-          { vi: 'hệ số thanh toán hiện hành', en: 'current ratio' },
-          { vi: 'Nợ ngắn hạn', en: 'Current liabilities' },
-          {
-            vi: 'Nợ ngắn hạn bằng 0 thì hệ số này không có nghĩa. Nếu doanh nghiệp thật sự không có nợ ngắn hạn, không cần tính; còn không thì kiểm lại ô này.',
-            en: 'With zero current liabilities this ratio has no meaning. If the company truly has none, you do not need it; otherwise recheck this field.',
-          },
+        atField(
+          divideByZero(
+            { vi: 'hệ số thanh toán hiện hành', en: 'current ratio' },
+            { vi: 'Nợ ngắn hạn', en: 'Current liabilities' },
+            {
+              vi: 'Nợ ngắn hạn bằng 0 thì hệ số này không có nghĩa. Nếu doanh nghiệp thật sự không có nợ ngắn hạn, không cần tính; còn không thì kiểm lại ô này.',
+              en: 'With zero current liabilities this ratio has no meaning. If the company truly has none, you do not need it; otherwise recheck this field.',
+            },
+          ),
+          'currentLiabilities',
+          NO_NGAN_HAN_LON_HON_0,
         ),
       );
     }
@@ -1414,29 +1491,41 @@ export const THANH_TOAN_NHANH: FormulaModule = {
     if (liabilities === 0) {
       return fail(
         'lần',
-        divideByZero(
-          { vi: 'hệ số thanh toán nhanh', en: 'quick ratio' },
-          { vi: 'Nợ ngắn hạn', en: 'Current liabilities' },
-          {
-            vi: 'Nợ ngắn hạn bằng 0 thì hệ số này không có nghĩa. Nếu doanh nghiệp thật sự không có nợ ngắn hạn, không cần tính; còn không thì kiểm lại ô này.',
-            en: 'With zero current liabilities this ratio has no meaning. If the company truly has none, you do not need it; otherwise recheck this field.',
-          },
+        atField(
+          divideByZero(
+            { vi: 'hệ số thanh toán nhanh', en: 'quick ratio' },
+            { vi: 'Nợ ngắn hạn', en: 'Current liabilities' },
+            {
+              vi: 'Nợ ngắn hạn bằng 0 thì hệ số này không có nghĩa. Nếu doanh nghiệp thật sự không có nợ ngắn hạn, không cần tính; còn không thì kiểm lại ô này.',
+              en: 'With zero current liabilities this ratio has no meaning. If the company truly has none, you do not need it; otherwise recheck this field.',
+            },
+          ),
+          'currentLiabilities',
+          NO_NGAN_HAN_LON_HON_0,
         ),
       );
     }
     const assets = v('currentAssets');
     const inventory = v('inventory');
     if (inventory > assets) {
+      /* Điều kiện giữa hai ô, gắn vào ô đứng đầu câu nguyên nhân: Hàng tồn kho. */
       return fail(
         'lần',
-        meaningless(
+        atField(
+          meaningless(
+            {
+              vi: 'Hàng tồn kho đang lớn hơn tài sản ngắn hạn - hai số liệu này mâu thuẫn vì tồn kho là một phần của tài sản ngắn hạn.',
+              en: 'Inventory is larger than current assets - these two figures are inconsistent, since inventory is a part of current assets.',
+            },
+            {
+              vi: 'Kiểm tra lại hai ô trên bảng cân đối kế toán, cùng một kỳ báo cáo.',
+              en: 'Recheck both figures on the balance sheet for the same reporting period.',
+            },
+          ),
+          'inventory',
           {
-            vi: 'Hàng tồn kho đang lớn hơn tài sản ngắn hạn - hai số liệu này mâu thuẫn vì tồn kho là một phần của tài sản ngắn hạn.',
-            en: 'Inventory is larger than current assets - these two figures are inconsistent, since inventory is a part of current assets.',
-          },
-          {
-            vi: 'Kiểm tra lại hai ô trên bảng cân đối kế toán, cùng một kỳ báo cáo.',
-            en: 'Recheck both figures on the balance sheet for the same reporting period.',
+            vi: 'Hàng tồn kho không được lớn hơn Tài sản ngắn hạn.',
+            en: 'Inventory cannot be greater than current assets.',
           },
         ),
       );
@@ -1553,10 +1642,14 @@ export const VONG_QUAY_TONG_TAI_SAN: FormulaModule = {
     if (assets === 0) {
       return fail(
         'vòng',
-        divideByZero(
-          { vi: 'vòng quay tổng tài sản', en: 'total asset turnover' },
-          { vi: 'Tổng tài sản', en: 'Total assets' },
-          { vi: 'Nhập tổng tài sản khác 0.', en: 'Enter a non-zero total assets value.' },
+        atField(
+          divideByZero(
+            { vi: 'vòng quay tổng tài sản', en: 'total asset turnover' },
+            { vi: 'Tổng tài sản', en: 'Total assets' },
+            { vi: 'Nhập tổng tài sản khác 0.', en: 'Enter a non-zero total assets value.' },
+          ),
+          'totalAssets',
+          TONG_TAI_SAN_LON_HON_0,
         ),
       );
     }
@@ -1714,31 +1807,41 @@ export const TY_LE_CHI_TRA_CO_TUC: FormulaModule = {
   },
   calc: (v) => {
     const eps = v('eps');
+    /* Câu dưới ô EPS, chung cho hai nhánh bên dưới. */
+    const epsLonHon0 = { vi: 'EPS lớn hơn 0.', en: 'EPS must be greater than 0.' };
     if (eps === 0) {
       return fail(
         '%',
-        divideByZero(
-          { vi: 'hệ số chi trả cổ tức', en: 'dividend payout ratio' },
-          { vi: 'EPS', en: 'EPS' },
-          {
-            vi: 'Nhập EPS khác 0; công ty không có lợi nhuận thì hệ số chi trả không tính được.',
-            en: 'Enter a non-zero EPS; a company with no earnings has no payout ratio.',
-          },
+        atField(
+          divideByZero(
+            { vi: 'hệ số chi trả cổ tức', en: 'dividend payout ratio' },
+            { vi: 'EPS', en: 'EPS' },
+            {
+              vi: 'Nhập EPS khác 0; công ty không có lợi nhuận thì hệ số chi trả không tính được.',
+              en: 'Enter a non-zero EPS; a company with no earnings has no payout ratio.',
+            },
+          ),
+          'eps',
+          epsLonHon0,
         ),
       );
     }
     if (eps < 0) {
       return fail(
         '%',
-        meaningless(
-          {
-            vi: 'Hệ số chi trả không có ý nghĩa khi doanh nghiệp đang lỗ: cổ tức lúc này lấy từ tiền tích luỹ, không phải từ lợi nhuận trong kỳ.',
-            en: 'The payout ratio is not meaningful when the company is running a loss: the dividend in that case comes from accumulated cash, not from profit earned in the period.',
-          },
-          {
-            vi: 'Xem nguồn tiền trả cổ tức trên báo cáo lưu chuyển tiền tệ.',
-            en: 'Check the source of dividend funding on the cash flow statement.',
-          },
+        atField(
+          meaningless(
+            {
+              vi: 'Hệ số chi trả không có ý nghĩa khi doanh nghiệp đang lỗ: cổ tức lúc này lấy từ tiền tích luỹ, không phải từ lợi nhuận trong kỳ.',
+              en: 'The payout ratio is not meaningful when the company is running a loss: the dividend in that case comes from accumulated cash, not from profit earned in the period.',
+            },
+            {
+              vi: 'Xem nguồn tiền trả cổ tức trên báo cáo lưu chuyển tiền tệ.',
+              en: 'Check the source of dividend funding on the cash flow statement.',
+            },
+          ),
+          'eps',
+          epsLonHon0,
         ),
       );
     }

@@ -47,6 +47,12 @@ export interface VariableFieldProps {
   compact?: boolean;
   /** Con dấu nguồn của giá trị, chỉ hiện ở ô nhỏ — xem `InputProps.sourceMark`. */
   sourceMark?: ReactNode;
+  /**
+   * Câu điều kiện của công thức mà ô đang vi phạm — xem `NumberInputProps.conditionError`. Chỉ ô số
+   * nhận: mọi ô mà `calc` gắn điều kiện (`atField`) đều là ô số, và `field-condition.test.ts` ghim
+   * điều đó.
+   */
+  conditionError?: string;
   className?: string;
 }
 
@@ -125,6 +131,7 @@ export function VariableField({
   lockedNote,
   compact,
   sourceMark,
+  conditionError,
   className,
 }: VariableFieldProps) {
   const shared = { spec, value, onChange, mode, lockedNote, className };
@@ -148,6 +155,7 @@ export function VariableField({
           derivedNote={derivedNote}
           compact={compact}
           sourceMark={sourceMark}
+          conditionError={conditionError}
         />
       );
   }

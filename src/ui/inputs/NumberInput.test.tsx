@@ -536,6 +536,38 @@ describe('ô không nhận số âm (min ≥ 0)', () => {
   });
 });
 
+/*
+ * Điều kiện của CÔNG THỨC mà con số trong ô đang vi phạm (18/11/2026) — câu do `calc` gắn qua
+ * `atField()`, màn chuyền xuống bằng `conditionError`. Chủ dự án: _"cần thông báo đỏ ở bên dưới ô
+ * nhập là 'Giá bán phải lớn hơn Biến phí một sản phẩm'"_.
+ */
+describe('câu điều kiện của công thức dưới ô', () => {
+  const cau = 'Giá thị trường phải lớn hơn Biến phí một sản phẩm.';
+
+  it('in đỏ dưới ô (role="alert"), viền ô chuyển sang sắc thái lỗi', () => {
+    render(<NumberInput spec={price} value={1_222} onChange={vi.fn()} conditionError={cau} />);
+    expect(screen.getByRole('alert').textContent).toBe(cau);
+    expect(box().getAttribute('aria-invalid')).toBe('true');
+  });
+
+  it('không có câu thì ô như cũ, không có dòng đỏ', () => {
+    render(<NumberInput spec={price} value={1_222} onChange={vi.fn()} />);
+    expect(screen.queryByRole('alert')).toBeNull();
+  });
+
+  it('lỗi miền của chính ô đứng trước câu điều kiện — số ngoài miền chưa tới được calc', () => {
+    render(<NumberInput spec={price} value={-5} onChange={vi.fn()} conditionError={cau} />);
+    expect(screen.getByRole('alert').textContent).toBe('Giá thị trường không được âm.');
+  });
+
+  it('dấu trừ vừa bị chặn cũng đứng trước câu điều kiện', async () => {
+    render(<NumberInput spec={price} value={1_222} onChange={vi.fn()} conditionError={cau} />);
+    await userEvent.click(box());
+    await userEvent.type(box(), '-', { initialSelectionStart: 0, initialSelectionEnd: 0 });
+    expect(screen.getByRole('alert').textContent).toBe('Giá thị trường không được âm.');
+  });
+});
+
 describe('ô nhận giá trị tự động (FR-15)', () => {
   it('ghi rõ tên công thức nguồn', () => {
     render(<NumberInput spec={price} value={14.3} onChange={vi.fn()} derivedFrom="CAPM" />);

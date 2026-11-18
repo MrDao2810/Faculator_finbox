@@ -206,6 +206,10 @@ export function ChainBody({
     if (spec === undefined) return null;
 
     const linkedKeys = new Set(step.fields.map((field) => field.spec.key));
+    /* Ô của bước này đang vi phạm điều kiện công thức — cùng luật với khối Số liệu, xem `atField()`. */
+    const dieuKienO = step.output.warning?.field;
+    const cauDieuKienCua = (key: string): string | undefined =>
+      dieuKienO?.key === key ? pick(dieuKienO.message) : undefined;
     const ownInputs = inputs[step.formulaId] ?? {};
     const ownOverrides = overrides[step.formulaId] ?? {};
     const shownVars = variablesForLevel(spec, mode);
@@ -277,6 +281,7 @@ export function ChainBody({
                       onOverride(step.formulaId, variable.key, value);
                     }}
                     mode={mode}
+                    conditionError={cauDieuKienCua(variable.key)}
                     className={styles.fieldWide}
                   />
                 );
@@ -293,6 +298,7 @@ export function ChainBody({
                     onInput(step.formulaId, variable.key, value);
                   }}
                   mode={mode}
+                  conditionError={cauDieuKienCua(variable.key)}
                   // Cùng luật với khối Số liệu: thanh trượt và nhóm nút chiếm trọn hàng. Thẻ bước
                   // còn hẹp hơn khối chính (thụt vào hai lần), nên bỏ luật này ở đây là ô lưới
                   // rơi xuống 143px — xem docblock của `isWideControl()`.

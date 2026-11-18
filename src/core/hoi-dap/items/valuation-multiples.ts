@@ -20,6 +20,16 @@ export const HOI_DAP_VALUATION_MULTIPLES: Readonly<Record<string, ReadonlyArray<
           noi: 'hoi-dap',
           vietnam: false,
         },
+        traLoi: {
+          vi: 'Đáp án được chấp nhận: theo quy tắc kế toán Mỹ, công ty mẹ sở hữu trên 50% công ty con phải hợp nhất công ty con vào báo cáo của mình, và phần công ty con không thuộc công ty mẹ ghi thành lợi ích cổ đông thiểu số. Phần này không nằm trong vốn hoá của công ty mẹ nên được cộng vào EV. Công thức ở đây chỉ có vốn hoá, nợ vay và tiền mặt, không cộng khoản này.',
+          en: "The accepted answer: under US accounting rules, a parent owning more than 50% of a subsidiary must consolidate it, and the part of the subsidiary the parent does not own is recorded as minority interest. That part is not in the parent's market cap, so it is added to EV. The formula here has only market cap, debt and cash, and does not add it.",
+        },
+        nguonTraLoi: [
+          {
+            url: 'https://money.stackexchange.com/questions/78110/why-is-minority-interest-included-in-enterprise-value',
+            ten: 'Money StackExchange',
+          },
+        ],
       },
       {
         hoi: {
@@ -80,6 +90,16 @@ export const HOI_DAP_VALUATION_MULTIPLES: Readonly<Record<string, ReadonlyArray<
           noi: 'hoi-dap',
           vietnam: false,
         },
+        traLoi: {
+          vi: 'Đáp án được chấp nhận nói "tiền thừa" không có định nghĩa chung: tuỳ từng doanh nghiệp, công ty cần nhiều vốn lưu động thì phải giữ nhiều tiền hơn. Chỉ trừ phần tiền thừa (luôn nhỏ hơn tổng tiền) làm EV cao hơn, nên đó là cách tính thận trọng. Công thức ở đây trừ toàn bộ tiền mặt, tiền gửi và đầu tư ngắn hạn bạn nhập.',
+          en: 'The accepted answer says "excess cash" has no single definition: it depends on the business, and a company that needs a lot of working capital must hold more cash. Subtracting only excess cash (always less than total cash) makes EV higher, so it is the conservative choice. The formula here subtracts all the cash, deposits and short-term investments you enter.',
+        },
+        nguonTraLoi: [
+          {
+            url: 'https://money.stackexchange.com/questions/10544/how-do-you-determine-excess-cash-for-enterprise-value-calculations-from-a-bala',
+            ten: 'Money StackExchange',
+          },
+        ],
       },
     ],
     ps: [
@@ -95,6 +115,10 @@ export const HOI_DAP_VALUATION_MULTIPLES: Readonly<Record<string, ReadonlyArray<
           noi: 'hoi-dap',
           vietnam: false,
         },
+        traLoi: {
+          vi: 'Lấy doanh thu thuần bốn quý gần nhất (tỷ ₫) nhân 1 tỷ rồi chia số cổ phiếu lưu hành để ra doanh thu trên mỗi cổ phiếu, sau đó lấy giá thị trường chia cho số đó. P/E làm tương tự, chỉ thay doanh thu bằng lợi nhuận sau thuế để ra EPS. Ví dụ FPT: 72.700 ÷ 37.157 = 1,96 lần.',
+          en: 'Take net revenue for the last four quarters (in billion ₫), multiply by 1 billion and divide by shares outstanding to get revenue per share, then divide the market price by that figure. P/E works the same way with net income in place of revenue, giving EPS. For FPT: 72,700 ÷ 37,157 = 1.96 times.',
+        },
       },
       {
         hoi: {
@@ -107,6 +131,10 @@ export const HOI_DAP_VALUATION_MULTIPLES: Readonly<Record<string, ReadonlyArray<
           ten: 'TACA mục Câu hỏi thường gặp',
           noi: 'faq',
           vietnam: true,
+        },
+        traLoi: {
+          vi: 'Không có một mức tốt chung, nên hãy so P/S với các công ty cùng ngành ở cùng thời điểm: thấp hơn là mỗi đồng doanh thu đang được trả rẻ hơn, cao hơn là đắt hơn. P/S thấp chưa chắc là rẻ, vì doanh thu chưa phải lợi nhuận: công ty biên lãi mỏng hay đang lỗ vẫn có thể có P/S thấp.',
+          en: 'There is no universal good level, so compare P/S with companies in the same industry at the same time: lower means each dong of revenue is priced more cheaply, higher means more expensively. A low P/S is not necessarily cheap, because revenue is not profit: a thin-margin or loss-making company can still have a low P/S.',
         },
       },
       {
@@ -147,6 +175,10 @@ export const HOI_DAP_VALUATION_MULTIPLES: Readonly<Record<string, ReadonlyArray<
           noi: 'hoi-dap',
           vietnam: false,
         },
+        traLoi: {
+          vi: 'EV/EBITDA hợp khi so hai công ty cùng ngành mà mức vay nợ rất khác nhau: EV đã cộng nợ, trừ tiền mặt, còn EBITDA là lãi trước lãi vay, nên mức vay khác nhau ít làm lệch phép so. P/E so giá với lãi của cổ đông sau lãi vay và không tính được khi công ty lỗ. Khi EBITDA âm, màn này báo không có ý nghĩa và gợi ý dùng EV/Sales hoặc P/B.',
+          en: "EV/EBITDA suits comparing two companies in the same industry with very different debt levels: EV already adds debt and takes off cash, and EBITDA is profit before interest, so borrowing distorts the comparison less. P/E compares the price with shareholders' profit after interest and cannot be computed for a loss-maker. When EBITDA is negative, this screen reports a meaningless result and suggests EV/Sales or P/B instead.",
+        },
       },
       {
         hoi: {
@@ -160,6 +192,21 @@ export const HOI_DAP_VALUATION_MULTIPLES: Readonly<Record<string, ReadonlyArray<
           ten: 'Money StackExchange',
           noi: 'hoi-dap',
           vietnam: false,
+        },
+        traLoi: {
+          vi: 'Công thức trên trang này không làm việc đó: nó chỉ chia EV cho EBITDA bốn quý gần nhất bạn nhập, không dự phóng năm sau và không chiết khấu. Cách làm ấy chỉ hợp lệ khi chấp nhận giả định năm sau thị trường vẫn trả đúng bội số hôm nay, trong khi bội số còn đổi theo kỳ vọng tăng trưởng và mặt bằng định giá chung của thị trường.',
+          en: "The formula on this page does not do that: it only divides EV by the last-four-quarter EBITDA you enter, with no projection and no discounting. That approach only holds if you accept that next year the market will still pay exactly today's multiple, while multiples shift with growth expectations and with how the market as a whole is valued.",
+        },
+      },
+      {
+        hoi: {
+          vi: 'Tại sao EBITDA âm thì màn báo kết quả không có ý nghĩa, còn EV âm vẫn ra một con số?',
+          en: 'Why does a negative EBITDA give a meaningless result while a negative EV still gives a number?',
+        },
+        tuSoan: true,
+        traLoi: {
+          vi: 'EBITDA âm nghĩa là kinh doanh lỗ trước cả khấu hao, chia EV cho khoản lỗ không cho bội số nào đọc được, nên màn báo kết quả không có ý nghĩa; EBITDA bằng 0 thì báo chia cho 0. EV âm lại là số thật: tiền mặt vượt cả vốn hoá cộng nợ vay, nên EV −500 tỷ ₫ trên EBITDA 1.450 tỷ ₫ cho −0,34 lần.',
+          en: 'A negative EBITDA means the business loses money even before depreciation, and dividing EV by a loss gives no readable multiple, so the screen reports a meaningless result; an EBITDA of 0 is reported as a divide-by-zero error. A negative EV is a real figure: cash exceeds market cap plus debt, so an EV of −500 billion ₫ on EBITDA of 1,450 billion ₫ gives −0.34 times.',
         },
       },
     ],
@@ -200,6 +247,10 @@ export const HOI_DAP_VALUATION_MULTIPLES: Readonly<Record<string, ReadonlyArray<
           noi: 'hoi-dap',
           vietnam: false,
         },
+        traLoi: {
+          vi: 'Công thức không xét vốn hoá: nó chỉ chia P/E cho mức tăng lợi nhuận bạn kỳ vọng. Công ty lớn mà lợi nhuận tăng chậm thì g nhỏ, nên PEG dễ vượt mốc 1 lần dù P/E không cao: P/E 15,2 với g 5 cho 3,04 lần. Khi g bằng 0 hoặc âm, màn báo lỗi và gợi ý so thẳng P/E với công ty cùng ngành.',
+          en: 'The formula does not look at company size: it only divides P/E by the profit growth you expect. A large company whose profit grows slowly has a small g, so PEG easily passes the 1 mark even when P/E is not high: a P/E of 15.2 with g of 5 gives 3.04 times. When g is 0 or negative, the screen reports an error and suggests comparing P/E directly with peers in the same industry.',
+        },
       },
       {
         hoi: {
@@ -213,6 +264,16 @@ export const HOI_DAP_VALUATION_MULTIPLES: Readonly<Record<string, ReadonlyArray<
           noi: 'faq',
           vietnam: true,
         },
+        traLoi: {
+          vi: 'Nguồn lấy mốc 1,0: dưới 1 được xem là cổ phiếu định giá tương đối thấp so với tăng trưởng, trên 1 thường bị coi là định giá cao. Màn này cũng đọc theo mốc 1 lần, nhưng g là mức tăng bạn dự phóng, nên lệch vài điểm phần trăm ở g có thể đẩy PEG qua mốc ấy: P/E 12,39 với g 14,1 cho 0,88 lần, còn g dương mà dưới 12,39 là PEG vượt 1.',
+          en: 'The source uses the 1.0 mark: below 1 is seen as a stock valued relatively low for its growth, above 1 is usually seen as overvalued. This screen reads it against the same 1 mark, but g is your forecast, so being off by a few percentage points in g can push PEG across it: a P/E of 12.39 with g of 14.1 gives 0.88 times, while any positive g below 12.39 puts PEG above 1.',
+        },
+        nguonTraLoi: [
+          {
+            url: 'https://taca.com.vn/chi-so-peg/',
+            ten: 'TACA',
+          },
+        ],
       },
       {
         hoi: {
@@ -227,8 +288,8 @@ export const HOI_DAP_VALUATION_MULTIPLES: Readonly<Record<string, ReadonlyArray<
           vietnam: true,
         },
         traLoi: {
-          vi: 'Theo nguồn, PEG âm đến từ lợi nhuận âm hoặc tăng trưởng ước tính âm. Ở đây công thức không in số âm: P/E bằng 0 hoặc âm, hay tăng trưởng âm, đều báo không có ý nghĩa.',
-          en: 'According to the source, a negative PEG comes from negative earnings or negative estimated growth. Here the formula never prints a negative number: a P/E of zero or below, or negative growth, is reported as meaningless.',
+          vi: 'Theo nguồn, PEG âm đến từ lợi nhuận âm hoặc tăng trưởng ước tính âm. Ở đây công thức không in số âm: tăng trưởng âm hay P/E bằng 0 đều báo không có ý nghĩa, tăng trưởng bằng 0 báo chia cho 0; ô P/E không nhận số âm.',
+          en: 'According to the source, a negative PEG comes from negative earnings or negative estimated growth. Here the formula never prints a negative number: negative growth or a P/E of 0 is reported as meaningless, zero growth as a divide by zero, and the P/E field does not accept negative numbers.',
         },
         nguonTraLoi: [
           {
@@ -368,6 +429,16 @@ export const HOI_DAP_VALUATION_MULTIPLES: Readonly<Record<string, ReadonlyArray<
           noi: 'hoi-dap',
           vietnam: false,
         },
+        traLoi: {
+          vi: 'Các câu trả lời ở nguồn không thống nhất: một câu nói báo cáo phân tích luôn ghi kỳ hạn ở phần miễn trừ trách nhiệm, thường là 12 tháng, có nơi 6 tháng; câu khác nói khi không ghi kỳ hạn thì đó là mức giá hợp lý, không ai biết bao lâu mới tới. Công thức ở đây không có kỳ hạn: nó chỉ nhân P/E mục tiêu với EPS hiện tại, không nói khi nào giá chạm mức ấy.',
+          en: 'The answers at the source disagree: one says a research report always states the horizon in its disclaimer, usually 12 months though some firms use 6; another says that without a stated horizon the target is a fair price, and nobody knows how long it takes to get there. The formula here has no time horizon: it only multiplies the target P/E by current EPS and says nothing about when the price might reach that level.',
+        },
+        nguonTraLoi: [
+          {
+            url: 'https://money.stackexchange.com/questions/5930/is-an-analysts-price-target-assumed-to-be-for-12-months-out',
+            ten: 'Money StackExchange',
+          },
+        ],
       },
       {
         hoi: {
@@ -391,6 +462,17 @@ export const HOI_DAP_VALUATION_MULTIPLES: Readonly<Record<string, ReadonlyArray<
             ten: 'Money StackExchange',
           },
         ],
+      },
+      {
+        hoi: {
+          vi: 'Tại sao công ty đang lỗ thì màn không tính được giá mục tiêu?',
+          en: "Why can't the screen compute a target price for a loss-making company?",
+        },
+        tuSoan: true,
+        traLoi: {
+          vi: 'Giá mục tiêu là P/E mục tiêu nhân EPS, nên EPS bằng 0 hoặc âm cho ra mức giá bằng 0 hoặc âm, không có nghĩa; màn báo kết quả không có ý nghĩa và gợi ý dùng NCAV trên cổ phiếu hoặc P/B. P/E mục tiêu bằng 0 cũng bị báo như vậy.',
+          en: 'The target price is the target P/E times EPS, so an EPS of 0 or below gives a zero or negative price that means nothing; the screen reports a meaningless result and suggests NCAV per share or P/B instead. A target P/E of 0 is reported the same way.',
+        },
       },
     ],
     'ev-sales': [

@@ -60,6 +60,13 @@ export interface NumberInputProps {
   compact?: boolean;
   /** Con dấu nguồn của giá trị, chỉ hiện ở ô nhỏ — xem `InputProps.sourceMark`. */
   sourceMark?: ReactNode;
+  /**
+   * Câu điều kiện CỦA CÔNG THỨC mà con số trong ô đang vi phạm ("Giá bán phải lớn hơn Biến phí một
+   * sản phẩm.") — lấy từ `CalcWarning.field` của kết quả (18/11/2026). Đi đường `error` như lỗi miền:
+   * viền đỏ, dòng đỏ, `role="alert"`. Lỗi miền của chính ô và dấu trừ vừa bị chặn đứng trước nó,
+   * vì con số ngoài miền chưa hề đi lên tới `calc`.
+   */
+  conditionError?: string;
   className?: string;
 }
 
@@ -130,6 +137,7 @@ export function NumberInput({
   hideLabel = false,
   compact = false,
   sourceMark,
+  conditionError,
   className,
 }: NumberInputProps) {
   const [focused, setFocused] = useState(false);
@@ -206,7 +214,9 @@ export function NumberInput({
       ? cauSoAm(spec, t, nhanCau)
       : state === 'outOfRange'
         ? (cauLoiMien(soDangGo, spec, t, nhanCau) ?? note)
-        : undefined;
+        : conditionError !== undefined && conditionError !== ''
+          ? conditionError
+          : undefined;
   /*
    * Ô khoá theo chế độ: Domain trả dòng phụ `'nâng cao'` viết cứng (CON-02 cấm `src/core` đọc
    * i18n), nên ở đây thay bằng khoá dịch — cùng khoá `SliderInput`, `Toggle`, `RadioGroup` đang

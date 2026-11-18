@@ -19,6 +19,38 @@ export const HOI_DAP_RISK_VOLATILITY: Readonly<Record<string, ReadonlyArray<CauH
         noi: 'hoi-dap',
         vietnam: false,
       },
+      traLoi: {
+        vi: 'Đáp án được chấp nhận: công thức đúng tuyệt đối với lợi suất log, vì log của thay đổi cả năm bằng tổng log từng phiên; với lợi suất đơn (phần trăm thay đổi) nó chỉ là xấp xỉ. Điều kiện là lợi suất log các phiên không tương quan và độ lệch chuẩn không đổi. Trang này dùng lợi suất đơn nên con số là xấp xỉ; công thức Độ biến động lịch sử năm hoá của thư viện dùng lợi suất log.',
+        en: 'The accepted answer: the formula is exact for log returns, because the log of the yearly change is the sum of the per-session logs; for simple (percentage) returns it is only an approximation. It also requires the log returns to be uncorrelated and the standard deviation constant. This page uses simple returns, so its figure is an approximation; the library’s Annualized historical volatility formula uses log returns.',
+      },
+      nguonTraLoi: [
+        {
+          url: 'https://quant.stackexchange.com/questions/48641',
+          ten: 'Quant StackExchange',
+        },
+      ],
+    },
+    {
+      hoi: {
+        vi: 'Chuỗi giá theo tuần hoặc theo tháng thì nhập Số phiên giao dịch trong một năm là bao nhiêu?',
+        en: 'For a weekly or monthly price series, what should I enter for Trading sessions per year?',
+      },
+      tuSoan: true,
+      traLoi: {
+        vi: 'Nhập số kỳ của chuỗi trong một năm: chuỗi tuần là 52, chuỗi tháng là 12, chuỗi ngày giao dịch khoảng 250. Khi đó ô Số phiên lấy để tính cũng đếm theo tuần hay theo tháng, và vẫn cần ít nhất 30 kỳ.',
+        en: 'Enter how many periods of the series fit in a year: 52 for weekly, 12 for monthly, about 250 for daily trading sessions. The Number of sessions used then counts weeks or months too, and still needs at least 30 periods.',
+      },
+    },
+    {
+      hoi: {
+        vi: 'Tại sao đặt Số phiên lấy để tính lớn hơn chuỗi đã nạp thì báo thiếu chuỗi giá?',
+        en: 'Why does setting the Number of sessions used above the loaded series report a missing series?',
+      },
+      tuSoan: true,
+      traLoi: {
+        vi: 'Công thức đòi đủ đúng số phiên bạn chọn, không tự thu lại cho vừa chuỗi: chuỗi FPT 250 phiên mà chọn 300 thì sản phẩm báo cần ít nhất 300 phiên giá. Hãy hạ ô này xuống bằng hoặc dưới số phiên đã nạp, và không dưới 30; với 250 phiên FPT tới 15/09/2026 kết quả là 32,33%/năm.',
+        en: 'The formula requires exactly the number of sessions you chose and does not shrink it to fit the series: with 250 FPT sessions, choosing 300 makes the product ask for at least 300 price sessions. Lower the field to at most the number loaded, and no less than 30; with the 250 FPT sessions to 2026-09-15 the result is 32.33%/year.',
+      },
     },
   ],
   'do-lech-chuan-ban-phan': [
@@ -33,6 +65,38 @@ export const HOI_DAP_RISK_VOLATILITY: Readonly<Record<string, ReadonlyArray<CauH
         ten: 'Quant StackExchange',
         noi: 'hoi-dap',
         vietnam: false,
+      },
+      traLoi: {
+        vi: 'Đáp án được chấp nhận: tính trên toàn bộ dữ liệu, phiên không dưới ngưỡng tính là 0 chứ không bị bỏ, vì bỏ đi thì thước đo mất độ nhạy với tần suất phiên xấu: một chuỗi có một phiên −10 và một chuỗi bốn phiên −10 sẽ ra như nhau. Trang này cũng giữ mọi phiên ở mẫu số, nhưng chia cho tổng số lợi suất trừ 1 (độ lệch chuẩn mẫu) chứ không chia cho N như công thức trong đáp án.',
+        en: 'The accepted answer: compute over all the data, counting sessions not below the threshold as 0 rather than dropping them, since dropping them makes the measure blind to how often bad sessions occur: a series with one −10 session and a series of four −10 sessions would come out the same. This page also keeps every session in the denominator, but divides by the total number of returns minus 1 (a sample standard deviation) rather than by N as in the answer.',
+      },
+      nguonTraLoi: [
+        {
+          url: 'https://quant.stackexchange.com/questions/38958',
+          ten: 'Quant StackExchange',
+        },
+      ],
+    },
+    {
+      hoi: {
+        vi: 'Muốn đặt ngưỡng là 10% một năm thì nhập ô Ngưỡng lợi suất mỗi phiên bao nhiêu?',
+        en: 'If I want a threshold of 10% a year, what should I enter in the Per-session return threshold?',
+      },
+      tuSoan: true,
+      traLoi: {
+        vi: 'Ô này là ngưỡng cho một phiên, đơn vị %. Đổi từ năm về phiên theo lãi kép: (1 + 10%)^(1/250) − 1 ≈ 0,0381% mỗi phiên với chuỗi ngày, nên nhập 0,0381. Với 55 phiên FPT của ví dụ, ngưỡng ấy cho 1,22%/phiên, so với 1,2% ở ngưỡng 0.',
+        en: 'This field is a threshold for one session, in %. Convert from a year to a session by compounding: (1 + 10%)^(1/250) − 1 ≈ 0.0381% per session for a daily series, so enter 0.0381. For the 55 FPT sessions of the example, that threshold gives 1.22%/session, against 1.2% at a threshold of 0.',
+      },
+    },
+    {
+      hoi: {
+        vi: 'Đặt ngưỡng âm, ví dụ −1%, thì độ lệch chuẩn bán phần đo gì?',
+        en: 'What does downside deviation measure if I set a negative threshold, such as −1%?',
+      },
+      tuSoan: true,
+      traLoi: {
+        vi: 'Khi đó chỉ phiên giảm quá 1% mới được cộng vào, và phần hụt tính từ mốc −1% chứ không từ 0, nên con số nhỏ đi: 55 phiên FPT của ví dụ ra 0,76%/phiên, so với 1,2% ở ngưỡng 0. Mẫu số vẫn là tổng số lợi suất trừ 1, kể cả các phiên không bị tính.',
+        en: 'Then only sessions falling more than 1% are added, and the shortfall is measured from −1% rather than from 0, so the figure gets smaller: the 55 FPT sessions of the example give 0.76%/session, against 1.2% at a threshold of 0. The denominator is still the total number of returns minus 1, including sessions that are not counted.',
       },
     },
   ],
@@ -61,6 +125,28 @@ export const HOI_DAP_RISK_VOLATILITY: Readonly<Record<string, ReadonlyArray<CauH
         },
       ],
     },
+    {
+      hoi: {
+        vi: 'Tại sao hệ số biến thiên báo chia cho 0 khi giá đứng yên?',
+        en: 'Why does the coefficient of variation report a divide-by-zero error when the price is flat?',
+      },
+      tuSoan: true,
+      traLoi: {
+        vi: 'Hệ số lấy độ lệch chuẩn chia cho lợi suất bình quân mỗi phiên. Giá đứng yên suốt các phiên đã chọn thì lợi suất bình quân bằng 0, nên sản phẩm báo chia cho 0 thay vì in một số vô hạn. Muốn đo riêng mức dao động thì xem Độ lệch chuẩn lợi suất theo phiên.',
+        en: 'The coefficient divides the standard deviation by the average return per session. If the price is flat over the chosen sessions, that average is 0, so the product reports a divide-by-zero error rather than printing an infinite number. To measure the swings on their own, use the Per-session return standard deviation.',
+      },
+    },
+    {
+      hoi: {
+        vi: 'Hệ số biến thiên 33,68 lần có phải là 33,68% không?',
+        en: 'Is a coefficient of variation of 33.68 times the same as 33.68%?',
+      },
+      tuSoan: true,
+      traLoi: {
+        vi: 'Không. Đây là tỷ số giữa hai đại lượng cùng đơn vị %/phiên nên kết quả tính bằng lần, không mang dấu %. Ở ví dụ STB 90 phiên tới 15/09/2026, độ lệch chuẩn 1,7944%/phiên chia lợi suất bình quân 0,05328%/phiên ra 33,68 lần.',
+        en: 'No. It is a ratio of two quantities in the same %/session unit, so the result is in times and carries no % sign. In the STB example of 90 sessions to 2026-09-15, a standard deviation of 1.7944%/session divided by an average return of 0.05328%/session gives 33.68 times.',
+      },
+    },
   ],
   'do-lech-chuan-loi-suat-phien': [
     {
@@ -76,6 +162,10 @@ export const HOI_DAP_RISK_VOLATILITY: Readonly<Record<string, ReadonlyArray<CauH
         noi: 'hoi-dap',
         vietnam: false,
       },
+      traLoi: {
+        vi: 'Trang này tính độ biến động như sau: lấy số giá đóng cửa gần nhất theo ô Số phiên lấy để tính, đổi ra lợi suất từng phiên (giá phiên này chia giá phiên trước, trừ 1), rồi lấy độ lệch chuẩn mẫu, chia cho số lợi suất trừ 1. Kết quả theo %/phiên: 55 phiên FPT của ví dụ ra 1,93%. ROI không tính ở đây mà ở công thức ROI của thư viện.',
+        en: 'This page computes volatility this way: take the latest closes set by the Number of sessions used, turn them into per-session returns (this close divided by the previous close, minus 1), then take the sample standard deviation, dividing by the number of returns minus 1. The result is in %/session: the 55 FPT sessions of the example give 1.93%. ROI is not computed here but in the library’s ROI formula.',
+      },
     },
     {
       hoi: {
@@ -89,6 +179,21 @@ export const HOI_DAP_RISK_VOLATILITY: Readonly<Record<string, ReadonlyArray<CauH
         ten: 'Quant StackExchange',
         noi: 'hoi-dap',
         vietnam: false,
+      },
+      traLoi: {
+        vi: 'Trang này không dùng độ lệch chuẩn hình học mà lấy độ lệch chuẩn thông thường (chia n − 1) của lợi suất đơn từng phiên. Ở khoảng một phiên, lợi suất đơn và lợi suất log gần như bằng nhau nên độ lệch chuẩn chênh rất ít; công thức Độ biến động lịch sử năm hoá của thư viện dùng lợi suất log. Chỉ so độ biến động của hai mã khi chúng tính cùng một cách.',
+        en: 'This page does not use a geometric standard deviation; it takes the ordinary standard deviation (dividing by n − 1) of simple per-session returns. Over a single session, simple and log returns are nearly equal, so the standard deviations differ very little; the library’s Annualized historical volatility formula uses log returns. Only compare the volatility of two stocks computed the same way.',
+      },
+    },
+    {
+      hoi: {
+        vi: 'Kết quả theo %/phiên, muốn so với độ biến động theo năm trong báo cáo quỹ thì đổi thế nào?',
+        en: 'The result is per session, so how do I convert it to compare with the yearly volatility in a fund report?',
+      },
+      tuSoan: true,
+      traLoi: {
+        vi: 'Nhân với căn bậc hai của số phiên giao dịch một năm, không nhân thẳng với số phiên. Đó là việc công thức Độ biến động năm hoá làm: 1,925%/phiên của 55 phiên FPT nhân căn 250 ra 30,44%/năm.',
+        en: 'Multiply by the square root of the number of trading sessions in a year, not by the number itself. That is what the Annualized volatility formula does: 1.925%/session over 55 FPT sessions times the square root of 250 gives 30.44%/year.',
       },
     },
   ],

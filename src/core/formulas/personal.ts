@@ -14,7 +14,7 @@
 
 import { ok } from '../calc-output';
 import type { CalcValues, ColumnData, ColumnView, FormulaModule } from '../calc/types';
-import { divideByZero } from '../warnings';
+import { atField, divideByZero } from '../warnings';
 import {
   SOURCE_CORPORATE_FINANCE,
   SO_DU_TUNG_NAM,
@@ -86,6 +86,13 @@ const WF14 = { amount: 800_000_000, rate: 9.5, years: 20 } as const;
 function monthlyRate(annualPercent: number): number {
   return annualPercent / 100 / 12;
 }
+
+/*
+ * Câu dưới ô Kỳ hạn của ba công thức vay nợ (18/11/2026). Ô đếm năm nguyên (min 1), nên "lớn hơn
+ * 0" đúng bằng điều kiện số kỳ làm tròn từ năm × 12 phải dương; nhánh chỉ tới được khi số đi vòng
+ * qua miền nhập.
+ */
+const KY_HAN_DUONG = { vi: 'Kỳ hạn lớn hơn 0.', en: 'Term must be greater than 0.' };
 
 /*
  * ── 1. Trả góp niên kim (EMI) ──────────────────────────────────────────────────────────
@@ -236,10 +243,14 @@ export const TRA_GOP_NIEN_KIM: FormulaModule = {
       return {
         value: null,
         unit: '₫/tháng',
-        warning: divideByZero(
-          { vi: 'khoản trả hằng tháng', en: 'the monthly payment' },
-          { vi: 'Kỳ hạn', en: 'Term' },
-          { vi: 'Nhập kỳ hạn ít nhất 1 năm.', en: 'Enter a term of at least 1 year.' },
+        warning: atField(
+          divideByZero(
+            { vi: 'khoản trả hằng tháng', en: 'the monthly payment' },
+            { vi: 'Kỳ hạn', en: 'Term' },
+            { vi: 'Nhập kỳ hạn ít nhất 1 năm.', en: 'Enter a term of at least 1 year.' },
+          ),
+          'years',
+          KY_HAN_DUONG,
         ),
       };
     }
@@ -406,10 +417,14 @@ export const TRA_GOP_GOC_DEU: FormulaModule = {
       return {
         value: null,
         unit: '₫',
-        warning: divideByZero(
-          { vi: 'khoản trả kỳ đầu', en: 'the first-period payment' },
-          { vi: 'Kỳ hạn', en: 'Term' },
-          { vi: 'Nhập kỳ hạn ít nhất 1 năm.', en: 'Enter a term of at least 1 year.' },
+        warning: atField(
+          divideByZero(
+            { vi: 'khoản trả kỳ đầu', en: 'the first-period payment' },
+            { vi: 'Kỳ hạn', en: 'Term' },
+            { vi: 'Nhập kỳ hạn ít nhất 1 năm.', en: 'Enter a term of at least 1 year.' },
+          ),
+          'years',
+          KY_HAN_DUONG,
         ),
       };
     }
@@ -587,10 +602,14 @@ export const LICH_TRA_NO: FormulaModule = {
       return {
         value: null,
         unit: '₫',
-        warning: divideByZero(
-          { vi: 'lịch trả nợ', en: 'the amortization schedule' },
-          { vi: 'Kỳ hạn', en: 'Term' },
-          { vi: 'Nhập kỳ hạn ít nhất 1 năm.', en: 'Enter a term of at least 1 year.' },
+        warning: atField(
+          divideByZero(
+            { vi: 'lịch trả nợ', en: 'the amortization schedule' },
+            { vi: 'Kỳ hạn', en: 'Term' },
+            { vi: 'Nhập kỳ hạn ít nhất 1 năm.', en: 'Enter a term of at least 1 year.' },
+          ),
+          'years',
+          KY_HAN_DUONG,
         ),
       };
     }
@@ -1414,10 +1433,15 @@ export const TIET_KIEM_MUC_TIEU: FormulaModule = {
       return {
         value: null,
         unit: '₫/tháng',
-        warning: divideByZero(
-          { vi: 'khoản gửi hằng tháng', en: 'the monthly deposit' },
-          { vi: 'Thời gian', en: 'Number of months' },
-          { vi: 'Nhập thời gian từ 1 tháng trở lên.', en: 'Enter at least 1 month.' },
+        /* Ô đếm tháng nguyên (min 1): nhánh chỉ tới được khi số đi vòng qua miền nhập (18/11/2026). */
+        warning: atField(
+          divideByZero(
+            { vi: 'khoản gửi hằng tháng', en: 'the monthly deposit' },
+            { vi: 'Thời gian', en: 'Number of months' },
+            { vi: 'Nhập thời gian từ 1 tháng trở lên.', en: 'Enter at least 1 month.' },
+          ),
+          'months',
+          { vi: 'Thời gian lớn hơn 0.', en: 'Number of months must be greater than 0.' },
         ),
       };
     }

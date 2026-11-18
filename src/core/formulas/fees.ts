@@ -33,7 +33,7 @@ import { runFormula } from '../calc/run';
 import type { CalcContext, CalcValues, FormulaModule } from '../calc/types';
 import { formatNumber } from '../format';
 import type { Bilingual, CalcOutput } from '../types';
-import { divideByZero, meaningless } from '../warnings';
+import { atField, divideByZero, meaningless } from '../warnings';
 import {
   SOURCE_FEE_CIRCULAR,
   SOURCE_PIT_LAW,
@@ -105,6 +105,9 @@ const dividendPerShare = numberVar(
 
 /** Ví dụ WF-08 dùng lại cho `example` và `tests` của cả nhóm. */
 const WF08 = { quantity: 1_000, months: 5, buyPrice: 92_000, sellPrice: 97_000 } as const;
+
+/** Câu dưới ô Khối lượng khi ô bằng 0 (18/11/2026), chung cho Giá hoà vốn và ROI ròng. */
+const KHOI_LUONG_DUONG = { vi: 'Khối lượng lớn hơn 0.', en: 'Quantity must be greater than 0.' };
 
 /*
  * ── 1. Phí giao dịch mua ───────────────────────────────────────────────────────────────
@@ -773,10 +776,14 @@ function breakEvenPrice(v: CalcValues, ctx: CalcContext): CalcOutput {
     return {
       value: null,
       unit: '₫',
-      warning: divideByZero(
-        { vi: 'giá hoà vốn', en: 'break-even price' },
-        { vi: 'Khối lượng', en: 'Quantity' },
-        { vi: 'Nhập số cổ phiếu lớn hơn 0.', en: 'Enter a share quantity greater than 0.' },
+      warning: atField(
+        divideByZero(
+          { vi: 'giá hoà vốn', en: 'break-even price' },
+          { vi: 'Khối lượng', en: 'Quantity' },
+          { vi: 'Nhập số cổ phiếu lớn hơn 0.', en: 'Enter a share quantity greater than 0.' },
+        ),
+        'quantity',
+        KHOI_LUONG_DUONG,
       ),
     };
   }
@@ -1122,16 +1129,42 @@ export const ROI_RONG: FormulaModule = {
       });
 
     if (costs.costBasis === 0) {
+      /*
+       * Vốn bỏ ra = Khối lượng × (Giá mua × (1 + phí mua) + Thời gian nắm giữ × phí lưu ký), nên nó
+       * bằng 0 vì một trong hai lẽ: khối lượng 0, hoặc phần trong ngoặc bằng 0. Phần ấy bằng 0 khi
+       * giá mua 0 và (phí lưu ký dương) thời gian nắm giữ cũng 0; biểu phí nào không thu lưu ký thì
+       * chỉ cần giá mua 0. Câu dưới ô nói đúng lẽ đang xảy ra (18/11/2026).
+       */
+      const custody = constantOf(ctx, 'fee.custody');
+      const field =
+        v('quantity') === 0
+          ? { key: 'quantity', message: KHOI_LUONG_DUONG }
+          : custody !== undefined && custody.value > 0
+            ? {
+                key: 'buyPrice',
+                message: {
+                  vi: 'Giá mua và Thời gian nắm giữ không được cùng bằng 0.',
+                  en: 'Buy price and holding period cannot both be 0.',
+                },
+              }
+            : {
+                key: 'buyPrice',
+                message: { vi: 'Giá mua lớn hơn 0.', en: 'Buy price must be greater than 0.' },
+              };
       return {
         value: null,
         unit: '%',
-        warning: divideByZero(
-          { vi: 'ROI ròng', en: 'Net ROI' },
-          { vi: 'Vốn bỏ ra', en: 'Capital deployed' },
-          {
-            vi: 'Nhập khối lượng và giá mua lớn hơn 0.',
-            en: 'Enter a quantity and buy price greater than 0.',
-          },
+        warning: atField(
+          divideByZero(
+            { vi: 'ROI ròng', en: 'Net ROI' },
+            { vi: 'Vốn bỏ ra', en: 'Capital deployed' },
+            {
+              vi: 'Nhập khối lượng và giá mua lớn hơn 0.',
+              en: 'Enter a quantity and buy price greater than 0.',
+            },
+          ),
+          field.key,
+          field.message,
         ),
       };
     }

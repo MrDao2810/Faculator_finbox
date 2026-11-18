@@ -21,7 +21,7 @@ import { fail, ok } from '../calc-output';
 import type { CalcContext, FormulaModule } from '../calc/types';
 import type { FormulaSource } from '../registry/types';
 import type { Bilingual, CalcWarning, VariableSpec } from '../types';
-import { divideByZero, meaningless } from '../warnings';
+import { atField, divideByZero, meaningless } from '../warnings';
 import { FPT_2026, FPT_PHIEN, STB_2026, STB_PHIEN } from './market-series-2026';
 import { mean, requireCloses, sampleStdDev, simpleReturns } from './series-utils';
 import { SOURCE_CFA, numberVar, sliderVar } from './shared';
@@ -436,14 +436,22 @@ export const DO_BIEN_DONG_NAM_HOA: FormulaModule = {
     if (days <= 0) {
       return fail(
         unit,
-        meaningless(
+        /* Câu dưới ô (18/11/2026): khuôn `input.errPositive`, nhãn ô bỏ ký hiệu (D). */
+        atField(
+          meaningless(
+            {
+              vi: 'Số phiên giao dịch trong một năm phải lớn hơn 0 thì mới quy độ biến động về mức cả năm được.',
+              en: 'The number of trading sessions per year must be greater than 0 to annualize the volatility.',
+            },
+            {
+              vi: 'Nhập khoảng 250 phiên, tức số phiên giao dịch thường thấy của một năm trên HOSE.',
+              en: 'Enter about 250 sessions, the typical number of trading sessions in a year on HOSE.',
+            },
+          ),
+          'tradingDays',
           {
-            vi: 'Số phiên giao dịch trong một năm phải lớn hơn 0 thì mới quy độ biến động về mức cả năm được.',
-            en: 'The number of trading sessions per year must be greater than 0 to annualize the volatility.',
-          },
-          {
-            vi: 'Nhập khoảng 250 phiên, tức số phiên giao dịch thường thấy của một năm trên HOSE.',
-            en: 'Enter about 250 sessions, the typical number of trading sessions in a year on HOSE.',
+            vi: 'Số phiên giao dịch trong một năm lớn hơn 0.',
+            en: 'Trading sessions per year must be greater than 0.',
           },
         ),
       );

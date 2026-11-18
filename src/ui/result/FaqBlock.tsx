@@ -31,8 +31,9 @@ export interface FaqBlockProps {
  * Khối "Câu hỏi thường gặp" của màn chi tiết (10/11/2026) — xem docblock `src/core/hoi-dap/types.ts`.
  *
  * Mỗi câu là một `<details>` GẬP SẴN, cùng dáng hàng của "Giải thích cho người mới" (dấu ＋/−, vùng
- * chạm 44px). Mở ra: câu trả lời, hoặc "Chưa có trả lời" khi chủ dự án chưa quyết; rồi link tới chỗ
- * câu ấy được hỏi, để người đọc biết đây là câu người thật hỏi và tự mở ra xem.
+ * chạm 44px). Mở ra: câu trả lời, rồi link tới chỗ câu ấy được hỏi, để người đọc biết đây là câu người
+ * thật hỏi và tự mở ra xem (câu tự soạn không có link). Nhánh "Chưa có trả lời" không còn đường dữ liệu
+ * nào tới: `hoiDapFor()` chỉ trả câu đã có `traLoi`; giữ lại để hồi được nếu chủ dự án đổi ý.
  */
 export function FaqBlock({ items, formulaId, className }: FaqBlockProps) {
   const t = useT();

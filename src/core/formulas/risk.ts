@@ -10,7 +10,7 @@
 
 import { ok } from '../calc-output';
 import type { FormulaModule } from '../calc/types';
-import { divideByZero, meaningless } from '../warnings';
+import { atField, divideByZero, meaningless } from '../warnings';
 import { SOURCE_CFA, numberVar, sliderVar } from './shared';
 
 export const CO_LENH_RUI_RO: FormulaModule = {
@@ -183,18 +183,30 @@ export const CO_LENH_RUI_RO: FormulaModule = {
   },
   calc: (v) => {
     const gap = v('entryPrice') - v('stopPrice');
+    /*
+     * Câu dưới ô Giá cắt lỗ (18/11/2026), chung cho hai nhánh bên dưới: cả hai cùng một điều kiện,
+     * giá cắt lỗ phải thấp hơn giá vào lệnh. Ô cắt lỗ là chủ ngữ của câu nguyên nhân ở thẻ kết quả.
+     */
+    const catLoPhaiNhoHon = {
+      vi: 'Giá cắt lỗ phải nhỏ hơn Giá vào lệnh.',
+      en: 'Stop-loss price must be less than entry price.',
+    };
 
     if (gap === 0) {
       return {
         value: null,
         unit: 'CP',
-        warning: divideByZero(
-          { vi: 'cỡ lệnh', en: 'position size' },
-          { vi: 'Khoảng cách tới cắt lỗ', en: 'Distance to stop-loss' },
-          {
-            vi: 'Đặt giá cắt lỗ thấp hơn giá vào lệnh.',
-            en: 'Set a stop-loss price lower than the entry price.',
-          },
+        warning: atField(
+          divideByZero(
+            { vi: 'cỡ lệnh', en: 'position size' },
+            { vi: 'Khoảng cách tới cắt lỗ', en: 'Distance to stop-loss' },
+            {
+              vi: 'Đặt giá cắt lỗ thấp hơn giá vào lệnh.',
+              en: 'Set a stop-loss price lower than the entry price.',
+            },
+          ),
+          'stopPrice',
+          catLoPhaiNhoHon,
         ),
       };
     }
@@ -203,15 +215,19 @@ export const CO_LENH_RUI_RO: FormulaModule = {
       return {
         value: null,
         unit: 'CP',
-        warning: meaningless(
-          {
-            vi: 'Giá cắt lỗ đang cao hơn giá vào lệnh, nên lệnh mua này không có phần rủi ro để tính.',
-            en: 'The stop-loss price is higher than the entry price, so this buy order has no risk portion to calculate.',
-          },
-          {
-            vi: 'Đặt giá cắt lỗ thấp hơn giá vào lệnh.',
-            en: 'Set a stop-loss price lower than the entry price.',
-          },
+        warning: atField(
+          meaningless(
+            {
+              vi: 'Giá cắt lỗ đang cao hơn giá vào lệnh, nên lệnh mua này không có phần rủi ro để tính.',
+              en: 'The stop-loss price is higher than the entry price, so this buy order has no risk portion to calculate.',
+            },
+            {
+              vi: 'Đặt giá cắt lỗ thấp hơn giá vào lệnh.',
+              en: 'Set a stop-loss price lower than the entry price.',
+            },
+          ),
+          'stopPrice',
+          catLoPhaiNhoHon,
         ),
       };
     }

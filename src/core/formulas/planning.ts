@@ -19,7 +19,7 @@ import { lamTronLen } from '../lam-tron';
 import { clampRepeatCount } from '../registry/repeat';
 import type { FormulaSource } from '../registry/types';
 import type { VariableSpec } from '../types';
-import { divideByZero, meaningless } from '../warnings';
+import { atField, divideByZero, meaningless } from '../warnings';
 import {
   SOURCE_CORPORATE_FINANCE,
   SOURCE_PIT_LAW,
@@ -307,14 +307,21 @@ export const RUT_TRUOC_HAN: FormulaModule = {
       return {
         value: null,
         unit: '₫',
-        warning: meaningless(
+        warning: atField(
+          meaningless(
+            {
+              vi: 'Thời gian đã gửi bằng hoặc vượt kỳ hạn nên đây không còn là rút trước hạn.',
+              en: 'The holding period equals or exceeds the term, so this is no longer an early withdrawal.',
+            },
+            {
+              vi: 'Dùng công thức Lãi tiền gửi có kỳ hạn để tính lãi khi gửi đủ kỳ.',
+              en: 'Use the Term deposit interest formula to calculate interest for a full term.',
+            },
+          ),
+          'monthsHeld',
           {
-            vi: 'Thời gian đã gửi bằng hoặc vượt kỳ hạn nên đây không còn là rút trước hạn.',
-            en: 'The holding period equals or exceeds the term, so this is no longer an early withdrawal.',
-          },
-          {
-            vi: 'Dùng công thức Lãi tiền gửi có kỳ hạn để tính lãi khi gửi đủ kỳ.',
-            en: 'Use the Term deposit interest formula to calculate interest for a full term.',
+            vi: 'Thời gian đã gửi phải ngắn hơn Kỳ hạn hợp đồng.',
+            en: 'Time held must be shorter than the contract term.',
           },
         ),
       };
@@ -586,13 +593,18 @@ export const GUI_QUAY_VONG: FormulaModule = {
       return {
         value: null,
         unit: '₫',
-        warning: divideByZero(
-          { vi: 'số vòng quay', en: 'number of rollover rounds' },
-          { vi: 'Kỳ hạn ngắn', en: 'Short deposit term' },
-          {
-            vi: 'Nhập kỳ hạn ngắn từ 1 tháng trở lên.',
-            en: 'Enter a short deposit term of 1 month or more.',
-          },
+        /* Ô đếm tháng nguyên nên "lớn hơn 0" đúng bằng "từ 1 tháng" của dòng gợi ý (18/11/2026). */
+        warning: atField(
+          divideByZero(
+            { vi: 'số vòng quay', en: 'number of rollover rounds' },
+            { vi: 'Kỳ hạn ngắn', en: 'Short deposit term' },
+            {
+              vi: 'Nhập kỳ hạn ngắn từ 1 tháng trở lên.',
+              en: 'Enter a short deposit term of 1 month or more.',
+            },
+          ),
+          'shortMonths',
+          { vi: 'Kỳ hạn ngắn lớn hơn 0.', en: 'Short deposit term must be greater than 0.' },
         ),
       };
     }
@@ -602,14 +614,21 @@ export const GUI_QUAY_VONG: FormulaModule = {
       return {
         value: null,
         unit: '₫',
-        warning: meaningless(
+        warning: atField(
+          meaningless(
+            {
+              vi: 'Tổng thời gian không chia hết cho kỳ hạn ngắn nên vòng cuối bị dở dang, hai phương án không so sánh được.',
+              en: 'The total time is not evenly divisible by the short term, so the final round is incomplete and the two options cannot be compared.',
+            },
+            {
+              vi: 'Chọn tổng thời gian là bội số của kỳ hạn ngắn, ví dụ kỳ 3 tháng thì so ở mốc 6, 9 hay 12 tháng.',
+              en: 'Choose a total time that is a multiple of the short term - for a 3-month term, compare at 6, 9, or 12 months.',
+            },
+          ),
+          'totalMonths',
           {
-            vi: 'Tổng thời gian không chia hết cho kỳ hạn ngắn nên vòng cuối bị dở dang, hai phương án không so sánh được.',
-            en: 'The total time is not evenly divisible by the short term, so the final round is incomplete and the two options cannot be compared.',
-          },
-          {
-            vi: 'Chọn tổng thời gian là bội số của kỳ hạn ngắn, ví dụ kỳ 3 tháng thì so ở mốc 6, 9 hay 12 tháng.',
-            en: 'Choose a total time that is a multiple of the short term - for a 3-month term, compare at 6, 9, or 12 months.',
+            vi: 'Tổng thời gian phải chia hết cho Kỳ hạn ngắn.',
+            en: 'Total time must be evenly divisible by the short deposit term.',
           },
         ),
       };
@@ -1095,12 +1114,20 @@ export const GIA_VON_TRUNG_BINH_DCA: FormulaModule = {
         return {
           value: null,
           unit: '₫',
-          warning: divideByZero(
-            { vi: 'số cổ phiếu mua được', en: 'shares acquired' },
-            { vi: `Giá mua đợt ${lot}`, en: `Purchase price, round ${lot}` },
+          warning: atField(
+            divideByZero(
+              { vi: 'số cổ phiếu mua được', en: 'shares acquired' },
+              { vi: `Giá mua đợt ${lot}`, en: `Purchase price, round ${lot}` },
+              {
+                vi: `Nhập giá mua đợt ${lot} lớn hơn 0, hoặc đưa cả tiền mua đợt ${lot} về 0 nếu không có đợt này.`,
+                en: `Enter a purchase price greater than 0 for round ${lot}, or set the amount for round ${lot} to 0 if this round did not happen.`,
+              },
+            ),
+            `price${lot}`,
+            /* Giá 0 chỉ hỏng khi đợt ấy có tiền mua: đợt bỏ trống nhập 0 ở cả hai ô (18/11/2026). */
             {
-              vi: `Nhập giá mua đợt ${lot} lớn hơn 0, hoặc đưa cả tiền mua đợt ${lot} về 0 nếu không có đợt này.`,
-              en: `Enter a purchase price greater than 0 for round ${lot}, or set the amount for round ${lot} to 0 if this round did not happen.`,
+              vi: `Giá mua đợt ${lot} lớn hơn 0 khi Tiền mua đợt ${lot} khác 0.`,
+              en: `Purchase price, round ${lot} must be greater than 0 when amount invested, round ${lot} is not 0.`,
             },
           ),
         };
@@ -1110,16 +1137,24 @@ export const GIA_VON_TRUNG_BINH_DCA: FormulaModule = {
       totalShares += amount / price;
     }
 
+    /* Tới đây mọi đợt có tiền đều có giá dương, nên tổng cổ phiếu 0 nghĩa là mọi đợt đều bỏ trống. */
     if (totalShares === 0) {
       return {
         value: null,
         unit: '₫',
-        warning: divideByZero(
-          { vi: 'giá vốn trung bình', en: 'average cost' },
-          { vi: 'Tổng số cổ phiếu', en: 'Total shares' },
+        warning: atField(
+          divideByZero(
+            { vi: 'giá vốn trung bình', en: 'average cost' },
+            { vi: 'Tổng số cổ phiếu', en: 'Total shares' },
+            {
+              vi: 'Nhập ít nhất một đợt mua với số tiền và giá lớn hơn 0.',
+              en: 'Enter at least one purchase round with an amount and price greater than 0.',
+            },
+          ),
+          'amount1',
           {
-            vi: 'Nhập ít nhất một đợt mua với số tiền và giá lớn hơn 0.',
-            en: 'Enter at least one purchase round with an amount and price greater than 0.',
+            vi: 'Tiền mua của ít nhất một đợt phải lớn hơn 0.',
+            en: 'At least one round must have an amount invested greater than 0.',
           },
         ),
       };
@@ -1372,12 +1407,19 @@ export const SO_KY_DCA: FormulaModule = {
       return {
         value: null,
         unit: 'tháng',
-        warning: divideByZero(
-          { vi: 'số kỳ cần góp', en: 'number of periods needed' },
-          { vi: 'Mức góp mỗi tháng', en: 'Monthly contribution' },
+        warning: atField(
+          divideByZero(
+            { vi: 'số kỳ cần góp', en: 'number of periods needed' },
+            { vi: 'Mức góp mỗi tháng', en: 'Monthly contribution' },
+            {
+              vi: 'Nhập mức góp lớn hơn 0, vì không góp thì không có kế hoạch nào tới đích.',
+              en: 'Enter a contribution greater than 0. With no contribution, no plan ever reaches the goal.',
+            },
+          ),
+          'contribution',
           {
-            vi: 'Nhập mức góp lớn hơn 0, vì không góp thì không có kế hoạch nào tới đích.',
-            en: 'Enter a contribution greater than 0. With no contribution, no plan ever reaches the goal.',
+            vi: 'Mức góp mỗi tháng lớn hơn 0.',
+            en: 'Monthly contribution must be greater than 0.',
           },
         ),
       };
@@ -1634,19 +1676,32 @@ export const THUE_TNCN_DAU_TU: FormulaModule = {
     const sellValue = q * v('sellPrice');
     const dividendValue = q * v('dividendPerShare');
 
+    /*
+     * Hai giá trị cùng bằng 0 vì một trong hai lẽ: khối lượng 0 (thì giá nào cũng hỏng), hoặc cả giá
+     * bán lẫn cổ tức đều 0. Câu dưới ô nói đúng lẽ đang xảy ra (18/11/2026).
+     */
     if (sellValue === 0 && dividendValue === 0) {
       return {
         value: null,
         unit: '₫',
-        warning: meaningless(
-          {
-            vi: 'Chưa có giá trị bán hay cổ tức nào trong năm nên không có căn cứ tính thuế.',
-            en: 'There is no sale value or dividend for the year yet, so there is no basis for calculating tax.',
-          },
-          {
-            vi: 'Nhập giá bán hoặc cổ tức lớn hơn 0.',
-            en: 'Enter a sell price or dividend greater than 0.',
-          },
+        warning: atField(
+          meaningless(
+            {
+              vi: 'Chưa có giá trị bán hay cổ tức nào trong năm nên không có căn cứ tính thuế.',
+              en: 'There is no sale value or dividend for the year yet, so there is no basis for calculating tax.',
+            },
+            {
+              vi: 'Nhập giá bán hoặc cổ tức lớn hơn 0.',
+              en: 'Enter a sell price or dividend greater than 0.',
+            },
+          ),
+          q === 0 ? 'quantity' : 'sellPrice',
+          q === 0
+            ? { vi: 'Khối lượng lớn hơn 0.', en: 'Quantity must be greater than 0.' }
+            : {
+                vi: 'Giá bán và Cổ tức tiền mặt không được cùng bằng 0.',
+                en: 'Sell price and cash dividend per share cannot both be 0.',
+              },
         ),
       };
     }

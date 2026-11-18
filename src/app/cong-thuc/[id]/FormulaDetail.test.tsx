@@ -1748,6 +1748,46 @@ describe('WF-03 — nối ba bottom sheet của gói 2.5', () => {
 });
 
 /*
+ * Câu đỏ dưới ô khi số nhập vào vi phạm điều kiện của công thức (18/11/2026). Chủ dự án chụp điểm hoà
+ * vốn với giá bán 1.222 ₫ dưới biến phí 30.000 ₫: _"cần thông báo đỏ ở bên dưới ô nhập là 'Giá bán
+ * phải lớn hơn Biến phí một sản phẩm'"_. Chốt: thẻ lỗi bên trái giữ nguyên, câu chỉ dưới MỘT ô (Giá
+ * bán), hiện ngay theo từng phím. Câu do `calc` gắn (`atField`); `field-condition.test.ts` gác cả thư viện.
+ */
+describe('câu điều kiện công thức dưới ô nhập (18/11/2026)', () => {
+  it('điểm hoà vốn: giá bán dưới biến phí thì dưới ô Giá bán có câu đỏ, sửa lại thì câu tắt', async () => {
+    const user = userEvent.setup();
+    render(<Man spec={specOf('diem-hoa-von')} />);
+    const giaBan = () => oNhap(/Giá bán một sản phẩm/);
+    const cau = 'Giá bán phải lớn hơn Biến phí một sản phẩm.';
+    const cauDuoiO = (o: HTMLElement) =>
+      (o.getAttribute('aria-describedby') ?? '')
+        .split(' ')
+        .map((id) => document.getElementById(id)?.textContent ?? '')
+        .join(' ');
+
+    expect(giaBan().getAttribute('aria-invalid')).toBeNull();
+
+    await user.clear(giaBan());
+    await user.type(giaBan(), '1222');
+
+    expect(giaBan().getAttribute('aria-invalid')).toBe('true');
+    expect(cauDuoiO(giaBan())).toContain(cau);
+    // Chỉ MỘT ô mang câu: ô Biến phí không đỏ.
+    expect(oNhap(/Biến phí một sản phẩm/).getAttribute('aria-invalid')).toBeNull();
+    // Thẻ lỗi bên trái vẫn giữ câu nguyên nhân của nó (câu ấy còn hiện ở khung báo của biểu đồ).
+    expect(document.querySelector('[data-ma-loi]')?.textContent).toContain(
+      'Giá bán thấp hơn biến phí đơn vị',
+    );
+
+    await user.clear(giaBan());
+    await user.type(giaBan(), '50000');
+
+    expect(giaBan().getAttribute('aria-invalid')).toBeNull();
+    expect(cauDuoiO(giaBan())).not.toContain(cau);
+  });
+});
+
+/*
  * Ba bottom sheet từng luôn nằm trong DOM, chỉ đóng bằng thuộc tính `open` của `<dialog>`. Cái giá
  * đo được: mỗi lượt vào màn chi tiết dựng thừa ~150 nút. Sheet Xuất đã bỏ hẳn (17/11/2026); hai sheet
  * còn lại vẫn chỉ dựng khi mở.
@@ -4618,7 +4658,12 @@ describe('WF-03 — thêm bớt đợt mua và kỳ', () => {
     await go(/^Tiền mua đợt 4/, '10000000');
 
     expect(ketQua()).toContain(NO_VALUE);
-    expect(screen.getByRole('alert').textContent).toContain('Giá mua đợt 4');
+    /*
+     * Hai `role="alert"` từ 18/11/2026: thẻ lỗi (`data-ma-loi`) và câu đỏ dưới chính ô giá của đợt ấy
+     * (`atField`). Cả hai đều phải gọi đúng đợt 4.
+     */
+    expect(document.querySelector('[data-ma-loi]')?.textContent).toContain('Giá mua đợt 4');
+    expect(oNhap(/^Giá mua đợt 4/).getAttribute('aria-invalid')).toBe('true');
 
     await go(/^Giá mua đợt 4/, '20000');
     // 40.000.000 ÷ (200 + 250 + 400 + 500) cổ phiếu.

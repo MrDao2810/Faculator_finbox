@@ -17,7 +17,7 @@
 
 import { ok } from '../calc-output';
 import type { FormulaModule } from '../calc/types';
-import { divideByZero, meaningless } from '../warnings';
+import { atField, divideByZero, meaningless } from '../warnings';
 import { SOURCE_CFA, SOURCE_CORPORATE_FINANCE, numberVar } from './shared';
 
 /*
@@ -210,18 +210,27 @@ export const DIEM_HOA_VON: FormulaModule = {
     const unitPrice = v('unitPrice');
     const variableCost = v('variableCost');
     const margin = unitPrice - variableCost;
+    /* Câu dưới ô Giá bán, nguyên văn chủ dự án (18/11/2026) — chung cho hai nhánh bên dưới. */
+    const giaBanPhaiLonHon = {
+      vi: 'Giá bán phải lớn hơn Biến phí một sản phẩm.',
+      en: 'Selling price must be greater than variable cost per unit.',
+    };
 
     if (margin === 0) {
       return {
         value: null,
         unit: 'sản phẩm',
-        warning: divideByZero(
-          { vi: 'điểm hoà vốn', en: 'break-even point' },
-          { vi: 'số dư đảm phí đơn vị', en: 'unit contribution margin' },
-          {
-            vi: 'Nâng giá bán trên mức biến phí đơn vị, hoặc tìm cách giảm biến phí.',
-            en: 'Raise the selling price above the variable cost per unit, or find a way to reduce variable cost.',
-          },
+        warning: atField(
+          divideByZero(
+            { vi: 'điểm hoà vốn', en: 'break-even point' },
+            { vi: 'số dư đảm phí đơn vị', en: 'unit contribution margin' },
+            {
+              vi: 'Nâng giá bán trên mức biến phí đơn vị, hoặc tìm cách giảm biến phí.',
+              en: 'Raise the selling price above the variable cost per unit, or find a way to reduce variable cost.',
+            },
+          ),
+          'unitPrice',
+          giaBanPhaiLonHon,
         ),
       };
     }
@@ -230,15 +239,19 @@ export const DIEM_HOA_VON: FormulaModule = {
       return {
         value: null,
         unit: 'sản phẩm',
-        warning: meaningless(
-          {
-            vi: 'Giá bán thấp hơn biến phí đơn vị nên mỗi sản phẩm bán ra càng làm lỗ thêm - doanh nghiệp không bao giờ hoà vốn.',
-            en: 'The selling price is below the variable cost per unit, so every unit sold adds to the loss - the company will never break even.',
-          },
-          {
-            vi: 'Nâng giá bán trên mức biến phí đơn vị, hoặc tìm cách giảm biến phí.',
-            en: 'Raise the selling price above the variable cost per unit, or find a way to reduce variable cost.',
-          },
+        warning: atField(
+          meaningless(
+            {
+              vi: 'Giá bán thấp hơn biến phí đơn vị nên mỗi sản phẩm bán ra càng làm lỗ thêm - doanh nghiệp không bao giờ hoà vốn.',
+              en: 'The selling price is below the variable cost per unit, so every unit sold adds to the loss - the company will never break even.',
+            },
+            {
+              vi: 'Nâng giá bán trên mức biến phí đơn vị, hoặc tìm cách giảm biến phí.',
+              en: 'Raise the selling price above the variable cost per unit, or find a way to reduce variable cost.',
+            },
+          ),
+          'unitPrice',
+          giaBanPhaiLonHon,
         ),
       };
     }
@@ -484,20 +497,33 @@ export const DON_BAY_TONG_HOP: FormulaModule = {
     const contributionMargin = v('revenue') - v('variableCost');
     const ebit = contributionMargin - v('fixedCost');
     const interest = v('interest');
+    /*
+     * Câu dưới ô Doanh thu, chung cho ba nhánh bên dưới (18/11/2026). Ô Lãi vay không cho gõ số âm,
+     * nên tính được khi và chỉ khi EBIT > lãi vay, tức DT > BP + định phí + lãi vay: câu nêu đúng điều
+     * kiện ấy. Gắn vào Doanh thu chứ không vào Lãi vay vì ô Lãi vay chỉ hiện ở chế độ Nâng cao.
+     */
+    const doanhThuPhaiLonHon = {
+      vi: 'Doanh thu phải lớn hơn Tổng biến phí, Định phí hoạt động và Lãi vay cộng lại.',
+      en: 'Revenue must be greater than total variable cost, fixed cost and interest combined.',
+    };
 
     if (ebit <= 0) {
       return {
         value: null,
         unit: 'lần',
-        warning: meaningless(
-          {
-            vi: 'EBIT không dương - doanh nghiệp đang lỗ từ hoạt động kinh doanh nên hệ số đòn bẩy không còn ý nghĩa.',
-            en: 'EBIT is not positive - the company is posting an operating loss, so the leverage coefficient is no longer meaningful.',
-          },
-          {
-            vi: 'Xem lại doanh thu và cấu trúc chi phí; dùng điểm hoà vốn để biết cần bán thêm bao nhiêu.',
-            en: 'Review revenue and the cost structure; use the break-even point to see how much more needs to be sold.',
-          },
+        warning: atField(
+          meaningless(
+            {
+              vi: 'EBIT không dương - doanh nghiệp đang lỗ từ hoạt động kinh doanh nên hệ số đòn bẩy không còn ý nghĩa.',
+              en: 'EBIT is not positive - the company is posting an operating loss, so the leverage coefficient is no longer meaningful.',
+            },
+            {
+              vi: 'Xem lại doanh thu và cấu trúc chi phí; dùng điểm hoà vốn để biết cần bán thêm bao nhiêu.',
+              en: 'Review revenue and the cost structure; use the break-even point to see how much more needs to be sold.',
+            },
+          ),
+          'revenue',
+          doanhThuPhaiLonHon,
         ),
       };
     }
@@ -506,13 +532,17 @@ export const DON_BAY_TONG_HOP: FormulaModule = {
       return {
         value: null,
         unit: 'lần',
-        warning: divideByZero(
-          { vi: 'đòn bẩy tổng hợp', en: 'degree of total leverage' },
-          { vi: 'EBIT trừ lãi vay', en: 'EBIT minus interest expense' },
-          {
-            vi: 'Giảm nợ vay hoặc chờ EBIT vượt hẳn lãi vay rồi mới đo đòn bẩy.',
-            en: 'Reduce debt or wait until EBIT clearly exceeds interest expense before measuring leverage.',
-          },
+        warning: atField(
+          divideByZero(
+            { vi: 'đòn bẩy tổng hợp', en: 'degree of total leverage' },
+            { vi: 'EBIT trừ lãi vay', en: 'EBIT minus interest expense' },
+            {
+              vi: 'Giảm nợ vay hoặc chờ EBIT vượt hẳn lãi vay rồi mới đo đòn bẩy.',
+              en: 'Reduce debt or wait until EBIT clearly exceeds interest expense before measuring leverage.',
+            },
+          ),
+          'revenue',
+          doanhThuPhaiLonHon,
         ),
       };
     }
@@ -521,15 +551,19 @@ export const DON_BAY_TONG_HOP: FormulaModule = {
       return {
         value: null,
         unit: 'lần',
-        warning: meaningless(
-          {
-            vi: 'EBIT thấp hơn lãi vay - lợi nhuận hoạt động không đủ trả lãi, nên DFL và đòn bẩy tổng hợp vô nghĩa.',
-            en: 'EBIT is lower than interest expense - operating profit is not enough to cover interest, so DFL and the degree of total leverage are meaningless.',
-          },
-          {
-            vi: 'Giảm nợ vay hoặc chờ EBIT vượt hẳn lãi vay rồi mới đo đòn bẩy.',
-            en: 'Reduce debt or wait until EBIT clearly exceeds interest expense before measuring leverage.',
-          },
+        warning: atField(
+          meaningless(
+            {
+              vi: 'EBIT thấp hơn lãi vay - lợi nhuận hoạt động không đủ trả lãi, nên DFL và đòn bẩy tổng hợp vô nghĩa.',
+              en: 'EBIT is lower than interest expense - operating profit is not enough to cover interest, so DFL and the degree of total leverage are meaningless.',
+            },
+            {
+              vi: 'Giảm nợ vay hoặc chờ EBIT vượt hẳn lãi vay rồi mới đo đòn bẩy.',
+              en: 'Reduce debt or wait until EBIT clearly exceeds interest expense before measuring leverage.',
+            },
+          ),
+          'revenue',
+          doanhThuPhaiLonHon,
         ),
       };
     }

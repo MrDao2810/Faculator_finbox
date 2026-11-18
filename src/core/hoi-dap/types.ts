@@ -17,6 +17,9 @@ import type { Bilingual } from '../types';
  *   "Chưa có trả lời", rồi đổi lại khi thấy nó trên màn (_"ko có câu trả lời thì tạm thời ẩn đi"_).
  *   `hoiDapFor()` chỉ trả câu có `traLoi`; điền `traLoi` là câu tự hiện.
  * - **Càng nhiều càng tốt, không độn**: không có trần số câu; màn hiện 5 câu đầu và nút "Xem thêm".
+ * - **Mọi công thức hiện ít nhất 3 câu** (chủ dự án, 18/11/2026: _"hoàn thiện nốt chức năng câu hỏi
+ *   thường gặp của các công thức còn thiếu"_; khi được hỏi, chọn trả lời mọi câu thật đang ẩn rồi bù
+ *   câu tự soạn cho công thức còn dưới 3 câu). `hoi-dap.test.ts` gác số này.
  *
  * Cùng khuôn `src/core/vi-du/` và ngân hàng câu hỏi: chữ của cả 111 công thức chỉ đọc lúc build
  * (`page.tsx` qua `@/application/hoi-dap`) rồi truyền xuống bằng prop, mỗi trang mang đúng phần của
@@ -64,15 +67,24 @@ export interface CauHoiThuongGap {
   nguon?: NoiHoiNguon;
   /**
    * Câu do ĐỘI SẢN PHẨM tự soạn từ chính công thức (chủ dự án, 10/11/2026, cho 29 công thức không tìm
-   * được câu hỏi thật nào: _"bạn tự đọc công thức rồi nghĩ xem sẽ có các loại câu hỏi nào sẽ gặp"_).
-   * Đây KHÔNG phải câu người thật hỏi, nên không có `nguon` / `nguyenVan` và màn không in dòng
-   * "Nguồn:"; `traLoi` bắt buộc, viết từ `calc` và phần giải thích của sản phẩm. Thay bằng câu thật
-   * khi tìm được: câu thật đứng trước, câu tự soạn đứng sau.
+   * được câu hỏi thật nào: _"bạn tự đọc công thức rồi nghĩ xem sẽ có các loại câu hỏi nào sẽ gặp"_;
+   * 18/11/2026 mở rộng: bù cho mọi công thức còn dưới 3 câu có trả lời). Đây KHÔNG phải câu người
+   * thật hỏi, nên không có `nguon` / `nguyenVan` và màn không in dòng "Nguồn:"; `traLoi` bắt buộc,
+   * viết từ `calc` và phần giải thích của sản phẩm. Thay bằng câu thật khi tìm được: câu thật đứng
+   * trước, câu tự soạn đứng sau.
    */
   tuSoan?: true;
   /**
-   * Câu trả lời, tóm từ câu trả lời ở nguồn, đúng với `calc` của trang. VẮNG nghĩa là CHƯA CÓ: nguồn
-   * không trả lời, trả lời sai, hay chỉ là ý kiến. Chủ dự án quyết sau; màn in "Chưa có trả lời".
+   * Câu trả lời, đúng với `calc` của trang, theo MỘT trong hai đường:
+   *
+   * - Tóm từ câu trả lời ở nguồn (đáp án được chấp nhận, đoạn trả lời của mục FAQ) khi nó đúng với
+   *   `calc`: gắn `nguonTraLoi` là link đã mở lại đọc.
+   * - Nguồn không trả lời, chỉ là ý kiến, khuyên mua bán hay lệch `calc`: đội sản phẩm viết từ `calc`
+   *   và phần giải thích của công thức (18/11/2026, chủ dự án chọn trả lời mọi câu đang ẩn), KHÔNG có
+   *   `nguonTraLoi`. Câu "bao nhiêu là tốt" trả lời bằng mốc người đọc có (cùng ngành, kỳ trước, quy
+   *   ước của `howToRead`), không đặt ngưỡng tự nghĩ.
+   *
+   * VẮNG nghĩa là chưa trả lời được một cách trung thực; câu ấy bị ẩn khỏi màn (xem `hoiDapFor()`).
    */
   traLoi?: Bilingual;
   nguonTraLoi?: ReadonlyArray<NguonTraLoi>;

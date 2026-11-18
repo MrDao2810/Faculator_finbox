@@ -11,7 +11,7 @@
 import { fail, ok } from '../calc-output';
 import type { FormulaModule } from '../calc/types';
 import { xirr, xirrDiem, xirrNotConverged } from '../xirr';
-import { divideByZero } from '../warnings';
+import { atField, divideByZero } from '../warnings';
 import { SOURCE_CFA, numberVar } from './shared';
 
 /*
@@ -135,10 +135,14 @@ export const ROI: FormulaModule = {
       return {
         value: null,
         unit: '%',
-        warning: divideByZero(
-          { vi: 'ROI', en: 'ROI' },
-          { vi: 'Vốn bỏ ra', en: 'capital invested' },
-          { vi: 'Nhập số vốn lớn hơn 0.', en: 'Enter a capital amount greater than 0.' },
+        warning: atField(
+          divideByZero(
+            { vi: 'ROI', en: 'ROI' },
+            { vi: 'Vốn bỏ ra', en: 'capital invested' },
+            { vi: 'Nhập số vốn lớn hơn 0.', en: 'Enter a capital amount greater than 0.' },
+          ),
+          'cost',
+          { vi: 'Vốn bỏ ra lớn hơn 0.', en: 'Capital invested must be greater than 0.' },
         ),
       };
     }
@@ -297,10 +301,14 @@ export const HPR: FormulaModule = {
       return {
         value: null,
         unit: '%',
-        warning: divideByZero(
-          { vi: 'HPR', en: 'HPR' },
-          { vi: 'Giá đầu kỳ', en: 'starting price' },
-          { vi: 'Nhập giá đầu kỳ lớn hơn 0.', en: 'Enter a starting price greater than 0.' },
+        warning: atField(
+          divideByZero(
+            { vi: 'HPR', en: 'HPR' },
+            { vi: 'Giá đầu kỳ', en: 'starting price' },
+            { vi: 'Nhập giá đầu kỳ lớn hơn 0.', en: 'Enter a starting price greater than 0.' },
+          ),
+          'startPrice',
+          { vi: 'Giá đầu kỳ lớn hơn 0.', en: 'Starting price must be greater than 0.' },
         ),
       };
     }
@@ -480,15 +488,27 @@ export const CAGR: FormulaModule = {
     const start = v('start');
     const end = v('end');
     const years = v('years');
+    /*
+     * Câu dưới ô Giá trị ban đầu (18/11/2026): bằng 0 hay âm đều hỏng, nên một câu cho cả nhánh
+     * chia cho 0 lẫn nhánh số âm bên dưới.
+     */
+    const startDuong = {
+      vi: 'Giá trị ban đầu lớn hơn 0.',
+      en: 'Starting value must be greater than 0.',
+    };
 
     if (start === 0) {
       return {
         value: null,
         unit: '%',
-        warning: divideByZero(
-          { vi: 'CAGR', en: 'CAGR' },
-          { vi: 'Giá trị ban đầu', en: 'starting value' },
-          { vi: 'Nhập giá trị ban đầu lớn hơn 0.', en: 'Enter a starting value greater than 0.' },
+        warning: atField(
+          divideByZero(
+            { vi: 'CAGR', en: 'CAGR' },
+            { vi: 'Giá trị ban đầu', en: 'starting value' },
+            { vi: 'Nhập giá trị ban đầu lớn hơn 0.', en: 'Enter a starting value greater than 0.' },
+          ),
+          'start',
+          startDuong,
         ),
       };
     }
@@ -496,29 +516,40 @@ export const CAGR: FormulaModule = {
       return {
         value: null,
         unit: '%',
-        warning: divideByZero(
-          { vi: 'CAGR', en: 'CAGR' },
-          { vi: 'Số năm', en: 'number of years' },
-          // Ô nhận số năm lẻ từ 06/11/2026, nên 0,5 năm là hợp lệ: chỉ 0 trở xuống mới bị chặn.
-          { vi: 'Nhập số năm lớn hơn 0.', en: 'Enter a number of years greater than 0.' },
+        warning: atField(
+          divideByZero(
+            { vi: 'CAGR', en: 'CAGR' },
+            { vi: 'Số năm', en: 'number of years' },
+            // Ô nhận số năm lẻ từ 06/11/2026, nên 0,5 năm là hợp lệ: chỉ 0 trở xuống mới bị chặn.
+            { vi: 'Nhập số năm lớn hơn 0.', en: 'Enter a number of years greater than 0.' },
+          ),
+          'years',
+          { vi: 'Số năm lớn hơn 0.', en: 'Number of years must be greater than 0.' },
         ),
       };
     }
+    /* Hai ô đều không nhận số âm, nên nhánh này chỉ tới được khi số đi vòng qua miền nhập. */
     if (start < 0 || end < 0) {
       return {
         value: null,
         unit: '%',
-        warning: {
-          code: 'MODEL_VIOLATION',
-          message: {
-            vi: 'Mô hình không dùng được khi giá trị đầu hoặc cuối là số âm.',
-            en: 'The model does not apply when the starting or ending value is negative.',
+        warning: atField(
+          {
+            code: 'MODEL_VIOLATION',
+            message: {
+              vi: 'Mô hình không dùng được khi giá trị đầu hoặc cuối là số âm.',
+              en: 'The model does not apply when the starting or ending value is negative.',
+            },
+            fix: {
+              vi: 'CAGR chỉ có nghĩa với giá trị dương. Dùng ROI nếu khoản đầu tư đã mất hết vốn.',
+              en: 'CAGR is only meaningful for positive values. Use ROI if the investment has lost all its capital.',
+            },
           },
-          fix: {
-            vi: 'CAGR chỉ có nghĩa với giá trị dương. Dùng ROI nếu khoản đầu tư đã mất hết vốn.',
-            en: 'CAGR is only meaningful for positive values. Use ROI if the investment has lost all its capital.',
-          },
-        },
+          start < 0 ? 'start' : 'end',
+          start < 0
+            ? startDuong
+            : { vi: 'Giá trị cuối kỳ không được âm.', en: 'Ending value cannot be negative.' },
+        ),
       };
     }
 
@@ -646,10 +677,14 @@ export const TY_SUAT_CO_TUC: FormulaModule = {
       return {
         value: null,
         unit: '%',
-        warning: divideByZero(
-          { vi: 'tỷ suất cổ tức', en: 'dividend yield' },
-          { vi: 'Thị giá', en: 'market price' },
-          { vi: 'Nhập thị giá lớn hơn 0.', en: 'Enter a market price greater than 0.' },
+        warning: atField(
+          divideByZero(
+            { vi: 'tỷ suất cổ tức', en: 'dividend yield' },
+            { vi: 'Thị giá', en: 'market price' },
+            { vi: 'Nhập thị giá lớn hơn 0.', en: 'Enter a market price greater than 0.' },
+          ),
+          'price',
+          { vi: 'Thị giá lớn hơn 0.', en: 'Market price must be greater than 0.' },
         ),
       };
     }

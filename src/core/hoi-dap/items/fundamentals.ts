@@ -30,6 +30,28 @@ export const HOI_DAP_FUNDAMENTALS: Readonly<Record<string, ReadonlyArray<CauHoiT
         },
       ],
     },
+    {
+      hoi: {
+        vi: 'Tại sao công ty đang lỗ mà vẫn trả cổ tức thì màn báo kết quả không có ý nghĩa?',
+        en: 'Why does the screen report a meaningless result when a loss-making company still pays a dividend?',
+      },
+      tuSoan: true,
+      traLoi: {
+        vi: 'Khi EPS âm, cổ tức không đến từ lãi trong kỳ mà từ tiền tích luỹ các năm trước, nên chia cổ tức cho một khoản lỗ chỉ ra một con số gây hiểu lầm. EPS bằng 0 thì màn báo chia cho 0. Muốn biết tiền trả cổ tức lấy từ đâu, hãy xem báo cáo lưu chuyển tiền tệ.',
+        en: 'When EPS is negative, the dividend does not come from profit earned in the period but from cash built up in earlier years, so dividing it by a loss only gives a misleading number. An EPS of 0 is reported as a divide-by-zero error. To see where the dividend money came from, check the cash flow statement.',
+      },
+    },
+    {
+      hoi: {
+        vi: 'Nghị quyết ghi cổ tức 15% thì nhập vào ô cổ tức bao nhiêu?',
+        en: 'If the resolution states a 15% dividend, what do I enter in the dividend field?',
+      },
+      tuSoan: true,
+      traLoi: {
+        vi: 'Nhập 1.500 ₫, vì tỷ lệ trong nghị quyết tính trên mệnh giá 10.000 ₫, còn ô Cổ tức tiền mặt / CP nhận số đồng mỗi cổ phiếu. Với EPS 5.867 ₫, kết quả là 25,57%. Nhập nhầm 15 thì hệ số chi trả chỉ còn 0,26%.',
+        en: 'Enter 1,500 ₫: the rate in the resolution is a percentage of the 10,000 ₫ par value, while the Cash dividend / share field takes dong per share. With an EPS of 5,867 ₫ the result is 25.57%. Entering 15 by mistake would give a payout ratio of only 0.26%.',
+      },
+    },
   ],
   'eps-co-ban': [
     {
@@ -137,6 +159,16 @@ export const HOI_DAP_FUNDAMENTALS: Readonly<Record<string, ReadonlyArray<CauHoiT
         noi: 'faq',
         vietnam: true,
       },
+      traLoi: {
+        vi: 'Nguồn trả lời có, nhưng gián tiếp: doanh nghiệp chỉ chia được cổ tức từ lợi nhuận thực tế và lợi nhuận giữ lại tích luỹ. Lấy cổ tức mỗi cổ phiếu chia cho EPS là ra hệ số chi trả cổ tức, công thức có riêng trong thư viện này.',
+        en: 'The source says yes, but indirectly: a company can only pay dividends out of actual profit and accumulated retained earnings. Dividing the dividend per share by EPS gives the dividend payout ratio, which has its own formula in this library.',
+      },
+      nguonTraLoi: [
+        {
+          url: 'https://thuvienchungkhoan.vn/eps-la-gi/',
+          ten: 'Thư viện chứng khoán',
+        },
+      ],
     },
     {
       hoi: {
@@ -315,6 +347,16 @@ export const HOI_DAP_FUNDAMENTALS: Readonly<Record<string, ReadonlyArray<CauHoiT
         noi: 'faq',
         vietnam: true,
       },
+      traLoi: {
+        vi: 'Nguồn trả lời có: nhân ROE với tỷ lệ lợi nhuận giữ lại sẽ ra tốc độ tăng trưởng, nên cùng ROE mà phần lãi giữ lại để tái đầu tư khác nhau thì tăng trưởng khác nhau. Tỷ lệ giữ lại là 100% trừ hệ số chi trả cổ tức.',
+        en: 'The source says yes: multiplying ROE by the share of profit retained gives a growth rate, so with the same ROE, companies that keep different shares of profit to reinvest grow at different rates. The retention rate is 100% minus the dividend payout ratio.',
+      },
+      nguonTraLoi: [
+        {
+          url: 'https://www.finhay.com.vn/roe-la-gi',
+          ten: 'Finhay',
+        },
+      ],
     },
     {
       hoi: {
@@ -445,6 +487,16 @@ export const HOI_DAP_FUNDAMENTALS: Readonly<Record<string, ReadonlyArray<CauHoiT
         noi: 'faq',
         vietnam: true,
       },
+      traLoi: {
+        vi: 'Nguồn nói ROA tăng theo thời gian cho thấy công ty làm tốt việc tăng lợi nhuận, còn ROA giảm có thể là dấu hiệu công ty đầu tư quá mức vào tài sản không tạo thêm doanh thu. ROA cũng dùng để so các công ty trong cùng một ngành.',
+        en: 'The source says a rising ROA over time shows the company is doing well at growing profit, while a falling ROA can signal that it has overinvested in assets that do not add revenue. ROA is also used to compare companies within the same industry.',
+      },
+      nguonTraLoi: [
+        {
+          url: 'https://taca.com.vn/chi-so-roa/',
+          ten: 'TACA',
+        },
+      ],
     },
     {
       hoi: {
@@ -457,6 +509,10 @@ export const HOI_DAP_FUNDAMENTALS: Readonly<Record<string, ReadonlyArray<CauHoiT
         ten: 'TACA FAQ',
         noi: 'faq',
         vietnam: true,
+      },
+      traLoi: {
+        vi: 'Lấy lợi nhuận sau thuế chia tổng tài sản rồi nhân 100. Ở đây tổng tài sản là số cuối kỳ trên bảng cân đối; trang nguồn dùng tổng tài sản bình quân trong kỳ, nên hai cách có thể lệch nhau khi tài sản đổi nhiều trong kỳ. Ví dụ FPT 6 tháng đầu 2026: 5.055,1 ÷ 73.734,2 × 100 = 6,86%.',
+        en: 'Divide net income by total assets and multiply by 100. Here total assets is the period-end balance-sheet figure; the source page uses average total assets for the period, so the two can differ when assets change a lot during the period. For FPT in H1 2026: 5,055.1 ÷ 73,734.2 × 100 = 6.86%.',
       },
     },
   ],
@@ -611,6 +667,16 @@ export const HOI_DAP_FUNDAMENTALS: Readonly<Record<string, ReadonlyArray<CauHoiT
         noi: 'faq',
         vietnam: true,
       },
+      traLoi: {
+        vi: 'Nguồn nói tuỳ ngành; trang có dẫn mức trung bình của doanh nghiệp niêm yết theo một khảo sát của NYU Stern, nhưng nhấn mạnh xu hướng quan trọng hơn: biên ròng tăng ổn định qua thời gian mới phản ánh tài chính bền vững. Hãy so với biên ròng của chính công ty các kỳ trước và của công ty cùng ngành; số âm nghĩa là công ty đang lỗ.',
+        en: "The source says it depends on the industry; the page cites an average for listed companies from an NYU Stern survey but stresses that the trend matters more, since only a margin rising steadily over time reflects sound finances. Compare with the company's own margin in earlier periods and with peers in the same industry; a negative figure means the company is making a loss.",
+      },
+      nguonTraLoi: [
+        {
+          url: 'https://taca.com.vn/loi-nhuan-rong/',
+          ten: 'TACA',
+        },
+      ],
     },
   ],
   'bien-loi-nhuan-gop': [
@@ -769,6 +835,10 @@ export const HOI_DAP_FUNDAMENTALS: Readonly<Record<string, ReadonlyArray<CauHoiT
         noi: 'faq',
         vietnam: true,
       },
+      traLoi: {
+        vi: 'Không có một mức tốt chung, nên màn đọc theo mốc 1 lần: trên 1 là tài sản ngắn hạn đủ trả hết nợ đến hạn trong năm, dưới 1 là chưa đủ. Ngoài mốc đó hãy so với công ty cùng ngành và chính công ty các kỳ trước, và xem cơ cấu: tài sản ngắn hạn phần lớn là hàng tồn kho khó bán thì hệ số cao cũng chưa chắc trả nợ kịp.',
+        en: "There is no universal good level, so the screen reads it against the 1 mark: above 1 means current assets cover all debts due within the year, below 1 means they fall short. Beyond that, compare with peers in the same industry and the company's own earlier periods, and check the mix: if current assets are mostly hard-to-sell inventory, even a high ratio may not pay debts on time.",
+      },
     },
     {
       hoi: {
@@ -899,6 +969,16 @@ export const HOI_DAP_FUNDAMENTALS: Readonly<Record<string, ReadonlyArray<CauHoiT
         noi: 'faq',
         vietnam: true,
       },
+      traLoi: {
+        vi: 'Nguồn nói doanh nghiệp có thể rơi vào khủng hoảng thanh khoản ngay cả khi đang có lãi, nếu không đổi tài sản ra tiền kịp để trả các khoản đến hạn như lương, tiền nhà cung cấp hay khoản vay ngắn hạn. Trên màn này, kết quả dưới 1 lần nghĩa là trả nợ đúng hạn phụ thuộc vào việc bán được hàng tồn kho.',
+        en: 'The source says a company can fall into a liquidity crisis even while profitable if it cannot turn assets into cash in time to pay what falls due, such as wages, suppliers or short-term loans. On this screen, a result below 1 means paying debts on time depends on selling inventory.',
+      },
+      nguonTraLoi: [
+        {
+          url: 'https://taca.com.vn/ty-so-thanh-toan-nhanh/',
+          ten: 'TACA',
+        },
+      ],
     },
     {
       hoi: {
@@ -916,6 +996,12 @@ export const HOI_DAP_FUNDAMENTALS: Readonly<Record<string, ReadonlyArray<CauHoiT
         vi: 'Nguồn đưa hai cách: lấy tài sản ngắn hạn trừ hàng tồn kho rồi chia cho nợ ngắn hạn, hoặc cộng tiền, chứng khoán ngắn hạn và phải thu rồi chia cho nợ ngắn hạn. Sản phẩm này dùng cách thứ nhất.',
         en: 'The source gives two ways: current assets minus inventory divided by current liabilities, or cash plus short-term securities plus receivables divided by current liabilities. This product uses the first way.',
       },
+      nguonTraLoi: [
+        {
+          url: 'https://taca.com.vn/ty-so-thanh-toan-nhanh/',
+          ten: 'TACA',
+        },
+      ],
     },
   ],
   'vong-quay-tong-tai-san': [
@@ -977,6 +1063,16 @@ export const HOI_DAP_FUNDAMENTALS: Readonly<Record<string, ReadonlyArray<CauHoiT
         noi: 'faq',
         vietnam: true,
       },
+      traLoi: {
+        vi: 'Nguồn nói đây là chỉ số đo hiệu quả dùng tài sản của công ty, bằng cách so doanh thu với tổng tài sản. Ở đây lấy doanh thu thuần chia tổng tài sản cuối kỳ (trang nguồn tính bằng tổng tài sản bình quân), ra số vòng: FPT 6 tháng đầu 2026 là 26.268,5 ÷ 73.734,2 = 0,36 vòng.',
+        en: 'The source says it measures how efficiently a company uses its assets by comparing sales with total assets. Here net revenue is divided by period-end total assets (the source page uses average total assets), giving a number of turns: FPT in H1 2026 is 26,268.5 ÷ 73,734.2 = 0.36 turns.',
+      },
+      nguonTraLoi: [
+        {
+          url: 'https://taca.com.vn/chi-so-vong-quay-tong-tai-san/',
+          ten: 'TACA',
+        },
+      ],
     },
     {
       hoi: {
@@ -990,6 +1086,16 @@ export const HOI_DAP_FUNDAMENTALS: Readonly<Record<string, ReadonlyArray<CauHoiT
         noi: 'faq',
         vietnam: true,
       },
+      traLoi: {
+        vi: 'Nguồn nêu cách giữ sẵn mặt hàng bán chạy, chỉ nhập thêm hàng khi thật cần (quản lý tồn kho đúng lúc) và kéo dài giờ mở cửa để tăng doanh số. Theo công thức, vòng quay tăng khi doanh thu thuần tăng nhanh hơn tổng tài sản, hoặc khi tài sản giảm mà doanh thu vẫn giữ được.',
+        en: 'The source suggests keeping best-selling items in stock, ordering more only when truly needed (just-in-time inventory) and extending opening hours to lift sales. By the formula, turnover rises when net revenue grows faster than total assets, or when assets shrink while revenue holds.',
+      },
+      nguonTraLoi: [
+        {
+          url: 'https://taca.com.vn/chi-so-vong-quay-tong-tai-san/',
+          ten: 'TACA',
+        },
+      ],
     },
   ],
 };

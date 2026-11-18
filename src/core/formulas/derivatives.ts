@@ -17,7 +17,7 @@ import { ok } from '../calc-output';
 import type { FormulaModule } from '../calc/types';
 import { lamTronXuong } from '../lam-tron';
 import type { FormulaSource } from '../registry/types';
-import { divideByZero, meaningless } from '../warnings';
+import { atField, divideByZero, meaningless } from '../warnings';
 import { constantOf, missingConstant, numberVar, sliderVar, withSymbol } from './shared';
 
 /*
@@ -58,6 +58,15 @@ const indexValue = numberVar(
   },
 );
 
+/**
+ * Câu đỏ dưới ô Chỉ số VN30 hiện tại (18/11/2026), chung cho mọi công thức dùng ô ấy: cùng một ô, cùng
+ * một điều kiện thì cùng một câu. Xem `atField()` ở `warnings.ts`.
+ */
+const CHI_SO_LON_HON_0 = {
+  vi: 'Chỉ số VN30 hiện tại lớn hơn 0.',
+  en: 'Current VN30 index must be greater than 0.',
+};
+
 const futuresPoints = numberVar(
   'futuresPoints',
   { vi: 'Điểm hợp đồng tương lai', en: 'Futures price' },
@@ -88,6 +97,12 @@ const contracts = numberVar(
     },
   },
 );
+
+/** Câu đỏ dưới ô Số hợp đồng của hai công thức lãi/lỗ Long và Short: 0 hợp đồng vẫn tính được. */
+const SO_HOP_DONG_KHONG_AM = {
+  vi: 'Số hợp đồng không được âm.',
+  en: 'Number of contracts cannot be negative.',
+};
 
 /*
  * ── 1. Giá lý thuyết hợp đồng tương lai ────────────────────────────────────────────────
@@ -270,15 +285,19 @@ export const GIA_LY_THUYET_VN30F: FormulaModule = {
       return {
         value: null,
         unit: 'điểm',
-        warning: meaningless(
-          {
-            vi: 'Chỉ số cơ sở phải lớn hơn 0 thì mới có giá lý thuyết để tính.',
-            en: 'The underlying index must be greater than 0 for a theoretical price to exist.',
-          },
-          {
-            vi: 'Nhập giá trị chỉ số VN30 hiện tại trên bảng điện.',
-            en: 'Enter the current VN30 index value from the board.',
-          },
+        warning: atField(
+          meaningless(
+            {
+              vi: 'Chỉ số cơ sở phải lớn hơn 0 thì mới có giá lý thuyết để tính.',
+              en: 'The underlying index must be greater than 0 for a theoretical price to exist.',
+            },
+            {
+              vi: 'Nhập giá trị chỉ số VN30 hiện tại trên bảng điện.',
+              en: 'Enter the current VN30 index value from the board.',
+            },
+          ),
+          'indexValue',
+          CHI_SO_LON_HON_0,
         ),
       };
     }
@@ -287,15 +306,19 @@ export const GIA_LY_THUYET_VN30F: FormulaModule = {
       return {
         value: null,
         unit: 'điểm',
-        warning: meaningless(
-          {
-            vi: 'Số ngày đến đáo hạn đang âm - hợp đồng này đã qua ngày đáo hạn.',
-            en: 'Days to expiry is negative - this contract has already passed its expiry date.',
-          },
-          {
-            vi: 'Nhập số ngày từ 0 trở lên, hoặc chọn hợp đồng kỳ hạn xa hơn.',
-            en: 'Enter a number of days of 0 or more, or choose a contract with a later expiry.',
-          },
+        warning: atField(
+          meaningless(
+            {
+              vi: 'Số ngày đến đáo hạn đang âm - hợp đồng này đã qua ngày đáo hạn.',
+              en: 'Days to expiry is negative - this contract has already passed its expiry date.',
+            },
+            {
+              vi: 'Nhập số ngày từ 0 trở lên, hoặc chọn hợp đồng kỳ hạn xa hơn.',
+              en: 'Enter a number of days of 0 or more, or choose a contract with a later expiry.',
+            },
+          ),
+          'days',
+          { vi: 'Số ngày đến đáo hạn không được âm.', en: 'Days to expiry cannot be negative.' },
         ),
       };
     }
@@ -434,15 +457,19 @@ export const BASIS_VN30F: FormulaModule = {
       return {
         value: null,
         unit: 'điểm',
-        warning: meaningless(
-          {
-            vi: 'Chỉ số cơ sở phải lớn hơn 0 thì basis mới có mốc để so sánh.',
-            en: 'The underlying index must be greater than 0 for the basis to have a reference point.',
-          },
-          {
-            vi: 'Nhập giá trị chỉ số VN30 hiện tại trên bảng điện.',
-            en: 'Enter the current VN30 index value from the board.',
-          },
+        warning: atField(
+          meaningless(
+            {
+              vi: 'Chỉ số cơ sở phải lớn hơn 0 thì basis mới có mốc để so sánh.',
+              en: 'The underlying index must be greater than 0 for the basis to have a reference point.',
+            },
+            {
+              vi: 'Nhập giá trị chỉ số VN30 hiện tại trên bảng điện.',
+              en: 'Enter the current VN30 index value from the board.',
+            },
+          ),
+          'indexValue',
+          CHI_SO_LON_HON_0,
         ),
       };
     }
@@ -616,15 +643,19 @@ export const LAI_LO_VI_THE_LONG: FormulaModule = {
       return {
         value: null,
         unit: '₫',
-        warning: meaningless(
-          {
-            vi: 'Số hợp đồng đang âm - vị thế mua không có số lượng âm.',
-            en: 'Number of contracts is negative - a long position cannot have a negative quantity.',
-          },
-          {
-            vi: 'Nhập số hợp đồng từ 0 trở lên; muốn tính chiều bán thì dùng công thức vị thế Short.',
-            en: 'Enter a number of contracts of 0 or more; to calculate a sell position, use the Short position formula.',
-          },
+        warning: atField(
+          meaningless(
+            {
+              vi: 'Số hợp đồng đang âm - vị thế mua không có số lượng âm.',
+              en: 'Number of contracts is negative - a long position cannot have a negative quantity.',
+            },
+            {
+              vi: 'Nhập số hợp đồng từ 0 trở lên; muốn tính chiều bán thì dùng công thức vị thế Short.',
+              en: 'Enter a number of contracts of 0 or more; to calculate a sell position, use the Short position formula.',
+            },
+          ),
+          'contracts',
+          SO_HOP_DONG_KHONG_AM,
         ),
       };
     }
@@ -787,15 +818,19 @@ export const LAI_LO_VI_THE_SHORT: FormulaModule = {
       return {
         value: null,
         unit: '₫',
-        warning: meaningless(
-          {
-            vi: 'Số hợp đồng đang âm - vị thế bán không có số lượng âm.',
-            en: 'Number of contracts is negative - a short position cannot have a negative quantity.',
-          },
-          {
-            vi: 'Nhập số hợp đồng từ 0 trở lên; muốn tính chiều mua thì dùng công thức vị thế Long.',
-            en: 'Enter a number of contracts of 0 or more; to calculate a buy position, use the Long position formula.',
-          },
+        warning: atField(
+          meaningless(
+            {
+              vi: 'Số hợp đồng đang âm - vị thế bán không có số lượng âm.',
+              en: 'Number of contracts is negative - a short position cannot have a negative quantity.',
+            },
+            {
+              vi: 'Nhập số hợp đồng từ 0 trở lên; muốn tính chiều mua thì dùng công thức vị thế Long.',
+              en: 'Enter a number of contracts of 0 or more; to calculate a buy position, use the Long position formula.',
+            },
+          ),
+          'contracts',
+          SO_HOP_DONG_KHONG_AM,
         ),
       };
     }
@@ -973,17 +1008,28 @@ export const SO_HOP_DONG_TOI_DA: FormulaModule = {
         en: 'VN30F contract multiplier',
       });
 
+    /*
+     * Hai ô dưới đây không nhận số âm (min 0), nên trong miền của ô chỉ 0 hỏng: câu dưới ô nói
+     * "lớn hơn 0" như mọi ô phải dương.
+     */
     const points = v('futuresPoints');
     if (points === 0) {
       return {
         value: null,
         unit: 'HĐ',
-        warning: divideByZero(
-          { vi: 'số hợp đồng tối đa', en: 'the maximum number of contracts' },
-          { vi: 'Điểm hợp đồng', en: 'Futures price' },
+        warning: atField(
+          divideByZero(
+            { vi: 'số hợp đồng tối đa', en: 'the maximum number of contracts' },
+            { vi: 'Điểm hợp đồng', en: 'Futures price' },
+            {
+              vi: 'Nhập giá VN30F đang giao dịch trên bảng điện.',
+              en: 'Enter the current VN30F trading price from the board.',
+            },
+          ),
+          'futuresPoints',
           {
-            vi: 'Nhập giá VN30F đang giao dịch trên bảng điện.',
-            en: 'Enter the current VN30F trading price from the board.',
+            vi: 'Điểm hợp đồng tương lai lớn hơn 0.',
+            en: 'Futures price must be greater than 0.',
           },
         ),
       };
@@ -994,12 +1040,19 @@ export const SO_HOP_DONG_TOI_DA: FormulaModule = {
       return {
         value: null,
         unit: 'HĐ',
-        warning: divideByZero(
-          { vi: 'số hợp đồng tối đa', en: 'the maximum number of contracts' },
-          { vi: 'Tỷ lệ ký quỹ ban đầu', en: 'Initial margin ratio' },
+        warning: atField(
+          divideByZero(
+            { vi: 'số hợp đồng tối đa', en: 'the maximum number of contracts' },
+            { vi: 'Tỷ lệ ký quỹ ban đầu', en: 'Initial margin ratio' },
+            {
+              vi: 'Nhập tỷ lệ ký quỹ theo quy định của công ty chứng khoán, thường từ 17% trở lên.',
+              en: 'Enter the margin ratio set by your broker, typically 17% or more.',
+            },
+          ),
+          'marginRatio',
           {
-            vi: 'Nhập tỷ lệ ký quỹ theo quy định của công ty chứng khoán, thường từ 17% trở lên.',
-            en: 'Enter the margin ratio set by your broker, typically 17% or more.',
+            vi: 'Tỷ lệ ký quỹ ban đầu lớn hơn 0.',
+            en: 'Initial margin ratio must be greater than 0.',
           },
         ),
       };
@@ -1218,17 +1271,26 @@ export const CO_VI_THE_PHAI_SINH: FormulaModule = {
       });
 
     const stopPoints = v('stopPoints');
+    /* Câu dưới ô Khoảng cách cắt lỗ, chung cho hai nhánh bên dưới (bằng 0 và âm). */
+    const catLoDuong = {
+      vi: 'Khoảng cách cắt lỗ lớn hơn 0.',
+      en: 'Stop-loss distance must be greater than 0.',
+    };
     if (stopPoints === 0) {
       return {
         value: null,
         unit: 'HĐ',
-        warning: divideByZero(
-          { vi: 'cỡ vị thế', en: 'the position size' },
-          { vi: 'Khoảng cách cắt lỗ', en: 'Stop-loss distance' },
-          {
-            vi: 'Đặt điểm cắt lỗ cách điểm vào lệnh ít nhất 1 điểm.',
-            en: 'Set the stop-loss at least 1 point away from the entry level.',
-          },
+        warning: atField(
+          divideByZero(
+            { vi: 'cỡ vị thế', en: 'the position size' },
+            { vi: 'Khoảng cách cắt lỗ', en: 'Stop-loss distance' },
+            {
+              vi: 'Đặt điểm cắt lỗ cách điểm vào lệnh ít nhất 1 điểm.',
+              en: 'Set the stop-loss at least 1 point away from the entry level.',
+            },
+          ),
+          'stopPoints',
+          catLoDuong,
         ),
       };
     }
@@ -1237,15 +1299,19 @@ export const CO_VI_THE_PHAI_SINH: FormulaModule = {
       return {
         value: null,
         unit: 'HĐ',
-        warning: meaningless(
-          {
-            vi: 'Khoảng cách cắt lỗ đang âm - khoảng cách là số điểm chênh nên luôn dương.',
-            en: 'Stop-loss distance is negative - a distance is a point gap, so it must always be positive.',
-          },
-          {
-            vi: 'Nhập số điểm chênh giữa điểm vào lệnh và điểm cắt lỗ, không phân biệt chiều Long hay Short.',
-            en: 'Enter the point gap between the entry level and the stop-loss level, regardless of Long or Short direction.',
-          },
+        warning: atField(
+          meaningless(
+            {
+              vi: 'Khoảng cách cắt lỗ đang âm - khoảng cách là số điểm chênh nên luôn dương.',
+              en: 'Stop-loss distance is negative - a distance is a point gap, so it must always be positive.',
+            },
+            {
+              vi: 'Nhập số điểm chênh giữa điểm vào lệnh và điểm cắt lỗ, không phân biệt chiều Long hay Short.',
+              en: 'Enter the point gap between the entry level and the stop-loss level, regardless of Long or Short direction.',
+            },
+          ),
+          'stopPoints',
+          catLoDuong,
         ),
       };
     }
@@ -1436,15 +1502,19 @@ export const DON_BAY_HIEU_DUNG: FormulaModule = {
       return {
         value: null,
         unit: 'lần',
-        warning: meaningless(
-          {
-            vi: 'Chưa có hợp đồng nào đang mở nên chưa có đòn bẩy để đo.',
-            en: 'No contracts are open yet, so there is no leverage to measure.',
-          },
-          {
-            vi: 'Nhập số hợp đồng từ 1 trở lên.',
-            en: 'Enter a number of contracts of 1 or more.',
-          },
+        warning: atField(
+          meaningless(
+            {
+              vi: 'Chưa có hợp đồng nào đang mở nên chưa có đòn bẩy để đo.',
+              en: 'No contracts are open yet, so there is no leverage to measure.',
+            },
+            {
+              vi: 'Nhập số hợp đồng từ 1 trở lên.',
+              en: 'Enter a number of contracts of 1 or more.',
+            },
+          ),
+          'contracts',
+          { vi: 'Số hợp đồng lớn hơn 0.', en: 'Number of contracts must be greater than 0.' },
         ),
       };
     }
@@ -1454,12 +1524,20 @@ export const DON_BAY_HIEU_DUNG: FormulaModule = {
       return {
         value: null,
         unit: 'lần',
-        warning: divideByZero(
-          { vi: 'đòn bẩy hiệu dụng', en: 'effective leverage' },
-          { vi: 'Vốn thực có', en: 'Actual equity' },
+        /* Ô Vốn thực có không nhận số âm (min 0), nên trong miền của ô chỉ 0 hỏng. */
+        warning: atField(
+          divideByZero(
+            { vi: 'đòn bẩy hiệu dụng', en: 'effective leverage' },
+            { vi: 'Vốn thực có', en: 'Actual equity' },
+            {
+              vi: 'Nhập giá trị ròng hiện tại của tài khoản phái sinh.',
+              en: 'Enter the current net value of the derivatives account.',
+            },
+          ),
+          'equity',
           {
-            vi: 'Nhập giá trị ròng hiện tại của tài khoản phái sinh.',
-            en: 'Enter the current net value of the derivatives account.',
+            vi: 'Vốn thực có trong tài khoản lớn hơn 0.',
+            en: 'Actual equity in the account must be greater than 0.',
           },
         ),
       };

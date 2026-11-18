@@ -18,6 +18,8 @@ export interface LinkedInputProps {
   /** Ghi đè giá trị mới, hoặc `undefined` để hoàn tác về giá trị tự động. */
   onOverrideChange: (value: number | undefined) => void;
   mode?: Level;
+  /** Câu điều kiện của công thức mà ô đang vi phạm — xem `NumberInputProps.conditionError`. */
+  conditionError?: string;
   className?: string;
 }
 
@@ -39,6 +41,7 @@ export function LinkedInput({
   override,
   onOverrideChange,
   mode = 'advanced',
+  conditionError,
   className,
 }: LinkedInputProps) {
   const t = useT();
@@ -72,6 +75,7 @@ export function LinkedInput({
           // Sửa tay ngay trên ô cũng tính là ghi đè — không bắt phải bấm nút trước.
           onOverrideChange(value);
         }}
+        conditionError={conditionError}
       />
 
       <div className={styles.footer}>

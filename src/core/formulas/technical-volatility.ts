@@ -27,7 +27,7 @@ import type { CalcContext, FormulaModule } from '../calc/types';
 import { displaySeriesDate, parseSeriesDate, type SeriesRow } from '../price-series';
 import type { FormulaSource } from '../registry/types';
 import type { Bilingual, CalcOutput, CalcWarning, VariableSpec } from '../types';
-import { divideByZero, meaningless, missingSeries } from '../warnings';
+import { atField, divideByZero, meaningless, missingSeries } from '../warnings';
 import { FPT_2026, FPT_BARS, FPT_PHIEN } from './market-series-2026';
 import {
   logReturns,
@@ -155,19 +155,42 @@ function periodOf(raw: number): number {
   return Math.round(raw);
 }
 
-/** Cảnh báo dùng chung khi chu kỳ nhập quá ngắn để phép tính còn nghĩa. */
-function periodTooShort(unit: string, least: number, why: Bilingual): CalcOutput {
+/**
+ * Cảnh báo dùng chung khi chu kỳ nhập quá ngắn để phép tính còn nghĩa.
+ *
+ * `key` và `label` là ô chu kỳ của chính công thức gọi tới (nhãn bỏ ký hiệu cuối): câu dưới ô
+ * (18/11/2026) gọi ô bằng tên của nó. Mốc 1 phiên đọc là "lớn hơn 0" (khuôn `input.errPositive`,
+ * chu kỳ là số nguyên); mốc cao hơn theo khuôn `input.errMin`, kèm đơn vị như câu báo miền.
+ */
+function periodTooShort(
+  unit: string,
+  least: number,
+  why: Bilingual,
+  key: string,
+  label: Bilingual,
+): CalcOutput {
+  const duoiO: Bilingual =
+    least <= 1
+      ? { vi: `${label.vi} lớn hơn 0.`, en: `${label.en} must be greater than 0.` }
+      : {
+          vi: `${label.vi} nhỏ nhất phải là ${least} phiên.`,
+          en: `${label.en} must be at least ${least} sessions.`,
+        };
   return fail(
     unit,
-    meaningless(
-      {
-        vi: `${why.vi} nên chu kỳ phải từ ${least} phiên trở lên.`,
-        en: `${why.en}, so the period must be at least ${least} sessions.`,
-      },
-      {
-        vi: `Nhập chu kỳ ít nhất ${least}.`,
-        en: `Enter a period of at least ${least}.`,
-      },
+    atField(
+      meaningless(
+        {
+          vi: `${why.vi} nên chu kỳ phải từ ${least} phiên trở lên.`,
+          en: `${why.en}, so the period must be at least ${least} sessions.`,
+        },
+        {
+          vi: `Nhập chu kỳ ít nhất ${least}.`,
+          en: `Enter a period of at least ${least}.`,
+        },
+      ),
+      key,
+      duoiO,
     ),
   );
 }
@@ -452,10 +475,16 @@ export const DAI_BOLLINGER_TREN: FormulaModule = {
     const unit = '₫';
     const period = periodOf(v('period'));
     if (period < 2) {
-      return periodTooShort(unit, 2, {
-        vi: 'Một phiên thì không có độ phân tán nào để đo',
-        en: 'A single session has no dispersion to measure',
-      });
+      return periodTooShort(
+        unit,
+        2,
+        {
+          vi: 'Một phiên thì không có độ phân tán nào để đo',
+          en: 'A single session has no dispersion to measure',
+        },
+        'period',
+        BOLLINGER_PERIOD.label,
+      );
     }
 
     const parts = bollingerParts(ctx, period, v('k'));
@@ -597,10 +626,16 @@ export const DAI_BOLLINGER_DUOI: FormulaModule = {
     const unit = '₫';
     const period = periodOf(v('period'));
     if (period < 2) {
-      return periodTooShort(unit, 2, {
-        vi: 'Một phiên thì không có độ phân tán nào để đo',
-        en: 'A single session has no dispersion to measure',
-      });
+      return periodTooShort(
+        unit,
+        2,
+        {
+          vi: 'Một phiên thì không có độ phân tán nào để đo',
+          en: 'A single session has no dispersion to measure',
+        },
+        'period',
+        BOLLINGER_PERIOD.label,
+      );
     }
 
     const parts = bollingerParts(ctx, period, v('k'));
@@ -747,10 +782,16 @@ export const DO_RONG_DAI_BOLLINGER: FormulaModule = {
     const unit = '%';
     const period = periodOf(v('period'));
     if (period < 2) {
-      return periodTooShort(unit, 2, {
-        vi: 'Một phiên thì không có độ phân tán nào để đo',
-        en: 'A single session has no dispersion to measure',
-      });
+      return periodTooShort(
+        unit,
+        2,
+        {
+          vi: 'Một phiên thì không có độ phân tán nào để đo',
+          en: 'A single session has no dispersion to measure',
+        },
+        'period',
+        BOLLINGER_PERIOD.label,
+      );
     }
 
     const parts = bollingerParts(ctx, period, v('k'));
@@ -965,10 +1006,16 @@ export const ATR_DAO_DONG_THUC: FormulaModule = {
     const unit = '₫';
     const period = periodOf(v('period'));
     if (period < 1) {
-      return periodTooShort(unit, 1, {
-        vi: 'ATR là trung bình của ít nhất một dao động thực',
-        en: 'ATR is the average of at least one true range',
-      });
+      return periodTooShort(
+        unit,
+        1,
+        {
+          vi: 'ATR là trung bình của ít nhất một dao động thực',
+          en: 'ATR is the average of at least one true range',
+        },
+        'period',
+        { vi: 'Chu kỳ ATR', en: 'ATR period' },
+      );
     }
 
     // Cần chu kỳ + 1 phiên: N phiên chỉ cho N−1 dao động thực vì phiên đầu chưa có giá đóng
@@ -1185,24 +1232,38 @@ export const PHAN_TRAM_B_BOLLINGER: FormulaModule = {
     const unit = '%';
     const period = periodOf(v('period'));
     if (period < 2) {
-      return periodTooShort(unit, 2, {
-        vi: 'Một phiên thì không có độ phân tán nào để đo',
-        en: 'A single session has no dispersion to measure',
-      });
+      return periodTooShort(
+        unit,
+        2,
+        {
+          vi: 'Một phiên thì không có độ phân tán nào để đo',
+          en: 'A single session has no dispersion to measure',
+        },
+        'period',
+        BOLLINGER_PERIOD.label,
+      );
     }
 
     const k = v('k');
     if (k <= 0) {
       return fail(
         unit,
-        meaningless(
+        /* Câu dưới ô k (18/11/2026): 0 và âm cùng hỏng, khuôn `input.errPositive`. */
+        atField(
+          meaningless(
+            {
+              vi: 'Hệ số nhân bằng 0 hoặc âm làm hai dải trùng vào đường giữa, không còn khoảng nào để xác định vị trí giá.',
+              en: 'A multiplier of zero or negative collapses both bands onto the middle line, leaving no range in which to locate the price.',
+            },
+            {
+              vi: 'Nhập hệ số nhân lớn hơn 0; Bollinger dùng 2.',
+              en: 'Enter a multiplier greater than 0; Bollinger uses 2.',
+            },
+          ),
+          'k',
           {
-            vi: 'Hệ số nhân bằng 0 hoặc âm làm hai dải trùng vào đường giữa, không còn khoảng nào để xác định vị trí giá.',
-            en: 'A multiplier of zero or negative collapses both bands onto the middle line, leaving no range in which to locate the price.',
-          },
-          {
-            vi: 'Nhập hệ số nhân lớn hơn 0; Bollinger dùng 2.',
-            en: 'Enter a multiplier greater than 0; Bollinger uses 2.',
+            vi: `${BOLLINGER_K.label.vi} lớn hơn 0.`,
+            en: `${BOLLINGER_K.label.en} must be greater than 0.`,
           },
         ),
       );
@@ -1408,10 +1469,16 @@ export const STOCHASTIC_K: FormulaModule = {
     const unit = '%';
     const period = periodOf(v('period'));
     if (period < 1) {
-      return periodTooShort(unit, 1, {
-        vi: 'Phải có ít nhất một phiên để lấy đỉnh và đáy',
-        en: 'At least one session is needed to take the high and low',
-      });
+      return periodTooShort(
+        unit,
+        1,
+        {
+          vi: 'Phải có ít nhất một phiên để lấy đỉnh và đáy',
+          en: 'At least one session is needed to take the high and low',
+        },
+        'period',
+        { vi: 'Chu kỳ stochastic', en: 'Stochastic period' },
+      );
     }
 
     const bars = requireOhlc(ctx, period);
@@ -1598,10 +1665,16 @@ export const VWAP: FormulaModule = {
     const unit = '₫';
     const period = periodOf(v('period'));
     if (period < 1) {
-      return periodTooShort(unit, 1, {
-        vi: 'Bình quân cần ít nhất một phiên',
-        en: 'An average needs at least one session',
-      });
+      return periodTooShort(
+        unit,
+        1,
+        {
+          vi: 'Bình quân cần ít nhất một phiên',
+          en: 'An average needs at least one session',
+        },
+        'period',
+        { vi: 'Số phiên gộp', en: 'Number of sessions' },
+      );
     }
 
     const bars = requireVolumeBars(ctx, period);
@@ -1857,24 +1930,38 @@ export const DO_BIEN_DONG_LICH_SU: FormulaModule = {
     const unit = '%/năm';
     const sample = periodOf(v('sample'));
     if (sample < MAU_LOG_TOI_THIEU) {
-      return periodTooShort(unit, MAU_LOG_TOI_THIEU, {
-        vi: 'Độ lệch chuẩn mẫu cần ít nhất hai lợi suất',
-        en: 'The sample standard deviation needs at least two returns',
-      });
+      return periodTooShort(
+        unit,
+        MAU_LOG_TOI_THIEU,
+        {
+          vi: 'Độ lệch chuẩn mẫu cần ít nhất hai lợi suất',
+          en: 'The sample standard deviation needs at least two returns',
+        },
+        'sample',
+        { vi: 'Số phiên giá lấy mẫu', en: 'Number of price sessions in the sample' },
+      );
     }
 
     const days = v('tradingDays');
     if (days <= 0) {
       return fail(
         unit,
-        meaningless(
+        /* Câu dưới ô (18/11/2026): khuôn `input.errPositive`, nhãn ô bỏ ký hiệu (N). */
+        atField(
+          meaningless(
+            {
+              vi: 'Số phiên giao dịch một năm phải lớn hơn 0 thì mới quy được độ biến động về thang năm.',
+              en: 'The number of trading sessions per year must be greater than 0 to scale volatility to an annual basis.',
+            },
+            {
+              vi: 'Nhập 252 theo thông lệ quốc tế, hoặc 250 cho lịch giao dịch trong nước.',
+              en: 'Enter 252 per international convention, or 250 for the domestic trading calendar.',
+            },
+          ),
+          'tradingDays',
           {
-            vi: 'Số phiên giao dịch một năm phải lớn hơn 0 thì mới quy được độ biến động về thang năm.',
-            en: 'The number of trading sessions per year must be greater than 0 to scale volatility to an annual basis.',
-          },
-          {
-            vi: 'Nhập 252 theo thông lệ quốc tế, hoặc 250 cho lịch giao dịch trong nước.',
-            en: 'Enter 252 per international convention, or 250 for the domestic trading calendar.',
+            vi: 'Số phiên giao dịch một năm lớn hơn 0.',
+            en: 'Trading sessions per year must be greater than 0.',
           },
         ),
       );
@@ -2056,10 +2143,16 @@ export const TY_LE_KHOI_LUONG: FormulaModule = {
     const unit = 'lần';
     const period = periodOf(v('period'));
     if (period < 1) {
-      return periodTooShort(unit, 1, {
-        vi: 'Mốc so sánh cần ít nhất một phiên',
-        en: 'The comparison baseline needs at least one session',
-      });
+      return periodTooShort(
+        unit,
+        1,
+        {
+          vi: 'Mốc so sánh cần ít nhất một phiên',
+          en: 'The comparison baseline needs at least one session',
+        },
+        'period',
+        { vi: 'Số phiên lấy trung bình', en: 'Number of sessions to average' },
+      );
     }
 
     // Cần n phiên làm mốc CỘNG phiên gần nhất đem so.

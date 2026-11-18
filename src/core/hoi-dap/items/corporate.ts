@@ -31,6 +31,28 @@ export const HOI_DAP_CORPORATE: Readonly<Record<string, ReadonlyArray<CauHoiThuo
         },
       ],
     },
+    {
+      hoi: {
+        vi: 'Tại sao giá bán thấp hơn hoặc bằng biến phí một sản phẩm thì không ra điểm hoà vốn?',
+        en: 'Why is there no break-even point when the selling price is at or below the variable cost per unit?',
+      },
+      tuSoan: true,
+      traLoi: {
+        vi: 'Vì mỗi sản phẩm không góp được đồng nào để bù định phí. Bằng nhau thì số dư đảm phí là 0 và công thức báo chia cho 0; thấp hơn, như giá 25.000 ₫ với biến phí 30.000 ₫, thì bán càng nhiều càng lỗ nên công thức báo kết quả không có ý nghĩa.',
+        en: 'Because no unit contributes anything toward fixed cost. When they are equal the contribution margin is 0 and the formula reports a divide by zero; when the price is lower, such as 25,000 ₫ against a 30,000 ₫ variable cost, every sale deepens the loss, so it reports a meaningless result.',
+      },
+    },
+    {
+      hoi: {
+        vi: 'Doanh nghiệp bán nhiều loại sản phẩm thì nhập giá bán và biến phí một sản phẩm thế nào?',
+        en: 'If a company sells many kinds of products, what do I enter as the selling price and variable cost per unit?',
+      },
+      tuSoan: true,
+      traLoi: {
+        vi: 'Có thể quy ước một sản phẩm là 1 triệu ₫ doanh thu: giá bán nhập 1.000.000 ₫, biến phí nhập tỷ lệ biến phí trên doanh thu nhân 1 triệu. Như FPT quý 2/2026: định phí 2.431,8 tỷ ₫, biến phí 689.600 ₫ cho ra 7.834.407,22 sản phẩm, tức 7.834,41 tỷ ₫ doanh thu hoà vốn.',
+        en: 'You can treat one unit as 1 million ₫ of revenue: enter a selling price of 1,000,000 ₫ and a variable cost equal to the variable-cost-to-revenue ratio times 1 million. For FPT in Q2 2026, a fixed cost of 2,431.8 billion ₫ and a 689,600 ₫ variable cost give 7,834,407.22 units, i.e. 7,834.41 billion ₫ of break-even revenue.',
+      },
+    },
   ],
   'don-bay-tong-hop': [
     {

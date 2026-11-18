@@ -30,7 +30,7 @@ import { fail, ok } from '../calc-output';
 import type { FormulaModule } from '../calc/types';
 import type { Bilingual, CalcWarning } from '../types';
 import type { FormulaSource } from '../registry/types';
-import { divideByZero, meaningless } from '../warnings';
+import { atField, divideByZero, meaningless } from '../warnings';
 import { FPT_2026, FPT_PHIEN, VNINDEX_2026, VNINDEX_PHIEN } from './market-series-2026';
 import {
   maxDrawdown,
@@ -154,17 +154,24 @@ function perSessionRate(annualPercent: number, sessionsPerYear: number): number 
 
 /**
  * Số phiên trong một năm phải dương thì phép quy năm mới có nghĩa.
+ *
+ * Mọi nơi gọi đều đọc ô `sessionsPerYear` (`SESSIONS_VAR`), nên câu dưới ô gắn thẳng vào khoá ấy
+ * (18/11/2026), khuôn `input.errPositive`, nhãn ô bỏ ký hiệu (m).
  * @returns cảnh báo nếu không dùng được, `null` nếu hợp lệ.
  */
 function invalidSessionsPerYear(sessionsPerYear: number): CalcWarning | null {
   if (sessionsPerYear > 0) return null;
-  return divideByZero(
-    { vi: 'kết quả quy năm', en: 'the annualized result' },
-    { vi: 'Số phiên trong một năm', en: 'sessions per year' },
-    {
-      vi: 'Nhập ít nhất 1 phiên mỗi năm - chuỗi theo ngày thường là 250.',
-      en: 'Enter at least 1 session per year - a daily series is usually 250.',
-    },
+  return atField(
+    divideByZero(
+      { vi: 'kết quả quy năm', en: 'the annualized result' },
+      { vi: 'Số phiên trong một năm', en: 'sessions per year' },
+      {
+        vi: 'Nhập ít nhất 1 phiên mỗi năm - chuỗi theo ngày thường là 250.',
+        en: 'Enter at least 1 session per year - a daily series is usually 250.',
+      },
+    ),
+    'sessionsPerYear',
+    { vi: 'Số phiên trong một năm lớn hơn 0.', en: 'Sessions per year must be greater than 0.' },
   );
 }
 
@@ -1086,31 +1093,47 @@ export const TY_SO_TREYNOR: FormulaModule = {
     if (badSessions !== null) return fail(unit, badSessions);
 
     const beta = v('beta');
+    /*
+     * Câu dưới ô beta (18/11/2026), chung cho hai nhánh bên dưới: 0 và âm cùng hỏng, nên đúng khuôn
+     * `input.errPositive`, nhãn ô bỏ ký hiệu (βp).
+     */
+    const betaLonHon0 = {
+      vi: 'Hệ số beta của danh mục lớn hơn 0.',
+      en: 'Portfolio beta coefficient must be greater than 0.',
+    };
     if (beta === 0) {
       return fail(
         unit,
-        divideByZero(
-          { vi: 'tỷ số Treynor', en: 'the Treynor ratio' },
-          { vi: 'Hệ số beta', en: 'beta coefficient' },
-          {
-            vi: 'Beta bằng 0 nghĩa là danh mục không hề đi theo thị trường - dùng tỷ số Sharpe thay thế.',
-            en: 'A beta of 0 means the portfolio does not move with the market at all - use the Sharpe ratio instead.',
-          },
+        atField(
+          divideByZero(
+            { vi: 'tỷ số Treynor', en: 'the Treynor ratio' },
+            { vi: 'Hệ số beta', en: 'beta coefficient' },
+            {
+              vi: 'Beta bằng 0 nghĩa là danh mục không hề đi theo thị trường - dùng tỷ số Sharpe thay thế.',
+              en: 'A beta of 0 means the portfolio does not move with the market at all - use the Sharpe ratio instead.',
+            },
+          ),
+          'beta',
+          betaLonHon0,
         ),
       );
     }
     if (beta < 0) {
       return fail(
         unit,
-        meaningless(
-          {
-            vi: 'Beta âm làm tỷ số Treynor đảo dấu: danh mục lãi vẫn cho ra con số âm, và danh mục lỗ lại cho ra con số dương.',
-            en: 'A negative beta flips the sign of the Treynor ratio: a gaining portfolio still produces a negative number, and a losing portfolio produces a positive one.',
-          },
-          {
-            vi: 'Nhập beta dương, hoặc dùng tỷ số Sharpe cho danh mục đi ngược thị trường.',
-            en: 'Enter a positive beta, or use the Sharpe ratio for a portfolio that moves opposite the market.',
-          },
+        atField(
+          meaningless(
+            {
+              vi: 'Beta âm làm tỷ số Treynor đảo dấu: danh mục lãi vẫn cho ra con số âm, và danh mục lỗ lại cho ra con số dương.',
+              en: 'A negative beta flips the sign of the Treynor ratio: a gaining portfolio still produces a negative number, and a losing portfolio produces a positive one.',
+            },
+            {
+              vi: 'Nhập beta dương, hoặc dùng tỷ số Sharpe cho danh mục đi ngược thị trường.',
+              en: 'Enter a positive beta, or use the Sharpe ratio for a portfolio that moves opposite the market.',
+            },
+          ),
+          'beta',
+          betaLonHon0,
         ),
       );
     }

@@ -25,7 +25,7 @@ import { fail, ok } from '../calc-output';
 import type { FormulaModule } from '../calc/types';
 import type { FormulaSource } from '../registry/types';
 import type { Bilingual, CalcOutput } from '../types';
-import { meaningless } from '../warnings';
+import { atField, meaningless } from '../warnings';
 import { FPT_2026, FPT_PHIEN } from './market-series-2026';
 import { lastEma, lastSma, mean, requireCloses } from './series-utils';
 import { labelWithSymbol, sliderVar } from './shared';
@@ -124,19 +124,26 @@ const NHAN_CHU_KY_DAI: Bilingual = { vi: 'Chu kỳ đường dài', en: 'Long SM
  * Thanh trượt đã chặn từ giao diện, nhưng công thức không được tin vào đó: URL chia sẻ hay
  * bộ số dán từ ngoài đều có thể mang chu kỳ 0. Chu kỳ 0 phiên thì trung bình động lấy trên
  * tập rỗng — vô nghĩa chứ không phải bằng 0.
+ *
+ * `key` là ô chu kỳ đang hỏng: câu dưới ô (18/11/2026) theo khuôn `input.errPositive`, vì chu kỳ
+ * là số nguyên nên "từ 1 phiên trở lên" và "lớn hơn 0" là một. `label` là nhãn của ô, bỏ ký hiệu.
  */
-function chuKyKhongHopLe(unit: string, label: Bilingual): CalcOutput {
+function chuKyKhongHopLe(unit: string, label: Bilingual, key: string): CalcOutput {
   return fail(
     unit,
-    meaningless(
-      {
-        vi: `${label.vi} phải là một số phiên nguyên dương thì mới có chỉ báo để tính.`,
-        en: `The ${label.en} field must be a positive whole number of sessions for the indicator to be calculated.`,
-      },
-      {
-        vi: `Nhập ${label.vi} từ 1 phiên trở lên.`,
-        en: `Enter 1 session or more in the ${label.en} field.`,
-      },
+    atField(
+      meaningless(
+        {
+          vi: `${label.vi} phải là một số phiên nguyên dương thì mới có chỉ báo để tính.`,
+          en: `The ${label.en} field must be a positive whole number of sessions for the indicator to be calculated.`,
+        },
+        {
+          vi: `Nhập ${label.vi} từ 1 phiên trở lên.`,
+          en: `Enter 1 session or more in the ${label.en} field.`,
+        },
+      ),
+      key,
+      { vi: `${label.vi} lớn hơn 0.`, en: `${label.en} must be greater than 0.` },
     ),
   );
 }
@@ -146,23 +153,34 @@ function chuKyKhongHopLe(unit: string, label: Bilingual): CalcOutput {
  * @param viDu cặp chu kỳ nêu trong gợi ý sửa — phải là bộ MẶC ĐỊNH của chính công thức gọi tới.
  * Trước đây câu này viết cứng "12 và 26 phiên" cho cả ba nơi gọi, nên `giao-cat-hai-duong-ma`
  * (mặc định 10 và 20, mô tả biến cũng nói vậy) chỉ người dùng sang một cặp số không phải của nó.
+ * @param khoaNgan ô chu kỳ NGẮN, chủ ngữ của câu nguyên nhân: câu dưới ô (18/11/2026) in ở đó dù
+ * người dùng vừa sửa ô nào trong hai ô. Tiếng Anh viết thường chữ đầu nhãn ô dài ("slow EMA
+ * period"), giữ nguyên chữ viết tắt phía sau.
  */
 function chuKyNguoc(
   unit: string,
   ngan: Bilingual,
   dai: Bilingual,
   viDu: { ngan: number; dai: number },
+  khoaNgan: string,
 ): CalcOutput {
   return fail(
     unit,
-    meaningless(
+    atField(
+      meaningless(
+        {
+          vi: `${ngan.vi} đang bằng hoặc dài hơn ${dai.vi}, nên hiệu hai đường không còn nói lên chiều của xu hướng.`,
+          en: `${ngan.en} is currently equal to or longer than ${dai.en}, so the difference between the two lines no longer reflects the trend direction.`,
+        },
+        {
+          vi: `Đặt ${ngan.vi} nhỏ hơn ${dai.vi}, ví dụ ${viDu.ngan} và ${viDu.dai} phiên.`,
+          en: `Set ${ngan.en} shorter than ${dai.en}, for example ${viDu.ngan} and ${viDu.dai} sessions.`,
+        },
+      ),
+      khoaNgan,
       {
-        vi: `${ngan.vi} đang bằng hoặc dài hơn ${dai.vi}, nên hiệu hai đường không còn nói lên chiều của xu hướng.`,
-        en: `${ngan.en} is currently equal to or longer than ${dai.en}, so the difference between the two lines no longer reflects the trend direction.`,
-      },
-      {
-        vi: `Đặt ${ngan.vi} nhỏ hơn ${dai.vi}, ví dụ ${viDu.ngan} và ${viDu.dai} phiên.`,
-        en: `Set ${ngan.en} shorter than ${dai.en}, for example ${viDu.ngan} and ${viDu.dai} sessions.`,
+        vi: `${ngan.vi} phải ngắn hơn ${dai.vi}.`,
+        en: `${ngan.en} must be shorter than ${dai.en.charAt(0).toLowerCase()}${dai.en.slice(1)}.`,
       },
     ),
   );
@@ -406,7 +424,7 @@ export const SMA_N_PHIEN: FormulaModule = {
   },
   calc: (v, ctx) => {
     const period = Math.round(v('period'));
-    if (period < 1) return chuKyKhongHopLe('₫', NHAN_SO_PHIEN);
+    if (period < 1) return chuKyKhongHopLe('₫', NHAN_SO_PHIEN, 'period');
 
     const closes = requireCloses(ctx, period);
     if (!Array.isArray(closes)) return fail('₫', closes);
@@ -566,7 +584,7 @@ export const EMA_N_PHIEN: FormulaModule = {
   },
   calc: (v, ctx) => {
     const period = Math.round(v('period'));
-    if (period < 1) return chuKyKhongHopLe('₫', NHAN_SO_PHIEN);
+    if (period < 1) return chuKyKhongHopLe('₫', NHAN_SO_PHIEN, 'period');
 
     const closes = requireCloses(ctx, period);
     if (!Array.isArray(closes)) return fail('₫', closes);
@@ -749,10 +767,16 @@ export const MACD_DUONG_CHINH: FormulaModule = {
     const fast = Math.round(v('fastPeriod'));
     const slow = Math.round(v('slowPeriod'));
 
-    if (fast < 1) return chuKyKhongHopLe('₫', NHAN_CHU_KY_EMA_NHANH);
-    if (slow < 1) return chuKyKhongHopLe('₫', NHAN_CHU_KY_EMA_CHAM);
+    if (fast < 1) return chuKyKhongHopLe('₫', NHAN_CHU_KY_EMA_NHANH, 'fastPeriod');
+    if (slow < 1) return chuKyKhongHopLe('₫', NHAN_CHU_KY_EMA_CHAM, 'slowPeriod');
     if (fast >= slow)
-      return chuKyNguoc('₫', NHAN_CHU_KY_EMA_NHANH, NHAN_CHU_KY_EMA_CHAM, { ngan: 12, dai: 26 });
+      return chuKyNguoc(
+        '₫',
+        NHAN_CHU_KY_EMA_NHANH,
+        NHAN_CHU_KY_EMA_CHAM,
+        { ngan: 12, dai: 26 },
+        'fastPeriod',
+      );
 
     const closes = requireCloses(ctx, slow);
     if (!Array.isArray(closes)) return fail('₫', closes);
@@ -922,11 +946,17 @@ export const MACD_DUONG_TIN_HIEU: FormulaModule = {
     const slow = Math.round(v('slowPeriod'));
     const signal = Math.round(v('signalPeriod'));
 
-    if (fast < 1) return chuKyKhongHopLe('₫', NHAN_CHU_KY_EMA_NHANH);
-    if (slow < 1) return chuKyKhongHopLe('₫', NHAN_CHU_KY_EMA_CHAM);
-    if (signal < 1) return chuKyKhongHopLe('₫', NHAN_CHU_KY_TIN_HIEU);
+    if (fast < 1) return chuKyKhongHopLe('₫', NHAN_CHU_KY_EMA_NHANH, 'fastPeriod');
+    if (slow < 1) return chuKyKhongHopLe('₫', NHAN_CHU_KY_EMA_CHAM, 'slowPeriod');
+    if (signal < 1) return chuKyKhongHopLe('₫', NHAN_CHU_KY_TIN_HIEU, 'signalPeriod');
     if (fast >= slow)
-      return chuKyNguoc('₫', NHAN_CHU_KY_EMA_NHANH, NHAN_CHU_KY_EMA_CHAM, { ngan: 12, dai: 26 });
+      return chuKyNguoc(
+        '₫',
+        NHAN_CHU_KY_EMA_NHANH,
+        NHAN_CHU_KY_EMA_CHAM,
+        { ngan: 12, dai: 26 },
+        'fastPeriod',
+      );
 
     // Cần đủ phiên để có `signal` giá trị MACD: chuỗi MACD chỉ bắt đầu từ phiên thứ `slow`.
     const closes = requireCloses(ctx, slow + signal - 1);
@@ -1129,7 +1159,7 @@ export const RSI_WILDER: FormulaModule = {
   calc: (v, ctx) => {
     const unit = 'điểm';
     const period = Math.round(v('period'));
-    if (period < 1) return chuKyKhongHopLe(unit, NHAN_SO_PHIEN);
+    if (period < 1) return chuKyKhongHopLe(unit, NHAN_SO_PHIEN, 'period');
 
     // N phiên RSI cần N lợi suất, tức N+1 giá đóng cửa.
     const closes = requireCloses(ctx, period + 1);
@@ -1309,7 +1339,7 @@ export const ROC_TOC_DO_THAY_DOI: FormulaModule = {
   },
   calc: (v, ctx) => {
     const period = Math.round(v('period'));
-    if (period < 1) return chuKyKhongHopLe('%', NHAN_SO_PHIEN_NHIN_LAI);
+    if (period < 1) return chuKyKhongHopLe('%', NHAN_SO_PHIEN_NHIN_LAI, 'period');
 
     const closes = requireCloses(ctx, period + 1);
     if (!Array.isArray(closes)) return fail('%', closes);
@@ -1485,7 +1515,7 @@ export const DONG_LUONG_MOMENTUM: FormulaModule = {
   },
   calc: (v, ctx) => {
     const period = Math.round(v('period'));
-    if (period < 1) return chuKyKhongHopLe('₫', NHAN_SO_PHIEN_NHIN_LAI);
+    if (period < 1) return chuKyKhongHopLe('₫', NHAN_SO_PHIEN_NHIN_LAI, 'period');
 
     const closes = requireCloses(ctx, period + 1);
     if (!Array.isArray(closes)) return fail('₫', closes);
@@ -1644,7 +1674,7 @@ export const KHOANG_CACH_GIA_SO_SMA: FormulaModule = {
   },
   calc: (v, ctx) => {
     const period = Math.round(v('period'));
-    if (period < 1) return chuKyKhongHopLe('%', NHAN_CHU_KY_TRUNG_BINH);
+    if (period < 1) return chuKyKhongHopLe('%', NHAN_CHU_KY_TRUNG_BINH, 'period');
 
     const closes = requireCloses(ctx, period);
     if (!Array.isArray(closes)) return fail('%', closes);
@@ -1820,10 +1850,16 @@ export const GIAO_CAT_HAI_DUONG_MA: FormulaModule = {
     const short = Math.round(v('shortPeriod'));
     const long = Math.round(v('longPeriod'));
 
-    if (short < 1) return chuKyKhongHopLe('₫', NHAN_CHU_KY_NGAN);
-    if (long < 1) return chuKyKhongHopLe('₫', NHAN_CHU_KY_DAI);
+    if (short < 1) return chuKyKhongHopLe('₫', NHAN_CHU_KY_NGAN, 'shortPeriod');
+    if (long < 1) return chuKyKhongHopLe('₫', NHAN_CHU_KY_DAI, 'longPeriod');
     if (short >= long)
-      return chuKyNguoc('₫', NHAN_CHU_KY_NGAN, NHAN_CHU_KY_DAI, { ngan: 10, dai: 20 });
+      return chuKyNguoc(
+        '₫',
+        NHAN_CHU_KY_NGAN,
+        NHAN_CHU_KY_DAI,
+        { ngan: 10, dai: 20 },
+        'shortPeriod',
+      );
 
     const closes = requireCloses(ctx, long);
     if (!Array.isArray(closes)) return fail('₫', closes);

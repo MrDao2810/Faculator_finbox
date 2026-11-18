@@ -69,6 +69,16 @@ export const HOI_DAP_MULTIPLES: Readonly<Record<string, ReadonlyArray<CauHoiThuo
         noi: 'faq',
         vietnam: true,
       },
+      traLoi: {
+        vi: 'Nguồn nói P/B giúp nhà đầu tư biết giá thị trường có hợp lý so với bảng cân đối của công ty không; P/B cao là lúc cần kiểm tra mức định giá ấy có xứng không, chẳng hạn qua ROA hay tăng trưởng EPS các năm trước. Màn này đọc theo mốc 1 lần: trên 1 là thị trường trả nhiều hơn phần vốn cổ đông ghi trên sổ.',
+        en: "The source says P/B helps investors judge whether the market price is reasonable relative to the company's balance sheet; a high P/B is a cue to check whether that valuation is justified, for example through past ROA or EPS growth. This screen reads it against the 1 mark: above 1 means the market pays more than the shareholders' equity on the books.",
+      },
+      nguonTraLoi: [
+        {
+          url: 'https://taca.com.vn/chi-so-p-b/',
+          ten: 'Taca',
+        },
+      ],
     },
     {
       hoi: { vi: 'Khi nào nên sử dụng chỉ số P/B?', en: 'When should the P/B ratio be used?' },

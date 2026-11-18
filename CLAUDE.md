@@ -3733,6 +3733,42 @@ VN-Index volatility 18,37 (18,36), `co-lenh-rui-ro` "mua tối đa khoảng 2.27
 computed, 2.272 bought) and its title's "cắt lỗ dưới đáy tháng 8" (68.300 is August's lowest CLOSE; the low was
 67.300), `ema-n-phien`'s claim that earlier sessions were "phần lớn thấp hơn" (they were not).
 
+## The FAQ block ("Câu hỏi thường gặp") — every formula shows at least three answered questions
+
+The detail screen carries a FAQ block after "Ví dụ thực tế" and before "Nguồn tham khảo" (10/11/2026, owner: _"câu
+hỏi phải là câu hỏi thật của công thức đó … ưu tiên Việt Nam trước"_). Data in `src/core/hoi-dap/items/` (one file
+per formula group), type and decisions in `src/core/hoi-dap/types.ts`, rules in `kiem.ts` (`hoiDapProblems()`, shared
+by the test and by whoever drafts), UI in `src/ui/result/FaqBlock.tsx` (each question a `<details>`, open by default
+after hydrate, 5 shown then "Xem thêm N câu"). What is easy to break:
+
+- **Build-only, like the quiz and the worked example.** `page.tsx` reads it through `@/application/hoi-dap` and passes
+  one formula's slice as a prop; the barrel re-exports TYPES only. `build-only-imports.test.ts` pins the import sites,
+  `verify:static` fails if a question reaches any JS chunk or `pe`'s questions appear on `roe`'s page. That check reads
+  the item files with a REGEX (`hoi: { vi: '…'`, `traLoi:`), so keep the prettier shape of the data.
+- **Only answered questions reach the screen** (`hoiDapFor()`): the owner first chose to print "Chưa có trả lời",
+  then had unanswered questions hidden on sight. `FaqBlock` keeps the "Chưa có trả lời" branch with no data path to
+  it. Vietnamese sources first, then foreign ones, then drafted ones.
+- **Two kinds of question.** A REAL one carries `nguon` (link to the exact thread / Q&A / FAQ section, never a home
+  page) and `nguyenVan` (the verbatim question there, not printed, for re-checking). A DRAFTED one (`tuSoan: true`) has
+  neither and must carry `traLoi`; the owner asked for them on 10/11/2026 (_"bạn tự đọc công thức rồi nghĩ xem sẽ có
+  các loại câu hỏi nào sẽ gặp"_) and they are replaced when a real question turns up.
+- **An answer follows one of two paths** (`traLoi` docblock): summarised from the source's answer when it agrees with
+  `calc`, with `nguonTraLoi` pointing at the page re-read; or written by the product team from `calc` and the formula's
+  explanation when the source has no answer, an opinion, buy/sell advice or a different definition, with NO
+  `nguonTraLoi`. "Bao nhiêu là tốt" questions get an anchor the reader has (peers, the company's own prior periods, a
+  convention the formula's `howToRead` already uses), never an invented threshold. Error cases are named in words,
+  never as `DIVIDE_BY_ZERO` / `MEANINGLESS`.
+- **Every formula shows at least 3 answered questions** (18/11/2026, owner: _"hoàn thiện nốt chức năng câu hỏi thường
+  gặp của các công thức còn thiếu"_; asked, they chose to answer every hidden real question AND top up with drafted
+  ones). Before that day 30 formulas showed no block (42 real questions, all unanswered) and 36 more questions sat
+  hidden in 24 others. All 78 were answered, and 89 drafted questions were added: 392 questions, all answered, 209 of
+  them drafted. `hoi-dap.test.ts` pins the totals and the minimum (`HIEN_TOI_THIEU = 3`); a new formula turns it red
+  until it has three. Every figure in an answer was re-run through `runFormula`, and every answer was read by an
+  adversarial pass that re-ran the numbers and re-opened each `nguonTraLoi`; a new answer needs the same.
+- **StackExchange pages answer 403 to bots**; questions and answers were read through the official
+  `api.stackexchange.com` (about 300 requests a day per IP). f319, reddit, investopedia and bogleheads do not resolve
+  from the build machine's network. Never fake a User-Agent to get past a bot check.
+
 ## The example datasets — 250 real sessions, so "Xem ví dụ minh hoạ" draws a full chart (14/10/2026)
 
 The 35 series formulas' "Xem ví dụ minh hoạ" button loads `example.dataset` onto the time chart. Until this
@@ -4154,6 +4190,33 @@ English, the owner reviews it**. What that produced, and what is easy to break:
   100." / "Số liệu nhỏ nhất là 2." and is NOT pushed up, and blur/Enter clamps it as before. The "! min 0" string of
   `outOfRangeNote()` still drives the state but is no longer printed. Every number field declares `min`; the fields
   allowed to go negative are a pinned, reviewed list in `src/core/formulas/o-so-mien.test.ts`, so a new one is a decision.
+- **A figure that breaks the FORMULA's own condition gets a red line under the field to fix** (18/11/2026). The owner
+  typed 1.222 ₫ into `diem-hoa-von`'s "Giá bán một sản phẩm (P)" under a 30.000 ₫ variable cost: the result card
+  failed, the field said nothing (_"cần thông báo đỏ ở bên dưới ô nhập là 'Giá bán phải lớn hơn Biến phí một sản
+  phẩm'. sửa tương tự với những công thức"_). Asked, the owner chose: the result card stays as it is (cause + ↳ fix
+  line), a two-field condition prints under ONE fixed field, and the line follows every keystroke. How it works:
+  - **The condition lives in `calc`, not in the UI.** `CalcWarning.field` (`{ key, message }`, `src/core/types.ts`)
+    is set by wrapping the failing branch's warning in `atField(warning, key, message)` (`warnings.ts`). The detail
+    screen (`cauDieuKienCua()` in `FormulaDetail`) and each chain step (`ChainBody`) pass `pick(message)` as
+    `conditionError` to the matching `VariableField` / `LinkedInput`, which `NumberInput` prints through the existing
+    `error` path (red frame, `role="alert"`). The field's own range error and a refused minus sign come first: a figure
+    out of range never reaches `calc`.
+  - **Wording, both languages, one sentence:** a single-field "must be positive" reads exactly like the range message
+    the owner chose on 16/11 ("EPS lớn hơn 0.", "Số cổ phiếu lưu hành lớn hơn 0.", "… không được âm."); a two-field
+    condition uses "phải" like the owner's sentence ("Giá cắt lỗ phải nhỏ hơn Giá vào lệnh.", "Chu kỳ EMA nhanh phải
+    ngắn hơn Chu kỳ EMA chậm.", "Suất sinh lợi yêu cầu phải lớn hơn Tăng trưởng cổ tức dài hạn."). The field is named
+    by its label minus the trailing symbol, or by the start of it ("Giá bán" for "Giá bán một sản phẩm"). All branches
+    of one condition share one constant. Every wrapped field is a NUMBER field. A `min: 0` field that fails only at 0
+    still says "lớn hơn 0" (a negative cannot be typed there, and "phải khác 0" would invite one).
+  - **The gate is a measurement, `src/core/formulas/field-condition.test.ts`**: for every formula, each field in turn is
+    set to ~35 typeable values around the defaults and around the worked example (example series loaded), and every
+    failure that is not `MISSING_SERIES` / `INCOMPLETE_INPUT` / `INHERITED` must carry `field` — a real number field of
+    that formula, both languages, ≤ 90 characters, one sentence, no dash, not the card's cause verbatim, opening with
+    that field's name. Three branches it reaches cannot be tied to one field and are pinned with a reason in `NGOAI_LE`
+    (IRR outside the solver's range, `ty-so-thang-thua`'s average loss of 0 from the series, `gia-tri-noi-tai-fcff`'s
+    net debt above the computed EV). It moves one field at a time, so it is a detector: a branch reachable only by
+    moving two fields was wrapped by reading the code (e.g. `wacc`, `fcfe`, the loans), and a new branch must be too.
+    Measured when built: 59 formulas, 92 distinct failures reachable that way; all 145 warning sites in `calc` reviewed.
 - **On-screen text uses a hyphen `-`, never the em dash `—`** (02/11/2026, owner: _"đoạn ký hiệu này "— " đang quá
   dài. rà xoát lại trong toàn bộ dự án và đổi lại ngắn hơn thành "-"_). One AST-driven pass changed 1.333 dashes in
   the display text of 58 files (formula names `P/E - hệ số giá trên lợi nhuận`, field labels `EPS - lợi nhuận trên

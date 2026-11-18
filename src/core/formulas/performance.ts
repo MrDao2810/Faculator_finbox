@@ -17,7 +17,7 @@
 import { ok } from '../calc-output';
 import type { FormulaModule } from '../calc/types';
 import type { Bilingual, CalcWarning, VariableSpec } from '../types';
-import { divideByZero, meaningless } from '../warnings';
+import { atField, divideByZero, meaningless } from '../warnings';
 import { clampRepeatCount } from '../registry/repeat';
 import type { FormulaSource } from '../registry/types';
 import { SOURCE_CFA, numberVar, sliderVar } from './shared';
@@ -42,6 +42,18 @@ function belowTotalLoss(label: Bilingual): CalcWarning {
       en: `Check the ${label.en} field again: if the capital is wiped out entirely, enter exactly −100.`,
     },
   );
+}
+
+/**
+ * Câu đỏ dưới một ô lợi suất nhập dưới −100% (18/11/2026), đi kèm `belowTotalLoss()` qua `atField()`.
+ * `ten` là NHÃN của ô đã bỏ ký hiệu cuối, không phải chữ trong câu nguyên nhân của thẻ: "Lạm phát / năm",
+ * không phải "Lạm phát". Đúng −100% vẫn tính được (mất sạch vốn), nên câu nói "không được nhỏ hơn".
+ */
+function khongDuoiMatTrang(ten: Bilingual): Bilingual {
+  return {
+    vi: `${ten.vi} không được nhỏ hơn −100%.`,
+    en: `${ten.en} cannot be below −100%.`,
+  };
 }
 
 /*
@@ -186,19 +198,27 @@ export const LOI_SUAT_NAM_HOA: FormulaModule = {
       return {
         value: null,
         unit: '%',
-        warning: divideByZero(
-          { vi: 'lợi suất năm hoá', en: 'the annualized return' },
-          { vi: 'Số kỳ trong một năm', en: 'Number of periods per year' },
-          { vi: 'Nhập ít nhất 1 kỳ mỗi năm.', en: 'Enter at least 1 period per year.' },
+        warning: atField(
+          divideByZero(
+            { vi: 'lợi suất năm hoá', en: 'the annualized return' },
+            { vi: 'Số kỳ trong một năm', en: 'Number of periods per year' },
+            { vi: 'Nhập ít nhất 1 kỳ mỗi năm.', en: 'Enter at least 1 period per year.' },
+          ),
+          'periodsPerYear',
+          {
+            vi: 'Số kỳ trong một năm lớn hơn 0.',
+            en: 'Number of periods per year must be greater than 0.',
+          },
         ),
       };
     }
     const r = v('periodReturn');
     if (r < -100) {
+      const ten = { vi: 'Lợi suất một kỳ', en: 'Return per period' };
       return {
         value: null,
         unit: '%',
-        warning: belowTotalLoss({ vi: 'Lợi suất một kỳ', en: 'Return per period' }),
+        warning: atField(belowTotalLoss(ten), 'periodReturn', khongDuoiMatTrang(ten)),
       };
     }
 
@@ -343,15 +363,24 @@ export const LOI_SUAT_THUC: FormulaModule = {
   calc: (v) => {
     const nominal = v('nominal');
     const inflation = v('inflation');
+    /* Câu dưới ô Lạm phát, chung cho hai nhánh bên dưới: đúng −100% chia cho 0, dưới nữa vô nghĩa. */
+    const lamPhatTrenMatTrang = {
+      vi: 'Lạm phát / năm phải lớn hơn −100%.',
+      en: 'Inflation / year must be greater than −100%.',
+    };
 
     if (inflation === -100) {
       return {
         value: null,
         unit: '%',
-        warning: divideByZero(
-          { vi: 'lợi suất thực', en: 'the real return' },
-          { vi: 'tổng (1 + Lạm phát)', en: 'the total (1 + Inflation)' },
-          { vi: 'Nhập lạm phát khác −100%.', en: 'Enter an inflation value other than −100%.' },
+        warning: atField(
+          divideByZero(
+            { vi: 'lợi suất thực', en: 'the real return' },
+            { vi: 'tổng (1 + Lạm phát)', en: 'the total (1 + Inflation)' },
+            { vi: 'Nhập lạm phát khác −100%.', en: 'Enter an inflation value other than −100%.' },
+          ),
+          'inflation',
+          lamPhatTrenMatTrang,
         ),
       };
     }
@@ -359,14 +388,22 @@ export const LOI_SUAT_THUC: FormulaModule = {
       return {
         value: null,
         unit: '%',
-        warning: belowTotalLoss({ vi: 'Lạm phát', en: 'Inflation' }),
+        warning: atField(
+          belowTotalLoss({ vi: 'Lạm phát', en: 'Inflation' }),
+          'inflation',
+          lamPhatTrenMatTrang,
+        ),
       };
     }
     if (nominal < -100) {
       return {
         value: null,
         unit: '%',
-        warning: belowTotalLoss({ vi: 'Lợi suất danh nghĩa', en: 'Nominal return' }),
+        warning: atField(
+          belowTotalLoss({ vi: 'Lợi suất danh nghĩa', en: 'Nominal return' }),
+          'nominal',
+          khongDuoiMatTrang({ vi: 'Lợi suất danh nghĩa / năm', en: 'Nominal return / year' }),
+        ),
       };
     }
 
@@ -698,23 +735,25 @@ export const TONG_LOI_SUAT_TAI_DAU_TU: FormulaModule = {
       return {
         value: null,
         unit: '%',
-        warning: divideByZero(
-          { vi: 'tổng lợi suất', en: 'the total return' },
-          { vi: 'Số năm nắm giữ', en: 'Years held' },
-          { vi: 'Nhập ít nhất 1 năm.', en: 'Enter at least 1 year.' },
+        warning: atField(
+          divideByZero(
+            { vi: 'tổng lợi suất', en: 'the total return' },
+            { vi: 'Số năm nắm giữ', en: 'Years held' },
+            { vi: 'Nhập ít nhất 1 năm.', en: 'Enter at least 1 year.' },
+          ),
+          'years',
+          { vi: 'Số năm nắm giữ lớn hơn 0.', en: 'Years held must be greater than 0.' },
         ),
       };
     }
 
     const g = v('priceGrowth');
     if (g < -100) {
+      const ten = { vi: 'Tăng giá bình quân / năm', en: 'Average price growth / year' };
       return {
         value: null,
         unit: '%',
-        warning: belowTotalLoss({
-          vi: 'Tăng giá bình quân / năm',
-          en: 'Average price growth / year',
-        }),
+        warning: atField(belowTotalLoss(ten), 'priceGrowth', khongDuoiMatTrang(ten)),
       };
     }
 
@@ -1005,13 +1044,12 @@ export const LOI_SUAT_TRUNG_BINH_HINH_HOC: FormulaModule = {
 
     for (const [index, r] of rates.entries()) {
       if (r < -100) {
+        // Nhãn ô của kỳ thứ index + 1 (kể cả kỳ thêm bằng nút Thêm kỳ) trùng đúng tên trong câu thẻ.
+        const ten = { vi: `Lợi suất kỳ ${index + 1}`, en: `Return in period ${index + 1}` };
         return {
           value: null,
           unit: '%',
-          warning: belowTotalLoss({
-            vi: `Lợi suất kỳ ${index + 1}`,
-            en: `Return in period ${index + 1}`,
-          }),
+          warning: atField(belowTotalLoss(ten), `r${index + 1}`, khongDuoiMatTrang(ten)),
         };
       }
     }
@@ -1227,10 +1265,17 @@ export const IRR_NIEN_KIM: FormulaModule = {
       return {
         value: null,
         unit,
-        warning: divideByZero(
-          { vi: 'IRR', en: 'the IRR' },
-          { vi: 'Số kỳ nhận tiền', en: 'Number of periods receiving payments' },
-          { vi: 'Nhập ít nhất 1 kỳ.', en: 'Enter at least 1 period.' },
+        warning: atField(
+          divideByZero(
+            { vi: 'IRR', en: 'the IRR' },
+            { vi: 'Số kỳ nhận tiền', en: 'Number of periods receiving payments' },
+            { vi: 'Nhập ít nhất 1 kỳ.', en: 'Enter at least 1 period.' },
+          ),
+          'periods',
+          {
+            vi: 'Số kỳ nhận tiền lớn hơn 0.',
+            en: 'Number of periods receiving payments must be greater than 0.',
+          },
         ),
       };
     }
@@ -1241,14 +1286,21 @@ export const IRR_NIEN_KIM: FormulaModule = {
       return {
         value: null,
         unit,
-        warning: meaningless(
+        warning: atField(
+          meaningless(
+            {
+              vi: 'Chưa bỏ đồng vốn nào thì không có suất sinh lợi nội tại để tìm.',
+              en: 'With no capital invested at all, there is no internal rate of return to find.',
+            },
+            {
+              vi: 'Nhập vốn bỏ ra ban đầu lớn hơn 0.',
+              en: 'Enter an initial capital amount greater than 0.',
+            },
+          ),
+          'investment',
           {
-            vi: 'Chưa bỏ đồng vốn nào thì không có suất sinh lợi nội tại để tìm.',
-            en: 'With no capital invested at all, there is no internal rate of return to find.',
-          },
-          {
-            vi: 'Nhập vốn bỏ ra ban đầu lớn hơn 0.',
-            en: 'Enter an initial capital amount greater than 0.',
+            vi: 'Vốn bỏ ra ban đầu lớn hơn 0.',
+            en: 'Initial capital invested must be greater than 0.',
           },
         ),
       };
@@ -1257,14 +1309,21 @@ export const IRR_NIEN_KIM: FormulaModule = {
       return {
         value: null,
         unit,
-        warning: meaningless(
+        warning: atField(
+          meaningless(
+            {
+              vi: 'Không có dòng thu nào về thì khoản đầu tư chỉ mất vốn, IRR không tồn tại.',
+              en: 'With no payments received at all, the investment is a pure loss, so no IRR exists.',
+            },
+            {
+              vi: 'Nhập dòng thu mỗi kỳ lớn hơn 0.',
+              en: 'Enter a payment per period greater than 0.',
+            },
+          ),
+          'payment',
           {
-            vi: 'Không có dòng thu nào về thì khoản đầu tư chỉ mất vốn, IRR không tồn tại.',
-            en: 'With no payments received at all, the investment is a pure loss, so no IRR exists.',
-          },
-          {
-            vi: 'Nhập dòng thu mỗi kỳ lớn hơn 0.',
-            en: 'Enter a payment per period greater than 0.',
+            vi: 'Dòng thu đều mỗi kỳ lớn hơn 0.',
+            en: 'Equal payment received per period must be greater than 0.',
           },
         ),
       };
@@ -1476,6 +1535,14 @@ export const THOI_GIAN_NHAN_DOI: FormulaModule = {
   },
   calc: (v) => {
     const r = v('rate');
+    /*
+     * Câu dưới ô Lợi suất kép, chung cho hai nhánh bên dưới (18/11/2026). Gọi đúng tên ô, nên khác chữ
+     * với câu "Lợi suất lớn hơn 0." chủ dự án đã chốt cho thẻ của nhánh 0%.
+     */
+    const loiSuatDuong = {
+      vi: 'Lợi suất kép / năm lớn hơn 0.',
+      en: 'Compound return / year must be greater than 0.',
+    };
     if (r === 0) {
       return {
         value: null,
@@ -1483,25 +1550,33 @@ export const THOI_GIAN_NHAN_DOI: FormulaModule = {
         // Chủ dự án (12/11/2026), chốt sau hai lượt đổi qua lại: thẻ chỉ có MỘT câu "Lợi suất lớn hơn 0.",
         // không câu "Chưa tính được … vì … bằng 0", không dòng ↳. Mã vẫn DIVIDE_BY_ZERO vì lãi 0% đúng
         // là mẫu số ln(1 + r) bằng 0. Đừng trả câu dài về nếu chưa hỏi.
-        warning: {
-          code: 'DIVIDE_BY_ZERO',
-          message: { vi: 'Lợi suất lớn hơn 0.', en: 'The return must be greater than 0.' },
-        },
+        warning: atField(
+          {
+            code: 'DIVIDE_BY_ZERO',
+            message: { vi: 'Lợi suất lớn hơn 0.', en: 'The return must be greater than 0.' },
+          },
+          'rate',
+          loiSuatDuong,
+        ),
       };
     }
     if (r < 0) {
       return {
         value: null,
         unit: 'năm',
-        warning: meaningless(
-          {
-            vi: 'Lợi suất âm làm vốn co lại theo thời gian nên không bao giờ nhân đôi.',
-            en: 'A negative return makes capital shrink over time, so it never doubles.',
-          },
-          {
-            vi: 'Nhập lợi suất dương, hoặc dùng công thức Lãi kép để xem vốn còn lại bao nhiêu.',
-            en: 'Enter a positive return, or use the Compound Interest formula to see how much capital remains.',
-          },
+        warning: atField(
+          meaningless(
+            {
+              vi: 'Lợi suất âm làm vốn co lại theo thời gian nên không bao giờ nhân đôi.',
+              en: 'A negative return makes capital shrink over time, so it never doubles.',
+            },
+            {
+              vi: 'Nhập lợi suất dương, hoặc dùng công thức Lãi kép để xem vốn còn lại bao nhiêu.',
+              en: 'Enter a positive return, or use the Compound Interest formula to see how much capital remains.',
+            },
+          ),
+          'rate',
+          loiSuatDuong,
         ),
       };
     }
@@ -1664,10 +1739,14 @@ export const LOI_SUAT_QUY_NAM_THEO_NGAY: FormulaModule = {
       return {
         value: null,
         unit: '%',
-        warning: divideByZero(
-          { vi: 'lợi suất quy năm', en: 'the annualized return' },
-          { vi: 'Số ngày nắm giữ', en: 'Days held' },
-          { vi: 'Nhập ít nhất 1 ngày.', en: 'Enter at least 1 day.' },
+        warning: atField(
+          divideByZero(
+            { vi: 'lợi suất quy năm', en: 'the annualized return' },
+            { vi: 'Số ngày nắm giữ', en: 'Days held' },
+            { vi: 'Nhập ít nhất 1 ngày.', en: 'Enter at least 1 day.' },
+          ),
+          'days',
+          { vi: 'Số ngày nắm giữ lớn hơn 0.', en: 'Days held must be greater than 0.' },
         ),
       };
     }
@@ -1677,10 +1756,15 @@ export const LOI_SUAT_QUY_NAM_THEO_NGAY: FormulaModule = {
       return {
         value: null,
         unit: '%',
-        warning: divideByZero(
-          { vi: 'lợi suất quy năm', en: 'the annualized return' },
-          { vi: 'Giá mua', en: 'Buy price' },
-          { vi: 'Nhập giá mua lớn hơn 0.', en: 'Enter a buy price greater than 0.' },
+        /* Ô Giá mua không nhận số âm (min 0), nên trong miền của ô chỉ 0 hỏng: câu nói "lớn hơn 0". */
+        warning: atField(
+          divideByZero(
+            { vi: 'lợi suất quy năm', en: 'the annualized return' },
+            { vi: 'Giá mua', en: 'Buy price' },
+            { vi: 'Nhập giá mua lớn hơn 0.', en: 'Enter a buy price greater than 0.' },
+          ),
+          'buyPrice',
+          { vi: 'Giá mua lớn hơn 0.', en: 'Buy price must be greater than 0.' },
         ),
       };
     }
@@ -1853,17 +1937,19 @@ export const LOI_SUAT_VUOT_CHUAN: FormulaModule = {
     const rb = v('benchmarkReturn');
 
     if (rp < -100) {
+      const ten = { vi: 'Lợi suất danh mục', en: 'Portfolio return' };
       return {
         value: null,
         unit: '%',
-        warning: belowTotalLoss({ vi: 'Lợi suất danh mục', en: 'Portfolio return' }),
+        warning: atField(belowTotalLoss(ten), 'portfolioReturn', khongDuoiMatTrang(ten)),
       };
     }
     if (rb < -100) {
+      const ten = { vi: 'Lợi suất chuẩn so sánh', en: 'Benchmark return' };
       return {
         value: null,
         unit: '%',
-        warning: belowTotalLoss({ vi: 'Lợi suất chuẩn so sánh', en: 'Benchmark return' }),
+        warning: atField(belowTotalLoss(ten), 'benchmarkReturn', khongDuoiMatTrang(ten)),
       };
     }
 

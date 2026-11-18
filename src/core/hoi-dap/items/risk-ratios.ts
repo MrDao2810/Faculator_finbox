@@ -19,6 +19,16 @@ export const HOI_DAP_RISK_RATIOS: Readonly<Record<string, ReadonlyArray<CauHoiTh
         noi: 'hoi-dap',
         vietnam: false,
       },
+      traLoi: {
+        vi: 'Câu trả lời điểm cao nhất, viết năm 2014, trích trang trợ giúp của Yahoo lúc ấy: beta tính từ thay đổi giá hằng tháng của cổ phiếu so với S&P 500 trong 3 năm (36 tháng) khi đủ dữ liệu; cách Yahoo tính hiện nay có thể đã khác. Trang này dùng lợi suất từng phiên của cổ phiếu và VN-Index, số phiên theo ô Số phiên lấy để hồi quy (mặc định 60), nên không so thẳng được với beta tính từ dữ liệu tháng.',
+        en: 'The top-voted answer, written in 2014, quotes the Yahoo help page of that time: beta is computed from the monthly price change of the stock relative to the S&P 500 over 3 years (36 months) when available; Yahoo may compute it differently today. This page uses per-session returns of the stock and the VN-Index over the Number of sessions used for the regression (60 by default), so its beta cannot be compared directly with one computed on monthly data.',
+      },
+      nguonTraLoi: [
+        {
+          url: 'https://quant.stackexchange.com/questions/15797',
+          ten: 'Quant StackExchange',
+        },
+      ],
     },
     {
       hoi: {
@@ -31,6 +41,27 @@ export const HOI_DAP_RISK_RATIOS: Readonly<Record<string, ReadonlyArray<CauHoiTh
         ten: 'Money StackExchange',
         noi: 'hoi-dap',
         vietnam: false,
+      },
+      traLoi: {
+        vi: 'Các câu trả lời ở nguồn: beta cho biết cổ phiếu hay danh mục thường đi theo thị trường ra sao. Bằng 1 là đi cùng nhịp, trên 1 là lên xuống mạnh hơn, từ 0 tới 1 là nhẹ hơn, bằng 0 là không theo thị trường, âm là đi ngược chiều; beta của cả danh mục là trung bình các beta theo tỷ trọng, dùng để chọn mức rủi ro mình chịu được. Trên trang này thị trường là VN-Index.',
+        en: 'The answers there: beta shows how a stock or a portfolio tends to move with the market. 1 means in step, above 1 means bigger swings, between 0 and 1 smaller ones, 0 means it ignores the market, and negative means it moves the other way; a portfolio beta is the weighted average of the betas of its holdings and helps set a risk level you can live with. On this page the market is the VN-Index.',
+      },
+      nguonTraLoi: [
+        {
+          url: 'https://money.stackexchange.com/questions/7135',
+          ten: 'Money StackExchange',
+        },
+      ],
+    },
+    {
+      hoi: {
+        vi: 'Tại sao Beta báo kết quả không có ý nghĩa khi bảng dữ liệu có một phiên trống giá đóng cửa?',
+        en: 'Why does Beta report a meaningless result when the data table has a session with no closing price?',
+      },
+      tuSoan: true,
+      traLoi: {
+        vi: 'Sản phẩm ghép từng phiên của cổ phiếu với VN-Index theo thứ tự tính từ phiên cuối. Nếu lặng lẽ bỏ một phiên trống ở giữa thì mọi cặp phía trước lệch nhau một phiên và beta sai mà không có cảnh báo nào, nên sản phẩm báo ngay thay vì tính. Hãy điền hoặc xoá phiên ấy ở màn Bảng dữ liệu; phiên hỏng nằm ngoài số phiên lấy để hồi quy thì không ảnh hưởng.',
+        en: 'The product pairs each session of the stock with the VN-Index by position, counting back from the last session. Silently skipping an empty session in the middle would shift every earlier pair by one session and give a wrong beta with no warning, so the product reports it instead of computing. Fill in or delete that session on the Data table screen; a faulty session outside the Number of sessions used for the regression has no effect.',
       },
     },
   ],
@@ -47,6 +78,16 @@ export const HOI_DAP_RISK_RATIOS: Readonly<Record<string, ReadonlyArray<CauHoiTh
         noi: 'hoi-dap',
         vietnam: false,
       },
+      traLoi: {
+        vi: 'Câu trả lời điểm cao nhất lưu ý cách nhân căn không phải lúc nào cũng đúng (bài “The Statistics of Sharpe Ratios” của Andrew Lo). Các câu kế giải thích gốc của nó: nếu lợi suất các phiên độc lập và cùng phân phối thì phần lãi cả năm gấp m lần, độ lệch chuẩn gấp căn m lần, nên tỷ số gấp căn m. Trang này làm đúng vậy: tỷ số một phiên nhân căn bậc hai của ô Số phiên trong một năm (250 với chuỗi ngày).',
+        en: 'The top-voted answer warns that scaling by the square root is not always valid (Andrew Lo, “The Statistics of Sharpe Ratios”). The next answers explain where it comes from: if session returns are independent and identically distributed, the yearly mean grows m times and the standard deviation the square root of m times, so the ratio grows by the square root of m. This page does exactly that: the per-session ratio times the square root of Sessions per year (250 for a daily series).',
+      },
+      nguonTraLoi: [
+        {
+          url: 'https://quant.stackexchange.com/questions/2260',
+          ten: 'Quant StackExchange',
+        },
+      ],
     },
     {
       hoi: {
@@ -83,6 +124,10 @@ export const HOI_DAP_RISK_RATIOS: Readonly<Record<string, ReadonlyArray<CauHoiTh
         noi: 'hoi-dap',
         vietnam: false,
       },
+      traLoi: {
+        vi: 'Trang này dùng lợi suất đơn: giá phiên này chia giá phiên trước rồi trừ 1, sau đó lấy trung bình cộng và độ lệch chuẩn mẫu (chia n − 1). Trung bình của lợi suất log thấp hơn khoảng nửa phương sai một phiên, nên khi phần lãi vượt lãi suất phi rủi ro nhỏ thì Sharpe tính bằng lợi suất log có thể thấp hơn rõ rệt. Chỉ so những tỷ số Sharpe tính cùng một cách.',
+        en: 'This page uses simple returns: this session’s close divided by the previous close, minus 1, then their arithmetic mean and sample standard deviation (dividing by n − 1). The mean of log returns is lower by about half the per-session variance, so when the return above the risk-free rate is small, a Sharpe ratio on log returns can come out clearly lower. Only compare Sharpe ratios computed the same way.',
+      },
     },
     {
       hoi: {
@@ -95,6 +140,10 @@ export const HOI_DAP_RISK_RATIOS: Readonly<Record<string, ReadonlyArray<CauHoiTh
         ten: 'Quant StackExchange',
         noi: 'hoi-dap',
         vietnam: false,
+      },
+      traLoi: {
+        vi: 'Trang này dùng trung bình cộng của lợi suất đơn từng phiên, đúng định nghĩa Sharpe công bố năm 1994. Trung bình nhân không bao giờ lớn hơn trung bình cộng và càng thấp hơn khi giá càng biến động, nên tỷ số tính bằng trung bình nhân thường nhỏ hơn. Hai cách cho hai con số khác nhau, chỉ so những tỷ số tính cùng một cách.',
+        en: 'This page uses the arithmetic mean of simple per-session returns, as in the definition Sharpe published in 1994. The geometric mean is never above the arithmetic mean and falls further below it the more the price swings, so a ratio built on the geometric mean usually comes out lower. The two methods give different numbers, so only compare ratios computed the same way.',
       },
     },
   ],
@@ -110,6 +159,32 @@ export const HOI_DAP_RISK_RATIOS: Readonly<Record<string, ReadonlyArray<CauHoiTh
         ten: 'Quant StackExchange',
         noi: 'hoi-dap',
         vietnam: false,
+      },
+      traLoi: {
+        vi: 'Trên trang này ngưỡng là ô Lãi suất phi rủi ro / năm quy về một phiên theo lãi kép, (1 + lãi năm)^(1/m) − 1, với m là Số phiên trong một năm. Mẫu số cộng bình phương phần hụt dưới ngưỡng của từng phiên, phiên trên ngưỡng tính là 0, chia cho tổng số lợi suất rồi lấy căn. Không phiên nào dưới ngưỡng thì mẫu số bằng 0 và sản phẩm báo chia cho 0.',
+        en: 'On this page the threshold is the Risk-free rate / year converted to one session by compounding, (1 + annual rate)^(1/m) − 1, where m is Sessions per year. The denominator adds up the squared shortfall below the threshold for each session, counting sessions above it as 0, divides by the total number of returns and takes the square root. If no session falls below the threshold, the denominator is 0 and the product reports a divide-by-zero error.',
+      },
+    },
+    {
+      hoi: {
+        vi: 'Tại sao chuỗi giá đứng yên cho Sortino âm mà không báo lỗi như Sharpe?',
+        en: 'Why does a flat price series give a negative Sortino instead of an error like Sharpe?',
+      },
+      tuSoan: true,
+      traLoi: {
+        vi: 'Giá đứng yên thì mọi lợi suất bằng 0, thấp hơn ngưỡng phi rủi ro một phiên, nên phiên nào cũng hụt đúng bằng ngưỡng. Tử số là âm của ngưỡng, mẫu số bằng ngưỡng, kết quả là −√m: với 250 phiên một năm là −15,81 lần. Sharpe thì báo chia cho 0 vì độ lệch chuẩn bằng 0; đặt lãi suất phi rủi ro bằng 0 thì Sortino cũng báo chia cho 0.',
+        en: 'With a flat price every return is 0, below the per-session risk-free threshold, so every session falls short by exactly the threshold. The numerator is minus the threshold and the denominator equals it, so the result is −√m: −15.81 times at 250 sessions a year. Sharpe reports a divide-by-zero error because the standard deviation is 0; set the risk-free rate to 0 and Sortino reports one too.',
+      },
+    },
+    {
+      hoi: {
+        vi: 'Tỷ số Sortino dùng bao nhiêu phiên của chuỗi giá đã nạp?',
+        en: 'How many sessions of the loaded price series does the Sortino ratio use?',
+      },
+      tuSoan: true,
+      traLoi: {
+        vi: 'Cả chuỗi, không cắt một cửa sổ gần đây: chuỗi VN-Index 250 phiên của ví dụ cho 249 lợi suất. Cần ít nhất 60 phiên giá, dưới mức đó sản phẩm báo thiếu chuỗi giá. Muốn đo một quãng ngắn hơn thì nạp đúng quãng ấy.',
+        en: 'The whole series, with no recent window cut out: the 250-session VN-Index series in the example gives 249 returns. At least 60 price sessions are needed, and below that the product reports a missing series. To measure a shorter stretch, load just that stretch.',
       },
     },
   ],
@@ -137,6 +212,28 @@ export const HOI_DAP_RISK_RATIOS: Readonly<Record<string, ReadonlyArray<CauHoiTh
         },
       ],
     },
+    {
+      hoi: {
+        vi: 'Tại sao nhập beta bằng 0 hoặc beta âm thì tỷ số Treynor không ra số?',
+        en: 'Why does the Treynor ratio give no number when I enter a beta of 0 or a negative beta?',
+      },
+      tuSoan: true,
+      traLoi: {
+        vi: 'Beta là mẫu số. Bằng 0 thì sản phẩm báo chia cho 0. Âm thì báo kết quả không có ý nghĩa vì dấu bị đảo: danh mục lãi hơn lãi suất phi rủi ro lại ra số âm, danh mục lỗ ra số dương. Với hai trường hợp ấy, tỷ số Sharpe không cần beta nên vẫn dùng được.',
+        en: 'Beta is the denominator. At 0 the product reports a divide-by-zero error. If it is negative, the product reports a meaningless result because the sign flips: a portfolio beating the risk-free rate would show a negative number and a losing one a positive number. In both cases the Sharpe ratio, which needs no beta, still works.',
+      },
+    },
+    {
+      hoi: {
+        vi: 'Tại sao tỷ số Treynor ra %/năm chứ không ra “lần” như Sharpe?',
+        en: 'Why is the Treynor ratio in %/year rather than “times” like Sharpe?',
+      },
+      tuSoan: true,
+      traLoi: {
+        vi: 'Tử số là phần lãi vượt lãi suất phi rủi ro tính theo năm: chênh lệch bình quân một phiên nhân thẳng với Số phiên trong một năm. Beta là hệ số không đơn vị nên kết quả giữ đơn vị %/năm. Ví dụ VN-Index 250 phiên với lãi suất 4,57% có phần vượt 5,98%/năm, chia beta 0,9043 ra 6,61%/năm.',
+        en: 'The numerator is the yearly return above the risk-free rate: the average per-session gap multiplied straight by Sessions per year. Beta is a unitless coefficient, so the result keeps the %/year unit. In the VN-Index example of 250 sessions at a 4.57% rate, the excess is 5.98%/year, and dividing by a beta of 0.9043 gives 6.61%/year.',
+      },
+    },
   ],
   'ty-so-thong-tin': [
     {
@@ -161,6 +258,28 @@ export const HOI_DAP_RISK_RATIOS: Readonly<Record<string, ReadonlyArray<CauHoiTh
           ten: 'Quant StackExchange',
         },
       ],
+    },
+    {
+      hoi: {
+        vi: 'Tại sao tỷ số thông tin ra đúng bằng tỷ số Sharpe khi nhập cùng một mức lợi suất?',
+        en: 'Why does the information ratio equal the Sharpe ratio when I enter the same rate?',
+      },
+      tuSoan: true,
+      traLoi: {
+        vi: 'Trang này là bản rút gọn: chuẩn so sánh là một con số %/năm, quy về một phiên theo lãi kép rồi trừ đúng một lượng như nhau ở mọi phiên. Vì thế độ lệch chuẩn phần chênh lệch bằng độ lệch chuẩn lợi suất của danh mục, và tỷ số trùng Sharpe khi lãi suất phi rủi ro bằng mức chuẩn: VN-Index 250 phiên với chuẩn 6,8% và Sharpe với lãi suất 6,8% đều ra 0,19 lần.',
+        en: 'This page is a simplified version: the benchmark is a single %/year figure, converted to one session by compounding and subtracted by the same amount every session. So the standard deviation of the difference equals that of the portfolio returns, and the ratio matches Sharpe when the risk-free rate equals the benchmark: the 250-session VN-Index with a 6.8% benchmark and Sharpe at a 6.8% rate both give 0.19 times.',
+      },
+    },
+    {
+      hoi: {
+        vi: 'Lợi suất chuẩn so sánh nhập theo năm hay theo phiên, và nhập số âm được không?',
+        en: 'Is the benchmark return entered per year or per session, and can it be negative?',
+      },
+      tuSoan: true,
+      traLoi: {
+        vi: 'Nhập một con số theo năm, đơn vị %: chuẩn tăng 12% cả năm thì nhập 12. Được nhập số âm, từ −100 tới 200: chuẩn giảm 10% cả năm thì nhập −10, và với chuỗi VN-Index 250 phiên của ví dụ tỷ số lên 1,02 lần. Sản phẩm tự quy con số năm về một phiên theo lãi kép trước khi trừ.',
+        en: 'Enter one yearly figure in %: for a benchmark up 12% over the year, enter 12. Negative values are allowed, from −100 to 200: for a benchmark down 10% over the year enter −10, and on the 250-session VN-Index series of the example the ratio rises to 1.02 times. The product converts the yearly figure to one session by compounding before subtracting it.',
+      },
     },
   ],
   'ty-so-calmar': [

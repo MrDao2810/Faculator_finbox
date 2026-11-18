@@ -21,6 +21,38 @@ export const HOI_DAP_TECHNICAL_VOLATILITY: Readonly<
         noi: 'hoi-dap',
         vietnam: false,
       },
+      traLoi: {
+        vi: 'Đáp án được chấp nhận, dẫn sách Bollinger on Bollinger Bands: Bollinger thử nhiều cặp chu kỳ và hệ số, thấy với đường trung bình 20 ngày thì 2 độ lệch chuẩn bao được khoảng 90% dữ liệu. Rút ngắn chu kỳ thì phải giảm hệ số để giữ tỷ lệ ấy, kéo dài thì tăng lên; 20 và 2 là điểm xuất phát chứ không phải con số bắt buộc. Trên trang này cả hai đổi được ở ô Chu kỳ dải Bollinger và ô Hệ số nhân độ lệch chuẩn.',
+        en: 'The accepted answer, citing the book Bollinger on Bollinger Bands: Bollinger tested many pairs of period and multiplier and found that with a 20-day moving average, 2 standard deviations covered about 90% of the data. A shorter period needs a smaller multiplier to keep that share and a longer one a larger multiplier; 20 and 2 are a starting point, not a requirement. On this page both can be changed in the Bollinger band period and Standard deviation multiplier fields.',
+      },
+      nguonTraLoi: [
+        {
+          url: 'https://money.stackexchange.com/questions/132966/why-do-bollinger-bands-typically-use-a-standard-deviation-of-2',
+          ten: 'Money StackExchange',
+        },
+      ],
+    },
+    {
+      hoi: {
+        vi: 'Tại sao giá tăng mà dải dưới lại đi xuống?',
+        en: 'Why does the lower band move down while the price is rising?',
+      },
+      tuSoan: true,
+      traLoi: {
+        vi: 'Dải dưới bằng đường giữa trừ k lần độ lệch chuẩn. Một phiên giá bật mạnh chỉ kéo đường giữa lên một chút, nhưng nếu nó làm độ lệch chuẩn nở ra và k lần phần nở ấy lớn hơn phần đường giữa nhích lên, dải dưới sẽ hạ xuống trong khi dải trên đi lên. Với FPT ví dụ, phiên 10/09/2026 giá đóng cửa tăng từ 72.400 ₫ lên 74.500 ₫, đường giữa 20 phiên nhích từ 71.095 ₫ lên 71.230 ₫, còn dải dưới hạ từ 68.065,5 ₫ xuống 67.864,83 ₫.',
+        en: 'The lower band is the middle line minus k times the standard deviation. A sharp up session lifts the middle line only a little, but if it widens the standard deviation and k times that widening exceeds the rise in the middle line, the lower band drops while the upper band rises. For the FPT example, in the 2026-09-10 session the close rose from 72,400 ₫ to 74,500 ₫ and the 20-session middle line edged up from 71,095 ₫ to 71,230 ₫, while the lower band fell from 68,065.5 ₫ to 67,864.83 ₫.',
+      },
+    },
+    {
+      hoi: {
+        vi: 'Tại sao dải dưới ở đây cao hơn một chút so với một số bảng giá?',
+        en: 'Why is the lower band here slightly higher than on some price boards?',
+      },
+      tuSoan: true,
+      traLoi: {
+        vi: 'Một nguyên nhân là cách tính độ lệch chuẩn. Sản phẩm chia cho n, đúng cách Bollinger tính; nơi nào chia cho n − 1 sẽ ra độ lệch chuẩn lớn hơn căn bậc hai của n ÷ (n − 1) lần, với 20 phiên là khoảng 1,026 lần, nên dải dưới của họ thấp hơn một chút. Với FPT ví dụ, dải dưới ở đây là 68.218,5 ₫, chia cho n − 1 thì ra 68.131,7 ₫.',
+        en: 'One cause is how the standard deviation is computed. The tool divides by n, the way Bollinger does; a platform that divides by n − 1 gets a standard deviation larger by the square root of n ÷ (n − 1), about 1.026 times for 20 sessions, so its lower band sits slightly lower. For the FPT example, the lower band here is 68,218.5 ₫, while dividing by n − 1 gives 68,131.7 ₫.',
+      },
     },
   ],
   'atr-dao-dong-thuc': [
@@ -36,6 +68,10 @@ export const HOI_DAP_TECHNICAL_VOLATILITY: Readonly<
         noi: 'hoi-dap',
         vietnam: false,
       },
+      traLoi: {
+        vi: 'Không hẳn. Mỗi điểm trên đường là ATR tại phiên đó. Dao động thực của một phiên là số lớn nhất trong (cao − thấp) và khoảng cách từ giá cao, giá thấp tới giá đóng cửa phiên trước; ATR làm mượt chúng theo Wilder nên vẫn mang một phần các phiên cũ hơn. Với FPT ví dụ, ATR 14 phiên là 1.502,87 ₫, còn trung bình cộng (cao − thấp) của 14 phiên cuối chỉ 1.321,43 ₫.',
+        en: 'Not quite. Each point on the line is the ATR at that session. The true range of a session is the largest of (high − low) and the distances from the high and the low to the previous close, and ATR smooths these the Wilder way, so it still carries part of older sessions. For the FPT example, the 14-session ATR is 1,502.87 ₫, while the plain average of (high − low) over the last 14 sessions is only 1,321.43 ₫.',
+      },
     },
     {
       hoi: {
@@ -49,6 +85,27 @@ export const HOI_DAP_TECHNICAL_VOLATILITY: Readonly<
         ten: 'Money StackExchange',
         noi: 'hoi-dap',
         vietnam: false,
+      },
+      traLoi: {
+        vi: 'Đáp án được chấp nhận: ATR nhìn vào biên độ trong từng phiên nên thấy được cổ phiếu đang biến động mạnh lên hay yếu đi trong giao dịch hằng ngày, còn độ biến động lịch sử theo giá đóng cửa cho cái nhìn về biến động dài hạn; thước đo nào tốt hơn tùy bạn dùng để làm gì. Trên trang này ATR tính bằng đồng mỗi phiên, gồm cả khoảng nhảy so với giá đóng cửa phiên trước, còn Độ biến động lịch sử năm hoá tính bằng %/năm từ lợi suất log của giá đóng cửa.',
+        en: 'The accepted answer: ATR looks at the range within each day, so it shows whether the stock is becoming more or less volatile in daily trading, while historical volatility from closing prices gives a view of longer-term volatility; which measure is better depends on what you use it for. On this page ATR is in dong per session and includes gaps from the previous close, while Annualized historical volatility is in % per year from log returns of closing prices.',
+      },
+      nguonTraLoi: [
+        {
+          url: 'https://money.stackexchange.com/questions/30440/is-the-average-true-range-a-better-measure-of-volatility-than-historical-volatil',
+          ten: 'Money StackExchange',
+        },
+      ],
+    },
+    {
+      hoi: {
+        vi: 'Tại sao ATR báo thiếu chuỗi giá dù chuỗi đã có giá đóng cửa?',
+        en: 'Why does ATR report a missing price series when the series already has closing prices?',
+      },
+      tuSoan: true,
+      traLoi: {
+        vi: 'Dao động thực cần giá cao, giá thấp của phiên và giá đóng cửa phiên trước. Phiên thiếu giá cao hoặc giá thấp, hay có giá cao nhỏ hơn giá thấp, bị bỏ qua; còn dưới chu kỳ + 1 phiên đủ ba giá (15 phiên với chu kỳ 14) thì màn báo thiếu chuỗi giá. Chuỗi chỉ có cột giá đóng cửa không tính được ATR.',
+        en: 'A true range needs the session high, the session low and the previous close. Sessions missing a high or low, or with a high below the low, are skipped, and with fewer than period + 1 complete sessions (15 for a period of 14) the screen reports a missing price series. A closes-only series cannot produce an ATR.',
       },
     },
   ],
@@ -65,6 +122,32 @@ export const HOI_DAP_TECHNICAL_VOLATILITY: Readonly<
         noi: 'hoi-dap',
         vietnam: false,
       },
+      traLoi: {
+        vi: 'VWAP có nhiều cách tính, nên hai nơi ra số khác nhau là chuyện thường. Đoạn mã của người hỏi lấy giá điển hình là (mở + cao + thấp) ÷ 3, trong khi định nghĩa quen dùng là (cao + thấp + đóng cửa) ÷ 3; VWAP lại cộng dồn, nên cộng từ thời điểm nào và trên khung dữ liệu nào cũng làm số khác đi. Trang này là một cách khác nữa: gộp n phiên gần nhất, mỗi phiên lấy giá đóng cửa nhân khối lượng khớp.',
+        en: 'VWAP is computed in several ways, so two places giving different numbers is normal. The code in the question takes the typical price as (open + high + low) ÷ 3, while the usual definition is (high + low + close) ÷ 3; VWAP is also cumulative, so where the sum starts and which data interval it runs on change the figure too. This page uses yet another way: it pools the last n sessions, each taking the closing price times matched volume.',
+      },
+    },
+    {
+      hoi: {
+        vi: 'Tại sao VWAP báo chia cho 0 hoặc báo thiếu chuỗi giá?',
+        en: 'Why does VWAP report a divide-by-zero or a missing price series?',
+      },
+      tuSoan: true,
+      traLoi: {
+        vi: 'Báo chia cho 0 khi mọi phiên trong n phiên gộp đều có khối lượng bằng 0, vì phép tính chia cho tổng khối lượng. Báo thiếu chuỗi giá khi không đủ n phiên có cả giá đóng cửa và khối lượng: phiên để trống ô khối lượng bị bỏ hẳn, và chuỗi chỉ có giá đóng cửa không tính được VWAP.',
+        en: 'Divide-by-zero appears when every session among the n pooled has zero volume, because the calculation divides by total volume. A missing price series appears when fewer than n sessions have both a close and a volume: a session with a blank volume cell is dropped entirely, and a closes-only series cannot produce a VWAP.',
+      },
+    },
+    {
+      hoi: {
+        vi: 'Phiên không khớp lệnh, khối lượng bằng 0, có kéo VWAP về giá của phiên đó không?',
+        en: 'Does a session with no matched trades, volume 0, pull the VWAP toward its price?',
+      },
+      tuSoan: true,
+      traLoi: {
+        vi: 'Không. Giá của phiên ấy nhân với khối lượng 0 nên không góp gì vào tổng, nhưng phiên vẫn chiếm một chỗ trong n phiên gộp. Vì vậy nếu một trong 20 phiên có khối lượng 0, VWAP 20 phiên thực chất là VWAP của 19 phiên còn lại.',
+        en: 'No. Its price is multiplied by a volume of 0, so it adds nothing to the totals, but the session still takes one of the n pooled slots. So if one of the 20 sessions has zero volume, the 20-session VWAP is in effect the VWAP of the other 19 sessions.',
+      },
     },
   ],
   'dai-bollinger-tren': [
@@ -80,6 +163,10 @@ export const HOI_DAP_TECHNICAL_VOLATILITY: Readonly<
         noi: 'faq',
         vietnam: true,
       },
+      traLoi: {
+        vi: 'Không bắt buộc: 20 phiên và k = 2 là bộ Bollinger dùng, còn sản phẩm để bạn đổi cả hai ô, chu kỳ từ 5 đến 500 phiên, hệ số k từ 0,1 đến 10. Chu kỳ ngắn thì dải bám các phiên gần hơn; k nhỏ thì dải hẹp lại và nhiều phiên đóng cửa ra ngoài dải hơn. Trên chuỗi FPT ví dụ, chu kỳ 20 phiên với k = 2 cho dải trên 74.901,5 ₫, còn 10 phiên với k = 1,9 cho 73.987,92 ₫.',
+        en: 'Not necessarily: 20 sessions and k = 2 are what Bollinger uses, and the tool lets you change both fields, the period from 5 to 500 sessions and k from 0.1 to 10. A shorter period makes the band follow more recent sessions; a smaller k narrows the band, so more closes fall outside it. On the FPT example series, 20 sessions with k = 2 give an upper band of 74,901.5 ₫, while 10 sessions with k = 1.9 give 73,987.92 ₫.',
+      },
     },
     {
       hoi: {
@@ -93,6 +180,21 @@ export const HOI_DAP_TECHNICAL_VOLATILITY: Readonly<
         ten: 'DSC mục Các câu hỏi thường gặp về chỉ báo Bollinger Bands',
         noi: 'faq',
         vietnam: true,
+      },
+      traLoi: {
+        vi: 'Dải trên là trung bình n phiên cộng k lần độ lệch chuẩn của chính n giá đóng cửa ấy, không phải trần giá hay mức giá phải quay về. Khi giá tăng mạnh nhiều phiên liền, mỗi giá mới kéo đường giữa lên và giá chạy xa khỏi trung bình thường làm độ lệch chuẩn nở ra, nên dải trên đi lên theo và giá có thể đóng cửa trên hoặc sát dải nhiều phiên. Dải mô tả độ phân tán của giá, không báo trước lúc nào giá giảm.',
+        en: 'The upper band is the n-session average plus k times the standard deviation of those same n closes, not a price ceiling or a level the price must return to. When the price rises hard for many sessions, each new close lifts the middle line, and a price running away from the average usually widens the standard deviation, so the band climbs too and the price can close above or near it for many sessions. The band describes price dispersion; it does not tell when the price will fall.',
+      },
+    },
+    {
+      hoi: {
+        vi: 'Dải trên cao hơn đường giữa bao nhiêu, và con số ấy tính thế nào?',
+        en: 'How far above the middle line is the upper band, and how is that gap worked out?',
+      },
+      tuSoan: true,
+      traLoi: {
+        vi: 'Đúng k lần độ lệch chuẩn của n giá đóng cửa. Với FPT ví dụ, đường giữa là 71.560 ₫, độ lệch chuẩn của 20 giá đóng cửa là 1.670,75 ₫, nên dải trên là 71.560 + 2 × 1.670,75 = 74.901,5 ₫, cao hơn đường giữa 3.341,5 ₫. Dải dưới nằm cách đường giữa đúng chừng ấy về phía dưới.',
+        en: 'Exactly k times the standard deviation of the n closes. For the FPT example, the middle line is 71,560 ₫ and the standard deviation of the 20 closes is 1,670.75 ₫, so the upper band is 71,560 + 2 × 1,670.75 = 74,901.5 ₫, 3,341.5 ₫ above the middle line. The lower band sits the same distance below it.',
       },
     },
   ],
@@ -167,13 +269,13 @@ export const HOI_DAP_TECHNICAL_VOLATILITY: Readonly<
     },
     {
       hoi: {
-        vi: 'Tại sao %B báo lỗi chia cho 0 hoặc hệ số nhân bằng 0 không dùng được?',
-        en: 'Why does %B report a divide-by-zero, or reject a multiplier of 0?',
+        vi: 'Tại sao %B báo lỗi chia cho 0?',
+        en: 'Why does %B report a divide-by-zero?',
       },
       tuSoan: true,
       traLoi: {
-        vi: '%B chia cho bề rộng dải. Giá đóng cửa không đổi suốt n phiên thì hai dải trùng nhau, bề rộng bằng 0. Hệ số nhân bằng 0 hoặc âm cũng làm hai dải trùng đường giữa nên sản phẩm báo vô nghĩa.',
-        en: '%B divides by the band width. If the close did not change over n sessions the bands coincide and the width is 0. A multiplier of 0 or below also collapses the bands onto the middle line, so the tool reports it as meaningless.',
+        vi: '%B chia cho bề rộng dải. Giá đóng cửa không đổi suốt n phiên thì độ lệch chuẩn bằng 0, hai dải trùng nhau và bề rộng bằng 0, nên sản phẩm báo chia cho 0 thay vì in một số vô hạn. Ô Hệ số nhân nhận từ 0,1 trở lên, nên chỉ chuỗi giá đi ngang mới gây ra trường hợp này.',
+        en: '%B divides by the band width. If the close did not change over n sessions the standard deviation is 0, the bands coincide and the width is 0, so the tool reports a divide by zero instead of printing an infinite number. The multiplier field starts at 0.1, so only a flat price series causes this.',
       },
     },
     {

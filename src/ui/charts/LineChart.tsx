@@ -7,7 +7,6 @@ import {
   CLOSE_PRICE_KEY,
   areaPath,
   fixed,
-  gapsOf,
   linePath,
   linearScale,
   nearestPointByX,
@@ -380,7 +379,6 @@ export function LineChart({
   const sizeTuDo = useChartSize();
   const size = sizeProp ?? sizeTuDo;
   const { W, H } = SIZES[size];
-  const hatchId = `${idBase}-hatch`;
   const areaId = `${idBase}-area`;
   const svgRef = useRef<SVGSVGElement>(null);
 
@@ -416,7 +414,6 @@ export function LineChart({
     syRight,
     lines,
     drawOrder,
-    gaps,
     marked,
     refs,
     bars,
@@ -434,7 +431,20 @@ export function LineChart({
     const budget = LABEL_BUDGET[size];
     const nhanY = thin(model.y.ticks, budget.y);
     const box = plotOf(size, model.yRight !== undefined, nhanY, model.x.dates === true);
-    const scaleX = linearScale(model.x.domain, [box.x0, box.x1]);
+    /*
+     * Bỏ phần đầu trục chưa tính được (khởi động của chỉ báo: n phiên đầu của EMA, SMA…): trước đây
+     * nó được tô gạch chéo và chiếm phần lớn bề ngang, chủ dự án thấy vô nghĩa (17/11/2026) và muốn
+     * phần có số liệu rộng ra. Trục bắt đầu từ phiên ĐẦU TIÊN chuỗi chính tính được; mọi thứ nằm trước
+     * mốc ấy (đường phụ, nến, nhãn vạch) bị bỏ khỏi hình, vẫn còn nguyên trong bảng số. Dạng Cột giữ
+     * trục cũ: bề rộng cột chia theo số điểm, cắt đầu trục là lệch cột.
+     */
+    const dauTrai = model.points.find((point) => point.y !== null && Number.isFinite(point.y));
+    const tuX =
+      variant !== 'bar' && dauTrai !== undefined && dauTrai.x > model.x.domain[0]
+        ? dauTrai.x
+        : model.x.domain[0];
+    const trongTruc = (x: number) => x >= tuX;
+    const scaleX = linearScale([tuX, model.x.domain[1]], [box.x0, box.x1]);
     // Trục Y lật chiều: toạ độ SVG đi xuống, giá trị đi lên.
     const scaleY = linearScale(model.y.domain, [box.y1, box.y0]);
     const scaleYRight =
@@ -472,9 +482,25 @@ export function LineChart({
         onRight: series.axis === 'right' && scaleYRight !== null,
         d:
           index === 0 && variant === 'step'
-            ? stepPath(series.points, scaleX, toY)
-            : linePath(series.points, scaleX, toY),
-        area: series.area === true && !boDaiTo ? areaPath(series.points, scaleX, toY, box.y1) : '',
+            ? stepPath(
+                series.points.filter((p) => trongTruc(p.x)),
+                scaleX,
+                toY,
+              )
+            : linePath(
+                series.points.filter((p) => trongTruc(p.x)),
+                scaleX,
+                toY,
+              ),
+        area:
+          series.area === true && !boDaiTo
+            ? areaPath(
+                series.points.filter((p) => trongTruc(p.x)),
+                scaleX,
+                toY,
+                box.y1,
+              )
+            : '',
       };
     });
     /*
@@ -511,7 +537,6 @@ export function LineChart({
        */
       drawOrder: [...ve.slice(1), ...ve.slice(0, 1)],
       /* Gạch chéo và dấu "giá trị hiện tại" bám CHUỖI CHÍNH, không bám chuỗi phụ nào. */
-      gaps: gapsOf(model.points, scaleX),
       marked: model.points.find((point) => point.marked === true),
       /*
        * Mốc tham chiếu — chỉ CHIẾU toạ độ, không lọc gì.
@@ -548,7 +573,7 @@ export function LineChart({
               const chanY = Math.min(Math.max(scaleY(0), box.y0), box.y1);
 
               return model.points.flatMap((point, index) => {
-                if (point.y === null) return [];
+                if (point.y === null || !trongTruc(point.x)) return [];
                 const dinhY = scaleY(point.y);
                 return [
                   {
@@ -578,7 +603,7 @@ export function LineChart({
                * Khoá theo vị trí, không theo nhãn: hai mức quét kề nhau có thể in ra cùng một nhãn
                * sau khi làm tròn ("1,2 tỷ ₫"), và hai khoá trùng là React nhập nhầm hai chấm.
                */
-              point.y === null
+              point.y === null || !trongTruc(point.x)
                 ? []
                 : [{ key: String(index), cx: scaleX(point.x), cy: scaleY(point.y) }],
             ),
@@ -594,7 +619,15 @@ export function LineChart({
           ? null
           : (() => {
               const zeroY = Math.min(Math.max(scaleY(0), box.y0), box.y1);
-              return { zeroY, d: areaPath(model.points, scaleX, scaleY, zeroY) };
+              return {
+                zeroY,
+                d: areaPath(
+                  model.points.filter((p) => trongTruc(p.x)),
+                  scaleX,
+                  scaleY,
+                  zeroY,
+                ),
+              };
             })(),
       /*
        * Nến của dạng NẾN — `null` ở mọi dạng khác. Bốn đường `<path>` (bấc và thân, tăng và giảm)
@@ -611,10 +644,12 @@ export function LineChart({
           ? null
           : (() => {
               const nen = model.candles;
-              const buoc = nen.length > 1 ? (box.x1 - box.x0) / (nen.length - 1) : box.x1 - box.x0;
+              const soBuoc = model.x.domain[1] - tuX;
+              const buoc = soBuoc > 0 ? (box.x1 - box.x0) / soBuoc : box.x1 - box.x0;
               const rong = Math.max(CANDLE_MIN_WIDTH, Math.min(BAR_MAX_WIDTH, buoc * CANDLE_FILL));
               const d = { bacTang: '', thanTang: '', bacGiam: '', thanGiam: '' };
               nen.forEach((cay, index) => {
+                if (!trongTruc(index)) return;
                 const x = scaleX(index);
                 const yMo = scaleY(cay.open);
                 const yDong = scaleY(cay.close);
@@ -634,7 +669,10 @@ export function LineChart({
               return { ...d, soPhien: nen.length, netBac: Math.min(1, Math.max(0.4, rong / 2)) };
             })(),
       /* Số nhãn theo khổ khung — xem `LABEL_BUDGET` về lý do 3 chứ không phải 2. */
-      xLabels: thin(model.x.ticks, budget.x),
+      xLabels: thin(
+        model.x.ticks.filter((tick) => trongTruc(tick.value)),
+        budget.x,
+      ),
       yLabels: nhanY,
       /* Trục Y phải: cùng số nhãn với trục trái để hai bên đọc ngang hàng nhau. */
       yRightLabels: model.yRight === undefined ? [] : thin(model.yRight.ticks, budget.y),
@@ -794,7 +832,9 @@ export function LineChart({
    */
   const legend =
     lines.length < 2 && candles === null ? null : (
-      <ul className={styles.legend}>
+      // `data-chu-giai`: dấu để `chart-snapshot.ts` tìm và vẽ chú giải này vào hình trong file PDF —
+      // nó nằm NGOÀI `<svg>`, nên bản chép hình một mình sẽ mất nó.
+      <ul className={styles.legend} data-chu-giai="">
         {lines.map((series) => (
           <li
             key={`leg-${series.key}`}
@@ -886,17 +926,6 @@ export function LineChart({
           focusable="false"
         >
           <defs>
-            {/* Gạch chéo cho vùng không tính được — dấu hiệu thứ hai bên cạnh khoảng hở của đường. */}
-            <pattern
-              id={hatchId}
-              width="6"
-              height="6"
-              patternUnits="userSpaceOnUse"
-              patternTransform="rotate(45)"
-            >
-              <line className={styles.gapHatch} x1="0" y1="0" x2="0" y2="6" />
-            </pattern>
-
             {/*
             Dải chuyển màu của vùng dưới đường. `id` suy từ `idBase` y như `<pattern>` ở trên và
             vì đúng một lý do: bản trên trang và bản trong màn phóng to cùng nằm trong DOM khi lớp
@@ -972,19 +1001,6 @@ export function LineChart({
               y1={sy(tick.value)}
               x2={plot.x1}
               y2={sy(tick.value)}
-            />
-          ))}
-
-          {/* Vùng không tính được, vẽ TRƯỚC đường để không che nét. */}
-          {gaps.map((gap) => (
-            <rect
-              key={`gap-${String(gap.fromX)}`}
-              className={styles.gap}
-              x={Math.min(gap.fromX, gap.toX)}
-              y={plot.y0}
-              width={Math.abs(gap.toX - gap.fromX)}
-              height={plot.y1 - plot.y0}
-              fill={`url(#${hatchId})`}
             />
           ))}
 

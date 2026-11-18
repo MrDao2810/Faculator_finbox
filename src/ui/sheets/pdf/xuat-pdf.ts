@@ -29,7 +29,7 @@ export interface XuatPdfArgs {
 }
 
 export async function xuatPdf(args: XuatPdfArgs): Promise<void> {
-  const doc = buildExportDocument(
+  const goc = buildExportDocument(
     args.formula,
     args.output,
     args.inputs,
@@ -38,12 +38,22 @@ export async function xuatPdf(args: XuatPdfArgs): Promise<void> {
     args.interpretation,
   );
 
-  const [regular, bold, hinhCongThuc, hinhBieuDo] = await Promise.all([
+  const [regular, bold, hinhCongThuc, bieuDo] = await Promise.all([
     taiFont('NotoSans-Regular.ttf'),
     taiFont('NotoSans-Bold.ttf'),
     args.formulaMathml === undefined ? null : chupMathml(args.formulaMathml).catch(() => null),
     args.options.includeChart ? chupBieuDo(args.formula.id).catch(() => null) : null,
   ]);
+  const hinhBieuDo = bieuDo?.anh ?? null;
+  // Tên hình chỉ biết được lúc chụp (người dùng đang xem mục nào), nên điền vào khối biểu đồ ở đây.
+  const ten = bieuDo?.ten;
+  const doc =
+    ten === undefined || ten === ''
+      ? goc
+      : {
+          ...goc,
+          blocks: goc.blocks.map((b) => (b.kind === 'chart' ? { ...b, title: ten } : b)),
+        };
   const math = canFontToan(doc, regular) ? await taiFont('NotoSansMath-Regular.ttf') : undefined;
 
   const bytes = await vePdf(
@@ -127,9 +137,12 @@ async function chupMathml(mathml: string): Promise<PdfImage> {
   }
 }
 
-/** Chụp biểu đồ đang hiện trên trang — dùng lại `chart-snapshot.ts`, luôn bảng màu sáng. */
-async function chupBieuDo(formulaId: string): Promise<PdfImage | null> {
-  const { chartImage, chartSvgUrl, cloneChartSvg } = await import('../chart-snapshot');
+/**
+ * Chụp biểu đồ đang hiện trên trang — dùng lại `chart-snapshot.ts`, luôn bảng màu sáng. Trả cả tên
+ * hình trên màn (`chartTitle`); chú giải HTML của hình đường được `cloneChartSvg` vẽ vào bản chép.
+ */
+async function chupBieuDo(formulaId: string): Promise<{ anh: PdfImage; ten?: string } | null> {
+  const { chartImage, chartSvgUrl, chartTitle, cloneChartSvg } = await import('../chart-snapshot');
   const svg = cloneChartSvg(formulaId);
   if (svg === null) return null;
   const url = chartSvgUrl(svg);
@@ -139,7 +152,8 @@ async function chupBieuDo(formulaId: string): Promise<PdfImage | null> {
   const h = img.naturalHeight;
   if (w <= 0 || h <= 0) return null;
   const png = await veLenCanvas(img, w, h);
-  return { png, width: w / PHONG, height: h / PHONG };
+  const ten = chartTitle(formulaId);
+  return { anh: { png, width: w / PHONG, height: h / PHONG }, ...(ten === null ? {} : { ten }) };
 }
 
 /**

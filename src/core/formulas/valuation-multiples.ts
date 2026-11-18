@@ -542,14 +542,7 @@ export const EV_EBITDA: FormulaModule = {
       return {
         value: null,
         unit: 'lần',
-        warning: divideByZero(
-          { vi: 'EV/EBITDA', en: 'EV/EBITDA' },
-          { vi: 'EBITDA', en: 'EBITDA' },
-          {
-            vi: 'EBITDA bằng 0 thì bội số không tính được; dùng EV/Sales hoặc P/B thay thế.',
-            en: 'An EBITDA of 0 gives no multiple; use EV/Sales or P/B instead.',
-          },
-        ),
+        warning: divideByZero({ vi: 'EV/EBITDA', en: 'EV/EBITDA' }, { vi: 'EBITDA', en: 'EBITDA' }),
       };
     }
 

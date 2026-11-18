@@ -4309,7 +4309,14 @@ năm 2026`); 118 titles, one rule, so sibling titles agree. Spec `tests[].name` 
     always carries: the chart when the chart block is DRAWING one (`chartType !== 'none' && hinhBieuDo.daVe`, the
     16/11/2026 rule that used to lock "Kèm biểu đồ"), the Bảng biến and the explanation always. The button is disabled
     with `aria-busy` while the file is built (the first export fetches the fonts); a failure shows `export.failed` in
-    the screen's bottom toast (`.thongBao`, `role="alert"`, `THONG_BAO_MS`), the share toast's mould.
+    the screen's bottom toast (`.thongBao`, `role="alert"`, `THONG_BAO_MS`), the share toast's mould. **While busy, a
+    spinner (`.vongXoayXuat`, 16px, the `.nutXoay` look) stands IN PLACE of the download icon, label unchanged**
+    (18/11/2026, owner: _"khi click vào chức năng export, sẽ hiển thị loading xoay tròn trong quá trình export dữ
+    liệu"_): the button keeps its size at both widths, and below 1024px (icon only) the spinner is all there is. The
+    busy button is NOT faded (`button.iconButton[aria-busy='true']` beats `.button:disabled`'s 0,55), and the spinner
+    holds at least `XUAT_TOI_THIEU_MS` (600 ms, the `MIN_REFRESH_MS` precedent) because from the second export the
+    file is ready in a frame; the download itself is never delayed, only the spinner's end. Measured in Chrome: busy
+    615–629 ms per click at 1440 and 390, button size unchanged, the file still saved.
   - **Content is Domain, drawing is UI.** `buildExportDocument()` (`src/core/export-content.ts`) returns a list of
     plain blocks (`heading`, `paragraph`, `formula`, `table`, `choice`, `chart`, `result`, `disclaimer`…), always
     Vietnamese, always ending with the `disclaimer` block (FR-24: no parameter can drop it; the 28/10/2026 removal of
@@ -4334,7 +4341,14 @@ năm 2026`); 118 titles, one rule, so sibling titles agree. Spec `tests[].name` 
     Vietnamese) is measured off-screen, wrapped in an SVG `foreignObject`, drawn on a canvas ×3; if the canvas refuses
     (Safari may taint it) the file prints `latexThanhChu(spec.latex)` (`src/core/latex-chu.ts`) instead. The legend's
     symbol column always uses `latexThanhChu`. The chart: `chart-snapshot.ts` as before (light palette by
-    construction — it harvests `:root` only). Saving: `<a download>` with a blob; an iOS home-screen app (standalone,
+    construction — it harvests `:root` only), i.e. EXACTLY the chart on screen (the "Xem theo" entry, the "Loại biểu
+    đồ" form, the typed numbers, the loaded series), minus the hover trace and the donut popup. Since the same day's
+    third round it also carries the chart's NAME (`chartTitle()` reads the `<figcaption>`; printed bold above the
+    picture) and `LineChart`'s HTML legend (`<ul data-chu-giai>`, OUTSIDE the `<svg>`: Nến, the component lines, SMA's
+    close overlay), which `cloneChartSvg()` draws into the copy at the positions MEASURED on screen and grows the
+    `viewBox` for; a renderer that adds another HTML legend must mark it the same way. Both follow the screen's
+    language, unlike the rest of the file. Swept in Chrome: 1.071 exports (103 formulas × every entry × every form),
+    all with a picture and a name. Saving: `<a download>` with a blob; an iOS home-screen app (standalone,
     where `download` is ignored) opens `navigator.share` with the file.
   - **Gone:** `ExportSheet.tsx` and its CSS (its old test file kept the Preset/Paste suites as
     `PresetPasteSheet.test.tsx`), `draw-card.ts` and its test, the `.print-region` JSX and every `.print-*` rule plus

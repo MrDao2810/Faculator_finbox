@@ -69,6 +69,19 @@ describe('vePdf — file PDF thật', () => {
     expect(chuCuaTaiLieu(doc)).toContain('Lợi nhuận');
   });
 
+  it('tên hình của khối biểu đồ có trong chữ của tài liệu (để chọn font) và vẽ được', async () => {
+    const doc: ExportDocument = {
+      title: 'Thử',
+      blocks: [
+        { kind: 'heading', text: 'Biểu đồ' },
+        { kind: 'chart', title: 'P/E theo Giá thị trường (P)' },
+        { kind: 'disclaimer', text: 'Miễn trừ' },
+      ],
+    };
+    expect(chuCuaTaiLieu(doc)).toContain('P/E theo Giá thị trường (P)');
+    await expect(vePdf(doc, { regular: REGULAR, bold: BOLD })).resolves.toBeInstanceOf(Uint8Array);
+  });
+
   /*
    * Một công thức đại diện cho mỗi kiểu nội dung (bảng phí, dòng tiền, nhóm lặp, công thức chuỗi,
    * hình nhiều dòng). Cả 111 thì `export-content.test.ts` dựng NỘI DUNG; ở đây vẽ thật mất ~0,5 s

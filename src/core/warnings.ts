@@ -47,13 +47,10 @@ export function divideByZero(what: Bilingual, divisor: Bilingual, fix?: Bilingua
   return {
     code: 'DIVIDE_BY_ZERO',
     message: {
-      vi: `Chưa tính được ${what.vi} vì ${divisor.vi} bằng 0.`,
-      en: `Cannot calculate ${what.en} because ${divisor.en} is 0.`,
+      vi: `Số liệu ${divisor.vi} đang bằng 0, không thể tính.`,
+      en: `The ${divisor.en} figure is 0, so it cannot be calculated.`,
     },
-    fix: fix ?? {
-      vi: `Nhập ${divisor.vi} khác 0.`,
-      en: `Enter a non-zero ${divisor.en}.`,
-    },
+    fix,
   };
 }
 

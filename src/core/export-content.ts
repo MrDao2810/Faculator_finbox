@@ -91,8 +91,11 @@ export type ExportBlock =
       /** Số dòng cuối in đậm (dòng tổng). */
       boldLast?: number;
     }
-  /** Chỗ chèn ảnh biểu đồ. */
-  | { kind: 'chart' }
+  /**
+   * Chỗ chèn ảnh biểu đồ. `title` là tên hình ĐANG hiện trên màn ("P/E theo Giá thị trường") — chỉ
+   * trình duyệt biết người dùng đang chọn mục "Xem theo" nào, nên nó được điền lúc chụp, không phải ở đây.
+   */
+  | { kind: 'chart'; title?: string }
   /** Lựa chọn của câu hỏi, thụt lề. */
   | { kind: 'choice'; key: string; text: string }
   | { kind: 'disclaimer'; text: string };

@@ -2,7 +2,7 @@
 
 import { afterEach, describe, expect, it } from 'vitest';
 
-import { chartSvgUrl, cloneChartSvg } from './chart-snapshot';
+import { chartSvgUrl, chartTitle, cloneChartSvg } from './chart-snapshot';
 
 /**
  * Bản chép hình biểu đồ cho file xuất.
@@ -193,5 +193,67 @@ describe('chartSvgUrl()', () => {
     copy.setAttribute('viewBox', '0 0 0 rất-rộng');
 
     expect(chartSvgUrl(copy)).toBeNull();
+  });
+});
+
+/** Gán khung đo cố định cho một phần tử — jsdom không bố cục nên `getBoundingClientRect` luôn 0. */
+function datKhung(el: Element, left: number, top: number, width: number, height: number): void {
+  el.getBoundingClientRect = () =>
+    ({
+      left,
+      top,
+      width,
+      height,
+      right: left + width,
+      bottom: top + height,
+      x: left,
+      y: top,
+    }) as DOMRect;
+}
+
+describe('tên hình và chú giải HTML trong bản chép (17/11/2026)', () => {
+  function dungHinhCoChuGiai(): void {
+    document.body.innerHTML = `
+      <figure>
+        <figcaption><strong>SMA 20 phiên theo thời gian</strong> <span>câu ẩn</span></figcaption>
+        <div>${trang('chart-sma')}</div>
+        <ul data-chu-giai="">
+          <li class="toneA"><svg viewBox="0 0 18 8"><line class="seriesLine" /></svg><span class="legendLabel">SMA 20 phiên</span></li>
+          <li class="toneB"><svg viewBox="0 0 18 8"><line class="seriesLine" /></svg><span class="legendLabel">Giá đóng cửa</span></li>
+        </ul>
+      </figure>`;
+  }
+
+  it('chartTitle() đọc đúng tên hình đang hiện, không lấy câu ẩn', () => {
+    dungHinhCoChuGiai();
+    expect(chartTitle('sma')).toBe('SMA 20 phiên theo thời gian');
+    expect(chartTitle('khong-co')).toBeNull();
+  });
+
+  it('chú giải nằm ngoài <svg> được vẽ vào bản chép, và khung nới xuống cho vừa', () => {
+    dungHinhCoChuGiai();
+    // Hình 640×400 px cho viewBox 320×200 (×2), chú giải ngay dưới, cao 20 px.
+    datKhung(document.querySelector('svg[data-chart-svg]')!, 0, 0, 640, 400);
+    datKhung(document.querySelector('[data-chu-giai]')!, 100, 410, 440, 20);
+    const items = document.querySelectorAll('[data-chu-giai] li');
+    items.forEach((li, i) => {
+      datKhung(li.querySelector('svg')!, 100 + i * 220, 416, 18, 8);
+      datKhung(li.querySelector('span')!, 122 + i * 220, 410, 150, 20);
+    });
+
+    const copy = cloneChartSvg('sma');
+    const chu = Array.from(copy?.querySelectorAll('text') ?? []).map((n) => n.textContent);
+    expect(chu).toEqual(['SMA 20 phiên', 'Giá đóng cửa']);
+    // Lớp tông của <li> đi theo, để mẫu nét vẫn đúng màu chuỗi.
+    expect(copy?.querySelector('g.toneB svg')).not.toBeNull();
+    // 430 px ÷ 2 + 4 = 219 đơn vị.
+    expect(copy?.getAttribute('viewBox')).toBe('0 0 320 219');
+  });
+
+  it('không đo được khung (chưa bố cục) thì không thêm gì, viewBox giữ nguyên', () => {
+    dungHinhCoChuGiai();
+    const copy = cloneChartSvg('sma');
+    expect(copy?.querySelector('text')).toBeNull();
+    expect(copy?.getAttribute('viewBox')).toBe('0 0 320 200');
   });
 });

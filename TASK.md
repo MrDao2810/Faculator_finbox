@@ -4,6 +4,36 @@
 
 Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 
+## Nút Export hiện vòng xoay trong lúc dựng file (18/11/2026)
+
+**Trạng thái: chờ chủ dự án xác nhận.** Chủ dự án (ảnh nút Export ở hàng tiêu đề): _"điều chỉnh lại hiệu ứng khi click vào chức năng export, sẽ hiển thị loading xoay tròn trong quá trình export dữ liệu"_.
+
+- `FormulaDetail.tsx`: lúc `dangXuat`, `<DownloadIcon />` nhường chỗ cho `<span class="vongXoayXuat">`, nhãn "Export" giữ nguyên. Hằng `XUAT_TOI_THIEU_MS = 600`: vòng xoay đứng ít nhất chừng đó (từ lần xuất thứ hai file dựng xong trong một khung hình, vòng xoay chỉ chớp); file vẫn tải ngay khi xong, chỉ phần kết thúc vòng xoay chờ thêm. Cùng mốc với `MIN_REFRESH_MS` bên Danh mục.
+- `FormulaDetail.module.css`: `.vongXoayXuat` 16px bằng icon (cùng hình `.nutXoay`: viền `--color-border`, cung `--color-accent`), giảm chuyển động thì xoay chậm một nửa; `button.iconButton[aria-busy='true']` không mờ, con trỏ `progress`.
+- Test: ca mới "đang xuất thì nút Export hiện vòng xoay thay icon, khoá lại, tên nút giữ nguyên"; ca "xuất hỏng" đợi nút mở lại thay vì đọc ngay. `FormulaDetail.test.tsx` 226/226, test quét CSS 553/553, lint, typecheck, format sạch.
+- Đo trên Chrome thật (dev :3000, `xirr`): 1440 và 390 đều thấy vòng xoay đúng chỗ icon, nút không đổi cỡ (75 × 30 / 32 × 32), không mờ, khoá 615–629 ms mỗi lần bấm, file vẫn tải xuống cả hai lần.
+
+## File PDF mang tên hình và chú giải của biểu đồ đang xem (17/11/2026, lượt ba)
+
+**Trạng thái: chờ chủ dự án xác nhận.** Chủ dự án hỏi file có xuất cả những gì thao tác trên biểu đồ không, rồi: _"nên kiểm tra lại toàn bộ các công thức trong dự án trên"_. Trả lời: file chụp đúng hình trên màn (mục "Xem theo", "Loại biểu đồ", số đang nhập, mã đã nạp), bỏ vạch dò và popup; nhưng thiếu hai thứ, nay đã sửa:
+
+- Tên hình ("P/E theo Giá thị trường (P)") không có trong file, chỉ có đề mục chung "Biểu đồ". `chart-snapshot.ts` thêm `chartTitle()` đọc `<figcaption>`; `xuat-pdf.ts` điền vào khối `chart` (`ExportBlock` có thêm `title?`); `ve-pdf.ts` in đậm 11pt ngay trên ảnh, tiêu đề "Biểu đồ" giữ chỗ cho cả dòng tên.
+- Chú giải của hình đường (`<ul>` HTML dưới `<svg>`: Nến, các đường thành phần MACD/MA/động lượng/biên độ/ATR, SMA kèm giá đóng cửa) bị mất. `cloneChartSvg()` nay đo vị trí từng mục trên màn, vẽ mẫu nét + chữ vào cuối bản chép và nới `viewBox`; màu lấy từ chính luật CSS (bảng sáng). `LineChart.tsx` chỉ thêm dấu `data-chu-giai` cho `<ul>`.
+- Test: 3 ca mới `chart-snapshot.test.ts` (tên hình, chú giải vào bản chép, không đo được thì không thêm), 1 ca `ve-pdf.test.ts`.
+- Quét Chrome thật (dev :3000, 1440px): 103 công thức có biểu đồ × mọi mục "Xem theo" × mọi "Loại biểu đồ" (đã nạp dữ liệu mẫu) = 1.071 lần bấm Export: file hợp lệ, có ảnh biểu đồ, ảnh không trắng, không mảng đen, có tên hình; 14 hình có chú giải ngoài và cả 14 đã vào ảnh. 8 công thức `chartType: 'none'` không có khối biểu đồ, đúng. Lần đầu `ddm-hai-giai-doan` ra ảnh đen (CSS không chép được) do dev nạp lại CSS đúng lúc; chạy lại 22/22 đúng. Khổ 390px: 63 lần, chú giải xuống hai dòng như trên màn.
+- Biết mà chưa làm: tên hình và chữ chú giải theo ngôn ngữ ĐANG HIỆN (EN thì ra tiếng Anh) trong khi phần còn lại của file luôn tiếng Việt; chế độ Cơ bản không quét các trục chỉ có ở Nâng cao (chú giải không phụ thuộc trục).
+- Báo động giả đã gỡ: bản build dựng trong bản sao mở trang nào cũng lỗi `usePathname()` null. Nguyên nhân là junction `node_modules` tôi tạo ghi ổ đĩa chữ thường (`c:\`), webpack thấy `next` ở hai đường khác hoa thường và đóng gói context router hai lần (`.next/trace` có cả `c:\…` và `C:\…\hooks-client-context.shared-runtime.js`). Không phải lỗi mã, không ảnh hưởng bản build thật.
+
+## Biểu đồ đường bỏ vùng gạch chéo, trục cắt từ phiên tính được (17/11/2026)
+
+**Trạng thái: chờ chủ dự án xác nhận.** Chủ dự án (ảnh EMA dạng Nến, vùng khởi động tô gạch chiếm gần hết bề ngang): _"phần gạch gạch này đang ko có ý nghĩa gì. bỏ … để hiển thị bên phải nhiều hơn. điều chỉnh ở toàn bộ các biểu đồ"_.
+
+- `LineChart.tsx`: bỏ `<pattern>` và các `<rect>` gạch chéo (`gapsOf` không còn gọi). Trục X bắt đầu từ phiên ĐẦU TIÊN chuỗi chính tính được; đường phụ, nến, chấm, vùng tô, nhãn vạch nằm trước mốc đó bị bỏ khỏi hình (bảng số vẫn giữ đủ). Dạng Cột giữ trục cũ (bề rộng cột chia theo số điểm).
+- `chart.module.css`: xoá `.gap`, `.gapHatch`.
+- `charts.test.tsx`: bốn ca đảo thành "không có gạch chéo"; ca dò điểm không tính được đổi thành "rê sát mép trái không gặp \_ \_".
+- Hệ quả đã biết: quãng đứt GIỮA chuỗi (vd hệ số biến thiên khi lợi suất trung bình <= 0) giờ chỉ là chỗ đường hở, không còn dấu gạch; thay đổi chu kỳ SMA/EMA làm đoạn đầu đường giá co giãn theo trục mới. `chart-snapshot` còn xử lý `<pattern>` cho file cũ, không ảnh hưởng.
+- Chưa xem trên trình duyệt thật (1440 và 390, hai palette).
+
 ## Nút Export xuất PDF ngay, bỏ sheet "Xuất kết quả" (17/11/2026, lượt hai)
 
 **Trạng thái: chờ chủ dự án xác nhận.** Chủ dự án (ảnh sheet với hai công tắc): _"phần tải về bây giờ ko cần cái này nữa. bấm tải về thì tự động trả về pdf luôn. và sửa text 'Tải về' thành 'Export'"_.

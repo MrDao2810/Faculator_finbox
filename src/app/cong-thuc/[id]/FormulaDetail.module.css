@@ -141,6 +141,50 @@ button.iconButton::after {
 }
 
 /*
+ * Nút Export đang dựng file (18/11/2026, chủ dự án: _"khi click vào chức năng export, sẽ hiển thị loading
+ * xoay tròn trong quá trình export dữ liệu"_). Vòng xoay thay chỗ icon tải về, cùng hình với `.nutXoay`
+ * của nút Làm mới bên Danh mục (viền hai màu token, cung đậm màu nhấn), cỡ 16px bằng icon nên nút không
+ * đổi bề ngang ở cả hai khổ.
+ *
+ * Nút khoá lại nhưng KHÔNG mờ đi: `.button:disabled` của primitive hạ `opacity` xuống 0,55, mà vòng
+ * xoay mờ đọc ra là nút hỏng, không phải đang chạy — cùng ngoại lệ `.headerRefresh:disabled` đã ghi.
+ * `button.iconButton[aria-busy]` là (0,2,1), thắng `.button:disabled` (0,2,0) bất kể thứ tự gộp file.
+ * Nút bị khoá vì lỗi khác (không `aria-busy`) vẫn mờ như mọi nút.
+ *
+ * Giảm chuyển động thì vẫn xoay, chậm đi một nửa: luật chung ở `globals.css` ép hoạt ảnh về 0,01ms,
+ * và một vòng lặp vô hạn ở nhịp ấy nhấp nháy chứ không đứng yên. Máy chủ dự án bật chế độ này.
+ */
+button.iconButton[aria-busy='true'] {
+  cursor: progress;
+  opacity: 1;
+}
+
+.vongXoayXuat {
+  flex-shrink: 0;
+  box-sizing: border-box;
+  width: 16px;
+  height: 16px;
+
+  border: 2px solid var(--color-border);
+  border-top-color: var(--color-accent);
+  border-radius: 50%;
+
+  animation: xoayXuat 0.7s linear infinite;
+}
+
+@keyframes xoayXuat {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vongXoayXuat {
+    animation-duration: 1.4s !important;
+  }
+}
+
+/*
  * Thông báo "Đã sao chép link" (23/10/2026) — dải nhỏ ở ĐÁY màn hình, tự tắt sau 5 giây, thay cho
  * việc đổi chữ / icon của nút Chia sẻ (chủ dự án: "button cần giữ nguyên").
  *

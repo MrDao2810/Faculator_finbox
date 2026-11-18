@@ -25,7 +25,12 @@ afterEach(cleanup);
 
 /** Sáu loại lỗi chuẩn của WF-15, dựng đúng bằng catalog tầng Domain. */
 const WF15: Readonly<Record<WarningCode, CalcWarning>> = {
-  DIVIDE_BY_ZERO: divideByZero({ vi: 'P/E', en: 'P/E' }, { vi: 'EPS', en: 'EPS' }),
+  // Câu mặc định không còn dòng gợi ý (17/11/2026); fixture truyền một dòng để các ca dưới vẫn phủ hàng ↳.
+  DIVIDE_BY_ZERO: divideByZero(
+    { vi: 'P/E', en: 'P/E' },
+    { vi: 'EPS', en: 'EPS' },
+    { vi: 'Nhập EPS khác 0.', en: 'Enter a non-zero EPS.' },
+  ),
   MEANINGLESS: meaningless(
     {
       vi: 'P/E không có ý nghĩa khi doanh nghiệp đang lỗ.',

@@ -109,6 +109,7 @@ export function chuCuaTaiLieu(doc: ExportDocument): string {
         parts.push(b.key, b.text);
         break;
       case 'chart':
+        if (b.title !== undefined) parts.push(b.title);
         break;
       default:
         parts.push(b.text);
@@ -500,7 +501,9 @@ export async function vePdf(
      */
     const sau = doc.blocks[i + 1];
     if (block.kind === 'heading' && sau?.kind === 'chart' && chartImg !== null) {
-      dan.tieuDeMuc(block.text, khoAnh(chartImg.img, CAO_BIEU_DO).h + 8);
+      // + một dòng tên hình (11pt × 1,35 + 2) khi có, để tên không tách khỏi ảnh của nó.
+      const tenHinh = sau.title !== undefined && sau.title !== '' ? 18 : 0;
+      dan.tieuDeMuc(block.text, khoAnh(chartImg.img, CAO_BIEU_DO).h + 8 + tenHinh);
       return;
     }
     veKhoi(dan, block, formulaImg, chartImg);
@@ -553,6 +556,12 @@ function veKhoi(
       dan.bang(block.columns, block.rows, block.boldLast ?? 0);
       return;
     case 'chart':
+      // Tên hình đứng ngay trên ảnh, như tiêu đề `<figcaption>` trên màn: không có nó thì người đọc
+      // không biết hình đang vẽ theo mục "Xem theo" nào.
+      if (block.title !== undefined && block.title !== '') {
+        dan.doanVan(block.title, { font: fonts.bold, size: 11, leading: 1.35 });
+        dan.khoang(2);
+      }
       if (chartImg !== null) dan.anh(chartImg.img, chartImg.embed, CAO_BIEU_DO);
       else dan.doanVan('Không chụp được hình biểu đồ.', { color: MAU.muted, size: 10 });
       return;

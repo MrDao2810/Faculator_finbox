@@ -1702,9 +1702,48 @@ describe('WF-03 — nối ba bottom sheet của gói 2.5', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Export' }));
 
     expect((await screen.findByRole('alert')).textContent).toBe(t('export.failed'));
-    expect((screen.getByRole('button', { name: 'Export' }) as HTMLButtonElement).disabled).toBe(
-      false,
+    // Vòng xoay đứng nốt cho đủ mốc tối thiểu rồi nút mới mở lại.
+    await waitFor(() => {
+      expect((screen.getByRole('button', { name: 'Export' }) as HTMLButtonElement).disabled).toBe(
+        false,
+      );
+    });
+  });
+
+  /*
+   * Chủ dự án (18/11/2026): _"khi click vào chức năng export, sẽ hiển thị loading xoay tròn trong quá
+   * trình export dữ liệu"_. Vòng xoay thay chỗ icon tải về, tên nút giữ nguyên; xong thì icon về.
+   */
+  it('đang xuất thì nút Export hiện vòng xoay thay icon, khoá lại, tên nút giữ nguyên', async () => {
+    let xong: () => void = () => undefined;
+    xuatPdf.mockImplementationOnce(
+      () =>
+        new Promise<void>((resolve) => {
+          xong = resolve;
+        }),
     );
+    render(<Man spec={specOf('pe')} />);
+    const nut = () => screen.getByRole('button', { name: 'Export' }) as HTMLButtonElement;
+    const vongXoay = () => nut().querySelector('[class*="vongXoayXuat"]');
+
+    expect(vongXoay()).toBeNull();
+    expect(nut().querySelector('svg')).not.toBeNull();
+
+    await userEvent.click(nut());
+    await waitFor(() => {
+      expect(xuatPdf).toHaveBeenCalledTimes(1);
+    });
+    expect(vongXoay()).not.toBeNull();
+    expect(nut().querySelector('svg')).toBeNull();
+    expect(nut().disabled).toBe(true);
+    expect(nut().getAttribute('aria-busy')).toBe('true');
+
+    xong();
+    await waitFor(() => {
+      expect(vongXoay()).toBeNull();
+    });
+    expect(nut().querySelector('svg')).not.toBeNull();
+    expect(nut().disabled).toBe(false);
   });
 });
 

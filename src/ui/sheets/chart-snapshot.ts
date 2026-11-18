@@ -64,6 +64,7 @@ export function cloneChartSvg(
   }
 
   renameIds(copy);
+  themChuGiaiHtml(copy, live);
 
   /*
    * Gỡ chính cái dấu vừa dùng để tìm: bản chép nằm cùng tài liệu với bản gốc, nên để lại là
@@ -73,6 +74,93 @@ export function cloneChartSvg(
   copy.removeAttribute(MARKER);
 
   return copy;
+}
+
+/**
+ * Tên hình đang hiện trên màn (chữ đậm trong `<figcaption>`, vd "P/E theo Giá thị trường"), hoặc
+ * `null` khi không tìm thấy hình. Đọc từ DOM vì chỉ màn biết người dùng đang chọn mục "Xem theo" nào.
+ */
+export function chartTitle(formulaId: string, root: ParentNode = document): string | null {
+  const live = root.querySelector(`svg[${MARKER}="chart-${formulaId}"]`);
+  const text = live?.closest('figure')?.querySelector('figcaption strong')?.textContent?.trim();
+  return text === undefined || text === '' ? null : text;
+}
+
+const SVG_NS = 'http://www.w3.org/2000/svg';
+
+/**
+ * Vẽ chú giải HTML của hình đường (`<ul data-chu-giai>` của `LineChart`, đứng DƯỚI `<svg>`) vào
+ * cuối bản chép, rồi nới `viewBox` xuống cho vừa. Không có bước này thì hình nhiều đường trong file
+ * (Nến, các đường thành phần MACD, SMA kèm giá đóng cửa…) chỉ còn những đường không tên.
+ *
+ * Vị trí ĐO trên màn rồi đổi sang đơn vị `viewBox`, nên chú giải trong file xếp hàng y như trên màn
+ * (đã xuống dòng, đã canh giữa). Mẫu nét chép nguyên `<svg>` nhỏ của từng mục, bọc trong một `<g>`
+ * mang lớp tông của `<li>` để `--series-ink` vẫn tô đúng màu; chữ là `<text fill="currentColor">`
+ * mang lớp của `<span>`, nên màu đến từ chính luật CSS ấy, bảng sáng (xem `harvestCss`).
+ *
+ * Hình không có chú giải HTML (mọi loại khác, hoặc hình đường một chuỗi) thì không đổi gì. Kích thước
+ * 0 (jsdom, hình chưa bố cục) cũng không đổi gì: thà thiếu chú giải còn hơn vẽ nó chồng lên hình.
+ */
+function themChuGiaiHtml(copy: SVGSVGElement, live: Element): void {
+  const ul = live.closest('figure')?.querySelector<HTMLElement>('[data-chu-giai]');
+  if (ul === null || ul === undefined) return;
+
+  const vb = (copy.getAttribute('viewBox') ?? '')
+    .trim()
+    .split(/[\s,]+/)
+    .map(Number);
+  const [vx = 0, vy = 0, vw, vh] = vb;
+  if (vw === undefined || vh === undefined || !Number.isFinite(vw) || !Number.isFinite(vh)) return;
+
+  const khung = live.getBoundingClientRect();
+  const ulRect = ul.getBoundingClientRect();
+  if (khung.width <= 0 || khung.height <= 0 || ulRect.height <= 0) return;
+  // `preserveAspectRatio="xMidYMid meet"`: hình co theo chiều chật hơn và canh giữa chiều kia.
+  const s = Math.min(khung.width / vw, khung.height / vh);
+  const k = 1 / s;
+  const lechX = (khung.width - vw * s) / 2;
+  const lechY = (khung.height - vh * s) / 2;
+  const doiX = (px: number) => (px - khung.left - lechX) * k + vx;
+  const doiY = (px: number) => (px - khung.top - lechY) * k + vy;
+
+  const nhomChuGiai = document.createElementNS(SVG_NS, 'g');
+  for (const li of Array.from(ul.children)) {
+    const nhom = document.createElementNS(SVG_NS, 'g');
+    nhom.setAttribute('class', li.getAttribute('class') ?? '');
+
+    const mau = li.querySelector('svg');
+    if (mau !== null) {
+      const r = mau.getBoundingClientRect();
+      const chep = mau.cloneNode(true) as SVGSVGElement;
+      chep.removeAttribute('class');
+      chep.setAttribute('x', String(doiX(r.left)));
+      chep.setAttribute('y', String(doiY(r.top)));
+      chep.setAttribute('width', String(r.width * k));
+      chep.setAttribute('height', String(r.height * k));
+      nhom.appendChild(chep);
+    }
+
+    for (const span of Array.from(li.querySelectorAll('span'))) {
+      const chu = (span.textContent ?? '').trim();
+      if (chu === '') continue;
+      const r = span.getBoundingClientRect();
+      const text = document.createElementNS(SVG_NS, 'text');
+      text.setAttribute('class', span.getAttribute('class') ?? '');
+      text.setAttribute('fill', 'currentColor');
+      text.setAttribute('x', String(doiX(r.left)));
+      text.setAttribute('y', String(doiY(r.top + r.height / 2)));
+      text.setAttribute('dominant-baseline', 'central');
+      text.setAttribute('font-size', String(parseFloat(getComputedStyle(span).fontSize) * k));
+      text.textContent = chu;
+      nhom.appendChild(text);
+    }
+    nhomChuGiai.appendChild(nhom);
+  }
+  copy.appendChild(nhomChuGiai);
+
+  // Nới khung xuống tới hết chú giải, chừa 4 đơn vị để chân chữ không chạm mép ảnh.
+  const day = Math.max(vy + vh, doiY(ulRect.bottom) + 4);
+  copy.setAttribute('viewBox', `${String(vx)} ${String(vy)} ${String(vw)} ${String(day - vy)}`);
 }
 
 /**

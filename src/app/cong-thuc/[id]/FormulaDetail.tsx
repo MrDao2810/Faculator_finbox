@@ -501,6 +501,18 @@ function dungBangChiaSeCuaMay(): boolean {
 const THONG_BAO_MS = 5000;
 
 /**
+ * Vòng xoay trên nút Export đứng ít nhất chừng này sau khi bấm — CỐ Ý, không phải thời gian dựng file cần
+ * (18/11/2026, chủ dự án: _"khi click vào chức năng export, sẽ hiển thị loading xoay tròn trong quá trình
+ * export dữ liệu"_). Từ lần xuất thứ hai font đã có sẵn, file dựng xong nhanh và vòng xoay chỉ chớp một
+ * khung hình — người dùng không thấy việc mình vừa bấm đang chạy. Cùng mốc và cùng lý do với
+ * `MIN_REFRESH_MS` của nút Làm mới ở `PortfolioScreen.tsx`.
+ *
+ * Mốc này KHÔNG làm chậm file: file vẫn tải xuống ngay khi dựng xong, chỉ vòng xoay đứng thêm phần còn
+ * lại. Dựng lâu hơn mốc (lần đầu tải font) thì mốc không thêm gì.
+ */
+const XUAT_TOI_THIEU_MS = 600;
+
+/**
  * Màn WF-03 Chi tiết công thức — gói WBS 3.2.1.
  *
  * Chín khối đúng thứ tự wireframe. Đây là màn dùng nhiều nhất và là khuôn cho cả 111 công
@@ -1646,6 +1658,7 @@ export function FormulaDetail({
     if (dangXuat) return;
     setXuatLoi(false);
     setDangXuat(true);
+    const batDau = Date.now();
     try {
       await exportPdf({
         // `activeSpec`: file kê đủ mọi đợt mua đang có trên màn.
@@ -1671,6 +1684,9 @@ export function FormulaDetail({
     } catch {
       setXuatLoi(true);
     } finally {
+      // File đã tải xuống (hoặc đã hỏng) — chỉ vòng xoay đứng nốt cho đủ `XUAT_TOI_THIEU_MS`.
+      const conLai = XUAT_TOI_THIEU_MS - (Date.now() - batDau);
+      if (conLai > 0) await new Promise((xong) => setTimeout(xong, conLai));
       setDangXuat(false);
     }
   }
@@ -2874,7 +2890,15 @@ export function FormulaDetail({
               disabled={dangXuat}
               aria-busy={dangXuat}
             >
-              <DownloadIcon />
+              {/*
+                Đang dựng file thì vòng xoay ĐỨNG ĐÚNG CHỖ icon tải về, cùng 16px, nhãn giữ nguyên: nút
+                không đổi bề ngang, và dưới 1024px (nút chỉ còn icon) vòng xoay là thứ duy nhất nhìn thấy.
+              */}
+              {dangXuat ? (
+                <span className={styles.vongXoayXuat} aria-hidden="true" />
+              ) : (
+                <DownloadIcon />
+              )}
               <span className={styles.iconLabel}>{t('detail.download')}</span>
             </Button>
 

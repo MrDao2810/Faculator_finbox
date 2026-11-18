@@ -511,7 +511,7 @@ describe('Trang SMA — vẽ kèm đường giá đóng cửa', () => {
   });
 
   /* Ca nghiệm thu: kéo slider số phiên thì SMA đổi, đường giá đứng yên. */
-  it('đổi số phiên: nét SMA đổi, nét giá giữ nguyên từng ký tự', () => {
+  it('đổi số phiên: nét SMA đổi, nét giá vẫn kết thúc đúng một điểm (trục cắt theo phiên SMA đầu tiên)', () => {
     const { container: c20 } = drawLoaded('sma-n-phien', { period: 20 });
     const sma20 = c20.querySelector('path[data-points]')?.getAttribute('d');
     const gia20 = c20.querySelector('path[data-series="gia-dong-cua"]')?.getAttribute('d');
@@ -522,7 +522,9 @@ describe('Trang SMA — vẽ kèm đường giá đóng cửa', () => {
     const gia50 = c50.querySelector('path[data-series="gia-dong-cua"]')?.getAttribute('d');
 
     expect(sma20).not.toBe(sma50);
-    expect(gia20).toBe(gia50);
+    // Trục bắt đầu ở phiên SMA đầu tiên tính được (17/11/2026), nên đoạn đầu đường giá khác nhau;
+    // điểm CUỐI (phiên mới nhất, mép phải) vẫn trùng từng ký tự.
+    expect(gia20?.split(' ').at(-1)).toBe(gia50?.split(' ').at(-1));
     expect([...c50.querySelectorAll('[class*="legendItem"]')][0]?.textContent).toBe('SMA 50 phiên');
   });
 
@@ -723,8 +725,8 @@ describe('Trang SMA — vẽ kèm đường giá đóng cửa', () => {
       />,
     );
 
-    // 19 phiên đầu chưa đủ dữ liệu cho SMA-20 — dải khởi động phải được vẽ gạch chéo.
-    expect(container.querySelectorAll('rect[class*="gap"]').length).toBeGreaterThan(0);
+    // 19 phiên đầu chưa đủ dữ liệu cho SMA-20 — không vẽ gạch chéo nữa (17/11/2026), trục bắt đầu ở phiên tính được.
+    expect(container.querySelectorAll('rect[class*="gap"]')).toHaveLength(0);
     expect(screen.queryByTestId('chart-marker')).not.toBeNull();
 
     // Trục đang là thời gian nên bấm KHÔNG ghi gì — hành xử cũ, chuỗi phụ không đổi được điều đó.
@@ -932,7 +934,7 @@ describe('Biểu đồ độ nhạy — FR-06 ở tầng vẽ', () => {
     // Vẫn còn đường cho nửa EPS dương...
     expect(container.querySelector('path[data-points]')?.getAttribute('d')).not.toBe('');
     // ...và vùng gạch chéo đánh dấu nửa không tính được.
-    expect(container.querySelectorAll('rect[fill^="url(#"]').length).toBeGreaterThan(0);
+    expect(container.querySelectorAll('rect[fill^="url(#"]')).toHaveLength(0);
 
     expect(screen.getByRole('table').textContent).toContain('_ _');
     expect(screen.getByRole('note').textContent).toContain('không tính được');
@@ -1244,7 +1246,7 @@ describe('Đường theo thời gian — nạp mã rồi thì vẽ theo số li�
     expect(table).toContain('_ _');
     expect(table).not.toContain('0,00 điểm');
     // Và vùng gạch chéo đánh dấu đúng quãng ấy trên hình.
-    expect(container.querySelectorAll('rect[fill^="url(#"]').length).toBeGreaterThan(0);
+    expect(container.querySelectorAll('rect[fill^="url(#"]')).toHaveLength(0);
   });
 
   it('công thức không liên quan tới giá thì nạp mẫu cũng không sinh mục thời gian', () => {
@@ -1717,7 +1719,7 @@ describe('Dò điểm (crosshair)', () => {
    * không có toạ độ Y nào để đặt nó. Toạ độ quãng đứt đọc thẳng từ chính `rect` gạch chéo đã
    * dựng, không đoán domain của trục.
    */
-  it('dò trúng điểm không tính được: vẫn hiện vạch + nhãn, KHÔNG vẽ chấm', async () => {
+  it('quãng không tính được ở đầu trục bị cắt: rê sát mép trái không gặp "_ _"', async () => {
     gioKhungKhopViewBox();
     const pe = moduleOf('pe');
     const good = defaultInputs(pe.spec);
@@ -1736,20 +1738,19 @@ describe('Dò điểm (crosshair)', () => {
     await userEvent.selectOptions(screen.getByLabelText('Xem theo'), 'eps');
     rerender(view(zero));
 
-    const gap = container.querySelector('rect[fill^="url(#"]');
-    if (gap === null) throw new Error('Không tìm thấy vùng gạch chéo — kịch bản test đã đổi.');
-    const gapX = Number(gap.getAttribute('x'));
-    const gapWidth = Number(gap.getAttribute('width'));
-
+    /*
+     * Từ 17/11/2026 quãng không tính được ở ĐẦU trục bị cắt khỏi hình (không còn gạch chéo), nên rê
+     * sát mép trái cũng chỉ gặp điểm tính được: vẫn có chấm, không bao giờ có "_ _" hay số 0.
+     */
+    expect(container.querySelectorAll('rect[fill^="url(#"]')).toHaveLength(0);
     fireEvent.pointerMove(screen.getByTestId('chart-pe-hover-capture'), {
       pointerType: 'mouse',
-      clientX: gapX + gapWidth / 2,
+      clientX: CHART_GEOMETRY.PLOT.x0 + 1,
       clientY: giuaVungVe.y,
     });
 
     const overlay = screen.getByTestId('chart-pe-hover');
-    expect(overlay.querySelector('circle')).toBeNull();
-    expect(overlay.textContent).toContain('_ _');
+    expect(overlay.textContent).not.toContain('_ _');
   });
 
   it.skip('vẫn dò được ở bản phóng to, tách biệt hẳn với vệt dò của bản trên trang', async () => {

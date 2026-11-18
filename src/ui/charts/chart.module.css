@@ -747,16 +747,6 @@
   color: var(--color-muted);
 }
 
-/* Vùng không tính được: gạch chéo + chữ trong bảng số, hai dấu hiệu, không chỉ dựa vào màu. */
-.gapHatch {
-  stroke: var(--color-border-strong);
-  stroke-width: 1;
-}
-
-.gap {
-  stroke: none;
-}
-
 /*
  * Dấu "giá trị hiện tại" — FR-08.
  * Ba dấu hiệu cùng lúc: chấm đặc, vạch dọc nét đứt, và nhãn chữ. Chuyển ảnh sang xám vẫn đọc được

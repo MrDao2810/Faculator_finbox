@@ -25,11 +25,12 @@ describe('catalog cảnh báo (WF-15)', () => {
 });
 
 describe('divideByZero()', () => {
-  it('nói rõ mẫu số nào bằng 0 và cách sửa', () => {
+  it('nói rõ số liệu nào đang bằng 0, không kèm dòng gợi ý mặc định', () => {
     const w = divideByZero({ vi: 'P/E', en: 'P/E' }, { vi: 'EPS', en: 'EPS' });
     expect(w.code).toBe('DIVIDE_BY_ZERO');
-    expect(w.message.vi).toBe('Chưa tính được P/E vì EPS bằng 0.');
-    expect(w.fix?.vi).toContain('EPS');
+    expect(w.message.vi).toBe('Số liệu EPS đang bằng 0, không thể tính.');
+    expect(w.message.en).toBe('The EPS figure is 0, so it cannot be calculated.');
+    expect(w.fix).toBeUndefined();
   });
 
   it('cho phép ghi đè gợi ý sửa khi công thức có lối đi riêng', () => {

@@ -4,6 +4,16 @@
 
 Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 
+## Thẻ công thức ghi tên nhóm NGẮN, khớp chip lọc (24/11/2026)
+
+**Trạng thái: chờ chủ dự án xác nhận.** Ảnh danh sách: chip "Kỹ thuật" nhưng thẻ ghi "Phân tích kỹ thuật" (tương tự Lợi
+nhuận, Rủi ro, Phí & thuế VN, Chỉ số DN). Nguyên nhân: chip và thẻ dạng ô dùng `category.shortName`, riêng thẻ dạng hàng
+(`FormulaCard` variant `row`, danh sách `/cong-thuc/` và kết quả tìm) dùng `category.name`. Nay cả ba cùng `shortName`, cả
+VI lẫn EN. `GroupCard` (tiêu đề nhóm của kết quả tìm) và `HotCategories` không đổi.
+
+- File: `src/ui/browse/FormulaCard.tsx`, `FormulaCard.test.tsx` (ca "tên nhóm đầy đủ" đảo thành "tên nhóm ngắn").
+- Kiểm: `src/ui/browse`, `src/app/cong-thuc`, `src/app/tim-kiem` 776 ca xanh; lint, typecheck sạch. Chưa xem trên Chrome.
+
 ## Câu đỏ dưới ô khi số nhập vào vi phạm điều kiện của công thức (18/11/2026)
 
 **Trạng thái: chờ chủ dự án xác nhận.** Chủ dự án (ảnh điểm hoà vốn, giá bán 1.222 ₫ dưới biến phí 30.000 ₫): _"khi nhập số liệu sai hoặc không đáp ứng điều kiện của công thức … cần thông báo đỏ ở bên dưới ô nhập là 'Giá bán phải lớn hơn Biến phí một sản phẩm'. sửa tương tự với những công thức"_. Khi được hỏi, chọn: thẻ lỗi bên trái giữ nguyên; điều kiện giữa hai ô chỉ in dưới MỘT ô cố định; câu hiện ngay theo từng phím.

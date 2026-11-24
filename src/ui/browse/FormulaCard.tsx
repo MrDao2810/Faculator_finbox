@@ -225,7 +225,9 @@ function FormulaCardBase({
           <div className={styles.category}>
             <CategoryMark id={category.id} />
             <span className={styles.categoryText}>
-              <Pick value={category.name} />
+              {/* Tên ngắn, đúng chữ của chip lọc phía trên (24/11/2026): chủ dự án thấy chip "Kỹ thuật"
+                  mà thẻ ghi "Phân tích kỹ thuật" và coi là sai tiêu đề. Thẻ dạng ô đã dùng tên ngắn. */}
+              <Pick value={category.shortName} />
             </span>
           </div>
         )}

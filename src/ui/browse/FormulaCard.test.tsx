@@ -140,9 +140,11 @@ describe('biến thể row — danh sách WF-02 và WF-09', () => {
     expect(container.querySelectorAll('svg')).toHaveLength(3);
   });
 
-  it('hiện tên nhóm đầy đủ', () => {
+  // Tên NGẮN, đúng chữ của chip lọc (24/11/2026, chủ dự án: chip "Kỹ thuật" mà thẻ ghi "Phân tích kỹ thuật" là sai).
+  it('hiện tên nhóm ngắn, đúng chữ của chip lọc', () => {
     render(<FormulaCard formula={PE} />);
-    expect(screen.getByText('Chỉ số doanh nghiệp')).not.toBeNull();
+    expect(screen.getByText('Chỉ số DN')).not.toBeNull();
+    expect(screen.queryByText('Chỉ số doanh nghiệp')).toBeNull();
   });
 
   /*
@@ -151,7 +153,7 @@ describe('biến thể row — danh sách WF-02 và WF-09', () => {
    */
   it('dòng nhóm mở đầu bằng icon của nhóm, ẩn khỏi trình đọc màn hình', () => {
     render(<FormulaCard formula={PE} />);
-    const dong = screen.getByText('Chỉ số doanh nghiệp').parentElement;
+    const dong = screen.getByText('Chỉ số DN').parentElement;
     const icon = dong?.querySelector('svg');
 
     expect(dong?.firstElementChild?.getAttribute('aria-hidden')).toBe('true');

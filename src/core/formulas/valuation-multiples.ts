@@ -360,6 +360,7 @@ export const EV: FormulaModule = {
         },
       ),
     ],
+    dependsOn: [{ formulaId: 'von-hoa-thi-truong', variableKey: 'marketCap' }],
     explanation: {
       meaning: {
         vi: 'Giá mua trọn doanh nghiệp theo góc nhìn người thâu tóm: trả vốn hoá cho cổ đông, gánh thay nợ vay, rồi được cầm luôn tiền mặt trong két.',
@@ -506,6 +507,7 @@ export const EV_EBITDA: FormulaModule = {
         },
       }),
     ],
+    dependsOn: [{ formulaId: 'ev', variableKey: 'ev' }],
     explanation: {
       meaning: {
         vi: 'Giá mua trọn doanh nghiệp, đã tính nợ và tiền mặt, bằng bao nhiêu năm EBITDA, tức lợi nhuận trước lãi vay, thuế và khấu hao; đây không phải số năm hoàn vốn, vì EBITDA chưa trừ thuế, chi đầu tư và vốn lưu động.',
@@ -654,6 +656,7 @@ export const EV_SALES: FormulaModule = {
         },
       }),
     ],
+    dependsOn: [{ formulaId: 'ev', variableKey: 'ev' }],
     explanation: {
       meaning: {
         vi: 'Mỗi đồng doanh thu đang được định giá bằng bao nhiêu đồng, đã tính cả phần nợ người mua phải gánh.',
@@ -828,6 +831,7 @@ export const PEG: FormulaModule = {
         },
       ),
     ],
+    dependsOn: [{ formulaId: 'pe', variableKey: 'pe' }],
     explanation: {
       meaning: {
         vi: 'P/E cao có xứng đáng hay không tuỳ vào tốc độ tăng lợi nhuận - PEG đưa hai thứ đó về một con số.',
@@ -1193,6 +1197,10 @@ export const SO_GRAHAM: FormulaModule = {
           },
         },
       ),
+    ],
+    dependsOn: [
+      { formulaId: 'eps-co-ban', variableKey: 'eps' },
+      { formulaId: 'bvps', variableKey: 'bvps' },
     ],
     explanation: {
       meaning: {
@@ -1562,6 +1570,7 @@ export const TY_SUAT_LOI_NHUAN_TREN_GIA: FormulaModule = {
       ),
       sharePrice,
     ],
+    dependsOn: [{ formulaId: 'eps-co-ban', variableKey: 'eps' }],
     explanation: {
       meaning: {
         vi: 'Đảo ngược P/E thành một tỷ suất phần trăm, để so trực tiếp cổ phiếu với lãi suất tiền gửi hay trái phiếu.',
@@ -1734,6 +1743,7 @@ export const GIA_MUC_TIEU: FormulaModule = {
         },
       ),
     ],
+    dependsOn: [{ formulaId: 'eps-co-ban', variableKey: 'eps' }],
     explanation: {
       meaning: {
         vi: 'Mức giá cổ phiếu sẽ có nếu thị trường định giá đúng theo một P/E mục tiêu do người dùng chọn, giữ nguyên EPS hiện tại.',

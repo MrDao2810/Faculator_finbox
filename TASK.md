@@ -4,6 +4,19 @@
 
 Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 
+## Nối thật các ô "Xem công thức" (25/11/2026)
+
+**Trạng thái: đã nối 14 ô còn lại sau đợt thử EPS cơ bản → P/E, chờ chủ dự án xem.** Hai ô KHÔNG nối: Beta → CAPM và Beta → Treynor (Beta cần chuỗi giá, mặc định không có, nên CAPM và cả chuỗi Gordon/WACC/Biên an toàn sẽ mở ra bằng lỗi kế thừa). Tổng 17 công thức nhận số; `MERGED_CARDS` 64 → 53; 9/111 trang nạp thêm nhóm; trang nặng nhất `wacc`/`gia-tri-noi-tai-fcff` 309 kB First Load JS. Test mới: quét cả 17 receiver ở Nâng cao, kết quả mặc định là con số. Chưa làm: khớp ví dụ/bài tập/Thay số của 11 receiver mới với số mặc định của chuỗi, kiểm Chrome thật.
+
+(Ghi chú đợt thử:) Đo: 22 ô trong bảng ký hiệu có khung sang công thức khác, 6 đã móc nối thật, 16 mới chỉ là link chữ. Chủ dự án chọn nối cả 16 và "hai chiều"; hai chiều chỉ làm được theo nghĩa "sửa ở nguồn thì nhận đổi, sửa ở ô nhận là Ghi đè riêng, sửa trong thẻ bước thì đổi đầu vào của nguồn" (không ghi ngược lên KẾT QUẢ của nguồn được, vì một kết quả có vô số bộ đầu vào).
+
+- `multiples.ts`: `pe.dependsOn = [eps-co-ban.eps]`. P/E rời khuôn thẻ gộp (`MERGED_CARDS` 64 → 63): công thức nhận số từ công thức khác không dùng khuôn đó. Mỗi cạnh nối thêm sẽ đẩy thêm một công thức ra khỏi khuôn.
+- Cạnh bắc qua nhóm file: `chainGroupsOf(id)` (`core/formulas/index.ts`) cho `page.tsx` biết nhóm thượng nguồn, `FormulaDetailHost` nạp thêm chunk nhóm đó (`extraGroups`). 110/111 trang vẫn nạp đúng một nhóm. `formula-groups.test.ts` đổi từ "chuỗi nằm gọn trong nhóm" sang "chuỗi đủ khi chỉ nạp các nhóm chainGroupsOf chỉ ra", và ghim số trang bắc nhóm (=1).
+- `chain-visit.ts`: `CHAIN_COMPONENT` ghim thành phần liên thông (`dcf`, `eps`), `sameChain` so khoá thành phần; test tính lại từ Registry.
+- `applyPreset`: số của mã nạp vào ô đang móc nối đi qua Ghi đè, nếu không "Nạp FPT" vào P/E điền Giá mà EPS vẫn là EPS mặc định của nguồn.
+- Đo First Load JS (bản sao, `npm run size`): `/cong-thuc/pe/` 285,0 kB, cùng nhóm `pb` 269,6 kB, tức khoảng +15 kB cho chunk nhóm `fundamentals`. Cả 115 trang vốn đã vượt cửa kiểm 180 kB trước đợt này.
+- Chưa làm: 15 cạnh còn lại; ví dụ thực tế/bài tập/Thay số của P/E nói EPS 5.867 (FPT) trong khi mặc định chuỗi lấy EPS cơ bản mặc định, cần chủ dự án quyết cách khớp; kiểm Chrome thật.
+
 ## Giữ số trong một chuỗi móc nối (25/11/2026)
 
 **Trạng thái: chờ xác nhận.** Chủ dự án: sửa ở một công thức, quay lại công thức lớn hơn thì phải móc nối với nhau. Chọn phạm vi "trong cùng chuỗi".

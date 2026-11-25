@@ -110,15 +110,11 @@ const MERGED_CARDS = [
   'thanh-toan-hien-hanh',
   'thanh-toan-nhanh',
   'vong-quay-tong-tai-san',
-  'ty-le-chi-tra-co-tuc',
   // multiples.ts
-  'pe',
-  'pb',
   // performance.ts
   'loi-suat-nam-hoa',
   'loi-suat-thuc',
   'lai-suat-hieu-dung',
-  'tong-loi-suat-tai-dau-tu',
   'loi-suat-trung-binh-hinh-hoc',
   'irr-nien-kim',
   'thoi-gian-nhan-doi',
@@ -144,18 +140,11 @@ const MERGED_CARDS = [
   'co-lenh-rui-ro',
   // valuation-dcf.ts — trừ 5 công thức trong chuỗi và `fcff` (biểu đồ bóc tách mặc định)
   'capm',
-  'ddm-hai-giai-doan',
   'gia-tri-hien-tai',
   'gia-tri-tuong-lai',
   // valuation-multiples.ts — trừ `ev` và `ncav-tren-co-phieu` (biểu đồ bóc tách mặc định)
   'ps',
-  'ev-ebitda',
-  'ev-sales',
-  'peg',
   'von-hoa-thi-truong',
-  'so-graham',
-  'ty-suat-loi-nhuan-tren-gia',
-  'gia-muc-tieu',
 ] as const;
 
 export function hasMergedCard(id: string): boolean {

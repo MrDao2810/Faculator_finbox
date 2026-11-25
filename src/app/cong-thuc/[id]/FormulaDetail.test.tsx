@@ -5,6 +5,7 @@ import userEvent from '@testing-library/user-event';
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import {
+  chainGroupsOf,
   DISCLAIMER_VI,
   FORMULAS,
   FORMULA_GROUPS,
@@ -142,7 +143,8 @@ const notationCache = new WeakMap<FormulaSpec, NotationView>();
 function nhomCua(spec: FormulaSpec) {
   const group = groupOfFormula(spec.id);
   if (group === undefined) throw new Error(`Công thức '${spec.id}' không thuộc nhóm nào.`);
-  return FORMULA_GROUPS[group];
+  // Cạnh móc nối có thể bắc qua nhóm file (EPS cơ bản → P/E): nạp thêm nhóm thượng nguồn như Host.
+  return chainGroupsOf(spec.id).flatMap((key) => FORMULA_GROUPS[key]);
 }
 
 /**
@@ -1182,14 +1184,14 @@ describe('WF-03 — không hiện cùng một con số hai lần', () => {
    * phải GIỮ nguyên — khuôn mới áp cho 65 trong 111 công thức, xem `hasMergedCard()`.
    */
   it('thẻ gộp mang SẴN cả hai dòng nhãn, để CSS chọn theo khổ màn', () => {
-    render(<Man spec={specOf('pe')} />);
+    render(<Man spec={specOf('ps')} />);
 
     // Tìm TRONG khối Kết quả: tên công thức còn đứng ở `<h1>` đầu màn nữa, nên tìm cả trang sẽ
     // thấy hai chỗ và không nói được chỗ nào là dòng nhãn của con số.
     const khoiKetQua = screen.getByRole('region', { name: 'Kết quả' });
 
     expect(within(khoiKetQua).getByText('KẾT QUẢ')).not.toBeNull();
-    expect(within(khoiKetQua).getByText('P/E - hệ số giá trên lợi nhuận')).not.toBeNull();
+    expect(within(khoiKetQua).getByText('P/S - hệ số giá trên doanh thu')).not.toBeNull();
   });
 
   /*
@@ -5351,4 +5353,59 @@ describe('chuỗi móc nối — số được giữ khi đi qua lại giữa c�
     await screen.findByText(/↳ CAPM/);
     expect((oNhap(/Suất sinh lợi yêu cầu/) as HTMLInputElement).value).toBe('13,1');
   });
+});
+
+describe('chuỗi EPS cơ bản → P/E (nối thật, 25/11/2026)', () => {
+  it('Nâng cao: ô EPS của P/E nhận số từ EPS cơ bản và ghi tên nguồn', async () => {
+    manNangCao(specOf('pe'));
+
+    expect(await screen.findByText(/↳ EPS cơ bản/)).not.toBeNull();
+    const khoi = screen.getByRole('region', { name: t('chain.title') });
+    expect(khoi.querySelector('#chain-step-eps-co-ban')).not.toBeNull();
+  });
+
+  it('Cơ bản: P/E vẫn là ô EPS gõ thẳng, không có khối chuỗi', () => {
+    render(<Man spec={specOf('pe')} />);
+
+    expect(screen.queryByRole('region', { name: t('chain.title') })).toBeNull();
+    expect((oNhap(/EPS/) as HTMLInputElement).value).toBe('6.050');
+  });
+
+  it('sửa lợi nhuận ở thẻ EPS cơ bản thì EPS của P/E đổi theo', async () => {
+    manNangCao(specOf('pe'));
+    const khoi = await screen.findByRole('region', { name: t('chain.title') });
+    const truoc = (oNhap(/EPS/) as HTMLInputElement).value;
+
+    const loiNhuan = within(khoi).getByRole('textbox', { name: /Lợi nhuận sau thuế/ });
+    await userEvent.clear(loiNhuan);
+    await userEvent.type(loiNhuan, '1000');
+
+    expect((oNhap(/EPS/) as HTMLInputElement).value).not.toBe(truoc);
+  });
+});
+
+/*
+ * Mọi công thức nhận số từ công thức khác ở chế độ Nâng cao: khối chuỗi có mặt và kết quả mặc định
+ * tính được — nguồn nào hỏng ở số mặc định thì công thức nhận sẽ mở ra bằng `_ _` kế thừa lỗi (FR-06).
+ */
+describe('mọi công thức nhận số (FR-15) mở ra ở Nâng cao với kết quả mặc định tính được', () => {
+  const NHAN = Object.values(FORMULA_GROUPS)
+    .flat()
+    .map((m) => m.spec)
+    .filter((s) => (s.dependsOn ?? []).length > 0);
+
+  it('có 17 công thức nhận số', () => {
+    expect(NHAN).toHaveLength(17);
+  });
+
+  for (const spec of NHAN) {
+    it(`${spec.id}: có khối chuỗi và kết quả mặc định là một con số`, async () => {
+      manNangCao(spec);
+
+      expect(await screen.findByRole('region', { name: t('chain.title') })).not.toBeNull();
+      const ketQua = screen.getByTestId('result-text').textContent ?? '';
+      expect(ketQua, spec.id).not.toMatch(/_ _|NaN|Infinity/);
+      expect(ketQua, spec.id).toMatch(/\d/);
+    });
+  }
 });

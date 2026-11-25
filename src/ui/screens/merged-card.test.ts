@@ -52,8 +52,8 @@ describe('hasMergedCard() — khuôn gộp ở khổ PC', () => {
    * phải đổi có ý thức — một công thức rơi ra khỏi khuôn vì sửa `chartType` hay thêm `dependsOn`
    * cũng làm ca này đỏ, và đó đúng là lúc cần người đọc lại.
    */
-  it('đúng 64 công thức, tức 111 trừ 47', () => {
-    expect(ALL_SPECS.filter((spec) => hasMergedCard(spec.id))).toHaveLength(64);
+  it('đúng 53 công thức, tức 111 trừ 58', () => {
+    expect(ALL_SPECS.filter((spec) => hasMergedCard(spec.id))).toHaveLength(53);
   });
 
   it('không id nào trong danh sách là id lạ', () => {

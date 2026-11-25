@@ -368,12 +368,13 @@ describe('chainFor', () => {
       'capm',
       'fcff',
       'gia-tri-noi-tai-fcff',
+      'von-hoa-thi-truong',
       'wacc',
     ]);
   });
 
   it('công thức không nhận số của ai thì không có chuỗi để bày', () => {
-    expect(chainFor(SPECS, 'pe')).toEqual([]);
+    expect(chainFor(SPECS, 'roe')).toEqual([]);
     // `fcff` có hậu duệ nhưng không có tổ tiên — trang của nó không dựng khối chuỗi nữa.
     expect(chainFor(SPECS, 'fcff')).toEqual([]);
     expect(chainFor(SPECS, 'capm')).toEqual([]);

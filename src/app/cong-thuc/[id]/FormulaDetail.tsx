@@ -23,7 +23,6 @@ import {
 
 import {
   ACTIVE_TICKER_KEY,
-  CHAIN_FORMULA_IDS,
   CHAIN_OVERRIDES_KEY,
   FORMULA_ORIGIN_KEY,
   FORMULA_USAGE_KEY,
@@ -40,6 +39,7 @@ import {
   addSavedCalc,
   cashflowsOf,
   chainFor,
+  chainMembersOf,
   constantsUsedBy,
   substitutionConstants,
   SHARE_INPUTS_PARAM,
@@ -314,7 +314,7 @@ function clearVisitStores(formulaId: string): void {
      * Công thức trong chuỗi móc nối thì xoá bản nháp của CẢ CHUỖI (25/11/2026): các bước khác giữ số
      * qua màn này, nên vào chuỗi từ ngoài mà chỉ xoá bản nháp của một bước là bước kia mang số cũ sang.
      */
-    const ids = sameChain(formulaId, formulaId) ? CHAIN_FORMULA_IDS : [formulaId];
+    const ids = sameChain(formulaId, formulaId) ? chainMembersOf(formulaId) : [formulaId];
     const toRemove = ids.filter((id) => draftFor(stored, id) !== null);
     // Không có bản nháp nào thì đừng ghi: mở 111 trang không được thành 111 lần ghi.
     if (toRemove.length === 0) return;
@@ -1234,7 +1234,7 @@ export function FormulaDetail({
     try {
       const stored = parseInputDrafts(window.localStorage.getItem(INPUT_DRAFT_KEY), Date.now());
       const restored: Record<string, Readonly<Record<string, number>>> = {};
-      for (const id of CHAIN_FORMULA_IDS) {
+      for (const id of chainMembersOf(spec.id)) {
         if (id === spec.id) continue;
         const stepSpec = modules.find((m) => m.spec.id === id)?.spec;
         const draft = draftFor(stored, id);
@@ -2211,6 +2211,14 @@ export function FormulaDetail({
 
     if (napDuocGi) {
       setInputs((current) => ({ ...current, ...fromPreset }));
+      /*
+       * Ô đang nhận số từ công thức khác (chuỗi FR-15, chế độ Nâng cao) KHÔNG đọc `inputs`: lượt dựng
+       * sau `linkedValues` đè lên. Nên số thật của mã phải đi qua đường Ghi đè, y như người dùng gõ
+       * vào ô ấy — nếu không thì nạp FPT vào P/E điền Giá FPT mà EPS vẫn là EPS mặc định của nguồn.
+       */
+      for (const [key, value] of Object.entries(fromPreset)) {
+        if (linkedFields.has(key)) setOverride(spec.id, key, value);
+      }
       setLoadedPreset(preset.code);
       setLoadedDraft(preset.isDraft);
     }

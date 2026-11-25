@@ -115,6 +115,36 @@ export function groupOfFormula(id: string): FormulaGroupKey | undefined {
   return undefined;
 }
 
+/**
+ * Các nhóm màn chi tiết của `id` phải nạp: nhóm của chính nó TRƯỚC, rồi nhóm của mọi công thức đứng
+ * ở thượng nguồn chuỗi FR-15 (25/11/2026). Cạnh móc nối nay có thể bắc qua nhóm file (EPS cơ bản ở
+ * `fundamentals` nuôi P/E ở `multiples`), và `chainFor()` chỉ thấy những gì đã nạp. Công thức không
+ * có thượng nguồn thì chỉ trả nhóm của nó, nên 104 trang vẫn nạp đúng một nhóm như trước.
+ */
+export function chainGroupsOf(id: string): FormulaGroupKey[] {
+  const own = groupOfFormula(id);
+  if (own === undefined) return [];
+
+  const byId = new Map(FORMULA_MODULES.map((m) => [m.spec.id, m.spec]));
+  const seen = new Set<string>([id]);
+  const queue = [id];
+  while (queue.length > 0) {
+    const current = queue.shift() ?? '';
+    for (const dep of byId.get(current)?.dependsOn ?? []) {
+      if (seen.has(dep.formulaId)) continue;
+      seen.add(dep.formulaId);
+      queue.push(dep.formulaId);
+    }
+  }
+
+  const keys: FormulaGroupKey[] = [own];
+  for (const other of seen) {
+    const key = groupOfFormula(other);
+    if (key !== undefined && !keys.includes(key)) keys.push(key);
+  }
+  return keys;
+}
+
 /** Chỉ phần metadata — thứ Registry, sitemap và giao diện đọc tới. */
 export const ALL_FORMULAS: ReadonlyArray<FormulaSpec> = FORMULA_MODULES.map((m) => m.spec);
 

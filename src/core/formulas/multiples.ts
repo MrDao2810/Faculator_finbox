@@ -121,6 +121,7 @@ export const PE: FormulaModule = {
         },
       ),
     ],
+    dependsOn: [{ formulaId: 'eps-co-ban', variableKey: 'eps' }],
     explanation: {
       meaning: {
         vi: 'Số năm lợi nhuận cần có để cộng lại bằng đúng số tiền đang bỏ ra mua cổ phiếu, nếu lợi nhuận giữ nguyên.',
@@ -293,6 +294,7 @@ export const PB: FormulaModule = {
         },
       ),
     ],
+    dependsOn: [{ formulaId: 'bvps', variableKey: 'bookValuePerShare' }],
     explanation: {
       meaning: {
         vi: 'Mỗi đồng vốn chủ sở hữu ghi trên sổ sách đang được thị trường trả giá bao nhiêu đồng.',

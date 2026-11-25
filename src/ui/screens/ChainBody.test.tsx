@@ -153,8 +153,8 @@ describe('ChainBody — lưới ô nhập của thẻ bước', () => {
       d.id.replace(/^chain-step-/, ''),
     );
 
-    // Ba bước cấp số: capm → wacc, và fcff. Bước đang xem không có thẻ — ô của nó ở khối Số liệu.
-    expect(ma.sort()).toEqual(['capm', 'fcff', 'wacc']);
+    // Bốn bước cấp số: capm → wacc, fcff, và vốn hoá (cấp vốn chủ cho wacc). Bước đang xem không có thẻ.
+    expect(ma.sort()).toEqual(['capm', 'fcff', 'von-hoa-thi-truong', 'wacc']);
   });
 });
 
@@ -186,11 +186,11 @@ describe('ChainBody — thẻ bước chia hai cột', () => {
     return [...container.querySelectorAll('details')].map((d) => d.id.replace(/^chain-step-/, ''));
   }
 
-  /* `gia-tri-noi-tai-fcff`: ba bước trước (lẻ), không bước sau. */
-  it('một nhóm ba thẻ: trái hai, phải một — trái nhận đúng hai thẻ đầu theo thứ tự topo', () => {
+  /* `gia-tri-noi-tai-fcff`: bốn bước trước, không bước sau. */
+  it('một nhóm bốn thẻ: hai và hai — trái nhận đúng hai thẻ đầu theo thứ tự topo', () => {
     const { container } = dungKhoi('gia-tri-noi-tai-fcff');
     const topo = thuTuTopo(container);
-    expect(topo).toHaveLength(3);
+    expect(topo).toHaveLength(4);
     expect(cacCot(container)).toEqual([topo.slice(0, 2), topo.slice(2)]);
     // Tiêu đề nhóm đứng NGOÀI hai cột, trên cả hai.
     expect(container.querySelectorAll('[class*="column"] h3')).toHaveLength(0);
@@ -223,17 +223,18 @@ describe('ChainBody — thẻ bước chia hai cột', () => {
     return /columnsEven/.test(String(boc?.className ?? ''));
   }
 
-  it('hai cột lệch số thẻ thì KHÔNG kéo bằng mép dưới — 2 | 1 không có columnsEven', () => {
-    const { container } = dungKhoi('gia-tri-noi-tai-fcff');
-    expect(cacCot(container).map((c) => c.length)).toEqual([2, 1]);
-    expect(coCanBang(container)).toBe(false);
-  });
-
-  it('hai cột bằng số thẻ thì kéo bằng mép dưới — 1 | 1 có columnsEven', () => {
-    // Registry hiện chỉ còn một ca chẵn: `bien-an-toan` với hai bước cấp số.
-    const { container } = dungKhoi('bien-an-toan');
-    expect(cacCot(container).map((c) => c.length)).toEqual([1, 1]);
-    expect(coCanBang(container)).toBe(true);
+  /*
+   * Mọi ca hôm nay đều chẵn (2 | 2, 1 | 1) hoặc một cột; ca lẻ 2 | 1 của `gia-tri-noi-tai-fcff` mất
+   * từ khi nó nhận thêm vốn hoá qua WACC. Nên ghim THEO LUẬT thay vì theo một id: lớp modifier có
+   * mặt đúng khi hai cột bằng nhau số thẻ.
+   */
+  it('lớp columnsEven có mặt đúng khi hai cột bằng nhau số thẻ', () => {
+    for (const id of ['gia-tri-noi-tai-fcff', 'bien-an-toan', 'wacc', 'ev-ebitda', 'so-graham']) {
+      const { container, unmount } = dungKhoi(id);
+      const dai = cacCot(container).map((cot) => cot.length);
+      expect(coCanBang(container), id).toBe(dai.length === 2 && dai[0] === dai[1]);
+      unmount();
+    }
   });
 
   it('chỉ một cột thì không có gì để kéo bằng', () => {
@@ -265,7 +266,7 @@ describe('ChainBody — thẻ bước chia hai cột', () => {
     const donDep = gaKhoMan(true);
     try {
       const { container } = dungKhoi('gia-tri-noi-tai-fcff');
-      expect(maDangMo(container).sort()).toEqual(['capm', 'fcff', 'wacc']);
+      expect(maDangMo(container).sort()).toEqual(['capm', 'fcff', 'von-hoa-thi-truong', 'wacc']);
     } finally {
       donDep();
     }
@@ -279,7 +280,7 @@ describe('ChainBody — thẻ bước chia hai cột', () => {
   it('chỉ bày bước cấp số liệu, không bày bước dùng kết quả', () => {
     const { container } = dungKhoi('wacc');
 
-    expect(cacCot(container)).toEqual([['capm']]);
+    expect(cacCot(container).flat().sort()).toEqual(['capm', 'von-hoa-thi-truong']);
     expect(container.textContent).not.toContain('Giá trị nội tại');
   });
 
@@ -361,7 +362,11 @@ describe('ChainBody — thẻ gọi theo tên con số nó cấp', () => {
         const noi = `${id} · ${buoc}`;
 
         expect(noiNhan.length, `${noi}: không có nơi nhận`).toBeGreaterThan(0);
-        expect(ten, noi).not.toBe(spec?.name.vi);
+        // Trừ khi nhãn của ô nhận TRÙNG tên công thức nguồn ("Vốn hoá thị trường" cấp cho EV và WACC):
+        // khi ấy tên con số và tên công thức là một chữ, và thẻ vẫn đúng tên con số.
+        if (!noiNhan.some((n) => n.nhan === spec?.name.vi)) {
+          expect(ten, noi).not.toBe(spec?.name.vi);
+        }
         for (const n of noiNhan) {
           expect(ten, noi).toContain(n.nhan);
           expect(vai, noi).toContain(n.ten);

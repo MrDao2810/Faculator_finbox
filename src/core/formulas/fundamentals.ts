@@ -1745,6 +1745,7 @@ export const TY_LE_CHI_TRA_CO_TUC: FormulaModule = {
         },
       ),
     ],
+    dependsOn: [{ formulaId: 'eps-co-ban', variableKey: 'eps' }],
     explanation: {
       meaning: {
         vi: 'Cách doanh nghiệp chia lợi nhuận: phần trả ngay cho cổ đông và phần giữ lại để tái đầu tư.',

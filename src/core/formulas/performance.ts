@@ -669,6 +669,10 @@ export const TONG_LOI_SUAT_TAI_DAU_TU: FormulaModule = {
         },
       }),
     ],
+    dependsOn: [
+      { formulaId: 'cagr', variableKey: 'priceGrowth' },
+      { formulaId: 'ty-suat-co-tuc', variableKey: 'dividendYield' },
+    ],
     explanation: {
       meaning: {
         vi: 'Mỗi năm nhà đầu tư hưởng hai tầng lãi: giá tăng và cổ tức mua thêm cổ phiếu, hai tầng đó nhân vào nhau rồi luỹ kế theo năm.',

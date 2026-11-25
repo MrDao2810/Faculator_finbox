@@ -213,6 +213,24 @@ mới có 10." and the "↳ Thêm phiên giá (nút Nạp mẫu…)" line), and 
 same line. Reversed cases in `ErrorState.test.tsx`, `charts.test.tsx` and `FormulaDetail.test.tsx`. Downstream formulas
 whose upstream failed must use `inherited()` rather than silently producing a number (FR-15).
 
+**UPDATE 25/11/2026 — 17 formulas now receive numbers, not 5, and the edges are no longer all in `valuation-dcf.ts`.** The owner
+saw 22 symbol-table cells whose panel links to another library formula (`kind: 'linked'` in `src/core/how-to/`) while 16 of them
+moved no number, and chose to wire them for real: EPS → P/E, P/B(BVPS), Graham (EPS and BVPS), earnings yield, target price,
+payout ratio; P/E → PEG; market cap → EV and WACC (equity); EV → EV/EBITDA and EV/Sales; CAPM → two-stage DDM; CAGR and dividend
+yield → total return with reinvestment. **Two were deliberately NOT wired: Beta → CAPM and Beta → Treynor.** Beta needs a price
+series, which no formula has by default, so CAPM (and the whole Gordon/WACC/margin-of-safety chain below it) would open as an
+inherited error; those two cells stay typed. Consequences, all measured: (1) every receiver leaves the merged-card mould
+(`MERGED_CARDS` 64 → 53) because the chain block cannot live in it; (2) edges now cross group files, so `chainGroupsOf()`
+(`core/formulas/index.ts`) tells `page.tsx` which extra groups to load and `FormulaDetailHost` loads them (`extraGroups`) —
+9 of 111 pages load more than one group (`pe` 285 kB First Load JS, `wacc` 309 kB, `pb` 285 kB; the 180 kB gate was already red on
+all 115 pages) and `formula-groups.test.ts` now pins that count instead of "the chain sits inside one group"; (3) a ticker
+loaded into a receiver goes through Ghi đè for the linked cell (`applyPreset`), or the chain would swallow the real EPS; (4) the
+visit rule (below, "A formula visit") keeps numbers between a formula and its chain ancestors/descendants only
+(`src/application/chain-visit.ts`, `CHAIN_ANCESTORS` pinned and recomputed from the Registry by its test) — NOT between two
+formulas that merely share a source (P/E → P/B resets). Not reconciled: the worked example, quiz and "Thay số" rows of the 11 new
+receivers state the example's own figures (FPT EPS 5.867) while the chain default takes the upstream default. The flow is still one
+way (an override never writes upstream). Everything below this paragraph that says "five formulas" or "six edges" predates it.
+
 **FR-15 runs for real since package 5.2.3.** All six `dependsOn` edges live in `valuation-dcf.ts`
 and form two branches:
 

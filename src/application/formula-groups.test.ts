@@ -3,7 +3,13 @@ import { fileURLToPath } from 'node:url';
 
 import { describe, expect, it } from 'vitest';
 
-import { FORMULA_GROUPS, FORMULA_MODULES, chainFor, groupOfFormula } from '@/application';
+import {
+  FORMULA_GROUPS,
+  FORMULA_MODULES,
+  chainFor,
+  chainGroupsOf,
+  groupOfFormula,
+} from '@/application';
 import type { FormulaGroupKey } from '@/application';
 
 /**
@@ -66,20 +72,29 @@ describe('nạp Registry theo nhóm', () => {
    * như khi chạy trên cả Registry. Hôm nay cả 7 công thức của chuỗi FR-15 nằm trong `valuation-dcf`;
    * một cạnh `dependsOn` mới trỏ sang nhóm khác sẽ làm ca này đỏ thay vì lặng lẽ mất một bước.
    */
-  it('chuỗi FR-15 của mọi công thức nằm gọn trong nhóm của nó', () => {
+  it('chuỗi FR-15 của mọi công thức đủ khi chỉ nạp các nhóm chainGroupsOf() chỉ ra', () => {
     const tatCa = FORMULA_MODULES.map((m) => m.spec);
     let soCoChuoi = 0;
-    for (const key of KHOA) {
-      const nhom = FORMULA_GROUPS[key].map((m) => m.spec);
-      for (const spec of nhom) {
-        const day = chainFor(tatCa, spec.id).map((s) => s.id);
-        if (day.length > 0) soCoChuoi += 1;
-        expect(
-          chainFor(nhom, spec.id).map((s) => s.id),
-          spec.id,
-        ).toEqual(day);
-      }
+    let soTraiNhom = 0;
+    for (const spec of tatCa) {
+      const day = chainFor(tatCa, spec.id).map((s) => s.id);
+      if (day.length > 0) soCoChuoi += 1;
+
+      // Chỉ những nhóm màn chi tiết sẽ nạp: nhóm của nó, rồi nhóm của thượng nguồn.
+      const nhom = chainGroupsOf(spec.id);
+      expect(nhom[0], spec.id).toBe(groupOfFormula(spec.id));
+      if (nhom.length > 1) soTraiNhom += 1;
+      const daNap = nhom.flatMap((key) => FORMULA_GROUPS[key].map((m) => m.spec));
+      // Thứ tự theo mảng nạp (nhóm của nó trước), không theo Registry: chỉ cần ĐỦ cùng một tập bước.
+      expect(
+        chainFor(daNap, spec.id)
+          .map((s) => s.id)
+          .sort(),
+        spec.id,
+      ).toEqual([...day].sort());
     }
     expect(soCoChuoi).toBeGreaterThan(0);
+    // Bắc qua nhóm là ngoại lệ chứ không phải thường lệ: số trang phải nạp thêm nhóm được ghim.
+    expect(soTraiNhom).toBe(9);
   });
 });

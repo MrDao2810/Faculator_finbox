@@ -17,23 +17,54 @@
  * nằm trong JS của mọi trang). Nên đây là dữ liệu ghim, và `chain-visit.test.ts` tính lại từ
  * `dependsOn` của Registry rồi so từng dòng — lệch là đỏ.
  *
- * Cả 7 công thức có cạnh móc nối nằm chung MỘT thành phần liên thông (qua `capm`), nên chỉ cần một
- * danh sách. Nếu sau này Registry có hai chuỗi tách rời thì `chain-visit.test.ts` sẽ đỏ, và lúc đó
- * `sameChain()` phải đổi sang so khoá nhóm.
+ * `chain-visit.test.ts` tính lại bảng tổ tiên từ `dependsOn` của Registry và so từng dòng.
  *
  * Phần thuần, không import React.
  */
 
+/**
+ * Với mỗi công thức NHẬN số: mọi công thức ở thượng nguồn của nó (trực tiếp và gián tiếp, đúng tập mà
+ * `chainFor()` bày thành thẻ bước). Hai công thức "cùng chuỗi" khi cái này đứng ở thượng nguồn cái kia,
+ * KHÔNG phải khi chúng chỉ cùng thuộc một đồ thị liên thông: P/E và P/B đều dính EPS/BVPS nhưng đi từ
+ * P/E sang P/B thì không có số nào để mang theo, và mã đang nạp vẫn không được dính sang công thức lạ
+ * (luật 13/10/2026).
+ */
+export const CHAIN_ANCESTORS: Readonly<Record<string, ReadonlyArray<string>>> = {
+  pe: ['eps-co-ban'],
+  pb: ['bvps'],
+  'ty-le-chi-tra-co-tuc': ['eps-co-ban'],
+  ev: ['von-hoa-thi-truong'],
+  'ev-ebitda': ['ev', 'von-hoa-thi-truong'],
+  'ev-sales': ['ev', 'von-hoa-thi-truong'],
+  peg: ['eps-co-ban', 'pe'],
+  'so-graham': ['bvps', 'eps-co-ban'],
+  'ty-suat-loi-nhuan-tren-gia': ['eps-co-ban'],
+  'gia-muc-tieu': ['eps-co-ban'],
+  'mo-hinh-gordon': ['capm'],
+  'ddm-hai-giai-doan': ['capm'],
+  wacc: ['capm', 'von-hoa-thi-truong'],
+  fcfe: ['fcff'],
+  'gia-tri-noi-tai-fcff': ['capm', 'fcff', 'von-hoa-thi-truong', 'wacc'],
+  'bien-an-toan': ['capm', 'mo-hinh-gordon'],
+  'tong-loi-suat-tai-dau-tu': ['cagr', 'ty-suat-co-tuc'],
+};
+
 /** Mọi công thức đứng trong một chuỗi móc nối, bất kể đầu nguồn hay đầu nhận. */
 export const CHAIN_FORMULA_IDS: ReadonlyArray<string> = [
-  'capm',
-  'mo-hinh-gordon',
-  'bien-an-toan',
-  'wacc',
-  'fcff',
-  'fcfe',
-  'gia-tri-noi-tai-fcff',
+  ...new Set(Object.entries(CHAIN_ANCESTORS).flatMap(([id, ancestors]) => [id, ...ancestors])),
 ];
+
+/**
+ * Các công thức "cùng chuỗi" với `id`: chính nó, thượng nguồn của nó và những công thức nhận số từ
+ * nó. Ngoài chuỗi thì rỗng.
+ */
+export function chainMembersOf(id: string): ReadonlyArray<string> {
+  const up = CHAIN_ANCESTORS[id] ?? [];
+  const down = Object.entries(CHAIN_ANCESTORS)
+    .filter(([, ancestors]) => ancestors.includes(id))
+    .map(([receiver]) => receiver);
+  return up.length === 0 && down.length === 0 ? [] : [id, ...up, ...down];
+}
 
 /** Kho `sessionStorage` giữ các ô Ghi đè của chuỗi đang xem. Đổi khoá khi cấu trúc đổi. */
 export const CHAIN_OVERRIDES_KEY = 'ffb.chain.v1';
@@ -43,9 +74,9 @@ export function isChainFormula(id: string): boolean {
   return CHAIN_FORMULA_IDS.includes(id);
 }
 
-/** Hai công thức có cùng một chuỗi không. Một công thức ngoài chuỗi không cùng chuỗi với ai, kể cả chính nó. */
+/** Hai công thức có cùng chuỗi không: cái này đứng ở thượng nguồn cái kia (hoặc là chính nó, nếu nó trong chuỗi). */
 export function sameChain(a: string, b: string): boolean {
-  return isChainFormula(a) && isChainFormula(b);
+  return chainMembersOf(a).includes(b);
 }
 
 /**

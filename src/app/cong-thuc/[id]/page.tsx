@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
-import { FORMULAS, findCategory, groupOfFormula } from '@/application';
+import { FORMULAS, chainGroupsOf, findCategory, groupOfFormula } from '@/application';
 import { hoiDapFor } from '@/application/hoi-dap';
 import { baiHuongDanFor } from '@/application/huong-dan';
 import { expressionShape } from '@/application/quiz-math';
@@ -145,12 +145,15 @@ export default async function FormulaDetailPage({ params }: { params: Promise<{ 
   const group = groupOfFormula(formula.id);
   if (group === undefined) throw new Error(`Công thức "${formula.id}" không thuộc nhóm nào.`);
 
+  const extraGroups = chainGroupsOf(formula.id).filter((key) => key !== group);
+
   return (
     <>
       <DocumentTitle title={formula.name} />
       <FormulaDetailHost
         id={formula.id}
         group={group}
+        {...(extraGroups.length === 0 ? {} : { extraGroups })}
         asOf={AS_OF}
         notation={buildNotationView(formula)}
         quiz={quiz}

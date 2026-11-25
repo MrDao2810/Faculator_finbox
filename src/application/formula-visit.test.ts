@@ -53,10 +53,10 @@ describe('visitContinuesAt — lượt xem còn tiếp diễn ở màn nào', ()
   });
 
   it('công thức khác và bài hướng dẫn của công thức khác cũng là hết lượt', () => {
-    expect(visitContinuesAt('pe', '/cong-thuc/pb/')).toBe(false);
+    expect(visitContinuesAt('pe', '/cong-thuc/roe/')).toBe(false);
     expect(visitContinuesAt('pe', '/huong-dan/cong-thuc/pb/')).toBe(false);
     // `peg` bắt đầu bằng `pe` — so tiền tố là nhận nhầm.
-    expect(visitContinuesAt('pe', '/cong-thuc/peg/')).toBe(false);
+    expect(visitContinuesAt('pe', '/cong-thuc/pega/')).toBe(false);
   });
 
   it('id rác thì không lượt xem nào tiếp diễn', () => {

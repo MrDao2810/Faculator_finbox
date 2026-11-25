@@ -102,17 +102,54 @@ export type FormulaDetailHostProps = Omit<FormulaDetailProps, 'spec' | 'modules'
   /** Id công thức. Spec lấy từ chính module của nhóm — không đi qua RSC, xem docblock bên dưới. */
   readonly id: string;
   readonly group: FormulaGroupKey;
+  /**
+   * Nhóm của các công thức thượng nguồn nằm NGOÀI nhóm trên (25/11/2026): cạnh móc nối bắc qua nhóm
+   * file nên màn nhận phải nạp thêm chunk của nhóm nguồn. Rỗng với 104/111 trang (xem `chainGroupsOf`).
+   */
+  readonly extraGroups?: ReadonlyArray<FormulaGroupKey>;
 };
+
+/** Nạp lần lượt các nhóm `keys` rồi gọi `render` với module của tất cả, nhóm đầu tiên đứng đầu mảng. */
+function NhieuNhom({
+  keys,
+  acc,
+  render,
+}: {
+  readonly keys: ReadonlyArray<FormulaGroupKey>;
+  readonly acc: ReadonlyArray<FormulaModule>;
+  readonly render: (modules: ReadonlyArray<FormulaModule>) => ReactNode;
+}) {
+  const [first, ...rest] = keys;
+  if (first === undefined) return render(acc);
+  const Nhom = NHOM[first];
+  return (
+    <Nhom
+      render={(modules) =>
+        rest.length === 0 ? (
+          render([...acc, ...modules])
+        ) : (
+          <NhieuNhom keys={rest} acc={[...acc, ...modules]} render={render} />
+        )
+      }
+    />
+  );
+}
 
 /**
  * `spec` không còn là prop từ `page.tsx`: trước đó nó được tuần tự hoá vào RSC của cả 111 trang
  * (TB 3,96 kB gzip mỗi trang, 8–12 kB ở 12 trang chuỗi giá vì bộ dữ liệu ví dụ 250 phiên đi theo)
  * trong khi chunk nhóm vốn đã mang đúng object ấy.
  */
-export function FormulaDetailHost({ id, group, ...props }: FormulaDetailHostProps) {
-  const Nhom = NHOM[group];
+export function FormulaDetailHost({
+  id,
+  group,
+  extraGroups = [],
+  ...props
+}: FormulaDetailHostProps) {
   return (
-    <Nhom
+    <NhieuNhom
+      keys={[group, ...extraGroups]}
+      acc={[]}
       render={(modules) => {
         const found = modules.find((m) => m.spec.id === id);
         if (found === undefined) {

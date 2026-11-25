@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { FORMULA_MODULES } from '@/application';
 
 import {
-  CHAIN_FORMULA_IDS,
+  CHAIN_ANCESTORS,
   isChainFormula,
   parseStoredOverrides,
   sameChain,
@@ -11,26 +11,27 @@ import {
 } from './chain-visit';
 import { visitContinuesAt } from './formula-visit';
 
-describe('CHAIN_FORMULA_IDS — danh sách ghim khớp Registry', () => {
-  it('đúng tập công thức đứng ở một đầu của cạnh dependsOn, và cùng MỘT thành phần liên thông', () => {
-    const canh: Array<[string, string]> = [];
-    for (const m of FORMULA_MODULES) {
-      for (const dep of m.spec.dependsOn ?? []) canh.push([m.spec.id, dep.formulaId]);
-    }
-    const trongChuoi = new Set(canh.flat());
-    expect([...trongChuoi].sort()).toEqual([...CHAIN_FORMULA_IDS].sort());
-
-    // Liên thông: loang từ một đỉnh phải chạm đủ mọi đỉnh.
-    const thay = new Set<string>([CHAIN_FORMULA_IDS[0] ?? '']);
-    for (let lan = 0; lan < canh.length; lan += 1) {
-      for (const [a, b] of canh) {
-        if (thay.has(a) || thay.has(b)) {
-          thay.add(a);
-          thay.add(b);
-        }
+describe('CHAIN_ANCESTORS — bảng ghim khớp Registry', () => {
+  it('đúng tập thượng nguồn (trực tiếp và gián tiếp) tính từ dependsOn, từng công thức một', () => {
+    const by = new Map(FORMULA_MODULES.map((m) => [m.spec.id, m.spec]));
+    const thuongNguon = (id: string, seen = new Set<string>()): Set<string> => {
+      for (const dep of by.get(id)?.dependsOn ?? []) {
+        if (seen.has(dep.formulaId)) continue;
+        seen.add(dep.formulaId);
+        thuongNguon(dep.formulaId, seen);
       }
+      return seen;
+    };
+
+    const tinhLai: Record<string, string[]> = {};
+    for (const m of FORMULA_MODULES) {
+      const tren = [...thuongNguon(m.spec.id)].sort();
+      if (tren.length > 0) tinhLai[m.spec.id] = tren;
     }
-    expect([...thay].sort()).toEqual([...CHAIN_FORMULA_IDS].sort());
+    const daGhim = Object.fromEntries(
+      Object.entries(CHAIN_ANCESTORS).map(([id, tren]) => [id, [...tren].sort()]),
+    );
+    expect(daGhim).toEqual(tinhLai);
   });
 });
 
@@ -38,7 +39,12 @@ describe('sameChain', () => {
   it('hai công thức trong chuỗi là cùng chuỗi; ngoài chuỗi thì không cùng ai', () => {
     expect(sameChain('capm', 'wacc')).toBe(true);
     expect(sameChain('capm', 'pe')).toBe(false);
-    expect(sameChain('pe', 'pe')).toBe(false);
+    expect(sameChain('pe', 'eps-co-ban')).toBe(true);
+    expect(sameChain('eps-co-ban', 'peg')).toBe(true);
+    // Cùng đồ thị liên thông nhưng không cái nào nuôi cái nào: không mang gì theo sang.
+    expect(sameChain('pe', 'pb')).toBe(false);
+    expect(sameChain('mo-hinh-gordon', 'wacc')).toBe(false);
+    expect(sameChain('roe', 'roe')).toBe(false);
     expect(isChainFormula('wacc')).toBe(true);
   });
 });
@@ -51,6 +57,7 @@ describe('visitContinuesAt — trong chuỗi móc nối', () => {
 
   it('ra khỏi chuỗi thì hết lượt', () => {
     expect(visitContinuesAt('wacc', '/cong-thuc/pe/')).toBe(false);
+    expect(visitContinuesAt('pe', '/cong-thuc/eps-co-ban/')).toBe(true);
     expect(visitContinuesAt('wacc', '/cong-thuc/')).toBe(false);
     expect(visitContinuesAt('pe', '/cong-thuc/capm/')).toBe(false);
   });
@@ -68,7 +75,7 @@ describe('kho Ghi đè', () => {
     expect(parseStoredOverrides('[1,2]')).toEqual({});
     expect(
       parseStoredOverrides(
-        JSON.stringify({ pe: { a: 1 }, wacc: { costEquity: 'x', 'a b': 2, rd: 5, bad: null } }),
+        JSON.stringify({ roe: { a: 1 }, wacc: { costEquity: 'x', 'a b': 2, rd: 5, bad: null } }),
       ),
     ).toEqual({ wacc: { rd: 5 } });
   });

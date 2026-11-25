@@ -376,7 +376,7 @@ export { FORMULA_MODULES, findFormulaModule } from '@/core/formulas';
  * kiểu `FormulaGroupKey` thì được, vì bị xoá lúc biên dịch.
  */
 export type { FormulaGroupKey } from '@/core/formulas';
-export { FORMULA_GROUPS, groupOfFormula } from '@/core/formulas';
+export { FORMULA_GROUPS, chainGroupsOf, groupOfFormula } from '@/core/formulas';
 
 // Hằng số thị trường một công thức tra — khối minh bạch nguồn số của màn chi tiết
 export { constantsUsedBy } from '@/core/formulas';
@@ -727,8 +727,10 @@ export { FORMULA_VISIT_KEY, parseFormulaVisit, visitContinuesAt } from './formul
 /* Chuỗi móc nối giữ số qua các màn của cùng chuỗi — xem docblock đầu file ấy. */
 export type { StoredOverrides } from './chain-visit';
 export {
+  CHAIN_ANCESTORS,
   CHAIN_FORMULA_IDS,
   CHAIN_OVERRIDES_KEY,
+  chainMembersOf,
   isChainFormula,
   parseStoredOverrides,
   sameChain,

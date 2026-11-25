@@ -506,6 +506,7 @@ export const DDM_HAI_GIAI_DOAN: FormulaModule = {
         },
       ),
     ],
+    dependsOn: [{ formulaId: 'capm', variableKey: 'requiredReturn' }],
     explanation: {
       meaning: {
         vi: 'Một cổ phiếu đáng giá bao nhiêu tiền hôm nay, khi cổ tức được cho là tăng nhanh vài năm đầu rồi mới về mức đều đặn mãi mãi - thay vì đều ngay từ năm đầu.',
@@ -1172,7 +1173,10 @@ export const WACC: FormulaModule = {
       },
     ],
     source: [SOURCE_CORPORATE_FINANCE, SOURCE_CFA],
-    dependsOn: [{ formulaId: 'capm', variableKey: 'costEquity' }],
+    dependsOn: [
+      { formulaId: 'capm', variableKey: 'costEquity' },
+      { formulaId: 'von-hoa-thi-truong', variableKey: 'equity' },
+    ],
   },
   calc: (v) => {
     const equity = v('equity');

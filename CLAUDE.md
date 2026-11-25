@@ -1433,8 +1433,16 @@ How it works, and what is easy to break:
   is wiped before the screen reads it and the case passes while proving nothing. Two `check:chrome`
   assertions run the two halves together through a real client-side navigation.
 
-Known consequences, accepted: typing numbers on `wacc`, following a chain link to `capm` and coming
-back resets `wacc`; so does the browser's Back button after any other screen. The WF-05 data table
+**Exception: the FR-15 chain keeps its numbers (25/11/2026).** Following "Mở màn riêng của bước này" from `wacc` to
+`capm`, editing, and coming back used to reset both. The owner chose to keep numbers WITHIN one chain: `src/application/chain-visit.ts`
+holds the 7 chain formulas (pinned; `chain-visit.test.ts` recomputes them from `dependsOn`), `visitContinuesAt()` treats a
+chain member's detail page as still the same visit, the gate in `FormulaDetail` skips `clearVisitStores()` when the previous
+visit was in the same chain, and `clearVisitStores()` wipes EVERY chain member's draft on a fresh entry (else a stale draft of
+another member rides in). A step card's edit (`setChainValue`) is written to that step's own draft; Ghi đè lives in
+`ffb.chain.v1` (sessionStorage, removed by `FormulaVisitTracker` on leaving the chain). Entering from the list, Danh mục or any
+non-chain formula is still a clean visit. The flow stays one-way: an override never writes upstream.
+
+Known consequences, accepted: the browser's Back button after any NON-chain screen resets the formula. The WF-05 data table
 (`ffb.series.v1`) is untouched — it is data the user manages on `/du-lieu/`.
 
 ## Repeat groups — inputs the user adds and removes

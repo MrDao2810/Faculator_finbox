@@ -3,7 +3,12 @@
 import { usePathname } from 'next/navigation';
 import { useEffect } from 'react';
 
-import { FORMULA_VISIT_KEY, parseFormulaVisit, visitContinuesAt } from '@/application';
+import {
+  CHAIN_OVERRIDES_KEY,
+  FORMULA_VISIT_KEY,
+  parseFormulaVisit,
+  visitContinuesAt,
+} from '@/application';
 
 /**
  * Kết thúc lượt xem một công thức ngay khi người dùng sang màn khác.
@@ -36,6 +41,8 @@ export function FormulaVisitTracker() {
       const id = parseFormulaVisit(window.sessionStorage.getItem(FORMULA_VISIT_KEY));
       if (id !== null && !visitContinuesAt(id, pathname)) {
         window.sessionStorage.removeItem(FORMULA_VISIT_KEY);
+        // Ra khỏi chuỗi thì các ô Ghi đè của chuỗi cũng hết hạn (25/11/2026).
+        window.sessionStorage.removeItem(CHAIN_OVERRIDES_KEY);
       }
     } catch {
       // Trình duyệt chặn sessionStorage — dấu chưa từng ghi được, nên cũng không có gì để xoá.

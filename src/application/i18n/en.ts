@@ -695,7 +695,7 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'aboutUs.can.instantNote': 'Charts update when the user enters or changes a figure.',
   'aboutUs.can.chain': 'Controlled chaining',
   'aboutUs.can.chainNote':
-    'The output of one formula feeds straight into the input of the next, and you can still override it with your own number.',
+    'Example: CAPM → Gordon model → Margin of safety. Change a number in CAPM and the result flows into the formulas after it; you can still override the receiving field, and the source formula is never changed.',
   'aboutUs.can.fees': 'Vietnamese market fees and taxes',
   'aboutUs.can.feesNote':
     'Trading fees, income tax and dividend tax follow the domestic rules, declared in one place in Market Config.',

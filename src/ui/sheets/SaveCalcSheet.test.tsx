@@ -166,6 +166,32 @@ describe('SaveCalcSheet', () => {
     expect(onSave).not.toHaveBeenCalled();
   });
 
+  /*
+   * 25/11/2026, chủ dự án: đã nạp mã hoặc dùng dữ liệu mẫu là đủ điều kiện lưu, kể cả khi người dùng sửa số
+   * làm kết quả lỗi. Màn bật `allowWithoutResult`; kho đầy vẫn chặn.
+   */
+  it('đã nạp mã hoặc dùng dữ liệu mẫu thì kết quả lỗi vẫn lưu được', async () => {
+    const { onSave } = renderSheet({
+      hasResult: false,
+      allowWithoutResult: true,
+      code: 'ABT',
+      formulaName: 'XIRR',
+      resultText: '_ _ %/năm',
+    });
+
+    expect(nameField().disabled).toBe(false);
+    const ten = nameField().value;
+    await userEvent.click(screen.getByRole('button', { name: 'Lưu vào danh mục' }));
+    expect(onSave).toHaveBeenCalledWith(ten);
+  });
+
+  it('cho lưu khi kết quả lỗi nhưng kho đầy thì vẫn chặn', () => {
+    renderSheet({ hasResult: false, allowWithoutResult: true, full: true });
+    expect(
+      (screen.getByRole('button', { name: 'Lưu vào danh mục' }) as HTMLButtonElement).disabled,
+    ).toBe(true);
+  });
+
   it('kho đã đầy thì chặn và chỉ cách gỡ', () => {
     renderSheet({ full: true });
 

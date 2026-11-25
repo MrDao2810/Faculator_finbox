@@ -39,6 +39,7 @@
  * Phần thuần nằm ở đây, không import React — nơi gọi chạm `sessionStorage` trong `useEffect`.
  */
 
+import { CHAIN_FORMULA_IDS, sameChain } from './chain-visit';
 import { originPath } from './origin-screen';
 import { ROUTES, formulaPath, guidePath } from './routes';
 
@@ -72,5 +73,11 @@ export function visitContinuesAt(id: string, pathname: string): boolean {
   if (!ID_PATTERN.test(id)) return false;
 
   const path = originPath(pathname);
-  return path === formulaPath(id) || path === ROUTES.data || path === guidePath(id);
+  if (path === formulaPath(id) || path === ROUTES.data || path === guidePath(id)) return true;
+
+  /*
+   * Chuỗi móc nối (25/11/2026): sang màn chi tiết của một công thức CÙNG CHUỖI vẫn là một lượt xem,
+   * để số sửa ở nguồn còn nguyên khi quay lại công thức nhận. Xem `chain-visit.ts`.
+   */
+  return CHAIN_FORMULA_IDS.some((other) => sameChain(id, other) && path === formulaPath(other));
 }

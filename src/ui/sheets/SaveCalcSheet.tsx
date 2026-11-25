@@ -24,6 +24,11 @@ export interface SaveCalcSheetProps {
   full: boolean;
   /** Kết quả đang lỗi thì không cho lưu (xem docblock). */
   hasResult: boolean;
+  /**
+   * Cho lưu dù kết quả đang lỗi — màn bật khi người dùng đã nạp mã hoặc dùng dữ liệu mẫu (25/11/2026,
+   * xem `daDungMau` ở `FormulaDetail`). Bỏ trống là `false`, giữ quy tắc cũ.
+   */
+  allowWithoutResult?: boolean;
   /** Mốc lưu, mili giây kể từ epoch — màn truyền vào để gợi ý tên có ngày. */
   savedAt: number;
   /** Trả về `true` khi ghi thành công; `false` khi trình duyệt chặn localStorage. */
@@ -39,7 +44,8 @@ export interface SaveCalcSheetProps {
  *
  * Hai điều sheet này KHÔNG làm, và cả hai đều có lý do:
  *
- * · **Không lưu khi kết quả đang lỗi** (`hasResult === false`). Một con số sai nằm trong tab
+ * · **Không lưu khi kết quả đang lỗi** (`hasResult === false`), trừ khi `allowWithoutResult` (đã nạp
+ *   mã hoặc dùng dữ liệu mẫu, 25/11/2026: chủ dự án cho lưu để sửa tiếp sau). Một con số sai nằm trong tab
  *   Danh mục còn nguy hơn nằm ở màn công thức: ngoài đó không có ô nhập nào để người dùng nhìn
  *   ra nguyên nhân, chỉ còn cái tên do chính họ đặt bảo chứng cho nó. Đúng thứ FR-06 chặn.
  *
@@ -68,6 +74,7 @@ export function SaveCalcSheet({
   existingNames,
   full,
   hasResult,
+  allowWithoutResult = false,
   savedAt,
   onSave,
 }: SaveCalcSheetProps) {
@@ -109,6 +116,7 @@ export function SaveCalcSheet({
   }, [open]);
 
   const trimmed = name.trim();
+  const luuDuoc = hasResult || allowWithoutResult;
   // Cùng khoá so trùng với `suggestCalcNames()`: tên lưu trước 02/11/2026 còn gạch dài vẫn là trùng.
   const duplicate = existingNames.some(
     (existing) => calcNameKey(existing) === calcNameKey(trimmed),
@@ -122,14 +130,14 @@ export function SaveCalcSheet({
    * tóm tắt ngay trên đã in `_ _` ở chỗ con số, và màn ngoài đang bày nguyên nhân. Bỏ câu, giữ hành vi.
    */
   const blocked = ((): string | null => {
-    if (!hasResult) return null;
+    if (!luuDuoc) return null;
     if (full) return t('save.errFull');
     if (trimmed === '') return touched ? t('save.errEmpty') : null;
     if (duplicate) return t('save.errDuplicate');
     return null;
   })();
 
-  const canSave = hasResult && !full && trimmed !== '' && !duplicate;
+  const canSave = luuDuoc && !full && trimmed !== '' && !duplicate;
 
   function submit(): void {
     setTouched(true);
@@ -199,7 +207,7 @@ export function SaveCalcSheet({
             className={styles.nameField}
             value={name}
             maxLength={60}
-            disabled={!hasResult || full}
+            disabled={!luuDuoc || full}
             {...(blocked === null ? {} : { error: blocked })}
             onChange={(event) => {
               setName(event.target.value);

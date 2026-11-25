@@ -328,6 +328,11 @@ describe('bản kiểm kê kho — gác cả khi khối đang ẩn', () => {
           'kho CŨ của ô tìm trang chủ — trang chủ đã gộp vào màn Công thức (15/09/2026) nên không còn ai ghi. Màn Công thức gộp nó vào ffb.recent.v1 rồi xoá ở lần mở đầu tiên; nút "Xoá toàn bộ" vẫn quét nó qua LEGACY_STORAGE_KEYS. Không cho một dòng riêng: "lịch sử tìm ở trang chủ" khi không còn trang chủ nào là câu nói sai',
       },
       {
+        key: 'ffb.chain.v1',
+        viSao:
+          'sessionStorage — các ô Ghi đè của chuỗi công thức móc nối đang xem (số người dùng gõ đè lên ô nhận số), chỉ để đi qua lại giữa các công thức cùng chuỗi vẫn còn. Hết hạn ngay khi ra khỏi chuỗi và tự hết khi đóng tab; số ô nhập của các bước nằm ở bản nháp ffb.draft.v1 đã có nút xoá',
+      },
+      {
         key: 'ffb.formulaOrigin.v1',
         viSao:
           'sessionStorage — TÊN công thức vừa mở bảng dữ liệu, chỉ để nút quay lại gọi đúng tên nó. Không quyết định đường đi (đích do ?from= trên URL định), không mang gì riêng tư hơn một cái tên công thức có sẵn trong Registry công khai, và tự hết khi đóng tab',

@@ -192,26 +192,36 @@ describe('parseSavedCalcs · cashflows', () => {
     expect(ra[0]?.cashflows).toEqual(dongTien);
   });
 
-  it('bỏ dòng hỏng: ngày không có thật, ngày chưa phải ISO, số tiền 0 hay không phải số', () => {
+  /*
+   * Từ 25/11/2026 cất NGUYÊN bảng trên màn: đã nạp mã hoặc dùng dữ liệu mẫu là lưu được dù kết quả lỗi, và mở
+   * lại phải thấy đúng chỗ đã sửa, kể cả dòng gõ dở.
+   */
+  it('giữ dòng gõ dở, chỉ bỏ dòng trống hẳn và giá trị không phải số', () => {
     const raw = JSON.stringify([
       {
         ...calc(),
         cashflows: [
-          { date: '2025-02-31', amount: -1 },
           { date: '01/01/2025', amount: -1 },
-          { date: '2025-01-01', amount: 0 },
+          { date: '2025-01-01', amount: null },
+          { date: '', amount: 5 },
+          { date: '', amount: null },
           { date: '2025-01-01', amount: 'abc' },
-          { date: '2025-01-01', amount: -5 },
+          'rác',
         ],
       },
     ]);
-    expect(parseSavedCalcs(raw)[0]?.cashflows).toEqual([{ date: '2025-01-01', amount: -5 }]);
+    expect(parseSavedCalcs(raw)[0]?.cashflows).toEqual([
+      { date: '01/01/2025', amount: -1 },
+      { date: '2025-01-01', amount: null },
+      { date: '', amount: 5 },
+      { date: '2025-01-01', amount: null },
+    ]);
   });
 
-  it('bản lưu cũ không có trường, hoặc mọi dòng đều hỏng: bỏ hẳn trường', () => {
+  it('bảng rỗng đã lưu vẫn là bảng rỗng; bản lưu cũ không có trường thì bỏ hẳn trường', () => {
     expect(parseSavedCalcs(serializeSavedCalcs([calc()]))[0]).not.toHaveProperty('cashflows');
-    const raw = JSON.stringify([{ ...calc(), cashflows: [{ date: '', amount: 1 }] }]);
-    expect(parseSavedCalcs(raw)[0]).not.toHaveProperty('cashflows');
+    const raw = JSON.stringify([{ ...calc(), cashflows: [] }]);
+    expect(parseSavedCalcs(raw)[0]?.cashflows).toEqual([]);
   });
 });
 

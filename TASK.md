@@ -4,6 +4,30 @@
 
 Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 
+## Giữ số trong một chuỗi móc nối (25/11/2026)
+
+**Trạng thái: chờ xác nhận.** Chủ dự án: sửa ở một công thức, quay lại công thức lớn hơn thì phải móc nối với nhau. Chọn phạm vi "trong cùng chuỗi".
+
+- Mới `src/application/chain-visit.ts` (+ test): 7 công thức của chuỗi (ghim, test tính lại từ `dependsOn`), `sameChain()`, kho Ghi đè `ffb.chain.v1`.
+- `formula-visit.ts`: sang màn chi tiết của công thức cùng chuỗi vẫn là một lượt xem. `FormulaVisitTracker`: ra khỏi chuỗi thì xoá luôn Ghi đè.
+- `FormulaDetail.tsx`: cổng lượt xem bỏ qua `clearVisitStores` khi cùng chuỗi; `clearVisitStores` xoá bản nháp của cả chuỗi; effect khôi phục số các bước khác + Ghi đè; `setChainValue`/`setOverride` ghi xuống kho. 4 ca mới ở cuối `FormulaDetail.test.tsx`; `SettingsScreen.test.tsx` thêm `ffb.chain.v1` vào danh sách kho cố ý không có nút xoá.
+- Về chúng tôi (`aboutUs.can.chainNote`, vi + en): nêu ví dụ CAPM → Gordon → Biên an toàn, ghi đè không đổi nguồn.
+- Chưa làm: kiểm tra bằng Chrome thật (`check:chrome`), và test riêng cho Ghi đè sống qua đi-về.
+
+## Lưu được khi đã nạp mã hoặc dùng dữ liệu mẫu, kể cả kết quả đang lỗi (25/11/2026)
+
+**Trạng thái: chờ xác nhận.** Chủ dự án: đã dùng "Nạp mẫu" hoặc "Sử dụng dữ liệu mẫu" là đủ điều kiện lưu, sửa số bên
+trong vẫn cho lưu và lưu cả chỗ sửa.
+
+- `FormulaDetail.tsx`: cờ `daDungMau` = có mã (`loadedPreset`/`stickyTicker`) hoặc đang dùng dữ liệu mẫu
+  (`exampleLoaded`/nguồn `example`); truyền `allowWithoutResult` cho sheet Lưu. Chuỗi tự dán không tính. XIRR cất
+  NGUYÊN bảng dòng tiền (bỏ mỗi dòng trống hẳn), mở lại `?luu=` dựng đúng bảng, kể cả bảng rỗng.
+- `SaveCalcSheet.tsx`: prop `allowWithoutResult`; bật thì kết quả lỗi không khoá ô tên và nút Lưu (kho đầy, tên trống,
+  tên trùng vẫn chặn). Bản lưu có `resultValue: null`, Danh mục in `_ _`.
+- `saved-calc-store.ts`: `cashflows` thành `CashflowRow[]` (ngày gõ dở, số tiền `null` giữ nguyên), `[]` được giữ.
+- Test: 2 ca `SaveCalcSheet.test.tsx`, 2 ca `FormulaDetail.test.tsx`, 2 ca kho (thay 2 ca cũ "bỏ dòng hỏng").
+- Còn lại, chưa làm: sửa bảng dòng tiền rồi F5 / quay lại trong cùng lượt xem thì mã được nạp lại và ghi đè bảng.
+
 ## Kết quả quá dài làm vỡ thẻ Kết quả (25/11/2026)
 
 **Trạng thái: done về code, chờ chủ dự án xác nhận trên màn.** Lỗi: `lai-kep` (gốc 100 tỷ, 50%/năm, 100 năm) cho số hàng

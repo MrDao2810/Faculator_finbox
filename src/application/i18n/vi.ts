@@ -2018,7 +2018,7 @@ export const vi = {
     'Biểu đồ thay đổi khi người dùng nhập số liệu mới hoặc thay đổi số liệu.',
   'aboutUs.can.chain': 'Chuỗi móc nối có kiểm soát',
   'aboutUs.can.chainNote':
-    'Đầu ra của một công thức nạp thẳng vào ô nhập của công thức sau, và bạn vẫn ghi đè được bằng số của mình.',
+    'Ví dụ CAPM → Mô hình Gordon → Biên an toàn: sửa số ở CAPM, kết quả tự chảy sang các công thức sau; bạn vẫn ghi đè được ô nhận số, và công thức nguồn không bị đổi theo.',
   'aboutUs.can.fees': 'Phí và thuế thị trường Việt Nam',
   'aboutUs.can.feesNote':
     'Phí giao dịch, thuế thu nhập và thuế cổ tức theo quy định trong nước, khai một chỗ ở Market Config.',

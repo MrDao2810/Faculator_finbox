@@ -26,8 +26,7 @@
  * (FR-06).
  */
 
-import type { Cashflow } from '@/core/cashflow-series';
-import { isIsoDay } from '@/core/date-text';
+import type { CashflowRow } from '@/core/cashflow-series';
 import type { SeriesRow } from '@/core/price-series';
 import { MAX_SAVED_NAME } from '@/core/saved-calc-name';
 
@@ -82,10 +81,14 @@ export interface SavedCalc {
    * XIRR khai `variables: []`: toàn bộ số của nó nằm trong bảng dòng tiền chứ không trong `inputs`.
    * Trước ngày này kho chỉ cất `inputs`, nên tab Danh mục vẫn in kết quả đã lưu mà mở lại thì bảng
    * trống, màn báo "Cần tối thiểu 2 dòng tiền" (lỗi báo kèm các bước tái hiện). Khác chuỗi giá
-   * (`bars`, không cất vì nặng), bảng này vài dòng nên cất nguyên. Chỉ cất dòng đã DÙNG ĐƯỢC
-   * (`cashflowsOf()`), tức đúng những dòng đã sinh ra kết quả lưu kèm. Bỏ hẳn trường khi không có.
+   * (`bars`, không cất vì nặng), bảng này vài dòng nên cất nguyên.
+   *
+   * Cất NGUYÊN bảng trên màn, kể cả dòng gõ dở (ngày chưa đủ, số tiền trống) và bảng rỗng (`[]`), chỉ bỏ
+   * dòng trống hẳn (25/11/2026): đã nạp mã hay dùng dữ liệu mẫu là được lưu dù kết quả đang lỗi, và chủ dự
+   * án muốn mở lại thấy đúng chỗ đã sửa. Phép tính vẫn chỉ lấy dòng dùng được (`cashflowsOf()`). Trường
+   * vắng hẳn = bản lưu trước ngày này hoặc công thức khác XIRR.
    */
-  cashflows?: ReadonlyArray<Cashflow>;
+  cashflows?: ReadonlyArray<CashflowRow>;
   /**
    * Chuỗi giá đã sinh ra kết quả lưu kèm (25/11/2026), cho các công thức đọc chuỗi. Bỏ hẳn trường khi
    * công thức không dùng chuỗi hoặc chưa có chuỗi. Xem docblock đầu file.
@@ -126,17 +129,23 @@ function cleanSeries(value: unknown): SavedSeries | null {
 /** Trần số dòng tiền cất cho một phép tính: đủ rộng cho mọi bảng gõ tay, chặn một bản hỏng phình kho. */
 export const MAX_SAVED_CASHFLOWS = 200;
 
-/** Dòng tiền đã lưu, bỏ dòng hỏng (ngày không phải ISO có thật, số tiền không hữu hạn hoặc bằng 0). */
-function cleanCashflows(value: unknown): Cashflow[] {
-  if (!Array.isArray(value)) return [];
-  const clean: Cashflow[] = [];
+/** Trần độ dài chữ của ô ngày đã cất: đủ cho mọi kiểu gõ (`03/10/2026`, ISO), chặn bản hỏng phình kho. */
+const MAX_DATE_TEXT = 20;
+
+/**
+ * Bảng dòng tiền đã lưu, giữ nguyên dạng trên màn (25/11/2026): ngày gõ dở vẫn là chữ, số tiền trống là
+ * `null` chứ không thành 0 (FR-06). Bỏ dòng trống hẳn và phần tử không phải dòng. `null` khi trường không
+ * phải mảng, để màn phân biệt 'bảng rỗng đã lưu' với 'bản lưu không có bảng'.
+ */
+function cleanCashflows(value: unknown): CashflowRow[] | null {
+  if (!Array.isArray(value)) return null;
+  const clean: CashflowRow[] = [];
   for (const item of value) {
     if (typeof item !== 'object' || item === null) continue;
     const record = item as Record<string, unknown>;
-    const date = typeof record.date === 'string' ? record.date.trim() : '';
+    const date = typeof record.date === 'string' ? record.date.trim().slice(0, MAX_DATE_TEXT) : '';
     const amount = numberOrNull(record.amount);
-    // Dòng hỏng bị BỎ chứ không vá thành 0: số 0 là dòng tiền vô nghĩa, XIRR sẽ nói thiếu dòng.
-    if (!isIsoDay(date) || amount === null || amount === 0) continue;
+    if (date === '' && amount === null) continue;
     clean.push({ date, amount });
     if (clean.length >= MAX_SAVED_CASHFLOWS) break;
   }
@@ -216,7 +225,7 @@ export function parseSavedCalcs(raw: string | null | undefined): SavedCalc[] {
       savedAt,
       needsSeries: record.needsSeries === true,
       ...(seriesCount === null || seriesCount < 0 ? {} : { seriesCount }),
-      ...(cashflows.length === 0 ? {} : { cashflows }),
+      ...(cashflows === null ? {} : { cashflows }),
       ...(series === null ? {} : { series }),
     });
 

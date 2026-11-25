@@ -724,6 +724,17 @@ export { FORMULA_ORIGIN_KEY, formulaOriginToStore, parseFormulaOrigin } from './
 /* Ranh giới của một lượt xem công thức — vào lại thì về mặc định, xem docblock đầu file ấy. */
 export { FORMULA_VISIT_KEY, parseFormulaVisit, visitContinuesAt } from './formula-visit';
 
+/* Chuỗi móc nối giữ số qua các màn của cùng chuỗi — xem docblock đầu file ấy. */
+export type { StoredOverrides } from './chain-visit';
+export {
+  CHAIN_FORMULA_IDS,
+  CHAIN_OVERRIDES_KEY,
+  isChainFormula,
+  parseStoredOverrides,
+  sameChain,
+  serializeStoredOverrides,
+} from './chain-visit';
+
 export type { ActiveTicker } from './active-ticker';
 export {
   ACTIVE_TICKER_KEY,

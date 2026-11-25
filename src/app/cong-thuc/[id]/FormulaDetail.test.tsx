@@ -3246,6 +3246,69 @@ describe('WF-03 — lưu phép tính vào danh mục', () => {
   });
 
   /*
+   * 25/11/2026, chủ dự án: đã nạp mã ("Nạp mẫu") hoặc dùng dữ liệu mẫu là đủ điều kiện lưu, kể cả khi
+   * đã sửa bảng đến mức kết quả lỗi; và lưu đúng bảng đã sửa. Không nạp gì thì kết quả lỗi vẫn khoá Lưu.
+   */
+  describe('lưu khi kết quả lỗi sau khi đã nạp mã', () => {
+    function seedXirr(code: string | undefined): void {
+      window.localStorage.setItem(
+        SAVED_CALCS_KEY,
+        JSON.stringify([
+          {
+            id: 'xirr-1',
+            formulaId: 'xirr',
+            name: 'XIRR dở',
+            ...(code === undefined ? {} : { code }),
+            inputs: {},
+            resultValue: null,
+            resultUnit: '%',
+            savedAt: new Date(2026, 10, 25, 10, 0, 0).getTime(),
+            needsSeries: false,
+            cashflows: [
+              { date: '2026-11-11', amount: -100_000_000 },
+              { date: '2026-11-25', amount: null },
+            ],
+          },
+        ]),
+      );
+      window.history.replaceState({}, '', '/cong-thuc/xirr/?luu=xirr-1');
+    }
+
+    it('có mã: lưu được, bản lưu mang đúng bảng dở và kết quả null', async () => {
+      seedXirr('ABT');
+      render(<Man spec={specOf('xirr')} />);
+      expect(await screen.findByDisplayValue('11/11/2026')).not.toBeNull();
+      expect(screen.getByDisplayValue('25/11/2026')).not.toBeNull();
+
+      await userEvent.click(screen.getByRole('button', { name: t('detail.saveToPortfolio') }));
+      const nut = screen.getByRole('button', { name: t('save.submit') }) as HTMLButtonElement;
+      expect(nut.disabled).toBe(false);
+      await userEvent.click(nut);
+
+      const moiNhat = parseSavedCalcs(window.localStorage.getItem(SAVED_CALCS_KEY)).find(
+        (item) => item.id !== 'xirr-1',
+      );
+      expect(moiNhat?.resultValue).toBeNull();
+      expect(moiNhat?.code).toBe('ABT');
+      expect(moiNhat?.cashflows).toEqual([
+        { date: '2026-11-11', amount: -100_000_000 },
+        { date: '2026-11-25', amount: null },
+      ]);
+    });
+
+    it('không nạp mã, không dùng mẫu: kết quả lỗi vẫn khoá Lưu', async () => {
+      seedXirr(undefined);
+      render(<Man spec={specOf('xirr')} />);
+      expect(await screen.findByDisplayValue('11/11/2026')).not.toBeNull();
+
+      await userEvent.click(screen.getByRole('button', { name: t('detail.saveToPortfolio') }));
+      expect(
+        (screen.getByRole('button', { name: t('save.submit') }) as HTMLButtonElement).disabled,
+      ).toBe(true);
+    });
+  });
+
+  /*
    * Cùng lỗi, phía công thức chuỗi (25/11/2026): lưu SMA trên dữ liệu mẫu ra 71.560 ₫, mở lại thì `_ _` và
    * câu "chuỗi không khớp lúc lưu", vì kho không cất chuỗi mà `ffb.series.v1` thì trống. Kho chuỗi để trống
    * ở đây là cố ý: số phải về từ chính bản lưu.
@@ -5216,5 +5279,76 @@ describe('khối Câu hỏi thường gặp trên màn chi tiết', () => {
       />,
     );
     expect(screen.queryByRole('heading', { name: t('faq.title') })).toBeNull();
+  });
+});
+
+/*
+ * ── Giữ số trong MỘT chuỗi móc nối (25/11/2026) ───────────────────────────────────────────────
+ *
+ * Bấm "Mở màn riêng của bước này" sang công thức nguồn là một lượt xem mới theo luật 13/10, nên số
+ * sửa ở nguồn mất và công thức nhận cũng về mặc định. Chủ dự án chọn giữ số trong cùng chuỗi; ra khỏi
+ * chuỗi vẫn về mặc định. `cleanup()` + `render()` là đi sang màn kế (dấu lượt xem còn nguyên, vì
+ * tracker của AppShell không chạy ở đây), `sangManKhac()` là ghé danh sách.
+ */
+describe('chuỗi móc nối — số được giữ khi đi qua lại giữa các công thức cùng chuỗi', () => {
+  it('sửa beta ở màn CAPM rồi sang Mô hình Gordon: ô nhận số mới', async () => {
+    manNangCao(specOf('capm'));
+    await screen.findByRole('region', { name: t('detail.inputs') });
+    const beta = oNhap(/Hệ số beta/);
+    await userEvent.clear(beta);
+    await userEvent.type(beta, '2');
+
+    cleanup();
+    manNangCao(specOf('mo-hinh-gordon'));
+
+    // 3,5 + 2 × 8 = 19,5% — không phải 13,1% của bộ mặc định.
+    expect(((await screen.findByText(/↳ CAPM/)) as HTMLElement).isConnected).toBe(true);
+    expect((oNhap(/Suất sinh lợi yêu cầu/) as HTMLInputElement).value).toBe('19,5');
+  });
+
+  it('sửa beta trong thẻ bước của Gordon rồi mở màn CAPM: màn ấy mang đúng số đó', async () => {
+    manNangCao(specOf('mo-hinh-gordon'));
+    const khoi = await screen.findByRole('region', { name: t('chain.title') });
+    const beta = within(khoi).getByRole('textbox', { name: /Hệ số beta/ });
+    await userEvent.clear(beta);
+    await userEvent.type(beta, '2');
+
+    cleanup();
+    manNangCao(specOf('capm'));
+
+    await screen.findByRole('region', { name: t('detail.inputs') });
+    expect((oNhap(/Hệ số beta/) as HTMLInputElement).value).toBe('2');
+  });
+
+  it('quay lại Gordon sau khi sửa ở CAPM: số sửa ở nguồn vẫn còn', async () => {
+    manNangCao(specOf('mo-hinh-gordon'));
+    const khoi = await screen.findByRole('region', { name: t('chain.title') });
+    const beta = within(khoi).getByRole('textbox', { name: /Hệ số beta/ });
+    await userEvent.clear(beta);
+    await userEvent.type(beta, '2');
+
+    cleanup();
+    manNangCao(specOf('capm'));
+    await screen.findByRole('region', { name: t('detail.inputs') });
+    cleanup();
+    manNangCao(specOf('mo-hinh-gordon'));
+
+    await screen.findByText(/↳ CAPM/);
+    expect((oNhap(/Suất sinh lợi yêu cầu/) as HTMLInputElement).value).toBe('19,5');
+  });
+
+  it('ra khỏi chuỗi (ghé danh sách) rồi vào lại thì về mặc định', async () => {
+    manNangCao(specOf('capm'));
+    await screen.findByRole('region', { name: t('detail.inputs') });
+    const beta = oNhap(/Hệ số beta/);
+    await userEvent.clear(beta);
+    await userEvent.type(beta, '2');
+
+    cleanup();
+    sangManKhac();
+    manNangCao(specOf('mo-hinh-gordon'));
+
+    await screen.findByText(/↳ CAPM/);
+    expect((oNhap(/Suất sinh lợi yêu cầu/) as HTMLInputElement).value).toBe('13,1');
   });
 });

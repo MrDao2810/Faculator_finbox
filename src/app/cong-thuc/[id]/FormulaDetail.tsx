@@ -23,6 +23,8 @@ import {
 
 import {
   ACTIVE_TICKER_KEY,
+  CHAIN_FORMULA_IDS,
+  CHAIN_OVERRIDES_KEY,
   FORMULA_ORIGIN_KEY,
   FORMULA_USAGE_KEY,
   FORMULA_VISIT_KEY,
@@ -61,6 +63,9 @@ import {
   QUIZ_PROGRESS_KEY,
   parseFormulaUsage,
   parseFormulaVisit,
+  parseStoredOverrides,
+  sameChain,
+  serializeStoredOverrides,
   parseQuizProgress,
   parseInputDrafts,
   parseSavedCalcs,
@@ -297,6 +302,7 @@ function clearVisitStores(formulaId: string): void {
   try {
     window.sessionStorage.removeItem(ACTIVE_TICKER_KEY);
     window.sessionStorage.removeItem(WORKING_SERIES_KEY);
+    window.sessionStorage.removeItem(CHAIN_OVERRIDES_KEY);
   } catch {
     // sessionStorage bị chặn — không có gì để xoá, phần dưới vẫn phải chạy.
   }
@@ -304,12 +310,18 @@ function clearVisitStores(formulaId: string): void {
   try {
     const now = Date.now();
     const stored = parseInputDrafts(window.localStorage.getItem(INPUT_DRAFT_KEY), now);
-    // Không có bản nháp của công thức này thì đừng ghi: mở 111 trang không được thành 111 lần ghi.
-    if (draftFor(stored, formulaId) === null) return;
+    /*
+     * Công thức trong chuỗi móc nối thì xoá bản nháp của CẢ CHUỖI (25/11/2026): các bước khác giữ số
+     * qua màn này, nên vào chuỗi từ ngoài mà chỉ xoá bản nháp của một bước là bước kia mang số cũ sang.
+     */
+    const ids = sameChain(formulaId, formulaId) ? CHAIN_FORMULA_IDS : [formulaId];
+    const toRemove = ids.filter((id) => draftFor(stored, id) !== null);
+    // Không có bản nháp nào thì đừng ghi: mở 111 trang không được thành 111 lần ghi.
+    if (toRemove.length === 0) return;
 
     window.localStorage.setItem(
       INPUT_DRAFT_KEY,
-      serializeInputDrafts(removeDraft(stored, formulaId)),
+      serializeInputDrafts(toRemove.reduce((acc, id) => removeDraft(acc, id), stored)),
     );
   } catch {
     // localStorage bị chặn — không có bản nháp nào để xoá.
@@ -912,6 +924,9 @@ export function FormulaDetail({
    */
   const [chainInputs, setChainInputs] = useState<ChainInputs>({});
   const [overrides, setOverrides] = useState<ChainOverrides>({});
+  /** Bản mới nhất của hai kho trên, để ghi xuống kho lưu mà không đọc state của lượt render đã đóng gói. */
+  const chainInputsRef = useRef<ChainInputs>({});
+  const overridesRef = useRef<ChainOverrides>({});
 
   /*
    * Bảng dòng tiền có ngày — riêng cho XIRR (`ctx.cashflows`). Sống ở ĐÂY, không trong thân
@@ -1116,7 +1131,8 @@ export function FormulaDetail({
      * trống, "Cần tối thiểu 2 dòng tiền". Bản lưu trước ngày này không có trường ấy, nên bảng vẫn
      * trống và màn nói thiếu dòng, đúng như thật, không bịa dòng nào.
      */
-    if (saved.cashflows !== undefined && saved.cashflows.length > 0) {
+    if (saved.cashflows !== undefined) {
+      // Bảng đã cất nguyên dạng (cả dòng gõ dở, cả bảng rỗng — 25/11/2026), nên mở lại đúng như lúc lưu.
       setCashflowRows(saved.cashflows.map((flow) => ({ date: flow.date, amount: flow.amount })));
     }
     /*
@@ -1191,7 +1207,10 @@ export function FormulaDetail({
       // sessionStorage bị chặn — không biết đang ở lượt nào, xử như lượt mới (xem chú thích trên).
     }
 
-    if (visiting !== spec.id) clearVisitStores(spec.id);
+    // Cùng chuỗi móc nối thì đây là bước tiếp theo của MỘT lượt xem, không phải lượt mới (25/11/2026).
+    if (visiting !== spec.id && !(visiting !== null && sameChain(visiting, spec.id))) {
+      clearVisitStores(spec.id);
+    }
 
     try {
       window.sessionStorage.setItem(FORMULA_VISIT_KEY, spec.id);
@@ -1199,6 +1218,47 @@ export function FormulaDetail({
       // Không ghi được dấu thì lần gắn sau lại là một lượt mới — vẫn là phía an toàn.
     }
   }, [spec.id]);
+
+  /*
+   * ── Khôi phục chuỗi móc nối: số của các bước KHÁC và các ô Ghi đè (25/11/2026) ───────────────
+   *
+   * Cửa gác ngay trên đã để nguyên kho khi sang từ một công thức cùng chuỗi. Ở đây chỉ việc đọc lại:
+   * ô nhập của mỗi bước khác nằm trong bản nháp của chính bước ấy (màn riêng của nó ghi ở đó, và
+   * `setChainValue()` cũng ghi ở đó), còn Ghi đè nằm ở `CHAIN_OVERRIDES_KEY`. Lượt xem mới thì kho đã
+   * bị xoá nên effect này không tìm thấy gì và màn chạy bằng bộ mặc định như cũ.
+   */
+  useEffect(() => {
+    if (!sameChain(spec.id, spec.id)) return;
+    if ((new URLSearchParams(window.location.search).get('luu') ?? '').trim() !== '') return;
+
+    try {
+      const stored = parseInputDrafts(window.localStorage.getItem(INPUT_DRAFT_KEY), Date.now());
+      const restored: Record<string, Readonly<Record<string, number>>> = {};
+      for (const id of CHAIN_FORMULA_IDS) {
+        if (id === spec.id) continue;
+        const stepSpec = modules.find((m) => m.spec.id === id)?.spec;
+        const draft = draftFor(stored, id);
+        if (stepSpec === undefined || draft === null) continue;
+        restored[id] = { ...defaultInputs(stepSpec), ...draft.inputs };
+      }
+      if (Object.keys(restored).length > 0) {
+        chainInputsRef.current = { ...chainInputsRef.current, ...restored };
+        setChainInputs(chainInputsRef.current);
+      }
+    } catch {
+      // localStorage bị chặn — các bước khác chạy bằng số mặc định, như trước.
+    }
+
+    try {
+      const stored = parseStoredOverrides(window.sessionStorage.getItem(CHAIN_OVERRIDES_KEY));
+      if (Object.keys(stored).length > 0) {
+        overridesRef.current = stored;
+        setOverrides(stored);
+      }
+    } catch {
+      // sessionStorage bị chặn — không có ô Ghi đè nào để khôi phục.
+    }
+  }, [spec.id, modules]);
 
   /*
    * ── Bản nháp ô nhập: giữ số người dùng đã gõ qua cú rời màn ─────────────────────────────────
@@ -1998,12 +2058,21 @@ export function FormulaDetail({
 
   /** Ghi đè một ô móc nối, hoặc `undefined` để hoàn tác về giá trị tự động. */
   function setOverride(formulaId: string, key: string, value: number | undefined): void {
-    setOverrides((current) => {
-      const forFormula = { ...current[formulaId] };
-      if (value === undefined) delete forFormula[key];
-      else forFormula[key] = value;
-      return { ...current, [formulaId]: forFormula };
-    });
+    const forFormula = { ...overridesRef.current[formulaId] };
+    if (value === undefined) delete forFormula[key];
+    else forFormula[key] = value;
+    overridesRef.current = { ...overridesRef.current, [formulaId]: forFormula };
+    setOverrides(overridesRef.current);
+
+    // Cất cho cả chuỗi: sang công thức cùng chuỗi rồi quay lại vẫn còn ô Ghi đè.
+    try {
+      window.sessionStorage.setItem(
+        CHAIN_OVERRIDES_KEY,
+        serializeStoredOverrides(overridesRef.current as Record<string, Record<string, number>>),
+      );
+    } catch {
+      // sessionStorage bị chặn — ô Ghi đè chỉ sống trong màn này, như trước.
+    }
   }
 
   /*
@@ -2058,10 +2127,29 @@ export function FormulaDetail({
     const stepSpec = chainSpecs.find((candidate) => candidate.id === formulaId);
     if (stepSpec === undefined) return;
 
-    setChainInputs((current) => ({
-      ...current,
-      [formulaId]: { ...(current[formulaId] ?? defaultInputs(stepSpec)), [key]: value },
-    }));
+    const next = {
+      ...(chainInputsRef.current[formulaId] ?? defaultInputs(stepSpec)),
+      [key]: value,
+    };
+    chainInputsRef.current = { ...chainInputsRef.current, [formulaId]: next };
+    setChainInputs(chainInputsRef.current);
+
+    /*
+     * Ghi vào bản nháp của CHÍNH bước ấy (25/11/2026): mở màn riêng của bước đó thì nó khôi phục
+     * đúng số vừa sửa ở đây, và ngược lại số sửa ở màn ấy chảy về đây ở effect khôi phục chuỗi.
+     */
+    try {
+      const now = Date.now();
+      const stored = parseInputDrafts(window.localStorage.getItem(INPUT_DRAFT_KEY), now);
+      window.localStorage.setItem(
+        INPUT_DRAFT_KEY,
+        serializeInputDrafts(
+          putDraft(stored, formulaId, next, draftFor(stored, formulaId)?.code ?? null, now),
+        ),
+      );
+    } catch {
+      // localStorage bị chặn hoặc đầy — số chỉ sống trong màn này, như trước.
+    }
   }
 
   /**
@@ -2429,6 +2517,16 @@ export function FormulaDetail({
    * trùng, mà 111 trang chi tiết thì không việc gì phải chạm localStorage cho một kho mà hầu hết
    * lượt mở trang không dùng tới.
    */
+  /**
+   * Đã nạp mã ('Nạp mẫu') hoặc đã dùng dữ liệu mẫu chưa (25/11/2026). Chủ dự án: *'chỉ cần sử dụng 1
+   * trong 2 tính năng này là đủ điều kiện để lưu (nếu người dùng thay đổi số liệu bên trong thì vẫn cho
+   * lưu và lưu cả chỗ thay đổi dữ liệu đó)'*. Nên khi cờ này bật, kết quả đang lỗi (`_ _`) KHÔNG khoá nút
+   * Lưu: bản lưu cất `resultValue: null`, Danh mục in `_ _`, mở lại là đúng bộ số để sửa tiếp. Chuỗi tự
+   * dán (`paste`) không tính: đó không phải một trong hai tính năng ấy.
+   */
+  const daDungMau =
+    loadedPreset !== null || stickyTicker !== null || exampleLoaded || nguonChuoi === 'example';
+
   function openSaveSheet(): void {
     try {
       setSavedCalcs(parseSavedCalcs(window.localStorage.getItem(SAVED_CALCS_KEY)));
@@ -2474,8 +2572,15 @@ export function FormulaDetail({
         savedAt: saveStamp,
         needsSeries: wantsSeries,
         ...(bars === null ? {} : { seriesCount: bars.length }),
-        // XIRR giữ số trong bảng dòng tiền, không trong `inputs` — xem `SavedCalc.cashflows`.
-        ...(spec.id === 'xirr' ? { cashflows: cashflowsOf(cashflowRows) } : {}),
+        // XIRR giữ số trong bảng dòng tiền, không trong `inputs`. Cất NGUYÊN bảng người dùng đang thấy,
+        // kể cả dòng gõ dở, bỏ mỗi dòng trống hẳn — xem `SavedCalc.cashflows`.
+        ...(spec.id === 'xirr'
+          ? {
+              cashflows: cashflowRows.filter(
+                (row) => row.date.trim() !== '' || row.amount !== null,
+              ),
+            }
+          : {}),
         // Công thức chuỗi: cất đúng chuỗi đã sinh ra kết quả — xem `SavedCalc.series`.
         ...(wantsSeries && bars !== null && bars.length > 0
           ? { series: { rows: bars, marketSeries: marketSeriesOverride, source: nguonChuoi } }
@@ -4104,8 +4209,9 @@ export function FormulaDetail({
           {...(loadedPreset === null ? {} : { code: loadedPreset })}
           existingNames={savedCalcs.map((item) => item.name)}
           full={savedCalcs.length >= MAX_SAVED_CALCS}
-          // Kết quả đang lỗi thì không cho lưu — xem docblock của sheet.
+          // Kết quả đang lỗi thì không cho lưu, TRỪ khi đã nạp mã hoặc dùng dữ liệu mẫu — xem `daDungMau`.
           hasResult={output.value !== null}
+          allowWithoutResult={daDungMau}
           savedAt={saveStamp}
           onSave={saveCalc}
         />

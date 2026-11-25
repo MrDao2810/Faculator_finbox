@@ -1026,7 +1026,12 @@ no figure ("số liệu thì khi mở lại thì mới thấy được"). The co
 a row whose series no longer matches **prints `_ _` instead of the saved number**. "Matches" is the exact rule
 `FormulaDetail` uses for `seriesMismatch` and reads the same store (`ffb.series.v1`): `needsSeries &&
 rowsInStore !== (seriesCount ?? 0)` — by session COUNT, not by "is there a series", so one session off still
-flags. Such a row gets a warm background, the line "Cần nạp lại chuỗi giá" under its name (the design put this
+flags. **Since 25/11/2026 a saved calculation carries its own data** (`SavedCalc.series`: the price series,
+the VN-Index override and its source; `SavedCalc.cashflows`: XIRR's table), and `?luu=` puts it back on screen.
+Before, only `inputs` were kept, so every series formula (loaded from a sample, a ticker or a paste, none of
+which lives in `ffb.series.v1`) and XIRR reopened blank, reported as a bug. A row WITH `series` is never
+flagged; the count rule above now only serves saves made before that date. Cost, measured: ~20 kB a
+250-session save, ~600 kB for 30. Such a row gets a warm background, the line "Cần nạp lại chuỗi giá" under its name (the design put this
 in a "Số liệu dùng" column the owner then dropped, so the chip moved), and "Nạp" instead of "Mở"; both go to the
 same `?luu=` URL. **Its rows follow the Mã table's row design since 13/10/2026** (_"đồng bộ cả bên Công thức
 nữa chứ không phải mỗi bên mã"_), which retires the two end-of-row icon buttons of 12/10 (the box-with-arrow

@@ -1,12 +1,13 @@
 'use client';
 
-import type { ReactNode } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
 
 import { formatNumber, isCalculated, unitLabel } from '@/application';
 import type { CalcOutput } from '@/application';
 import { useT, usePick } from '@/application/preferences-context';
 
 import { ErrorState } from './ErrorState';
+import { coChoNgat } from './number-breaks';
 import styles from './ResultBlock.module.css';
 
 export interface ResultBlockProps {
@@ -73,6 +74,7 @@ export function ResultBlock({
     return <ErrorState warning={warning} unit={donVi} action={action} className={className} />;
   }
 
+  const soChu = formatNumber(output.value);
   const classes = [styles.block, variant === 'flat' ? styles.flat : undefined, className]
     .filter(Boolean)
     .join(' ');
@@ -103,8 +105,16 @@ export function ResultBlock({
       */}
       {eyebrow !== undefined && <span className={styles.eyebrowNamed}>{eyebrow}</span>}
 
+      {/*
+        `--ky-tu` là số ký tự của con số, để CSS co cỡ chữ cho vừa bề ngang thẻ (xem `.value` trong
+        `@supports` ở `ResultBlock.module.css`) — cùng cách với `StatTile`. Đếm trên CHUỖI lúc dựng
+        chứ không đo lúc chạy, nên lượt dựng đầu ở máy khách vẫn khớp HTML tĩnh. `coChoNgat` cho số
+        khổng lồ chỗ xuống dòng sau dấu chấm phân nhóm thay vì tràn sang ô nhập bên cạnh.
+      */}
       <p className={styles.figure} aria-live="polite">
-        <span className={styles.value}>{formatNumber(output.value)}</span>
+        <span className={styles.value} style={{ '--ky-tu': soChu.length } as CSSProperties}>
+          {coChoNgat(soChu)}
+        </span>
         {donVi.trim() !== '' && <span className={styles.unit}> {donVi}</span>}
       </p>
 

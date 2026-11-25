@@ -272,6 +272,7 @@ export {
 // ── Bộ máy tính toán — chạy một công thức (nền cho nhánh 3 và 5) ────────────
 export type { CalcContext, CalcFn, CalcInputs, CalcValues, FormulaModule } from '@/core/calc';
 export { missingInputLabels, needsPriceSeries, resolveRepeat, runFormula } from '@/core/calc';
+export { dieuKienChuoiThieu } from '@/core/calc';
 
 /*
  * ── Nhóm ô lặp — công thức có số ô nhập do người dùng thêm bớt (13/10/2026) ──

@@ -470,6 +470,7 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'ticker.held': 'Already held',
   'ticker.noData': 'No fundamentals',
   'ticker.noDataStale': 'May lack fundamentals',
+  'ticker.notMeet': 'This ticker does not meet the formula condition',
   /* `ticker.pickHeld` ('Add more') đã xoá cùng bản Việt (10/10/2026) — xem bia mộ ở `vi.ts`. */
   'ticker.loading': 'Loading the ticker list…',
   'ticker.noMatch': 'No ticker matches your search.',
@@ -781,6 +782,8 @@ export const en: Partial<Record<keyof typeof vi, string>> = {
   'quiz.giai.congThuc': 'Formula used',
   'quiz.giai.deTinh': 'to compute {x}',
   'quiz.giai.thaySo': 'Values',
+  'result.showMoreVars': 'Show {n} more',
+  'result.showLess': 'Show less',
   'quiz.giai.apVao': 'Plugged in',
   'quiz.giai.ketQua': 'Result',
   'quiz.source': 'Source',

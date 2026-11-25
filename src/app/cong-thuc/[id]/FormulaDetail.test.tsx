@@ -3200,6 +3200,103 @@ describe('WF-03 — lưu phép tính vào danh mục', () => {
   });
 
   /*
+   * Lỗi báo 25/11/2026: lưu XIRR với hai dòng tiền, Danh mục vẫn in kết quả, mà mở lại thì bảng dòng
+   * tiền trống và màn báo "Cần tối thiểu 2 dòng tiền". XIRR khai `variables: []`, số của nó nằm cả
+   * trong bảng, và kho chỉ cất `inputs`. Ca này đi cả hai chiều: mở lại dựng đúng bảng và đúng kết
+   * quả, rồi lưu lần nữa thì bảng nằm trong kho.
+   */
+  it('`?luu=` của XIRR dựng lại bảng dòng tiền, và lưu lại thì bảng vẫn đi theo', async () => {
+    const savedAt = new Date(2026, 10, 25, 10, 0, 0).getTime();
+    const dongTien = [
+      { date: '2025-01-01', amount: -10_000_000 },
+      { date: '2026-01-01', amount: 11_000_000 },
+    ];
+    window.localStorage.setItem(
+      SAVED_CALCS_KEY,
+      JSON.stringify([
+        {
+          id: 'xirr-1',
+          formulaId: 'xirr',
+          name: 'XIRR của tôi',
+          inputs: {},
+          resultValue: 0.1,
+          resultUnit: '%',
+          savedAt,
+          needsSeries: false,
+          cashflows: dongTien,
+        },
+      ]),
+    );
+    window.history.replaceState({}, '', '/cong-thuc/xirr/?luu=xirr-1');
+
+    render(<Man spec={specOf('xirr')} />);
+
+    expect(await screen.findByText(/XIRR của tôi/)).not.toBeNull();
+    expect(await screen.findByDisplayValue('01/01/2025')).not.toBeNull();
+    expect(screen.getByDisplayValue('01/01/2026')).not.toBeNull();
+    expect(screen.getByTestId('result-text').textContent).toBe('10 %/năm');
+
+    await userEvent.click(screen.getByRole('button', { name: t('detail.saveToPortfolio') }));
+    await userEvent.click(screen.getByRole('button', { name: t('save.submit') }));
+
+    const saved = parseSavedCalcs(window.localStorage.getItem(SAVED_CALCS_KEY));
+    const moiNhat = saved.find((item) => item.id !== 'xirr-1');
+    expect(moiNhat?.formulaId).toBe('xirr');
+    expect(moiNhat?.cashflows).toEqual(dongTien);
+  });
+
+  /*
+   * Cùng lỗi, phía công thức chuỗi (25/11/2026): lưu SMA trên dữ liệu mẫu ra 71.560 ₫, mở lại thì `_ _` và
+   * câu "chuỗi không khớp lúc lưu", vì kho không cất chuỗi mà `ffb.series.v1` thì trống. Kho chuỗi để trống
+   * ở đây là cố ý: số phải về từ chính bản lưu.
+   */
+  it('`?luu=` của công thức chuỗi dựng lại chuỗi đã lưu, và lưu lại thì chuỗi vẫn đi theo', async () => {
+    const savedAt = new Date(2026, 10, 25, 10, 0, 0).getTime();
+    const rows = Array.from({ length: 25 }, (_, i) => ({
+      date: `2026-08-${String(i + 1).padStart(2, '0')}`,
+      open: 100 + i,
+      high: 100 + i,
+      low: 100 + i,
+      close: 100 + i,
+      volume: 1000,
+    }));
+    window.localStorage.setItem(
+      SAVED_CALCS_KEY,
+      JSON.stringify([
+        {
+          id: 'sma-1',
+          formulaId: 'sma-n-phien',
+          name: 'SMA của tôi',
+          inputs: { period: 20 },
+          resultValue: 114.5,
+          resultUnit: '₫',
+          savedAt,
+          needsSeries: true,
+          seriesCount: 25,
+          series: { rows, marketSeries: null, source: 'paste' },
+        },
+      ]),
+    );
+    window.history.replaceState({}, '', '/cong-thuc/sma-n-phien/?luu=sma-1');
+
+    render(<Man spec={specOf('sma-n-phien')} />);
+
+    expect(await screen.findByText(/SMA của tôi/)).not.toBeNull();
+    // Trung bình 20 phiên cuối (105 … 124).
+    expect(screen.getByTestId('result-text').textContent).toBe('114,5 ₫');
+    expect(screen.queryByText(/không khớp lúc lưu/)).toBeNull();
+
+    await userEvent.click(screen.getByRole('button', { name: t('detail.saveToPortfolio') }));
+    await userEvent.click(screen.getByRole('button', { name: t('save.submit') }));
+
+    const moiNhat = parseSavedCalcs(window.localStorage.getItem(SAVED_CALCS_KEY)).find(
+      (item) => item.id !== 'sma-1',
+    );
+    expect(moiNhat?.series?.rows).toEqual(rows);
+    expect(moiNhat?.series?.source).toBe('paste');
+  });
+
+  /*
    * Hai màn phải nói CÙNG MỘT cái tên cho cùng một bản lưu.
    *
    * Chủ dự án báo: chuyển sang tiếng Anh thì bên công thức đã dịch, mà tên bản lưu lại nói kiểu

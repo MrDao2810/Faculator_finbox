@@ -1,0 +1,49 @@
+/*
+ * Nút thu gọn danh sách biến — dùng chung bảng biến và dòng "Thay số" của lời giải. Chữ nghiêng, xanh
+ * dương như liên kết để người dùng biết bấm được. `.nut.nut` (trọng số 0,2,0) thắng lớp của `Button`
+ * mà không phụ thuộc thứ tự hai file trong bó CSS.
+ */
+.nut.nut {
+  /*
+   * Đứng ở MÉP PHẢI, dưới bảng biến và dưới dòng "Thay số" (24/11/2026, chủ dự án khoanh nút rồi kéo mũi
+   * tên sang phải). Hộp khối rộng vừa nội dung + `margin-left: auto`: dạt phải được cả trong luồng khối
+   * lẫn trong ô lưới hay cột flex của nơi đặt nó, mọi cỡ màn hình.
+   */
+  display: flex;
+  width: fit-content;
+  margin-left: auto;
+  gap: var(--space-1);
+  margin-top: var(--space-1);
+  font-style: italic;
+  color: var(--color-accent);
+}
+
+/*
+ * Dưới 1024px nút nhỏ một bậc (25/11/2026, chủ dự án khoanh vùng nút dưới bảng biến trên điện thoại:
+ * _"padding quá lớn, giảm xuống 50% và giảm cả size text xuống nữa"_): chữ 14 → 12px, nút 36 → 28px, đệm
+ * ngang 12 → 8px, mũi tên 16 → 14px. Vùng chạm 44px giữ nhờ `.sm::after` của `Button`. Áp cho cả nút dưới
+ * dòng "Thay số" để hai chỗ dùng chung một nút không lệch nhau; khoảng cách quanh nút ở bảng biến nằm ở
+ * `VariableTable.module.css`.
+ */
+@media (max-width: 1023.98px) {
+  .nut.nut {
+    min-height: 28px;
+    padding-inline: var(--space-2);
+    font-size: var(--text-xs);
+  }
+
+  .nut .muiTen {
+    width: 14px;
+    height: 14px;
+  }
+}
+
+/* Mũi tên xổ xuống khi đang thu gọn, lật lên khi đã mở. */
+.muiTen {
+  flex-shrink: 0;
+  transition: transform 120ms ease;
+}
+
+.nut[aria-expanded='true'] .muiTen {
+  transform: rotate(180deg);
+}

@@ -1507,6 +1507,8 @@ export const vi = {
    */
   'ticker.noData': 'Chưa có dữ liệu',
   'ticker.noDataStale': 'Có thể chưa có dữ liệu',
+  /** Dòng nghiêng dưới mã khi chuỗi giá của mã chưa đủ cho công thức (25/11/2026). Không nêu điều kiện — chủ dự án bỏ phần "ít nhất N phiên giá" cùng ngày. */
+  'ticker.notMeet': 'Mã chưa đáp ứng điều kiện của công thức',
   /*
    * ⚠ `ticker.pickHeld` ("Cộng thêm") đã XOÁ 10/10/2026 — nhãn nút của mã đang giữ.
    *
@@ -2239,6 +2241,12 @@ export const vi = {
   'quiz.giai.congThuc': 'Công thức',
   'quiz.giai.deTinh': 'để tính {x}',
   'quiz.giai.thaySo': 'Thay số',
+  /*
+   * Nút thu gọn dòng "Thay số" khi có nhiều biến (khổ điện thoại, chủ dự án khoanh dòng này ở
+   * `gia-tri-noi-tai-fcff`: quá dài, khó dùng). `{n}` là số biến đang ẩn.
+   */
+  'result.showMoreVars': 'Xem thêm {n} biến',
+  'result.showLess': 'Thu gọn',
   /*
    * "Áp vào công thức" → "Áp dụng công thức" (19/10/2026, chủ dự án). Khoá giữ tên `apVao`: đổi khoá
    * chỉ để khớp chữ là sửa hai từ điển và các test gọi `t('quiz.giai.apVao')` mà màn không đổi gì.

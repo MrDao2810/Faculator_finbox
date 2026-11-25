@@ -4,6 +4,91 @@
 
 Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 
+## Kết quả quá dài làm vỡ thẻ Kết quả (25/11/2026)
+
+**Trạng thái: done về code, chờ chủ dự án xác nhận trên màn.** Lỗi: `lai-kep` (gốc 100 tỷ, 50%/năm, 100 năm) cho số hàng
+chục chữ số, là một "từ" không ngắt nên đè sang ô nhập. Sửa theo mẫu `StatTile`: `ResultBlock.tsx` in số qua
+`coChoNgat` và đặt `--ky-tu`; `ResultBlock.module.css` thêm `min-width: 0`, `overflow-wrap: anywhere`, `container-type`
+trên `.block` và cỡ chữ `clamp(12px, 90cqi / (ký tự × 0,56), --co-tran)` ở cuối file (`--co-tran` = cỡ hiện hành từng
+khổ, nên số thường không đổi). `tokens.test.ts` thêm `--co-tran`; `ResultBlock.test.tsx` mới (3 ca). Đã chạy lint,
+typecheck, format, test: xanh, trừ 1 ca timeout 5s của `huong-dan.test.ts` (cũng timeout khi không có thay đổi này).
+Việc còn lại: xem thủ công ở 1440 / 1024 / 390 / 360 (chưa đo trong Chrome).
+
+## Sheet chọn mã: mã đạt điều kiện lên trước, mã chưa đạt có dòng nghiêng (25/11/2026)
+
+**Trạng thái: chờ chủ dự án xác nhận.** Yêu cầu: công thức có điều kiện thì mã đạt lên đầu danh sách "Nạp mẫu", mã
+chưa đạt có dòng nghiêng "Số liệu chưa đáp ứng điều kiện … của công thức". Đo trước khi làm (số mặc định, chuỗi FPT
+thật): cả 35 công thức chuỗi giá báo thiếu phiên với 10 phiên (RSI 15, SMA 20, VaR/Sharpe/Beta 60…), đều tính được với
+250 phiên. Finbox trả 10 phiên, chỉ giá đóng cửa, cho MỌI mã, nên không mã nào đạt. Đã báo, chủ dự án chọn vẫn làm
+"sắp xếp + dòng nghiêng".
+
+- `src/core/types.ts`, `src/core/warnings.ts`: `CalcWarning.condition` (cụm "ít nhất 60 phiên giá"), `missingSeries()` đặt.
+- `src/core/calc/dieu-kien-chuoi.ts` (mới) + test: `dieuKienChuoiThieu()` chạy công thức với số đang nhập trên một chuỗi
+  đúng dáng Finbox (10 phiên, chỉ giá đóng cửa), trả điều kiện khi công thức báo `MISSING_SERIES`. Xuất qua barrel.
+- `FormulaDetail.tsx`: tính điều kiện lúc mở sheet, truyền `dieuKienChuoi` cho sheet.
+- `TickerPickerSheet.tsx` + CSS: prop `dieuKienChuoi` → dòng nghiêng vàng nhỏ dưới mã (PC: hàng riêng dưới mã; điện
+  thoại: hàng dưới tên như nhãn cũ); nút Chọn KHÔNG khoá. Danh sách xếp mã có số liệu cơ bản trước (xếp riêng trong nhóm
+  khớp mã và nhóm khớp tên khi tìm). i18n `ticker.notMeet` vi/en.
+- Test: `dieu-kien-chuoi.test.ts` (4), `TickerPickerSheet.test.tsx` (+4), `ticker-picker-css.test.ts` (sửa bộ chọn).
+
+Sửa cùng ngày: câu thành "Mã chưa đáp ứng điều kiện của công thức" (bỏ phần "ít nhất N phiên giá"), vi/en.
+
+Giới hạn: điều kiện số phiên như nhau với mọi mã nên không đổi thứ tự; thứ đổi được thứ tự là có/không số liệu cơ bản.
+Điều kiện theo giá trị (EPS > 0…) không kiểm trước được (chỉ 4 mã mẫu có số liệu lúc build). Nhãn "Chưa có dữ liệu" giữ
+nguyên chữ cũ. Chưa xem trên Chrome. Toàn bộ test: xanh, trừ 3 ca quá 5 s khi chạy chung (chạy riêng xanh).
+
+## Nút "Xem thêm N biến" gọn lại trên điện thoại (25/11/2026)
+
+**Trạng thái: chờ chủ dự án xác nhận.** Chủ dự án khoanh vùng nút dưới bảng biến ở khổ điện thoại: padding quá lớn, giảm
+50%, giảm cỡ chữ. Đo trên Chrome ở 390 (`gia-tri-noi-tai-fcff`): hàng cuối bảng tới "Ví dụ thực tế" 80px (khe cột 20 + lề
+nút 4, nút 36, khe 20) → 44px (8 + 28 + 8). Chỉ dưới 1024px.
+
+- `ThuGonNut.module.css`: nút 28px, chữ 12px, đệm ngang 8px, mũi tên 14px; áp cả nút dưới "Thay số" cho hai chỗ đồng bộ.
+  Vùng chạm 44px giữ nguyên.
+- `VariableTable.module.css`: `.vung.vung + button` lề âm 12px trên và dưới.
+- `loi-giai-css.test.ts`: ca mới cho hai khối; ca "dạt phải" thôi cấm mọi `@media`, chỉ cấm khối mobile đụng luật dạt
+  phải. `src/ui/result` 97 xanh, eslint và prettier sạch.
+
+## Mở lại phép tính đã lưu mất dữ liệu: XIRR và cả 35 công thức chuỗi (25/11/2026)
+
+**Trạng thái: chờ chủ dự án xác nhận.** Lỗi báo kèm bước tái hiện: lưu XIRR với hai dòng (01/01/2025 · −10.000.000,
+01/01/2026 · 11.000.000), Danh mục vẫn in kết quả, mở lại thì bảng trống, "Cần tối thiểu 2 dòng tiền". Chủ dự án bổ
+sung: không riêng XIRR. Tái hiện trên Chrome (dev :3000): P/E (có và không có mã FPT) mở lại đúng; SMA nạp dữ liệu mẫu ra
+71.560 ₫, lưu, mở lại thì `_ _ ₫` kèm "chuỗi không khớp lúc lưu", Danh mục cũng in `_ _`. Nguyên nhân chung: kho
+`ffb.saved.v1` chỉ cất `inputs`; số của XIRR nằm trong bảng dòng tiền, còn chuỗi giá của công thức chuỗi (mẫu, mã, dán)
+không nằm ở `ffb.series.v1` mà màn đọc lúc mở lại.
+
+Đợt 2 (chuỗi giá):
+
+- `saved-calc-store.ts`: `SavedCalc.series?` (`rows`, `marketSeries`, `source`), lọc dòng bằng `cleanRows` của
+  `price-series-store.ts` (nay export). Docblock đầu file đảo luật cũ "KHÔNG cất chuỗi giá", có số đo dung lượng.
+- `FormulaDetail.tsx`: `saveCalc()` cất chuỗi khi công thức cần chuỗi và đang có; effect `?luu=` đặt lại `bars`,
+  `seriesCount`, chuỗi VN-Index, nguồn và cờ ví dụ.
+- `PortfolioScreen.tsx`: dòng mang sẵn `series` không bị cờ "Cần nạp lại chuỗi giá", in số đã lưu.
+- Chrome sau sửa: SMA mở lại 71.560 ₫, Beta (kèm VN-Index) 0,81 lần, Danh mục in 71.560 ₫. Chưa thử lưu trên chuỗi của mã
+  (10 phiên Finbox không đủ cửa sổ mặc định); cùng đường code, có ca test.
+- Test: 3 ca kho, 1 ca màn (SMA mở lại 114,5 ₫ không báo lệch, lưu lại chuỗi đi theo), 1 ca Danh mục. Toàn bộ: 5777 xanh,
+  2 đỏ khi chạy cả bộ (`PortfolioScreen` mã chờ, `huong-dan` thứ tự ô) nhưng xanh khi chạy riêng (205/205): đỏ vì tải.
+- Bản lưu TRƯỚC 25/11 không có chuỗi/bảng: vẫn đi đường cũ (đối chiếu số phiên, báo lệch); phải lưu lại.
+
+Đợt 1 (XIRR):
+
+- `src/application/saved-calc-store.ts`: `SavedCalc.cashflows?` (ngày ISO + số tiền, trần 200 dòng); `parseSavedCalcs`
+  bỏ dòng hỏng (ngày không có thật/chưa ISO, số 0 hay không phải số) chứ không vá thành 0; bỏ hẳn trường khi rỗng.
+- `src/app/cong-thuc/[id]/FormulaDetail.tsx`: `saveCalc()` cất `cashflowsOf(cashflowRows)` cho `xirr`; effect `?luu=`
+  dựng lại bảng. Bản lưu TRƯỚC ngày này không có trường, mở lại vẫn báo thiếu dòng (đúng như thật, không bịa dòng);
+  người dùng phải nhập lại và lưu lần nữa.
+- Test: 3 ca ở `saved-calc-store.test.ts`; 1 ca ở `FormulaDetail.test.tsx` (mở lại dựng đúng bảng và ra 10 %/năm, lưu
+  lại thì bảng nằm trong kho). Chạy: FormulaDetail + saved-calc-store + PortfolioScreen 443 xanh; eslint, tsc,
+  prettier sạch. Chưa xem trên Chrome.
+
+## Nút "Xem thêm N biến / Thu gọn" dạt mép phải (24/11/2026)
+
+**Trạng thái: chờ chủ dự án xác nhận.** Chủ dự án khoanh nút "Thu gọn" dưới dòng "Thay số" của lời giải, mũi tên sang
+phải, và bảo bảng biến (Tên · Đơn vị · Mô tả) cũng vậy. Hai nơi dùng chung `ThuGonNut`, nên chỉ sửa
+`ThuGonNut.module.css`: `display: flex; width: fit-content; margin-left: auto` (dạt phải trong luồng khối, ô lưới hay cột
+flex), mọi cỡ màn hình. Ca mới trong `loi-giai-css.test.ts`. Chưa xem trên Chrome.
+
 ## Thẻ công thức ghi tên nhóm NGẮN, khớp chip lọc (24/11/2026)
 
 **Trạng thái: chờ chủ dự án xác nhận.** Ảnh danh sách: chip "Kỹ thuật" nhưng thẻ ghi "Phân tích kỹ thuật" (tương tự Lợi

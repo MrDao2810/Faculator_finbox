@@ -101,6 +101,10 @@ export function missingSeries(needed: number, what?: Bilingual): CalcWarning {
       vi: `Cần ít nhất ${needed} ${label.vi}.`,
       en: `Need at least ${needed} ${label.en}.`,
     },
+    condition: {
+      vi: `ít nhất ${needed} ${label.vi}`,
+      en: `at least ${needed} ${label.en}`,
+    },
   };
 }
 

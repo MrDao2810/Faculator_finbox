@@ -55,7 +55,7 @@ describe('dòng mã của tấm chọn mã', () => {
    * vàng in nghiêng là được, rồi cho dịch sang trái 1 chút nữa"_ — mũi tên chỉ về dưới mã.
    */
   it('dưới 1024px nhãn là chữ nghiêng trơn ở hàng dưới, bắt đầu thẳng mép mã', () => {
-    const nhan = luat(DT, '.held,\n  .unusable');
+    const nhan = luat(DT, '.held,\n  .unusable,\n  .notMeet');
     expect(nhan).toMatch(/grid-column:\s*1 \/ -1;/);
     expect(nhan).toMatch(/padding:\s*0;/);
     expect(nhan).toMatch(/font-style:\s*italic;/);

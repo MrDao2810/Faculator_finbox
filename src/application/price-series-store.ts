@@ -40,10 +40,12 @@ function numberOrNull(value: unknown): number | null {
 /**
  * Làm sạch mảng dòng đọc lên từ JSON — dùng chung cho cả hai kho chuỗi trong file này.
  *
+ * Kho phép tính đã lưu (`saved-calc-store.ts`) cũng gọi hàm này cho chuỗi cất kèm phép tính.
+ *
  * Một chỗ duy nhất biết một dòng hợp lệ trông thế nào: hai bản sao của phép lọc này sẽ lệch nhau
  * đúng vào ngày `SeriesRow` thêm một trường, và kho nào quên trường ấy thì mất dữ liệu lặng lẽ.
  */
-function cleanRows(value: unknown): SeriesRow[] {
+export function cleanRows(value: unknown): SeriesRow[] {
   if (!Array.isArray(value)) return [];
 
   const rows: SeriesRow[] = [];

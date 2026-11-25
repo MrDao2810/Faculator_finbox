@@ -79,6 +79,7 @@ import {
   resolveRepeatSpec,
   runChain,
   runFormula,
+  dieuKienChuoiThieu,
   savedCalcId,
   savedCalcsPath,
   scheduleOrDefault,
@@ -1111,6 +1112,29 @@ export function FormulaDetail({
     // mới thêm, và một ô trống sẽ thành "thiếu đầu vào" thay vì giữ giá trị mặc định của nó.
     setInputs((current) => ({ ...current, ...saved.inputs }));
     /*
+     * Bảng dòng tiền của XIRR (25/11/2026): lỗi báo về là Danh mục vẫn in kết quả mà mở lại thì bảng
+     * trống, "Cần tối thiểu 2 dòng tiền". Bản lưu trước ngày này không có trường ấy, nên bảng vẫn
+     * trống và màn nói thiếu dòng, đúng như thật, không bịa dòng nào.
+     */
+    if (saved.cashflows !== undefined && saved.cashflows.length > 0) {
+      setCashflowRows(saved.cashflows.map((flow) => ({ date: flow.date, amount: flow.amount })));
+    }
+    /*
+     * Chuỗi giá đã cất kèm (25/11/2026), cùng lỗi: lưu SMA trên dữ liệu mẫu ra 71.560 ₫, mở lại thì `_ _`.
+     * Đặt sau effect đọc `ffb.series.v1` (khai phía trên) nên chuỗi đã lưu thắng bảng dữ liệu. Chuỗi mẫu
+     * hay chuỗi dán thì bật lại cờ nguồn, để nó đi theo khi người dùng sang bảng dữ liệu rồi quay lại
+     * như mọi chuỗi cùng nguồn, và ghi chú "dữ liệu minh hoạ" hiện đúng. Bản lưu cũ không có `series`
+     * thì giữ đường cũ: đối chiếu số phiên và nói rõ khi lệch.
+     */
+    if (saved.series !== undefined) {
+      workingSourceRef.current = saved.series.source;
+      setNguonChuoi(saved.series.source);
+      setBars(saved.series.rows);
+      setSeriesCount(saved.series.rows.length);
+      setMarketSeriesOverride(saved.series.marketSeries);
+      setExampleLoaded(saved.series.source === 'example');
+    }
+    /*
      * Mã đi vào CẢ HAI ô trạng thái, không riêng `loadedPreset` (16/10/2026). Con chip mã ở hàng nút
      * đọc `stickyTicker`; chỉ đặt `loadedPreset` thì màn bày nút "Nạp mẫu" như chưa từng có mã nào —
      * chủ dự án lưu một phép tính kèm mã rồi mở lại từ Danh mục và _"không thấy mã đó trong công thức
@@ -1530,6 +1554,17 @@ export function FormulaDetail({
         ? { value: null, unit: spec.resultUnit, warning: MISSING_CALCULATOR }
         : runFormula(formula, inputs, ctx),
     [formula, inputs, ctx, spec.resultUnit],
+  );
+
+  /*
+   * Điều kiện chuỗi giá mà mã thị trường (10 phiên, chỉ giá đóng cửa) chưa đạt với số ĐANG NHẬP —
+   * sheet chọn mã ghi nó dưới từng mã (25/11/2026, xem `dieuKienChuoiThieu()`). Chỉ tính khi sheet
+   * mở: một lượt `runFormula` mỗi lần mở, không chạy theo từng phím.
+   */
+  const dieuKienChuoi = useMemo(
+    () => (pickerOpen && formula !== undefined ? dieuKienChuoiThieu(formula, inputs, ctx) : null),
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- chỉ cần tính lại lúc mở sheet.
+    [pickerOpen, formula],
   );
 
   /*
@@ -2439,6 +2474,12 @@ export function FormulaDetail({
         savedAt: saveStamp,
         needsSeries: wantsSeries,
         ...(bars === null ? {} : { seriesCount: bars.length }),
+        // XIRR giữ số trong bảng dòng tiền, không trong `inputs` — xem `SavedCalc.cashflows`.
+        ...(spec.id === 'xirr' ? { cashflows: cashflowsOf(cashflowRows) } : {}),
+        // Công thức chuỗi: cất đúng chuỗi đã sinh ra kết quả — xem `SavedCalc.series`.
+        ...(wantsSeries && bars !== null && bars.length > 0
+          ? { series: { rows: bars, marketSeries: marketSeriesOverride, source: nguonChuoi } }
+          : {}),
       });
 
       window.localStorage.setItem(SAVED_CALCS_KEY, serializeSavedCalcs(next));
@@ -4092,6 +4133,7 @@ export function FormulaDetail({
             báo cáo vào danh mục là hoàn toàn hợp lệ, dán nhãn ở đó là nói sai.
           */
           markUnusableAsOf={asOf}
+          {...(dieuKienChuoi === null ? {} : { dieuKienChuoi: pick(dieuKienChuoi) })}
           onPick={(ticker) => {
             pickTicker(ticker.code);
           }}

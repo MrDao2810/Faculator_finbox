@@ -448,3 +448,59 @@ describe('chế độ EN: tên doanh nghiệp tiếng Anh', () => {
     });
   });
 });
+
+/*
+ * 25/11/2026, chủ dự án: mã đạt điều kiện của công thức lên trước, mã chưa đạt có dòng nghiêng
+ * "Số liệu chưa đáp ứng điều kiện … của công thức" dưới mã.
+ */
+describe('TickerPickerSheet — điều kiện của công thức', () => {
+  async function moSheetLon(props: Partial<Parameters<typeof TickerPickerSheet>[0]> = {}) {
+    feed.listTickers.mockResolvedValue([
+      { code: 'E1VFVN30', name: 'Quỹ ETF VFMVN30' },
+      { code: 'FPT', name: 'FPT Corp' },
+      { code: 'AAA', name: 'Nhựa An Phát' },
+      { code: 'HPG', name: 'Tập đoàn Hoà Phát' },
+    ]);
+    render(
+      <TickerPickerSheet open onClose={() => undefined} onPick={() => undefined} {...props} />,
+    );
+    await screen.findByText('FPT');
+  }
+
+  function thuTu(): string[] {
+    return screen
+      .getAllByRole('listitem')
+      .map((li) => li.querySelector('span span')?.textContent ?? '');
+  }
+
+  it('mã có số liệu cơ bản đứng trước, mã chưa có đứng sau, giữ thứ tự trong từng nhóm', async () => {
+    await moSheetLon({ markUnusableAsOf: '2026-09-08' });
+    await waitFor(() => {
+      expect(thuTu()).toEqual(['FPT', 'HPG', 'E1VFVN30', 'AAA']);
+    });
+  });
+
+  it('không bật đánh dấu thì không xếp lại', async () => {
+    await moSheetLon();
+    expect(thuTu()).toEqual(['E1VFVN30', 'FPT', 'AAA', 'HPG']);
+  });
+
+  it('có điều kiện chuỗi giá: mọi mã mang dòng nghiêng, nút Chọn vẫn bấm được', async () => {
+    await moSheetLon({ markUnusableAsOf: '2026-09-08', dieuKienChuoi: 'ít nhất 60 phiên giá' });
+    await waitFor(() => {
+      expect(thuTu()[0]).toBe('FPT');
+    });
+    const cau = 'Mã chưa đáp ứng điều kiện của công thức';
+    for (const code of ['FPT', 'HPG', 'E1VFVN30', 'AAA']) {
+      expect(within(dong(code)).getByText(cau)).not.toBeNull();
+    }
+    expect(
+      within(dong('FPT')).getByRole<HTMLButtonElement>('button', { name: 'Chọn' }).disabled,
+    ).toBe(false);
+  });
+
+  it('không có điều kiện chuỗi giá thì không có dòng nghiêng', async () => {
+    await moSheetLon({ markUnusableAsOf: '2026-09-08' });
+    expect(screen.queryByText(/chưa đáp ứng điều kiện/)).toBeNull();
+  });
+});

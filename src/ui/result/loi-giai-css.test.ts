@@ -59,3 +59,43 @@ describe('LoiGiai dưới 560px — dòng ngắn đứng cạnh nhãn', () => {
     expect(DIEN_THOAI).not.toMatch(/text-align:\s*right;/);
   });
 });
+
+describe('LoiGiai — thu gọn dòng Thay số ở mọi cỡ màn hình', () => {
+  it('biến thừa ẩn bằng luật ngoài @media, không giới hạn ở khổ điện thoại', () => {
+    expect(CSS).toMatch(/^\.giaiThay\[data-thu-gon\] > \[data-an\]\s*\{\s*display:\s*none;/m);
+    expect(DIEN_THOAI).not.toMatch(/data-thu-gon/);
+  });
+});
+
+describe('Nút "Xem thêm N biến / Thu gọn" đứng ở mép phải (24/11/2026)', () => {
+  it('bảng biến và dòng Thay số dùng chung một luật dạt phải, ngoài mọi @media', () => {
+    const NUT = doc('ThuGonNut.module.css').replace(/\/\*[\s\S]*?\*\//g, '');
+    const khoi = /\.nut\.nut\s*\{([^}]*)\}/.exec(NUT)?.[1] ?? '';
+    expect(khoi).toMatch(/display:\s*flex;/);
+    expect(khoi).toMatch(/width:\s*fit-content;/);
+    expect(khoi).toMatch(/margin-left:\s*auto;/);
+    // Khối dưới 1024px (25/11/2026) chỉ đổi cỡ nút, không được động tới luật dạt phải.
+    const mobile = /@media[^{]*\{([\s\S]*)\}\s*\.muiTen/.exec(NUT)?.[1] ?? '';
+    expect(mobile).not.toMatch(/margin-left|display|width:\s*fit/);
+  });
+});
+
+describe('Nút "Xem thêm N biến" gọn lại dưới 1024px (25/11/2026)', () => {
+  const boChuThich = (css: string) => css.replace(/\/\*[\s\S]*?\*\//g, '');
+  const khoiMobile = (css: string) =>
+    /@media \(max-width: 1023\.98px\) \{([\s\S]*?)\n\}/.exec(boChuThich(css))?.[1] ?? '';
+
+  it('nút 28px, chữ 12px, mũi tên 14px; chỉ dưới 1024px', () => {
+    const m = khoiMobile(doc('ThuGonNut.module.css'));
+    expect(m).toMatch(/\.nut\.nut\s*\{[^}]*min-height:\s*28px;/);
+    expect(m).toMatch(/\.nut\.nut\s*\{[^}]*font-size:\s*var\(--text-xs\);/);
+    expect(m).toMatch(/\.nut \.muiTen\s*\{[^}]*width:\s*14px;/);
+  });
+
+  it('bảng biến: lề âm trả lại khe của cột, còn 8px trên và dưới nút', () => {
+    const m = khoiMobile(doc('VariableTable.module.css').split('.vung[data-thu-gon]')[1] ?? '');
+    expect(m).toMatch(
+      /\.vung\.vung \+ button\s*\{[^}]*margin-top:\s*calc\(var\(--space-2\) - var\(--space-5\)\);[^}]*margin-bottom:\s*calc\(var\(--space-2\) - var\(--space-5\)\);/,
+    );
+  });
+});

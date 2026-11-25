@@ -16,14 +16,22 @@
  * cùng bài học sheet Xuất cũ (bỏ 17/11/2026) giữ **cờ** `failed` chứ không giữ câu lỗi đã dịch. Tab Danh mục
  * định dạng lại từ số thô mỗi lần hiện.
  *
- * KHÔNG cất chuỗi giá (`bars`): 248 phiên × 6 trường × 30 mục là đủ để phình localStorage
- * (~5 MB cho cả tên miền, và kho này chỉ là một trong bảy thứ nằm ở đó). Thay vào đó cất
- * `needsSeries` + `seriesCount`; lúc mở lại, màn dùng chuỗi đang có ở `ffb.series.v1` và
- * **nói rõ** khi số phiên đã khác lúc lưu. Báo lệch còn hơn im lặng trả ra một con số khác
- * cho cùng một cái tên (FR-06).
+ * Từ 25/11/2026 CÓ cất chuỗi giá (`series`) và bảng dòng tiền của XIRR (`cashflows`). Trước đó kho chỉ cất
+ * `needsSeries` + `seriesCount` (lý do cũ: 248 phiên × 30 mục sẽ phình localStorage), và lúc mở lại màn dùng
+ * chuỗi đang có ở `ffb.series.v1`. Lỗi báo về: lưu SMA trên dữ liệu mẫu ra 71.560 ₫, mở lại từ Danh mục thì
+ * `_ _` kèm câu "chuỗi không khớp lúc lưu", vì chuỗi mẫu, chuỗi của mã và chuỗi dán tại chỗ đều KHÔNG nằm ở
+ * `ffb.series.v1`: cả 35 công thức chuỗi và XIRR mở lại trắng. Đo: 250 phiên khoảng 20 kB một mục, 30 mục
+ * khoảng 600 kB trong ~5 MB của tên miền; kho đầy thì nút Lưu báo lỗi chứ không ghi thiếu. `seriesCount`
+ * vẫn ghi cho bản lưu cũ không có `series`: với chúng màn vẫn đối chiếu `ffb.series.v1` và nói rõ khi lệch
+ * (FR-06).
  */
 
+import type { Cashflow } from '@/core/cashflow-series';
+import { isIsoDay } from '@/core/date-text';
+import type { SeriesRow } from '@/core/price-series';
 import { MAX_SAVED_NAME } from '@/core/saved-calc-name';
+
+import { MAX_SERIES_ROWS, cleanRows, type WorkingSeriesSource } from './price-series-store';
 
 /** Đổi khoá khi cấu trúc đổi, để bản cũ trong máy không làm hỏng bản mới. */
 export const SAVED_CALCS_KEY = 'ffb.saved.v1';
@@ -68,6 +76,71 @@ export interface SavedCalc {
   needsSeries: boolean;
   /** Số phiên của chuỗi giá lúc lưu. Bỏ hẳn trường khi công thức không dùng chuỗi. */
   seriesCount?: number;
+  /**
+   * Bảng dòng tiền có ngày lúc lưu — riêng XIRR, công thức duy nhất đọc `ctx.cashflows` (25/11/2026).
+   *
+   * XIRR khai `variables: []`: toàn bộ số của nó nằm trong bảng dòng tiền chứ không trong `inputs`.
+   * Trước ngày này kho chỉ cất `inputs`, nên tab Danh mục vẫn in kết quả đã lưu mà mở lại thì bảng
+   * trống, màn báo "Cần tối thiểu 2 dòng tiền" (lỗi báo kèm các bước tái hiện). Khác chuỗi giá
+   * (`bars`, không cất vì nặng), bảng này vài dòng nên cất nguyên. Chỉ cất dòng đã DÙNG ĐƯỢC
+   * (`cashflowsOf()`), tức đúng những dòng đã sinh ra kết quả lưu kèm. Bỏ hẳn trường khi không có.
+   */
+  cashflows?: ReadonlyArray<Cashflow>;
+  /**
+   * Chuỗi giá đã sinh ra kết quả lưu kèm (25/11/2026), cho các công thức đọc chuỗi. Bỏ hẳn trường khi
+   * công thức không dùng chuỗi hoặc chưa có chuỗi. Xem docblock đầu file.
+   */
+  series?: SavedSeries;
+}
+
+/** Chuỗi cất kèm một phép tính. */
+export interface SavedSeries {
+  rows: ReadonlyArray<SeriesRow>;
+  /** Chuỗi VN-Index đi kèm (Beta và ví dụ của nó); `null` khi màn dùng chuỗi VN-Index mặc định. */
+  marketSeries: ReadonlyArray<number> | null;
+  /**
+   * Chuỗi đến từ đâu, cùng nghĩa `WorkingSeriesSource`; `null` khi là chuỗi của mã hay của bảng dữ liệu.
+   * Giữ để mở lại vẫn mang đúng ghi chú "dữ liệu minh hoạ".
+   */
+  source: WorkingSeriesSource | null;
+}
+
+/** Chuỗi đã lưu, hoặc `null` khi không còn dòng nào. Cùng phép lọc dòng với hai kho chuỗi kia. */
+function cleanSeries(value: unknown): SavedSeries | null {
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) return null;
+  const record = value as Record<string, unknown>;
+  const rows = cleanRows(record.rows);
+  if (rows.length === 0) return null;
+  const market = Array.isArray(record.marketSeries)
+    ? record.marketSeries
+        .filter((item): item is number => typeof item === 'number' && Number.isFinite(item))
+        .slice(0, MAX_SERIES_ROWS)
+    : [];
+  return {
+    rows,
+    marketSeries: market.length === 0 ? null : market,
+    source: record.source === 'paste' || record.source === 'example' ? record.source : null,
+  };
+}
+
+/** Trần số dòng tiền cất cho một phép tính: đủ rộng cho mọi bảng gõ tay, chặn một bản hỏng phình kho. */
+export const MAX_SAVED_CASHFLOWS = 200;
+
+/** Dòng tiền đã lưu, bỏ dòng hỏng (ngày không phải ISO có thật, số tiền không hữu hạn hoặc bằng 0). */
+function cleanCashflows(value: unknown): Cashflow[] {
+  if (!Array.isArray(value)) return [];
+  const clean: Cashflow[] = [];
+  for (const item of value) {
+    if (typeof item !== 'object' || item === null) continue;
+    const record = item as Record<string, unknown>;
+    const date = typeof record.date === 'string' ? record.date.trim() : '';
+    const amount = numberOrNull(record.amount);
+    // Dòng hỏng bị BỎ chứ không vá thành 0: số 0 là dòng tiền vô nghĩa, XIRR sẽ nói thiếu dòng.
+    if (!isIsoDay(date) || amount === null || amount === 0) continue;
+    clean.push({ date, amount });
+    if (clean.length >= MAX_SAVED_CASHFLOWS) break;
+  }
+  return clean;
 }
 
 /** Số hữu hạn hay `null`. Thứ gì khác đều thành `null` chứ không thành 0. */
@@ -128,6 +201,8 @@ export function parseSavedCalcs(raw: string | null | undefined): SavedCalc[] {
     const code =
       typeof record.code === 'string' ? record.code.trim().toUpperCase().slice(0, 12) : '';
     const seriesCount = numberOrNull(record.seriesCount);
+    const cashflows = cleanCashflows(record.cashflows);
+    const series = cleanSeries(record.series);
 
     clean.push({
       id,
@@ -141,6 +216,8 @@ export function parseSavedCalcs(raw: string | null | undefined): SavedCalc[] {
       savedAt,
       needsSeries: record.needsSeries === true,
       ...(seriesCount === null || seriesCount < 0 ? {} : { seriesCount }),
+      ...(cashflows.length === 0 ? {} : { cashflows }),
+      ...(series === null ? {} : { series }),
     });
 
     if (clean.length >= MAX_SAVED_CALCS) break;

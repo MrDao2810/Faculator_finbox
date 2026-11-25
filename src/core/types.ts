@@ -107,6 +107,12 @@ export interface CalcWarning {
    * tính ra không thuộc ô nào thì không có.
    */
   field?: FieldCondition;
+  /**
+   * Điều kiện về chuỗi giá mà số liệu hiện có chưa đạt, viết thành cụm danh từ để chèn vào câu:
+   * "ít nhất 60 phiên giá". Chỉ `missingSeries()` đặt (25/11/2026) — sheet chọn mã đọc nó để ghi
+   * dưới từng mã "Số liệu chưa đáp ứng điều kiện … của công thức", xem `dieuKienChuoiThieu()`.
+   */
+  condition?: Bilingual;
 }
 
 /** Điều kiện của công thức vừa bị một ô nhập vi phạm — xem `CalcWarning.field`. */

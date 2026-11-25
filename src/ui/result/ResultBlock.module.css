@@ -371,6 +371,56 @@
 }
 
 /*
+ * ── Số khổng lồ co chữ cho vừa thẻ, không tràn sang ô bên cạnh ─────────────────────────────────
+ *
+ * Chủ dự án chụp `lai-kep` với gốc 100 tỷ, 50%/năm, 100 năm: kết quả hàng chục chữ số, là MỘT "từ"
+ * không có chỗ ngắt nên đâm thủng cột trái của khối gộp và đè lên ô nhập. Cùng bệnh và cùng thuốc
+ * với `StatTile` (29/09/2026): cỡ chữ = bề ngang thẻ chia cho (số ký tự × 0,56em), kẹp giữa 12px và
+ * CỠ HIỆN HÀNH của từng khổ. `--co-tran` giữ cỡ hiện hành ấy (khai riêng từng khổ ngay dưới, không
+ * đụng luật `.value` đầu file mà `result-card.test.ts` ghim), nên số bình thường — phép chia ra lớn
+ * hơn trần — không đổi cỡ nào. 0,9 chừa chỗ cho lề thẻ và cho nhãn đứng cùng hàng ở khổ dưới 1280.
+ * `<wbr>` (`coChoNgat`) và `overflow-wrap` là lưới sau: lỡ đoán hụt thì số xuống dòng sau một dấu
+ * chấm phân nhóm chứ không tràn. Khối này PHẢI nằm sau mọi `@media` cỡ chữ ở trên: cùng độ ưu tiên,
+ * thứ tự khai quyết định.
+ */
+.block,
+.figure {
+  min-width: 0;
+}
+
+.value {
+  --co-tran: clamp(var(--text-2xl), 9vw, var(--text-3xl));
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 1023.98px) {
+  .value {
+    --co-tran: var(--text-xl);
+  }
+}
+
+@media (min-width: 1280px) {
+  .value {
+    --co-tran: var(--text-xl);
+  }
+
+  .block.flat .value {
+    --co-tran: calc(var(--text-3xl) - 6px);
+  }
+}
+
+@supports (width: 1cqi) {
+  .block {
+    container-type: inline-size;
+  }
+
+  .value,
+  .block.flat .value {
+    font-size: clamp(var(--text-xs), calc(90cqi / (var(--ky-tu, 1) * 0.56)), var(--co-tran));
+  }
+}
+
+/*
  * Bản in trả thẻ về khuôn nền trắng viền xanh.
  *
  * Trình duyệt mặc định KHÔNG in nền, nên dải xanh biến mất còn chữ vẫn trắng — con số đáp án

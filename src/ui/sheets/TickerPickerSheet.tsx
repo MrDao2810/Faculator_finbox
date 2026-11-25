@@ -110,6 +110,15 @@ export interface TickerPickerSheetProps {
    * xem `TickerCoverage.stale`. Application không được tự lấy đồng hồ hệ thống (NFR-REL-03).
    */
   markUnusableAsOf?: string;
+  /**
+   * Điều kiện chuỗi giá công thức đòi mà mã thị trường CHƯA đạt, đã dịch theo ngôn ngữ trên màn:
+   * "ít nhất 60 phiên giá" (25/11/2026, xem `dieuKienChuoiThieu()`). Có mặt thì dưới từng mã có
+   * dòng nghiêng "Số liệu chưa đáp ứng điều kiện … của công thức" và mã ấy xếp sau mã đạt. Nguồn
+   * thị trường trả cùng 10 phiên cho mọi mã, nên khi có prop này thì MỌI mã đều mang dòng ấy —
+   * chủ dự án đã được báo trước và chọn vẫn hiện, thay vì im lặng để người dùng chọn rồi mới thấy.
+   * Nút "Chọn" KHÔNG khoá: hạ số phiên ở màn là đủ để mã đã nạp tính được.
+   */
+  dieuKienChuoi?: string;
 }
 
 /**
@@ -127,6 +136,7 @@ export function TickerPickerSheet({
   placement = 'bottom',
   compact = false,
   markUnusableAsOf,
+  dieuKienChuoi,
 }: TickerPickerSheetProps) {
   const t = useT();
   const tenCongTy = useCompanyName();
@@ -221,7 +231,22 @@ export function TickerPickerSheet({
    * gõ mã, nên thứ khớp mã phải lên trước tên doanh nghiệp.
    */
   const results = useMemo(() => {
-    if (applied === '') return items;
+    /*
+     * Mã ĐẠT điều kiện của công thức đứng trước, mã chưa đạt đứng sau (25/11/2026, chủ dự án).
+     * Xếp ổn định trong từng nhóm, và ở lượt tìm thì xếp RIÊNG trong nhóm khớp mã và nhóm khớp tên,
+     * để luật "mã khớp đầu chuỗi đứng trước" bên dưới vẫn giữ. Điều kiện chuỗi giá (`dieuKienChuoi`)
+     * như nhau với mọi mã nên không đổi thứ tự; thứ phân biệt được giữa các mã là có số liệu cơ bản
+     * hay không (`coverage`).
+     */
+    const datTruoc = (list: TickerRef[]): TickerRef[] => {
+      if (coverage === null) return list;
+      const dat: TickerRef[] = [];
+      const chuaDat: TickerRef[] = [];
+      for (const item of list) (khongDungDuoc(item.code) ? chuaDat : dat).push(item);
+      return [...dat, ...chuaDat];
+    };
+
+    if (applied === '') return datTruoc([...items]);
 
     const byCode: TickerRef[] = [];
     const byName: TickerRef[] = [];
@@ -238,8 +263,9 @@ export function TickerPickerSheet({
         byName.push(item);
     }
 
-    return [...byCode, ...byName];
-  }, [items, applied, tenCongTy]);
+    return [...datTruoc(byCode), ...datTruoc(byName)];
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- `khongDungDuoc` chỉ đọc `coverage`.
+  }, [items, applied, tenCongTy, coverage]);
 
   /**
    * Đang tìm: ô đã đổi mà danh sách chưa lọc theo.
@@ -456,6 +482,14 @@ export function TickerPickerSheet({
                       <span className={styles.unusable} id={`ticker-chua-co-${ticker.code}`}>
                         {coverage?.stale === true ? t('ticker.noDataStale') : t('ticker.noData')}
                       </span>
+                    )}
+
+                    {/*
+                      Điều kiện chuỗi giá công thức đòi mà mã này chưa đạt — dòng nghiêng nhỏ dưới
+                      mã (25/11/2026), xem docblock `dieuKienChuoi`.
+                    */}
+                    {dieuKienChuoi !== undefined && (
+                      <span className={styles.notMeet}>{t('ticker.notMeet')}</span>
                     )}
                   </span>
 

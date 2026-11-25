@@ -176,3 +176,83 @@ describe('removeSavedCalc', () => {
     expect(list).toHaveLength(2);
   });
 });
+
+/*
+ * Bảng dòng tiền của XIRR (25/11/2026): XIRR khai `variables: []`, số của nó nằm cả trong bảng. Kho cũ
+ * chỉ cất `inputs`, nên mở lại thì bảng trống. Ca này ghim chiều ĐỌC: dòng tốt đi qua nguyên vẹn, dòng
+ * hỏng bị bỏ chứ không vá thành 0, và bản lưu cũ không có trường vẫn đọc được.
+ */
+describe('parseSavedCalcs · cashflows', () => {
+  it('cất rồi đọc lại đúng bảng dòng tiền', () => {
+    const dongTien = [
+      { date: '2025-01-01', amount: -10_000_000 },
+      { date: '2026-01-01', amount: 11_000_000 },
+    ];
+    const ra = parseSavedCalcs(serializeSavedCalcs([calc({ cashflows: dongTien })]));
+    expect(ra[0]?.cashflows).toEqual(dongTien);
+  });
+
+  it('bỏ dòng hỏng: ngày không có thật, ngày chưa phải ISO, số tiền 0 hay không phải số', () => {
+    const raw = JSON.stringify([
+      {
+        ...calc(),
+        cashflows: [
+          { date: '2025-02-31', amount: -1 },
+          { date: '01/01/2025', amount: -1 },
+          { date: '2025-01-01', amount: 0 },
+          { date: '2025-01-01', amount: 'abc' },
+          { date: '2025-01-01', amount: -5 },
+        ],
+      },
+    ]);
+    expect(parseSavedCalcs(raw)[0]?.cashflows).toEqual([{ date: '2025-01-01', amount: -5 }]);
+  });
+
+  it('bản lưu cũ không có trường, hoặc mọi dòng đều hỏng: bỏ hẳn trường', () => {
+    expect(parseSavedCalcs(serializeSavedCalcs([calc()]))[0]).not.toHaveProperty('cashflows');
+    const raw = JSON.stringify([{ ...calc(), cashflows: [{ date: '', amount: 1 }] }]);
+    expect(parseSavedCalcs(raw)[0]).not.toHaveProperty('cashflows');
+  });
+});
+
+/*
+ * Chuỗi giá cất kèm phép tính (25/11/2026): lưu SMA trên dữ liệu mẫu ra 71.560 ₫, mở lại thì `_ _`, vì kho
+ * không cất chuỗi. Ca này ghim chiều ĐỌC của trường `series`.
+ */
+describe('parseSavedCalcs · series', () => {
+  const dong = (close: number) => ({
+    date: '2026-09-15',
+    open: close,
+    high: close,
+    low: close,
+    close,
+    volume: 1000,
+  });
+
+  it('cất rồi đọc lại đúng chuỗi, chuỗi VN-Index và nguồn', () => {
+    const series = { rows: [dong(10), dong(11)], marketSeries: [1, 2], source: 'example' as const };
+    const ra = parseSavedCalcs(serializeSavedCalcs([calc({ series })]));
+    expect(ra[0]?.series).toEqual(series);
+  });
+
+  it('nguồn lạ thành null, chuỗi VN-Index rỗng thành null', () => {
+    const raw = JSON.stringify([
+      { ...calc(), series: { rows: [dong(10)], marketSeries: [], source: 'abc' } },
+    ]);
+    expect(parseSavedCalcs(raw)[0]?.series).toEqual({
+      rows: [dong(10)],
+      marketSeries: null,
+      source: null,
+    });
+  });
+
+  it('không còn dòng nào, hay không phải object: bỏ hẳn trường', () => {
+    const raw = JSON.stringify([
+      { ...calc(), series: { rows: [] } },
+      { ...calc({ id: 'x-2' }), series: 'rác' },
+    ]);
+    const ra = parseSavedCalcs(raw);
+    expect(ra[0]).not.toHaveProperty('series');
+    expect(ra[1]).not.toHaveProperty('series');
+  });
+});

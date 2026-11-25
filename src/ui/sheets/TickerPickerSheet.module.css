@@ -137,6 +137,26 @@
 }
 
 /*
+ * Dòng nghiêng nhỏ "Số liệu chưa đáp ứng điều kiện … của công thức" (25/11/2026, chủ dự án: _"text in
+ * nghiêng nhỏ bên dưới mã"_). Từ 1024px dòng là một hàng flex: câu này lấy trọn bề ngang
+ * (`flex-basis: 100%`) và `order` đẩy nó xuống sau nút, nên nó đứng thành một hàng riêng dưới mã, bắt
+ * đầu thẳng mép trái với mã. Dưới 1024px nó là một hàng của lưới `.text`, xem khối điện thoại.
+ */
+.item:has(> .text > .notMeet) {
+  flex-wrap: wrap;
+  row-gap: var(--space-1);
+}
+
+.notMeet {
+  flex-basis: 100%;
+  order: 1;
+
+  font-size: var(--text-xs);
+  font-style: italic;
+  color: var(--color-warning);
+}
+
+/*
  * Dòng của mã chưa có báo cáo dùng được.
  *
  * Làm mờ chứ KHÔNG ẩn: bảng mã sinh lúc build, một mã hôm nay thiếu quý liền nhau thì quý sau
@@ -291,7 +311,8 @@
   }
 
   .held,
-  .unusable {
+  .unusable,
+  .notMeet {
     grid-column: 1 / -1;
     padding: 0;
     font-style: italic;

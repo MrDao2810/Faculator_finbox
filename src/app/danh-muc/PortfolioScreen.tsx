@@ -1805,9 +1805,13 @@ export function PortfolioScreen() {
 
         /*
          * Luật "cần nạp lại chuỗi" — đúng luật `seriesMismatch` của `FormulaDetail`, đọc cùng kho
-         * (`ffb.series.v1`). Phép tính không dùng chuỗi giá thì không bao giờ bị cờ.
+         * (`ffb.series.v1`). Phép tính không dùng chuỗi giá thì không bao giờ bị cờ. Bản lưu mang sẵn
+         * chuỗi của nó (`saved.series`, từ 25/11/2026) cũng không: mở lại dựng đúng chuỗi ấy.
          */
-        const needsReload = saved.needsSeries && seriesRows !== (saved.seriesCount ?? 0);
+        const needsReload =
+          saved.needsSeries &&
+          saved.series === undefined &&
+          seriesRows !== (saved.seriesCount ?? 0);
 
         const title = suggested ? formulaName : savedName;
 

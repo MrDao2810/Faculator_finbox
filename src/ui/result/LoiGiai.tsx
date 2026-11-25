@@ -1,6 +1,6 @@
 'use client';
 
-import { Fragment, useMemo } from 'react';
+import { Fragment, useId, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 
 import { usePreferences, useT } from '@/application/preferences-context';
@@ -9,6 +9,7 @@ import type { Nut } from '@/application/quiz-cay';
 import { CongThucDien } from '../quiz/CongThucDien';
 
 import styles from './LoiGiai.module.css';
+import { SO_HANG_HIEN, ThuGonNut, soHangAn } from './ThuGonNut';
 
 /** Một đoạn chữ hai ngôn ngữ; `en` vắng thì lùi về tiếng Việt. */
 interface Chu {
@@ -126,6 +127,16 @@ export function LoiGiai({
    * `{ __html }` của từng ký hiệu dựng một lần — React so `dangerouslySetInnerHTML` theo danh tính
    * object, dựng lại là thay cây MathML mỗi lượt render.
    */
+  /*
+   * Thu gọn dòng "Thay số" khi có nhiều biến (`gia-tri-noi-tai-fcff` có hơn mười).
+   * Chỉ là CSS ẩn: HTML tĩnh luôn đủ mọi biến (không mất nội dung với trình đọc/in), mặc định thu gọn
+   * nên lượt hydrate không nhảy bố cục. Áp cho mọi cỡ màn hình, như bảng biến.
+   */
+  const [moHet, setMoHet] = useState(false);
+  const soBienAn = soHangAn(gan.length);
+  const coTheThuGon = soBienAn > 0;
+  const thayId = useId();
+
   const kyHieuInner = useMemo(
     () => new Map((kyHieu ?? []).map((k) => [k.latex, { __html: k.html }])),
     [kyHieu],
@@ -163,8 +174,13 @@ export function LoiGiai({
               đều có dòng (luật 1 của `latex-symbols.ts`); nhánh in chữ trơn còn cho cụm chỉ nằm trong
               một dòng ghép (`\text{mục tiêu}` trong `P_{\text{mục tiêu}}`).
             */}
-            <dl className={styles.giaiThay}>
-              {gan.map((dong) => {
+            <dl
+              id={thayId}
+              className={styles.giaiThay}
+              data-thu-gon={coTheThuGon && !moHet ? '' : undefined}
+            >
+              {gan.map((dong, chiSo) => {
+                const an = coTheThuGon && chiSo >= SO_HANG_HIEN ? '' : undefined;
                 const dongBang = (kyHieu ?? []).find((k) => k.latex === dong.kyHieu);
                 const chuTho = /^\\text\{([^{}]+)\}$/.exec(dong.kyHieu)?.[1];
                 return (
@@ -172,13 +188,16 @@ export function LoiGiai({
                     {dongBang !== undefined ? (
                       <dt
                         className={styles.giaiKyHieu}
+                        data-an={an}
                         // eslint-disable-next-line react/no-danger -- MathML dựng lúc build, xem `notation-view.ts`
                         dangerouslySetInnerHTML={kyHieuInner.get(dong.kyHieu)}
                       />
                     ) : (
-                      <dt className={styles.giaiKyHieuChu}>{chuTho ?? dong.kyHieu}</dt>
+                      <dt className={styles.giaiKyHieuChu} data-an={an}>
+                        {chuTho ?? dong.kyHieu}
+                      </dt>
                     )}
-                    <dd>
+                    <dd data-an={an}>
                       {/*
                         Con số trơn in "= 42.500"; câu mô tả in liền sau ký hiệu, không có dấu "=" —
                         "C_i của cả 3 đợt cùng bằng 12.000.000". Xem docblock `QuizGan.moTa`: dàn nhiều
@@ -208,6 +227,16 @@ export function LoiGiai({
                 );
               })}
             </dl>
+            {coTheThuGon && (
+              <ThuGonNut
+                moHet={moHet}
+                soAn={soBienAn}
+                dieuKhien={thayId}
+                onToggle={() => {
+                  setMoHet((v) => !v);
+                }}
+              />
+            )}
           </dd>
         </div>
       )}

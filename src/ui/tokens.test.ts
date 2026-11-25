@@ -249,6 +249,8 @@ const LOCAL_VARIABLES = new Set([
   '--rong',
   '--go',
   '--ky-tu',
+  /* Cỡ chữ trần của con số ở `ResultBlock` — khai riêng từng khổ, đọc ở khối `@supports` cuối file. */
+  '--co-tran',
   '--ct-co-chu',
   '--paste-row-h',
   '--bang-dong-h',

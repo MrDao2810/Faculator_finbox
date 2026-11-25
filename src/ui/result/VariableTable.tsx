@@ -1,10 +1,13 @@
 'use client';
 
+import { useId, useState } from 'react';
+
 import { isLaterRepeatSlot, unitLabel, variablesForLevel } from '@/application';
 import type { FormulaSpec, Level } from '@/application';
 import { useT, usePick } from '@/application/preferences-context';
 import { Table } from '@/ui/primitives';
 
+import { ThuGonNut, SO_HANG_HIEN, soHangAn } from './ThuGonNut';
 import styles from './VariableTable.module.css';
 
 export interface VariableTableProps {
@@ -50,34 +53,55 @@ export function VariableTable({ formula, mode = 'advanced', className }: Variabl
   const variables = variablesForLevel(formula, mode).filter(
     (variable) => !isLaterRepeatSlot(formula, variable.key),
   );
+  /*
+   * Thu gọn khi có nhiều biến (`gia-tri-noi-tai-fcff` có bảy, mô tả dài; từ 4 biến trở lên): chỉ hiện `SO_HANG_HIEN` hàng
+   * đầu, còn lại ẩn bằng CSS sau nút "Xem thêm N biến" — HTML tĩnh vẫn đủ mọi hàng. Mọi cỡ màn hình.
+   */
+  const [moHet, setMoHet] = useState(false);
+  const tableId = useId();
+  const soAn = soHangAn(variables.length);
   const classes = [styles.variables, className].filter(Boolean).join(' ');
 
   if (variables.length === 0) return null;
 
   return (
-    <Table caption={t('variable.tableCaption')} hideCaption className={classes}>
-      <thead>
-        <tr>
-          <th scope="col">{t('variable.colName')}</th>
-          <th scope="col">{t('variable.colUnit')}</th>
-          <th scope="col">{t('variable.colDescription')}</th>
-        </tr>
-      </thead>
-      <tbody>
-        {variables.map((variable) => (
-          <tr key={variable.key}>
-            <th scope="row" className="wrap">
-              {pick(variable.label)}
-            </th>
-            <td>{pick(unitLabel(variable.unit))}</td>
-            <td className="wrap">
-              {variable.description !== undefined
-                ? pick(variable.description)
-                : t('variable.noDescription')}
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </Table>
+    <>
+      <div id={tableId} data-thu-gon={soAn > 0 && !moHet ? '' : undefined} className={styles.vung}>
+        <Table caption={t('variable.tableCaption')} hideCaption className={classes}>
+          <thead>
+            <tr>
+              <th scope="col">{t('variable.colName')}</th>
+              <th scope="col">{t('variable.colUnit')}</th>
+              <th scope="col">{t('variable.colDescription')}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {variables.map((variable, chiSo) => (
+              <tr key={variable.key} data-an={soAn > 0 && chiSo >= SO_HANG_HIEN ? '' : undefined}>
+                <th scope="row" className="wrap">
+                  {pick(variable.label)}
+                </th>
+                <td>{pick(unitLabel(variable.unit))}</td>
+                <td className="wrap">
+                  {variable.description !== undefined
+                    ? pick(variable.description)
+                    : t('variable.noDescription')}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </Table>
+      </div>
+      {soAn > 0 && (
+        <ThuGonNut
+          moHet={moHet}
+          soAn={soAn}
+          dieuKhien={tableId}
+          onToggle={() => {
+            setMoHet((x) => !x);
+          }}
+        />
+      )}
+    </>
   );
 }

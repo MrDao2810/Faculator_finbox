@@ -75,3 +75,26 @@
     padding-block: var(--space-2);
   }
 }
+
+/*
+ * Thu gọn bảng biến khi có nhiều hàng, mọi cỡ màn hình: `[data-an]` đánh dấu hàng thừa, `[data-thu-gon]`
+ * trên khung bọc `.vung` là công tắc (primitive `Table` không nhận thuộc tính tuỳ ý); nút "Xem thêm N
+ * biến" là `ThuGonNut`.
+ */
+.vung[data-thu-gon] tbody tr[data-an] {
+  display: none;
+}
+
+/*
+ * Khoảng quanh nút "Xem thêm N biến" dưới 1024px (25/11/2026, chủ dự án: _"padding quá lớn, giảm xuống
+ * 50%"_). Đo ở 390: từ hàng cuối bảng tới khối "Ví dụ thực tế" là 80px (khe 20px của cột + 4px lề nút,
+ * nút 36px, khe 20px). Lề âm trả lại 12px mỗi phía, còn 8px trên và 8px dưới; nút 28px (`ThuGonNut.module.css`):
+ * tổng 44px. Lề âm nằm trên nút, không đụng khe của cột, vì cột ấy còn xếp các khối khác của màn.
+ * `.vung.vung + button` (0,2,1) thắng `.nut.nut` (0,2,0) bất kể thứ tự hai file trong bó CSS.
+ */
+@media (max-width: 1023.98px) {
+  .vung.vung + button {
+    margin-top: calc(var(--space-2) - var(--space-5));
+    margin-bottom: calc(var(--space-2) - var(--space-5));
+  }
+}

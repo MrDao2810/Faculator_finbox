@@ -2697,6 +2697,40 @@ describe('WF-06 — tab Công thức: bảng', () => {
   });
 
   /*
+   * Lỗi 25/11/2026: lưu một công thức chuỗi rồi mở lại thì mất số, vì kho không cất chuỗi. Nay bản lưu mang
+   * sẵn chuỗi của nó (`series`), nên dù `ffb.series.v1` trống, dòng vẫn in số đã lưu và không bị cờ.
+   */
+  it('bản lưu mang sẵn chuỗi giá: kho chuỗi trống vẫn in số đã lưu, không cờ “Cần nạp lại”', async () => {
+    seedSavedMany();
+    const kho = JSON.parse(window.localStorage.getItem(SAVED_CALCS_KEY) ?? '[]') as Array<
+      Record<string, unknown>
+    >;
+    const chuoi = Array.from({ length: 120 }, (_, i) => ({
+      date: `2026-01-${String((i % 28) + 1).padStart(2, '0')}`,
+      open: null,
+      high: null,
+      low: null,
+      close: 100 + i,
+      volume: null,
+    }));
+    window.localStorage.setItem(
+      SAVED_CALCS_KEY,
+      JSON.stringify(
+        kho.map((muc) =>
+          muc.id === 'beta-b' ? { ...muc, series: { rows: chuoi, marketSeries: null } } : muc,
+        ),
+      ),
+    );
+    render(<PortfolioScreen />);
+    await bamTab('Công thức');
+    await screen.findAllByRole('columnheader');
+
+    const [b] = dongDaLuu();
+    expect(chuCuaO(b as HTMLElement, 2)).toContain('1,08');
+    expect(screen.queryByText('Cần nạp lại chuỗi giá')).toBeNull();
+  });
+
+  /*
    * ── Dòng của bảng Công thức theo đúng khuôn dòng của bảng Mã (13/10/2026) ────────────────────
    *
    * Ca ĐẢO của ca "Mở và Nạp là nút biểu tượng" (12/10/2026): hôm ấy cuối dòng có hai nút biểu tượng,

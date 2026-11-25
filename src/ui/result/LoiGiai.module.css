@@ -338,6 +338,18 @@
 }
 
 /*
+ * ── Dòng "Thay số" nhiều biến: thu gọn ở MỌI cỡ màn hình ─────────────────────────────────────────
+ *
+ * Chủ dự án khoanh dòng này ở `gia-tri-noi-tai-fcff` (hơn mười biến, mỗi biến một câu dài): quá dài,
+ * khó dùng; rồi yêu cầu áp cả cho PC. Chỉ hiện `SO_HANG_HIEN` biến đầu, còn lại ẩn sau nút "Xem thêm N
+ * biến" (`ThuGonNut`). `[data-an]` mang trên cả `<dt>` lẫn `<dd>` của biến (mỗi biến một cặp phẳng
+ * trong lưới), `[data-thu-gon]` ở `<dl>` là công tắc.
+ */
+.giaiThay[data-thu-gon] > [data-an] {
+  display: none;
+}
+
+/*
  * ── Dưới 1024px: chữ nhỏ một bậc, dòng sát hơn (19/10/2026) ────────────────────────────────────
  *
  * Chủ dự án khoanh hộp "Vì sao chưa đúng" của câu điền số CAGR trên điện thoại: _"hãy giảm padding

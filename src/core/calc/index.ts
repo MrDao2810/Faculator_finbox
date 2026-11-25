@@ -7,6 +7,7 @@
 export type { CalcContext, CalcFn, CalcInputs, CalcValues, FormulaModule } from './types';
 
 export { missingInputLabels, needsPriceSeries, resolveRepeat, runFormula } from './run';
+export { dieuKienChuoiThieu, SO_PHIEN_MA_THI_TRUONG } from './dieu-kien-chuoi';
 
 export type {
   ChainArgs,

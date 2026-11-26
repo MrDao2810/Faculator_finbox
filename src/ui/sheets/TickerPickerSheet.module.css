@@ -85,7 +85,7 @@
   align-items: center;
   gap: var(--space-3);
 
-  padding: var(--space-3);
+  padding: var(--space-2) var(--space-3);
 
   background: var(--color-surface);
   border: 1px solid var(--color-border);
@@ -93,11 +93,26 @@
 }
 
 /*
- * Khối bọc mã, tên và nhãn. Từ 1024px nó không vẽ gì (`contents`), nên bốn thứ ấy vẫn là con trực
- * tiếp của dòng flex như trước. Dưới 1024px nó thành lưới, xem khối điện thoại cuối file.
+ * Khối bọc mã, tên và nhãn: một lưới ở MỌI khổ (26/11/2026). Chủ dự án khoanh dòng AAM trên PC: dòng
+ * thừa khoảng trống, mã và tên lên xuống không cùng hàng, nút "Chọn" sát mép trên mà xa mép dưới. Trước
+ * đó từ 1024px khối này là `display: contents` và dòng là một hàng flex tự xuống dòng, nên nút nằm ở
+ * hàng đầu (đáy hụt đúng chiều cao câu cảnh báo bên dưới) còn Badge và tên canh giữa theo chiều cao
+ * nút chứ không theo chữ. Nay mã | tên | nhãn nằm trên một hàng canh theo DÒNG CHỮ (`baseline`), câu
+ * cảnh báo ở hàng dưới thẳng mép trái với mã, và nút canh giữa theo cả chiều cao dòng (`.item` có
+ * `align-items: center`). Dưới 1024px khối điện thoại cuối file đổi lưới thành hai cột.
  */
 .text {
-  display: contents;
+  display: grid;
+  flex: 1;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 2px var(--space-3);
+  align-items: baseline;
+  min-width: 0;
+}
+
+/* Nút "Chọn" gọn hơn cỡ `sm` 36px: dòng thấp lại mà vẫn có vùng chạm 44px của `.sm::after`. */
+.item > button {
+  min-height: 32px;
 }
 
 /* Bề ngang tối thiểu cố định để cột mã thẳng hàng — mã 3 ký tự và mã 8 ký tự (E1VFVN30). */
@@ -142,14 +157,8 @@
  * (`flex-basis: 100%`) và `order` đẩy nó xuống sau nút, nên nó đứng thành một hàng riêng dưới mã, bắt
  * đầu thẳng mép trái với mã. Dưới 1024px nó là một hàng của lưới `.text`, xem khối điện thoại.
  */
-.item:has(> .text > .notMeet) {
-  flex-wrap: wrap;
-  row-gap: var(--space-1);
-}
-
 .notMeet {
-  flex-basis: 100%;
-  order: 1;
+  grid-column: 1 / -1;
 
   font-size: var(--text-xs);
   font-style: italic;
@@ -318,6 +327,11 @@
     font-style: italic;
     background: none;
     border: 0;
+  }
+
+  /* Câu "Mã chưa đáp ứng điều kiện" nhỏ hơn `--text-xs` 0,75px (26/11/2026, chủ dự án, chỉ màn mobile). */
+  .notMeet {
+    font-size: calc(var(--text-xs) - 0.75px);
   }
 
   .name,

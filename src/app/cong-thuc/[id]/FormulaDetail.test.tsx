@@ -20,6 +20,7 @@ import {
   QUIZ_PROGRESS_KEY,
   ROUTES,
   SAVED_CALCS_KEY,
+  SERIES_USE_KEY,
   WORKING_SERIES_KEY,
   formatIsoDate,
   groupOfFormula,
@@ -4347,7 +4348,7 @@ describe('WF-03 — giữ chuỗi đã thay tại chỗ khi rời màn rồi qua
    * chuyện gì xảy ra". Chuỗi ví dụ cất ở kho phiên được đặt lại SAU khi bảng đã nạp, nên đè mất bảng.
    * Giờ bảng khác chuỗi cất thì bảng thắng.
    */
-  it('bảng dữ liệu bị đổi bên /du-lieu/ thì quay lại, chuỗi trên màn là chuỗi của bảng', async () => {
+  it('bảng dữ liệu bị đổi bên /du-lieu/ và đã bấm "Sử dụng" thì chuỗi trên màn là chuỗi của bảng', async () => {
     render(<Man spec={specOf('ty-so-sharpe')} />);
     await userEvent.click(screen.getByRole('button', { name: t('detail.loadExample') }));
     expect(screen.getByRole('button', { name: t('detail.exampleLoaded') })).not.toBeNull();
@@ -4366,11 +4367,69 @@ describe('WF-03 — giữ chuỗi đã thay tại chỗ khi rời màn rồi qua
       }),
     );
 
+    // Nút "Sử dụng" của /du-lieu/ đặt dấu này trước khi quay về (26/11/2026).
+    window.sessionStorage.setItem(SERIES_USE_KEY, 'ty-so-sharpe');
+
     render(<Man spec={specOf('ty-so-sharpe')} />);
     // Bảng thắng: không còn "đã dùng dữ liệu mẫu", và số phiên là 3 của bảng, không phải 250.
     expect(screen.queryByRole('button', { name: t('detail.exampleLoaded') })).toBeNull();
     expect(screen.getByText(`${t('detail.seriesLoaded')} 3`)).not.toBeNull();
     expect(window.sessionStorage.getItem(WORKING_SERIES_KEY)).toBeNull();
+  });
+
+  /*
+   * 26/11/2026, chủ dự án: nạp mã ở màn chuỗi OHLC nhưng không bấm "Sử dụng" mà quay lại công thức, dữ
+   * liệu vừa nạp vẫn bị áp vào công thức. Không có dấu "Sử dụng" thì bảng bị từ chối.
+   */
+  it('bảng bị đổi bên /du-lieu/ nhưng KHÔNG bấm "Sử dụng" thì công thức giữ chuỗi của nó', async () => {
+    render(<Man spec={specOf('ty-so-sharpe')} />);
+    await userEvent.click(screen.getByRole('button', { name: t('detail.loadExample') }));
+    cleanup();
+
+    window.localStorage.setItem(
+      PRICE_SERIES_KEY,
+      serializeStoredSeries({
+        code: 'HPG',
+        rows: [
+          { date: '2026-01-02', open: 1, high: 2, low: 1, close: 70_000, volume: 10 },
+          { date: '2026-01-03', open: 1, high: 2, low: 1, close: 71_000, volume: 10 },
+        ],
+      }),
+    );
+
+    render(<Man spec={specOf('ty-so-sharpe')} />);
+    expect(screen.getByRole('button', { name: t('detail.exampleLoaded') })).not.toBeNull();
+    expect(screen.queryByText(`${t('detail.seriesLoaded')} 2`)).toBeNull();
+  });
+
+  it('chuỗi vốn là chính bảng: sang bảng, đổi bảng, quay về không bấm "Sử dụng" thì giữ chuỗi cũ', async () => {
+    const bangCu = Array.from({ length: 260 }, (_, i) => ({
+      date: `2025-01-` + String(i),
+      open: 1,
+      high: 2,
+      low: 1,
+      close: 60_000 + (i % 7) * 500 + i * 10,
+      volume: 10,
+    }));
+    window.localStorage.setItem(
+      PRICE_SERIES_KEY,
+      serializeStoredSeries({ code: '', rows: bangCu }),
+    );
+
+    render(<Man spec={specOf('ty-so-sharpe')} />);
+    const truocKhiSang = screen.getByTestId('result-text').textContent;
+    expect(truocKhiSang).not.toContain(NO_VALUE);
+    await userEvent.click(screen.getByRole('link', { name: t('detail.openDataTable') }));
+    cleanup();
+
+    // Bên /du-lieu/: người dùng nạp một chuỗi quá ngắn vào bảng rồi quay về, không bấm "Sử dụng".
+    window.localStorage.setItem(
+      PRICE_SERIES_KEY,
+      serializeStoredSeries({ code: 'HPG', rows: bangCu.slice(0, 2) }),
+    );
+
+    render(<Man spec={specOf('ty-so-sharpe')} />);
+    expect(screen.getByTestId('result-text').textContent).toBe(truocKhiSang);
   });
 
   it('bảng dữ liệu y nguyên chuỗi đã bàn giao thì chuỗi cất vẫn được khôi phục đủ nhãn', async () => {

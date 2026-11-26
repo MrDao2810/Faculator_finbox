@@ -6,6 +6,7 @@ import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vite
 
 import {
   PRICE_SERIES_KEY,
+  SERIES_USE_KEY,
   WORKING_SERIES_KEY,
   serializeStoredSeries,
   serializeWorkingSeries,
@@ -363,6 +364,19 @@ describe('DataTableScreen — nút "Sử dụng" đưa số liệu về công th
     expect(pushMock).toHaveBeenCalledWith('/cong-thuc/phan-tram-b-bollinger/');
   });
 
+  it('bấm "Sử dụng" đặt dấu cho công thức lấy bảng; quay về bằng đường khác thì không có dấu (26/11/2026)', async () => {
+    window.sessionStorage.removeItem(SERIES_USE_KEY);
+    window.history.replaceState({}, '', '/du-lieu/?from=phan-tram-b-bollinger');
+    napBang(BA_PHIEN);
+    moMan();
+
+    await screen.findByRole('button', { name: 'Sử dụng' });
+    expect(window.sessionStorage.getItem(SERIES_USE_KEY)).toBeNull();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Sử dụng' }));
+    expect(window.sessionStorage.getItem(SERIES_USE_KEY)).toBe('phan-tram-b-bollinger');
+  });
+
   it('vào từ thanh nav, không có công thức nào thì không bày nút "Sử dụng"', async () => {
     napBang(BA_PHIEN);
     moMan();
@@ -518,7 +532,7 @@ describe('sửa bảng thì chuỗi đã thay tại chỗ ở màn chi tiết h�
     expect(window.sessionStorage.getItem(WORKING_SERIES_KEY)).not.toBeNull();
   });
 
-  it('sửa một ô thì chuỗi kia bị bỏ — bảng vừa sửa mới là thứ mới nhất', async () => {
+  it('sửa một ô thì chuỗi kia vẫn còn — chỉ nút "Sử dụng" mới đưa bảng vào công thức (26/11/2026)', async () => {
     napBang();
     gieoChuoiTaiCho();
     moMan();
@@ -526,7 +540,7 @@ describe('sửa bảng thì chuỗi đã thay tại chỗ ở màn chi tiết h�
     const oDong = await screen.findByLabelText('Dòng 1 · Đóng');
     fireEvent.change(oDong, { target: { value: '123' } });
 
-    expect(window.sessionStorage.getItem(WORKING_SERIES_KEY)).toBeNull();
+    expect(window.sessionStorage.getItem(WORKING_SERIES_KEY)).not.toBeNull();
   });
 
   it('chỉ chạm vào một ô rồi rời ra, không sửa gì: chuỗi kia vẫn còn (29/10/2026)', async () => {

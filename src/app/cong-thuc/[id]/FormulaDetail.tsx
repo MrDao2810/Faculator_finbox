@@ -31,6 +31,8 @@ import {
   MARKET_CONFIG,
   MAX_SAVED_CALCS,
   PRICE_SERIES_KEY,
+  SERIES_BEFORE_KEY,
+  SERIES_USE_KEY,
   ROUTES,
   SAMPLE_DATA,
   SAVED_CALCS_KEY,
@@ -244,8 +246,8 @@ function isoDayOf(ms: number): string {
 }
 
 /**
- * Bảng WF-05 (`/du-lieu/`) có đang giữ MỘT chuỗi KHÁC `rows` không — trả chuỗi của bảng nếu có,
- * `null` nếu bảng trống hoặc trùng. Dùng lúc quay lại từ bảng dữ liệu (17/11/2026): chuỗi cất ở
+ * Bảng WF-05 (`/du-lieu/`) có đang giữ MỘT chuỗi KHÁC `rows` không, VÀ người dùng đã bấm "Sử dụng" —
+ * trả chuỗi của bảng nếu có, `null` nếu bảng trống, trùng hoặc chưa bấm. Dùng lúc quay lại từ bảng dữ liệu (17/11/2026): chuỗi cất ở
  * kho phiên (mã đã nạp, ví dụ, chuỗi dán) là chuỗi của TRƯỚC khi sang bảng, còn bảng là nơi người
  * dùng vừa nạp mẫu hoặc sửa số. Hai bên khác nhau thì bảng thắng, vì cú bàn giao
  * `handOverToDataTable()` đã ghi chuỗi cũ sang bảng nên mọi khác biệt đều do người dùng làm bên đó.
@@ -254,6 +256,7 @@ function isoDayOf(ms: number): string {
  * báo oan làm rơi nhãn mã hay chuỗi VN-Index của Beta. Số thì ra khác khi và chỉ khi có ô bị sửa.
  */
 function bangDaDoi(
+  formulaId: string,
   rows: ReadonlyArray<{
     open: number | null;
     high: number | null;
@@ -263,6 +266,12 @@ function bangDaDoi(
   }>,
 ): ReadonlyArray<SeriesRow> | null {
   try {
+    /*
+     * Bảng chỉ được áp khi người dùng BẤM "Sử dụng" (26/11/2026, `SERIES_USE_KEY`). Bảng tự lưu sau mỗi lần
+     * sửa nên "bảng khác chuỗi đang giữ" không còn đủ để biết họ muốn áp: nạp một mã vào bảng rồi quay
+     * lại công thức bằng đường khác thì công thức phải giữ chuỗi của nó.
+     */
+    if (window.sessionStorage.getItem(SERIES_USE_KEY) !== formulaId) return null;
     const bang = parseStoredSeries(window.localStorage.getItem(PRICE_SERIES_KEY)).rows;
     if (bang.length === 0) return null;
     const giong =
@@ -302,6 +311,8 @@ function clearVisitStores(formulaId: string): void {
   try {
     window.sessionStorage.removeItem(ACTIVE_TICKER_KEY);
     window.sessionStorage.removeItem(WORKING_SERIES_KEY);
+    window.sessionStorage.removeItem(SERIES_BEFORE_KEY);
+    window.sessionStorage.removeItem(SERIES_USE_KEY);
     window.sessionStorage.removeItem(CHAIN_OVERRIDES_KEY);
   } catch {
     // sessionStorage bị chặn — không có gì để xoá, phần dưới vẫn phải chạy.
@@ -2354,7 +2365,7 @@ export function FormulaDetail({
       if (active !== null) {
         // Bảng dữ liệu vừa được nạp mẫu hoặc sửa bên `/du-lieu/` thì bảng thắng: mã cũ không còn
         // là nguồn của chuỗi trên màn, và đè nó lên là đúng lỗi "nạp rồi quay lại không có gì".
-        const bang = bangDaDoi(active.preset.bars);
+        const bang = bangDaDoi(spec.id, active.preset.bars);
         if (bang !== null) {
           window.sessionStorage.removeItem(ACTIVE_TICKER_KEY);
           setSeriesCount(bang.length);
@@ -2395,7 +2406,7 @@ export function FormulaDetail({
 
     // Bảng dữ liệu đã khác chuỗi cất (nạp mẫu hoặc sửa số bên `/du-lieu/`) thì bảng thắng — xem
     // `bangDaDoi()`. Bản ghi cũ bỏ đi, nếu không nó đè lại bảng ở mọi lần mở sau.
-    const bang = bangDaDoi(record.rows);
+    const bang = bangDaDoi(spec.id, record.rows);
     if (bang !== null) {
       try {
         window.sessionStorage.removeItem(WORKING_SERIES_KEY);
@@ -2410,6 +2421,44 @@ export function FormulaDetail({
     workingSeriesRef.current = record;
     applyWorkingSeries(record);
   }, [spec.id, applyWorkingSeries]);
+
+  /*
+   * ── Quay về từ bảng dữ liệu mà KHÔNG bấm "Sử dụng" (26/11/2026) ───────────────────────────────
+   *
+   * Chủ dự án: nạp mã ở màn chuỗi OHLC rồi quay lại công thức mà không bấm "Sử dụng", dữ liệu vẫn bị áp
+   * vào công thức. Chuỗi của mã, của ô dán và của ví dụ đã có kho riêng nên `bangDaDoi()` chỉ cần từ chối
+   * bảng; còn chuỗi vốn là chính bảng thì được cất ở `SERIES_BEFORE_KEY` lúc sang bảng, và đặt lại ở đây.
+   * Bấm "Sử dụng" thì bảng thắng như cũ và bản cất bỏ đi.
+   *
+   * Hai dấu xoá SAU một nhịp (`setTimeout`) chứ không xoá ngay: chế độ dev chạy mọi effect hai lần liền
+   * và lượt thứ hai phải còn thấy cả hai dấu, nếu không nó áp bảng, đúng thứ vừa tránh.
+   */
+  useEffect(() => {
+    try {
+      const dungBang = window.sessionStorage.getItem(SERIES_USE_KEY) === spec.id;
+      const raw = window.sessionStorage.getItem(SERIES_BEFORE_KEY);
+      if (raw !== null && !dungBang) {
+        const cat = JSON.parse(raw) as { id?: unknown; series?: unknown };
+        if (cat.id === spec.id && typeof cat.series === 'string') {
+          const rows = parseStoredSeries(cat.series).rows;
+          setBars(rows.length > 0 ? rows : null);
+        }
+      }
+    } catch {
+      // sessionStorage bị chặn hoặc bản cất hỏng — công thức giữ nguyên như lúc mở.
+    }
+    const timer = window.setTimeout(() => {
+      try {
+        window.sessionStorage.removeItem(SERIES_USE_KEY);
+        window.sessionStorage.removeItem(SERIES_BEFORE_KEY);
+      } catch {
+        // Không có gì để xoá.
+      }
+    }, 0);
+    return () => {
+      window.clearTimeout(timer);
+    };
+  }, [spec.id]);
 
   /**
    * Tính thử trên dữ liệu thật của ví dụ — nạp cả chuỗi giá lẫn ô nhập đúng một lần.
@@ -2512,6 +2561,18 @@ export function FormulaDetail({
               ? (spec.example.dataset?.ticker ?? '')
               : (stickyTicker ?? loadedPreset ?? '');
         window.localStorage.setItem(PRICE_SERIES_KEY, serializeStoredSeries({ code, rows: bars }));
+      } else if (!tuManNay) {
+        /*
+         * Chuỗi trên màn là chính bảng (nạp lúc mở màn), nên không có kho nào khác giữ nó. Cất lại để
+         * quay về mà không bấm "Sử dụng" thì công thức giữ đúng chuỗi này, không lấy bảng vừa đổi.
+         */
+        window.sessionStorage.setItem(
+          SERIES_BEFORE_KEY,
+          JSON.stringify({
+            id: spec.id,
+            series: serializeStoredSeries({ code: '', rows: bars ?? [] }),
+          }),
+        );
       }
     } catch {
       // Kho bị chặn (chế độ riêng tư) — mất phần bàn giao, không mất đường đi.

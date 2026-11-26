@@ -15,7 +15,7 @@ import type { CSSProperties } from 'react';
 import {
   MAX_SERIES_ROWS,
   PRICE_SERIES_KEY,
-  WORKING_SERIES_KEY,
+  SERIES_USE_KEY,
   appendRow,
   checkSeries,
   defaultPresetPicks,
@@ -529,37 +529,17 @@ export function DataTableScreen() {
     setLoaded(true);
   }, []);
 
-  /**
-   * Lượt ghi ĐẦU TIÊN sau khi đọc kho — tức bảng vừa nạp lên, chưa ai sửa gì.
-   *
-   * Cần phân biệt vì hai chuyện dẫn tới cùng một lần ghi: nạp bảng lên màn, và người dùng sửa
-   * bảng. Chỉ lần thứ hai mới được phép huỷ chuỗi đã thay tại chỗ ở màn chi tiết (xem effect
-   * ngay dưới). Đúng MỘT lượt bị bỏ qua: `setCode`/`setRows`/`setLoaded` nằm chung một effect
-   * nên React gộp thành một lượt render, và mọi lượt chạy sau đó đều do `code`/`rows` đổi thật.
-   */
-  const firstWriteRef = useRef(true);
-
   // Ghi lại sau mỗi lần sửa. Chỉ ghi sau khi đã đọc xong, nếu không lần render đầu sẽ
   // đè bảng rỗng lên dữ liệu người dùng đã có.
   useEffect(() => {
     if (!loaded) return;
     try {
       window.localStorage.setItem(PRICE_SERIES_KEY, serializeStoredSeries({ code, rows }));
-
-      if (firstWriteRef.current) {
-        firstWriteRef.current = false;
-        return;
-      }
-
       /*
-       * Người dùng vừa SỬA bảng → chuỗi họ dán tại chỗ ở màn chi tiết hết hiệu lực.
-       *
-       * Hai chuỗi cùng tồn tại là có chủ ý (dán ở màn chi tiết cố ý không ghi đè bảng này), nên
-       * phải có luật ai thắng khi quay lại màn chi tiết. Luật: thao tác GẦN NHẤT thắng. Bỏ đoạn
-       * này thì bảng vừa sửa xong lại bị một chuỗi cũ hơn che mất, và người dùng không có cách
-       * nào nhìn ra vì sao — xem `WORKING_SERIES_KEY`.
+       * Sửa bảng KHÔNG còn huỷ chuỗi đã thay tại chỗ ở màn chi tiết (26/11/2026). Trước đây luật là
+       * "thao tác gần nhất thắng", nên nạp mã vào bảng rồi quay lại công thức là tự áp bảng vào công
+       * thức dù chưa bấm "Sử dụng". Nay chỉ cú bấm "Sử dụng" (`SERIES_USE_KEY`) mới đưa bảng sang.
        */
-      window.sessionStorage.removeItem(WORKING_SERIES_KEY);
     } catch {
       // Hết dung lượng hoặc bị chặn — không chặn thao tác đang làm.
     }
@@ -915,6 +895,12 @@ export function DataTableScreen() {
             <Button
               size="sm"
               onClick={() => {
+                // Chỉ cú bấm này mới đưa bảng vào công thức — xem `SERIES_USE_KEY`.
+                try {
+                  window.sessionStorage.setItem(SERIES_USE_KEY, fromId);
+                } catch {
+                  // sessionStorage bị chặn: công thức vẫn mở, chỉ không lấy được bảng.
+                }
                 router.push(formulaPath(fromId));
               }}
             >

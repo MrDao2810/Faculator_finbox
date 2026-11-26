@@ -320,7 +320,7 @@ describe('bản kiểm kê kho — gác cả khi khối đang ẩn', () => {
       {
         key: 'ffb.workingSeries.v1',
         viSao:
-          'sessionStorage — chuỗi giá vừa dán tại chỗ hoặc chuỗi minh hoạ của công thức đang mở, giữ để nó sống sót cú "Mở bảng dữ liệu → Back", tự hết khi đóng tab. Hai lối xoá đều nằm ngay tại chỗ nó có tác dụng: nút "Thoát" ở màn chi tiết, và chính việc sửa bảng dữ liệu (thao tác gần nhất thắng). Chuỗi muốn ở lại lâu dài thì đã có bảng WF-05, vốn có sẵn dòng xoá riêng',
+          'sessionStorage — chuỗi giá vừa dán tại chỗ hoặc chuỗi minh hoạ của công thức đang mở, giữ để nó sống sót cú "Mở bảng dữ liệu → Back", tự hết khi đóng tab. Lối xoá nằm ngay tại chỗ nó có tác dụng: nút "Thoát" ở màn chi tiết (sửa bảng dữ liệu không còn xoá nó từ 26/11/2026, chỉ nút "Sử dụng" mới đưa bảng sang). Chuỗi muốn ở lại lâu dài thì đã có bảng WF-05, vốn có sẵn dòng xoá riêng',
       },
       {
         key: 'ffb.recent.home.v1',
@@ -331,6 +331,16 @@ describe('bản kiểm kê kho — gác cả khi khối đang ẩn', () => {
         key: 'ffb.chain.v1',
         viSao:
           'sessionStorage — các ô Ghi đè của chuỗi công thức móc nối đang xem (số người dùng gõ đè lên ô nhận số), chỉ để đi qua lại giữa các công thức cùng chuỗi vẫn còn. Hết hạn ngay khi ra khỏi chuỗi và tự hết khi đóng tab; số ô nhập của các bước nằm ở bản nháp ffb.draft.v1 đã có nút xoá',
+      },
+      {
+        key: 'ffb.seriesUse.v1',
+        viSao:
+          'sessionStorage — dấu "vừa bấm Sử dụng ở bảng dữ liệu", chỉ mang một slug công thức có sẵn trong Registry công khai. Màn công thức đọc rồi xoá ngay ở lần mở đó, tự hết khi đóng tab — một nút xoá cho nó là nút không bao giờ có gì đáng xoá',
+      },
+      {
+        key: 'ffb.seriesBefore.v1',
+        viSao:
+          'sessionStorage — chuỗi giá đang hiện trên màn công thức lúc sang bảng dữ liệu, chỉ để quay về mà không bấm Sử dụng thì công thức giữ nguyên chuỗi cũ. Màn công thức đọc rồi xoá ngay ở lần mở đó, bị dọn khi vào lại công thức từ màn khác, tự hết khi đóng tab; chuỗi muốn ở lại lâu dài thì đã có bảng WF-05',
       },
       {
         key: 'ffb.formulaOrigin.v1',

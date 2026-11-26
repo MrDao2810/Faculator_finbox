@@ -38,8 +38,12 @@ function luat(khoi: string, boChon: string): string {
 const DT = khoiDong(CSS);
 
 describe('dòng mã của tấm chọn mã', () => {
-  it('từ 1024px khối bọc không vẽ gì: dòng vẫn một hàng như trước', () => {
-    expect(/^\.text\s*\{([^}]*)\}/m.exec(CSS)?.[1]).toMatch(/display:\s*contents;/);
+  it('từ 1024px khối bọc là lưới mã | tên | nhãn canh theo dòng chữ, nút canh giữa cả dòng (26/11/2026)', () => {
+    const khoi = /^\.text\s*\{([^}]*)\}/m.exec(CSS)?.[1];
+    expect(khoi).toMatch(/display:\s*grid;/);
+    expect(khoi).toMatch(/grid-template-columns:\s*auto minmax\(0, 1fr\) auto;/);
+    expect(khoi).toMatch(/align-items:\s*baseline;/);
+    expect(/^\.item\s*\{([^}]*)\}/m.exec(CSS)?.[1]).toMatch(/align-items:\s*center;/);
   });
 
   it('dưới 1024px khối bọc là lưới mã | tên, canh theo dòng chữ đầu', () => {

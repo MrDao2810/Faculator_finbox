@@ -158,6 +158,21 @@ export function appendRow(rows: ReadonlyArray<SeriesRow>, row: SeriesRow): Serie
  */
 export const WORKING_SERIES_KEY = 'ffb.workingSeries.v1';
 
+/**
+ * Dấu "người dùng đã bấm Sử dụng" (26/11/2026), `sessionStorage`, giá trị là id công thức. Bảng WF-05
+ * tự lưu sau mỗi lần sửa nên chính nó không nói được người dùng có MUỐN đưa bảng vào công thức không:
+ * chỉ cú bấm "Sử dụng" nói điều đó. Màn chi tiết chỉ lấy bảng đã đổi khi dấu này mang đúng id của nó,
+ * rồi xoá dấu. Quay lại bằng đường khác (liên kết quay về, nút Back) thì công thức giữ chuỗi của nó.
+ */
+export const SERIES_USE_KEY = 'ffb.seriesUse.v1';
+
+/**
+ * Chuỗi đang hiện trên màn chi tiết lúc người dùng sang bảng dữ liệu (26/11/2026), `sessionStorage`,
+ * dạng `{ id, rows }`. Chỉ cất khi chuỗi ấy KHÔNG có chỗ ở nơi khác (chuỗi lấy từ chính bảng): mã đang
+ * dính và chuỗi dán/minh hoạ đã có kho riêng. Quay về mà không bấm Sử dụng thì khôi phục từ đây.
+ */
+export const SERIES_BEFORE_KEY = 'ffb.seriesBefore.v1';
+
 /** Chuỗi trên màn đến từ đâu — quyết định nhãn nút và ghi chú "không phải số thật" đi kèm. */
 export type WorkingSeriesSource = 'paste' | 'example';
 

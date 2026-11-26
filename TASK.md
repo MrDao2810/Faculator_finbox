@@ -4,6 +4,25 @@
 
 Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 
+## Tấm "Chọn mã cổ phiếu" trên PC: dòng gọn, mã và tên cùng hàng, nút Chọn cân (26/11/2026)
+
+**Trạng thái: chờ xác nhận.** Chủ dự án khoanh dòng AAM: thừa khoảng trống, mã và tên lên xuống, nút "Chọn" sát mép trên mà xa mép dưới, khoảng giữa câu cảnh báo và chữ trên quá rộng.
+
+- `TickerPickerSheet.module.css`: từ 1024px khối `.text` không còn `display: contents` mà là lưới `auto | 1fr | auto` canh theo dòng chữ (`baseline`); câu "Mã chưa đáp ứng điều kiện" là hàng dưới (`grid-column: 1 / -1`) thay cho `flex-wrap` + `order`. Nút "Chọn" canh giữa cả chiều cao dòng (trước đây nó nằm ở hàng đầu, đáy hụt đúng chiều cao câu cảnh báo). Đệm dọc dòng 12 → 8px, khe giữa hai hàng 4 → 2px, nút 36 → 32px (vùng chạm 44px giữ nguyên). Khối điện thoại không đổi.
+- `ticker-picker-css.test.ts`: ca "từ 1024px khối bọc không vẽ gì" đổi theo.
+- **Chưa xem trên Chrome.** Cần xem ở 1024 và 1440 trên màn chọn mã của công thức (dòng có và không có câu cảnh báo, có nhãn "đã có" / "chưa có dữ liệu") và ở Danh mục, vì hai nơi dùng chung.
+
+## Chỉ nút "Sử dụng" mới đưa bảng OHLC vào công thức (26/11/2026)
+
+**Trạng thái: chờ xác nhận.** Lỗi: nạp mã ở màn chuỗi OHLC nhưng không bấm "Sử dụng" mà quay lại công thức, dữ liệu vừa nạp vẫn bị áp. Nguyên nhân: bảng tự lưu sau mỗi lần sửa, màn công thức lấy bảng hễ nó khác chuỗi đang giữ (`bangDaDoi()`), và việc sửa bảng còn xoá chuỗi cất ở kho phiên.
+
+- `price-series-store.ts`: hai khoá kho phiên mới, `SERIES_USE_KEY` (dấu "đã bấm Sử dụng", giá trị là id công thức) và `SERIES_BEFORE_KEY` (chuỗi trên màn lúc sang bảng, chỉ cất khi chuỗi ấy vốn là chính bảng).
+- `DataTableScreen.tsx`: nút "Sử dụng" đặt dấu trước khi quay về; bỏ việc sửa bảng xoá `WORKING_SERIES_KEY` (luật "thao tác gần nhất thắng" cũ) cùng `firstWriteRef` đi kèm.
+- `FormulaDetail.tsx`: `bangDaDoi(id, rows)` chỉ trả bảng khi dấu khớp id; cất chuỗi lúc sang bảng, đặt lại khi quay về không có dấu; hai dấu xoá sau một nhịp (`setTimeout`) để lượt effect thứ hai của chế độ dev còn thấy; `clearVisitStores()` dọn cả hai.
+- Test: 3 ca mới (không bấm thì giữ chuỗi cũ, chuỗi vốn là bảng được khôi phục, nút đặt dấu), 2 ca cũ đổi theo; `SettingsScreen.test.tsx` khai hai khoá mới.
+- **Chưa xem trên Chrome.**
+- Hệ quả: bảng WF-05 trong máy vẫn giữ thứ vừa nạp (nó là kho lâu dài). Lần mở công thức khác từ danh sách vẫn đọc bảng ấy như trước. Sửa bảng rồi quay về bằng nút Back không còn áp số sửa vào công thức, phải bấm "Sử dụng".
+
 ## Bảng dữ liệu: báo ngay dưới ô nhập thiếu hoặc sai (26/11/2026)
 
 **Trạng thái: chờ xác nhận.** Chủ dự án: gõ thiếu hoặc sai ở bất kỳ ô nào của bảng dán thì báo ngay dưới ô đó, không đợi nhập xong cả bảng. Chủ dự án chọn: luật giá + ô thiếu (ô tùy chọn để trống vẫn cho qua), câu báo nổi ngay dưới ô.

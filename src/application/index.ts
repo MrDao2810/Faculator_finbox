@@ -749,6 +749,8 @@ export type { StoredSeries, WorkingSeries, WorkingSeriesSource } from './price-s
 export {
   MAX_SERIES_ROWS,
   PRICE_SERIES_KEY,
+  SERIES_BEFORE_KEY,
+  SERIES_USE_KEY,
   WORKING_SERIES_KEY,
   appendRow,
   parseStoredSeries,

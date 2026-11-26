@@ -4,6 +4,16 @@
 
 Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 
+## Bảng dữ liệu: báo ngay dưới ô nhập thiếu hoặc sai (26/11/2026)
+
+**Trạng thái: chờ xác nhận.** Chủ dự án: gõ thiếu hoặc sai ở bất kỳ ô nào của bảng dán thì báo ngay dưới ô đó, không đợi nhập xong cả bảng. Chủ dự án chọn: luật giá + ô thiếu (ô tùy chọn để trống vẫn cho qua), câu báo nổi ngay dưới ô.
+
+- `src/core/paste-import.ts`: `SkippedRow.message` (câu nói ô hỏng vì sao hỏng, cho cả luật cũ về ngày và giá đóng cửa). Luật mới trong `readRows()`: ô mở, cao, thấp, khối lượng gõ vào mà không đọc được thì báo đúng ô (trước đây rơi về `null` như ô trống); mâu thuẫn giá của một phiên đi qua `checkRow()` của bảng WF-05, nên hai nơi nói cùng một điều (cao nhỏ hơn thấp, giá mở hoặc đóng ngoài khoảng cao thấp thì báo ở ô Giá cao nhất / Giá thấp nhất, giá không dương, khối lượng âm).
+- `PasteImportSheet.tsx` và `.module.css`: `.cellNote` nổi dưới ô hỏng khi ô đang gõ (`:focus-within`) hoặc rê chuột (trong `@media (hover: hover)`), không nới dòng vì dòng cao cố định cho cửa sổ ảo; `aria-describedby` nối ô với câu báo.
+- Test: 5 ca mới ở `paste-import.test.ts`; hai ca cũ phải đổi (`paste-import.test.ts` thêm `message`; `PasteImportSheet.test.tsx` dán giá nằm trong khoảng cao thấp của dòng).
+- **Chưa xem trên Chrome**: lần dò tự động không chạy được. Cần xem vị trí câu báo ở dòng cuối khung cuộn và ở cột ngày. Câu báo bằng tiếng Việt ở cả chế độ EN, cùng với các câu của bảng WF-05.
+- Hệ quả: dán cột giá đóng cửa đè lên chuỗi đã có OHLC mà giá nằm ngoài khoảng cao thấp thì dòng bị đánh dấu và phải sửa hoặc Bỏ qua mới nạp được.
+
 ## Rút trước hạn tính theo số ngày thực gửi (25/11/2026)
 
 **Trạng thái: chờ xác nhận.** Lỗi báo: "Thời gian chỉ nhận số nguyên tháng, trong khi ngân hàng tính lãi rút trước hạn theo số ngày thực gửi". Chủ dự án chọn: ô số ngày, chỉ sửa `rut-truoc-han`.

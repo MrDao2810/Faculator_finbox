@@ -404,6 +404,7 @@ const GridRow = memo(function GridRow({
   rowWord,
   hints,
   badColumn,
+  badNote,
   emptyMark,
   onCell,
   onBlock,
@@ -442,6 +443,8 @@ const GridRow = memo(function GridRow({
   hints: ReadonlyArray<string>;
   /** Cột đang hỏng của chính dòng này, hoặc `-1` nếu dòng không hỏng. */
   badColumn: number;
+  /** Câu nói ô hỏng vì sao hỏng, nổi ngay dưới ô khi đang gõ hoặc rê chuột vào (26/11/2026). */
+  badNote: string | undefined;
   /** Chữ mờ cho ô còn trống giữa một dòng đã có dữ liệu. */
   emptyMark: string;
   onCell: (row: number, column: number, value: string) => void;
@@ -482,6 +485,9 @@ const GridRow = memo(function GridRow({
               spellCheck={false}
               aria-label={`${labels[column] ?? ''}, ${rowWord} ${String(number)}`}
               aria-invalid={here ? true : undefined}
+              aria-describedby={
+                here && badNote !== undefined ? `${cellId(base, line, column)}-loi` : undefined
+              }
               placeholder={hints[column] ?? emptyMark}
               value={shown}
               onFocus={() => {
@@ -510,6 +516,11 @@ const GridRow = memo(function GridRow({
                 if (next instanceof HTMLInputElement) next.focus();
               }}
             />
+            {here && badNote !== undefined && (
+              <span id={`${cellId(base, line, column)}-loi`} className={styles.cellNote}>
+                {badNote}
+              </span>
+            )}
           </td>
         );
       })}
@@ -619,6 +630,15 @@ export function PasteImportSheet({
     }
     return map;
   }, [result.skipped, columns]);
+
+  /** Câu giải thích của ô hỏng, theo dòng lưới (đếm từ 0): nổi dưới chính ô ấy. */
+  const badNotes = useMemo(() => {
+    const map = new Map<number, string>();
+    for (const row of result.skipped) {
+      if (row.message !== undefined) map.set(row.line - 1, row.message);
+    }
+    return map;
+  }, [result.skipped]);
 
   /** Chỉ số dòng hỏng đầu tiên, để nút "Xem" nhảy tới. */
   const firstBad = useMemo(() => {
@@ -1440,6 +1460,7 @@ export function PasteImportSheet({
                   rowWord={rowWord}
                   hints={position === 0 && !hasInput ? hints : []}
                   badColumn={badRows.get(line) ?? -1}
+                  badNote={badNotes.get(line)}
                   emptyMark={hasInput ? emptyMark : ''}
                   onCell={setCell}
                   onBlock={applyBlock}

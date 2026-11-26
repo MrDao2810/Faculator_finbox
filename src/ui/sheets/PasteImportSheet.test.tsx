@@ -206,15 +206,15 @@ describe('PasteImportSheet — dán thêm vào lưới đã có chuỗi (29/10/2
 describe('PasteImportSheet — mẩu dán không mang ngày vẫn điền theo ô như bảng tính', () => {
   it('dán một cột giá vào cột Giá đóng cửa thì sửa giá của các phiên đang có, ngày không đổi', async () => {
     const onImport = moTam();
-    dan('Giá đóng cửa, Dòng 1', '205\n206');
+    dan('Giá đóng cửa, Dòng 1', '110\n107');
 
-    expect(giaTri('Giá đóng cửa, Dòng 1')).toBe('205');
-    expect(giaTri('Giá đóng cửa, Dòng 2')).toBe('206');
+    expect(giaTri('Giá đóng cửa, Dòng 1')).toBe('110');
+    expect(giaTri('Giá đóng cửa, Dòng 2')).toBe('107');
     expect(giaTri('Ngày, Dòng 1')).toBe('15/09');
     expect(giaTri('Ngày, Dòng 2')).toBe('14/09');
 
     await userEvent.click(nutNap(6));
-    expect(daNap(onImport).slice(-2)).toEqual(['14/09/2026 · 206', '15/09/2026 · 205']);
+    expect(daNap(onImport).slice(-2)).toEqual(['14/09/2026 · 107', '15/09/2026 · 110']);
   });
 
   it('dán ngày vào chuỗi chỉ có giá đóng cửa thì gắn ngày cho đúng phiên ấy, không thêm dòng', async () => {

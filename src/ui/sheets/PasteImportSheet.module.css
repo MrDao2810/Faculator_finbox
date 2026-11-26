@@ -528,6 +528,62 @@ td[data-xu-huong='giam'] .cell {
   color: var(--color-danger);
 }
 
+/*
+ * Câu giải thích nổi ngay DƯỚI ô hỏng (26/11/2026, chủ dự án: nhập thiếu hoặc sai thì báo dưới chính ô
+ * đó, không đợi nhập xong cả bảng). Dòng của lưới cao cố định (`ROW_H`, cửa sổ ảo dựa vào nó) nên câu
+ * này KHÔNG nới dòng: nó nổi lên trên dòng bên dưới, `pointer-events: none` để không chặn bấm vào ô
+ * dưới. Chỉ hiện khi ô đang được gõ hoặc rê chuột vào; ô hỏng còn lại vẫn có tô đỏ và dấu báo.
+ * Neo mép PHẢI (cột số dạt phải) để không tràn ra ngoài khung cuộn; cột ngày neo mép trái.
+ */
+.cellNote {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  z-index: 6;
+  display: none;
+
+  width: max-content;
+  max-width: min(18rem, 70vw);
+  padding: var(--space-1) var(--space-2);
+
+  font-size: calc(11px + var(--font-bump));
+  font-style: italic;
+  font-weight: var(--weight-regular);
+  line-height: 1.4;
+  text-align: left;
+  color: var(--color-danger);
+
+  pointer-events: none;
+  background: var(--color-surface);
+  border: 1px solid var(--color-danger);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-sm);
+}
+
+.tdDate .cellNote {
+  right: auto;
+  left: 0;
+}
+
+.grid .cellBad:focus-within {
+  z-index: 6;
+}
+
+.cellBad:focus-within > .cellNote {
+  display: block;
+}
+
+/* Rê chuột chỉ có ở máy có chuột: trên màn cảm ứng câu báo sẽ dính sau một cú chạm. */
+@media (hover: hover) {
+  .grid .cellBad:hover {
+    z-index: 6;
+  }
+
+  .cellBad:hover > .cellNote {
+    display: block;
+  }
+}
+
 .badMark {
   position: absolute;
   top: 50%;

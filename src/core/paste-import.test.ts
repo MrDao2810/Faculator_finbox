@@ -651,6 +651,7 @@ describe('parseCells() — ngày trùng, cùng luật với bảng WF-05', () =>
         reason: 'trùng ngày với một dòng khác',
         short: 'trùng ngày',
         column: 'date',
+        message: 'Ngày này đã có ở một dòng khác.',
         raw: '15/09/2026 205',
       },
     ]);
@@ -951,5 +952,56 @@ describe('guessColumns() — nhãn cột của chính sản phẩm', () => {
     expect(splitPasteTable(`${header}\n15/07/2026\t1\t2\t0,5\t1,5\t1000`).columns).toEqual([
       ...SERIES_COLUMNS,
     ]);
+  });
+});
+
+describe('parseCells() — báo ngay ô sai (26/11/2026)', () => {
+  const COT: ColumnKind[] = ['date', 'open', 'high', 'low', 'close', 'volume'];
+
+  it('đúng hàng của ảnh chủ dự án: giá đóng cao hơn giá cao nhất thì chỉ ô Giá cao nhất, kèm câu giải thích', () => {
+    const result = parseCells([['12/04/2026', '123456', '123457', '111111', '212345', '']], COT);
+
+    expect(result.rows).toHaveLength(0);
+    expect(result.skipped).toHaveLength(1);
+    const [loi] = result.skipped;
+    expect(loi?.line).toBe(1);
+    expect(loi?.column).toBe('high');
+    expect(loi?.message).toContain('Giá cao nhất');
+  });
+
+  it('khối lượng để trống vẫn cho qua: chuỗi thiếu cột phụ là chuyện bình thường', () => {
+    const result = parseCells([['12/04/2026', '100', '110', '95', '105', '']], COT);
+
+    expect(result.skipped).toEqual([]);
+    expect(result.rows).toHaveLength(1);
+  });
+
+  it('ô giá mở cửa không đọc được thì báo đúng ô ấy, không rơi về "để trống"', () => {
+    const result = parseCells([['12/04/2026', '12a3', '110', '95', '105', '1000']], COT);
+
+    expect(result.skipped[0]?.column).toBe('open');
+    expect(result.skipped[0]?.message).toBe('Không đọc được số "12a3".');
+  });
+
+  it('giá cao nhất nhỏ hơn giá thấp nhất, và khối lượng âm, đều bị chỉ đúng ô', () => {
+    const caoThap = parseCells([['12/04/2026', '', '90', '100', '95', '']], COT);
+    expect(caoThap.skipped[0]?.column).toBe('high');
+
+    const khoiLuongAm = parseCells([['12/04/2026', '100', '110', '95', '105', '-5']], COT);
+    expect(khoiLuongAm.skipped[0]?.column).toBe('volume');
+  });
+
+  it('mọi dòng bị bỏ qua đều có câu giải thích cho ô hỏng', () => {
+    const result = parseCells(
+      [
+        ['', '', '', '', '105', ''],
+        ['12/04/2026', '', '', '', '', ''],
+        ['13/04/2026', '', '', '', 'abc', ''],
+      ],
+      COT,
+    );
+
+    expect(result.skipped).toHaveLength(3);
+    for (const loi of result.skipped) expect(loi.message).toBeTruthy();
   });
 });

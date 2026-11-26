@@ -44,7 +44,7 @@
  * Toàn bộ file là hàm thuần nên test được bằng Node và không cần thư viện CSV nào.
  */
 
-import { displaySeriesDate, parseSeriesDate } from './price-series';
+import { checkRow, displaySeriesDate, parseSeriesDate } from './price-series';
 import { normalizeVi } from './registry/search';
 
 /**
@@ -140,6 +140,11 @@ export interface SkippedRow {
    * tô đúng ô thì họ nhìn một cái là thấy, và sửa tại chỗ.
    */
   column?: ColumnKind;
+  /**
+   * Câu đầy đủ nói ĐÚNG ô hỏng vì sao hỏng, để giao diện nổi ngay dưới ô đó (26/11/2026). `reason` thì
+   * viết thường, kèm cả nội dung ô, để đứng trong một danh sách; câu này viết như nói với người mới.
+   */
+  message?: string;
   /** Nội dung thô của dòng, cắt ngắn để hiện trong danh sách. */
   raw: string;
 }
@@ -893,6 +898,20 @@ export function mergeRowsByDate(
   return out;
 }
 
+/** Mã lỗi của `checkRow()` mà bộ dán cũng báo, ở ô giá và ô khối lượng. Ngày và giá đóng cửa đã có luật riêng ở trên. */
+const CHI_O_GIA: ReadonlySet<string> = new Set([
+  'NON_POSITIVE_PRICE',
+  'NEGATIVE_VOLUME',
+  'HIGH_BELOW_LOW',
+  'HIGH_NOT_HIGHEST',
+  'LOW_NOT_LOWEST',
+]);
+
+/** Tên cột cho câu lý do. */
+function tenCot(kind: ColumnKind): string {
+  return kind === 'ignore' ? 'Cột thừa' : COLUMN_LABELS[kind];
+}
+
 /** Đọc từng dòng thô thành phiên giá. Dòng nào hỏng thì rơi vào `skipped`, không ném lỗi. */
 function readRows(
   body: ReadonlyArray<TableRow>,
@@ -919,6 +938,7 @@ function readRows(
         reason: 'thiếu cột giá đóng cửa',
         short: 'thiếu giá đóng cửa',
         column: 'close',
+        message: 'Thiếu giá đóng cửa của phiên này.',
         raw: preview,
       });
       continue;
@@ -931,6 +951,7 @@ function readRows(
         reason: `giá đóng cửa không đọc được: '${closeText}'`,
         short: 'sai giá đóng cửa',
         column: 'close',
+        message: `Không đọc được số "${closeText}".`,
         raw: preview,
       });
       continue;
@@ -941,6 +962,7 @@ function readRows(
         reason: 'giá đóng cửa phải lớn hơn 0',
         short: 'giá không lớn hơn 0',
         column: 'close',
+        message: 'Giá phải là số lớn hơn 0.',
         raw: preview,
       });
       continue;
@@ -953,6 +975,7 @@ function readRows(
         reason: 'thiếu ngày',
         short: 'thiếu ngày',
         column: 'date',
+        message: 'Thiếu ngày của phiên này.',
         raw: preview,
       });
       continue;
@@ -972,6 +995,74 @@ function readRows(
         reason: `ngày không đọc được: '${date}'`,
         short: 'sai ngày',
         column: 'date',
+        message: `Không đọc được ngày "${date}".`,
+        raw: preview,
+      });
+      continue;
+    }
+
+    /*
+     * Ô giá mở, cao, thấp và khối lượng (26/11/2026, chủ dự án: một ô nhập thiếu hoặc sai thì phải báo
+     * ngay dưới chính ô đó, không đợi nhập xong cả bảng). Trước đây ô không đọc được ('12a3') rơi về
+     * `null` như ô để trống, nên một số sai im lặng biến thành "không có số". Ô để TRỐNG vẫn cho qua:
+     * chuỗi chỉ có giá đóng cửa là thứ Beta, Sharpe và VaR cần.
+     */
+    const phu: ReadonlyArray<ColumnKind> = ['open', 'high', 'low', 'volume'];
+    let hong: SkippedRow | null = null;
+    for (const kind of phu) {
+      const text = (pick(kind) ?? '').trim();
+      if (text === '' || parseCellNumber(text, numberStyle) !== null) continue;
+      hong = {
+        line: row.line,
+        reason: `${tenCot(kind)} không đọc được: '${text}'`,
+        short: `sai ${tenCot(kind).toLowerCase()}`,
+        column: kind,
+        message: `Không đọc được số "${text}".`,
+        raw: preview,
+      };
+      break;
+    }
+    if (hong !== null) {
+      skipped.push(hong);
+      continue;
+    }
+
+    /*
+     * Mâu thuẫn giữa các ô của MỘT phiên — cùng luật với `checkRow()` của bảng WF-05, để hai nơi không
+     * nói hai điều. Ô bị chỉ là ô mà câu cảnh báo nhắc tới: giá cao hơn giá mở hoặc đóng thì ô giá cao.
+     */
+    const bar = {
+      date,
+      open: optionalNumber(pick('open'), numberStyle),
+      high: optionalNumber(pick('high'), numberStyle),
+      low: optionalNumber(pick('low'), numberStyle),
+      close,
+      volume: optionalNumber(pick('volume'), numberStyle),
+    };
+    const loi = checkRow(bar).find((issue) => CHI_O_GIA.has(issue.code));
+    if (loi !== undefined) {
+      const kind: ColumnKind =
+        loi.code === 'NEGATIVE_VOLUME'
+          ? 'volume'
+          : loi.code === 'LOW_NOT_LOWEST'
+            ? 'low'
+            : loi.code === 'NON_POSITIVE_PRICE'
+              ? ((['open', 'high', 'low'] as const).find((k) => {
+                  const value = bar[k];
+                  return value !== null && value <= 0;
+                }) ?? 'high')
+              : 'high';
+      skipped.push({
+        line: row.line,
+        reason: loi.message,
+        short:
+          loi.code === 'NON_POSITIVE_PRICE'
+            ? 'giá không lớn hơn 0'
+            : loi.code === 'NEGATIVE_VOLUME'
+              ? 'khối lượng âm'
+              : 'giá cao thấp mâu thuẫn',
+        column: kind,
+        message: loi.message,
         raw: preview,
       });
       continue;
@@ -999,6 +1090,7 @@ function readRows(
         reason: 'trùng ngày với một dòng khác',
         short: 'trùng ngày',
         column: 'date',
+        message: 'Ngày này đã có ở một dòng khác.',
         raw: preview,
       });
       continue;

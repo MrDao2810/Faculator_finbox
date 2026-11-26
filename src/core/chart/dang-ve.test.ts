@@ -286,7 +286,8 @@ describe('cả Registry', () => {
       bar: 226,
       dots: 213,
       // 23 → 22 ngày 06/11/2026: Số năm của CAGR thành ô số nhận năm lẻ, trục ấy hết Bậc thang.
-      step: 22,
+      // 22 → 21 ngày 25/11/2026: Thời gian đã gửi của rút trước hạn thành ô số ngày, trục 75 đến 225 ngày quá 40 bước nên hết Bậc thang.
+      step: 21,
       signArea: 27,
       waterfall: 33,
       donut: 27,
@@ -326,7 +327,8 @@ describe('cả Registry', () => {
       line: 323,
       bar: 342,
       dots: 318,
-      step: 103,
+      // 103 → 102 ngày 25/11/2026: cùng lý do với ca chưa nạp chuỗi (ô Số ngày đã gửi).
+      step: 102,
       signArea: 46,
       waterfall: 33,
       donut: 27,

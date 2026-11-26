@@ -4971,8 +4971,8 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
   },
   'rut-truoc-han': {
     tinh: {
-      vi: 'tiền lãi thực nhận khi rút sổ 1 tỷ ₫ kỳ hạn 6 tháng sau 3 tháng',
-      en: 'the interest actually received when a 1 billion ₫ 6-month deposit is withdrawn after 3 months',
+      vi: 'tiền lãi thực nhận khi rút sổ 1 tỷ ₫ kỳ hạn 6 tháng sau 92 ngày',
+      en: 'the interest actually received when a 1 billion ₫ 6-month deposit is withdrawn after 92 days',
     },
     gan: [
       {
@@ -4990,16 +4990,16 @@ export const VI_DU_MUC: Readonly<Record<string, ViDuGiai>> = {
         },
       },
       {
-        kyHieu: 't',
+        kyHieu: 'd',
         moTa: {
-          vi: 'là 3 tháng đã gửi tính tới ngày rút',
-          en: 'is the 3 months on deposit up to the withdrawal date',
+          vi: 'là 92 ngày thực gửi tính tới ngày rút',
+          en: 'is the 92 actual days on deposit up to the withdrawal date',
         },
       },
     ],
     thaySo: {
-      vi: '1.000.000.000 × 0,1 ÷ 100 × 3 ÷ 12',
-      en: '1000000000 × 0.1 ÷ 100 × 3 ÷ 12',
+      vi: '1.000.000.000 × 0,1 ÷ 100 × 92 ÷ 365',
+      en: '1000000000 × 0.1 ÷ 100 × 92 ÷ 365',
     },
     nguon: [
       {

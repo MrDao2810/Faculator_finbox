@@ -133,7 +133,7 @@ const KY_HIEU_O_NHAP: Readonly<Record<string, Readonly<Record<string, string>>>>
   'lai-kep': { principal: 'P', rate: 'r', years: 't', perYear: 'n' },
   'lai-tien-gui': { principal: 'P', rate: 'r', months: 'T' },
   'tiet-kiem-muc-tieu': { target: 'FV', months: 'n' },
-  'rut-truoc-han': { principal: 'P', monthsHeld: 't', demandRate: 'rkkh' },
+  'rut-truoc-han': { principal: 'P', daysHeld: 'd', demandRate: 'rkkh' },
   'gui-quay-vong': {
     principal: 'P',
     shortRate: 'rn',

@@ -43,6 +43,17 @@ const SOURCE_EARLY_WITHDRAWAL: FormulaSource = {
   },
 };
 
+/**
+ * Văn bản quy định cách ngân hàng tính tiền lãi: số dư × lãi suất năm ÷ 365 × số ngày thực tế
+ * duy trì số dư. Là căn cứ để `rut-truoc-han` nhận SỐ NGÀY thực gửi chứ không phải số tháng.
+ */
+const SOURCE_INTEREST_METHOD: FormulaSource = {
+  label: {
+    vi: 'Thông tư 14/2017/TT-NHNN quy định phương pháp tính lãi trong hoạt động nhận tiền gửi, cấp tín dụng',
+    en: 'Circular 14/2017/TT-NHNN on the method of calculating interest on deposits and credit',
+  },
+};
+
 /*
  * ── 1. Lãi thực nhận khi rút trước hạn ─────────────────────────────────────────────────
  * Nhóm 'savings'. Rút trước hạn thì toàn bộ thời gian đã gửi chỉ được trả lãi không
@@ -58,13 +69,19 @@ export const RUT_TRUOC_HAN: FormulaModule = {
       vi: 'Tiền lãi thực nhận khi rút sổ tiết kiệm trước hạn - chỉ được trả theo lãi suất không kỳ hạn, mức cụ thể tuỳ từng ngân hàng.',
       en: 'The interest actually received when a term deposit is withdrawn before maturity - paid only at the demand-deposit rate, with the exact rate varying by bank.',
     },
-    latex: 'I = P \\times r_{kkh} \\times \\frac{t}{12}',
+    /*
+     * Theo NGÀY, không theo tháng (25/11/2026, phản hồi người dùng: "Thời gian chỉ nhận số nguyên
+     * tháng, trong khi ngân hàng tính lãi rút trước hạn theo số ngày thực gửi"). Thông tư
+     * 14/2017/TT-NHNN: tiền lãi = số dư × lãi suất năm ÷ 365 × số ngày thực tế. Trước đó ô là
+     * `monthsHeld` (tháng, số nguyên) và hình vẽ t ÷ 12.
+     */
+    latex: 'I = P \\times r_{kkh} \\times \\frac{d}{365}',
     expression: {
-      vi: 'Lãi thực nhận = Số tiền gửi × Lãi suất không kỳ hạn năm × Số tháng đã gửi ÷ 12',
-      en: 'Interest received = Deposit amount × Annual demand-deposit rate × Months held ÷ 12',
+      vi: 'Lãi thực nhận = Số tiền gửi × Lãi suất không kỳ hạn năm × Số ngày đã gửi ÷ 365',
+      en: 'Interest received = Deposit amount × Annual demand-deposit rate × Days held ÷ 365',
     },
     substitutionDerived: { rKkh: '{demandRate} ÷ 100' },
-    substitution: '{principal} × {rKkh} × {monthsHeld} ÷ 12',
+    substitution: '{principal} × {rKkh} × {daysHeld} ÷ 365',
     symbols: [
       {
         latex: 'I',
@@ -85,17 +102,17 @@ export const RUT_TRUOC_HAN: FormulaModule = {
         },
       },
       {
-        latex: 't',
+        latex: 'd',
         meaning: {
-          vi: 'thời gian đã gửi tính tới ngày rút, tháng',
-          en: 'time held up to the withdrawal date, months',
+          vi: 'số ngày thực gửi tính tới ngày rút, ngày',
+          en: 'actual days held up to the withdrawal date, days',
         },
       },
       {
-        latex: '12',
+        latex: '365',
         meaning: {
-          vi: 'số tháng một năm, quy lãi suất năm về từng tháng',
-          en: 'months in a year, scaling the annual rate to months',
+          vi: 'số ngày một năm, ngân hàng quy lãi suất năm về từng ngày theo mốc này',
+          en: 'days in a year, the basis banks use to scale the annual rate to one day',
         },
       },
     ],
@@ -191,22 +208,15 @@ export const RUT_TRUOC_HAN: FormulaModule = {
           },
         },
       ),
-      sliderVar(
-        'monthsHeld',
-        { vi: 'Thời gian đã gửi (t)', en: 'Time held (t)' },
-        'tháng',
-        5,
-        0,
-        360,
-        1,
-        {
-          integer: true,
-          description: {
-            vi: 'Số tháng đã gửi tính tới ngày rút.',
-            en: 'The number of months held up to the withdrawal date.',
-          },
+      numberVar('daysHeld', { vi: 'Số ngày đã gửi (d)', en: 'Days held (d)' }, 'ngày', 150, {
+        min: 0,
+        max: 10_950,
+        integer: true,
+        description: {
+          vi: 'Số ngày thực gửi, đếm từ ngày gửi tới ngày rút.',
+          en: 'The actual number of days on deposit, counted from the deposit date to the withdrawal date.',
         },
-      ),
+      }),
       numberVar(
         'demandRate',
         { vi: 'Lãi suất không kỳ hạn / năm (rkkh)', en: 'Demand-deposit rate / year (rdemand)' },
@@ -233,30 +243,30 @@ export const RUT_TRUOC_HAN: FormulaModule = {
         en: 'Use it when you suddenly need cash partway through a term and want to know how much interest you would still get by closing your savings deposit before maturity.',
       },
       howToRead: {
-        vi: 'So với tiền lãi tính theo lãi suất ghi trên sổ cho đúng số tháng đã gửi: con số này thấp hơn bao nhiêu thì bạn bỏ lại bấy nhiêu tiền lãi vì rút sớm. Kết quả 0 ₫ nghĩa là chưa gửi đủ tháng nào hoặc ngân hàng không trả lãi không kỳ hạn.',
-        en: 'Compared with the interest the contract rate of your deposit would pay for the same months held: the gap between the two is the interest you give up by withdrawing early. A result of 0 ₫ means not a single full month has passed, or the bank pays no interest on demand deposits.',
+        vi: 'So với tiền lãi tính theo lãi suất ghi trên sổ cho đúng số ngày đã gửi: con số này thấp hơn bao nhiêu thì bạn bỏ lại bấy nhiêu tiền lãi vì rút sớm. Kết quả 0 ₫ nghĩa là rút ngay trong ngày gửi hoặc ngân hàng không trả lãi không kỳ hạn.',
+        en: 'Compared with the interest the contract rate of your deposit would pay for the same days held: the gap between the two is the interest you give up by withdrawing early. A result of 0 ₫ means the money was withdrawn on the day it was deposited, or the bank pays no interest on demand deposits.',
       },
       commonMistakes: {
-        vi: 'Tưởng gửi được gần hết kỳ hạn thì lãi mất ít. Rút trước hạn dù chỉ một ngày, cả quãng đã gửi vẫn chỉ được trả lãi không kỳ hạn; ngân hàng còn tính theo số ngày thực gửi nên con số thực tế có thể lệch nhẹ so với ước tính theo tháng.',
-        en: 'Assuming that holding almost the full term means losing little interest. Withdraw early by even one day and the entire holding period is still paid only at the demand-deposit rate; banks also calculate by actual days held, so the real figure may differ slightly from a month-based estimate.',
+        vi: 'Tưởng gửi được gần hết kỳ hạn thì lãi mất ít. Rút trước hạn dù chỉ một ngày, cả quãng đã gửi vẫn chỉ được trả lãi không kỳ hạn. Đếm số tháng rồi nhân 30 cũng làm lệch kết quả, vì tháng có 28 đến 31 ngày; hãy đếm đúng số ngày thực gửi.',
+        en: 'Assuming that holding almost the full term means losing little interest. Withdraw early by even one day and the entire holding period is still paid only at the demand-deposit rate. Counting months and multiplying by 30 also skews the result, since months have 28 to 31 days; count the actual days on deposit.',
       },
     },
     example: {
       title: {
-        vi: 'Sổ 1 tỷ ₫ kỳ hạn 6 tháng lãi 8,1%/năm, cần tiền gấp nên rút sau 3 tháng, năm 2026',
-        en: 'A 1 billion VND deposit with a 6-month term at 8.1%/year, withdrawn after 3 months for an urgent need, 2026',
+        vi: 'Sổ 1 tỷ ₫ kỳ hạn 6 tháng lãi 8,1%/năm, cần tiền gấp nên rút sau 92 ngày, năm 2026',
+        en: 'A 1 billion VND deposit with a 6-month term at 8.1%/year, withdrawn after 92 days for an urgent need, 2026',
       },
       inputs: {
         principal: 1_000_000_000,
         contractRate: 8.1,
         termMonths: 6,
-        monthsHeld: 3,
+        daysHeld: 92,
         demandRate: 0.1,
       },
-      expected: 250_000,
+      expected: 252_054.79,
       note: {
-        vi: 'So với 20.250.000 ₫ tiền lãi ba tháng tính theo mức 8,1%/năm ghi trên sổ: rút sớm chỉ còn 250.000 ₫, tức bỏ lại 20.000.000 ₫, bằng 98,77% tiền lãi của ba tháng đã gửi.',
-        en: 'Compared with the 20,250,000 VND that three months would earn at the contract rate of 8.1%/year: withdrawing early leaves only 250,000 VND, giving up 20,000,000 VND, 98.77% of the interest for the three months held.',
+        vi: 'So với 20.416.438,36 ₫ tiền lãi 92 ngày tính theo mức 8,1%/năm ghi trên sổ: rút sớm chỉ còn 252.054,79 ₫, tức bỏ lại 20.164.383,57 ₫, bằng 98,77% tiền lãi của 92 ngày đã gửi.',
+        en: 'Compared with the 20,416,438.36 VND that 92 days would earn at the contract rate of 8.1%/year: withdrawing early leaves only 252,054.79 VND, giving up 20,164,383.57 VND, 98.77% of the interest for the 92 days held.',
       },
       source: {
         vi: 'Thông tư 04/2022/TT-NHNN hiệu lực 01/08/2022; lãi suất không kỳ hạn 0,1%/năm niêm yết năm 2026.',
@@ -265,15 +275,15 @@ export const RUT_TRUOC_HAN: FormulaModule = {
     },
     tests: [
       {
-        name: 'rút sau 5 tháng chỉ nhận lãi không kỳ hạn',
+        name: 'rút sau 150 ngày chỉ nhận lãi không kỳ hạn',
         inputs: {
           principal: 100_000_000,
           contractRate: 5.5,
           termMonths: 12,
-          monthsHeld: 5,
+          daysHeld: 150,
           demandRate: 0.1,
         },
-        expected: 41_666.67,
+        expected: 41_095.89,
         tolerance: 1,
       },
       {
@@ -282,7 +292,7 @@ export const RUT_TRUOC_HAN: FormulaModule = {
           principal: 100_000_000,
           contractRate: 5.5,
           termMonths: 12,
-          monthsHeld: 0,
+          daysHeld: 0,
           demandRate: 0.1,
         },
         expected: 0,
@@ -293,43 +303,44 @@ export const RUT_TRUOC_HAN: FormulaModule = {
           principal: 100_000_000,
           contractRate: 5.5,
           termMonths: 12,
-          monthsHeld: 12,
+          daysHeld: 365,
           demandRate: 0.1,
         },
         expected: null,
         expectedWarning: 'MEANINGLESS',
       },
     ],
-    source: [SOURCE_EARLY_WITHDRAWAL, SOURCE_CORPORATE_FINANCE],
+    source: [SOURCE_EARLY_WITHDRAWAL, SOURCE_INTEREST_METHOD, SOURCE_CORPORATE_FINANCE],
   },
   calc: (v) => {
-    if (v('monthsHeld') >= v('termMonths')) {
+    /* Kỳ hạn ghi trên sổ theo tháng; quy ra ngày theo năm 365 ngày để so với số ngày đã gửi. */
+    if (v('daysHeld') >= (v('termMonths') * 365) / 12) {
       return {
         value: null,
         unit: '₫',
         warning: atField(
           meaningless(
             {
-              vi: 'Thời gian đã gửi bằng hoặc vượt kỳ hạn nên đây không còn là rút trước hạn.',
-              en: 'The holding period equals or exceeds the term, so this is no longer an early withdrawal.',
+              vi: 'Số ngày đã gửi bằng hoặc vượt kỳ hạn nên đây không còn là rút trước hạn.',
+              en: 'The days held equal or exceed the term, so this is no longer an early withdrawal.',
             },
             {
               vi: 'Dùng công thức Lãi tiền gửi có kỳ hạn để tính lãi khi gửi đủ kỳ.',
               en: 'Use the Term deposit interest formula to calculate interest for a full term.',
             },
           ),
-          'monthsHeld',
+          'daysHeld',
           {
-            vi: 'Thời gian đã gửi phải ngắn hơn Kỳ hạn hợp đồng.',
-            en: 'Time held must be shorter than the contract term.',
+            vi: 'Số ngày đã gửi phải ít hơn số ngày của Kỳ hạn hợp đồng.',
+            en: 'Days held must be fewer than the days in the contract term.',
           },
         ),
       };
     }
 
     const principal = v('principal');
-    const received = ((principal * v('demandRate')) / 100 / 12) * v('monthsHeld');
-    const atContractRate = ((principal * v('contractRate')) / 100 / 12) * v('monthsHeld');
+    const received = ((principal * v('demandRate')) / 100 / 365) * v('daysHeld');
+    const atContractRate = ((principal * v('contractRate')) / 100 / 365) * v('daysHeld');
 
     return ok(received, '₫', {
       extras: {

@@ -4,6 +4,15 @@
 
 Theo dõi tiến độ theo bảng Estimate WBS v7. Mỗi đợt một mục.
 
+## Rút trước hạn tính theo số ngày thực gửi (25/11/2026)
+
+**Trạng thái: chờ xác nhận.** Lỗi báo: "Thời gian chỉ nhận số nguyên tháng, trong khi ngân hàng tính lãi rút trước hạn theo số ngày thực gửi". Chủ dự án chọn: ô số ngày, chỉ sửa `rut-truoc-han`.
+
+- `src/core/formulas/planning.ts`: ô `monthsHeld` (thanh trượt tháng) thành `daysHeld` "Số ngày đã gửi (d)", ô số nguyên 0 đến 10.950, mặc định 150. Hình `I = P × rkkh × d / 365` (Thông tư 14/2017/TT-NHNN, thêm vào nguồn). Điều kiện rút trước hạn: số ngày < kỳ hạn (tháng) × 365 ÷ 12. Ví dụ đổi sang rút sau 92 ngày: 252.054,79 ₫. Sửa Cách đọc, Hiểu sai, test.
+- Đi kèm: ví dụ (`vi-du/items.ts`), câu Q405 (182 ngày, 99.726,03 ₫), hướng dẫn ô nhập, 4 đoạn "Đọc biểu đồ" của trục mới, ba câu trả lời Hỏi đáp có số tính lại theo ngày, khung cách tính (`d`, `365`), bảng ký hiệu ô (`input-symbols.test.ts`), đếm Bậc thang ở `dang-ve.test.ts` (22 → 21, 103 → 102).
+- Hệ quả: phép tính đã lưu hoặc link `?so=` cũ của công thức này mang `monthsHeld` nên mở lại thiếu ô số ngày (rơi về mặc định 150).
+- Kiểm chứng: tsc, eslint, test `src/core` + `src/application` + `src/ui` + `src/app` xanh. Chưa xem trên Chrome.
+
 ## Nối thật các ô "Xem công thức" (25/11/2026)
 
 **Trạng thái: đã nối 14 ô còn lại sau đợt thử EPS cơ bản → P/E, chờ chủ dự án xem.** Hai ô KHÔNG nối: Beta → CAPM và Beta → Treynor (Beta cần chuỗi giá, mặc định không có, nên CAPM và cả chuỗi Gordon/WACC/Biên an toàn sẽ mở ra bằng lỗi kế thừa). Tổng 17 công thức nhận số; `MERGED_CARDS` 64 → 53; 9/111 trang nạp thêm nhóm; trang nặng nhất `wacc`/`gia-tri-noi-tai-fcff` 309 kB First Load JS. Test mới: quét cả 17 receiver ở Nâng cao, kết quả mặc định là con số. Chưa làm: khớp ví dụ/bài tập/Thay số của 11 receiver mới với số mặc định của chuỗi, kiểm Chrome thật.

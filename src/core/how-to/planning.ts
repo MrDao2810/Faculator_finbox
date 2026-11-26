@@ -11,11 +11,11 @@ export const HOW_TO_PLANNING: Readonly<Record<string, FormulaHowTo>> = {
       I: 'ket-qua',
       P: 'nhap-tho',
       'r_{kkh}': 'nhap-tho',
-      t: 'nhap-tho',
-      '12': 'hang-so',
+      d: 'nhap-tho',
+      '365': 'hang-so',
     },
     whyNone:
-      'Số tiền gửi, lãi suất không kỳ hạn và số tháng đã gửi đều là số gõ thẳng, phép quy lãi năm về tháng đã hiện trọn trong hình.',
+      'Số tiền gửi, lãi suất không kỳ hạn và số ngày đã gửi đều là số gõ thẳng, phép quy lãi năm về ngày đã hiện trọn trong hình.',
   },
 
   /*

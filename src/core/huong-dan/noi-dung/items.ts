@@ -3698,18 +3698,18 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
       },
       termMonths: {
         layODau: {
-          vi: 'Kỳ hạn ghi trên sổ tiết kiệm, không phải số tháng đã gửi.',
-          en: 'The term shown on your savings deposit, not the number of months already deposited.',
+          vi: 'Kỳ hạn ghi trên sổ tiết kiệm, không phải số ngày đã gửi.',
+          en: 'The term shown on your savings deposit, not the number of days already deposited.',
         },
       },
-      monthsHeld: {
+      daysHeld: {
         layODau: {
-          vi: 'Số tháng thực tế đã gửi tính tới ngày rút.',
-          en: 'The actual number of months deposited up to the day you withdraw.',
+          vi: 'Đếm số ngày thực gửi, từ ngày gửi tới ngày rút.',
+          en: 'Count the actual days on deposit, from the deposit date to the day you withdraw.',
         },
         luuY: {
-          vi: 'Phải nhỏ hơn kỳ hạn hợp đồng, nếu không thì không phải rút trước hạn.',
-          en: 'Must be shorter than the Contract term, otherwise it is not an early withdrawal.',
+          vi: 'Phải ít hơn số ngày của kỳ hạn hợp đồng, nếu không thì không phải rút trước hạn.',
+          en: 'Must be fewer than the days in the Contract term, otherwise it is not an early withdrawal.',
         },
       },
       demandRate: {
@@ -3724,8 +3724,8 @@ export const BAI_RIENG: Readonly<Record<string, BaiRieng>> = {
       },
     },
     docKetQua: {
-      vi: 'Số tiền lãi thực nhận, tính theo lãi suất không kỳ hạn cho số tháng đã gửi.',
-      en: 'The interest you actually receive, paid at the demand-deposit rate for the months you have already deposited.',
+      vi: 'Số tiền lãi thực nhận, tính theo lãi suất không kỳ hạn cho số ngày đã gửi.',
+      en: 'The interest you actually receive, paid at the demand-deposit rate for the days you have already deposited.',
     },
     deSai: {
       vi: 'Tưởng được hưởng lãi suất hợp đồng cho phần thời gian đã gửi.',

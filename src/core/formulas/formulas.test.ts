@@ -1124,7 +1124,7 @@ describe('không ô nhập nào là một điều khiển chết', () => {
       const chuan = manThay(runFormula(formula, goc, ctx));
 
       for (const bien of spec.variables) {
-        /* 11 điểm chứ 7: ô có ngưỡng hẹp (`rut-truoc-han.monthsHeld`) dễ lọt qua lưới thưa. */
+        /* 11 điểm chứ 7: ô có ngưỡng hẹp (`rut-truoc-han.daysHeld`) dễ lọt qua lưới thưa. */
         const thu =
           bien.options !== undefined && bien.options.length > 0
             ? bien.options.map((o) => o.value)

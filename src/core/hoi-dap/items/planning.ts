@@ -138,8 +138,8 @@ export const HOI_DAP_PLANNING: Readonly<Record<string, ReadonlyArray<CauHoiThuon
         vietnam: true,
       },
       traLoi: {
-        vi: 'Câu trả lời trong chủ đề: dù chỉ còn 2 đến 3 tháng, cả quãng đã gửi vẫn tính theo lãi suất không kỳ hạn, gần như mất hết lãi. Công thức tính đúng như vậy: sổ 100 triệu ₫ kỳ hạn 12 tháng lãi 5,5%/năm, rút sau 9 tháng với lãi không kỳ hạn 0,1%/năm, nhận 75.000 ₫ thay vì 4.125.000 ₫ theo lãi trên sổ cho 9 tháng ấy.',
-        en: 'The answer in the thread: even with only 2 to 3 months left, the whole period held earns only the demand-deposit rate, so nearly all the interest is lost. The formula works the same way: a 100 million ₫ 12-month deposit at 5.5%/year withdrawn after 9 months, with a 0.1%/year demand rate, earns 75,000 ₫ instead of the 4,125,000 ₫ the contract rate pays for those 9 months.',
+        vi: 'Câu trả lời trong chủ đề: dù chỉ còn 2 đến 3 tháng, cả quãng đã gửi vẫn tính theo lãi suất không kỳ hạn, gần như mất hết lãi. Công thức tính đúng như vậy: sổ 100 triệu ₫ kỳ hạn 12 tháng lãi 5,5%/năm, rút sau 273 ngày với lãi không kỳ hạn 0,1%/năm, nhận 74.794,52 ₫ thay vì 4.113.698,63 ₫ theo lãi trên sổ cho 273 ngày ấy.',
+        en: 'The answer in the thread: even with only 2 to 3 months left, the whole period held earns only the demand-deposit rate, so nearly all the interest is lost. The formula works the same way: a 100 million ₫ 12-month deposit at 5.5%/year withdrawn after 273 days, with a 0.1%/year demand rate, earns 74,794.52 ₫ instead of the 4,113,698.63 ₫ the contract rate pays for those 273 days.',
       },
       nguonTraLoi: [
         {
@@ -161,8 +161,8 @@ export const HOI_DAP_PLANNING: Readonly<Record<string, ReadonlyArray<CauHoiThuon
         vietnam: true,
       },
       traLoi: {
-        vi: 'Khi rút trước hạn, cả quãng đã gửi chỉ được hưởng lãi không kỳ hạn, tức con số công thức trả về: sổ 1 tỷ ₫ lãi 8,1%/năm rút sau 3 tháng chỉ được hưởng 250.000 ₫ trên 20.250.000 ₫ lãi theo sổ. Nếu sổ đã trả lãi hằng tháng theo mức ghi trên sổ, phần đã nhận vượt con số ấy được tính lại khi tất toán theo điều khoản của sổ; công thức không mô phỏng bước này.',
-        en: 'On early withdrawal the whole period held earns only the demand-deposit rate, which is the figure the formula returns: 1 billion ₫ at 8.1%/year withdrawn after 3 months is entitled to 250,000 ₫ out of 20,250,000 ₫ of contract interest. If the deposit has already paid monthly interest at the contract rate, what you received above that figure is settled at closing under the deposit terms; the formula does not model that step.',
+        vi: 'Khi rút trước hạn, cả quãng đã gửi chỉ được hưởng lãi không kỳ hạn, tức con số công thức trả về: sổ 1 tỷ ₫ lãi 8,1%/năm rút sau 92 ngày chỉ được hưởng 252.054,79 ₫ trên 20.416.438,36 ₫ lãi theo sổ. Nếu sổ đã trả lãi hằng tháng theo mức ghi trên sổ, phần đã nhận vượt con số ấy được tính lại khi tất toán theo điều khoản của sổ; công thức không mô phỏng bước này.',
+        en: 'On early withdrawal the whole period held earns only the demand-deposit rate, which is the figure the formula returns: 1 billion ₫ at 8.1%/year withdrawn after 92 days is entitled to 252,054.79 ₫ out of 20,416,438.36 ₫ of contract interest. If the deposit has already paid monthly interest at the contract rate, what you received above that figure is settled at closing under the deposit terms; the formula does not model that step.',
       },
     },
   ],
@@ -202,8 +202,8 @@ export const HOI_DAP_PLANNING: Readonly<Record<string, ReadonlyArray<CauHoiThuon
       },
       tuSoan: true,
       traLoi: {
-        vi: 'Không. Công thức so ở mốc đáo hạn của sổ kỳ dài; rút trước hạn thì sổ ấy chỉ được lãi không kỳ hạn. Ví dụ sổ 1 tỷ ₫ kỳ hạn 12 tháng lãi 6,8%/năm rút sau 6 tháng, lãi không kỳ hạn 0,1%/năm, chỉ nhận 500.000 ₫; xem công thức Lãi thực nhận khi rút trước hạn.',
-        en: 'No. The formula compares at the maturity of the long deposit; withdrawn early, that deposit earns only the demand-deposit rate. For example, 1 billion ₫ in a 12-month deposit at 6.8%/year withdrawn after 6 months, with a 0.1%/year demand rate, earns just 500,000 ₫; see the Interest received on early withdrawal formula.',
+        vi: 'Không. Công thức so ở mốc đáo hạn của sổ kỳ dài; rút trước hạn thì sổ ấy chỉ được lãi không kỳ hạn. Ví dụ sổ 1 tỷ ₫ kỳ hạn 12 tháng lãi 6,8%/năm rút sau 182 ngày, lãi không kỳ hạn 0,1%/năm, chỉ nhận 498.630,14 ₫; xem công thức Lãi thực nhận khi rút trước hạn.',
+        en: 'No. The formula compares at the maturity of the long deposit; withdrawn early, that deposit earns only the demand-deposit rate. For example, 1 billion ₫ in a 12-month deposit at 6.8%/year withdrawn after 182 days, with a 0.1%/year demand rate, earns just 498,630.14 ₫; see the Interest received on early withdrawal formula.',
       },
     },
   ],

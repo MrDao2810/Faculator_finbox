@@ -3237,8 +3237,8 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
     kind: 'quy-uoc',
     evidence: 'tinh-toan',
     prompt: {
-      vi: 'Gửi 200 triệu ₫ kỳ hạn 12 tháng lãi 6%/năm, nhưng rút ở tháng thứ 6. Hãy đặt đúng ba số vào vị trí của công thức lãi rút trước hạn.',
-      en: 'A 200 million ₫ deposit for 12 months at 6% is withdrawn in month 6. Put the right three numbers into the slots of the early-withdrawal formula.',
+      vi: 'Gửi 200 triệu ₫ kỳ hạn 12 tháng lãi 6%/năm, nhưng rút sau 182 ngày. Hãy đặt đúng ba số vào vị trí của công thức lãi rút trước hạn.',
+      en: 'A 200 million ₫ deposit for 12 months at 6% is withdrawn after 182 days. Put the right three numbers into the slots of the early-withdrawal formula.',
     },
     facts: [
       {
@@ -3249,42 +3249,45 @@ export const TINH_TOAN: ReadonlyArray<QuizItem> = [
         label: { vi: 'Lãi suất theo hợp đồng', en: 'Contract rate' },
         value: { vi: '6%/năm', en: '6% a year' },
       },
-      { label: { vi: 'Đã gửi được', en: 'Months held' }, value: { vi: '6 tháng', en: '6 months' } },
+      { label: { vi: 'Đã gửi được', en: 'Days held' }, value: { vi: '182 ngày', en: '182 days' } },
       {
         label: { vi: 'Lãi suất không kỳ hạn', en: 'Demand-deposit rate' },
         value: { vi: '0,1%/năm', en: '0.1% a year' },
       },
     ],
-    expected: 100000,
+    expected: 99726.03,
     tolerance: { kind: 'tuyet-doi', value: 1 },
     unit: { vi: '₫', en: '₫' },
     worked: {
-      vi: 'Lãi thực nhận = [200.000.000] × [0,1] ÷ 100 × [6] ÷ 12',
-      en: 'Interest received = [200000000] × [0.1] ÷ 100 × [6] ÷ 12',
+      vi: 'Lãi thực nhận = [200.000.000] × [0,1] ÷ 100 × [182] ÷ 365',
+      en: 'Interest received = [200000000] × [0.1] ÷ 100 × [182] ÷ 365',
     },
     verify: {
       inputs: {
         principal: 200000000,
         contractRate: 6,
         termMonths: 12,
-        monthsHeld: 6,
+        daysHeld: 182,
         demandRate: 0.1,
       },
-      expected: 100000,
+      expected: 99726.03,
       tolerance: 1,
     },
     explain: {
-      vi: 'Rút trước hạn thì TOÀN BỘ thời gian đã gửi bị tính lại theo lãi suất không kỳ hạn, chứ không phải chỉ phần còn thiếu: 200.000.000 nhân 0,1% nhân 6 chia 12 bằng 100.000 ₫. So với 6.000.000 ₫ lẽ ra nhận được nếu giữ đủ sáu tháng theo lãi hợp đồng, khoản mất đi là 5.900.000 ₫. Kết quả 6.000.000 ₫ là tin rằng vẫn được hưởng lãi hợp đồng cho phần đã gửi. 3.000.000 ₫ là cắt một nửa lãi như một khoản phạt. 200.000 ₫ là tính đủ 12 tháng theo lãi không kỳ hạn.',
-      en: 'On an early withdrawal the ENTIRE period held is repriced at the demand-deposit rate, not just the missing part: 200,000,000 times 0.1% times 6 over 12 gives 100,000 ₫. Against the 6,000,000 ₫ that six months at the contract rate would have paid, 5,900,000 ₫ is given up. A result of 6,000,000 ₫ assumes the contract rate still applies to the months held. 3,000,000 ₫ halves the interest as a penalty. 200,000 ₫ applies the demand-deposit rate for a full twelve months.',
+      vi: 'Rút trước hạn thì TOÀN BỘ thời gian đã gửi bị tính lại theo lãi suất không kỳ hạn, chứ không phải chỉ phần còn thiếu: 200.000.000 nhân 0,1% nhân 182 chia 365 bằng 99.726,03 ₫. So với 5.983.561,64 ₫ lẽ ra nhận được cho 182 ngày ấy theo lãi hợp đồng, khoản mất đi là 5.883.835,61 ₫. Kết quả 5.983.561,64 ₫ là tin rằng vẫn được hưởng lãi hợp đồng cho phần đã gửi. 2.991.780,82 ₫ là cắt một nửa lãi như một khoản phạt. 200.000 ₫ là tính đủ 365 ngày theo lãi không kỳ hạn.',
+      en: 'On an early withdrawal the ENTIRE period held is repriced at the demand-deposit rate, not just the missing part: 200,000,000 times 0.1% times 182 over 365 gives 99,726.03 ₫. Against the 5,983,561.64 ₫ that those 182 days would have paid at the contract rate, 5,883,835.61 ₫ is given up. A result of 5,983,561.64 ₫ assumes the contract rate still applies to the days held. 2,991,780.82 ₫ halves the interest as a penalty. 200,000 ₫ applies the demand-deposit rate for a full 365 days.',
     },
     giai: {
       tinh: { vi: 'Lãi thực nhận khi rút trước hạn', en: 'Interest received on early withdrawal' },
-      thaySo: { vi: '200.000.000 × 0,1 ÷ 100 × 6 ÷ 12', en: '200000000 × 0.1 ÷ 100 × 6 ÷ 12' },
-      ketQua: { vi: '100.000 ₫', en: '100000 ₫' },
+      thaySo: {
+        vi: '200.000.000 × 0,1 ÷ 100 × 182 ÷ 365',
+        en: '200000000 × 0.1 ÷ 100 × 182 ÷ 365',
+      },
+      ketQua: { vi: '99.726,03 ₫', en: '99726.03 ₫' },
       gan: [
         { kyHieu: 'P', giaTri: { vi: '200.000.000', en: '200000000' } },
         { kyHieu: 'r_{kkh}', giaTri: { vi: '0,1', en: '0.1' } },
-        { kyHieu: 't', giaTri: { vi: '6', en: '6' } },
+        { kyHieu: 'd', giaTri: { vi: '182', en: '182' } },
       ],
     },
     source: {

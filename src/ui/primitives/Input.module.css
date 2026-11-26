@@ -254,8 +254,16 @@
    * đệm, nên ở thẻ gộp nó thành một khung dày lồng trong viền thẻ; chủ dự án: _"cho border bên ngoài
    * mỏng lại, đang quá dày"_. Vẫn còn một dấu hiệu đang gõ ở ô nào, chỉ mảnh hơn.
    */
+  /*
+   * Vòng vẽ BÊN TRONG khung (`inset`), không bên ngoài (26/11/2026). Chủ dự án quay video: gõ xong rời ô
+   * mà vẫn sót một vạch ngang trên đầu ô và một vạch dọc bên phải, tức hai cạnh của vòng focus. Vòng
+   * ngoài `box-shadow: 0 0 0 1px` tràn ra khỏi hộp của `.control` (vùng lề âm của luật `margin: -2px
+   * -8px` ở dưới), và Chrome có GPU không luôn vẽ lại phần tràn ấy khi ô mất focus. Vòng `inset` nằm
+   * trọn trong hộp nên vùng vẽ lại luôn phủ hết nó. Không tái hiện được bằng Chrome headless, nên đây là
+   * cách chữa theo nguyên nhân suy ra, chưa đo được trên máy có lỗi.
+   */
   .compact .control:focus-within {
-    box-shadow: 0 0 0 1px var(--color-focus);
+    box-shadow: inset 0 0 0 1px var(--color-focus);
   }
 
   /*
